@@ -3,7 +3,7 @@
 Living checklist of **prod `apps/web` → Nuclear tahti-web POC**.  
 Companion tables: [FEATURES.md](./FEATURES.md). Mock offline paths: [MOCKS.md](./MOCKS.md).
 
-**Last audited:** 2026-08-12 against monorepo routes under `apps/web/src/app` + public/me APIs.
+**Last audited:** 2026-08-22 against monorepo routes under `apps/web/src/app` + public/me APIs.
 
 ---
 
@@ -29,15 +29,15 @@ Ordered by listener/artist value × API readiness:
 2. [x] **Stats plays detail** — `GET /api/me/stats/plays` time series on `/studio/stats`
 3. [x] **Account security (TOTP)** — `/api/me/totp/*` in Settings → Account
 4. [x] **Venue register** — `POST /api/v1/venues` at `/venues/register`
-5. **Channel chat hardening** — fail closed on join failure in prod (no silent mock-send); captcha rail parity still open
+5. [x] **Channel chat hardening** — fail closed on join failure in prod; hCaptcha and rail parity shipped
 6. [ ] **Sources OAuth polish** — live connect is href-only; in-app connect is mock; live Preview disabled
 7. [ ] **Stash share links** — `POST /api/me/stash/:id/share` + revoke (UI: disabled Share + callout on `/studio/stash`)
-8. [ ] **Membership purchase** — `/signup/payment` Stripe checkout (Account callout)
-9. [ ] **Distribution / radio slots / moderate** — listed on Studio home as not in this client
+8. [x] **Membership purchase** — `/signup/payment` Stripe checkout and Account entry point
+9. [x] **Distribution / radio slots / moderate** — live API-backed Studio surfaces
 10. [x] **Full Three.js visualizer presets** — ten distinct analyser-reactive scenes, lazy-loaded outside the initial listen bundle
 11. [ ] **Multitrack timeline editing** — editor callout + map inventory
 12. [ ] **Press-kit gallery upload + member invites** — disabled actions + Settings callouts
-13. [ ] **Listener-only dashboard** — non-artist `/dashboard` home
+13. [x] **Listener-only dashboard** — non-artists route to My Library
 14. [ ] **Production cutover** — replace `apps/web` listen/studio with this client
 
 **UX honesty / map:** `/more` (Tahti map) surfaces port backlog + mock inventory from `portInventory.ts` (synced with this file).
@@ -69,7 +69,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | Dev silent mock fallback          | When API down + `VITE_ALLOW_MOCK_FALLBACK` (default on in Vite dev)                          | `VITE_ALLOW_MOCK_FALLBACK=0` for strict live |
 | Sources OAuth “Connect”           | In-app toggle only under FORCE_MOCK; live uses external href                                 | Complete OAuth return handling in POC        |
 | Spotify / SoundCloud stream URLs  | Live Preview **disabled** (DEMO_MP3 only under FORCE_MOCK)                                   | Wire real preview / import playables         |
-| Channel chat                      | Fail closed when join fails (prod); mock send only under FORCE_MOCK; captcha rail still thin | Finish captcha parity                        |
+| Channel chat                      | Fail closed when join fails (prod); mock send only under FORCE_MOCK; hCaptcha powers both chat surfaces | Live soak testing                            |
 | Themes                            | Nuclear local presets (`mock-ok`)                                                            | Keep — not a Tahti API                       |
 | Help / legal                      | Static POC copy + prod links                                                                 | Optional: fetch help CMS later               |
 | Studio home / Account / Settings  | Honest callouts + disabled dead actions; extras still link-out                               | Port remaining settings APIs                 |
@@ -78,7 +78,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | Pro editor                        | Partial vs prod multitrack — callout on editor                                               | Timeline + export parity                     |
 | Stash shares                      | Upload/list/play/delete done; **Share disabled** + notice                                    | Share/revoke APIs exist                      |
 | Feature map `/more`, Screen atlas | Port inventory panel + doc chrome (`mock-ok`)                                                | Keep                                         |
-| Board `/admin/*`                  | `out-of-scope`                                                                               | Stay on prod                                 |
+| Board `/admin/*`                  | 22 API-backed pages; some production detail and bulk operations remain scope-trimmed          | Continue detail-page parity                  |
 
 ---
 
@@ -103,17 +103,17 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | Prod                         | POC                | Status               |
 | ---------------------------- | ------------------ | -------------------- |
 | Login / TOTP / join / verify | matching           | `done`               |
-| `/signup/payment` membership | —                  | `missing`            |
-| Password change (if any)     | —                  | `missing` / rare API |
+| `/signup/payment` membership | matching            | `done`               |
+| Password recovery            | forgot/reset routes | `done`               |
 | TOTP setup/disable           | Settings → Account | `done`               |
-| `/setup-password`            | —                  | `missing`            |
+| `/setup-password`            | matching            | `done`               |
 
 ### Listener
 
 | Prod                                | POC        | Status    |
 | ----------------------------------- | ---------- | --------- |
 | Follow / fan sub / DMs / governance | matching   | `done`    |
-| Listener dashboard                  | —          | `missing` |
+| Listener dashboard                  | `/library` | `done`    |
 | Server-side favorites library       | local only | `partial` |
 
 ### Artist studio
@@ -124,7 +124,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | Stash                                                             | `/studio/stash`              | `partial` → upload/delete done; shares still missing |
 | Stats + detail/plays                                              | `/studio/stats`              | `done` (plays series; no map viz)                    |
 | Editor                                                            | `/studio/editor`             | `partial`                                            |
-| Distribution, radio slots, moderate, insights, events, embeds mgr | —                            | `missing`                                            |
+| Distribution, radio slots, moderate                                | matching                     | `done`                                               |
 | Newsletter compose                                                | `/studio/updates`            | `done` (lite)                                        |
 | Press kit / members / moderators                                  | settings sections + link-out | `partial`                                            |
 

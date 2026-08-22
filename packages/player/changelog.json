@@ -1,6 +1,18 @@
 [
   {
     "date": "2026-08-22T00:00",
+    "description": "Account now links directly to in-client membership checkout, password recovery, and security settings instead of sending users to stale production link-outs.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
     "description": "Admin user management now has an organized master-detail workspace for viewing account activity, editing access and membership, handling suspensions, opening profiles, and messaging users directly.",
     "type": "feature",
     "contributors": ["jani"],

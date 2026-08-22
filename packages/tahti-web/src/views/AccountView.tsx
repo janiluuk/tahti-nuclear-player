@@ -5,7 +5,6 @@ import { Button, Tabs } from '@nuclearplayer/ui';
 
 import { fetchMembership, fetchMySubscriptions } from '../api/client';
 import type { FanSubscriptionRow, MembershipStatus } from '../api/types';
-import { ClientCapabilityNotice } from '../components/ClientCapabilityNotice';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useAuthStore } from '../stores/authStore';
 
@@ -64,15 +63,11 @@ export function AccountView() {
         subtitle={`${user.displayName} (@${user.username})`}
         actions={
           <>
-            <a
-              href="https://tahti.live/dashboard"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <Link to="/settings/$section" params={{ section: 'account' }}>
               <Button size="sm" variant="secondary">
-                Open production dashboard
+                Account settings
               </Button>
-            </a>
+            </Link>
             <Button size="sm" variant="text" onClick={() => void logout()}>
               Log out
             </Button>
@@ -82,25 +77,32 @@ export function AccountView() {
 
       {loading && <p className="text-foreground-secondary text-sm">Loading…</p>}
 
-      <ClientCapabilityNotice
-        kind="not-in-client"
-        title="Purchase / change password"
-        action={
-          <a
-            href="https://tahti.live/signup/payment"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Button size="sm" variant="text">
-              Membership checkout on tahti.live
+      <div className="border-border bg-background-secondary/40 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
+        <div>
+          <h2 className="font-display font-bold">Membership and security</h2>
+          <p className="text-foreground-secondary text-sm">
+            Manage cooperative membership, password recovery, and two-factor
+            authentication here in Tahti.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {!loading && !membership?.isMember ? (
+            <Link to="/signup/payment">
+              <Button size="sm">Become a member</Button>
+            </Link>
+          ) : null}
+          <Link to="/forgot-password">
+            <Button size="sm" variant="secondary">
+              Reset password
             </Button>
-          </a>
-        }
-      >
-        Stripe membership purchase (<code>/signup/payment</code>) and password
-        change / setup-password are not available in this client. Membership
-        status below is read-only from the API.
-      </ClientCapabilityNotice>
+          </Link>
+          <Link to="/settings/$section" params={{ section: 'account' }}>
+            <Button size="sm" variant="secondary">
+              Security
+            </Button>
+          </Link>
+        </div>
+      </div>
 
       <Tabs
         listClassName="border-border border-b pb-3"

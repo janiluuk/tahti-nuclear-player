@@ -73,16 +73,17 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
   {
     id: 'membership-purchase',
     surface: 'Membership purchase',
-    status: 'missing',
-    detail: 'Prod /signup/payment Stripe checkout not ported.',
+    route: '/signup/payment',
+    status: 'done',
+    detail: 'Stripe membership checkout with mock activation under FORCE_MOCK.',
     section: 'backlog',
   },
   {
     id: 'studio-extras',
     surface: 'Distribution / radio slots / moderate',
     route: '/studio',
-    status: 'missing',
-    detail: 'Studio surfaces still missing vs production dashboard.',
+    status: 'done',
+    detail: 'Live API-backed Studio surfaces are available in this client.',
     section: 'backlog',
   },
   {
@@ -239,8 +240,8 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
   {
     id: 'board-admin',
     surface: 'Board /admin/*',
-    status: 'out-of-scope',
-    detail: 'Stay on prod.',
+    status: 'partial',
+    detail: '22 organized, API-backed admin surfaces are available in-client.',
     section: 'mock',
   },
 ];
@@ -256,10 +257,10 @@ export const PORT_GAP_HIGHLIGHTS: PortInventoryItem[] = [
   },
   {
     id: 'gap-password',
-    surface: 'Password change / setup-password',
+    surface: 'Password recovery / setup-password',
     route: '/settings/account',
-    status: 'missing',
-    detail: 'Not exposed in this client.',
+    status: 'done',
+    detail: 'Setup, forgot/reset-password, and TOTP management are in-client.',
     section: 'gap',
   },
   {
