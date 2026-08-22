@@ -919,12 +919,60 @@ export async function fetchAdminRadioSubmissions(): Promise<{
     };
   }
   try {
-    const data = await getJson<{ submissions: AdminRadioSubmission[] }>(
-      '/api/admin/radio-submissions?status=PENDING',
-    );
-    return { data: data.submissions, meta: { source: 'api' } };
+    const data = await getJson<{
+      items?: AdminRadioSubmission[];
+      submissions?: AdminRadioSubmission[];
+    }>('/api/admin/radio-submissions?status=PENDING');
+    return {
+      data: data.items ?? data.submissions ?? [],
+      meta: { source: 'api' },
+    };
   } catch (err) {
     return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function fetchAdminRadioSubmissionAudio(id: string): Promise<
+  | {
+      ok: true;
+      data: {
+        audioUrl: string;
+        title: string;
+        artistName: string;
+        archiveItemId: string;
+      };
+    }
+  | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const row = mockRadioSubmissions().find((item) => item.id === id);
+    if (!row?.archiveItem.audioUrl) {
+      return { ok: false, error: 'No playable audio' };
+    }
+    return {
+      ok: true,
+      data: {
+        audioUrl: row.archiveItem.audioUrl,
+        title: row.archiveItem.title,
+        artistName:
+          row.archiveItem.artistName ?? row.submitter?.displayName ?? '',
+        archiveItemId: row.archiveItem.id,
+      },
+    };
+  }
+  try {
+    const data = await getJson<{
+      audioUrl: string;
+      title: string;
+      artistName: string;
+      archiveItemId: string;
+    }>(`/api/admin/radio-submissions/${encodeURIComponent(id)}/audio`);
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Audio could not be loaded',
+    };
   }
 }
 

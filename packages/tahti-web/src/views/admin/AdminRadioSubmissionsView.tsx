@@ -5,6 +5,7 @@ import { Button } from '@nuclearplayer/ui';
 
 import {
   approveRadioSubmission,
+  fetchAdminRadioSubmissionAudio,
   fetchAdminRadioSubmissions,
   rejectRadioSubmission,
   type AdminRadioSubmission,
@@ -44,17 +45,22 @@ export function AdminRadioSubmissionsView() {
 
   const active = items.find((i) => i.id === activeId) ?? items[0] ?? null;
 
-  const playActive = (row: AdminRadioSubmission) => {
-    if (!row.archiveItem.audioUrl) {
+  const playActive = async (row: AdminRadioSubmission) => {
+    setBusyId(row.id);
+    setMsg(null);
+    const result = await fetchAdminRadioSubmissionAudio(row.id);
+    setBusyId(null);
+    if (!result.ok) {
+      setMsg(result.error);
       return;
     }
     play({
-      id: `radio-sub:${row.archiveItem.id}`,
+      id: `radio-sub:${result.data.archiveItemId}`,
       kind: 'archive',
-      title: row.archiveItem.title,
-      artist: row.archiveItem.artistName ?? row.submitter?.displayName ?? '',
+      title: result.data.title,
+      artist: result.data.artistName,
       coverUrl: row.archiveItem.bannerUrl ?? undefined,
-      streamUrl: row.archiveItem.audioUrl,
+      streamUrl: result.data.audioUrl,
       protocol: 'https',
     });
   };
@@ -114,10 +120,11 @@ export function AdminRadioSubmissionsView() {
                       size="sm"
                       variant="secondary"
                       className="mt-2"
-                      onClick={() => playActive(active)}
+                      disabled={busyId === active.id}
+                      onClick={() => void playActive(active)}
                     >
                       <PlayIcon size={16} aria-hidden className="mr-1.5" />
-                      Play
+                      {busyId === active.id ? 'Loading…' : 'Play'}
                     </Button>
                   </div>
                 </div>
