@@ -31,10 +31,10 @@ Ordered by listener/artist value × API readiness:
 4. [x] **Venue register** — `POST /api/v1/venues` at `/venues/register`
 5. [x] **Channel chat hardening** — fail closed on join failure in prod; hCaptcha and rail parity shipped
 6. [ ] **Sources OAuth polish** — live connect is href-only; in-app connect is mock; live Preview disabled
-7. [ ] **Stash share links** — `POST /api/me/stash/:id/share` + revoke (UI: disabled Share + callout on `/studio/stash`)
+7. [x] **Stash share links** — grant expiring read/download access and revoke active shares
 8. [x] **Membership purchase** — `/signup/payment` Stripe checkout and Account entry point
 9. [x] **Distribution / radio slots / moderate** — live API-backed Studio surfaces
-10. [x] **Full Three.js visualizer presets** — ten distinct analyser-reactive scenes, lazy-loaded outside the initial listen bundle
+10. [x] **Full Three.js visualizer presets** — ten distinct analyser-reactive scenes in the channel hero and ambient page background, lazy-loaded outside the initial listen bundle
 11. [ ] **Multitrack timeline editing** — editor callout + map inventory
 12. [ ] **Press-kit gallery upload + member invites** — disabled actions + Settings callouts
 13. [x] **Listener-only dashboard** — non-artists route to My Library
@@ -52,7 +52,7 @@ Ordered by listener/artist value × API readiness:
 - Add-to-playlist → `/api/me/collections`
 - Studio: home, Go Live wizard, archive/Music, upload, releases, collections/album designer, schedule, channel design, updates/newsletter, revenue/Connect, fan-tier editor
 - Stats summary + top tracks/countries + **plays time series**
-- Stash list/play/download + **upload/delete**
+- Stash list/play/download + **upload/delete/share/revoke**
 - Settings shell (Nuclear sections) + artist/discovery/domain/notifications/social
 - Venue directory + **register**
 - Account **TOTP enable/disable**
@@ -76,7 +76,6 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | StudioGate setup-channel          | `link-out` + capability notice                                                               | Port channel provision wizard                |
 | Favorites / history               | Mostly **localStorage**, not server library                                                  | Optional: sync with API if/when exists       |
 | Pro editor                        | Partial vs prod multitrack — callout on editor                                               | Timeline + export parity                     |
-| Stash shares                      | Upload/list/play/delete done; **Share disabled** + notice                                    | Share/revoke APIs exist                      |
 | Feature map `/more`, Screen atlas | Port inventory panel + doc chrome (`mock-ok`)                                                | Keep                                         |
 | Board `/admin/*`                  | 22 API-backed pages; some production detail and bulk operations remain scope-trimmed          | Continue detail-page parity                  |
 
@@ -121,7 +120,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | Prod                                                              | POC                          | Status                                               |
 | ----------------------------------------------------------------- | ---------------------------- | ---------------------------------------------------- |
 | Broadcast / upload / archive / releases / collections             | matching                     | `done`                                               |
-| Stash                                                             | `/studio/stash`              | `partial` → upload/delete done; shares still missing |
+| Stash                                                             | `/studio/stash`              | `done` — upload, playback, delete, share, revoke      |
 | Stats + detail/plays                                              | `/studio/stats`              | `done` (plays series; no map viz)                    |
 | Editor                                                            | `/studio/editor`             | `partial`                                            |
 | Distribution, radio slots, moderate                                | matching                     | `done`                                               |

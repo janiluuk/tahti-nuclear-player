@@ -415,13 +415,28 @@ export function playableFromHearthis(t: HearthisTrack): TahtiPlayable {
   };
 }
 
+export type StashShare = {
+  id: string;
+  granteeUsername: string | null;
+  token: string;
+  permission: 'READ' | 'DOWNLOAD';
+  fileCount: number;
+  expiresAt: string | null;
+  createdAt: string;
+};
+
 export type StashFile = {
   id: string;
   filename: string;
   contentType?: string;
-  sizeBytes?: number;
+  sizeBytes?: number | string;
   createdAt?: string;
+  shareCount: number;
+  shares: StashShare[];
 };
+
+let mockStashShares: StashShare[] = [];
+const MILLISECONDS_PER_DAY = 86_400_000;
 
 export async function fetchStashFiles(): Promise<{
   data: StashFile[];
@@ -435,6 +450,8 @@ export async function fetchStashFiles(): Promise<{
           filename: 'stems-kick.wav',
           contentType: 'audio/wav',
           sizeBytes: 12_000_000,
+          shareCount: mockStashShares.length,
+          shares: [...mockStashShares],
         },
       ],
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
@@ -529,6 +546,80 @@ export async function deleteStashFile(
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Delete failed',
+    };
+  }
+}
+
+export async function createStashShare(
+  id: string,
+  input: {
+    granteeUsername?: string;
+    permission: 'READ' | 'DOWNLOAD';
+    expiresInDays?: number;
+  },
+): Promise<{ ok: true; data: StashShare } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const now = new Date();
+    const share: StashShare = {
+      id: `mock-share-${Date.now()}`,
+      granteeUsername: input.granteeUsername?.replace(/^@/, '') || null,
+      token: `mock-token-${Date.now()}`,
+      permission: input.permission,
+      fileCount: 1,
+      expiresAt: input.expiresInDays
+        ? new Date(
+            now.getTime() + input.expiresInDays * MILLISECONDS_PER_DAY,
+          ).toISOString()
+        : null,
+      createdAt: now.toISOString(),
+    };
+    mockStashShares = [...mockStashShares, share];
+    return { ok: true, data: share };
+  }
+  try {
+    const { data } = await requestJson<{
+      id: string;
+      token: string;
+      permission: 'READ' | 'DOWNLOAD';
+      expiresAt: string | null;
+    }>(`/api/me/stash/${encodeURIComponent(id)}/share`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+    return {
+      ok: true,
+      data: {
+        ...data,
+        granteeUsername: input.granteeUsername ?? null,
+        fileCount: 1,
+        createdAt: new Date().toISOString(),
+      },
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Share creation failed',
+    };
+  }
+}
+
+export async function revokeStashShare(
+  shareId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    mockStashShares = mockStashShares.filter((share) => share.id !== shareId);
+    return { ok: true };
+  }
+  try {
+    await requestJson<void>(
+      `/api/me/stash/shares/${encodeURIComponent(shareId)}`,
+      { method: 'DELETE' },
+    );
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Revoke failed',
     };
   }
 }

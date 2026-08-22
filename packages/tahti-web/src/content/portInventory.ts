@@ -66,8 +66,8 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
     id: 'stash-share',
     surface: 'Stash share links',
     route: '/studio/stash',
-    status: 'missing',
-    detail: 'POST /api/me/stash/:id/share + revoke — UI not in this client.',
+    status: 'done',
+    detail: 'Grant expiring read/download access and revoke active shares.',
     section: 'backlog',
   },
   {
@@ -92,7 +92,7 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
     route: '/channel/$slug',
     status: 'done',
     detail:
-      'All ten production preset names render distinct analyser-reactive Three.js scenes from a lazy chunk.',
+      'All ten production preset names render distinct analyser-reactive Three.js scenes from a lazy chunk, including the ambient channel-page layer and hero visualizer.',
     section: 'backlog',
   },
   {

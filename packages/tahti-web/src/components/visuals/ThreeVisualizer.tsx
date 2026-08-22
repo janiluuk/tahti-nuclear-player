@@ -1,6 +1,7 @@
 import { FC, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
+import { cn } from '../../lib/cn';
 import { usePlayerStore } from '../../stores/playerStore';
 
 type VisualizerScheme = {
@@ -548,15 +549,15 @@ export const ThreeVisualizer: FC<ThreeVisualizerProps> = ({
 
   return (
     <div
-      className={className}
+      className={cn('overflow-hidden', className)}
+      data-visualizer-engine="three"
+      data-visualizer-preset={preset}
       aria-hidden
       style={{
-        position: 'relative',
-        overflow: 'hidden',
         background: scheme.bg,
       }}
     >
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      <canvas ref={canvasRef} className="block h-full w-full" />
     </div>
   );
 };

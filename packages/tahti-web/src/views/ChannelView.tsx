@@ -516,115 +516,129 @@ export function ChannelView({ slug }: { slug: string }) {
     : layout.filter((item) => item.visible && item.type !== 'chat');
 
   const pageBody = (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+    <div className="relative isolate min-h-full overflow-hidden">
       {!editing && (
-        <Link
-          to="/"
-          className="text-foreground-secondary text-xs hover:underline"
-        >
-          ← Listen
-        </Link>
-      )}
-
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">
-            {channel.user.displayName}
-          </h1>
-          {live ? (
-            <OnAirBadge />
-          ) : (
-            <span className="text-foreground-secondary border-border rounded border px-2 py-0.5 font-mono text-xs uppercase">
-              {channel.state}
-            </span>
-          )}
-          {isOwner && !editing && (
-            <Button size="sm" variant="secondary" onClick={startEdit}>
-              <span className="inline-flex items-center gap-1.5">
-                <PencilIcon size={14} />
-                Edit design
-              </span>
-            </Button>
-          )}
-        </div>
-        <p className="text-foreground-secondary text-sm">
-          <Link
-            to="/u/$username"
-            params={{ username: channel.user.username }}
-            className="hover:text-foreground underline-offset-2 hover:underline"
-          >
-            @{channel.user.username}
-          </Link>
-        </p>
-      </div>
-
-      {live && (isOwner || me?.isBoard) && !editing && (
-        <StreamManagerPanel
-          slug={slug}
-          channelState={channel.state}
-          onEnded={() => {
-            setChannel({ ...channel, state: 'OFFLINE', hlsUrl: null });
-          }}
+        <ChannelVisualizer
+          className={`pointer-events-none absolute inset-0 z-0 ${
+            live ? 'opacity-[0.32]' : 'opacity-[0.55]'
+          }`}
+          preset={channel.visualPreset ?? 'AURORA'}
+          colorScheme={channel.colorScheme}
+          colorSchemeJson={channel.colorSchemeJson}
+          artworkUrl={channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl}
         />
       )}
 
-      {visibleItems.map((item) => {
-        if (!editing && !item.visible) {
-          return null;
-        }
-        const metaItem = CHANNEL_PAGE_ITEM_META[item.type];
-        const selected = selectedId === item.id;
-        return (
-          <div
-            key={item.id}
-            draggable={editing}
-            onDragStart={() => {
-              if (editing) {
-                setDragId(item.id);
-              }
-            }}
-            onDragEnd={() => setDragId(null)}
-            onDragOver={(e) => {
-              if (editing) {
-                e.preventDefault();
-              }
-            }}
-            onDrop={(e) => {
-              if (!editing || !dragId) {
-                return;
-              }
-              e.preventDefault();
-              updateLayout(moveItem(layout, dragId, item.id));
-              setDragId(null);
-            }}
-            onClick={() => {
-              if (editing) {
-                setSelectedId(item.id);
-              }
-            }}
-            className={`relative ${
-              editing
-                ? `rounded-xl border border-dashed p-2 ${
-                    selected
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border/80'
-                  } ${item.visible ? '' : 'opacity-40'} ${
-                    dragId === item.id ? 'opacity-50' : ''
-                  }`
-                : ''
-            }`}
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-6">
+        {!editing && (
+          <Link
+            to="/"
+            className="text-foreground-secondary text-xs hover:underline"
           >
-            {editing && (
-              <div className="text-foreground-secondary mb-2 flex items-center gap-2 text-[10px] tracking-wide uppercase">
-                <GripVerticalIcon size={12} className="cursor-grab" />
-                {metaItem.label}
-                {!item.visible && <span>(hidden)</span>}
-              </div>
+            ← Listen
+          </Link>
+        )}
+
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight">
+              {channel.user.displayName}
+            </h1>
+            {live ? (
+              <OnAirBadge />
+            ) : (
+              <span className="text-foreground-secondary border-border rounded border px-2 py-0.5 font-mono text-xs uppercase">
+                {channel.state}
+              </span>
             )}
-            {renderBlock(item)}
+            {isOwner && !editing && (
+              <Button size="sm" variant="secondary" onClick={startEdit}>
+                <span className="inline-flex items-center gap-1.5">
+                  <PencilIcon size={14} />
+                  Edit design
+                </span>
+              </Button>
+            )}
           </div>
-        );
-      })}
+          <p className="text-foreground-secondary text-sm">
+            <Link
+              to="/u/$username"
+              params={{ username: channel.user.username }}
+              className="hover:text-foreground underline-offset-2 hover:underline"
+            >
+              @{channel.user.username}
+            </Link>
+          </p>
+        </div>
+
+        {live && (isOwner || me?.isBoard) && !editing && (
+          <StreamManagerPanel
+            slug={slug}
+            channelState={channel.state}
+            onEnded={() => {
+              setChannel({ ...channel, state: 'OFFLINE', hlsUrl: null });
+            }}
+          />
+        )}
+
+        {visibleItems.map((item) => {
+          if (!editing && !item.visible) {
+            return null;
+          }
+          const metaItem = CHANNEL_PAGE_ITEM_META[item.type];
+          const selected = selectedId === item.id;
+          return (
+            <div
+              key={item.id}
+              draggable={editing}
+              onDragStart={() => {
+                if (editing) {
+                  setDragId(item.id);
+                }
+              }}
+              onDragEnd={() => setDragId(null)}
+              onDragOver={(e) => {
+                if (editing) {
+                  e.preventDefault();
+                }
+              }}
+              onDrop={(e) => {
+                if (!editing || !dragId) {
+                  return;
+                }
+                e.preventDefault();
+                updateLayout(moveItem(layout, dragId, item.id));
+                setDragId(null);
+              }}
+              onClick={() => {
+                if (editing) {
+                  setSelectedId(item.id);
+                }
+              }}
+              className={`relative ${
+                editing
+                  ? `rounded-xl border border-dashed p-2 ${
+                      selected
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border/80'
+                    } ${item.visible ? '' : 'opacity-40'} ${
+                      dragId === item.id ? 'opacity-50' : ''
+                    }`
+                  : ''
+              }`}
+            >
+              {editing && (
+                <div className="text-foreground-secondary mb-2 flex items-center gap-2 text-[10px] tracking-wide uppercase">
+                  <GripVerticalIcon size={12} className="cursor-grab" />
+                  {metaItem.label}
+                  {!item.visible && <span>(hidden)</span>}
+                </div>
+              )}
+              {renderBlock(item)}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 

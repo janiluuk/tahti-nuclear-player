@@ -1,6 +1,3 @@
-import { Button } from '@nuclearplayer/ui';
-
-import { ClientCapabilityNotice } from '../../components/ClientCapabilityNotice';
 import { StashFilesPanel } from '../../components/StashFilesPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -13,27 +10,9 @@ export function StudioStashView() {
         <StudioNav current="/studio/stash" />
         <StudioPageHeader
           title="Stash"
-          subtitle="Private locker — also available under Music → Files."
+          subtitle="Private locker — upload work in progress and grant access only when it is ready."
         />
         <StashFilesPanel />
-        <ClientCapabilityNotice
-          kind="not-in-client"
-          title="Share links"
-          action={
-            <a
-              href="https://tahti.live/dashboard/stash"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button size="sm" variant="text">
-                Open stash on tahti.live
-              </Button>
-            </a>
-          }
-        >
-          Create / revoke share URLs (<code>POST /api/me/stash/:id/share</code>)
-          are not available in this client yet.
-        </ClientCapabilityNotice>
       </div>
     </StudioGate>
   );

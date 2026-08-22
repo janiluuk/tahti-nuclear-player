@@ -1,6 +1,30 @@
 [
   {
     "date": "2026-08-22T00:00",
+    "description": "Channel pages now use their reactive Three.js visualizer as a full-page ambient layer behind the content, matching the Tahti channel experience.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Studio Stash now supports granting expiring read or download access to a user or link and revoking active shares without leaving the client.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
     "description": "Account now links directly to in-client membership checkout, password recovery, and security settings instead of sending users to stale production link-outs.",
     "type": "fix",
     "contributors": ["jani"],

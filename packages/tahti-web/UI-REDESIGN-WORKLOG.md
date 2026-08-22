@@ -514,5 +514,6 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 - Replaced the three-effect canvas/WebGL approximation with ten distinct Three.js scenes matching the production preset catalog: Water ripple, Waveform bars, Particle field, Aurora, Reactive grid, Cloudscape, Line tangle, Backdrop box, Lens flares, and Spotlight
 - Kept the shared Web Audio analyser wiring, custom channel colors, artwork-driven water ripple, reduced-motion fallback, and per-preset speed/intensity settings
 - Lazy-loaded the Three.js renderer as its own chunk; static gradients remain the no-WebGL/reduced-motion fallback
+- Layered the active Three.js scene behind the full public channel page at Tahti's ambient live/offline opacity while retaining the stronger hero visualizer
 
 **Status:** shipped — verified with type-check, lint, production build, and browser screenshots.
