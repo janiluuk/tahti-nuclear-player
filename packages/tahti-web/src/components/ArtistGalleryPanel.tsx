@@ -1,4 +1,4 @@
-import { ImagePlusIcon, Trash2Icon } from 'lucide-react';
+import { ImagePlusIcon, Maximize2Icon, Trash2Icon } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
@@ -8,6 +8,7 @@ import {
   uploadPressKitImages,
   type PublicPressKitImage,
 } from '../api/artist-settings';
+import { ImageLightbox } from './ImageLightbox';
 
 const ACCEPTED = 'image/jpeg,image/png,image/webp';
 
@@ -63,27 +64,39 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
             ? 'No gallery photos yet.'
             : `${images.length} photo${images.length === 1 ? '' : 's'}`}
         </p>
-        {isOwner ? (
-          <>
+        <div className="flex items-center gap-2">
+          {images.length > 0 ? (
             <Button
               size="sm"
               variant="secondary"
-              disabled={busy}
-              onClick={() => inputRef.current?.click()}
+              onClick={() => setLightbox(0)}
             >
-              <ImagePlusIcon size={14} className="mr-1.5" />
-              {busy ? 'Uploading…' : 'Add images'}
+              <Maximize2Icon size={14} aria-hidden className="mr-1.5" />
+              Start slideshow
             </Button>
-            <input
-              ref={inputRef}
-              type="file"
-              accept={ACCEPTED}
-              multiple
-              className="hidden"
-              onChange={(e) => void onFiles(e.target.files)}
-            />
-          </>
-        ) : null}
+          ) : null}
+          {isOwner ? (
+            <>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={busy}
+                onClick={() => inputRef.current?.click()}
+              >
+                <ImagePlusIcon size={14} className="mr-1.5" />
+                {busy ? 'Uploading…' : 'Add images'}
+              </Button>
+              <input
+                ref={inputRef}
+                type="file"
+                accept={ACCEPTED}
+                multiple
+                className="hidden"
+                onChange={(e) => void onFiles(e.target.files)}
+              />
+            </>
+          ) : null}
+        </div>
       </div>
 
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
@@ -130,32 +143,13 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
       ) : null}
 
       {lightbox !== null && images[lightbox] ? (
-        <div
-          className="bg-background/90 fixed inset-0 z-50 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label={images[lightbox]?.title ?? 'Gallery photo'}
-          onClick={() => setLightbox(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              setLightbox(null);
-            }
-          }}
-        >
-          <button
-            type="button"
-            className="text-foreground absolute top-4 right-4 text-sm underline-offset-2 hover:underline"
-            onClick={() => setLightbox(null)}
-          >
-            Close
-          </button>
-          <img
-            src={images[lightbox]!.imageUrl}
-            alt={images[lightbox]!.title ?? ''}
-            className="max-h-[85vh] max-w-full object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
+        <ImageLightbox
+          images={images}
+          index={lightbox}
+          label={images[lightbox]?.title ?? 'Gallery slideshow'}
+          onIndexChange={setLightbox}
+          onClose={() => setLightbox(null)}
+        />
       ) : null}
     </section>
   );

@@ -4,6 +4,7 @@ import {
   LayoutDashboardIcon,
   LibraryIcon,
   MapIcon,
+  MessageSquareIcon,
   RadioIcon,
   RssIcon,
   SettingsIcon,
@@ -63,6 +64,11 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
           to="/library"
           icon={<LibraryIcon size={16} />}
           label="My Library"
+        />
+        <SidebarNavigationItem
+          to="/messages"
+          icon={<MessageSquareIcon size={16} />}
+          label="Messages"
         />
         <SidebarNavigationItem
           to="/studio"
@@ -235,6 +241,11 @@ export function AppShell() {
                     to="/library"
                     icon={<LibraryIcon size={16} />}
                     label="My Library"
+                  />
+                  <SidebarNavigationItem
+                    to="/messages"
+                    icon={<MessageSquareIcon size={16} />}
+                    label="Messages"
                   />
                   <SidebarNavigationItem
                     to="/studio"

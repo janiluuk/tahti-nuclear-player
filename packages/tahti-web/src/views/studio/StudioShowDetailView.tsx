@@ -681,8 +681,8 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
                   </Button>
                 </Link>
                 <p className="text-foreground-secondary w-full text-xs">
-                  After the broadcast ends, attach the capture from Music /
-                  Sources → From broadcast, then return here to approve.
+                  After the broadcast ends, open Studio → Recordings to edit and
+                  attach the saved capture, then return here to approve.
                 </p>
               </div>
             )}

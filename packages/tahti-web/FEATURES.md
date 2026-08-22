@@ -41,12 +41,13 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 - [x] Email verify page (`/verify`)
 - [x] Follows, favorites/history (local), fan subscribe checkout, DMs, governance
 - [x] Add to playlist
-- [x] Studio: Go Live wizard, Music, upload, releases, collections/album designer
+- [x] Studio: Go Live dashboard, upload, releases, collections/album designer; all music lives first in My Library
 - [x] Studio: schedule, stats summary, channel design, updates, revenue/Connect
 - [x] Channel visualizer POC + analyser
 - [x] Fan tier create / activate-deactivate
 - [x] Settings shell (Nuclear sections), Sources hub (partial OAuth UX)
 - [x] Embeds
+- [x] Artist Branding workspace: profile picture, channel outlook, gallery visibility, fullscreen slideshow, and 10-image press kit selection
 
 **Remaining / partial**
 
@@ -114,7 +115,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | My subscriptions | account | `/settings/money` | `live-api` | |
 | Membership status | account | `/settings/account` | `live-api` | |
 | Governance list/vote | `/governance` | `/governance` | `live-api` | demock wave 5; 401/403 → forbidden empty |
-| DMs | `/dashboard/messages` | `/library/messages` | `live-api` | demock wave 5 |
+| DMs | `/dashboard/messages` | `/messages` | `live-api` | demock wave 5 |
 | Listener-only dashboard | `/dashboard` | `/dashboard` → `/library` | `live-api` | non-artists no longer hit the Studio "create a channel" wall |
 
 ## 4. Artist studio

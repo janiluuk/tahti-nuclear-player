@@ -7,7 +7,7 @@ import {
   addToSelectsRotation,
   fetchAdminSelects,
   removeFromSelectsRotation,
-  reorderSelectsItem,
+  reorderSelectsRotation,
   searchAdminSelectsBrowse,
   startSelectsStream,
   stopSelectsStream,
@@ -18,6 +18,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { TahtiRotationPlaylistEditor } from '../../components/TahtiRotationPlaylistEditor';
 import { usePlayerStore } from '../../stores/playerStore';
 
 function fmtDuration(sec: number | null): string {
@@ -253,90 +254,44 @@ export function AdminSelectsView() {
               Nothing in rotation yet — add tracks below.
             </p>
           ) : (
-            <ul className="divide-border divide-y">
-              {items.map((item, index) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium">
-                      {index + 1}. {item.title}
-                    </div>
-                    <div className="text-foreground-secondary text-xs">
-                      {item.artistName} · {fmtDuration(item.durationSec)} ·
-                      added by {item.addedBy}
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 gap-1">
-                    {item.audioUrl && (
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        aria-label={`Preview ${item.title}`}
-                        title="Preview"
-                        onClick={() => {
-                          play({
-                            id: `archive:${item.archiveItemId}`,
-                            kind: 'archive',
-                            title: item.title,
-                            artist: item.artistName,
-                            streamUrl: item.audioUrl!,
-                            protocol: 'https',
-                            channelSlug: item.channelSlug,
-                          });
-                        }}
-                      >
-                        <PlayIcon size={16} aria-hidden />
-                      </Button>
-                    )}
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      aria-label="Move up"
-                      title="Move up"
-                      disabled={index === 0}
-                      onClick={() => {
-                        void reorderSelectsItem(item.id, index - 1).then(
-                          reload,
-                        );
-                      }}
-                    >
-                      ↑
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      aria-label="Move down"
-                      title="Move down"
-                      disabled={index === items.length - 1}
-                      onClick={() => {
-                        void reorderSelectsItem(item.id, index + 1).then(
-                          reload,
-                        );
-                      }}
-                    >
-                      ↓
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="text"
-                      onClick={() => {
-                        void removeFromSelectsRotation(item.id).then((r) => {
-                          if (!r.ok) {
-                            setMsg(r.error);
-                          } else {
-                            reload();
-                          }
-                        });
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <TahtiRotationPlaylistEditor
+              items={items}
+              onPreview={(item) => {
+                if (!item.audioUrl) {
+                  return;
+                }
+                play({
+                  id: `archive:${item.archiveItemId}`,
+                  kind: 'archive',
+                  title: item.title,
+                  artist: item.artistName,
+                  streamUrl: item.audioUrl,
+                  protocol: item.audioUrl.includes('.m3u8') ? 'hls' : 'https',
+                  channelSlug: item.channelSlug,
+                });
+              }}
+              onReorder={(next) => {
+                const previous = items;
+                setItems(next);
+                void reorderSelectsRotation(next.map((item) => item.id)).then(
+                  (result) => {
+                    if (!result.ok) {
+                      setItems(previous);
+                      setMsg(result.error);
+                    }
+                  },
+                );
+              }}
+              onRemove={(item) => {
+                void removeFromSelectsRotation(item.id).then((result) => {
+                  if (!result.ok) {
+                    setMsg(result.error);
+                  } else {
+                    reload();
+                  }
+                });
+              }}
+            />
           )}
         </StudioPanel>
 

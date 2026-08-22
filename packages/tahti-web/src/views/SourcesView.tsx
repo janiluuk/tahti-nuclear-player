@@ -13,6 +13,7 @@ import {
   UploadIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge, Button, Card, CardGrid, MediaArtwork } from '@nuclearplayer/ui';
 
@@ -68,6 +69,7 @@ import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
 
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+const HEARTHIS_IMPORTS_STORAGE_KEY = 'tahti-web-hearthis-imports';
 
 type TileStatus = {
   status: ConnectionStatus | null;
@@ -122,6 +124,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     'tracks' | 'sets' | 'collections' | 'search'
   >('tracks');
   const [hearthisSelected, setHearthisSelected] = useState<Set<string>>(
+    new Set(),
+  );
+  const [importedHearthisIds, setImportedHearthisIds] = useState<Set<string>>(
     new Set(),
   );
   const [destinationCollections, setDestinationCollections] = useState<
@@ -244,6 +249,27 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     );
   }, [selected, user]);
 
+  useEffect(() => {
+    if (!user || typeof localStorage === 'undefined') {
+      return;
+    }
+    try {
+      const stored = JSON.parse(
+        localStorage.getItem(`${HEARTHIS_IMPORTS_STORAGE_KEY}:${user.id}`) ??
+          '[]',
+      ) as unknown;
+      setImportedHearthisIds(
+        new Set(
+          Array.isArray(stored)
+            ? stored.filter((id): id is string => typeof id === 'string')
+            : [],
+        ),
+      );
+    } catch {
+      setImportedHearthisIds(new Set());
+    }
+  }, [user]);
+
   const overview = useMemo(() => SOURCE_DEFS, []);
 
   const openRadioStation = (station: RadioStation) => {
@@ -309,17 +335,55 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
       setNote('Choose an existing playlist first.');
       return;
     }
+    const pendingTracks = tracks.filter(
+      (track) => !importedHearthisIds.has(track.id),
+    );
+    if (pendingTracks.length === 0) {
+      setNote(
+        'Already imported — each hearthis.at item can only be imported once.',
+      );
+      toast.info('These hearthis.at tracks are already in your library.');
+      return;
+    }
     setBusy(true);
-    const result = await importHearthisTracks(destinationId, tracks);
+    const notificationId = toast.loading(
+      `Import started for ${pendingTracks.length} item${pendingTracks.length === 1 ? '' : 's'}…`,
+    );
+    const result = await importHearthisTracks(destinationId, pendingTracks);
     setBusy(false);
     setHearthisSelected(new Set());
-    setNote(
+    const nextImportedIds = new Set(importedHearthisIds);
+    result.items.forEach((item) => nextImportedIds.add(item.trackId));
+    setImportedHearthisIds(nextImportedIds);
+    if (user && typeof localStorage !== 'undefined') {
+      localStorage.setItem(
+        `${HEARTHIS_IMPORTS_STORAGE_KEY}:${user.id}`,
+        JSON.stringify([...nextImportedIds]),
+      );
+    }
+    const completionMessage =
       result.failed > 0
         ? `Imported ${result.imported}; ${result.failed} could not be imported.`
         : result.artworkFailed > 0
           ? `Imported ${result.imported} item${result.imported === 1 ? '' : 's'}; ${result.artworkFailed} cover${result.artworkFailed === 1 ? '' : 's'} could not be stored.`
-          : `Imported ${result.imported} item${result.imported === 1 ? '' : 's'} to the playlist.`,
-    );
+          : `Import completed — ${result.imported} item${result.imported === 1 ? '' : 's'} added to the playlist.`;
+    setNote(completionMessage);
+    const firstItem = result.items[0];
+    if (firstItem) {
+      toast.success(completionMessage, {
+        id: notificationId,
+        action: {
+          label: result.items.length === 1 ? 'Open track' : 'Open first track',
+          onClick: () =>
+            void navigate({
+              to: '/studio/archive/$id',
+              params: { id: firstItem.archiveItemId },
+            }),
+        },
+      });
+    } else {
+      toast.error(completionMessage, { id: notificationId });
+    }
   };
 
   const importTracksAsCollection = async (
@@ -329,7 +393,16 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     style: 'PLAYLIST' | 'LIVE_ARCHIVE',
     coverUrl?: string | null,
   ) => {
+    const pendingTracks = tracks.filter(
+      (track) => !importedHearthisIds.has(track.id),
+    );
+    if (pendingTracks.length === 0) {
+      setNote('Already imported — no duplicate collection was created.');
+      toast.info('These hearthis.at items are already in your library.');
+      return;
+    }
     setBusy(true);
+    const notificationId = toast.loading(`Import started for “${name}”…`);
     const created = await createStudioCollection({
       name,
       description,
@@ -341,20 +414,43 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
       setNote(
         created.ok ? 'Created collection has no import ID.' : created.error,
       );
+      toast.error('Could not create the destination collection.', {
+        id: notificationId,
+      });
       return;
     }
-    const result = await importHearthisTracks(created.data.id, tracks);
+    const result = await importHearthisTracks(created.data.id, pendingTracks);
     if (coverUrl) {
       await patchStudioCollection(created.data.slug, { coverUrl });
     }
     setBusy(false);
-    setNote(
+    const nextImportedIds = new Set(importedHearthisIds);
+    result.items.forEach((item) => nextImportedIds.add(item.trackId));
+    setImportedHearthisIds(nextImportedIds);
+    if (user && typeof localStorage !== 'undefined') {
+      localStorage.setItem(
+        `${HEARTHIS_IMPORTS_STORAGE_KEY}:${user.id}`,
+        JSON.stringify([...nextImportedIds]),
+      );
+    }
+    const completionMessage =
       result.failed > 0
         ? `Created “${name}” with ${result.imported} items; ${result.failed} failed.`
         : result.artworkFailed > 0
           ? `Created “${name}” with ${result.imported} items; ${result.artworkFailed} cover${result.artworkFailed === 1 ? '' : 's'} could not be stored.`
-          : `Created “${name}” with ${result.imported} item${result.imported === 1 ? '' : 's'}.`,
-    );
+          : `Import completed — created “${name}” with ${result.imported} item${result.imported === 1 ? '' : 's'}.`;
+    setNote(completionMessage);
+    toast.success(completionMessage, {
+      id: notificationId,
+      action: {
+        label: 'Open collection',
+        onClick: () =>
+          void navigate({
+            to: '/studio/collections/$slug',
+            params: { slug: created.data.slug },
+          }),
+      },
+    });
     const collectionsResult = await fetchStudioCollections();
     setDestinationCollections(collectionsResult.data);
   };
@@ -803,7 +899,13 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                     disabled={hearthisVisibleTracks.length === 0}
                     onClick={() =>
                       setHearthisSelected(
-                        new Set(hearthisVisibleTracks.map((track) => track.id)),
+                        new Set(
+                          hearthisVisibleTracks
+                            .filter(
+                              (track) => !importedHearthisIds.has(track.id),
+                            )
+                            .map((track) => track.id),
+                        ),
                       )
                     }
                   >
@@ -912,6 +1014,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                       <input
                         type="checkbox"
                         checked={hearthisSelected.has(track.id)}
+                        disabled={importedHearthisIds.has(track.id)}
                         onChange={() => toggleHearthisSelected(track.id)}
                         aria-label={`Select ${track.title}`}
                       />
@@ -937,7 +1040,11 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                       <Button
                         size="sm"
                         variant="secondary"
-                        disabled={busy || !destinationId}
+                        disabled={
+                          busy ||
+                          !destinationId ||
+                          importedHearthisIds.has(track.id)
+                        }
                         onClick={() => void importTracksToDestination([track])}
                       >
                         <DownloadIcon
@@ -945,7 +1052,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                           className="mr-1.5"
                           aria-hidden
                         />
-                        Import
+                        {importedHearthisIds.has(track.id)
+                          ? 'Imported'
+                          : 'Import'}
                       </Button>
                       {hearthisTab === 'sets' && (
                         <Button

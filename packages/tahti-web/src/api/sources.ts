@@ -169,15 +169,6 @@ export const SOURCE_DEFS: SourceDef[] = [
     kind: 'search',
   },
   {
-    id: 'broadcast',
-    name: 'From broadcast',
-    description:
-      'Promote recent live archive captures into published Music items.',
-    oauthStartPath: null,
-    studioDeepLink: '/studio/archive',
-    kind: 'tool',
-  },
-  {
     id: 'radio',
     name: 'Internet radio',
     description:
@@ -529,11 +520,28 @@ export async function fetchHearthisCollectionTracks(
 export async function importHearthisTracks(
   collectionId: string,
   tracks: HearthisTrack[],
-): Promise<{ imported: number; failed: number; artworkFailed: number }> {
+): Promise<{
+  imported: number;
+  failed: number;
+  artworkFailed: number;
+  items: Array<{ trackId: string; archiveItemId: string }>;
+}> {
   if (forceMock()) {
-    return { imported: tracks.length, failed: 0, artworkFailed: 0 };
+    return {
+      imported: tracks.length,
+      failed: 0,
+      artworkFailed: 0,
+      items: tracks.map((track) => ({
+        trackId: track.id,
+        archiveItemId: `hearthis-${track.id}`,
+      })),
+    };
   }
-  const results: PromiseSettledResult<{ artworkFailed: boolean }>[] = [];
+  const results: PromiseSettledResult<{
+    artworkFailed: boolean;
+    trackId: string;
+    archiveItemId: string;
+  }>[] = [];
   for (
     let index = 0;
     index < tracks.length;
@@ -552,7 +560,11 @@ export async function importHearthisTracks(
           }).then(async ({ data }) => {
             const coverUrl = data.track.coverUrl ?? track.coverUrl;
             if (!coverUrl) {
-              return { artworkFailed: false };
+              return {
+                artworkFailed: false,
+                trackId: track.id,
+                archiveItemId: data.archiveItemId,
+              };
             }
             try {
               await requestJson(
@@ -562,9 +574,17 @@ export async function importHearthisTracks(
                   body: JSON.stringify({ sourceUrl: coverUrl }),
                 },
               );
-              return { artworkFailed: false };
+              return {
+                artworkFailed: false,
+                trackId: track.id,
+                archiveItemId: data.archiveItemId,
+              };
             } catch {
-              return { artworkFailed: true };
+              return {
+                artworkFailed: true,
+                trackId: track.id,
+                archiveItemId: data.archiveItemId,
+              };
             }
           }),
         ),
@@ -577,7 +597,22 @@ export async function importHearthisTracks(
   const artworkFailed = results.filter(
     (result) => result.status === 'fulfilled' && result.value.artworkFailed,
   ).length;
-  return { imported, failed: results.length - imported, artworkFailed };
+  const items = results.flatMap((result) =>
+    result.status === 'fulfilled'
+      ? [
+          {
+            trackId: result.value.trackId,
+            archiveItemId: result.value.archiveItemId,
+          },
+        ]
+      : [],
+  );
+  return {
+    imported,
+    failed: results.length - imported,
+    artworkFailed,
+    items,
+  };
 }
 
 /** Backed by the same public read API the main Tahti app's collection

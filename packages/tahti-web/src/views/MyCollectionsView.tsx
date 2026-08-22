@@ -19,44 +19,56 @@ import { PageEmpty, PageLoading } from '../components/PageStates';
 import { useAuthStore } from '../stores/authStore';
 
 type Group = {
-  id: string;
+  id: CollectionKind;
   label: string;
   icon: ReactNode;
-  match: (style: string | undefined) => boolean;
 };
+
+type CollectionKind = 'album' | 'ep' | 'dj-set' | 'playlist';
+type CollectionFilter = 'all' | CollectionKind;
 
 const GROUPS: Group[] = [
   {
-    id: 'playlists',
-    label: 'Playlists',
-    icon: <ListMusicIcon size={14} aria-hidden />,
-    match: (style) => style === 'PLAYLIST',
-  },
-  {
-    id: 'dj-sets',
-    label: 'DJ sets',
-    icon: <HeadphonesIcon size={14} aria-hidden />,
-    match: (style) => style === 'DJ_SET_SERIES',
-  },
-  {
-    id: 'mixes',
-    label: 'Mixes',
-    icon: <Disc3Icon size={14} aria-hidden />,
-    match: (style) => style === 'MIX_SERIES',
-  },
-  {
-    id: 'collections',
+    id: 'album',
     label: 'Albums',
     icon: <LibraryIcon size={14} aria-hidden />,
-    match: (style) =>
-      !style || !['PLAYLIST', 'DJ_SET_SERIES', 'MIX_SERIES'].includes(style),
+  },
+  {
+    id: 'ep',
+    label: 'EPs',
+    icon: <Disc3Icon size={14} aria-hidden />,
+  },
+  {
+    id: 'dj-set',
+    label: 'DJ sets',
+    icon: <HeadphonesIcon size={14} aria-hidden />,
+  },
+  {
+    id: 'playlist',
+    label: 'Playlists',
+    icon: <ListMusicIcon size={14} aria-hidden />,
   },
 ];
 
+const collectionKind = (collection: StudioCollection): CollectionKind => {
+  const style = collection.style ?? collection.type;
+  if (style === 'EP') {
+    return 'ep';
+  }
+  if (style === 'DJ_SET_SERIES' || style === 'MIX_SERIES') {
+    return 'dj-set';
+  }
+  if (!style || ['PLAYLIST', 'CUSTOM', 'LIST'].includes(style)) {
+    return 'playlist';
+  }
+  return 'album';
+};
+
 function CollectionRow({ collection }: { collection: StudioCollection }) {
   const trackCount = collection.itemCount ?? collection.items?.length ?? 0;
+  const kind = collectionKind(collection);
   const destination =
-    collection.style === 'PLAYLIST'
+    kind === 'playlist' || kind === 'dj-set'
       ? '/studio/playlists/$slug'
       : '/studio/collections/$slug';
 
@@ -124,6 +136,7 @@ export function MyCollectionsView({
   const [collections, setCollections] = useState<StudioCollection[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<CollectionFilter>('all');
 
   useEffect(() => {
     if (!user) {
@@ -136,24 +149,29 @@ export function MyCollectionsView({
     });
   }, [user]);
 
-  const collectionsWithContent = useMemo(
-    () =>
-      collections.filter(
-        (collection) =>
-          (collection.itemCount ?? collection.items?.length ?? 0) > 0,
-      ),
-    [collections],
-  );
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) {
-      return collectionsWithContent;
-    }
-    return collectionsWithContent.filter((collection) =>
-      collection.name.toLowerCase().includes(q),
+    return collections.filter(
+      (collection) =>
+        (filter === 'all' || collectionKind(collection) === filter) &&
+        (!q ||
+          collection.name.toLowerCase().includes(q) ||
+          collection.description?.toLowerCase().includes(q)),
     );
-  }, [collectionsWithContent, query]);
+  }, [collections, filter, query]);
+
+  const counts = useMemo(
+    () =>
+      Object.fromEntries(
+        GROUPS.map((group) => [
+          group.id,
+          collections.filter(
+            (collection) => collectionKind(collection) === group.id,
+          ).length,
+        ]),
+      ) as Record<CollectionKind, number>,
+    [collections],
+  );
 
   if (!user) {
     return (
@@ -168,7 +186,7 @@ export function MyCollectionsView({
     return <PageLoading label="Loading your collections…" />;
   }
 
-  if (collectionsWithContent.length === 0) {
+  if (collections.length === 0) {
     if (embedded && hasOtherContent) {
       return null;
     }
@@ -198,13 +216,45 @@ export function MyCollectionsView({
   return (
     <div className="flex flex-col gap-6">
       {!embedded ? (
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search your library…"
-          className="max-w-xs"
-          aria-label="Search albums and playlists"
-        />
+        <div className="flex flex-col gap-3">
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search collections…"
+            className="max-w-xs"
+            aria-label="Search collections"
+          />
+          <div className="flex flex-wrap gap-2" aria-label="Collection types">
+            <button
+              type="button"
+              aria-pressed={filter === 'all'}
+              onClick={() => setFilter('all')}
+              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                filter === 'all'
+                  ? 'border-primary bg-primary/15 text-primary'
+                  : 'border-border text-foreground-secondary'
+              }`}
+            >
+              All ({collections.length})
+            </button>
+            {GROUPS.map((group) => (
+              <button
+                key={group.id}
+                type="button"
+                aria-pressed={filter === group.id}
+                onClick={() => setFilter(group.id)}
+                className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold ${
+                  filter === group.id
+                    ? 'border-primary bg-primary/15 text-primary'
+                    : 'border-border text-foreground-secondary'
+                }`}
+              >
+                {group.icon}
+                {group.label} ({counts[group.id]})
+              </button>
+            ))}
+          </div>
+        </div>
       ) : null}
 
       {filtered.length === 0 ? (
@@ -213,7 +263,9 @@ export function MyCollectionsView({
         </p>
       ) : (
         GROUPS.map((group) => {
-          const rows = filtered.filter((c) => group.match(c.style));
+          const rows = filtered.filter(
+            (collection) => collectionKind(collection) === group.id,
+          );
           if (rows.length === 0) {
             return null;
           }

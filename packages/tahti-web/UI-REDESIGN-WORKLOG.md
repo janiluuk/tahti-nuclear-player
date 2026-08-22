@@ -529,3 +529,23 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 **Map updated:** `/more` no longer says Press kit and Board admin are absent. It shows their current parity and exposes the newly audited missing/partial surfaces as reviewer-visible comparison cards.
 
 **Status:** implementation gaps logged; navigation fixes included in the current release batch.
+
+### 2026-08-23 — Artist identity, radio rotation, imports, and Library consolidation
+
+**Goal:** Bring the artist-facing media identity workflow into one professional surface, make the board’s radio view reflect what listeners actually hear, and remove duplicate or silent import/archive paths.
+
+**Branding and press kit:** Added `/studio/branding` with Branding, Gallery, and Press kit tabs. Artists can upload or replace their profile picture and open it full size, reuse the channel outlook designer, append to or replace the existing gallery, choose gallery visibility during upload, and select press-kit images. The press kit keeps at most ten selected images and automatically excludes the oldest selection when the limit is exceeded. Public gallery viewing now has a fullscreen slideshow, previous/next controls, wraparound keyboard arrows, Home/End, and Escape.
+
+**Admin identity and radio:** User management now combines account, membership, payment, channel, engagement, public-profile, follower, bio, pronoun, and catalog information, with an expandable avatar. Tahti Radio admin reads the actual station output separately from the live-member relay, so rotation playback is no longer called offline. It shows current track and transport controls plus the shared draggable `TrackTable`, removal actions, and total rotation duration. Tahti Selects uses the same editor.
+
+**Sources and imports:** Removed “From broadcast” from Sources; saved captures stay in Studio → Recordings. hearthis.at single, batch, set, and collection imports now emit started/completed notifications, link to the new track or collection, retain cover-art import, and disable source items already imported by the signed-in user.
+
+**My Library:** Studio’s primary Music entry now opens My Library. All sounds remains its first section and gains pinned filtering, pinned-first ordering, inline pin/unpin actions, high-contrast pinned rows, stronger zebra striping, visibility filters, search across title/artist/genre, and discography sorting.
+
+**Collections, Recordings, and Messages:** Albums and Playlists no longer compete as separate Studio tools. One Collections hub now searches and filters albums, EPs, DJ sets, and playlists, creates each type, and opens the correct design or ordering editor. Album and EP metadata includes release date, up to five genres, and public, unlisted, or private visibility both at creation and in the full editor. Recordings is now a first-class My Library section. Messages moved out of My Library to `/messages`, with global sidebar and top-bar access plus compatibility redirects for old links.
+
+**Release tools:** Embeds moved out of the Grow/miscellaneous area and into the Release tool group, the Studio music overview, and the Releases header so pinned external players are managed alongside release publishing.
+
+**Queue feedback:** Add-to-queue actions now flash and disable during the add transition, then remain visibly checked and disabled while the track is queued. The bottom player’s queue control uses upward/downward expand and collapse cues, and Clear queue is a subdued icon-only action beside the lower playback controls.
+
+**Status:** implemented; type-check, lint, unit tests, build, and focused browser acceptance are the release gate.

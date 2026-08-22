@@ -593,8 +593,36 @@ export async function fetchStudioCollections(): Promise<{
           id: 'mock-collection-favorites-mix',
           slug: 'favorites-mix',
           name: 'Favorites mix',
-          description: 'Mock collection',
+          description: 'Tracks saved for later listening.',
+          style: 'PLAYLIST',
           isPublic: true,
+          itemCount: 2,
+        },
+        {
+          id: 'mock-collection-midnight-archive',
+          slug: 'midnight-archive',
+          name: 'Midnight Archive',
+          description: 'A full-length collection of late-night sessions.',
+          style: 'ALBUM',
+          isPublic: true,
+          itemCount: 2,
+        },
+        {
+          id: 'mock-collection-short-signals',
+          slug: 'short-signals',
+          name: 'Short Signals',
+          description: 'Four connected pieces from the same session.',
+          style: 'EP',
+          isPublic: true,
+          itemCount: 2,
+        },
+        {
+          id: 'mock-collection-northern-lights-set',
+          slug: 'northern-lights-set',
+          name: 'Northern Lights DJ set',
+          description: 'A continuous club mix arranged for radio.',
+          style: 'DJ_SET_SERIES',
+          isPublic: false,
           itemCount: 2,
         },
       ],
@@ -725,6 +753,9 @@ export async function createStudioCollection(input: {
   style?: string;
   description?: string;
   isPublic?: boolean;
+  visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+  releaseDate?: string | null;
+  genres?: string[];
   collaborative?: boolean;
 }): Promise<
   { ok: true; data: StudioCollection } | { ok: false; error: string }
@@ -745,6 +776,10 @@ export async function createStudioCollection(input: {
         description: input.description ?? null,
         style: input.style ?? 'PLAYLIST',
         isPublic: input.isPublic ?? true,
+        visibility:
+          input.visibility ?? (input.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
+        releaseDate: input.releaseDate ?? null,
+        genres: input.genres ?? [],
         collaborative: Boolean(input.collaborative && (input.isPublic ?? true)),
         items: [],
         itemCount: 0,
@@ -761,6 +796,11 @@ export async function createStudioCollection(input: {
           style: input.style ?? 'PLAYLIST',
           description: input.description,
           isPublic: input.isPublic ?? true,
+          visibility:
+            input.visibility ??
+            (input.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
+          releaseDate: input.releaseDate,
+          genres: input.genres,
           collaborative: Boolean(
             input.collaborative && (input.isPublic ?? true),
           ),
@@ -783,6 +823,9 @@ export async function patchStudioCollection(
     description?: string | null;
     style?: string;
     isPublic?: boolean;
+    visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+    releaseDate?: string | null;
+    genres?: string[];
     collaborative?: boolean;
     coverUrl?: string | null;
   },
@@ -798,6 +841,10 @@ export async function patchStudioCollection(
         description: patch.description ?? null,
         style: patch.style ?? 'ALBUM',
         isPublic: patch.isPublic ?? true,
+        visibility:
+          patch.visibility ?? (patch.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
+        releaseDate: patch.releaseDate ?? null,
+        genres: patch.genres ?? [],
         collaborative: Boolean(patch.collaborative && (patch.isPublic ?? true)),
         coverUrl: patch.coverUrl ?? null,
         items: [],

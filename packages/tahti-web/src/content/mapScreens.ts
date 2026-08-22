@@ -422,7 +422,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/listener-dashboard.png',
-          route: '/library/messages',
+          route: '/messages',
           caption: 'Nuclear DMs (in My Library, not a separate dashboard)',
         },
       },

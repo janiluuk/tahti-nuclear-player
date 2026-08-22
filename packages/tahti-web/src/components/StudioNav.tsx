@@ -5,10 +5,9 @@ import {
   ChevronDownIcon,
   CircleDollarSignIcon,
   CloudUploadIcon,
-  Disc3Icon,
   GalleryVerticalEndIcon,
   LayoutGridIcon,
-  ListMusicIcon,
+  LibraryIcon,
   MegaphoneIcon,
   PaletteIcon,
   RadioTowerIcon,
@@ -30,7 +29,7 @@ import { InPageNav } from './InPageNav';
 const PRIMARY = [
   { to: '/studio', label: 'Overview' },
   { to: '/studio/go-live', label: 'Go Live' },
-  { to: '/studio/archive', label: 'Music' },
+  { to: '/library', label: 'My Library' },
   { to: '/studio/releases', label: 'Releases' },
   { to: '/studio/shows', label: 'Shows' },
 ] as const;
@@ -49,13 +48,13 @@ type StudioToolGroup = {
 
 const TOOL_GROUPS: readonly StudioToolGroup[] = [
   {
-    label: 'Create',
+    label: 'Release',
     icon: SparklesIcon,
     tools: [
       { to: '/studio/upload', label: 'Upload', icon: CloudUploadIcon },
-      { to: '/studio/collections', label: 'Albums', icon: Disc3Icon },
+      { to: '/studio/collections', label: 'Collections', icon: LibraryIcon },
       { to: '/studio/editor', label: 'Audio editor', icon: AudioLinesIcon },
-      { to: '/studio/playlists', label: 'Playlists', icon: ListMusicIcon },
+      { to: '/studio/embeds', label: 'Embeds', icon: GalleryVerticalEndIcon },
     ],
   },
   {
@@ -78,7 +77,6 @@ const TOOL_GROUPS: readonly StudioToolGroup[] = [
         icon: CircleDollarSignIcon,
       },
       { to: '/studio/updates', label: 'Updates', icon: MegaphoneIcon },
-      { to: '/studio/embeds', label: 'Embeds', icon: GalleryVerticalEndIcon },
     ],
   },
   {
@@ -86,6 +84,11 @@ const TOOL_GROUPS: readonly StudioToolGroup[] = [
     icon: Settings2Icon,
     tools: [
       { to: '/studio/channel', label: 'Channel design', icon: PaletteIcon },
+      {
+        to: '/studio/branding',
+        label: 'Branding & press kit',
+        icon: GalleryVerticalEndIcon,
+      },
       { to: '/studio/moderation', label: 'Moderation', icon: ShieldCheckIcon },
       { to: '/studio/setup-channel', label: 'Channel setup', icon: UsersIcon },
     ],

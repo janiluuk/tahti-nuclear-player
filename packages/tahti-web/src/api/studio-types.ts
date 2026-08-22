@@ -106,6 +106,9 @@ export type StudioCollection = {
   type?: string;
   style?: string;
   isPublic?: boolean;
+  visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+  releaseDate?: string | null;
+  genres?: string[];
   /** Public playlists only — logged-in listeners can add catalog tracks. */
   collaborative?: boolean;
   coverUrl?: string | null;

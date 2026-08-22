@@ -78,6 +78,7 @@ export function ReleasesPanel({
 
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const queue = usePlayerStore((s) => s.queue);
 
   const setSort = (key: SortKey) => {
     if (key === sortKey) {
@@ -235,6 +236,13 @@ export function ReleasesPanel({
                           queueDisabled: playables.length === 0,
                           playLabel: `Play ${rel.title}`,
                           queueLabel: `Queue ${rel.title}`,
+                          queued:
+                            playables.length > 0 &&
+                            playables.every((playable) =>
+                              queue.some(
+                                (queueItem) => queueItem.id === playable.id,
+                              ),
+                            ),
                         })}
                       />
                     </td>

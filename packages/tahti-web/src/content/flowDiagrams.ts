@@ -953,7 +953,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     mermaid: `flowchart TD
   Auth --> Lib["/library Favorites History"]
   Auth --> Sub["/subscribe/:artist → Stripe"]
-  Auth --> DM["/library/messages"]
+  Auth --> DM["/messages"]
   Auth --> Mem{Member?}
   Mem -->|Yes| Gov["/governance vote"]
   Mem -->|No| Gate[Governance gated]

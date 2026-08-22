@@ -21,14 +21,17 @@ import {
   type AdminUserDetail,
   type AdminUserRow,
 } from '../../api/admin';
+import { fetchProfile } from '../../api/client';
 import {
   fetchConversation,
   sendDm,
   startConversation,
   type ChatDm,
 } from '../../api/messages';
+import type { PublicProfile } from '../../api/types';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { ImageLightbox } from '../../components/ImageLightbox';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 const TIERS = ['', 'FREE', 'ARTIST', 'STUDIO'] as const;
@@ -56,6 +59,10 @@ export const AdminUsersView = () => {
   const [messages, setMessages] = useState<ChatDm[]>([]);
   const [messageBody, setMessageBody] = useState('');
   const [messageOpen, setMessageOpen] = useState(false);
+  const [publicProfile, setPublicProfile] = useState<PublicProfile | null>(
+    null,
+  );
+  const [avatarOpen, setAvatarOpen] = useState(false);
 
   const syncDetail = (user: AdminUserDetail) => {
     setDetail(user);
@@ -102,6 +109,8 @@ export const AdminUsersView = () => {
     setMessageOpen(false);
     setConversationId(null);
     setMessages([]);
+    setPublicProfile(null);
+    setAvatarOpen(false);
     if (!selectedId) {
       setDetail(null);
       return;
@@ -110,6 +119,9 @@ export const AdminUsersView = () => {
     void fetchAdminUser(selectedId).then((result) => {
       if (result.data) {
         syncDetail(result.data);
+        void fetchProfile(result.data.username)
+          .then((profileResult) => setPublicProfile(profileResult.data))
+          .catch(() => setPublicProfile(null));
       } else {
         setDetail(null);
       }
@@ -327,25 +339,50 @@ export const AdminUsersView = () => {
               <div className="flex flex-col gap-4">
                 <StudioPanel>
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-display text-2xl font-bold">
-                          {detail.displayName}
-                        </h2>
-                        {detail.isBoard ? (
-                          <span className="bg-accent-purple/15 text-accent-purple rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
-                            Board
-                          </span>
-                        ) : null}
-                        {detail.suspendedAt ? (
-                          <span className="bg-accent-red/15 text-accent-red rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
-                            Suspended
-                          </span>
+                    <div className="flex min-w-0 items-start gap-4">
+                      {publicProfile?.artist.avatarUrl ? (
+                        <button
+                          type="button"
+                          className="border-border size-20 shrink-0 overflow-hidden rounded-xl border shadow-md"
+                          aria-label={`View ${detail.displayName} profile picture`}
+                          onClick={() => setAvatarOpen(true)}
+                        >
+                          <img
+                            src={publicProfile.artist.avatarUrl}
+                            alt=""
+                            className="size-full object-cover"
+                          />
+                        </button>
+                      ) : (
+                        <span className="bg-primary/15 text-primary flex size-20 shrink-0 items-center justify-center rounded-xl text-2xl font-bold">
+                          {detail.displayName.slice(0, 1).toUpperCase()}
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h2 className="font-display text-2xl font-bold">
+                            {detail.displayName}
+                          </h2>
+                          {detail.isBoard ? (
+                            <span className="bg-accent-purple/15 text-accent-purple rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+                              Board
+                            </span>
+                          ) : null}
+                          {detail.suspendedAt ? (
+                            <span className="bg-accent-red/15 text-accent-red rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+                              Suspended
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="text-foreground-secondary text-sm">
+                          @{detail.username} · {detail.email}
+                        </p>
+                        {publicProfile?.artist.pronouns ? (
+                          <p className="text-foreground-secondary mt-1 text-xs">
+                            {publicProfile.artist.pronouns}
+                          </p>
                         ) : null}
                       </div>
-                      <p className="text-foreground-secondary text-sm">
-                        @{detail.username} · {detail.email}
-                      </p>
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -373,6 +410,53 @@ export const AdminUsersView = () => {
                       </Link>
                     </div>
                   </div>
+
+                  {publicProfile?.artist.bio ? (
+                    <p className="text-foreground-secondary mt-4 max-w-3xl text-sm whitespace-pre-wrap">
+                      {publicProfile.artist.bio}
+                    </p>
+                  ) : null}
+
+                  <dl className="border-border mt-4 grid gap-3 border-t pt-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                    <div>
+                      <dt className="text-foreground-secondary text-xs uppercase">
+                        Member since
+                      </dt>
+                      <dd>
+                        {detail.memberSince
+                          ? new Date(detail.memberSince).toLocaleDateString()
+                          : 'Not a member'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-foreground-secondary text-xs uppercase">
+                        Followers
+                      </dt>
+                      <dd>
+                        {publicProfile?.artist.followerCount ??
+                          'Hidden or unavailable'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-foreground-secondary text-xs uppercase">
+                        Artist type
+                      </dt>
+                      <dd>
+                        {publicProfile?.channel?.artistKind ??
+                          (detail.channel ? 'Artist' : 'Listener')}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-foreground-secondary text-xs uppercase">
+                        Published material
+                      </dt>
+                      <dd>
+                        {publicProfile
+                          ? `${publicProfile.tracks.length} tracks · ${publicProfile.releases.length} releases · ${publicProfile.collections.length} collections`
+                          : 'Loading…'}
+                      </dd>
+                    </div>
+                  </dl>
 
                   <dl className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     <div className="bg-background-secondary rounded-lg p-3">
@@ -547,7 +631,7 @@ export const AdminUsersView = () => {
                 {messageOpen ? (
                   <StudioPanel
                     title={`Message ${detail.displayName}`}
-                    description="This uses the same direct-message thread the user sees in My Library."
+                    description="This uses the same direct-message thread the user sees in Messages."
                   >
                     <div className="border-border bg-background flex max-h-64 min-h-36 flex-col gap-2 overflow-y-auto rounded-lg border p-3">
                       {messages.length === 0 ? (
@@ -607,6 +691,14 @@ export const AdminUsersView = () => {
           </div>
         </div>
       </div>
+      {avatarOpen && publicProfile?.artist.avatarUrl ? (
+        <ImageLightbox
+          images={[{ imageUrl: publicProfile.artist.avatarUrl }]}
+          index={0}
+          label={`${detail?.displayName ?? 'User'} profile picture`}
+          onClose={() => setAvatarOpen(false)}
+        />
+      ) : null}
     </AdminGate>
   );
 };

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { HeartIcon, ListPlusIcon, PlayIcon } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { CheckIcon, HeartIcon, ListPlusIcon, PlayIcon } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
@@ -25,6 +25,16 @@ type Props = {
 
 /** Compact icon controls when no artwork thumbnail is available. */
 export function MediaIconActions({ actions, className }: Props) {
+  const [flashingId, setFlashingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!flashingId) {
+      return;
+    }
+    const timeout = window.setTimeout(() => setFlashingId(null), 700);
+    return () => window.clearTimeout(timeout);
+  }, [flashingId]);
+
   return (
     <div className={cn('flex flex-wrap items-center gap-1', className)}>
       {actions.map((a) => (
@@ -33,11 +43,20 @@ export function MediaIconActions({ actions, className }: Props) {
           type="button"
           size="icon-sm"
           variant={a.variant ?? (a.id === 'play' ? 'default' : 'text')}
-          disabled={a.disabled}
+          disabled={a.disabled || a.active || flashingId === a.id}
+          className={cn(
+            (a.active || flashingId === a.id) &&
+              'bg-primary/20 text-primary motion-safe:animate-pulse',
+          )}
           title={a.title ?? a.label}
           aria-label={a.label}
           aria-pressed={a.active}
-          onClick={a.onClick}
+          onClick={() => {
+            if (a.id === 'queue') {
+              setFlashingId(a.id);
+            }
+            a.onClick();
+          }}
         >
           {a.icon}
         </Button>
@@ -53,6 +72,7 @@ export function playQueueFavoriteActions(opts: {
   favorited?: boolean;
   playDisabled?: boolean;
   queueDisabled?: boolean;
+  queued?: boolean;
   playLabel?: string;
   queueLabel?: string;
 }): MediaIconAction[] {
@@ -66,10 +86,11 @@ export function playQueueFavoriteActions(opts: {
     },
     {
       id: 'queue',
-      label: opts.queueLabel ?? 'Queue',
-      icon: <ListPlusIcon size={16} />,
+      label: opts.queued ? 'In queue' : (opts.queueLabel ?? 'Queue'),
+      icon: opts.queued ? <CheckIcon size={16} /> : <ListPlusIcon size={16} />,
       onClick: opts.onQueue,
-      disabled: opts.queueDisabled,
+      disabled: opts.queueDisabled || opts.queued,
+      active: opts.queued,
       variant: 'text',
     },
   ];

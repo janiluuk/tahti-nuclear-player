@@ -183,7 +183,7 @@ const FEATURES: FeatureRow[] = [
   {
     feature: 'DMs',
     tahti: 'messages',
-    nuclear: '/library/messages',
+    nuclear: '/messages',
     status: 'live',
     notes: 'Inbox + thread',
   },
@@ -405,7 +405,7 @@ const QUICK_LINKS: Array<{
   { to: '/studio/stats', label: 'Stats' },
   { to: '/studio/updates', label: 'Updates' },
   { to: '/studio/revenue', label: 'Revenue' },
-  { to: '/library/messages', label: 'Messages' },
+  { to: '/messages', label: 'Messages' },
   { to: '/settings', label: 'Settings' },
   { to: '/settings/$section', label: 'Themes', params: { section: 'themes' } },
   { to: '/governance', label: 'Governance' },

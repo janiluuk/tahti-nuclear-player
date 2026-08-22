@@ -55,6 +55,7 @@ export function ReleaseTracklistDialog({
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const currentId = usePlayerStore((s) => s.currentId);
+  const queue = usePlayerStore((s) => s.queue);
 
   const tracks = [...(release?.tracks ?? [])].sort(
     (a, b) => a.position - b.position,
@@ -139,6 +140,12 @@ export function ReleaseTracklistDialog({
                         queueDisabled: !playable,
                         playLabel: `Play ${track.title}`,
                         queueLabel: `Queue ${track.title}`,
+                        queued: Boolean(
+                          playable &&
+                          queue.some(
+                            (queueItem) => queueItem.id === playable.id,
+                          ),
+                        ),
                       })}
                     />
                   </li>

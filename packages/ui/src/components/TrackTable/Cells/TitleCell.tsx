@@ -1,6 +1,6 @@
 import { CellContext } from '@tanstack/react-table';
-import { EllipsisVertical, Pencil, Plus } from 'lucide-react';
-import { FC, forwardRef } from 'react';
+import { Check, EllipsisVertical, ListPlus, Pencil } from 'lucide-react';
+import { FC, forwardRef, useEffect, useState } from 'react';
 
 import { Track } from '@nuclearplayer/model';
 
@@ -14,6 +14,7 @@ type TitleCellMeta = {
   onAddToQueue?: (track: Track) => void;
   onEdit?: (track: Track) => void;
   isCurrentTrack?: (track: Track) => boolean;
+  isTrackQueued?: (track: Track) => boolean;
   canEditTrack?: (track: Track) => boolean;
   ContextMenuWrapper?: FC<ContextMenuWrapperProps>;
 };
@@ -42,24 +43,54 @@ const EditButton: FC<EditButtonProps> = ({ label, onClick }) => (
 
 type AddToQueueButtonProps = {
   label: string;
+  queued: boolean;
   onClick: () => void;
 };
 
-const AddToQueueButton: FC<AddToQueueButtonProps> = ({ label, onClick }) => (
-  <Button
-    data-testid="add-to-queue-button"
-    size="icon-sm"
-    variant="text"
-    className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-    onClick={(e) => {
-      e.stopPropagation();
-      onClick();
-    }}
-    aria-label={label}
-  >
-    <Plus size={16} />
-  </Button>
-);
+const QUEUE_FEEDBACK_MS = 700;
+
+const AddToQueueButton: FC<AddToQueueButtonProps> = ({
+  label,
+  queued,
+  onClick,
+}) => {
+  const [flashing, setFlashing] = useState(false);
+
+  useEffect(() => {
+    if (!flashing) {
+      return;
+    }
+    const timeout = window.setTimeout(
+      () => setFlashing(false),
+      QUEUE_FEEDBACK_MS,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [flashing]);
+
+  return (
+    <Button
+      data-testid="add-to-queue-button"
+      size="icon-sm"
+      variant="text"
+      disabled={queued || flashing}
+      className={cn(
+        'opacity-100 transition-colors [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100',
+        (queued || flashing) &&
+          'bg-primary/20 text-primary opacity-100! motion-safe:animate-pulse',
+      )}
+      onClick={(event) => {
+        event.stopPropagation();
+        setFlashing(true);
+        onClick();
+      }}
+      aria-label={queued ? 'In queue' : label}
+      aria-pressed={queued}
+      title={queued ? 'Already in queue' : label}
+    >
+      {queued ? <Check size={16} /> : <ListPlus size={16} />}
+    </Button>
+  );
+};
 
 type ContextMenuButtonProps = {
   label: string;
@@ -99,6 +130,7 @@ export const TitleCell = <T extends Track>({
   const canEdit = Boolean(meta?.onEdit && meta.canEditTrack?.(track));
   const hasActions = hasAddToQueue || hasContextMenu || canEdit;
   const isCurrent = meta?.isCurrentTrack?.(track) ?? false;
+  const isQueued = meta?.isTrackQueued?.(track) ?? false;
 
   return (
     <td className="truncate px-2">
@@ -120,6 +152,7 @@ export const TitleCell = <T extends Track>({
             {hasAddToQueue && (
               <AddToQueueButton
                 label={labels.addToQueue}
+                queued={isQueued}
                 onClick={() => meta?.onAddToQueue?.(track)}
               />
             )}

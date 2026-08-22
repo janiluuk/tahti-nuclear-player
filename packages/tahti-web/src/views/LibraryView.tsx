@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import {
   ClockIcon,
+  DiscIcon,
   HeartIcon,
   LibraryBigIcon,
-  MessageCircleIcon,
   MicVocalIcon,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -11,11 +11,16 @@ import type { ReactNode } from 'react';
 import { PageFrame } from '../components/PageHeader';
 import { FavoritesView } from './FavoritesView';
 import { HistoryView } from './HistoryView';
-import { MessagesView } from './MessagesView';
 import { MyCollectionsView } from './MyCollectionsView';
 import { MyDiscographyView } from './MyDiscographyView';
+import { StudioRecordingsView } from './studio/StudioRecordingsView';
 
-type Tab = 'discography' | 'collections' | 'favorites' | 'history' | 'messages';
+type Tab =
+  | 'discography'
+  | 'collections'
+  | 'recordings'
+  | 'favorites'
+  | 'history';
 
 const ITEMS: {
   id: Tab;
@@ -36,6 +41,12 @@ const ITEMS: {
     icon: <MicVocalIcon size={16} aria-hidden />,
   },
   {
+    id: 'recordings',
+    to: '/library/recordings',
+    label: 'Recordings',
+    icon: <DiscIcon size={16} aria-hidden />,
+  },
+  {
     id: 'favorites',
     to: '/library/favorites',
     label: 'Favorites',
@@ -47,15 +58,8 @@ const ITEMS: {
     label: 'History',
     icon: <ClockIcon size={16} aria-hidden />,
   },
-  {
-    id: 'messages',
-    to: '/library/messages',
-    label: 'Messages',
-    icon: <MessageCircleIcon size={16} aria-hidden />,
-  },
 ];
 
-/** My Library — tracks, albums, playlists, favorites, history, and messages. */
 export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
   return (
     <PageFrame maxWidth="5xl">
@@ -84,9 +88,9 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
         <div className="min-w-0 flex-1">
           {tab === 'discography' && <MyDiscographyView />}
           {tab === 'collections' && <MyCollectionsView />}
+          {tab === 'recordings' && <StudioRecordingsView embedded />}
           {tab === 'favorites' && <FavoritesView />}
           {tab === 'history' && <HistoryView />}
-          {tab === 'messages' && <MessagesView />}
         </div>
       </div>
     </PageFrame>

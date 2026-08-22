@@ -81,6 +81,7 @@ export function RadioView() {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const currentId = usePlayerStore((s) => s.currentId);
+  const queue = usePlayerStore((s) => s.queue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const favorited = useLibraryStore((s) =>
     s.favoriteChannels.some((c) => c.slug === TAHTI_RADIO_SLUG),
@@ -308,6 +309,11 @@ export function RadioView() {
                       favorited,
                       playLabel: 'Play Radio',
                       queueLabel: 'Queue',
+                      queued: queue.some(
+                        (item) =>
+                          item.id === `live:${TAHTI_RADIO_SLUG}` ||
+                          item.id === `radio:${TAHTI_RADIO_SLUG}`,
+                      ),
                     })}
                   />
                   <Link to="/channel/$slug" params={{ slug: TAHTI_RADIO_SLUG }}>
@@ -472,6 +478,13 @@ export function RadioView() {
                                   queueDisabled: !playable,
                                   playLabel: `Play ${item.title}`,
                                   queueLabel: `Queue ${item.title}`,
+                                  queued: Boolean(
+                                    playable &&
+                                    queue.some(
+                                      (queueItem) =>
+                                        queueItem.id === playable.id,
+                                    ),
+                                  ),
                                 })}
                               />
                             </li>

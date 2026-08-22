@@ -1,4 +1,6 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { FC, useState } from 'react';
 import { vi } from 'vitest';
 
 import type { Track } from '@nuclearplayer/model';
@@ -159,5 +161,29 @@ describe('TrackTable', () => {
     );
     await findByTestId('add-all-to-queue-button');
     expect(asFragment()).toMatchSnapshot();
+  });
+
+  it('shows queued feedback and disables repeated queue clicks', async () => {
+    const track = makeTracks(1)[0]!;
+    const QueueHarness: FC = () => {
+      const [queued, setQueued] = useState(false);
+      return (
+        <TrackTable
+          tracks={[track]}
+          labels={labels}
+          display={{ displayQueueControls: true }}
+          actions={{ onAddToQueue: () => setQueued(true) }}
+          meta={{ isTrackQueued: () => queued }}
+        />
+      );
+    };
+
+    render(<QueueHarness />);
+    await userEvent.click(screen.getByTestId('add-to-queue-button'));
+
+    const queuedButton = screen.getByTestId('add-to-queue-button');
+    expect(queuedButton).toBeDisabled();
+    expect(queuedButton).toHaveAttribute('aria-label', 'In queue');
+    expect(queuedButton).toHaveAttribute('aria-pressed', 'true');
   });
 });

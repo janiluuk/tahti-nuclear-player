@@ -12,7 +12,6 @@ import {
   LayoutGridIcon,
   LayoutTemplateIcon,
   LibraryBigIcon,
-  ListMusicIcon,
   MicIcon,
   NewspaperIcon,
   PlugIcon,
@@ -293,13 +292,6 @@ export function StudioHomeView() {
                   color="var(--accent-purple)"
                 />
                 <StudioActionTile
-                  to="/studio/playlists"
-                  icon={ListMusicIcon}
-                  label="Playlists"
-                  subtitle="Public & collab"
-                  color="var(--accent-cyan)"
-                />
-                <StudioActionTile
                   to="/studio/archive"
                   icon={LibraryBigIcon}
                   label="Music"
@@ -320,11 +312,11 @@ export function StudioHomeView() {
                 <StudioActionTile
                   to="/studio/collections"
                   icon={DiscAlbumIcon}
-                  label="Albums"
+                  label="Collections"
                   subtitle={
                     counts.collections
                       ? `${counts.collections} collections`
-                      : 'Design & order tracks'
+                      : 'Albums, EPs, DJ sets & playlists'
                   }
                   color="var(--accent-yellow)"
                 />
@@ -338,6 +330,13 @@ export function StudioHomeView() {
                       : 'Share releases'
                   }
                   color="var(--primary)"
+                />
+                <StudioActionTile
+                  to="/studio/embeds"
+                  icon={Code2Icon}
+                  label="Embeds"
+                  subtitle="Pinned release players"
+                  color="var(--accent-cyan)"
                 />
               </CardGrid>
             </Group>
@@ -445,13 +444,6 @@ export function StudioHomeView() {
                       label="Events"
                       subtitle="Live dates"
                       color="var(--accent-purple)"
-                    />
-                    <StudioActionTile
-                      to="/studio/embeds"
-                      icon={Code2Icon}
-                      label="Embeds"
-                      subtitle="Player manager"
-                      color="var(--accent-cyan)"
                     />
                   </CardGrid>
                 </div>

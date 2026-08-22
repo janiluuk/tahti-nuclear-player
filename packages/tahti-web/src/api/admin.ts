@@ -29,7 +29,7 @@ async function getJson<T>(path: string): Promise<T> {
 
 async function sendJson<T>(
   path: string,
-  method: 'POST' | 'PATCH' | 'DELETE',
+  method: 'POST' | 'PATCH' | 'PUT' | 'DELETE',
   body?: unknown,
 ): Promise<T> {
   const res = await fetch(`${apiBase()}${path}`, {
@@ -61,7 +61,7 @@ async function sendJson<T>(
 
 async function mutate(
   path: string,
-  method: 'POST' | 'PATCH' | 'DELETE',
+  method: 'POST' | 'PATCH' | 'PUT' | 'DELETE',
   body?: unknown,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
@@ -737,9 +737,9 @@ export type AdminRadioData = {
 function mockRadioAdmin(): AdminRadioData {
   return {
     nowPlaying: {
-      live: true,
-      slug: 'northern-lights',
-      artistName: 'Northern Lights',
+      live: false,
+      slug: null,
+      artistName: null,
     },
     eligible: [
       {
@@ -1380,6 +1380,19 @@ export function reorderSelectsItem(id: string, position: number) {
     'PATCH',
     { position },
   );
+}
+
+export function reorderSelectsRotation(itemIds: string[]) {
+  if (forceMock()) {
+    const byId = new Map(selectsState().map((item) => [item.id, item]));
+    mockSelectsItems = itemIds
+      .map((id) => byId.get(id))
+      .filter((item): item is AdminSelectsItem => Boolean(item));
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate('/api/admin/tahti-selects/reorder', 'PUT', {
+    itemIds,
+  });
 }
 
 export function startSelectsStream() {

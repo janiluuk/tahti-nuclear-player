@@ -1,6 +1,48 @@
 [
   {
     "date": "2026-08-23T00:00",
+    "description": "Albums, EPs, DJ sets, and playlists now share one searchable Collections hub with release dates, genres, and public, unlisted, or private visibility; My Library now includes Recordings, Messages has its own destination, and Embeds lives with release tools.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "Queue actions now flash and disable while adding, remain marked when a track is already queued, and the bottom player uses clear expand/collapse cues with a quieter icon-only clear action.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "Artist Branding now combines profile pictures, channel outlook, a public image gallery, keyboard-controlled fullscreen slideshows, and a promoter-ready press kit with an automatic 10-image limit.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "Tahti Radio admin now recognises always-on rotation playback, shows the current track and transport controls, and edits the rotation with the shared drag-and-drop playlist table and total duration.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "hearthis.at imports now announce start and completion, link to the imported track or collection, preserve cover art, and prevent the same source item from being imported repeatedly.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "My Library is now the single first home for every sound, with discography-style search, visibility and pinned filters, stronger striped rows, highlighted profile pins, and inline pin controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-23T00:00",
     "description": "Fan subscription settings and Revenue now show active subscribers, monthly net revenue, year-to-date payouts, pending and failed transfers, recent payout detail, and subscriber CSV export.",
     "type": "feature",
     "contributors": ["jani"],

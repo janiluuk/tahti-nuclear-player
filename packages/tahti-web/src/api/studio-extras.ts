@@ -616,6 +616,7 @@ export type ProfileFields = {
   username: string;
   displayName: string;
   bio: string | null;
+  avatarUrl?: string | null;
   tipJarUrl: string | null;
   pronouns: string | null;
   chatEnabled: boolean;
@@ -632,6 +633,7 @@ let mockProfile: ProfileFields = {
   username: 'demo',
   displayName: 'Demo Artist',
   bio: 'Mock bio for Nuclear studio channel settings.',
+  avatarUrl: null,
   tipJarUrl: null,
   pronouns: null,
   chatEnabled: true,

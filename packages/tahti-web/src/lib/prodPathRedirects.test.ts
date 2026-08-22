@@ -14,11 +14,13 @@ describe('resolveDashboardRedirect', () => {
     ['archive/track-1/editor', '/studio/archive/track-1/editor'],
     ['insights/archive/track-1', '/studio/insights/archive/track-1'],
     ['collections/new', '/studio/collections'],
-    ['settings/media', '/settings/artist'],
-    ['settings/presskit', '/settings/artist'],
+    ['settings/media', '/studio/branding'],
+    ['settings/presskit', '/studio/branding'],
     ['settings/green-room', '/settings/broadcast'],
     ['settings/moderators', '/studio/moderation'],
     ['settings/distribution', '/studio/distribution'],
+    ['playlists', '/studio/collections'],
+    ['messages', '/messages'],
   ])('maps /dashboard/%s to %s', (source, expected) => {
     expect(resolveDashboardRedirect(source)).toBe(expected);
   });

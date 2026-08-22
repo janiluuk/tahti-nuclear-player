@@ -22,6 +22,7 @@ import {
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { GlowMediaTile } from '../components/GlowMediaTile';
+import { ImageLightbox } from '../components/ImageLightbox';
 import { NewsletterSubscribeToggle } from '../components/NewsletterSubscribeToggle';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import {
@@ -108,6 +109,7 @@ export function ArtistView({ username }: { username: string }) {
     'visualPreset' | 'colorScheme' | 'colorSchemeJson'
   > | null>(null);
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
+  const [avatarOpen, setAvatarOpen] = useState(false);
 
   const navigate = useNavigate();
   const play = usePlayerStore((s) => s.play);
@@ -300,13 +302,29 @@ export function ArtistView({ username }: { username: string }) {
 
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              {artist.displayName}
-            </h1>
-            <p className="text-foreground-secondary text-sm">
-              @{artist.username}
-            </p>
+          <div className="flex min-w-0 items-center gap-4">
+            {artist.avatarUrl ? (
+              <button
+                type="button"
+                className="border-border size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24"
+                aria-label={`View ${artist.displayName} profile picture`}
+                onClick={() => setAvatarOpen(true)}
+              >
+                <img
+                  src={artist.avatarUrl}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              </button>
+            ) : null}
+            <div className="min-w-0">
+              <h1 className="font-display text-3xl font-extrabold tracking-tight">
+                {artist.displayName}
+              </h1>
+              <p className="text-foreground-secondary text-sm">
+                @{artist.username}
+              </p>
+            </div>
           </div>
           {isOwner && channel?.slug ? (
             <Link
@@ -715,6 +733,15 @@ export function ArtistView({ username }: { username: string }) {
           void fetchProfile(username).then((res) => setProfile(res.data));
         }}
       />
+
+      {avatarOpen && artist.avatarUrl ? (
+        <ImageLightbox
+          images={[{ imageUrl: artist.avatarUrl }]}
+          index={0}
+          label={`${artist.displayName} profile picture`}
+          onClose={() => setAvatarOpen(false)}
+        />
+      ) : null}
 
       <Dialog.Root
         isOpen={Boolean(albumPrompt)}

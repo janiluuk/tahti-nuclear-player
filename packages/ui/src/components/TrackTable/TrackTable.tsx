@@ -88,6 +88,7 @@ export function TrackTable<T extends Track = Track>({
       onEdit: actions?.onEdit,
       isTrackFavorite: meta?.isTrackFavorite,
       isCurrentTrack: meta?.isCurrentTrack,
+      isTrackQueued: meta?.isTrackQueued,
       canEditTrack: meta?.canEditTrack,
       ContextMenuWrapper: meta?.ContextMenuWrapper,
     },

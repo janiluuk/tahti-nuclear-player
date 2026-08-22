@@ -662,6 +662,8 @@ export type PressKitImageItem = PublicPressKitImage & {
   includeInZip: boolean;
 };
 
+export const MAX_PRESS_KIT_SELECTED_IMAGES = 10;
+
 const ACCEPTED_PRESS_KIT_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_PRESS_KIT_IMAGES = 30;
 
@@ -669,6 +671,7 @@ const MAX_PRESS_KIT_IMAGES = 30;
 let mockGalleryImages: PressKitImageItem[] = [];
 
 let mockGalleryPublic = false;
+let mockGalleryImageCounter = 0;
 
 /** Public gallery on `/u/:username` — empty unless the artist opted in. */
 export async function fetchPublicPressKitImages(
@@ -755,7 +758,7 @@ export async function uploadPressKitImage(
       };
     }
     const image: PressKitImageItem = {
-      id: `pk-mock-${Date.now()}`,
+      id: `pk-mock-${Date.now()}-${mockGalleryImageCounter++}`,
       imageUrl: URL.createObjectURL(file),
       title: null,
       position: mockGalleryImages.length,
@@ -763,7 +766,6 @@ export async function uploadPressKitImage(
     };
     mockGalleryImages = [...mockGalleryImages, image];
     mockPress = { ...mockPress, photoCount: mockGalleryImages.length };
-    mockGalleryPublic = true;
     return { ok: true, image };
   }
   try {
@@ -815,10 +817,80 @@ export async function uploadPressKitImages(files: FileList | File[]): Promise<{
       errors.push(`${file.name}: ${result.error}`);
     }
   }
-  if (images.length > 0) {
-    await setPressKitGalleryPublic(true);
-  }
   return { ok: true, images, errors };
+}
+
+export async function updatePressKitImage(
+  id: string,
+  patch: Partial<
+    Pick<PressKitImageItem, 'title' | 'includeInZip' | 'position'>
+  >,
+): Promise<
+  { ok: true; data: PressKitImageItem } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const current = mockGalleryImages.find((image) => image.id === id);
+    if (!current) {
+      return { ok: false, error: 'Image not found' };
+    }
+    Object.assign(current, patch);
+    return { ok: true, data: { ...current } };
+  }
+  try {
+    const { data } = await requestJson<PressKitImageItem>(
+      `/api/me/press-kit/images/${encodeURIComponent(id)}`,
+      { method: 'PATCH', body: JSON.stringify(patch) },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Image update failed',
+    };
+  }
+}
+
+export async function uploadProfileAvatar(
+  file: File,
+): Promise<{ ok: true; avatarUrl: string } | { ok: false; error: string }> {
+  const contentType = file.type || 'image/jpeg';
+  if (!ACCEPTED_PRESS_KIT_TYPES.includes(contentType)) {
+    return { ok: false, error: 'Use JPEG, PNG, or WebP' };
+  }
+  if (forceMock()) {
+    const avatarUrl = URL.createObjectURL(file);
+    return { ok: true, avatarUrl };
+  }
+  try {
+    const { data: prepare } = await requestJson<{
+      uploadKey: string;
+      uploadUrl: string;
+    }>('/api/me/profile/avatar/prepare', {
+      method: 'POST',
+      body: JSON.stringify({ filename: file.name, contentType }),
+    });
+    const upload = await fetch(prepare.uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': contentType },
+    });
+    if (!upload.ok) {
+      throw new Error(`Upload PUT failed (${upload.status})`);
+    }
+    const { data } = await requestJson<{ avatarUrl: string }>(
+      '/api/me/profile/avatar/complete',
+      {
+        method: 'POST',
+        body: JSON.stringify({ uploadKey: prepare.uploadKey }),
+      },
+    );
+    return { ok: true, avatarUrl: data.avatarUrl };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Avatar upload failed',
+    };
+  }
 }
 
 export async function deletePressKitImage(

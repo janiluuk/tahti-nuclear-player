@@ -38,7 +38,12 @@ describe('importHearthisTracks', () => {
 
     const result = await importHearthisTracks('collection-1', [track]);
 
-    expect(result).toEqual({ imported: 1, failed: 0, artworkFailed: 0 });
+    expect(result).toEqual({
+      imported: 1,
+      failed: 0,
+      artworkFailed: 0,
+      items: [{ trackId: 'hearthis-track', archiveItemId: 'archive-1' }],
+    });
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
       '/tahti-api/api/me/archive/archive-1/banner/from-url',

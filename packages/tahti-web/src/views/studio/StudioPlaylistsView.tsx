@@ -247,6 +247,9 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
   const [saving, setSaving] = useState(false);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const queue = usePlayerStore((s) => s.queue);
+  const isDjSet = col?.style === 'DJ_SET_SERIES' || col?.style === 'MIX_SERIES';
+  const kindLabel = isDjSet ? 'DJ set' : 'Playlist';
 
   const reload = () => {
     void Promise.all([
@@ -285,15 +288,15 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
     const r = await patchStudioCollection(slug, {
       name: name.trim() || slug,
       isPublic,
-      collaborative: isPublic && collaborative,
-      style: 'PLAYLIST',
+      collaborative: !isDjSet && isPublic && collaborative,
+      style: isDjSet ? 'DJ_SET_SERIES' : 'PLAYLIST',
     });
     setSaving(false);
     if (!r.ok) {
       setMsg(r.error);
       return;
     }
-    setMsg('Playlist settings saved.');
+    setMsg(`${kindLabel} settings saved.`);
     reload();
   };
 
@@ -343,12 +346,12 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
   return (
     <StudioGate>
       <div className="mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
-        <StudioNav current="/studio/playlists" />
+        <StudioNav current="/studio/collections" />
         <Link
-          to="/studio/playlists"
+          to="/studio/collections"
           className="text-foreground-secondary text-xs hover:underline"
         >
-          ← Playlists
+          ← Collections
         </Link>
 
         {!col ? (
@@ -389,15 +392,17 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                   />
                   Public on profile
                 </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={collaborative}
-                    disabled={!isPublic}
-                    onChange={(e) => setCollaborative(e.target.checked)}
-                  />
-                  Others can add tracks (collaborative)
-                </label>
+                {!isDjSet ? (
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={collaborative}
+                      disabled={!isPublic}
+                      onChange={(e) => setCollaborative(e.target.checked)}
+                    />
+                    Others can add tracks (collaborative)
+                  </label>
+                ) : null}
               </div>
             </StudioPanel>
 
@@ -407,7 +412,8 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
             >
               {tracks.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
-                  Empty playlist — add archive tracks or whole releases below.
+                  Empty {kindLabel.toLowerCase()} — add archive tracks or whole
+                  releases below.
                 </p>
               ) : (
                 <div className="min-h-[200px]">
@@ -452,6 +458,14 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                           void enqueueArchiveItem(item.archiveItem.id, t.title);
                         }
                       },
+                    }}
+                    meta={{
+                      isTrackQueued: (track) =>
+                        queue.some(
+                          (queueItem) =>
+                            queueItem.id === `archive:${track.source.id}` ||
+                            queueItem.id === track.source.id,
+                        ),
                     }}
                   />
                 </div>

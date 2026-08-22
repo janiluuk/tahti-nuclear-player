@@ -58,6 +58,7 @@ import { LegalView } from './views/LegalView';
 import { LibraryView } from './views/LibraryView';
 import { ListenView } from './views/ListenView';
 import { LoginView } from './views/LoginView';
+import { MessagesView } from './views/MessagesView';
 import { MoreView } from './views/MoreView';
 import { OnboardingView } from './views/OnboardingView';
 import { RadioShowView } from './views/RadioShowView';
@@ -71,6 +72,7 @@ import { SourcesView } from './views/SourcesView';
 import { StatusView } from './views/StatusView';
 import { StudioArchiveItemView } from './views/studio/StudioArchiveItemView';
 import { StudioArchiveView } from './views/studio/StudioArchiveView';
+import { StudioBrandingView } from './views/studio/StudioBrandingView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionEditView } from './views/studio/StudioCollectionEditView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
@@ -82,10 +84,7 @@ import { StudioEventsView } from './views/studio/StudioEventsView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
 import { StudioModerationView } from './views/studio/StudioModerationView';
-import {
-  StudioPlaylistEditorView,
-  StudioPlaylistsView,
-} from './views/studio/StudioPlaylistsView';
+import { StudioPlaylistEditorView } from './views/studio/StudioPlaylistsView';
 import { StudioProEditorView } from './views/studio/StudioProEditorView';
 import { StudioRecordingsView } from './views/studio/StudioRecordingsView';
 import { StudioReleaseDetailView } from './views/studio/StudioReleaseDetailView';
@@ -330,6 +329,12 @@ const libraryCollectionsRoute = createRoute({
   component: () => <LibraryView tab="collections" />,
 });
 
+const libraryRecordingsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/library/recordings',
+  component: () => <LibraryView tab="recordings" />,
+});
+
 const libraryFavoritesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/favorites',
@@ -345,15 +350,15 @@ const libraryHistoryRoute = createRoute({
 const libraryMessagesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/messages',
-  component: () => <LibraryView tab="messages" />,
+  beforeLoad: () => {
+    throw redirect({ to: '/messages' });
+  },
 });
 
 const messagesAliasRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/messages',
-  beforeLoad: () => {
-    throw redirect({ to: '/library/messages' });
-  },
+  component: MessagesView,
 });
 
 const favoritesRoute = createRoute({
@@ -767,6 +772,12 @@ const studioChannelRoute = createRoute({
   component: StudioChannelView,
 });
 
+const studioBrandingRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/branding',
+  component: StudioBrandingView,
+});
+
 const studioShowsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/shows',
@@ -794,7 +805,9 @@ const studioEpisodeRoute = createRoute({
 const studioPlaylistsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/playlists',
-  component: StudioPlaylistsView,
+  beforeLoad: () => {
+    throw redirect({ to: '/studio/collections' });
+  },
 });
 
 const studioPlaylistEditRoute = createRoute({
@@ -1038,6 +1051,7 @@ const routeTree = rootRoute.addChildren([
     libraryRoute,
     libraryReleasesRoute,
     libraryCollectionsRoute,
+    libraryRecordingsRoute,
     libraryFavoritesRoute,
     libraryHistoryRoute,
     libraryMessagesRoute,
@@ -1101,6 +1115,7 @@ const routeTree = rootRoute.addChildren([
     studioStatsRoute,
     studioStatsDetailRoute,
     studioChannelRoute,
+    studioBrandingRoute,
     studioShowsRoute,
     studioShowDetailRoute,
     studioEpisodeRoute,

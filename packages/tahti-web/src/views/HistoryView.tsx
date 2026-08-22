@@ -18,6 +18,7 @@ export function HistoryView() {
   const clearHistory = useLibraryStore((s) => s.clearHistory);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const queue = usePlayerStore((s) => s.queue);
 
   const [kind, setKind] = useState<KindFilter>('all');
   const [query, setQuery] = useState('');
@@ -116,6 +117,9 @@ export function HistoryView() {
                   actions={playQueueFavoriteActions({
                     onPlay: () => replayOne(h),
                     onQueue: () => enqueue(h.playable),
+                    queued: queue.some(
+                      (queueItem) => queueItem.id === h.playable.id,
+                    ),
                   })}
                 />
               </li>

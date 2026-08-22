@@ -293,7 +293,11 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [style, setStyle] = useState('ALBUM');
-  const [isPublic, setIsPublic] = useState(true);
+  const [visibility, setVisibility] = useState<
+    'PUBLIC' | 'UNLISTED' | 'PRIVATE'
+  >('PUBLIC');
+  const [releaseDate, setReleaseDate] = useState('');
+  const [genres, setGenres] = useState('');
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -317,7 +321,12 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
         setName(c.data.name);
         setDescription(c.data.description ?? '');
         setStyle(c.data.style ?? 'ALBUM');
-        setIsPublic(c.data.isPublic !== false);
+        setVisibility(
+          c.data.visibility ??
+            (c.data.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
+        );
+        setReleaseDate(c.data.releaseDate ?? '');
+        setGenres((c.data.genres ?? []).join(', '));
         setCoverUrl(c.data.coverUrl ?? null);
       },
     );
@@ -398,7 +407,14 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
       name: name.trim() || slug,
       description: description.trim() || null,
       style,
-      isPublic,
+      isPublic: visibility === 'PUBLIC',
+      visibility,
+      releaseDate: releaseDate || null,
+      genres: genres
+        .split(',')
+        .map((genre) => genre.trim())
+        .filter(Boolean)
+        .slice(0, 5),
     });
     setSaving(false);
     if (!result.ok) {
@@ -415,7 +431,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
           }
         : result.data,
     );
-    toast.success('Album details saved.');
+    toast.success('Collection details saved.');
   };
 
   return (
@@ -426,7 +442,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
           to="/studio/collections"
           className="text-foreground-secondary -mt-2 text-xs hover:underline"
         >
-          ← Albums
+          ← Collections
         </Link>
         {!col ? (
           <StudioPanel>
@@ -451,7 +467,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
               <div className="min-w-0 flex-1">
                 <StudioPageHeader
                   title={name || col.name}
-                  subtitle={`/${col.slug}${style ? `, ${style}` : ''}${isPublic ? '' : ', private'}`}
+                  subtitle={`/${col.slug}${style ? `, ${style}` : ''}, ${visibility.toLowerCase()}`}
                   action={
                     <Button
                       size="sm"
@@ -510,6 +526,44 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                     onChange={(e) => setName(e.target.value)}
                   />
                   <label className="flex flex-col gap-1 text-sm">
+                    Release date
+                    <input
+                      type="date"
+                      value={releaseDate}
+                      onChange={(event) => setReleaseDate(event.target.value)}
+                      className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                    />
+                  </label>
+                  <Input
+                    label="Genres"
+                    value={genres}
+                    placeholder="Electronic, Ambient"
+                    onChange={(event) => setGenres(event.target.value)}
+                  />
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="text-foreground-secondary text-xs uppercase">
+                      Visibility
+                    </span>
+                    <select
+                      aria-label="Visibility"
+                      value={visibility}
+                      onChange={(event) => {
+                        const nextVisibility = event.target.value as
+                          | 'PUBLIC'
+                          | 'UNLISTED'
+                          | 'PRIVATE';
+                        setVisibility(nextVisibility);
+                      }}
+                      className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                    >
+                      <option value="PUBLIC">Public</option>
+                      <option value="UNLISTED">
+                        Unlisted — direct link only
+                      </option>
+                      <option value="PRIVATE">Private — only you</option>
+                    </select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm">
                     <span className="text-foreground-secondary text-xs uppercase">
                       Style
                     </span>
@@ -541,19 +595,18 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
                     />
                   </label>
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={isPublic}
-                      onChange={(e) => setIsPublic(e.target.checked)}
-                    />
-                    Public on profile
-                  </label>
                 </div>
               ) : (
-                <p className="text-foreground-secondary text-sm whitespace-pre-wrap">
-                  {description.trim() || 'No description yet.'}
-                </p>
+                <div className="flex flex-col gap-2">
+                  <p className="text-foreground-secondary text-sm whitespace-pre-wrap">
+                    {description.trim() || 'No description yet.'}
+                  </p>
+                  <p className="text-foreground-secondary text-xs">
+                    {releaseDate ? `Release ${releaseDate} · ` : ''}
+                    {genres.trim() ? `${genres} · ` : ''}
+                    {visibility.charAt(0) + visibility.slice(1).toLowerCase()}
+                  </p>
+                </div>
               )}
             </StudioPanel>
 

@@ -54,6 +54,7 @@ export function FeedView() {
   const [infoTrack, setInfoTrack] = useState<TrackInfo | null>(null);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const queue = usePlayerStore((s) => s.queue);
 
   useEffect(() => {
     if (!user) {
@@ -222,6 +223,12 @@ export function FeedView() {
                             queueDisabled: !playable,
                             playLabel: `Play ${item.title}`,
                             queueLabel: `Queue ${item.title}`,
+                            queued: Boolean(
+                              playable &&
+                              queue.some(
+                                (queueItem) => queueItem.id === playable.id,
+                              ),
+                            ),
                           })}
                         />
                       </div>

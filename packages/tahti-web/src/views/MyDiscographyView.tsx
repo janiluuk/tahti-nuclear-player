@@ -3,6 +3,8 @@ import {
   AudioLinesIcon,
   ImageIcon,
   PencilIcon,
+  PinIcon,
+  PinOffIcon,
   PlayIcon,
   RadioTowerIcon,
   UploadCloudIcon,
@@ -11,20 +13,32 @@ import { useEffect, useMemo, useState, type FC } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
-import { fetchEditorSource, fetchStudioArchive } from '../api/studio';
+import {
+  fetchEditorSource,
+  fetchStudioArchive,
+  patchStudioArchiveItem,
+} from '../api/studio';
 import type { StudioArchiveItem } from '../api/studio-types';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { TrackEditDialog } from '../components/TrackEditDialog';
+import {
+  countPinnedTracks,
+  isPinned,
+  MAX_PINNED_TRACKS,
+  pinBlockedMessage,
+  sortPinnedFirst,
+} from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { MyCollectionsView } from './MyCollectionsView';
 
-type VisibilityFilter = 'all' | 'private' | 'processing' | 'public';
+type VisibilityFilter = 'all' | 'pinned' | 'private' | 'processing' | 'public';
 type SortKey = 'newest' | 'oldest' | 'title-asc' | 'title-desc';
 
 const FILTERS: Array<{ id: VisibilityFilter; label: string }> = [
   { id: 'all', label: 'All' },
+  { id: 'pinned', label: 'Pinned' },
   { id: 'private', label: 'Private' },
   { id: 'processing', label: 'Processing' },
   { id: 'public', label: 'Public' },
@@ -69,6 +83,8 @@ export const MyDiscographyView: FC = () => {
   const [sort, setSort] = useState<SortKey>('newest');
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
+  const [busyPinId, setBusyPinId] = useState<string | null>(null);
+  const [pinMessage, setPinMessage] = useState<string | null>(null);
 
   const reload = () => {
     setLoading(true);
@@ -83,6 +99,7 @@ export const MyDiscographyView: FC = () => {
   const counts = useMemo(
     () => ({
       all: items.length,
+      pinned: items.filter(isPinned).length,
       private: items.filter((item) => itemFilter(item) === 'private').length,
       processing: items.filter((item) => itemFilter(item) === 'processing')
         .length,
@@ -94,7 +111,14 @@ export const MyDiscographyView: FC = () => {
   const visible = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     const filtered = items.filter((item) => {
-      if (filter !== 'all' && itemFilter(item) !== filter) {
+      if (filter === 'pinned' && !isPinned(item)) {
+        return false;
+      }
+      if (
+        filter !== 'all' &&
+        filter !== 'pinned' &&
+        itemFilter(item) !== filter
+      ) {
         return false;
       }
       return (
@@ -104,7 +128,7 @@ export const MyDiscographyView: FC = () => {
         item.genre?.toLowerCase().includes(normalizedQuery)
       );
     });
-    return sortItems(filtered, sort);
+    return sortPinnedFirst(sortItems(filtered, sort));
   }, [filter, items, query, sort]);
 
   const playItem = async (item: StudioArchiveItem) => {
@@ -120,6 +144,32 @@ export const MyDiscographyView: FC = () => {
       protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
     });
     setPlayingId(null);
+  };
+
+  const togglePin = async (item: StudioArchiveItem) => {
+    const nextPinned = !isPinned(item);
+    setPinMessage(null);
+    if (nextPinned) {
+      const blocked = pinBlockedMessage(countPinnedTracks(items));
+      if (blocked) {
+        setPinMessage(blocked);
+        return;
+      }
+    }
+    setBusyPinId(item.id);
+    const result = await patchStudioArchiveItem(item.id, {
+      pinned: nextPinned,
+    });
+    setBusyPinId(null);
+    if (!result.ok) {
+      setPinMessage(result.error);
+      return;
+    }
+    setItems((current) =>
+      current.map((candidate) =>
+        candidate.id === item.id ? result.data : candidate,
+      ),
+    );
   };
 
   if (!user?.channel) {
@@ -198,7 +248,17 @@ export const MyDiscographyView: FC = () => {
               ))}
             </select>
           </div>
+          <p className="text-foreground-secondary text-xs">
+            Pinned {counts.pinned}/{MAX_PINNED_TRACKS} · showing{' '}
+            {visible.length} of {items.length}
+          </p>
         </div>
+
+        {pinMessage ? (
+          <p className="text-foreground-secondary text-sm" role="status">
+            {pinMessage}
+          </p>
+        ) : null}
 
         {visible.length === 0 ? (
           <PageEmpty
@@ -211,10 +271,14 @@ export const MyDiscographyView: FC = () => {
           />
         ) : (
           <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
-            {visible.map((item) => (
+            {visible.map((item, index) => (
               <li
                 key={item.id}
-                className="bg-background hover:bg-background-secondary/40 flex items-center gap-3 p-3 transition-colors"
+                className={`hover:bg-primary/5 flex items-center gap-3 border-l-4 p-3 transition-colors ${
+                  isPinned(item)
+                    ? 'border-l-primary bg-primary/10'
+                    : `border-l-transparent ${index % 2 === 0 ? 'bg-background-secondary/55' : 'bg-background'}`
+                }`}
               >
                 <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
                   {item.bannerUrl ? (
@@ -248,7 +312,28 @@ export const MyDiscographyView: FC = () => {
                         : 'Public'}
                     {item.genre ? ` · ${item.genre}` : ''}
                   </p>
+                  {isPinned(item) ? (
+                    <span className="text-primary mt-1 inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase">
+                      <PinIcon size={11} aria-hidden /> Pinned to profile
+                    </span>
+                  ) : null}
                 </div>
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  disabled={busyPinId === item.id}
+                  aria-label={`${isPinned(item) ? 'Unpin' : 'Pin'} ${item.title}`}
+                  title={
+                    isPinned(item) ? 'Unpin from profile' : 'Pin to profile'
+                  }
+                  onClick={() => void togglePin(item)}
+                >
+                  {isPinned(item) ? (
+                    <PinOffIcon size={16} aria-hidden />
+                  ) : (
+                    <PinIcon size={16} aria-hidden />
+                  )}
+                </Button>
                 <Button
                   size="icon-sm"
                   disabled={playingId === item.id}

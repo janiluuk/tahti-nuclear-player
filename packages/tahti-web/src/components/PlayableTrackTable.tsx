@@ -126,6 +126,8 @@ export function PlayableTrackTable({
           isTrackFavorite: (track) =>
             favoriteTracks.some((t) => t.id === track.source.id),
           isCurrentTrack: (track) => track.source.id === currentId,
+          isTrackQueued: (track) =>
+            queue.some((queueItem) => queueItem.id === track.source.id),
           canEditTrack: onEdit ? () => true : undefined,
           ContextMenuWrapper: PlayableTrackContextMenu,
         }}

@@ -115,7 +115,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
 
         {user ? (
           <Link
-            to="/library/messages"
+            to="/messages"
             className={iconBtnClass}
             aria-label="Messages"
             title="Messages"
