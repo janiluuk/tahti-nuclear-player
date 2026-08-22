@@ -78,12 +78,15 @@ import {
   startMembershipCheckout,
 } from '../../api/client';
 import {
+  fanSubscriberExportUrl,
   fetchFanConnectPortal,
   fetchFanConnectStatus,
+  fetchFanPayoutStats,
   fetchGrantEstimate,
   fetchMyGrants,
   startFanConnectOnboard,
   type FanConnectStatus,
+  type FanPayoutStats,
   type GrantEstimate,
   type GrantRow,
 } from '../../api/revenue';
@@ -97,6 +100,7 @@ import {
 } from '../../api/studio-extras';
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
+import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
@@ -1332,6 +1336,7 @@ function MoneyPanel() {
   const user = useAuthStore((s) => s.user);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [connect, setConnect] = useState<FanConnectStatus | null>(null);
+  const [fanPayouts, setFanPayouts] = useState<FanPayoutStats | null>(null);
   const [grants, setGrants] = useState<GrantRow[]>([]);
   const [estimate, setEstimate] = useState<GrantEstimate | null>(null);
   const [subs, setSubs] = useState<FanSubscriptionRow[]>([]);
@@ -1340,13 +1345,15 @@ function MoneyPanel() {
   useEffect(() => {
     void Promise.all([
       fetchFanConnectStatus(),
+      fetchFanPayoutStats(),
       fetchMyGrants(),
       fetchGrantEstimate(),
       user
         ? fetchMySubscriptions()
         : Promise.resolve({ data: [] as FanSubscriptionRow[] }),
-    ]).then(([c, g, e, s]) => {
+    ]).then(([c, payouts, g, e, s]) => {
       setConnect(c.data);
+      setFanPayouts(payouts.data);
       setGrants(g.data);
       setEstimate(e.data);
       setSubs(s.data);
@@ -1368,6 +1375,12 @@ function MoneyPanel() {
             <SettingsHint>Loading…</SettingsHint>
           ) : (
             <div className="flex flex-col gap-4">
+              {fanPayouts ? (
+                <FanSubscriptionStats
+                  stats={fanPayouts}
+                  exportUrl={fanSubscriberExportUrl()}
+                />
+              ) : null}
               <SettingsInfo
                 label="Payments ready"
                 value={connect.paymentsReady ? 'Yes' : 'Not yet'}

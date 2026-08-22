@@ -27,6 +27,30 @@ test('legacy callbacks land on the matching SPA surface', async ({ page }) => {
   await expect(page).toHaveURL(/\/sources\/soundcloud$/);
 });
 
+test('registration asks for an artist name and matching passwords', async ({
+  page,
+}) => {
+  await page.goto('/join');
+
+  await expect(page.getByLabel('Artist name')).toBeVisible();
+  await expect(page.getByLabel('Verification token')).toHaveCount(0);
+  await page.getByLabel('Email').fill('new-artist@tahti.live');
+  await page.getByLabel('Username').fill('new-artist');
+  await page.getByLabel('Artist name').fill('New Artist');
+  await page.getByLabel('Password', { exact: true }).fill('secure-password');
+  await page.getByLabel('Confirm password').fill('different-password');
+  await expect(page.getByText('Passwords do not match.')).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Create account' }),
+  ).toBeDisabled();
+
+  await page.getByLabel('Confirm password').fill('secure-password');
+  await expect(page.getByText('Passwords do not match.')).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Create account' }),
+  ).toBeEnabled();
+});
+
 test('artist can sign in and reach broadcast and upload tools', async ({
   page,
 }) => {
@@ -34,6 +58,16 @@ test('artist can sign in and reach broadcast and upload tools', async ({
 
   await page.goto('/studio/go-live');
   await expect(page.getByRole('heading', { name: 'Go Live' })).toBeVisible();
+  const recordingToggle = page.getByRole('switch', {
+    name: 'Record broadcast',
+  });
+  await expect(recordingToggle).toHaveAttribute('aria-checked', 'true');
+  await recordingToggle.click();
+  await page.reload();
+  await expect(recordingToggle).toHaveAttribute('aria-checked', 'false');
+  await expect(
+    page.getByRole('link', { name: 'Open recordings' }),
+  ).toBeVisible();
 
   await page.goto('/studio/upload');
   await expect(page.getByRole('heading', { name: 'Upload' })).toBeVisible();
@@ -48,6 +82,182 @@ test('artist can sign in and reach broadcast and upload tools', async ({
   ).toBeVisible();
 });
 
+test('studio dashboard shows clickable summary stats and compact broadcast actions', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/studio');
+
+  await expect(
+    page.getByRole('region', { name: 'Channel summary' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: '12,890 total plays' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: '910 total downloads' }),
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: '284 followers' })).toBeVisible();
+
+  const goLiveCard = page.getByTestId('compact-broadcast-card').first();
+  expect((await goLiveCard.boundingBox())!.height).toBeLessThan(140);
+  await page.getByRole('link', { name: '12,890 total plays' }).click();
+  await expect(page).toHaveURL(/\/studio\/stats$/);
+});
+
+test('fan subscriptions show subscriber, revenue, and payout statistics', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/settings/money');
+  await page.getByRole('tab', { name: 'Fan subs' }).click();
+
+  const summary = page.getByRole('region', {
+    name: 'Fan subscription summary',
+  });
+  await expect(
+    summary.getByRole('group', { name: 'Active subscribers: 26' }),
+  ).toBeVisible();
+  await expect(
+    summary.getByRole('group', { name: 'This month: €128.40' }),
+  ).toBeVisible();
+  await expect(
+    summary.getByRole('group', { name: 'Paid out YTD: €842.10' }),
+  ).toBeVisible();
+  await expect(
+    summary.getByRole('group', { name: 'Pending payouts: 1' }),
+  ).toBeVisible();
+  await expect(page.getByText('Paid in the last 30 days: 8')).toBeVisible();
+  await expect(page.getByText('Supporter').first()).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Export subscribers' }),
+  ).toBeVisible();
+});
+
+test('artist library starts with a searchable archive and track tools', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/library');
+
+  await expect(page.getByRole('link', { name: 'All sounds' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await expect(page.getByRole('heading', { name: 'All sounds' })).toBeVisible();
+  await expect(page.getByText('Northern Lights — Live Set')).toBeVisible();
+  await expect(page.getByText('Studio sketch A')).toBeVisible();
+
+  await page.getByPlaceholder('Search all sounds…').fill('Studio sketch');
+  await expect(page.getByText('Northern Lights — Live Set')).not.toBeVisible();
+  await page
+    .getByRole('link', { name: 'Studio sketch A', exact: true })
+    .click();
+
+  await expect(page.getByRole('button', { name: 'Play track' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Add to rotation' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Open audio editor' }),
+  ).toBeVisible();
+  await expect(page.getByLabel('Waveform preview')).toBeVisible();
+});
+
+test('board news supports optional images and links without empty thumbnails', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.evaluate(() => {
+    const raw = localStorage.getItem('tahti-web-auth');
+    if (!raw) {
+      return;
+    }
+    const auth = JSON.parse(raw);
+    auth.state.user.isBoard = true;
+    localStorage.setItem('tahti-web-auth', JSON.stringify(auth));
+  });
+  await page.goto('/admin/news');
+  await page.getByRole('button', { name: 'Write post' }).click();
+  await page.getByLabel('Headline').fill('A linked announcement');
+  await page.getByLabel('Short summary').fill('Read the complete update.');
+  await page
+    .getByLabel('Image URL')
+    .fill('https://images.example.com/news.jpg');
+  await page.getByLabel('Link URL').fill('https://tahti.live/about');
+  await page.getByLabel('Link label').fill('Read more');
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Publish' })
+    .click();
+
+  await page.goto('/whats-new');
+  const linkedEntry = page
+    .getByTestId('announcement-entry')
+    .filter({ hasText: 'A linked announcement' });
+  await expect(linkedEntry.getByRole('img')).toHaveAttribute(
+    'src',
+    'https://images.example.com/news.jpg',
+  );
+  await expect(
+    linkedEntry.getByRole('link', { name: 'Read more' }),
+  ).toHaveAttribute('href', 'https://tahti.live/about');
+
+  const textOnlyEntry = page
+    .getByTestId('announcement-entry')
+    .filter({ hasText: 'Fair-rotation radio now covers 9 channels' });
+  await expect(textOnlyEntry.getByRole('img')).toHaveCount(0);
+});
+
+test('artist stats combine audience metrics and listener maps in one place', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/studio/stats');
+
+  await expect(page.getByRole('heading', { name: 'Stats' })).toBeVisible();
+  await expect(page.getByText('Minutes listened')).toBeVisible();
+  await expect(page.getByText('Minutes streamed')).toBeVisible();
+  await expect(page.getByText('Followers')).toBeVisible();
+  await expect(page.getByText('Smart-link clicks')).toBeVisible();
+  await expect(page.getByLabel('Listener world map')).toBeVisible();
+  await expect(page.getByText('Engagement units')).toBeVisible();
+
+  await page
+    .getByRole('link', { name: 'Insights for Northern Lights — Live Set' })
+    .click();
+  await expect(
+    page.getByRole('heading', { name: 'Track insights' }),
+  ).toBeVisible();
+  await expect(page.getByLabel('Listener world map')).toBeVisible();
+});
+
+test('Tahti Selects recovers offline playback and shows the current stream', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.evaluate(() => {
+    const raw = localStorage.getItem('tahti-web-auth');
+    if (!raw) {
+      return;
+    }
+    const auth = JSON.parse(raw);
+    auth.state.user.isBoard = true;
+    localStorage.setItem('tahti-web-auth', JSON.stringify(auth));
+  });
+  await page.goto('/admin/tahti-selects');
+
+  await expect(page.getByText('Stream live')).toBeVisible();
+  await expect(page.getByText('Aurora Drift').first()).toBeVisible();
+  const playbackButton = page.getByRole('button', {
+    name: 'Play Tahti Selects stream',
+  });
+  await playbackButton.click();
+  await expect(
+    page.getByRole('button', { name: 'Pause Tahti Selects stream' }),
+  ).toBeVisible();
+});
+
 test('listener can open a fan subscription offer', async ({ page }) => {
   await page.goto('/subscribe/northern-lights');
   await expect(
@@ -56,6 +266,23 @@ test('listener can open a fan subscription offer', async ({ page }) => {
   await expect(
     page.getByRole('button', { name: 'Subscribe' }).first(),
   ).toBeVisible();
+});
+
+test('DSP landing page leads with artwork and essential release metadata', async ({
+  page,
+}) => {
+  await page.goto('/r/northern-lights-release-1');
+
+  const artwork = page.getByRole('img', { name: 'First Light EP cover' });
+  const heading = page.getByRole('heading', { name: 'First Light EP' });
+  await expect(artwork).toBeVisible();
+  await expect(heading).toBeVisible();
+  const artworkBox = await artwork.boundingBox();
+  const headingBox = await heading.boundingBox();
+  expect(artworkBox!.y).toBeLessThan(headingBox!.y);
+  await expect(page.getByText('2026', { exact: false })).toBeVisible();
+  await expect(page.getByText('ambient', { exact: false })).toBeVisible();
+  await expect(page.getByText(/CC BY|ALL RIGHTS RESERVED/)).toHaveCount(0);
 });
 
 test('keyboard navigation and review map work in the beta profile', async ({

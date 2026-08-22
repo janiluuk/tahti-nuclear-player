@@ -1,5 +1,5 @@
-import { PlayIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { PauseIcon, PlayIcon, PowerIcon, RadioTowerIcon } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
 
@@ -13,6 +13,7 @@ import {
   stopSelectsStream,
   type AdminSelectsBrowseItem,
   type AdminSelectsItem,
+  type AdminSelectsStream,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
@@ -30,22 +31,63 @@ function fmtDuration(sec: number | null): string {
 
 export function AdminSelectsView() {
   const play = usePlayerStore((s) => s.play);
+  const currentId = usePlayerStore((state) => state.currentId);
+  const playbackStatus = usePlayerStore((state) => state.status);
+  const setPlaybackStatus = usePlayerStore((state) => state.setStatus);
   const [items, setItems] = useState<AdminSelectsItem[]>([]);
-  const [streamRunning, setStreamRunning] = useState(false);
+  const [stream, setStream] = useState<AdminSelectsStream>({
+    state: 'OFFLINE',
+    hlsUrl: null,
+    nowPlaying: null,
+  });
   const [loading, setLoading] = useState(true);
+  const [streamBusy, setStreamBusy] = useState(false);
   const [query, setQuery] = useState('');
   const [browse, setBrowse] = useState<AdminSelectsBrowseItem[]>([]);
   const [msg, setMsg] = useState<string | null>(null);
+  const recoveryAttempted = useRef(false);
+  const selectsPlayableId = 'live:tahti-selects';
+  const isStreamPlaying =
+    currentId === selectsPlayableId &&
+    (playbackStatus === 'playing' || playbackStatus === 'loading');
 
-  const reload = () => {
+  const reload = useCallback(() => {
     void fetchAdminSelects().then((res) => {
       setItems(res.data.items);
-      setStreamRunning(res.data.streamRunning);
+      setStream(res.data.stream);
       setLoading(false);
     });
-  };
+  }, []);
 
-  useEffect(reload, []);
+  useEffect(reload, [reload]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(reload, 4000);
+    return () => window.clearInterval(intervalId);
+  }, [reload]);
+
+  useEffect(() => {
+    if (
+      loading ||
+      stream.state !== 'OFFLINE' ||
+      items.length === 0 ||
+      recoveryAttempted.current
+    ) {
+      return;
+    }
+    recoveryAttempted.current = true;
+    setStreamBusy(true);
+    setStream((current) => ({ ...current, state: 'STARTING' }));
+    void startSelectsStream().then((result) => {
+      setStreamBusy(false);
+      if (!result.ok) {
+        setMsg(result.error);
+        setStream((current) => ({ ...current, state: 'OFFLINE' }));
+        return;
+      }
+      reload();
+    });
+  }, [items.length, loading, reload, stream.state]);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -60,6 +102,26 @@ export function AdminSelectsView() {
 
   const inRotationIds = new Set(items.map((i) => i.archiveItemId));
 
+  const toggleStreamPlayback = () => {
+    if (!stream.hlsUrl) {
+      return;
+    }
+    if (currentId === selectsPlayableId) {
+      setPlaybackStatus(isStreamPlaying ? 'paused' : 'playing');
+      return;
+    }
+    play({
+      id: selectsPlayableId,
+      kind: 'radio',
+      title: stream.nowPlaying?.title ?? 'Tahti Selects',
+      artist: stream.nowPlaying?.artistName ?? 'Tahti Selects',
+      coverUrl: stream.nowPlaying?.artworkUrl ?? undefined,
+      streamUrl: stream.hlsUrl,
+      protocol: stream.hlsUrl.includes('.m3u8') ? 'hls' : 'https',
+      channelSlug: 'tahti-selects',
+    });
+  };
+
   return (
     <AdminGate>
       <div className="mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
@@ -70,21 +132,42 @@ export function AdminSelectsView() {
           action={
             <Button
               size="sm"
-              variant={streamRunning ? 'secondary' : 'default'}
+              variant={stream.state === 'LIVE' ? 'secondary' : 'default'}
+              disabled={streamBusy}
               onClick={() => {
-                const action = streamRunning
-                  ? stopSelectsStream
-                  : startSelectsStream;
+                const action =
+                  stream.state === 'LIVE'
+                    ? stopSelectsStream
+                    : startSelectsStream;
+                setStreamBusy(true);
+                setStream((current) => ({
+                  ...current,
+                  state: current.state === 'LIVE' ? current.state : 'STARTING',
+                }));
                 void action().then((r) => {
+                  setStreamBusy(false);
                   if (!r.ok) {
                     setMsg(r.error);
                   } else {
-                    setStreamRunning(!streamRunning);
+                    if (stream.state === 'LIVE') {
+                      setStream({
+                        state: 'OFFLINE',
+                        hlsUrl: null,
+                        nowPlaying: null,
+                      });
+                    } else {
+                      reload();
+                    }
                   }
                 });
               }}
             >
-              {streamRunning ? 'Stop stream' : 'Start stream'}
+              <PowerIcon size={16} aria-hidden className="mr-1.5" />
+              {streamBusy
+                ? 'Starting…'
+                : stream.state === 'LIVE'
+                  ? 'Stop stream'
+                  : 'Bring stream online'}
             </Button>
           }
         />
@@ -94,6 +177,73 @@ export function AdminSelectsView() {
             {msg}
           </p>
         )}
+
+        <StudioPanel
+          title={
+            stream.state === 'LIVE'
+              ? 'Stream live'
+              : stream.state === 'STARTING'
+                ? 'Stream starting'
+                : 'Stream offline'
+          }
+          description={
+            stream.state === 'LIVE'
+              ? 'Tahti Selects is broadcasting the curated rotation.'
+              : stream.state === 'STARTING'
+                ? 'The rotation service is being brought online.'
+                : 'The stream is unavailable. Recovery will be attempted automatically.'
+          }
+          action={
+            stream.state === 'LIVE' && stream.hlsUrl ? (
+              <Button
+                size="sm"
+                aria-label={
+                  isStreamPlaying
+                    ? 'Pause Tahti Selects stream'
+                    : 'Play Tahti Selects stream'
+                }
+                onClick={toggleStreamPlayback}
+              >
+                {isStreamPlaying ? (
+                  <PauseIcon size={16} aria-hidden className="mr-1.5" />
+                ) : (
+                  <PlayIcon size={16} aria-hidden className="mr-1.5" />
+                )}
+                {isStreamPlaying ? 'Pause' : 'Listen'}
+              </Button>
+            ) : undefined
+          }
+        >
+          <div className="border-border bg-background flex items-center gap-3 rounded-lg border p-3">
+            <div
+              className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
+                stream.state === 'LIVE'
+                  ? 'bg-accent-green/20 text-accent-green'
+                  : stream.state === 'STARTING'
+                    ? 'bg-accent-yellow/20 text-accent-yellow'
+                    : 'bg-background-secondary text-foreground-secondary'
+              }`}
+            >
+              <RadioTowerIcon size={20} aria-hidden />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                {stream.state === 'LIVE' ? 'Now playing' : 'Playback state'}
+              </p>
+              <p className="truncate font-semibold">
+                {stream.nowPlaying?.title ??
+                  (stream.state === 'STARTING'
+                    ? 'Connecting rotation…'
+                    : 'No active track')}
+              </p>
+              {stream.nowPlaying ? (
+                <p className="text-foreground-secondary truncate text-sm">
+                  {stream.nowPlaying.artistName}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </StudioPanel>
 
         <StudioPanel title={`Current rotation (${items.length})`}>
           {loading ? (
@@ -114,9 +264,8 @@ export function AdminSelectsView() {
                       {index + 1}. {item.title}
                     </div>
                     <div className="text-foreground-secondary text-xs">
-                      {item.artistName} · {fmtDuration(item.durationSec)} ·{' '}
-                      {item.license.replace(/_/g, ' ')} · added by{' '}
-                      {item.addedBy}
+                      {item.artistName} · {fmtDuration(item.durationSec)} ·
+                      added by {item.addedBy}
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-1">
@@ -148,7 +297,9 @@ export function AdminSelectsView() {
                       title="Move up"
                       disabled={index === 0}
                       onClick={() => {
-                        void reorderSelectsItem(item.id, 'up').then(reload);
+                        void reorderSelectsItem(item.id, index - 1).then(
+                          reload,
+                        );
                       }}
                     >
                       ↑
@@ -160,7 +311,9 @@ export function AdminSelectsView() {
                       title="Move down"
                       disabled={index === items.length - 1}
                       onClick={() => {
-                        void reorderSelectsItem(item.id, 'down').then(reload);
+                        void reorderSelectsItem(item.id, index + 1).then(
+                          reload,
+                        );
                       }}
                     >
                       ↓
@@ -211,8 +364,7 @@ export function AdminSelectsView() {
                       <div className="min-w-0 flex-1">
                         <div className="font-medium">{item.title}</div>
                         <div className="text-foreground-secondary text-xs">
-                          {item.artistName} · {fmtDuration(item.durationSec)} ·{' '}
-                          {item.license.replace(/_/g, ' ')}
+                          {item.artistName} · {fmtDuration(item.durationSec)}
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">

@@ -97,6 +97,7 @@ export type LiveChannelState = 'OFFLINE' | 'PREVIEW' | 'LIVE' | string;
 
 let mockSignalConnected = false;
 let mockChannelState: LiveChannelState = 'OFFLINE';
+const MOCK_RECORDING_STORAGE_KEY = 'tahti-web-auto-record-broadcast';
 let mockTargets: RtmpTarget[] = [
   {
     id: 'rtmp-mock-yt',
@@ -253,6 +254,51 @@ export async function fetchBroadcastUsage(): Promise<{
       };
     }
     return { data: null, meta: apiErrorMeta(err) };
+  }
+}
+
+export async function fetchAutoRecordEnabled(): Promise<{
+  data: boolean;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    const stored = localStorage.getItem(MOCK_RECORDING_STORAGE_KEY);
+    return {
+      data: stored === null ? true : stored === 'true',
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{ autoRecordEnabled: boolean }>(
+      '/api/me/channel/recording',
+    );
+    return { data: data.autoRecordEnabled, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: true, meta: apiErrorMeta(err) };
+  }
+}
+
+export async function patchAutoRecordEnabled(
+  autoRecordEnabled: boolean,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    localStorage.setItem(MOCK_RECORDING_STORAGE_KEY, String(autoRecordEnabled));
+    return { ok: true };
+  }
+  try {
+    await requestJson<{ autoRecordEnabled: boolean }>(
+      '/api/me/channel/recording',
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ autoRecordEnabled }),
+      },
+    );
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Recording preference failed',
+    };
   }
 }
 

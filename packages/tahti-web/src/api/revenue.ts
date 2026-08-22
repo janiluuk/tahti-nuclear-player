@@ -72,6 +72,26 @@ export type GrantEstimate = {
   fanSubEuros?: number;
 };
 
+export type FanSubPayout = {
+  id: string;
+  state: string;
+  tierName: string;
+  grossCents: number;
+  netToArtistCents: number;
+  paidAt: string | null;
+  createdAt: string;
+};
+
+export type FanPayoutStats = {
+  activeSubscribers: number;
+  thisMonthNetCents: number;
+  paidYtdNetCents: number;
+  pending: number;
+  failed: number;
+  paidLast30Days: number;
+  recent: FanSubPayout[];
+};
+
 const emptyConnect = (): FanConnectStatus => ({
   stripeConfigured: false,
   accountId: null,
@@ -99,6 +119,83 @@ const mockEstimate = (): GrantEstimate => ({
   paidDownloads: 12,
   fanSubEuros: 35,
 });
+
+const mockFanPayoutStats = (): FanPayoutStats => ({
+  activeSubscribers: 26,
+  thisMonthNetCents: 12840,
+  paidYtdNetCents: 84210,
+  pending: 1,
+  failed: 0,
+  paidLast30Days: 8,
+  recent: [
+    {
+      id: 'fan-payout-mock-1',
+      state: 'PAID',
+      tierName: 'Supporter',
+      grossCents: 500,
+      netToArtistCents: 465,
+      paidAt: '2026-08-20T10:00:00.000Z',
+      createdAt: '2026-08-20T09:58:00.000Z',
+    },
+    {
+      id: 'fan-payout-mock-2',
+      state: 'PENDING',
+      tierName: 'Patron',
+      grossCents: 1500,
+      netToArtistCents: 1395,
+      paidAt: null,
+      createdAt: '2026-08-22T14:30:00.000Z',
+    },
+  ],
+});
+
+const emptyFanPayoutStats = (): FanPayoutStats => ({
+  activeSubscribers: 0,
+  thisMonthNetCents: 0,
+  paidYtdNetCents: 0,
+  pending: 0,
+  failed: 0,
+  paidLast30Days: 0,
+  recent: [],
+});
+
+export const fanSubscriberExportUrl = (): string =>
+  `${apiBase()}/api/me/fan-subscribers/export.csv`;
+
+export async function fetchFanPayoutStats(): Promise<{
+  data: FanPayoutStats;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockFanPayoutStats(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<Partial<FanPayoutStats>>(
+      '/api/me/fan-sub-payouts',
+    );
+    const empty = emptyFanPayoutStats();
+    return {
+      data: {
+        activeSubscribers: data.activeSubscribers ?? 0,
+        thisMonthNetCents: data.thisMonthNetCents ?? 0,
+        paidYtdNetCents: data.paidYtdNetCents ?? 0,
+        pending: data.pending ?? 0,
+        failed: data.failed ?? 0,
+        paidLast30Days: data.paidLast30Days ?? 0,
+        recent: Array.isArray(data.recent) ? data.recent : empty.recent,
+      },
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return { data: mockFanPayoutStats(), meta: failMeta(err) };
+    }
+    return { data: emptyFanPayoutStats(), meta: apiErrorMeta(err) };
+  }
+}
 
 export async function fetchFanConnectStatus(): Promise<{
   data: FanConnectStatus;

@@ -113,6 +113,7 @@ export type PublicProfileRelease = {
   artworkUrl?: string | null;
   smartLinkSlug?: string | null;
   releaseDate?: string | null;
+  genre?: string | null;
   description?: string | null;
   pinned?: boolean;
   pinnedAt?: string | null;
@@ -199,6 +200,8 @@ export type SmartLinkView = {
     title: string;
     type?: string;
     artworkUrl?: string | null;
+    releaseDate?: string | null;
+    genre?: string | null;
     description?: string | null;
     smartLinkSlug?: string;
     tracks?: Array<{ title: string; position: number; isrc?: string | null }>;
@@ -450,6 +453,9 @@ export type Announcement = {
   id: string;
   headline: string;
   summary: string;
+  imageUrl?: string | null;
+  linkUrl?: string | null;
+  linkLabel?: string | null;
   authorName: string;
   publishedAt: string;
 };

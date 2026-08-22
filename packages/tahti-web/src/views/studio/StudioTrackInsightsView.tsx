@@ -9,8 +9,10 @@ import {
   type InsightsPeriod,
   type TrackInsights,
 } from '../../api/track-insights';
+import { ListenerWorldMap } from '../../components/ListenerWorldMap';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
 
@@ -38,13 +40,9 @@ export function StudioTrackInsightsView({
   const maxDaily = insights
     ? Math.max(1, ...insights.daily.map((d) => d.downloads))
     : 1;
-  const maxCountry = insights
-    ? Math.max(1, ...insights.countries.map((c) => c.count))
-    : 1;
-
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <StudioNav current="/studio/archive" />
         <Link
           to={kind === 'archive' ? '/studio/archive' : '/studio/releases'}
@@ -56,7 +54,7 @@ export function StudioTrackInsightsView({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Insights
+              Track insights
             </h1>
             {insights && (
               <p className="text-foreground-secondary mt-1 text-sm">
@@ -101,9 +99,17 @@ export function StudioTrackInsightsView({
               </div>
             </div>
 
-            <section className="flex flex-col gap-2">
+            <StudioPanel title="Listener map">
+              <p className="text-foreground-secondary mb-4 text-sm">
+                Anonymized countries for this track's counted plays and
+                downloads.
+              </p>
+              <ListenerWorldMap data={insights.countries} countLabel="plays" />
+            </StudioPanel>
+
+            <StudioPanel title="Downloads by day">
               <h2>
-                <Eyebrow>Downloads by day</Eyebrow>
+                <span className="sr-only">Downloads by day</span>
               </h2>
               {insights.daily.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
@@ -114,7 +120,7 @@ export function StudioTrackInsightsView({
                   {insights.daily.map((d) => (
                     <div
                       key={d.date}
-                      className="group relative flex-1"
+                      className="group relative flex h-full flex-1 items-end"
                       title={`${d.date}: ${d.downloads}`}
                     >
                       <div
@@ -127,42 +133,7 @@ export function StudioTrackInsightsView({
                   ))}
                 </div>
               )}
-            </section>
-
-            <section className="flex flex-col gap-2">
-              <h2>
-                <Eyebrow>Top countries</Eyebrow>
-              </h2>
-              {insights.countries.length === 0 ? (
-                <p className="text-foreground-secondary text-sm">
-                  No geo data yet.
-                </p>
-              ) : (
-                <ul className="flex flex-col gap-1.5">
-                  {insights.countries.map((c) => (
-                    <li
-                      key={c.countryCode}
-                      className="flex items-center gap-3 text-sm"
-                    >
-                      <span className="w-28 shrink-0 truncate">
-                        {c.displayName}
-                      </span>
-                      <div className="bg-background-secondary h-2 flex-1 overflow-hidden rounded-full">
-                        <div
-                          className="bg-primary h-full"
-                          style={{
-                            width: `${Math.max(4, (c.count / maxCountry) * 100)}%`,
-                          }}
-                        />
-                      </div>
-                      <span className="text-foreground-secondary w-10 shrink-0 text-right text-xs">
-                        {c.count}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+            </StudioPanel>
           </>
         )}
       </div>

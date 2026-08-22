@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-labelledby="title description">
+  <title id="title">Polar Static album cover</title>
+  <desc id="description">Abstract radio noise over a polar night landscape</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020617"/>
+      <stop offset=".5" stop-color="#164e63"/>
+      <stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+    <pattern id="static" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M0 20h8l5-12 8 28 7-18h14" fill="none" stroke="#a5f3fc" stroke-width="3" opacity=".32"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#background)"/>
+  <rect width="1200" height="840" fill="url(#static)"/>
+  <circle cx="600" cy="420" r="250" fill="none" stroke="#67e8f9" stroke-width="4" opacity=".5"/>
+  <circle cx="600" cy="420" r="185" fill="none" stroke="#c4b5fd" stroke-width="18" opacity=".5"/>
+  <path d="M0 810 170 690 360 790 510 650 760 815 980 670 1200 790V1200H0Z" fill="#020617" opacity=".92"/>
+  <g fill="#f8fafc">
+    <text x="70" y="1000" font-family="system-ui, sans-serif" font-size="96" font-weight="800" letter-spacing="-3">POLAR STATIC</text>
+    <text x="76" y="1072" font-family="system-ui, sans-serif" font-size="30" font-weight="600" letter-spacing="9" opacity=".75">NORTHERN LIGHTS · ALBUM</text>
+  </g>
+</svg>

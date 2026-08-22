@@ -328,6 +328,7 @@ export type StatsSummary = {
   playsTotal: number;
   downloadsToday: number;
   downloadsTotal: number;
+  followerCount: number;
 };
 
 export type StatsTopTrack = {
@@ -348,6 +349,7 @@ export async function fetchStatsSummary(): Promise<{
         playsTotal: 12890,
         downloadsToday: 3,
         downloadsTotal: 910,
+        followerCount: 284,
       },
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
@@ -362,13 +364,16 @@ export async function fetchStatsSummary(): Promise<{
         playsTotal: 0,
         downloadsToday: 0,
         downloadsTotal: 0,
+        followerCount: 0,
       },
       meta: failMeta(err),
     };
   }
 }
 
-export async function fetchStatsTopTracks(): Promise<{
+export async function fetchStatsTopTracks(
+  range: StatsPlaysRange = '30',
+): Promise<{
   data: StatsTopTrack[];
   meta: FetchMeta;
 }> {
@@ -387,7 +392,7 @@ export async function fetchStatsTopTracks(): Promise<{
   }
   try {
     const { data } = await requestJson<{ items: StatsTopTrack[] }>(
-      '/api/me/stats/top-tracks?range=30',
+      `/api/me/stats/top-tracks?range=${range}`,
     );
     return { data: data.items ?? [], meta: { source: 'api' } };
   } catch (err) {
@@ -395,7 +400,9 @@ export async function fetchStatsTopTracks(): Promise<{
   }
 }
 
-export async function fetchStatsTopCountries(): Promise<{
+export async function fetchStatsTopCountries(
+  range: StatsPlaysRange = '30',
+): Promise<{
   data: StatsTopCountry[];
   meta: FetchMeta;
 }> {
@@ -410,7 +417,7 @@ export async function fetchStatsTopCountries(): Promise<{
   }
   try {
     const { data } = await requestJson<{ items: StatsTopCountry[] }>(
-      '/api/me/stats/top-countries?range=30',
+      `/api/me/stats/top-countries?range=${range}`,
     );
     return { data: data.items ?? [], meta: { source: 'api' } };
   } catch (err) {
@@ -437,6 +444,27 @@ export type StatsPlays = {
   totalSmartLinkClicks?: number;
   daily: StatsPlaysDay[];
   downloadCountries?: StatsPlaysCountry[];
+};
+
+export type ListenerGeoPeriod = '7d' | '30d' | 'all';
+
+export type ListenerGeoPoint = {
+  countryCode: string;
+  displayName: string;
+  count: number;
+};
+
+export type ChannelEgressStats = {
+  windowDays: number;
+  liveHlsBytes: number;
+  estimatedLiveHlsBytes: number;
+};
+
+export type ChannelLiveStats = {
+  windowDays: number;
+  totalLiveSeconds: number;
+  totalBroadcasts: number;
+  peakDailyListeners: number;
 };
 
 export async function fetchStatsPlays(range: StatsPlaysRange = '30'): Promise<{
@@ -489,6 +517,92 @@ export async function fetchStatsPlays(range: StatsPlaysRange = '30'): Promise<{
         totalDownloads: 0,
         daily: [],
         downloadCountries: [],
+      },
+      meta: failMeta(err),
+    };
+  }
+}
+
+export async function fetchListenerGeo(
+  period: ListenerGeoPeriod = '30d',
+): Promise<{ data: ListenerGeoPoint[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    return {
+      data: [
+        { countryCode: 'FI', displayName: 'Finland', count: 180 },
+        { countryCode: 'DE', displayName: 'Germany', count: 72 },
+        { countryCode: 'US', displayName: 'United States', count: 54 },
+        { countryCode: 'SE', displayName: 'Sweden', count: 41 },
+        { countryCode: 'JP', displayName: 'Japan', count: 19 },
+      ],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{
+      period: ListenerGeoPeriod;
+      geo: ListenerGeoPoint[];
+    }>(`/api/me/listener-geo?period=${period}`);
+    return { data: data.geo ?? [], meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function fetchChannelEgressStats(): Promise<{
+  data: ChannelEgressStats;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: {
+        windowDays: 30,
+        liveHlsBytes: 9_331_200_000,
+        estimatedLiveHlsBytes: 0,
+      },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<ChannelEgressStats>(
+      '/api/me/channel-egress',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return {
+      data: { windowDays: 30, liveHlsBytes: 0, estimatedLiveHlsBytes: 0 },
+      meta: failMeta(err),
+    };
+  }
+}
+
+export async function fetchChannelLiveStats(): Promise<{
+  data: ChannelLiveStats;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: {
+        windowDays: 14,
+        totalLiveSeconds: 43_200,
+        totalBroadcasts: 6,
+        peakDailyListeners: 38,
+      },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<ChannelLiveStats>(
+      '/api/me/channel-live-stats',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return {
+      data: {
+        windowDays: 14,
+        totalLiveSeconds: 0,
+        totalBroadcasts: 0,
+        peakDailyListeners: 0,
       },
       meta: failMeta(err),
     };

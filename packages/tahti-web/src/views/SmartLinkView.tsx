@@ -1,9 +1,14 @@
 import { Link } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { AudioLinesIcon, ExternalLinkIcon, PlayIcon } from 'lucide-react';
+import { useEffect, useState, type FC } from 'react';
 
-import { Button, Card, CardGrid } from '@nuclearplayer/ui';
+import { Button } from '@nuclearplayer/ui';
 
-import { fetchProfile, fetchSmartLink } from '../api/client';
+import {
+  fetchChannelArchive,
+  fetchProfile,
+  fetchSmartLink,
+} from '../api/client';
 import type {
   SmartLinkView as SmartLinkData,
   TahtiPlayable,
@@ -12,44 +17,73 @@ import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { usePlayerStore } from '../stores/playerStore';
 
-export function SmartLinkView({ slug }: { slug: string }) {
+const DSP_LABELS: Record<string, string> = {
+  apple: 'Apple Music',
+  amazon: 'Amazon Music',
+  bandcamp: 'Bandcamp',
+  deezer: 'Deezer',
+  soundcloud: 'SoundCloud',
+  spotify: 'Spotify',
+  tahti: 'Tahti',
+  tidal: 'Tidal',
+  youtube: 'YouTube Music',
+};
+
+type SmartLinkViewProps = { slug: string };
+
+export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
   const [data, setData] = useState<SmartLinkData | null>(null);
   const [playables, setPlayables] = useState<TahtiPlayable[]>([]);
+  const [genre, setGenre] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const play = usePlayerStore((s) => s.play);
+  const play = usePlayerStore((state) => state.play);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    void fetchSmartLink(slug).then(async (res) => {
+    void fetchSmartLink(slug).then(async (result) => {
       if (cancelled) {
         return;
       }
-      setData(res.data);
+      setData(result.data);
+      setGenre(result.data.release.genre ?? null);
 
-      // Smart-link payload has track titles only; resolve play URLs via artist profile.
       try {
-        const profile = await fetchProfile(res.data.artist.username);
+        const profile = await fetchProfile(result.data.artist.username);
         const matched = profile.data.releases.find(
-          (r) => r.smartLinkSlug === slug || r.id === res.data.release.id,
+          (release) =>
+            release.smartLinkSlug === slug ||
+            release.id === result.data.release.id,
         );
         const fromRelease =
           matched?.tracks
-            ?.filter((t) => t.playUrl)
+            ?.filter((track) => track.playUrl)
             .map(
-              (t): TahtiPlayable => ({
-                id: `archive:${t.archiveItemId ?? `${matched.id}-${t.position}`}`,
+              (track): TahtiPlayable => ({
+                id: `archive:${track.archiveItemId ?? `${matched.id}-${track.position}`}`,
                 kind: 'archive',
-                title: t.title,
-                artist: res.data.artist.displayName,
+                title: track.title,
+                artist: result.data.artist.displayName,
                 coverUrl: matched.artworkUrl ?? undefined,
-                streamUrl: t.playUrl!,
-                protocol: t.playUrl!.includes('.m3u8') ? 'hls' : 'https',
+                streamUrl: track.playUrl!,
+                protocol: track.playUrl!.includes('.m3u8') ? 'hls' : 'https',
                 channelSlug: profile.data.channel?.slug,
               }),
             ) ?? [];
+        let archiveGenre = matched?.genre ?? null;
+        if (!archiveGenre && profile.data.channel?.slug && matched?.tracks) {
+          const archive = await fetchChannelArchive(profile.data.channel.slug);
+          const archiveIds = new Set(
+            matched.tracks
+              .map((track) => track.archiveItemId)
+              .filter((id): id is string => Boolean(id)),
+          );
+          archiveGenre =
+            archive.data.find((item) => archiveIds.has(item.id))?.genre ?? null;
+        }
         if (!cancelled) {
           setPlayables(fromRelease);
+          setGenre(result.data.release.genre ?? archiveGenre);
         }
       } catch {
         if (!cancelled) {
@@ -67,7 +101,7 @@ export function SmartLinkView({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <p className="text-foreground-secondary text-sm">Loading smart link…</p>
+      <p className="text-foreground-secondary text-sm">Loading release…</p>
     );
   }
 
@@ -75,43 +109,69 @@ export function SmartLinkView({ slug }: { slug: string }) {
     return <p className="text-sm">Release not found.</p>;
   }
 
-  const targets = Object.entries(data.targets);
+  const targets = Object.entries(data.targets).filter(([, url]) => url?.trim());
+  const releaseYear = data.release.releaseDate
+    ? new Date(data.release.releaseDate).getFullYear()
+    : null;
+  const metadata = [releaseYear, genre, data.release.type]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-6 pb-10">
       <Link
-        to="/"
+        to="/u/$username"
+        params={{ username: data.artist.username }}
         className="text-foreground-secondary text-xs hover:underline"
       >
-        ← Listen
+        ← {data.artist.username}
       </Link>
 
-      <header className="flex flex-col gap-2">
-        <Eyebrow>Smart link</Eyebrow>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+      <div className="border-border bg-background-secondary aspect-square w-full overflow-hidden rounded-2xl border">
+        {data.release.artworkUrl ? (
+          <img
+            src={data.release.artworkUrl}
+            alt={`${data.release.title} cover`}
+            className="size-full object-cover"
+          />
+        ) : (
+          <div className="flex size-full items-center justify-center">
+            <AudioLinesIcon
+              size={64}
+              aria-hidden
+              className="text-foreground-secondary"
+            />
+          </div>
+        )}
+      </div>
+
+      <header className="flex flex-col items-center gap-2 text-center">
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">
           {data.release.title}
         </h1>
-        <p className="text-foreground-secondary text-sm">
-          <Link
-            to="/u/$username"
-            params={{ username: data.artist.username }}
-            className="hover:text-foreground underline-offset-2 hover:underline"
-          >
-            {data.artist.displayName}
-          </Link>
-          {data.release.type ? ` — ${data.release.type}` : ''}
-        </p>
-        {data.release.description && (
-          <p className="text-foreground mt-2 text-sm whitespace-pre-wrap">
+        <Link
+          to="/u/$username"
+          params={{ username: data.artist.username }}
+          className="text-lg font-semibold underline-offset-2 hover:underline"
+        >
+          {data.artist.displayName}
+        </Link>
+        {metadata ? (
+          <p className="text-foreground-secondary text-sm capitalize">
+            {metadata}
+          </p>
+        ) : null}
+        {data.release.description ? (
+          <p className="text-foreground-secondary mt-2 max-w-md text-sm whitespace-pre-wrap">
             {data.release.description}
           </p>
-        )}
+        ) : null}
       </header>
 
       {playables.length > 0 ? (
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
-            <Eyebrow>Listen here</Eyebrow>
+            <Eyebrow>Tracks</Eyebrow>
             <Button
               size="sm"
               onClick={() => {
@@ -121,62 +181,64 @@ export function SmartLinkView({ slug }: { slug: string }) {
                 }
               }}
             >
+              <PlayIcon size={15} aria-hidden className="mr-1.5" />
               Play all
             </Button>
           </div>
           <PlayableTrackTable items={playables} />
         </section>
-      ) : (
-        <p className="text-foreground-secondary text-sm">
-          No stream URLs on this smart link (DSP targets only). Open the artist
-          profile or an external store below.
-        </p>
-      )}
+      ) : null}
 
-      {targets.length > 0 && (
+      <section className="flex flex-col gap-2" aria-label="Listen on">
+        <Eyebrow>Listen on</Eyebrow>
+        {targets.length === 0 ? (
+          <a
+            href={data.releaseUrl}
+            className="border-border hover:bg-background-secondary flex items-center justify-between rounded-lg border px-4 py-3 font-semibold transition-colors"
+          >
+            Tahti
+            <ExternalLinkIcon size={16} aria-hidden />
+          </a>
+        ) : (
+          targets.map(([name, url]) => (
+            <a
+              key={name}
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="border-border hover:bg-background-secondary flex items-center justify-between rounded-lg border px-4 py-3 font-semibold transition-colors"
+            >
+              <span>{DSP_LABELS[name.toLowerCase()] ?? name}</span>
+              <span className="text-foreground-secondary flex items-center gap-2 text-xs font-normal">
+                Listen
+                <ExternalLinkIcon size={15} aria-hidden />
+              </span>
+            </a>
+          ))
+        )}
+      </section>
+
+      {data.featuredCollections.length > 0 ? (
         <section className="flex flex-col gap-2">
-          <Eyebrow>Also on</Eyebrow>
-          <ul className="flex flex-col gap-1 text-sm">
-            {targets.map(([name, url]) => (
-              <li key={name}>
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline-offset-2 hover:underline"
-                >
-                  {name}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <Eyebrow>More from {data.artist.displayName}</Eyebrow>
+          {data.featuredCollections.map((collection) => (
+            <Link
+              key={collection.slug}
+              to="/u/$username/c/$slug"
+              params={{
+                username: data.artist.username,
+                slug: collection.slug,
+              }}
+              className="border-border hover:bg-background-secondary flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors"
+            >
+              <strong>{collection.name}</strong>
+              <span className="text-foreground-secondary">
+                {collection.itemCount ?? 0} items
+              </span>
+            </Link>
+          ))}
         </section>
-      )}
-
-      {data.featuredCollections.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <Eyebrow>Featured collections</Eyebrow>
-          <CardGrid>
-            {data.featuredCollections.map((col) => (
-              <Link
-                key={col.slug}
-                to="/u/$username/c/$slug"
-                params={{ username: data.artist.username, slug: col.slug }}
-              >
-                <Card
-                  title={col.name}
-                  subtitle={
-                    col.itemCount != null
-                      ? `${col.itemCount} items`
-                      : 'Collection'
-                  }
-                  src={col.coverUrl ?? undefined}
-                />
-              </Link>
-            ))}
-          </CardGrid>
-        </section>
-      )}
+      ) : null}
     </div>
   );
-}
+};

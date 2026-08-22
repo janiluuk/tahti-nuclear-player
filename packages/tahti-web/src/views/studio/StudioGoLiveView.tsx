@@ -3,7 +3,9 @@ import {
   ActivityIcon,
   CheckCircle2Icon,
   CheckIcon,
+  CircleDotIcon,
   CopyIcon,
+  FolderOpenIcon,
   HeadphonesIcon,
   KeyRoundIcon,
   ListMusicIcon,
@@ -19,6 +21,7 @@ import { Button, Dialog, Input } from '@nuclearplayer/ui';
 import {
   createRtmpTarget,
   deleteRtmpTarget,
+  fetchAutoRecordEnabled,
   fetchBroadcastUsage,
   fetchRtmpTargets,
   fetchSignalStatus,
@@ -27,6 +30,7 @@ import {
   getMockChannelState,
   liveChannelPlayable,
   mockSimulateSignal,
+  patchAutoRecordEnabled,
   patchRtmpTarget,
   postGoLive,
   type BroadcastUsage,
@@ -117,6 +121,8 @@ export function StudioGoLiveView() {
   const [newKey, setNewKey] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [showAddDestination, setShowAddDestination] = useState(false);
+  const [recordEnabled, setRecordEnabled] = useState(true);
+  const [recordBusy, setRecordBusy] = useState(false);
 
   const slug = user?.channel?.slug ?? '';
   const displayName = user?.displayName ?? slug;
@@ -145,14 +151,17 @@ export function StudioGoLiveView() {
   }, []);
 
   const reload = useCallback(async () => {
-    const [settingsResult, usageResult, targetResult] = await Promise.all([
-      fetchStreamSettings(),
-      fetchBroadcastUsage(),
-      fetchRtmpTargets(),
-    ]);
+    const [settingsResult, usageResult, targetResult, recordingResult] =
+      await Promise.all([
+        fetchStreamSettings(),
+        fetchBroadcastUsage(),
+        fetchRtmpTargets(),
+        fetchAutoRecordEnabled(),
+      ]);
     setSettings(settingsResult.data);
     setUsage(usageResult.data);
     setTargets(targetResult.data);
+    setRecordEnabled(recordingResult.data);
     if (
       !settingsResult.data &&
       settingsResult.meta.source === 'api' &&
@@ -235,6 +244,19 @@ export function StudioGoLiveView() {
     setMessage('Broadcast ended. Your configured rotation can resume.');
     if (!isMock) {
       void refresh();
+    }
+  };
+
+  const toggleRecording = async () => {
+    const next = !recordEnabled;
+    setRecordEnabled(next);
+    setRecordBusy(true);
+    setMessage(null);
+    const result = await patchAutoRecordEnabled(next);
+    setRecordBusy(false);
+    if (!result.ok) {
+      setRecordEnabled(!next);
+      setMessage(result.error);
     }
   };
 
@@ -434,6 +456,61 @@ export function StudioGoLiveView() {
           </div>
 
           <div className="flex min-w-0 flex-col gap-5">
+            <StudioPanel
+              title="Recording"
+              description="Save this and future broadcasts to your recordings archive."
+            >
+              <button
+                type="button"
+                role="switch"
+                aria-checked={recordEnabled}
+                aria-label="Record broadcast"
+                disabled={recordBusy}
+                onClick={() => void toggleRecording()}
+                className="border-border bg-background hover:bg-background-secondary flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors disabled:opacity-60"
+              >
+                <CircleDotIcon
+                  size={20}
+                  aria-hidden
+                  className={
+                    recordEnabled
+                      ? 'fill-accent-red text-accent-red'
+                      : 'text-foreground-secondary'
+                  }
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold">
+                    Record broadcast
+                  </span>
+                  <span className="text-foreground-secondary block text-xs">
+                    {recordEnabled
+                      ? 'On · saved when the broadcast ends'
+                      : 'Off · this broadcast will not be saved'}
+                  </span>
+                </span>
+                <span
+                  aria-hidden
+                  className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                    recordEnabled ? 'bg-primary' : 'bg-background-secondary'
+                  }`}
+                >
+                  <span
+                    className={`bg-foreground absolute top-1 size-4 rounded-full transition-transform ${
+                      recordEnabled ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </span>
+              </button>
+              <Link
+                to="/studio/recordings"
+                aria-label="Open recordings"
+                className="text-foreground-secondary mt-3 inline-flex items-center gap-1.5 text-xs underline-offset-2 hover:underline"
+              >
+                <FolderOpenIcon size={14} aria-hidden />
+                Edit and release saved recordings
+              </Link>
+            </StudioPanel>
+
             <StudioPanel title="Live allowance">
               <p className="text-sm font-semibold">
                 {usage ? formatUsageMinutes(usage) : 'Loading…'}
@@ -517,10 +594,10 @@ export function StudioGoLiveView() {
             <p className="text-foreground-secondary text-xs">
               After a show, manage recordings in{' '}
               <Link
-                to="/studio/archive"
+                to="/studio/recordings"
                 className="underline-offset-2 hover:underline"
               >
-                Music
+                Recordings
               </Link>
               .
             </p>

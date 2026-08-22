@@ -26,7 +26,7 @@ const ITEMS: {
   {
     id: 'discography',
     to: '/library',
-    label: 'Everything',
+    label: 'All sounds',
     icon: <LibraryBigIcon size={16} aria-hidden />,
   },
   {

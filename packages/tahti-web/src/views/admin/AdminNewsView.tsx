@@ -1,4 +1,4 @@
-import { PlusIcon } from 'lucide-react';
+import { ExternalLinkIcon, ImageIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
@@ -20,9 +20,15 @@ export function AdminNewsView() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [headline, setHeadline] = useState('');
   const [summary, setSummary] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkLabel, setLinkLabel] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editHeadline, setEditHeadline] = useState('');
   const [editSummary, setEditSummary] = useState('');
+  const [editImageUrl, setEditImageUrl] = useState('');
+  const [editLinkUrl, setEditLinkUrl] = useState('');
+  const [editLinkLabel, setEditLinkLabel] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -39,6 +45,9 @@ export function AdminNewsView() {
     setComposeOpen(false);
     setHeadline('');
     setSummary('');
+    setImageUrl('');
+    setLinkUrl('');
+    setLinkLabel('');
     setBusy(false);
   };
 
@@ -46,6 +55,9 @@ export function AdminNewsView() {
     setEditingId(post.id);
     setEditHeadline(post.headline);
     setEditSummary(post.summary);
+    setEditImageUrl(post.imageUrl ?? '');
+    setEditLinkUrl(post.linkUrl ?? '');
+    setEditLinkLabel(post.linkLabel ?? '');
   };
 
   return (
@@ -106,6 +118,28 @@ export function AdminNewsView() {
                           className="border-border bg-background rounded-md border px-3 py-2"
                         />
                       </label>
+                      <Input
+                        label="Image URL"
+                        value={editImageUrl}
+                        onChange={(event) =>
+                          setEditImageUrl(event.target.value)
+                        }
+                        placeholder="https://…"
+                      />
+                      <Input
+                        label="Link URL"
+                        value={editLinkUrl}
+                        onChange={(event) => setEditLinkUrl(event.target.value)}
+                        placeholder="https://…"
+                      />
+                      <Input
+                        label="Link label"
+                        value={editLinkLabel}
+                        onChange={(event) =>
+                          setEditLinkLabel(event.target.value)
+                        }
+                        placeholder="Read more"
+                      />
                       <div className="flex gap-2">
                         <Button
                           size="sm"
@@ -115,6 +149,9 @@ export function AdminNewsView() {
                             void updateNewsPost(post.id, {
                               headline: editHeadline.trim(),
                               summary: editSummary.trim(),
+                              imageUrl: editImageUrl.trim() || null,
+                              linkUrl: editLinkUrl.trim() || null,
+                              linkLabel: editLinkLabel.trim() || null,
                             }).then((r) => {
                               setBusy(false);
                               if (!r.ok) {
@@ -144,7 +181,23 @@ export function AdminNewsView() {
                     className="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0"
                   >
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium">{post.headline}</div>
+                      <div className="flex items-center gap-2 font-medium">
+                        {post.imageUrl ? (
+                          <ImageIcon
+                            size={14}
+                            aria-label="Includes image"
+                            className="text-primary"
+                          />
+                        ) : null}
+                        {post.linkUrl ? (
+                          <ExternalLinkIcon
+                            size={14}
+                            aria-label="Includes link"
+                            className="text-primary"
+                          />
+                        ) : null}
+                        {post.headline}
+                      </div>
                       <p className="text-foreground-secondary text-xs">
                         By {post.authorName} ·{' '}
                         {post.publishedAt
@@ -228,6 +281,24 @@ export function AdminNewsView() {
                 className="border-border bg-background rounded-md border px-3 py-2"
               />
             </label>
+            <Input
+              label="Image URL"
+              value={imageUrl}
+              onChange={(event) => setImageUrl(event.target.value)}
+              placeholder="https://…"
+            />
+            <Input
+              label="Link URL"
+              value={linkUrl}
+              onChange={(event) => setLinkUrl(event.target.value)}
+              placeholder="https://…"
+            />
+            <Input
+              label="Link label"
+              value={linkLabel}
+              onChange={(event) => setLinkLabel(event.target.value)}
+              placeholder="Read more"
+            />
           </div>
           <Dialog.Actions>
             <Dialog.Close>Cancel</Dialog.Close>
@@ -239,6 +310,9 @@ export function AdminNewsView() {
                 void createNewsPost({
                   headline: headline.trim(),
                   summary: summary.trim(),
+                  imageUrl: imageUrl.trim() || undefined,
+                  linkUrl: linkUrl.trim() || undefined,
+                  linkLabel: linkLabel.trim() || undefined,
                   publish: false,
                 }).then((r) => {
                   setBusy(false);
@@ -260,6 +334,9 @@ export function AdminNewsView() {
                 void createNewsPost({
                   headline: headline.trim(),
                   summary: summary.trim(),
+                  imageUrl: imageUrl.trim() || undefined,
+                  linkUrl: linkUrl.trim() || undefined,
+                  linkLabel: linkLabel.trim() || undefined,
                   publish: true,
                 }).then((r) => {
                   setBusy(false);

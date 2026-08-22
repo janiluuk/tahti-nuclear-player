@@ -529,11 +529,11 @@ export async function fetchHearthisCollectionTracks(
 export async function importHearthisTracks(
   collectionId: string,
   tracks: HearthisTrack[],
-): Promise<{ imported: number; failed: number }> {
+): Promise<{ imported: number; failed: number; artworkFailed: number }> {
   if (forceMock()) {
-    return { imported: tracks.length, failed: 0 };
+    return { imported: tracks.length, failed: 0, artworkFailed: 0 };
   }
-  const results: PromiseSettledResult<unknown>[] = [];
+  const results: PromiseSettledResult<{ artworkFailed: boolean }>[] = [];
   for (
     let index = 0;
     index < tracks.length;
@@ -543,9 +543,29 @@ export async function importHearthisTracks(
     results.push(
       ...(await Promise.allSettled(
         batch.map((track) =>
-          requestJson('/api/v1/imports/hearthis/add', {
+          requestJson<{
+            archiveItemId: string;
+            track: { coverUrl?: string | null };
+          }>('/api/v1/imports/hearthis/add', {
             method: 'POST',
             body: JSON.stringify({ collectionId, trackUrl: track.url }),
+          }).then(async ({ data }) => {
+            const coverUrl = data.track.coverUrl ?? track.coverUrl;
+            if (!coverUrl) {
+              return { artworkFailed: false };
+            }
+            try {
+              await requestJson(
+                `/api/me/archive/${encodeURIComponent(data.archiveItemId)}/banner/from-url`,
+                {
+                  method: 'POST',
+                  body: JSON.stringify({ sourceUrl: coverUrl }),
+                },
+              );
+              return { artworkFailed: false };
+            } catch {
+              return { artworkFailed: true };
+            }
           }),
         ),
       )),
@@ -554,7 +574,10 @@ export async function importHearthisTracks(
   const imported = results.filter(
     (result) => result.status === 'fulfilled',
   ).length;
-  return { imported, failed: results.length - imported };
+  const artworkFailed = results.filter(
+    (result) => result.status === 'fulfilled' && result.value.artworkFailed,
+  ).length;
+  return { imported, failed: results.length - imported, artworkFailed };
 }
 
 /** Backed by the same public read API the main Tahti app's collection

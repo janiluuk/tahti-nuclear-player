@@ -51,7 +51,11 @@ import {
   type SpotifySearchTrack,
   type StashFile,
 } from '../api/sources';
-import { createStudioCollection, fetchStudioCollections } from '../api/studio';
+import {
+  createStudioCollection,
+  fetchStudioCollections,
+  patchStudioCollection,
+} from '../api/studio';
 import type { StudioCollection } from '../api/studio-types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import {
@@ -312,7 +316,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     setNote(
       result.failed > 0
         ? `Imported ${result.imported}; ${result.failed} could not be imported.`
-        : `Imported ${result.imported} item${result.imported === 1 ? '' : 's'} to the playlist.`,
+        : result.artworkFailed > 0
+          ? `Imported ${result.imported} item${result.imported === 1 ? '' : 's'}; ${result.artworkFailed} cover${result.artworkFailed === 1 ? '' : 's'} could not be stored.`
+          : `Imported ${result.imported} item${result.imported === 1 ? '' : 's'} to the playlist.`,
     );
   };
 
@@ -321,6 +327,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     description: string,
     tracks: HearthisTrack[],
     style: 'PLAYLIST' | 'LIVE_ARCHIVE',
+    coverUrl?: string | null,
   ) => {
     setBusy(true);
     const created = await createStudioCollection({
@@ -337,11 +344,16 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
       return;
     }
     const result = await importHearthisTracks(created.data.id, tracks);
+    if (coverUrl) {
+      await patchStudioCollection(created.data.slug, { coverUrl });
+    }
     setBusy(false);
     setNote(
       result.failed > 0
         ? `Created “${name}” with ${result.imported} items; ${result.failed} failed.`
-        : `Created “${name}” with ${result.imported} item${result.imported === 1 ? '' : 's'}.`,
+        : result.artworkFailed > 0
+          ? `Created “${name}” with ${result.imported} items; ${result.artworkFailed} cover${result.artworkFailed === 1 ? '' : 's'} could not be stored.`
+          : `Created “${name}” with ${result.imported} item${result.imported === 1 ? '' : 's'}.`,
     );
     const collectionsResult = await fetchStudioCollections();
     setDestinationCollections(collectionsResult.data);
@@ -358,6 +370,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
         collection.description,
         tracks,
         'PLAYLIST',
+        collection.coverUrl,
       );
     } catch (error) {
       setBusy(false);
@@ -945,6 +958,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                               `Imported from hearthis.at · ${track.username}`,
                               [track],
                               'LIVE_ARCHIVE',
+                              track.coverUrl,
                             )
                           }
                           aria-label={`Import ${track.title} as collection`}

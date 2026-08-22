@@ -1,4 +1,14 @@
 import { Link } from '@tanstack/react-router';
+import {
+  AudioLinesIcon,
+  BarChart3Icon,
+  PauseIcon,
+  PinIcon,
+  PinOffIcon,
+  PlayIcon,
+  RadioTowerIcon,
+  SaveIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, CreatableCombobox, Input } from '@nuclearplayer/ui';
@@ -11,6 +21,7 @@ import {
 } from '../../api/archive-versions';
 import {
   fetchEditorDraft,
+  fetchEditorSource,
   fetchStudioArchive,
   fetchStudioArchiveItem,
   patchStudioArchiveItem,
@@ -32,6 +43,8 @@ import {
   MAX_PINNED_TRACKS,
   pinBlockedMessage,
 } from '../../lib/pinnedTracks';
+import { useAuthStore } from '../../stores/authStore';
+import { usePlayerStore } from '../../stores/playerStore';
 
 const SILENCE_THRESHOLD = 0.06;
 const MIN_TRIM_SEC = 0.5;
@@ -64,6 +77,14 @@ function autoTrimCuts(peaks: number[], durationSec: number): EditList['cuts'] {
 }
 
 export function StudioArchiveItemView({ id }: { id: string }) {
+  const user = useAuthStore((state) => state.user);
+  const currentId = usePlayerStore((state) => state.currentId);
+  const playerStatus = usePlayerStore((state) => state.status);
+  const currentTime = usePlayerStore((state) => state.currentTime);
+  const playerDuration = usePlayerStore((state) => state.duration);
+  const play = usePlayerStore((state) => state.play);
+  const setPlayerStatus = usePlayerStore((state) => state.setStatus);
+  const seekTo = usePlayerStore((state) => state.seekTo);
   const [item, setItem] = useState<StudioArchiveItem | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -72,6 +93,8 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [pinBusy, setPinBusy] = useState(false);
+  const [rotationBusy, setRotationBusy] = useState(false);
+  const [playBusy, setPlayBusy] = useState(false);
   const [pinnedCount, setPinnedCount] = useState(0);
 
   const [editList, setEditList] = useState<EditList | null>(null);
@@ -147,6 +170,54 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     setMessage(next ? 'Pinned to your public page.' : 'Unpinned.');
   };
 
+  const toggleRotation = async () => {
+    if (!item) {
+      return;
+    }
+    const next = !item.isFallback;
+    setRotationBusy(true);
+    setMessage(null);
+    const result = await patchStudioArchiveItem(id, { isFallback: next });
+    setRotationBusy(false);
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setItem(result.data);
+    setMessage(
+      next ? 'Added to your 24/7 rotation.' : 'Removed from rotation.',
+    );
+  };
+
+  const startPlayback = async (startAt?: number) => {
+    if (!item) {
+      return;
+    }
+    const playableId = `archive:${id}`;
+    if (currentId === playableId) {
+      if (startAt !== undefined) {
+        seekTo(startAt);
+      }
+      setPlayerStatus('playing');
+      return;
+    }
+    setPlayBusy(true);
+    const { data } = await fetchEditorSource(id);
+    play({
+      id: playableId,
+      kind: 'archive',
+      title: item.title,
+      artist: item.artistName || user?.displayName || 'You',
+      coverUrl: item.bannerUrl ?? undefined,
+      streamUrl: data.url,
+      protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
+    });
+    if (startAt !== undefined) {
+      seekTo(startAt);
+    }
+    setPlayBusy(false);
+  };
+
   const runQuickRender = async (
     kind: 'normalize' | 'trim',
     next: EditList,
@@ -219,10 +290,13 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     : '';
   const pinned = item ? isPinned(item) : false;
   const pinBlocked = !pinned && pinnedCount >= MAX_PINNED_TRACKS;
+  const isCurrent = currentId === `archive:${id}`;
+  const isPlaying =
+    isCurrent && (playerStatus === 'playing' || playerStatus === 'loading');
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <div className="mx-auto flex max-w-4xl flex-col gap-6">
         <StudioNav current="/studio/archive" />
         <Link
           to="/studio/archive"
@@ -234,8 +308,23 @@ export function StudioArchiveItemView({ id }: { id: string }) {
           <p className="text-foreground-secondary text-sm">Loading…</p>
         ) : (
           <>
-            <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
+            <header className="border-border bg-background-secondary/30 flex flex-col gap-4 rounded-xl border p-4 sm:flex-row sm:items-center">
+              <div className="border-border bg-background flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+                {item.bannerUrl ? (
+                  <img
+                    src={item.bannerUrl}
+                    alt=""
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  <AudioLinesIcon
+                    size={32}
+                    aria-hidden
+                    className="text-foreground-secondary"
+                  />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
                 <h1 className="font-display text-3xl font-extrabold tracking-tight">
                   {item.title}
                 </h1>
@@ -247,7 +336,42 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                   </span>
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex shrink-0 flex-wrap gap-2 sm:max-w-56 sm:justify-end">
+                <Button
+                  size="sm"
+                  disabled={playBusy}
+                  aria-label="Play track"
+                  onClick={() => {
+                    if (isPlaying) {
+                      setPlayerStatus('paused');
+                    } else {
+                      void startPlayback();
+                    }
+                  }}
+                >
+                  {isPlaying ? (
+                    <PauseIcon size={16} aria-hidden className="mr-1.5" />
+                  ) : (
+                    <PlayIcon size={16} aria-hidden className="mr-1.5" />
+                  )}
+                  {isPlaying ? 'Pause' : 'Play'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={item.isFallback ? 'secondary' : 'default'}
+                  disabled={rotationBusy}
+                  aria-label={
+                    item.isFallback ? 'Remove from rotation' : 'Add to rotation'
+                  }
+                  onClick={() => void toggleRotation()}
+                >
+                  <RadioTowerIcon size={16} aria-hidden className="mr-1.5" />
+                  {rotationBusy
+                    ? 'Updating…'
+                    : item.isFallback
+                      ? 'In rotation'
+                      : 'Add to rotation'}
+                </Button>
                 <Button
                   size="sm"
                   variant="secondary"
@@ -259,6 +383,11 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                   }
                   onClick={() => void togglePin()}
                 >
+                  {pinned ? (
+                    <PinOffIcon size={16} aria-hidden className="mr-1.5" />
+                  ) : (
+                    <PinIcon size={16} aria-hidden className="mr-1.5" />
+                  )}
                   {pinBusy
                     ? '…'
                     : pinned
@@ -268,8 +397,10 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                 <Link
                   to="/studio/insights/$kind/$id"
                   params={{ kind: 'archive', id }}
+                  aria-label="Open track insights"
                 >
                   <Button size="sm" variant="secondary">
+                    <BarChart3Icon size={16} aria-hidden className="mr-1.5" />
                     Insights
                   </Button>
                 </Link>
@@ -277,6 +408,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                   disabled={saving || !title.trim()}
                   onClick={() => void save()}
                 >
+                  <SaveIcon size={16} aria-hidden className="mr-1.5" />
                   {saving ? 'Saving…' : 'Save'}
                 </Button>
               </div>
@@ -326,17 +458,20 @@ export function StudioArchiveItemView({ id }: { id: string }) {
               <p className="text-foreground-secondary text-sm">{message}</p>
             )}
 
-            <section className="flex flex-col gap-3">
+            <section
+              className="flex flex-col gap-3"
+              aria-label="Waveform preview"
+            >
               <h2>
                 <Eyebrow>Waveform preview</Eyebrow>
               </h2>
               <WaveformCanvas
                 peaks={peaks}
                 durationSec={editList?.sourceDuration ?? item.durationSec ?? 0}
-                currentTime={0}
+                currentTime={isCurrent ? currentTime : 0}
                 cuts={editList?.cuts ?? []}
                 selection={null}
-                onSeek={() => {}}
+                onSeek={(seconds) => void startPlayback(seconds)}
               />
               <div className="flex flex-wrap items-center gap-2">
                 <Button
@@ -355,11 +490,24 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                 >
                   {quickBusy === 'trim' ? 'Trimming…' : 'Auto-trim silence'}
                 </Button>
-                <Link to="/studio/archive/$id/editor" params={{ id }}>
+                <Link
+                  to="/studio/archive/$id/editor"
+                  params={{ id }}
+                  aria-label="Open audio editor"
+                >
                   <Button size="sm" variant="text">
-                    Open full editor
+                    <AudioLinesIcon size={16} aria-hidden className="mr-1.5" />
+                    Open audio editor
                   </Button>
                 </Link>
+                {isCurrent && playerDuration > 0 ? (
+                  <span className="text-foreground-secondary ml-auto text-xs tabular-nums">
+                    {Math.floor(currentTime / 60)}:
+                    {String(Math.floor(currentTime % 60)).padStart(2, '0')} /{' '}
+                    {Math.floor(playerDuration / 60)}:
+                    {String(Math.floor(playerDuration % 60)).padStart(2, '0')}
+                  </span>
+                ) : null}
               </div>
               {quickMsg && (
                 <p className="text-foreground-secondary text-xs">{quickMsg}</p>

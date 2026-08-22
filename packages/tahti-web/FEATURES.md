@@ -190,3 +190,32 @@ pnpm deploy:tahti-beta
 ```
 
 Update this file when a row moves from `partial` → `live-api` or a demock wave completes.
+
+## 2026-08-23 route and capability sweep
+
+Compared the current `apps/web/src/app/**/page.tsx` tree in the Tahti repository with the Nuclear SPA router and the implemented views. Existing capabilities with broken legacy navigation were fixed in `prodPathRedirects.ts`: Distribution, Events, Embeds, Recordings, artist Venues, Posts, broadcast recordings, archive editor deep links, track Insights, collection creation, and the matching Artist/Broadcast/Connections/Moderation settings destinations now resolve to their in-app surfaces.
+
+### Missing user-facing surfaces
+
+- [ ] Public venue detail (`/v/:slug`) — venue directory and registration exist, but a shareable venue profile does not.
+- [ ] Transparency methodology (`/transparency/methodology`) — the data dashboard exists without the standalone methodology explanation.
+- [ ] Public/member feature requests (`/governance/feature-requests`) — board administration exists, but listeners and members cannot browse or submit requests from its Tahti route.
+- [ ] Upload job detail (`/dashboard/upload/:uploadId`) — upload works, but processing state has no durable detail route after navigation or refresh.
+- [ ] Signup profile and broadcaster-intake step parity (`/signup/profile`, `/signup/broadcast`) — join and membership checkout exist, but these guided steps are consolidated rather than preserved as addressable routes.
+
+### Partial functionality
+
+- [ ] Support (`/help/support`) has help content but no in-client ticket submission form.
+- [ ] Public venue governance (`/governance/venues`) is represented through venue registration and board tools, without the production member-facing route.
+- [ ] Direct-message thread URLs (`/dashboard/messages/:id`) open the inbox but do not preserve the selected conversation in the route.
+- [ ] Admin detail operations remain intentionally reduced: user/support/announcement detail, bulk file operations, per-subscriber payout retry, legacy-member migration, grant preview/run, and governance report/resolution/audit tools.
+- [ ] Pro editor remains shallower than Tahti's full ffmpeg/multitrack workflow; a true multitrack timeline still needs a rendering and persistence design.
+- [ ] Dynamic SEO/OG parity still depends on an edge metadata or prerendering solution for artist, channel, release, collection, and venue pages.
+
+### Intentionally consolidated, not missing
+
+- Posts and newsletter compose live together in `/studio/updates`.
+- Channel edit, gallery, text, and rotation settings live together in `/studio/channel`.
+- Fan tiers, subscriber payout statistics, Stripe state, grants, and subscriptions are grouped under Settings → Money and `/studio/revenue`.
+- Radio slots, series, and episodes are handled by `/studio/shows`; production dashboard aliases resolve there.
+- Production settings sub-pages map into the smaller Account, Artist, Channel, Broadcast, Money, and Connections sections.

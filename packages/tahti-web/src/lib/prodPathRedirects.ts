@@ -9,7 +9,12 @@ export const DASHBOARD_REDIRECTS: Record<string, string> = {
   upload: '/studio/upload',
   releases: '/studio/releases',
   collections: '/studio/collections',
+  distribution: '/studio/distribution',
   editor: '/studio/editor',
+  embeds: '/studio/embeds',
+  events: '/studio/events',
+  venues: '/studio/venues',
+  recordings: '/studio/recordings',
   stash: '/studio/stash',
   schedule: '/studio/schedule',
   stats: '/studio/stats',
@@ -19,6 +24,7 @@ export const DASHBOARD_REDIRECTS: Record<string, string> = {
   shows: '/studio/shows',
   playlists: '/studio/playlists',
   newsletter: '/studio/updates',
+  posts: '/studio/updates',
   updates: '/studio/updates',
   revenue: '/studio/revenue',
   messages: '/library/messages',
@@ -26,11 +32,21 @@ export const DASHBOARD_REDIRECTS: Record<string, string> = {
   settings: '/settings',
   'settings/account': '/settings/account',
   'settings/artist-info': '/settings/artist',
+  'settings/media': '/settings/artist',
+  'settings/members': '/settings/artist',
+  'settings/presskit': '/settings/artist',
   'settings/fan-subs': '/settings/money',
   'settings/connections': '/settings/connections',
-  'settings/notifications': '/settings/notifications',
+  'settings/api': '/settings/connections',
+  'settings/notifications': '/settings/account',
   'settings/domain': '/settings/channel',
+  'settings/discovery': '/settings/channel',
+  'settings/announcements': '/settings/broadcast',
+  'settings/green-room': '/settings/broadcast',
+  'settings/distribution': '/studio/distribution',
+  'settings/moderators': '/studio/moderation',
   'settings/multistream': '/studio/go-live',
+  'upload/from-broadcast': '/studio/recordings',
 };
 
 /** Resolve /dashboard/... rest path to Nuclear target, or /studio fallback. */
@@ -43,6 +59,9 @@ export function resolveDashboardRedirect(rest: string | undefined): string {
   const first = key.split('/')[0] ?? '';
   if (first === 'archive' && key.includes('/')) {
     const id = key.split('/')[1];
+    if (id && key.endsWith('/editor')) {
+      return `/studio/archive/${id}/editor`;
+    }
     return id ? `/studio/archive/${id}` : '/studio/archive';
   }
   if (first === 'releases' && key.includes('/')) {
@@ -51,6 +70,9 @@ export function resolveDashboardRedirect(rest: string | undefined): string {
   }
   if (first === 'collections' && key.includes('/')) {
     const slug = key.split('/')[1];
+    if (slug === 'new') {
+      return '/studio/collections';
+    }
     return slug ? `/studio/collections/${slug}` : '/studio/collections';
   }
   if (first === 'editor' && key.includes('/')) {
@@ -59,6 +81,13 @@ export function resolveDashboardRedirect(rest: string | undefined): string {
   }
   if (first === 'stats' && key.includes('detail')) {
     return '/studio/stats/detail';
+  }
+  if (first === 'insights') {
+    const [, kind, id] = key.split('/');
+    if (kind && id) {
+      return `/studio/insights/${kind}/${id}`;
+    }
+    return '/studio/stats';
   }
   if (first === 'moderate') {
     return '/studio/moderation';

@@ -1,153 +1,438 @@
 import { Link } from '@tanstack/react-router';
-import { ChartLineIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import {
+  AudioLinesIcon,
+  BarChart3Icon,
+  DownloadIcon,
+  ExternalLinkIcon,
+  RadioTowerIcon,
+  UsersIcon,
+} from 'lucide-react';
+import { useEffect, useMemo, useState, type FC } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
+import { fetchGrantEstimate, type GrantEstimate } from '../../api/revenue';
 import {
+  fetchChannelEgressStats,
+  fetchChannelLiveStats,
+  fetchListenerGeo,
+  fetchStatsPlays,
   fetchStatsSummary,
   fetchStatsTopCountries,
   fetchStatsTopTracks,
+  type ChannelEgressStats,
+  type ChannelLiveStats,
+  type ListenerGeoPoint,
+  type StatsPlays,
+  type StatsPlaysRange,
   type StatsSummary,
   type StatsTopCountry,
   type StatsTopTrack,
 } from '../../api/studio-extras';
+import { ListenerWorldMap } from '../../components/ListenerWorldMap';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
 
-export function StudioStatsView() {
-  const [summary, setSummary] = useState<StatsSummary | null>(null);
+const RANGES: Array<{ id: StatsPlaysRange; label: string }> = [
+  { id: '7', label: '7 days' },
+  { id: '30', label: '30 days' },
+  { id: 'all', label: 'All time' },
+];
+
+const EMPTY_SUMMARY: StatsSummary = {
+  playsToday: 0,
+  playsTotal: 0,
+  downloadsToday: 0,
+  downloadsTotal: 0,
+  followerCount: 0,
+};
+
+const EMPTY_PLAYS: StatsPlays = {
+  totalPlays: 0,
+  totalDownloads: 0,
+  totalSmartLinkClicks: 0,
+  daily: [],
+};
+
+const EMPTY_EGRESS: ChannelEgressStats = {
+  windowDays: 30,
+  liveHlsBytes: 0,
+  estimatedLiveHlsBytes: 0,
+};
+
+const EMPTY_LIVE: ChannelLiveStats = {
+  windowDays: 14,
+  totalLiveSeconds: 0,
+  totalBroadcasts: 0,
+  peakDailyListeners: 0,
+};
+
+const formatDate = (value: string) =>
+  new Date(`${value}T12:00:00Z`).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+
+export const StudioStatsView: FC = () => {
+  const [range, setRange] = useState<StatsPlaysRange>('30');
+  const [summary, setSummary] = useState<StatsSummary>(EMPTY_SUMMARY);
+  const [plays, setPlays] = useState<StatsPlays>(EMPTY_PLAYS);
   const [tracks, setTracks] = useState<StatsTopTrack[]>([]);
   const [countries, setCountries] = useState<StatsTopCountry[]>([]);
+  const [listenerGeo, setListenerGeo] = useState<ListenerGeoPoint[]>([]);
+  const [egress, setEgress] = useState<ChannelEgressStats>(EMPTY_EGRESS);
+  const [live, setLive] = useState<ChannelLiveStats>(EMPTY_LIVE);
+  const [grant, setGrant] = useState<GrantEstimate | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    const geoPeriod = range === '7' ? '7d' : range === '30' ? '30d' : 'all';
     void Promise.all([
       fetchStatsSummary(),
-      fetchStatsTopTracks(),
-      fetchStatsTopCountries(),
-    ]).then(([s, t, c]) => {
-      setSummary(s.data);
-      setTracks(t.data);
-      setCountries(c.data);
-      setLoading(false);
-    });
-  }, []);
+      fetchStatsPlays(range),
+      fetchStatsTopTracks(range),
+      fetchStatsTopCountries(range),
+      fetchListenerGeo(geoPeriod),
+      fetchChannelEgressStats(),
+      fetchChannelLiveStats(),
+      fetchGrantEstimate(),
+    ]).then(
+      ([
+        summaryResult,
+        playsResult,
+        tracksResult,
+        countriesResult,
+        listenerGeoResult,
+        egressResult,
+        liveResult,
+        grantResult,
+      ]) => {
+        if (cancelled) {
+          return;
+        }
+        setSummary(summaryResult.data);
+        setPlays(playsResult.data);
+        setTracks(tracksResult.data);
+        setCountries(countriesResult.data);
+        setListenerGeo(listenerGeoResult.data);
+        setEgress(egressResult.data);
+        setLive(liveResult.data);
+        setGrant(grantResult.data);
+        setLoading(false);
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [range]);
+
+  const maxDaily = useMemo(
+    () => Math.max(1, ...plays.daily.map((day) => day.plays)),
+    [plays.daily],
+  );
+  const busiestDay = useMemo(
+    () =>
+      plays.daily.length > 0
+        ? plays.daily.reduce((best, day) =>
+            day.plays > best.plays ? day : best,
+          )
+        : null,
+    [plays.daily],
+  );
+  const deliveredBytes = egress.liveHlsBytes || egress.estimatedLiveHlsBytes;
+  const minutesListened = Math.round((deliveredBytes * 8) / 192_000 / 60);
+  const minutesStreamed = Math.round(live.totalLiveSeconds / 60);
+  const engagementRows = [
+    {
+      label: 'Free downloads',
+      detail: `${grant?.freeDownloads ?? 0} × 1`,
+      value: grant?.freeDownloads ?? 0,
+    },
+    {
+      label: 'Paid downloads',
+      detail: `${grant?.paidDownloads ?? 0} × 5`,
+      value: (grant?.paidDownloads ?? 0) * 5,
+    },
+    {
+      label: 'Fan subscriptions',
+      detail: `€${grant?.fanSubEuros ?? 0} × 1`,
+      value: grant?.fanSubEuros ?? 0,
+    },
+  ];
+  const maxEngagement = Math.max(1, ...engagementRows.map((row) => row.value));
+  const keyMetrics = [
+    {
+      label: 'Plays',
+      value: plays.totalPlays,
+      note: `${summary.playsToday.toLocaleString()} today`,
+      icon: AudioLinesIcon,
+    },
+    {
+      label: 'Downloads',
+      value: plays.totalDownloads,
+      note: `${summary.downloadsToday.toLocaleString()} today`,
+      icon: DownloadIcon,
+    },
+    {
+      label: 'Smart-link clicks',
+      value: plays.totalSmartLinkClicks ?? 0,
+      note: 'Selected period',
+      icon: ExternalLinkIcon,
+    },
+    {
+      label: 'Followers',
+      value: summary.followerCount,
+      note: 'Current audience',
+      icon: UsersIcon,
+    },
+    {
+      label: 'Minutes listened',
+      value: minutesListened,
+      note: `Estimated from ${egress.windowDays}d delivery`,
+      icon: UsersIcon,
+    },
+    {
+      label: 'Minutes streamed',
+      value: minutesStreamed,
+      note: `${live.totalBroadcasts} broadcasts in ${live.windowDays}d`,
+      icon: RadioTowerIcon,
+    },
+  ];
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/stats" />
         <StudioPageHeader
           title="Stats"
-          subtitle="Plays and downloads across your catalog."
+          subtitle="Audience, track performance, broadcasts, and engagement in one place."
           action={
-            <Link to="/studio/stats/detail">
-              <Button
-                size="sm"
-                variant="secondary"
-                aria-label="Plays detail"
-                title="Plays detail"
-              >
-                <ChartLineIcon size={16} aria-hidden className="mr-1.5" />
-                Detail
-              </Button>
-            </Link>
+            <div
+              className="border-border flex gap-1 rounded-lg border p-1"
+              role="group"
+              aria-label="Stats time range"
+            >
+              {RANGES.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  aria-pressed={range === option.id}
+                  onClick={() => setRange(option.id)}
+                  className={`rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide uppercase transition-colors ${
+                    range === option.id
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-foreground-secondary hover:text-foreground'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
           }
         />
 
-        {loading || !summary ? (
-          <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Loading…</p>
-          </StudioPanel>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {(
-              [
-                ['Plays today', summary.playsToday],
-                ['Plays total', summary.playsTotal],
-                ['Downloads today', summary.downloadsToday],
-                ['Downloads total', summary.downloadsTotal],
-              ] as const
-            ).map(([label, value]) => (
-              <StudioPanel key={label} className="!p-4 sm:!p-5">
-                <Eyebrow>{label}</Eyebrow>
+        <section
+          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+          aria-label="Key metrics"
+        >
+          {keyMetrics.map((metric) => {
+            const Icon = metric.icon;
+            return (
+              <StudioPanel key={metric.label} className="!p-4 sm:!p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <Eyebrow>{metric.label}</Eyebrow>
+                  <Icon size={17} aria-hidden className="text-primary" />
+                </div>
                 <StatNumber className="mt-1 block">
-                  {value.toLocaleString()}
+                  {loading ? '—' : metric.value.toLocaleString()}
                 </StatNumber>
+                <p className="text-foreground-secondary mt-1 text-xs">
+                  {metric.note}
+                </p>
               </StudioPanel>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </section>
 
-        <StudioPanel title="Top tracks">
-          {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
-          ) : tracks.length === 0 ? (
-            <p className="text-foreground-secondary text-sm">
-              No track stats yet.
-            </p>
-          ) : (
-            <ul className="divide-border divide-y">
-              {tracks.map((t) => (
-                <li
-                  key={t.archiveItemId}
-                  className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
-                >
-                  <Link
-                    to="/studio/archive/$id"
-                    params={{ id: t.archiveItemId }}
-                    className="min-w-0 truncate font-medium hover:underline"
-                  >
-                    {t.title}
-                  </Link>
-                  <span className="text-foreground-secondary shrink-0 tabular-nums">
-                    {t.plays.toLocaleString()} plays
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+        <StudioPanel title="Plays over time">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <StatNumber className="block text-3xl">
+                {plays.totalPlays.toLocaleString()}
+              </StatNumber>
+              <p className="text-foreground-secondary text-xs">
+                {busiestDay
+                  ? `Busiest day: ${formatDate(busiestDay.date)} · ${busiestDay.plays.toLocaleString()} plays`
+                  : 'Daily activity appears after your first play.'}
+              </p>
+            </div>
+            <BarChart3Icon size={22} aria-hidden className="text-primary" />
+          </div>
+          <div
+            role="img"
+            aria-label="Daily plays chart"
+            className="flex h-44 items-end gap-1"
+          >
+            {plays.daily.length === 0 ? (
+              <p className="text-foreground-secondary self-center text-sm">
+                No plays in this period.
+              </p>
+            ) : (
+              plays.daily.map((day) => (
+                <div
+                  key={day.date}
+                  title={`${formatDate(day.date)}: ${day.plays.toLocaleString()} plays`}
+                  className="bg-primary/70 hover:bg-primary min-w-0 flex-1 rounded-t-sm transition-colors"
+                  style={{
+                    height: `${Math.max(3, (day.plays / maxDaily) * 100)}%`,
+                  }}
+                />
+              ))
+            )}
+          </div>
+          {plays.daily.length > 0 ? (
+            <div className="text-foreground-secondary mt-2 flex justify-between text-[10px]">
+              <span>{formatDate(plays.daily[0]!.date)}</span>
+              <span>
+                {formatDate(plays.daily[plays.daily.length - 1]!.date)}
+              </span>
+            </div>
+          ) : null}
         </StudioPanel>
 
-        <StudioPanel title="Top countries">
-          {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
-          ) : countries.length === 0 ? (
+        <StudioPanel title="Listener map">
+          <div className="mb-4 flex flex-wrap justify-between gap-2">
             <p className="text-foreground-secondary text-sm">
-              No country data yet.
+              Anonymized countries from channel listening and downloads.
             </p>
-          ) : (
-            <ul className="divide-border divide-y">
-              {countries.map((c) => (
-                <li
-                  key={c.country}
-                  className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
-                >
-                  <span className="font-medium">{c.country}</span>
-                  <span className="text-foreground-secondary tabular-nums">
-                    {c.count.toLocaleString()}
+            <span className="text-foreground-secondary text-xs tabular-nums">
+              Peak day: {live.peakDailyListeners.toLocaleString()} listeners
+            </span>
+          </div>
+          <ListenerWorldMap data={listenerGeo} loading={loading} />
+        </StudioPanel>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <StudioPanel title="Top tracks">
+            {tracks.length === 0 ? (
+              <p className="text-foreground-secondary text-sm">
+                No track stats yet.
+              </p>
+            ) : (
+              <ul className="divide-border divide-y">
+                {tracks.map((track) => (
+                  <li
+                    key={track.archiveItemId}
+                    className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0"
+                  >
+                    <Link
+                      to="/studio/archive/$id"
+                      params={{ id: track.archiveItemId }}
+                      className="min-w-0 flex-1 truncate text-sm font-medium hover:underline"
+                    >
+                      {track.title}
+                    </Link>
+                    <span className="text-foreground-secondary text-xs tabular-nums">
+                      {track.plays.toLocaleString()} plays
+                    </span>
+                    <Link
+                      to="/studio/insights/$kind/$id"
+                      params={{ kind: 'archive', id: track.archiveItemId }}
+                      aria-label={`Insights for ${track.title}`}
+                    >
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        title="Track insights"
+                      >
+                        <BarChart3Icon size={16} aria-hidden />
+                      </Button>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </StudioPanel>
+
+          <StudioPanel title="Top countries">
+            {countries.length === 0 ? (
+              <p className="text-foreground-secondary text-sm">
+                No country data yet.
+              </p>
+            ) : (
+              <ul className="divide-border divide-y">
+                {countries.map((country) => (
+                  <li
+                    key={country.country}
+                    className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
+                  >
+                    <span className="font-medium">{country.country}</span>
+                    <span className="text-foreground-secondary tabular-nums">
+                      {country.count.toLocaleString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </StudioPanel>
+        </div>
+
+        <StudioPanel title="Engagement units">
+          <div className="flex flex-col gap-3">
+            {engagementRows.map((row) => (
+              <div
+                key={row.label}
+                className="grid grid-cols-[9rem_1fr_auto] items-center gap-3 text-sm"
+              >
+                <span>
+                  {row.label}
+                  <span className="text-foreground-secondary ml-1 text-xs">
+                    {row.detail}
                   </span>
-                </li>
-              ))}
-            </ul>
-          )}
+                </span>
+                <div className="bg-background h-2 overflow-hidden rounded-full">
+                  <div
+                    className="bg-accent-cyan h-full rounded-full"
+                    style={{ width: `${(row.value / maxEngagement) * 100}%` }}
+                  />
+                </div>
+                <strong className="w-10 text-right tabular-nums">
+                  {row.value}
+                </strong>
+              </div>
+            ))}
+          </div>
+          <div className="border-border mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-sm">
+            <span className="text-foreground-secondary">
+              {grant?.eligible
+                ? `Estimated ${grant.year} grant share`
+                : `Progress toward ${grant?.year ?? new Date().getFullYear()} grant eligibility`}
+            </span>
+            <strong>
+              {grant?.eligible
+                ? `€${((grant.estimateCents ?? 0) / 100).toFixed(2)}`
+                : `${grant?.units ?? 0} units`}
+            </strong>
+          </div>
         </StudioPanel>
 
         <p className="text-foreground-secondary text-xs">
-          Fan payouts live under{' '}
+          Fan subscription payouts and grant history remain under{' '}
           <Link
             to="/studio/revenue"
             className="underline-offset-2 hover:underline"
           >
             Revenue
           </Link>
-          .
+          . Listener geography is aggregated and does not identify individual
+          listeners.
         </p>
       </div>
     </StudioGate>
   );
-}
+};

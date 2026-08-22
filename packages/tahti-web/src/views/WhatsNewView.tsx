@@ -1,4 +1,4 @@
-import { SparklesIcon } from 'lucide-react';
+import { ExternalLinkIcon, SparklesIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { cn, ViewShell } from '@nuclearplayer/ui';
@@ -29,6 +29,25 @@ function TimelineEntry({
   isFirst: boolean;
   isLast: boolean;
 }) {
+  const safeUrl = (value: string | null | undefined, relative = false) => {
+    if (!value) {
+      return null;
+    }
+    if (relative && value.startsWith('/')) {
+      return value;
+    }
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' || url.protocol === 'https:'
+        ? value
+        : null;
+    } catch {
+      return null;
+    }
+  };
+  const imageUrl = safeUrl(entry.imageUrl);
+  const linkUrl = safeUrl(entry.linkUrl, true);
+
   return (
     <div data-testid="announcement-entry" className="flex gap-4">
       <div className="flex w-4 flex-col items-center gap-1">
@@ -59,11 +78,31 @@ function TimelineEntry({
             })}
           </span>
         </div>
-        <div className="border-border bg-background-secondary shadow-shadow flex-1 rounded-md border-(length:--border-width) p-4">
-          <p className="text-sm font-semibold">{entry.headline}</p>
-          <p className="text-foreground-secondary mt-1 text-sm whitespace-pre-wrap">
-            {entry.summary}
-          </p>
+        <div className="border-border bg-background-secondary shadow-shadow flex-1 overflow-hidden rounded-md border-(length:--border-width)">
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={`${entry.headline} thumbnail`}
+              className="aspect-[16/7] w-full object-cover"
+            />
+          ) : null}
+          <div className="p-4">
+            <p className="text-sm font-semibold">{entry.headline}</p>
+            <p className="text-foreground-secondary mt-1 text-sm whitespace-pre-wrap">
+              {entry.summary}
+            </p>
+            {linkUrl ? (
+              <a
+                href={linkUrl}
+                target={linkUrl.startsWith('/') ? undefined : '_blank'}
+                rel={linkUrl.startsWith('/') ? undefined : 'noreferrer'}
+                className="text-primary mt-3 inline-flex items-center gap-1.5 text-sm font-semibold underline-offset-2 hover:underline"
+              >
+                {entry.linkLabel?.trim() || 'Read more'}
+                <ExternalLinkIcon size={14} aria-hidden />
+              </a>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

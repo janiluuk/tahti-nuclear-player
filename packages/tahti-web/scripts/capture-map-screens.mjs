@@ -37,6 +37,7 @@ const shots = [
   { id: 'governance', path: '/governance', auth: false },
   { id: 'settings', path: '/settings' },
   { id: 'money-tiers', path: '/settings/money' },
+  { id: 'money-fan-subs', path: '/settings/money' },
   { id: 'sources', path: '/sources' },
   { id: 'studio', path: '/studio' },
   { id: 'go-live', path: '/studio/go-live' },
@@ -48,7 +49,7 @@ const shots = [
   { id: 'stash', path: '/studio/stash' },
   { id: 'schedule', path: '/studio/schedule' },
   { id: 'stats', path: '/studio/stats' },
-  { id: 'stats-detail', path: '/studio/stats/detail' },
+  { id: 'stats-detail', path: '/studio/insights/archive/arch-mock-1' },
   { id: 'channel-design', path: '/studio/channel' },
   { id: 'setup-channel-gated', path: '/studio/setup-channel' },
   { id: 'updates', path: '/studio/updates' },
@@ -58,6 +59,16 @@ const shots = [
   { id: 'status', path: '/status', auth: false },
   { id: 'transparency', path: '/transparency', auth: false },
 ];
+
+const requestedShotIds = new Set(
+  (process.env.MAP_SHOT_IDS || '')
+    .split(',')
+    .map((shotId) => shotId.trim())
+    .filter(Boolean),
+);
+const selectedShots = requestedShotIds.size
+  ? shots.filter((shot) => requestedShotIds.has(shot.id))
+  : shots;
 
 let browser = await chromium.launch({
   headless: true,
@@ -145,7 +156,7 @@ async function ensurePage() {
   }
 }
 
-for (const s of shots) {
+for (const s of selectedShots) {
   await ensurePage();
   const url = `${BASE}${s.path}`;
   const out = join(outRoot, `${s.id}.png`);
@@ -168,6 +179,12 @@ for (const s of shots) {
       await page.getByLabel('Password').fill('totp-demo');
       await page.getByRole('button', { name: 'Sign in' }).click();
       await page.getByLabel('Authentication code').waitFor();
+    }
+    if (s.id === 'money-fan-subs') {
+      await page.getByRole('tab', { name: 'Fan subs' }).click();
+      await page
+        .getByRole('region', { name: 'Fan subscription summary' })
+        .waitFor();
     }
     await page.waitForTimeout(s.wait ?? 900);
     // Hide cookie/noise if any; capture main viewport

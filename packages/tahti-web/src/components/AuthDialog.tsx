@@ -1,14 +1,15 @@
 import { Link } from '@tanstack/react-router';
 import { KeyRoundIcon, LogInIcon, UserPlusIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
-/** Login / join / TOTP — Nuclear Dialog pattern (not full-page routes). */
-export function AuthDialog() {
+const MINIMUM_PASSWORD_LENGTH = 8;
+
+export const AuthDialog: FC = () => {
   const isOpen = useAuthModalStore((s) => s.isOpen);
   const mode = useAuthModalStore((s) => s.mode);
   const close = useAuthModalStore((s) => s.close);
@@ -16,7 +17,6 @@ export function AuthDialog() {
 
   const login = useAuthStore((s) => s.login);
   const register = useAuthStore((s) => s.register);
-  const verify = useAuthStore((s) => s.verify);
   const completeTotp = useAuthStore((s) => s.completeTotp);
   const cancelTotp = useAuthStore((s) => s.cancelTotp);
   const totpChallengeId = useAuthStore((s) => s.totpChallengeId);
@@ -27,10 +27,10 @@ export function AuthDialog() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [artistName, setArtistName] = useState('');
   const [totpCode, setTotpCode] = useState('');
-  const [verifyToken, setVerifyToken] = useState('');
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,6 +40,7 @@ export function AuthDialog() {
     clearError();
     setMessage(null);
     setTotpCode('');
+    setConfirmPassword('');
   }, [isOpen, mode, clearError]);
 
   useEffect(() => {
@@ -66,6 +67,8 @@ export function AuthDialog() {
     : mode === 'join'
       ? 'Join'
       : 'Log in';
+  const passwordsDoNotMatch =
+    confirmPassword.length > 0 && password !== confirmPassword;
 
   return (
     <Dialog.Root isOpen={isOpen} onClose={handleClose}>
@@ -167,9 +170,10 @@ export function AuthDialog() {
             description="lowercase letters, numbers, - and _"
           />
           <Input
-            label="Display name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            label="Artist name"
+            value={artistName}
+            onChange={(e) => setArtistName(e.target.value)}
+            autoComplete="name"
           />
           <Input
             label="Password"
@@ -177,13 +181,18 @@ export function AuthDialog() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             description="Min 8 characters"
+            autoComplete="new-password"
           />
           <Input
-            label="Verification token (optional)"
-            value={verifyToken}
-            onChange={(e) => setVerifyToken(e.target.value)}
-            description="Paste from email if you already have one"
+            label="Confirm password"
+            variant="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
           />
+          {passwordsDoNotMatch ? (
+            <p className="text-accent-red text-sm">Passwords do not match.</p>
+          ) : null}
           {error ? <p className="text-accent-red text-sm">{error}</p> : null}
           {message ? (
             <p className="text-foreground-secondary text-sm">{message}</p>
@@ -192,30 +201,24 @@ export function AuthDialog() {
             <Button variant="text" size="sm" onClick={() => setMode('login')}>
               Log in
             </Button>
-            {verifyToken.trim() ? (
-              <Button
-                variant="secondary"
-                disabled={loading}
-                onClick={() => {
-                  clearError();
-                  void verify(verifyToken.trim())
-                    .then((msg) => {
-                      setMessage(msg);
-                      setMode('login');
-                    })
-                    .catch(() => undefined);
-                }}
-              >
-                Verify
-              </Button>
-            ) : null}
             <Button
               disabled={
-                loading || !email || !password || !username || !displayName
+                loading ||
+                !email ||
+                password.length < MINIMUM_PASSWORD_LENGTH ||
+                !confirmPassword ||
+                passwordsDoNotMatch ||
+                !username ||
+                !artistName
               }
               onClick={() => {
                 clearError();
-                void register({ email, password, username, displayName })
+                void register({
+                  email,
+                  password,
+                  username,
+                  displayName: artistName,
+                })
                   .then((msg) => {
                     setMessage(msg);
                     if (import.meta.env.VITE_FORCE_MOCK === '1') {
@@ -232,4 +235,4 @@ export function AuthDialog() {
       )}
     </Dialog.Root>
   );
-}
+};

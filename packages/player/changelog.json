@@ -1,6 +1,102 @@
 [
   {
     "date": "2026-08-23T00:00",
+    "description": "Fan subscription settings and Revenue now show active subscribers, monthly net revenue, year-to-date payouts, pending and failed transfers, recent payout detail, and subscriber CSV export.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "Studio now opens with clickable summary stats for plays, downloads, and followers, while Go Live and Schedule use smaller dashboard actions that leave more room for the overview.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "Registration now asks for an artist name and requires the password to be entered twice, while verification tokens remain in the separate email verification flow.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "DSP landing pages now use a simpler artwork-first release layout with year and genre, clearer listening destinations, and no license metadata in catalog listings; license remains in full track details.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "Tahti Selects admin now reads the real public stream state, automatically recovers an offline rotation, shows the current track, and provides state-aware stream playback controls.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "Go Live now includes a persistent, icon-led Record broadcast switch; completed recordings land in Recordings where they can be edited and released.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "Artist Stats now brings plays, downloads, followers, smart-link clicks, broadcast reach, engagement units, top tracks, and an anonymized listener world map into one dashboard, with the same map available per track.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "The library now opens with every owned sound in a searchable archive, track pages include waveform playback, editing, and rotation controls, HearThis.at imports preserve cover art, and news posts support optional images and links.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
     "description": "Studio tools are now grouped by task, upload forms share one consistent Nuclear file picker, and user-facing screens no longer expose mock, API, backlog, or environment language.",
     "type": "improvement",
     "contributors": ["jani"],

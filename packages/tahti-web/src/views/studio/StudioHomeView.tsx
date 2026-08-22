@@ -21,10 +21,11 @@ import {
   ScissorsIcon,
   ShieldCheckIcon,
   UploadCloudIcon,
+  UsersIcon,
   WalletIcon,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type FC, type ReactNode } from 'react';
 
 import { CardGrid } from '@nuclearplayer/ui';
 
@@ -33,12 +34,21 @@ import {
   fetchStudioCollections,
   fetchStudioReleases,
 } from '../../api/studio';
+import { fetchStatsSummary, type StatsSummary } from '../../api/studio-extras';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { useAuthStore } from '../../stores/authStore';
 
 type Counts = { archive: number; releases: number; collections: number };
+
+const EMPTY_STATS: StatsSummary = {
+  playsToday: 0,
+  playsTotal: 0,
+  downloadsToday: 0,
+  downloadsTotal: 0,
+  followerCount: 0,
+};
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -93,6 +103,70 @@ function StudioActionTile({
   );
 }
 
+type CompactBroadcastTileProps = {
+  to: '/studio/go-live' | '/studio/schedule';
+  icon: LucideIcon;
+  label: string;
+  subtitle: string;
+  color: string;
+};
+
+const CompactBroadcastTile: FC<CompactBroadcastTileProps> = ({
+  to,
+  icon: Icon,
+  label,
+  subtitle,
+  color,
+}) => (
+  <Link
+    to={to}
+    data-testid="compact-broadcast-card"
+    className="border-border bg-background-secondary/40 hover:bg-background-secondary group flex min-h-20 items-center gap-3 rounded-xl border px-4 py-3 shadow-sm transition-transform hover:-translate-y-0.5"
+  >
+    <span
+      className="flex size-11 shrink-0 items-center justify-center rounded-lg text-white"
+      style={{ background: color }}
+    >
+      <Icon size={22} aria-hidden />
+    </span>
+    <span className="min-w-0">
+      <span className="block text-sm font-bold">{label}</span>
+      <span className="text-foreground-secondary block truncate text-xs">
+        {subtitle}
+      </span>
+    </span>
+  </Link>
+);
+
+type SummaryStatProps = {
+  label: string;
+  value: number;
+  note: string;
+  icon: LucideIcon;
+};
+
+const SummaryStat: FC<SummaryStatProps> = ({
+  label,
+  value,
+  note,
+  icon: Icon,
+}) => (
+  <Link
+    to="/studio/stats"
+    aria-label={`${value.toLocaleString()} ${label.toLowerCase()}`}
+    className="border-border bg-background-secondary/35 hover:bg-background-secondary group flex min-w-0 flex-col gap-2 rounded-xl border p-4 shadow-sm transition-transform hover:-translate-y-0.5"
+  >
+    <span className="text-foreground-secondary flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+      <Icon size={15} aria-hidden className="text-primary" />
+      {label}
+    </span>
+    <span className="font-display text-2xl font-extrabold tabular-nums">
+      {value.toLocaleString()}
+    </span>
+    <span className="text-foreground-secondary text-xs">{note}</span>
+  </Link>
+);
+
 export function StudioHomeView() {
   const user = useAuthStore((s) => s.user);
   const [counts, setCounts] = useState<Counts>({
@@ -100,6 +174,7 @@ export function StudioHomeView() {
     releases: 0,
     collections: 0,
   });
+  const [stats, setStats] = useState<StatsSummary>(EMPTY_STATS);
   const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
@@ -110,12 +185,14 @@ export function StudioHomeView() {
       fetchStudioArchive(),
       fetchStudioReleases(),
       fetchStudioCollections(),
-    ]).then(([a, r, c]) => {
+      fetchStatsSummary(),
+    ]).then(([a, r, c, summary]) => {
       setCounts({
         archive: a.data.length,
         releases: r.data.releases.length,
         collections: c.data.length,
       });
+      setStats(summary.data);
     });
   }, [user?.channel]);
 
@@ -157,23 +234,53 @@ export function StudioHomeView() {
 
         {!channel ? null : (
           <>
+            <section
+              aria-label="Channel summary"
+              className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+            >
+              <SummaryStat
+                label="Plays today"
+                value={stats.playsToday}
+                note="Open detailed stats"
+                icon={RadioIcon}
+              />
+              <SummaryStat
+                label="Total plays"
+                value={stats.playsTotal}
+                note="All-time audience"
+                icon={BarChart3Icon}
+              />
+              <SummaryStat
+                label="Total downloads"
+                value={stats.downloadsTotal}
+                note={`${stats.downloadsToday.toLocaleString()} today`}
+                icon={UploadCloudIcon}
+              />
+              <SummaryStat
+                label="Followers"
+                value={stats.followerCount}
+                note="Audience overview"
+                icon={UsersIcon}
+              />
+            </section>
+
             <Group title="Broadcast">
-              <CardGrid>
-                <StudioActionTile
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <CompactBroadcastTile
                   to="/studio/go-live"
                   icon={RadioIcon}
                   label="Go Live"
                   subtitle="Keys, signal, on-air"
                   color="var(--accent-red)"
                 />
-                <StudioActionTile
+                <CompactBroadcastTile
                   to="/studio/schedule"
                   icon={CalendarIcon}
                   label="Schedule"
                   subtitle="Next show & programme"
                   color="var(--accent-blue)"
                 />
-              </CardGrid>
+              </div>
             </Group>
 
             <Group title="Music">

@@ -9,7 +9,7 @@ import { ParityBadges, ScreenAtlas } from '../components/ScreenAtlas';
 import type { MapParity } from '../content/mapScreens';
 import { useMapNotesStore } from '../stores/mapNotesStore';
 
-type Status = 'live' | 'stub' | 'studio' | 'admin';
+type Status = 'live' | 'partial' | 'missing' | 'stub' | 'studio' | 'admin';
 
 type FeatureRow = {
   feature: string;
@@ -38,6 +38,8 @@ function featureParity(row: FeatureRow): MapParity {
 
 const STATUS_LABEL: Record<Status, string> = {
   live: 'Live in POC',
+  partial: 'Partial parity',
+  missing: 'Missing in POC',
   stub: 'Stub / deep-link',
   studio: 'Studio-only (out of scope)',
   admin: 'Admin-only (out of scope)',
@@ -319,18 +321,58 @@ const FEATURES: FeatureRow[] = [
     notes: 'Archive/VOD only',
   },
   {
-    feature: 'Press kit / gallery extras',
+    feature: 'Press kit / gallery',
     tahti: '/dashboard press kit',
-    nuclear: '—',
-    status: 'studio',
-    notes: 'Not rebuilt; use production dashboard',
+    nuclear: '/settings/artist',
+    status: 'live',
+    notes: 'Bio, links, members, media, gallery, and press-kit metadata',
   },
   {
     feature: 'Board admin',
     tahti: '/admin/*',
+    nuclear: '/admin/*',
+    status: 'partial',
+    notes:
+      '22 top-level views are present; detail flows, bulk file tools, payout retry, legacy migration, and grant execution remain scoped down',
+  },
+  {
+    feature: 'Public venue detail',
+    tahti: '/v/:slug',
     nuclear: '—',
-    status: 'admin',
-    notes: 'Do not rebuild in Nuclear chrome',
+    status: 'missing',
+    notes: 'Directory and registration exist; individual venue profiles do not',
+  },
+  {
+    feature: 'Transparency methodology',
+    tahti: '/transparency/methodology',
+    nuclear: '—',
+    status: 'missing',
+    notes:
+      'The main transparency dashboard exists; its methodology page does not',
+  },
+  {
+    feature: 'Public feature requests',
+    tahti: '/governance/feature-requests',
+    nuclear: '—',
+    status: 'missing',
+    notes:
+      'Board management exists, but the public/member request surface is absent',
+  },
+  {
+    feature: 'Upload job detail',
+    tahti: '/dashboard/upload/:uploadId',
+    nuclear: '—',
+    status: 'missing',
+    notes:
+      'Upload works, but there is no durable processing/progress detail route',
+  },
+  {
+    feature: 'Support request form',
+    tahti: '/help/support',
+    nuclear: '/help/support',
+    status: 'partial',
+    notes:
+      'Help content exists; authenticated ticket submission still links out',
   },
 ];
 
@@ -340,6 +382,10 @@ function statusClass(status: Status): string {
       return 'bg-primary text-foreground';
     case 'stub':
       return 'border-border text-foreground-secondary border';
+    case 'partial':
+      return 'bg-accent-yellow/20 text-foreground';
+    case 'missing':
+      return 'bg-accent-red/15 text-accent-red';
     case 'studio':
     case 'admin':
       return 'bg-background-secondary text-foreground-secondary';

@@ -307,7 +307,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         id: 'auth-join',
         title: 'Join / register',
         viewName: 'Join',
-        caption: 'Create account — email + password.',
+        caption:
+          'You can create an artist account with your email, artist name, username, and a confirmed password.',
         old: {
           image: '/map/auth/join.png',
           route: '/join',
@@ -389,7 +390,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         new: {
           image: '/map/nuclear/library.png',
           route: '/library',
-          caption: 'Nuclear library tabs',
+          caption:
+            'You can search every owned sound, filter by visibility or processing state, play it, edit metadata, or open the audio editor.',
         },
       },
       {
@@ -485,7 +487,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         id: 'artist-home',
         title: 'Studio home',
         viewName: 'Studio',
-        caption: 'Artist overview / catalog hub (requires login + channel).',
+        caption:
+          'You can review clickable audience totals, start or schedule a broadcast, and open every catalog and channel tool.',
         old: {
           image: '/map/studio/home.png',
           route: '/dashboard',
@@ -527,7 +530,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         new: {
           image: '/map/nuclear/go-live.png',
           route: '/studio/go-live',
-          caption: 'Nuclear Go Live tabs',
+          caption:
+            'You can monitor the signal, go live, record the broadcast, copy encoder credentials, and manage multistream destinations.',
         },
       },
       {
@@ -623,14 +627,15 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         new: {
           image: '/map/nuclear/stats.png',
           route: '/studio/stats',
-          caption: 'Nuclear stats',
+          caption:
+            'You can compare audience and broadcast metrics, explore listener countries on a world map, and open per-track insights.',
         },
       },
       {
         id: 'artist-stats-detail',
-        title: 'Stats detail',
-        viewName: 'Stats detail',
-        caption: 'Drill-down for a track or period.',
+        title: 'Track insights',
+        viewName: 'Track insights',
+        caption: 'Drill-down for a track and period.',
         old: {
           image: '/map/studio/stats-detail.png',
           route: '/dashboard/stats (detail)',
@@ -638,8 +643,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/stats-detail.png',
-          route: '/studio/stats/detail',
-          caption: 'Nuclear stats detail',
+          route: '/studio/insights/archive/:id',
+          caption:
+            'You can compare a track’s plays and downloads over time and see its audience on the listener world map.',
         },
       },
       {
@@ -768,6 +774,23 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           image: '/map/nuclear/money-tiers.png',
           route: '/settings/money',
           caption: 'Nuclear fan tiers',
+        },
+      },
+      {
+        id: 'artist-money-fan-subs',
+        title: 'Fan subscription performance',
+        viewName: 'Fan subscriptions',
+        caption:
+          'You can review active subscribers, monthly and yearly net revenue, payout health and transfer history, then export the subscriber list.',
+        old: {
+          image: '/map/settings/money.png',
+          route: '/dashboard/settings/fan-subs',
+          caption: 'Prod fan subscription performance',
+        },
+        new: {
+          image: '/map/nuclear/money-fan-subs.png',
+          route: '/settings/money',
+          caption: 'Nuclear fan subscription performance',
         },
       },
     ],

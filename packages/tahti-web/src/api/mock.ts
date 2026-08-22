@@ -95,6 +95,10 @@ const STATION_CONTENT: Record<string, StationContent> = {
           'A full-length ambient record mixed entirely from field recordings collected on member listening sessions across two winters.',
       },
     ],
+    releaseArtwork: [
+      '/mock/northern-lights/cover-first-light.svg',
+      '/mock/northern-lights/cover-polar-static.svg',
+    ],
   },
   'screenshot-demo': {
     displayName: 'Screenshot Demo',
@@ -529,6 +533,7 @@ export function mockProfile(username: string): PublicProfile {
       '2026-01-15T00:00:00.000Z',
       '2025-10-03T00:00:00.000Z',
     ][i % 3],
+    genre: GENRE_TAGS[content.genres[0] ?? ''] ?? content.genres[0] ?? null,
     description: rel.description,
     tracks: archive.slice(i * 2, i * 2 + 2).map((a, j) => ({
       position: j + 1,
@@ -657,9 +662,8 @@ export function mockCollection(
 }
 
 export function mockSmartLink(smartLinkSlug: string): SmartLinkView {
-  const username = smartLinkSlug.includes('-')
-    ? (smartLinkSlug.split('-')[0] ?? 'northern-lights')
-    : 'northern-lights';
+  const username =
+    smartLinkSlug.match(/^(.*)-release-\d+$/)?.[1] ?? 'northern-lights';
   const profile = mockProfile(username);
   const release = profile.releases[0]!;
   return {
@@ -668,6 +672,8 @@ export function mockSmartLink(smartLinkSlug: string): SmartLinkView {
       title: release.title,
       type: release.type,
       artworkUrl: release.artworkUrl,
+      releaseDate: release.releaseDate,
+      genre: release.genre,
       description: release.description,
       smartLinkSlug,
       tracks: (release.tracks ?? []).map((t) => ({

@@ -517,3 +517,15 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 - Layered the active Three.js scene behind the full public channel page at Tahti's ambient live/offline opacity while retaining the stronger hero visualizer
 
 **Status:** shipped — verified with type-check, lint, production build, and browser screenshots.
+
+### 2026-08-23 — Tahti route and capability parity sweep
+
+**Goal:** Compare the current Tahti `apps/web` page tree with the Nuclear SPA by route and behavior, distinguish missing features from intentionally consolidated ones, and repair legacy links that were landing on the Studio home.
+
+**Navigation repaired:** Distribution, Events, Embeds, Recordings, artist Venues, Posts, broadcast recordings, archive editor deep links, track Insights, collection creation, and production settings destinations now resolve to their existing Nuclear surfaces. Regression coverage lives in `prodPathRedirects.test.ts`.
+
+**Missing list added:** `FEATURES.md` now records public venue detail, transparency methodology, public/member feature requests, upload job detail, and guided signup sub-steps as missing; support submission, member venue governance, routed DM threads, reduced admin detail operations, multitrack depth, and dynamic SEO/OG as partial.
+
+**Map updated:** `/more` no longer says Press kit and Board admin are absent. It shows their current parity and exposes the newly audited missing/partial surfaces as reviewer-visible comparison cards.
+
+**Status:** implementation gaps logged; navigation fixes included in the current release batch.

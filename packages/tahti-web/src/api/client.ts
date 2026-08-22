@@ -1667,8 +1667,18 @@ export async function fetchAnnouncements(): Promise<{
   meta: FetchMeta;
 }> {
   if (forceMock()) {
+    const { listMockPublishedNews } = await import('./admin');
     return {
-      data: mockAnnouncements(),
+      data: listMockPublishedNews().map((post) => ({
+        id: post.id,
+        headline: post.headline,
+        summary: post.summary,
+        imageUrl: post.imageUrl ?? null,
+        linkUrl: post.linkUrl ?? null,
+        linkLabel: post.linkLabel ?? null,
+        authorName: post.authorName,
+        publishedAt: post.publishedAt!,
+      })),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }

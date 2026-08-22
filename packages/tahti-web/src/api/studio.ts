@@ -784,6 +784,7 @@ export async function patchStudioCollection(
     style?: string;
     isPublic?: boolean;
     collaborative?: boolean;
+    coverUrl?: string | null;
   },
 ): Promise<
   { ok: true; data: StudioCollection } | { ok: false; error: string }
@@ -798,6 +799,7 @@ export async function patchStudioCollection(
         style: patch.style ?? 'ALBUM',
         isPublic: patch.isPublic ?? true,
         collaborative: Boolean(patch.collaborative && (patch.isPublic ?? true)),
+        coverUrl: patch.coverUrl ?? null,
         items: [],
       },
     };

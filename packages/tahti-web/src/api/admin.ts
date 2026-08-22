@@ -1003,6 +1003,9 @@ export type AdminNewsPost = {
   id: string;
   headline: string;
   summary: string;
+  imageUrl?: string | null;
+  linkUrl?: string | null;
+  linkLabel?: string | null;
   authorName: string;
   publishedAt: string | null;
   createdAt: string;
@@ -1030,12 +1033,41 @@ function mockNewsPosts(): AdminNewsPost[] {
   ];
 }
 
+const MOCK_NEWS_STORAGE_KEY = 'tahti-web-mock-news';
+
 let mockNewsState: AdminNewsPost[] | null = null;
+
+function persistNewsState(posts: AdminNewsPost[]): void {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(MOCK_NEWS_STORAGE_KEY, JSON.stringify(posts));
+  }
+}
+
+function storedNewsState(): AdminNewsPost[] | null {
+  if (typeof localStorage === 'undefined') {
+    return null;
+  }
+  const stored = localStorage.getItem(MOCK_NEWS_STORAGE_KEY);
+  if (!stored) {
+    return null;
+  }
+  try {
+    const parsed: unknown = JSON.parse(stored);
+    return Array.isArray(parsed) ? (parsed as AdminNewsPost[]) : null;
+  } catch {
+    return null;
+  }
+}
+
 function newsState(): AdminNewsPost[] {
   if (!mockNewsState) {
-    mockNewsState = mockNewsPosts();
+    mockNewsState = storedNewsState() ?? mockNewsPosts();
   }
   return mockNewsState;
+}
+
+export function listMockPublishedNews(): AdminNewsPost[] {
+  return newsState().filter((post) => Boolean(post.publishedAt));
 }
 
 export async function fetchAdminNews(): Promise<{
@@ -1049,8 +1081,13 @@ export async function fetchAdminNews(): Promise<{
     };
   }
   try {
-    const data = await getJson<{ posts: AdminNewsPost[] }>('/api/admin/news');
-    return { data: data.posts, meta: { source: 'api' } };
+    const data = await getJson<AdminNewsPost[] | { posts: AdminNewsPost[] }>(
+      '/api/admin/news',
+    );
+    return {
+      data: Array.isArray(data) ? data : data.posts,
+      meta: { source: 'api' },
+    };
   } catch (err) {
     return { data: [], meta: failMeta(err) };
   }
@@ -1059,17 +1096,25 @@ export async function fetchAdminNews(): Promise<{
 export async function createNewsPost(input: {
   headline: string;
   summary: string;
+  imageUrl?: string;
+  linkUrl?: string;
+  linkLabel?: string;
   publish: boolean;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
-    newsState().unshift({
+    const posts = newsState();
+    posts.unshift({
       id: `news-${Date.now()}`,
       headline: input.headline,
       summary: input.summary,
+      imageUrl: input.imageUrl?.trim() || null,
+      linkUrl: input.linkUrl?.trim() || null,
+      linkLabel: input.linkLabel?.trim() || null,
       authorName: 'Demo Board',
       publishedAt: input.publish ? new Date().toISOString() : null,
       createdAt: new Date().toISOString(),
     });
+    persistNewsState(posts);
     return { ok: true };
   }
   return mutate('/api/admin/news', 'POST', input);
@@ -1077,7 +1122,14 @@ export async function createNewsPost(input: {
 
 export async function updateNewsPost(
   id: string,
-  input: { headline?: string; summary?: string; publish?: boolean },
+  input: {
+    headline?: string;
+    summary?: string;
+    imageUrl?: string | null;
+    linkUrl?: string | null;
+    linkLabel?: string | null;
+    publish?: boolean;
+  },
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
     const post = newsState().find((p) => p.id === id);
@@ -1088,9 +1140,19 @@ export async function updateNewsPost(
       if (input.summary != null) {
         post.summary = input.summary;
       }
+      if (input.imageUrl !== undefined) {
+        post.imageUrl = input.imageUrl?.trim() || null;
+      }
+      if (input.linkUrl !== undefined) {
+        post.linkUrl = input.linkUrl?.trim() || null;
+      }
+      if (input.linkLabel !== undefined) {
+        post.linkLabel = input.linkLabel?.trim() || null;
+      }
       if (input.publish != null) {
         post.publishedAt = input.publish ? new Date().toISOString() : null;
       }
+      persistNewsState(newsState());
     }
     return { ok: true };
   }
@@ -1102,6 +1164,7 @@ export async function deleteNewsPost(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
     mockNewsState = newsState().filter((p) => p.id !== id);
+    persistNewsState(mockNewsState);
     return { ok: true };
   }
   return mutate(`/api/admin/news/${encodeURIComponent(id)}`, 'DELETE');
@@ -1129,6 +1192,16 @@ export type AdminSelectsBrowseItem = {
   artistName: string;
   channelSlug: string;
   audioUrl?: string | null;
+};
+
+export type AdminSelectsStream = {
+  state: 'OFFLINE' | 'STARTING' | 'LIVE' | string;
+  hlsUrl: string | null;
+  nowPlaying: {
+    title: string;
+    artistName: string;
+    artworkUrl?: string | null;
+  } | null;
 };
 
 let mockSelectsItems: AdminSelectsItem[] | null = null;
@@ -1190,24 +1263,50 @@ function mockSelectsBrowse(): AdminSelectsBrowseItem[] {
 }
 
 export async function fetchAdminSelects(): Promise<{
-  data: { items: AdminSelectsItem[]; streamRunning: boolean };
+  data: { items: AdminSelectsItem[]; stream: AdminSelectsStream };
   meta: FetchMeta;
 }> {
   if (forceMock()) {
+    const current = selectsState()[0] ?? null;
     return {
-      data: { items: selectsState(), streamRunning: mockSelectsStreamRunning },
+      data: {
+        items: selectsState(),
+        stream: {
+          state: mockSelectsStreamRunning ? 'LIVE' : 'OFFLINE',
+          hlsUrl: mockSelectsStreamRunning ? (current?.audioUrl ?? null) : null,
+          nowPlaying:
+            mockSelectsStreamRunning && current
+              ? { title: current.title, artistName: current.artistName }
+              : null,
+        },
+      },
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
   try {
-    const data = await getJson<{
-      items: AdminSelectsItem[];
-      streamRunning: boolean;
-    }>('/api/admin/tahti-selects');
-    return { data, meta: { source: 'api' } };
+    const rotation = await getJson<{ items: AdminSelectsItem[] }>(
+      '/api/admin/tahti-selects',
+    );
+    let stream: AdminSelectsStream = {
+      state: 'OFFLINE',
+      hlsUrl: null,
+      nowPlaying: null,
+    };
+    try {
+      stream = await getJson<AdminSelectsStream>('/api/channels/tahti-selects');
+    } catch {
+      stream = { state: 'OFFLINE', hlsUrl: null, nowPlaying: null };
+    }
+    return {
+      data: { items: rotation.items ?? [], stream },
+      meta: { source: 'api' },
+    };
   } catch (err) {
     return {
-      data: { items: [], streamRunning: false },
+      data: {
+        items: [],
+        stream: { state: 'OFFLINE', hlsUrl: null, nowPlaying: null },
+      },
       meta: failMeta(err),
     };
   }
@@ -1249,7 +1348,9 @@ export function addToSelectsRotation(item: AdminSelectsBrowseItem) {
     });
     return Promise.resolve({ ok: true } as const);
   }
-  return mutate('/api/admin/tahti-selects', 'POST', { archiveItemId: item.id });
+  return mutate('/api/admin/tahti-selects/items', 'POST', {
+    archiveItemId: item.id,
+  });
 }
 
 export function removeFromSelectsRotation(id: string) {
@@ -1257,14 +1358,17 @@ export function removeFromSelectsRotation(id: string) {
     mockSelectsItems = selectsState().filter((i) => i.id !== id);
     return Promise.resolve({ ok: true } as const);
   }
-  return mutate(`/api/admin/tahti-selects/${encodeURIComponent(id)}`, 'DELETE');
+  return mutate(
+    `/api/admin/tahti-selects/items/${encodeURIComponent(id)}`,
+    'DELETE',
+  );
 }
 
-export function reorderSelectsItem(id: string, direction: 'up' | 'down') {
+export function reorderSelectsItem(id: string, position: number) {
   if (forceMock()) {
     const items = selectsState();
     const idx = items.findIndex((i) => i.id === id);
-    const target = direction === 'up' ? idx - 1 : idx + 1;
+    const target = Math.max(0, Math.min(position, items.length - 1));
     if (idx < 0 || target < 0 || target >= items.length) {
       return Promise.resolve({ ok: true } as const);
     }
@@ -1272,9 +1376,9 @@ export function reorderSelectsItem(id: string, direction: 'up' | 'down') {
     return Promise.resolve({ ok: true } as const);
   }
   return mutate(
-    `/api/admin/tahti-selects/${encodeURIComponent(id)}/reorder`,
-    'POST',
-    { direction },
+    `/api/admin/tahti-selects/items/${encodeURIComponent(id)}/reorder`,
+    'PATCH',
+    { position },
   );
 }
 

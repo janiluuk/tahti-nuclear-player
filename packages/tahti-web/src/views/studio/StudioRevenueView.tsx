@@ -3,15 +3,19 @@ import { useEffect, useState } from 'react';
 import { Button } from '@nuclearplayer/ui';
 
 import {
+  fanSubscriberExportUrl,
   fetchFanConnectPortal,
   fetchFanConnectStatus,
+  fetchFanPayoutStats,
   fetchGrantEstimate,
   fetchMyGrants,
   startFanConnectOnboard,
   type FanConnectStatus,
+  type FanPayoutStats,
   type GrantEstimate,
   type GrantRow,
 } from '../../api/revenue';
+import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -27,6 +31,7 @@ function euros(cents: number | string): string {
 
 export function StudioRevenueView() {
   const [connect, setConnect] = useState<FanConnectStatus | null>(null);
+  const [fanPayouts, setFanPayouts] = useState<FanPayoutStats | null>(null);
   const [grants, setGrants] = useState<GrantRow[]>([]);
   const [estimate, setEstimate] = useState<GrantEstimate | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -34,10 +39,12 @@ export function StudioRevenueView() {
   useEffect(() => {
     void Promise.all([
       fetchFanConnectStatus(),
+      fetchFanPayoutStats(),
       fetchMyGrants(),
       fetchGrantEstimate(),
-    ]).then(([c, g, e]) => {
+    ]).then(([c, payouts, g, e]) => {
       setConnect(c.data);
+      setFanPayouts(payouts.data);
       setGrants(g.data);
       setEstimate(e.data);
     });
@@ -57,6 +64,18 @@ export function StudioRevenueView() {
             {msg}
           </p>
         )}
+
+        {fanPayouts ? (
+          <StudioPanel
+            title="Fan subscription overview"
+            description="Subscribers, net revenue, payout health, and recent transfers."
+          >
+            <FanSubscriptionStats
+              stats={fanPayouts}
+              exportUrl={fanSubscriberExportUrl()}
+            />
+          </StudioPanel>
+        ) : null}
 
         {connect && (
           <StudioPanel title="Fan subs · Stripe Connect">
