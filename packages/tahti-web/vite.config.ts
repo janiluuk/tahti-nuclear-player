@@ -5,6 +5,8 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import svgr from 'vite-plugin-svgr';
 
+import { validateProductionBuildEnvironment } from './src/lib/buildPolicy';
+
 // Written by the "Apply review" button on /more (ScreenAtlas). Claude Code
 // reads this file to see which pages still need changes vs. which are
 // approved — see tahti-fit/README.md for the review workflow.
@@ -53,8 +55,9 @@ function reviewStateApiPlugin(): Plugin {
   };
 }
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  validateProductionBuildEnvironment(command, env);
   const tahtiApi =
     env.VITE_TAHTI_API_PROXY_TARGET ||
     env.VITE_TAHTI_API_URL ||

@@ -50,8 +50,9 @@ echo "    Chat WS: ${CENTRIFUGO_WS}"
 cd "$NUCLEAR_ROOT"
 # Leave VITE_TAHTI_API_URL unset so the client uses /tahti-api.
 # Unset mock so production data is used.
-env -u VITE_TAHTI_API_URL -u VITE_FORCE_MOCK \
+env -u VITE_TAHTI_API_URL -u VITE_FORCE_MOCK -u VITE_ALLOW_MOCK_FALLBACK \
   VITE_CENTRIFUGO_WS="${CENTRIFUGO_WS}" \
+  VITE_ENABLE_DIAGNOSTICS=1 \
   pnpm --filter @nuclearplayer/tahti-web build
 
 if [[ ! -f "$ROOT/dist/index.html" ]]; then

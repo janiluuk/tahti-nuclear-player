@@ -11,6 +11,7 @@ import {
   Button,
   CreatableCombobox,
   Dialog,
+  FilePicker,
   Input,
   Textarea,
 } from '@nuclearplayer/ui';
@@ -362,21 +363,21 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                   )}
                 </div>
                 <div className="flex flex-col gap-4">
-                  <label className="text-sm">
-                    <span className="mb-1 block">Upload cover art</span>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      disabled={artworkBusy}
-                      className="block w-full text-sm"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) {
-                          void uploadArtwork(file);
-                        }
-                      }}
-                    />
-                  </label>
+                  <FilePicker
+                    labels={{
+                      title: 'Upload cover art',
+                      description: 'JPEG, PNG, or WebP',
+                      browse: 'Choose image',
+                    }}
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={artworkBusy}
+                    onFiles={(files) => {
+                      const file = files[0];
+                      if (file) {
+                        void uploadArtwork(file);
+                      }
+                    }}
+                  />
                   <div className="flex items-end gap-2">
                     <div className="min-w-0 flex-1">
                       <Input

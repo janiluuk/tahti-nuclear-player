@@ -1,7 +1,7 @@
-import { PlayIcon, UploadIcon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { PlayIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, FilePicker } from '@nuclearplayer/ui';
 
 import {
   deleteAnnouncementClip,
@@ -28,7 +28,6 @@ function fmtDuration(sec: number | null): string {
 
 export function AdminAnnouncementsView() {
   const play = usePlayerStore((s) => s.play);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [clips, setClips] = useState<AdminAnnouncementClip[]>([]);
   const [systemEnabled, setSystemEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -101,43 +100,33 @@ export function AdminAnnouncementsView() {
           </p>
         </StudioPanel>
 
-        <StudioPanel
-          title="Clips"
-          action={
-            <>
-              <input
-                ref={inputRef}
-                type="file"
-                accept="audio/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  e.target.value = '';
-                  if (!file) {
-                    return;
-                  }
-                  setUploading(true);
-                  void uploadAnnouncementClip(file).then((r) => {
-                    setUploading(false);
-                    if (!r.ok) {
-                      setMsg(r.error);
-                    } else {
-                      reload();
-                    }
-                  });
-                }}
-              />
-              <Button
-                size="sm"
-                disabled={uploading}
-                onClick={() => inputRef.current?.click()}
-              >
-                <UploadIcon size={16} aria-hidden className="mr-1.5" />
-                {uploading ? 'Uploading…' : 'Upload clip'}
-              </Button>
-            </>
-          }
-        >
+        <StudioPanel title="Clips">
+          <FilePicker
+            accept="audio/*"
+            disabled={uploading}
+            labels={{
+              title: uploading
+                ? 'Uploading announcement…'
+                : 'Announcement clip',
+              description: 'Choose a short MP3, WAV, FLAC, or AIFF clip.',
+              browse: uploading ? 'Uploading…' : 'Choose audio',
+            }}
+            onFiles={(files) => {
+              const file = files[0];
+              if (!file) {
+                return;
+              }
+              setUploading(true);
+              void uploadAnnouncementClip(file).then((result) => {
+                setUploading(false);
+                if (!result.ok) {
+                  setMsg(result.error);
+                } else {
+                  reload();
+                }
+              });
+            }}
+          />
           {loading ? (
             <p className="text-foreground-secondary text-sm">Loading…</p>
           ) : clips.length === 0 ? (

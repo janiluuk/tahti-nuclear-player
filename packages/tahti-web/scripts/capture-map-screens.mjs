@@ -1,7 +1,7 @@
 import { mkdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { chromium } from 'playwright';
+import { chromium } from '@playwright/test';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outRoot = join(__dirname, '../public/map/nuclear');
@@ -13,39 +13,57 @@ const CHANNEL = process.env.MAP_CHANNEL || 'liis-kask-ee';
 const USER =
   process.env.MAP_USER || CHANNEL.replace(/-(ee|fi|vn|lv|se|no|dk)$/, '');
 
-/** @type {{ id: string; path: string; wait?: number }[]} */
+/** @type {{ id: string; path: string; wait?: number; auth?: boolean }[]} */
 const shots = [
-  { id: 'listen', path: '/' },
-  { id: 'radio', path: '/radio' },
-  { id: 'channel', path: `/channel/${CHANNEL}` },
-  { id: 'profile', path: `/u/${USER}` },
-  { id: 'subscribe', path: `/subscribe/${USER}` },
-  { id: 'login', path: '/login' },
-  { id: 'join', path: '/join' },
-  { id: 'verify', path: '/verify' },
+  { id: 'listen', path: '/', auth: false },
+  { id: 'radio', path: '/radio', auth: false },
+  { id: 'channel', path: `/channel/${CHANNEL}`, auth: false },
+  { id: 'channel-chat', path: `/chat/${CHANNEL}`, auth: false },
+  { id: 'profile', path: `/u/${USER}`, auth: false },
+  {
+    id: 'collection',
+    path: `/u/${USER}/c/demo-collection`,
+    auth: false,
+  },
+  { id: 'smart-link', path: '/r/demo-release', auth: false },
+  { id: 'subscribe', path: `/subscribe/${USER}`, auth: false },
+  { id: 'embed', path: `/embed/c/${CHANNEL}`, auth: false },
+  { id: 'login', path: '/login', auth: false },
+  { id: 'login-totp', path: '/login', auth: false },
+  { id: 'join', path: '/join', auth: false },
+  { id: 'verify', path: '/verify', auth: false },
   { id: 'library', path: '/library' },
-  { id: 'governance', path: '/governance' },
+  { id: 'listener-dashboard', path: '/dashboard' },
+  { id: 'governance', path: '/governance', auth: false },
   { id: 'settings', path: '/settings' },
+  { id: 'money-tiers', path: '/settings/money' },
   { id: 'sources', path: '/sources' },
   { id: 'studio', path: '/studio' },
   { id: 'go-live', path: '/studio/go-live' },
   { id: 'archive', path: '/studio/archive' },
+  { id: 'releases', path: '/studio/releases' },
   { id: 'collections', path: '/studio/collections' },
+  { id: 'editor', path: '/studio/editor' },
   { id: 'upload', path: '/studio/upload' },
   { id: 'stash', path: '/studio/stash' },
+  { id: 'schedule', path: '/studio/schedule' },
   { id: 'stats', path: '/studio/stats' },
   { id: 'stats-detail', path: '/studio/stats/detail' },
+  { id: 'channel-design', path: '/studio/channel' },
+  { id: 'setup-channel-gated', path: '/studio/setup-channel' },
+  { id: 'updates', path: '/studio/updates' },
+  { id: 'revenue', path: '/studio/revenue' },
   { id: 'more', path: '/more' },
-  { id: 'help', path: '/help' },
-  { id: 'status', path: '/status' },
-  { id: 'transparency', path: '/transparency' },
+  { id: 'help', path: '/help', auth: false },
+  { id: 'status', path: '/status', auth: false },
+  { id: 'transparency', path: '/transparency', auth: false },
 ];
 
-const browser = await chromium.launch({
+let browser = await chromium.launch({
   headless: true,
   executablePath: process.env.CHROMIUM_PATH || undefined,
 });
-const page = await browser.newPage({
+let page = await browser.newPage({
   viewport: { width: 1280, height: 800 },
   deviceScaleFactor: 1,
 });
@@ -73,10 +91,14 @@ const AUTH_STATE = {
  * "Chat unavailable" on every single capture. */
 const CHAT_DEMO_SHOT_ID = 'channel';
 
-async function setLocalStorage(p) {
+async function setLocalStorage(p, signedIn = true) {
   await p.evaluate(
-    ({ auth, rightCollapsed }) => {
-      localStorage.setItem('tahti-web-auth', JSON.stringify(auth));
+    ({ auth, rightCollapsed, signedIn: shouldSignIn }) => {
+      if (shouldSignIn) {
+        localStorage.setItem('tahti-web-auth', JSON.stringify(auth));
+      } else {
+        localStorage.removeItem('tahti-web-auth');
+      }
       // Mark this mock user as already onboarded -- otherwise every
       // authenticated shot gets hijacked by a redirect to /onboarding.
       localStorage.setItem(`tahti-web-onboarded:${auth.state.user.id}`, '1');
@@ -94,7 +116,7 @@ async function setLocalStorage(p) {
         }),
       );
     },
-    { auth: AUTH_STATE, rightCollapsed: true },
+    { auth: AUTH_STATE, rightCollapsed: true, signedIn },
   );
 }
 
@@ -105,10 +127,30 @@ await page
   .catch(() => {});
 await setLocalStorage(page);
 
+async function ensurePage() {
+  if (!browser.isConnected()) {
+    browser = await chromium.launch({
+      headless: true,
+      executablePath: process.env.CHROMIUM_PATH || undefined,
+    });
+  }
+  if (page.isClosed()) {
+    page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+      deviceScaleFactor: 1,
+    });
+    await page
+      .goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
+      .catch(() => {});
+  }
+}
+
 for (const s of shots) {
+  await ensurePage();
   const url = `${BASE}${s.path}`;
   const out = join(outRoot, `${s.id}.png`);
   try {
+    await setLocalStorage(page, s.auth !== false);
     // Re-apply layout state per shot (some pages reset chatSlug/rightCollapsed
     // on mount) -- keep chat open only for the one demo shot.
     await page.evaluate(
@@ -121,14 +163,21 @@ for (const s of shots) {
       s.id === CHAT_DEMO_SHOT_ID ? false : true,
     );
     await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
+    if (s.id === 'login-totp') {
+      await page.getByLabel('Email').fill('demo+totp@tahti.live');
+      await page.getByLabel('Password').fill('totp-demo');
+      await page.getByRole('button', { name: 'Sign in' }).click();
+      await page.getByLabel('Authentication code').waitFor();
+    }
     await page.waitForTimeout(s.wait ?? 900);
     // Hide cookie/noise if any; capture main viewport
     await page.screenshot({ path: out, fullPage: false });
     console.log('ok', s.id, s.path);
   } catch (err) {
     console.error('fail', s.id, err.message);
-    // Still try a quick load screenshot
+    await ensurePage();
     try {
+      await setLocalStorage(page, s.auth !== false);
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
       await page.waitForTimeout(500);
       await page.screenshot({ path: out, fullPage: false });
@@ -137,6 +186,7 @@ for (const s of shots) {
       console.error('skip', s.id, e2.message);
     }
   }
+  await page.close().catch(() => {});
 }
 
 await browser.close();

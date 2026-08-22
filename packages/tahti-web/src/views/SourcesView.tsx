@@ -67,7 +67,6 @@ const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
 
 type TileStatus = {
   status: ConnectionStatus | null;
-  metaSource: string;
 };
 
 function statusChip(
@@ -76,9 +75,6 @@ function statusChip(
 ): { label: string; color: 'green' | 'orange' | 'cyan' | 'secondary' } {
   if (!tile?.status) {
     return { label: '…', color: 'secondary' };
-  }
-  if (tile.metaSource === 'mock') {
-    return { label: 'Mock', color: 'cyan' };
   }
   if (defKind === 'upload' || defKind === 'tool' || defKind === 'search') {
     if (tile.status.connected) {
@@ -109,7 +105,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     Partial<Record<IntegrationId, TileStatus>>
   >({});
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
-  const [meta, setMeta] = useState('…');
   const [scTracks, setScTracks] = useState<SoundcloudTrack[]>([]);
   const [stash, setStash] = useState<StashFile[]>([]);
   const [spotifyQ, setSpotifyQ] = useState('');
@@ -147,7 +142,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     void Promise.all(
       SOURCE_DEFS.map(async (d) => {
         const r = await fetchConnectionStatus(d.id);
-        return [d.id, { status: r.data, metaSource: r.meta.source }] as const;
+        return [d.id, { status: r.data }] as const;
       }),
     ).then((entries) => {
       if (cancelled) {
@@ -199,10 +194,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
         return;
       }
       setStatus(r.data);
-      setMeta(r.meta.source);
       setTiles((prev) => ({
         ...prev,
-        [selected]: { status: r.data, metaSource: r.meta.source },
+        [selected]: { status: r.data },
       }));
     });
     return () => {
@@ -477,7 +471,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                 {(() => {
                   const chip = statusChip(def.kind, {
                     status,
-                    metaSource: meta,
                   });
                   return (
                     <Badge variant="pill" color={chip.color}>
@@ -505,16 +498,13 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                             | 'mixcloud'
                             | 'spotify';
                           void connectIntegrationMock(id).then((r) => {
-                            setNote(
-                              r.ok ? `Mock connected ${def.name}.` : r.error,
-                            );
+                            setNote(r.ok ? `${def.name} connected.` : r.error);
                             void fetchConnectionStatus(selected).then((x) => {
                               setStatus(x.data);
                               setTiles((prev) => ({
                                 ...prev,
                                 [selected]: {
                                   status: x.data,
-                                  metaSource: x.meta.source,
                                 },
                               }));
                             });
@@ -550,7 +540,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                                 ...prev,
                                 [selected]: {
                                   status: x.data,
-                                  metaSource: x.meta.source,
                                 },
                               }));
                             });
@@ -1229,8 +1218,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                 </>
               ) : (
                 <>
-                  Connect above, then use import UIs when list endpoints return
-                  data. Mock mode pretends the provider is connected.
+                  Connect above to browse and import content from this source.
                 </>
               )}
             </p>

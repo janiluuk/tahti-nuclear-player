@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { UploadIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, FilePicker, Input } from '@nuclearplayer/ui';
 
 import { uploadArchiveFile } from '../api/studio';
 
@@ -47,11 +47,7 @@ export function UploadTrackDialog({ isOpen, onClose, onUploaded }: Props) {
     }
     setItemId(result.itemId);
     onUploaded?.(result.itemId);
-    setMessage(
-      result.meta.source === 'mock'
-        ? 'Upload complete (demo).'
-        : 'Upload complete — processing may take a minute.',
-    );
+    setMessage('Upload complete — processing may take a minute.');
   };
 
   return (
@@ -79,22 +75,16 @@ export function UploadTrackDialog({ isOpen, onClose, onUploaded }: Props) {
             placeholder="Optional — defaults to filename"
             autoFocus
           />
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-foreground-secondary text-xs uppercase">
-              Audio file
-            </span>
-            <input
-              type="file"
-              accept="audio/*,.flac,.wav,.mp3,.aiff"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="text-sm"
-            />
-            {file && (
-              <span className="text-foreground-secondary text-xs">
-                {file.name}
-              </span>
-            )}
-          </label>
+          <FilePicker
+            labels={{
+              title: 'Audio file',
+              description: 'MP3, WAV, FLAC, or AIFF',
+              browse: file ? 'Choose another file' : 'Choose audio',
+            }}
+            accept="audio/*,.flac,.wav,.mp3,.aiff"
+            selectedFiles={file ? [file] : []}
+            onFiles={(files) => setFile(files[0] ?? null)}
+          />
           {message && (
             <p className="text-foreground-secondary text-sm">{message}</p>
           )}

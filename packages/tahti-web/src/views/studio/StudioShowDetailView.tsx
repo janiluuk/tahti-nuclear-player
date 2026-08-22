@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { CheckIcon, MicIcon, RadioIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, FilePicker, Input } from '@nuclearplayer/ui';
 
 import {
   createEpisode,
@@ -404,16 +404,16 @@ export function StudioShowDetailView({ id }: { id: string }) {
                   </div>
 
                   {source === 'upload' ? (
-                    <label className="flex flex-col gap-1 text-sm">
-                      <span className="text-foreground-secondary text-xs uppercase">
-                        Audio file
-                      </span>
-                      <input
-                        type="file"
-                        accept="audio/*,.flac,.wav,.mp3,.aiff"
-                        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                      />
-                    </label>
+                    <FilePicker
+                      labels={{
+                        title: 'Episode audio',
+                        description: 'MP3, WAV, FLAC, or AIFF',
+                        browse: file ? 'Choose another file' : 'Choose audio',
+                      }}
+                      accept="audio/*,.flac,.wav,.mp3,.aiff"
+                      selectedFiles={file ? [file] : []}
+                      onFiles={(files) => setFile(files[0] ?? null)}
+                    />
                   ) : (
                     <p className="text-foreground-secondary text-sm">
                       Creates a pending episode. Go Live to capture, then

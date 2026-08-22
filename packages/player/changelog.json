@@ -1,5 +1,53 @@
 [
   {
+    "date": "2026-08-23T00:00",
+    "description": "Studio tools are now grouped by task, upload forms share one consistent Nuclear file picker, and user-facing screens no longer expose mock, API, backlog, or environment language.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "The Tahti map now includes refreshed screenshots for every Nuclear comparison, a current Mermaid route map, and a plain-language annotation explaining what users can do on each screen.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00",
+    "description": "Production web cutover checks now reject mock-enabled builds, gate review-only diagnostics, publish static and API-fed sitemap routes, update route metadata, and exercise vital journeys with Playwright.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Production callback compatibility now sends Stripe, membership, distribution, social, and source connection returns to the correct in-app destination, while the web image adds a hardened same-origin API proxy and health endpoint.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
     "date": "2026-08-22T00:00",
     "description": "Radio submissions admin now reads the production list response correctly and requests secure playback URLs only when an auditor presses Play.",
     "type": "fix",

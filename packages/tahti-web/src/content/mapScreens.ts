@@ -30,6 +30,7 @@ export type MapCase = {
   viewName: string;
   /** What situation this case covers */
   caption: string;
+  action?: string;
   old: MapShot;
   new: MapShot;
   /** Explicit parity; inferred from shot.absent when omitted */

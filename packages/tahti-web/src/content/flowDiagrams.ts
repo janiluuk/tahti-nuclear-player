@@ -637,74 +637,39 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     source: 'router.tsx',
     title: 'Site map — Nuclear tahti-web',
     blurb:
-      'Prod path aliases (/listen, /c/:slug, /dashboard/*) redirect into Nuclear routes. Board admin stays on apps/web.',
+      'Current beta routes, production aliases, playback surfaces, and artist/admin workspaces. The review-only map is gated from production builds.',
     mermaid: `flowchart TB
-  Listen["/ Listen"]:::pub
-  Radio["/radio"]:::pub
-  Channel["/channel/:slug"]:::pub
-  Profile["/u/:username"]:::pub
-  Sub["/subscribe/:username"]:::pub
-  Smart["/r/:slug"]:::pub
-  Coll["/u/:user/c/:slug"]:::pub
-  Chat["/chat · /chat/:slug"]:::pub
-  Embed["/embed/*"]:::pub
-  Venues["/venues"]:::pub
-  Trans["/transparency"]:::pub
-  Help["/help"]:::pub
-  Status["/status"]:::pub
-  Legal["/about · /terms · /privacy · /agpl"]:::pub
-  More["/more · Tahti map"]:::pub
-
-  Lib["/library"]:::auth
-  Settings["/settings"]:::auth
-  Gov["/governance"]:::auth
-  Join["/join · /login · /verify"]:::pub
-
-  Studio["/studio"]:::studio
-  GoLive["/studio/go-live"]:::studio
-  Archive["/studio/archive"]:::studio
-  Releases["/studio/releases"]:::studio
-  Colls["/studio/collections"]:::studio
-  Upload["/studio/upload"]:::studio
-  Editor["/studio/editor"]:::studio
-  Stash["/studio/stash"]:::studio
-  Schedule["/studio/schedule"]:::studio
-  Stats["/studio/stats"]:::studio
-  ChannelEd["/studio/channel"]:::studio
-  Shows["/studio/shows"]:::studio
-  Playlists["/studio/playlists"]:::studio
-  Updates["/studio/updates"]:::studio
-  Revenue["/studio/revenue"]:::studio
-  Dist["/studio/distribution"]:::studio
-  Sources["/sources"]:::studio
-
-  Admin["apps/web /admin/*"]:::board
-  ApiDocs["api.tahti.live/api"]:::pub
-
-  Listen --> Channel
-  Listen --> Radio
-  Listen --> Profile
-  Profile --> Sub
-  Profile --> Coll
-  Channel --> Chat
-  Channel --> Lib
-  Listen --> Studio
-  Studio --> GoLive
-  Studio --> Archive
-  Studio --> Releases
-  Studio --> Colls
-  Studio --> Upload
-  Studio --> Sources
-  Listen --> Settings
-  Listen --> More
-  More -.-> Admin
-  Settings -.-> Admin
-  Listen -.-> ApiDocs
+  Entry["app.tahti.live"]:::pub --> Listen["Listen · / · /listen"]:::pub
+  Listen --> Radio["Radio · /radio"]:::pub
+  Listen --> Channel["Channel · /c/:slug → /channel/:slug"]:::pub
+  Listen --> Profile["Artist · /u/:username"]:::pub
+  Listen --> Feed["Feed · /feed"]:::auth
+  Channel --> Playback["Player · visualizer · queue"]:::pub
+  Channel --> Chat["Chat · rail or /chat/:slug"]:::pub
+  Profile --> Sub["Fan subscription · /u/:user/subscribe"]:::auth
+  Profile --> Coll["Collections · /u/:user/c/:slug"]:::pub
+  Profile --> Smart["Smart links · /r/:slug"]:::pub
+  Listen --> Library["Library · favorites · history · messages"]:::auth
+  Listen --> Settings["Settings · account · artist · money · connections"]:::auth
+  Settings --> Sources["Sources · imports and exports"]:::auth
+  Listen --> Studio["Studio · /dashboard/* → /studio/*"]:::studio
+  Studio --> GoLive["Go Live · rotation · controls · bitrate"]:::studio
+  Studio --> Music["Music · metadata · artwork · playlists · export"]:::studio
+  Studio --> Programme["24/7 programme · schedule · shows"]:::studio
+  Studio --> Publish["Releases · collections · updates · distribution"]:::studio
+  Studio --> Business["Stats · revenue · stash · moderation"]:::studio
+  Listen --> Public["Venues · transparency · help · legal · embeds"]:::pub
+  Listen --> Admin["Board admin · /admin/*"]:::board
+  Admin -.-> Legacy["Next admin remains production canonical"]:::board
+  Admin --> Map["Beta review map · /more"]:::review
+  Map --> Shots["Annotated Tahti ↔ Nuclear screenshots"]:::review
+  Map --> Flows["Mermaid journeys and route map"]:::review
 
   classDef pub fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;
   classDef auth fill:#ecfdf5,stroke:#10b981,color:#065f46;
   classDef studio fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;
   classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
+  classDef review fill:#fff7ed,stroke:#f97316,color:#7c2d12;
 `,
   },
   {

@@ -23,7 +23,6 @@ export function StudioStatsView() {
   const [tracks, setTracks] = useState<StatsTopTrack[]>([]);
   const [countries, setCountries] = useState<StatsTopCountry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     void Promise.all([
@@ -34,7 +33,6 @@ export function StudioStatsView() {
       setSummary(s.data);
       setTracks(t.data);
       setCountries(c.data);
-      setIsDemo(s.meta.source === 'mock');
       setLoading(false);
     });
   }, []);
@@ -45,7 +43,7 @@ export function StudioStatsView() {
         <StudioNav current="/studio/stats" />
         <StudioPageHeader
           title="Stats"
-          subtitle={`Plays and downloads across your catalog.${isDemo ? ' (demo data)' : ''}`}
+          subtitle="Plays and downloads across your catalog."
           action={
             <Link to="/studio/stats/detail">
               <Button

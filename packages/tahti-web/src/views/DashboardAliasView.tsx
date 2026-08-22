@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 
 import { PageLoading } from '../components/PageStates';
+import { resolveDashboardCallbackRedirect } from '../lib/cutoverReturns';
 import { useAuthStore } from '../stores/authStore';
 
 /** Prod `/dashboard` (bare, no sub-path) — artists land in Studio; members
@@ -15,6 +16,13 @@ export function DashboardAliasView() {
   const hydrated = useAuthStore((s) => s.hydrated);
 
   useEffect(() => {
+    const callbackRedirect = resolveDashboardCallbackRedirect(
+      Object.fromEntries(new URLSearchParams(window.location.search)),
+    );
+    if (callbackRedirect) {
+      void navigate({ href: callbackRedirect, replace: true });
+      return;
+    }
     if (!hydrated) {
       return;
     }

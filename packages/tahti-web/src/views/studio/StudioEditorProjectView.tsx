@@ -12,12 +12,10 @@ import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function StudioEditorProjectView({ id }: { id: string }) {
   const [project, setProject] = useState<EditorProjectDetail | null>(null);
-  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     void fetchEditorProject(id).then((res) => {
       setProject(res.data);
-      setIsDemo(res.meta.source === 'mock');
     });
   }, [id]);
 
@@ -43,7 +41,7 @@ export function StudioEditorProjectView({ id }: { id: string }) {
           <>
             <StudioPageHeader
               title={project.title}
-              subtitle={`Multitrack session.${isDemo ? ' (demo data)' : ''} Open the linked archive in the pro trim editor when available.`}
+              subtitle="Multitrack session. Open the linked archive in the pro trim editor when available."
               action={
                 project.archiveItemId ? (
                   <Link

@@ -38,7 +38,7 @@ export const LEGAL_PAGES: LegalPage[] = [
       {
         heading: 'Open source',
         paragraphs: [
-          'Tahti is AGPL-licensed. See the AGPL notice in this app and the full source on production.',
+          'Tahti is AGPL-licensed. See the AGPL notice in this app and the public source repository for details.',
         ],
       },
     ],
@@ -60,7 +60,7 @@ export const LEGAL_PAGES: LegalPage[] = [
         heading: 'Accounts & membership',
         paragraphs: [
           'Membership in Tahti ry is optional for listening; artist accounts may use free tier or paid membership for expanded live time and cooperative rights.',
-          'This POC shows a condensed summary — the binding terms are on tahti.live/terms.',
+          'This page is a summary. The binding terms are available at tahti.live/terms.',
         ],
       },
     ],
@@ -81,7 +81,7 @@ export const LEGAL_PAGES: LegalPage[] = [
       {
         heading: 'Data rights',
         paragraphs: [
-          'Signed-in users can export or request deletion of personal data from the production dashboard privacy tools.',
+          'Signed-in users can export or request deletion of personal data from Privacy settings.',
           'Full privacy policy: tahti.live/privacy.',
         ],
       },
@@ -98,7 +98,7 @@ export const LEGAL_PAGES: LegalPage[] = [
         paragraphs: [
           'Tahti application code is licensed under the GNU Affero General Public License v3.0 or later.',
           'If you run a modified version of the network service, you must offer corresponding source to users who interact with it over a network.',
-          'This Nuclear listen POC is part of exploring a production listen client; see tahti.live/agpl and the Tahti repository for the full license text and source.',
+          'See tahti.live/agpl and the Tahti repository for the full license text and corresponding source.',
         ],
       },
     ],

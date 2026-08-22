@@ -12,7 +12,6 @@ import { useEffect, useState, type ReactNode } from 'react';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
-import type { FetchMeta } from '../../api/client';
 import { createStudioRelease, fetchStudioReleases } from '../../api/studio';
 import type { StudioRelease } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
@@ -36,7 +35,6 @@ const RELEASE_TYPES = [
 
 export function StudioReleasesView() {
   const [releases, setReleases] = useState<StudioRelease[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [openMoreId, setOpenMoreId] = useState<string | null>(null);
@@ -51,7 +49,6 @@ export function StudioReleasesView() {
   const reload = () => {
     void fetchStudioReleases().then((res) => {
       setReleases(res.data.releases);
-      setMeta(res.meta);
       setLoading(false);
     });
   };
@@ -92,7 +89,7 @@ export function StudioReleasesView() {
         <StudioNav current="/studio/releases" />
         <StudioPageHeader
           title="Releases"
-          subtitle={`Package tracks into singles, EPs, and albums for your public link.${meta?.source === 'mock' ? ' (demo data)' : ''}`}
+          subtitle="Package tracks into singles, EPs, and albums for your public link."
           action={
             <Button
               size="sm"

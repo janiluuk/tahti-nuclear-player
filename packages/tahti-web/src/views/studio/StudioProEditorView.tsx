@@ -511,13 +511,9 @@ export function StudioProEditorView({
           subtitle="Waveform, cuts, EQ, and mastering — save a draft or render a new version."
         />
 
-        <ClientCapabilityNotice kind="partial" title="Editor scope">
-          This is the lite pro editor (cut/trim, FX knobs, stems request). Full
-          multitrack timeline parity with production stays on the backlog — see{' '}
-          <Link to="/more" className="underline-offset-2 hover:underline">
-            Tahti map
-          </Link>
-          .
+        <ClientCapabilityNotice kind="partial" title="Single-track editor">
+          Cut, trim, adjust effects, or request stems here. Use a multitrack
+          session when you need to arrange several tracks together.
         </ClientCapabilityNotice>
 
         {loading || !editList ? (

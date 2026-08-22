@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, FilePicker, Input } from '@nuclearplayer/ui';
 
 import {
   addStudioCollectionItem,
@@ -462,29 +462,30 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                     </Button>
                   }
                 />
-                <label className="text-foreground-secondary mt-2 block text-xs">
-                  Cover image
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="mt-1 block w-full text-sm"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) {
+                <FilePicker
+                  className="mt-2"
+                  labels={{
+                    title: 'Cover image',
+                    description: 'JPEG, PNG, or WebP',
+                    browse: 'Choose image',
+                  }}
+                  accept="image/jpeg,image/png,image/webp"
+                  onFiles={(files) => {
+                    const file = files[0];
+                    if (!file) {
+                      return;
+                    }
+                    void uploadCollectionCover(slug, file).then((r) => {
+                      if (!r.ok) {
+                        toast.error(r.error);
                         return;
                       }
-                      void uploadCollectionCover(slug, file).then((r) => {
-                        if (!r.ok) {
-                          toast.error(r.error);
-                          return;
-                        }
-                        setCoverUrl(r.coverUrl);
-                        setCol((c) => (c ? { ...c, coverUrl: r.coverUrl } : c));
-                        toast.success('Cover uploaded.');
-                      });
-                    }}
-                  />
-                </label>
+                      setCoverUrl(r.coverUrl);
+                      setCol((c) => (c ? { ...c, coverUrl: r.coverUrl } : c));
+                      toast.success('Cover uploaded.');
+                    });
+                  }}
+                />
               </div>
             </div>
 

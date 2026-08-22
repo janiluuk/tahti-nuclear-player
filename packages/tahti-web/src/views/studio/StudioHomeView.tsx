@@ -3,11 +3,13 @@ import {
   BarChart3Icon,
   CalendarDaysIcon,
   CalendarIcon,
+  ChevronDownIcon,
   Code2Icon,
   DiscAlbumIcon,
   DiscIcon,
   FolderLockIcon,
   Globe2Icon,
+  LayoutGridIcon,
   LayoutTemplateIcon,
   LibraryBigIcon,
   ListMusicIcon,
@@ -269,11 +271,21 @@ export function StudioHomeView() {
             <div>
               <button
                 type="button"
-                className="text-foreground-secondary hover:text-foreground text-sm underline-offset-2 hover:underline"
+                className="border-border bg-background-secondary/40 hover:bg-background-secondary flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs font-semibold tracking-wide uppercase transition-colors"
                 onClick={() => setShowMore((v) => !v)}
                 aria-expanded={showMore}
               >
-                {showMore ? 'Hide more tools' : 'More tools'}
+                <LayoutGridIcon
+                  size={15}
+                  aria-hidden
+                  className="text-primary"
+                />
+                <span className="flex-1">More studio tools</span>
+                <ChevronDownIcon
+                  size={15}
+                  aria-hidden
+                  className={`transition-transform ${showMore ? 'rotate-180' : ''}`}
+                />
               </button>
               {showMore && (
                 <div className="mt-3">

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { cn, ViewShell } from '@nuclearplayer/ui';
 
-import { fetchAnnouncements, type FetchMeta } from '../api/client';
+import { fetchAnnouncements } from '../api/client';
 import type { Announcement } from '../api/types';
 
 function TimelineNode({ isLatest }: { isLatest?: boolean }) {
@@ -75,7 +75,6 @@ const INITIAL_COUNT = 5;
 /** Announcements timeline — embeddable under Settings. */
 export function WhatsNewPanel() {
   const [entries, setEntries] = useState<Announcement[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
 
@@ -87,7 +86,6 @@ export function WhatsNewPanel() {
         return;
       }
       setEntries(res.data);
-      setMeta(res.meta);
       setLoading(false);
     });
     return () => {
@@ -101,8 +99,7 @@ export function WhatsNewPanel() {
   return (
     <div className="flex w-full flex-col">
       <p className="text-foreground-secondary mb-4 text-sm">
-        Announcements published from the Tahti admin panel.
-        {meta?.source === 'mock' && ' (showing offline sample data)'}
+        News, releases, and service updates from Tahti.
       </p>
 
       {loading && <p className="text-foreground-secondary text-sm">Loading…</p>}

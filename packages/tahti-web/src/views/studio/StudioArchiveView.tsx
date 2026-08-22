@@ -13,7 +13,6 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
-import type { FetchMeta } from '../../api/client';
 import {
   deleteStudioArchiveItem,
   fetchEditorSource,
@@ -47,7 +46,6 @@ export function StudioArchiveView() {
   const search = useSearch({ strict: false }) as { folder?: string };
   const folder = search.folder === 'files' ? 'files' : 'archive';
   const [items, setItems] = useState<StudioArchiveItem[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -60,7 +58,6 @@ export function StudioArchiveView() {
     setLoading(true);
     void fetchStudioArchive().then((res) => {
       setItems(res.data);
-      setMeta(res.meta);
       setLoading(false);
     });
   };
@@ -126,7 +123,7 @@ export function StudioArchiveView() {
         <StudioNav current="/studio/archive" />
         <StudioPageHeader
           title="Music"
-          subtitle={`Your archive and other files, in one place.${meta?.source === 'mock' ? ' (demo data)' : ''}`}
+          subtitle="Your archive and other files, in one place."
           action={
             folder === 'archive' ? (
               <AddToMusicActions onUploaded={reload} />

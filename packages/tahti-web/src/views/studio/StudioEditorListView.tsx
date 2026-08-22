@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
-import type { FetchMeta } from '../../api/client';
 import {
   createEditorProject,
   fetchEditorProjects,
@@ -21,7 +20,6 @@ import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 export function StudioEditorListView() {
   const [projects, setProjects] = useState<EditorProjectRow[]>([]);
   const [archive, setArchive] = useState<StudioArchiveItem[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [archiveItemId, setArchiveItemId] = useState('');
@@ -33,7 +31,6 @@ export function StudioEditorListView() {
     void Promise.all([fetchEditorProjects(), fetchStudioArchive()]).then(
       ([p, a]) => {
         setProjects(p.data);
-        setMeta(p.meta);
         setArchive(a.data);
         setLoading(false);
       },
@@ -77,7 +74,7 @@ export function StudioEditorListView() {
         <StudioNav current="/studio/editor" />
         <StudioPageHeader
           title="Audio editor"
-          subtitle={`Trim and process archive tracks. Sessions keep a linked archive when you seed one.${meta?.source === 'mock' ? ' (demo data)' : ''}`}
+          subtitle="Trim and process archive tracks. Sessions keep a linked archive when you seed one."
           action={
             <Button
               size="sm"

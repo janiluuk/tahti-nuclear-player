@@ -8,7 +8,7 @@ export type HelpArticle = {
 };
 
 export const HELP_HUB_INTRO =
-  'Guides for listening, broadcasting, account tiers, and getting in touch. Content is mirrored from Tahti help for this Nuclear POC; open the production pages for the latest copy.';
+  'Guides for listening, broadcasting, account tiers, and getting in touch.';
 
 export const HELP_ARTICLES: HelpArticle[] = [
   {
@@ -36,7 +36,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         heading: 'Chat',
         body: [
-          'Chat is open on live channels. Anonymous join may require hCaptcha in production.',
+          'Chat is open on live channels. Anonymous joining may require hCaptcha.',
           'Moderators can mute or remove disruptive messages.',
         ],
       },
@@ -52,8 +52,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         heading: 'Create your channel',
         body: [
-          'In the artist studio (production dashboard), set your slug — public home is /c/yourname.',
-          'This Nuclear POC includes Studio tabs (Go Live, catalog, editor, schedule, stats, revenue, channel design), Sources as big service tiles, and profile Design for channel owners. Deep press-kit extras still link to tahti.live/dashboard.',
+          'In Studio, set your channel slug — your public home will be /c/yourname.',
+          'Use the Studio tools to broadcast, manage music, plan shows, understand your audience, and design your channel.',
         ],
       },
       {
@@ -121,7 +121,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         heading: 'Tahti ry member',
         body: [
-          'Unlimited live time and cooperative support (€40/year membership on production).',
+          'Unlimited live time and cooperative support (€40/year membership).',
           'Membership is support for the org, not a consumer “plan”.',
         ],
       },
@@ -137,8 +137,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         heading: 'Get help',
         body: [
-          'Use the production support form at tahti.live/help/support for account, billing, or streaming issues.',
-          'This POC does not submit support tickets — open the production page to contact the team.',
+          'Use the support form at tahti.live/help/support for account, billing, or streaming issues.',
+          'Include your account name and a short description so the team can help quickly.',
         ],
       },
     ],

@@ -43,14 +43,14 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 
 - [x] **Decision:** monorepo placement — **Option A**, vend into `tahti` (`apps/web` or new `apps/listen`). See §4. Migration itself not yet started.
 - [x] **Decision:** admin host after cutover — **Next `/admin/*` stays canonical** on its current host; Nuclear's 22-page admin port stays built but unused for now, revisit later.
-- [ ] **Decision:** marketing / apply / for-artists — stay on `website/` + redirects, or port minimal pages into SPA.
+- [x] **Decision:** marketing stays on the apex `website/`; the product SPA is canonical at `app.tahti.live`, with `/listen` linking to its listen home. The SPA keeps compatibility pages for `/for-artists`, `/how-it-works`, and `/about`, while `/apply` and `/signup` lead into its join flow.
 - [x] **Route compatibility layer** — permanent redirects or dual routes for `/c/*` ↔ `/channel/*`, `/dashboard/*` ↔ `/studio/*`, subscribe paths, `/listen` → `/`.
-- [ ] **API `APP_URL` + Stripe/OAuth return URLs** aligned to new paths (or aliases that match current API strings).
-- [ ] **Same-origin API proxy** on production web edge (parity with beta `nginx.conf` `/tahti-api` + `/api`), Centrifugo WS still `wss://chat.tahti.live`.
+- [x] **API `APP_URL` + Stripe/OAuth return URLs** have matching SPA aliases for the current production API strings, including Sources OAuth, membership, fan subscriptions, Stripe Connect, distribution, and social OAuth. Production still needs `APP_URL=https://app.tahti.live` at the traffic flip.
+- [ ] **Same-origin API proxy** on production web edge — the SPA nginx image contract now includes `/tahti-api`, `/api`, host-safe cookie rewriting, forwarded host/protocol, and `/health`; the production service/upstream switch remains pending. Centrifugo WS stays `wss://chat.tahti.live`.
 - [x] **Parity P0 features** from FEATURES.md: membership purchase, password/security, in-client setup-channel, venue register, and Sources OAuth callback returns are implemented in the SPA.
-- [ ] **Strip / gate POC-only surfaces** for prod builds: `/more` feature map, Screen atlas, `VITE_FORCE_MOCK` / mock fallback dead code paths.
-- [ ] **SEO minimum:** `robots.txt`, sitemap (static + API-fed), per-route OG tags for `/c`, `/u`, `/r` (prerender or meta service).
-- [ ] **Playwright / vital journey** against new client on stack; smoke login → go-live → upload → subscribe.
+- [x] **Strip / gate POC-only surfaces** for prod builds: `/more` and Screen atlas require `VITE_ENABLE_DIAGNOSTICS=1`; mock-enabled production builds now fail. Beta explicitly enables diagnostics for review.
+- [ ] **SEO minimum:** `robots.txt`, a static + API-fed sitemap index, canonical tags, and route-aware browser metadata for `/c`, `/u`, `/r` are implemented. Server-rendered dynamic OG values still require prerendering or an edge metadata service.
+- [x] **Playwright / vital journey** covers callback compatibility, mock login, go-live, upload, subscription offers, keyboard navigation, and the beta review map.
 - [ ] **Cutover runbook rehearsed** on staging/canary (rollback = previous `tahti/web` image + NPM/Caddy upstream).
 - [ ] **Legal pages** bind to real terms/privacy/AGPL (not “POC summary + link-out”).
 
@@ -59,7 +59,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [ ] Distribution, radio slots, moderate, press-kit / invites polish, listener-only dashboard.
 - [x] Full visualizer preset parity — ten distinct Three.js scenes, lazy-loaded outside the initial listen bundle.
 - [ ] Multitrack / pro editor depth vs prod ffmpeg/waveform stack (port or keep “good enough”).
-- [ ] E2E screenshot atlas refresh under `tahti/docs/e2e-screenshots/` + new route manifest.
+- [x] Nuclear screenshot atlas refreshed across all 38 referenced beta screens; each comparison now explains what the user can do, and the Mermaid site map reflects the current route and workspace structure. Production `tahti/docs/e2e-screenshots/` remains a post-vendoring follow-up.
 - [ ] Accessibility pass (keyboard, focus, live regions, contrast) on listen + studio critical paths.
 - [ ] Bundle budget: code-split mermaid (already lazy), defer Three.js, audit Nuclear UI CSS.
 - [ ] CI: replace `apps/web` Docker build with SPA build; keep lint/format/typecheck gates.
@@ -87,8 +87,8 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [x] **0.3** Choose **URL policy** — preserve prod paths as canonical (already implemented via `prodPathRedirects`, P0 route-compatibility box above is checked).
 - [x] **0.4** Choose **brand policy** — **decided 2026-08-17:** ship Nuclear look as-is, no Tahti-skin token remap.
 - [x] **0.5** Choose **beta fate** — **decided 2026-08-17:** sunset after a soak period post-cutover (Phase 9), not a permanent canary or rename.
-- [ ] **0.6** Confirm **out-of-scope** list with product (marketing site, Revelator/distribution depth, admin now explicitly out-of-critical-path per 0.2 above, etc.).
-- [ ] **0.7** Add pointer doc in production repo: `ops/nuclear-web-cutover.md` → this file (path or mirrored copy).
+- [x] **0.6** Confirm **out-of-scope** list: apex marketing remains in `website/`; Next admin remains separate; multitrack rendering depth and optional integration polish do not block the client replacement.
+- [x] **0.7** Production repo pointer exists at `ops/nuclear-web-cutover.md` and links back to this source-of-truth plan.
 
 ---
 
@@ -101,8 +101,8 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 | Area | Prod today | Cutover stance | Action |
 |------|------------|----------------|--------|
 | Board admin `/admin/*` | Next in `apps/web` (~35 pages) | Nuclear port **complete** (22/22 pages, gated on `user.isBoard`) but **decided out of the cutover critical path** — Next admin stays canonical after cutover | DONE Nuclear port; TODO no cutover action needed unless the admin-host decision is revisited |
-| Marketing `website/` | Separate static nginx image | **Do not merge into SPA**; off-limits unless explicitly requested | TODO Ensure apex/`/` IA: listen hub vs marketing (redirect matrix) |
-| `(marketing)` / `(info)` in apps/web | `/`, `/apply`, `/for-artists`, `/how-it-works`, … | Overlaps website + SPA | TODO Inventory which URLs must 301 to `website/` vs port |
+| Marketing `website/` | Separate static nginx image | **Do not merge into SPA**; apex `/` remains the marketing home | DONE; link `/listen` to `https://app.tahti.live/` at cutover |
+| `(marketing)` / `(info)` in apps/web | `/`, `/apply`, `/for-artists`, `/how-it-works`, … | Minimal compatibility routes already exist in the SPA | DONE for routing; SEO rendering remains a separate P0 item |
 | Embeds `/embed/*` | Next + `@tahti/ui` | POC has routes | TODO Parity QA (c/r/col/u) + iframe CSP |
 | SSR / SEO | Next sitemap + metadata | SPA gap | TODO Plan prerender/meta (§7) |
 | i18n | Essentially EN-only both sides | No hard gap | TODO Explicit non-goal or future track |
@@ -136,17 +136,17 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 
 | Prod | POC | Cutover need |
 |------|-----|--------------|
-| `/` marketing or listen | `/` listen hub | TODO Redirect matrix with `website/` |
-| `/listen` | `/` | TODO Alias `/listen` |
+| Apex `/` marketing; `app.` `/` listen | `/` listen hub | DONE host ownership decision; edge wiring remains Phase 5 |
+| `/listen` | `/` | DONE Alias `/listen` |
 | `/c/:slug` | `/channel/$slug` | DONE **P0** redirect alias |
 | `/dashboard/*` | `/studio/*` | DONE **P0** aliases (`prodPathRedirects`) |
 | `/u/:user/subscribe` | `/subscribe/$username` | DONE **P0** alias |
 | `/dashboard/messages` | `/library/messages` | DONE Alias |
 | `/listen` | `/` | DONE Alias |
 | `/dashboard/setup-channel` | `/studio/setup-channel` | DONE In-app provision |
-| `/signup/*` | — | TODO Port or keep Next island |
-| `/admin/*` | — | TODO Host decision |
-| `/apply` | — | TODO website or port |
+| `/signup/*` | `/signup`, `/signup/payment` | DONE Join + membership checkout |
+| `/admin/*` | Nuclear port exists; Next remains canonical | DONE Host decision |
+| `/apply` | `/join` | DONE Alias |
 | `/v/:slug` venues public? | `/venues` list | TODO Confirm venue public pages |
 | `/more`, `/themes` | POC-only / Nuclear | TODO Prod: hide or keep as power-user |
 
@@ -278,7 +278,7 @@ Per the admin-host decision (§0.2 / §1.1), Next `apps/web` is **not** fully re
 
 - Session cookie `tahti_session`: **host-only**, `httpOnly`, `Secure` (prod), `SameSite=Lax`, `Path=/` (no `Domain=`)
 - Login must hit **same origin** as the SPA so `Set-Cookie` attaches to `tahti.live` (or `app.tahti.live`)
-- Beta nginx already does `/tahti-api/` → `https://api.tahti.live/` with `proxy_cookie_domain` safety
+- Beta nginx already does `/tahti-api/` and `/api/` → `https://api.tahti.live/`, rewriting an explicit API cookie domain to the browser host when present
 
 ### 4.2 Cutover tasks
 

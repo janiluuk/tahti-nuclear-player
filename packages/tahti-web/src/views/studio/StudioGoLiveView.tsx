@@ -383,7 +383,7 @@ export function StudioGoLiveView() {
                       );
                     }}
                   >
-                    Simulate signal
+                    Test connection
                   </Button>
                 )}
               </div>

@@ -22,7 +22,6 @@ function formatAxisDate(iso: string): string {
 export function StudioStatsDetailView() {
   const [range, setRange] = useState<StatsPlaysRange>('30');
   const [data, setData] = useState<StatsPlays | null>(null);
-  const [isDemo, setIsDemo] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,7 +32,6 @@ export function StudioStatsDetailView() {
         return;
       }
       setData(r.data);
-      setIsDemo(r.meta.source === 'mock');
       setLoading(false);
     });
     return () => {
@@ -63,7 +61,7 @@ export function StudioStatsDetailView() {
         </p>
         <StudioPageHeader
           title="Plays & listeners"
-          subtitle={`Daily plays for the selected range.${isDemo ? ' (demo data)' : ''}`}
+          subtitle="Daily plays for the selected range."
           action={
             <div
               className="border-border flex gap-1 rounded-lg border p-1"

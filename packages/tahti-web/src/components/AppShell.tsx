@@ -22,7 +22,9 @@ import {
 
 import { useIsMobile } from '../hooks/useIsMobile';
 import { MAIN_CONTENT_PADDING } from '../layout/contentPadding';
+import { diagnosticsEnabled } from '../lib/buildPolicy';
 import { cn } from '../lib/cn';
+import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -67,7 +69,7 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
           icon={<LayoutDashboardIcon size={16} />}
           label="Studio"
         />
-        {isBoard && (
+        {isBoard && diagnosticsEnabled && (
           <SidebarNavigationItem
             to="/admin"
             icon={<ShieldIcon size={16} />}
@@ -116,6 +118,10 @@ export function AppShell() {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    syncDocumentMetadata(pathname);
+  }, [pathname]);
 
   // First sign-in of the session: send a new user through onboarding once.
   // Skips/finishes mark the flag, so this never fires again for them.
@@ -235,7 +241,7 @@ export function AppShell() {
                     icon={<LayoutDashboardIcon size={16} />}
                     label="Studio"
                   />
-                  {isBoard && (
+                  {isBoard && diagnosticsEnabled && (
                     <SidebarNavigationItem
                       to="/admin"
                       icon={<ShieldIcon size={16} />}

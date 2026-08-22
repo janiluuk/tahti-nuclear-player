@@ -1,0 +1,169 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`FilePicker > (Snapshot) renders empty and selected states 1`] = `
+<div
+  class="flex w-full flex-col gap-2"
+>
+  <label
+    class="border-border bg-background-secondary/40 hover:bg-background-secondary flex min-h-32 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed px-5 py-6 text-center transition-colors"
+    for="file-picker-:r0:"
+  >
+    <span
+      class="border-border bg-background text-primary flex size-10 items-center justify-center rounded-lg border"
+    >
+      <svg
+        aria-hidden="true"
+        class="lucide lucide-cloud-upload"
+        fill="none"
+        height="20"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M12 13v8"
+        />
+        <path
+          d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"
+        />
+        <path
+          d="m8 17 4-4 4 4"
+        />
+      </svg>
+    </span>
+    <span
+      class="flex flex-col gap-1"
+    >
+      <span
+        class="text-foreground text-sm font-semibold"
+      >
+        Audio file
+      </span>
+      <span
+        class="text-foreground-secondary text-xs"
+      >
+        MP3, WAV, FLAC, or AIFF
+      </span>
+    </span>
+    <span
+      class="border-border bg-background text-foreground rounded-md border px-3 py-1.5 text-xs font-medium"
+    >
+      Choose audio
+    </span>
+    <input
+      accept="audio/*"
+      aria-label="Audio file"
+      class="sr-only"
+      id="file-picker-:r0:"
+      type="file"
+    />
+  </label>
+</div>
+`;
+
+exports[`FilePicker > (Snapshot) renders empty and selected states 2`] = `
+<div
+  class="flex w-full flex-col gap-2"
+>
+  <label
+    class="border-border bg-background-secondary/40 hover:bg-background-secondary flex min-h-32 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed px-5 py-6 text-center transition-colors"
+    for="file-picker-:r0:"
+  >
+    <span
+      class="border-border bg-background text-primary flex size-10 items-center justify-center rounded-lg border"
+    >
+      <svg
+        aria-hidden="true"
+        class="lucide lucide-cloud-upload"
+        fill="none"
+        height="20"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M12 13v8"
+        />
+        <path
+          d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"
+        />
+        <path
+          d="m8 17 4-4 4 4"
+        />
+      </svg>
+    </span>
+    <span
+      class="flex flex-col gap-1"
+    >
+      <span
+        class="text-foreground text-sm font-semibold"
+      >
+        Audio file
+      </span>
+      <span
+        class="text-foreground-secondary text-xs"
+      >
+        MP3, WAV, FLAC, or AIFF
+      </span>
+    </span>
+    <span
+      class="border-border bg-background text-foreground rounded-md border px-3 py-1.5 text-xs font-medium"
+    >
+      Choose audio
+    </span>
+    <input
+      accept="audio/*"
+      aria-label="Audio file"
+      class="sr-only"
+      id="file-picker-:r0:"
+      type="file"
+    />
+  </label>
+  <ul
+    class="text-foreground-secondary flex flex-col gap-1 text-xs"
+  >
+    <li
+      class="border-border bg-background flex items-center gap-2 rounded-md border px-3 py-2"
+    >
+      <svg
+        aria-hidden="true"
+        class="lucide lucide-file text-primary"
+        fill="none"
+        height="14"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="14"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+        />
+        <path
+          d="M14 2v4a2 2 0 0 0 2 2h4"
+        />
+      </svg>
+      <span
+        class="min-w-0 flex-1 truncate"
+      >
+        demo.flac
+      </span>
+      <span
+        class="shrink-0"
+      >
+        Selected
+      </span>
+    </li>
+  </ul>
+</div>
+`;

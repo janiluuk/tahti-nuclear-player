@@ -395,8 +395,7 @@ export function ChannelView({ slug }: { slug: string }) {
               {channel.user.displayName}
             </p>
             <p className="text-foreground-secondary mt-1 text-xs">
-              Text overlay layer — tune style in Look when API text-layer is
-              wired.
+              Channel title overlay
             </p>
           </div>
         );

@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLinkIcon, Share2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, FilePicker, Input } from '@nuclearplayer/ui';
 
 import {
   fetchStudioReleases,
@@ -89,29 +89,29 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                     No art
                   </div>
                 )}
-                <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs uppercase">
-                    Upload image
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) {
-                        return;
+                <FilePicker
+                  className="min-w-0 flex-1"
+                  labels={{
+                    title: 'Release artwork',
+                    description: 'JPEG, PNG, or WebP',
+                    browse: 'Choose image',
+                  }}
+                  accept="image/jpeg,image/png,image/webp"
+                  onFiles={(files) => {
+                    const file = files[0];
+                    if (!file) {
+                      return;
+                    }
+                    void uploadReleaseArtwork(id, file).then((r) => {
+                      if (!r.ok) {
+                        setMessage(r.error);
+                      } else {
+                        setArtworkPreview(r.artworkUrl);
+                        setMessage('Artwork uploaded.');
                       }
-                      void uploadReleaseArtwork(id, file).then((r) => {
-                        if (!r.ok) {
-                          setMessage(r.error);
-                        } else {
-                          setArtworkPreview(r.artworkUrl);
-                          setMessage('Artwork uploaded.');
-                        }
-                      });
-                    }}
-                  />
-                </label>
+                    });
+                  }}
+                />
               </div>
             </StudioPanel>
 

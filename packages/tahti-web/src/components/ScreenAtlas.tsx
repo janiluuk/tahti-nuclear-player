@@ -238,11 +238,13 @@ function ShotPane({
   label,
   shot,
   viewName,
+  action,
   absent,
 }: {
   label: 'Tahti' | 'Nuclear';
   shot: MapShot;
   viewName: string;
+  action: string;
   absent: boolean;
 }) {
   const pending = !absent && !shot.image;
@@ -304,6 +306,10 @@ function ShotPane({
       </div>
       <p className="text-foreground-secondary px-4 py-3 text-sm leading-snug">
         {shot.caption}
+      </p>
+      <p className="border-border bg-background border-t px-4 py-3 text-sm leading-snug">
+        <span className="text-primary font-semibold">You can: </span>
+        {action}
       </p>
     </div>
   );
@@ -378,6 +384,7 @@ function ReviewCaseCard({ c }: { c: MapCase }) {
                   label="Tahti"
                   shot={c.old}
                   viewName={c.viewName}
+                  action={c.action ?? c.caption}
                   absent={tahtiAbsent}
                 />
               </div>
@@ -386,6 +393,7 @@ function ReviewCaseCard({ c }: { c: MapCase }) {
                   label="Nuclear"
                   shot={c.new}
                   viewName={c.viewName}
+                  action={c.action ?? c.caption}
                   absent={nuclearAbsent}
                 />
               </div>

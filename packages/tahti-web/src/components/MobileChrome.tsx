@@ -12,6 +12,7 @@ import type { ReactNode } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
+import { diagnosticsEnabled } from '../lib/buildPolicy';
 import { cn } from '../lib/cn';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
@@ -68,7 +69,9 @@ export function MobileBottomNav({ onOpenQueue }: MobileBottomNavProps) {
   const isBoard = useAuthStore((s) => Boolean(s.user?.isBoard));
   const toggleBottomQueue = useLayoutStore((s) => s.toggleBottomQueue);
   const openQueue = onOpenQueue ?? toggleBottomQueue;
-  const items = NAV.filter((item) => !item.boardOnly || isBoard);
+  const items = NAV.filter(
+    (item) => !item.boardOnly || (isBoard && diagnosticsEnabled),
+  );
 
   return (
     <nav

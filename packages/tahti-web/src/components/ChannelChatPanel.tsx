@@ -306,8 +306,8 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
       resetCaptcha();
       setError(
         err instanceof Error
-          ? `${err.message} — using local mock send`
-          : 'Join failed — using local mock send',
+          ? `${err.message} — messages will stay on this device`
+          : 'Could not join live chat — messages will stay on this device',
       );
     } finally {
       setJoining(false);

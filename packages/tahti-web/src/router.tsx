@@ -9,6 +9,11 @@ import {
 import type { IntegrationId } from './api/sources';
 import { SOURCE_DEFS } from './api/sources';
 import { AppShell } from './components/AppShell';
+import { diagnosticsEnabled } from './lib/buildPolicy';
+import {
+  appendSearchParams,
+  resolveDashboardCallbackRedirect,
+} from './lib/cutoverReturns';
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { useAuthStore } from './stores/authStore';
 import { AdminAgmView } from './views/admin/AdminAgmView';
@@ -401,6 +406,11 @@ const venuesRegisterRoute = createRoute({
 const moreRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/more',
+  beforeLoad: () => {
+    if (!diagnosticsEnabled) {
+      throw redirect({ to: '/' });
+    }
+  },
   component: MoreView,
 });
 
@@ -959,15 +969,11 @@ const dashboardSplatAliasRoute = createRoute({
     // `/dashboard` index route — apply the same artist-vs-listener split
     // here instead of falling through to the `''` → `/studio` prod alias.
     if (!splat.replace(/^\/+|\/+$/g, '')) {
-      // Mixcloud's OAuth callback lands on bare `/dashboard?mixcloud=…`
-      // (prod's API redirect target) — route to its Sources tab instead.
-      const mixcloudStatus = (search as Record<string, unknown>).mixcloud;
-      if (typeof mixcloudStatus === 'string') {
-        throw redirect({
-          to: '/sources/$id',
-          params: { id: 'mixcloud' },
-          search: { status: mixcloudStatus },
-        });
+      const callbackRedirect = resolveDashboardCallbackRedirect(
+        search as Record<string, unknown>,
+      );
+      if (callbackRedirect) {
+        throw redirect({ href: callbackRedirect });
       }
       await waitForAuthHydration();
       const user = useAuthStore.getState().user;
@@ -987,7 +993,12 @@ const dashboardSplatAliasRoute = createRoute({
         search: typeof status === 'string' ? { status } : undefined,
       });
     }
-    throw redirect({ href: resolveDashboardRedirect(splat) });
+    throw redirect({
+      href: appendSearchParams(
+        resolveDashboardRedirect(splat),
+        search as Record<string, unknown>,
+      ),
+    });
   },
 });
 

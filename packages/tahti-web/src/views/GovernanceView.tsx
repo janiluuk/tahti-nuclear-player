@@ -113,7 +113,7 @@ export function GovernanceView() {
             rel="noreferrer"
           >
             <Button size="sm" variant="secondary">
-              Open production governance
+              Open governance on tahti.live
             </Button>
           </a>
         </div>

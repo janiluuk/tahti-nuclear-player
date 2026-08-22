@@ -8,6 +8,7 @@ export * from './Combobox';
 export * from './CopyButton';
 export * from './Dialog';
 export * from './FavoriteButton';
+export * from './FilePicker';
 export * from './MediaArtwork';
 export * from './CardGrid';
 export * from './EmptyState';

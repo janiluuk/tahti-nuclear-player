@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { UploadIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, FilePicker, Input } from '@nuclearplayer/ui';
 
 import { uploadArchiveFile } from '../../api/studio';
 import { StudioGate } from '../../components/StudioGate';
@@ -30,11 +30,7 @@ export function StudioUploadView() {
       return;
     }
     setItemId(result.itemId);
-    setMessage(
-      result.meta.source === 'mock'
-        ? 'Upload complete (demo).'
-        : 'Upload complete — processing may take a minute.',
-    );
+    setMessage('Upload complete — processing may take a minute.');
   };
 
   return (
@@ -63,20 +59,16 @@ export function StudioUploadView() {
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Optional — defaults to filename"
             />
-            <label className="flex flex-col gap-2 text-sm">
-              <span className="font-semibold">Audio file</span>
-              <input
-                type="file"
-                accept="audio/*,.flac,.wav,.mp3,.aiff"
-                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-                className="border-border bg-background rounded-lg border p-3 text-sm"
-              />
-              {file && (
-                <span className="text-foreground-secondary text-xs">
-                  {file.name}
-                </span>
-              )}
-            </label>
+            <FilePicker
+              labels={{
+                title: 'Audio file',
+                description: 'MP3, WAV, FLAC, or AIFF',
+                browse: file ? 'Choose another file' : 'Choose audio',
+              }}
+              accept="audio/*,.flac,.wav,.mp3,.aiff"
+              selectedFiles={file ? [file] : []}
+              onFiles={(files) => setFile(files[0] ?? null)}
+            />
             {message && (
               <p className="text-foreground-secondary text-sm">{message}</p>
             )}

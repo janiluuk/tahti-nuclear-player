@@ -38,7 +38,7 @@ export function HelpHubView() {
         ))}
       </ul>
       <p className="text-foreground-secondary text-xs">
-        Full production help:{' '}
+        More help:{' '}
         <a
           href={`${PRODUCTION}/help`}
           target="_blank"

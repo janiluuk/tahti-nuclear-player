@@ -170,12 +170,6 @@ export function SubscribeView({ username }: { username: string }) {
           ))}
         </div>
       )}
-
-      <p className="text-foreground-secondary text-xs">
-        API: <code>GET /api/v1/u/:username/tiers</code>,{' '}
-        <code>POST /api/v1/u/:username/subscribe</code> →{' '}
-        <code>checkoutUrl</code>
-      </p>
     </div>
   );
 }

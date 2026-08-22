@@ -767,8 +767,7 @@ function ArtistPanel() {
           content: (
             <div className="flex flex-col gap-4">
               <SettingsHint>
-                Collective / band members who share this channel. Invite flows
-                stay on production for now.
+                Collective or band members who share access to this channel.
               </SettingsHint>
               {members.length === 0 ? (
                 <SettingsHint>No members listed.</SettingsHint>
@@ -842,8 +841,8 @@ function ArtistPanel() {
                   </a>
                 )}
                 <SettingsHint>
-                  Gallery images and bio above are the in-app press kit. ZIP
-                  downloads still use the API path on tahti.live.
+                  The download bundles your gallery images and biography into a
+                  single press kit.
                 </SettingsHint>
               </div>
             </div>
@@ -1232,8 +1231,8 @@ function BroadcastPanel() {
                 </ul>
               )}
               <SettingsHint>
-                Invite and permission edits stay in-app once the moderator
-                manage API is wired; the list above is live.
+                View the current team here. Manage invitations and permissions
+                from your account on tahti.live.
               </SettingsHint>
             </div>
           ),

@@ -122,14 +122,13 @@ export const useLibraryStore = create<LibraryState>()(
         if (meta.source === 'mock' && import.meta.env.VITE_FORCE_MOCK !== '1') {
           set({
             syncNote:
-              'No server favorites list — using localStorage namespaced by user. Follows API unavailable.',
+              'Following could not be synced. Your saved artists remain available on this device.',
           });
           return;
         }
         if (data.length === 0 && meta.source !== 'api') {
           set({
-            syncNote:
-              'Track favorites + history stay in localStorage (namespaced by user id). Tahti has artist follows + listen-events, not a full favorites/history sync API.',
+            syncNote: 'Saved tracks and listening history stay on this device.',
           });
           return;
         }
@@ -146,8 +145,8 @@ export const useLibraryStore = create<LibraryState>()(
             favoriteChannels: [...bySlug.values()],
             syncNote:
               meta.source === 'api'
-                ? 'Channel favorites merged from GET /api/v1/artists/:you/following. Tracks/history remain local (no me/favorites endpoint).'
-                : 'Mock following list merged (FORCE_MOCK). Tracks/history remain local.',
+                ? 'Following is synced. Saved tracks and listening history stay on this device.'
+                : 'Following is available offline. Saved tracks and listening history stay on this device.',
           };
         });
       },

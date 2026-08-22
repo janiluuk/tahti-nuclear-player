@@ -49,8 +49,8 @@ export function SignupPaymentView() {
           Membership
         </h1>
         <p className="text-foreground-secondary mt-1 text-sm">
-          Cooperative support for Tahti ry — FLAC streaming, stash storage, and
-          an AGM vote. Same checkout as production <code>/signup/payment</code>.
+          Support the Tahti cooperative and unlock FLAC streaming, stash
+          storage, and a vote at the AGM.
         </p>
       </div>
 
@@ -74,8 +74,7 @@ export function SignupPaymentView() {
       ) : (
         <div className="flex flex-col gap-3">
           <p className="text-foreground-secondary text-sm">
-            Complete payment via Stripe (or instant activate when Stripe is off
-            in dev/mock).
+            Complete the secure checkout to activate your membership.
           </p>
           <Button
             disabled={busy}

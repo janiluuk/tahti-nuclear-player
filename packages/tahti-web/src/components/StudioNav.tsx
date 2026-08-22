@@ -1,4 +1,29 @@
+import { Link } from '@tanstack/react-router';
+import {
+  AudioLinesIcon,
+  CalendarDaysIcon,
+  ChevronDownIcon,
+  CircleDollarSignIcon,
+  CloudUploadIcon,
+  Disc3Icon,
+  GalleryVerticalEndIcon,
+  LayoutGridIcon,
+  ListMusicIcon,
+  MegaphoneIcon,
+  PaletteIcon,
+  RadioTowerIcon,
+  Settings2Icon,
+  ShieldCheckIcon,
+  SignalIcon,
+  SparklesIcon,
+  TicketIcon,
+  TrendingUpIcon,
+  UsersIcon,
+  type LucideIcon,
+} from 'lucide-react';
 import { useState } from 'react';
+
+import { cn } from '@nuclearplayer/ui';
 
 import { InPageNav } from './InPageNav';
 
@@ -10,32 +35,71 @@ const PRIMARY = [
   { to: '/studio/shows', label: 'Shows' },
 ] as const;
 
-const MORE = [
-  { to: '/studio/playlists', label: 'Playlists' },
-  { to: '/studio/channel', label: 'Channel designer' },
-  { to: '/studio/upload', label: 'Upload' },
-  { to: '/studio/collections', label: 'Albums' },
-  { to: '/studio/editor', label: 'Editor' },
-  { to: '/studio/schedule', label: 'Schedule' },
-  { to: '/studio/stats', label: 'Stats' },
-  { to: '/studio/revenue', label: 'Revenue' },
-  { to: '/studio/updates', label: 'Updates' },
-  { to: '/studio/moderation', label: 'Moderation' },
-  { to: '/studio/venues', label: 'Venues' },
-  { to: '/studio/events', label: 'Events' },
-  { to: '/studio/embeds', label: 'Embeds' },
-  { to: '/studio/setup-channel', label: 'Setup' },
-] as const;
+type StudioTool = {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+};
 
-function isActive(current: string | undefined, to: string) {
-  return (
-    current === to || (to !== '/studio' && Boolean(current?.startsWith(to)))
-  );
-}
+type StudioToolGroup = {
+  label: string;
+  icon: LucideIcon;
+  tools: readonly StudioTool[];
+};
 
-export function StudioNav({ current }: { current?: string }) {
-  const [moreOpen, setMoreOpen] = useState(() =>
-    MORE.some((l) => isActive(current, l.to)),
+const TOOL_GROUPS: readonly StudioToolGroup[] = [
+  {
+    label: 'Create',
+    icon: SparklesIcon,
+    tools: [
+      { to: '/studio/upload', label: 'Upload', icon: CloudUploadIcon },
+      { to: '/studio/collections', label: 'Albums', icon: Disc3Icon },
+      { to: '/studio/editor', label: 'Audio editor', icon: AudioLinesIcon },
+      { to: '/studio/playlists', label: 'Playlists', icon: ListMusicIcon },
+    ],
+  },
+  {
+    label: 'Plan',
+    icon: CalendarDaysIcon,
+    tools: [
+      { to: '/studio/schedule', label: 'Schedule', icon: CalendarDaysIcon },
+      { to: '/studio/events', label: 'Events', icon: TicketIcon },
+      { to: '/studio/venues', label: 'Venues', icon: RadioTowerIcon },
+    ],
+  },
+  {
+    label: 'Grow',
+    icon: TrendingUpIcon,
+    tools: [
+      { to: '/studio/stats', label: 'Stats', icon: SignalIcon },
+      {
+        to: '/studio/revenue',
+        label: 'Revenue',
+        icon: CircleDollarSignIcon,
+      },
+      { to: '/studio/updates', label: 'Updates', icon: MegaphoneIcon },
+      { to: '/studio/embeds', label: 'Embeds', icon: GalleryVerticalEndIcon },
+    ],
+  },
+  {
+    label: 'Manage',
+    icon: Settings2Icon,
+    tools: [
+      { to: '/studio/channel', label: 'Channel design', icon: PaletteIcon },
+      { to: '/studio/moderation', label: 'Moderation', icon: ShieldCheckIcon },
+      { to: '/studio/setup-channel', label: 'Channel setup', icon: UsersIcon },
+    ],
+  },
+];
+
+const ALL_TOOLS = TOOL_GROUPS.flatMap((group) => group.tools);
+
+const isActive = (current: string | undefined, to: string) =>
+  current === to || (to !== '/studio' && Boolean(current?.startsWith(to)));
+
+export const StudioNav = ({ current }: { current?: string }) => {
+  const [toolsOpen, setToolsOpen] = useState(() =>
+    ALL_TOOLS.some((tool) => isActive(current, tool.to)),
   );
 
   return (
@@ -49,28 +113,59 @@ export function StudioNav({ current }: { current?: string }) {
           active: isActive(current, link.to),
         }))}
       />
-      <div>
+      <div className="border-border overflow-hidden rounded-lg border">
         <button
           type="button"
-          className="text-foreground-secondary hover:text-foreground text-xs tracking-wide uppercase"
-          onClick={() => setMoreOpen((v) => !v)}
+          className="bg-background-secondary/40 hover:bg-background-secondary flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold tracking-wide uppercase transition-colors"
+          aria-expanded={toolsOpen}
+          onClick={() => setToolsOpen((open) => !open)}
         >
-          {moreOpen ? 'Hide more' : 'More studio tools'}
+          <LayoutGridIcon size={15} aria-hidden className="text-primary" />
+          <span className="flex-1">Studio tools</span>
+          <ChevronDownIcon
+            size={15}
+            aria-hidden
+            className={cn('transition-transform', toolsOpen && 'rotate-180')}
+          />
         </button>
-        {moreOpen && (
-          <div className="mt-2">
-            <InPageNav
-              aria-label="More studio"
-              items={MORE.map((link) => ({
-                id: link.to,
-                label: link.label,
-                to: link.to,
-                active: isActive(current, link.to),
-              }))}
-            />
+        {toolsOpen ? (
+          <div className="border-border grid gap-px border-t bg-(--border) sm:grid-cols-2 lg:grid-cols-4">
+            {TOOL_GROUPS.map((group) => {
+              const GroupIcon = group.icon;
+              return (
+                <section
+                  key={group.label}
+                  className="bg-background flex min-w-0 flex-col gap-1 p-2"
+                >
+                  <h2 className="text-foreground-secondary flex items-center gap-2 px-2 py-1 text-[11px] font-semibold tracking-widest uppercase">
+                    <GroupIcon size={14} aria-hidden />
+                    {group.label}
+                  </h2>
+                  {group.tools.map((tool) => {
+                    const ToolIcon = tool.icon;
+                    const active = isActive(current, tool.to);
+                    return (
+                      <Link
+                        key={tool.to}
+                        to={tool.to}
+                        className={cn(
+                          'flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors',
+                          active
+                            ? 'bg-primary text-foreground font-semibold'
+                            : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground',
+                        )}
+                      >
+                        <ToolIcon size={15} aria-hidden />
+                        <span className="truncate">{tool.label}</span>
+                      </Link>
+                    );
+                  })}
+                </section>
+              );
+            })}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
-}
+};
