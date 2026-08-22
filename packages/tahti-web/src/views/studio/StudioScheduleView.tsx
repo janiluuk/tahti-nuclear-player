@@ -1,71 +1,221 @@
 import { Link } from '@tanstack/react-router';
-import { CalendarClockIcon, RadioIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import {
+  CalendarClockIcon,
+  CalendarDaysIcon,
+  Clock3Icon,
+  MapPinIcon,
+  RadioIcon,
+  SaveIcon,
+  Settings2Icon,
+  XIcon,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
 
 import {
   fetchChannelSchedule,
-  fetchProgramme,
+  fetchUpcomingBroadcasts,
   patchChannelSchedule,
-  patchProgramme,
   type ChannelSchedule,
-  type ProgrammeView,
+  type UpcomingBroadcast,
 } from '../../api/studio-extras';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
-import { Eyebrow } from '../../components/tahti/Eyebrow';
 
-function toLocalInput(iso: string | null): string {
+const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+const DEFAULT_BROADCAST_HOUR = 20;
+const DAYS_PER_WEEK = 7;
+
+type LocalDateTime = {
+  date: string;
+  time: string;
+};
+
+type ScheduleCard = {
+  id: string;
+  startAt: string;
+  title: string;
+  location?: string | null;
+  visibility?: 'PUBLIC' | 'FAN_ONLY';
+};
+
+const pad = (value: number) => value.toString().padStart(2, '0');
+
+function toLocalParts(iso: string | null): LocalDateTime {
   if (!iso) {
-    return '';
+    return { date: '', time: '' };
   }
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    return '';
+  const value = new Date(iso);
+  if (Number.isNaN(value.getTime())) {
+    return { date: '', time: '' };
   }
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return {
+    date: `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`,
+    time: `${pad(value.getHours())}:${pad(value.getMinutes())}`,
+  };
 }
 
-function fromLocalInput(value: string): string | null {
-  if (!value.trim()) {
+function fromLocalParts(date: string, time: string): string | null {
+  if (!date || !time) {
     return null;
   }
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) {
-    return null;
-  }
-  return d.toISOString();
+  const value = new Date(`${date}T${time}`);
+  return Number.isNaN(value.getTime()) ? null : value.toISOString();
+}
+
+function formatDate(iso: string): string {
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(iso));
+}
+
+function formatTime(iso: string): string {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(iso));
+}
+
+function nextFriday(): Date {
+  const value = new Date();
+  const friday = 5;
+  const daysUntilFriday =
+    (friday - value.getDay() + DAYS_PER_WEEK) % DAYS_PER_WEEK;
+  value.setDate(value.getDate() + (daysUntilFriday || DAYS_PER_WEEK));
+  value.setHours(DEFAULT_BROADCAST_HOUR, 0, 0, 0);
+  return value;
+}
+
+function ScheduledTimes({ items }: { items: ScheduleCard[] }) {
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  return (
+    <section className="border-border bg-background-secondary/40 overflow-hidden rounded-xl border shadow-sm">
+      <header className="border-border flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
+        <div className="flex items-center gap-2">
+          <CalendarDaysIcon size={18} className="text-primary" aria-hidden />
+          <h2 className="font-display font-bold">Your next broadcasts</h2>
+        </div>
+        <span className="text-foreground-secondary text-xs">{timezone}</span>
+      </header>
+      {items.length === 0 ? (
+        <div className="px-4 py-5">
+          <p className="text-sm font-medium">Nothing scheduled yet</p>
+          <p className="text-foreground-secondary mt-1 text-xs">
+            Pick a local date and time below to tell listeners when you return.
+          </p>
+        </div>
+      ) : (
+        <ol className="bg-border grid gap-px sm:grid-cols-2 lg:grid-cols-3">
+          {items.slice(0, 3).map((item, index) => (
+            <li key={item.id} className="bg-background p-4">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="text-primary text-xs font-bold tracking-wide uppercase">
+                  {index === 0 ? 'Next' : `Upcoming ${index + 1}`}
+                </span>
+                {item.visibility === 'FAN_ONLY' ? (
+                  <span className="text-foreground-secondary text-[10px] uppercase">
+                    Fans only
+                  </span>
+                ) : null}
+              </div>
+              <p className="truncate text-sm font-semibold">{item.title}</p>
+              <div className="text-foreground-secondary mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                <span className="inline-flex items-center gap-1">
+                  <CalendarDaysIcon size={13} aria-hidden />
+                  {formatDate(item.startAt)}
+                </span>
+                <span className="text-foreground inline-flex items-center gap-1 font-medium">
+                  <Clock3Icon size={13} aria-hidden />
+                  {formatTime(item.startAt)}
+                </span>
+              </div>
+              {item.location ? (
+                <p className="text-foreground-secondary mt-2 flex items-center gap-1 truncate text-xs">
+                  <MapPinIcon size={13} aria-hidden />
+                  {item.location}
+                </p>
+              ) : null}
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
+  );
 }
 
 export function StudioScheduleView() {
   const [schedule, setSchedule] = useState<ChannelSchedule | null>(null);
-  const [programme, setProgramme] = useState<ProgrammeView | null>(null);
-  const [when, setWhen] = useState('');
+  const [upcoming, setUpcoming] = useState<UpcomingBroadcast[]>([]);
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [note, setNote] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    void Promise.all([fetchChannelSchedule(), fetchProgramme()]).then(
-      ([s, p]) => {
-        setSchedule(s.data);
-        setWhen(toLocalInput(s.data.nextBroadcastAt));
-        setNote(s.data.nextBroadcastNote ?? '');
-        setProgramme(p.data);
+    void Promise.all([fetchChannelSchedule(), fetchUpcomingBroadcasts()]).then(
+      ([scheduleResult, upcomingResult]) => {
+        const local = toLocalParts(scheduleResult.data.nextBroadcastAt);
+        setSchedule(scheduleResult.data);
+        setDate(local.date);
+        setTime(local.time);
+        setNote(scheduleResult.data.nextBroadcastNote ?? '');
+        setUpcoming(upcomingResult.data);
         setLoading(false);
       },
     );
   }, []);
 
+  const scheduledTimes = useMemo<ScheduleCard[]>(() => {
+    const rows: ScheduleCard[] = upcoming.map((item) => ({
+      id: item.id,
+      startAt: item.startAt,
+      title: item.title,
+      location: item.venue ?? item.location,
+      visibility: item.visibility,
+    }));
+    if (
+      schedule?.nextBroadcastAt &&
+      !rows.some(
+        (item) =>
+          new Date(item.startAt).getTime() ===
+          new Date(schedule.nextBroadcastAt!).getTime(),
+      )
+    ) {
+      rows.push({
+        id: 'channel-next-broadcast',
+        startAt: schedule.nextBroadcastAt,
+        title: schedule.nextBroadcastNote ?? 'Next live session',
+      });
+    }
+    return rows.sort(
+      (left, right) =>
+        new Date(left.startAt).getTime() - new Date(right.startAt).getTime(),
+    );
+  }, [schedule, upcoming]);
+
+  const setQuickDate = (value: Date) => {
+    const local = toLocalParts(value.toISOString());
+    setDate(local.date);
+    setTime(local.time);
+  };
+
   const saveSchedule = async () => {
+    const nextBroadcastAt = fromLocalParts(date, time);
+    if ((date || time) && !nextBroadcastAt) {
+      setMsg('Choose both a date and time.');
+      return;
+    }
     setBusy(true);
     setMsg(null);
     const result = await patchChannelSchedule({
-      nextBroadcastAt: fromLocalInput(when),
+      nextBroadcastAt,
       nextBroadcastNote: note.trim() || null,
     });
     setBusy(false);
@@ -74,32 +224,12 @@ export function StudioScheduleView() {
       return;
     }
     setSchedule(result.data);
-    setMsg('Schedule saved.');
+    setMsg('Next broadcast saved.');
   };
 
-  const toggleProgramme = async (
-    key: 'fallbackEnabled' | 'fallbackAutoEnroll' | 'announcementsEnabled',
-  ) => {
-    if (!programme) {
-      return;
-    }
-    const next = !programme[key];
-    const result = await patchProgramme({ [key]: next });
-    if (result.ok) {
-      setProgramme(result.data);
-    } else {
-      setMsg(result.error);
-    }
-  };
-
-  const setMode = async (fallbackMode: 'shuffle' | 'ordered') => {
-    const result = await patchProgramme({ fallbackMode });
-    if (result.ok) {
-      setProgramme(result.data);
-    } else {
-      setMsg(result.error);
-    }
-  };
+  const tomorrow = new Date(Date.now() + MILLISECONDS_PER_DAY);
+  tomorrow.setHours(DEFAULT_BROADCAST_HOUR, 0, 0, 0);
+  const minimumDate = toLocalParts(new Date().toISOString()).date;
 
   return (
     <StudioGate>
@@ -107,20 +237,10 @@ export function StudioScheduleView() {
         <StudioNav current="/studio/schedule" />
         <StudioPageHeader
           title="Schedule"
-          subtitle="Plan your next broadcast and control what plays when you are offline."
-          action={
-            <Button
-              size="sm"
-              disabled={busy || loading}
-              onClick={() => void saveSchedule()}
-              aria-label="Save schedule"
-              title="Save schedule"
-            >
-              <CalendarClockIcon size={16} aria-hidden className="mr-1.5" />
-              {busy ? 'Saving…' : 'Save'}
-            </Button>
-          }
+          subtitle="Plan your next broadcasts. Times use your local timezone."
         />
+
+        <ScheduledTimes items={scheduledTimes} />
 
         {msg && (
           <p className="text-foreground-secondary text-sm" role="status">
@@ -130,130 +250,121 @@ export function StudioScheduleView() {
 
         <StudioPanel
           title="Next planned broadcast"
-          description="Shown on your channel when the next live session is set."
+          description="This is shown on your public channel so listeners know when to return."
         >
-          <div className="flex flex-col gap-3">
-            <label className="flex flex-col gap-1 text-sm">
+          <div className="flex flex-col gap-5">
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_11rem]">
+              <label className="flex flex-col gap-1.5 text-sm">
+                <span className="text-foreground-secondary inline-flex items-center gap-1.5 text-xs uppercase">
+                  <CalendarDaysIcon size={13} aria-hidden />
+                  Date
+                </span>
+                <input
+                  type="date"
+                  min={minimumDate}
+                  value={date}
+                  onChange={(event) => setDate(event.target.value)}
+                  className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                />
+              </label>
+              <label className="flex flex-col gap-1.5 text-sm">
+                <span className="text-foreground-secondary inline-flex items-center gap-1.5 text-xs uppercase">
+                  <Clock3Icon size={13} aria-hidden />
+                  Local time
+                </span>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(event) => setTime(event.target.value)}
+                  className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                />
+              </label>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-foreground-secondary text-xs uppercase">
-                When (local time)
+                Quick pick
               </span>
-              <input
-                type="datetime-local"
-                value={when}
-                onChange={(e) => setWhen(e.target.value)}
-                className="border-border bg-background rounded-md border px-3 py-2"
-              />
-            </label>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setQuickDate(tomorrow)}
+              >
+                Tomorrow at {pad(DEFAULT_BROADCAST_HOUR)}:00
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setQuickDate(nextFriday())}
+              >
+                Next Friday
+              </Button>
+              {(date || time) && (
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  aria-label="Clear planned time"
+                  title="Clear planned time"
+                  onClick={() => {
+                    setDate('');
+                    setTime('');
+                  }}
+                >
+                  <XIcon size={15} aria-hidden />
+                </Button>
+              )}
+            </div>
+
             <Input
-              label="Note"
+              label="Broadcast title or note"
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={(event) => setNote(event.target.value)}
               placeholder="e.g. Friday deep set"
             />
-            {schedule?.nextBroadcastAt && (
+
+            <div className="border-border flex flex-wrap items-center justify-between gap-3 border-t pt-4">
               <p className="text-foreground-secondary text-xs">
-                Stored as {new Date(schedule.nextBroadcastAt).toLocaleString()}
+                {date && time
+                  ? `${formatDate(fromLocalParts(date, time)!)} at ${formatTime(fromLocalParts(date, time)!)}`
+                  : 'No next broadcast selected'}
               </p>
-            )}
+              <Button
+                size="sm"
+                disabled={busy || loading}
+                onClick={() => void saveSchedule()}
+              >
+                {busy ? (
+                  <CalendarClockIcon size={15} aria-hidden />
+                ) : (
+                  <SaveIcon size={15} aria-hidden />
+                )}
+                {busy ? 'Saving…' : 'Save broadcast'}
+              </Button>
+            </div>
           </div>
         </StudioPanel>
 
         <StudioPanel
           title="Offline programme"
-          description="Fallback rotation when you are not live."
+          description="Rotation, ordering, automatic uploads, announcements, and playlist tracks are managed together in Channel."
           action={
-            <Link to="/studio/channel">
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label="Open channel 24/7 radio"
-                title="24/7 radio playlist"
-              >
-                <RadioIcon size={16} aria-hidden />
+            <Link to="/studio/channel" search={{ tab: 'radio' }}>
+              <Button size="sm" variant="secondary">
+                <Settings2Icon size={15} aria-hidden />
+                Open 24/7 settings
               </Button>
             </Link>
           }
         >
-          {loading || !programme ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <div
-                className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
-                role="group"
-                aria-label="Playback mode"
-              >
-                {(
-                  [
-                    ['shuffle', 'Shuffle'] as const,
-                    ['ordered', 'Ordered'] as const,
-                  ] as const
-                ).map(([mode, label]) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => void setMode(mode)}
-                    className={`rounded-md px-3 py-1.5 text-xs font-semibold tracking-wide uppercase ${
-                      programme.fallbackMode === mode
-                        ? 'bg-primary text-foreground'
-                        : 'text-foreground-secondary hover:text-foreground'
-                    }`}
-                    aria-pressed={programme.fallbackMode === mode}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                {(
-                  [
-                    ['fallbackEnabled', 'Fallback enabled'] as const,
-                    ['fallbackAutoEnroll', 'Auto-enroll new archive'] as const,
-                    ['announcementsEnabled', 'Announcements'] as const,
-                  ] as const
-                ).map(([key, label]) => (
-                  <label key={key} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={programme[key]}
-                      onChange={() => void toggleProgramme(key)}
-                    />
-                    {label}
-                  </label>
-                ))}
-              </div>
-
-              <div>
-                <Eyebrow className="mb-2 block">
-                  Rotation ({programme.items.length})
-                </Eyebrow>
-                {programme.items.length === 0 ? (
-                  <p className="text-foreground-secondary text-sm">
-                    No programme items yet. Build a playlist in Channel designer
-                    → 24/7 radio.
-                  </p>
-                ) : (
-                  <ul className="divide-border divide-y">
-                    {programme.items.map((item) => (
-                      <li
-                        key={item.id}
-                        className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm first:pt-0 last:pb-0"
-                      >
-                        <span className="min-w-0 font-medium">
-                          {item.title}
-                        </span>
-                        <span className="text-foreground-secondary text-xs">
-                          {item.status}
-                          {item.isFallback ? ', fallback' : ''}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            <span className="bg-primary/15 text-primary flex size-10 items-center justify-center rounded-lg">
+              <RadioIcon size={19} aria-hidden />
+            </span>
+            <p className="text-foreground-secondary text-sm">
+              The 24/7 channel section is now the single place for everything
+              that plays while you are offline.
+            </p>
+          </div>
         </StudioPanel>
       </div>
     </StudioGate>

@@ -63,6 +63,13 @@ export type SignalStatus = {
   listeners: number | null;
 };
 
+export type ChannelManageStats = {
+  audioBitrateKbps: number | null;
+  signalConnected: boolean;
+  listeners: number;
+  liveDurationSec: number | null;
+};
+
 export type BroadcastUsage = {
   unlimited: boolean;
   secondsUsed: number;
@@ -180,6 +187,30 @@ export async function fetchSignalStatus(): Promise<{
       },
       meta: apiErrorMeta(err),
     };
+  }
+}
+
+export async function fetchChannelManageStats(
+  slug: string,
+): Promise<{ data: ChannelManageStats | null; meta: FetchMeta }> {
+  if (forceMock()) {
+    return {
+      data: {
+        audioBitrateKbps: mockSignalConnected ? 160 : 192,
+        signalConnected: mockSignalConnected,
+        listeners: mockSignalConnected ? 1 : 0,
+        liveDurationSec: mockChannelState === 'LIVE' ? 12 * 60 : null,
+      },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<ChannelManageStats>(
+      `/api/channels/${encodeURIComponent(slug)}/manage-stats`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: apiErrorMeta(err) };
   }
 }
 

@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+
 import type { Track } from '@nuclearplayer/model';
 import { TrackTable } from '@nuclearplayer/ui';
 
@@ -24,6 +26,7 @@ export function PlayableTrackTable({
 }: Props) {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const queue = usePlayerStore((s) => s.queue);
   const currentId = usePlayerStore((s) => s.currentId);
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
@@ -76,7 +79,12 @@ export function PlayableTrackTable({
           onAddToQueue: (track) => {
             const item = resolve(track);
             if (item) {
+              if (queue.some((queueItem) => queueItem.id === item.id)) {
+                toast.info(`“${item.title}” is already in the queue.`);
+                return;
+              }
               enqueue(item);
+              toast.success(`Added “${item.title}” to the queue.`);
             }
           },
           onPlayAll: () => {
@@ -86,8 +94,17 @@ export function PlayableTrackTable({
             }
           },
           onAddAllToQueue: () => {
-            for (const item of items) {
+            const queuedIds = new Set(queue.map((queueItem) => queueItem.id));
+            const newItems = items.filter((item) => !queuedIds.has(item.id));
+            for (const item of newItems) {
               enqueue(item);
+            }
+            if (newItems.length === 0) {
+              toast.info('All listed tracks are already in the queue.');
+            } else {
+              toast.success(
+                `Added ${newItems.length} track${newItems.length === 1 ? '' : 's'} to the queue.`,
+              );
             }
           },
           onToggleFavorite: (track) => {

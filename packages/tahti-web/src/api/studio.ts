@@ -204,6 +204,72 @@ export async function patchStudioArchiveItem(
   }
 }
 
+export async function uploadArchiveBanner(
+  archiveItemId: string,
+  file: File,
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true, url: URL.createObjectURL(file) };
+  }
+  try {
+    const { data: prepared } = await requestJson<{
+      uploadKey: string;
+      uploadUrl: string;
+    }>(`/api/me/archive/${encodeURIComponent(archiveItemId)}/banner/prepare`, {
+      method: 'POST',
+      body: JSON.stringify({
+        filename: file.name,
+        contentType: file.type || 'image/jpeg',
+      }),
+    });
+    const upload = await fetch(prepared.uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type || 'image/jpeg' },
+    });
+    if (!upload.ok) {
+      throw new Error(`Artwork upload failed (${upload.status})`);
+    }
+    const { data: completed } = await requestJson<{ url: string }>(
+      `/api/me/archive/${encodeURIComponent(archiveItemId)}/banner/complete`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ uploadKey: prepared.uploadKey }),
+      },
+    );
+    return { ok: true, url: completed.url };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Artwork upload failed',
+    };
+  }
+}
+
+export async function importArchiveBanner(
+  archiveItemId: string,
+  sourceUrl: string,
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true, url: sourceUrl };
+  }
+  try {
+    const { data } = await requestJson<{ url: string }>(
+      `/api/me/archive/${encodeURIComponent(archiveItemId)}/banner/from-url`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ sourceUrl }),
+      },
+    );
+    return { ok: true, url: data.url };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Artwork import failed',
+    };
+  }
+}
+
 export async function deleteStudioArchiveItem(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -524,6 +590,7 @@ export async function fetchStudioCollections(): Promise<{
     return {
       data: [
         {
+          id: 'mock-collection-favorites-mix',
           slug: 'favorites-mix',
           name: 'Favorites mix',
           description: 'Mock collection',
@@ -551,6 +618,7 @@ export async function fetchStudioCollection(slug: string): Promise<{
   if (forceMock()) {
     return {
       data: {
+        id: `mock-collection-${slug}`,
         slug,
         name: slug,
         isPublic: true,
@@ -671,6 +739,7 @@ export async function createStudioCollection(input: {
     return {
       ok: true,
       data: {
+        id: `mock-collection-${slug}`,
         slug,
         name: input.name,
         description: input.description ?? null,

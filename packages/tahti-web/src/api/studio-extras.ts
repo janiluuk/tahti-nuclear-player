@@ -55,6 +55,17 @@ export type ChannelSchedule = {
   nextBroadcastNote: string | null;
 };
 
+export type UpcomingBroadcast = {
+  id: string;
+  startAt: string;
+  title: string;
+  episodeNumber: number | null;
+  showType: 'LIVE_SET' | 'TALK';
+  visibility: 'PUBLIC' | 'FAN_ONLY';
+  venue: string | null;
+  location: string | null;
+};
+
 export type ProgrammeItem = {
   id: string;
   title: string;
@@ -138,6 +149,58 @@ export async function patchChannelSchedule(
       ok: false,
       error: err instanceof Error ? err.message : 'Save failed',
     };
+  }
+}
+
+export async function fetchUpcomingBroadcasts(): Promise<{
+  data: UpcomingBroadcast[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    const first = mockSchedule.nextBroadcastAt;
+    return {
+      data: first
+        ? [
+            {
+              id: 'scheduled-mock-1',
+              startAt: first,
+              title: mockSchedule.nextBroadcastNote ?? 'Next live session',
+              episodeNumber: 4,
+              showType: 'LIVE_SET',
+              visibility: 'PUBLIC',
+              venue: null,
+              location: 'Helsinki',
+            },
+            {
+              id: 'scheduled-mock-2',
+              startAt: new Date(
+                new Date(first).getTime() + 7 * 24 * 3600_000,
+              ).toISOString(),
+              title: 'Northern Signals #5',
+              episodeNumber: 5,
+              showType: 'LIVE_SET',
+              visibility: 'PUBLIC',
+              venue: null,
+              location: null,
+            },
+          ]
+        : [],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{
+      scheduledShows?: UpcomingBroadcast[];
+    }>('/api/me/channel/show-series');
+    return {
+      data: [...(data.scheduledShows ?? [])].sort(
+        (left, right) =>
+          new Date(left.startAt).getTime() - new Date(right.startAt).getTime(),
+      ),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
   }
 }
 

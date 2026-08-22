@@ -1,9 +1,9 @@
+import { Trash2Icon, XIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useMemo } from 'react';
 
 import { formatArtistNames } from '@nuclearplayer/model';
 import type { QueueItem } from '@nuclearplayer/model';
-import { cn } from '@nuclearplayer/ui';
+import { Button, cn } from '@nuclearplayer/ui';
 
 import { usePlayerStore } from '../stores/playerStore';
 
@@ -11,66 +11,67 @@ function QueueChip({
   item,
   side,
   onPlay,
+  onRemove,
 }: {
   item: QueueItem;
   side: 'past' | 'upcoming' | 'current';
   onPlay: () => void;
+  onRemove: () => void;
 }) {
   const title = item.track.title;
   const artist = formatArtistNames(item.track.artists);
   const cover = item.track.artwork?.items[0]?.url;
 
   return (
-    <button
-      type="button"
-      onClick={onPlay}
-      title={`${title} — ${artist}`}
-      className={cn(
-        'border-border bg-background-secondary hover:border-primary/50 flex max-w-[9.5rem] shrink-0 items-center gap-2 rounded-md border px-2 py-1.5 text-left transition-colors',
-        side === 'current' && 'border-primary bg-primary/15',
-        side === 'past' && 'opacity-70 hover:opacity-100',
-      )}
-    >
-      <span className="bg-background size-8 shrink-0 overflow-hidden rounded">
-        {cover ? (
-          <img src={cover} alt="" className="size-full object-cover" />
-        ) : (
-          <span className="text-foreground-secondary flex size-full items-center justify-center text-[10px]">
-            ♪
-          </span>
+    <div className="group relative shrink-0">
+      <button
+        type="button"
+        onClick={onPlay}
+        title={`${title} — ${artist}`}
+        className={cn(
+          'border-border bg-background-secondary hover:border-primary/50 flex w-[10.5rem] items-center gap-2 rounded-md border py-1.5 pr-7 pl-2 text-left transition-colors',
+          side === 'current' && 'border-primary bg-primary/15',
+          side === 'past' && 'opacity-70 hover:opacity-100',
         )}
-      </span>
-      <span className="min-w-0">
-        <span className="block truncate text-xs font-semibold">{title}</span>
-        <span className="text-foreground-secondary block truncate text-[10px]">
-          {artist}
+      >
+        <span className="bg-background size-8 shrink-0 overflow-hidden rounded">
+          {cover ? (
+            <img src={cover} alt="" className="size-full object-cover" />
+          ) : (
+            <span className="text-foreground-secondary flex size-full items-center justify-center text-[10px]">
+              ♪
+            </span>
+          )}
         </span>
-      </span>
-    </button>
+        <span className="min-w-0">
+          <span className="block truncate text-xs font-semibold">{title}</span>
+          <span className="text-foreground-secondary block truncate text-[10px]">
+            {artist}
+          </span>
+        </span>
+      </button>
+      <button
+        type="button"
+        onClick={onRemove}
+        className="bg-background/90 text-foreground-secondary hover:text-accent-red absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded opacity-0 shadow-sm transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 focus:opacity-100"
+        aria-label={`Remove ${title} from queue`}
+        title="Remove from queue"
+      >
+        <XIcon size={13} aria-hidden />
+      </button>
+    </div>
   );
 }
 
-/** Past ← play → upcoming strip around the center controls. */
 export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
   const queue = usePlayerStore((s) => s.queue);
   const currentId = usePlayerStore((s) => s.currentId);
   const playQueueIndex = usePlayerStore((s) => s.playQueueIndex);
-
-  const { past, current, upcoming } = useMemo(() => {
-    const idx = currentId ? queue.findIndex((q) => q.id === currentId) : -1;
-    if (idx < 0) {
-      return {
-        past: [] as QueueItem[],
-        current: null as QueueItem | null,
-        upcoming: queue,
-      };
-    }
-    return {
-      past: queue.slice(0, idx),
-      current: queue[idx] ?? null,
-      upcoming: queue.slice(idx + 1),
-    };
-  }, [queue, currentId]);
+  const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
+  const clearQueue = usePlayerStore((s) => s.clearQueue);
+  const currentIndex = currentId
+    ? queue.findIndex((item) => item.id === currentId)
+    : -1;
 
   return (
     <div
@@ -78,51 +79,41 @@ export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
       data-testid="bottom-queue"
     >
       <div className="flex w-full min-w-0 items-center gap-2">
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 overflow-x-auto py-0.5">
-          {past.length === 0 ? (
-            <span className="text-foreground-secondary px-2 text-[10px] tracking-wide uppercase opacity-50">
-              Played
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
+          {queue.length === 0 ? (
+            <span className="text-foreground-secondary px-2 text-xs">
+              Queue is empty
             </span>
           ) : (
-            past.map((item) => (
+            queue.map((item, index) => (
               <QueueChip
                 key={item.id}
                 item={item}
-                side="past"
+                side={
+                  item.id === currentId
+                    ? 'current'
+                    : currentIndex >= 0 && index < currentIndex
+                      ? 'past'
+                      : 'upcoming'
+                }
                 onPlay={() => playQueueIndex(item.id)}
+                onRemove={() => removeFromQueue(item.id)}
               />
             ))
           )}
         </div>
-
-        <div className="flex shrink-0 flex-col items-center gap-1 px-1">
-          {current && (
-            <QueueChip
-              item={current}
-              side="current"
-              onPlay={() => playQueueIndex(current.id)}
-            />
-          )}
-          {controls}
-        </div>
-
-        <div className="flex min-w-0 flex-1 items-center justify-start gap-1.5 overflow-x-auto py-0.5">
-          {upcoming.length === 0 ? (
-            <span className="text-foreground-secondary px-2 text-[10px] tracking-wide uppercase opacity-50">
-              Up next
-            </span>
-          ) : (
-            upcoming.map((item) => (
-              <QueueChip
-                key={item.id}
-                item={item}
-                side="upcoming"
-                onPlay={() => playQueueIndex(item.id)}
-              />
-            ))
-          )}
-        </div>
+        <Button
+          size="sm"
+          variant="text"
+          disabled={queue.length === 0}
+          onClick={clearQueue}
+          className="shrink-0"
+        >
+          <Trash2Icon size={14} aria-hidden />
+          Clear queue
+        </Button>
       </div>
+      <div className="flex justify-center">{controls}</div>
     </div>
   );
 }

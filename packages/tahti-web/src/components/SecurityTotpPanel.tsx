@@ -1,3 +1,10 @@
+import {
+  CheckIcon,
+  KeyRoundIcon,
+  ShieldCheckIcon,
+  ShieldOffIcon,
+  XIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input, SectionShell } from '@nuclearplayer/ui';
@@ -67,6 +74,7 @@ export function SecurityTotpPanel() {
               className="mt-2"
               onClick={() => setBackupCodes(null)}
             >
+              <CheckIcon size={15} aria-hidden className="mr-1.5" />
               Done
             </Button>
           </div>
@@ -89,6 +97,7 @@ export function SecurityTotpPanel() {
               });
             }}
           >
+            <KeyRoundIcon size={15} aria-hidden className="mr-1.5" />
             {pending ? 'Starting…' : 'Enable 2FA'}
           </Button>
         )}
@@ -135,6 +144,7 @@ export function SecurityTotpPanel() {
                   });
                 }}
               >
+                <ShieldCheckIcon size={15} aria-hidden className="mr-1.5" />
                 Confirm
               </Button>
               <Button
@@ -145,6 +155,7 @@ export function SecurityTotpPanel() {
                   setConfirmCode('');
                 }}
               >
+                <XIcon size={15} aria-hidden className="mr-1.5" />
                 Cancel
               </Button>
             </div>
@@ -157,6 +168,7 @@ export function SecurityTotpPanel() {
             variant="secondary"
             onClick={() => setDisabling(true)}
           >
+            <ShieldOffIcon size={15} aria-hidden className="mr-1.5" />
             Disable 2FA
           </Button>
         )}
@@ -189,6 +201,7 @@ export function SecurityTotpPanel() {
                   });
                 }}
               >
+                <ShieldOffIcon size={15} aria-hidden className="mr-1.5" />
                 Confirm disable
               </Button>
               <Button
@@ -199,6 +212,7 @@ export function SecurityTotpPanel() {
                   setDisablePassword('');
                 }}
               >
+                <XIcon size={15} aria-hidden className="mr-1.5" />
                 Cancel
               </Button>
             </div>

@@ -231,10 +231,10 @@ export const ChannelRadioPlaylistPanel: FC = () => {
           </span>
           <div className="min-w-0">
             <h2 className="font-display text-lg font-bold tracking-tight">
-              24/7 channel playlist
+              24/7 &amp; offline programme
             </h2>
             <p className="text-foreground-secondary text-xs">
-              Plays automatically between live broadcasts.
+              One place for everything that plays between live broadcasts.
             </p>
           </div>
         </div>
@@ -341,7 +341,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
 
         <div className="border-border bg-background flex flex-col gap-4 rounded-lg border p-4">
           <div>
-            <h3 className="text-sm font-bold">Playback</h3>
+            <h3 className="text-sm font-bold">Offline programme settings</h3>
             <p className="text-foreground-secondary mt-0.5 text-xs">
               Keep the rotation predictable or let Tahti balance it.
             </p>

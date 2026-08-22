@@ -3,6 +3,7 @@ import {
   AudioLinesIcon,
   FolderIcon,
   MoreHorizontalIcon,
+  PencilIcon,
   PinIcon,
   PinOffIcon,
   PlayIcon,
@@ -26,6 +27,7 @@ import { StashFilesPanel } from '../../components/StashFilesPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { TrackEditDialog } from '../../components/TrackEditDialog';
 import {
   countPinnedTracks,
   isPinned,
@@ -50,6 +52,7 @@ export function StudioArchiveView() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [openMoreId, setOpenMoreId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [pinMessage, setPinMessage] = useState<string | null>(null);
   const play = usePlayerStore((s) => s.play);
 
@@ -225,11 +228,15 @@ export function StudioArchiveView() {
                     >
                       <PlayIcon size={16} aria-hidden />
                     </Button>
-                    <Link to="/studio/archive/$id" params={{ id: item.id }}>
-                      <Button size="sm" variant="secondary">
-                        Edit
-                      </Button>
-                    </Link>
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Edit ${item.title}`}
+                      title="Edit track"
+                      onClick={() => setEditingId(item.id)}
+                    >
+                      <PencilIcon size={16} aria-hidden />
+                    </Button>
                     <AddToPlaylistButton
                       archiveItemId={item.id}
                       trackTitle={item.title}
@@ -309,6 +316,15 @@ export function StudioArchiveView() {
             )}
           </StudioPanel>
         )}
+        <TrackEditDialog
+          archiveItemId={editingId}
+          onClose={() => setEditingId(null)}
+          onSaved={(saved) =>
+            setItems((current) =>
+              current.map((item) => (item.id === saved.id ? saved : item)),
+            )
+          }
+        />
       </div>
     </StudioGate>
   );

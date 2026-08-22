@@ -5,11 +5,14 @@ import {
   Bell,
   Cast,
   Compass,
+  CreditCardIcon,
   Gift,
   Globe,
   Image as ImageIcon,
   Landmark,
   Lock,
+  LogInIcon,
+  LogOutIcon,
   Mic,
   Paintbrush,
   Radio as RadioIcon,
@@ -98,6 +101,7 @@ import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { COUNTRIES } from '../../lib/countries';
+import { EXPORT_TARGETS } from '../../lib/exportTargets';
 import {
   formatGenreTags,
   MAX_GENRES,
@@ -169,9 +173,6 @@ export function SettingsSectionBody({
       break;
     case 'connections':
       content = <ConnectionsPanel />;
-      break;
-    case 'integrations':
-      content = <ImportExportPanel />;
       break;
     case 'whats-new':
       content = <WhatsNewPanel />;
@@ -256,72 +257,6 @@ const IMPORT_SERVICES: ServiceEntry[] = [
 // link page buttons use). Spotify/Apple/Tidal/Deezer/Amazon/YouTube go out
 // through one Revelator submission; Bandcamp/SoundCloud/Mixcloud are
 // reached by connecting them as a source instead.
-const EXPORT_SERVICES: ServiceEntry[] = [
-  {
-    id: 'spotify',
-    label: 'Spotify',
-    note: 'One-form delivery via Revelator DSP delivery.',
-    color: 'var(--accent-green)',
-    to: '/studio/distribution',
-  },
-  {
-    id: 'apple',
-    label: 'Apple Music',
-    note: 'One-form delivery via Revelator DSP delivery.',
-    color: 'var(--foreground-secondary)',
-    to: '/studio/distribution',
-  },
-  {
-    id: 'tidal',
-    label: 'Tidal',
-    note: 'One-form delivery via Revelator DSP delivery.',
-    color: 'var(--accent-blue)',
-    to: '/studio/distribution',
-  },
-  {
-    id: 'deezer',
-    label: 'Deezer',
-    note: 'One-form delivery via Revelator DSP delivery.',
-    color: 'var(--primary)',
-    to: '/studio/distribution',
-  },
-  {
-    id: 'amazon',
-    label: 'Amazon Music',
-    note: 'One-form delivery via Revelator DSP delivery.',
-    color: 'var(--accent-cyan)',
-    to: '/studio/distribution',
-  },
-  {
-    id: 'youtube',
-    label: 'YouTube Music',
-    note: 'One-form delivery via Revelator DSP delivery.',
-    color: 'var(--accent-red)',
-    to: '/studio/distribution',
-  },
-  {
-    id: 'bandcamp',
-    label: 'Bandcamp',
-    note: 'Connect it as a source to publish there directly.',
-    color: 'var(--accent-cyan)',
-    to: '/sources/bandcamp',
-  },
-  {
-    id: 'soundcloud',
-    label: 'SoundCloud',
-    note: 'Connect it as a source to publish there directly.',
-    color: 'var(--accent-orange)',
-    to: '/sources/soundcloud',
-  },
-  {
-    id: 'mixcloud',
-    label: 'Mixcloud',
-    note: 'Connect it as a source to publish your mixes directly.',
-    color: 'var(--accent-purple)',
-    to: '/sources/mixcloud',
-  },
-];
-
 function ServiceRow({ service }: { service: ServiceEntry }) {
   const closeSettings = useSettingsModalStore((s) => s.close);
   return (
@@ -358,24 +293,24 @@ function ImportExportPanel() {
     <div className="flex flex-col gap-6 text-sm">
       <section className="flex flex-col gap-2">
         <h3 className="flex items-center gap-1.5 font-medium">
-          <ArrowUpFromLineIcon size={14} aria-hidden />
-          Export releases
-        </h3>
-        <ul className="flex flex-col gap-2">
-          {EXPORT_SERVICES.map((s) => (
-            <ServiceRow key={`export-${s.id}`} service={s} />
-          ))}
-        </ul>
-      </section>
-
-      <section className="flex flex-col gap-2">
-        <h3 className="flex items-center gap-1.5 font-medium">
           <ArrowDownToLineIcon size={14} aria-hidden />
           Import music
         </h3>
         <ul className="flex flex-col gap-2">
           {IMPORT_SERVICES.map((s) => (
             <ServiceRow key={`import-${s.id}`} service={s} />
+          ))}
+        </ul>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h3 className="flex items-center gap-1.5 font-medium">
+          <ArrowUpFromLineIcon size={14} aria-hidden />
+          Export music
+        </h3>
+        <ul className="flex flex-col gap-2">
+          {EXPORT_TARGETS.map((s) => (
+            <ServiceRow key={`export-${s.id}`} service={s} />
           ))}
         </ul>
       </section>
@@ -420,6 +355,7 @@ function MembershipCheckoutButton({
           });
         }}
       >
+        <CreditCardIcon size={15} aria-hidden className="mr-1.5" />
         {busy ? 'Starting…' : 'Pay €40 / year'}
       </Button>
       {msg && <p className="text-xs">{msg}</p>}
@@ -450,6 +386,7 @@ function AccountPanel() {
           size="sm"
           onClick={() => useAuthModalStore.getState().open('login')}
         >
+          <LogInIcon size={15} aria-hidden className="mr-1.5" />
           Log in
         </Button>
       </div>
@@ -469,6 +406,7 @@ function AccountPanel() {
               {user.email && <SettingsInfo label="Email" value={user.email} />}
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="text" onClick={() => void logout()}>
+                  <LogOutIcon size={15} aria-hidden className="mr-1.5" />
                   Log out
                 </Button>
               </div>
@@ -536,6 +474,7 @@ function AccountPanel() {
               )}
               <Link to="/governance" onClick={closeSettings}>
                 <Button size="sm" variant="secondary">
+                  <Landmark size={15} aria-hidden className="mr-1.5" />
                   Governance
                 </Button>
               </Link>
@@ -1807,14 +1746,15 @@ function ThemesPanel() {
 function ConnectionsPanel() {
   const closeSettings = useSettingsModalStore((s) => s.close);
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <SettingsHint>
-        OAuth and cloud import live under Sources (Bandcamp, SoundCloud, Drive,
-        Mixcloud, …). Social links moved to Artist → Social links.
+        Manage where music comes from and where finished music can be sent.
+        Social links live under Artist → Social links.
       </SettingsHint>
       <Link to="/sources" onClick={closeSettings}>
         <Button size="sm">Open Sources</Button>
       </Link>
+      <ImportExportPanel />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  ArrowLeftRight,
   Link2,
   Paintbrush,
   Palette,
@@ -19,7 +18,6 @@ export type SettingsSectionId =
   | 'money'
   | 'themes'
   | 'connections'
-  | 'integrations'
   | 'whats-new';
 
 export type SettingsNavItem = {
@@ -69,14 +67,8 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   {
     id: 'connections',
     label: 'Connections',
-    description: 'Import sources',
+    description: 'Import sources and export destinations',
     Icon: Link2,
-  },
-  {
-    id: 'integrations',
-    label: 'Import & export',
-    description: 'Bring music in, send releases out',
-    Icon: ArrowLeftRight,
   },
   {
     id: 'whats-new',

@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -25,6 +25,7 @@ import { useAuthStore } from '../../stores/authStore';
 type Tab = 'design' | 'radio' | 'profile' | 'domain';
 
 export function StudioChannelView() {
+  const search = useSearch({ strict: false }) as { tab?: string };
   const user = useAuthStore((s) => s.user);
   const channel = user?.channel;
   const [tab, setTab] = useState<Tab>('design');
@@ -51,6 +52,12 @@ export function StudioChannelView() {
       setSlug(channel?.slug ?? r.data.username);
     });
   }, [channel?.slug]);
+
+  useEffect(() => {
+    if (search.tab === 'radio') {
+      setTab('radio');
+    }
+  }, [search.tab]);
 
   const saveProfile = async () => {
     setBusy(true);

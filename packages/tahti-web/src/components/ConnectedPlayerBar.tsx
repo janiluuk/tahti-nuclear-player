@@ -2,7 +2,7 @@ import {
   ChevronDownIcon,
   ListMusicIcon,
   Maximize2Icon,
-  XIcon,
+  PanelBottomCloseIcon,
 } from 'lucide-react';
 
 import { formatArtistNames } from '@nuclearplayer/model';
@@ -166,12 +166,16 @@ export function ConnectedPlayerBar() {
             size="icon-sm"
             variant={queueOpen ? 'secondary' : 'text'}
             onClick={() => setBottomQueueOpen(!queueOpen)}
-            title={queueOpen ? 'Close queue' : 'Open queue'}
-            aria-label={queueOpen ? 'Close queue' : 'Open queue'}
+            title={queueOpen ? 'Minimize queue' : 'Open queue'}
+            aria-label={queueOpen ? 'Minimize queue' : 'Open queue'}
             aria-pressed={queueOpen}
             data-testid={queueOpen ? 'close-bottom-queue' : 'open-bottom-queue'}
           >
-            {queueOpen ? <XIcon size={16} /> : <ListMusicIcon size={16} />}
+            {queueOpen ? (
+              <PanelBottomCloseIcon size={16} />
+            ) : (
+              <ListMusicIcon size={16} />
+            )}
           </Button>
           {!queueOpen && queue.length > 0 && (
             <span className="text-foreground-secondary text-xs tabular-nums">

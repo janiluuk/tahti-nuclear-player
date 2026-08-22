@@ -1,6 +1,114 @@
 [
   {
     "date": "2026-08-22T00:00",
+    "description": "Account, membership, and two-factor authentication actions now use consistent Lucide icons alongside their accessible labels.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "The expanded queue now keeps every item on one horizontal row, exposes hover and keyboard removal controls, includes Clear queue, and uses a dedicated minimize icon.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Channel scheduling now opens with upcoming local broadcast times and separate date/time controls, while all offline programme settings live together under 24/7 Channel settings.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Live channel pages now give the visualizer more space, emphasize the current title and artist, remove technical preset text and duplicate controls, and show loading, play, or pause state accurately.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Owned tracks now open a complete editor for metadata, optional licensing, explicit private visibility, uploaded or imported cover art, playlists, and duplicate-safe exports, while track-list add controls provide clear queue feedback.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Studio Go Live is now one operational dashboard with rotation now-playing details, remaining-time guidance, listening controls, encoder setup, accurate live bitrate, allowance, and multistream management.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "HearThis.at Sources now loads your tracks, DJ sets, and collections for individual or batch import into playlists, including preserving sets as Nuclear collections.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Import and export destinations now live as separate sections under Connections, and Track info can queue duplicate-safe exports to supported connected services.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "The player visualization now has a clear minimize control and keyboard toggle, while Alt+1 through Alt+5 provide reliable main navigation shortcuts.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
     "description": "The 24/7 channel playlist editor is now fully organized around playlist source, playback settings, and the active rotation, with direct track management and icon-only ordering controls.",
     "type": "improvement",
     "contributors": ["jani"],

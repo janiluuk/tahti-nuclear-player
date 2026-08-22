@@ -3,7 +3,9 @@ import {
   GripVerticalIcon,
   HeartIcon,
   ListPlusIcon,
+  LoaderCircleIcon,
   MessageCircle,
+  PauseIcon,
   PencilIcon,
   PlayIcon,
   WifiOffIcon,
@@ -22,10 +24,6 @@ import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
-import {
-  MediaIconActions,
-  playQueueFavoriteActions,
-} from '../components/MediaIconActions';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -74,6 +72,9 @@ export function ChannelView({ slug }: { slug: string }) {
 
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const currentId = usePlayerStore((s) => s.currentId);
+  const playbackStatus = usePlayerStore((s) => s.status);
+  const setPlaybackStatus = usePlayerStore((s) => s.setStatus);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const favorited = useLibraryStore((s) =>
     s.favoriteChannels.some((c) => c.slug === slug),
@@ -156,6 +157,12 @@ export function ChannelView({ slug }: { slug: string }) {
 
   const live = channel.state === 'LIVE' && Boolean(channel.hlsUrl);
   const chatOn = channel.chatEnabled !== false;
+  const channelIsCurrent =
+    currentId === `live:${slug}` || currentId === `radio:${slug}`;
+  const channelIsPlaying =
+    channelIsCurrent &&
+    (playbackStatus === 'playing' || playbackStatus === 'loading');
+  const channelIsLoading = channelIsCurrent && playbackStatus === 'loading';
 
   const openChat = () => {
     if (!chatOn) {
@@ -165,6 +172,10 @@ export function ChannelView({ slug }: { slug: string }) {
   };
 
   const handlePlayChannel = () => {
+    if (channelIsCurrent) {
+      setPlaybackStatus(channelIsPlaying ? 'paused' : 'playing');
+      return;
+    }
     void fetchChannel(slug).then(({ playable }) => {
       if (playable) {
         play(playable);
@@ -256,7 +267,7 @@ export function ChannelView({ slug }: { slug: string }) {
       case 'hero':
         return (
           <div
-            className={`relative aspect-[16/9] w-full overflow-hidden ${
+            className={`relative min-h-[26rem] w-full overflow-hidden sm:min-h-[34rem] ${
               subtle
                 ? 'border-border/60 bg-background-input rounded-lg border'
                 : 'border-border rounded-xl border'
@@ -298,27 +309,21 @@ export function ChannelView({ slug }: { slug: string }) {
                       Now playing
                     </div>
                     <div
-                      className={`mt-0.5 text-white ${
+                      className={`mt-1 text-white ${
                         subtle
-                          ? 'text-base font-medium tracking-tight'
-                          : 'font-bold'
+                          ? 'text-2xl font-semibold tracking-tight sm:text-4xl'
+                          : 'text-3xl font-extrabold tracking-tight sm:text-5xl'
                       }`}
                     >
                       {channel.nowPlaying.title}
                     </div>
-                    <div className="text-sm text-white/80">
+                    <div className="mt-1 text-lg font-medium text-white/85 sm:text-2xl">
                       {channel.nowPlaying.artistName}
                     </div>
                   </>
                 ) : (
                   <p className="text-sm text-white/80">
                     Stream is live — hit Play live to drive the visualizer.
-                  </p>
-                )}
-                {!subtle && (
-                  <p className="mt-1 font-mono text-[10px] tracking-wide text-white/50 uppercase">
-                    Preset:{' '}
-                    {(channel.visualPreset ?? 'AURORA').replace(/_/g, ' ')}
                   </p>
                 )}
               </div>
@@ -355,10 +360,29 @@ export function ChannelView({ slug }: { slug: string }) {
                   size="icon"
                   className="bg-primary text-primary-foreground h-14 w-14 rounded-full shadow-lg"
                   onClick={handlePlayChannel}
-                  aria-label={live ? 'Play live' : 'Play stream'}
-                  title={live ? 'Play live' : 'Play stream'}
+                  aria-label={
+                    channelIsLoading
+                      ? 'Loading stream'
+                      : channelIsPlaying
+                        ? 'Pause stream'
+                        : live
+                          ? 'Play live'
+                          : 'Play stream'
+                  }
+                  title={channelIsPlaying ? 'Pause stream' : 'Play stream'}
+                  aria-pressed={channelIsPlaying}
                 >
-                  <PlayIcon size={24} className="fill-current" />
+                  {channelIsLoading ? (
+                    <LoaderCircleIcon
+                      size={24}
+                      className="animate-spin"
+                      aria-hidden
+                    />
+                  ) : channelIsPlaying ? (
+                    <PauseIcon size={24} className="fill-current" aria-hidden />
+                  ) : (
+                    <PlayIcon size={24} className="fill-current" aria-hidden />
+                  )}
                 </Button>
               </div>
             )}
@@ -377,36 +401,11 @@ export function ChannelView({ slug }: { slug: string }) {
           </div>
         );
       case 'actions':
-        return (
-          <div className="flex flex-wrap items-start gap-3">
-            <MediaIconActions
-              actions={[
-                ...playQueueFavoriteActions({
-                  onPlay: handlePlayChannel,
-                  onQueue: handleQueueChannel,
-                  onFavorite: handleToggleFavoriteChannel,
-                  favorited,
-                  playDisabled: !channel.hlsUrl,
-                  queueDisabled: !channel.hlsUrl,
-                  playLabel: live ? 'Play live' : 'Play stream',
-                  queueLabel: 'Queue',
-                }),
-                ...(chatOn
-                  ? [
-                      {
-                        id: 'chat',
-                        label: 'Chat',
-                        icon: <MessageCircle size={16} />,
-                        onClick: openChat,
-                        variant: 'text' as const,
-                        title: 'Open chat in sidebar',
-                      },
-                    ]
-                  : []),
-              ]}
-            />
+        return editing ? (
+          <div className="border-border text-foreground-secondary rounded-lg border border-dashed px-4 py-3 text-sm">
+            Playback controls are included in the live visualizer.
           </div>
-        );
+        ) : null;
       case 'archive':
         return (
           <section className="flex flex-col gap-6">

@@ -25,6 +25,7 @@ import { MAIN_CONTENT_PADDING } from '../layout/contentPadding';
 import { cn } from '../lib/cn';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
+import { usePlayerStore } from '../stores/playerStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { hasSeenOnboarding } from '../views/OnboardingView';
 import { AppTopNav } from './AppTopNav';
@@ -98,6 +99,8 @@ export function AppShell() {
     setLeftWidth,
     setRightWidth,
     setRightCollapsed,
+    fullScreenPlayerOpen,
+    setFullScreenPlayerOpen,
   } = useLayoutStore();
   const refresh = useAuthStore((s) => s.refresh);
   const isBoard = useAuthStore((s) => Boolean(s.user?.isBoard));
@@ -105,6 +108,7 @@ export function AppShell() {
   const openSettings = useSettingsModalStore((s) => s.open);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const currentTrackId = usePlayerStore((state) => state.currentId);
 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileQueueOpen, setMobileQueueOpen] = useState(false);
@@ -130,6 +134,52 @@ export function AppShell() {
     }
     setRightCollapsed(true);
   }, [isMobile, setRightCollapsed]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      const isEditing =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable);
+      if (isEditing) {
+        return;
+      }
+
+      if (event.altKey && !event.ctrlKey && !event.metaKey) {
+        const destinations: Record<
+          string,
+          '/' | '/radio' | '/feed' | '/library' | '/studio'
+        > = {
+          Digit1: '/',
+          Digit2: '/radio',
+          Digit3: '/feed',
+          Digit4: '/library',
+          Digit5: '/studio',
+        };
+        const destination = destinations[event.code];
+        if (destination) {
+          event.preventDefault();
+          void navigate({ to: destination });
+        }
+        return;
+      }
+
+      if (
+        event.code === 'KeyV' &&
+        !event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        currentTrackId
+      ) {
+        event.preventDefault();
+        setFullScreenPlayerOpen(!fullScreenPlayerOpen);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [currentTrackId, fullScreenPlayerOpen, navigate, setFullScreenPlayerOpen]);
 
   return (
     <PlayerShell className={isMobile ? 'tahti-mobile-shell' : undefined}>

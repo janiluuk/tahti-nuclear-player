@@ -99,6 +99,7 @@ export type StudioCollectionItem = {
 };
 
 export type StudioCollection = {
+  id?: string;
   slug: string;
   name: string;
   description?: string | null;

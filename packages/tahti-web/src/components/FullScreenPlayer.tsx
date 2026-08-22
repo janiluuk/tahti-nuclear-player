@@ -1,4 +1,4 @@
-import { XIcon } from 'lucide-react';
+import { Minimize2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { formatArtistNames } from '@nuclearplayer/model';
@@ -121,7 +121,7 @@ export function FullScreenPlayer() {
           aria-label="Minimize player"
           title="Minimize"
         >
-          <XIcon size={20} aria-hidden />
+          <Minimize2Icon size={20} aria-hidden />
         </Button>
       </div>
 

@@ -1,7 +1,10 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
+  CheckSquareIcon,
   DownloadIcon,
+  FolderDownIcon,
   Link2Icon,
+  ListPlusIcon,
   PlayIcon,
   PlugIcon,
   Radio as RadioIcon,
@@ -26,9 +29,12 @@ import {
   connectIntegrationMock,
   disconnectIntegration,
   fetchConnectionStatus,
+  fetchHearthisCollectionTracks,
+  fetchHearthisLibrary,
   fetchSoundcloudTracks,
   fetchStashDownload,
   fetchStashFiles,
+  importHearthisTracks,
   importSoundcloudTracks,
   oauthStartUrl,
   playableFromHearthis,
@@ -38,12 +44,15 @@ import {
   searchSpotifyTracks,
   SOURCE_DEFS,
   type ConnectionStatus,
+  type HearthisLibrary,
   type HearthisTrack,
   type IntegrationId,
   type SoundcloudTrack,
   type SpotifySearchTrack,
   type StashFile,
 } from '../api/sources';
+import { createStudioCollection, fetchStudioCollections } from '../api/studio';
+import type { StudioCollection } from '../api/studio-types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import {
   SourceServiceIcon,
@@ -108,6 +117,18 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   const [hearthisQ, setHearthisQ] = useState('');
   const [hearthisHits, setHearthisHits] = useState<HearthisTrack[]>([]);
   const [hearthisBusy, setHearthisBusy] = useState(false);
+  const [hearthisLibrary, setHearthisLibrary] =
+    useState<HearthisLibrary | null>(null);
+  const [hearthisTab, setHearthisTab] = useState<
+    'tracks' | 'sets' | 'collections' | 'search'
+  >('tracks');
+  const [hearthisSelected, setHearthisSelected] = useState<Set<string>>(
+    new Set(),
+  );
+  const [destinationCollections, setDestinationCollections] = useState<
+    StudioCollection[]
+  >([]);
+  const [destinationId, setDestinationId] = useState('');
   const [urlPaste, setUrlPaste] = useState('');
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -203,6 +224,28 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     void fetchStashFiles().then((r) => setStash(r.data));
   }, [selected]);
 
+  useEffect(() => {
+    if (selected !== 'hearthis' || !user) {
+      return;
+    }
+    setHearthisBusy(true);
+    void Promise.all([fetchHearthisLibrary(), fetchStudioCollections()]).then(
+      ([libraryResult, collectionResult]) => {
+        setHearthisBusy(false);
+        setHearthisLibrary(libraryResult.data);
+        setDestinationCollections(collectionResult.data);
+        setDestinationId(
+          collectionResult.data.find((collection) => collection.id)?.id ?? '',
+        );
+        if (!libraryResult.data.username) {
+          setNote(
+            'Add your hearthis.at profile URL in profile settings to load your library.',
+          );
+        }
+      },
+    );
+  }, [selected, user]);
+
   const overview = useMemo(() => SOURCE_DEFS, []);
 
   const openRadioStation = (station: RadioStation) => {
@@ -237,6 +280,114 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
       }
       openRadioStation(station);
     });
+  };
+
+  const hearthisVisibleTracks =
+    hearthisTab === 'tracks'
+      ? (hearthisLibrary?.tracks ?? [])
+      : hearthisTab === 'sets'
+        ? (hearthisLibrary?.sets ?? [])
+        : hearthisTab === 'search'
+          ? hearthisHits
+          : [];
+  const playlistDestinations = destinationCollections.filter(
+    (collection) => !collection.style || collection.style === 'PLAYLIST',
+  );
+
+  const toggleHearthisSelected = (id: string) => {
+    setHearthisSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const importTracksToDestination = async (tracks: HearthisTrack[]) => {
+    if (!destinationId) {
+      setNote('Choose an existing playlist first.');
+      return;
+    }
+    setBusy(true);
+    const result = await importHearthisTracks(destinationId, tracks);
+    setBusy(false);
+    setHearthisSelected(new Set());
+    setNote(
+      result.failed > 0
+        ? `Imported ${result.imported}; ${result.failed} could not be imported.`
+        : `Imported ${result.imported} item${result.imported === 1 ? '' : 's'} to the playlist.`,
+    );
+  };
+
+  const importTracksAsCollection = async (
+    name: string,
+    description: string,
+    tracks: HearthisTrack[],
+    style: 'PLAYLIST' | 'LIVE_ARCHIVE',
+  ) => {
+    setBusy(true);
+    const created = await createStudioCollection({
+      name,
+      description,
+      style,
+      isPublic: true,
+    });
+    if (!created.ok || !created.data.id) {
+      setBusy(false);
+      setNote(
+        created.ok ? 'Created collection has no import ID.' : created.error,
+      );
+      return;
+    }
+    const result = await importHearthisTracks(created.data.id, tracks);
+    setBusy(false);
+    setNote(
+      result.failed > 0
+        ? `Created “${name}” with ${result.imported} items; ${result.failed} failed.`
+        : `Created “${name}” with ${result.imported} item${result.imported === 1 ? '' : 's'}.`,
+    );
+    const collectionsResult = await fetchStudioCollections();
+    setDestinationCollections(collectionsResult.data);
+  };
+
+  const importHearthisCollection = async (
+    collection: NonNullable<HearthisLibrary>['collections'][number],
+  ) => {
+    setBusy(true);
+    try {
+      const tracks = await fetchHearthisCollectionTracks(collection.permalink);
+      await importTracksAsCollection(
+        collection.title,
+        collection.description,
+        tracks,
+        'PLAYLIST',
+      );
+    } catch (error) {
+      setBusy(false);
+      setNote(
+        error instanceof Error ? error.message : 'Collection import failed.',
+      );
+    }
+  };
+
+  const importHearthisSelection = async () => {
+    if (hearthisTab === 'collections') {
+      const collections = (hearthisLibrary?.collections ?? []).filter(
+        (collection) => hearthisSelected.has(collection.id),
+      );
+      for (const collection of collections) {
+        await importHearthisCollection(collection);
+      }
+      setHearthisSelected(new Set());
+      return;
+    }
+    const tracks = hearthisVisibleTracks.filter((track) =>
+      hearthisSelected.has(track.id),
+    );
+    await importTracksToDestination(tracks);
   };
 
   return (
@@ -549,78 +700,291 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
           )}
 
           {selected === 'hearthis' && (
-            <section className="flex flex-col gap-3">
-              <div className="flex flex-wrap gap-2">
-                <input
-                  className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
-                  value={hearthisQ}
-                  onChange={(e) => setHearthisQ(e.target.value)}
-                  placeholder="Search hearthis.at's catalogue"
-                  onKeyDown={(e) => {
-                    if (
-                      e.key === 'Enter' &&
-                      hearthisQ.trim() &&
-                      !hearthisBusy
-                    ) {
-                      setHearthisBusy(true);
-                      void searchHearthisTracks(hearthisQ.trim()).then((r) => {
-                        setHearthisBusy(false);
-                        setHearthisHits(r.data);
-                      });
-                    }
-                  }}
-                />
-                <Button
-                  size="sm"
-                  disabled={!hearthisQ.trim() || hearthisBusy}
-                  onClick={() => {
-                    setHearthisBusy(true);
-                    void searchHearthisTracks(hearthisQ.trim()).then((r) => {
-                      setHearthisBusy(false);
-                      setHearthisHits(r.data);
-                    });
-                  }}
+            <section className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <nav
+                  className="flex flex-wrap gap-2"
+                  aria-label="HearThis library"
                 >
-                  <SearchIcon size={16} aria-hidden className="mr-1.5" />
-                  {hearthisBusy ? 'Searching…' : 'Search'}
-                </Button>
-              </div>
-              <ul className="flex flex-col gap-2">
-                {hearthisHits.map((t) => (
-                  <li
-                    key={t.id}
-                    className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
-                  >
-                    <MediaArtwork
+                  {(
+                    [
+                      ['tracks', 'Tracks', hearthisLibrary?.tracks.length ?? 0],
+                      ['sets', 'DJ sets', hearthisLibrary?.sets.length ?? 0],
+                      [
+                        'collections',
+                        'Collections',
+                        hearthisLibrary?.collections.length ?? 0,
+                      ],
+                      ['search', 'Search', hearthisHits.length],
+                    ] as const
+                  ).map(([tab, label, count]) => (
+                    <Button
+                      key={tab}
                       size="sm"
-                      src={t.coverUrl}
-                      alt={t.title}
-                      imageReveal={false}
-                      onPlay={() => play(playableFromHearthis(t))}
-                      playLabel="Preview"
-                      onQueue={() => enqueue(playableFromHearthis(t))}
-                      queueLabel="Queue"
-                      className="border-border shrink-0 rounded border"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">
-                        {t.title}
-                      </div>
-                      <div className="text-foreground-secondary truncate text-xs">
-                        {t.username}
-                      </div>
-                    </div>
-                    <a
-                      href={t.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-foreground-secondary shrink-0 text-xs underline-offset-2 hover:underline"
+                      variant={hearthisTab === tab ? 'default' : 'secondary'}
+                      onClick={() => {
+                        setHearthisTab(tab);
+                        setHearthisSelected(new Set());
+                      }}
                     >
-                      hearthis.at ↗
-                    </a>
-                  </li>
-                ))}
-              </ul>
+                      {tab === 'collections' ? (
+                        <FolderDownIcon
+                          size={14}
+                          className="mr-1.5"
+                          aria-hidden
+                        />
+                      ) : tab === 'search' ? (
+                        <SearchIcon size={14} className="mr-1.5" aria-hidden />
+                      ) : (
+                        <ListPlusIcon
+                          size={14}
+                          className="mr-1.5"
+                          aria-hidden
+                        />
+                      )}
+                      {label} ({count})
+                    </Button>
+                  ))}
+                </nav>
+                {hearthisLibrary?.username && (
+                  <span className="text-foreground-secondary text-xs">
+                    @{hearthisLibrary.username}
+                  </span>
+                )}
+              </div>
+
+              {hearthisTab === 'search' && (
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
+                    value={hearthisQ}
+                    onChange={(event) => setHearthisQ(event.target.value)}
+                    placeholder="Search hearthis.at"
+                  />
+                  <Button
+                    size="sm"
+                    disabled={!hearthisQ.trim() || hearthisBusy}
+                    onClick={() => {
+                      setHearthisBusy(true);
+                      void searchHearthisTracks(hearthisQ.trim()).then(
+                        (result) => {
+                          setHearthisBusy(false);
+                          setHearthisHits(result.data);
+                        },
+                      );
+                    }}
+                  >
+                    <SearchIcon size={16} aria-hidden className="mr-1.5" />
+                    {hearthisBusy ? 'Searching…' : 'Search'}
+                  </Button>
+                </div>
+              )}
+
+              {hearthisTab !== 'collections' && (
+                <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-2 rounded-lg border p-3">
+                  <select
+                    className="border-border bg-background text-foreground min-w-48 flex-1 rounded border px-2 py-1.5 text-sm"
+                    value={destinationId}
+                    onChange={(event) => setDestinationId(event.target.value)}
+                    aria-label="Import destination playlist"
+                  >
+                    <option value="">Choose destination playlist</option>
+                    {playlistDestinations.map((collection) => (
+                      <option key={collection.slug} value={collection.id}>
+                        {collection.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={hearthisVisibleTracks.length === 0}
+                    onClick={() =>
+                      setHearthisSelected(
+                        new Set(hearthisVisibleTracks.map((track) => track.id)),
+                      )
+                    }
+                  >
+                    <CheckSquareIcon size={15} className="mr-1.5" aria-hidden />
+                    Select all
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={
+                      busy || !destinationId || hearthisSelected.size === 0
+                    }
+                    onClick={() => void importHearthisSelection()}
+                  >
+                    <DownloadIcon size={15} className="mr-1.5" aria-hidden />
+                    Import selected ({hearthisSelected.size})
+                  </Button>
+                </div>
+              )}
+
+              {hearthisTab === 'collections' ? (
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {(hearthisLibrary?.collections ?? []).map((collection) => (
+                    <li
+                      key={collection.id}
+                      className="border-border flex items-center gap-3 rounded-lg border p-3"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={hearthisSelected.has(collection.id)}
+                        onChange={() => toggleHearthisSelected(collection.id)}
+                        aria-label={`Select ${collection.title}`}
+                      />
+                      <MediaArtwork
+                        size="sm"
+                        src={collection.coverUrl}
+                        alt={collection.title}
+                        imageReveal={false}
+                        className="border-border shrink-0 rounded border"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {collection.title}
+                        </p>
+                        <p className="text-foreground-secondary text-xs">
+                          {collection.trackCount} items
+                        </p>
+                      </div>
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        disabled={busy}
+                        onClick={() =>
+                          void importHearthisCollection(collection)
+                        }
+                        aria-label={`Import ${collection.title} as collection`}
+                        title="Import as collection"
+                      >
+                        <FolderDownIcon size={15} />
+                      </Button>
+                    </li>
+                  ))}
+                  {(hearthisLibrary?.collections.length ?? 0) > 0 && (
+                    <li className="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() =>
+                          setHearthisSelected(
+                            new Set(
+                              hearthisLibrary?.collections.map(
+                                (collection) => collection.id,
+                              ),
+                            ),
+                          )
+                        }
+                      >
+                        <CheckSquareIcon
+                          size={15}
+                          className="mr-1.5"
+                          aria-hidden
+                        />
+                        Select all
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={busy || hearthisSelected.size === 0}
+                        onClick={() => void importHearthisSelection()}
+                      >
+                        <FolderDownIcon
+                          size={15}
+                          className="mr-1.5"
+                          aria-hidden
+                        />
+                        Import selected ({hearthisSelected.size})
+                      </Button>
+                    </li>
+                  )}
+                </ul>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {hearthisVisibleTracks.map((track) => (
+                    <li
+                      key={track.id}
+                      className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={hearthisSelected.has(track.id)}
+                        onChange={() => toggleHearthisSelected(track.id)}
+                        aria-label={`Select ${track.title}`}
+                      />
+                      <MediaArtwork
+                        size="sm"
+                        src={track.coverUrl}
+                        alt={track.title}
+                        imageReveal={false}
+                        onPlay={() => play(playableFromHearthis(track))}
+                        playLabel="Preview"
+                        onQueue={() => enqueue(playableFromHearthis(track))}
+                        queueLabel="Queue"
+                        className="border-border shrink-0 rounded border"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">
+                          {track.title}
+                        </div>
+                        <div className="text-foreground-secondary truncate text-xs">
+                          {track.username}
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={busy || !destinationId}
+                        onClick={() => void importTracksToDestination([track])}
+                      >
+                        <DownloadIcon
+                          size={15}
+                          className="mr-1.5"
+                          aria-hidden
+                        />
+                        Import
+                      </Button>
+                      {hearthisTab === 'sets' && (
+                        <Button
+                          size="icon-sm"
+                          variant="secondary"
+                          disabled={busy}
+                          onClick={() =>
+                            void importTracksAsCollection(
+                              track.title,
+                              `Imported from hearthis.at · ${track.username}`,
+                              [track],
+                              'LIVE_ARCHIVE',
+                            )
+                          }
+                          aria-label={`Import ${track.title} as collection`}
+                          title="Import as collection"
+                        >
+                          <FolderDownIcon size={15} />
+                        </Button>
+                      )}
+                      <a
+                        href={track.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-foreground-secondary shrink-0 text-xs underline-offset-2 hover:underline"
+                      >
+                        hearthis.at ↗
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {!hearthisBusy &&
+                hearthisTab !== 'search' &&
+                hearthisVisibleTracks.length === 0 &&
+                hearthisTab !== 'collections' && (
+                  <p className="text-foreground-secondary text-sm">
+                    No {hearthisTab} found for this profile.
+                  </p>
+                )}
             </section>
           )}
 
