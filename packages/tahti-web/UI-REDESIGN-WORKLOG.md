@@ -193,7 +193,7 @@ Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, 
 **Channel designer (`/studio/channel`):**
 
 - Tabs: Design · 24/7 radio · Profile · Username/domain
-- 24/7 radio: pick/create playlist → apply to programme (max 5 items)
+- 24/7 radio: a compact three-part editor for playlist source, playback settings, and active rotation; supports pick/create/edit, direct archive adds, enable/mode/auto-enroll/announcements, and icon-only reorder/remove controls (max 5 items)
 - StudioPanel / StudioPageHeader polish
 
 **Status:** in-review — screenshots captured; awaiting comment or `approved`.

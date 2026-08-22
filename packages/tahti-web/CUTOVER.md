@@ -194,7 +194,7 @@ Work from FEATURES.md; mark done there and here.
 - [ ] Archive / releases / collections designer
 - [ ] Schedule / stats / revenue
 - [ ] Stash
-- [ ] Distribution / radio slots / moderate (P1)
+- [x] Distribution / radio slots / moderate (P1)
 - [ ] Editor depth decision (Tone/ffmpeg vs Nuclear EQ/stems)
 
 ### 2.5 Settings / sources / money

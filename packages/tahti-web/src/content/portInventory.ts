@@ -182,11 +182,11 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
   },
   {
     id: 'settings-linkout',
-    surface: 'Studio home / Settings extras',
+    surface: 'Settings extras',
     route: '/settings',
     status: 'link-out',
     detail:
-      'Member invites / deep security extras → tahti.live. (Press-kit gallery is live in-app — see the gallery tab on the artist profile.)',
+      'True email invites for people without an account have no backing API. Existing-user moderation and press-kit gallery management are in-client.',
     section: 'mock',
   },
   {

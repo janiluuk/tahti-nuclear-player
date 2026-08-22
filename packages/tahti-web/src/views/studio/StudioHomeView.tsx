@@ -1,10 +1,13 @@
 import { Link } from '@tanstack/react-router';
 import {
   BarChart3Icon,
+  CalendarDaysIcon,
   CalendarIcon,
+  Code2Icon,
   DiscAlbumIcon,
   DiscIcon,
   FolderLockIcon,
+  Globe2Icon,
   LayoutTemplateIcon,
   LibraryBigIcon,
   ListMusicIcon,
@@ -14,6 +17,7 @@ import {
   RadioIcon,
   RocketIcon,
   ScissorsIcon,
+  ShieldCheckIcon,
   UploadCloudIcon,
   WalletIcon,
   type LucideIcon,
@@ -27,32 +31,12 @@ import {
   fetchStudioCollections,
   fetchStudioReleases,
 } from '../../api/studio';
-import { ClientCapabilityNotice } from '../../components/ClientCapabilityNotice';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { useAuthStore } from '../../stores/authStore';
 
 type Counts = { archive: number; releases: number; collections: number };
-
-const NOT_IN_CLIENT = [
-  {
-    title: 'Distribution',
-    detail: 'DSP delivery / distribution manager stays on production.',
-  },
-  {
-    title: 'Radio slots',
-    detail: 'Co-op radio programming slots are not ported yet.',
-  },
-  {
-    title: 'Moderate',
-    detail: 'Moderation queue / timeout tools are not in this client.',
-  },
-  {
-    title: 'Insights / events / embeds mgr',
-    detail: 'Extra studio analytics and embed manager remain on tahti.live.',
-  },
-] as const;
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -322,27 +306,38 @@ export function StudioHomeView() {
                       subtitle="Past broadcasts"
                       color="var(--accent-blue)"
                     />
+                    <StudioActionTile
+                      to="/studio/distribution"
+                      icon={Globe2Icon}
+                      label="Distribution"
+                      subtitle="DSP delivery"
+                      color="var(--accent-green)"
+                    />
+                    <StudioActionTile
+                      to="/studio/moderation"
+                      icon={ShieldCheckIcon}
+                      label="Moderation"
+                      subtitle="Channel access"
+                      color="var(--accent-red)"
+                    />
+                    <StudioActionTile
+                      to="/studio/events"
+                      icon={CalendarDaysIcon}
+                      label="Events"
+                      subtitle="Live dates"
+                      color="var(--accent-purple)"
+                    />
+                    <StudioActionTile
+                      to="/studio/embeds"
+                      icon={Code2Icon}
+                      label="Embeds"
+                      subtitle="Player manager"
+                      color="var(--accent-cyan)"
+                    />
                   </CardGrid>
                 </div>
               )}
             </div>
-
-            <ClientCapabilityNotice
-              kind="not-in-client"
-              title="Not in this client"
-            >
-              <ul className="mt-1 list-inside list-disc space-y-1">
-                {NOT_IN_CLIENT.map((item) => (
-                  <li key={item.title}>
-                    <span className="text-foreground font-medium">
-                      {item.title}
-                    </span>
-                    {' — '}
-                    {item.detail}
-                  </li>
-                ))}
-              </ul>
-            </ClientCapabilityNotice>
           </>
         )}
       </div>

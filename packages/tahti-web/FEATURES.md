@@ -129,7 +129,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Upload | `/dashboard/upload` | `/studio/upload` | `live-api` | prepare→PUT→complete; demock wave 3 |
 | Pro editor | `/dashboard/editor` | `/studio/editor` | `partial` | |
 | Releases / collections | `/dashboard/releases`… | `/studio/releases`… | `live-api` | album designer on collections |
-| Schedule / programme | schedule | `/studio/schedule` | `live-api` | |
+| Schedule / programme | schedule + channel playlist | `/studio/schedule`, `/studio/channel` | `live-api` | Full 24/7 playlist source, playback settings, active rotation, ordering, and track management |
 | Stats | `/dashboard/stats` | `/studio/stats` | `live-api` | summary + `/studio/stats/detail` range-chip detail page |
 | Channel design | channel/edit | `/channel/$slug?edit=1` + `/studio/channel` | `partial` | Inline Edit design: presets, layers drag/hide/add; layout localStorage; look via API |
 | Updates / newsletter | posts | `/studio/updates` | `live-api` | |

@@ -230,7 +230,12 @@ export const MAX_RADIO_PLAYLIST_ITEMS = 5;
 /** Apply a playlist's archive tracks as the channel 24/7 rotation. */
 export async function applyPlaylistToProgramme(
   archiveItemIds: string[],
-  opts?: { enable?: boolean; mode?: 'shuffle' | 'ordered' },
+  opts?: {
+    enable?: boolean;
+    mode?: 'shuffle' | 'ordered';
+    autoEnroll?: boolean;
+    announcementsEnabled?: boolean;
+  },
 ): Promise<{ ok: true; data: ProgrammeView } | { ok: false; error: string }> {
   const ids = archiveItemIds.filter(Boolean).slice(0, MAX_RADIO_PLAYLIST_ITEMS);
   if (ids.length === 0) {
@@ -239,6 +244,12 @@ export async function applyPlaylistToProgramme(
   return patchProgramme({
     fallbackEnabled: opts?.enable ?? true,
     fallbackMode: opts?.mode ?? 'ordered',
+    ...(opts?.autoEnroll !== undefined
+      ? { fallbackAutoEnroll: opts.autoEnroll }
+      : {}),
+    ...(opts?.announcementsEnabled !== undefined
+      ? { announcementsEnabled: opts.announcementsEnabled }
+      : {}),
     items: ids.map((archiveItemId, fallbackOrder) => ({
       archiveItemId,
       isFallback: true,

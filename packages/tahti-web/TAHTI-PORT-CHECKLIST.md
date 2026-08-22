@@ -50,7 +50,7 @@ Ordered by listener/artist value × API readiness:
 - Auth: login / TOTP login / register / logout / email verify
 - Follows, fan subscribe checkout, my subscriptions, governance vote/comments, DMs
 - Add-to-playlist → `/api/me/collections`
-- Studio: home, Go Live wizard, archive/Music, upload, releases, collections/album designer, schedule, channel design, updates/newsletter, revenue/Connect, fan-tier editor
+- Studio: home, Go Live wizard, archive/Music, upload, releases, collections/album designer, schedule, full 24/7 playlist editor, channel design, updates/newsletter, revenue/Connect, fan-tier editor
 - Stats summary + top tracks/countries + **plays time series**
 - Stash list/play/download + **upload/delete/share/revoke**
 - Settings shell (Nuclear sections) + artist/discovery/domain/notifications/social
@@ -71,7 +71,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | Channel chat                      | Fail closed when join fails (prod); mock send only under FORCE_MOCK; hCaptcha powers both chat surfaces | Live soak testing                            |
 | Themes                            | Nuclear local presets (`mock-ok`)                                                            | Keep — not a Tahti API                       |
 | Help / legal                      | Static POC copy + prod links                                                                 | Optional: fetch help CMS later               |
-| Studio home / Account / Settings  | Honest callouts + disabled dead actions; extras still link-out                               | Port remaining settings APIs                 |
+| Settings extras                   | Email invites for people without an account have no backing API                              | Keep existing-user moderation in-client      |
 | Favorites / history               | Mostly **localStorage**, not server library                                                  | Optional: sync with API if/when exists       |
 | Pro editor                        | Partial vs prod multitrack — callout on editor                                               | Timeline + export parity                     |
 | Feature map `/more`, Screen atlas | Port inventory panel + doc chrome (`mock-ok`)                                                | Keep                                         |

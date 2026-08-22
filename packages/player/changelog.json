@@ -1,6 +1,30 @@
 [
   {
     "date": "2026-08-22T00:00",
+    "description": "The 24/7 channel playlist editor is now fully organized around playlist source, playback settings, and the active rotation, with direct track management and icon-only ordering controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Studio's More tools section now opens the in-client distribution, moderation, events, and embed managers instead of showing a stale not-available warning.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
     "description": "Artists without a channel now stay in the client for channel provisioning, and production OAuth callback URLs return to the matching Sources panel with clear result messaging.",
     "type": "fix",
     "contributors": ["jani"],
