@@ -165,11 +165,11 @@ export function FullScreenPlayer() {
             onShuffleToggle={toggleShuffle}
             onRepeatToggle={cycleRepeat}
           />
-          {isLive ? (
+          {isLive && status === 'error' ? (
             <div className="text-foreground-secondary text-xs tracking-wide uppercase">
-              {status === 'error' ? 'Error' : 'Live — no seek'}
+              Error
             </div>
-          ) : (
+          ) : !isLive ? (
             <div className="w-full">
               <PlayerBar.SeekBar
                 progress={seekProgress}
@@ -184,7 +184,7 @@ export function FullScreenPlayer() {
                 }}
               />
             </div>
-          )}
+          ) : null}
           <PlayerBar.Volume
             value={muted ? 0 : Math.round(volume * 100)}
             onValueChange={(v) => setVolume(v / 100)}

@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import {
   ActivityIcon,
+  ListMusicIcon,
   RadioIcon,
   SquareIcon,
   UsersIcon,
@@ -18,6 +19,7 @@ import {
   type RtmpTarget,
   type SignalStatus,
 } from '../api/broadcast';
+import { fetchProgramme, type ProgrammeView } from '../api/studio-extras';
 
 const STATS_POLL_MS = 5000;
 const MULTISTREAM_POLL_MS = 15000;
@@ -50,23 +52,28 @@ function StatCell({
  */
 export function StreamManagerPanel({
   slug,
+  channelState,
   onEnded,
 }: {
   slug: string;
+  channelState: string;
   /** Called after a successful end-stream. */
   onEnded?: () => void;
 }) {
   const [signal, setSignal] = useState<SignalStatus | null>(null);
+  const [signalError, setSignalError] = useState(false);
   const [targets, setTargets] = useState<RtmpTarget[]>([]);
+  const [programme, setProgramme] = useState<ProgrammeView | null>(null);
   const [ending, setEnding] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const tick = async () => {
-      const { data } = await fetchSignalStatus();
+      const { data, meta } = await fetchSignalStatus();
       if (!cancelled) {
         setSignal(data);
+        setSignalError(meta.source === 'api' && Boolean(meta.reason));
       }
     };
     void tick();
@@ -80,9 +87,13 @@ export function StreamManagerPanel({
   useEffect(() => {
     let cancelled = false;
     const tick = async () => {
-      const { data } = await fetchRtmpTargets();
+      const [targetResult, programmeResult] = await Promise.all([
+        fetchRtmpTargets(),
+        fetchProgramme(),
+      ]);
       if (!cancelled) {
-        setTargets(data.filter((t) => t.enabled));
+        setTargets(targetResult.data.filter((target) => target.enabled));
+        setProgramme(programmeResult.data);
       }
     };
     void tick();
@@ -104,6 +115,25 @@ export function StreamManagerPanel({
     }
     onEnded?.();
   };
+
+  const hasRotation = Boolean(
+    programme?.fallbackEnabled &&
+    programme.items.some(
+      (item) => item.isFallback && item.status.toUpperCase() === 'READY',
+    ),
+  );
+  const rotationPlaying =
+    channelState === 'LIVE' &&
+    signal?.connected === false &&
+    !signalError &&
+    hasRotation;
+  const outputLabel = signal?.connected
+    ? 'Live broadcast'
+    : rotationPlaying
+      ? 'Track rotation'
+      : channelState === 'LIVE'
+        ? 'Live output'
+        : 'Offline';
 
   return (
     <div className="border-primary bg-primary/10 flex flex-col gap-4 rounded-xl border p-4">
@@ -133,10 +163,21 @@ export function StreamManagerPanel({
       </div>
 
       <div
-        className="grid grid-cols-3 gap-3"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-4"
         role="group"
         aria-label="Live stream status"
       >
+        <StatCell
+          icon={
+            rotationPlaying ? (
+              <ListMusicIcon size={16} className="text-primary" aria-hidden />
+            ) : (
+              <RadioIcon size={16} className="text-primary" aria-hidden />
+            )
+          }
+          label="Output"
+          value={outputLabel}
+        />
         <StatCell
           icon={
             signal?.connected ? (
@@ -151,7 +192,13 @@ export function StreamManagerPanel({
           }
           label="Signal"
           value={
-            signal == null ? '—' : signal.connected ? 'Connected' : 'Retrying…'
+            signal == null
+              ? '—'
+              : signal.connected
+                ? 'Connected'
+                : signalError
+                  ? 'Unavailable'
+                  : 'No encoder'
           }
         />
         <StatCell

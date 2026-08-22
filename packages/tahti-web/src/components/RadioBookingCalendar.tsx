@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -10,11 +10,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
+  createEpisode,
   createShowBooking,
   fetchShowBookings,
+  fetchShowSeries,
   SHOW_SLOT_MAX_HOURS,
   type ShowType,
   type StudioShowBooking,
+  type StudioShowSeries,
 } from '../api/shows';
 import { useAuthStore } from '../stores/authStore';
 
@@ -69,6 +72,7 @@ export function RadioBookingCalendar({
   onClose: () => void;
   onBooked?: () => void;
 }) {
+  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const [monthCursor, setMonthCursor] = useState(() =>
     startOfMonth(new Date()),
@@ -80,6 +84,8 @@ export function RadioBookingCalendar({
   const [durationHours, setDurationHours] = useState<1 | 2>(1);
   const [note, setNote] = useState('');
   const [showType, setShowType] = useState<ShowType>('LIVE_SET');
+  const [shows, setShows] = useState<StudioShowSeries[]>([]);
+  const [selectedShowId, setSelectedShowId] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -100,8 +106,22 @@ export function RadioBookingCalendar({
   useEffect(() => {
     if (isOpen) {
       reload();
+      if (user?.channel) {
+        void fetchShowSeries().then((result) => setShows(result.data));
+      }
     }
-  }, [isOpen, monthCursor]);
+  }, [isOpen, monthCursor, user?.channel]);
+
+  const selectShow = (showId: string) => {
+    setSelectedShowId(showId);
+    const show = shows.find((candidate) => candidate.id === showId);
+    if (!show) {
+      return;
+    }
+    setShowType(show.showType);
+    setDurationHours(show.intervalHours);
+    setNote(show.title);
+  };
 
   const bookingsByDay = useMemo(() => {
     const map = new Map<string, StudioShowBooking[]>();
@@ -142,6 +162,34 @@ export function RadioBookingCalendar({
     setBusy(false);
     if (!r.ok) {
       setMsg(r.error);
+      return;
+    }
+    const selectedShow = shows.find((show) => show.id === selectedShowId);
+    if (selectedShow) {
+      const episode = await createEpisode({
+        showId: selectedShow.id,
+        source: 'broadcast',
+        slotStartAt: r.data.startAt,
+        slotEndAt: r.data.endAt,
+        bookingId: r.data.id,
+      });
+      if (!episode.ok) {
+        setMsg(
+          `Slot booked, but the show episode could not be prepared: ${episode.error}`,
+        );
+        reload();
+        onBooked?.();
+        return;
+      }
+      setNote('');
+      setSelectedShowId('');
+      reload();
+      onBooked?.();
+      onClose();
+      void navigate({
+        to: '/studio/shows/episodes/$episodeId',
+        params: { episodeId: episode.data.id },
+      });
       return;
     }
     setNote('');
@@ -304,6 +352,29 @@ export function RadioBookingCalendar({
           </p>
         ) : (
           <div className="bg-background-secondary flex flex-col gap-3 rounded-lg p-3">
+            {shows.length > 0 ? (
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="text-foreground-secondary text-xs uppercase">
+                  Prepared show
+                </span>
+                <select
+                  value={selectedShowId}
+                  onChange={(event) => selectShow(event.target.value)}
+                  className="border-border bg-background rounded-md border px-3 py-2"
+                >
+                  <option value="">One-off slot</option>
+                  {shows.map((show) => (
+                    <option key={show.id} value={show.id}>
+                      {show.title}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-foreground-secondary text-xs">
+                  Choosing a show prepares its next episode and asks for the
+                  public details after booking.
+                </span>
+              </label>
+            ) : null}
             <div className="flex flex-wrap items-end gap-3">
               <label className="flex flex-col gap-1 text-sm">
                 <span className="text-foreground-secondary text-xs uppercase">

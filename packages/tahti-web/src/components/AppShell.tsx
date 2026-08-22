@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import {
   GaugeIcon,
   LayoutDashboardIcon,
@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import {
   PlayerShell,
   PlayerWorkspace,
+  RouteTransition,
   SidebarNavigation,
   SidebarNavigationItem,
   Toaster,
@@ -144,7 +145,7 @@ export function AppShell() {
           <div
             className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
           >
-            <Outlet />
+            <RouteTransition />
           </div>
           <MobileBottomNav onOpenQueue={() => setMobileQueueOpen(true)} />
         </div>
@@ -218,7 +219,7 @@ export function AppShell() {
             className={cn('min-h-0 overflow-hidden', MAIN_CONTENT_PADDING)}
           >
             <div className="h-full overflow-auto">
-              <Outlet />
+              <RouteTransition />
             </div>
           </PlayerWorkspace.Main>
 

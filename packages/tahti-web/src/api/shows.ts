@@ -98,6 +98,32 @@ export type StudioShowBooking = {
   isMine: boolean;
 };
 
+export type PublicRadioShowEpisode = {
+  id: string;
+  startAt: string;
+  endAt: string;
+  note: string | null;
+  showType: ShowType;
+  title?: string | null;
+  description?: string | null;
+  coverUrl?: string | null;
+};
+
+export type PublicRadioShow = {
+  artist: {
+    displayName: string;
+    username: string;
+    avatarUrl: string | null;
+    channelSlug: string;
+    bio: string | null;
+    coverUrl?: string | null;
+  };
+  pastEpisodes: PublicRadioShowEpisode[];
+  upcomingEpisodes: PublicRadioShowEpisode[];
+  nextShowAt: string | null;
+  lastShowAt: string | null;
+};
+
 const SERIES_KEY = 'tahti-studio-show-series-v1';
 const EPISODES_KEY = 'tahti-studio-episodes-v1';
 
@@ -772,6 +798,64 @@ export async function fetchShowBookings(
       return { data: mockBookings, meta: failMeta(err) };
     }
     return { data: [], meta: apiErrorMeta(err) };
+  }
+}
+
+export async function fetchPublicRadioShow(
+  channelSlug: string,
+): Promise<{ data: PublicRadioShow | null; meta: FetchMeta }> {
+  if (forceMock()) {
+    const now = Date.now();
+    const matchingBookings = mockBookings.filter(
+      (booking) => booking.channelSlug === channelSlug,
+    );
+    const episodes = seedEpisodes();
+    const mapBooking = (booking: StudioShowBooking): PublicRadioShowEpisode => {
+      const episode = episodes.find(
+        (candidate) => candidate.bookingId === booking.id,
+      );
+      return {
+        id: booking.id,
+        startAt: booking.startAt,
+        endAt: booking.endAt,
+        note: booking.note,
+        showType: booking.showType,
+        title: episode?.title,
+        description: episode?.description,
+        coverUrl: episode?.coverUrl,
+      };
+    };
+    const upcoming = matchingBookings
+      .filter((booking) => new Date(booking.endAt).getTime() > now)
+      .map(mapBooking);
+    const past = matchingBookings
+      .filter((booking) => new Date(booking.endAt).getTime() <= now)
+      .map(mapBooking);
+    const first = matchingBookings[0];
+    return {
+      data: {
+        artist: {
+          displayName: first?.displayName ?? 'Demo Artist',
+          username: channelSlug,
+          avatarUrl: null,
+          channelSlug,
+          bio: null,
+        },
+        pastEpisodes: past,
+        upcomingEpisodes: upcoming,
+        nextShowAt: upcoming[0]?.startAt ?? null,
+        lastShowAt: past[0]?.startAt ?? null,
+      },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<PublicRadioShow>(
+      `/api/v1/radio/show/${encodeURIComponent(channelSlug)}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: apiErrorMeta(err) };
   }
 }
 

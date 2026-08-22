@@ -443,8 +443,36 @@ export type AdminUserRow = {
   engagementUnitsYtd: number;
 };
 
+export type AdminUserDetail = AdminUserRow & {
+  memberSince: string | null;
+  suspendReason: string | null;
+  fanSubscriptionsAsArtist: number;
+  stripeConnectChargesEnabled: boolean;
+  channel: {
+    id: string;
+    slug: string;
+    state: string;
+    goneLiveAt: string | null;
+    totalLiveHours: number;
+    metaStreamOptOut?: boolean;
+  } | null;
+};
+
+export type AdminUserPatch = {
+  tier?: 'FREE' | 'ARTIST' | 'STUDIO';
+  isMember?: boolean;
+  isBoard?: boolean;
+  memberNumber?: number | null;
+};
+
+let mockUserState: AdminUserRow[] | null = null;
+const mockSuspendReasons = new Map<string, string>();
+
 function mockUsers(): AdminUserRow[] {
-  return [
+  if (mockUserState) {
+    return mockUserState;
+  }
+  mockUserState = [
     {
       id: 'u1',
       memberNumber: 12,
@@ -498,6 +526,27 @@ function mockUsers(): AdminUserRow[] {
       engagementUnitsYtd: 340,
     },
   ];
+  return mockUserState;
+}
+
+function mockUserDetail(user: AdminUserRow): AdminUserDetail {
+  return {
+    ...user,
+    memberSince: user.isMember ? '2025-01-15T00:00:00.000Z' : null,
+    suspendReason: mockSuspendReasons.get(user.id) ?? null,
+    fanSubscriptionsAsArtist: user.tier === 'ARTIST' ? 18 : 0,
+    stripeConnectChargesEnabled: user.tier === 'ARTIST',
+    channel: user.channelState
+      ? {
+          id: `channel-${user.id}`,
+          slug: user.username,
+          state: user.channelState,
+          goneLiveAt:
+            user.channelState === 'LIVE' ? new Date().toISOString() : null,
+          totalLiveHours: 42.5,
+        }
+      : null,
+  };
 }
 
 export async function fetchAdminUsers(filters: {
@@ -545,6 +594,113 @@ export async function fetchAdminUsers(filters: {
     return { data: data.users, total: data.total, meta: { source: 'api' } };
   } catch (err) {
     return { data: [], total: 0, meta: failMeta(err) };
+  }
+}
+
+export async function fetchAdminUser(
+  id: string,
+): Promise<{ data: AdminUserDetail | null; meta: FetchMeta }> {
+  if (forceMock()) {
+    const user = mockUsers().find((candidate) => candidate.id === id);
+    return {
+      data: user ? mockUserDetail(user) : null,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminUserDetail>(
+      `/api/admin/users/${encodeURIComponent(id)}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export async function patchAdminUser(
+  id: string,
+  patch: AdminUserPatch,
+): Promise<{ ok: true; data: AdminUserDetail } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const users = mockUsers();
+    const index = users.findIndex((candidate) => candidate.id === id);
+    if (index < 0) {
+      return { ok: false, error: 'User not found' };
+    }
+    const current = users[index]!;
+    users[index] = {
+      ...current,
+      ...patch,
+      isMember: patch.isBoard ? true : (patch.isMember ?? current.isMember),
+    };
+    return { ok: true, data: mockUserDetail(users[index]!) };
+  }
+  try {
+    const data = await sendJson<AdminUserDetail>(
+      `/api/admin/users/${encodeURIComponent(id)}`,
+      'PATCH',
+      patch,
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Update failed',
+    };
+  }
+}
+
+export async function suspendAdminUser(
+  id: string,
+  reason: string,
+): Promise<{ ok: true; data: AdminUserDetail } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const user = mockUsers().find((candidate) => candidate.id === id);
+    if (!user) {
+      return { ok: false, error: 'User not found' };
+    }
+    user.suspendedAt = new Date().toISOString();
+    mockSuspendReasons.set(id, reason);
+    return { ok: true, data: mockUserDetail(user) };
+  }
+  try {
+    const data = await sendJson<AdminUserDetail>(
+      `/api/admin/users/${encodeURIComponent(id)}/suspend`,
+      'POST',
+      { reason },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Suspension failed',
+    };
+  }
+}
+
+export async function unsuspendAdminUser(
+  id: string,
+): Promise<{ ok: true; data: AdminUserDetail } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const user = mockUsers().find((candidate) => candidate.id === id);
+    if (!user) {
+      return { ok: false, error: 'User not found' };
+    }
+    user.suspendedAt = null;
+    mockSuspendReasons.delete(id);
+    return { ok: true, data: mockUserDetail(user) };
+  }
+  try {
+    const data = await sendJson<AdminUserDetail>(
+      `/api/admin/users/${encodeURIComponent(id)}/unsuspend`,
+      'POST',
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Unsuspend failed',
+    };
   }
 }
 

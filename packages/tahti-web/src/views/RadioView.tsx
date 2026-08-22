@@ -369,17 +369,17 @@ export function RadioView() {
                               />
                             )}
                             <div className="min-w-0 flex-1">
-                              <div className="truncate text-sm font-medium">
-                                {b.note ?? b.displayName}
-                              </div>
                               <Link
-                                to="/channel/$slug"
-                                params={{ slug: b.channelSlug }}
-                                className="text-foreground-secondary truncate text-xs underline-offset-2 hover:underline"
+                                to="/radio/show/$channelSlug"
+                                params={{ channelSlug: b.channelSlug }}
+                                className="block truncate text-sm font-medium underline-offset-2 hover:underline"
                               >
+                                {b.note ?? b.displayName}
+                              </Link>
+                              <div className="text-foreground-secondary truncate text-xs">
                                 {b.displayName}
                                 {b.isMine ? ' (you)' : ''}
-                              </Link>
+                              </div>
                             </div>
                             <span className="text-foreground-secondary shrink-0 text-xs tabular-nums">
                               {formatUpcoming(b.startAt)}

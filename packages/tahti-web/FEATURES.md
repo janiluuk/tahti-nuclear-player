@@ -51,7 +51,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 **Remaining / partial**
 
 - [x] Channel chat hardening — hCaptcha wired on anonymous join (`useHcaptcha` in `ChannelChatPanel`), one shared component powers both the rail and standalone `/chat/$slug` route (parity by construction). Not yet soak-tested against a live hCaptcha site key in production.
-- [ ] Full Three.js visualizer preset set — confirmed still canvas/WebGL only, no `three` dependency (`ChannelVisualizer.tsx`)
+- [x] Full Three.js visualizer preset set — all ten production preset names now have distinct Three.js scenes, use the shared analyser, honor reduced motion, and load from a separate lazy chunk (`ChannelVisualizer.tsx`, `visuals/ThreeVisualizer.tsx`)
 - [x] Stash upload / delete
 - [x] Stats detail page (beyond summary) — `/studio/stats/detail` (`StudioStatsDetailView.tsx`) shipped, worklog row 14 approved
 - [ ] Sources OAuth silent-mock demock polish — start URLs are real (`oauthStartUrl()` → `/api/me/*/oauth/start`, `api/sources.ts:189`) and mock-connect is hard-gated behind `VITE_FORCE_MOCK`; the callback path is also already built — `router.tsx`'s `/dashboard/$` route has provider-specific branches (`OAUTH_IMPORT_STATUS_KEYS` for SoundCloud/Bandcamp/Google Drive at `router.tsx:932`, a bare-`/dashboard?mixcloud=...` branch) that catch the API's real prod-shaped redirect and land on `/sources/$id?status=...`, which `SourcesView.tsx` reads into a connect toast. No `tahti.live` link-out found in `sources.ts`/`SourcesView.tsx` (grep clean). **Still unverified**: a real click-through (Connect → provider OAuth → callback) against `beta.tahti.live` to confirm the toast actually fires — needs live provider creds (e.g. SoundCloud sandbox), not a code change, unless a real redirect shape turns out to differ from what's coded (CUTOVER.md blocker #1)
@@ -160,7 +160,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Feature map | — | `/more` | `mock-ok` | checklist + flow diagrams |
 | Screen atlas | e2e screenshots | `/more` (Screen atlas) | `mock-ok` | curated prod PNGs under `public/map/` + Nuclear routes |
 | Board admin | `/admin/*` (~35 pages Next) | `/admin/*` (22 pages) | `partial` | Gated on `user.isBoard`; wired to real admin API endpoints (`api/admin.ts`). Deliberately scope-trimmed: no Users/Support/Announcement-clip detail pages, no bulk file ops (Files), no per-subscriber payout retry / legacy-member migration (Financial), no grant run/preview flow (Grants) — see UI-REDESIGN-WORKLOG.md admin entries A3/A9/A11–A13/A15/A18 |
-| WebGL visualizer | channel page | ChannelView Live | `partial` | aurora/grid/bars POC; not full Three.js preset set |
+| WebGL visualizer | channel page | ChannelView Live | `live-api` | full ten-preset Three.js catalog; analyser-reactive and lazy-loaded |
 
 ## 7. Desktop Nuclear integrations (not web SPA)
 

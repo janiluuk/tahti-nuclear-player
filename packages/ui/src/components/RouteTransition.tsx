@@ -4,36 +4,40 @@ import {
   useRouter,
   useRouterState,
 } from '@tanstack/react-router';
-import { AnimatePresence, motion, useIsPresent } from 'motion/react';
+import {
+  AnimatePresence,
+  motion,
+  useIsPresent,
+  useReducedMotion,
+} from 'motion/react';
 import { forwardRef, useRef } from 'react';
 
-const SLIDE_DISTANCE = 24;
-const SCALE_FACTOR = 0.96;
+const SLIDE_DISTANCE = 8;
+const SCALE_FACTOR = 0.995;
+const TRANSITION_DURATION = 0.16;
 
 const slideVariants = {
   enter: {
     x: SLIDE_DISTANCE,
     scale: SCALE_FACTOR,
     opacity: 0,
-    filter: 'blur(4px)',
   },
   center: {
     x: 0,
     scale: 1,
     opacity: 1,
-    filter: 'blur(0px)',
   },
   exit: {
     x: -SLIDE_DISTANCE,
     scale: SCALE_FACTOR,
     opacity: 0,
-    filter: 'blur(4px)',
   },
 };
 
 const AnimatedOutlet = forwardRef<HTMLDivElement>((_, ref) => {
   const router = useRouter();
   const isPresent = useIsPresent();
+  const reducedMotion = useReducedMotion();
   const frozenState = useRef(router.__store.state);
   const frozenRouter = useRef(router);
 
@@ -54,16 +58,14 @@ const AnimatedOutlet = forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <motion.div
       ref={ref}
-      className="absolute inset-0 h-full w-full"
+      className="min-h-full w-full"
       variants={slideVariants}
-      initial="enter"
+      initial={reducedMotion ? false : 'enter'}
       animate="center"
       exit="exit"
       transition={{
-        type: 'spring',
-        stiffness: 400,
-        damping: 30,
-        mass: 0.8,
+        duration: reducedMotion ? 0 : TRANSITION_DURATION,
+        ease: 'easeOut',
       }}
     >
       <RouterContextProvider router={frozenRouter.current}>
@@ -79,8 +81,8 @@ export const RouteTransition = () => {
   });
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
-      <AnimatePresence mode="popLayout" initial={false}>
+    <div className="min-h-full w-full">
+      <AnimatePresence mode="wait" initial={false}>
         <AnimatedOutlet key={pathname} />
       </AnimatePresence>
     </div>

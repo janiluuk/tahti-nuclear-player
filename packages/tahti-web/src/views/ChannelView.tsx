@@ -561,6 +561,7 @@ export function ChannelView({ slug }: { slug: string }) {
       {live && (isOwner || me?.isBoard) && !editing && (
         <StreamManagerPanel
           slug={slug}
+          channelState={channel.state}
           onEnded={() => {
             setChannel({ ...channel, state: 'OFFLINE', hlsUrl: null });
           }}

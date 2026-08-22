@@ -490,7 +490,11 @@ export function StudioGoLiveView() {
           <div className="flex flex-col gap-4">
             {isLive ? (
               <>
-                <StreamManagerPanel slug={slug} onEnded={handleStreamEnded} />
+                <StreamManagerPanel
+                  slug={slug}
+                  channelState={channelState}
+                  onEnded={handleStreamEnded}
+                />
                 <Button variant="secondary" onClick={onPlayLive}>
                   Play in this app
                 </Button>

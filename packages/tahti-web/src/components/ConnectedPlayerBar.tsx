@@ -94,11 +94,11 @@ export function ConnectedPlayerBar() {
         onShuffleToggle={toggleShuffle}
         onRepeatToggle={cycleRepeat}
       />
-      {isLive ? (
+      {isLive && status === 'error' ? (
         <div className="text-foreground-secondary text-xs tracking-wide uppercase">
-          {status === 'error' ? 'Error' : 'Live — no seek'}
+          Error
         </div>
-      ) : (
+      ) : !isLive ? (
         <PlayerBar.SeekBar
           progress={seekProgress}
           elapsedSeconds={currentTime}
@@ -111,7 +111,7 @@ export function ConnectedPlayerBar() {
             seekTo((percent / 100) * duration);
           }}
         />
-      )}
+      ) : null}
     </div>
   );
 

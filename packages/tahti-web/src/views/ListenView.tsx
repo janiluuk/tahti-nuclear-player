@@ -1,5 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { PlayIcon, RadioIcon } from 'lucide-react';
+import { LibraryIcon, PlayIcon, RadioIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -167,8 +167,13 @@ export function ListenView() {
           <div className="flex w-full flex-wrap items-center justify-between gap-2">
             <h2 className="text-2xl font-bold">My Library</h2>
             <Link to="/library">
-              <Button size="sm" variant="secondary">
-                Open library
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label="Open My Library"
+                title="Open My Library"
+              >
+                <LibraryIcon size={16} aria-hidden />
               </Button>
             </Link>
           </div>
@@ -178,8 +183,13 @@ export function ListenView() {
               description="Heart channels while browsing, or open Library for favorites, history, and messages."
               action={
                 <Link to="/library">
-                  <Button size="sm" variant="secondary">
-                    My Library
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    aria-label="Open My Library"
+                    title="Open My Library"
+                  >
+                    <LibraryIcon size={16} aria-hidden />
                   </Button>
                 </Link>
               }
@@ -273,11 +283,13 @@ export function ListenView() {
                           </div>
                         </div>
                         <Button
-                          size="sm"
+                          size="icon-sm"
                           variant="secondary"
                           onClick={() => play(entry.playable)}
+                          aria-label={`Play ${entry.playable.title}`}
+                          title={`Play ${entry.playable.title}`}
                         >
-                          Play
+                          <PlayIcon size={16} aria-hidden />
                         </Button>
                       </li>
                     ))}

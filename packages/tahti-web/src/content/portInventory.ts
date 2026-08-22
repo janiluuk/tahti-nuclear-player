@@ -89,8 +89,9 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
     id: 'visualizer-presets',
     surface: 'Full Three.js visualizer presets',
     route: '/channel/$slug',
-    status: 'partial',
-    detail: 'ChannelView still aurora/grid/bars POC.',
+    status: 'done',
+    detail:
+      'All ten production preset names render distinct analyser-reactive Three.js scenes from a lazy chunk.',
     section: 'backlog',
   },
   {

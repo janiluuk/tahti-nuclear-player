@@ -137,8 +137,8 @@ function ScheduleList({ slots }: { slots: StudioShowBooking[] }) {
               <li key={slot.id} className="flex items-center gap-3 py-2.5">
                 {slot.channelSlug ? (
                   <Link
-                    to="/channel/$slug"
-                    params={{ slug: slot.channelSlug }}
+                    to="/radio/show/$channelSlug"
+                    params={{ channelSlug: slot.channelSlug }}
                     className="flex min-w-0 flex-1 items-center gap-3"
                   >
                     {row}

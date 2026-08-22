@@ -55,6 +55,7 @@ import { ListenView } from './views/ListenView';
 import { LoginView } from './views/LoginView';
 import { MoreView } from './views/MoreView';
 import { OnboardingView } from './views/OnboardingView';
+import { RadioShowView } from './views/RadioShowView';
 import { RadioView } from './views/RadioView';
 import { ResetPasswordView } from './views/ResetPasswordView';
 import { SettingsView } from './views/settings/SettingsView';
@@ -126,6 +127,15 @@ const radioRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/radio',
   component: RadioView,
+});
+
+const radioShowRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/radio/show/$channelSlug',
+  component: () => {
+    const { channelSlug } = radioShowRoute.useParams();
+    return <RadioShowView channelSlug={channelSlug} />;
+  },
 });
 
 const themesRoute = createRoute({
@@ -304,7 +314,9 @@ const libraryRoute = createRoute({
 const libraryReleasesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/releases',
-  component: () => <LibraryView tab="releases" />,
+  beforeLoad: () => {
+    throw redirect({ to: '/library' });
+  },
 });
 
 const libraryCollectionsRoute = createRoute({
@@ -984,6 +996,7 @@ const routeTree = rootRoute.addChildren([
     listenRoute,
     listenAliasRoute,
     radioRoute,
+    radioShowRoute,
     themesRoute,
     settingsRoute,
     settingsSectionRoute,

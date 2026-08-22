@@ -34,7 +34,7 @@ Ordered by listener/artist value × API readiness:
 7. [ ] **Stash share links** — `POST /api/me/stash/:id/share` + revoke (UI: disabled Share + callout on `/studio/stash`)
 8. [ ] **Membership purchase** — `/signup/payment` Stripe checkout (Account callout)
 9. [ ] **Distribution / radio slots / moderate** — listed on Studio home as not in this client
-10. [ ] **Full Three.js visualizer presets** — ChannelView still aurora/grid/bars POC
+10. [x] **Full Three.js visualizer presets** — ten distinct analyser-reactive scenes, lazy-loaded outside the initial listen bundle
 11. [ ] **Multitrack timeline editing** — editor callout + map inventory
 12. [ ] **Press-kit gallery upload + member invites** — disabled actions + Settings callouts
 13. [ ] **Listener-only dashboard** — non-artist `/dashboard` home

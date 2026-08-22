@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { RadioTowerIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, SectionShell } from '@nuclearplayer/ui';
@@ -7,11 +8,11 @@ import { fetchProfile } from '../api/client';
 import type { PublicProfile, TahtiPlayable } from '../api/types';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
-import { ReleasesPanel } from '../components/ReleasesPanel';
 import { TrackEditDialog } from '../components/TrackEditDialog';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { useAuthStore } from '../stores/authStore';
 import { profileTrackToPlayable } from './ArtistView';
+import { MyCollectionsView } from './MyCollectionsView';
 
 export function MyDiscographyView() {
   const user = useAuthStore((s) => s.user);
@@ -53,11 +54,16 @@ export function MyDiscographyView() {
     return (
       <PageEmpty
         title="No discography yet"
-        description="Go live or upload a release to get an artist channel — your releases and catalog will show up here."
+        description="Go live or upload music to get an artist channel — your tracks, albums, and playlists will show up here."
         action={
           <Link to="/studio/go-live">
-            <Button size="sm" variant="secondary">
-              Go to Studio
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              aria-label="Go to Studio"
+              title="Go to Studio"
+            >
+              <RadioTowerIcon size={16} aria-hidden />
             </Button>
           </Link>
         }
@@ -75,23 +81,22 @@ export function MyDiscographyView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <SectionShell title="Releases">
-        <ReleasesPanel
-          releases={profile.releases}
-          artist={artist}
-          slug={slug}
-        />
-      </SectionShell>
+      {catalogPlayables.length > 0 ? (
+        <SectionShell title="Tracks">
+          <PlayableTrackTable
+            items={catalogPlayables}
+            emptyMessage="No playable tracks yet."
+            onEdit={(item) =>
+              setEditingArchiveId(archiveItemIdFromPlayableId(item.id))
+            }
+          />
+        </SectionShell>
+      ) : null}
 
-      <SectionShell title="Catalog">
-        <PlayableTrackTable
-          items={catalogPlayables}
-          emptyMessage="No playable tracks yet."
-          onEdit={(item) =>
-            setEditingArchiveId(archiveItemIdFromPlayableId(item.id))
-          }
-        />
-      </SectionShell>
+      <MyCollectionsView
+        embedded
+        hasOtherContent={catalogPlayables.length > 0}
+      />
 
       <TrackEditDialog
         archiveItemId={editingArchiveId}

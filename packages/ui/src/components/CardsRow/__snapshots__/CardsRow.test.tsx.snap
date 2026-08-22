@@ -68,7 +68,7 @@ exports[`CardsRow > (Snapshot) renders correctly with items 1`] = `
         class="flex items-center gap-2"
       >
         <button
-          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border border-(length:--border-width) size-10 justify-center"
+          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border border-(length:--border-width) size-10 justify-center"
           data-headlessui-state=""
           data-testid="cards-row-scroll-left"
           type="button"
@@ -92,7 +92,7 @@ exports[`CardsRow > (Snapshot) renders correctly with items 1`] = `
           </svg>
         </button>
         <button
-          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border border-(length:--border-width) size-10 justify-center"
+          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border border-(length:--border-width) size-10 justify-center"
           data-headlessui-state=""
           data-testid="cards-row-scroll-right"
           type="button"

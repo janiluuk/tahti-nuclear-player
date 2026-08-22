@@ -57,7 +57,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 ### P1 — should ship in the same release train or immediately after
 
 - [ ] Distribution, radio slots, moderate, press-kit / invites polish, listener-only dashboard.
-- [ ] Full visualizer preset parity (or explicit product acceptance of canvas/WebGL subset).
+- [x] Full visualizer preset parity — ten distinct Three.js scenes, lazy-loaded outside the initial listen bundle.
 - [ ] Multitrack / pro editor depth vs prod ffmpeg/waveform stack (port or keep “good enough”).
 - [ ] E2E screenshot atlas refresh under `tahti/docs/e2e-screenshots/` + new route manifest.
 - [ ] Accessibility pass (keyboard, focus, live regions, contrast) on listen + studio critical paths.
@@ -127,7 +127,7 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 - [ ] Distribution / radio slots / moderate
 - [x] Setup-channel (in-app `/studio/setup-channel` + `/api/me/channel/provision`)
 - [x] Sources OAuth silent-mock polish
-- [ ] Full Three.js visualizer preset set
+- [x] Full Three.js visualizer preset set
 - [ ] Multitrack timeline + press-kit polish
 - [ ] Help depth / support form
 - [ ] Legal pages full text (not summary)
@@ -213,9 +213,9 @@ Work from FEATURES.md; mark done there and here.
 
 ### 2.7 Visualizers
 
-- [ ] Accept canvas/WebGL subset **or** port Three.js presets from `apps/web`
-- [ ] Analyser wiring on live + archive
-- [ ] Bundle impact review
+- [x] Port the full ten-preset Three.js catalog from `apps/web`
+- [x] Analyser wiring on live + archive
+- [x] Keep Three.js out of the initial listen bundle with a lazy visualizer chunk
 
 ---
 

@@ -5,7 +5,7 @@ import { ComponentPropsWithoutRef, forwardRef } from 'react';
 import { cn } from '../../utils';
 
 const buttonVariants = cva(
-  'inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50',
+  'inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none',
   {
     variants: {
       variant: {
@@ -17,8 +17,9 @@ const buttonVariants = cva(
           'border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background-secondary text-foreground border-(length:--border-width) hover:shadow-none',
         noShadow:
           'text-primary-foreground bg-primary border-border border-(length:--border-width)',
-        text: 'text-foreground bg-transparent',
-        ghost: 'border border-current bg-transparent hover:bg-black/10',
+        text: 'text-foreground bg-transparent hover:bg-black/5 active:bg-black/10',
+        ghost:
+          'border border-current bg-transparent hover:bg-black/10 active:bg-black/15',
       },
       size: {
         default: 'h-10 px-4 py-2',

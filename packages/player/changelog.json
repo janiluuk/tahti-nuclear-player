@@ -1,5 +1,77 @@
 [
   {
+    "date": "2026-08-22T00:00",
+    "description": "Admin user management now has an organized master-detail workspace for viewing account activity, editing access and membership, handling suspensions, opening profiles, and messaging users directly.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Radio slot booking can now attach a prepared show, opens the episode's listener-facing details immediately after booking, and schedule entries drill into a dedicated public show page.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Buttons now respond immediately to presses, the active Play control changes color, and page navigation uses a smoother reduced-motion-aware transition.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Studio Stream Manager now distinguishes a live encoder from the fallback track rotation and reports a disconnected encoder accurately.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "My Library now focuses on populated tracks, albums, and playlists; album and playlist rows open directly, with quieter icon-only actions.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00",
+    "description": "Artist channels now support the full visualizer catalog, with ten distinct audio-reactive scenes that load only when needed.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
     "date": "2026-08-17T00:00",
     "description": "Channel appearance, account, events, embeds, and moderation are now organized into focused tabs, with clearer selected states and consistent page headings.",
     "type": "improvement",

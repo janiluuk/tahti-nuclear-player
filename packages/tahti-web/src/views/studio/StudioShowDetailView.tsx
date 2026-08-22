@@ -10,6 +10,7 @@ import {
   fetchEpisodesForShow,
   fetchShowBookings,
   fetchShowSeriesById,
+  patchEpisode,
   patchShowSeries,
   type StudioEpisode,
   type StudioShowBooking,
@@ -116,10 +117,22 @@ export function StudioShowDetailView({ id }: { id: string }) {
       setMsg(r.error);
       return;
     }
-    setMsg(
-      `Booked ${show.intervalHours}h slot starting ${new Date(r.data.startAt).toLocaleString()}`,
-    );
-    reload();
+    const episode = await createEpisode({
+      showId: show.id,
+      source: 'broadcast',
+      slotStartAt: r.data.startAt,
+      slotEndAt: r.data.endAt,
+      bookingId: r.data.id,
+    });
+    if (!episode.ok) {
+      setMsg(`Slot booked, but episode setup failed: ${episode.error}`);
+      reload();
+      return;
+    }
+    void navigate({
+      to: '/studio/shows/episodes/$episodeId',
+      params: { episodeId: episode.data.id },
+    });
   };
 
   const createNewEpisode = async () => {
@@ -441,6 +454,9 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
   const [trimStart, setTrimStart] = useState(0);
   const [trimEnd, setTrimEnd] = useState(0);
   const [normalize, setNormalize] = useState(true);
+  const [publicTitle, setPublicTitle] = useState('');
+  const [publicDescription, setPublicDescription] = useState('');
+  const [savingDetails, setSavingDetails] = useState(false);
 
   useEffect(() => {
     void import('../../api/shows').then(
@@ -448,6 +464,8 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
         void fetchEpisode(episodeId).then((r) => {
           setEpisode(r.data);
           if (r.data) {
+            setPublicTitle(r.data.title);
+            setPublicDescription(r.data.description);
             void fetchShowSeriesById(r.data.showId).then((s) =>
               setShow(s.data),
             );
@@ -470,6 +488,24 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
 
   const needsApproval =
     episode.source === 'broadcast' || episode.status === 'PENDING_APPROVAL';
+
+  const savePublicDetails = async () => {
+    setSavingDetails(true);
+    setMsg(null);
+    const result = await patchEpisode(episode.id, {
+      title: publicTitle.trim() || episode.title,
+      description: publicDescription.trim(),
+    });
+    setSavingDetails(false);
+    if (!result.ok) {
+      setMsg(result.error);
+      return;
+    }
+    setEpisode(result.data);
+    setPublicTitle(result.data.title);
+    setPublicDescription(result.data.description);
+    setMsg('Public show details saved.');
+  };
 
   return (
     <StudioGate>
@@ -497,6 +533,37 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
         {episode.description ? (
           <p className="text-sm">{episode.description}</p>
         ) : null}
+
+        <StudioPanel
+          title="Public show details"
+          description="What listeners see when they open this show from the Tahti Radio schedule."
+        >
+          <div className="flex flex-col gap-3">
+            <Input
+              label="Episode title"
+              value={publicTitle}
+              onChange={(event) => setPublicTitle(event.target.value)}
+            />
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-foreground-secondary text-xs uppercase">
+                Description
+              </span>
+              <textarea
+                value={publicDescription}
+                onChange={(event) => setPublicDescription(event.target.value)}
+                rows={4}
+                className="border-border bg-background rounded-md border px-3 py-2"
+              />
+            </label>
+            <Button
+              size="sm"
+              disabled={savingDetails}
+              onClick={() => void savePublicDetails()}
+            >
+              {savingDetails ? 'Saving…' : 'Save public details'}
+            </Button>
+          </div>
+        </StudioPanel>
 
         {needsApproval && (
           <section className="border-border flex flex-col gap-3 rounded-xl border p-4">

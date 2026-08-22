@@ -83,6 +83,12 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
     <Button
       size="icon"
       onClick={onPlayPause}
+      className={cn(
+        'active:bg-accent-green active:text-black',
+        isPlaying && 'bg-accent-green text-black',
+      )}
+      aria-label={isPlaying ? 'Pause' : 'Play'}
+      aria-pressed={isPlaying}
       data-testid={isPlaying ? 'player-pause-button' : 'player-play-button'}
     >
       {isPlaying ? <Pause size={16} /> : <Play size={16} />}

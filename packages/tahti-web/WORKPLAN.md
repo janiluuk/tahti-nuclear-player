@@ -31,7 +31,7 @@
 
 Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which has the up-to-date detail — this is the short version.
 
-- [ ] Full Three.js visualizer presets (confirmed still canvas/WebGL subset, no `three` dep)
+- [x] Full Three.js visualizer presets (ten distinct analyser-reactive scenes, lazy-loaded)
 - [ ] Sources OAuth callback-return verification (start URLs + mock-gating confirmed done; whether the callback lands on the SPA vs prod dashboard is unverified)
 - [ ] Radio slots depth
 - [ ] Multitrack timeline + press-kit polish
