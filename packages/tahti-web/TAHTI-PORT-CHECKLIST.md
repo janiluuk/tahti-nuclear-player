@@ -30,7 +30,7 @@ Ordered by listener/artist value × API readiness:
 3. [x] **Account security (TOTP)** — `/api/me/totp/*` in Settings → Account
 4. [x] **Venue register** — `POST /api/v1/venues` at `/venues/register`
 5. [x] **Channel chat hardening** — fail closed on join failure in prod; hCaptcha and rail parity shipped
-6. [ ] **Sources OAuth polish** — live connect is href-only; in-app connect is mock; live Preview disabled
+6. [x] **Sources OAuth polish** — live start URLs plus SoundCloud, Bandcamp, Google Drive, and Mixcloud callback return shapes land on the matching in-client source
 7. [x] **Stash share links** — grant expiring read/download access and revoke active shares
 8. [x] **Membership purchase** — `/signup/payment` Stripe checkout and Account entry point
 9. [x] **Distribution / radio slots / moderate** — live API-backed Studio surfaces
@@ -67,13 +67,11 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | --------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | `VITE_FORCE_MOCK=1` whole app     | Full fixture session ([MOCKS.md](./MOCKS.md))                                                | Keep for demos; never default in prod        |
 | Dev silent mock fallback          | When API down + `VITE_ALLOW_MOCK_FALLBACK` (default on in Vite dev)                          | `VITE_ALLOW_MOCK_FALLBACK=0` for strict live |
-| Sources OAuth “Connect”           | In-app toggle only under FORCE_MOCK; live uses external href                                 | Complete OAuth return handling in POC        |
 | Spotify / SoundCloud stream URLs  | Live Preview **disabled** (DEMO_MP3 only under FORCE_MOCK)                                   | Wire real preview / import playables         |
 | Channel chat                      | Fail closed when join fails (prod); mock send only under FORCE_MOCK; hCaptcha powers both chat surfaces | Live soak testing                            |
 | Themes                            | Nuclear local presets (`mock-ok`)                                                            | Keep — not a Tahti API                       |
 | Help / legal                      | Static POC copy + prod links                                                                 | Optional: fetch help CMS later               |
 | Studio home / Account / Settings  | Honest callouts + disabled dead actions; extras still link-out                               | Port remaining settings APIs                 |
-| StudioGate setup-channel          | `link-out` + capability notice                                                               | Port channel provision wizard                |
 | Favorites / history               | Mostly **localStorage**, not server library                                                  | Optional: sync with API if/when exists       |
 | Pro editor                        | Partial vs prod multitrack — callout on editor                                               | Timeline + export parity                     |
 | Feature map `/more`, Screen atlas | Port inventory panel + doc chrome (`mock-ok`)                                                | Keep                                         |

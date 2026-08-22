@@ -57,9 +57,9 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
     id: 'sources-oauth',
     surface: 'Sources OAuth polish',
     route: '/sources',
-    status: 'partial',
+    status: 'done',
     detail:
-      'Live connect is href-only; in-app Connect is mock-only under VITE_FORCE_MOCK.',
+      'Live provider start URLs and all production callback return shapes land on the matching in-client source with visible result messaging.',
     section: 'backlog',
   },
   {
@@ -115,8 +115,9 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
   {
     id: 'listener-dashboard',
     surface: 'Listener-only dashboard',
-    status: 'missing',
-    detail: 'Non-artist /dashboard home not rebuilt.',
+    route: '/library',
+    status: 'done',
+    detail: 'Non-artist /dashboard sessions route to the in-client library.',
     section: 'backlog',
   },
   {
@@ -143,15 +144,6 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
     status: 'mock-only',
     detail:
       'When API down + VITE_ALLOW_MOCK_FALLBACK (default on in Vite dev). Set 0 for strict live.',
-    section: 'mock',
-  },
-  {
-    id: 'sources-connect',
-    surface: 'Sources OAuth Connect',
-    route: '/sources',
-    status: 'unwired',
-    detail:
-      'In-app toggle only under FORCE_MOCK; live uses external OAuth href.',
     section: 'mock',
   },
   {
@@ -198,14 +190,6 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
     section: 'mock',
   },
   {
-    id: 'setup-channel',
-    surface: 'StudioGate setup-channel',
-    route: '/studio',
-    status: 'link-out',
-    detail: 'Channel provision wizard stays on production.',
-    section: 'mock',
-  },
-  {
     id: 'favorites-local',
     surface: 'Favorites / history',
     route: '/library',
@@ -219,14 +203,6 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
     route: '/studio/editor',
     status: 'partial',
     detail: 'Partial vs prod multitrack.',
-    section: 'mock',
-  },
-  {
-    id: 'stash-shares',
-    surface: 'Stash shares',
-    route: '/studio/stash',
-    status: 'missing',
-    detail: 'Upload/list/play/delete done; share UI missing.',
     section: 'mock',
   },
   {
@@ -292,7 +268,8 @@ export const PORT_GAP_HIGHLIGHTS: PortInventoryItem[] = [
     surface: 'Stash upload / delete',
     route: '/studio/stash',
     status: 'done',
-    detail: 'prepare → PUT → register + delete; shares still missing.',
+    detail:
+      'Prepare → PUT → register, delete, share, and revoke are in-client.',
     section: 'gap',
   },
   {

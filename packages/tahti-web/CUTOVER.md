@@ -27,7 +27,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 **Blockers before flipping production traffic**
 
 1. **Canonical URL compatibility** — prod uses `/c/:slug`, `/dashboard/*`, `/u/:user/subscribe`; POC uses `/channel/$slug`, `/studio/*`, `/subscribe/$username`. Without redirects/aliases, embeds, emails, Stripe returns, OAuth return URLs, and shared links break.
-2. **Missing / partial product surfaces** — membership purchase, password/security, venue register, distribution, radio slots, moderate, setup-channel in-app, listener dashboard, full Three.js presets, Sources OAuth polish (see FEATURES.md).
+2. **Missing / partial product surfaces** — multitrack editor depth, help/legal depth, and production-only integration soak tests (see FEATURES.md).
 3. **Admin & marketing split** — **Decided 2026-08-17:** the Nuclear admin port (22/22 pages, see [`UI-REDESIGN-WORKLOG.md`](UI-REDESIGN-WORKLOG.md) admin table) stays a completed side project, **not** on the cutover critical path. Production board admin keeps running the existing Next `/admin/*` on its current host (subdomain) after cutover; the listen/studio SPA does not need to serve `/admin/*` for go-live. Revisit switching admin over to Nuclear in a later, separate decision. `(marketing)` / apply / some info pages still live in `apps/web` while `website/` is a separate static site — host split for those still needs deciding.
 4. **SSR/SEO regression** — Next `sitemap.ts`, `generateMetadata`, OG cards become SPA problems unless rebuilt (prerender, edge meta, or keep a thin SSR shell).
 5. **Cookie / same-origin model** — today beta proxies `/tahti-api` → API so `tahti_session` is host-only on `beta.tahti.live`. Production must keep a **same-origin API proxy** (or deliberately set `Domain=.tahti.live`) and update `APP_URL` return paths.
@@ -47,7 +47,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [x] **Route compatibility layer** — permanent redirects or dual routes for `/c/*` ↔ `/channel/*`, `/dashboard/*` ↔ `/studio/*`, subscribe paths, `/listen` → `/`.
 - [ ] **API `APP_URL` + Stripe/OAuth return URLs** aligned to new paths (or aliases that match current API strings).
 - [ ] **Same-origin API proxy** on production web edge (parity with beta `nginx.conf` `/tahti-api` + `/api`), Centrifugo WS still `wss://chat.tahti.live`.
-- [ ] **Parity P0 features** from FEATURES.md: membership purchase (`/signup/payment`), password/security, setup-channel (no link-out), venue register (if still product-required). Sources OAuth demock polish is marked done on beta — still verify callback returns land on SPA (not prod dashboard link-outs) before cutover.
+- [x] **Parity P0 features** from FEATURES.md: membership purchase, password/security, in-client setup-channel, venue register, and Sources OAuth callback returns are implemented in the SPA.
 - [ ] **Strip / gate POC-only surfaces** for prod builds: `/more` feature map, Screen atlas, `VITE_FORCE_MOCK` / mock fallback dead code paths.
 - [ ] **SEO minimum:** `robots.txt`, sitemap (static + API-fed), per-route OG tags for `/c`, `/u`, `/r` (prerender or meta service).
 - [ ] **Playwright / vital journey** against new client on stack; smoke login → go-live → upload → subscribe.
@@ -188,7 +188,7 @@ Work from FEATURES.md; mark done there and here.
 
 ### 2.4 Artist studio
 
-- [ ] Studio home + **in-app setup-channel**
+- [x] Studio home + **in-app setup-channel**
 - [ ] Go Live / multistream / signal meters
 - [ ] Upload prepare→PUT→complete + imports (SC/Bandcamp/Drive/URL)
 - [ ] Archive / releases / collections designer
@@ -201,7 +201,7 @@ Work from FEATURES.md; mark done there and here.
 
 - [ ] Settings sections vs prod settings subnav — map 1:1 critical fields
 - [ ] Fan-tier CRUD
-- [ ] Sources OAuth: start on SPA, callback lands on SPA (update API return targets)
+- [x] Sources OAuth: start on SPA, callback lands on matching in-client source result
 - [ ] Remove production link-outs in `sources.ts` / AccountView once paths exist
 
 ### 2.6 Payments / Stripe

@@ -33,7 +33,7 @@ Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which
 
 - [x] Full Three.js visualizer presets (ten distinct analyser-reactive scenes, lazy-loaded in the channel hero and ambient page background)
 - [x] Stash share access (grant expiring read/download access + revoke)
-- [ ] Sources OAuth callback-return verification (start URLs + mock-gating confirmed done; whether the callback lands on the SPA vs prod dashboard is unverified)
+- [x] Sources OAuth callback-return verification (SoundCloud, Bandcamp, Google Drive, and Mixcloud production redirect shapes land on the matching source result in the SPA)
 - [ ] Radio slots depth
 - [ ] Multitrack timeline + press-kit polish
 - [ ] Production cutover for `apps/web`
