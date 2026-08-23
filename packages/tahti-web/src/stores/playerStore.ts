@@ -38,6 +38,8 @@ type PlayerState = {
   setAnalyser: (analyser: AnalyserNode | null) => void;
   play: (item: TahtiPlayable, opts?: { enqueueRest?: TahtiPlayable[] }) => void;
   enqueue: (item: TahtiPlayable) => void;
+  /** Insert right after the current track, replacing any earlier occurrence. */
+  playNext: (item: TahtiPlayable) => void;
   playQueueIndex: (id: string) => void;
   removeFromQueue: (id: string) => void;
   clearQueue: () => void;
@@ -153,6 +155,23 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         return s;
       }
       return { queue: [...s.queue, qi], playerBarVisible: true };
+    });
+  },
+
+  playNext: (item) => {
+    const qi = toQueueItem(item);
+    set((s) => {
+      const withoutExisting = s.queue.filter((q) => q.id !== qi.id);
+      const currentIdx = s.currentId
+        ? withoutExisting.findIndex((q) => q.id === s.currentId)
+        : -1;
+      const insertAt = currentIdx + 1;
+      const queue = [
+        ...withoutExisting.slice(0, insertAt),
+        qi,
+        ...withoutExisting.slice(insertAt),
+      ];
+      return { queue, playerBarVisible: true };
     });
   },
 

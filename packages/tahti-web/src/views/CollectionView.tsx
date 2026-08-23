@@ -1,5 +1,13 @@
 import { Link } from '@tanstack/react-router';
+import {
+  ListMusicIcon,
+  ListPlusIcon,
+  PencilIcon,
+  PlayIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+
+import { Button } from '@nuclearplayer/ui';
 
 import { fetchCollection } from '../api/client';
 import type {
@@ -9,10 +17,12 @@ import type {
 } from '../api/types';
 import { EmbedButton } from '../components/EmbedButton';
 import { EmbedTrackRow } from '../components/EmbedTrackRow';
-import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageFrame } from '../components/PageHeader';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import type { EmbedProvider } from '../lib/embedSrc';
+import { useAuthStore } from '../stores/authStore';
+import { usePlayerStore } from '../stores/playerStore';
 
 function collectionToPlayables(col: PublicCollection): TahtiPlayable[] {
   const out: TahtiPlayable[] = [];
@@ -45,6 +55,9 @@ export function CollectionView({
 }) {
   const [collection, setCollection] = useState<PublicCollection | null>(null);
   const [loading, setLoading] = useState(true);
+  const me = useAuthStore((s) => s.user);
+  const play = usePlayerStore((s) => s.play);
+  const enqueue = usePlayerStore((s) => s.enqueue);
 
   useEffect(() => {
     let cancelled = false;
@@ -98,40 +111,111 @@ export function CollectionView({
     return <p className="text-sm">Collection not found.</p>;
   }
 
+  const isOwner = Boolean(me && me.username === collection.user.username);
+
+  const playAll = () => {
+    const [head, ...rest] = playables;
+    if (head) {
+      play(head, { enqueueRest: rest });
+    }
+  };
+
+  const queueAll = () => {
+    for (const item of playables) {
+      enqueue(item);
+    }
+  };
+
   return (
     <PageFrame>
-      <PageHeader
-        title={collection.name}
-        back={
-          <div className="flex flex-wrap gap-3 text-xs">
-            <Link to="/" className="text-foreground-secondary hover:underline">
-              ← Listen
-            </Link>
-            <Link
-              to="/u/$username"
-              params={{ username }}
-              className="text-foreground-secondary hover:underline"
-            >
-              @{username}
-            </Link>
+      <div className="flex flex-wrap gap-3 text-xs">
+        <Link to="/" className="text-foreground-secondary hover:underline">
+          ← Listen
+        </Link>
+        <Link
+          to="/u/$username"
+          params={{ username }}
+          className="text-foreground-secondary hover:underline"
+        >
+          @{username}
+        </Link>
+      </div>
+
+      {/* Nuclear desktop player's playlist-detail layout: square artwork +
+          name/description beside it, primary actions under the title. */}
+      <div className="border-border bg-primary shadow-shadow relative flex flex-col gap-6 rounded-md border-(length:--border-width) p-6 md:flex-row">
+        {isOwner && (
+          <Link
+            to="/studio/collections/$slug"
+            params={{ slug }}
+            className="absolute top-4 right-4 z-10"
+          >
+            <Button variant="secondary" size="icon-sm" title="Edit in Studio">
+              <PencilIcon size={14} />
+            </Button>
+          </Link>
+        )}
+        <div className="border-border bg-background-secondary shadow-shadow h-60 w-60 shrink-0 overflow-hidden rounded-md border-(length:--border-width)">
+          {collection.coverUrl ? (
+            <img
+              src={collection.coverUrl}
+              alt=""
+              className="size-full object-cover"
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center">
+              <ListMusicIcon
+                size={64}
+                aria-hidden
+                className="text-foreground-secondary"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h1 className="font-display text-4xl font-extrabold tracking-tight">
+              {collection.name}
+            </h1>
+            <p className="text-foreground-secondary text-sm">
+              by{' '}
+              <Link
+                to="/u/$username"
+                params={{ username: collection.user.username }}
+                className="hover:text-foreground underline-offset-2 hover:underline"
+              >
+                {collection.user.displayName}
+              </Link>
+              {collection.collaborative ? ' (collaborative)' : ''}
+            </p>
+            {collection.description && (
+              <p className="text-sm">{collection.description}</p>
+            )}
           </div>
-        }
-        subtitle={
-          <>
-            by{' '}
-            <Link
-              to="/u/$username"
-              params={{ username: collection.user.username }}
-              className="hover:text-foreground underline-offset-2 hover:underline"
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={playAll}
+              disabled={playables.length === 0}
             >
-              {collection.user.displayName}
-            </Link>
-            {collection.collaborative ? ' (collaborative)' : ''}
-          </>
-        }
-        meta={collection.description}
-        actions={<EmbedButton target={{ kind: 'collection', slug }} />}
-      />
+              <PlayIcon size={16} aria-hidden className="mr-1.5" />
+              Play
+            </Button>
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={queueAll}
+              disabled={playables.length === 0}
+              title="Add all to queue"
+            >
+              <ListPlusIcon size={16} />
+            </Button>
+            <EmbedButton target={{ kind: 'collection', slug }} />
+          </div>
+        </div>
+      </div>
 
       {playables.length > 0 && <PlayableTrackTable items={playables} />}
 
