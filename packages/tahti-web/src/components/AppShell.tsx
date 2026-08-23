@@ -199,11 +199,18 @@ export function AppShell() {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [currentTrackId, fullScreenPlayerOpen, navigate, setFullScreenPlayerOpen]);
 
+  // The artist's own public profile is meant to feel like a standalone page
+  // (a link people share), not an internal app screen: no sidebar, no
+  // management icons -- just the Tahti logo (back to the app) plus compact
+  // nav icons for signed-in visitors.
+  const isArtistPage = /^\/u\/[^/]+/.test(pathname);
+
   return (
     <PlayerShell className={isMobile ? 'tahti-mobile-shell' : undefined}>
       <AppTopNav
-        showMenuButton={isMobile}
+        showMenuButton={isMobile && !isArtistPage}
         onOpenMenu={() => setMobileNavOpen(true)}
+        variant={isArtistPage ? 'minimal' : 'default'}
       />
 
       <AudioEngine />
@@ -215,7 +222,15 @@ export function AppShell() {
           >
             <RouteTransition />
           </div>
-          <MobileBottomNav onOpenQueue={() => setMobileQueueOpen(true)} />
+          {!isArtistPage && (
+            <MobileBottomNav onOpenQueue={() => setMobileQueueOpen(true)} />
+          )}
+        </div>
+      ) : isArtistPage ? (
+        <div
+          className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
+        >
+          <RouteTransition />
         </div>
       ) : (
         <PlayerWorkspace>
