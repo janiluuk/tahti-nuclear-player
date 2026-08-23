@@ -7,6 +7,7 @@ import {
   PauseIcon,
   PencilIcon,
   PlayIcon,
+  SlidersHorizontalIcon,
   WifiOffIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -25,7 +26,6 @@ import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { EmbedButton } from '../components/EmbedButton';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
-import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
 import { hasAccountRole } from '../lib/accountRoles';
@@ -70,7 +70,6 @@ export function ChannelView({ slug }: { slug: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(true);
   const [lookTick, setLookTick] = useState(0);
   const [presetNote, setPresetNote] = useState<string | null>(null);
-  const [manageTab, setManageTab] = useState<'view' | 'manage'>('view');
 
   const play = usePlayerStore((s) => s.play);
   const currentId = usePlayerStore((s) => s.currentId);
@@ -82,6 +81,10 @@ export function ChannelView({ slug }: { slug: string }) {
   );
   const setChatContext = useLayoutStore((s) => s.setChatContext);
   const clearChatContext = useLayoutStore((s) => s.clearChatContext);
+  const setFullScreenPlayerOpen = useLayoutStore(
+    (s) => s.setFullScreenPlayerOpen,
+  );
+  const setManageChannelSlug = useLayoutStore((s) => s.setManageChannelSlug);
   const openChatRail = useLayoutStore((s) => s.openChatRail);
 
   useEffect(() => clearChatContext, [clearChatContext]);
@@ -182,6 +185,18 @@ export function ChannelView({ slug }: { slug: string }) {
         play(playable);
       }
     });
+  };
+
+  const handleOpenManage = () => {
+    setManageChannelSlug(slug);
+    setFullScreenPlayerOpen(true);
+    if (!channelIsCurrent) {
+      void fetchChannel(slug).then(({ playable }) => {
+        if (playable) {
+          play(playable);
+        }
+      });
+    }
   };
 
   const handleToggleFavoriteChannel = () =>
@@ -369,26 +384,6 @@ export function ChannelView({ slug }: { slug: string }) {
                 </Button>
               </div>
             )}
-            {manageTab === 'manage' &&
-              (isOwner || hasAccountRole(me, 'BOARD')) &&
-              live && (
-                <div className="absolute inset-0 z-[3] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-                  <div className="w-full max-w-md">
-                    <StreamManagerPanel
-                      slug={slug}
-                      channelState={channel.state}
-                      onEnded={() => {
-                        setChannel({
-                          ...channel,
-                          state: 'OFFLINE',
-                          hlsUrl: null,
-                        });
-                        setManageTab('view');
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
           </div>
         );
       case 'textOverlay':
@@ -573,23 +568,11 @@ export function ChannelView({ slug }: { slug: string }) {
           </p>
         </div>
 
-        {live && (isOwner || hasAccountRole(me, 'BOARD')) && !editing && (
-          <div className="border-border bg-background-secondary inline-flex w-fit gap-1 rounded-lg border p-1">
-            {(['view', 'manage'] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setManageTab(t)}
-                className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
-                  manageTab === t
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground-secondary hover:text-foreground'
-                }`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
+        {(isOwner || hasAccountRole(me, 'BOARD')) && !editing && (
+          <Button size="sm" variant="secondary" onClick={handleOpenManage}>
+            <SlidersHorizontalIcon size={14} aria-hidden className="mr-1.5" />
+            Manage stream
+          </Button>
         )}
 
         {visibleItems.map((item) => {

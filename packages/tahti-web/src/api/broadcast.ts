@@ -67,6 +67,8 @@ export type ChannelManageStats = {
   audioBitrateKbps: number | null;
   signalConnected: boolean;
   listeners: number;
+  /** All-time highest concurrent-listener count observed. */
+  listenerPeak: number;
   liveDurationSec: number | null;
 };
 
@@ -200,6 +202,7 @@ export async function fetchChannelManageStats(
         audioBitrateKbps: mockSignalConnected ? 160 : 192,
         signalConnected: mockSignalConnected,
         listeners: mockSignalConnected ? 1 : 0,
+        listenerPeak: 37,
         liveDurationSec: mockChannelState === 'LIVE' ? 12 * 60 : null,
       },
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
@@ -346,6 +349,39 @@ export async function postEndBroadcast(): Promise<
     };
   }
 }
+
+/** Rotation transport (Manage tab) — skip/previous/pause/resume act on the
+ * channel's archive rotation only; a real live broadcast always takes
+ * priority regardless of pause state. */
+async function postChannelTransport(
+  slug: string,
+  action: 'skip' | 'previous' | 'pause' | 'resume',
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true };
+  }
+  try {
+    await requestJson<{ ok: true }>(
+      `/api/channels/${encodeURIComponent(slug)}/${action}`,
+      { method: 'POST' },
+    );
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : `${action} failed`,
+    };
+  }
+}
+
+export const skipChannelRotation = (slug: string) =>
+  postChannelTransport(slug, 'skip');
+export const previousChannelRotation = (slug: string) =>
+  postChannelTransport(slug, 'previous');
+export const pauseChannelRotation = (slug: string) =>
+  postChannelTransport(slug, 'pause');
+export const resumeChannelRotation = (slug: string) =>
+  postChannelTransport(slug, 'resume');
 
 export async function fetchRtmpTargets(): Promise<{
   data: RtmpTarget[];

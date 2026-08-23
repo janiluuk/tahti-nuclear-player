@@ -6,7 +6,11 @@ import {
   PauseIcon,
   PlayIcon,
   RadioIcon,
+  SkipBackIcon,
+  SkipForwardIcon,
   SquareIcon,
+  TimerIcon,
+  TrendingUpIcon,
   UsersIcon,
   Volume2Icon,
   VolumeXIcon,
@@ -21,13 +25,23 @@ import {
   fetchChannelManageStats,
   fetchRtmpTargets,
   fetchSignalStatus,
+  pauseChannelRotation,
   postEndBroadcast,
+  previousChannelRotation,
+  resumeChannelRotation,
+  skipChannelRotation,
   type ChannelManageStats,
   type RtmpTarget,
   type SignalStatus,
 } from '../api/broadcast';
 import { fetchChannel } from '../api/client';
+import {
+  fetchStudioCollection,
+  fetchStudioCollections,
+  patchStudioArchiveItem,
+} from '../api/studio';
 import { fetchProgramme, type ProgrammeItem } from '../api/studio-extras';
+import type { StudioCollection } from '../api/studio-types';
 
 const STATS_POLL_MS = 5000;
 const STREAM_POLL_MS = 15000;
@@ -98,6 +112,17 @@ export function StreamManagerPanel({
   const [now, setNow] = useState(Date.now());
   const [ending, setEnding] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [transportBusy, setTransportBusy] = useState<
+    'skip' | 'previous' | 'pause' | 'resume' | null
+  >(null);
+  const [collections, setCollections] = useState<StudioCollection[]>([]);
+  const [selectedCollectionSlug, setSelectedCollectionSlug] = useState('');
+  const [rotationBusy, setRotationBusy] = useState(false);
+  const [rotationMsg, setRotationMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetchStudioCollections().then((r) => setCollections(r.data));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -196,6 +221,59 @@ export function StreamManagerPanel({
       ? null
       : Math.max(0, durationSec - elapsedSinceObserved);
 
+  const handleTransport = async (
+    action: 'skip' | 'previous' | 'pause' | 'resume',
+  ) => {
+    setTransportBusy(action);
+    setError(null);
+    const fn = {
+      skip: skipChannelRotation,
+      previous: previousChannelRotation,
+      pause: pauseChannelRotation,
+      resume: resumeChannelRotation,
+    }[action];
+    const result = await fn(slug);
+    setTransportBusy(null);
+    if (!result.ok) {
+      setError(result.error);
+    }
+  };
+
+  const handleAddCollectionToRotation = async () => {
+    if (!selectedCollectionSlug) {
+      return;
+    }
+    setRotationBusy(true);
+    setRotationMsg(null);
+    const { data: collection } = await fetchStudioCollection(
+      selectedCollectionSlug,
+    );
+    const archiveItemIds = (collection.items ?? [])
+      .map((item) => item.archiveItemId)
+      .filter((id): id is string => Boolean(id));
+    let added = 0;
+    let full = false;
+    for (const archiveItemId of archiveItemIds) {
+      const result = await patchStudioArchiveItem(archiveItemId, {
+        isFallback: true,
+      });
+      if (result.ok) {
+        added++;
+      } else {
+        full = true;
+        break;
+      }
+    }
+    setRotationBusy(false);
+    setRotationMsg(
+      full
+        ? `Added ${added} track${added === 1 ? '' : 's'} — rotation is full, so the rest were skipped.`
+        : added === 0
+          ? 'Nothing to add — that playlist has no tracks.'
+          : `Added ${added} track${added === 1 ? '' : 's'} to the rotation.`,
+    );
+  };
+
   const handleEnd = async () => {
     setEnding(true);
     setError(null);
@@ -284,7 +362,7 @@ export function StreamManagerPanel({
       </div>
 
       <div
-        className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+        className="grid grid-cols-2 gap-2 sm:grid-cols-3"
         role="group"
         aria-label="Live stream status"
       >
@@ -342,6 +420,20 @@ export function StreamManagerPanel({
               : (listeners ?? '—')
           }
         />
+        <StatCell
+          icon={<TrendingUpIcon size={14} aria-hidden />}
+          label="Peak listeners"
+          value={stats?.listenerPeak ?? '—'}
+        />
+        <StatCell
+          icon={<TimerIcon size={14} aria-hidden />}
+          label="Live for"
+          value={
+            stats?.liveDurationSec != null
+              ? formatRemaining(stats.liveDurationSec)
+              : '—'
+          }
+        />
       </div>
 
       {rotationPlaying && durationSec != null && (
@@ -349,6 +441,89 @@ export function StreamManagerPanel({
           Remaining time is an upper bound until Tahti reports track position;
           it resets when the next title starts.
         </p>
+      )}
+
+      <div className="flex flex-col gap-2">
+        <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
+          Rotation transport
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            disabled={transportBusy !== null}
+            onClick={() => void handleTransport('previous')}
+            aria-label="Previous track"
+            title="Previous track"
+          >
+            <SkipBackIcon size={14} />
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={transportBusy !== null}
+            onClick={() => void handleTransport('pause')}
+          >
+            <PauseIcon size={14} aria-hidden className="mr-1.5" />
+            Pause rotation
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={transportBusy !== null}
+            onClick={() => void handleTransport('resume')}
+          >
+            <PlayIcon size={14} aria-hidden className="mr-1.5" />
+            Resume
+          </Button>
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            disabled={transportBusy !== null}
+            onClick={() => void handleTransport('skip')}
+            aria-label="Skip track"
+            title="Skip track"
+          >
+            <SkipForwardIcon size={14} />
+          </Button>
+        </div>
+        <p className="text-foreground-secondary text-xs">
+          These act on the 24/7 rotation only — a live broadcast always takes
+          priority.
+        </p>
+      </div>
+
+      {collections.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
+            Add a playlist to the rotation
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={selectedCollectionSlug}
+              onChange={(e) => setSelectedCollectionSlug(e.target.value)}
+              className="border-border bg-background rounded-md border px-2 py-1.5 text-sm"
+            >
+              <option value="">Choose a playlist…</option>
+              {collections.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={!selectedCollectionSlug || rotationBusy}
+              onClick={() => void handleAddCollectionToRotation()}
+            >
+              {rotationBusy ? 'Adding…' : 'Add to rotation'}
+            </Button>
+          </div>
+          {rotationMsg && (
+            <p className="text-foreground-secondary text-xs">{rotationMsg}</p>
+          )}
+        </div>
       )}
 
       {targets.length > 0 && (
