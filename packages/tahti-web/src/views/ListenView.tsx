@@ -13,12 +13,18 @@ import {
 } from '@nuclearplayer/ui';
 
 import {
+  fetchArtistPlayables,
   fetchChannel,
   fetchDirectory,
+  fetchOnAirChannels,
   fetchRadioStation,
   TAHTI_RADIO_SLUG,
 } from '../api/client';
-import type { ChannelDirectoryItem, PublicChannel } from '../api/types';
+import type {
+  ChannelDirectoryItem,
+  OnAirChannel,
+  PublicChannel,
+} from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
@@ -34,6 +40,7 @@ const LIBRARY_PREVIEW_HISTORY = 5;
 export function ListenView() {
   const navigate = useNavigate();
   const [items, setItems] = useState<ChannelDirectoryItem[]>([]);
+  const [onAir, setOnAir] = useState<OnAirChannel[]>([]);
   const [radio, setRadio] = useState<PublicChannel | null>(null);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -52,14 +59,18 @@ export function ListenView() {
     setLoading(true);
     void Promise.all([
       fetchDirectory(),
+      fetchOnAirChannels(),
       fetchRadioStation().catch(() => null),
-    ]).then(([dir, station]) => {
+    ]).then(([dir, channels, station]) => {
       if (cancelled) {
         return;
       }
-      // Featured radio slot owns tahti-radio — drop it from the grid so it
-      // does not appear twice (directory card often lacks the station logo).
-      setItems(dir.data.items.filter((ch) => ch.slug !== TAHTI_RADIO_SLUG));
+      setItems(dir.data.items);
+      setOnAir(
+        [...channels.data.live, ...channels.data.replaying].filter(
+          (channel) => channel.slug !== TAHTI_RADIO_SLUG,
+        ),
+      );
       setRadio(station?.data ?? null);
       setLoading(false);
     });
@@ -98,7 +109,7 @@ export function ListenView() {
       }
       return (
         ch.displayName.toLowerCase().includes(q) ||
-        ch.slug.toLowerCase().includes(q) ||
+        ch.username.toLowerCase().includes(q) ||
         ch.genres.some((g) => g.toLowerCase().includes(q))
       );
     });
@@ -115,6 +126,21 @@ export function ListenView() {
     const { playable } = await fetchChannel(slug);
     if (playable) {
       enqueue(playable);
+    }
+  };
+
+  const playArtist = async (username: string) => {
+    const { data } = await fetchArtistPlayables(username);
+    const [first, ...rest] = data;
+    if (first) {
+      play(first, { enqueueRest: rest });
+    }
+  };
+
+  const queueArtist = async (username: string) => {
+    const { data } = await fetchArtistPlayables(username);
+    for (const item of data) {
+      enqueue(item);
     }
   };
 
@@ -144,8 +170,8 @@ export function ListenView() {
         title="Listen"
         subtitle={
           signedIn
-            ? 'Your library up top — then discover community channels.'
-            : 'Discover Tahti channels. Sign in to see your library here.'
+            ? 'Your library up top — then discover community artists.'
+            : 'Discover Tahti artists. Sign in to see your library here.'
         }
         actions={
           user?.channel ? (
@@ -357,13 +383,48 @@ export function ListenView() {
         </Box>
       ) : null}
 
-      <SectionShell title={signedIn ? 'Discover' : 'Channels'}>
+      {onAir.length > 0 ? (
+        <SectionShell title="On air">
+          <CardGrid>
+            {onAir.map((channel) => (
+              <Card
+                key={channel.slug}
+                title={
+                  <Link
+                    to="/channel/$slug"
+                    params={{ slug: channel.slug }}
+                    className="hover:underline"
+                  >
+                    {channel.user.displayName}
+                  </Link>
+                }
+                subtitle={
+                  <span className="font-semibold">
+                    {channel.state === 'LIVE' ? 'Live now' : 'Replay'}
+                  </span>
+                }
+                src={channel.user.avatarUrl ?? undefined}
+                onPlay={() => void playNow(channel.slug)}
+                onQueue={() => void add(channel.slug)}
+                onClick={() => {
+                  void navigate({
+                    to: '/channel/$slug',
+                    params: { slug: channel.slug },
+                  });
+                }}
+              />
+            ))}
+          </CardGrid>
+        </SectionShell>
+      ) : null}
+
+      <SectionShell title={signedIn ? 'Discover artists' : 'Artists'}>
         <div className="flex flex-col gap-4">
           <Input
             label="Search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Channel name, slug, genre…"
+            placeholder="Artist name, username, genre…"
             className="max-w-md"
           />
 
@@ -376,60 +437,43 @@ export function ListenView() {
           )}
 
           <p className="text-foreground-secondary text-xs">
-            Showing {filtered.length} of {items.length} channels
+            Showing {filtered.length} of {items.length} artists
           </p>
 
           {loading ? (
-            <PageLoading label="Loading channels…" />
+            <PageLoading label="Loading artists…" />
           ) : filtered.length === 0 ? (
             <PageEmpty
-              title="No channels match"
+              title="No artists match"
               description={`${query ? `“${query}”` : 'Try another filter'}${genre !== 'all' ? ` in ${genre}` : ''}.`}
             />
           ) : (
             <CardGrid>
               {filtered.map((ch) => {
-                const favorited =
-                  signedIn && favoriteChannels.some((c) => c.slug === ch.slug);
                 return (
                   <Card
                     key={ch.slug}
                     title={
                       <Link
-                        to="/channel/$slug"
-                        params={{ slug: ch.slug }}
+                        to="/u/$username"
+                        params={{ username: ch.username }}
                         className="hover:underline"
                       >
                         {ch.displayName}
                       </Link>
                     }
                     subtitle={
-                      <>
-                        {ch.live && <span className="font-semibold">Live</span>}
-                        {ch.live && ' · '}
-                        <span className="font-mono">
-                          {ch.genres.slice(0, 2).join(', ') || ch.slug}
-                        </span>
-                      </>
+                      <span className="font-mono">
+                        {ch.genres.slice(0, 2).join(', ') || `@${ch.username}`}
+                      </span>
                     }
                     src={ch.avatarUrl ?? undefined}
-                    onPlay={ch.live ? () => void playNow(ch.slug) : undefined}
-                    onQueue={ch.live ? () => void add(ch.slug) : undefined}
-                    onFavorite={
-                      signedIn
-                        ? () =>
-                            toggleFavoriteChannel({
-                              slug: ch.slug,
-                              displayName: ch.displayName,
-                              avatarUrl: ch.avatarUrl,
-                            })
-                        : undefined
-                    }
-                    favorited={favorited}
+                    onPlay={() => void playArtist(ch.username)}
+                    onQueue={() => void queueArtist(ch.username)}
                     onClick={() => {
                       void navigate({
-                        to: '/channel/$slug',
-                        params: { slug: ch.slug },
+                        to: '/u/$username',
+                        params: { username: ch.username },
                       });
                     }}
                   />
