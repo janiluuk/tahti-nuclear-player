@@ -12,6 +12,7 @@ import type {
   PublicChannel,
   PublicCollection,
   PublicProfile,
+  PublicTrackDetail,
   RadioNowPlaying,
   RadioRecentlyPlayedItem,
   SmartLinkView,
@@ -517,6 +518,64 @@ export function mockArchiveItems(slug: string): ArchiveItem[] {
     createdAt: dates[i % dates.length],
     ...(i === 0 ? { pinnedAt: '2026-07-15T12:00:00.000Z' } : {}),
   }));
+}
+
+/** Stand-in for the real M27 ingest-time waveform decode — a smooth,
+ * deterministic envelope keyed by id so mock track pages still exercise the
+ * "peaks came from the API" code path distinctly from the client-only
+ * fallback bars WaveformSeekbar draws when `peaks` is null. */
+function mockPeaks(id: string, buckets = 100): number[] {
+  let seed = 0;
+  for (let i = 0; i < id.length; i++) {
+    seed = (seed * 31 + id.charCodeAt(i)) % 1000;
+  }
+  return Array.from({ length: buckets }, (_, i) => {
+    const t = i / (buckets - 1);
+    const envelope = Math.sin(Math.PI * t) ** 0.6;
+    const wobble = Math.sin(t * 40 + seed) * 0.15;
+    return Math.round(Math.max(0, Math.min(255, (envelope + wobble) * 220)));
+  });
+}
+
+/** GET /api/tracks/:id mock — reconstructs the item from its channel's
+ * archive list, since mock ids encode the owning slug (`${slug}-archive-N`). */
+export function mockTrackDetail(id: string): PublicTrackDetail | null {
+  const slug = id.replace(/-archive-\d+$/, '');
+  if (!slug || slug === id) {
+    return null;
+  }
+  const item = mockArchiveItems(slug).find((i) => i.id === id);
+  if (!item) {
+    return null;
+  }
+  const channel = mockChannel(slug);
+  return {
+    id: item.id,
+    title: item.title,
+    artistName: item.artistName ?? channel.user.displayName,
+    channelSlug: slug,
+    channel: {
+      username: slug,
+      displayName: channel.user.displayName,
+      avatarUrl: channel.user.avatarUrl,
+    },
+    durationSec: item.durationSec ?? null,
+    audioUrl: item.audioUrl ?? null,
+    bannerUrl: item.bannerUrl ?? null,
+    genre: item.genre ?? null,
+    subGenres: [],
+    contentType: 'STUDIO',
+    mixVersion: null,
+    description: null,
+    commentary: null,
+    license: 'ALL_RIGHTS_RESERVED',
+    releasedAt: item.createdAt ?? new Date(0).toISOString(),
+    effectiveBpm: null,
+    effectiveKey: null,
+    peaks: mockPeaks(item.id),
+    commentCount: 0,
+    downloadCount: 0,
+  };
 }
 
 function archiveItemToDiscoverTrack(

@@ -239,7 +239,7 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                   content: (
                     <StudioPanel
                       title="Fingerprinting"
-                      description="Compares each track's audio against a global database of released music (AcoustID). A match isn't blocked or penalized — it's a heads-up worth a look, e.g. if a track samples or covers existing work. Every upload is fingerprinted automatically; use these if you replaced a track's audio and want it redone, or just want to check without changing what's on file."
+                      description="Optional. Checks each track against AcoustID's public database of released music, so you get a heads-up if it matches something already out there — nothing is blocked either way. Every upload is checked automatically; use the buttons below only to re-check a track you just replaced, or to check one on demand."
                     >
                       {(() => {
                         const fingerprintable = (release.tracks ?? []).filter(

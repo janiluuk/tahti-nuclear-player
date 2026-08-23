@@ -105,6 +105,7 @@ import { StudioUpdatesView } from './views/studio/StudioUpdatesView';
 import { StudioUploadView } from './views/studio/StudioUploadView';
 import { StudioVenuesView } from './views/studio/StudioVenuesView';
 import { SubscribeView } from './views/SubscribeView';
+import { TrackDetailView } from './views/TrackDetailView';
 import { TransparencyMethodologyView } from './views/TransparencyMethodologyView';
 import { TransparencyView } from './views/TransparencyView';
 import { VenueDetailView } from './views/VenueDetailView';
@@ -476,6 +477,15 @@ const collectionRoute = createRoute({
   component: function CollectionRoute() {
     const { username, slug } = collectionRoute.useParams();
     return <CollectionView username={username} slug={slug} />;
+  },
+});
+
+const trackDetailRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/t/$id',
+  component: function TrackDetailRoute() {
+    const { id } = trackDetailRoute.useParams();
+    return <TrackDetailView id={id} />;
   },
 });
 
@@ -1103,6 +1113,7 @@ const routeTree = rootRoute.addChildren([
     prodChannelAliasRoute,
     artistRoute,
     collectionRoute,
+    trackDetailRoute,
     prodSubscribeAliasRoute,
     smartLinkRoute,
     chatIndexRoute,

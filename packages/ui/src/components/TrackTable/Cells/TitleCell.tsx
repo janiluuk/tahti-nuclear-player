@@ -1,5 +1,11 @@
 import { CellContext } from '@tanstack/react-table';
-import { Check, EllipsisVertical, ListPlus, Pencil } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Check,
+  EllipsisVertical,
+  ListPlus,
+  Pencil,
+} from 'lucide-react';
 import { FC, forwardRef, useEffect, useState } from 'react';
 
 import { Track } from '@nuclearplayer/model';
@@ -14,9 +20,11 @@ type TitleCellMeta = {
   displayThumbnail?: boolean;
   onAddToQueue?: (track: Track) => void;
   onEdit?: (track: Track) => void;
+  onOpenDetail?: (track: Track) => void;
   isCurrentTrack?: (track: Track) => boolean;
   isTrackQueued?: (track: Track) => boolean;
   canEditTrack?: (track: Track) => boolean;
+  canOpenDetail?: (track: Track) => boolean;
   ContextMenuWrapper?: FC<ContextMenuWrapperProps>;
 };
 
@@ -39,6 +47,23 @@ const EditButton: FC<EditButtonProps> = ({ label, onClick }) => (
     title={label}
   >
     <Pencil size={14} />
+  </Button>
+);
+
+const OpenDetailButton: FC<EditButtonProps> = ({ label, onClick }) => (
+  <Button
+    data-testid="open-track-detail-button"
+    size="icon-sm"
+    variant="text"
+    className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick();
+    }}
+    aria-label={label}
+    title={label}
+  >
+    <ArrowUpRight size={14} />
   </Button>
 );
 
@@ -129,7 +154,11 @@ export const TitleCell = <T extends Track>({
   const hasAddToQueue = Boolean(meta?.onAddToQueue && !meta.displayThumbnail);
   const hasContextMenu = Boolean(ContextMenuWrapper);
   const canEdit = Boolean(meta?.onEdit && meta.canEditTrack?.(track));
-  const hasActions = hasAddToQueue || hasContextMenu || canEdit;
+  const canOpenDetail = Boolean(
+    meta?.onOpenDetail && meta.canOpenDetail?.(track),
+  );
+  const hasActions =
+    hasAddToQueue || hasContextMenu || canEdit || canOpenDetail;
   const isCurrent = meta?.isCurrentTrack?.(track) ?? false;
   const isQueued = meta?.isTrackQueued?.(track) ?? false;
 
@@ -171,6 +200,12 @@ export const TitleCell = <T extends Track>({
               <ContextMenuWrapper track={track}>
                 <ContextMenuButton label={labels.trackOptions} />
               </ContextMenuWrapper>
+            )}
+            {canOpenDetail && (
+              <OpenDetailButton
+                label="Open track"
+                onClick={() => meta?.onOpenDetail?.(track)}
+              />
             )}
           </div>
         )}

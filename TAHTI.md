@@ -34,6 +34,16 @@ git rebase upstream/master   # or merge
 
 Public API reference: [`https://api.tahti.live/api`](https://api.tahti.live/api).
 
+## Backend lives in a separate repo
+
+`tahti-web` has no server code of its own — it only calls the Tahti API over HTTP (via the `/tahti-api` dev proxy, see `packages/tahti-web/vite.config.ts`). The actual API — Fastify routes, Prisma schema, and shared Zod DTOs (`@tahti/shared`) — lives in a sibling checkout at **`../tahti-org`** (relative to this repo's parent workspace directory), not inside this monorepo. When a task needs a new or changed endpoint, that work happens in `tahti-org/apps/api` (routes under `src/routes/`, shared response schemas in `packages/shared/src/dto/api-responses.ts`, registered in `src/server.ts`) — check there for existing integrations (e.g. ACRCloud/AcoustID fingerprinting) before assuming something needs to be built from scratch or reaching for an unintegrated third-party service.
+
+## What this port is, and how it should look
+
+`tahti-web` is an in-progress port: swapping Tahti's existing Next.js `apps/web` client (in `tahti-org`) for this standalone player built on Nuclear's UI, talking to the same API. It is replacing a real product, not prototyping one.
+
+Because of that, treat every screen as a professional app, not a demo: prioritize clarity, simplicity, and practicality over decoration. Custom Tahti-specific widgets are expected (channels, archives, fingerprinting, fan tiers — none of that exists in stock Nuclear), but they should read as a natural, restrained extension of Nuclear's own design language, not a bolted-on skin. When in doubt, favor the plainer, more legible option.
+
 ## Detached from `/home/jani/workspace/nuclear`
 
 The pristine upstream clone at `~/workspace/nuclear` should track `nukeop/nuclear` only. All Tahti work lives **here**.

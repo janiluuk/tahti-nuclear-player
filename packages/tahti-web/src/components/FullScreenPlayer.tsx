@@ -94,7 +94,7 @@ export function FullScreenPlayer() {
   const bgStyle = rgb
     ? {
         backgroundColor: 'var(--background)',
-        backgroundImage: `radial-gradient(circle at 50% 20%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.35), transparent 70%)`,
+        backgroundImage: `radial-gradient(circle at 50% 20%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.18), transparent 70%)`,
       }
     : undefined;
 
@@ -109,7 +109,7 @@ export function FullScreenPlayer() {
       aria-modal="true"
       aria-label="Now playing, full screen"
     >
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-60">
         <ChannelVisualizer className="h-full w-full" artworkUrl={coverUrl} />
       </div>
 
@@ -132,7 +132,7 @@ export function FullScreenPlayer() {
           ) : null}
         </div>
 
-        <div className="max-w-md text-center">
+        <div className="bg-background/35 max-w-md rounded-xl px-6 py-3 text-center backdrop-blur-md">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             {title}
           </h1>

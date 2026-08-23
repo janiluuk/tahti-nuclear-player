@@ -15,6 +15,7 @@ import {
   mockRadio,
   mockRadioRecentlyPlayed,
   mockSmartLink,
+  mockTrackDetail,
   mockTransparencyGrants,
   mockTransparencyLedger,
   mockTransparencyYtd,
@@ -64,6 +65,7 @@ import type {
   PublicChannel,
   PublicCollection,
   PublicProfile,
+  PublicTrackDetail,
   RadioNowPlaying,
   RadioRecentlyPlayedItem,
   ReleaseEmbedView,
@@ -237,6 +239,32 @@ export async function fetchChannelArchive(slug: string): Promise<{
       err,
       () => mockArchiveItems(slug),
       () => [],
+    );
+  }
+}
+
+/** Full detail for a standalone track page — reached only by track id, so
+ * (unlike fetchChannelArchive) it can't rely on already knowing the channel. */
+export async function fetchTrackDetail(id: string): Promise<{
+  data: PublicTrackDetail | null;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockTrackDetail(id),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<PublicTrackDetail>(
+      `/api/tracks/${encodeURIComponent(id)}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return withMockFallback(
+      err,
+      () => mockTrackDetail(id),
+      () => null,
     );
   }
 }
