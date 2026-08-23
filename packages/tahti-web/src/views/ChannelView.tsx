@@ -2,7 +2,6 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import {
   GripVerticalIcon,
   HeartIcon,
-  ListPlusIcon,
   LoaderCircleIcon,
   MessageCircle,
   PauseIcon,
@@ -70,9 +69,9 @@ export function ChannelView({ slug }: { slug: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(true);
   const [lookTick, setLookTick] = useState(0);
   const [presetNote, setPresetNote] = useState<string | null>(null);
+  const [manageTab, setManageTab] = useState<'view' | 'manage'>('view');
 
   const play = usePlayerStore((s) => s.play);
-  const enqueue = usePlayerStore((s) => s.enqueue);
   const currentId = usePlayerStore((s) => s.currentId);
   const playbackStatus = usePlayerStore((s) => s.status);
   const setPlaybackStatus = usePlayerStore((s) => s.setStatus);
@@ -180,14 +179,6 @@ export function ChannelView({ slug }: { slug: string }) {
     void fetchChannel(slug).then(({ playable }) => {
       if (playable) {
         play(playable);
-      }
-    });
-  };
-
-  const handleQueueChannel = () => {
-    void fetchChannel(slug).then(({ playable }) => {
-      if (playable) {
-        enqueue(playable);
       }
     });
   };
@@ -330,18 +321,18 @@ export function ChannelView({ slug }: { slug: string }) {
               </div>
             )}
             {(live || channel.hlsUrl) && (
-              <div className="absolute right-3 bottom-3 z-[2] flex items-center gap-2">
+              <div className="absolute right-4 bottom-4 z-[2] flex items-center gap-3">
                 <Button
                   size="icon"
                   variant="text"
-                  className="bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
+                  className="size-11 bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
                   onClick={handleToggleFavoriteChannel}
                   aria-pressed={favorited}
                   aria-label={favorited ? 'Favorited' : 'Favorite'}
                   title={favorited ? 'Favorited' : 'Favorite'}
                 >
                   <HeartIcon
-                    size={18}
+                    size={20}
                     className={
                       favorited ? 'text-accent-red fill-current' : undefined
                     }
@@ -349,17 +340,7 @@ export function ChannelView({ slug }: { slug: string }) {
                 </Button>
                 <Button
                   size="icon"
-                  variant="text"
-                  className="bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
-                  onClick={handleQueueChannel}
-                  aria-label="Queue"
-                  title="Queue"
-                >
-                  <ListPlusIcon size={18} />
-                </Button>
-                <Button
-                  size="icon"
-                  className="bg-primary text-primary-foreground h-14 w-14 rounded-full shadow-lg"
+                  className="bg-primary text-primary-foreground h-16 w-16 rounded-full shadow-lg"
                   onClick={handlePlayChannel}
                   aria-label={
                     channelIsLoading
@@ -375,16 +356,34 @@ export function ChannelView({ slug }: { slug: string }) {
                 >
                   {channelIsLoading ? (
                     <LoaderCircleIcon
-                      size={24}
+                      size={26}
                       className="animate-spin"
                       aria-hidden
                     />
                   ) : channelIsPlaying ? (
-                    <PauseIcon size={24} className="fill-current" aria-hidden />
+                    <PauseIcon size={26} className="fill-current" aria-hidden />
                   ) : (
-                    <PlayIcon size={24} className="fill-current" aria-hidden />
+                    <PlayIcon size={26} className="fill-current" aria-hidden />
                   )}
                 </Button>
+              </div>
+            )}
+            {manageTab === 'manage' && (isOwner || me?.isBoard) && live && (
+              <div className="absolute inset-0 z-[3] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+                <div className="w-full max-w-md">
+                  <StreamManagerPanel
+                    slug={slug}
+                    channelState={channel.state}
+                    onEnded={() => {
+                      setChannel({
+                        ...channel,
+                        state: 'OFFLINE',
+                        hlsUrl: null,
+                      });
+                      setManageTab('view');
+                    }}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -528,7 +527,7 @@ export function ChannelView({ slug }: { slug: string }) {
         />
       )}
 
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
         {!editing && (
           <Link
             to="/"
@@ -572,13 +571,22 @@ export function ChannelView({ slug }: { slug: string }) {
         </div>
 
         {live && (isOwner || me?.isBoard) && !editing && (
-          <StreamManagerPanel
-            slug={slug}
-            channelState={channel.state}
-            onEnded={() => {
-              setChannel({ ...channel, state: 'OFFLINE', hlsUrl: null });
-            }}
-          />
+          <div className="border-border bg-background-secondary inline-flex w-fit gap-1 rounded-lg border p-1">
+            {(['view', 'manage'] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setManageTab(t)}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
+                  manageTab === t
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground-secondary hover:text-foreground'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
         )}
 
         {visibleItems.map((item) => {

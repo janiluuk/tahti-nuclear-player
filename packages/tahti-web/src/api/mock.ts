@@ -861,6 +861,7 @@ export function archiveItemToPlayable(
     protocol: isHls ? 'hls' : 'https',
     channelSlug,
     sourceProvider: item.sourceProvider ?? 'tahti',
+    durationSec: item.durationSec,
   };
 }
 

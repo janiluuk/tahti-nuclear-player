@@ -275,6 +275,7 @@ export type TahtiPlayable = {
   channelSlug?: string;
   /** Nuclear ProviderRef.provider — e.g. tahti, soundcloud, bandcamp, spotify. */
   sourceProvider?: string;
+  durationSec?: number | null;
 };
 
 export type ChatMessage = {
