@@ -1,13 +1,16 @@
+import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 
 import type { Track } from '@nuclearplayer/model';
 import { TrackTable } from '@nuclearplayer/ui';
 
 import type { TahtiPlayable } from '../api/types';
+import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { playableToTrack } from '../lib/playableToTrack';
 import { trackTableLabels } from '../lib/trackTableLabels';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
+import { useTrackDetailStore } from '../stores/trackDetailStore';
 import { PlayableTrackContextMenu } from './PlayableTrackContextMenu';
 
 type Props = {
@@ -24,12 +27,14 @@ export function PlayableTrackTable({
   emptyMessage = 'No tracks yet.',
   onEdit,
 }: Props) {
+  const navigate = useNavigate();
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const queue = usePlayerStore((s) => s.queue);
   const currentId = usePlayerStore((s) => s.currentId);
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
+  const rememberTrackDetail = useTrackDetailStore((s) => s.remember);
 
   if (items.length === 0) {
     return <p className="text-foreground-secondary text-sm">{emptyMessage}</p>;
@@ -121,6 +126,14 @@ export function PlayableTrackTable({
                 }
               }
             : undefined,
+          onOpenDetail: (track) => {
+            const item = resolve(track);
+            const archiveId = archiveItemIdFromPlayableId(track.source.id);
+            if (item && archiveId) {
+              rememberTrackDetail(item);
+              void navigate({ to: '/t/$id', params: { id: archiveId } });
+            }
+          },
         }}
         meta={{
           isTrackFavorite: (track) =>
@@ -129,6 +142,11 @@ export function PlayableTrackTable({
           isTrackQueued: (track) =>
             queue.some((queueItem) => queueItem.id === track.source.id),
           canEditTrack: onEdit ? () => true : undefined,
+          // Embed-only sources (hearthis.at, etc.) have no internal detail
+          // page to open, so the icon is hidden for them rather than
+          // rendering a dead link.
+          canOpenDetail: (track) =>
+            Boolean(archiveItemIdFromPlayableId(track.source.id)),
           ContextMenuWrapper: PlayableTrackContextMenu,
         }}
       />
