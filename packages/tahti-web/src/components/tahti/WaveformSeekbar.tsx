@@ -21,14 +21,41 @@ function seedFromId(id: string): number {
   return hash / 100_000 || 1;
 }
 
+/** Downsample real peak buckets to the bar count, averaging each bar's span. */
+function resamplePeaks(peaks: number[], bars: number): number[] {
+  if (peaks.length === bars) {
+    return peaks;
+  }
+  return Array.from({ length: bars }, (_, i) => {
+    const start = Math.floor((i / bars) * peaks.length);
+    const end = Math.max(
+      start + 1,
+      Math.floor(((i + 1) / bars) * peaks.length),
+    );
+    let sum = 0;
+    let count = 0;
+    for (let j = start; j < end && j < peaks.length; j++) {
+      sum += peaks[j]!;
+      count++;
+    }
+    return count > 0 ? sum / count : 0;
+  });
+}
+
+function heightsFromPeaks(peaks: number[]): number[] {
+  const max = Math.max(1, ...peaks);
+  return peaks.map((p) => Math.max(6, (p / max) * 100));
+}
+
 const BAR_COUNT = 64;
 
-/** The tahti waveform motif used as a scrubbable progress bar — bars keyed
- * by track id stay identical across renders (no real peak data available
- * outside the studio editor), with playback progress shown as a fill. */
+/** The tahti waveform motif used as a scrubbable progress bar. Draws real
+ * decoded amplitude buckets when `peaks` is given; otherwise falls back to
+ * deterministic bars keyed by track id, stable across renders. */
 export function WaveformSeekbar({
   trackId,
   progress,
+  peaks,
   bars = BAR_COUNT,
   onSeek,
   className,
@@ -36,12 +63,18 @@ export function WaveformSeekbar({
   trackId: string;
   /** Playback position, 0–1. */
   progress: number;
+  /** Real [0..255] amplitude buckets, when decoded — null/omitted falls back
+   * to the synthetic per-track bars. */
+  peaks?: number[] | null;
   bars?: number;
   onSeek?: (fraction: number) => void;
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const heights = barHeights(seedFromId(trackId), bars);
+  const heights =
+    peaks && peaks.length > 0
+      ? heightsFromPeaks(resamplePeaks(peaks, bars))
+      : barHeights(seedFromId(trackId), bars);
   const clamped = Math.min(1, Math.max(0, progress));
   const filledCount = Math.round(clamped * bars);
 

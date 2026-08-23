@@ -97,6 +97,38 @@ export type ArchiveItem = {
   pinnedAt?: string | null;
 };
 
+/** GET /api/tracks/:id — full detail for a standalone track page, reached
+ * only by track id (favorites, an artist's catalog, a shared link) rather
+ * than a page already scoped to the owning channel. */
+export type PublicTrackDetail = {
+  id: string;
+  title: string;
+  artistName: string;
+  channelSlug: string;
+  channel: {
+    username: string;
+    displayName: string;
+    avatarUrl: string | null;
+  };
+  durationSec: number | null;
+  audioUrl: string | null;
+  bannerUrl: string | null;
+  genre: string | null;
+  subGenres: string[];
+  contentType: string;
+  mixVersion: string | null;
+  description: string | null;
+  commentary: string | null;
+  license: string;
+  releasedAt: string;
+  effectiveBpm: number | null;
+  effectiveKey: string | null;
+  /** [0..255] amplitude buckets for the real waveform — null when not yet decoded. */
+  peaks: number[] | null;
+  commentCount: number;
+  downloadCount: number;
+};
+
 export type PublicProfileArtist = {
   username: string;
   displayName: string;

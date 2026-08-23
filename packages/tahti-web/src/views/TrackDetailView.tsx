@@ -7,16 +7,36 @@ import {
   PauseIcon,
   PlayIcon,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
+import { fetchTrackDetail } from '../api/client';
+import type { PublicTrackDetail, TahtiPlayable } from '../api/types';
 import { PageFrame } from '../components/PageHeader';
-import { PageEmpty } from '../components/PageStates';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { formatDuration, providerLabel } from '../lib/playableToTrack';
 import { useLibraryStore } from '../stores/libraryStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { useTrackDetailStore } from '../stores/trackDetailStore';
+
+function playableFromDetail(
+  id: string,
+  detail: PublicTrackDetail,
+): TahtiPlayable {
+  return {
+    id: `archive:${id}`,
+    kind: 'archive',
+    title: detail.title,
+    artist: detail.artistName,
+    coverUrl: detail.bannerUrl ?? undefined,
+    streamUrl: detail.audioUrl ?? '',
+    protocol: detail.audioUrl?.includes('.m3u8') ? 'hls' : 'https',
+    channelSlug: detail.channelSlug,
+    durationSec: detail.durationSec ?? undefined,
+  };
+}
 
 export function TrackDetailView({ id }: { id: string }) {
   const playableId = `archive:${id}`;
@@ -24,8 +44,25 @@ export function TrackDetailView({ id }: { id: string }) {
   const queueItem = usePlayerStore((s) =>
     s.queue.find((q) => q.id === playableId),
   );
-  const playable =
+  const fastPath =
     remembered ?? (queueItem ? playableFromQueueItem(queueItem) : null);
+
+  const [detail, setDetail] = useState<PublicTrackDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    void fetchTrackDetail(id).then(({ data }) => {
+      if (!cancelled) {
+        setDetail(data);
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
 
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
@@ -39,12 +76,21 @@ export function TrackDetailView({ id }: { id: string }) {
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
 
+  const playable = detail ? playableFromDetail(id, detail) : fastPath;
+
   if (!playable) {
+    if (loading) {
+      return (
+        <PageFrame maxWidth="lg">
+          <PageLoading label="Loading track…" />
+        </PageFrame>
+      );
+    }
     return (
       <PageFrame maxWidth="lg">
         <PageEmpty
           title="Track unavailable"
-          description="This track's details aren't loaded — open it again from where you found it."
+          description="This track doesn't exist, isn't public, or was removed."
           action={
             <Link to="/">
               <Button size="sm" variant="secondary">
@@ -63,6 +109,7 @@ export function TrackDetailView({ id }: { id: string }) {
   const favorited = favoriteTracks.some((t) => t.id === playable.id);
   const queued = queue.some((q) => q.id === playable.id);
   const provider = providerLabel(playable.sourceProvider);
+  const canPlay = Boolean(playable.streamUrl);
 
   return (
     <PageFrame maxWidth="lg">
@@ -90,12 +137,19 @@ export function TrackDetailView({ id }: { id: string }) {
             <p className="text-foreground-secondary text-sm">
               {playable.artist}
               {provider ? ` · ${provider}` : ''}
+              {detail?.genre ? ` · ${detail.genre}` : ''}
               {playable.durationSec
                 ? ` · ${formatDuration(playable.durationSec)}`
                 : ''}
             </p>
+            {detail?.description ? (
+              <p className="text-foreground-secondary mt-1 max-w-md text-sm">
+                {detail.description}
+              </p>
+            ) : null}
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
               <Button
+                disabled={!canPlay}
                 onClick={() => {
                   if (isCurrent) {
                     setStatus(isPlaying ? 'paused' : 'playing');
@@ -114,7 +168,7 @@ export function TrackDetailView({ id }: { id: string }) {
               <Button
                 size="icon-sm"
                 variant="secondary"
-                disabled={queued}
+                disabled={queued || !canPlay}
                 aria-label={queued ? 'In queue' : 'Add to queue'}
                 title={queued ? 'In queue' : 'Add to queue'}
                 onClick={() => enqueue(playable)}
@@ -158,7 +212,11 @@ export function TrackDetailView({ id }: { id: string }) {
         <WaveformSeekbar
           trackId={playable.id}
           progress={progress}
+          peaks={detail?.peaks}
           onSeek={(fraction) => {
+            if (!canPlay) {
+              return;
+            }
             if (!isCurrent) {
               play(playable);
               return;
