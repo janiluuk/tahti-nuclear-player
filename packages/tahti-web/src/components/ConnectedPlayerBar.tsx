@@ -98,8 +98,15 @@ export function ConnectedPlayerBar() {
         <div className="text-foreground-secondary text-xs tracking-wide uppercase">
           Error
         </div>
-      ) : !isLive ? (
+      ) : null}
+    </div>
+  );
+
+  return (
+    <div className="flex w-full flex-col">
+      {!isLive && (
         <PlayerBar.SeekBar
+          className="px-4"
           progress={seekProgress}
           elapsedSeconds={currentTime}
           remainingSeconds={Math.max(0, duration - currentTime)}
@@ -111,96 +118,95 @@ export function ConnectedPlayerBar() {
             seekTo((percent / 100) * duration);
           }}
         />
-      ) : null}
-    </div>
-  );
-
-  return (
-    <PlayerBar
-      className={cn(queueOpen && 'h-auto min-h-16 items-stretch py-2')}
-      left={
-        queueOpen ? undefined : (
-          <div className="flex min-w-0 items-center gap-2">
-            <PlayerBar.NowPlaying
-              title={title}
-              artist={artist}
-              coverUrl={
-                playable?.coverUrl ?? current?.track.artwork?.items[0]?.url
-              }
-            />
-            {archiveItemId && playable && (
-              <AddToPlaylistButton
-                archiveItemId={archiveItemId}
-                trackTitle={playable.title}
-                variant="secondary"
+      )}
+      <PlayerBar
+        className={cn(queueOpen && 'h-auto min-h-16 items-stretch py-2')}
+        left={
+          queueOpen ? undefined : (
+            <div className="flex min-w-0 items-center gap-2">
+              <PlayerBar.NowPlaying
+                title={title}
+                artist={artist}
+                coverUrl={
+                  playable?.coverUrl ?? current?.track.artwork?.items[0]?.url
+                }
               />
+              {archiveItemId && playable && (
+                <AddToPlaylistButton
+                  archiveItemId={archiveItemId}
+                  trackTitle={playable.title}
+                  variant="secondary"
+                />
+              )}
+            </div>
+          )
+        }
+        center={
+          <div
+            className={cn(
+              'flex w-full flex-col items-center',
+              queueOpen ? 'max-w-none min-w-0' : 'max-w-xl',
             )}
+          >
+            {queueOpen ? <BottomQueueStrip controls={controls} /> : controls}
           </div>
-        )
-      }
-      center={
-        <div
-          className={cn(
-            'flex w-full flex-col items-center',
-            queueOpen ? 'max-w-none min-w-0' : 'max-w-xl',
-          )}
-        >
-          {queueOpen ? <BottomQueueStrip controls={controls} /> : controls}
-        </div>
-      }
-      right={
-        <div className="flex items-center gap-2">
-          {playable && (
+        }
+        right={
+          <div className="flex items-center gap-2">
+            {playable && (
+              <Button
+                size="icon-sm"
+                variant="text"
+                onClick={() => setFullScreenPlayerOpen(true)}
+                title="Full screen"
+                aria-label="Full screen"
+                data-testid="expand-full-screen-player"
+              >
+                <Maximize2Icon size={16} />
+              </Button>
+            )}
+            <Button
+              size="icon-sm"
+              variant={queueOpen ? 'secondary' : 'text'}
+              onClick={() => setBottomQueueOpen(!queueOpen)}
+              title={queueOpen ? 'Collapse queue' : 'Expand queue'}
+              aria-label={queueOpen ? 'Collapse queue' : 'Expand queue'}
+              aria-pressed={queueOpen}
+              data-testid={
+                queueOpen ? 'close-bottom-queue' : 'open-bottom-queue'
+              }
+            >
+              {queueOpen ? (
+                <ChevronsDownIcon size={16} />
+              ) : (
+                <ChevronsUpIcon size={16} />
+              )}
+            </Button>
+            {!queueOpen && queue.length > 0 && (
+              <span className="text-foreground-secondary text-xs tabular-nums">
+                {queue.length}
+              </span>
+            )}
+            <PlayerBar.Volume
+              value={muted ? 0 : Math.round(volume * 100)}
+              onValueChange={(v) => setVolume(v / 100)}
+            />
             <Button
               size="icon-sm"
               variant="text"
-              onClick={() => setFullScreenPlayerOpen(true)}
-              title="Full screen"
-              aria-label="Full screen"
-              data-testid="expand-full-screen-player"
+              onClick={() => {
+                setBottomQueueOpen(false);
+                hidePlayerBar();
+              }}
+              title="Hide player"
+              aria-label="Hide player"
+              data-testid="hide-player-bar"
             >
-              <Maximize2Icon size={16} />
+              <ChevronDownIcon size={16} />
             </Button>
-          )}
-          <Button
-            size="icon-sm"
-            variant={queueOpen ? 'secondary' : 'text'}
-            onClick={() => setBottomQueueOpen(!queueOpen)}
-            title={queueOpen ? 'Collapse queue' : 'Expand queue'}
-            aria-label={queueOpen ? 'Collapse queue' : 'Expand queue'}
-            aria-pressed={queueOpen}
-            data-testid={queueOpen ? 'close-bottom-queue' : 'open-bottom-queue'}
-          >
-            {queueOpen ? (
-              <ChevronsDownIcon size={16} />
-            ) : (
-              <ChevronsUpIcon size={16} />
-            )}
-          </Button>
-          {!queueOpen && queue.length > 0 && (
-            <span className="text-foreground-secondary text-xs tabular-nums">
-              {queue.length}
-            </span>
-          )}
-          <PlayerBar.Volume
-            value={muted ? 0 : Math.round(volume * 100)}
-            onValueChange={(v) => setVolume(v / 100)}
-          />
-          <Button
-            size="icon-sm"
-            variant="text"
-            onClick={() => {
-              setBottomQueueOpen(false);
-              hidePlayerBar();
-            }}
-            title="Hide player"
-            aria-label="Hide player"
-            data-testid="hide-player-bar"
-          >
-            <ChevronDownIcon size={16} />
-          </Button>
-        </div>
-      }
-    />
+          </div>
+        }
+      />
+    </div>
   );
 }
