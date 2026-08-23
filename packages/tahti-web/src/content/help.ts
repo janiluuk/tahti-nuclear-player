@@ -2,8 +2,8 @@ export type HelpArticle = {
   slug: string;
   title: string;
   description: string;
-  /** Production deep-link on tahti.live */
-  productionPath: string;
+  /** Production deep-link on tahti.live — omit for POC-only articles with no prod equivalent. */
+  productionPath?: string;
   sections: Array<{ heading: string; body: string[] }>;
 };
 
@@ -128,6 +128,44 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
   },
   {
+    slug: 'keyboard-shortcuts',
+    title: 'Keyboard shortcuts',
+    description:
+      'Every global shortcut in the app, including the guided page tour.',
+    sections: [
+      {
+        heading: 'Page tour',
+        body: [
+          'H — open a guided tour of the current page, explaining what each nav item does.',
+          '← / → — move between tour steps. Esc or H again — close the tour.',
+          'The sidebar is explained everywhere; the top bar only on the homepage; Studio and Admin panel items while you’re inside those sections.',
+        ],
+      },
+      {
+        heading: 'Navigation',
+        body: [
+          'Alt+1 — Listen',
+          'Alt+2 — Radio',
+          'Alt+3 — Feed',
+          'Alt+4 — My Library',
+          'Alt+5 — Studio',
+        ],
+      },
+      {
+        heading: 'Player',
+        body: [
+          'V — toggle the full-screen player (only while a track is loaded).',
+        ],
+      },
+      {
+        heading: 'Notes',
+        body: [
+          'Shortcuts are disabled while typing in a text field, textarea, dropdown, or any editable content.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'support',
     title: 'Contact support',
     description:
@@ -137,8 +175,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         heading: 'Get help',
         body: [
-          'Use the support form at tahti.live/help/support for account, billing, or streaming issues.',
-          'Include your account name and a short description so the team can help quickly.',
+          'Use the form below for account, billing, engagement, or technical issues.',
+          'Include a short description so the team can help quickly. Signed-in requests use your account email automatically.',
         ],
       },
     ],

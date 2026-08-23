@@ -49,6 +49,7 @@ import {
   EmbedCollectionView,
   EmbedReleaseView,
 } from './views/EmbedViews';
+import { FeatureRequestsView } from './views/FeatureRequestsView';
 import { FeedView } from './views/FeedView';
 import { ForgotPasswordView } from './views/ForgotPasswordView';
 import { GovernanceView } from './views/GovernanceView';
@@ -91,7 +92,6 @@ import { StudioReleaseDetailView } from './views/studio/StudioReleaseDetailView'
 import { StudioReleasesView } from './views/studio/StudioReleasesView';
 import { StudioRevenueView } from './views/studio/StudioRevenueView';
 import { StudioScheduleView } from './views/studio/StudioScheduleView';
-import { StudioSetupChannelView } from './views/studio/StudioSetupChannelView';
 import {
   StudioEpisodeReviewView,
   StudioShowDetailView,
@@ -106,6 +106,7 @@ import { StudioUploadView } from './views/studio/StudioUploadView';
 import { StudioVenuesView } from './views/studio/StudioVenuesView';
 import { SubscribeView } from './views/SubscribeView';
 import { TrackDetailView } from './views/TrackDetailView';
+import { TransparencyMethodologyView } from './views/TransparencyMethodologyView';
 import { TransparencyView } from './views/TransparencyView';
 import { VenueDetailView } from './views/VenueDetailView';
 import { VenueRegisterView } from './views/VenueRegisterView';
@@ -326,9 +327,7 @@ const libraryRoute = createRoute({
 const libraryReleasesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/releases',
-  beforeLoad: () => {
-    throw redirect({ to: '/library' });
-  },
+  component: () => <LibraryView tab="releases" />,
 });
 
 const libraryCollectionsRoute = createRoute({
@@ -367,6 +366,15 @@ const messagesAliasRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/messages',
   component: MessagesView,
+});
+
+const messagesThreadRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/messages/$id',
+  component: function MessagesThreadRoute() {
+    const { id } = messagesThreadRoute.useParams();
+    return <MessagesView threadId={id} />;
+  },
 });
 
 const favoritesRoute = createRoute({
@@ -418,7 +426,7 @@ const venuesRegisterRoute = createRoute({
 
 const venueDetailRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
-  path: '/venues/$slug',
+  path: '/v/$slug',
   component: function VenueDetailRoute() {
     const { slug } = venueDetailRoute.useParams();
     return <VenueDetailView slug={slug} />;
@@ -529,6 +537,12 @@ const transparencyRoute = createRoute({
   component: TransparencyView,
 });
 
+const transparencyMethodologyRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/transparency/methodology',
+  component: TransparencyMethodologyView,
+});
+
 const helpRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/help',
@@ -625,6 +639,12 @@ const governanceRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/governance',
   component: GovernanceView,
+});
+
+const featureRequestsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/governance/feature-requests',
+  component: FeatureRequestsView,
 });
 
 const aboutRoute = createRoute({
@@ -789,7 +809,9 @@ const studioStatsDetailRoute = createRoute({
 const studioSetupChannelRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/setup-channel',
-  component: StudioSetupChannelView,
+  beforeLoad: () => {
+    throw redirect({ to: '/studio/channel', search: { tab: 'setup' } });
+  },
 });
 
 const studioChannelRoute = createRoute({
@@ -1077,6 +1099,7 @@ const routeTree = rootRoute.addChildren([
     libraryHistoryRoute,
     libraryMessagesRoute,
     messagesAliasRoute,
+    messagesThreadRoute,
     favoritesRoute,
     historyRoute,
     sourcesRoute,
@@ -1098,6 +1121,7 @@ const routeTree = rootRoute.addChildren([
     subscribeRoute,
     greenRoomRoute,
     transparencyRoute,
+    transparencyMethodologyRoute,
     helpRoute,
     helpSlugRoute,
     joinRoute,
@@ -1112,6 +1136,7 @@ const routeTree = rootRoute.addChildren([
     accountRoute,
     statusRoute,
     governanceRoute,
+    featureRequestsRoute,
     aboutRoute,
     whatIsItRoute,
     howItWorksRoute,

@@ -4,6 +4,9 @@ export type ChannelDirectoryItem = {
   displayName: string;
   avatarUrl: string | null;
   genres: string[];
+  /** True while actively broadcasting. Absent/false means the profile is
+   * browsable (archive/tracks) but not currently live. */
+  live?: boolean;
 };
 
 export type ChannelDirectoryResponse = {
@@ -138,6 +141,7 @@ export type PublicProfileArtist = {
   tier?: string;
   pronouns?: string | null;
   followerCount?: number | null;
+  freeSubscriptionsEnabled?: boolean;
 };
 
 export type PublicProfileTrack = {
@@ -338,15 +342,18 @@ export type ChatTokenResponse = {
   channelRole?: 'owner' | 'moderator' | null;
 };
 
+export type AccountRole = 'BOARD' | 'ARTIST' | 'LISTENER';
+
 export type AuthUser = {
   id: string;
   email: string;
   username: string;
   displayName: string;
+  role?: AccountRole;
+  roles?: AccountRole[];
   tier?: string;
   avatarUrl?: string | null;
   isMember?: boolean;
-  /** Cooperative board member — gates `/admin/*`. */
   isBoard?: boolean;
   channel?: {
     slug: string;
@@ -507,6 +514,31 @@ export type GovernanceMotion = {
   yourChoice?: string | null;
   commentCount?: number;
   tally?: { YES: number; NO: number; ABSTAIN: number };
+};
+
+export type FeatureRequestStatus =
+  | 'OPEN'
+  | 'PLANNED'
+  | 'IN_PROGRESS'
+  | 'DONE'
+  | 'DECLINED'
+  | 'DUPLICATE';
+
+/** Member-suggested feature board — GET/POST /api/v1/governance/feature-requests. */
+export type FeatureRequest = {
+  id: string;
+  title: string;
+  description: string;
+  status: FeatureRequestStatus;
+  proposer: string;
+  voteCount: number;
+  youVoted: boolean;
+  commentCount: number;
+  reviewNote?: string | null;
+  reviewedAt?: string | null;
+  mergedIntoId?: string | null;
+  mergedIntoTitle?: string | null;
+  createdAt: string;
 };
 
 /** GET /api/v1/news — public homepage news feed, published from the admin

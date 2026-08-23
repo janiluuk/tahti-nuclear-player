@@ -28,6 +28,11 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { TrackEditDialog } from '../../components/TrackEditDialog';
 import {
+  EMBED_PROVIDER_HEIGHT,
+  EMBED_PROVIDER_LABEL,
+  embedSrcFor,
+} from '../../lib/embedSrc';
+import {
   countPinnedTracks,
   isPinned,
   MAX_PINNED_TRACKS,
@@ -52,6 +57,7 @@ export function StudioArchiveView() {
   const [openMoreId, setOpenMoreId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pinMessage, setPinMessage] = useState<string | null>(null);
+  const [embedOpenId, setEmbedOpenId] = useState<string | null>(null);
   const play = usePlayerStore((s) => s.play);
 
   const reload = () => {
@@ -193,122 +199,161 @@ export function StudioArchiveView() {
               </div>
             ) : (
               <ul className="divide-border divide-y">
-                {filtered.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <Link
-                        to="/studio/archive/$id"
-                        params={{ id: item.id }}
-                        className="font-medium hover:underline"
-                      >
-                        {item.title}
-                      </Link>
-                      <p className="text-foreground-secondary text-xs">
-                        {item.status}
-                        {isPinned(item) ? ', pinned' : ''}
-                        {item.durationSec != null
-                          ? `, ${Math.round(item.durationSec / 60)} min`
-                          : ''}
-                        {item.genre ? `, ${item.genre}` : ''}
-                        {item.isPublic === false ? ', private' : ''}
-                      </p>
-                    </div>
-                    <Button
-                      size="icon-sm"
-                      disabled={busyId === item.id}
-                      onClick={() => void playItem(item.id, item.title)}
-                      aria-label={`Play ${item.title}`}
-                      title="Play"
+                {filtered.map((item) => {
+                  const embedSrc =
+                    item.embedProvider && item.embedUri
+                      ? embedSrcFor(item.embedProvider, item.embedUri)
+                      : null;
+                  return (
+                    <li
+                      key={item.id}
+                      className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
                     >
-                      <PlayIcon size={16} aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Edit ${item.title}`}
-                      title="Edit track"
-                      onClick={() => setEditingId(item.id)}
-                    >
-                      <PencilIcon size={16} aria-hidden />
-                    </Button>
-                    <AddToPlaylistButton
-                      archiveItemId={item.id}
-                      trackTitle={item.title}
-                    />
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      aria-label={openMoreId === item.id ? 'Less' : 'More'}
-                      title={openMoreId === item.id ? 'Less' : 'More'}
-                      onClick={() =>
-                        setOpenMoreId((id) => (id === item.id ? null : item.id))
-                      }
-                    >
-                      <MoreHorizontalIcon size={16} aria-hidden />
-                    </Button>
-                    {openMoreId === item.id && (
-                      <div className="flex w-full flex-wrap gap-2 pt-1">
-                        <Button
-                          size="icon-sm"
-                          variant="text"
-                          disabled={busyId === item.id}
-                          aria-label={
-                            isPinned(item) ? 'Unpin from page' : 'Pin to page'
-                          }
-                          title={
-                            !isPinned(item) && pinnedCount >= MAX_PINNED_TRACKS
-                              ? (pinBlockedMessage(pinnedCount) ??
-                                (isPinned(item)
-                                  ? 'Unpin from page'
-                                  : 'Pin to page'))
-                              : isPinned(item)
-                                ? 'Unpin from page'
-                                : 'Pin to page'
-                          }
-                          onClick={() => void togglePin(item)}
-                        >
-                          {isPinned(item) ? (
-                            <PinOffIcon size={16} aria-hidden />
-                          ) : (
-                            <PinIcon size={16} aria-hidden />
-                          )}
-                        </Button>
+                      <div className="min-w-0 flex-1">
                         <Link
-                          to="/studio/archive/$id/editor"
+                          to="/studio/archive/$id"
                           params={{ id: item.id }}
+                          className="font-medium hover:underline"
                         >
+                          {item.title}
+                        </Link>
+                        <p className="text-foreground-secondary text-xs">
+                          {item.status}
+                          {isPinned(item) ? ', pinned' : ''}
+                          {item.durationSec != null
+                            ? `, ${Math.round(item.durationSec / 60)} min`
+                            : ''}
+                          {item.genre ? `, ${item.genre}` : ''}
+                          {item.isPublic === false ? ', private' : ''}
+                          {embedSrc
+                            ? `, via ${EMBED_PROVIDER_LABEL[item.embedProvider!]}`
+                            : ''}
+                        </p>
+                      </div>
+                      <Button
+                        size="icon-sm"
+                        disabled={busyId === item.id}
+                        onClick={() =>
+                          embedSrc
+                            ? setEmbedOpenId((id) =>
+                                id === item.id ? null : item.id,
+                              )
+                            : void playItem(item.id, item.title)
+                        }
+                        aria-label={
+                          embedSrc
+                            ? `Play ${item.title} on ${EMBED_PROVIDER_LABEL[item.embedProvider!]}`
+                            : `Play ${item.title}`
+                        }
+                        title={
+                          embedSrc
+                            ? `Play on ${EMBED_PROVIDER_LABEL[item.embedProvider!]}`
+                            : 'Play'
+                        }
+                      >
+                        <PlayIcon size={16} aria-hidden />
+                      </Button>
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        aria-label={`Edit ${item.title}`}
+                        title="Edit track"
+                        onClick={() => setEditingId(item.id)}
+                      >
+                        <PencilIcon size={16} aria-hidden />
+                      </Button>
+                      <AddToPlaylistButton
+                        archiveItemId={item.id}
+                        trackTitle={item.title}
+                      />
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        aria-label={openMoreId === item.id ? 'Less' : 'More'}
+                        title={openMoreId === item.id ? 'Less' : 'More'}
+                        onClick={() =>
+                          setOpenMoreId((id) =>
+                            id === item.id ? null : item.id,
+                          )
+                        }
+                      >
+                        <MoreHorizontalIcon size={16} aria-hidden />
+                      </Button>
+                      {openMoreId === item.id && (
+                        <div className="flex w-full flex-wrap gap-2 pt-1">
                           <Button
                             size="icon-sm"
                             variant="text"
-                            aria-label="Audio editor"
-                            title="Audio editor"
-                          >
-                            <AudioLinesIcon size={16} aria-hidden />
-                          </Button>
-                        </Link>
-                        <Button
-                          size="icon-sm"
-                          variant="text"
-                          aria-label={`Delete ${item.title}`}
-                          title="Delete"
-                          onClick={() => {
-                            if (!confirm(`Delete “${item.title}”?`)) {
-                              return;
+                            disabled={busyId === item.id}
+                            aria-label={
+                              isPinned(item) ? 'Unpin from page' : 'Pin to page'
                             }
-                            void deleteStudioArchiveItem(item.id).then(() =>
-                              reload(),
-                            );
-                          }}
-                        >
-                          <Trash2Icon size={16} aria-hidden />
-                        </Button>
-                      </div>
-                    )}
-                  </li>
-                ))}
+                            title={
+                              !isPinned(item) &&
+                              pinnedCount >= MAX_PINNED_TRACKS
+                                ? (pinBlockedMessage(pinnedCount) ??
+                                  (isPinned(item)
+                                    ? 'Unpin from page'
+                                    : 'Pin to page'))
+                                : isPinned(item)
+                                  ? 'Unpin from page'
+                                  : 'Pin to page'
+                            }
+                            onClick={() => void togglePin(item)}
+                          >
+                            {isPinned(item) ? (
+                              <PinOffIcon size={16} aria-hidden />
+                            ) : (
+                              <PinIcon size={16} aria-hidden />
+                            )}
+                          </Button>
+                          {!embedSrc && (
+                            <Link
+                              to="/studio/archive/$id/editor"
+                              params={{ id: item.id }}
+                            >
+                              <Button
+                                size="icon-sm"
+                                variant="text"
+                                aria-label="Audio editor"
+                                title="Audio editor"
+                              >
+                                <AudioLinesIcon size={16} aria-hidden />
+                              </Button>
+                            </Link>
+                          )}
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label={`Delete ${item.title}`}
+                            title="Delete"
+                            onClick={() => {
+                              if (!confirm(`Delete “${item.title}”?`)) {
+                                return;
+                              }
+                              void deleteStudioArchiveItem(item.id).then(() =>
+                                reload(),
+                              );
+                            }}
+                          >
+                            <Trash2Icon size={16} aria-hidden />
+                          </Button>
+                        </div>
+                      )}
+                      {embedSrc && embedOpenId === item.id && (
+                        <iframe
+                          title={item.title}
+                          src={embedSrc}
+                          width="100%"
+                          height={EMBED_PROVIDER_HEIGHT[item.embedProvider!]}
+                          style={{ border: 0, display: 'block' }}
+                          allow="autoplay; encrypted-media"
+                          loading="lazy"
+                        />
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </StudioPanel>

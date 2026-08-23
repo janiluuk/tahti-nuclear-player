@@ -1,118 +1,106 @@
 import { Link } from '@tanstack/react-router';
+import { ArrowLeftIcon, MapPinIcon, UsersIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { fetchVenueProfile } from '../api/client';
-import type { VenueProfile } from '../api/types';
-import { PageFrame, PageHeader } from '../components/PageHeader';
+import { EmptyState } from '@nuclearplayer/ui';
 
-function formatWhen(startAt: string, endAt: string | null): string {
-  const start = new Date(startAt);
-  const startLabel = start.toLocaleString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-  if (!endAt) {
-    return startLabel;
-  }
-  const endLabel = new Date(endAt).toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-  return `${startLabel} – ${endLabel}`;
-}
+import { fetchVenues } from '../api/client';
+import type { VenueDirectoryItem } from '../api/types';
+import { PageFrame, PageHeader } from '../components/PageHeader';
+import { countryFlagAndName } from '../lib/countries';
 
 export function VenueDetailView({ slug }: { slug: string }) {
-  const [venue, setVenue] = useState<VenueProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [venue, setVenue] = useState<VenueDirectoryItem | null | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    void fetchVenueProfile(slug).then((res) => {
+    setVenue(undefined);
+    void fetchVenues().then((res) => {
       if (cancelled) {
         return;
       }
-      setVenue(res.data);
-      setLoading(false);
+      setVenue(res.data.find((v) => v.slug === slug) ?? null);
     });
     return () => {
       cancelled = true;
     };
   }, [slug]);
 
-  if (loading) {
+  const backLink = (
+    <Link
+      to="/venues"
+      className="text-foreground-secondary inline-flex w-fit items-center gap-1.5 text-xs hover:underline"
+    >
+      <ArrowLeftIcon size={13} aria-hidden />
+      All venues
+    </Link>
+  );
+
+  if (venue === undefined) {
     return (
       <PageFrame maxWidth="3xl">
+        {backLink}
         <p className="text-foreground-secondary text-sm">Loading venue…</p>
       </PageFrame>
     );
   }
 
-  if (!venue) {
+  if (venue === null) {
     return (
       <PageFrame maxWidth="3xl">
-        <Link
-          to="/venues"
-          className="text-foreground-secondary text-xs hover:underline"
-        >
-          ← Venues
-        </Link>
-        <p className="text-foreground-secondary mt-4 text-sm">
-          Venue not found.
-        </p>
+        {backLink}
+        <EmptyState
+          title="Venue not found"
+          description={`No verified venue matches "${slug}".`}
+          action={
+            <Link
+              to="/venues"
+              className="text-sm font-medium underline-offset-2 hover:underline"
+            >
+              Browse venues
+            </Link>
+          }
+        />
       </PageFrame>
     );
   }
 
   return (
     <PageFrame maxWidth="3xl">
-      <Link
-        to="/venues"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Venues
-      </Link>
+      {backLink}
       <PageHeader
         title={venue.name}
-        subtitle={[venue.city, venue.countryCode].filter(Boolean).join(', ')}
+        meta={
+          <div className="flex flex-wrap items-center gap-3">
+            {(venue.city ?? venue.countryCode) && (
+              <span className="inline-flex items-center gap-1">
+                <MapPinIcon size={13} aria-hidden />
+                {[venue.city, countryFlagAndName(venue.countryCode) || null]
+                  .filter(Boolean)
+                  .join(', ')}
+              </span>
+            )}
+            {venue.capacity != null && (
+              <span className="inline-flex items-center gap-1">
+                <UsersIcon size={13} aria-hidden />
+                Capacity {venue.capacity}
+              </span>
+            )}
+          </div>
+        }
       />
-      <div className="flex flex-col gap-4">
-        {venue.description && <p className="text-sm">{venue.description}</p>}
-        <div className="text-foreground-secondary flex flex-wrap gap-x-6 gap-y-1 text-xs">
-          <span>{venue.address}</span>
-          {venue.capacity != null && <span>Capacity {venue.capacity}</span>}
-        </div>
 
-        <div>
-          <h2 className="font-display text-lg font-bold">Upcoming shows</h2>
-          {venue.broadcasts.length === 0 ? (
-            <p className="text-foreground-secondary mt-2 text-sm">
-              No upcoming shows booked at this venue.
-            </p>
-          ) : (
-            <ul className="mt-2 flex flex-col gap-2">
-              {venue.broadcasts.map((b) => (
-                <li
-                  key={b.id}
-                  className="border-border rounded-lg border px-3 py-2 text-sm"
-                >
-                  <div className="font-medium">
-                    {formatWhen(b.startAt, b.endAt)}
-                  </div>
-                  {b.description && (
-                    <p className="text-foreground-secondary mt-0.5 text-xs">
-                      {b.description}
-                    </p>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
+      {venue.description ? (
+        <p className="text-foreground text-sm whitespace-pre-line">
+          {venue.description}
+        </p>
+      ) : (
+        <p className="text-foreground-secondary text-sm">
+          This venue hasn't added a description yet.
+        </p>
+      )}
     </PageFrame>
   );
 }

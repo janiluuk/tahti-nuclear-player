@@ -1,3 +1,4 @@
+import { getMockFreeSubscriptionsEnabled } from './mock-profile-preferences';
 import type {
   Announcement,
   ArchiveItem,
@@ -722,6 +723,9 @@ export function mockProfile(username: string): PublicProfile {
       tier: 'FREE',
       pronouns: content.pronouns ?? null,
       followerCount: content.followerCount,
+      freeSubscriptionsEnabled: getMockFreeSubscriptionsEnabled(
+        channel.user.username,
+      ),
     },
     channel: { slug: channel.slug, state: channel.state, artistKind: 'SINGLE' },
     releases,

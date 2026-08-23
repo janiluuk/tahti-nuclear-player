@@ -104,7 +104,7 @@ import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
-import { COUNTRIES } from '../../lib/countries';
+import { COUNTRIES, flagEmoji } from '../../lib/countries';
 import { EXPORT_TARGETS } from '../../lib/exportTargets';
 import {
   formatGenreTags,
@@ -650,7 +650,7 @@ function ArtistPanel() {
                   <option value="">Prefer not to say</option>
                   {COUNTRIES.map((c) => (
                     <option key={c.code} value={c.code}>
-                      {c.name}
+                      {flagEmoji(c.code)} {c.name}
                     </option>
                   ))}
                 </select>
@@ -1580,14 +1580,20 @@ function NotificationsPanel() {
   );
 }
 
+const THEME_MODE_OPTIONS = [
+  { id: 'light' as const, label: 'Light' },
+  { id: 'dark' as const, label: 'Dark' },
+  { id: 'dynamic' as const, label: 'Dynamic' },
+];
+
 function ThemesPanel() {
   const {
     themes,
     customThemes,
     themeId,
-    dark,
+    colorMode,
     setTheme,
-    setDark,
+    setColorMode,
     importCustomTheme,
     removeCustomTheme,
   } = useThemeStore();
@@ -1600,25 +1606,27 @@ function ThemesPanel() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
         <SettingsHint>
-          Choose a palette and the light or dark appearance that suits you.
+          Choose a palette and the light, dark, or time-of-day appearance that
+          suits you.
         </SettingsHint>
         <div className="flex items-center gap-3">
-          <Button
-            size="sm"
-            variant={dark ? undefined : 'text'}
-            onClick={() => setDark(true)}
-          >
-            <SunMoon size={14} />
-            Dark
-          </Button>
-          <Button
-            size="sm"
-            variant={!dark ? undefined : 'text'}
-            onClick={() => setDark(false)}
-          >
-            Light
-          </Button>
+          {THEME_MODE_OPTIONS.map((mode) => (
+            <Button
+              key={mode.id}
+              size="sm"
+              variant={colorMode === mode.id ? undefined : 'text'}
+              onClick={() => setColorMode(mode.id)}
+            >
+              {mode.id === 'dynamic' && <SunMoon size={14} />}
+              {mode.label}
+            </Button>
+          ))}
         </div>
+        {colorMode === 'dynamic' && (
+          <p className="text-foreground-secondary text-xs">
+            Dark from 7pm to 7am, light the rest of the day.
+          </p>
+        )}
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {themes.map((theme) => {

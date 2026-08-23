@@ -22,6 +22,13 @@ const REACTION_EMOJIS = ['💜', '🔥', '🎶', '🎵', '🌟', '👏', '✨'] 
 const HANDLE_KEY = 'tahti-web-chat-handle';
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
 
+// A dropped WebSocket is retried quietly in the background; the "Live"
+// badge only disappears if the connection stays down past this grace
+// window, so a brief network blip doesn't flicker the UI.
+const DISCONNECT_GRACE_MS = 8000;
+const RECONNECT_DELAY_MS = 2000;
+const MAX_RECONNECT_ATTEMPTS = 5;
+
 // Chat is anonymous/handle-based -- there's no avatarUrl to show, so each
 // handle gets a deterministic initial-letter avatar instead. Cycling through
 // theme accent tokens (not arbitrary hex) keeps it consistent with the rest
@@ -120,6 +127,19 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
 
   badgesRef.current = { supporter, channelRole, countryCode };
 
+  // Reconnect bookkeeping. Refs, not state -- they drive retry timers and
+  // must never trigger a re-render or an effect re-run on their own.
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+  const intentionalCloseRef = useRef(false);
+  const reconnectAttemptsRef = useRef(0);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const graceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Debounced view of "connected and live" -- only flips to false after
+  // DISCONNECT_GRACE_MS of continuous disconnection, so a quick drop/retry
+  // doesn't flash the Live badge off and on.
+  const [liveDisplay, setLiveDisplay] = useState(false);
+
   useEffect(() => {
     const saved = localStorage.getItem(HANDLE_KEY);
     if (saved) {
@@ -162,18 +182,99 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
 
   useEffect(() => {
     let cancelled = false;
+    reconnectAttemptsRef.current = 0;
     void requestChatViewerToken(slug).then((token) => {
-      if (cancelled || !token || mode === 'mock') {
+      if (cancelled || !token || modeRef.current === 'mock') {
         return;
       }
       connectWs(token, false);
     });
     return () => {
       cancelled = true;
+      intentionalCloseRef.current = true;
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      if (graceTimerRef.current) {
+        clearTimeout(graceTimerRef.current);
+        graceTimerRef.current = null;
+      }
       wsRef.current?.close();
       wsRef.current = null;
     };
-  }, [slug, mode]);
+    // Reconnects on slug change only -- `mode` flipping (e.g. a dropped
+    // socket demoting 'live' back to 'rest') must not re-run this and
+    // spawn a second, redundant connection; connectWs's own onclose
+    // handler owns retrying the existing one.
+  }, [slug]);
+
+  // Debounces the visible "Live" state: a brief drop-and-reconnect (the
+  // common case) never touches the badge; only a sustained outage does.
+  // No cleanup tied to [mode, wsStatus] here on purpose -- intermediate
+  // status wiggles while disconnected (off -> connecting -> off, as
+  // reconnect attempts happen) must not reset an in-progress countdown,
+  // only the true-unmount effect below is allowed to cancel the timer.
+  useEffect(() => {
+    const nowLive = mode === 'live' && wsStatus === 'connected';
+    if (nowLive) {
+      if (graceTimerRef.current) {
+        clearTimeout(graceTimerRef.current);
+        graceTimerRef.current = null;
+      }
+      setLiveDisplay(true);
+      return;
+    }
+    if (graceTimerRef.current) {
+      return;
+    }
+    graceTimerRef.current = setTimeout(() => {
+      graceTimerRef.current = null;
+      setLiveDisplay(false);
+    }, DISCONNECT_GRACE_MS);
+  }, [mode, wsStatus]);
+
+  useEffect(() => {
+    return () => {
+      if (graceTimerRef.current) {
+        clearTimeout(graceTimerRef.current);
+      }
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Retries a dropped socket in the background instead of leaving chat
+  // silently dead until the listener manually rejoins. `token` is the one
+  // this specific connection was opened with, closed over per-call so a
+  // publisher's retry doesn't depend on state that may have moved on.
+  function scheduleReconnect(token: string, canPublish: boolean) {
+    if (intentionalCloseRef.current) {
+      // We closed this ourselves (slug change / unmount) -- not a drop.
+      intentionalCloseRef.current = false;
+      return;
+    }
+    if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+      return;
+    }
+    reconnectAttemptsRef.current += 1;
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+    }
+    reconnectTimerRef.current = setTimeout(() => {
+      reconnectTimerRef.current = null;
+      if (canPublish) {
+        connectWs(token, true);
+      } else {
+        void requestChatViewerToken(slug).then((freshToken) => {
+          if (freshToken) {
+            connectWs(freshToken, false);
+          }
+        });
+      }
+    }, RECONNECT_DELAY_MS * reconnectAttemptsRef.current);
+  }
 
   function connectWs(token: string, canPublish: boolean) {
     const url = centrifugoWsUrl();
@@ -217,6 +318,7 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
                   subscribe: { channel: `channel:${slug}` },
                 }),
               );
+              reconnectAttemptsRef.current = 0;
               setWsStatus('connected');
               if (canPublish) {
                 setMode('live');
@@ -256,6 +358,7 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
         if (canPublish) {
           setMode((m) => (m === 'live' ? 'rest' : m));
         }
+        scheduleReconnect(token, canPublish);
       };
     } catch {
       setWsStatus('off');
@@ -366,8 +469,6 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
     }
   }
 
-  const isLive = mode === 'live' && wsStatus === 'connected';
-
   return (
     <div
       className={`border-border bg-background flex flex-col rounded-lg border ${
@@ -376,7 +477,7 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
     >
       <div className="border-border flex items-center justify-between gap-2 border-b px-3 py-2">
         <div className="font-display text-sm font-bold">Chat</div>
-        {isLive && (
+        {liveDisplay && (
           <div className="text-foreground-secondary flex items-center gap-1.5 font-mono text-[10px] tracking-wide uppercase">
             <span
               className="bg-accent-green size-1.5 rounded-full"

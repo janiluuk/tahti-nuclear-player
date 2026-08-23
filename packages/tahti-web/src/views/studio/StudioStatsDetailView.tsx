@@ -11,6 +11,7 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
+import { flagEmoji } from '../../lib/countries';
 
 const RANGES: StatsPlaysRange[] = ['7', '30', 'all'];
 
@@ -161,10 +162,7 @@ export function StudioStatsDetailView() {
                       className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
                     >
                       <span className="font-medium">
-                        {c.displayName}{' '}
-                        <span className="text-foreground-secondary font-normal">
-                          ({c.countryCode})
-                        </span>
+                        {flagEmoji(c.countryCode)} {c.displayName}
                       </span>
                       <span className="text-foreground-secondary tabular-nums">
                         {c.count.toLocaleString()}

@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -15,10 +16,11 @@ import { PageHeader } from '../components/PageHeader';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
-export function MessagesView() {
+export function MessagesView({ threadId }: { threadId?: string } = {}) {
   const user = useAuthStore((s) => s.user);
+  const navigate = useNavigate();
   const [inbox, setInbox] = useState<ConversationSummary[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(threadId ?? null);
   const [messages, setMessages] = useState<ChatDm[]>([]);
   const [otherName, setOtherName] = useState('');
   const [body, setBody] = useState('');
@@ -38,6 +40,20 @@ export function MessagesView() {
     reloadInbox();
   }, [user]);
 
+  useEffect(() => {
+    if (!user || !threadId) {
+      return;
+    }
+    setActiveId(threadId);
+    void fetchConversation(threadId).then((r) => {
+      if (!r.data) {
+        return;
+      }
+      setMessages(r.data.messages);
+      setOtherName(r.data.otherUser.displayName);
+    });
+  }, [user, threadId]);
+
   const openThread = (id: string) => {
     setActiveId(id);
     void fetchConversation(id).then((r) => {
@@ -47,6 +63,7 @@ export function MessagesView() {
       setMessages(r.data.messages);
       setOtherName(r.data.otherUser.displayName);
     });
+    void navigate({ to: '/messages/$id', params: { id } });
   };
 
   if (!user) {

@@ -17,6 +17,7 @@ import { ContextMenuWrapperProps } from '../types';
 
 type TitleCellMeta = {
   displayQueueControls?: boolean;
+  displayThumbnail?: boolean;
   onAddToQueue?: (track: Track) => void;
   onEdit?: (track: Track) => void;
   onOpenDetail?: (track: Track) => void;
@@ -99,7 +100,7 @@ const AddToQueueButton: FC<AddToQueueButtonProps> = ({
       variant="text"
       disabled={queued || flashing}
       className={cn(
-        'opacity-100 transition-colors [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100',
+        'size-7 opacity-100 transition-colors [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100',
         (queued || flashing) &&
           'bg-primary/20 text-primary opacity-100! motion-safe:animate-pulse',
       )}
@@ -108,11 +109,11 @@ const AddToQueueButton: FC<AddToQueueButtonProps> = ({
         setFlashing(true);
         onClick();
       }}
-      aria-label={queued ? 'In queue' : label}
+      aria-label={label}
       aria-pressed={queued}
-      title={queued ? 'Already in queue' : label}
+      title={label}
     >
-      {queued ? <Check size={16} /> : <ListPlus size={16} />}
+      {queued ? <Check size={14} /> : <ListPlus size={14} />}
     </Button>
   );
 };
@@ -150,7 +151,7 @@ export const TitleCell = <T extends Track>({
   const showControls = meta?.displayQueueControls;
   const ContextMenuWrapper = meta?.ContextMenuWrapper;
   const track = row.original;
-  const hasAddToQueue = Boolean(meta?.onAddToQueue);
+  const hasAddToQueue = Boolean(meta?.onAddToQueue && !meta.displayThumbnail);
   const hasContextMenu = Boolean(ContextMenuWrapper);
   const canEdit = Boolean(meta?.onEdit && meta.canEditTrack?.(track));
   const canOpenDetail = Boolean(
@@ -171,7 +172,11 @@ export const TitleCell = <T extends Track>({
           )}
           onClick={(e) => {
             e.stopPropagation();
-            actions.onPlayNow?.(track);
+            if (actions.onOpenDetails) {
+              actions.onOpenDetails(track);
+            } else {
+              actions.onPlayNow?.(track);
+            }
           }}
         >
           {getValue()}
@@ -180,7 +185,7 @@ export const TitleCell = <T extends Track>({
           <div className="flex items-center gap-1">
             {hasAddToQueue && (
               <AddToQueueButton
-                label={labels.addToQueue}
+                label={isQueued ? labels.inQueue : labels.addToQueue}
                 queued={isQueued}
                 onClick={() => meta?.onAddToQueue?.(track)}
               />

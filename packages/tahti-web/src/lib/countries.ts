@@ -58,3 +58,33 @@ export const COUNTRIES: { code: string; name: string }[] = [
   { code: 'TR', name: 'Turkey' },
   { code: 'AE', name: 'United Arab Emirates' },
 ] as const;
+
+/** ISO 3166-1 alpha-2 code → regional indicator flag emoji (e.g. "FI" → "🇫🇮"). */
+export function flagEmoji(code: string | null | undefined): string {
+  if (!code || code.length !== 2) {
+    return '';
+  }
+  const upper = code.toUpperCase();
+  return [...upper]
+    .map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65))
+    .join('');
+}
+
+/** Country name for a code, falling back to the code itself if unknown. */
+export function countryName(code: string | null | undefined): string {
+  if (!code) {
+    return '';
+  }
+  return (
+    COUNTRIES.find((c) => c.code === code.toUpperCase())?.name ??
+    code.toUpperCase()
+  );
+}
+
+/** "🇫🇮 Finland" — flag + name, for display labels and select options. */
+export function countryFlagAndName(code: string | null | undefined): string {
+  if (!code) {
+    return '';
+  }
+  return `${flagEmoji(code)} ${countryName(code)}`.trim();
+}

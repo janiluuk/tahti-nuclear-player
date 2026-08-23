@@ -35,6 +35,7 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
+import { countryFlagAndName } from '../../lib/countries';
 
 const RANGES: Array<{ id: StatsPlaysRange; label: string }> = [
   { id: '7', label: '7 days' },
@@ -371,7 +372,9 @@ export const StudioStatsView: FC = () => {
                     key={country.country}
                     className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
                   >
-                    <span className="font-medium">{country.country}</span>
+                    <span className="font-medium">
+                      {countryFlagAndName(country.country)}
+                    </span>
                     <span className="text-foreground-secondary tabular-nums">
                       {country.count.toLocaleString()}
                     </span>

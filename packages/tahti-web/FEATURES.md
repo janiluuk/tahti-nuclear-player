@@ -125,7 +125,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Feature | Prod | POC | Status | Notes |
 |---------|------|-----|--------|-------|
 | Studio home | `/dashboard` | `/studio` | `live-api` | |
-| Setup channel | `/dashboard/setup-channel` | `/studio/setup-channel` | `live-api` | `POST /api/me/channel/provision`; prod path aliases redirect |
+| Channel setup and design | `/dashboard/setup-channel` | `/studio/channel?tab=setup` | `live-api` | `POST /api/me/channel/provision`; setup continues into the shared channel workspace |
 | Go Live | `/dashboard/broadcast` | `/studio/go-live` | `live-api` | broadcast wizard steps; simulator only under FORCE_MOCK |
 | Multistream RTMP | broadcast | go-live tab | `live-api` | |
 | Archive / Music | `/dashboard/archive` | `/studio/archive` | `live-api` | |
@@ -200,17 +200,17 @@ Compared the current `apps/web/src/app/**/page.tsx` tree in the Tahti repository
 
 ### Missing user-facing surfaces
 
-- [ ] Public venue detail (`/v/:slug`) — venue directory and registration exist, but a shareable venue profile does not.
-- [ ] Transparency methodology (`/transparency/methodology`) — the data dashboard exists without the standalone methodology explanation.
-- [ ] Public/member feature requests (`/governance/feature-requests`) — board administration exists, but listeners and members cannot browse or submit requests from its Tahti route.
+- [x] Public venue detail (`/v/:slug`) — `VenueDetailView` built from the existing venue directory list; `VenuesView` links each card to it in-app instead of out to `tahti.live`.
+- [x] Transparency methodology (`/transparency/methodology`) — `TransparencyMethodologyView` ports prod's static methodology copy (categories, grant formula, data pipeline, public API); linked from the dashboard header.
+- [x] Public/member feature requests (`/governance/feature-requests`) — `FeatureRequestsView` against the real member-gated `GET/POST /api/v1/governance/feature-requests` (+ vote/comment sub-routes); propose, upvote, discuss, same member gate as `/governance` motions. Distinct from the pre-existing admin-only `/admin/feature-requests` review queue.
 - [ ] Upload job detail (`/dashboard/upload/:uploadId`) — upload works, but processing state has no durable detail route after navigation or refresh.
 - [ ] Signup profile and broadcaster-intake step parity (`/signup/profile`, `/signup/broadcast`) — join and membership checkout exist, but these guided steps are consolidated rather than preserved as addressable routes.
 
 ### Partial functionality
 
-- [ ] Support (`/help/support`) has help content but no in-client ticket submission form.
-- [ ] Public venue governance (`/governance/venues`) is represented through venue registration and board tools, without the production member-facing route.
-- [ ] Direct-message thread URLs (`/dashboard/messages/:id`) open the inbox but do not preserve the selected conversation in the route.
+- [x] Support (`/help/support`) — `SupportContactForm` posts to the real `POST /api/support/contact` (auth-optional, category enum, prod's own rate-limited endpoint); category/subject/message match prod's form exactly.
+- [x] ~~Public venue governance (`/governance/venues`)~~ — not actually a gap. Checked prod (`apps/web/src/app/governance/venues/page.tsx`): it's board-only ("Venue verification"), same as this POC's `/studio/venues`/admin tooling. Prod has no member-facing venue governance route to port.
+- [x] Direct-message thread URLs — new `/messages/$id` route; opening a conversation now navigates there so refresh/share preserves it.
 - [ ] Admin detail operations remain intentionally reduced: user/support/announcement detail, bulk file operations, per-subscriber payout retry, legacy-member migration, grant preview/run, and governance report/resolution/audit tools.
 - [ ] Pro editor remains shallower than Tahti's full ffmpeg/multitrack workflow; a true multitrack timeline still needs a rendering and persistence design.
 - [ ] Dynamic SEO/OG parity still depends on an edge metadata or prerendering solution for artist, channel, release, collection, and venue pages.

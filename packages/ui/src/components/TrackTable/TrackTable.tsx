@@ -82,6 +82,7 @@ export function TrackTable<T extends Track = Track>({
     getSortedRowModel: getSortedRowModel(),
     meta: {
       displayQueueControls: resolvedDisplay.displayQueueControls,
+      displayThumbnail: resolvedDisplay.displayThumbnail,
       onAddToQueue: actions?.onAddToQueue,
       onToggleFavorite: actions?.onToggleFavorite,
       onRemove: actions?.onRemove,
@@ -89,6 +90,7 @@ export function TrackTable<T extends Track = Track>({
       onOpenDetail: actions?.onOpenDetail,
       isTrackFavorite: meta?.isTrackFavorite,
       isCurrentTrack: meta?.isCurrentTrack,
+      isTrackPlaying: meta?.isTrackPlaying,
       isTrackQueued: meta?.isTrackQueued,
       canEditTrack: meta?.canEditTrack,
       canOpenDetail: meta?.canOpenDetail,

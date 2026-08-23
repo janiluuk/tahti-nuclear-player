@@ -43,6 +43,7 @@ export function InPageNav({
               params={item.params}
               className={className}
               aria-current={item.active ? 'page' : undefined}
+              data-tour-id={`nav-item-${item.id}`}
             >
               {item.label}
             </Link>
@@ -56,6 +57,7 @@ export function InPageNav({
             onClick={item.onSelect}
             className={className}
             aria-pressed={item.active}
+            data-tour-id={`nav-item-${item.id}`}
           >
             {item.label}
           </button>

@@ -21,12 +21,20 @@ export type StudioArchiveItem = {
   isPublic?: boolean;
   isFallback?: boolean;
   commentsEnabled?: boolean;
+  downloadsEnabled?: boolean;
+  visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+  releaseDate?: string | null;
   pinnedAt?: string | null;
   effectiveBpm?: number | null;
   effectiveKey?: string | null;
   createdAt?: string;
   updatedAt?: string;
   bannerUrl?: string | null;
+  /** Set for EMBED_ONLY items imported by reference (hearthis.at, Mixcloud,
+   * Spotify) — Tahti holds no audio file, so playback only works through
+   * the provider's own widget, not the normal editor-source stream. */
+  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | null;
+  embedUri?: string | null;
 };
 
 export type StudioArchivePatch = {
@@ -39,6 +47,9 @@ export type StudioArchivePatch = {
   isPublic?: boolean;
   isFallback?: boolean;
   commentsEnabled?: boolean;
+  downloadsEnabled?: boolean;
+  visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+  releaseDate?: string | null;
   pinned?: boolean;
   bannerUrl?: string | null;
 };

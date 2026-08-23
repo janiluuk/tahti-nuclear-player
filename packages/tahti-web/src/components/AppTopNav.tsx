@@ -213,7 +213,9 @@ export function AppTopNav({
       </div>
 
       <div className="flex min-w-0 items-center gap-1">
-        <RadioScheduleOverlay iconClassName={iconBtnClass} />
+        <span data-tour-id="topbar-schedule">
+          <RadioScheduleOverlay iconClassName={iconBtnClass} />
+        </span>
 
         {user && hasChannel ? (
           <>
@@ -222,6 +224,7 @@ export function AppTopNav({
               className={iconBtnClass}
               aria-label="Go live"
               title="Go live"
+              data-tour-id="topbar-golive"
             >
               <RadioIcon size={16} />
             </Link>
@@ -230,6 +233,7 @@ export function AppTopNav({
               className={iconBtnClass}
               aria-label="Upload"
               title="Upload"
+              data-tour-id="topbar-upload"
             >
               <UploadIcon size={16} />
             </Link>
@@ -242,6 +246,7 @@ export function AppTopNav({
             className={iconBtnClass}
             aria-label="Messages"
             title="Messages"
+            data-tour-id="topbar-messages"
           >
             <MessageSquareIcon size={16} />
           </Link>
@@ -251,6 +256,7 @@ export function AppTopNav({
           <div className="relative" ref={menuRef}>
             <button
               type="button"
+              data-tour-id="topbar-account"
               className={cn(
                 'hover:bg-background-secondary inline-flex items-center gap-1.5 rounded-lg border px-1.5 py-1 transition-colors',
                 open
@@ -367,6 +373,7 @@ export function AppTopNav({
             className={iconBtnClass}
             aria-label="Log in"
             title="Log in"
+            data-tour-id="topbar-login"
             onClick={() => openAuth('login')}
           >
             <LogInIcon size={16} />
