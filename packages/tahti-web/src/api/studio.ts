@@ -205,6 +205,58 @@ export async function patchStudioArchiveItem(
   }
 }
 
+export type RadioSubmissionStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export type RadioSubmission = {
+  id: string;
+  status: RadioSubmissionStatus;
+  rejectionNote: string | null;
+  createdAt: string;
+  archiveItem: { id: string; title: string };
+};
+
+/** Own recent Tahti Radio submissions, newest first -- used to show
+ * per-track status ("Pending review" / "In rotation" / rejection note)
+ * without a dedicated per-track lookup endpoint. */
+export async function fetchMyRadioSubmissions(): Promise<{
+  data: RadioSubmission[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return { data: [], meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
+  }
+  try {
+    const { data } = await requestJson<{ items: RadioSubmission[] }>(
+      '/api/me/radio-submissions',
+    );
+    return { data: data.items, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+/** Submit one READY track for Tahti Radio board review -- not immediate
+ * inclusion, see RadioSubmissionStatus. */
+export async function submitTrackToRadioRotation(
+  archiveItemId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true };
+  }
+  try {
+    await requestJson('/api/me/radio-submissions', {
+      method: 'POST',
+      body: JSON.stringify({ archiveItemIds: [archiveItemId] }),
+    });
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Submission failed',
+    };
+  }
+}
+
 export async function uploadArchiveBanner(
   archiveItemId: string,
   file: File,
