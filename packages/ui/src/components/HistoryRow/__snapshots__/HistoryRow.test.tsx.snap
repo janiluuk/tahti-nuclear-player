@@ -137,7 +137,7 @@ exports[`HistoryRow > (Snapshot) renders with artwork and all actions 1`] = `
         >
           <button
             aria-label="Play"
-            class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-7 rounded-full shadow-md"
+            class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-6 rounded-full shadow-md"
             data-headlessui-state=""
             data-testid="media-artwork-play"
             title="Play"
@@ -163,7 +163,8 @@ exports[`HistoryRow > (Snapshot) renders with artwork and all actions 1`] = `
           </button>
           <button
             aria-label="Add to queue"
-            class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-5 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+            aria-pressed="false"
+            class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-4 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
             data-headlessui-state=""
             data-testid="media-artwork-queue"
             title="Add to queue"
