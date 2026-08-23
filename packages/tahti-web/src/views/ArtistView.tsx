@@ -33,6 +33,7 @@ import { Eyebrow } from '../components/tahti/Eyebrow';
 import { TrackEditDialog } from '../components/TrackEditDialog';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { isPinned } from '../lib/pinnedTracks';
+import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
@@ -316,7 +317,15 @@ export function ArtistView({ username }: { username: string }) {
                   className="size-full object-cover"
                 />
               </button>
-            ) : null}
+            ) : (
+              <div className="border-border size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24">
+                <img
+                  src={placeholderArtworkUrl(artist.username)}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              </div>
+            )}
             <div className="min-w-0">
               <h1 className="font-display text-3xl font-extrabold tracking-tight">
                 {artist.displayName}
@@ -508,7 +517,7 @@ export function ArtistView({ username }: { username: string }) {
                     key={track.id}
                     title={track.title}
                     subtitle={track.artistName ?? artist.displayName}
-                    src={track.bannerUrl ?? undefined}
+                    src={track.bannerUrl ?? placeholderArtworkUrl(track.id)}
                     glowColor={GLOW_COLORS[i % GLOW_COLORS.length]}
                     onPlay={() => play(playable)}
                     onQueue={() => enqueue(playable)}
@@ -540,7 +549,9 @@ export function ArtistView({ username }: { username: string }) {
                     key={release.id}
                     title={release.title}
                     subtitle={release.type ?? 'Release'}
-                    src={release.artworkUrl ?? undefined}
+                    src={
+                      release.artworkUrl ?? placeholderArtworkUrl(release.id)
+                    }
                     glowColor={GLOW_COLORS[(i + 2) % GLOW_COLORS.length]}
                     className="w-full"
                     onClick={
@@ -625,14 +636,14 @@ export function ArtistView({ username }: { username: string }) {
                       <Card
                         title={rel.title}
                         subtitle={rel.type ?? 'Release'}
-                        src={rel.artworkUrl ?? undefined}
+                        src={rel.artworkUrl ?? placeholderArtworkUrl(rel.id)}
                       />
                     </Link>
                   ) : (
                     <Card
                       title={rel.title}
                       subtitle={rel.type ?? 'Release'}
-                      src={rel.artworkUrl ?? undefined}
+                      src={rel.artworkUrl ?? placeholderArtworkUrl(rel.id)}
                     />
                   )}
                 </div>

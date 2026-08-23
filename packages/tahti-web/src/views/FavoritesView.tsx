@@ -10,6 +10,7 @@ import {
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
@@ -45,7 +46,7 @@ export function FavoritesView() {
                   <Card
                     title={ch.displayName}
                     subtitle={ch.slug}
-                    src={ch.avatarUrl ?? undefined}
+                    src={ch.avatarUrl ?? placeholderArtworkUrl(ch.slug)}
                   />
                 </Link>
                 <MediaIconActions

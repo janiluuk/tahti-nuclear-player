@@ -3,7 +3,6 @@ import {
   ArrowUpRightIcon,
   HeartIcon,
   ListPlusIcon,
-  MusicIcon,
   PauseIcon,
   PlayIcon,
 } from 'lucide-react';
@@ -16,6 +15,7 @@ import type { PublicTrackDetail, TahtiPlayable } from '../api/types';
 import { PageFrame } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
+import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { formatDuration, providerLabel } from '../lib/playableToTrack';
 import { useLibraryStore } from '../stores/libraryStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
@@ -116,19 +116,11 @@ export function TrackDetailView({ id }: { id: string }) {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
           <div className="border-border bg-background-secondary flex size-40 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
-            {playable.coverUrl ? (
-              <img
-                src={playable.coverUrl}
-                alt=""
-                className="size-full object-cover"
-              />
-            ) : (
-              <MusicIcon
-                size={40}
-                aria-hidden
-                className="text-foreground-secondary"
-              />
-            )}
+            <img
+              src={playable.coverUrl ?? placeholderArtworkUrl(playable.id)}
+              alt=""
+              className="size-full object-cover"
+            />
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-1 text-center sm:text-left">
             <h1 className="font-display text-3xl font-extrabold tracking-tight">

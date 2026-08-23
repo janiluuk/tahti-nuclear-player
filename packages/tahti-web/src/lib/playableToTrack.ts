@@ -1,6 +1,7 @@
 import type { ArtistCredit, Track } from '@nuclearplayer/model';
 
 import type { TahtiPlayable } from '../api/types';
+import { placeholderArtworkUrl } from './placeholderArt';
 
 export function playableToTrack(item: TahtiPlayable): Track {
   const provider = item.sourceProvider?.trim() || 'tahti';
@@ -21,9 +22,14 @@ export function playableToTrack(item: TahtiPlayable): Track {
             source: { provider, id: item.id },
           }
         : undefined,
-    artwork: item.coverUrl
-      ? { items: [{ url: item.coverUrl, purpose: 'cover' }] }
-      : undefined,
+    artwork: {
+      items: [
+        {
+          url: item.coverUrl ?? placeholderArtworkUrl(item.id),
+          purpose: 'cover',
+        },
+      ],
+    },
     source: { provider, id: item.id, url: item.streamUrl },
     streamCandidates: [
       {

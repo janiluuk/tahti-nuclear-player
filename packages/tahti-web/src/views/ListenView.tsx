@@ -29,6 +29,7 @@ import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
+import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -252,7 +253,7 @@ export function ListenView() {
                           </Link>
                         }
                         subtitle={ch.slug}
-                        src={ch.avatarUrl ?? undefined}
+                        src={ch.avatarUrl ?? placeholderArtworkUrl(ch.slug)}
                         onPlay={() => void playNow(ch.slug)}
                         onQueue={() => void add(ch.slug)}
                         favorited
@@ -403,7 +404,9 @@ export function ListenView() {
                     {channel.state === 'LIVE' ? 'Live now' : 'Replay'}
                   </span>
                 }
-                src={channel.user.avatarUrl ?? undefined}
+                src={
+                  channel.user.avatarUrl ?? placeholderArtworkUrl(channel.slug)
+                }
                 onPlay={() => void playNow(channel.slug)}
                 onQueue={() => void add(channel.slug)}
                 onClick={() => {
@@ -469,7 +472,7 @@ export function ListenView() {
                         {ch.genres.slice(0, 2).join(', ') || `@${ch.username}`}
                       </span>
                     }
-                    src={ch.avatarUrl ?? undefined}
+                    src={ch.avatarUrl ?? placeholderArtworkUrl(ch.username)}
                     onPlay={() => void playArtist(ch.username)}
                     onQueue={() => void queueArtist(ch.username)}
                     onFavorite={
