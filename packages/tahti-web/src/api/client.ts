@@ -14,6 +14,7 @@ import {
   mockProfile,
   mockRadio,
   mockRadioRecentlyPlayed,
+  mockSearch,
   mockSmartLink,
   mockTrackDetail,
   mockTransparencyGrants,
@@ -68,6 +69,7 @@ import type {
   RadioNowPlaying,
   RadioRecentlyPlayedItem,
   ReleaseEmbedView,
+  SearchResponse,
   SmartLinkView,
   TahtiPlayable,
   TransparencyGrantReport,
@@ -144,6 +146,39 @@ export async function fetchDirectory(): Promise<{
     return { data, meta: { source: 'api' } };
   } catch (err) {
     return withMockFallback(err, mockDirectory, () => ({ items: [] }));
+  }
+}
+
+/** Global search — top nav search bar. type narrows to one result kind;
+ * omit for all three at once. */
+export async function fetchSearch(
+  q: string,
+  type: 'all' | 'tracks' | 'artists' | 'collections' = 'all',
+): Promise<{
+  data: SearchResponse;
+  meta: FetchMeta;
+}> {
+  const empty: SearchResponse = { tracks: [], artists: [], collections: [] };
+  if (!q.trim()) {
+    return { data: empty, meta: { source: 'api' } };
+  }
+  if (forceMock()) {
+    return {
+      data: mockSearch(q, type),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<SearchResponse>(
+      `/api/v1/search?q=${encodeURIComponent(q)}&type=${type}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return withMockFallback(
+      err,
+      () => mockSearch(q, type),
+      () => empty,
+    );
   }
 }
 

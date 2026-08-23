@@ -20,6 +20,7 @@ import { cn } from '../lib/cn';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
+import { GlobalSearch } from './GlobalSearch';
 import { RadioScheduleOverlay } from './RadioScheduleOverlay';
 import { TahtiLogoLink } from './TahtiLogo';
 
@@ -205,6 +206,10 @@ export function AppTopNav({
           </button>
         ) : null}
         <TahtiLogoLink />
+      </div>
+
+      <div className="hidden min-w-0 flex-1 justify-center px-4 sm:flex">
+        <GlobalSearch />
       </div>
 
       <div className="flex min-w-0 items-center gap-1">

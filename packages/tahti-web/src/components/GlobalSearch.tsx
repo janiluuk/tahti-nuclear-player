@@ -1,0 +1,265 @@
+import { useNavigate } from '@tanstack/react-router';
+import {
+  DiscIcon,
+  ListMusicIcon,
+  SearchIcon,
+  UserIcon,
+  XIcon,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
+import { fetchSearch } from '../api/client';
+import type {
+  SearchArtistResult,
+  SearchCollectionResult,
+  SearchResponse,
+  SearchTrackResult,
+} from '../api/types';
+import { placeholderArtworkUrl } from '../lib/placeholderArt';
+import { formatDuration } from '../lib/playableToTrack';
+
+const EMPTY: SearchResponse = { tracks: [], artists: [], collections: [] };
+const DEBOUNCE_MS = 250;
+const MIN_QUERY_LENGTH = 2;
+
+function Thumbnail({ src, seed }: { src: string | null; seed: string }) {
+  return (
+    <img
+      src={src ?? placeholderArtworkUrl(seed)}
+      alt=""
+      className="border-border size-10 shrink-0 rounded-md border object-cover"
+    />
+  );
+}
+
+function ResultRow({
+  thumbnail,
+  title,
+  meta,
+  onSelect,
+}: {
+  thumbnail: React.ReactNode;
+  title: string;
+  meta: string;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="hover:bg-background-secondary flex w-full min-w-0 items-center gap-2.5 rounded-md px-2 py-1.5 text-left"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onSelect}
+    >
+      {thumbnail}
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium">{title}</span>
+        <span className="text-foreground-secondary block truncate text-xs">
+          {meta}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/** Top-nav search across artists, tracks, and collections — debounced,
+ * thumbnailed results grouped and labeled by type. */
+export function GlobalSearch() {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResponse>(EMPTY);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed.length < MIN_QUERY_LENGTH) {
+      setResults(EMPTY);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    let cancelled = false;
+    const timeout = window.setTimeout(() => {
+      void fetchSearch(trimmed).then(({ data }) => {
+        if (!cancelled) {
+          setResults(data);
+          setLoading(false);
+        }
+      });
+    }, DEBOUNCE_MS);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+  }, [query]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onPointerDown = (e: PointerEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  const close = () => {
+    setOpen(false);
+    setQuery('');
+  };
+
+  const goToArtist = (artist: SearchArtistResult) => {
+    close();
+    void navigate({
+      to: '/u/$username',
+      params: { username: artist.username },
+    });
+  };
+
+  const goToTrack = (track: SearchTrackResult) => {
+    close();
+    void navigate({ to: '/t/$id', params: { id: track.id } });
+  };
+
+  const goToCollection = (collection: SearchCollectionResult) => {
+    close();
+    void navigate({
+      to: '/u/$username/c/$slug',
+      params: { username: collection.ownerUsername, slug: collection.slug },
+    });
+  };
+
+  const trimmed = query.trim();
+  const hasQuery = trimmed.length >= MIN_QUERY_LENGTH;
+  const hasResults =
+    results.artists.length > 0 ||
+    results.tracks.length > 0 ||
+    results.collections.length > 0;
+
+  return (
+    <div ref={rootRef} className="relative w-full max-w-xs min-w-0 sm:max-w-sm">
+      <div className="border-border bg-background-secondary focus-within:border-primary/60 flex items-center gap-2 rounded-lg border px-2.5 py-1.5">
+        <SearchIcon
+          size={15}
+          className="text-foreground-secondary shrink-0"
+          aria-hidden
+        />
+        <input
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          placeholder="Search artists, tracks, playlists…"
+          aria-label="Search artists, tracks, and playlists"
+          className="text-foreground placeholder:text-foreground-secondary min-w-0 flex-1 bg-transparent text-sm outline-none"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            aria-label="Clear search"
+            className="text-foreground-secondary hover:text-foreground shrink-0"
+          >
+            <XIcon size={14} />
+          </button>
+        )}
+      </div>
+
+      {open && hasQuery && (
+        <div className="border-border bg-background shadow-shadow absolute top-full right-0 left-0 z-40 mt-1.5 max-h-[70vh] overflow-y-auto rounded-lg border p-1.5">
+          {loading ? (
+            <p className="text-foreground-secondary px-2 py-3 text-sm">
+              Searching…
+            </p>
+          ) : !hasResults ? (
+            <p className="text-foreground-secondary px-2 py-3 text-sm">
+              No results for “{trimmed}”.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {results.artists.length > 0 && (
+                <div>
+                  <p className="text-foreground-secondary flex items-center gap-1.5 px-2 py-1 text-xs font-semibold uppercase">
+                    <UserIcon size={12} aria-hidden /> Artists
+                  </p>
+                  {results.artists.map((artist) => (
+                    <ResultRow
+                      key={artist.username}
+                      thumbnail={
+                        <Thumbnail
+                          src={artist.avatarUrl}
+                          seed={artist.username}
+                        />
+                      }
+                      title={artist.displayName}
+                      meta={`@${artist.username}`}
+                      onSelect={() => goToArtist(artist)}
+                    />
+                  ))}
+                </div>
+              )}
+              {results.tracks.length > 0 && (
+                <div>
+                  <p className="text-foreground-secondary flex items-center gap-1.5 px-2 py-1 text-xs font-semibold uppercase">
+                    <DiscIcon size={12} aria-hidden /> Tracks
+                  </p>
+                  {results.tracks.map((track) => (
+                    <ResultRow
+                      key={track.id}
+                      thumbnail={
+                        <Thumbnail src={track.coverUrl} seed={track.id} />
+                      }
+                      title={track.title}
+                      meta={`by ${track.artistName}${
+                        track.durationSec
+                          ? ` · ${formatDuration(track.durationSec)}`
+                          : ''
+                      }`}
+                      onSelect={() => goToTrack(track)}
+                    />
+                  ))}
+                </div>
+              )}
+              {results.collections.length > 0 && (
+                <div>
+                  <p className="text-foreground-secondary flex items-center gap-1.5 px-2 py-1 text-xs font-semibold uppercase">
+                    <ListMusicIcon size={12} aria-hidden /> Playlists
+                  </p>
+                  {results.collections.map((collection) => (
+                    <ResultRow
+                      key={collection.slug}
+                      thumbnail={
+                        <Thumbnail
+                          src={collection.coverUrl}
+                          seed={collection.slug}
+                        />
+                      }
+                      title={collection.name}
+                      meta={`by ${collection.ownerDisplayName}`}
+                      onSelect={() => goToCollection(collection)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -14,6 +14,7 @@ import type {
   PublicTrackDetail,
   RadioNowPlaying,
   RadioRecentlyPlayedItem,
+  SearchResponse,
   SmartLinkView,
   TahtiPlayable,
   TransparencyGrantReport,
@@ -345,6 +346,47 @@ const MOCK_DIRECTORY: ChannelDirectoryResponse = {
 
 export function mockDirectory(): ChannelDirectoryResponse {
   return MOCK_DIRECTORY;
+}
+
+/** Offline stand-in for GET /api/v1/search — matches artists from the mock
+ * directory and tracks from each of their mock archives. No mock collection
+ * fixture list exists yet, so collections always come back empty offline. */
+export function mockSearch(
+  q: string,
+  type: 'all' | 'tracks' | 'artists' | 'collections' = 'all',
+): SearchResponse {
+  const needle = q.trim().toLowerCase();
+  const artists =
+    type === 'tracks' || type === 'collections'
+      ? []
+      : MOCK_DIRECTORY.items
+          .filter(
+            (item) =>
+              item.displayName.toLowerCase().includes(needle) ||
+              item.username.toLowerCase().includes(needle),
+          )
+          .map((item) => ({
+            username: item.username,
+            displayName: item.displayName,
+            avatarUrl: item.avatarUrl,
+            channelSlug: item.slug,
+          }));
+  const tracks =
+    type === 'artists' || type === 'collections'
+      ? []
+      : MOCK_DIRECTORY.items.flatMap((item) =>
+          mockArchiveItems(item.slug)
+            .filter((track) => track.title.toLowerCase().includes(needle))
+            .map((track) => ({
+              id: track.id,
+              title: track.title,
+              artistName: track.artistName ?? item.displayName,
+              channelSlug: item.slug,
+              durationSec: track.durationSec ?? null,
+              coverUrl: track.bannerUrl ?? null,
+            })),
+        );
+  return { tracks, artists, collections: [] };
 }
 
 function stationContent(slug: string): StationContent {
