@@ -79,7 +79,7 @@ export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
       data-testid="bottom-queue"
     >
       <div className="flex w-full min-w-0 items-center gap-2">
-        <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
+        <div className="flex h-11 min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
           {queue.length === 0 ? (
             <span className="text-foreground-secondary px-2 text-xs">
               Queue is empty

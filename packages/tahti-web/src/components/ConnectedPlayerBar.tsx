@@ -4,6 +4,7 @@ import {
   ChevronsUpIcon,
   Maximize2Icon,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { formatArtistNames } from '@nuclearplayer/model';
 import { Button, cn, PlayerBar } from '@nuclearplayer/ui';
@@ -13,6 +14,8 @@ import { useLayoutStore } from '../stores/layoutStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { BottomQueueStrip } from './BottomQueueStrip';
+
+const QUEUE_ANIMATION_MS = 200;
 
 export function ConnectedPlayerBar() {
   const queue = usePlayerStore((s) => s.queue);
@@ -39,6 +42,22 @@ export function ConnectedPlayerBar() {
   const setFullScreenPlayerOpen = useLayoutStore(
     (s) => s.setFullScreenPlayerOpen,
   );
+
+  // Keep the queue strip mounted through its closing fade so the layout
+  // doesn't snap back to the compact bar before the animation finishes.
+  const [queueMounted, setQueueMounted] = useState(queueOpen);
+  const [queueVisible, setQueueVisible] = useState(queueOpen);
+
+  useEffect(() => {
+    if (queueOpen) {
+      setQueueMounted(true);
+      const raf = requestAnimationFrame(() => setQueueVisible(true));
+      return () => cancelAnimationFrame(raf);
+    }
+    setQueueVisible(false);
+    const t = setTimeout(() => setQueueMounted(false), QUEUE_ANIMATION_MS);
+    return () => clearTimeout(t);
+  }, [queueOpen]);
 
   const current = queue.find((q) => q.id === currentId);
   const playable = current ? playableFromQueueItem(current) : null;
@@ -120,9 +139,12 @@ export function ConnectedPlayerBar() {
         />
       )}
       <PlayerBar
-        className={cn(queueOpen && 'h-auto min-h-16 items-stretch py-2')}
+        className={cn(
+          'transition-all duration-200',
+          queueMounted && 'h-auto min-h-16 items-stretch py-2',
+        )}
         left={
-          queueOpen ? undefined : (
+          queueMounted ? undefined : (
             <div className="flex min-w-0 items-center gap-2">
               <PlayerBar.NowPlaying
                 title={title}
@@ -145,10 +167,23 @@ export function ConnectedPlayerBar() {
           <div
             className={cn(
               'flex w-full flex-col items-center',
-              queueOpen ? 'max-w-none min-w-0' : 'max-w-xl',
+              queueMounted ? 'max-w-none min-w-0' : 'max-w-xl',
             )}
           >
-            {queueOpen ? <BottomQueueStrip controls={controls} /> : controls}
+            {queueMounted ? (
+              <div
+                className={cn(
+                  'bg-background-secondary/50 w-full rounded-lg backdrop-blur-sm transition-all duration-200 ease-out',
+                  queueVisible
+                    ? 'translate-y-0 opacity-100'
+                    : '-translate-y-1 opacity-0',
+                )}
+              >
+                <BottomQueueStrip controls={controls} />
+              </div>
+            ) : (
+              controls
+            )}
           </div>
         }
         right={
