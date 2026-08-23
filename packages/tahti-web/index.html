@@ -26,12 +26,15 @@
         try {
           var bag = localStorage.getItem('tahti-web-theme');
           var themeId = null;
-          var dark = true;
+          var colorMode = null;
+          var dark = null;
           if (bag) {
             var parsed = JSON.parse(bag);
             var state = parsed && parsed.state ? parsed.state : parsed;
             if (state) {
               if (typeof state.themeId === 'string') themeId = state.themeId;
+              if (typeof state.colorMode === 'string')
+                colorMode = state.colorMode;
               if (typeof state.dark === 'boolean') dark = state.dark;
             }
           }
@@ -39,6 +42,18 @@
             themeId = localStorage.getItem('tahti-nuclear-theme-id');
           var darkRaw = localStorage.getItem('tahti-nuclear-dark');
           if (darkRaw != null) dark = darkRaw === '1';
+          if (colorMode === 'light') dark = false;
+          else if (colorMode === 'dark') dark = true;
+          else if (colorMode === 'dynamic') {
+            var hour = new Date().getHours();
+            dark = hour < 7 || hour >= 19;
+          } else if (dark == null) {
+            // No preference stored anywhere yet — match the OS like the
+            // store's own first-run default (stores/themeStore.ts merge()).
+            dark =
+              !!window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches;
+          }
           if (themeId)
             document.documentElement.setAttribute('data-theme-id', themeId);
           if (dark) document.documentElement.setAttribute('data-theme', 'dark');

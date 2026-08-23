@@ -90,6 +90,22 @@ const mockArchiveStore: StudioArchiveItem[] = [
     commentsEnabled: true,
     createdAt: new Date().toISOString(),
   },
+  {
+    id: 'arch-mock-3',
+    title: 'Imported from hearthis.at',
+    status: 'READY',
+    durationSec: 2640,
+    genre: 'house',
+    contentType: 'DJ_MIX',
+    isPublic: true,
+    visibility: 'PUBLIC',
+    releaseDate: null,
+    downloadsEnabled: false,
+    commentsEnabled: true,
+    createdAt: new Date().toISOString(),
+    embedProvider: 'HEARTHIS',
+    embedUri: '1234567',
+  },
 ];
 
 let mockProjects: EditorProjectRow[] = [

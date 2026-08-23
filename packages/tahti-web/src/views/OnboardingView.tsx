@@ -20,6 +20,21 @@ import {
   parseGenreTags,
 } from '../lib/genres';
 import { useAuthStore } from '../stores/authStore';
+import { useThemeStore, type ColorMode } from '../stores/themeStore';
+
+const APPEARANCE_OPTIONS: Array<{
+  id: ColorMode;
+  label: string;
+  hint: string;
+}> = [
+  { id: 'light', label: 'Light', hint: 'Bright background, always on.' },
+  { id: 'dark', label: 'Dark', hint: 'Dim background, always on.' },
+  {
+    id: 'dynamic',
+    label: 'Dynamic',
+    hint: 'Light by day, dark by night — switches with the clock.',
+  },
+];
 
 const ONBOARDED_KEY_PREFIX = 'tahti-web-onboarded:';
 
@@ -45,6 +60,8 @@ export function OnboardingView() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const refresh = useAuthStore((s) => s.refresh);
+  const colorMode = useThemeStore((s) => s.colorMode);
+  const setColorMode = useThemeStore((s) => s.setColorMode);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -351,6 +368,38 @@ export function OnboardingView() {
                       listeners find you.
                     </p>
                     <GenrePicker value={genres} onChange={setGenres} />
+                  </div>
+                ),
+              },
+              {
+                id: 'appearance',
+                label: 'Appearance',
+                content: (
+                  <div className="flex flex-col gap-3">
+                    <p className="text-foreground-secondary text-sm">
+                      Light or dark? We started you off matching your device —
+                      change it any time in Settings.
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      {APPEARANCE_OPTIONS.map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          aria-pressed={colorMode === option.id}
+                          onClick={() => setColorMode(option.id)}
+                          className={`flex flex-col gap-1 rounded-lg border px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+                            colorMode === option.id
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border text-foreground-secondary hover:text-foreground'
+                          }`}
+                        >
+                          {option.label}
+                          <span className="text-foreground-secondary text-xs font-normal">
+                            {option.hint}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 ),
               },

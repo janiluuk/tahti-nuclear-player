@@ -19,6 +19,32 @@ const PERSIST_NAME = 'tahti-web-theme';
 
 const DEFAULT_THEME_ID = 'nuclear:tahti-dark';
 
+export type ColorMode = 'light' | 'dark' | 'dynamic';
+
+/** Dark 19:00–06:59, light 07:00–18:59 local time. */
+export function isDynamicDark(date: Date = new Date()): boolean {
+  const hour = date.getHours();
+  return hour < 7 || hour >= 19;
+}
+
+export function systemPrefersDark(): boolean {
+  try {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  } catch {
+    return true;
+  }
+}
+
+function resolveDarkForMode(mode: ColorMode): boolean {
+  if (mode === 'light') {
+    return false;
+  }
+  if (mode === 'dark') {
+    return true;
+  }
+  return isDynamicDark();
+}
+
 function slugify(name: string): string {
   return (
     name
@@ -80,10 +106,18 @@ type ThemeState = {
   customThemes: Record<string, AdvancedTheme>;
   themeId: string;
   dark: boolean;
+  /** User's chosen appearance preference. 'dynamic' re-resolves `dark`
+   * against the local clock (see `isDynamicDark`) on an interval so it
+   * keeps tracking day/night while the app stays open. */
+  colorMode: ColorMode;
   hydrated: boolean;
   init: () => void;
   setTheme: (id: string) => void;
+  /** Low-level: applies a dark/light boolean without touching colorMode.
+   * Prefer `setColorMode` from UI — this exists for internal re-application
+   * (e.g. the dynamic-mode clock tick). */
   setDark: (dark: boolean) => void;
+  setColorMode: (mode: ColorMode) => void;
   /** Parses and applies a theme JSON matching @nuclearplayer/themes'
    * AdvancedThemeSchema, persisting it under a generated id. */
   importCustomTheme: (
@@ -92,6 +126,8 @@ type ThemeState = {
   removeCustomTheme: (id: string) => void;
 };
 
+let dynamicModeInterval: ReturnType<typeof setInterval> | undefined;
+
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
@@ -99,13 +135,31 @@ export const useThemeStore = create<ThemeState>()(
       customThemes: {},
       themeId: DEFAULT_THEME_ID,
       dark: true,
+      colorMode: 'dark',
       hydrated: false,
 
       init: () => {
-        const { themeId, dark, customThemes } = get();
+        const { themeId, colorMode, customThemes } = get();
         const id = resolveThemeId(themeId, customThemes);
+        const dark = resolveDarkForMode(colorMode);
         applyToDocument(id, dark, customThemes);
-        set({ themeId: id, hydrated: true });
+        set({ themeId: id, dark, hydrated: true });
+
+        if (typeof window !== 'undefined' && !dynamicModeInterval) {
+          dynamicModeInterval = setInterval(
+            () => {
+              const state = get();
+              if (state.colorMode !== 'dynamic') {
+                return;
+              }
+              const nextDark = isDynamicDark();
+              if (nextDark !== state.dark) {
+                state.setDark(nextDark);
+              }
+            },
+            5 * 60 * 1000,
+          );
+        }
       },
 
       setTheme: (rawId) => {
@@ -113,6 +167,13 @@ export const useThemeStore = create<ThemeState>()(
         const id = resolveThemeId(rawId, customThemes);
         applyToDocument(id, dark, customThemes);
         set({ themeId: id });
+      },
+
+      setColorMode: (mode) => {
+        const { themeId, customThemes } = get();
+        const dark = resolveDarkForMode(mode);
+        applyToDocument(themeId, dark, customThemes);
+        set({ colorMode: mode, dark });
       },
 
       setDark: (dark) => {
@@ -156,6 +217,7 @@ export const useThemeStore = create<ThemeState>()(
       partialize: (s) => ({
         themeId: s.themeId,
         dark: s.dark,
+        colorMode: s.colorMode,
         customThemes: s.customThemes,
       }),
       onRehydrateStorage: () => (state) => {
@@ -163,8 +225,10 @@ export const useThemeStore = create<ThemeState>()(
           return;
         }
         const id = resolveThemeId(state.themeId, state.customThemes);
-        applyToDocument(id, state.dark, state.customThemes);
+        const dark = resolveDarkForMode(state.colorMode);
+        applyToDocument(id, dark, state.customThemes);
         state.themeId = id;
+        state.dark = dark;
         state.hydrated = true;
       },
       merge: (persisted, current) => {
@@ -172,23 +236,38 @@ export const useThemeStore = create<ThemeState>()(
         // Migrate from older localStorage keys if zustand bag is empty.
         let themeId = p.themeId;
         let dark = p.dark;
+        let colorMode = p.colorMode;
         try {
           if (themeId == null) {
             themeId = localStorage.getItem(THEME_KEY) ?? undefined;
           }
           if (dark == null) {
             const raw = localStorage.getItem(DARK_KEY);
-            dark = raw == null ? true : raw === '1';
+            dark = raw == null ? undefined : raw === '1';
           }
         } catch {
           // ignore
+        }
+        if (colorMode == null) {
+          // Preserve an existing explicit dark/light choice as-is; a
+          // genuinely first-ever load has no preference yet, so match the
+          // OS instead of hardcoding dark.
+          colorMode =
+            dark == null
+              ? systemPrefersDark()
+                ? 'dark'
+                : 'light'
+              : dark
+                ? 'dark'
+                : 'light';
         }
         const customThemes = p.customThemes ?? {};
         return {
           ...current,
           customThemes,
           themeId: resolveThemeId(themeId, customThemes),
-          dark: dark ?? true,
+          colorMode,
+          dark: resolveDarkForMode(colorMode),
         };
       },
     },

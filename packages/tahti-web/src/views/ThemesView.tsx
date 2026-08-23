@@ -3,8 +3,15 @@ import { Button } from '@nuclearplayer/ui';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useThemeStore } from '../stores/themeStore';
 
+const MODE_OPTIONS = [
+  { id: 'light' as const, label: 'Light' },
+  { id: 'dark' as const, label: 'Dark' },
+  { id: 'dynamic' as const, label: 'Dynamic' },
+];
+
 export function ThemesView() {
-  const { themes, themeId, dark, setTheme, setDark } = useThemeStore();
+  const { themes, themeId, colorMode, setTheme, setColorMode } =
+    useThemeStore();
 
   return (
     <PageFrame maxWidth="2xl">
@@ -13,22 +20,25 @@ export function ThemesView() {
         subtitle="Choose how Nuclear looks and feels."
       />
 
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium">Mode</span>
-        <Button
-          size="sm"
-          variant={dark ? undefined : 'text'}
-          onClick={() => setDark(true)}
-        >
-          Dark
-        </Button>
-        <Button
-          size="sm"
-          variant={!dark ? undefined : 'text'}
-          onClick={() => setDark(false)}
-        >
-          Light
-        </Button>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium">Mode</span>
+          {MODE_OPTIONS.map((mode) => (
+            <Button
+              key={mode.id}
+              size="sm"
+              variant={colorMode === mode.id ? undefined : 'text'}
+              onClick={() => setColorMode(mode.id)}
+            >
+              {mode.label}
+            </Button>
+          ))}
+        </div>
+        {colorMode === 'dynamic' && (
+          <p className="text-foreground-secondary text-xs">
+            Dark from 7pm to 7am, light the rest of the day.
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

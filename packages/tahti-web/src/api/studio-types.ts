@@ -30,6 +30,11 @@ export type StudioArchiveItem = {
   createdAt?: string;
   updatedAt?: string;
   bannerUrl?: string | null;
+  /** Set for EMBED_ONLY items imported by reference (hearthis.at, Mixcloud,
+   * Spotify) — Tahti holds no audio file, so playback only works through
+   * the provider's own widget, not the normal editor-source stream. */
+  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | null;
+  embedUri?: string | null;
 };
 
 export type StudioArchivePatch = {
