@@ -1,5 +1,6 @@
 export type ChannelDirectoryItem = {
   slug: string;
+  username: string;
   displayName: string;
   avatarUrl: string | null;
   genres: string[];
@@ -10,6 +11,23 @@ export type ChannelDirectoryItem = {
 
 export type ChannelDirectoryResponse = {
   items: ChannelDirectoryItem[];
+};
+
+export type OnAirChannel = {
+  slug: string;
+  state: string;
+  fallbackEnabled: boolean;
+  user: {
+    username: string;
+    displayName: string;
+    avatarUrl: string | null;
+  };
+};
+
+export type OnAirChannelResponse = {
+  live: OnAirChannel[];
+  replaying: OnAirChannel[];
+  recent: OnAirChannel[];
 };
 
 export type ChannelNowPlaying = {
@@ -235,6 +253,20 @@ export type VenueDirectoryItem = {
   description: string | null;
 };
 
+export type VenueUpcomingBroadcast = {
+  id: string;
+  startAt: string;
+  endAt: string | null;
+  description: string | null;
+};
+
+export type VenueProfile = VenueDirectoryItem & {
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  broadcasts: VenueUpcomingBroadcast[];
+};
+
 /** Playable item in the Tahti listen client (live channel, radio, or archive URL). */
 export type TahtiPlayable = {
   id: string;
@@ -247,6 +279,7 @@ export type TahtiPlayable = {
   channelSlug?: string;
   /** Nuclear ProviderRef.provider — e.g. tahti, soundcloud, bandcamp, spotify. */
   sourceProvider?: string;
+  durationSec?: number | null;
 };
 
 export type ChatMessage = {
@@ -530,4 +563,21 @@ export type FeedItem =
 export type FeedResponse = {
   items: FeedItem[];
   followingCount: number;
+};
+
+/** One track row inside a Discover dashboard widget — a common shape the
+ * three backing tahti-org endpoints (top-lists, latest-tracks, new-to-you)
+ * all get mapped into. */
+export type DiscoverTrackItem = {
+  id: string;
+  title: string;
+  artist: string;
+  artistUsername?: string | null;
+  channelSlug: string;
+  coverUrl?: string | null;
+  durationSec?: number | null;
+  audioUrl?: string | null;
+  genre?: string | null;
+  /** Only present for the two top-lists-backed widgets. */
+  listens?: number;
 };

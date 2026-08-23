@@ -43,6 +43,7 @@ import { ChannelView } from './views/ChannelView';
 import { ChatView } from './views/ChatView';
 import { CollectionView } from './views/CollectionView';
 import { DashboardAliasView } from './views/DashboardAliasView';
+import { DiscoverView } from './views/DiscoverView';
 import {
   EmbedChannelView,
   EmbedCollectionView,
@@ -80,7 +81,6 @@ import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
 import { StudioDistributionView } from './views/studio/StudioDistributionView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
 import { StudioEditorProjectView } from './views/studio/StudioEditorProjectView';
-import { StudioEmbedsView } from './views/studio/StudioEmbedsView';
 import { StudioEventsView } from './views/studio/StudioEventsView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
@@ -133,6 +133,12 @@ const radioRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/radio',
   component: RadioView,
+});
+
+const discoverRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/discover',
+  component: DiscoverView,
 });
 
 const radioShowRoute = createRoute({
@@ -887,12 +893,6 @@ const studioEventsRoute = createRoute({
   component: StudioEventsView,
 });
 
-const studioEmbedsRoute = createRoute({
-  getParentRoute: () => appLayoutRoute,
-  path: '/studio/embeds',
-  component: StudioEmbedsView,
-});
-
 const studioInsightsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/insights/$kind/$id',
@@ -1053,6 +1053,7 @@ const routeTree = rootRoute.addChildren([
     listenAliasRoute,
     radioRoute,
     radioShowRoute,
+    discoverRoute,
     themesRoute,
     settingsRoute,
     settingsSectionRoute,
@@ -1163,7 +1164,6 @@ const routeTree = rootRoute.addChildren([
     studioModerationRoute,
     studioVenuesRoute,
     studioEventsRoute,
-    studioEmbedsRoute,
     studioInsightsRoute,
     dashboardIndexAliasRoute,
     dashboardSplatAliasRoute,

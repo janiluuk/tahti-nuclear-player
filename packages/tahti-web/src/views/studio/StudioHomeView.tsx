@@ -4,7 +4,6 @@ import {
   CalendarDaysIcon,
   CalendarIcon,
   ChevronDownIcon,
-  Code2Icon,
   DiscAlbumIcon,
   DiscIcon,
   FolderLockIcon,
@@ -16,6 +15,7 @@ import {
   NewspaperIcon,
   PlugIcon,
   RadioIcon,
+  RocketIcon,
   ScissorsIcon,
   ShieldCheckIcon,
   UploadCloudIcon,
@@ -27,7 +27,11 @@ import { useEffect, useState, type FC, type ReactNode } from 'react';
 
 import { CardGrid } from '@nuclearplayer/ui';
 
-import { fetchStudioArchive, fetchStudioCollections } from '../../api/studio';
+import {
+  fetchStudioArchive,
+  fetchStudioCollections,
+  fetchStudioReleases,
+} from '../../api/studio';
 import { fetchStatsSummary, type StatsSummary } from '../../api/studio-extras';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -35,7 +39,7 @@ import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { timeOfDayGreeting } from '../../lib/greeting';
 import { useAuthStore } from '../../stores/authStore';
 
-type Counts = { archive: number; collections: number };
+type Counts = { archive: number; collections: number; releases: number };
 
 const EMPTY_STATS: StatsSummary = {
   playsToday: 0,
@@ -167,6 +171,7 @@ export function StudioHomeView() {
   const [counts, setCounts] = useState<Counts>({
     archive: 0,
     collections: 0,
+    releases: 0,
   });
   const [stats, setStats] = useState<StatsSummary>(EMPTY_STATS);
   const [showMore, setShowMore] = useState(false);
@@ -178,11 +183,13 @@ export function StudioHomeView() {
     void Promise.all([
       fetchStudioArchive(),
       fetchStudioCollections(),
+      fetchStudioReleases(),
       fetchStatsSummary(),
-    ]).then(([archive, collections, summary]) => {
+    ]).then(([archive, collections, releases, summary]) => {
       setCounts({
         archive: archive.data.length,
         collections: collections.data.length,
+        releases: releases.data.releases.length,
       });
       setStats(summary.data);
     });
@@ -322,11 +329,15 @@ export function StudioHomeView() {
                   color="var(--accent-yellow)"
                 />
                 <StudioActionTile
-                  to="/studio/embeds"
-                  icon={Code2Icon}
-                  label="Embeds"
-                  subtitle="Pinned release players"
-                  color="var(--accent-cyan)"
+                  to="/studio/releases"
+                  icon={RocketIcon}
+                  label="Releases"
+                  subtitle={
+                    counts.releases
+                      ? `${counts.releases} releases`
+                      : 'Share releases'
+                  }
+                  color="var(--primary)"
                 />
               </CardGrid>
             </Group>

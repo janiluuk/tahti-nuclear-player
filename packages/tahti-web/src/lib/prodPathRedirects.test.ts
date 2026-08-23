@@ -5,7 +5,7 @@ import { resolveDashboardRedirect } from './prodPathRedirects';
 describe('resolveDashboardRedirect', () => {
   it.each([
     ['distribution', '/studio/distribution'],
-    ['embeds', '/studio/embeds'],
+    ['embeds', '/studio/releases'],
     ['events', '/studio/events'],
     ['venues', '/studio/venues'],
     ['recordings', '/studio/recordings'],

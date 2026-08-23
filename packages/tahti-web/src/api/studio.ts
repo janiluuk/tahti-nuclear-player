@@ -7,6 +7,7 @@ import type {
   EditorProjectDetail,
   EditorProjectRow,
   EditorSource,
+  FingerprintMatch,
   StudioArchiveItem,
   StudioArchivePatch,
   StudioCollection,
@@ -212,6 +213,58 @@ export async function patchStudioArchiveItem(
   }
 }
 
+export type RadioSubmissionStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export type RadioSubmission = {
+  id: string;
+  status: RadioSubmissionStatus;
+  rejectionNote: string | null;
+  createdAt: string;
+  archiveItem: { id: string; title: string };
+};
+
+/** Own recent Tahti Radio submissions, newest first -- used to show
+ * per-track status ("Pending review" / "In rotation" / rejection note)
+ * without a dedicated per-track lookup endpoint. */
+export async function fetchMyRadioSubmissions(): Promise<{
+  data: RadioSubmission[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return { data: [], meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
+  }
+  try {
+    const { data } = await requestJson<{ items: RadioSubmission[] }>(
+      '/api/me/radio-submissions',
+    );
+    return { data: data.items, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+/** Submit one READY track for Tahti Radio board review -- not immediate
+ * inclusion, see RadioSubmissionStatus. */
+export async function submitTrackToRadioRotation(
+  archiveItemId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true };
+  }
+  try {
+    await requestJson('/api/me/radio-submissions', {
+      method: 'POST',
+      body: JSON.stringify({ archiveItemIds: [archiveItemId] }),
+    });
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Submission failed',
+    };
+  }
+}
+
 export async function uploadArchiveBanner(
   archiveItemId: string,
   file: File,
@@ -356,12 +409,23 @@ export async function fetchStudioReleases(): Promise<{
                 position: 1,
                 title: 'Moonlight Drive',
                 archiveItemId: 'arch-mock-1',
+                status: 'READY',
+                sourceKey: 'releases/mock/t1.wav',
+                fingerprintMatch: {
+                  acoustidId: 'mock-acoustid-1',
+                  score: 0.95,
+                  title: 'Moonlight Drive',
+                  artist: 'Northern Lights',
+                },
               },
               {
                 id: 't2',
                 position: 2,
                 title: 'Blue Hour',
                 archiveItemId: 'arch-mock-2',
+                status: 'READY',
+                sourceKey: 'releases/mock/t2.wav',
+                fingerprintMatch: null,
               },
             ],
             _count: { tracks: 2 },
@@ -529,6 +593,69 @@ export async function uploadReleaseArtwork(
       error: err instanceof Error ? err.message : 'Artwork upload failed',
     };
   }
+}
+
+export type FingerprintResult = {
+  fingerprint: string | null;
+  match: FingerprintMatch | null;
+  persisted: boolean;
+};
+
+const MOCK_FINGERPRINT_MATCH: FingerprintMatch = {
+  acoustidId: 'mock-acoustid-id',
+  score: 0.87,
+  title: 'Similar Sounding Track',
+  artist: 'A Different Artist',
+};
+
+async function runTrackFingerprint(
+  releaseId: string,
+  trackId: string,
+  path: 'fingerprint' | 'fingerprint/check',
+  mockMatch: FingerprintMatch | null,
+): Promise<
+  { ok: true; data: FingerprintResult } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return {
+      ok: true,
+      data: {
+        fingerprint: 'mock-fingerprint',
+        match: mockMatch,
+        persisted: path === 'fingerprint',
+      },
+    };
+  }
+  try {
+    const { data } = await requestJson<FingerprintResult>(
+      `/api/me/releases/${encodeURIComponent(releaseId)}/tracks/${encodeURIComponent(trackId)}/${path}`,
+      { method: 'POST' },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Fingerprinting failed',
+    };
+  }
+}
+
+/** Re-runs the fingerprint + match lookup and replaces whatever's stored. */
+export async function refingerprintTrack(releaseId: string, trackId: string) {
+  return runTrackFingerprint(
+    releaseId,
+    trackId,
+    'fingerprint',
+    MOCK_FINGERPRINT_MATCH,
+  );
+}
+
+/** Same lookup, but never overwrites the stored fingerprint/match. */
+export async function checkTrackFingerprint(
+  releaseId: string,
+  trackId: string,
+) {
+  return runTrackFingerprint(releaseId, trackId, 'fingerprint/check', null);
 }
 
 export type StemJob = {

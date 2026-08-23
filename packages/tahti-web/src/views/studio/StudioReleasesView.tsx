@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router';
 import {
-  Code2Icon,
   Disc3Icon,
   DiscAlbumIcon,
   ExternalLinkIcon,
@@ -97,16 +96,6 @@ export function StudioReleasesView({
           subtitle="Package tracks into singles, EPs, and albums for your public link."
           action={
             <div className="flex flex-wrap gap-2">
-              <Link
-                to="/studio/embeds"
-                aria-label="Manage embeds"
-                title="Manage embeds"
-              >
-                <Button size="sm" variant="secondary">
-                  <Code2Icon size={16} aria-hidden className="mr-1.5" />
-                  Embeds
-                </Button>
-              </Link>
               <Button
                 size="sm"
                 onClick={() => {

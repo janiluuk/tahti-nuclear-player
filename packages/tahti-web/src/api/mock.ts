@@ -6,6 +6,7 @@ import type {
   ChannelDirectoryResponse,
   ChatAccess,
   ChatMessage,
+  DiscoverTrackItem,
   FanTiersResponse,
   FeedResponse,
   PublicChannel,
@@ -19,6 +20,7 @@ import type {
   TransparencyLedgerEntry,
   TransparencyYtd,
   VenueDirectoryItem,
+  VenueProfile,
 } from './types';
 
 /** Always-on station slug — matches production `TAHTI_RADIO_SLUG`. */
@@ -333,10 +335,10 @@ const STATION_CONTENT: Record<string, StationContent> = {
 const MOCK_DIRECTORY: ChannelDirectoryResponse = {
   items: Object.entries(STATION_CONTENT).map(([slug, s]) => ({
     slug,
+    username: slug,
     displayName: s.displayName,
     avatarUrl: s.avatarUrl ?? null,
     genres: s.genres,
-    live: LIVE_SLUGS.has(slug),
   })),
   // tahti-radio is featured via fetchRadioStation on Listen — not listed here.
 };
@@ -515,6 +517,71 @@ export function mockArchiveItems(slug: string): ArchiveItem[] {
     createdAt: dates[i % dates.length],
     ...(i === 0 ? { pinnedAt: '2026-07-15T12:00:00.000Z' } : {}),
   }));
+}
+
+function archiveItemToDiscoverTrack(
+  item: ArchiveItem,
+  channelSlug: string,
+  extra?: { listens?: number },
+): DiscoverTrackItem {
+  return {
+    id: `archive:${item.id}`,
+    title: item.title,
+    artist: item.artistName ?? channelSlug,
+    artistUsername: channelSlug,
+    channelSlug,
+    coverUrl: item.bannerUrl,
+    durationSec: item.durationSec,
+    audioUrl: item.audioUrl,
+    genre: item.genre,
+    listens: extra?.listens,
+  };
+}
+
+/** Every mock archive item across the two demo channels, for building the
+ * Discover widgets' fixtures without a live tahti-org connection. */
+function discoverTrackPool(): DiscoverTrackItem[] {
+  const slugs = ['northern-lights', 'demo'];
+  return slugs.flatMap((slug) =>
+    mockArchiveItems(slug).map((item) =>
+      archiveItemToDiscoverTrack(item, slug),
+    ),
+  );
+}
+
+export function mockTopTracks(sort: 'asc' | 'desc'): DiscoverTrackItem[] {
+  const pool = discoverTrackPool().map((track, i) => ({
+    ...track,
+    listens: 340 - i * 37,
+  }));
+  pool.sort((a, b) =>
+    sort === 'asc' ? a.listens! - b.listens! : b.listens! - a.listens!,
+  );
+  return pool;
+}
+
+export function mockLatestTracks(): DiscoverTrackItem[] {
+  const slugs = ['northern-lights', 'demo'];
+  return slugs
+    .flatMap((slug) =>
+      mockArchiveItems(slug).map((item) => ({
+        item,
+        slug,
+        createdAt: item.createdAt ?? '',
+      })),
+    )
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    .map(({ item, slug }) => archiveItemToDiscoverTrack(item, slug));
+}
+
+export function mockNewToYou(): {
+  preferenceGenres: string[];
+  items: DiscoverTrackItem[];
+} {
+  return {
+    preferenceGenres: ['Ambient', 'Techno'],
+    items: discoverTrackPool().slice(2, 6),
+  };
 }
 
 export function mockProfile(username: string): PublicProfile {
@@ -722,6 +789,27 @@ export function mockVenues(): VenueDirectoryItem[] {
   ];
 }
 
+export function mockVenueProfile(slug: string): VenueProfile | null {
+  const base = mockVenues().find((v) => v.slug === slug);
+  if (!base) {
+    return null;
+  }
+  return {
+    ...base,
+    address: 'Hämeentie 13, 00500 Helsinki',
+    latitude: 60.1841,
+    longitude: 24.9597,
+    broadcasts: [
+      {
+        id: 'venue-broadcast-1',
+        startAt: new Date(Date.now() + 3 * 24 * 3600_000).toISOString(),
+        endAt: null,
+        description: 'Mock live set booked at this venue.',
+      },
+    ],
+  };
+}
+
 export function channelToPlayable(
   channel: PublicChannel,
 ): TahtiPlayable | null {
@@ -777,6 +865,7 @@ export function archiveItemToPlayable(
     protocol: isHls ? 'hls' : 'https',
     channelSlug,
     sourceProvider: item.sourceProvider ?? 'tahti',
+    durationSec: item.durationSec,
   };
 }
 

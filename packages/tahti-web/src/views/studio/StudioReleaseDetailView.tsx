@@ -2,14 +2,15 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLinkIcon, Share2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, FilePicker, Input } from '@nuclearplayer/ui';
+import { Button, EmptyState, FilePicker, Input, Tabs } from '@nuclearplayer/ui';
 
 import {
   fetchStudioReleases,
   patchStudioRelease,
   uploadReleaseArtwork,
 } from '../../api/studio';
-import type { StudioRelease } from '../../api/studio-types';
+import type { FingerprintMatch, StudioRelease } from '../../api/studio-types';
+import { FingerprintTrackPanel } from '../../components/FingerprintTrackPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -48,6 +49,22 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
     setMessage('Saved.');
   };
 
+  const updateTrackFingerprint = (
+    trackId: string,
+    match: FingerprintMatch | null,
+  ) => {
+    setRelease((prev) =>
+      prev
+        ? {
+            ...prev,
+            tracks: prev.tracks?.map((t) =>
+              t.id === trackId ? { ...t, fingerprintMatch: match } : t,
+            ),
+          }
+        : prev,
+    );
+  };
+
   return (
     <StudioGate>
       <div className="mx-auto flex max-w-2xl flex-col gap-6 px-1 py-2">
@@ -76,131 +93,187 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
               }
             />
 
-            <StudioPanel title="Artwork">
-              <div className="flex flex-wrap items-start gap-4">
-                {artworkPreview ? (
-                  <img
-                    src={artworkPreview}
-                    alt=""
-                    className="border-border h-28 w-28 rounded-lg border object-cover shadow-sm"
-                  />
-                ) : (
-                  <div className="border-border bg-background text-foreground-secondary flex h-28 w-28 items-center justify-center rounded-lg border text-xs">
-                    No art
-                  </div>
-                )}
-                <FilePicker
-                  className="min-w-0 flex-1"
-                  labels={{
-                    title: 'Release artwork',
-                    description: 'JPEG, PNG, or WebP',
-                    browse: 'Choose image',
-                  }}
-                  accept="image/jpeg,image/png,image/webp"
-                  onFiles={(files) => {
-                    const file = files[0];
-                    if (!file) {
-                      return;
-                    }
-                    void uploadReleaseArtwork(id, file).then((r) => {
-                      if (!r.ok) {
-                        setMessage(r.error);
-                      } else {
-                        setArtworkPreview(r.artworkUrl);
-                        setMessage('Artwork uploaded.');
-                      }
-                    });
-                  }}
-                />
-              </div>
-            </StudioPanel>
+            <Tabs
+              listClassName="border-border border-b pb-3"
+              panelClassName="flex flex-col gap-6 pt-2"
+              items={[
+                {
+                  id: 'overview',
+                  label: 'Overview',
+                  content: (
+                    <>
+                      <StudioPanel title="Artwork">
+                        <div className="flex flex-wrap items-start gap-4">
+                          {artworkPreview ? (
+                            <img
+                              src={artworkPreview}
+                              alt=""
+                              className="border-border h-28 w-28 rounded-lg border object-cover shadow-sm"
+                            />
+                          ) : (
+                            <div className="border-border bg-background text-foreground-secondary flex h-28 w-28 items-center justify-center rounded-lg border text-xs">
+                              No art
+                            </div>
+                          )}
+                          <FilePicker
+                            className="min-w-0 flex-1"
+                            labels={{
+                              title: 'Release artwork',
+                              description: 'JPEG, PNG, or WebP',
+                              browse: 'Choose image',
+                            }}
+                            accept="image/jpeg,image/png,image/webp"
+                            onFiles={(files) => {
+                              const file = files[0];
+                              if (!file) {
+                                return;
+                              }
+                              void uploadReleaseArtwork(id, file).then((r) => {
+                                if (!r.ok) {
+                                  setMessage(r.error);
+                                } else {
+                                  setArtworkPreview(r.artworkUrl);
+                                  setMessage('Artwork uploaded.');
+                                }
+                              });
+                            }}
+                          />
+                        </div>
+                      </StudioPanel>
 
-            <StudioPanel title="Details">
-              <div className="flex flex-col gap-3">
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs uppercase">
-                    Description
-                  </span>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={3}
-                    className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
-                  />
-                </label>
-                <Input
-                  label="Spotify URL (smart link target)"
-                  value={spotify}
-                  onChange={(e) => setSpotify(e.target.value)}
-                />
-              </div>
-            </StudioPanel>
+                      <StudioPanel title="Details">
+                        <div className="flex flex-col gap-3">
+                          <label className="flex flex-col gap-1 text-sm">
+                            <span className="text-foreground-secondary text-xs uppercase">
+                              Description
+                            </span>
+                            <textarea
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
+                              rows={3}
+                              className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
+                            />
+                          </label>
+                          <Input
+                            label="Spotify URL (smart link target)"
+                            value={spotify}
+                            onChange={(e) => setSpotify(e.target.value)}
+                          />
+                        </div>
+                      </StudioPanel>
 
-            {release.tracks && release.tracks.length > 0 && (
-              <StudioPanel title="Tracks">
-                <ol className="text-foreground-secondary list-decimal space-y-2 pl-5 text-sm">
-                  {release.tracks.map((t) => (
-                    <li key={t.id}>
-                      {t.title}
-                      {t.archiveItemId && (
-                        <>
-                          {' '}
-                          <Link
-                            to="/studio/archive/$id/editor"
-                            params={{ id: t.archiveItemId }}
-                            className="underline"
-                          >
-                            editor
-                          </Link>
-                        </>
+                      {release.tracks && release.tracks.length > 0 && (
+                        <StudioPanel title="Tracks">
+                          <ol className="text-foreground-secondary list-decimal space-y-2 pl-5 text-sm">
+                            {release.tracks.map((t) => (
+                              <li key={t.id}>
+                                {t.title}
+                                {t.archiveItemId && (
+                                  <>
+                                    {' '}
+                                    <Link
+                                      to="/studio/archive/$id/editor"
+                                      params={{ id: t.archiveItemId }}
+                                      className="underline"
+                                    >
+                                      editor
+                                    </Link>
+                                  </>
+                                )}
+                              </li>
+                            ))}
+                          </ol>
+                        </StudioPanel>
                       )}
-                    </li>
-                  ))}
-                </ol>
-              </StudioPanel>
-            )}
 
-            {message && <p className="text-sm">{message}</p>}
+                      {message && <p className="text-sm">{message}</p>}
 
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  void patchStudioRelease(id, { state: 'PUBLISHED' }).then(
-                    (r) => {
-                      if (!r.ok) {
-                        setMessage(r.error);
-                      } else {
-                        setRelease(r.data);
-                        setMessage('Published.');
-                      }
-                    },
-                  );
-                }}
-              >
-                Publish
-              </Button>
-              <Link to="/r/$slug" params={{ slug: release.smartLinkSlug }}>
-                <Button
-                  size="icon-sm"
-                  variant="text"
-                  aria-label="Open smart link"
-                  title="Open smart link"
-                >
-                  <ExternalLinkIcon size={16} aria-hidden />
-                </Button>
-              </Link>
-              <Link to="/studio/distribution">
-                <Button
-                  size="icon-sm"
-                  variant="text"
-                  aria-label="Distribution"
-                  title="Distribution"
-                >
-                  <Share2Icon size={16} aria-hidden />
-                </Button>
-              </Link>
-            </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            void patchStudioRelease(id, {
+                              state: 'PUBLISHED',
+                            }).then((r) => {
+                              if (!r.ok) {
+                                setMessage(r.error);
+                              } else {
+                                setRelease(r.data);
+                                setMessage('Published.');
+                              }
+                            });
+                          }}
+                        >
+                          Publish
+                        </Button>
+                        <Link
+                          to="/r/$slug"
+                          params={{ slug: release.smartLinkSlug }}
+                        >
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label="Open smart link"
+                            title="Open smart link"
+                          >
+                            <ExternalLinkIcon size={16} aria-hidden />
+                          </Button>
+                        </Link>
+                        <Link to="/studio/distribution">
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label="Distribution"
+                            title="Distribution"
+                          >
+                            <Share2Icon size={16} aria-hidden />
+                          </Button>
+                        </Link>
+                      </div>
+                    </>
+                  ),
+                },
+                {
+                  id: 'fingerprinting',
+                  label: 'Fingerprinting',
+                  content: (
+                    <StudioPanel
+                      title="Fingerprinting"
+                      description="Compares each track's audio against a global database of released music (AcoustID). A match isn't blocked or penalized — it's a heads-up worth a look, e.g. if a track samples or covers existing work. Every upload is fingerprinted automatically; use these if you replaced a track's audio and want it redone, or just want to check without changing what's on file."
+                    >
+                      {(() => {
+                        const fingerprintable = (release.tracks ?? []).filter(
+                          (t) => t.sourceKey,
+                        );
+                        if (fingerprintable.length === 0) {
+                          return (
+                            <EmptyState
+                              size="sm"
+                              title="No tracks have audio uploaded yet"
+                              description="Fingerprinting needs a track's audio file on file first."
+                            />
+                          );
+                        }
+                        return (
+                          <div className="flex flex-col gap-3">
+                            {fingerprintable.map((t) => (
+                              <FingerprintTrackPanel
+                                key={t.id}
+                                releaseId={id}
+                                track={t}
+                                onUpdated={(match) =>
+                                  updateTrackFingerprint(t.id, match)
+                                }
+                              />
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </StudioPanel>
+                  ),
+                },
+              ]}
+            />
           </>
         )}
       </div>

@@ -17,10 +17,13 @@ import {
 } from '@nuclearplayer/ui';
 
 import {
+  fetchMyRadioSubmissions,
   fetchStudioArchiveItem,
   importArchiveBanner,
   patchStudioArchiveItem,
+  submitTrackToRadioRotation,
   uploadArchiveBanner,
+  type RadioSubmission,
 } from '../api/studio';
 import type {
   StudioArchiveItem,
@@ -83,6 +86,20 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const [playlistOpen, setPlaylistOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [radioSubmission, setRadioSubmission] =
+    useState<RadioSubmission | null>(null);
+  const [submittingToRadio, setSubmittingToRadio] = useState(false);
+
+  useEffect(() => {
+    if (!archiveItemId) {
+      setRadioSubmission(null);
+      return;
+    }
+    void fetchMyRadioSubmissions().then(({ data }) => {
+      const latest = data.find((s) => s.archiveItem.id === archiveItemId);
+      setRadioSubmission(latest ?? null);
+    });
+  }, [archiveItemId]);
 
   useEffect(() => {
     if (!archiveItemId) {
@@ -113,6 +130,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
             (res.data.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
           releaseDate: res.data.releaseDate ?? '',
           downloadsEnabled: res.data.downloadsEnabled ?? false,
+          isFallback: res.data.isFallback ?? false,
           commentsEnabled: res.data.commentsEnabled ?? true,
           bannerUrl: res.data.bannerUrl ?? '',
         });
@@ -214,6 +232,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
         (result.data.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
       releaseDate: result.data.releaseDate ?? '',
       downloadsEnabled: result.data.downloadsEnabled ?? false,
+      isFallback: result.data.isFallback ?? false,
       commentsEnabled: result.data.commentsEnabled ?? true,
       bannerUrl: result.data.bannerUrl ?? '',
     }));
@@ -384,6 +403,91 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                   />
                   Allow comments
                 </label>
+
+                <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3 sm:col-span-2">
+                  <label className="flex items-start gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={form.isFallback ?? false}
+                      onChange={(event) =>
+                        setForm({ ...form, isFallback: event.target.checked })
+                      }
+                      className="mt-0.5"
+                    />
+                    <span>
+                      <span className="block font-medium">
+                        Add to my channel&apos;s rotation
+                      </span>
+                      <span className="text-foreground-secondary block text-xs">
+                        Plays automatically on your channel when you aren&apos;t
+                        live, so listeners always hear something instead of dead
+                        air.
+                      </span>
+                    </span>
+                  </label>
+
+                  <div className="border-border/60 flex items-center gap-3 border-t pt-3">
+                    <div className="min-w-0 flex-1 text-sm">
+                      <span className="block font-medium">
+                        Tahti Radio rotation
+                      </span>
+                      <span className="text-foreground-secondary block text-xs">
+                        {radioSubmission?.status === 'PENDING'
+                          ? 'Submitted — waiting on board review.'
+                          : radioSubmission?.status === 'APPROVED'
+                            ? 'Approved — in the Tahti Radio rotation.'
+                            : radioSubmission?.status === 'REJECTED'
+                              ? (radioSubmission.rejectionNote ??
+                                'Not accepted this time — you can resubmit.')
+                              : 'Submit for board review to be considered for the shared 24/7 station.'}
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={
+                        submittingToRadio ||
+                        radioSubmission?.status === 'PENDING' ||
+                        radioSubmission?.status === 'APPROVED'
+                      }
+                      onClick={() => {
+                        if (!archiveItemId) {
+                          return;
+                        }
+                        setSubmittingToRadio(true);
+                        void submitTrackToRadioRotation(archiveItemId)
+                          .then((result) => {
+                            if (result.ok) {
+                              setNote('Submitted to Tahti Radio for review.');
+                              setRadioSubmission({
+                                id: 'pending-local',
+                                status: 'PENDING',
+                                rejectionNote: null,
+                                createdAt: new Date().toISOString(),
+                                archiveItem: {
+                                  id: archiveItemId,
+                                  title: form.title ?? '',
+                                },
+                              });
+                            } else {
+                              setError(result.error);
+                            }
+                          })
+                          .finally(() => setSubmittingToRadio(false));
+                      }}
+                    >
+                      {submittingToRadio
+                        ? 'Submitting…'
+                        : radioSubmission?.status === 'PENDING'
+                          ? 'Pending'
+                          : radioSubmission?.status === 'APPROVED'
+                            ? 'In rotation'
+                            : radioSubmission?.status === 'REJECTED'
+                              ? 'Resubmit'
+                              : 'Submit'}
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
 

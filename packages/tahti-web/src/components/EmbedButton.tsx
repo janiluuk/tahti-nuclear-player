@@ -1,0 +1,80 @@
+import { CodeIcon } from 'lucide-react';
+import { useState } from 'react';
+
+import { Button, CopyButton, Dialog } from '@nuclearplayer/ui';
+
+export type EmbedTarget =
+  | { kind: 'channel'; slug: string }
+  | { kind: 'release'; id: string }
+  | { kind: 'collection'; slug: string };
+
+function embedPath(target: EmbedTarget): string {
+  switch (target.kind) {
+    case 'channel':
+      return `/embed/c/${target.slug}`;
+    case 'release':
+      return `/embed/r/${target.id}`;
+    case 'collection':
+      return `/embed/col/${target.slug}`;
+  }
+}
+
+/**
+ * "Embed" action for anything with a public /embed/... view — channels,
+ * releases, and collections (playlists are collections under the hood, so
+ * this covers them too). Opens the embeddable URL and a copyable iframe
+ * snippet; nothing here needs its own API call.
+ */
+export function EmbedButton({
+  target,
+  label = 'Embed',
+}: {
+  target: EmbedTarget;
+  label?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const url = `${window.location.origin}${embedPath(target)}`;
+  const snippet = `<iframe src="${url}" width="100%" height="180" frameborder="0" allow="autoplay"></iframe>`;
+
+  return (
+    <>
+      <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
+        <CodeIcon size={14} aria-hidden className="mr-1.5" />
+        {label}
+      </Button>
+      <Dialog.Root isOpen={open} onClose={() => setOpen(false)}>
+        <Dialog.Title>Embed</Dialog.Title>
+        <Dialog.Description>
+          Paste this into any site to embed a live player.
+        </Dialog.Description>
+        <div className="mt-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <span className="text-foreground-secondary text-xs uppercase">
+              Link
+            </span>
+            <div className="flex items-center gap-2">
+              <code className="border-border bg-background-secondary flex-1 truncate rounded-md border px-3 py-2 text-sm">
+                {url}
+              </code>
+              <CopyButton text={url} aria-label="Copy embed link" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-foreground-secondary text-xs uppercase">
+              Iframe code
+            </span>
+            <div className="flex items-center gap-2">
+              <code className="border-border bg-background-secondary flex-1 truncate rounded-md border px-3 py-2 text-xs">
+                {snippet}
+              </code>
+              <CopyButton text={snippet} aria-label="Copy iframe code" />
+            </div>
+          </div>
+        </div>
+        <Dialog.Actions>
+          <Dialog.Close>Close</Dialog.Close>
+        </Dialog.Actions>
+      </Dialog.Root>
+    </>
+  );
+}

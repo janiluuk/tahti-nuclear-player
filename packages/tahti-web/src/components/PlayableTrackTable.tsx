@@ -68,12 +68,12 @@ export function PlayableTrackTable({
             displayThumbnail: true,
             displayFavorite: true,
             displayArtist: true,
-            displayDuration: false,
+            displayDuration: true,
             displayAlbum: items.some((i) =>
               Boolean(i.sourceProvider && i.sourceProvider !== 'tahti'),
             ),
             displayQueueControls: true,
-            displayPosition: true,
+            displayPosition: false,
           }}
           actions={{
             onPlayNow: (track) => {

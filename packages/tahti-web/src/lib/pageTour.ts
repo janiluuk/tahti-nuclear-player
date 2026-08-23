@@ -27,6 +27,11 @@ const SIDEBAR_STEPS: TourStep[] = [
     description: 'Updates and posts from the artists and channels you follow.',
   },
   {
+    id: 'nav-discover',
+    label: 'Discover',
+    description: 'Find new artists and channels beyond who you already follow.',
+  },
+  {
     id: 'nav-library',
     label: 'My Library',
     description:

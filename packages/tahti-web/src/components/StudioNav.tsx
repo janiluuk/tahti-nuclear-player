@@ -99,12 +99,6 @@ const TOOL_GROUPS: readonly StudioToolGroup[] = [
         icon: AudioLinesIcon,
         description: 'Trim, normalize, and clean up tracks before publishing.',
       },
-      {
-        to: '/studio/embeds',
-        label: 'Embeds',
-        icon: GalleryVerticalEndIcon,
-        description: 'Pinned external players for releases and collections.',
-      },
     ],
   },
   {
