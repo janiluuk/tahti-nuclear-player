@@ -43,6 +43,7 @@ import { ChannelView } from './views/ChannelView';
 import { ChatView } from './views/ChatView';
 import { CollectionView } from './views/CollectionView';
 import { DashboardAliasView } from './views/DashboardAliasView';
+import { DiscoverView } from './views/DiscoverView';
 import {
   EmbedChannelView,
   EmbedCollectionView,
@@ -131,6 +132,12 @@ const radioRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/radio',
   component: RadioView,
+});
+
+const discoverRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/discover',
+  component: DiscoverView,
 });
 
 const radioShowRoute = createRoute({
@@ -1024,6 +1031,7 @@ const routeTree = rootRoute.addChildren([
     listenAliasRoute,
     radioRoute,
     radioShowRoute,
+    discoverRoute,
     themesRoute,
     settingsRoute,
     settingsSectionRoute,

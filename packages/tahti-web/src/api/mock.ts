@@ -5,6 +5,7 @@ import type {
   ChannelDirectoryResponse,
   ChatAccess,
   ChatMessage,
+  DiscoverTrackItem,
   FanTiersResponse,
   FeedResponse,
   PublicChannel,
@@ -515,6 +516,71 @@ export function mockArchiveItems(slug: string): ArchiveItem[] {
     createdAt: dates[i % dates.length],
     ...(i === 0 ? { pinnedAt: '2026-07-15T12:00:00.000Z' } : {}),
   }));
+}
+
+function archiveItemToDiscoverTrack(
+  item: ArchiveItem,
+  channelSlug: string,
+  extra?: { listens?: number },
+): DiscoverTrackItem {
+  return {
+    id: `archive:${item.id}`,
+    title: item.title,
+    artist: item.artistName ?? channelSlug,
+    artistUsername: channelSlug,
+    channelSlug,
+    coverUrl: item.bannerUrl,
+    durationSec: item.durationSec,
+    audioUrl: item.audioUrl,
+    genre: item.genre,
+    listens: extra?.listens,
+  };
+}
+
+/** Every mock archive item across the two demo channels, for building the
+ * Discover widgets' fixtures without a live tahti-org connection. */
+function discoverTrackPool(): DiscoverTrackItem[] {
+  const slugs = ['northern-lights', 'demo'];
+  return slugs.flatMap((slug) =>
+    mockArchiveItems(slug).map((item) =>
+      archiveItemToDiscoverTrack(item, slug),
+    ),
+  );
+}
+
+export function mockTopTracks(sort: 'asc' | 'desc'): DiscoverTrackItem[] {
+  const pool = discoverTrackPool().map((track, i) => ({
+    ...track,
+    listens: 340 - i * 37,
+  }));
+  pool.sort((a, b) =>
+    sort === 'asc' ? a.listens! - b.listens! : b.listens! - a.listens!,
+  );
+  return pool;
+}
+
+export function mockLatestTracks(): DiscoverTrackItem[] {
+  const slugs = ['northern-lights', 'demo'];
+  return slugs
+    .flatMap((slug) =>
+      mockArchiveItems(slug).map((item) => ({
+        item,
+        slug,
+        createdAt: item.createdAt ?? '',
+      })),
+    )
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    .map(({ item, slug }) => archiveItemToDiscoverTrack(item, slug));
+}
+
+export function mockNewToYou(): {
+  preferenceGenres: string[];
+  items: DiscoverTrackItem[];
+} {
+  return {
+    preferenceGenres: ['Ambient', 'Techno'],
+    items: discoverTrackPool().slice(2, 6),
+  };
 }
 
 export function mockProfile(username: string): PublicProfile {

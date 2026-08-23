@@ -1,0 +1,243 @@
+import { mockLatestTracks, mockNewToYou, mockTopTracks } from './mock';
+import {
+  allowMockFallback,
+  failMeta,
+  isForceMock,
+  type FetchMeta,
+} from './mode';
+import type { DiscoverTrackItem } from './types';
+
+const forceMock = isForceMock;
+
+const apiBase = () => {
+  if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
+    return import.meta.env.VITE_TAHTI_API_URL.replace(/\/$/, '');
+  }
+  return '/tahti-api';
+};
+
+async function getJson<T>(path: string): Promise<T> {
+  const res = await fetch(`${apiBase()}${path}`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) {
+    throw new Error(`${path} → ${res.status}`);
+  }
+  return (await res.json()) as T;
+}
+
+export type TopTracksPeriod = 'week' | 'month' | 'half_year' | 'all_time';
+export type TopTracksSort = 'asc' | 'desc';
+
+export type DiscoverFilters = {
+  genres: string[];
+  contentTypes: string[];
+};
+
+function filterQuery(filters: DiscoverFilters): string {
+  const params = new URLSearchParams();
+  // The backend only accepts a single genre per request; the multi-select
+  // widens the request by OR-ing client-side across each selected genre.
+  if (filters.contentTypes.length > 0) {
+    params.set('contentTypes', filters.contentTypes.join(','));
+  }
+  return params.toString();
+}
+
+type WireTopListEntry = {
+  archiveItemId: string;
+  listens: number;
+  title: string;
+  artistName: string;
+  channelSlug: string;
+  bannerUrl: string | null;
+  genre: string | null;
+  contentType: string;
+};
+
+function topListEntryToTrack(entry: WireTopListEntry): DiscoverTrackItem {
+  return {
+    id: `archive:${entry.archiveItemId}`,
+    title: entry.title,
+    artist: entry.artistName,
+    channelSlug: entry.channelSlug,
+    coverUrl: entry.bannerUrl,
+    genre: entry.genre,
+    listens: entry.listens,
+  };
+}
+
+async function fetchTopTracksForGenre(
+  period: TopTracksPeriod,
+  sort: TopTracksSort,
+  genre: string | undefined,
+  filters: DiscoverFilters,
+): Promise<WireTopListEntry[]> {
+  const qs = filterQuery(filters);
+  const genrePart = genre ? `&genre=${encodeURIComponent(genre)}` : '';
+  const { entries } = await getJson<{ entries: WireTopListEntry[] }>(
+    `/api/top-lists?period=${period}&sort=${sort}${genrePart}${qs ? `&${qs}` : ''}`,
+  );
+  return entries;
+}
+
+/** Most/least played tracks in a time window. When multiple genres are
+ * selected, fetches each and merges by highest listen count (the backend
+ * only filters by one genre per request). */
+export async function fetchTopTracks(
+  period: TopTracksPeriod,
+  sort: TopTracksSort,
+  filters: DiscoverFilters,
+): Promise<{ data: DiscoverTrackItem[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    return {
+      data: mockTopTracks(sort),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const genres = filters.genres.length > 0 ? filters.genres : [undefined];
+    const lists = await Promise.all(
+      genres.map((genre) =>
+        fetchTopTracksForGenre(period, sort, genre, filters),
+      ),
+    );
+    const byId = new Map<string, WireTopListEntry>();
+    for (const list of lists) {
+      for (const entry of list) {
+        if (!byId.has(entry.archiveItemId)) {
+          byId.set(entry.archiveItemId, entry);
+        }
+      }
+    }
+    const merged = [...byId.values()].sort((a, b) =>
+      sort === 'asc' ? a.listens - b.listens : b.listens - a.listens,
+    );
+    return { data: merged.map(topListEntryToTrack), meta: { source: 'api' } };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return { data: mockTopTracks(sort), meta: failMeta(err) };
+    }
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+type WireGalleryItem = {
+  archiveItemId: string;
+  title: string;
+  artistName: string;
+  artistUsername: string | null;
+  channelSlug: string;
+  bannerUrl: string | null;
+  durationSec: number | null;
+  audioUrl: string | null;
+};
+
+function galleryItemToTrack(item: WireGalleryItem): DiscoverTrackItem {
+  return {
+    id: `archive:${item.archiveItemId}`,
+    title: item.title,
+    artist: item.artistName,
+    artistUsername: item.artistUsername,
+    channelSlug: item.channelSlug,
+    coverUrl: item.bannerUrl,
+    durationSec: item.durationSec,
+    audioUrl: item.audioUrl,
+  };
+}
+
+async function fetchLatestForGenre(
+  genre: string | undefined,
+  filters: DiscoverFilters,
+): Promise<WireGalleryItem[]> {
+  const qs = filterQuery(filters);
+  const genrePart = genre ? `genre=${encodeURIComponent(genre)}&` : '';
+  const { items } = await getJson<{ items: WireGalleryItem[] }>(
+    `/api/discover/latest-tracks?${genrePart}${qs}`,
+  );
+  return items;
+}
+
+export async function fetchLatestTracks(
+  filters: DiscoverFilters,
+): Promise<{ data: DiscoverTrackItem[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    return {
+      data: mockLatestTracks(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const genres = filters.genres.length > 0 ? filters.genres : [undefined];
+    const lists = await Promise.all(
+      genres.map((genre) => fetchLatestForGenre(genre, filters)),
+    );
+    const byId = new Map<string, WireGalleryItem>();
+    for (const list of lists) {
+      for (const item of list) {
+        if (!byId.has(item.archiveItemId)) {
+          byId.set(item.archiveItemId, item);
+        }
+      }
+    }
+    return {
+      data: [...byId.values()].map(galleryItemToTrack),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return { data: mockLatestTracks(), meta: failMeta(err) };
+    }
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+/** "New to you" is fully personalized to the signed-in listener's own
+ * follow/listen signals server-side — the dashboard's genre/type filter row
+ * doesn't apply to it. */
+export async function fetchNewToYou(): Promise<{
+  data: DiscoverTrackItem[];
+  authenticated: boolean;
+  preferenceGenres: string[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    const mock = mockNewToYou();
+    return {
+      data: mock.items,
+      authenticated: true,
+      preferenceGenres: mock.preferenceGenres,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const res = await getJson<{
+      authenticated: boolean;
+      preferenceGenres: string[];
+      items: WireGalleryItem[];
+    }>('/api/discover/new-to-you');
+    return {
+      data: res.items.map(galleryItemToTrack),
+      authenticated: res.authenticated,
+      preferenceGenres: res.preferenceGenres,
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    if (allowMockFallback()) {
+      const mock = mockNewToYou();
+      return {
+        data: mock.items,
+        authenticated: true,
+        preferenceGenres: mock.preferenceGenres,
+        meta: failMeta(err),
+      };
+    }
+    return {
+      data: [],
+      authenticated: false,
+      preferenceGenres: [],
+      meta: failMeta(err),
+    };
+  }
+}

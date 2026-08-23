@@ -531,3 +531,20 @@ export type FeedResponse = {
   items: FeedItem[];
   followingCount: number;
 };
+
+/** One track row inside a Discover dashboard widget — a common shape the
+ * three backing tahti-org endpoints (top-lists, latest-tracks, new-to-you)
+ * all get mapped into. */
+export type DiscoverTrackItem = {
+  id: string;
+  title: string;
+  artist: string;
+  artistUsername?: string | null;
+  channelSlug: string;
+  coverUrl?: string | null;
+  durationSec?: number | null;
+  audioUrl?: string | null;
+  genre?: string | null;
+  /** Only present for the two top-lists-backed widgets. */
+  listens?: number;
+};

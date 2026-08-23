@@ -1,5 +1,6 @@
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import {
+  CompassIcon,
   GaugeIcon,
   LayoutDashboardIcon,
   LibraryIcon,
@@ -59,6 +60,11 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
           to="/feed"
           icon={<RssIcon size={16} />}
           label="Feed"
+        />
+        <SidebarNavigationItem
+          to="/discover"
+          icon={<CompassIcon size={16} />}
+          label="Discover"
         />
         <SidebarNavigationItem
           to="/library"
