@@ -104,7 +104,7 @@ import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
-import { COUNTRIES } from '../../lib/countries';
+import { COUNTRIES, flagEmoji } from '../../lib/countries';
 import { EXPORT_TARGETS } from '../../lib/exportTargets';
 import {
   formatGenreTags,
@@ -650,7 +650,7 @@ function ArtistPanel() {
                   <option value="">Prefer not to say</option>
                   {COUNTRIES.map((c) => (
                     <option key={c.code} value={c.code}>
-                      {c.name}
+                      {flagEmoji(c.code)} {c.name}
                     </option>
                   ))}
                 </select>

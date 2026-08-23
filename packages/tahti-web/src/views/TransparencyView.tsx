@@ -69,6 +69,12 @@ export function TransparencyView() {
           Public co-op ledger snapshots from <code>/api/v1/transparency/*</code>
           .
         </p>
+        <Link
+          to="/transparency/methodology"
+          className="text-foreground-secondary w-fit text-xs underline-offset-2 hover:underline"
+        >
+          How this data is recorded and published →
+        </Link>
       </header>
 
       {ytd && (

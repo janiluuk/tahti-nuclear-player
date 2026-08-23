@@ -12,7 +12,7 @@ import { checkSlugAvailable, updateChannelSlug } from '../api/channel-design';
 import { provisionChannel } from '../api/channel-provision';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
 import { GenrePicker } from '../components/GenrePicker';
-import { COUNTRIES } from '../lib/countries';
+import { COUNTRIES, flagEmoji } from '../lib/countries';
 import {
   formatGenreTags,
   MAX_GENRES,
@@ -277,7 +277,7 @@ export function OnboardingView() {
                         <option value="">Prefer not to say</option>
                         {COUNTRIES.map((c) => (
                           <option key={c.code} value={c.code}>
-                            {c.name}
+                            {flagEmoji(c.code)} {c.name}
                           </option>
                         ))}
                       </select>

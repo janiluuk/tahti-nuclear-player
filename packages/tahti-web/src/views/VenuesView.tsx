@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { countryFlagAndName } from '../lib/countries';
 
 export function VenuesView() {
   const [venues, setVenues] = useState<VenueDirectoryItem[]>([]);
@@ -51,22 +52,29 @@ export function VenuesView() {
               key={v.id}
               className="border-border flex flex-col gap-1 rounded-lg border px-4 py-3"
             >
-              <div className="font-medium">{v.name}</div>
+              <Link
+                to="/v/$slug"
+                params={{ slug: v.slug }}
+                className="font-medium hover:underline"
+              >
+                {v.name}
+              </Link>
               <div className="text-foreground-secondary text-xs">
-                {[v.city, v.countryCode].filter(Boolean).join(', ')}
+                {[v.city, countryFlagAndName(v.countryCode) || null]
+                  .filter(Boolean)
+                  .join(', ')}
                 {v.capacity != null ? ` — cap. ${v.capacity}` : ''}
               </div>
               {v.description && (
                 <p className="text-foreground text-sm">{v.description}</p>
               )}
-              <a
-                href={`https://tahti.live/venues/${v.slug}`}
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                to="/v/$slug"
+                params={{ slug: v.slug }}
                 className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
               >
-                Open on tahti.live
-              </a>
+                View venue →
+              </Link>
             </li>
           ))}
         </ul>

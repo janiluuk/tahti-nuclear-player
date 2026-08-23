@@ -1,0 +1,49 @@
+import { describe, expect, it } from 'vitest';
+
+import { getPageTourSteps } from './pageTour';
+
+function ids(pathname: string): string[] {
+  return getPageTourSteps(pathname).map((step) => step.id);
+}
+
+describe('getPageTourSteps', () => {
+  it('always includes the sidebar', () => {
+    expect(ids('/radio')).toContain('nav-listen');
+    expect(ids('/radio')).toContain('nav-studio');
+  });
+
+  it('only includes the top bar on the homepage', () => {
+    expect(ids('/')).toContain('topbar-golive');
+    expect(ids('/radio')).not.toContain('topbar-golive');
+    expect(ids('/studio')).not.toContain('topbar-golive');
+    expect(ids('/admin')).not.toContain('topbar-golive');
+  });
+
+  it('includes Studio panel steps on /studio and /library, not elsewhere', () => {
+    const studioIds = ids('/studio/upload');
+    expect(studioIds).toContain('nav-item-/studio');
+    expect(studioIds).toContain('nav-item-tool-Upload');
+    expect(ids('/library')).toContain('nav-item-/studio');
+    expect(ids('/radio')).not.toContain('nav-item-/studio');
+  });
+
+  it('includes Admin panel steps only under /admin', () => {
+    const adminIds = ids('/admin/users');
+    expect(adminIds).toContain('nav-item-/admin/users');
+    expect(ids('/studio')).not.toContain('nav-item-/admin/users');
+  });
+
+  it('never produces duplicate step ids', () => {
+    for (const pathname of ['/', '/studio/shows', '/admin/users', '/library']) {
+      const stepIds = ids(pathname);
+      expect(new Set(stepIds).size).toBe(stepIds.length);
+    }
+  });
+
+  it('gives every step a non-empty label and description', () => {
+    for (const step of getPageTourSteps('/studio/shows')) {
+      expect(step.label.length).toBeGreaterThan(0);
+      expect(step.description.length).toBeGreaterThan(0);
+    }
+  });
+});

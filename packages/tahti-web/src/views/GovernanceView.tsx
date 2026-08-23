@@ -81,6 +81,12 @@ export function GovernanceView() {
         <p className="text-foreground-secondary mt-1 text-sm">
           Cooperative motions — vote YES / NO / ABSTAIN and join the discussion.
         </p>
+        <Link
+          to="/governance/feature-requests"
+          className="text-foreground-secondary mt-2 inline-block w-fit text-xs underline-offset-2 hover:underline"
+        >
+          Feature requests →
+        </Link>
       </div>
 
       {!user && (

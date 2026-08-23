@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 
+import { SupportContactForm } from '../components/SupportContactForm';
 import { getHelpArticle, HELP_ARTICLES, HELP_HUB_INTRO } from '../content/help';
 
 const PRODUCTION = 'https://tahti.live';
@@ -89,14 +90,16 @@ export function HelpArticleView({ slug }: { slug: string }) {
         <p className="text-foreground-secondary text-sm">
           {article.description}
         </p>
-        <a
-          href={`${PRODUCTION}${article.productionPath}`}
-          target="_blank"
-          rel="noreferrer"
-          className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
-        >
-          Open on tahti.live{article.productionPath}
-        </a>
+        {article.productionPath ? (
+          <a
+            href={`${PRODUCTION}${article.productionPath}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+          >
+            Open on tahti.live{article.productionPath}
+          </a>
+        ) : null}
       </header>
       {article.sections.map((section) => (
         <section key={section.heading} className="flex flex-col gap-2">
@@ -110,6 +113,7 @@ export function HelpArticleView({ slug }: { slug: string }) {
           </ul>
         </section>
       ))}
+      {slug === 'support' && <SupportContactForm />}
     </article>
   );
 }
