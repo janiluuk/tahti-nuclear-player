@@ -129,15 +129,14 @@ export function OnboardingView() {
       if (!user.channel) {
         const provisioned = await provisionChannel();
         if (!provisioned.ok) {
-          toast.error(provisioned.error);
-          setSaving(false);
+          toast.error(provisioned.error || 'Could not create your channel.');
           return;
         }
       }
       if (slugChanged && slugStatus === 'available') {
         const renamed = await updateChannelSlug(slug.trim());
         if (!renamed.ok) {
-          toast.error(renamed.error);
+          toast.error(renamed.error || 'Could not update your domain.');
         }
       }
       const profileResult = await patchMeProfile({
@@ -150,7 +149,7 @@ export function OnboardingView() {
         showFollowing,
       });
       if (!profileResult.ok) {
-        toast.error(profileResult.error);
+        toast.error(profileResult.error || 'Could not save your profile.');
       }
       const discoveryResult = await patchDiscoveryPrefs({
         genreTags: formatGenreTags(genres),
@@ -158,12 +157,20 @@ export function OnboardingView() {
         announceReleases,
       });
       if (!discoveryResult.ok) {
-        toast.error(discoveryResult.error);
+        toast.error(
+          discoveryResult.error || 'Could not save your preferences.',
+        );
       }
       await refresh();
       markOnboardingSeen(user.id);
       toast.success('Profile set up.');
       void navigate({ to: '/studio' });
+    } catch (err) {
+      toast.error(
+        err instanceof Error && err.message
+          ? err.message
+          : 'Something went wrong finishing setup. Please try again.',
+      );
     } finally {
       setSaving(false);
     }

@@ -1,5 +1,11 @@
 import { Link } from '@tanstack/react-router';
-import { CalendarIcon, MessageCircleIcon, MicIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  HeartIcon,
+  MessageCircleIcon,
+  MicIcon,
+  PlayIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Box, Button, Tabs } from '@nuclearplayer/ui';
@@ -22,7 +28,7 @@ import {
   MediaIconActions,
   playQueueFavoriteActions,
 } from '../components/MediaIconActions';
-import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageFrame } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { RadioBookingCalendar } from '../components/RadioBookingCalendar';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -133,6 +139,11 @@ export function RadioView() {
           title: relay.channel.title,
         }
       : null;
+  const TAGLINE =
+    '24/7 community radio — always on. Fair rotation when nobody is booked.';
+  const description = [TAGLINE, station?.user.bio]
+    .filter((s): s is string => Boolean(s))
+    .sort((a, b) => a.length - b.length)[0];
 
   const playStation = () => {
     void fetchRadioStation().then(({ playable }) => {
@@ -142,21 +153,8 @@ export function RadioView() {
     });
   };
 
-  const queueStation = () => {
-    void fetchRadioStation().then(({ playable }) => {
-      if (playable) {
-        enqueue(playable);
-      }
-    });
-  };
-
   return (
     <PageFrame maxWidth="3xl">
-      <PageHeader
-        title="Tahti Radio"
-        subtitle="24/7 community radio — always on. Fair rotation when nobody is booked."
-      />
-
       {loading ? (
         <PageLoading label="Tuning Tahti Radio…" />
       ) : !station ? (
@@ -172,40 +170,82 @@ export function RadioView() {
         />
       ) : (
         <div className="flex flex-col gap-6">
-          <header className="flex flex-wrap items-start gap-4">
-            <div className="bg-surface-secondary flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl text-lg font-bold tracking-tight">
-              {stationLogo ? (
-                <img
-                  src={stationLogo}
-                  alt=""
-                  className="size-full object-cover"
-                />
-              ) : (
-                'TR'
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-foreground text-2xl font-bold tracking-tight">
-                {station.user.displayName}
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="text-foreground-secondary">
-                  @{TAHTI_RADIO_SLUG}
-                </span>
-                {online ? (
-                  <OnAirBadge />
+          <header className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex min-w-0 items-start gap-4">
+              <div className="bg-surface-secondary flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl font-bold tracking-tight sm:size-24">
+                {stationLogo ? (
+                  <img
+                    src={stationLogo}
+                    alt=""
+                    className="size-full object-cover"
+                  />
                 ) : (
-                  <span className="text-accent-red font-mono text-xs font-semibold tracking-wide uppercase">
-                    Offline
-                  </span>
+                  'TR'
                 )}
               </div>
-              {station.user.bio ? (
-                <p className="text-foreground-secondary mt-2 max-w-2xl text-sm whitespace-pre-wrap">
-                  {station.user.bio}
-                </p>
-              ) : null}
+              <div className="min-w-0 flex-1">
+                <div className="text-foreground text-2xl font-bold tracking-tight">
+                  {station.user.displayName}
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="text-foreground-secondary">
+                    @{TAHTI_RADIO_SLUG}
+                  </span>
+                  {online ? (
+                    <OnAirBadge />
+                  ) : (
+                    <span className="text-accent-red font-mono text-xs font-semibold tracking-wide uppercase">
+                      Offline
+                    </span>
+                  )}
+                </div>
+                {description ? (
+                  <p className="text-foreground-secondary mt-2 max-w-md text-sm whitespace-pre-wrap">
+                    {description}
+                  </p>
+                ) : null}
+              </div>
             </div>
+
+            {online && (
+              <div className="shrink-0 text-right">
+                <Eyebrow tone="green">Now playing</Eyebrow>
+                {nowPlaying?.title ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setInfoTrack({
+                        title: nowPlaying.title,
+                        artistName: nowPlaying.artistName ?? 'Tahti Radio',
+                        artistUsername: nowPlaying.artistUsername ?? null,
+                        artworkUrl: nowPlaying.artworkUrl ?? null,
+                        meta: 'Live now',
+                      })
+                    }
+                    className="text-foreground mt-1 block max-w-56 text-right text-lg font-bold tracking-tight underline-offset-4 hover:underline"
+                  >
+                    {nowPlaying.title}
+                  </button>
+                ) : (
+                  <div className="text-foreground mt-1 text-lg font-bold tracking-tight">
+                    24/7 rotation
+                  </div>
+                )}
+                <div className="text-foreground-secondary mt-0.5 text-sm">
+                  {nowPlaying?.artistUsername ? (
+                    <Link
+                      to="/u/$username"
+                      params={{ username: nowPlaying.artistUsername }}
+                      className="underline-offset-2 hover:underline"
+                    >
+                      {nowPlaying.artistName}
+                    </Link>
+                  ) : (
+                    (nowPlaying?.artistName ?? null)
+                  )}
+                </div>
+              </div>
+            )}
           </header>
 
           {memberLive ? (
@@ -257,64 +297,38 @@ export function RadioView() {
                 />
               </div>
               <div className="relative z-10 flex flex-col gap-4 p-4 sm:p-5">
-                <div>
-                  <Eyebrow tone="green">Now playing</Eyebrow>
-                  {nowPlaying?.title ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setInfoTrack({
-                          title: nowPlaying.title,
-                          artistName: nowPlaying.artistName ?? 'Tahti Radio',
-                          artistUsername: nowPlaying.artistUsername ?? null,
-                          artworkUrl: nowPlaying.artworkUrl ?? null,
-                          meta: 'Live now',
-                        })
-                      }
-                      className="text-foreground mt-1 text-left text-xl font-bold tracking-tight underline-offset-4 hover:underline"
-                    >
-                      {nowPlaying.title}
-                    </button>
-                  ) : (
-                    <div className="text-foreground mt-1 text-xl font-bold tracking-tight">
-                      Tahti Radio
-                    </div>
-                  )}
-                  <div className="text-foreground-secondary mt-0.5 text-sm">
-                    {nowPlaying?.artistUsername ? (
-                      <Link
-                        to="/u/$username"
-                        params={{ username: nowPlaying.artistUsername }}
-                        className="underline-offset-2 hover:underline"
-                      >
-                        {nowPlaying.artistName}
-                      </Link>
-                    ) : (
-                      (nowPlaying?.artistName ?? '24/7 rotation')
-                    )}
-                  </div>
-                </div>
-
                 <div className="flex flex-wrap items-start gap-3">
                   <MediaIconActions
-                    actions={playQueueFavoriteActions({
-                      onPlay: playStation,
-                      onQueue: queueStation,
-                      onFavorite: () =>
-                        toggleFavoriteChannel({
-                          slug: TAHTI_RADIO_SLUG,
-                          displayName: station.user.displayName,
-                          avatarUrl: station.user.avatarUrl,
-                        }),
-                      favorited,
-                      playLabel: 'Play Radio',
-                      queueLabel: 'Queue',
-                      queued: queue.some(
-                        (item) =>
-                          item.id === `live:${TAHTI_RADIO_SLUG}` ||
-                          item.id === `radio:${TAHTI_RADIO_SLUG}`,
-                      ),
-                    })}
+                    actions={[
+                      {
+                        id: 'play',
+                        label: 'Play Radio',
+                        icon: <PlayIcon size={16} className="fill-current" />,
+                        onClick: playStation,
+                      },
+                      {
+                        id: 'favorite',
+                        label: favorited ? 'Favorited' : 'Favorite',
+                        icon: (
+                          <HeartIcon
+                            size={16}
+                            className={
+                              favorited
+                                ? 'text-accent-red fill-current'
+                                : undefined
+                            }
+                          />
+                        ),
+                        onClick: () =>
+                          toggleFavoriteChannel({
+                            slug: TAHTI_RADIO_SLUG,
+                            displayName: station.user.displayName,
+                            avatarUrl: station.user.avatarUrl,
+                          }),
+                        active: favorited,
+                        variant: 'text',
+                      },
+                    ]}
                   />
                   <Link to="/channel/$slug" params={{ slug: TAHTI_RADIO_SLUG }}>
                     <Button size="sm" variant="secondary">
