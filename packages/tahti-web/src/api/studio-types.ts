@@ -43,6 +43,14 @@ export type StudioArchivePatch = {
   bannerUrl?: string | null;
 };
 
+export type FingerprintMatch = {
+  acoustidId: string;
+  score: number;
+  recordingId?: string;
+  title?: string;
+  artist?: string;
+};
+
 export type StudioReleaseTrack = {
   id: string;
   position: number;
@@ -50,6 +58,8 @@ export type StudioReleaseTrack = {
   status?: string;
   durationSec?: number | null;
   archiveItemId?: string | null;
+  sourceKey?: string | null;
+  fingerprintMatch?: FingerprintMatch | null;
 };
 
 export type StudioRelease = {
