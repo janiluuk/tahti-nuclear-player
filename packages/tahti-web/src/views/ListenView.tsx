@@ -450,6 +450,8 @@ export function ListenView() {
           ) : (
             <CardGrid>
               {filtered.map((ch) => {
+                const favorited =
+                  signedIn && favoriteChannels.some((c) => c.slug === ch.slug);
                 return (
                   <Card
                     key={ch.slug}
@@ -470,6 +472,17 @@ export function ListenView() {
                     src={ch.avatarUrl ?? undefined}
                     onPlay={() => void playArtist(ch.username)}
                     onQueue={() => void queueArtist(ch.username)}
+                    onFavorite={
+                      signedIn
+                        ? () =>
+                            toggleFavoriteChannel({
+                              slug: ch.slug,
+                              displayName: ch.displayName,
+                              avatarUrl: ch.avatarUrl,
+                            })
+                        : undefined
+                    }
+                    favorited={favorited}
                     onClick={() => {
                       void navigate({
                         to: '/u/$username',
