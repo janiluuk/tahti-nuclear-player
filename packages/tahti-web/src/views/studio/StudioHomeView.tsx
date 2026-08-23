@@ -4,7 +4,6 @@ import {
   CalendarDaysIcon,
   CalendarIcon,
   ChevronDownIcon,
-  Code2Icon,
   DiscAlbumIcon,
   DiscIcon,
   FolderLockIcon,
@@ -330,13 +329,6 @@ export function StudioHomeView() {
                       : 'Share releases'
                   }
                   color="var(--primary)"
-                />
-                <StudioActionTile
-                  to="/studio/embeds"
-                  icon={Code2Icon}
-                  label="Embeds"
-                  subtitle="Pinned release players"
-                  color="var(--accent-cyan)"
                 />
               </CardGrid>
             </Group>

@@ -11,7 +11,8 @@ export const DASHBOARD_REDIRECTS: Record<string, string> = {
   collections: '/studio/collections',
   distribution: '/studio/distribution',
   editor: '/studio/editor',
-  embeds: '/studio/embeds',
+  // Embeds page removed (no public consumer) — old bookmarks land on Releases.
+  embeds: '/studio/releases',
   events: '/studio/events',
   venues: '/studio/venues',
   recordings: '/studio/recordings',
