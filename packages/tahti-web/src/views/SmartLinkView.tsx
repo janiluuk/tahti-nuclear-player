@@ -13,6 +13,7 @@ import type {
   SmartLinkView as SmartLinkData,
   TahtiPlayable,
 } from '../api/types';
+import { EmbedButton } from '../components/EmbedButton';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { usePlayerStore } from '../stores/playerStore';
@@ -143,6 +144,10 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
             />
           </div>
         )}
+      </div>
+
+      <div className="flex justify-end">
+        <EmbedButton target={{ kind: 'release', id: data.release.id }} />
       </div>
 
       <header className="flex flex-col items-center gap-2 text-center">

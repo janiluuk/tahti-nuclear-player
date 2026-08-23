@@ -51,7 +51,13 @@ export function VenuesView() {
               key={v.id}
               className="border-border flex flex-col gap-1 rounded-lg border px-4 py-3"
             >
-              <div className="font-medium">{v.name}</div>
+              <Link
+                to="/venues/$slug"
+                params={{ slug: v.slug }}
+                className="font-medium hover:underline"
+              >
+                {v.name}
+              </Link>
               <div className="text-foreground-secondary text-xs">
                 {[v.city, v.countryCode].filter(Boolean).join(', ')}
                 {v.capacity != null ? ` — cap. ${v.capacity}` : ''}
@@ -59,14 +65,13 @@ export function VenuesView() {
               {v.description && (
                 <p className="text-foreground text-sm">{v.description}</p>
               )}
-              <a
-                href={`https://tahti.live/venues/${v.slug}`}
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                to="/venues/$slug"
+                params={{ slug: v.slug }}
                 className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
               >
-                Open on tahti.live
-              </a>
+                Upcoming shows →
+              </Link>
             </li>
           ))}
         </ul>

@@ -18,6 +18,7 @@ import {
   mockTransparencyGrants,
   mockTransparencyLedger,
   mockTransparencyYtd,
+  mockVenueProfile,
   mockVenues,
   radioToPlayable,
   TAHTI_RADIO_SLUG,
@@ -57,6 +58,7 @@ import type {
   FollowListUser,
   GovernanceMotion,
   MembershipStatus,
+  OnAirChannelResponse,
   PlatformStatus,
   PublicChannel,
   PublicCollection,
@@ -70,6 +72,7 @@ import type {
   TransparencyLedgerEntry,
   TransparencyYtd,
   VenueDirectoryItem,
+  VenueProfile,
 } from './types';
 
 export type { FetchMeta };
@@ -139,6 +142,50 @@ export async function fetchDirectory(): Promise<{
     return { data, meta: { source: 'api' } };
   } catch (err) {
     return withMockFallback(err, mockDirectory, () => ({ items: [] }));
+  }
+}
+
+export async function fetchOnAirChannels(): Promise<{
+  data: OnAirChannelResponse;
+  meta: FetchMeta;
+}> {
+  const empty = (): OnAirChannelResponse => ({
+    live: [],
+    replaying: [],
+    recent: [],
+  });
+  const mock = (): OnAirChannelResponse => ({
+    live: mockDirectory()
+      .items.filter(
+        (item) =>
+          item.slug === TAHTI_RADIO_SLUG || item.slug === 'northern-lights',
+      )
+      .map((item) => ({
+        slug: item.slug,
+        state: 'LIVE',
+        fallbackEnabled: false,
+        user: {
+          username: item.username,
+          displayName: item.displayName,
+          avatarUrl: item.avatarUrl,
+        },
+      })),
+    replaying: [],
+    recent: [],
+  });
+  if (forceMock()) {
+    return {
+      data: mock(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    return {
+      data: await getJson<OnAirChannelResponse>('/api/v1/channels'),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return withMockFallback(err, mock, empty);
   }
 }
 
@@ -296,6 +343,33 @@ export async function fetchProfile(username: string): Promise<{
   }
 }
 
+export async function fetchArtistPlayables(username: string): Promise<{
+  data: TahtiPlayable[];
+  meta: FetchMeta;
+}> {
+  const profile = await fetchProfile(username);
+  const data = profile.data.tracks.flatMap((track) => {
+    if (!track.playUrl) {
+      return [];
+    }
+    return [
+      {
+        id: `archive:${track.id}`,
+        kind: 'archive' as const,
+        title: track.title,
+        artist: track.artistName ?? profile.data.artist.displayName,
+        coverUrl: track.bannerUrl ?? undefined,
+        streamUrl: track.playUrl,
+        protocol: track.playUrl.includes('.m3u8')
+          ? ('hls' as const)
+          : ('https' as const),
+        channelSlug: profile.data.channel?.slug,
+      },
+    ];
+  });
+  return { data, meta: profile.meta };
+}
+
 export async function fetchCollection(slug: string): Promise<{
   data: PublicCollection;
   meta: FetchMeta;
@@ -357,6 +431,30 @@ export async function fetchVenues(): Promise<{
     return { data, meta: { source: 'api' } };
   } catch (err) {
     return withMockFallback(err, mockVenues, () => []);
+  }
+}
+
+export async function fetchVenueProfile(slug: string): Promise<{
+  data: VenueProfile | null;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockVenueProfile(slug),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<VenueProfile>(
+      `/api/v1/venues/${encodeURIComponent(slug)}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return withMockFallback(
+      err,
+      () => mockVenueProfile(slug),
+      () => null,
+    );
   }
 }
 

@@ -54,7 +54,6 @@ const TOOL_GROUPS: readonly StudioToolGroup[] = [
       { to: '/studio/upload', label: 'Upload', icon: CloudUploadIcon },
       { to: '/studio/collections', label: 'Collections', icon: LibraryIcon },
       { to: '/studio/editor', label: 'Audio editor', icon: AudioLinesIcon },
-      { to: '/studio/embeds', label: 'Embeds', icon: GalleryVerticalEndIcon },
     ],
   },
   {

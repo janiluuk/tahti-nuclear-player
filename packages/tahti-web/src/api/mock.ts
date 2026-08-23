@@ -18,6 +18,7 @@ import type {
   TransparencyLedgerEntry,
   TransparencyYtd,
   VenueDirectoryItem,
+  VenueProfile,
 } from './types';
 
 /** Always-on station slug — matches production `TAHTI_RADIO_SLUG`. */
@@ -332,10 +333,10 @@ const STATION_CONTENT: Record<string, StationContent> = {
 const MOCK_DIRECTORY: ChannelDirectoryResponse = {
   items: Object.entries(STATION_CONTENT).map(([slug, s]) => ({
     slug,
+    username: slug,
     displayName: s.displayName,
     avatarUrl: s.avatarUrl ?? null,
     genres: s.genres,
-    live: LIVE_SLUGS.has(slug),
   })),
   // tahti-radio is featured via fetchRadioStation on Listen — not listed here.
 };
@@ -716,6 +717,27 @@ export function mockVenues(): VenueDirectoryItem[] {
       description: 'Mock venue for the listen POC.',
     },
   ];
+}
+
+export function mockVenueProfile(slug: string): VenueProfile | null {
+  const base = mockVenues().find((v) => v.slug === slug);
+  if (!base) {
+    return null;
+  }
+  return {
+    ...base,
+    address: 'Hämeentie 13, 00500 Helsinki',
+    latitude: 60.1841,
+    longitude: 24.9597,
+    broadcasts: [
+      {
+        id: 'venue-broadcast-1',
+        startAt: new Date(Date.now() + 3 * 24 * 3600_000).toISOString(),
+        endAt: null,
+        description: 'Mock live set booked at this venue.',
+      },
+    ],
+  };
 }
 
 export function channelToPlayable(

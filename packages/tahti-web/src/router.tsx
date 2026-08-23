@@ -79,7 +79,6 @@ import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
 import { StudioDistributionView } from './views/studio/StudioDistributionView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
 import { StudioEditorProjectView } from './views/studio/StudioEditorProjectView';
-import { StudioEmbedsView } from './views/studio/StudioEmbedsView';
 import { StudioEventsView } from './views/studio/StudioEventsView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
@@ -106,6 +105,7 @@ import { StudioUploadView } from './views/studio/StudioUploadView';
 import { StudioVenuesView } from './views/studio/StudioVenuesView';
 import { SubscribeView } from './views/SubscribeView';
 import { TransparencyView } from './views/TransparencyView';
+import { VenueDetailView } from './views/VenueDetailView';
 import { VenueRegisterView } from './views/VenueRegisterView';
 import { VenuesView } from './views/VenuesView';
 import { VerifyView } from './views/VerifyView';
@@ -406,6 +406,15 @@ const venuesRegisterRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/venues/register',
   component: VenueRegisterView,
+});
+
+const venueDetailRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/venues/$slug',
+  component: function VenueDetailRoute() {
+    const { slug } = venueDetailRoute.useParams();
+    return <VenueDetailView slug={slug} />;
+  },
 });
 
 const moreRoute = createRoute({
@@ -855,12 +864,6 @@ const studioEventsRoute = createRoute({
   component: StudioEventsView,
 });
 
-const studioEmbedsRoute = createRoute({
-  getParentRoute: () => appLayoutRoute,
-  path: '/studio/embeds',
-  component: StudioEmbedsView,
-});
-
 const studioInsightsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/insights/$kind/$id',
@@ -1062,6 +1065,7 @@ const routeTree = rootRoute.addChildren([
     sourcesTabRoute,
     venuesRoute,
     venuesRegisterRoute,
+    venueDetailRoute,
     moreRoute,
     whatsNewRoute,
     channelRoute,
@@ -1127,7 +1131,6 @@ const routeTree = rootRoute.addChildren([
     studioModerationRoute,
     studioVenuesRoute,
     studioEventsRoute,
-    studioEmbedsRoute,
     studioInsightsRoute,
     dashboardIndexAliasRoute,
     dashboardSplatAliasRoute,

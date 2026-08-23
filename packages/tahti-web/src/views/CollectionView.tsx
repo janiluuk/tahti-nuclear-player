@@ -7,6 +7,7 @@ import type {
   PublicCollection,
   TahtiPlayable,
 } from '../api/types';
+import { EmbedButton } from '../components/EmbedButton';
 import { EmbedTrackRow } from '../components/EmbedTrackRow';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
@@ -129,6 +130,7 @@ export function CollectionView({
           </>
         }
         meta={collection.description}
+        actions={<EmbedButton target={{ kind: 'collection', slug }} />}
       />
 
       {playables.length > 0 && <PlayableTrackTable items={playables} />}

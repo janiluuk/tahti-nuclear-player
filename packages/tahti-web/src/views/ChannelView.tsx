@@ -24,6 +24,7 @@ import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
+import { EmbedButton } from '../components/EmbedButton';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -557,6 +558,7 @@ export function ChannelView({ slug }: { slug: string }) {
                 </span>
               </Button>
             )}
+            {!editing && <EmbedButton target={{ kind: 'channel', slug }} />}
           </div>
           <p className="text-foreground-secondary text-sm">
             <Link

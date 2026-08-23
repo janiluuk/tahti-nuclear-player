@@ -1,8 +1,132 @@
 import { Link } from '@tanstack/react-router';
+import { SendIcon } from 'lucide-react';
+import { useState } from 'react';
 
+import { Button, Input } from '@nuclearplayer/ui';
+
+import { submitSupportContact, type SupportCategory } from '../api/support';
 import { getHelpArticle, HELP_ARTICLES, HELP_HUB_INTRO } from '../content/help';
+import { useAuthStore } from '../stores/authStore';
 
 const PRODUCTION = 'https://tahti.live';
+
+const CATEGORY_OPTIONS: { id: SupportCategory; label: string }[] = [
+  { id: 'TECHNICAL', label: 'Technical issue' },
+  { id: 'FINANCIAL', label: 'Payments / money' },
+  { id: 'ENGAGEMENT_DISPUTE', label: 'Engagement dispute' },
+  { id: 'OTHER', label: 'Other' },
+];
+
+function SupportContactForm() {
+  const user = useAuthStore((s) => s.user);
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [category, setCategory] = useState<SupportCategory>('OTHER');
+  const [contactEmail, setContactEmail] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<
+    { ok: true; ticketId: string } | { ok: false; error: string } | null
+  >(null);
+
+  const needsEmail = !user;
+  const canSubmit =
+    subject.trim() && message.trim() && (!needsEmail || contactEmail.trim());
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canSubmit) {
+      return;
+    }
+    setBusy(true);
+    setResult(null);
+    const r = await submitSupportContact({
+      subject: subject.trim(),
+      message: message.trim(),
+      category,
+      contactEmail: needsEmail ? contactEmail.trim() : undefined,
+    });
+    setBusy(false);
+    setResult(r);
+    if (r.ok) {
+      setSubject('');
+      setMessage('');
+      setContactEmail('');
+    }
+  };
+
+  if (result?.ok) {
+    return (
+      <div className="border-border rounded-xl border p-4 text-sm">
+        <p className="font-semibold">Message sent — thanks.</p>
+        <p className="text-foreground-secondary mt-1 text-xs">
+          Reference: {result.ticketId}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={(e) => void onSubmit(e)}
+      className="border-border flex flex-col gap-3 rounded-xl border p-4"
+    >
+      <h2 className="font-display text-lg font-bold">Contact support</h2>
+      <div className="flex flex-wrap gap-2">
+        {CATEGORY_OPTIONS.map((opt) => (
+          <button
+            key={opt.id}
+            type="button"
+            aria-pressed={category === opt.id}
+            onClick={() => setCategory(opt.id)}
+            className={`rounded-full border px-3 py-1 text-xs ${
+              category === opt.id
+                ? 'border-primary bg-primary/15 font-semibold'
+                : 'border-border text-foreground-secondary hover:border-primary/40'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      <Input
+        label="Subject"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+      />
+      {needsEmail && (
+        <Input
+          label="Your email"
+          value={contactEmail}
+          onChange={(e) => setContactEmail(e.target.value)}
+          description="So we can reply — you're not signed in."
+        />
+      )}
+      <label className="flex flex-col gap-1.5 text-sm">
+        <span className="text-foreground-secondary text-xs uppercase">
+          Message
+        </span>
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          rows={5}
+          className="border-border bg-background rounded-md border px-3 py-2 text-sm outline-none"
+          placeholder="What's going on?"
+        />
+      </label>
+      {result && !result.ok && (
+        <p className="text-accent-red text-xs">{result.error}</p>
+      )}
+      <Button
+        type="submit"
+        disabled={!canSubmit || busy}
+        className="self-start"
+      >
+        <SendIcon size={14} aria-hidden className="mr-1.5" />
+        {busy ? 'Sending…' : 'Send message'}
+      </Button>
+    </form>
+  );
+}
 
 export function HelpHubView() {
   return (
@@ -37,6 +161,7 @@ export function HelpHubView() {
           </li>
         ))}
       </ul>
+      <SupportContactForm />
       <p className="text-foreground-secondary text-xs">
         More help:{' '}
         <a

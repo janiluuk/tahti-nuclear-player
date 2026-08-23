@@ -1,15 +1,30 @@
 export type ChannelDirectoryItem = {
   slug: string;
+  username: string;
   displayName: string;
   avatarUrl: string | null;
   genres: string[];
-  /** True while actively broadcasting. Absent/false means the profile is
-   * browsable (archive/tracks) but not currently live. */
-  live?: boolean;
 };
 
 export type ChannelDirectoryResponse = {
   items: ChannelDirectoryItem[];
+};
+
+export type OnAirChannel = {
+  slug: string;
+  state: string;
+  fallbackEnabled: boolean;
+  user: {
+    username: string;
+    displayName: string;
+    avatarUrl: string | null;
+  };
+};
+
+export type OnAirChannelResponse = {
+  live: OnAirChannel[];
+  replaying: OnAirChannel[];
+  recent: OnAirChannel[];
 };
 
 export type ChannelNowPlaying = {
@@ -232,6 +247,20 @@ export type VenueDirectoryItem = {
   countryCode: string | null;
   capacity: number | null;
   description: string | null;
+};
+
+export type VenueUpcomingBroadcast = {
+  id: string;
+  startAt: string;
+  endAt: string | null;
+  description: string | null;
+};
+
+export type VenueProfile = VenueDirectoryItem & {
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  broadcasts: VenueUpcomingBroadcast[];
 };
 
 /** Playable item in the Tahti listen client (live channel, radio, or archive URL). */
