@@ -43,6 +43,7 @@ import { FullScreenPlayer } from './FullScreenPlayer';
 import { MobileBottomNav, MobileDrawer } from './MobileChrome';
 import { PageTourSpotlight } from './PageTourSpotlight';
 import { RightRailPanel } from './RightRailPanel';
+import { SidebarBuildInfo } from './SidebarBuildInfo';
 
 function SidebarNavItems({ compact }: { compact: boolean }) {
   const isBoard = useAuthStore((state) => hasAccountRole(state.user, 'BOARD'));
@@ -388,6 +389,7 @@ export function AppShell() {
                       onClick={() => openSettings()}
                     />
                   </div>
+                  {isBoard && !leftCollapsed && <SidebarBuildInfo />}
                 </div>
               </div>
             </SidebarNavigation>

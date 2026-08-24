@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
@@ -5,7 +6,16 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import svgr from 'vite-plugin-svgr';
 
+import pkg from './package.json';
 import { validateProductionBuildEnvironment } from './src/lib/buildPolicy';
+
+const commitHash = (() => {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim();
+  } catch {
+    return 'unknown';
+  }
+})();
 
 // Written by the "Apply review" button on /more (ScreenAtlas). Claude Code
 // reads this file to see which pages still need changes vs. which are
@@ -64,6 +74,14 @@ export default defineConfig(({ command, mode }) => {
     'http://localhost:15011';
 
   return {
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+      __COMMIT_HASH__: JSON.stringify(commitHash),
+      // Baked in at build time, not request time — reflects when this
+      // bundle was built, which for beta is deploy time (deploy-vimage.sh
+      // builds and ships the same dist/ in one step).
+      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+    },
     plugins: [react(), tailwindcss(), svgr(), reviewStateApiPlugin()],
     clearScreen: false,
     server: {

@@ -18,7 +18,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, PluginItem, Tabs, Toggle } from '@nuclearplayer/ui';
+import { Button, PluginItem, Slider, Tabs, Toggle } from '@nuclearplayer/ui';
 
 import {
   BRAND_ACCENTS,
@@ -27,11 +27,14 @@ import {
   fillColorScheme,
   HEADER_STYLES,
   parseColorScheme,
+  parseVisualSettingsMap,
   patchChannelVisual,
+  resolveVisualPresetSettings,
   VISUAL_PRESETS,
   type ChannelVisual,
   type ColorScheme,
   type VisualPreset,
+  type VisualSettingsMap,
 } from '../api/channel-design';
 import { Eyebrow } from './tahti/Eyebrow';
 
@@ -116,6 +119,7 @@ export function ChannelDesigner({
 }: Props) {
   const [visual, setVisual] = useState<ChannelVisual | null>(null);
   const [scheme, setScheme] = useState<ColorScheme>({});
+  const [visualSettings, setVisualSettings] = useState<VisualSettingsMap>({});
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [lastVisualizerPreset, setLastVisualizerPreset] =
@@ -125,6 +129,7 @@ export function ChannelDesigner({
     void fetchChannelVisual().then((r) => {
       setVisual(r.data);
       setScheme(parseColorScheme(r.data.colorSchemeJson));
+      setVisualSettings(parseVisualSettingsMap(r.data.visualSettingsJson));
       if (
         isVisualPreset(r.data.visualPreset) &&
         r.data.visualPreset !== 'MINIMAL'
@@ -160,6 +165,24 @@ export function ChannelDesigner({
     setDirty(true);
   };
 
+  const setPresetSetting = (
+    preset: string,
+    key: 'speed' | 'intensity',
+    value: number,
+  ) => {
+    // Round away the 0.05-step float drift (e.g. 1 + 0.05*4 -> 1.2000000000000002)
+    // before it lands in state and gets displayed/persisted.
+    const rounded = Math.round(value * 100) / 100;
+    setVisualSettings((current) => ({
+      ...current,
+      [preset]: {
+        ...resolveVisualPresetSettings(current, preset),
+        [key]: rounded,
+      },
+    }));
+    setDirty(true);
+  };
+
   const save = async () => {
     if (!visual) {
       return;
@@ -170,6 +193,7 @@ export function ChannelDesigner({
       headerStyle: visual.headerStyle,
       brandAccentPreset: visual.brandAccentPreset,
       colorScheme: fillColorScheme(scheme),
+      visualSettings,
     });
     setBusy(false);
     if (!result.ok) {
@@ -178,6 +202,7 @@ export function ChannelDesigner({
     }
     setVisual(result.data);
     setScheme(parseColorScheme(result.data.colorSchemeJson));
+    setVisualSettings(parseVisualSettingsMap(result.data.visualSettingsJson));
     setDirty(false);
     toast.success('Look saved — public channel will pick this up.');
     onSaved?.();
@@ -261,6 +286,35 @@ export function ChannelDesigner({
                     })}
                   </div>
                 )}
+                {visualizerEnabled &&
+                  isVisualPreset(visual.visualPreset) &&
+                  visual.visualPreset !== 'MINIMAL' && (
+                    <div className="border-border flex flex-col gap-4 rounded-lg border p-3">
+                      <Eyebrow>
+                        Tune {visual.visualPreset.replace(/_/g, ' ')}
+                      </Eyebrow>
+                      {(['speed', 'intensity'] as const).map((key) => {
+                        const current = resolveVisualPresetSettings(
+                          visualSettings,
+                          visual.visualPreset,
+                        );
+                        return (
+                          <Slider
+                            key={key}
+                            label={key === 'speed' ? 'Speed' : 'Intensity'}
+                            min={0.25}
+                            max={2}
+                            step={0.05}
+                            unit="×"
+                            value={current[key]}
+                            onValueChange={(value) =>
+                              setPresetSetting(visual.visualPreset, key, value)
+                            }
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
               </section>
             ),
           },

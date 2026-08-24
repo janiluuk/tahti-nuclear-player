@@ -511,9 +511,17 @@ export function ChannelView({ slug }: { slug: string }) {
     ? layout
     : layout.filter((item) => item.visible && item.type !== 'chat');
 
+  // Exactly one <ChannelVisualizer> (one WebGL context, one RAF loop) per
+  // page view, matching prod ("no point running two full WebGL scenes when
+  // only one is ever visible" — apps/web's _channel-page-visualizer.tsx).
+  // The hero block, when present, already renders its own full-strength
+  // instance below; this page-wide ambient one is only the fallback for
+  // layouts that don't include a hero block at all.
+  const heroVisible = visibleItems.some((item) => item.type === 'hero');
+
   const pageBody = (
     <div className="relative isolate min-h-full overflow-hidden">
-      {!editing && (
+      {!editing && !heroVisible && (
         <ChannelVisualizer
           className={`pointer-events-none absolute inset-0 z-0 ${
             live ? 'opacity-[0.32]' : 'opacity-[0.55]'

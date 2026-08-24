@@ -143,6 +143,43 @@ export type ChannelVisual = {
   slideshowAutoplay?: boolean;
 };
 
+/** Per-preset speed/intensity, both clamped 0.25–2 (matches the backend's
+ * VisualPresetSettingsSchema in packages/shared). */
+export type VisualPresetSettings = { speed: number; intensity: number };
+export type VisualSettingsMap = Record<string, Partial<VisualPresetSettings>>;
+
+export const DEFAULT_VISUAL_PRESET_SETTINGS: VisualPresetSettings = {
+  speed: 1,
+  intensity: 1,
+};
+
+export function parseVisualSettingsMap(
+  json: string | null | undefined,
+): VisualSettingsMap {
+  if (!json) {
+    return {};
+  }
+  try {
+    const parsed: unknown = JSON.parse(json);
+    return parsed && typeof parsed === 'object'
+      ? (parsed as VisualSettingsMap)
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+export function resolveVisualPresetSettings(
+  map: VisualSettingsMap,
+  preset: string,
+): VisualPresetSettings {
+  const entry = map[preset];
+  return {
+    speed: entry?.speed ?? DEFAULT_VISUAL_PRESET_SETTINGS.speed,
+    intensity: entry?.intensity ?? DEFAULT_VISUAL_PRESET_SETTINGS.intensity,
+  };
+}
+
 let mockVisual: ChannelVisual = {
   visualPreset: 'AURORA',
   colorSchemeJson: JSON.stringify({
@@ -192,6 +229,7 @@ export async function fetchChannelVisual(): Promise<{
 export async function patchChannelVisual(patch: {
   visualPreset?: string;
   colorScheme?: ColorScheme | null;
+  visualSettings?: VisualSettingsMap | null;
   headerStyle?: string;
   brandAccentPreset?: string | null;
 }): Promise<{ ok: true; data: ChannelVisual } | { ok: false; error: string }> {
@@ -212,6 +250,15 @@ export async function patchChannelVisual(patch: {
             colorSchemeJson: patch.colorScheme
               ? JSON.stringify(patch.colorScheme)
               : null,
+          }
+        : {}),
+      ...(patch.visualSettings !== undefined
+        ? {
+            visualSettingsJson:
+              patch.visualSettings &&
+              Object.keys(patch.visualSettings).length > 0
+                ? JSON.stringify(patch.visualSettings)
+                : null,
           }
         : {}),
     };

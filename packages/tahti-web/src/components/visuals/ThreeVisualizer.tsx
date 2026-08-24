@@ -457,7 +457,11 @@ function createPresetScene(
       return createFlares(scene, scheme);
     case 'IES_SPOTLIGHT':
       return createSpotlights(scene, scheme);
+    case 'AURORA':
     default:
+      // Aurora doubles as the fallback for an unrecognized preset string,
+      // matching the caller's own `?? 'AURORA'` default (ChannelView.tsx,
+      // ChannelDesigner.tsx) rather than silently rendering it by accident.
       return createAurora(scene, scheme);
   }
 }
