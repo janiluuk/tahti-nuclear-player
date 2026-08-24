@@ -112,6 +112,7 @@ export type PublicTrackDetail = {
     username: string;
     displayName: string;
     avatarUrl: string | null;
+    bio: string | null;
   };
   durationSec: number | null;
   audioUrl: string | null;

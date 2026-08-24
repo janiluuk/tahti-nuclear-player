@@ -600,6 +600,7 @@ export function mockTrackDetail(id: string): PublicTrackDetail | null {
       username: slug,
       displayName: channel.user.displayName,
       avatarUrl: channel.user.avatarUrl,
+      bio: channel.user.bio,
     },
     durationSec: item.durationSec ?? null,
     audioUrl: item.audioUrl ?? null,

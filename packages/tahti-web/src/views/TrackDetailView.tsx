@@ -127,13 +127,28 @@ export function TrackDetailView({ id }: { id: string }) {
               {playable.title}
             </h1>
             <p className="text-foreground-secondary text-sm">
-              {playable.artist}
+              {detail?.channel.username ? (
+                <Link
+                  to="/u/$username"
+                  params={{ username: detail.channel.username }}
+                  className="hover:text-foreground underline-offset-2 hover:underline"
+                >
+                  {playable.artist}
+                </Link>
+              ) : (
+                playable.artist
+              )}
               {provider ? ` · ${provider}` : ''}
               {detail?.genre ? ` · ${detail.genre}` : ''}
               {playable.durationSec
                 ? ` · ${formatDuration(playable.durationSec)}`
                 : ''}
             </p>
+            {detail?.channel.bio ? (
+              <p className="text-foreground-secondary mt-1 max-w-md text-sm">
+                {detail.channel.bio}
+              </p>
+            ) : null}
             {detail?.description ? (
               <p className="text-foreground-secondary mt-1 max-w-md text-sm">
                 {detail.description}
