@@ -50,7 +50,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [ ] **Same-origin API proxy** on production web edge — the SPA nginx image contract now includes `/tahti-api`, `/api`, host-safe cookie rewriting, forwarded host/protocol, and `/health`; the production service/upstream switch remains pending. Centrifugo WS stays `wss://chat.tahti.live`.
 - [x] **Parity P0 features** from FEATURES.md: membership purchase, password/security, in-client setup-channel, venue register, and Sources OAuth callback returns are implemented in the SPA.
 - [x] **Strip / gate POC-only surfaces** for prod builds: `/more` and Screen atlas require `VITE_ENABLE_DIAGNOSTICS=1`; mock-enabled production builds now fail. Beta explicitly enables diagnostics for review.
-- [ ] **SEO minimum:** `robots.txt`, a static + API-fed sitemap index, canonical tags, and route-aware browser metadata for `/c`, `/u`, `/r` are implemented. Server-rendered dynamic OG values still require prerendering or an edge metadata service — see [`SEO-OG-NOTES.md`](SEO-OG-NOTES.md) for the current-state audit and the recommended proxy-based approach (in progress).
+- [x] **SEO minimum:** `robots.txt`, a static + API-fed sitemap index, canonical tags, and route-aware browser metadata for `/c`, `/u`, `/r` are implemented. Server-rendered dynamic OG values for non-JS bots now come from `GET /api/og/{channel,profile,release}/:slug` in `tahti/apps/api` (new `apps/api/src/routes/og.ts`), proxied to by a bot-user-agent `map` in `deploy/nginx.conf` — see [`SEO-OG-NOTES.md`](SEO-OG-NOTES.md) for the audit and design. Real browsers/JS-executing crawlers are unaffected and still get the client-side sync.
 - [x] **Playwright / vital journey** covers callback compatibility, mock login, go-live, upload, subscription offers, keyboard navigation, and the beta review map.
 - [ ] **Cutover runbook rehearsed** on staging/canary (rollback = previous `tahti/web` image + NPM/Caddy upstream).
 - [x] **Legal pages** bind to real terms/privacy/AGPL (not “POC summary + link-out”). `TermsView`/`PrivacyView`/`AgplView` port prod's actual `(info)/terms`, `/privacy`, `/agpl` page copy verbatim (`/home/jani/workspace/tahti/apps/web/src/app/(info)/...`) instead of a short summary linking out to `tahti.live`.
@@ -105,7 +105,7 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 | Marketing `website/` | Separate static nginx image | **Do not merge into SPA**; apex `/` remains the marketing home | DONE; link `/listen` to `https://app.tahti.live/` at cutover |
 | `(marketing)` / `(info)` in apps/web | `/`, `/apply`, `/for-artists`, `/how-it-works`, … | Minimal compatibility routes already exist in the SPA | DONE for routing; SEO rendering remains a separate P0 item |
 | Embeds `/embed/*` | Next + `@tahti/ui` | POC has routes | TODO Parity QA (c/r/col/u) + iframe CSP |
-| SSR / SEO | Next sitemap + metadata | SPA gap | TODO Plan prerender/meta (§7) |
+| SSR / SEO | Next sitemap + metadata | SPA gap | DONE — client-side sync + `/api/og/*` bot proxy shipped; deploy + Phase 7.4 crawler QA still pending |
 | i18n | Essentially EN-only both sides | No hard gap | TODO Explicit non-goal or future track |
 | Accessibility | Mixed | Not systematically ported | TODO Audit P1 |
 

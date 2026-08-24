@@ -1,5 +1,14 @@
 # SEO / dynamic OG metadata — research notes and plan
 
+**Status (2026-08-24): both parts implemented.** Part 1 (client-side sync
+on real data resolve) landed in `src/lib/seo.ts` /
+`ChannelView`/`ArtistView`/`SmartLinkView`. Part 2 (bot proxy) landed as
+`GET /api/og/{channel,profile,release}/:slug` in `tahti/apps/api`
+(`apps/api/src/routes/og.ts`) plus the `$og_bot` user-agent `map` and
+`/c/*`, `/u/*`, `/r/*` → `/og-proxy/` rewrite rules in
+[`deploy/nginx.conf`](./deploy/nginx.conf). Remaining: deploy the API route
+to production, then do the Phase 7.4 curl-as-crawler QA pass for real.
+
 Written 2026-08-24, ahead of implementing the last open item under
 [CUTOVER.md](./CUTOVER.md)'s "SEO minimum (P0)" checklist:
 
