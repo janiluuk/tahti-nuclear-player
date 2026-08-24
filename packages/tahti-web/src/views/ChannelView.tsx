@@ -44,6 +44,7 @@ import {
   type ChannelPageItemType,
 } from '../lib/channelPageLayout';
 import { isPinned } from '../lib/pinnedTracks';
+import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -117,6 +118,17 @@ export function ChannelView({ slug }: { slug: string }) {
         setChannel(ch.data);
         setArchive(items.data);
         setLoading(false);
+
+        if (ch.data) {
+          const name = ch.data.user.displayName;
+          syncDocumentMetadata(window.location.pathname, {
+            title: `${name} live on Tahti`,
+            description:
+              ch.data.user.bio ??
+              `Listen to ${name}'s live channel, archive, and programme on Tahti.`,
+            image: ch.data.user.avatarUrl ?? undefined,
+          });
+        }
 
         const enabled = ch.data?.chatEnabled !== false;
         setChatContext({

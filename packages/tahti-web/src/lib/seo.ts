@@ -1,6 +1,7 @@
 export type RouteMetadata = {
   title: string;
   description: string;
+  image?: string;
 };
 
 const DEFAULT_METADATA: RouteMetadata = {
@@ -69,8 +70,9 @@ function setMeta(property: string, content: string): void {
   element?.setAttribute('content', content);
 }
 
-export function syncDocumentMetadata(pathname: string): void {
-  const metadata = metadataForPath(pathname);
+let lastApplied: (RouteMetadata & { pathname: string }) | null = null;
+
+function applyMetadata(pathname: string, metadata: RouteMetadata): void {
   const canonicalUrl = new URL(pathname, window.location.origin).toString();
   document.title = metadata.title;
   document.head
@@ -79,9 +81,42 @@ export function syncDocumentMetadata(pathname: string): void {
   setMeta('og:title', metadata.title);
   setMeta('og:description', metadata.description);
   setMeta('og:url', canonicalUrl);
+  if (metadata.image) {
+    setMeta('og:image', metadata.image);
+  }
   document.head
     .querySelector<HTMLLinkElement>('link[rel="canonical"]')
     ?.setAttribute('href', canonicalUrl);
+  lastApplied = { ...metadata, pathname };
+}
+
+/**
+ * Sets document metadata for a route. Pass `overrides` once a view's own
+ * data fetch resolves (real display name/bio/artwork) to replace the
+ * slug-guessed defaults from `metadataForPath` — routes have no router
+ * loaders, so this is always a two-step sync: guess on route entry, then
+ * real data shortly after.
+ */
+export function syncDocumentMetadata(
+  pathname: string,
+  overrides?: Partial<RouteMetadata>,
+): void {
+  const metadata = { ...metadataForPath(pathname), ...overrides };
+  applyMetadata(pathname, metadata);
+}
+
+/**
+ * Re-applies whatever metadata was last synced for this pathname (guess or
+ * real-data override) rather than recomputing the slug guess — used when
+ * something else (the scrolling now-playing title) temporarily took over
+ * document.title and needs to hand it back without discarding an override.
+ */
+export function reapplyLastMetadata(pathname: string): void {
+  if (lastApplied && lastApplied.pathname === pathname) {
+    applyMetadata(pathname, lastApplied);
+  } else {
+    syncDocumentMetadata(pathname);
+  }
 }
 
 export function scrollingPlaybackTitle(title: string, offset: number): string {

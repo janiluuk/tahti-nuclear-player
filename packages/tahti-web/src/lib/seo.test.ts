@@ -1,6 +1,12 @@
-import { describe, expect, it } from 'vitest';
+// @vitest-environment jsdom
+import { beforeEach, describe, expect, it } from 'vitest';
 
-import { metadataForPath, scrollingPlaybackTitle } from './seo';
+import {
+  metadataForPath,
+  reapplyLastMetadata,
+  scrollingPlaybackTitle,
+  syncDocumentMetadata,
+} from './seo';
 
 describe('metadataForPath', () => {
   it.each([
@@ -28,5 +34,66 @@ describe('scrollingPlaybackTitle', () => {
     expect(scrollingPlaybackTitle('Track — Artist · Tahti Radio', 6)).toBe(
       '— Artist · Tahti Radio   Track ',
     );
+  });
+});
+
+describe('syncDocumentMetadata / reapplyLastMetadata', () => {
+  beforeEach(() => {
+    document.head.innerHTML = `
+      <meta name="description" content="" />
+      <meta property="og:title" content="" />
+      <meta property="og:description" content="" />
+      <meta property="og:url" content="" />
+      <meta property="og:image" content="https://tahti.live/og-image.png" />
+      <link rel="canonical" href="" />
+    `;
+  });
+
+  function ogImage(): string | null {
+    return (
+      document.head
+        .querySelector('meta[property="og:image"]')
+        ?.getAttribute('content') ?? null
+    );
+  }
+
+  it('applies the slug-guessed metadata with no overrides', () => {
+    syncDocumentMetadata('/channel/night-radio');
+    expect(document.title).toBe('Night Radio live on Tahti');
+    expect(ogImage()).toBe('https://tahti.live/og-image.png');
+  });
+
+  it('overrides the slug guess with real data once it is available', () => {
+    syncDocumentMetadata('/channel/night-radio', {
+      title: 'Real Channel Name live on Tahti',
+      description: 'A real bio.',
+      image: 'https://cdn.tahti.live/avatar.jpg',
+    });
+    expect(document.title).toBe('Real Channel Name live on Tahti');
+    expect(
+      document.head
+        .querySelector('meta[name="description"]')
+        ?.getAttribute('content'),
+    ).toBe('A real bio.');
+    expect(ogImage()).toBe('https://cdn.tahti.live/avatar.jpg');
+  });
+
+  it('re-applies the last-synced metadata for the same path instead of re-guessing', () => {
+    syncDocumentMetadata('/channel/night-radio', {
+      title: 'Real Channel Name live on Tahti',
+      image: 'https://cdn.tahti.live/avatar.jpg',
+    });
+    document.title = 'Something else entirely';
+    reapplyLastMetadata('/channel/night-radio');
+    expect(document.title).toBe('Real Channel Name live on Tahti');
+    expect(ogImage()).toBe('https://cdn.tahti.live/avatar.jpg');
+  });
+
+  it('falls back to a fresh guess when re-applying for a different path', () => {
+    syncDocumentMetadata('/channel/night-radio', {
+      title: 'Real Channel Name live on Tahti',
+    });
+    reapplyLastMetadata('/u/mart-saar');
+    expect(document.title).toBe('Mart Saar on Tahti');
   });
 });

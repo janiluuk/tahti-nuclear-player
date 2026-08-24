@@ -16,6 +16,7 @@ import type {
 import { EmbedButton } from '../components/EmbedButton';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
+import { syncDocumentMetadata } from '../lib/seo';
 import { usePlayerStore } from '../stores/playerStore';
 
 const DSP_LABELS: Record<string, string> = {
@@ -48,6 +49,15 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
       }
       setData(result.data);
       setGenre(result.data.release.genre ?? null);
+
+      const { release, artist } = result.data;
+      syncDocumentMetadata(window.location.pathname, {
+        title: `${release.title} by ${artist.displayName} on Tahti`,
+        description:
+          release.description ??
+          `Listen to ${release.title} and find its official links on Tahti.`,
+        image: release.artworkUrl ?? artist.avatarUrl ?? undefined,
+      });
 
       try {
         const profile = await fetchProfile(result.data.artist.username);

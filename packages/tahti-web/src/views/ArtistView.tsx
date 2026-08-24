@@ -35,6 +35,7 @@ import { TrackEditDialog } from '../components/TrackEditDialog';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { isPinned } from '../lib/pinnedTracks';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
+import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
@@ -165,6 +166,17 @@ export function ArtistView({ username }: { username: string }) {
       }
       setProfile(res.data);
       setLoading(false);
+
+      if (res.data) {
+        const { displayName, bio, avatarUrl } = res.data.artist;
+        syncDocumentMetadata(window.location.pathname, {
+          title: `${displayName} on Tahti`,
+          description:
+            bio ??
+            `Explore ${displayName}'s music, releases, collections, and live channel on Tahti.`,
+          image: avatarUrl ?? undefined,
+        });
+      }
     });
     return () => {
       cancelled = true;

@@ -27,7 +27,11 @@ import { MAIN_CONTENT_PADDING } from '../layout/contentPadding';
 import { hasAccountRole } from '../lib/accountRoles';
 import { diagnosticsEnabled } from '../lib/buildPolicy';
 import { cn } from '../lib/cn';
-import { scrollingPlaybackTitle, syncDocumentMetadata } from '../lib/seo';
+import {
+  reapplyLastMetadata,
+  scrollingPlaybackTitle,
+  syncDocumentMetadata,
+} from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -184,7 +188,7 @@ export function AppShell() {
     }, 450);
     return () => {
       window.clearInterval(interval);
-      syncDocumentMetadata(pathname);
+      reapplyLastMetadata(pathname);
     };
   }, [currentTrackId, isLivePlayback, pathname, playerQueue, playerStatus]);
 
