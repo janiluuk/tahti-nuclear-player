@@ -401,16 +401,15 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
         setMode('mock');
       }
     } catch (err) {
-      // Captcha / API down → still allow mock posting with clear status
-      localStorage.setItem(HANDLE_KEY, h);
-      setHandle(h);
-      setPublishToken('mock-local');
-      setMode('mock');
+      // Fail closed: a real join failure (captcha / API down) must not
+      // quietly hand out a working-looking compose box that only echoes
+      // locally — that reads as sent but nobody else ever sees it. Stay on
+      // the join form and let the user retry once the real thing works.
       resetCaptcha();
       setError(
         err instanceof Error
-          ? `${err.message} — messages will stay on this device`
-          : 'Could not join live chat — messages will stay on this device',
+          ? `${err.message} — try again in a moment.`
+          : 'Could not join live chat — try again in a moment.',
       );
     } finally {
       setJoining(false);
@@ -450,7 +449,14 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
       return;
     }
 
-    // REST history has no client publish; mock/local append with status badge
+    // Fail closed: outside the deliberate FORCE_MOCK demo, a message that
+    // can't actually reach the live channel must not be echoed locally as
+    // if it had — that looks sent but nobody else ever sees it.
+    if (mode !== 'mock') {
+      setError('Not connected — message not sent. Try again in a moment.');
+      return;
+    }
+
     setMessages((prev) =>
       [
         ...prev,
@@ -464,9 +470,6 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
       ].slice(-100),
     );
     setInput('');
-    if (mode !== 'mock') {
-      setMode('mock');
-    }
   }
 
   return (
@@ -581,7 +584,11 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Message as ${handle}`}
+            placeholder={
+              mode === 'mock' || (mode === 'live' && wsStatus === 'connected')
+                ? `Message as ${handle}`
+                : 'Connecting…'
+            }
             size="sm"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -590,7 +597,17 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
               }
             }}
           />
-          <Button size="sm" onClick={send} disabled={!input.trim()}>
+          <Button
+            size="sm"
+            onClick={send}
+            disabled={
+              !input.trim() ||
+              !(
+                mode === 'mock' ||
+                (mode === 'live' && wsStatus === 'connected')
+              )
+            }
+          >
             Send
           </Button>
         </div>

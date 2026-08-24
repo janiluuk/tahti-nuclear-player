@@ -50,7 +50,7 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
     route: '/channel/$slug',
     status: 'partial',
     detail:
-      'Captcha rail parity; fail closed when live join fails (no silent mock send in prod).',
+      'Fail-closed done: a real join/send failure outside FORCE_MOCK no longer echoes locally as if delivered. Captcha rail parity still open.',
     section: 'backlog',
   },
   {
