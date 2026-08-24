@@ -49,6 +49,8 @@ export const Tooltip: FC<TooltipProps> = ({
       className={wrapperClassName}
       onMouseEnter={disabled ? undefined : () => setIsOpen(true)}
       onMouseLeave={disabled ? undefined : () => setIsOpen(false)}
+      onFocus={disabled ? undefined : () => setIsOpen(true)}
+      onBlur={disabled ? undefined : () => setIsOpen(false)}
     >
       {children}
       {isOpen &&

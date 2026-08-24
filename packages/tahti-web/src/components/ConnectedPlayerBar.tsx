@@ -36,6 +36,7 @@ export function ConnectedPlayerBar() {
   const toggleShuffle = usePlayerStore((s) => s.toggleShuffle);
   const cycleRepeat = usePlayerStore((s) => s.cycleRepeat);
   const seekTo = usePlayerStore((s) => s.seekTo);
+  const toggleMute = usePlayerStore((s) => s.toggleMute);
   const hidePlayerBar = usePlayerStore((s) => s.hidePlayerBar);
   const queueOpen = useLayoutStore((s) => s.bottomQueueOpen);
   const setBottomQueueOpen = useLayoutStore((s) => s.setBottomQueueOpen);
@@ -225,6 +226,8 @@ export function ConnectedPlayerBar() {
             <PlayerBar.Volume
               value={muted ? 0 : Math.round(volume * 100)}
               onValueChange={(v) => setVolume(v / 100)}
+              muted={muted}
+              onMuteToggle={toggleMute}
             />
             <Button
               size="icon-sm"

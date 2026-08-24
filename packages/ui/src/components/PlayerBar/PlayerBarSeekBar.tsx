@@ -23,22 +23,35 @@ export const PlayerBarSeekBar: FC<PlayerSeekBarProps> = ({
   onSeek,
   className = '',
 }) => {
-  const { clamped, containerRef, handleClick, isInteractive } = useSeekBar({
-    progress,
-    isLoading,
-    onSeek,
-  });
+  const { clamped, containerRef, handleClick, handleKeyDown, isInteractive } =
+    useSeekBar({
+      progress,
+      isLoading,
+      onSeek,
+    });
 
   return (
     <div className={cn('w-full select-none', className)}>
       <div
         ref={containerRef}
         data-testid="player-seek-bar"
-        className={cn('relative h-4 w-full', {
-          'pointer-events-none cursor-not-allowed': isLoading,
-          'cursor-pointer': isInteractive,
-        })}
+        role="slider"
+        aria-label="Seek"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(clamped)}
+        aria-valuetext={`${formatTimeSeconds(elapsedSeconds)} elapsed, ${formatTimeSeconds(Math.abs(remainingSeconds))} remaining`}
+        tabIndex={isInteractive ? 0 : -1}
+        className={cn(
+          'relative h-4 w-full',
+          'focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+          {
+            'pointer-events-none cursor-not-allowed': isLoading,
+            'cursor-pointer': isInteractive,
+          },
+        )}
         onClick={handleClick}
+        onKeyDown={handleKeyDown}
         aria-disabled={isLoading}
       >
         <div className="absolute right-0 left-0 z-10 flex h-full flex-row items-center justify-between px-2 pt-0.5 text-xs leading-none">

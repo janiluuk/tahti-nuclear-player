@@ -72,12 +72,19 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
         size="icon"
         variant={isShuffleActive ? 'default' : 'text'}
         onClick={onShuffleToggle}
+        aria-label={isShuffleActive ? labels?.shuffleOn : labels?.shuffleOff}
+        aria-pressed={isShuffleActive}
         data-testid="player-shuffle-button"
       >
         <Shuffle size={16} />
       </Button>
     </Tooltip>
-    <Button size="icon" variant="text" onClick={onPrevious}>
+    <Button
+      size="icon"
+      variant="text"
+      onClick={onPrevious}
+      aria-label="Previous"
+    >
       <SkipBack size={16} />
     </Button>
     <Button
@@ -97,6 +104,7 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
       size="icon"
       variant="text"
       onClick={onNext}
+      aria-label="Next"
       data-testid="player-next-button"
     >
       <SkipForward size={16} />
@@ -106,6 +114,8 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
         size="icon"
         variant={repeatMode !== 'off' ? 'default' : 'text'}
         onClick={onRepeatToggle}
+        aria-label={labels?.[REPEAT_LABEL_KEY[repeatMode]]}
+        aria-pressed={repeatMode !== 'off'}
         data-testid="player-repeat-button"
       >
         {repeatMode === 'one' && <Repeat1 size={16} />}
@@ -121,6 +131,10 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
           size="icon"
           variant={isDiscoveryActive ? 'default' : 'text'}
           onClick={onDiscoveryToggle}
+          aria-label={
+            isDiscoveryActive ? labels?.discoveryOn : labels?.discoveryOff
+          }
+          aria-pressed={isDiscoveryActive}
           data-testid="player-discovery-button"
         >
           <BoomBox size={16} />

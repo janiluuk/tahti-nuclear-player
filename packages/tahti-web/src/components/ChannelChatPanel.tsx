@@ -18,6 +18,16 @@ import { Eyebrow } from './tahti/Eyebrow';
 // (packages/shared/src/dto/chat.ts in the main tahti repo) -- anything
 // outside this set gets rejected server-side with "Invalid emoji".
 const REACTION_EMOJIS = ['💜', '🔥', '🎶', '🎵', '🌟', '👏', '✨'] as const;
+const REACTION_EMOJI_LABELS: Record<(typeof REACTION_EMOJIS)[number], string> =
+  {
+    '💜': 'purple heart',
+    '🔥': 'fire',
+    '🎶': 'musical notes',
+    '🎵': 'musical note',
+    '🌟': 'glowing star',
+    '👏': 'clapping hands',
+    '✨': 'sparkles',
+  };
 
 const HANDLE_KEY = 'tahti-web-chat-handle';
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
@@ -104,7 +114,9 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
     null,
   );
   const [countryCode, setCountryCode] = useState<string | null>(null);
-  const [floatingReact, setFloatingReact] = useState<string | null>(null);
+  const [floatingReact, setFloatingReact] = useState<
+    (typeof REACTION_EMOJIS)[number] | null
+  >(null);
   const [reactBusy, setReactBusy] = useState(false);
 
   // Anonymous join needs hCaptcha when site key is set (signed-in skips captcha server-side).
@@ -498,6 +510,7 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
             key={emoji}
             type="button"
             disabled={reactBusy}
+            aria-label={`React with ${REACTION_EMOJI_LABELS[emoji]}`}
             className="hover:bg-background-secondary rounded px-1.5 py-0.5 text-sm"
             onClick={() => {
               setReactBusy(true);
@@ -516,8 +529,12 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
           </button>
         ))}
         {floatingReact && (
-          <span className="text-foreground-secondary text-xs">
+          <span className="text-foreground-secondary text-xs" role="status">
             Sent {floatingReact}
+            <span className="sr-only">
+              {' '}
+              ({REACTION_EMOJI_LABELS[floatingReact]})
+            </span>
           </span>
         )}
       </div>
@@ -530,6 +547,10 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
 
       <div
         ref={scrollRef}
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+        aria-label="Chat messages"
         className={`space-y-2 overflow-y-auto px-3 py-2 text-sm ${rail ? 'min-h-0 flex-1' : 'flex-1'}`}
       >
         {messages.length === 0 && (
