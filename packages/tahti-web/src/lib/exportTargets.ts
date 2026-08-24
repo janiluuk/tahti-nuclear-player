@@ -80,4 +80,12 @@ export const EXPORT_TARGETS: ExportTarget[] = [
     to: '/sources/mixcloud',
     supportsTracks: true,
   },
+  {
+    id: 'hearthis',
+    label: 'hearthis.at',
+    note: 'No push API — cross-post manually using your connected username.',
+    color: 'var(--accent-yellow)',
+    to: '/sources/hearthis',
+    supportsTracks: false,
+  },
 ];

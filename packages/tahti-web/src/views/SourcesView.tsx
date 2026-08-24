@@ -57,6 +57,7 @@ import {
   fetchStudioCollections,
   patchStudioCollection,
 } from '../api/studio';
+import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
 import type { StudioCollection } from '../api/studio-types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import {
@@ -127,6 +128,11 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   const [hearthisSelected, setHearthisSelected] = useState<Set<string>>(
     new Set(),
   );
+  const [hearthisSocialLinks, setHearthisSocialLinks] = useState<
+    Record<string, string>
+  >({});
+  const [hearthisUsernameDraft, setHearthisUsernameDraft] = useState('');
+  const [savingHearthisUsername, setSavingHearthisUsername] = useState(false);
   const [importedHearthisIds, setImportedHearthisIds] = useState<Set<string>>(
     new Set(),
   );
@@ -234,22 +240,43 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
       return;
     }
     setHearthisBusy(true);
-    void Promise.all([fetchHearthisLibrary(), fetchStudioCollections()]).then(
-      ([libraryResult, collectionResult]) => {
-        setHearthisBusy(false);
-        setHearthisLibrary(libraryResult.data);
-        setDestinationCollections(collectionResult.data);
-        setDestinationId(
-          collectionResult.data.find((collection) => collection.id)?.id ?? '',
-        );
-        if (!libraryResult.data.username) {
-          setNote(
-            'Add your hearthis.at profile URL in profile settings to load your library.',
-          );
-        }
-      },
-    );
+    void Promise.all([
+      fetchHearthisLibrary(),
+      fetchStudioCollections(),
+      fetchMeProfile(),
+    ]).then(([libraryResult, collectionResult, profileResult]) => {
+      setHearthisBusy(false);
+      setHearthisLibrary(libraryResult.data);
+      setDestinationCollections(collectionResult.data);
+      setDestinationId(
+        collectionResult.data.find((collection) => collection.id)?.id ?? '',
+      );
+      setHearthisSocialLinks(profileResult.data.socialLinks ?? {});
+    });
   }, [selected, user]);
+
+  const saveHearthisUsername = async () => {
+    const handle = hearthisUsernameDraft.trim().replace(/^@/, '');
+    if (!handle) {
+      return;
+    }
+    setSavingHearthisUsername(true);
+    const result = await patchMeProfile({
+      socialLinks: { ...hearthisSocialLinks, hearthisAt: handle },
+    });
+    setSavingHearthisUsername(false);
+    if (!result.ok) {
+      setNote(result.error);
+      return;
+    }
+    setHearthisSocialLinks(result.data.socialLinks ?? {});
+    setHearthisUsernameDraft('');
+    setNote(null);
+    setHearthisBusy(true);
+    const libraryResult = await fetchHearthisLibrary();
+    setHearthisBusy(false);
+    setHearthisLibrary(libraryResult.data);
+  };
 
   useEffect(() => {
     if (!user || typeof localStorage === 'undefined') {
@@ -832,6 +859,47 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
 
           {selected === 'hearthis' && (
             <section className="flex flex-col gap-4">
+              <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-2 rounded-lg border p-3">
+                {hearthisLibrary?.username ? (
+                  <span className="text-sm">
+                    Connected as{' '}
+                    <span className="font-medium">
+                      @{hearthisLibrary.username}
+                    </span>
+                  </span>
+                ) : (
+                  <span className="text-foreground-secondary text-sm">
+                    Add your hearthis.at username to load your library and
+                    enable cross-posting.
+                  </span>
+                )}
+                <input
+                  className="border-border bg-background text-foreground min-w-[10rem] flex-1 rounded border px-2 py-1.5 text-sm"
+                  value={hearthisUsernameDraft}
+                  onChange={(e) => setHearthisUsernameDraft(e.target.value)}
+                  placeholder={
+                    hearthisLibrary?.username
+                      ? 'Change username…'
+                      : 'hearthis.at username'
+                  }
+                  aria-label="hearthis.at username"
+                />
+                <Button
+                  size="sm"
+                  disabled={
+                    !hearthisUsernameDraft.trim() || savingHearthisUsername
+                  }
+                  onClick={() => void saveHearthisUsername()}
+                >
+                  <PlugIcon size={14} aria-hidden className="mr-1.5" />
+                  {savingHearthisUsername
+                    ? 'Saving…'
+                    : hearthisLibrary?.username
+                      ? 'Update'
+                      : 'Connect'}
+                </Button>
+              </div>
+
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <nav
                   className="flex flex-wrap gap-2"
@@ -877,11 +945,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                     </Button>
                   ))}
                 </nav>
-                {hearthisLibrary?.username && (
-                  <span className="text-foreground-secondary text-xs">
-                    @{hearthisLibrary.username}
-                  </span>
-                )}
               </div>
 
               {hearthisTab === 'search' && (

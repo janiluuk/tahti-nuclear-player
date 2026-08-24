@@ -249,6 +249,13 @@ const IMPORT_SERVICES: ServiceEntry[] = [
     to: '/sources/spotify',
   },
   {
+    id: 'hearthis',
+    label: 'hearthis.at',
+    note: 'Add your username, then import tracks, sets, and collections.',
+    color: 'var(--accent-yellow)',
+    to: '/sources/hearthis',
+  },
+  {
     id: 'url',
     label: 'URL / DSP paste',
     note: 'Paste a link from any DSP to seed a smart-link target.',

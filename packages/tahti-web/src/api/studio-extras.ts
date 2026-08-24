@@ -630,6 +630,8 @@ export type ProfileFields = {
   defaultLocation?: string | null;
   showFollowers?: boolean;
   showFollowing?: boolean;
+  /** Handles for cross-posting/import sources — e.g. { hearthisAt: 'myhandle' }. */
+  socialLinks?: Record<string, string> | null;
 };
 
 let mockProfile: ProfileFields = {
@@ -648,6 +650,7 @@ let mockProfile: ProfileFields = {
   defaultLocation: null,
   showFollowers: true,
   showFollowing: true,
+  socialLinks: {},
 };
 
 export async function fetchMeProfile(): Promise<{
@@ -687,6 +690,7 @@ export async function patchMeProfile(
       | 'defaultLocation'
       | 'showFollowers'
       | 'showFollowing'
+      | 'socialLinks'
     >
   >,
 ): Promise<{ ok: true; data: ProfileFields } | { ok: false; error: string }> {
