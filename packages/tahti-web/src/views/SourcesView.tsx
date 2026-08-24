@@ -754,53 +754,60 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                   No tracks returned.
                 </p>
               ) : (
-                <ul className="flex flex-col gap-2">
-                  {scTracks.map((t) => (
-                    <li
-                      key={t.id}
-                      className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
-                    >
-                      <div className="flex min-w-0 flex-1 items-center gap-3">
-                        <MediaArtwork
-                          size="sm"
-                          src={t.artworkUrl}
-                          alt={t.title}
-                          imageReveal={false}
-                          onPlay={() => play(playableFromSoundcloud(t))}
-                          playLabel="Preview"
-                          onQueue={() => enqueue(playableFromSoundcloud(t))}
-                          queueLabel="Queue"
-                          className="border-border shrink-0 rounded border"
-                        />
-                        <span className="truncate text-sm">{t.title}</span>
-                      </div>
-                      <Button
-                        size="sm"
-                        disabled={busy}
-                        onClick={() => {
-                          setBusy(true);
-                          void importSoundcloudTracks([
-                            { trackId: t.id, title: t.title },
-                          ]).then((r) => {
-                            setBusy(false);
-                            setNote(
-                              r.ok
-                                ? `Queued import (${r.count}). Check Studio → Music.`
-                                : r.error,
-                            );
-                          });
-                        }}
+                <>
+                  <p className="text-foreground-secondary text-xs">
+                    Play/Queue below use placeholder demo audio, not this
+                    track&apos;s real audio — use Import to bring the actual
+                    file into your archive.
+                  </p>
+                  <ul className="flex flex-col gap-2">
+                    {scTracks.map((t) => (
+                      <li
+                        key={t.id}
+                        className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
                       >
-                        <DownloadIcon
-                          size={16}
-                          aria-hidden
-                          className="mr-1.5"
-                        />
-                        Import
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
+                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                          <MediaArtwork
+                            size="sm"
+                            src={t.artworkUrl}
+                            alt={t.title}
+                            imageReveal={false}
+                            onPlay={() => play(playableFromSoundcloud(t))}
+                            playLabel="Play demo audio"
+                            onQueue={() => enqueue(playableFromSoundcloud(t))}
+                            queueLabel="Queue demo audio"
+                            className="border-border shrink-0 rounded border"
+                          />
+                          <span className="truncate text-sm">{t.title}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          disabled={busy}
+                          onClick={() => {
+                            setBusy(true);
+                            void importSoundcloudTracks([
+                              { trackId: t.id, title: t.title },
+                            ]).then((r) => {
+                              setBusy(false);
+                              setNote(
+                                r.ok
+                                  ? `Queued import (${r.count}). Check Studio → Music.`
+                                  : r.error,
+                              );
+                            });
+                          }}
+                        >
+                          <DownloadIcon
+                            size={16}
+                            aria-hidden
+                            className="mr-1.5"
+                          />
+                          Import
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </section>
           )}
@@ -826,6 +833,12 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                   Search
                 </Button>
               </div>
+              {spotifyHits.length > 0 && (
+                <p className="text-foreground-secondary text-xs">
+                  Play/Queue below use placeholder demo audio — Spotify does not
+                  offer real per-track previews here.
+                </p>
+              )}
               <ul className="flex flex-col gap-2">
                 {spotifyHits.map((t) => (
                   <li
@@ -838,9 +851,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                       alt={t.name}
                       imageReveal={false}
                       onPlay={() => play(playableFromSpotify(t))}
-                      playLabel="Preview"
+                      playLabel="Play demo audio"
                       onQueue={() => enqueue(playableFromSpotify(t))}
-                      queueLabel="Queue"
+                      queueLabel="Queue demo audio"
                       className="border-border shrink-0 rounded border"
                     />
                     <div className="min-w-0 flex-1">

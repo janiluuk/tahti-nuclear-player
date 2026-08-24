@@ -68,7 +68,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | --------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | `VITE_FORCE_MOCK=1` whole app     | Full fixture session ([MOCKS.md](./MOCKS.md))                                                | Keep for demos; never default in prod        |
 | Dev silent mock fallback          | When API down + `VITE_ALLOW_MOCK_FALLBACK` (default on in Vite dev)                          | `VITE_ALLOW_MOCK_FALLBACK=0` for strict live |
-| Spotify / SoundCloud stream URLs  | Live Preview **disabled** (DEMO_MP3 only under FORCE_MOCK)                                   | Wire real preview / import playables         |
+| Spotify / SoundCloud stream URLs  | Always DEMO_MP3, live or mock (neither API exposes a real per-track preview here); Play/Queue now labeled "demo audio" | Wire real preview / import playables         |
 | Channel chat                      | Fail closed when join fails (prod); mock send only under FORCE_MOCK; hCaptcha powers both chat surfaces | Live soak testing                            |
 | Themes                            | Nuclear local presets (`mock-ok`)                                                            | Keep — not a Tahti API                       |
 | Help / legal                      | Static POC copy + prod links                                                                 | Optional: fetch help CMS later               |

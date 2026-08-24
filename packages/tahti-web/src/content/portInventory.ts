@@ -152,7 +152,7 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
     route: '/sources',
     status: 'partial',
     detail:
-      'Often DEMO_MP3 — preview disabled in live until real stream URLs exist.',
+      'Always DEMO_MP3, live or mock — neither API exposes a real per-track preview here. Play/Queue rows now say so explicitly instead of implying real audio.',
     section: 'mock',
   },
   {
