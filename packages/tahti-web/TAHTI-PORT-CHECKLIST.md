@@ -36,7 +36,8 @@ Ordered by listener/artist value × API readiness:
 9. [x] **Distribution / radio slots / moderate** — live API-backed Studio surfaces
 10. [x] **Full Three.js visualizer presets** — ten distinct analyser-reactive scenes in the channel hero and ambient page background, lazy-loaded outside the initial listen bundle
 11. [ ] **Multitrack timeline editing** — editor callout + map inventory
-12. [ ] **Press-kit gallery upload + member invites** — disabled actions + Settings callouts
+12. [x] **Press-kit gallery upload** — `/api/me/press-kit/images/*` upload/delete; `ArtistGalleryPanel` wired into the gallery tab
+12b. [ ] **Channel member invites (email, no account yet)** — moderator-by-username is live-API and done; a true accept-token email invite has no backing API and isn't clearly needed given the username flow already covers the common case
 13. [x] **Listener-only dashboard** — non-artists route to My Library
 14. [ ] **Production cutover** — replace `apps/web` listen/studio with this client
 

@@ -48,9 +48,9 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
     id: 'chat-hardening',
     surface: 'Channel chat hardening',
     route: '/channel/$slug',
-    status: 'partial',
+    status: 'done',
     detail:
-      'Fail-closed done: a real join/send failure outside FORCE_MOCK no longer echoes locally as if delivered. Captcha rail parity still open.',
+      'hCaptcha and rail parity shipped earlier; a real join/send failure outside FORCE_MOCK now fails closed instead of echoing locally as if delivered.',
     section: 'backlog',
   },
   {
