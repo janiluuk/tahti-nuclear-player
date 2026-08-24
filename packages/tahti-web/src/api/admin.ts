@@ -2830,3 +2830,163 @@ export async function importAdminLanguageCsv(
     };
   }
 }
+
+// ── Admin activity feed ──────────────────────────────────────────────────
+// Thin client over the real GET /api/admin/audit endpoint (board-gated,
+// already paginated/filterable/CSV-exportable server-side — see
+// tahti/apps/api/src/routes/admin/audit.ts). Renders through the same
+// LogViewer UI as the Nuclear desktop player's Logs page; see
+// AdminActivityView.tsx for the mapping into LogEntryData.
+//
+// "Listened track" is deliberately absent here: ListenEvent rows are
+// anonymous/deduped by design (no userId column — see ListenEvent in
+// schema.prisma) for listener privacy, so there is no real per-user "X
+// listened to Y" event to show. AdminActivityView shows an aggregate plays
+// count instead of fabricating attribution the data doesn't have.
+export type AdminActivityEntry = {
+  id: string;
+  action: string;
+  actorId: string;
+  actorDisplayName: string | null;
+  actorUsername: string | null;
+  targetId: string | null;
+  meta: Record<string, unknown>;
+  createdAt: string;
+};
+
+export type AdminActivityFilters = {
+  page?: number;
+  limit?: number;
+  action?: string;
+  actorId?: string;
+  since?: string;
+  until?: string;
+};
+
+function mockActivityEntries(): AdminActivityEntry[] {
+  const now = Date.now();
+  const minutesAgo = (m: number) => new Date(now - m * 60_000).toISOString();
+  return [
+    {
+      id: 'mock-act-1',
+      action: 'USER_LOGIN',
+      actorId: 'u-1',
+      actorDisplayName: 'Nova Drift',
+      actorUsername: 'nova-drift',
+      targetId: null,
+      meta: {},
+      createdAt: minutesAgo(2),
+    },
+    {
+      id: 'mock-act-2',
+      action: 'ARCHIVE_ITEM_LIKE',
+      actorId: 'u-2',
+      actorDisplayName: 'Echo Harbor',
+      actorUsername: 'echo-harbor',
+      targetId: 'item-1',
+      meta: { title: 'Midnight Static', channelSlug: 'nova-drift' },
+      createdAt: minutesAgo(6),
+    },
+    {
+      id: 'mock-act-3',
+      action: 'FAN_SUBSCRIPTION_CREATE',
+      actorId: 'u-3',
+      actorDisplayName: 'DJ Kaski',
+      actorUsername: 'dj-kaski',
+      targetId: 'u-1',
+      meta: { tierName: 'Supporter', amountCents: 500 },
+      createdAt: minutesAgo(14),
+    },
+    {
+      id: 'mock-act-4',
+      action: 'RELEASE_PUBLISH',
+      actorId: 'u-1',
+      actorDisplayName: 'Nova Drift',
+      actorUsername: 'nova-drift',
+      targetId: 'rel-1',
+      meta: { title: 'Static & Silence EP' },
+      createdAt: minutesAgo(40),
+    },
+    {
+      id: 'mock-act-5',
+      action: 'ARTIST_FOLLOW',
+      actorId: 'u-2',
+      actorDisplayName: 'Echo Harbor',
+      actorUsername: 'echo-harbor',
+      targetId: 'u-3',
+      meta: { artistDisplayName: 'DJ Kaski', artistUsername: 'dj-kaski' },
+      createdAt: minutesAgo(55),
+    },
+    {
+      id: 'mock-act-6',
+      action: 'USER_REGISTER',
+      actorId: 'u-4',
+      actorDisplayName: 'Rautatie',
+      actorUsername: 'rautatie',
+      targetId: null,
+      meta: {},
+      createdAt: minutesAgo(80),
+    },
+  ];
+}
+
+export async function fetchAdminActivity(
+  filters: AdminActivityFilters = {},
+): Promise<{
+  data: AdminActivityEntry[];
+  total: number;
+  page: number;
+  limit: number;
+  meta: FetchMeta;
+}> {
+  const page = filters.page ?? 1;
+  const limit = filters.limit ?? 50;
+
+  if (forceMock()) {
+    const rows = mockActivityEntries();
+    return {
+      data: rows,
+      total: rows.length,
+      page: 1,
+      limit: rows.length,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const qs = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    if (filters.action) {
+      qs.set('action', filters.action);
+    }
+    if (filters.actorId) {
+      qs.set('actorId', filters.actorId);
+    }
+    if (filters.since) {
+      qs.set('since', filters.since);
+    }
+    if (filters.until) {
+      qs.set('until', filters.until);
+    }
+    const data = await getJson<{
+      page: number;
+      limit: number;
+      total: number;
+      items: AdminActivityEntry[];
+    }>(`/api/admin/audit?${qs.toString()}`);
+    return {
+      data: data.items,
+      total: data.total,
+      page: data.page,
+      limit: data.limit,
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return { data: [], total: 0, page, limit, meta: failMeta(err) };
+  }
+}
+
+export function adminActivityExportCsvUrl(): string {
+  return `${apiBase()}/api/admin/audit/export.csv`;
+}

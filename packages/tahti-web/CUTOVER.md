@@ -66,7 +66,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [ ] CI: replace `apps/web` Docker build with SPA build; keep lint/format/typecheck gates.
 - [ ] Preview/PR envs serve the new client (or document that previews stay Next until cutover).
 - [ ] CDN CORS + embed parents verified for SPA origin.
-- [ ] Help/support form live (not link-out only).
+- [x] Help/support form live (not link-out only) — `SupportContactForm` posts to the real `POST /api/support/contact` (see FEATURES.md).
 
 ### P2 — follow-ups / nice-to-have
 

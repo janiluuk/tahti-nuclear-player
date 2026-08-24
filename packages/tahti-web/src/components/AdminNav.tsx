@@ -8,6 +8,12 @@ const PRIMARY = [
     description: 'Platform-wide overview — activity, health, and shortcuts.',
   },
   {
+    to: '/admin/activity',
+    label: 'Activity',
+    description:
+      'Live system events — logins, uploads, releases, likes, follows, subscriptions.',
+  },
+  {
     to: '/admin/beta',
     label: 'Beta',
     description: 'Manage beta access and feature rollout.',

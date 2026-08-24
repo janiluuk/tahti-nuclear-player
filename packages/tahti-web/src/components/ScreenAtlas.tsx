@@ -3,7 +3,9 @@ import { useState } from 'react';
 import { Badge, Button } from '@nuclearplayer/ui';
 
 import {
+  caseFlowchart,
   MAP_CASE_GROUPS,
+  MAP_CASES,
   resolveCaseParity,
   type MapCase,
   type MapParity,
@@ -11,6 +13,100 @@ import {
 } from '../content/mapScreens';
 import { useMapNotesStore, type MapComment } from '../stores/mapNotesStore';
 import { MapCommentForm } from './MapCommentForm';
+import { MermaidDiagram } from './MermaidDiagram';
+
+/** route (first alternative, no query/hash) -> case id, for turning a
+ * `goesTo` target into a jump-to-card link when it lands on a documented
+ * screen. Routes we don't have a card for (e.g. `/studio/archive/$id`)
+ * fall back to plain text. */
+const CASE_ID_BY_ROUTE: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  for (const c of MAP_CASES) {
+    const primary = c.new.route.split(',')[0]?.trim().split(' ')[0];
+    if (primary && !map[primary]) {
+      map[primary] = c.id;
+    }
+  }
+  return map;
+})();
+
+/** Accessible, text-first navigation summary for one screen — the mermaid
+ * diagram below is a supplementary visual, not the only way to get this
+ * information. See the `actions`/`goesTo` doc comments on MapCase for how
+ * this data was sourced. */
+function ScreenNavigation({ c }: { c: MapCase }) {
+  const hasActions = Boolean(c.actions?.length);
+  const hasLinks = Boolean(c.goesTo?.length);
+  if (!hasActions && !hasLinks) {
+    return (
+      <p
+        className="border-border bg-background border-t px-5 py-3 text-sm"
+        role="note"
+      >
+        <span className="font-semibold text-red-400">Navigation gap: </span>
+        no verified in-page actions or outbound links were found for this screen
+        beyond the persistent sidebar — see NAVIGATION-GAPS.md.
+      </p>
+    );
+  }
+  return (
+    <div className="border-border flex flex-col gap-4 border-t px-5 py-4 sm:flex-row">
+      <div className="min-w-0 flex-1">
+        {hasActions && (
+          <>
+            <h4 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+              You can do
+            </h4>
+            <ul className="mt-1.5 flex list-disc flex-col gap-1 pl-5 text-sm">
+              {c.actions!.map((a) => (
+                <li key={a}>{a}</li>
+              ))}
+            </ul>
+          </>
+        )}
+        {hasLinks && (
+          <>
+            <h4 className="text-foreground-secondary mt-3 text-xs font-semibold tracking-wide uppercase">
+              Go to
+            </h4>
+            <ul className="mt-1.5 flex list-disc flex-col gap-1 pl-5 text-sm">
+              {c.goesTo!.map((link) => {
+                const targetCaseId = CASE_ID_BY_ROUTE[link.to];
+                return (
+                  <li key={link.label}>
+                    {targetCaseId ? (
+                      <a
+                        href={`#case-${targetCaseId}`}
+                        className="text-primary underline-offset-2 hover:underline"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      link.label
+                    )}{' '}
+                    <span className="text-foreground-secondary font-mono text-xs">
+                      {link.to}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <h4 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+          Diagram
+        </h4>
+        <MermaidDiagram
+          key={c.id}
+          chart={caseFlowchart(c)}
+          className="mt-1.5"
+        />
+      </div>
+    </div>
+  );
+}
 
 function csvCell(value: string): string {
   return `"${value.replace(/"/g, '""')}"`;
@@ -398,6 +494,7 @@ function ReviewCaseCard({ c }: { c: MapCase }) {
                 />
               </div>
             </div>
+            {!nuclearAbsent ? <ScreenNavigation c={c} /> : null}
             <MapCommentForm kind="case" targetId={c.id} title={c.title} />
             {openHref && !nuclearAbsent ? (
               <a

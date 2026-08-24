@@ -213,7 +213,7 @@ Compared the current `apps/web/src/app/**/page.tsx` tree in the Tahti repository
 - [x] Direct-message thread URLs — new `/messages/$id` route; opening a conversation now navigates there so refresh/share preserves it.
 - [ ] Admin detail operations remain intentionally reduced: user/support/announcement detail, bulk file operations, per-subscriber payout retry, legacy-member migration, grant preview/run, and governance report/resolution/audit tools.
 - [ ] Pro editor remains shallower than Tahti's full ffmpeg/multitrack workflow; a true multitrack timeline still needs a rendering and persistence design.
-- [ ] Dynamic SEO/OG parity still depends on an edge metadata or prerendering solution for artist, channel, release, collection, and venue pages.
+- [x] Dynamic SEO/OG parity for artist, channel, and release pages — client-side sync on real data resolve (`src/lib/seo.ts`) plus a bot-facing `/api/og/*` proxy (see SEO-OG-NOTES.md). Collection and venue pages still fall back to the generic static tags — no OG route exists for either yet.
 
 ### Intentionally consolidated, not missing
 

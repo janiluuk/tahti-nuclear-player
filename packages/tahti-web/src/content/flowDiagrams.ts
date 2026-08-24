@@ -177,192 +177,20 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
 `,
   },
   {
-    id: 'current-sections-full',
+    id: 'current-sections-full-superseded',
     pack: 'current',
-    source:
-      'tahti-fit/flows/current/site-map.md + dashboard/admin route inventory',
-    title: 'Full action map — every user option, Listener · Artist · Admin',
+    source: 'Screen atlas (below, per-screenshot cards)',
+    title: 'Full action map — superseded by the Screen atlas',
     blurb:
-      'Every page broken down to the actual things a user can DO there, not just section names — deliberately large. Leave a note on any page, section, or action below; export as CSV; if you request changes here, give me the exported CSV and I will regenerate this diagram to match.',
-    mermaid: `flowchart TB
-  subgraph LISTENER["Listener surfaces"]
-    subgraph pListen["/listen"]
-      lSearch[Search channels]
-      lGenre[Filter by genre chip]
-      lPreview[Preview-play a channel card]
-      lOpen[Open channel]
-    end
-    subgraph pChannel["/c/:slug"]
-      cPlayLive[Play live stream]
-      cPlayArchive[Play an archive track]
-      cQueue[Add track to queue]
-      cHeart[Heart / favorite channel]
-      cReport[Report channel]
-      cChatRead[Read chat]
-      cChatPost[Post a chat message]
-      cChatReact[React in chat]
-      cChatJoin[Set nickname / join chat]
-      cArchiveList[Browse archive tracklist]
-      cArchiveFilter[Filter / sort archive]
-      cSubscribe[Subscribe — fan tier CTA]
-    end
-    subgraph pRadio["/radio"]
-      rDayTab[Switch schedule day tab]
-      rNow[View now playing]
-      rRecent[View recently played]
-      rPlay[Play radio stream]
-    end
-    subgraph pProfile["/u/:username"]
-      pBio[Read bio + socials]
-      pFollow[Follow artist]
-      pReleases[Browse albums / singles]
-      pSets[Browse DJ sets / live shows]
-      pPlay[Play / queue / heart any track]
-      pSubscribe[Subscribe — fan tiers]
-      pReport[Report profile]
-      pFeed[Read artist feed posts]
-    end
-    subgraph pCollection["/u/:username/c/:slug"]
-      colTracklist[Browse tracklist]
-      colPlayAll[Play whole collection]
-      colPlayOne[Play one track]
-    end
-    subgraph pSmart["/r/:slug"]
-      smClick[Click through to a DSP]
-    end
-    subgraph pVenues["/venues"]
-      vDirectory[Browse venue directory]
-      vRegister[Register a venue]
-    end
-    subgraph pGov["/governance"]
-      govMotions[Read motions]
-      govVote[Cast a vote]
-      govFeat[Submit a feature request]
-      govComment[Comment on a motion]
-    end
-  end
+      'The old single "every user option on one canvas" diagram was unreadable at ~90 nodes. Each screenshot card in the Screen atlas below now carries its own small "you can do / go to" diagram plus an accessible text list, generated from the same data so they can\'t drift apart. Scroll to Screen atlas, or jump to a section from here.',
+    mermaid: `flowchart LR
+  atlas["Screen atlas<br/>(scroll down)"]:::hub
+  atlas --> listener["Listener surfaces<br/>13 screens"]
+  atlas --> artist["Artist studio<br/>19 screens"]
+  atlas --> auth["Auth<br/>4 screens"]
+  atlas --> edge["Edge / gate cases<br/>4 screens"]
 
-  subgraph ARTIST["Artist studio (/dashboard/*)"]
-    subgraph pOverview["Studio home"]
-      ovStats[View stats summary]
-      ovGoLive[Go Live shortcut]
-      ovQuick[Jump to Music / Broadcast]
-    end
-    subgraph pBroadcast["Broadcast"]
-      bc1a[Copy RTMP URL + stream key]
-      bc1b[Regenerate stream key]
-      bc1c[Pick fallback rotation source]
-      bc2a[Preview HLS test signal]
-      bc2b[Watch signal meters]
-      bc3a[Preview full-quality stream]
-      bc3b[Open green room]
-      bc3c[Toggle auto-record]
-      bc3d[Toggle auto-publish]
-      bc4a[Watch audio-check levels-ready panel]
-      bc4b[Go live]
-      bc1a --> bc2a --> bc3a --> bc4a
-    end
-    subgraph pMusicStudio["Music / Archive"]
-      muSearch[Search / sort track list]
-      muPlay[Play a track]
-      muEdit[Open track editor]
-      muMorePin[More menu: pin to Stage]
-      muMoreRotation[More menu: add to 24/7 rotation]
-      muMorePlaylist[More menu: add to playlist]
-      muMoreInsights[More menu: view insights]
-      muMoreDelete[More menu: delete]
-      muEdBasics[Editor tab: Basics — title/artist/genre]
-      muEdTracklist[Editor tab: Tracklist — timestamps]
-      muEdVisuals[Editor tab: Visuals — cover + preset]
-      muEdSharing[Editor tab: Sharing — license/embed]
-      muEdAdvanced[Editor tab: Advanced — venue/credits/BPM/key]
-    end
-    subgraph pUpload["Upload"]
-      upPick[Pick or drag-drop a file]
-      upProgress[Watch upload + processing progress]
-      upOpen[Open in Music when done]
-    end
-    subgraph pCollections["Collections"]
-      colCreate[Create a collection]
-      colReorder[Reorder tracks]
-      colCover[Set collection cover]
-      colVisibility[Set visibility]
-      colDelete[Delete collection]
-    end
-    subgraph pReleases["Releases"]
-      relCreate[Create a release]
-      relAddTracks[Add tracks]
-      relSmart[Set smart-link targets]
-      relDist[View distribution status]
-      relPublish[Publish]
-    end
-    subgraph pSchedule["Schedule"]
-      schBook[Book a Tahti Radio slot]
-      schCancel[Cancel a booking]
-    end
-    subgraph pStats["Stats"]
-      stOverview[View plays over time]
-      stRange[Filter by date range]
-      stPeak[View listener peak]
-      stDetail[Drill into one track's detail]
-    end
-    subgraph pChannelDesign["Channel designer"]
-      chVisual[Pick visual preset]
-      chAccent[Pick brand accent]
-      chHeader[Pick header style]
-      chGallery[Configure gallery / slideshow]
-      chPreview[Preview live]
-    end
-    subgraph pRevenue["Revenue"]
-      revTiers[View fan tiers]
-      revEditTier[Edit tier pricing]
-      revStripe[Connect Stripe]
-      revPayouts[View payouts]
-    end
-    subgraph pStash["Stash"]
-      stashUpload[Upload to stash — cloud-import staging]
-      stashPromote[Promote a stash file into Music]
-    end
-    subgraph pSettings["Settings"]
-      setAccount[Edit account]
-      setArtist[Edit artist profile — bio/socials/avatar]
-      setMoney[Configure fan tiers]
-      setConnections[Manage social / DSP connections]
-    end
-  end
-
-  subgraph ADMIN["Admin (/admin/*)"]
-    aDash[Dashboard — system health, queue depth, audit log]
-    aBeta[Beta applications — approve / reject]
-    aUsers[Users — search, view, suspend]
-    aRadio[Radio — manage curated rotation, feature a track]
-    aRadioSub[Radio submissions — review, approve / reject]
-    aNews[News — compose + publish a post]
-    aSelects[Tahti Selects — manage CC0 catalog, run weekly draw]
-    aStreams[Streams — view live streams, force-end]
-    aSupport[Support — respond to + close tickets]
-    aTop[Top lists — view top artists / tracks]
-    aAnnounce[Announcements — upload + schedule a clip]
-    aStorage[Storage — usage by bucket, growth trend]
-    aFiles[Files — browse, delete orphaned files]
-    aReports[Content reports — review, resolve / dismiss]
-    aFinancial[Financial — ledger, export report]
-    aGov[Governance hub — manage motions, tally votes]
-    aFeat[Feature requests — triage, mark planned]
-    aGrants[Grants — record + view disbursements]
-    aAGM[AGM — manage resolutions]
-    aVendors[Vendors — manage vendor list]
-    aStatus[Status — uptime, edit an incident]
-    aI18n[Languages / i18n — create language, import CSV]
-  end
-
-  LISTENER -.-> ARTIST
-  ARTIST -.-> ADMIN
-
-  classDef sec fill:#f8fafc,stroke:#94a3b8,color:#334155;
-  class lSearch,lGenre,lPreview,lOpen,cPlayLive,cPlayArchive,cQueue,cHeart,cReport,cChatRead,cChatPost,cChatReact,cChatJoin,cArchiveList,cArchiveFilter,cSubscribe,rDayTab,rNow,rRecent,rPlay,pBio,pFollow,pReleases,pSets,pPlay,pSubscribe,pReport,pFeed,colTracklist,colPlayAll,colPlayOne,smClick,vDirectory,vRegister,govMotions,govVote,govFeat,govComment,ovStats,ovGoLive,ovQuick,bc1a,bc1b,bc1c,bc2a,bc2b,bc3a,bc3b,bc3c,bc3d,bc4a,bc4b,muSearch,muPlay,muEdit,muMorePin,muMoreRotation,muMorePlaylist,muMoreInsights,muMoreDelete,muEdBasics,muEdTracklist,muEdVisuals,muEdSharing,muEdAdvanced,upPick,upProgress,upOpen,colCreate,colReorder,colCover,colVisibility,colDelete,relCreate,relAddTracks,relSmart,relDist,relPublish,schBook,schCancel,stOverview,stRange,stPeak,stDetail,chVisual,chAccent,chHeader,chGallery,chPreview,revTiers,revEditTier,revStripe,revPayouts,stashUpload,stashPromote,setAccount,setArtist,setMoney,setConnections sec;
-  classDef admin fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
-  class aDash,aBeta,aUsers,aRadio,aRadioSub,aNews,aSelects,aStreams,aSupport,aTop,aAnnounce,aStorage,aFiles,aReports,aFinancial,aGov,aFeat,aGrants,aAGM,aVendors,aStatus,aI18n admin;
+  classDef hub fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a,font-weight:bold;
 `,
   },
   {

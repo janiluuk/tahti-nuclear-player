@@ -2,6 +2,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
   redirect,
 } from '@tanstack/react-router';
@@ -16,28 +17,6 @@ import {
 } from './lib/cutoverReturns';
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { useAuthStore } from './stores/authStore';
-import { AdminAgmView } from './views/admin/AdminAgmView';
-import { AdminAnnouncementsView } from './views/admin/AdminAnnouncementsView';
-import { AdminBetaView } from './views/admin/AdminBetaView';
-import { AdminContentReportsView } from './views/admin/AdminContentReportsView';
-import { AdminDashboardView } from './views/admin/AdminDashboardView';
-import { AdminFeatureRequestsView } from './views/admin/AdminFeatureRequestsView';
-import { AdminFilesView } from './views/admin/AdminFilesView';
-import { AdminFinancialView } from './views/admin/AdminFinancialView';
-import { AdminGovernanceView } from './views/admin/AdminGovernanceView';
-import { AdminGrantsView } from './views/admin/AdminGrantsView';
-import { AdminI18nView } from './views/admin/AdminI18nView';
-import { AdminNewsView } from './views/admin/AdminNewsView';
-import { AdminRadioSubmissionsView } from './views/admin/AdminRadioSubmissionsView';
-import { AdminRadioView } from './views/admin/AdminRadioView';
-import { AdminSelectsView } from './views/admin/AdminSelectsView';
-import { AdminStatusView } from './views/admin/AdminStatusView';
-import { AdminStorageView } from './views/admin/AdminStorageView';
-import { AdminStreamsView } from './views/admin/AdminStreamsView';
-import { AdminSupportView } from './views/admin/AdminSupportView';
-import { AdminTopListsView } from './views/admin/AdminTopListsView';
-import { AdminUsersView } from './views/admin/AdminUsersView';
-import { AdminVendorsView } from './views/admin/AdminVendorsView';
 import { AgplView } from './views/AgplView';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
@@ -117,6 +96,102 @@ import { VenuesView } from './views/VenuesView';
 import { VerifyView } from './views/VerifyView';
 import { WhatsNewView } from './views/WhatsNewView';
 
+// Board-only, gated on user.isBoard — never needed on the anonymous listen
+// path, so keep these 22 pages out of the main bundle entirely rather than
+// paying for them on every page load (see CUTOVER.md's Bundle budget item).
+const AdminActivityView = lazyRouteComponent(
+  () => import('./views/admin/AdminActivityView'),
+  'AdminActivityView',
+);
+const AdminAgmView = lazyRouteComponent(
+  () => import('./views/admin/AdminAgmView'),
+  'AdminAgmView',
+);
+const AdminAnnouncementsView = lazyRouteComponent(
+  () => import('./views/admin/AdminAnnouncementsView'),
+  'AdminAnnouncementsView',
+);
+const AdminBetaView = lazyRouteComponent(
+  () => import('./views/admin/AdminBetaView'),
+  'AdminBetaView',
+);
+const AdminContentReportsView = lazyRouteComponent(
+  () => import('./views/admin/AdminContentReportsView'),
+  'AdminContentReportsView',
+);
+const AdminDashboardView = lazyRouteComponent(
+  () => import('./views/admin/AdminDashboardView'),
+  'AdminDashboardView',
+);
+const AdminFeatureRequestsView = lazyRouteComponent(
+  () => import('./views/admin/AdminFeatureRequestsView'),
+  'AdminFeatureRequestsView',
+);
+const AdminFilesView = lazyRouteComponent(
+  () => import('./views/admin/AdminFilesView'),
+  'AdminFilesView',
+);
+const AdminFinancialView = lazyRouteComponent(
+  () => import('./views/admin/AdminFinancialView'),
+  'AdminFinancialView',
+);
+const AdminGovernanceView = lazyRouteComponent(
+  () => import('./views/admin/AdminGovernanceView'),
+  'AdminGovernanceView',
+);
+const AdminGrantsView = lazyRouteComponent(
+  () => import('./views/admin/AdminGrantsView'),
+  'AdminGrantsView',
+);
+const AdminI18nView = lazyRouteComponent(
+  () => import('./views/admin/AdminI18nView'),
+  'AdminI18nView',
+);
+const AdminNewsView = lazyRouteComponent(
+  () => import('./views/admin/AdminNewsView'),
+  'AdminNewsView',
+);
+const AdminRadioSubmissionsView = lazyRouteComponent(
+  () => import('./views/admin/AdminRadioSubmissionsView'),
+  'AdminRadioSubmissionsView',
+);
+const AdminRadioView = lazyRouteComponent(
+  () => import('./views/admin/AdminRadioView'),
+  'AdminRadioView',
+);
+const AdminSelectsView = lazyRouteComponent(
+  () => import('./views/admin/AdminSelectsView'),
+  'AdminSelectsView',
+);
+const AdminStatusView = lazyRouteComponent(
+  () => import('./views/admin/AdminStatusView'),
+  'AdminStatusView',
+);
+const AdminStorageView = lazyRouteComponent(
+  () => import('./views/admin/AdminStorageView'),
+  'AdminStorageView',
+);
+const AdminStreamsView = lazyRouteComponent(
+  () => import('./views/admin/AdminStreamsView'),
+  'AdminStreamsView',
+);
+const AdminSupportView = lazyRouteComponent(
+  () => import('./views/admin/AdminSupportView'),
+  'AdminSupportView',
+);
+const AdminTopListsView = lazyRouteComponent(
+  () => import('./views/admin/AdminTopListsView'),
+  'AdminTopListsView',
+);
+const AdminUsersView = lazyRouteComponent(
+  () => import('./views/admin/AdminUsersView'),
+  'AdminUsersView',
+);
+const AdminVendorsView = lazyRouteComponent(
+  () => import('./views/admin/AdminVendorsView'),
+  'AdminVendorsView',
+);
+
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
 });
@@ -193,6 +268,12 @@ const adminRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin',
   component: AdminDashboardView,
+});
+
+const adminActivityRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/activity',
+  component: AdminActivityView,
 });
 
 const adminBetaRoute = createRoute({
@@ -1073,6 +1154,7 @@ const routeTree = rootRoute.addChildren([
     feedRoute,
     onboardingRoute,
     adminRoute,
+    adminActivityRoute,
     adminBetaRoute,
     adminUsersRoute,
     adminRadioRoute,
