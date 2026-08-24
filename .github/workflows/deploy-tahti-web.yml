@@ -1,0 +1,208 @@
+# Deploy @nuclearplayer/tahti-web (beta.tahti.live) to vimage via jumphost.
+#
+# Ported from the tahti-org repo's deploy-production.yml pattern: build on
+# the runner, SSH in through a jumphost (vimage sits on a private LAN, not
+# reachable directly from GitHub-hosted runners), rsync the built dist/,
+# then rebuild + restart the container on the host.
+#
+# Required repository secret:
+#   DEPLOY_SSH_PRIVATE_KEY — private key authorized on the jumphost + vimage
+#
+# Optional repository variables (defaults match packages/tahti-web/deploy):
+#   DEPLOY_JUMP_HOST, DEPLOY_JUMP_USER, DEPLOY_JUMP_PORT
+#   DEPLOY_HOST, DEPLOY_PATH, DEPLOY_USER, DEPLOY_HOST_PORT
+#
+# Triggers:
+#   - workflow_dispatch (manual: deploy the latest master build on demand)
+#   - CI workflow completed successfully on master (auto, after every merge)
+name: Deploy tahti-web (beta)
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+
+env:
+  DO_NOT_TRACK: 1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-tahti-web
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Check deploy key
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'master')
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+        run: |
+          if [[ -n "${DEPLOY_KEY}" ]]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::DEPLOY_SSH_PRIVATE_KEY not set — skipping tahti-web deploy"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    name: Build and deploy beta
+    needs: preflight
+    if: needs.preflight.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DEPLOY_JUMP_USER: ${{ vars.DEPLOY_JUMP_USER }}
+      DEPLOY_JUMP_HOST: ${{ vars.DEPLOY_JUMP_HOST }}
+      DEPLOY_JUMP_PORT: ${{ vars.DEPLOY_JUMP_PORT }}
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_HOST_PORT: ${{ vars.DEPLOY_HOST_PORT }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Get PNPM store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup PNPM cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @nuclearplayer/tahti-web
+        # Leave VITE_TAHTI_API_URL unset so the client uses same-origin
+        # /tahti-api (proxied to https://api.tahti.live by nginx on vimage).
+        run: |
+          env -u VITE_TAHTI_API_URL -u VITE_FORCE_MOCK -u VITE_ALLOW_MOCK_FALLBACK \
+            VITE_CENTRIFUGO_WS="${VITE_CENTRIFUGO_WS:-wss://chat.tahti.live/connection/websocket}" \
+            VITE_ENABLE_DIAGNOSTICS=1 \
+            pnpm --filter @nuclearplayer/tahti-web build
+
+      - name: Verify build output
+        run: test -f packages/tahti-web/dist/index.html
+
+      - name: Export deploy targets
+        run: |
+          jump_user="${DEPLOY_JUMP_USER:-pi}"
+          jump_host="${DEPLOY_JUMP_HOST:-sparkki.dudeisland.eu}"
+          jump_port="${DEPLOY_JUMP_PORT:-4322}"
+          {
+            echo "DEPLOY_JUMP_USER=${jump_user}"
+            echo "DEPLOY_JUMP_HOST=${jump_host}"
+            echo "DEPLOY_JUMP_PORT=${jump_port}"
+            echo "DEPLOY_HOST=${DEPLOY_HOST:-192.168.2.100}"
+            echo "DEPLOY_PATH=${DEPLOY_PATH:-/srv/tahti-beta}"
+            echo "DEPLOY_USER=${DEPLOY_USER:-root}"
+            echo "DEPLOY_HOST_PORT=${DEPLOY_HOST_PORT:-15180}"
+          } >> "$GITHUB_ENV"
+
+      - name: Configure SSH agent
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/deploy_key
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "$GITHUB_ENV"
+          cat >> ~/.ssh/config <<CFG
+          Host deploy-jump
+            HostName ${DEPLOY_JUMP_HOST}
+            Port ${DEPLOY_JUMP_PORT}
+            User ${DEPLOY_JUMP_USER}
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            BatchMode yes
+            StrictHostKeyChecking accept-new
+
+          Host deploy-prod
+            HostName ${DEPLOY_HOST}
+            User ${DEPLOY_USER}
+            ProxyJump deploy-jump
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            BatchMode yes
+            StrictHostKeyChecking accept-new
+          CFG
+          chmod 600 ~/.ssh/config
+
+      - name: Trust SSH host keys
+        run: |
+          set -euo pipefail
+          touch ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh-keyscan -p "${DEPLOY_JUMP_PORT}" -H "${DEPLOY_JUMP_HOST}" >> ~/.ssh/known_hosts
+          ssh deploy-jump "ssh-keyscan -H '${DEPLOY_HOST}'" >> ~/.ssh/known_hosts
+
+      - name: Verify jumphost and vimage SSH
+        run: |
+          ssh deploy-jump 'echo "jumphost ok"'
+          ssh deploy-prod 'echo "vimage ok"'
+
+      - name: Sync dist + deploy config to vimage
+        run: |
+          set -euo pipefail
+          ssh deploy-prod "mkdir -p '${DEPLOY_PATH}/dist' '${DEPLOY_PATH}/deploy'"
+          rsync -az --delete packages/tahti-web/dist/ "deploy-prod:${DEPLOY_PATH}/dist/"
+          rsync -az --delete \
+            --exclude 'deploy-vimage.sh' \
+            --exclude 'README.md' \
+            packages/tahti-web/deploy/ "deploy-prod:${DEPLOY_PATH}/deploy/"
+          if [ "${DEPLOY_HOST_PORT}" != "15180" ]; then
+            ssh deploy-prod "sed -i \"s/15180:80/${DEPLOY_HOST_PORT}:80/\" '${DEPLOY_PATH}/deploy/docker-compose.yml'"
+          fi
+
+      - name: Build image and restart container
+        run: |
+          ssh deploy-prod "cd '${DEPLOY_PATH}' && \
+            docker build -t tahti-beta-web:local -f deploy/Dockerfile . && \
+            docker compose -f deploy/docker-compose.yml up -d --force-recreate && \
+            docker image prune -f >/dev/null 2>&1 || true"
+
+      - name: Smoke checks
+        run: |
+          ssh deploy-prod "set -e
+            code=\$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:${DEPLOY_HOST_PORT}/)
+            echo \"spa:\${code}\"
+            test \"\${code}\" = '200'
+            code=\$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:${DEPLOY_HOST_PORT}/tahti-api/api/v1/channels/directory)
+            echo \"api-proxy:\${code}\"
+            test \"\${code}\" = '200'
+          "
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::tahti-web deploy failed for ${{ github.sha }}"
