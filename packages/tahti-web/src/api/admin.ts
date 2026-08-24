@@ -2990,3 +2990,90 @@ export async function fetchAdminActivity(
 export function adminActivityExportCsvUrl(): string {
   return `${apiBase()}/api/admin/audit/export.csv`;
 }
+
+// ── Admin container logs ─────────────────────────────────────────────────
+// Thin client over GET /api/admin/logs (board-gated), which queries the
+// Loki already running on vimage6 server-to-server — see
+// tahti/apps/api/src/routes/admin/logs.ts. `service` here is whatever the
+// Loki stream's own label resolved to (raw container name, e.g.
+// "tahti-stack-api-1"), not a curated list — real container names, not
+// mocked.
+export type AdminLogEntry = {
+  timestampMs: number;
+  service: string;
+  line: string;
+};
+
+export type AdminLogsFilters = {
+  service?: string;
+  search?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+};
+
+function mockLogEntries(): AdminLogEntry[] {
+  const now = Date.now();
+  const minutesAgo = (m: number) => now - m * 60_000;
+  return [
+    {
+      timestampMs: minutesAgo(1),
+      service: 'tahti-stack-api-1',
+      line: 'GET /api/v1/channels/nova-drift 200 12ms',
+    },
+    {
+      timestampMs: minutesAgo(3),
+      service: 'tahti-stack-worker-1',
+      line: '[transcode] archive item 8f2c… done in 4.2s',
+    },
+    {
+      timestampMs: minutesAgo(5),
+      service: 'tahti-stack-chat-1',
+      line: 'client subscribed to channel:nova-drift',
+    },
+    {
+      timestampMs: minutesAgo(9),
+      service: 'tahti-stack-icecast-1',
+      line: 'source connected: /live/nova-drift',
+    },
+  ];
+}
+
+export async function fetchAdminContainerLogs(
+  filters: AdminLogsFilters = {},
+): Promise<{
+  entries: AdminLogEntry[];
+  lokiReachable: boolean;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      entries: mockLogEntries(),
+      lokiReachable: true,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const qs = new URLSearchParams();
+    if (filters.service) {
+      qs.set('service', filters.service);
+    }
+    if (filters.search) {
+      qs.set('search', filters.search);
+    }
+    if (filters.since) {
+      qs.set('since', filters.since);
+    }
+    if (filters.until) {
+      qs.set('until', filters.until);
+    }
+    qs.set('limit', String(filters.limit ?? 500));
+    const data = await getJson<{
+      entries: AdminLogEntry[];
+      lokiReachable: boolean;
+    }>(`/api/admin/logs?${qs.toString()}`);
+    return { ...data, meta: { source: 'api' } };
+  } catch (err) {
+    return { entries: [], lokiReachable: false, meta: failMeta(err) };
+  }
+}

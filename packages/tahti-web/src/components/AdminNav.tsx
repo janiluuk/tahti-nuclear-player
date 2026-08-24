@@ -14,6 +14,12 @@ const PRIMARY = [
       'Live system events — logins, uploads, releases, likes, follows, subscriptions.',
   },
   {
+    to: '/admin/logs',
+    label: 'Logs',
+    description:
+      'Live container logs from every service in the production stack.',
+  },
+  {
     to: '/admin/beta',
     label: 'Beta',
     description: 'Manage beta access and feature rollout.',

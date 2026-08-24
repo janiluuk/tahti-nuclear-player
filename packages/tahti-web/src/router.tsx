@@ -107,6 +107,10 @@ const AdminAgmView = lazyRouteComponent(
   () => import('./views/admin/AdminAgmView'),
   'AdminAgmView',
 );
+const AdminLogsView = lazyRouteComponent(
+  () => import('./views/admin/AdminLogsView'),
+  'AdminLogsView',
+);
 const AdminAnnouncementsView = lazyRouteComponent(
   () => import('./views/admin/AdminAnnouncementsView'),
   'AdminAnnouncementsView',
@@ -274,6 +278,12 @@ const adminActivityRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/activity',
   component: AdminActivityView,
+});
+
+const adminLogsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/logs',
+  component: AdminLogsView,
 });
 
 const adminBetaRoute = createRoute({
@@ -1155,6 +1165,7 @@ const routeTree = rootRoute.addChildren([
     onboardingRoute,
     adminRoute,
     adminActivityRoute,
+    adminLogsRoute,
     adminBetaRoute,
     adminUsersRoute,
     adminRadioRoute,
