@@ -65,7 +65,7 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
             class="flex flex-row items-center gap-2"
           >
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
+              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
               data-disabled=""
               data-headlessui-state="disabled"
               disabled=""
@@ -90,7 +90,7 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
               </svg>
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
+              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
               data-disabled=""
               data-headlessui-state="disabled"
               disabled=""
@@ -233,7 +233,7 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
           <button
             aria-label="Collapse panel"
             aria-pressed="true"
-            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
+            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
             data-headlessui-state=""
             data-testid="sidebar-toggle-left"
             title="Collapse panel"
@@ -649,13 +649,12 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
         data-testid="player-workspace-main"
       >
         <div
-          class="relative h-full w-full overflow-hidden"
+          class="min-h-full w-full"
         >
           <div
             animate="center"
-            class="absolute inset-0 h-full w-full"
+            class="min-h-full w-full"
             exit="exit"
-            initial="enter"
             transition="[object Object]"
           >
             <div
@@ -1122,7 +1121,7 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
           <button
             aria-label="Collapse panel"
             aria-pressed="true"
-            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
+            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
             data-headlessui-state=""
             data-testid="sidebar-toggle-right"
             title="Collapse panel"
@@ -1309,7 +1308,7 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
           >
             <div>
               <button
-                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-10 justify-center"
+                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center"
                 data-headlessui-state=""
                 data-testid="player-shuffle-button"
                 type="button"
@@ -1346,7 +1345,7 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
               </button>
             </div>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-10 justify-center"
+              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center"
               data-headlessui-state=""
               type="button"
             >
@@ -1372,7 +1371,9 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
               </svg>
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
+              aria-label="Play"
+              aria-pressed="false"
+              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center active:bg-accent-green active:text-black"
               data-headlessui-state=""
               data-testid="player-play-button"
               type="button"
@@ -1396,7 +1397,7 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
               </svg>
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-10 justify-center"
+              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center"
               data-headlessui-state=""
               data-testid="player-next-button"
               type="button"
@@ -1424,7 +1425,7 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
             </button>
             <div>
               <button
-                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-10 justify-center"
+                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center"
                 data-headlessui-state=""
                 data-testid="player-repeat-button"
                 type="button"
@@ -1466,7 +1467,7 @@ exports[`Sources view > (Snapshot) renders the view 1`] = `
             class="flex items-center gap-2"
           >
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-10 justify-center"
+              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center"
               data-headlessui-state=""
               type="button"
             >

@@ -6,13 +6,12 @@ exports[`FavoriteAlbums view > (Snapshot) renders empty state 1`] = `
   data-testid="player-workspace-main"
 >
   <div
-    class="relative h-full w-full overflow-hidden"
+    class="min-h-full w-full"
   >
     <div
       animate="center"
-      class="absolute inset-0 h-full w-full"
+      class="min-h-full w-full"
       exit="exit"
-      initial="enter"
       transition="[object Object]"
     >
       <div
@@ -99,13 +98,12 @@ exports[`FavoriteAlbums view > (Snapshot) renders with albums 1`] = `
   data-testid="player-workspace-main"
 >
   <div
-    class="relative h-full w-full overflow-hidden"
+    class="min-h-full w-full"
   >
     <div
       animate="center"
-      class="absolute inset-0 h-full w-full"
+      class="min-h-full w-full"
       exit="exit"
-      initial="enter"
       transition="[object Object]"
     >
       <div

@@ -6,13 +6,12 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
   data-testid="player-workspace-main"
 >
   <div
-    class="relative h-full w-full overflow-hidden"
+    class="min-h-full w-full"
   >
     <div
       animate="center"
-      class="absolute inset-0 h-full w-full"
+      class="min-h-full w-full"
       exit="exit"
-      initial="enter"
       transition="[object Object]"
     >
       <div
@@ -27,7 +26,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
             class="border-border bg-primary shadow-shadow relative flex flex-col gap-6 rounded-md border-(length:--border-width) p-6 md:flex-row mx-6 mt-6"
           >
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none size-8 justify-center absolute top-4 right-4 z-10"
+              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none size-8 justify-center absolute top-4 right-4 z-10"
               data-headlessui-state=""
               data-testid="edit-playlist-button"
               type="button"
@@ -115,7 +114,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                 class="flex items-center gap-2"
               >
                 <button
-                  class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none h-10 px-4 py-2"
+                  class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none h-10 px-4 py-2"
                   data-headlessui-state=""
                   data-testid="play-all-button"
                   type="button"
@@ -150,7 +149,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                     id="headlessui-popover-button-:r5:"
                   >
                     <button
-                      class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none size-10 justify-center"
+                      class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none size-10 justify-center"
                       data-headlessui-state=""
                       data-testid="playlist-actions-button"
                       type="button"
@@ -409,7 +408,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                         >
                           <button
                             aria-label="Add to favorites"
-                            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center"
+                            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center"
                             data-headlessui-state=""
                             type="button"
                           >
@@ -481,11 +480,11 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                                 class="pointer-events-none absolute inset-0 flex items-center justify-center gap-0.5 opacity-100 transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100"
                               >
                                 <button
-                                  aria-label="Play"
-                                  class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-7 rounded-full shadow-md"
+                                  aria-label="Play Giant Steps"
+                                  class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-6 rounded-full shadow-md"
                                   data-headlessui-state=""
                                   data-testid="media-artwork-play"
-                                  title="Play"
+                                  title="Play Giant Steps"
                                   type="button"
                                 >
                                   <svg
@@ -508,7 +507,8 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                                 </button>
                                 <button
                                   aria-label="Add to queue"
-                                  class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-5 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                                  aria-pressed="false"
+                                  class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-4 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
                                   data-headlessui-state=""
                                   data-testid="media-artwork-queue"
                                   title="Add to queue"
@@ -572,38 +572,10 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                               class="flex items-center gap-1"
                             >
                               <button
-                                aria-label="Add to queue"
-                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-                                data-headlessui-state=""
-                                data-testid="add-to-queue-button"
-                                type="button"
-                              >
-                                <svg
-                                  aria-hidden="true"
-                                  class="lucide lucide-plus"
-                                  fill="none"
-                                  height="16"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  viewBox="0 0 24 24"
-                                  width="16"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M5 12h14"
-                                  />
-                                  <path
-                                    d="M12 5v14"
-                                  />
-                                </svg>
-                              </button>
-                              <button
                                 aria-expanded="false"
                                 aria-haspopup="menu"
                                 aria-label="Track options"
-                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+                                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                 data-headlessui-state=""
                                 data-state="closed"
                                 data-testid="track-context-menu-button"
@@ -657,7 +629,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                         >
                           <button
                             aria-label="Remove from list"
-                            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center"
+                            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center"
                             data-headlessui-state=""
                             type="button"
                           >
@@ -708,7 +680,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                         >
                           <button
                             aria-label="Add to favorites"
-                            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center"
+                            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center"
                             data-headlessui-state=""
                             type="button"
                           >
@@ -780,11 +752,11 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                                 class="pointer-events-none absolute inset-0 flex items-center justify-center gap-0.5 opacity-100 transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100"
                               >
                                 <button
-                                  aria-label="Play"
-                                  class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-7 rounded-full shadow-md"
+                                  aria-label="Play So What"
+                                  class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-6 rounded-full shadow-md"
                                   data-headlessui-state=""
                                   data-testid="media-artwork-play"
-                                  title="Play"
+                                  title="Play So What"
                                   type="button"
                                 >
                                   <svg
@@ -807,7 +779,8 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                                 </button>
                                 <button
                                   aria-label="Add to queue"
-                                  class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-5 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                                  aria-pressed="false"
+                                  class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-4 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
                                   data-headlessui-state=""
                                   data-testid="media-artwork-queue"
                                   title="Add to queue"
@@ -871,38 +844,10 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                               class="flex items-center gap-1"
                             >
                               <button
-                                aria-label="Add to queue"
-                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-                                data-headlessui-state=""
-                                data-testid="add-to-queue-button"
-                                type="button"
-                              >
-                                <svg
-                                  aria-hidden="true"
-                                  class="lucide lucide-plus"
-                                  fill="none"
-                                  height="16"
-                                  stroke="currentColor"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  viewBox="0 0 24 24"
-                                  width="16"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M5 12h14"
-                                  />
-                                  <path
-                                    d="M12 5v14"
-                                  />
-                                </svg>
-                              </button>
-                              <button
                                 aria-expanded="false"
                                 aria-haspopup="menu"
                                 aria-label="Track options"
-                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+                                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                 data-headlessui-state=""
                                 data-state="closed"
                                 data-testid="track-context-menu-button"
@@ -956,7 +901,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                         >
                           <button
                             aria-label="Remove from list"
-                            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center"
+                            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center"
                             data-headlessui-state=""
                             type="button"
                           >
