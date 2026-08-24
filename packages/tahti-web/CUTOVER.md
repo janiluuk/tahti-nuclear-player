@@ -10,6 +10,7 @@
 | `/home/jani/workspace/tahti` | Production monorepo (API, worker, `apps/web`, Swarm, CI) |
 | [`FEATURES.md`](FEATURES.md) | Prod → POC feature parity tracker |
 | [`WORKPLAN.md`](WORKPLAN.md) | POC remaining checklist |
+| [`SEO-OG-NOTES.md`](SEO-OG-NOTES.md) | SEO/OG current-state audit + plan |
 | [`deploy/README.md`](deploy/README.md) | Beta deploy (vimage `:15180`) |
 | `tahti/ops/beta-tahti-live.md` | Live beta routing / auth notes |
 | `tahti/ops/ARCHITECTURE.md`, `DEPLOY.md`, `RUNBOOK.md` | Prod topology & rollouts |
@@ -49,7 +50,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [ ] **Same-origin API proxy** on production web edge — the SPA nginx image contract now includes `/tahti-api`, `/api`, host-safe cookie rewriting, forwarded host/protocol, and `/health`; the production service/upstream switch remains pending. Centrifugo WS stays `wss://chat.tahti.live`.
 - [x] **Parity P0 features** from FEATURES.md: membership purchase, password/security, in-client setup-channel, venue register, and Sources OAuth callback returns are implemented in the SPA.
 - [x] **Strip / gate POC-only surfaces** for prod builds: `/more` and Screen atlas require `VITE_ENABLE_DIAGNOSTICS=1`; mock-enabled production builds now fail. Beta explicitly enables diagnostics for review.
-- [ ] **SEO minimum:** `robots.txt`, a static + API-fed sitemap index, canonical tags, and route-aware browser metadata for `/c`, `/u`, `/r` are implemented. Server-rendered dynamic OG values still require prerendering or an edge metadata service.
+- [ ] **SEO minimum:** `robots.txt`, a static + API-fed sitemap index, canonical tags, and route-aware browser metadata for `/c`, `/u`, `/r` are implemented. Server-rendered dynamic OG values still require prerendering or an edge metadata service — see [`SEO-OG-NOTES.md`](SEO-OG-NOTES.md) for the current-state audit and the recommended proxy-based approach (in progress).
 - [x] **Playwright / vital journey** covers callback compatibility, mock login, go-live, upload, subscription offers, keyboard navigation, and the beta review map.
 - [ ] **Cutover runbook rehearsed** on staging/canary (rollback = previous `tahti/web` image + NPM/Caddy upstream).
 - [ ] **Legal pages** bind to real terms/privacy/AGPL (not “POC summary + link-out”).
