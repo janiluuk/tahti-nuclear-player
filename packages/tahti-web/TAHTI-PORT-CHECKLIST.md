@@ -37,9 +37,9 @@ Ordered by listener/artist value × API readiness:
 10. [x] **Full Three.js visualizer presets** — ten distinct analyser-reactive scenes in the channel hero and ambient page background, lazy-loaded outside the initial listen bundle
 11. [ ] **Multitrack timeline editing** — editor callout + map inventory
 12. [x] **Press-kit gallery upload** — `/api/me/press-kit/images/*` upload/delete; `ArtistGalleryPanel` wired into the gallery tab
-12b. [ ] **Channel member invites (email, no account yet)** — moderator-by-username is live-API and done; a true accept-token email invite has no backing API and isn't clearly needed given the user flows.
-13. [x] **Listener-only dashboard** — non-artists route to My Library
-14. [ ] **Production cutover** — replace `apps/web` listen/studio with this client
+13. [ ] **Channel member invites (email, no account yet)** — moderator-by-username is live-API and done; a true accept-token email invite has no backing API and isn't clearly needed given the user flows.
+14. [x] **Listener-only dashboard** — non-artists route to My Library
+15. [ ] **Production cutover** — replace `apps/web` listen/studio with this client
 
 **UX honesty / map:** `/more` (Tahti map) surfaces port backlog + mock inventory from `portInventory.ts` (synced with this file).
 
@@ -51,7 +51,7 @@ Ordered by listener/artist value × API readiness:
 - Auth: login / TOTP login / register / logout / email verify
 - Follows, fan subscribe checkout, my subscriptions, governance vote/comments, DMs
 - Add-to-playlist → `/api/me/collections`
-- Studio: home, Go Live wizard, archive/Music, upload, releases, collections/album designer, schedule, full 24/7 playlist editor, channel design, updates/newsletter, revenue/Connect, fan-tier edit[...]
+- Studio: home, Go Live wizard, archive/Music, upload, releases, collections/album designer, schedule, full 24/7 playlist editor, channel design, updates/newsletter, revenue/Connect, fan-tier editor
 - Stats summary + top tracks/countries + **plays time series**
 - Stash list/play/download + **upload/delete/share/revoke**
 - Settings shell (Nuclear sections) + artist/discovery/domain/notifications/social
@@ -68,7 +68,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | --------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | `VITE_FORCE_MOCK=1` whole app     | Full fixture session ([MOCKS.md](./MOCKS.md))                                                | Keep for demos; never default in prod        |
 | Dev silent mock fallback          | When API down + `VITE_ALLOW_MOCK_FALLBACK` (default on in Vite dev)                          | `VITE_ALLOW_MOCK_FALLBACK=0` for strict live |
-| Spotify / SoundCloud stream URLs  | Always DEMO_MP3, live or mock (neither API exposes a real per-track preview here); Play/Queue now labeled "demo audio" | Wire real preview / import playables [...]  |
+| Spotify / SoundCloud stream URLs  | Always DEMO_MP3, live or mock (neither API exposes a real per-track preview here); Play/Queue now labeled "demo audio" | Wire real preview / import playables         |
 | Channel chat                      | Fail closed when join fails (prod); mock send only under FORCE_MOCK; hCaptcha powers both chat surfaces | Live soak testing                            |
 | Themes                            | Nuclear local presets (`mock-ok`)                                                            | Keep — not a Tahti API                       |
 | Help / legal                      | Static POC copy + prod links                                                                 | Optional: fetch help CMS later               |
