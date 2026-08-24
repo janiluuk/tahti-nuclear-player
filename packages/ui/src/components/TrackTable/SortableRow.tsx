@@ -54,7 +54,7 @@ export function SortableRow<T extends Track = Track>({
           'border-l-primary bg-primary/10 border-l-2': isCurrent,
         },
       )}
-      {...(isReorderable ? attributes : {})}
+      {...attributes}
       {...(isReorderable ? listeners : {})}
     >
       {row.getVisibleCells().map((cell) => (
