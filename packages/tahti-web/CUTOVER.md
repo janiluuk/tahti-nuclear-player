@@ -53,7 +53,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [ ] **SEO minimum:** `robots.txt`, a static + API-fed sitemap index, canonical tags, and route-aware browser metadata for `/c`, `/u`, `/r` are implemented. Server-rendered dynamic OG values still require prerendering or an edge metadata service — see [`SEO-OG-NOTES.md`](SEO-OG-NOTES.md) for the current-state audit and the recommended proxy-based approach (in progress).
 - [x] **Playwright / vital journey** covers callback compatibility, mock login, go-live, upload, subscription offers, keyboard navigation, and the beta review map.
 - [ ] **Cutover runbook rehearsed** on staging/canary (rollback = previous `tahti/web` image + NPM/Caddy upstream).
-- [ ] **Legal pages** bind to real terms/privacy/AGPL (not “POC summary + link-out”).
+- [x] **Legal pages** bind to real terms/privacy/AGPL (not “POC summary + link-out”). `TermsView`/`PrivacyView`/`AgplView` port prod's actual `(info)/terms`, `/privacy`, `/agpl` page copy verbatim (`/home/jani/workspace/tahti/apps/web/src/app/(info)/...`) instead of a short summary linking out to `tahti.live`.
 
 ### P1 — should ship in the same release train or immediately after
 
@@ -131,7 +131,7 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 - [x] Full Three.js visualizer preset set
 - [ ] Multitrack timeline + press-kit polish
 - [ ] Help depth / support form
-- [ ] Legal pages full text (not summary)
+- [x] Legal pages full text (not summary)
 
 ### 1.3 Route map diff (compatibility required)
 

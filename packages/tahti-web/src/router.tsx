@@ -38,6 +38,7 @@ import { AdminSupportView } from './views/admin/AdminSupportView';
 import { AdminTopListsView } from './views/admin/AdminTopListsView';
 import { AdminUsersView } from './views/admin/AdminUsersView';
 import { AdminVendorsView } from './views/admin/AdminVendorsView';
+import { AgplView } from './views/AgplView';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
 import { ChatView } from './views/ChatView';
@@ -63,6 +64,7 @@ import { LoginView } from './views/LoginView';
 import { MessagesView } from './views/MessagesView';
 import { MoreView } from './views/MoreView';
 import { OnboardingView } from './views/OnboardingView';
+import { PrivacyView } from './views/PrivacyView';
 import { RadioShowView } from './views/RadioShowView';
 import { RadioView } from './views/RadioView';
 import { ResetPasswordView } from './views/ResetPasswordView';
@@ -105,6 +107,7 @@ import { StudioUpdatesView } from './views/studio/StudioUpdatesView';
 import { StudioUploadView } from './views/studio/StudioUploadView';
 import { StudioVenuesView } from './views/studio/StudioVenuesView';
 import { SubscribeView } from './views/SubscribeView';
+import { TermsView } from './views/TermsView';
 import { TrackDetailView } from './views/TrackDetailView';
 import { TransparencyMethodologyView } from './views/TransparencyMethodologyView';
 import { TransparencyView } from './views/TransparencyView';
@@ -674,19 +677,19 @@ const forArtistsRoute = createRoute({
 const termsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/terms',
-  component: () => <LegalView slug="terms" />,
+  component: TermsView,
 });
 
 const privacyRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/privacy',
-  component: () => <LegalView slug="privacy" />,
+  component: PrivacyView,
 });
 
 const agplRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/agpl',
-  component: () => <LegalView slug="agpl" />,
+  component: AgplView,
 });
 
 const studioRoute = createRoute({

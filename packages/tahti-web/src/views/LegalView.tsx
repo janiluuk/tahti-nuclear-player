@@ -1,29 +1,16 @@
 import { Link } from '@tanstack/react-router';
 
-import { getLegalPage, LEGAL_PAGES, type LegalPage } from '../content/legal';
+import { getLegalPage, LEGAL_HUB_LINKS } from '../content/legal';
 
 const PRODUCTION = 'https://tahti.live';
-
-const LEGAL_TO = {
-  about: '/about',
-  terms: '/terms',
-  privacy: '/privacy',
-  agpl: '/agpl',
-  'what-is-it': '/what-is-it',
-  'how-it-works': '/how-it-works',
-  'for-artists': '/for-artists',
-} as const satisfies Record<LegalPage['slug'], string>;
 
 export function LegalHubLinks() {
   return (
     <ul className="text-foreground-secondary flex flex-wrap gap-3 text-xs">
-      {LEGAL_PAGES.map((p) => (
-        <li key={p.slug}>
-          <Link
-            to={LEGAL_TO[p.slug]}
-            className="underline-offset-2 hover:underline"
-          >
-            {p.title}
+      {LEGAL_HUB_LINKS.map((l) => (
+        <li key={l.slug}>
+          <Link to={l.to} className="underline-offset-2 hover:underline">
+            {l.title}
           </Link>
         </li>
       ))}

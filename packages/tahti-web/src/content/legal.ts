@@ -1,17 +1,29 @@
 export type LegalPage = {
-  slug:
-    | 'about'
-    | 'terms'
-    | 'privacy'
-    | 'agpl'
-    | 'what-is-it'
-    | 'how-it-works'
-    | 'for-artists';
+  slug: 'about' | 'what-is-it' | 'how-it-works' | 'for-artists';
   title: string;
   description: string;
   productionPath: string;
   sections: Array<{ heading: string; paragraphs: string[] }>;
 };
+
+/** Cross-links shown at the bottom of every legal/info page — including
+ * terms, privacy, and the AGPL notice, which render through their own
+ * dedicated views (TermsView/PrivacyView/AgplView) rather than this file's
+ * plain-paragraph LegalPage shape, since their real text needs lists,
+ * definition lists, and links, not just prose. */
+export const LEGAL_HUB_LINKS: Array<{
+  slug: string;
+  title: string;
+  to: string;
+}> = [
+  { slug: 'about', title: 'About Tahti', to: '/about' },
+  { slug: 'terms', title: 'Terms of service', to: '/terms' },
+  { slug: 'privacy', title: 'Privacy policy', to: '/privacy' },
+  { slug: 'agpl', title: 'Source code & AGPL licence', to: '/agpl' },
+  { slug: 'what-is-it', title: 'What is it', to: '/what-is-it' },
+  { slug: 'how-it-works', title: 'How Tahti works', to: '/how-it-works' },
+  { slug: 'for-artists', title: 'Tahti for artists', to: '/for-artists' },
+];
 
 export const LEGAL_PAGES: LegalPage[] = [
   {
@@ -39,66 +51,6 @@ export const LEGAL_PAGES: LegalPage[] = [
         heading: 'Open source',
         paragraphs: [
           'Tahti is AGPL-licensed. See the AGPL notice in this app and the public source repository for details.',
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'terms',
-    title: 'Terms of use',
-    description: 'Summary of account, streaming, and community expectations.',
-    productionPath: '/terms',
-    sections: [
-      {
-        heading: 'Using Tahti',
-        paragraphs: [
-          'By using Tahti you agree to follow Finnish law, respect other members, and not abuse streaming, chat, or download infrastructure.',
-          'Artists remain responsible for the rights to music and media they broadcast or upload.',
-        ],
-      },
-      {
-        heading: 'Accounts & membership',
-        paragraphs: [
-          'Membership in Tahti ry is optional for listening; artist accounts may use free tier or paid membership for expanded live time and cooperative rights.',
-          'This page is a summary. The binding terms are available at tahti.live/terms.',
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'privacy',
-    title: 'Privacy',
-    description: 'What we collect and why — anonymous-first listening.',
-    productionPath: '/privacy',
-    sections: [
-      {
-        heading: 'Listening',
-        paragraphs: [
-          'You can listen and chat without an account. Anonymous listen metrics use rotating fingerprints, not marketing cookies.',
-          'Accounts exist mainly where billing, governance, or artist tools require identity.',
-        ],
-      },
-      {
-        heading: 'Data rights',
-        paragraphs: [
-          'Signed-in users can export or request deletion of personal data from Privacy settings.',
-          'Full privacy policy: tahti.live/privacy.',
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'agpl',
-    title: 'AGPL notice',
-    description: 'GNU Affero General Public License v3 for Tahti software.',
-    productionPath: '/agpl',
-    sections: [
-      {
-        heading: 'License',
-        paragraphs: [
-          'Tahti application code is licensed under the GNU Affero General Public License v3.0 or later.',
-          'If you run a modified version of the network service, you must offer corresponding source to users who interact with it over a network.',
-          'See tahti.live/agpl and the Tahti repository for the full license text and corresponding source.',
         ],
       },
     ],
