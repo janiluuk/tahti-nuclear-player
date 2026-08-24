@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { UploadIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -10,11 +10,11 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function StudioUploadView() {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [itemId, setItemId] = useState<string | null>(null);
 
   const submit = async () => {
     if (!file) {
@@ -29,8 +29,10 @@ export function StudioUploadView() {
       setMessage(result.error);
       return;
     }
-    setItemId(result.itemId);
-    setMessage('Upload complete — processing may take a minute.');
+    // Land on the durable /studio/archive/$id route rather than staying here —
+    // that page polls and shows processing state, so it survives a refresh or
+    // a share/bookmark of the URL in a way this ephemeral form state can't.
+    void navigate({ to: '/studio/archive/$id', params: { id: result.itemId } });
   };
 
   return (
@@ -77,11 +79,6 @@ export function StudioUploadView() {
                 <UploadIcon size={16} aria-hidden className="mr-1.5" />
                 {busy ? 'Uploading…' : 'Upload'}
               </Button>
-              {itemId && (
-                <Link to="/studio/archive/$id" params={{ id: itemId }}>
-                  <Button variant="secondary">Open in Music</Button>
-                </Link>
-              )}
             </div>
           </div>
         </StudioPanel>

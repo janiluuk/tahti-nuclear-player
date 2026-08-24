@@ -143,6 +143,21 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     reloadVersions();
   }, [id]);
 
+  const status = item?.status;
+  // Landing here straight from Upload (see StudioUploadView), or a refresh /
+  // bookmark of this URL, both need this page to make sense before the file
+  // has finished transcoding — poll until it leaves PENDING/PROCESSING
+  // rather than silently showing a half-broken "ready" editor.
+  useEffect(() => {
+    if (!status || status === 'READY' || status === 'ERROR') {
+      return;
+    }
+    const timer = setInterval(() => {
+      void fetchStudioArchiveItem(id).then((res) => setItem(res.data));
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [id, status]);
+
   const save = async () => {
     setSaving(true);
     setMessage(null);
@@ -314,6 +329,8 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     : '';
   const pinned = item ? isPinned(item) : false;
   const pinBlocked = !pinned && pinnedCount >= MAX_PINNED_TRACKS;
+  const hasError = status === 'ERROR';
+  const notReady = status != null && status !== 'READY' && !hasError;
   const isCurrent = currentId === `archive:${id}`;
   const isPlaying =
     isCurrent && (playerStatus === 'playing' || playerStatus === 'loading');
@@ -363,7 +380,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
               <div className="flex shrink-0 flex-wrap gap-2 sm:max-w-56 sm:justify-end">
                 <Button
                   size="sm"
-                  disabled={playBusy}
+                  disabled={playBusy || notReady || hasError}
                   aria-label="Play track"
                   onClick={() => {
                     if (isPlaying) {
@@ -439,6 +456,28 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                 ) : null}
               </div>
             </header>
+
+            {notReady && (
+              <p
+                className="border-border bg-background-secondary/30 rounded-lg border px-4 py-3 text-sm"
+                role="status"
+                aria-live="polite"
+              >
+                Still processing — this can take a minute for longer files.
+                Playback, the waveform, and quick fixes will unlock once it's
+                ready; metadata below is safe to edit and save now.
+              </p>
+            )}
+
+            {hasError && (
+              <p
+                className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+                role="alert"
+              >
+                Processing failed for this file. Try uploading it again, or
+                contact support if it keeps happening.
+              </p>
+            )}
 
             {pinBlocked && (
               <p className="text-foreground-secondary text-sm" role="status">
@@ -601,7 +640,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                     <Button
                       size="sm"
                       variant="secondary"
-                      disabled={quickBusy !== null}
+                      disabled={quickBusy !== null || notReady || hasError}
                       onClick={onNormalize}
                     >
                       {quickBusy === 'normalize' ? 'Normalizing…' : 'Normalize'}
@@ -609,7 +648,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                     <Button
                       size="sm"
                       variant="secondary"
-                      disabled={quickBusy !== null}
+                      disabled={quickBusy !== null || notReady || hasError}
                       onClick={onAutoTrim}
                     >
                       {quickBusy === 'trim' ? 'Trimming…' : 'Auto-trim silence'}
@@ -618,8 +657,17 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                       to="/studio/archive/$id/editor"
                       params={{ id }}
                       aria-label="Open audio editor"
+                      onClick={(event) => {
+                        if (notReady || hasError) {
+                          event.preventDefault();
+                        }
+                      }}
                     >
-                      <Button size="sm" variant="text">
+                      <Button
+                        size="sm"
+                        variant="text"
+                        disabled={notReady || hasError}
+                      >
                         <AudioLinesIcon
                           size={16}
                           aria-hidden

@@ -11,6 +11,7 @@ import {
   GalleryVerticalEndIcon,
   LayoutGridIcon,
   LibraryIcon,
+  ListMusicIcon,
   LockKeyholeIcon,
   MegaphoneIcon,
   PaletteIcon,
@@ -74,6 +75,12 @@ const TOOL_GROUPS: readonly StudioToolGroup[] = [
     label: 'Music',
     icon: SparklesIcon,
     tools: [
+      {
+        to: '/studio/archive',
+        label: 'Music',
+        icon: ListMusicIcon,
+        description: 'Your full catalog — play, edit, and manage every track.',
+      },
       {
         to: '/studio/upload',
         label: 'Upload',
