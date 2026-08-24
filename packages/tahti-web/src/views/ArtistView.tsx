@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Card, CardGrid, Dialog } from '@nuclearplayer/ui';
+import { Button, Card, CardGrid, Dialog, Textarea } from '@nuclearplayer/ui';
 
 import {
   fetchMyPressKitImages,
@@ -9,6 +9,7 @@ import {
   type PublicPressKitImage,
 } from '../api/artist-settings';
 import { fetchChannel, fetchProfile } from '../api/client';
+import { patchMeProfile } from '../api/studio-extras';
 import type {
   PublicChannel,
   PublicProfile,
@@ -101,6 +102,9 @@ export function ArtistView({ username }: { username: string }) {
   const [galleryLoaded, setGalleryLoaded] = useState(false);
   const [tracklistRelease, setTracklistRelease] =
     useState<PublicProfileRelease | null>(null);
+  const [editingFullBio, setEditingFullBio] = useState(false);
+  const [fullBioDraft, setFullBioDraft] = useState('');
+  const [savingFullBio, setSavingFullBio] = useState(false);
   const [albumPrompt, setAlbumPrompt] = useState<{
     release: PublicProfileRelease;
     playables: TahtiPlayable[];
@@ -360,6 +364,86 @@ export function ArtistView({ username }: { username: string }) {
             {artist.bio}
           </p>
         )}
+        {editingFullBio ? (
+          <div className="mt-2 flex max-w-2xl flex-col gap-2">
+            <Textarea
+              autoFocus
+              rows={6}
+              placeholder="Share your full history — how you got started, your influences, milestones…"
+              value={fullBioDraft}
+              onChange={(e) => setFullBioDraft(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                disabled={savingFullBio}
+                onClick={async () => {
+                  setSavingFullBio(true);
+                  const result = await patchMeProfile({
+                    fullBio: fullBioDraft.trim() || null,
+                  });
+                  setSavingFullBio(false);
+                  if (!result.ok) {
+                    return;
+                  }
+                  setProfile((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          artist: {
+                            ...prev.artist,
+                            fullBio: result.data.fullBio ?? null,
+                          },
+                        }
+                      : prev,
+                  );
+                  setEditingFullBio(false);
+                }}
+              >
+                {savingFullBio ? 'Saving…' : 'Save'}
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={savingFullBio}
+                onClick={() => setEditingFullBio(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : artist.fullBio ? (
+          <div className="mt-2 max-w-2xl">
+            <p className="text-foreground text-sm whitespace-pre-wrap">
+              {artist.fullBio}
+            </p>
+            {isOwner && (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="mt-2"
+                onClick={() => {
+                  setFullBioDraft(artist.fullBio ?? '');
+                  setEditingFullBio(true);
+                }}
+              >
+                Edit full bio
+              </Button>
+            )}
+          </div>
+        ) : isOwner ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="mt-2 self-start"
+            onClick={() => {
+              setFullBioDraft('');
+              setEditingFullBio(true);
+            }}
+          >
+            + Add full bio
+          </Button>
+        ) : null}
         <div className="mt-2 flex flex-wrap gap-3 text-sm">
           {channel && (
             <Link

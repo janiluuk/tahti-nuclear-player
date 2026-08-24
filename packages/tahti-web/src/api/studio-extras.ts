@@ -617,6 +617,8 @@ export type ProfileFields = {
   username: string;
   displayName: string;
   bio: string | null;
+  /** Optional longer-form history, shown expanded below the short bio. */
+  fullBio?: string | null;
   avatarUrl?: string | null;
   tipJarUrl: string | null;
   pronouns: string | null;
@@ -635,6 +637,7 @@ let mockProfile: ProfileFields = {
   username: 'demo',
   displayName: 'Demo Artist',
   bio: 'Mock bio for Nuclear studio channel settings.',
+  fullBio: null,
   avatarUrl: null,
   tipJarUrl: null,
   pronouns: null,
@@ -674,6 +677,7 @@ export async function patchMeProfile(
       ProfileFields,
       | 'displayName'
       | 'bio'
+      | 'fullBio'
       | 'tipJarUrl'
       | 'pronouns'
       | 'chatEnabled'

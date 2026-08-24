@@ -137,6 +137,8 @@ export type PublicProfileArtist = {
   username: string;
   displayName: string;
   bio: string | null;
+  /** Optional longer-form history, shown expanded below the short bio. */
+  fullBio: string | null;
   avatarUrl: string | null;
   tipJarUrl?: string | null;
   tier?: string;

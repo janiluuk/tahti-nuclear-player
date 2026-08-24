@@ -719,6 +719,7 @@ export function mockProfile(username: string): PublicProfile {
       username: channel.user.username,
       displayName: channel.user.displayName,
       bio: channel.user.bio,
+      fullBio: null,
       avatarUrl: channel.user.avatarUrl,
       tipJarUrl: null,
       tier: 'FREE',
