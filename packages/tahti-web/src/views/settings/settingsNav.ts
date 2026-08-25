@@ -6,6 +6,7 @@ import {
   Palette,
   Radio,
   Sparkles,
+  StoreIcon,
   User,
   UserCircle2,
   Wallet,
@@ -19,6 +20,7 @@ export type SettingsSectionId =
   | 'money'
   | 'themes'
   | 'widgets'
+  | 'plugin-store'
   | 'connections'
   | 'whats-new';
 
@@ -71,6 +73,13 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     label: 'Widgets',
     description: 'Embeds, Disco-widgets, and internet radio',
     Icon: Blocks,
+  },
+  {
+    id: 'plugin-store',
+    label: 'Plugin store',
+    description:
+      'Themes, visualizers, export, import, multicast, fingerprinting, audio plugins — one browser',
+    Icon: StoreIcon,
   },
   {
     id: 'connections',

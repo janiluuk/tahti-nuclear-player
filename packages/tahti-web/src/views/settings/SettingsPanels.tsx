@@ -110,6 +110,7 @@ import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { ListenerWidgetEmbed } from '../../components/ListenerWidgetEmbed';
+import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SidebarBuildInfo } from '../../components/SidebarBuildInfo';
 import { LISTENER_WIDGET_TYPES } from '../../content/listenerWidgets';
@@ -194,6 +195,9 @@ export function SettingsSectionBody({
       break;
     case 'widgets':
       content = <WidgetsPanel />;
+      break;
+    case 'plugin-store':
+      content = <PluginStorePanel />;
       break;
     case 'connections':
       content = <ConnectionsPanel />;
