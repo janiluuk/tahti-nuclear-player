@@ -34,7 +34,7 @@ import {
   type PluginCategoryId,
 } from '../content/pluginStoreCategories';
 import { EXPORT_TARGETS } from '../lib/exportTargets';
-import { ALL_PLUGIN_IDS, PLUGIN_META } from '../lib/proEditorPlugins';
+import { ALL_PLUGIN_IDS, AUDIO_FX_PLUGINS } from '../plugins/audio-fx';
 import { useThemeStore } from '../plugins/themes';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 
@@ -658,7 +658,7 @@ function AudioPluginsCategory() {
   return (
     <div className="flex flex-col gap-2">
       {ALL_PLUGIN_IDS.map((id) => {
-        const meta = PLUGIN_META[id];
+        const meta = AUDIO_FX_PLUGINS[id];
         return (
           <Link key={id} to="/studio/archive">
             <PluginStoreItem

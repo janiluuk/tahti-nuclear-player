@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import type { EditList } from '../api/studio-types';
+import { AUDIO_FX_PLUGINS } from '../plugins/audio-fx';
 
 type Graph = { ctx: AudioContext; source: MediaElementAudioSourceNode };
 
@@ -96,41 +97,17 @@ export function useAudioPreviewGraph(
     // as a single real-time node (it needs a full-pass loudness
     // analysis), so it stays render/export-only, same as the doc note
     // on this hook already says for the limiter approximation.
+    //
+    // Each plugin owns its own node-building logic (src/plugins/audio-fx)
+    // -- adding a plugin means adding it to that registry, not a branch
+    // here.
     for (const id of editList.pluginChain ?? []) {
-      if (id === 'eq' && editList.eq.enabled) {
-        for (const band of editList.eq.bands) {
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'peaking';
-          filter.frequency.value = band.freq;
-          filter.Q.value = band.q;
-          filter.gain.value = band.gainDb;
-          connect(filter);
-        }
-      } else if (id === 'comp' && editList.comp.enabled) {
-        const comp = ctx.createDynamicsCompressor();
-        comp.threshold.value = editList.comp.thresholdDb;
-        comp.ratio.value = editList.comp.ratio;
-        comp.attack.value = editList.comp.attackMs / 1000;
-        comp.release.value = editList.comp.releaseMs / 1000;
-        connect(comp);
-        if (editList.comp.makeupDb !== 0) {
-          const makeup = ctx.createGain();
-          makeup.gain.value = Math.pow(10, editList.comp.makeupDb / 20);
-          connect(makeup);
-        }
-      } else if (id === 'limiter' && editList.limiter.enabled) {
-        const limiter = ctx.createDynamicsCompressor();
-        limiter.threshold.value = editList.limiter.ceilingDb;
-        limiter.knee.value = 0;
-        limiter.ratio.value = 20;
-        limiter.attack.value = 0.001;
-        limiter.release.value = editList.limiter.releaseMs / 1000;
-        connect(limiter);
-      } else if (id === 'filter' && editList.filter.enabled) {
-        const filter = ctx.createBiquadFilter();
-        filter.type = editList.filter.mode;
-        filter.frequency.value = editList.filter.freq;
-        connect(filter);
+      const plugin = AUDIO_FX_PLUGINS[id];
+      if (!plugin?.isEnabled(editList)) {
+        continue;
+      }
+      for (const node of plugin.buildPreviewNodes(ctx, editList)) {
+        connect(node);
       }
     }
 

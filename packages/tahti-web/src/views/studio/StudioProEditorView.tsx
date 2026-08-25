@@ -44,7 +44,7 @@ import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
 import { WaveformMinimap } from '../../components/WaveformMinimap';
 import { useAudioPreviewGraph } from '../../lib/audioPreviewGraph';
-import { ALL_PLUGIN_IDS, PLUGIN_META } from '../../lib/proEditorPlugins';
+import { ALL_PLUGIN_IDS, AUDIO_FX_PLUGINS } from '../../plugins/audio-fx';
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec)) {
@@ -64,7 +64,7 @@ function PluginIcon({
   id: ProEditorPluginId;
   size?: number;
 }) {
-  const meta = PLUGIN_META[id];
+  const meta = AUDIO_FX_PLUGINS[id];
   return (
     <div
       className="flex h-full w-full items-center justify-center"
@@ -802,7 +802,7 @@ export function StudioProEditorView({
                       </p>
                     ) : (
                       pluginChain.map((id) => {
-                        const meta = PLUGIN_META[id];
+                        const meta = AUDIO_FX_PLUGINS[id];
                         return (
                           <div
                             key={id}
@@ -1056,8 +1056,8 @@ export function StudioProEditorView({
                   (id) => (
                     <Card
                       key={id}
-                      title={PLUGIN_META[id].label}
-                      subtitle={PLUGIN_META[id].description}
+                      title={AUDIO_FX_PLUGINS[id].label}
+                      subtitle={AUDIO_FX_PLUGINS[id].description}
                       image={<PluginIcon id={id} />}
                       onClick={() => addPlugin(id)}
                     />
