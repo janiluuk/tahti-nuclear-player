@@ -97,6 +97,25 @@ test('Settings connections: export targets render from the relocated plugin regi
   await expect(exportSection.getByText('hearthis.at')).toBeVisible();
 });
 
+test('Radio visualizer renders through the registry with no console errors', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (err) => errors.push(String(err)));
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') {
+      errors.push(msg.text());
+    }
+  });
+
+  await page.goto('/radio');
+  const canvas = page.locator('[data-visualizer-engine="three"]');
+  await expect(canvas).toBeVisible();
+  await expect(canvas).toHaveAttribute('data-visualizer-preset', /.+/);
+  await page.waitForTimeout(500);
+  expect(errors).toEqual([]);
+});
+
 test('Studio release fingerprinting: check and re-fingerprint a track through the AcoustID plugin', async ({
   page,
 }) => {

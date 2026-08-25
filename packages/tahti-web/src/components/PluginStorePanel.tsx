@@ -36,21 +36,19 @@ import { ALL_PLUGIN_IDS, AUDIO_FX_PLUGINS } from '../plugins/audio-fx';
 import { EXPORT_TARGETS } from '../plugins/export';
 import { importSourcePlugins } from '../plugins/import-sources';
 import { useThemeStore } from '../plugins/themes';
+import { visualizerPreset } from '../plugins/visualizers';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 
-const VISUALIZER_DESCRIPTIONS: Record<string, string> = {
-  MINIMAL: 'A quiet baseline — subtle motion, no distraction.',
-  WATER_RIPPLE: 'Concentric ripples reacting to the beat.',
-  WAVEFORM_BARS: 'Classic vertical bar spectrum.',
-  PARTICLE_FIELD: 'Drifting particles that pulse with the mix.',
-  AURORA: 'Slow-moving colour bands, aurora-style.',
-  REACTIVE_GRID: 'A grid that flexes with the low end.',
-  CLOUDSCAPE: 'Soft volumetric clouds, gentle motion.',
-  LINE_TANGLE: 'Generative tangled line art.',
-  BACKDROP_BOX: 'A framed backdrop panel behind your stream.',
-  LENS_FLARES: 'Cinematic flares timed to peaks.',
-  IES_SPOTLIGHT: 'A studio spotlight sweep.',
-};
+// MINIMAL has no Three.js scene (see plugins/visualizers) so it isn't in
+// that registry — its description lives only here.
+const MINIMAL_VISUALIZER_DESCRIPTION =
+  'A quiet baseline — subtle motion, no distraction.';
+
+function visualizerDescription(id: string): string {
+  return id === 'MINIMAL'
+    ? MINIMAL_VISUALIZER_DESCRIPTION
+    : visualizerPreset(id).description;
+}
 
 const IMPORT_SOURCE_KINDS = new Set(['oauth', 'search', 'tool']);
 
@@ -245,7 +243,7 @@ function VisualizersCategory() {
               <PluginStoreItem
                 name={presetLabel(id)}
                 author="Tahti"
-                description={VISUALIZER_DESCRIPTIONS[id] ?? 'Visual preset'}
+                description={visualizerDescription(id)}
                 isInstalled={preset === id}
                 onInstall={() => usePreset(id)}
                 labels={{

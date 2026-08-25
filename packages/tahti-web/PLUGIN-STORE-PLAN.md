@@ -153,24 +153,47 @@ Ranked by extraction cost (cheapest first):
   Still only one provider (`acoustIdProvider`) — that was true before this
   pass too, nothing user-facing changed.
 
-## 7. Visualizers
+## 7. Visualizers — DONE
 
-- **Lives**: `src/components/visuals/ThreeVisualizer.tsx` (567 lines,
-  lazy WebGL) + `ChannelVisualizer.tsx` (143 lines, settings-parsing
-  wrapper). Preset ids in `VISUAL_PRESETS` (`src/api/channel-design.ts`).
-- **Settings today**: `ChannelDesigner.tsx`'s "Visualizer" tab
-  (576-line file) — enable toggle, preset grid, per-preset speed/
-  intensity, plus a separate "Colors" tab for the shared color scheme.
-- **Already plugin-shaped**: no — `VISUAL_PRESETS` is a flat string
-  array with no per-preset metadata object (the picker derives labels
-  from the id itself; `PluginStorePanel`'s descriptions are new, written
-  for this store, not sourced from existing code).
-- **What extraction means**: highest implementation cost of the 7 — each
-  preset is a real WebGL render mode inside one 567-line Three.js
-  component, not an independent module. A `VisualizerPlugin` interface
-  would need `{id, meta, render(ctx, params)}`, and `ThreeVisualizer.tsx`
-  would need to dispatch to per-preset renderer modules instead of one
-  big switch — a genuine refactor, not a relocation.
+- **Lives**: `src/plugins/visualizers/` — a `VisualizerPreset` interface
+  (`id`, `description`, `build(scene, scheme, artworkUrl?): PresetScene`)
+  plus one module per preset under `presets/` (`waterRipple.ts`,
+  `waveformBars.ts`, `particleField.ts`, `aurora.ts` — also the
+  fallback for an unrecognized id — `reactiveGrid.ts`, `cloudscape.ts`,
+  `lineTangle.ts`, `backdropBox.ts`, `lensFlares.ts`, `iesSpotlight.ts`),
+  a `shared.ts` for the couple of things multiple presets genuinely reuse
+  (a glow-sprite texture generator, the `TAU` constant), and one test per
+  module. `src/components/visuals/ThreeVisualizer.tsx` shrank from 567 to
+  ~150 lines — it's now just the WebGL host (renderer/camera/scene
+  bootstrap, the render loop, disposal) and calls `visualizerPreset(preset)
+  .build(...)` instead of a 10-case switch with every preset's Three.js
+  code inline. `MINIMAL` (a real, selectable preset with **no** Three.js
+  scene) deliberately has no registry entry — see the interface's doc
+  comment and `ChannelVisualizer.tsx`, which never mounts `ThreeVisualizer`
+  for it at all.
+- **This was less risky than it looked.** The original assessment below
+  (kept for the record) expected a "genuine refactor" needing real
+  redesign. In practice every `create*` scene-builder in the old
+  `ThreeVisualizer.tsx` was already a pure, self-contained function taking
+  `(scene, scheme, artworkUrl?)` and returning an `update(elapsed, level)`
+  closure — the switch dispatching to them was the only actually-coupled
+  part. The extraction was close to mechanical: move each function to its
+  own file, name the shape `VisualizerPreset`, replace the switch with a
+  `Map` lookup. Verified live (not just unit tests) — `pnpm dev` +
+  Playwright against `/radio`: canvas renders, correct preset attribute,
+  zero console errors.
+- **Settings today**: `ChannelDesigner.tsx`'s "Visualizer" tab still has
+  its own `PRESET_META` (description + `LucideIcon` per preset) — a
+  **third** copy of visualizer descriptions, with wording that diverges
+  from both the old `ThreeVisualizer` comments and `PluginStorePanel`'s
+  copy (e.g. `WATER_RIPPLE`: "Soft ripple distortion synced to audio
+  level." here vs. "Concentric ripples reacting to the beat." in the
+  registry). Found, not merged — unifying copy across three surfaces is a
+  content decision, not a refactor call to make silently; flagged as a
+  follow-up rather than picking a winner unasked. The per-preset icon
+  (`Droplets`, `AudioLines`, `Sparkles`, ...) is real, reusable metadata
+  that belongs in `VisualizerPreset` alongside `description` whenever that
+  consolidation happens.
 
 ## Suggested order
 
@@ -202,11 +225,12 @@ Ranked by extraction cost (cheapest first):
    Revelator against it, *then* the extraction is actually done
    (Fingerprinting's `FingerprintProvider` half of this item already is,
    see §6).
-5. **Largest, do last**: Import's connection-status contract is done (§5)
-   — its remaining per-source OAuth/search/import-job split, and
-   Visualizers (a real per-preset WebGL refactor), both still need
-   internal restructuring before "remove from main codebase" is even
-   meaningful, not just a file move.
+5. **Largest, do last**: Visualizers is DONE (§7) — turned out to be less
+   restructuring than expected (see §7's note). Import's connection-status
+   contract is done (§5); its remaining per-source OAuth/search/import-job
+   split is the one item left in this whole plan still needing real
+   internal restructuring before "remove from main codebase" is
+   meaningful.
 
 ## Pending — Nuclear plugin-registry gap follow-up
 
