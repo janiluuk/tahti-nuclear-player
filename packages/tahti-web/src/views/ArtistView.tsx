@@ -576,7 +576,7 @@ export function ArtistView({ username }: { username: string }) {
 
       {tab === 'music' && (
         <section className="flex flex-col gap-8">
-          <div className="border-border bg-background-input relative h-32 w-full overflow-hidden rounded-lg border sm:h-40">
+          <div className="border-border bg-background-input relative min-h-[20rem] w-full overflow-hidden rounded-lg border sm:min-h-[28rem]">
             <ChannelVisualizer
               className="absolute inset-0 h-full w-full"
               preset={channelVisual?.visualPreset}
