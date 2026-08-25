@@ -2,6 +2,7 @@ import { useNavigate, useRouterState } from '@tanstack/react-router';
 import {
   CompassIcon,
   GaugeIcon,
+  HistoryIcon,
   LayoutDashboardIcon,
   LibraryIcon,
   MapIcon,
@@ -87,6 +88,13 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             to="/library"
             icon={<LibraryIcon size={16} />}
             label="My Library"
+          />
+        </div>
+        <div data-tour-id="nav-history">
+          <SidebarNavigationItem
+            to="/library/history"
+            icon={<HistoryIcon size={16} />}
+            label="History"
           />
         </div>
         <div data-tour-id="nav-messages">

@@ -26,16 +26,43 @@ export const RANGE_PRESETS = [
 
 export type RangePresetId = (typeof RANGE_PRESETS)[number]['id'];
 
+function rangeCutoffMs(presetId: RangePresetId): number | null {
+  const preset = RANGE_PRESETS.find((p) => p.id === presetId);
+  return preset && preset.days != null
+    ? Date.now() - preset.days * MS_PER_DAY
+    : null;
+}
+
 export function entriesInRange(
   entries: HistoryEntry[],
   presetId: RangePresetId,
 ): HistoryEntry[] {
-  const preset = RANGE_PRESETS.find((p) => p.id === presetId);
-  if (!preset || preset.days == null) {
+  const cutoff = rangeCutoffMs(presetId);
+  if (cutoff == null) {
     return entries;
   }
-  const cutoff = Date.now() - preset.days * MS_PER_DAY;
   return entries.filter((e) => new Date(e.playedAt).getTime() >= cutoff);
+}
+
+/** Display bounds for the range picker header (e.g. "Jul 25 – Aug 23,
+ * 2026"). `allTime` bounds to the earliest play so it doesn't imply a
+ * fixed window that doesn't exist. */
+export function rangeDisplayBounds(
+  entries: HistoryEntry[],
+  presetId: RangePresetId,
+): { from: number; to: number } | null {
+  const to = Date.now();
+  const cutoff = rangeCutoffMs(presetId);
+  if (cutoff != null) {
+    return { from: cutoff, to };
+  }
+  if (entries.length === 0) {
+    return null;
+  }
+  const earliest = Math.min(
+    ...entries.map((e) => new Date(e.playedAt).getTime()),
+  );
+  return { from: earliest, to };
 }
 
 export function dailyListeningMs(

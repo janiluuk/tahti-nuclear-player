@@ -21,6 +21,7 @@ import {
   hourlyListeningMs,
   monthLabelsShort,
   RANGE_PRESETS,
+  rangeDisplayBounds,
   topArtists,
   topChannels,
   topTracks,
@@ -75,6 +76,13 @@ export function HistoryStatsSection({ history }: { history: HistoryEntry[] }) {
   const tracks = useMemo(() => topTracks(ranged, TOP_LIST_SIZE), [ranged]);
   const hasTopLists =
     artists.length > 0 || channels.length > 0 || tracks.length > 0;
+  const rangeBounds = useMemo(
+    () => rangeDisplayBounds(history, presetId),
+    [history, presetId],
+  );
+  const rangeDates = rangeBounds
+    ? `${new Date(rangeBounds.from).toLocaleDateString(undefined, { dateStyle: 'medium' })} – ${new Date(rangeBounds.to).toLocaleDateString(undefined, { dateStyle: 'medium' })}`
+    : null;
 
   if (history.length === 0) {
     return (
@@ -94,6 +102,14 @@ export function HistoryStatsSection({ history }: { history: HistoryEntry[] }) {
       viewportClassName="@container flex flex-col gap-4 p-4"
     >
       <div className="flex items-center justify-end gap-3">
+        {rangeDates && (
+          <span
+            data-testid="history-stats-range-dates"
+            className="text-foreground-secondary text-sm"
+          >
+            {rangeDates}
+          </span>
+        )}
         <div data-testid="history-stats-range" className="w-44">
           <Select
             options={RANGE_PRESETS.map((p) => ({ id: p.id, label: p.label }))}
@@ -126,7 +142,7 @@ export function HistoryStatsSection({ history }: { history: HistoryEntry[] }) {
       {hasListening ? (
         <div className="flex flex-col items-stretch gap-4 @3xl:flex-row">
           <Box variant="tertiary" className="w-auto flex-col gap-3">
-            <h3 className="font-heading text-xl">Hour of day</h3>
+            <h3 className="font-heading text-xl">Time of day</h3>
             <ListeningClock
               values={hourlyValues}
               labels={{
@@ -159,7 +175,7 @@ export function HistoryStatsSection({ history }: { history: HistoryEntry[] }) {
       )}
 
       <Box variant="tertiary" className="min-w-fit flex-col gap-3">
-        <h3 className="font-heading text-xl">Calendar</h3>
+        <h3 className="font-heading text-xl">Listening calendar</h3>
         <CalendarHeatmap
           className="mx-auto"
           days={dailyDays}
