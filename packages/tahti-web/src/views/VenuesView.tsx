@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { TahtiMapLink } from '../components/TahtiMapLink';
 import { countryFlagAndName } from '../lib/countries';
 
 export function VenuesView() {
@@ -80,12 +81,7 @@ export function VenuesView() {
         </ul>
       )}
 
-      <Link
-        to="/more"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        Full feature map →
-      </Link>
+      <TahtiMapLink label="Full feature map →" />
     </PageFrame>
   );
 }

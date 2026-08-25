@@ -1,9 +1,9 @@
-import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { fetchPlatformStatus } from '../api/client';
 import type { PlatformStatus } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { TahtiMapLink } from '../components/TahtiMapLink';
 
 function stateClass(state: string): string {
   if (state === 'ok' || state === 'healthy') {
@@ -39,14 +39,7 @@ export function StatusView() {
       <PageHeader
         title="Platform status"
         subtitle="Current health of Tahti services."
-        back={
-          <Link
-            to="/more"
-            className="text-foreground-secondary text-xs hover:underline"
-          >
-            ← Tahti map
-          </Link>
-        }
+        back={<TahtiMapLink />}
       />
 
       {loading && (

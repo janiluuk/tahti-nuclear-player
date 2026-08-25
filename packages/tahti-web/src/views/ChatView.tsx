@@ -6,6 +6,7 @@ import { Button, Input } from '@nuclearplayer/ui';
 import { mockDirectory } from '../api/mock';
 import { ChannelChatPanel } from '../components/ChannelChatPanel';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { TahtiMapLink } from '../components/TahtiMapLink';
 import { useLayoutStore } from '../stores/layoutStore';
 
 export function ChatView({ slug }: { slug?: string }) {
@@ -28,14 +29,7 @@ export function ChatView({ slug }: { slug?: string }) {
         <PageHeader
           title="Channel chat"
           subtitle="Pick a channel to open its public chat."
-          back={
-            <Link
-              to="/more"
-              className="text-foreground-secondary text-xs hover:underline"
-            >
-              ← Tahti map
-            </Link>
-          }
+          back={<TahtiMapLink />}
         />
         <Input
           label="Channel slug"

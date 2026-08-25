@@ -11,6 +11,7 @@ import type {
   TransparencyLedgerEntry,
   TransparencyYtd,
 } from '../api/types';
+import { TahtiMapLink } from '../components/TahtiMapLink';
 
 function centsLabel(raw: string) {
   const n = Number(raw);
@@ -54,12 +55,7 @@ export function TransparencyView() {
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-8">
-      <Link
-        to="/more"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Tahti map
-      </Link>
+      <TahtiMapLink />
 
       <header className="flex flex-col gap-2">
         <h1 className="font-display text-3xl font-extrabold tracking-tight">

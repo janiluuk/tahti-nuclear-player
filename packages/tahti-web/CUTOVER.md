@@ -148,8 +148,8 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 | `/signup/*` | `/signup`, `/signup/payment` | DONE Join + membership checkout |
 | `/admin/*` | Nuclear port exists; Next remains canonical | DONE Host decision |
 | `/apply` | `/join` | DONE Alias |
-| `/v/:slug` venues public? | `/venues` list | TODO Confirm venue public pages |
-| `/more`, `/themes` | POC-only / Nuclear | TODO Prod: hide or keep as power-user |
+| `/v/:slug` venues public? | `/venues` list | DONE `VenuesView`/`VenueDetailView` are live-API, `venueDetailRoute` is `/v/$slug` matching prod exactly; register flow at `/venues/register` |
+| `/more`, `/themes` | POC-only / Nuclear | DONE `/themes` is a redirect to real `/settings/$section` (not POC-only); `/more` already `beforeLoad`-redirects to `/` unless `VITE_ENABLE_DIAGNOSTICS=1`. Found and fixed a real bug while verifying this: 7 production views (`ChatView`, `GovernanceView`, `HelpView`, `LegalView`×2, `StatusView`, `TransparencyView`, `VenuesView`) linked to `/more` as a "Tahti map" breadcrumb, which silently bounced real users to `/` in prod builds. Extracted `TahtiMapLink` (`src/components/TahtiMapLink.tsx`), which renders nothing when diagnostics are off |
 
 ### 1.4 Client-only / non-API state
 
@@ -169,7 +169,7 @@ Work from FEATURES.md; mark done there and here.
 - [x] Chat captcha + access gating (already hardened — regression test) — audited `tahti/apps/api`: `verifyHcaptcha` fails closed when a real secret is configured (missing/invalid token → rejected), `ChatBan` is checked on both token-issue *and* message-send (defense in depth), message length is schema-capped at 500 chars (`ChatPublishProxySchema`), and `/api/chat/message` (the Centrifugo publish-proxy webhook) is gated to internal-network-only callers via `isTrustedInternalRequest` (SEC-007 — was previously reachable from the public internet, already fixed). The join-vs-publish Redis-cache fail-open/fail-closed split is deliberate and documented in `chat-captcha.ts`. No gaps found.
 - [ ] Radio parity + overlays
 - [x] Smart link + collection OG/share — release (`/r/*`) already had bot-facing OG; added the same for collections (`GET /api/og/collection/:slug` in `tahti/apps/api`, plus a matching nginx bot-proxy location for `/u/:username/c/:slug`). Verified: 10/10 API tests passing against a real disposable Postgres, and the nginx rewrite/precedence logic confirmed live against a real nginx container (bot UA → correct `collection:$slug` match, real browser UA → unaffected SPA fallback, an extra path segment matches neither location).
-- [ ] Venues list + register (if P0)
+- [x] Venues list + register — `/venues`, `/venues/register`, `/v/:slug` all live-API, path matches prod
 - [ ] Embed players offline/third-party site test
 
 ### 2.2 Auth / account

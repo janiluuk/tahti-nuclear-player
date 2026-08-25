@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 
+import { TahtiMapLink } from '../components/TahtiMapLink';
 import { getLegalPage, LEGAL_HUB_LINKS } from '../content/legal';
 
 const PRODUCTION = 'https://tahti.live';
@@ -23,12 +24,7 @@ export function LegalView({ slug }: { slug: string }) {
   if (!page) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col gap-4">
-        <Link
-          to="/more"
-          className="text-foreground-secondary text-xs hover:underline"
-        >
-          ← Tahti map
-        </Link>
+        <TahtiMapLink />
         <h1 className="font-display text-2xl font-bold">Page not found</h1>
       </div>
     );
@@ -36,12 +32,7 @@ export function LegalView({ slug }: { slug: string }) {
 
   return (
     <article className="mx-auto flex max-w-3xl flex-col gap-6">
-      <Link
-        to="/more"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Tahti map
-      </Link>
+      <TahtiMapLink />
       <header className="flex flex-col gap-2">
         <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {page.title}

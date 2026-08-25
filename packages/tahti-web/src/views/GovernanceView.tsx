@@ -11,6 +11,7 @@ import {
   type MotionComment,
 } from '../api/client';
 import type { GovernanceMotion } from '../api/types';
+import { TahtiMapLink } from '../components/TahtiMapLink';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
@@ -69,12 +70,7 @@ export function GovernanceView() {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <Link
-        to="/more"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Tahti map
-      </Link>
+      <TahtiMapLink />
       <div>
         <h1 className="font-display text-3xl font-extrabold tracking-tight">
           Governance

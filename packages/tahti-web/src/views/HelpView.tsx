@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 
 import { SupportContactForm } from '../components/SupportContactForm';
+import { TahtiMapLink } from '../components/TahtiMapLink';
 import { getHelpArticle, HELP_ARTICLES, HELP_HUB_INTRO } from '../content/help';
 
 const PRODUCTION = 'https://tahti.live';
@@ -8,12 +9,7 @@ const PRODUCTION = 'https://tahti.live';
 export function HelpHubView() {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <Link
-        to="/more"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Tahti map
-      </Link>
+      <TahtiMapLink />
       <div>
         <h1 className="font-display text-3xl font-extrabold tracking-tight">
           Help center
