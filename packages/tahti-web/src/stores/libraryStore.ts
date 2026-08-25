@@ -36,6 +36,11 @@ const MAX_HISTORY = 80;
 const STORAGE_PREFIX = 'tahti-web:library';
 
 let activeScope = 'anon';
+// While `rehydrateLibraryForUser` clears in-memory state to avoid flashing
+// the previous scope's data, that clear must not itself get persisted —
+// otherwise it wipes the *new* scope's real storage before `persist.rehydrate()`
+// gets a chance to read it back. See `rehydrateLibraryForUser`.
+let suspendPersistWrites = false;
 
 const scopedStorage = createJSONStorage(() => ({
   getItem: (name) => {
@@ -53,8 +58,12 @@ const scopedStorage = createJSONStorage(() => ({
     }
     return null;
   },
-  setItem: (name, value) =>
-    localStorage.setItem(`${name}:${activeScope}`, value),
+  setItem: (name, value) => {
+    if (suspendPersistWrites) {
+      return;
+    }
+    localStorage.setItem(`${name}:${activeScope}`, value);
+  },
   removeItem: (name) => localStorage.removeItem(`${name}:${activeScope}`),
 }));
 
@@ -175,6 +184,10 @@ export async function rehydrateLibraryForUser(userId: string | null) {
     return;
   }
   activeScope = nextScope;
+  // Clear in-memory state so the UI doesn't flash the previous scope's data
+  // while rehydrate is in flight — suspended so this reset itself doesn't
+  // get written to the new scope's storage ahead of the real rehydrate read.
+  suspendPersistWrites = true;
   useLibraryStore.setState({
     scopeKey: nextScope,
     favoriteChannels: [],
@@ -182,6 +195,7 @@ export async function rehydrateLibraryForUser(userId: string | null) {
     history: [],
     syncNote: null,
   });
+  suspendPersistWrites = false;
   await useLibraryStore.persist.rehydrate();
   useLibraryStore.setState({ scopeKey: nextScope });
 }

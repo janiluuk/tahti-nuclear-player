@@ -15,7 +15,14 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Badge, Button, Card, CardGrid, MediaArtwork } from '@nuclearplayer/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardGrid,
+  FavoriteButton,
+  MediaArtwork,
+} from '@nuclearplayer/ui';
 
 import {
   COMMON_STATIONS,
@@ -67,6 +74,7 @@ import {
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
+import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
@@ -103,6 +111,8 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   const user = useAuthStore((s) => s.user);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
+  const isFavoriteTrack = useLibraryStore((s) => s.isFavoriteTrack);
   const navigate = useNavigate();
 
   const selected =
@@ -1345,6 +1355,12 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                       )
                     }
                     queueLabel="Queue"
+                    onFavorite={() =>
+                      toggleFavoriteTrack(
+                        playableFromRadioStation(radioStation, radioNowPlaying),
+                      )
+                    }
+                    favorited={isFavoriteTrack(`radio:${radioStation.id}`)}
                     className="border-border shrink-0 rounded border"
                   />
                   <div className="min-w-0 flex-1">
@@ -1398,18 +1414,30 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                 {radioResults.length > 0 && (
                   <ul className="flex flex-col gap-1.5">
                     {radioResults.map((s) => (
-                      <li key={s.id}>
+                      <li
+                        key={s.id}
+                        className="border-border hover:bg-background-secondary flex items-center gap-1 rounded-md border pr-1"
+                      >
                         <button
                           type="button"
-                          className="border-border hover:bg-background-secondary flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-sm"
+                          className="flex min-w-0 flex-1 items-center justify-between px-3 py-2 text-left text-sm"
                           onClick={() => openRadioStation(s)}
                         >
                           <span className="truncate">{s.name}</span>
-                          <span className="text-foreground-secondary shrink-0 text-xs">
+                          <span className="text-foreground-secondary ml-2 shrink-0 text-xs">
                             {s.codec}
                             {s.bitrateKbps ? ` ${s.bitrateKbps}kbps` : ''}
                           </span>
                         </button>
+                        <FavoriteButton
+                          size="sm"
+                          isFavorite={isFavoriteTrack(`radio:${s.id}`)}
+                          onToggle={() =>
+                            toggleFavoriteTrack(playableFromRadioStation(s))
+                          }
+                          ariaLabelAdd={`Add ${s.name} to library`}
+                          ariaLabelRemove={`Remove ${s.name} from library`}
+                        />
                       </li>
                     ))}
                   </ul>
@@ -1422,17 +1450,29 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                 </h3>
                 <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                   {COMMON_STATIONS.map((s) => (
-                    <li key={s.id}>
+                    <li
+                      key={s.id}
+                      className="border-border hover:bg-background-secondary flex items-center gap-1 rounded-md border pr-1"
+                    >
                       <button
                         type="button"
-                        className="border-border hover:bg-background-secondary flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-sm"
+                        className="flex min-w-0 flex-1 items-center justify-between px-3 py-2 text-left text-sm"
                         onClick={() => openRadioStation(s)}
                       >
                         <span className="truncate">{s.name}</span>
-                        <span className="text-foreground-secondary shrink-0 text-xs">
+                        <span className="text-foreground-secondary ml-2 shrink-0 text-xs">
                           {s.tags?.[0]}
                         </span>
                       </button>
+                      <FavoriteButton
+                        size="sm"
+                        isFavorite={isFavoriteTrack(`radio:${s.id}`)}
+                        onToggle={() =>
+                          toggleFavoriteTrack(playableFromRadioStation(s))
+                        }
+                        ariaLabelAdd={`Add ${s.name} to library`}
+                        ariaLabelRemove={`Remove ${s.name} from library`}
+                      />
                     </li>
                   ))}
                 </ul>
