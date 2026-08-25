@@ -124,7 +124,7 @@ export function ArtistView({ username }: { username: string }) {
   } | null>(null);
   const [channelVisual, setChannelVisual] = useState<Pick<
     PublicChannel,
-    'visualPreset' | 'colorScheme' | 'colorSchemeJson'
+    'visualPreset' | 'colorScheme' | 'colorSchemeJson' | 'hlsUrl'
   > | null>(null);
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -213,6 +213,7 @@ export function ArtistView({ username }: { username: string }) {
           visualPreset: res.data.visualPreset,
           colorScheme: res.data.colorScheme,
           colorSchemeJson: res.data.colorSchemeJson,
+          hlsUrl: res.data.hlsUrl,
         });
         setDiscoWidgets(widgets.data);
       },
@@ -484,7 +485,7 @@ export function ArtistView({ username }: { username: string }) {
         ) : null}
         <DiscoWidgetsSection widgets={discoWidgets} />
         <div className="mt-2 flex flex-wrap gap-3 text-sm">
-          {channel && channel.state !== 'OFFLINE' && (
+          {channel && channelVisual?.hlsUrl && (
             <Link
               to="/channel/$slug"
               params={{ slug: channel.slug }}
