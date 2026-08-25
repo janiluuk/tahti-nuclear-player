@@ -22,8 +22,8 @@ import {
   parseGenreTags,
 } from '../lib/genres';
 import { takePendingArtistKind } from '../lib/pendingArtistKind';
+import { useThemeStore, type ColorMode } from '../plugins/themes';
 import { useAuthStore } from '../stores/authStore';
-import { useThemeStore, type ColorMode } from '../stores/themeStore';
 
 const APPEARANCE_OPTIONS: Array<{
   id: ColorMode;

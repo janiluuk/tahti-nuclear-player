@@ -15,8 +15,8 @@ import type {
 } from '../api/types';
 import { AudioEngine } from '../components/AudioEngine';
 import { ConnectedPlayerBar } from '../components/ConnectedPlayerBar';
+import { useThemeStore } from '../plugins/themes';
 import { usePlayerStore } from '../stores/playerStore';
-import { useThemeStore } from '../stores/themeStore';
 
 function EmbedChrome({ children }: { children: ReactNode }) {
   useEffect(() => {

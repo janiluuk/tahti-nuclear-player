@@ -49,7 +49,7 @@
             dark = hour < 7 || hour >= 19;
           } else if (dark == null) {
             // No preference stored anywhere yet — match the OS like the
-            // store's own first-run default (stores/themeStore.ts merge()).
+            // store's own first-run default (plugins/themes/store.ts merge()).
             dark =
               !!window.matchMedia &&
               window.matchMedia('(prefers-color-scheme: dark)').matches;

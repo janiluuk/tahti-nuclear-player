@@ -6,8 +6,8 @@ import '@nuclearplayer/tailwind-config';
 import '@nuclearplayer/themes';
 import '@nuclearplayer/ui';
 
+import { useThemeStore } from './plugins/themes';
 import { router } from './router';
-import { useThemeStore } from './stores/themeStore';
 
 import './styles.css';
 

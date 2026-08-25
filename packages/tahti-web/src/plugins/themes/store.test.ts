@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isDynamicDark } from './themeStore';
+import { isDynamicDark } from './store';
 
 describe('isDynamicDark', () => {
   it.each([

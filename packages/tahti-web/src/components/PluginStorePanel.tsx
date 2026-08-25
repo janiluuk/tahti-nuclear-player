@@ -35,8 +35,8 @@ import {
 } from '../content/pluginStoreCategories';
 import { EXPORT_TARGETS } from '../lib/exportTargets';
 import { ALL_PLUGIN_IDS, PLUGIN_META } from '../lib/proEditorPlugins';
+import { useThemeStore } from '../plugins/themes';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
-import { useThemeStore } from '../stores/themeStore';
 
 const VISUALIZER_DESCRIPTIONS: Record<string, string> = {
   MINIMAL: 'A quiet baseline — subtle motion, no distraction.',

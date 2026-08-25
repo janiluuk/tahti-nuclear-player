@@ -28,8 +28,8 @@ import {
   weekdayLabelsShort,
   type RangePresetId,
 } from '../../lib/historyStats';
+import { useThemeStore } from '../../plugins/themes';
 import type { HistoryEntry } from '../../stores/libraryStore';
-import { useThemeStore } from '../../stores/themeStore';
 
 const TOP_LIST_SIZE = 10;
 

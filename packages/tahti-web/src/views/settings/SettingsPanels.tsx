@@ -128,12 +128,12 @@ import {
   parseGenreTags,
 } from '../../lib/genres';
 import { membershipStatusLabel } from '../../lib/membershipStatus';
+import { useThemeStore } from '../../plugins/themes';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useListenerWidgetsStore } from '../../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../../stores/playerStore';
 import { useSettingsModalStore } from '../../stores/settingsModalStore';
-import { useThemeStore } from '../../stores/themeStore';
 import { WhatsNewPanel } from '../WhatsNewView';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
 import { SETTINGS_NAV, type SettingsSectionId } from './settingsNav';
