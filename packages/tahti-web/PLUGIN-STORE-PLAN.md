@@ -7,21 +7,23 @@ run — it's a navigation/launcher layer over the existing implementations.
 This doc maps where each one lives today and what actually extracting it
 into a standalone, removable plugin would take.
 
+See [`docs/PLUGINS.md`](docs/PLUGINS.md) for the contract the three
+extractions below follow, and the pattern to use for the remaining four.
+
 Ranked by extraction cost (cheapest first):
 
-## 1. Themes — cheapest, do first
+## 1. Themes — DONE
 
-- **Lives**: `src/stores/themeStore.ts` (275 lines). `listBasicThemes()`
-  comes from `@nuclearplayer/themes`; custom themes are user-imported JSON
-  in `customThemes: Record<string, AdvancedTheme>`.
-- **Settings today**: `src/views/ThemesView.tsx` + `ThemesPanel` in
-  `SettingsPanels.tsx`.
-- **Already plugin-shaped**: yes, closest of all 7 to a real registry —
-  `importCustomTheme`/`removeCustomTheme` is already dynamic add/remove.
-- **What extraction means**: package `themeStore` + `ThemesView` as
-  `@tahti/plugin-themes`, keep the store's public interface
-  (`themeId`, `setTheme`, `importCustomTheme`) as the plugin contract. Low
-  risk — 7 importers, no deep coupling elsewhere.
+- **Lives**: `src/plugins/themes/store.ts` (moved from `src/stores/themeStore.ts`
+  unchanged — same public interface). `listBasicThemes()` comes from
+  `@nuclearplayer/themes`; custom themes are user-imported JSON in
+  `customThemes: Record<string, AdvancedTheme>`.
+- **Settings today**: `ThemesPanel` in `SettingsPanels.tsx`. The old
+  `src/views/ThemesView.tsx` was found to be dead code (nothing routed to
+  it — a stale duplicate of `ThemesPanel` missing the custom-theme
+  import/remove UI) and deleted rather than moved.
+- **Extraction done**: relocated to `src/plugins/themes/`, all 6 call
+  sites updated to the new import path. No behavior change.
 
 ## 2. Audio plugins (Pro Editor chain) — second cheapest
 
@@ -41,19 +43,27 @@ Ranked by extraction cost (cheapest first):
   shrink that 1173-line file; a real "audio plugin store" would need a
   generic plugin-chain host component factored out of it first.
 
-## 3. Multicast (RTMP targets)
+## 3. Multicast (RTMP targets) — partially done
 
-- **Lives**: `src/api/broadcast.ts` (578 lines) — `RtmpTarget` CRUD.
-- **Settings today**: `StudioGoLiveView.tsx` (multistream section) and a
-  duplicated subset UI in `StreamManagerPanel.tsx`.
-- **Already plugin-shaped**: partially — each target is already an
-  independent, enable/disable-able instance, but `provider` is a free-text
-  string, not a typed per-provider config (no distinct YouTube vs Twitch
-  fields).
-- **What extraction means**: define a `MulticastProvider` type (id, label,
-  config schema) and make `RtmpTarget.provider` reference one, instead of
-  free text. Real work is de-duplicating the two settings UIs into one
-  before anything can be called a clean plugin surface.
+- **Lives**: `src/api/broadcast.ts` (578 lines) — `RtmpTarget` CRUD — plus
+  the new `src/plugins/multicast/` (`MulticastProvider` type + a typed
+  registry of the 8 providers the API actually supports).
+- **Settings today**: `StudioGoLiveView.tsx` (multistream section, now
+  sourcing its provider dropdown + display labels from the registry) and
+  `StreamManagerPanel.tsx` (read-only target list, same registry for
+  labels).
+- **Done this pass**: the registry itself, built from
+  `PROVIDER_RTMP_URLS` in `tahti-org/apps/api/src/routes/me/rtmp-targets.ts`
+  (the real source of truth) rather than guessed — which caught a real
+  drift bug: the frontend dropdown only offered
+  YOUTUBE/TWITCH/KICK/FACEBOOK/CUSTOM while the API has supported TIKTOK,
+  MIXCLOUD_LIVE, and INSTAGRAM with no way to pick them in the UI. Fixed.
+- **Still open**: `RtmpTarget.provider` on the wire/type is still a plain
+  `string`, not typed against `MulticastProvider['id']`, and
+  `StudioGoLiveView`'s add-destination form and `StreamManagerPanel`'s
+  display are still two separate components reading the same registry
+  rather than one shared host UI — de-duplicating those is the remaining
+  "real work" this doc originally flagged.
 
 ## 4. Export
 
@@ -90,20 +100,23 @@ Ranked by extraction cost (cheapest first):
   one file into one module per source behind a common
   `ImportSourcePlugin` interface (start/status/import).
 
-## 6. Fingerprinting
+## 6. Fingerprinting — DONE (interface only, still one provider)
 
-- **Lives**: `src/api/studio.ts` — `runTrackFingerprint`/
-  `refingerprintTrack`/`checkTrackFingerprint`, AcoustID hardcoded, no
-  abstraction for a second provider.
+- **Lives**: `src/plugins/fingerprinting/` — `FingerprintProvider`
+  interface (`match`/`check`) plus `acoustIdProvider`, which wraps the
+  existing `runTrackFingerprint`/`refingerprintTrack`/`checkTrackFingerprint`
+  calls in `src/api/studio.ts` (left in place — they share that file's
+  `requestJson`/mock-fallback plumbing with the rest of the studio API
+  surface, not worth pulling out on their own).
 - **Settings today**: none — `FingerprintTrackPanel.tsx` (117 lines) is a
   per-track action widget on `StudioReleaseDetailView.tsx`, not a Settings
-  surface. `PluginStorePanel`'s fingerprinting tab is the first place this
-  is browsable at all.
-- **Already plugin-shaped**: no — single hardcoded provider.
-- **What extraction means**: lowest priority (no user-facing multiplicity
-  to justify it yet) unless/until a second provider is planned. If one is,
-  define a `FingerprintProvider` interface (`match(audio) → candidates`)
-  before adding it, rather than hardcoding a second `if`.
+  surface, and now calls `acoustIdProvider.match`/`.check` instead of the
+  raw functions. `PluginStorePanel`'s fingerprinting tab is the first place
+  this is browsable at all.
+- **Extraction done**: the interface exists now, so a second provider is a
+  sibling module implementing it, not a branch inside `runTrackFingerprint`.
+  Still only one provider (`acoustIdProvider`) — that was true before this
+  pass too, nothing user-facing changed.
 
 ## 7. Visualizers
 
@@ -129,16 +142,25 @@ Ranked by extraction cost (cheapest first):
 1. **Now** — done: `PluginStorePanel` browses all 7 via existing data,
    no main-codebase changes.
 2. **Quick wins** (each independent, no dependency on the others):
-   delete `IMPORT_SERVICES` duplication in favor of `SOURCE_DEFS`;
-   extract `themeStore`+`ThemesView` as a standalone package.
+   - DONE — `themeStore` extracted to `src/plugins/themes/` (§1), dead
+     `ThemesView.tsx` deleted rather than moved.
+   - DONE — `MulticastProvider` registry extracted to
+     `src/plugins/multicast/` (§3), fixing a real provider-list drift bug
+     in the process. `RtmpTarget.provider` typing + UI de-dup still open.
+   - DONE — `FingerprintProvider` interface extracted to
+     `src/plugins/fingerprinting/` (§6), wrapping the existing AcoustID
+     calls.
+   - Still open: delete `IMPORT_SERVICES` duplication in favor of
+     `SOURCE_DEFS` (§5's quick win, independent of the larger Import
+     extraction below).
 3. **Medium**: lift `proEditorPlugins.ts`+`audioPreviewGraph.ts` as a
    package once (and only once) a generic plugin-chain host component is
    factored out of `StudioProEditorView.tsx` — don't extract the registry
    while its only consumer is still one 1173-line view.
-4. **Design work before code**: Export and Fingerprinting have no real
-   per-implementation behavior to extract yet — write the
-   `ExportProvider`/`FingerprintProvider` interfaces first, implement
-   AcoustID/Revelator against them, *then* extract.
+4. **Design work before code**: Export has no real per-implementation
+   behavior to extract yet — write the `ExportProvider` interface first,
+   implement Revelator against it, *then* extract (Fingerprinting's
+   `FingerprintProvider` half of this item is done, see §6).
 5. **Largest, do last**: Import (993 lines, 7 importers) and Visualizers
    (a real per-preset WebGL refactor) — both need internal restructuring
    before "remove from main codebase" is even meaningful, not just a file
