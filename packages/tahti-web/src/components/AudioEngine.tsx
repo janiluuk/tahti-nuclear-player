@@ -29,6 +29,7 @@ export function AudioEngine() {
   const setProgress = usePlayerStore((s) => s.setProgress);
   const clearSeekTarget = usePlayerStore((s) => s.clearSeekTarget);
   const next = usePlayerStore((s) => s.next);
+  const previous = usePlayerStore((s) => s.previous);
   const setAnalyser = usePlayerStore((s) => s.setAnalyser);
 
   const current = queue.find((q) => q.id === currentId) ?? null;
@@ -42,6 +43,54 @@ export function AudioEngine() {
     audio.volume = volume;
     audio.muted = muted;
   }, [volume, muted]);
+
+  // OS-level media controls (lock screen, notification, headset/keyboard
+  // media keys) — matches Nuclear desktop's official MediaSession plugin,
+  // which had no equivalent here at all before this.
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) {
+      return;
+    }
+    navigator.mediaSession.setActionHandler('play', () => setStatus('playing'));
+    navigator.mediaSession.setActionHandler('pause', () => setStatus('paused'));
+    navigator.mediaSession.setActionHandler('previoustrack', () => previous());
+    navigator.mediaSession.setActionHandler('nexttrack', () => next());
+    return () => {
+      navigator.mediaSession.setActionHandler('play', null);
+      navigator.mediaSession.setActionHandler('pause', null);
+      navigator.mediaSession.setActionHandler('previoustrack', null);
+      navigator.mediaSession.setActionHandler('nexttrack', null);
+    };
+  }, [setStatus, previous, next]);
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) {
+      return;
+    }
+    if (!playable) {
+      navigator.mediaSession.metadata = null;
+      return;
+    }
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: playable.title,
+      artist: playable.artist,
+      artwork: playable.coverUrl
+        ? [{ src: playable.coverUrl, sizes: '512x512', type: 'image/jpeg' }]
+        : [],
+    });
+  }, [playable]);
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) {
+      return;
+    }
+    navigator.mediaSession.playbackState =
+      status === 'playing'
+        ? 'playing'
+        : status === 'paused'
+          ? 'paused'
+          : 'none';
+  }, [status]);
 
   // Shared AnalyserNode for channel WebGL / bar visualizers.
   useEffect(() => {
