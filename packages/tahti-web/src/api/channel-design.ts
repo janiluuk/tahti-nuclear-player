@@ -70,6 +70,19 @@ export const isVisualPreset = (value: string): value is VisualPreset =>
 export const HEADER_STYLES = ['GRADIENT', 'SOLID', 'VIDEO_LOOP'] as const;
 export type HeaderStyle = (typeof HEADER_STYLES)[number];
 
+/** Direct, HTTPS-served .mp4/.webm file only — VIDEO_LOOP renders a raw
+ * <video> element, so (unlike the backend's broader Gallery & backdrop
+ * feature, which also allows YouTube/Vimeo links for that separate,
+ * iframe-embedded use) it needs a file the browser can actually decode. */
+const HEADER_VIDEO_URL_PATTERN = /^https:\/\/\S+\.(mp4|webm)(\?\S*)?$/i;
+
+export function isValidHeaderVideoUrl(url: string | null | undefined): boolean {
+  if (!url) {
+    return false;
+  }
+  return HEADER_VIDEO_URL_PATTERN.test(url.trim());
+}
+
 export const BRAND_ACCENTS = [
   {
     id: 'aurora',
@@ -139,6 +152,9 @@ export type ChannelVisual = {
   colorSchemeJson: string | null;
   visualSettingsJson?: string | null;
   headerStyle: HeaderStyle | string;
+  /** Reused from the backend's Channel.videoBackgroundUrl column — plays as
+   * the VIDEO_LOOP header style. Must be a direct .mp4/.webm URL. */
+  videoBackgroundUrl?: string | null;
   brandAccentPreset: string | null;
   slideshowPreset?: string | null;
   slideshowIntervalSeconds?: number;
@@ -212,6 +228,7 @@ let mockVisual: ChannelVisual = {
     muted: '#64748B',
   }),
   headerStyle: 'GRADIENT',
+  videoBackgroundUrl: null,
   brandAccentPreset: 'aurora',
   slideshowPreset: 'FADE',
   slideshowIntervalSeconds: 8,
@@ -253,6 +270,7 @@ export async function patchChannelVisual(patch: {
   colorScheme?: ColorScheme | null;
   visualSettings?: VisualSettingsMap | null;
   headerStyle?: string;
+  videoBackgroundUrl?: string | null;
   brandAccentPreset?: string | null;
 }): Promise<{ ok: true; data: ChannelVisual } | { ok: false; error: string }> {
   if (forceMock()) {
@@ -263,6 +281,9 @@ export async function patchChannelVisual(patch: {
         : {}),
       ...(patch.headerStyle !== undefined
         ? { headerStyle: patch.headerStyle }
+        : {}),
+      ...(patch.videoBackgroundUrl !== undefined
+        ? { videoBackgroundUrl: patch.videoBackgroundUrl }
         : {}),
       ...(patch.brandAccentPreset !== undefined
         ? { brandAccentPreset: patch.brandAccentPreset }

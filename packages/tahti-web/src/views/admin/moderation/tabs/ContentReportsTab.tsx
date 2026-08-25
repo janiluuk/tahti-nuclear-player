@@ -7,10 +7,8 @@ import {
   resolveContentReport,
   type AdminContentReportRow,
   type AdminContentReportStatus,
-} from '../../api/admin';
-import { AdminGate } from '../../components/AdminGate';
-import { AdminNav } from '../../components/AdminNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+} from '../../../../api/admin';
+import { StudioPanel } from '../../../../components/StudioPanel';
 
 const FILTERS: { id: AdminContentReportStatus | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -93,7 +91,10 @@ function ReportActions({
   );
 }
 
-export function AdminContentReportsView() {
+/** Content reports tab — ported as-is from the standalone admin route (see
+ * AdminModerationView). Anonymous reports of channels, releases, archive
+ * items, and collections — reporting needs no account. */
+export function ContentReportsTab() {
   const [filter, setFilter] = useState<AdminContentReportStatus | 'all'>(
     'OPEN',
   );
@@ -113,66 +114,63 @@ export function AdminContentReportsView() {
   useEffect(reload, [filter]);
 
   return (
-    <AdminGate>
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/content-reports" />
-        <StudioPageHeader
-          title="Content reports"
-          subtitle="Anonymous reports of channels, releases, archive items, and collections — reporting needs no account."
-        />
+    <div className="flex flex-col gap-4">
+      <p className="text-foreground-secondary text-sm">
+        Anonymous reports of channels, releases, archive items, and collections
+        — reporting needs no account.
+      </p>
 
-        <nav className="flex flex-wrap gap-2" role="tablist">
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              role="tab"
-              aria-selected={filter === f.id}
-              onClick={() => setFilter(f.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-                filter === f.id
-                  ? 'bg-primary text-foreground shadow-sm'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </nav>
+      <nav className="flex flex-wrap gap-2" role="tablist">
+        {FILTERS.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            role="tab"
+            aria-selected={filter === f.id}
+            onClick={() => setFilter(f.id)}
+            className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
+              filter === f.id
+                ? 'bg-primary text-foreground shadow-sm'
+                : 'border-border text-foreground-secondary hover:text-foreground border'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </nav>
 
-        <StudioPanel>
-          {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
-          ) : reports.length === 0 ? (
-            <p className="text-foreground-secondary py-4 text-center text-sm">
-              No reports in this view.
-            </p>
-          ) : (
-            <ul className="divide-border divide-y">
-              {reports.map((r) => (
-                <li
-                  key={r.id}
-                  className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium">
-                      {r.reason.replace(/_/g, ' ')} ·{' '}
-                      <span className="text-foreground-secondary font-normal">
-                        {r.targetType.replace(/_/g, ' ').toLowerCase()}
-                      </span>
-                    </div>
-                    <div className="text-foreground-secondary text-xs">
-                      {r.details ?? 'No details provided'} ·{' '}
-                      {new Date(r.createdAt).toLocaleDateString()}
-                    </div>
+      <StudioPanel>
+        {loading ? (
+          <p className="text-foreground-secondary text-sm">Loading…</p>
+        ) : reports.length === 0 ? (
+          <p className="text-foreground-secondary py-4 text-center text-sm">
+            No reports in this view.
+          </p>
+        ) : (
+          <ul className="divide-border divide-y">
+            {reports.map((r) => (
+              <li
+                key={r.id}
+                className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium">
+                    {r.reason.replace(/_/g, ' ')} ·{' '}
+                    <span className="text-foreground-secondary font-normal">
+                      {r.targetType.replace(/_/g, ' ').toLowerCase()}
+                    </span>
                   </div>
-                  <ReportActions report={r} onDone={reload} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </StudioPanel>
-      </div>
-    </AdminGate>
+                  <div className="text-foreground-secondary text-xs">
+                    {r.details ?? 'No details provided'} ·{' '}
+                    {new Date(r.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+                <ReportActions report={r} onDone={reload} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </StudioPanel>
+    </div>
   );
 }

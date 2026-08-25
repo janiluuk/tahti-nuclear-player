@@ -423,6 +423,8 @@ export function mockChannel(slug: string): PublicChannel {
     hlsUrl: live ? DEMO_HLS : null,
     chatEnabled: true,
     visualPreset: isRadio ? 'REACTIVE_GRID' : 'AURORA',
+    headerStyle: 'GRADIENT',
+    videoBackgroundUrl: null,
     colorSchemeJson: JSON.stringify({
       accent: content.colorAccent,
       highlight: content.colorHighlight,
@@ -742,6 +744,7 @@ export function mockProfile(username: string): PublicProfile {
       releaseSlug: releaseSlugFor(
         Math.floor(i / 2) % Math.max(releases.length, 1),
       ),
+      createdAt: a.createdAt,
       pinned: Boolean(a.pinnedAt),
       pinnedAt: a.pinnedAt ?? null,
     })),
@@ -970,6 +973,7 @@ export function archiveItemToPlayable(
     channelSlug,
     sourceProvider: item.sourceProvider ?? 'tahti',
     durationSec: item.durationSec,
+    releaseDate: item.createdAt ?? null,
   };
 }
 

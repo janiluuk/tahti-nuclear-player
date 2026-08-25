@@ -80,6 +80,7 @@ function releaseToPlayable(
     streamUrl: track.playUrl,
     protocol: isHls ? 'hls' : 'https',
     channelSlug,
+    releaseDate: release.releaseDate ?? null,
   };
 }
 
@@ -103,6 +104,7 @@ export function profileTrackToPlayable(
     streamUrl: track.playUrl,
     protocol: isHls ? 'hls' : 'https',
     channelSlug,
+    releaseDate: track.createdAt ?? null,
   };
 }
 
@@ -124,7 +126,7 @@ export function ArtistView({ username }: { username: string }) {
   } | null>(null);
   const [channelVisual, setChannelVisual] = useState<Pick<
     PublicChannel,
-    'visualPreset' | 'colorScheme' | 'colorSchemeJson'
+    'visualPreset' | 'colorScheme' | 'colorSchemeJson' | 'hlsUrl'
   > | null>(null);
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -213,6 +215,7 @@ export function ArtistView({ username }: { username: string }) {
           visualPreset: res.data.visualPreset,
           colorScheme: res.data.colorScheme,
           colorSchemeJson: res.data.colorSchemeJson,
+          hlsUrl: res.data.hlsUrl,
         });
         setDiscoWidgets(widgets.data);
       },
@@ -484,7 +487,7 @@ export function ArtistView({ username }: { username: string }) {
         ) : null}
         <DiscoWidgetsSection widgets={discoWidgets} />
         <div className="mt-2 flex flex-wrap gap-3 text-sm">
-          {channel && channel.state !== 'OFFLINE' && (
+          {channel && channelVisual?.hlsUrl && (
             <Link
               to="/channel/$slug"
               params={{ slug: channel.slug }}
@@ -646,7 +649,6 @@ export function ArtistView({ username }: { username: string }) {
                     src={track.bannerUrl ?? placeholderArtworkUrl(track.id)}
                     glowColor={GLOW_COLORS[i % GLOW_COLORS.length]}
                     onPlay={() => play(playable)}
-                    onQueue={() => enqueue(playable)}
                     onFavorite={() => toggleFavoriteTrack(playable)}
                     favorited={favoriteTracks.some((t) => t.id === playable.id)}
                   />
@@ -698,18 +700,6 @@ export function ArtistView({ username }: { username: string }) {
                               release,
                               artist.displayName,
                               channel?.slug,
-                            )
-                        : undefined
-                    }
-                    onQueue={
-                      playable
-                        ? () =>
-                            queueAlbum(
-                              releasePlayables(
-                                release,
-                                artist.displayName,
-                                channel?.slug,
-                              ),
                             )
                         : undefined
                     }

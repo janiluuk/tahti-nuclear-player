@@ -1679,6 +1679,7 @@ export function forceStreamOffline(slug: string) {
 // ── Support ─────────────────────────────────────────────────────────────────
 
 export type AdminSupportStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED';
+export type AdminSupportNoteKind = 'MESSAGE' | 'STATUS_CHANGE';
 
 export type AdminSupportTicket = {
   id: string;
@@ -1686,11 +1687,28 @@ export type AdminSupportTicket = {
   category: string;
   status: AdminSupportStatus;
   artistUsername: string | null;
+  artistDisplayName: string | null;
   contactEmail: string | null;
   createdAt: string;
 };
 
-function mockSupportTickets(): AdminSupportTicket[] {
+/** One row of a ticket's activity trail — a board reply, or an automatic
+ * record of a status transition. Rendered together, oldest first. */
+export type AdminSupportNote = {
+  id: string;
+  body: string;
+  kind: AdminSupportNoteKind;
+  authorId: string | null;
+  authorDisplayName: string | null;
+  createdAt: string;
+};
+
+export type AdminSupportTicketDetail = AdminSupportTicket & {
+  message: string;
+  notes: AdminSupportNote[];
+};
+
+function mockSupportTickets(): AdminSupportTicketDetail[] {
   return [
     {
       id: 'tkt-1',
@@ -1698,8 +1716,12 @@ function mockSupportTickets(): AdminSupportTicket[] {
       category: 'broadcast',
       status: 'OPEN',
       artistUsername: 'dj-moonlight',
+      artistDisplayName: 'DJ Moonlight',
       contactEmail: null,
       createdAt: '2026-08-16T10:00:00.000Z',
+      message:
+        'OBS keeps disconnecting from the Twitch multistream target after ~2 minutes. Stream key looks right.',
+      notes: [],
     },
     {
       id: 'tkt-2',
@@ -1707,8 +1729,28 @@ function mockSupportTickets(): AdminSupportTicket[] {
       category: 'billing',
       status: 'IN_PROGRESS',
       artistUsername: 'midnight-cartography',
+      artistDisplayName: 'Midnight Cartography',
       contactEmail: null,
       createdAt: '2026-08-15T09:00:00.000Z',
+      message: "My August fan-sub payout hasn't shown up in Stripe Connect.",
+      notes: [
+        {
+          id: 'note-1',
+          body: 'Status changed from OPEN to IN_PROGRESS',
+          kind: 'STATUS_CHANGE',
+          authorId: 'mock-board',
+          authorDisplayName: 'You',
+          createdAt: '2026-08-15T12:00:00.000Z',
+        },
+        {
+          id: 'note-2',
+          body: 'Checking with Stripe on the transfer — will update within a day.',
+          kind: 'MESSAGE',
+          authorId: 'mock-board',
+          authorDisplayName: 'You',
+          createdAt: '2026-08-15T12:05:00.000Z',
+        },
+      ],
     },
     {
       id: 'tkt-3',
@@ -1716,19 +1758,78 @@ function mockSupportTickets(): AdminSupportTicket[] {
       category: 'general',
       status: 'RESOLVED',
       artistUsername: null,
+      artistDisplayName: null,
       contactEmail: 'listener@example.com',
       createdAt: '2026-08-10T09:00:00.000Z',
+      message: 'Is there a way to rename my channel slug from settings?',
+      notes: [
+        {
+          id: 'note-3',
+          body: 'Settings → Channel & design → Username & domain.',
+          kind: 'MESSAGE',
+          authorId: 'mock-board',
+          authorDisplayName: 'You',
+          createdAt: '2026-08-10T10:00:00.000Z',
+        },
+        {
+          id: 'note-4',
+          body: 'Status changed from OPEN to RESOLVED',
+          kind: 'STATUS_CHANGE',
+          authorId: 'mock-board',
+          authorDisplayName: 'You',
+          createdAt: '2026-08-10T10:01:00.000Z',
+        },
+      ],
     },
   ];
 }
 
-export async function fetchAdminSupportTickets(
-  status?: AdminSupportStatus,
-): Promise<{ data: AdminSupportTicket[]; meta: FetchMeta }> {
+let mockSupportTicketsState: AdminSupportTicketDetail[] | null = null;
+
+function getMockSupportTickets(): AdminSupportTicketDetail[] {
+  if (!mockSupportTicketsState) {
+    mockSupportTicketsState = mockSupportTickets();
+  }
+  return mockSupportTicketsState;
+}
+
+function toSupportTicketRow(t: AdminSupportTicketDetail): AdminSupportTicket {
+  return {
+    id: t.id,
+    subject: t.subject,
+    category: t.category,
+    status: t.status,
+    artistUsername: t.artistUsername,
+    artistDisplayName: t.artistDisplayName,
+    contactEmail: t.contactEmail,
+    createdAt: t.createdAt,
+  };
+}
+
+export async function fetchAdminSupportTickets(params?: {
+  status?: AdminSupportStatus;
+  q?: string;
+}): Promise<{ data: AdminSupportTicket[]; meta: FetchMeta }> {
+  const status = params?.status;
+  const q = params?.q?.trim();
   if (forceMock()) {
-    const all = mockSupportTickets();
+    let data = getMockSupportTickets();
+    if (status) {
+      data = data.filter((t) => t.status === status);
+    }
+    if (q) {
+      const needle = q.toLowerCase();
+      data = data.filter(
+        (t) =>
+          t.subject.toLowerCase().includes(needle) ||
+          t.message.toLowerCase().includes(needle) ||
+          (t.artistUsername ?? '').toLowerCase().includes(needle) ||
+          (t.artistDisplayName ?? '').toLowerCase().includes(needle) ||
+          (t.contactEmail ?? '').toLowerCase().includes(needle),
+      );
+    }
     return {
-      data: status ? all.filter((t) => t.status === status) : all,
+      data: data.map(toSupportTicketRow),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
@@ -1737,12 +1838,104 @@ export async function fetchAdminSupportTickets(
     if (status) {
       qs.set('status', status);
     }
+    if (q) {
+      qs.set('q', q);
+    }
     const data = await getJson<{ tickets: AdminSupportTicket[] }>(
       `/api/admin/support/tickets?${qs.toString()}`,
     );
     return { data: data.tickets, meta: { source: 'api' } };
   } catch (err) {
     return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function fetchAdminSupportTicketDetail(
+  id: string,
+): Promise<{ data: AdminSupportTicketDetail | null; meta: FetchMeta }> {
+  if (forceMock()) {
+    const ticket = getMockSupportTickets().find((t) => t.id === id) ?? null;
+    return {
+      data: ticket,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminSupportTicketDetail>(
+      `/api/admin/support/tickets/${encodeURIComponent(id)}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export async function updateAdminSupportTicketStatus(
+  id: string,
+  status: AdminSupportStatus,
+): Promise<
+  { ok: true; data: AdminSupportTicketDetail } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const ticket = getMockSupportTickets().find((t) => t.id === id);
+    if (!ticket) {
+      return { ok: false, error: 'Ticket not found' };
+    }
+    if (ticket.status !== status) {
+      ticket.notes.push({
+        id: `note-${Date.now()}`,
+        body: `Status changed from ${ticket.status} to ${status}`,
+        kind: 'STATUS_CHANGE',
+        authorId: 'mock-board',
+        authorDisplayName: 'You',
+        createdAt: new Date().toISOString(),
+      });
+      ticket.status = status;
+    }
+    return { ok: true, data: ticket };
+  }
+  try {
+    const data = await sendJson<AdminSupportTicketDetail>(
+      `/api/admin/support/tickets/${encodeURIComponent(id)}`,
+      'PATCH',
+      { status },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Failed' };
+  }
+}
+
+export async function postAdminSupportTicketMessage(
+  id: string,
+  body: string,
+): Promise<
+  { ok: true; data: AdminSupportTicketDetail } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const ticket = getMockSupportTickets().find((t) => t.id === id);
+    if (!ticket) {
+      return { ok: false, error: 'Ticket not found' };
+    }
+    ticket.notes.push({
+      id: `note-${Date.now()}`,
+      body,
+      kind: 'MESSAGE',
+      authorId: 'mock-board',
+      authorDisplayName: 'You',
+      createdAt: new Date().toISOString(),
+    });
+    return { ok: true, data: ticket };
+  }
+  try {
+    const data = await sendJson<AdminSupportTicketDetail>(
+      `/api/admin/support/tickets/${encodeURIComponent(id)}/notes`,
+      'POST',
+      { body },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Failed' };
   }
 }
 
@@ -2012,6 +2205,21 @@ export type AdminStorageUserRow = {
   displayName: string;
   quotaBytes: number;
   usedBytes: number;
+  /** Paying/association-member accounts report unlimited storage — resolved
+   * server-side (see AdminStorageUsageRowSchema in tahti-org); render as-is,
+   * never re-derive from tier client-side. */
+  unlimited: boolean;
+};
+
+/** Free/used/total for a physical or billed storage backend. `totalBytes`/
+ * `freeBytes` are `null` when the backend has no fixed capacity to report
+ * (a usage-billed object store) or the reading failed (host statfs error);
+ * `note` carries the human-readable reason in that case. */
+export type AdminStorageDiskSpace = {
+  totalBytes: number | null;
+  freeBytes: number | null;
+  usedBytes: number | null;
+  note: string | null;
 };
 
 export type AdminStorageOverview = {
@@ -2019,6 +2227,13 @@ export type AdminStorageOverview = {
   totalUsedBytes: number;
   userCount: number;
   users: AdminStorageUserRow[];
+  /** The API host's local disk — also what the object-storage hot/streaming
+   * cache lives on. */
+  localDisk: AdminStorageDiskSpace;
+  /** The object-storage backend (MinIO/S3-compatible). Billed by usage on
+   * some providers, so totalBytes/freeBytes can be null even when usedBytes
+   * is a real, tracked figure. */
+  objectStorage: AdminStorageDiskSpace;
 };
 
 function mockStorageOverview(): AdminStorageOverview {
@@ -2029,6 +2244,7 @@ function mockStorageOverview(): AdminStorageOverview {
       displayName: 'DJ Moonlight',
       quotaBytes: 500 * 1024 * 1024,
       usedBytes: 412 * 1024 * 1024,
+      unlimited: false,
     },
     {
       userId: 'u-2',
@@ -2036,6 +2252,7 @@ function mockStorageOverview(): AdminStorageOverview {
       displayName: 'Midnight Cartography',
       quotaBytes: 500 * 1024 * 1024,
       usedBytes: 538 * 1024 * 1024,
+      unlimited: false,
     },
     {
       userId: 'u-3',
@@ -2043,6 +2260,9 @@ function mockStorageOverview(): AdminStorageOverview {
       displayName: 'Kaiku Collective',
       quotaBytes: 1024 * 1024 * 1024,
       usedBytes: 201 * 1024 * 1024,
+      // ARTIST-tier/association-member account — the backend resolves this
+      // to unlimited storage regardless of the numeric quotaBytes above.
+      unlimited: true,
     },
     {
       userId: 'u-4',
@@ -2050,13 +2270,27 @@ function mockStorageOverview(): AdminStorageOverview {
       displayName: 'Northern Lights',
       quotaBytes: 500 * 1024 * 1024,
       usedBytes: 89 * 1024 * 1024,
+      unlimited: false,
     },
   ];
+  const totalUsedBytes = users.reduce((s, u) => s + u.usedBytes, 0);
   return {
     totalQuotaBytes: users.reduce((s, u) => s + u.quotaBytes, 0),
-    totalUsedBytes: users.reduce((s, u) => s + u.usedBytes, 0),
+    totalUsedBytes,
     userCount: users.length,
     users,
+    localDisk: {
+      totalBytes: 500 * 1024 ** 3,
+      freeBytes: 120 * 1024 ** 3,
+      usedBytes: 380 * 1024 ** 3,
+      note: null,
+    },
+    objectStorage: {
+      totalBytes: null,
+      freeBytes: null,
+      usedBytes: totalUsedBytes,
+      note: 'Object storage is billed by usage, not a fixed volume — there is no total/free to report.',
+    },
   };
 }
 
@@ -2100,6 +2334,96 @@ export function setUserStorageQuota(userId: string, quotaBytes: number) {
   );
 }
 
+// ── Storage: per-user file drill-down ───────────────────────────────────────
+
+export type AdminStorageUserFile = {
+  id: string;
+  kind: 'archive' | 'stash';
+  title: string;
+  sizeBytes: number | null;
+  createdAt: string;
+  contentType: string | null;
+  isPublic: boolean | null;
+  /** Gates the play button — never inferred client-side, the backend already
+   * knows which content types/formats are audio. */
+  isAudio: boolean;
+  previewUrl: string | null;
+  /** Cumulative sizeBytes total up to and including this row (oldest-first). */
+  runningTotalBytes: number;
+};
+
+export type AdminStorageUserDetail = {
+  userId: string;
+  username: string;
+  displayName: string;
+  tier: 'FREE' | 'ARTIST' | 'STUDIO';
+  quotaBytes: number | null;
+  usedBytes: number;
+  unlimited: boolean;
+  files: AdminStorageUserFile[];
+};
+
+function mockStorageUserDetail(userId: string): AdminStorageUserDetail | null {
+  const row = (mockStorageState ?? mockStorageOverview()).users.find(
+    (u) => u.userId === userId,
+  );
+  if (!row) {
+    return null;
+  }
+  const files = (mockAdminFilesState ?? mockAdminFiles())
+    .filter((f) => f.username === row.username)
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+  let running = 0;
+  return {
+    userId: row.userId,
+    username: row.username,
+    displayName: row.displayName,
+    tier: row.unlimited ? 'ARTIST' : 'FREE',
+    quotaBytes: row.unlimited ? null : row.quotaBytes,
+    usedBytes: row.usedBytes,
+    unlimited: row.unlimited,
+    files: files.map((f) => {
+      running += f.sizeBytes ?? 0;
+      return {
+        id: f.id,
+        kind: f.contentType === 'STASH' ? 'stash' : 'archive',
+        title: f.title,
+        sizeBytes: f.sizeBytes,
+        createdAt: f.createdAt,
+        contentType: f.contentType,
+        isPublic: f.isPublic,
+        isAudio: f.audioUrl != null,
+        previewUrl: f.audioUrl,
+        runningTotalBytes: running,
+      };
+    }),
+  };
+}
+
+export async function fetchAdminStorageUserFiles(userId: string): Promise<{
+  data: AdminStorageUserDetail | null;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockStorageUserDetail(userId),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminStorageUserDetail>(
+      `/api/admin/storage/users/${encodeURIComponent(userId)}/files`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
 // ── Files ───────────────────────────────────────────────────────────────────
 
 export type AdminFileRow = {
@@ -2110,9 +2434,12 @@ export type AdminFileRow = {
   contentType: string;
   isPublic: boolean;
   durationSec: number | null;
+  sizeBytes: number | null;
   createdAt: string;
   channelSlug: string;
+  userId: string;
   username: string;
+  displayName: string;
   audioUrl: string | null;
 };
 
@@ -2126,9 +2453,12 @@ function mockAdminFiles(): AdminFileRow[] {
       contentType: 'TRACK',
       isPublic: true,
       durationSec: 312,
+      sizeBytes: 8_400_000,
       createdAt: '2026-08-10T12:00:00.000Z',
       channelSlug: 'dj-moonlight',
+      userId: 'u-1',
       username: 'dj-moonlight',
+      displayName: 'DJ Moonlight',
       audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
     {
@@ -2139,9 +2469,12 @@ function mockAdminFiles(): AdminFileRow[] {
       contentType: 'LIVE_SET',
       isPublic: true,
       durationSec: 3480,
+      sizeBytes: 92_000_000,
       createdAt: '2026-08-09T18:00:00.000Z',
       channelSlug: 'midnight-cartography',
+      userId: 'u-2',
       username: 'midnight-cartography',
+      displayName: 'Midnight Cartography',
       audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
     },
     {
@@ -2152,9 +2485,12 @@ function mockAdminFiles(): AdminFileRow[] {
       contentType: 'TRACK',
       isPublic: false,
       durationSec: 201,
+      sizeBytes: 5_100_000,
       createdAt: '2026-08-05T09:00:00.000Z',
       channelSlug: 'kaiku-collective',
+      userId: 'u-3',
       username: 'kaiku-collective',
+      displayName: 'Kaiku Collective',
       audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
     },
     {
@@ -2165,9 +2501,12 @@ function mockAdminFiles(): AdminFileRow[] {
       contentType: 'STASH',
       isPublic: false,
       durationSec: 279,
+      sizeBytes: 41_000_000,
       createdAt: '2026-08-01T09:00:00.000Z',
       channelSlug: 'northern-lights',
+      userId: 'u-4',
       username: 'northern-lights',
+      displayName: 'Northern Lights',
       audioUrl: null,
     },
   ];
@@ -2195,7 +2534,7 @@ export async function fetchAdminFiles(query?: string): Promise<{
     return { data, meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
   }
   try {
-    const qs = new URLSearchParams({ limit: '50' });
+    const qs = new URLSearchParams({ limit: '100' });
     if (query?.trim()) {
       qs.set('q', query.trim());
     }
@@ -2216,6 +2555,51 @@ export function deleteAdminFile(id: string) {
     return Promise.resolve({ ok: true } as const);
   }
   return mutate(`/api/admin/files/${encodeURIComponent(id)}`, 'DELETE');
+}
+
+export type AdminFileAudio = {
+  audioUrl: string | null;
+  title: string;
+  artistName: string;
+  channelSlug: string;
+  bannerUrl: string | null;
+  durationSec: number | null;
+};
+
+/** Presigned playback URL for one file — fetched lazily on play-button click
+ * rather than eagerly for every row in the list (the list can be up to 100
+ * rows; the per-user drill-down already returns previewUrl inline instead,
+ * since that list is small). */
+export async function fetchAdminFileAudio(id: string): Promise<{
+  data: AdminFileAudio | null;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    const file = (mockAdminFilesState ?? mockAdminFiles()).find(
+      (f) => f.id === id,
+    );
+    return {
+      data: file
+        ? {
+            audioUrl: file.audioUrl,
+            title: file.title,
+            artistName: file.artistName,
+            channelSlug: file.channelSlug,
+            bannerUrl: null,
+            durationSec: file.durationSec,
+          }
+        : null,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminFileAudio>(
+      `/api/admin/files/${encodeURIComponent(id)}/audio`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
 }
 
 // ── Content reports ─────────────────────────────────────────────────────────

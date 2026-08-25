@@ -17,5 +17,6 @@ export const defaultDisplay: TrackTableProps['display'] = {
   displayFavorite: false,
   displayArtist: true,
   displayDuration: true,
+  displayReleaseDate: false,
   displayQueueControls: true,
 };

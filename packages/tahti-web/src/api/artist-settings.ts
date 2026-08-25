@@ -68,12 +68,35 @@ export type DiscoveryPrefs = {
   announceReleases: boolean;
 };
 
+/** Who can join the green room once it's open: any signed-in listener, or
+ * only the artist's active fan subscribers. Backed by the channel's real
+ * green-room invite pool in tahti-org (`GreenRoomInvitePool` — see
+ * apps/api/src/routes/me/green-room-defaults.ts); this simplified two-value
+ * surface collapses the backend's finer MODERATORS_AND_SUBS/SUBS_ONLY/
+ * MANUAL_ONLY split into "subscribers" and only distinguishes EVERYONE. */
+export type GreenRoomAccessLevel = 'everyone' | 'subscribers';
+
 export type GreenRoomPrefs = {
   defaultTitle: string;
   defaultNote: string;
   autoAnnounce: boolean;
   holdMusicEnabled: boolean;
+  access: GreenRoomAccessLevel;
 };
+
+type WireGreenRoomInvitePool =
+  | 'EVERYONE'
+  | 'SUBS_ONLY'
+  | 'MODERATORS_AND_SUBS'
+  | 'MANUAL_ONLY';
+
+function accessFromPool(pool: WireGreenRoomInvitePool): GreenRoomAccessLevel {
+  return pool === 'EVERYONE' ? 'everyone' : 'subscribers';
+}
+
+function poolFromAccess(access: GreenRoomAccessLevel): WireGreenRoomInvitePool {
+  return access === 'everyone' ? 'EVERYONE' : 'SUBS_ONLY';
+}
 
 export type SocialConnections = {
   website: string;
@@ -129,6 +152,9 @@ let mockGreenRoom: GreenRoomPrefs = {
   defaultNote: '',
   autoAnnounce: true,
   holdMusicEnabled: false,
+  // Subscribers-only is the safer default — matches the invite-only framing
+  // guests see in GreenRoomView before an artist opts into "everyone".
+  access: 'subscribers',
 };
 
 let mockSocial: SocialConnections = {
@@ -346,12 +372,38 @@ export async function fetchGreenRoomPrefs(): Promise<{
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
-  try {
-    const { data } = await requestJson<GreenRoomPrefs>('/api/me/green-room');
-    return { data, meta: { source: 'api' } };
-  } catch (err) {
-    return { data: { ...mockGreenRoom }, meta: failMeta(err) };
+  // `access` is backed by the channel's real green-room invite pool
+  // (tahti-org's /api/me/channel/green-room-defaults) — fetched alongside
+  // the title/note/announce/hold-music prefs so either endpoint can degrade
+  // to its mock value independently of the other.
+  const [base, defaults] = await Promise.all([
+    requestJson<Omit<GreenRoomPrefs, 'access'>>('/api/me/green-room')
+      .then((r) => ({ ok: true as const, data: r.data }))
+      .catch((err: unknown) => ({ ok: false as const, err })),
+    requestJson<{ defaultInvitePool: WireGreenRoomInvitePool }>(
+      '/api/me/channel/green-room-defaults',
+    )
+      .then((r) => ({ ok: true as const, data: r.data }))
+      .catch((err: unknown) => ({ ok: false as const, err })),
+  ]);
+
+  if (!base.ok && !defaults.ok) {
+    return { data: { ...mockGreenRoom }, meta: failMeta(base.err) };
   }
+  return {
+    data: {
+      ...(base.ok ? base.data : mockGreenRoom),
+      access: defaults.ok
+        ? accessFromPool(defaults.data.defaultInvitePool)
+        : mockGreenRoom.access,
+    },
+    meta:
+      base.ok && defaults.ok
+        ? { source: 'api' }
+        : failMeta(
+            !base.ok ? base.err : !defaults.ok ? defaults.err : undefined,
+          ),
+  };
 }
 
 export async function patchGreenRoomPrefs(
@@ -361,12 +413,26 @@ export async function patchGreenRoomPrefs(
     mockGreenRoom = { ...mockGreenRoom, ...patch };
     return { ok: true, data: { ...mockGreenRoom } };
   }
+  const { access, ...rest } = patch;
   try {
-    const { data } = await requestJson<GreenRoomPrefs>('/api/me/green-room', {
-      method: 'PATCH',
-      body: JSON.stringify(patch),
-    });
-    return { ok: true, data };
+    let merged: GreenRoomPrefs = { ...mockGreenRoom };
+    if (Object.keys(rest).length > 0) {
+      const { data } = await requestJson<Omit<GreenRoomPrefs, 'access'>>(
+        '/api/me/green-room',
+        { method: 'PATCH', body: JSON.stringify(rest) },
+      );
+      merged = { ...merged, ...data };
+    }
+    if (access !== undefined) {
+      const { data } = await requestJson<{
+        defaultInvitePool: WireGreenRoomInvitePool;
+      }>('/api/me/channel/green-room-defaults', {
+        method: 'PATCH',
+        body: JSON.stringify({ defaultInvitePool: poolFromAccess(access) }),
+      });
+      merged = { ...merged, access: accessFromPool(data.defaultInvitePool) };
+    }
+    return { ok: true, data: merged };
   } catch (err) {
     return {
       ok: false,

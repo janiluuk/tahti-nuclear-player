@@ -8,6 +8,9 @@ export type TrackTableLabels = {
     title: string;
     album: string;
     duration: string;
+    /** Optional -- older label sets that predate the release-date column
+     * still type-check; the column falls back to a default when absent. */
+    releaseDate?: string;
   };
   favorite: string;
   unfavorite: string;
@@ -74,6 +77,7 @@ export type TrackTableProps<T extends Track = Track> = {
     displayArtist?: boolean;
     displayAlbum?: boolean;
     displayDuration?: boolean;
+    displayReleaseDate?: boolean;
     displayQueueControls?: boolean;
   };
   actions: TrackTableActions<T>;

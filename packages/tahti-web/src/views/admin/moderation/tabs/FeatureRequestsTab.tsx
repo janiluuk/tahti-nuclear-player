@@ -7,10 +7,8 @@ import {
   updateFeatureRequestStatus,
   type AdminFeatureRequestRow,
   type AdminFeatureRequestStatus,
-} from '../../api/admin';
-import { AdminGate } from '../../components/AdminGate';
-import { AdminNav } from '../../components/AdminNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+} from '../../../../api/admin';
+import { StudioPanel } from '../../../../components/StudioPanel';
 
 const FILTERS: { id: AdminFeatureRequestStatus | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -103,7 +101,9 @@ function RowActions({
   );
 }
 
-export function AdminFeatureRequestsView() {
+/** Feature requests tab — ported as-is from the standalone admin route (see
+ * AdminModerationView). Member-suggested features, ranked by votes. */
+export function FeatureRequestsTab() {
   const [filter, setFilter] = useState<AdminFeatureRequestStatus | 'all'>(
     'OPEN',
   );
@@ -123,69 +123,65 @@ export function AdminFeatureRequestsView() {
   useEffect(reload, [filter]);
 
   return (
-    <AdminGate>
-      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/feature-requests" />
-        <StudioPageHeader
-          title="Feature requests"
-          subtitle="Member-suggested features, ranked by votes. Review quarterly."
-        />
+    <div className="flex flex-col gap-4">
+      <p className="text-foreground-secondary text-sm">
+        Member-suggested features, ranked by votes. Review quarterly.
+      </p>
 
-        <nav className="flex flex-wrap gap-2" role="tablist">
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              role="tab"
-              aria-selected={filter === f.id}
-              onClick={() => setFilter(f.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-                filter === f.id
-                  ? 'bg-primary text-foreground shadow-sm'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </nav>
+      <nav className="flex flex-wrap gap-2" role="tablist">
+        {FILTERS.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            role="tab"
+            aria-selected={filter === f.id}
+            onClick={() => setFilter(f.id)}
+            className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
+              filter === f.id
+                ? 'bg-primary text-foreground shadow-sm'
+                : 'border-border text-foreground-secondary hover:text-foreground border'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </nav>
 
-        <StudioPanel>
-          {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
-          ) : rows.length === 0 ? (
-            <p className="text-foreground-secondary py-4 text-center text-sm">
-              No feature requests in this view.
-            </p>
-          ) : (
-            <ul className="divide-border divide-y">
-              {rows.map((r) => {
-                const badge = statusBadge(r.status);
-                return (
-                  <li
-                    key={r.id}
-                    className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 font-medium">
-                        {r.title}
-                        <Badge variant="pill" color={badge.color}>
-                          {badge.label}
-                        </Badge>
-                      </div>
-                      <div className="text-foreground-secondary text-xs">
-                        {r.voteCount} votes · by @{r.proposerUsername}
-                        {r.reviewNote ? ` · ${r.reviewNote}` : ''}
-                      </div>
+      <StudioPanel>
+        {loading ? (
+          <p className="text-foreground-secondary text-sm">Loading…</p>
+        ) : rows.length === 0 ? (
+          <p className="text-foreground-secondary py-4 text-center text-sm">
+            No feature requests in this view.
+          </p>
+        ) : (
+          <ul className="divide-border divide-y">
+            {rows.map((r) => {
+              const badge = statusBadge(r.status);
+              return (
+                <li
+                  key={r.id}
+                  className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 font-medium">
+                      {r.title}
+                      <Badge variant="pill" color={badge.color}>
+                        {badge.label}
+                      </Badge>
                     </div>
-                    <RowActions row={r} onDone={reload} />
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </StudioPanel>
-      </div>
-    </AdminGate>
+                    <div className="text-foreground-secondary text-xs">
+                      {r.voteCount} votes · by @{r.proposerUsername}
+                      {r.reviewNote ? ` · ${r.reviewNote}` : ''}
+                    </div>
+                  </div>
+                  <RowActions row={r} onDone={reload} />
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </StudioPanel>
+    </div>
   );
 }

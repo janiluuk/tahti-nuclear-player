@@ -20,9 +20,10 @@ const PRIMARY = [
       'Live container logs from every service in the production stack.',
   },
   {
-    to: '/admin/beta',
-    label: 'Beta',
-    description: 'Manage beta access and feature rollout.',
+    to: '/admin/moderation',
+    label: 'Moderation',
+    description:
+      'Support, beta applications, radio submissions, Selects, content reports, and feature requests — one tabbed queue.',
   },
   {
     to: '/admin/users',
@@ -36,11 +37,6 @@ const PRIMARY = [
       'Tahti Radio and Tahti Selects rotation, live from the station.',
   },
   {
-    to: '/admin/radio-submissions',
-    label: 'Radio submissions',
-    description: 'Review tracks submitted for rotation consideration.',
-  },
-  {
     to: '/admin/radio-station-suggestions',
     label: 'Radio stations',
     description:
@@ -52,19 +48,9 @@ const PRIMARY = [
     description: 'Publish platform-wide news posts.',
   },
   {
-    to: '/admin/tahti-selects',
-    label: 'Selects',
-    description: 'Curate the Tahti Selects editorial rotation.',
-  },
-  {
     to: '/admin/streams',
     label: 'Streams',
     description: 'Monitor live ingest and stream health across channels.',
-  },
-  {
-    to: '/admin/support',
-    label: 'Support',
-    description: 'Member and listener support requests.',
   },
   {
     to: '/admin/top-lists',
@@ -79,17 +65,8 @@ const PRIMARY = [
   {
     to: '/admin/storage',
     label: 'Storage',
-    description: 'Platform storage usage and quotas.',
-  },
-  {
-    to: '/admin/files',
-    label: 'Files',
-    description: 'Browse uploaded files across the platform.',
-  },
-  {
-    to: '/admin/content-reports',
-    label: 'Content reports',
-    description: 'User-reported tracks, chats, and profiles awaiting review.',
+    description:
+      'Disk/object storage space, quotas, and every uploaded file across the platform.',
   },
   {
     to: '/admin/financial',
@@ -100,11 +77,6 @@ const PRIMARY = [
     to: '/admin/governance',
     label: 'Governance',
     description: 'Member votes and cooperative governance items.',
-  },
-  {
-    to: '/admin/feature-requests',
-    label: 'Feature requests',
-    description: 'Track and triage member-submitted feature requests.',
   },
   {
     to: '/admin/grants',
