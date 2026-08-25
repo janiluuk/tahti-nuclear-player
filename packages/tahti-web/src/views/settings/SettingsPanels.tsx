@@ -1198,6 +1198,40 @@ function BroadcastPanel() {
             <SettingsHint>Loading…</SettingsHint>
           ) : (
             <div className="flex flex-col gap-6">
+              <label className="flex flex-col gap-1.5 text-sm">
+                <span className="text-foreground text-sm font-semibold">
+                  Who can join
+                </span>
+                <div className="flex gap-2">
+                  {(
+                    [
+                      ['everyone', 'Everyone'],
+                      ['subscribers', 'Subscribers only'],
+                    ] as const
+                  ).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={green.access === value}
+                      onClick={() => {
+                        setGreen({ ...green, access: value });
+                        void patchGreenRoomPrefs({ access: value });
+                      }}
+                      className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                        green.access === value
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border text-foreground-secondary hover:text-foreground'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-foreground-secondary text-xs">
+                  Anyone signed in, or only listeners with an active fan
+                  subscription to you.
+                </span>
+              </label>
               <Input
                 label="Default show title"
                 value={green.defaultTitle}

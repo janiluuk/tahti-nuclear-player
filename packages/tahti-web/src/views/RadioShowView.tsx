@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { MessageCircleIcon, MicIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { SectionShell } from '@nuclearplayer/ui';
+import { Button, SectionShell } from '@nuclearplayer/ui';
 
 import {
   fetchPublicRadioShow,
@@ -11,6 +11,7 @@ import {
 } from '../api/shows';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { isGreenRoomWindow } from '../lib/radioSchedule';
 
 function formatDate(startAt: string, endAt: string) {
   const start = new Date(startAt);
@@ -98,6 +99,12 @@ export const RadioShowView = ({ channelSlug }: { channelSlug: string }) => {
     );
   }
 
+  // Only the nearest upcoming slot and the most recent past one can
+  // plausibly be imminent/live/just-wrapped — no need to scan the whole list.
+  const greenRoomLive = [show.upcomingEpisodes[0], show.pastEpisodes[0]].some(
+    (episode) => episode && isGreenRoomWindow(episode),
+  );
+
   return (
     <PageFrame maxWidth="3xl">
       <PageHeader
@@ -112,13 +119,26 @@ export const RadioShowView = ({ channelSlug }: { channelSlug: string }) => {
           </Link>
         }
         actions={
-          <Link
-            to="/u/$username"
-            params={{ username: show.artist.username }}
-            className="text-foreground-secondary text-sm underline-offset-2 hover:underline"
-          >
-            Artist profile
-          </Link>
+          <div className="flex items-center gap-3">
+            {greenRoomLive ? (
+              <Link
+                to="/u/$username/green-room"
+                params={{ username: show.artist.username }}
+              >
+                <Button size="sm" variant="secondary">
+                  <MicIcon size={14} aria-hidden className="mr-1.5" />
+                  Green room
+                </Button>
+              </Link>
+            ) : null}
+            <Link
+              to="/u/$username"
+              params={{ username: show.artist.username }}
+              className="text-foreground-secondary text-sm underline-offset-2 hover:underline"
+            >
+              Artist profile
+            </Link>
+          </div>
         }
       />
 

@@ -94,6 +94,10 @@ export type StudioShowBooking = {
   note: string | null;
   showType: ShowType;
   channelSlug: string;
+  /** Artist's account username — what the green-room guest route
+   * (`/u/:username/green-room`) and other `/u/:username` links need; can
+   * differ from `channelSlug`. */
+  username: string;
   displayName: string;
   isMine: boolean;
 };
@@ -332,16 +336,20 @@ let mockBookings: StudioShowBooking[] = [
     note: 'Friday Frequency',
     showType: 'LIVE_SET',
     channelSlug: 'demo',
+    username: 'demo',
     displayName: 'Demo Artist',
     isMine: true,
   },
   {
     id: 'booking-mock-2',
-    startAt: new Date(Date.now() + 4 * 3600_000).toISOString(),
-    endAt: new Date(Date.now() + 5 * 3600_000).toISOString(),
+    // Starts soon — exercises the "green room open now" banner in
+    // RadioScheduleView without needing to fiddle the system clock.
+    startAt: new Date(Date.now() + 8 * 60_000).toISOString(),
+    endAt: new Date(Date.now() + 68 * 60_000).toISOString(),
     note: 'Route 550 Live',
     showType: 'LIVE_SET',
     channelSlug: 'midnight-cartography',
+    username: 'midnight-cartography',
     displayName: 'Midnight Cartography',
     isMine: false,
   },
@@ -352,6 +360,7 @@ let mockBookings: StudioShowBooking[] = [
     note: 'Kaiku Cypher Sessions',
     showType: 'LIVE_SET',
     channelSlug: 'kaiku-collective',
+    username: 'kaiku-collective',
     displayName: 'Kaiku Collective',
     isMine: false,
   },
@@ -362,6 +371,7 @@ let mockBookings: StudioShowBooking[] = [
     note: 'Boathouse Talk',
     showType: 'TALK',
     channelSlug: 'saimaa-sessions',
+    username: 'saimaa-sessions',
     displayName: 'Saimaa Sessions',
     isMine: false,
   },
@@ -875,6 +885,7 @@ export async function createShowBooking(input: {
       note: input.note?.trim() || null,
       showType: input.showType ?? 'LIVE_SET',
       channelSlug: 'demo',
+      username: 'demo',
       displayName: 'Demo Artist',
       isMine: true,
     };
