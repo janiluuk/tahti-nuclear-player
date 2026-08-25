@@ -423,6 +423,8 @@ export function mockChannel(slug: string): PublicChannel {
     hlsUrl: live ? DEMO_HLS : null,
     chatEnabled: true,
     visualPreset: isRadio ? 'REACTIVE_GRID' : 'AURORA',
+    headerStyle: 'GRADIENT',
+    videoBackgroundUrl: null,
     colorSchemeJson: JSON.stringify({
       accent: content.colorAccent,
       highlight: content.colorHighlight,

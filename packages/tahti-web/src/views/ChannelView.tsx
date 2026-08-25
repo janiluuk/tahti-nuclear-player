@@ -13,7 +13,10 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Button, SaveButton } from '@nuclearplayer/ui';
 
-import { patchChannelVisual } from '../api/channel-design';
+import {
+  isValidHeaderVideoUrl,
+  patchChannelVisual,
+} from '../api/channel-design';
 import {
   archiveItemToPlayable,
   fetchChannel,
@@ -175,6 +178,13 @@ export function ChannelView({ slug }: { slug: string }) {
   }
 
   const live = channel.state === 'LIVE' && Boolean(channel.hlsUrl);
+  // VIDEO_LOOP header style plays this artist's clip in place of the
+  // background visualizer — GRADIENT/SOLID have no distinct treatment here
+  // yet (headerStyle otherwise only affects the Studio designer's own
+  // preview), so this only branches for VIDEO_LOOP.
+  const showHeaderVideo =
+    channel.headerStyle === 'VIDEO_LOOP' &&
+    isValidHeaderVideoUrl(channel.videoBackgroundUrl);
   const chatOn = channel.chatEnabled !== false;
   const channelIsCurrent =
     currentId === `live:${slug}` || currentId === `radio:${slug}`;
@@ -284,15 +294,27 @@ export function ChannelView({ slug }: { slug: string }) {
                 : 'border-border rounded-xl border'
             }`}
           >
-            <ChannelVisualizer
-              className="absolute inset-0 h-full w-full"
-              preset={channel.visualPreset ?? 'AURORA'}
-              colorScheme={channel.colorScheme}
-              colorSchemeJson={channel.colorSchemeJson}
-              artworkUrl={
-                channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl
-              }
-            />
+            {showHeaderVideo ? (
+              <video
+                className="absolute inset-0 h-full w-full object-cover"
+                src={channel.videoBackgroundUrl ?? undefined}
+                autoPlay
+                loop
+                muted
+                playsInline
+                aria-hidden="true"
+              />
+            ) : (
+              <ChannelVisualizer
+                className="absolute inset-0 h-full w-full"
+                preset={channel.visualPreset ?? 'AURORA'}
+                colorScheme={channel.colorScheme}
+                colorSchemeJson={channel.colorSchemeJson}
+                artworkUrl={
+                  channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl
+                }
+              />
+            )}
             {!live && !channel.nowPlaying ? (
               <div className="absolute inset-0 z-[1] flex items-center justify-center">
                 <WifiOffIcon
@@ -524,17 +546,33 @@ export function ChannelView({ slug }: { slug: string }) {
 
   const pageBody = (
     <div className="relative isolate min-h-full overflow-hidden">
-      {!editing && !heroVisible && (
-        <ChannelVisualizer
-          className={`pointer-events-none absolute inset-0 z-0 ${
-            live ? 'opacity-[0.32]' : 'opacity-[0.55]'
-          }`}
-          preset={channel.visualPreset ?? 'AURORA'}
-          colorScheme={channel.colorScheme}
-          colorSchemeJson={channel.colorSchemeJson}
-          artworkUrl={channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl}
-        />
-      )}
+      {!editing &&
+        !heroVisible &&
+        (showHeaderVideo ? (
+          <video
+            className={`pointer-events-none absolute inset-0 z-0 h-full w-full object-cover ${
+              live ? 'opacity-[0.32]' : 'opacity-[0.55]'
+            }`}
+            src={channel.videoBackgroundUrl ?? undefined}
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-hidden="true"
+          />
+        ) : (
+          <ChannelVisualizer
+            className={`pointer-events-none absolute inset-0 z-0 ${
+              live ? 'opacity-[0.32]' : 'opacity-[0.55]'
+            }`}
+            preset={channel.visualPreset ?? 'AURORA'}
+            colorScheme={channel.colorScheme}
+            colorSchemeJson={channel.colorSchemeJson}
+            artworkUrl={
+              channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl
+            }
+          />
+        ))}
 
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
         {!editing && (

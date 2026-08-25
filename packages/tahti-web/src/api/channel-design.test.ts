@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { isVisualPreset, shouldDockVisualizerTuning } from './channel-design';
+import {
+  isValidHeaderVideoUrl,
+  isVisualPreset,
+  shouldDockVisualizerTuning,
+} from './channel-design';
 
 describe('isVisualPreset', () => {
   it('accepts every known preset id', () => {
@@ -64,5 +68,40 @@ describe('shouldDockVisualizerTuning', () => {
         activeTab: 'visualizer',
       }),
     ).toBe(false);
+  });
+});
+
+describe('isValidHeaderVideoUrl', () => {
+  it('accepts HTTPS .mp4 and .webm files', () => {
+    expect(isValidHeaderVideoUrl('https://cdn.example.com/loop.mp4')).toBe(
+      true,
+    );
+    expect(isValidHeaderVideoUrl('https://cdn.example.com/loop.webm')).toBe(
+      true,
+    );
+  });
+
+  it('accepts a query string after the extension', () => {
+    expect(isValidHeaderVideoUrl('https://cdn.example.com/loop.mp4?v=2')).toBe(
+      true,
+    );
+  });
+
+  it('rejects YouTube/Vimeo links — those need an iframe embed, not a raw <video>', () => {
+    expect(
+      isValidHeaderVideoUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+    ).toBe(false);
+  });
+
+  it('rejects non-HTTPS, non-video, empty, and null/undefined input', () => {
+    expect(isValidHeaderVideoUrl('http://cdn.example.com/loop.mp4')).toBe(
+      false,
+    );
+    expect(isValidHeaderVideoUrl('https://cdn.example.com/loop.mp3')).toBe(
+      false,
+    );
+    expect(isValidHeaderVideoUrl('')).toBe(false);
+    expect(isValidHeaderVideoUrl(null)).toBe(false);
+    expect(isValidHeaderVideoUrl(undefined)).toBe(false);
   });
 });
