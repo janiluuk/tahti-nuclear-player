@@ -37,7 +37,6 @@ import { GreenRoomView } from './views/GreenRoomView';
 import { HelpArticleView, HelpHubView } from './views/HelpView';
 import { JoinView } from './views/JoinView';
 import { LegalView } from './views/LegalView';
-import { LibraryView } from './views/LibraryView';
 import { ListenView } from './views/ListenView';
 import { LoginView } from './views/LoginView';
 import { MessagesView } from './views/MessagesView';
@@ -428,6 +427,14 @@ const adminI18nRoute = createRoute({
   path: '/admin/i18n',
   component: AdminI18nView,
 });
+
+// Its History tab pulls in react-activity-calendar plus the other
+// HistoryCharts components — keep that off the anonymous listen path's
+// main bundle rather than loading it on every page.
+const LibraryView = lazyRouteComponent(
+  () => import('./views/LibraryView'),
+  'LibraryView',
+);
 
 const libraryRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
