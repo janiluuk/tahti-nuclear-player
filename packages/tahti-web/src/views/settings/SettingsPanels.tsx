@@ -119,6 +119,7 @@ import {
   normalizeGenresForPicker,
   parseGenreTags,
 } from '../../lib/genres';
+import { membershipStatusLabel } from '../../lib/membershipStatus';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useListenerWidgetsStore } from '../../stores/listenerWidgetsStore';
@@ -450,7 +451,10 @@ function AccountPanel() {
                 <SettingsHint>Could not load membership.</SettingsHint>
               ) : (
                 <div className="flex flex-col gap-4">
-                  <SettingsInfo label="Status" value={membership.status} />
+                  <SettingsInfo
+                    label="Status"
+                    value={membershipStatusLabel(membership)}
+                  />
                   <SettingsInfo
                     label="Member"
                     value={membership.isMember ? 'Yes' : 'No'}
