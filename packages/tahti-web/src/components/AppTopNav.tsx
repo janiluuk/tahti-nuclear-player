@@ -1,5 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import {
+  CalendarIcon,
   ExternalLinkIcon,
   GaugeIcon,
   LayoutDashboardIcon,
@@ -21,7 +22,6 @@ import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { GlobalSearch } from './GlobalSearch';
-import { RadioScheduleOverlay } from './RadioScheduleOverlay';
 import { TahtiLogoLink } from './TahtiLogo';
 
 type AppTopNavProps = {
@@ -213,9 +213,15 @@ export function AppTopNav({
       </div>
 
       <div className="flex min-w-0 items-center gap-1">
-        <span data-tour-id="topbar-schedule">
-          <RadioScheduleOverlay iconClassName={iconBtnClass} />
-        </span>
+        <Link
+          to="/schedule"
+          className={iconBtnClass}
+          aria-label="Schedule"
+          title="Schedule"
+          data-tour-id="topbar-schedule"
+        >
+          <CalendarIcon size={16} />
+        </Link>
 
         {user && hasChannel ? (
           <>

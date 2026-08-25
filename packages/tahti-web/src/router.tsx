@@ -44,6 +44,7 @@ import { MessagesView } from './views/MessagesView';
 import { MoreView } from './views/MoreView';
 import { OnboardingView } from './views/OnboardingView';
 import { PrivacyView } from './views/PrivacyView';
+import { RadioScheduleView } from './views/RadioScheduleView';
 import { RadioShowView } from './views/RadioShowView';
 import { RadioView } from './views/RadioView';
 import { ResetPasswordView } from './views/ResetPasswordView';
@@ -222,6 +223,12 @@ const discoverRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/discover',
   component: DiscoverView,
+});
+
+const scheduleRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/schedule',
+  component: RadioScheduleView,
 });
 
 const radioShowRoute = createRoute({
@@ -1157,6 +1164,7 @@ const routeTree = rootRoute.addChildren([
     listenAliasRoute,
     radioRoute,
     radioShowRoute,
+    scheduleRoute,
     discoverRoute,
     themesRoute,
     settingsRoute,

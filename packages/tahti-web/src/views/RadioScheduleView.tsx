@@ -1,0 +1,461 @@
+import { Link } from '@tanstack/react-router';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MessageCircleIcon,
+  MicIcon,
+} from 'lucide-react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+
+import { Button, Input } from '@nuclearplayer/ui';
+
+import {
+  cancelShowBooking,
+  createShowBooking,
+  fetchShowBookings,
+  SHOW_SLOT_MAX_HOURS,
+  type ShowType,
+  type StudioShowBooking,
+} from '../api/shows';
+import { PageFrame, PageHeader } from '../components/PageHeader';
+import { cn } from '../lib/cn';
+import {
+  addDays,
+  atHour,
+  buildBookingGrid,
+  filterBookingsForStation,
+  nextSelectionOnCellClick,
+  SCHEDULE_HOURS,
+  selectionRange,
+  startOfLocalDay,
+  weekDays,
+  weekLabel,
+  weekRangeIso,
+  type ScheduleSelection,
+  type StationFilter,
+} from '../lib/radioSchedule';
+import { useAuthStore } from '../stores/authStore';
+
+function formatHour(hour: number): string {
+  return `${String(hour).padStart(2, '0')}:00`;
+}
+
+function bookingTitle(booking: StudioShowBooking): string {
+  return (
+    booking.note || (booking.showType === 'TALK' ? 'Talk show' : 'Live set')
+  );
+}
+
+export function RadioScheduleView() {
+  const user = useAuthStore((s) => s.user);
+  const ownChannelSlug = user?.channel?.slug ?? null;
+
+  const [station, setStation] = useState<StationFilter>('radio');
+  const [weekStart, setWeekStart] = useState(() => startOfLocalDay(new Date()));
+  const [bookings, setBookings] = useState<StudioShowBooking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selection, setSelection] = useState<ScheduleSelection | null>(null);
+  const [note, setNote] = useState('');
+  const [showType, setShowType] = useState<ShowType>('LIVE_SET');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const days = useMemo(() => weekDays(weekStart), [weekStart]);
+
+  useEffect(() => {
+    setLoading(true);
+    setSelection(null);
+    setError(null);
+    setMessage(null);
+    const { from, to } = weekRangeIso(weekStart);
+    let cancelled = false;
+    void fetchShowBookings(from, to).then((r) => {
+      if (cancelled) {
+        return;
+      }
+      setBookings(r.data);
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [weekStart]);
+
+  const visibleBookings = useMemo(
+    () => filterBookingsForStation(bookings, station, ownChannelSlug),
+    [bookings, station, ownChannelSlug],
+  );
+
+  const grid = useMemo(
+    () => buildBookingGrid(days, visibleBookings),
+    [days, visibleBookings],
+  );
+
+  function bookingAt(day: Date, hour: number): StudioShowBooking | undefined {
+    return grid.get(`${day.toDateString()}-${hour}`);
+  }
+
+  function cancelBooking(id: string) {
+    setError(null);
+    setMessage(null);
+    setBusy(true);
+    void cancelShowBooking(id).then((res) => {
+      setBusy(false);
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setBookings((prev) => prev.filter((b) => b.id !== id));
+      setMessage('Booking cancelled.');
+    });
+  }
+
+  function onCellClick(day: Date, hour: number) {
+    const existing = bookingAt(day, hour);
+    if (existing) {
+      if (existing.isMine) {
+        cancelBooking(existing.id);
+      }
+      return;
+    }
+    if (!ownChannelSlug) {
+      return;
+    }
+    if (atHour(day, hour).getTime() <= Date.now()) {
+      return;
+    }
+    setError(null);
+    setMessage(null);
+    setSelection((current) =>
+      nextSelectionOnCellClick(current, day, hour, SHOW_SLOT_MAX_HOURS),
+    );
+  }
+
+  function extendSelection() {
+    if (!selection || selection.hours >= SHOW_SLOT_MAX_HOURS) {
+      return;
+    }
+    const nextHour = selection.startHour + selection.hours;
+    if (nextHour > 23 || bookingAt(selection.day, nextHour)) {
+      return;
+    }
+    setSelection({ ...selection, hours: (selection.hours + 1) as 1 | 2 });
+  }
+
+  function confirmBooking() {
+    if (!selection) {
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    const { startAt, endAt } = selectionRange(selection);
+    void createShowBooking({
+      startAt,
+      endAt,
+      note: note.trim() || undefined,
+      showType,
+    }).then((res) => {
+      setBusy(false);
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setBookings((prev) => [...prev, res.data]);
+      setSelection(null);
+      setNote('');
+      setShowType('LIVE_SET');
+      setMessage('Slot booked.');
+    });
+  }
+
+  return (
+    <PageFrame maxWidth="full">
+      <PageHeader
+        title="Schedule"
+        subtitle="A week at a glance on Tahti Radio — book an open hour to play a live set, or switch to your own channel to see just your slots."
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div
+          className="border-border inline-flex gap-1 rounded-lg border p-1"
+          role="tablist"
+          aria-label="Station"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={station === 'radio'}
+            onClick={() => setStation('radio')}
+            className={cn(
+              'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
+              station === 'radio'
+                ? 'bg-primary text-foreground'
+                : 'text-foreground-secondary hover:text-foreground',
+            )}
+          >
+            Tahti Radio
+          </button>
+          {ownChannelSlug ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={station === 'mine'}
+              onClick={() => setStation('mine')}
+              className={cn(
+                'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
+                station === 'mine'
+                  ? 'bg-primary text-foreground'
+                  : 'text-foreground-secondary hover:text-foreground',
+              )}
+            >
+              My channel
+            </button>
+          ) : null}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            aria-label="Previous week"
+            disabled={busy}
+            onClick={() => setWeekStart((w) => addDays(w, -7))}
+          >
+            <ChevronLeftIcon size={16} aria-hidden />
+          </Button>
+          <span className="text-sm font-semibold tabular-nums">
+            {weekLabel(days)}
+          </span>
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            aria-label="Next week"
+            disabled={busy}
+            onClick={() => setWeekStart((w) => addDays(w, 7))}
+          >
+            <ChevronRightIcon size={16} aria-hidden />
+          </Button>
+          {weekStart.toDateString() !==
+          startOfLocalDay(new Date()).toDateString() ? (
+            <Button
+              size="sm"
+              variant="text"
+              onClick={() => setWeekStart(startOfLocalDay(new Date()))}
+            >
+              This week
+            </Button>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="border-border overflow-x-auto rounded-xl border">
+        <div className="grid grid-cols-[4.5rem_repeat(7,minmax(6rem,1fr))]">
+          <div className="border-border bg-background-secondary/40 border-r border-b" />
+          {days.map((day) => (
+            <div
+              key={day.toISOString()}
+              className="border-border bg-background-secondary/40 flex flex-col items-center border-b px-2 py-2 text-xs"
+            >
+              <span className="font-semibold">
+                {day.toLocaleDateString(undefined, { weekday: 'short' })}
+              </span>
+              <span className="text-foreground-secondary">
+                {day.toLocaleDateString(undefined, {
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </span>
+            </div>
+          ))}
+
+          {SCHEDULE_HOURS.map((hour) => (
+            <Fragment key={hour}>
+              <div className="border-border text-foreground-secondary flex items-center justify-end border-r px-2 py-1.5 text-xs tabular-nums">
+                {formatHour(hour)}
+              </div>
+              {days.map((day) => {
+                const cellStart = atHour(day, hour);
+                const isPast = cellStart.getTime() <= Date.now();
+                const booking = bookingAt(day, hour);
+                const isSelected = Boolean(
+                  selection &&
+                  selection.day.toDateString() === day.toDateString() &&
+                  hour >= selection.startHour &&
+                  hour < selection.startHour + selection.hours,
+                );
+                return (
+                  <button
+                    key={`${day.toISOString()}-${hour}`}
+                    type="button"
+                    disabled={loading || (isPast && !booking?.isMine)}
+                    onClick={() => onCellClick(day, hour)}
+                    aria-label={
+                      booking
+                        ? `${bookingTitle(booking)} by ${booking.displayName}${
+                            booking.isMine ? ' — click to cancel' : ''
+                          }`
+                        : undefined
+                    }
+                    className={cn(
+                      'border-border h-8 border-r border-b px-1.5 text-left text-[11px] transition-colors',
+                      booking
+                        ? booking.isMine
+                          ? 'bg-primary/20 text-primary hover:bg-primary/30'
+                          : 'bg-background-secondary text-foreground-secondary cursor-default'
+                        : isPast
+                          ? 'bg-background-secondary/20 cursor-not-allowed'
+                          : 'hover:bg-background-secondary',
+                      isSelected && 'ring-primary ring-2 ring-inset',
+                    )}
+                  >
+                    {booking ? (
+                      <span className="flex items-center gap-1 truncate">
+                        {booking.showType === 'TALK' ? (
+                          <MessageCircleIcon
+                            size={11}
+                            aria-hidden
+                            className="shrink-0"
+                          />
+                        ) : (
+                          <MicIcon size={11} aria-hidden className="shrink-0" />
+                        )}
+                        <span className="truncate">{booking.displayName}</span>
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </Fragment>
+          ))}
+        </div>
+      </div>
+
+      {selection ? (
+        <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-3 rounded-lg border p-3">
+          <div className="text-sm">
+            <strong>
+              {selection.day.toLocaleDateString(undefined, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              })}
+              {', '}
+              {formatHour(selection.startHour)}–
+              {formatHour(selection.startHour + selection.hours)}
+            </strong>
+            <span className="text-foreground-secondary">
+              {' '}
+              ({selection.hours}h)
+            </span>
+          </div>
+          {selection.hours < SHOW_SLOT_MAX_HOURS ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={busy}
+              onClick={extendSelection}
+            >
+              +1 hour
+            </Button>
+          ) : null}
+          <div
+            className="border-border flex gap-1 rounded-lg border p-1"
+            role="radiogroup"
+            aria-label="Show type"
+          >
+            {(
+              [
+                ['LIVE_SET', 'Live set'],
+                ['TALK', 'Talk'],
+              ] as const
+            ).map(([type, label]) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setShowType(type)}
+                aria-pressed={showType === type}
+                className={cn(
+                  'rounded-md px-2.5 py-1 text-xs font-semibold uppercase',
+                  showType === type
+                    ? 'bg-primary text-foreground'
+                    : 'text-foreground-secondary hover:text-foreground',
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <Input
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder={
+              showType === 'TALK'
+                ? 'Note (optional) — topic or guests'
+                : "Note (optional) — what you're playing"
+            }
+            className="min-w-48 flex-1"
+          />
+          <Button size="sm" disabled={busy} onClick={confirmBooking}>
+            {busy ? 'Booking…' : 'Confirm booking'}
+          </Button>
+          <Button
+            size="sm"
+            variant="text"
+            disabled={busy}
+            onClick={() => setSelection(null)}
+          >
+            Cancel
+          </Button>
+        </div>
+      ) : !user ? (
+        <p className="text-foreground-secondary text-sm">
+          <Link
+            to="/login"
+            className="text-foreground underline-offset-2 hover:underline"
+          >
+            Sign in
+          </Link>{' '}
+          to book a slot on Tahti Radio.
+        </p>
+      ) : !ownChannelSlug ? (
+        <p className="text-foreground-secondary text-sm">
+          <Link
+            to="/studio/setup-channel"
+            className="text-foreground underline-offset-2 hover:underline"
+          >
+            Set up a channel
+          </Link>{' '}
+          to book a slot on Tahti Radio.
+        </p>
+      ) : (
+        <p className="text-foreground-secondary text-sm">
+          Click an open hour above to start a booking — click one of your own
+          slots to cancel it.
+        </p>
+      )}
+
+      {message ? (
+        <p className="text-sm" role="status">
+          {message}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="text-accent-red text-sm" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      <div className="text-foreground-secondary flex flex-wrap gap-x-4 gap-y-1 text-xs">
+        <span className="inline-flex items-center gap-1.5">
+          <i className="bg-primary/20 inline-block size-2.5 rounded-sm" />
+          Your bookings (click to cancel)
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <i className="bg-background-secondary inline-block size-2.5 rounded-sm" />
+          Booked by others
+        </span>
+      </div>
+    </PageFrame>
+  );
+}
