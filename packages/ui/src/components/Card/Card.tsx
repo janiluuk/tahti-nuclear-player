@@ -55,7 +55,7 @@ export const Card: FC<CardProps> = ({
       role={onClick && !hasOverlays ? 'button' : undefined}
       tabIndex={onClick && !hasOverlays ? 0 : undefined}
       className={cn(
-        'text-primary-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all',
+        'text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all',
         onClick &&
           !hasOverlays &&
           'hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none',

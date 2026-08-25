@@ -6,6 +6,7 @@ export const trackTableLabels: TrackTableLabels = {
     title: 'Title',
     album: 'Source',
     duration: 'Duration',
+    releaseDate: 'Released',
   },
   favorite: 'Add to favorites',
   unfavorite: 'Remove from favorites',

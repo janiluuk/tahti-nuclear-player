@@ -744,6 +744,7 @@ export function mockProfile(username: string): PublicProfile {
       releaseSlug: releaseSlugFor(
         Math.floor(i / 2) % Math.max(releases.length, 1),
       ),
+      createdAt: a.createdAt,
       pinned: Boolean(a.pinnedAt),
       pinnedAt: a.pinnedAt ?? null,
     })),
@@ -972,6 +973,7 @@ export function archiveItemToPlayable(
     channelSlug,
     sourceProvider: item.sourceProvider ?? 'tahti',
     durationSec: item.durationSec,
+    releaseDate: item.createdAt ?? null,
   };
 }
 

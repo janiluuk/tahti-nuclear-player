@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import type { Track } from '@nuclearplayer/model';
-import { TrackTable } from '@nuclearplayer/ui';
+import { Button, Dialog, TrackTable } from '@nuclearplayer/ui';
 
 import type { TahtiPlayable } from '../api/types';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
@@ -41,6 +41,7 @@ export function PlayableTrackTable({
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
   const [trackInfo, setTrackInfo] = useState<TrackInfo | null>(null);
+  const [confirmAddAllOpen, setConfirmAddAllOpen] = useState(false);
   const rememberTrackDetail = useTrackDetailStore((s) => s.remember);
 
   if (items.length === 0) {
@@ -52,6 +53,21 @@ export function PlayableTrackTable({
 
   const resolve = (track: Track): TahtiPlayable | null =>
     byId.get(track.source.id) ?? null;
+
+  const addAllToQueue = () => {
+    const queuedIds = new Set(queue.map((queueItem) => queueItem.id));
+    const newItems = items.filter((item) => !queuedIds.has(item.id));
+    for (const item of newItems) {
+      enqueue(item);
+    }
+    if (newItems.length === 0) {
+      toast.info('All listed tracks are already in the queue.');
+    } else {
+      toast.success(
+        `Added ${newItems.length} track${newItems.length === 1 ? '' : 's'} to the queue.`,
+      );
+    }
+  };
 
   return (
     <>
@@ -77,6 +93,7 @@ export function PlayableTrackTable({
             displayAlbum: items.some((i) =>
               Boolean(i.sourceProvider && i.sourceProvider !== 'tahti'),
             ),
+            displayReleaseDate: items.some((i) => Boolean(i.releaseDate)),
             displayQueueControls: true,
             displayPosition: false,
           }}
@@ -134,20 +151,7 @@ export function PlayableTrackTable({
                 play(head, { enqueueRest: rest });
               }
             },
-            onAddAllToQueue: () => {
-              const queuedIds = new Set(queue.map((queueItem) => queueItem.id));
-              const newItems = items.filter((item) => !queuedIds.has(item.id));
-              for (const item of newItems) {
-                enqueue(item);
-              }
-              if (newItems.length === 0) {
-                toast.info('All listed tracks are already in the queue.');
-              } else {
-                toast.success(
-                  `Added ${newItems.length} track${newItems.length === 1 ? '' : 's'} to the queue.`,
-                );
-              }
-            },
+            onAddAllToQueue: () => setConfirmAddAllOpen(true),
             onToggleFavorite: (track) => {
               const item = resolve(track);
               if (item) {
@@ -187,6 +191,28 @@ export function PlayableTrackTable({
         track={trackInfo}
         onClose={() => setTrackInfo(null)}
       />
+      <Dialog.Root
+        isOpen={confirmAddAllOpen}
+        onClose={() => setConfirmAddAllOpen(false)}
+      >
+        <Dialog.Title>
+          Add {items.length} track{items.length === 1 ? '' : 's'} to queue?
+        </Dialog.Title>
+        <Dialog.Description>
+          This adds every track in this list to your play queue.
+        </Dialog.Description>
+        <Dialog.Actions>
+          <Dialog.Close>Cancel</Dialog.Close>
+          <Button
+            onClick={() => {
+              addAllToQueue();
+              setConfirmAddAllOpen(false);
+            }}
+          >
+            Add to queue
+          </Button>
+        </Dialog.Actions>
+      </Dialog.Root>
     </>
   );
 }

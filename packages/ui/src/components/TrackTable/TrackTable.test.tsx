@@ -27,6 +27,11 @@ const labels: TrackTableLabels = {
   filterPlaceholder: 'Filter tracks',
 };
 
+const labelsWithReleaseDate: TrackTableLabels = {
+  ...labels,
+  headers: { ...labels.headers, releaseDate: 'Released' },
+};
+
 const TEST_ROW_HEIGHT = 42;
 const TEST_MAX_VISIBLE = 20;
 const TEST_CONTAINER_HEIGHT = 400;
@@ -253,5 +258,56 @@ describe('TrackTable', () => {
 
     expect(onOpenDetails).toHaveBeenCalledWith(track);
     expect(onPlayNow).not.toHaveBeenCalled();
+  });
+
+  it('shows a release date column when enabled and data is present', async () => {
+    const track = {
+      ...makeTracks(1)[0]!,
+      releaseDate: '2026-01-15T00:00:00.000Z',
+    };
+
+    render(
+      <TrackTable
+        tracks={[track]}
+        labels={labelsWithReleaseDate}
+        display={{ displayReleaseDate: true }}
+      />,
+    );
+
+    await screen.findByText('Track 1');
+    expect(screen.getByText('Released')).toBeInTheDocument();
+    expect(screen.getByText('Jan 15, 2026')).toBeInTheDocument();
+  });
+
+  it("groups favorite and the actions column at the row's right edge", async () => {
+    const track = makeTracks(1)[0]!;
+
+    render(
+      <TrackTable
+        tracks={[track]}
+        labels={labels}
+        display={{
+          displayFavorite: true,
+          displayDuration: true,
+          displayThumbnail: false,
+        }}
+        actions={{ onToggleFavorite: vi.fn(), onAddToQueue: vi.fn() }}
+        meta={{ isTrackFavorite: () => false }}
+      />,
+    );
+
+    await screen.findByText('Track 1');
+    const headerCells = screen.getAllByRole('columnheader');
+    const durationIndex = headerCells.findIndex((cell) =>
+      cell.textContent?.includes(labels.headers.duration),
+    );
+    // Duration is a plain data column -- it should sit before the trailing
+    // icon-only favorite/actions cluster, not after it.
+    expect(durationIndex).toBeGreaterThan(-1);
+    const trailing = headerCells.slice(durationIndex + 1);
+    expect(trailing.length).toBe(2);
+    for (const cell of trailing) {
+      expect(cell.textContent?.trim()).toBe('');
+    }
   });
 });

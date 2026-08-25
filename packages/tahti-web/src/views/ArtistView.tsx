@@ -80,6 +80,7 @@ function releaseToPlayable(
     streamUrl: track.playUrl,
     protocol: isHls ? 'hls' : 'https',
     channelSlug,
+    releaseDate: release.releaseDate ?? null,
   };
 }
 
@@ -103,6 +104,7 @@ export function profileTrackToPlayable(
     streamUrl: track.playUrl,
     protocol: isHls ? 'hls' : 'https',
     channelSlug,
+    releaseDate: track.createdAt ?? null,
   };
 }
 
@@ -647,7 +649,6 @@ export function ArtistView({ username }: { username: string }) {
                     src={track.bannerUrl ?? placeholderArtworkUrl(track.id)}
                     glowColor={GLOW_COLORS[i % GLOW_COLORS.length]}
                     onPlay={() => play(playable)}
-                    onQueue={() => enqueue(playable)}
                     onFavorite={() => toggleFavoriteTrack(playable)}
                     favorited={favoriteTracks.some((t) => t.id === playable.id)}
                   />
@@ -699,18 +700,6 @@ export function ArtistView({ username }: { username: string }) {
                               release,
                               artist.displayName,
                               channel?.slug,
-                            )
-                        : undefined
-                    }
-                    onQueue={
-                      playable
-                        ? () =>
-                            queueAlbum(
-                              releasePlayables(
-                                release,
-                                artist.displayName,
-                                channel?.slug,
-                              ),
                             )
                         : undefined
                     }

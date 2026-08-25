@@ -128,7 +128,7 @@ exports[`FavoriteAlbums view > (Snapshot) renders with albums 1`] = `
               role="grid"
             >
               <div
-                class="text-primary-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none"
+                class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none"
                 data-testid="card"
                 role="button"
                 tabindex="0"
@@ -195,7 +195,7 @@ exports[`FavoriteAlbums view > (Snapshot) renders with albums 1`] = `
                 </div>
               </div>
               <div
-                class="text-primary-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none"
+                class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none"
                 data-testid="card"
                 role="button"
                 tabindex="0"

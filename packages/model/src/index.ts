@@ -66,6 +66,9 @@ export type Track = {
   disc?: string;
   artwork?: ArtworkSet;
   tags?: string[];
+  /** ISO date the track itself was released -- distinct from `album`'s own
+   * release date, and only present when the source has it. */
+  releaseDate?: string;
   source: ProviderRef;
   localFile?: LocalFileInfo;
   streamCandidates?: StreamCandidate[];

@@ -33,7 +33,7 @@ export function WidgetTrackRow({
   const playable = toPlayable(item);
 
   const artwork = (
-    <span className="bg-background relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded">
+    <span className="bg-background relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded">
       {item.coverUrl ? (
         <img src={item.coverUrl} alt="" className="size-full object-cover" />
       ) : (
