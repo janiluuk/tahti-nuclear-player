@@ -4,10 +4,15 @@ export type ChannelDirectoryItem = {
   displayName: string;
   avatarUrl: string | null;
   genres: string[];
-  /** True while actively broadcasting. Absent/false means the profile is
-   * browsable (archive/tracks) but not currently live. */
+  /** True while live or replaying — API field from `/api/v1/channels/directory`. */
+  isActive?: boolean;
+  /** Older alias; prefer `isActive`. */
   live?: boolean;
 };
+
+export function isDirectoryArtistActive(item: ChannelDirectoryItem): boolean {
+  return item.isActive === true || item.live === true;
+}
 
 export type ChannelDirectoryResponse = {
   items: ChannelDirectoryItem[];

@@ -64,6 +64,9 @@ export const VISUAL_PRESETS = [
 
 export type VisualPreset = (typeof VISUAL_PRESETS)[number];
 
+export const isVisualPreset = (value: string): value is VisualPreset =>
+  (VISUAL_PRESETS as readonly string[]).includes(value);
+
 export const HEADER_STYLES = ['GRADIENT', 'SOLID', 'VIDEO_LOOP'] as const;
 export type HeaderStyle = (typeof HEADER_STYLES)[number];
 
@@ -178,6 +181,25 @@ export function resolveVisualPresetSettings(
     speed: entry?.speed ?? DEFAULT_VISUAL_PRESET_SETTINGS.speed,
     intensity: entry?.intensity ?? DEFAULT_VISUAL_PRESET_SETTINGS.intensity,
   };
+}
+
+/** Governs whether the speed/intensity tuning sliders should be docked
+ * inside the live visualizer preview: only while the Visualizer tab is the
+ * one showing, the visualizer is switched on, and the current preset is a
+ * real (non-MINIMAL) preset that actually has tunable settings. Shared by
+ * ChannelDesigner's docked-in-preview overlay and its lookOnly inline
+ * fallback so both agree on exactly one rule. */
+export function shouldDockVisualizerTuning(params: {
+  preset: string;
+  visualizerEnabled: boolean;
+  activeTab: string;
+}): boolean {
+  return (
+    params.visualizerEnabled &&
+    params.activeTab === 'visualizer' &&
+    isVisualPreset(params.preset) &&
+    params.preset !== 'MINIMAL'
+  );
 }
 
 let mockVisual: ChannelVisual = {

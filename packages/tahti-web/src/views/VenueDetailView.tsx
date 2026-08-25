@@ -8,6 +8,7 @@ import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { countryFlagAndName } from '../lib/countries';
+import { syncDocumentMetadata } from '../lib/seo';
 
 export function VenueDetailView({ slug }: { slug: string }) {
   const [venue, setVenue] = useState<VenueDirectoryItem | null | undefined>(
@@ -21,7 +22,19 @@ export function VenueDetailView({ slug }: { slug: string }) {
       if (cancelled) {
         return;
       }
-      setVenue(res.data.find((v) => v.slug === slug) ?? null);
+      const found = res.data.find((v) => v.slug === slug) ?? null;
+      setVenue(found);
+      if (found) {
+        const place = [found.city, found.countryCode]
+          .filter(Boolean)
+          .join(', ');
+        syncDocumentMetadata(window.location.pathname, {
+          title: `${found.name} on Tahti`,
+          description:
+            found.description ??
+            `${found.name}${place ? ` — ${place}` : ''} is a verified venue on Tahti.`,
+        });
+      }
     });
     return () => {
       cancelled = true;

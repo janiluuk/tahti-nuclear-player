@@ -7,12 +7,11 @@ import {
   PauseIcon,
   PencilIcon,
   PlayIcon,
-  SlidersHorizontalIcon,
   WifiOffIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, SaveButton } from '@nuclearplayer/ui';
 
 import { patchChannelVisual } from '../api/channel-design';
 import {
@@ -20,15 +19,19 @@ import {
   fetchChannel,
   fetchChannelArchive,
 } from '../api/client';
+import {
+  fetchChannelDiscoWidgets,
+  type DiscoWidgetRenderItem,
+} from '../api/disco-widgets';
 import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
+import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { EmbedButton } from '../components/EmbedButton';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
-import { hasAccountRole } from '../lib/accountRoles';
 import {
   addItemType,
   CHANNEL_PAGE_ITEM_META,
@@ -71,6 +74,7 @@ export function ChannelView({ slug }: { slug: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(true);
   const [lookTick, setLookTick] = useState(0);
   const [presetNote, setPresetNote] = useState<string | null>(null);
+  const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
 
   const play = usePlayerStore((s) => s.play);
   const currentId = usePlayerStore((s) => s.currentId);
@@ -82,10 +86,6 @@ export function ChannelView({ slug }: { slug: string }) {
   );
   const setChatContext = useLayoutStore((s) => s.setChatContext);
   const clearChatContext = useLayoutStore((s) => s.clearChatContext);
-  const setFullScreenPlayerOpen = useLayoutStore(
-    (s) => s.setFullScreenPlayerOpen,
-  );
-  const setManageChannelSlug = useLayoutStore((s) => s.setManageChannelSlug);
   const openChatRail = useLayoutStore((s) => s.openChatRail);
 
   useEffect(() => clearChatContext, [clearChatContext]);
@@ -110,35 +110,38 @@ export function ChannelView({ slug }: { slug: string }) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    void Promise.all([fetchChannel(slug), fetchChannelArchive(slug)]).then(
-      ([ch, items]) => {
-        if (cancelled) {
-          return;
-        }
-        setChannel(ch.data);
-        setArchive(items.data);
-        setLoading(false);
+    void Promise.all([
+      fetchChannel(slug),
+      fetchChannelArchive(slug),
+      fetchChannelDiscoWidgets(slug),
+    ]).then(([ch, items, widgets]) => {
+      if (cancelled) {
+        return;
+      }
+      setChannel(ch.data);
+      setArchive(items.data);
+      setDiscoWidgets(widgets.data);
+      setLoading(false);
 
-        if (ch.data) {
-          const name = ch.data.user.displayName;
-          syncDocumentMetadata(window.location.pathname, {
-            title: `${name} live on Tahti`,
-            description:
-              ch.data.user.bio ??
-              `Listen to ${name}'s live channel, archive, and programme on Tahti.`,
-            image: ch.data.user.avatarUrl ?? undefined,
-          });
-        }
-
-        const enabled = ch.data?.chatEnabled !== false;
-        setChatContext({
-          slug,
-          enabled,
-          reason: enabled ? null : 'Chat is disabled for this channel',
-          autoOpen: enabled && !editing,
+      if (ch.data) {
+        const name = ch.data.user.displayName;
+        syncDocumentMetadata(window.location.pathname, {
+          title: `${name} live on Tahti`,
+          description:
+            ch.data.user.bio ??
+            `Listen to ${name}'s live channel, archive, and programme on Tahti.`,
+          image: ch.data.user.avatarUrl ?? undefined,
         });
-      },
-    );
+      }
+
+      const enabled = ch.data?.chatEnabled !== false;
+      setChatContext({
+        slug,
+        enabled,
+        reason: enabled ? null : 'Chat is disabled for this channel',
+        autoOpen: enabled && !editing,
+      });
+    });
     return () => {
       cancelled = true;
     };
@@ -197,18 +200,6 @@ export function ChannelView({ slug }: { slug: string }) {
         play(playable);
       }
     });
-  };
-
-  const handleOpenManage = () => {
-    setManageChannelSlug(slug);
-    setFullScreenPlayerOpen(true);
-    if (!channelIsCurrent) {
-      void fetchChannel(slug).then(({ playable }) => {
-        if (playable) {
-          play(playable);
-        }
-      });
-    }
   };
 
   const handleToggleFavoriteChannel = () =>
@@ -588,13 +579,6 @@ export function ChannelView({ slug }: { slug: string }) {
           </p>
         </div>
 
-        {(isOwner || hasAccountRole(me, 'BOARD')) && !editing && (
-          <Button size="sm" variant="secondary" onClick={handleOpenManage}>
-            <SlidersHorizontalIcon size={14} aria-hidden className="mr-1.5" />
-            Manage stream
-          </Button>
-        )}
-
         {visibleItems.map((item) => {
           if (!editing && !item.visible) {
             return null;
@@ -652,6 +636,7 @@ export function ChannelView({ slug }: { slug: string }) {
             </div>
           );
         })}
+        {!editing ? <DiscoWidgetsSection widgets={discoWidgets} /> : null}
       </div>
     </div>
   );
@@ -725,14 +710,11 @@ export function ChannelView({ slug }: { slug: string }) {
           >
             {mobileMenuOpen ? 'Hide menu' : 'Layers menu'}
           </Button>
-          <Button
-            size="sm"
-            variant="secondary"
+          <SaveButton
             disabled={!layoutDirty}
+            label="Save layout"
             onClick={saveLayout}
-          >
-            Save layout
-          </Button>
+          />
           <Button size="sm" onClick={exitEdit}>
             Done
           </Button>

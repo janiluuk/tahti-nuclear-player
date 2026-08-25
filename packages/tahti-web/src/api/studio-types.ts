@@ -35,6 +35,8 @@ export type StudioArchiveItem = {
    * the provider's own widget, not the normal editor-source stream. */
   embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | null;
   embedUri?: string | null;
+  /** [0..255] amplitude buckets for the real waveform — null/absent when not yet decoded. */
+  peaks?: number[] | null;
 };
 
 export type StudioArchivePatch = {

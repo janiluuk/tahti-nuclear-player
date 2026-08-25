@@ -6,6 +6,7 @@ import { Button, Tabs } from '@nuclearplayer/ui';
 import { fetchMembership, fetchMySubscriptions } from '../api/client';
 import type { FanSubscriptionRow, MembershipStatus } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { membershipStatusLabel } from '../lib/membershipStatus';
 import { useAuthStore } from '../stores/authStore';
 
 function euros(cents: number): string {
@@ -121,7 +122,9 @@ export function AccountView() {
                   <dt className="text-foreground-secondary text-xs uppercase">
                     Status
                   </dt>
-                  <dd className="mt-1 font-semibold">{membership.status}</dd>
+                  <dd className="mt-1 font-semibold">
+                    {membershipStatusLabel(membership)}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-foreground-secondary text-xs uppercase">

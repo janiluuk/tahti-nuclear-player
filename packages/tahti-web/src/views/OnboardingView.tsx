@@ -21,6 +21,7 @@ import {
   normalizeGenresForPicker,
   parseGenreTags,
 } from '../lib/genres';
+import { takePendingArtistKind } from '../lib/pendingArtistKind';
 import { useAuthStore } from '../stores/authStore';
 import { useThemeStore, type ColorMode } from '../stores/themeStore';
 
@@ -98,7 +99,9 @@ export function OnboardingView() {
         setDisplayName(profile.data.displayName || user.displayName || '');
         setBio(profile.data.bio ?? '');
         setAvatarUrl(profile.data.avatarUrl ?? user.avatarUrl ?? null);
-        setArtistKind(profile.data.artistKind ?? 'SINGLE');
+        setArtistKind(
+          takePendingArtistKind() ?? profile.data.artistKind ?? 'SINGLE',
+        );
         setCountryCode(profile.data.countryCode ?? '');
         setDefaultLocation(profile.data.defaultLocation ?? '');
         setShowFollowers(profile.data.showFollowers ?? true);

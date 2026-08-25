@@ -1,0 +1,34 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SaveButton > (Snapshot) renders default state 1`] = `
+<button
+  class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none h-9 px-3"
+  data-headlessui-state=""
+  type="button"
+>
+  <svg
+    aria-hidden="true"
+    class="lucide lucide-save mr-1.5"
+    fill="none"
+    height="14"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+    width="14"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"
+    />
+    <path
+      d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"
+    />
+    <path
+      d="M7 3v4a1 1 0 0 0 1 1h7"
+    />
+  </svg>
+  Save
+</button>
+`;

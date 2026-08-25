@@ -3,7 +3,7 @@
 Living checklist of **prod `apps/web` → Nuclear tahti-web POC**.  
 Companion tables: [FEATURES.md](./FEATURES.md). Mock offline paths: [MOCKS.md](./MOCKS.md).
 
-**Last audited:** 2026-08-22 against monorepo routes under `apps/web/src/app` + public/me APIs.
+**Last audited:** 2026-08-25 against `tahti-org` apps/web + public/me APIs.
 
 ---
 
@@ -71,7 +71,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | Spotify / SoundCloud stream URLs  | Always DEMO_MP3, live or mock (neither API exposes a real per-track preview here); Play/Queue now labeled "demo audio" | Wire real preview / import playables         |
 | Channel chat                      | Fail closed when join fails (prod); mock send only under FORCE_MOCK; hCaptcha powers both chat surfaces | Live soak testing                            |
 | Themes                            | Nuclear local presets (`mock-ok`)                                                            | Keep — not a Tahti API                       |
-| Help / legal                      | Static POC copy + prod links                                                                 | Optional: fetch help CMS later               |
+| Help / legal                      | Static hub + disco-widgets article + support form                    | Keep                                         |
 | Settings extras                   | Email invites for people without an account have no backing API                              | Keep existing-user moderation in-client      |
 | Favorites / history               | Mostly **localStorage**, not server library                                                  | Optional: sync with API if/when exists       |
 | Pro editor                        | Partial vs prod multitrack — callout on editor                                               | Timeline + export parity                     |
@@ -92,9 +92,9 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | `/venues`                                     | `/venues`          | `done`                     |
 | `/venues/register`                            | `/venues/register` | `done`                     |
 | `/transparency`, `/status`                    | matching           | `done`                     |
-| `/help/*`                                     | `/help` static     | `partial`                  |
+| `/help/*`                                     | `/help` + articles | `done`                     |
 | `/`, `/apply`, marketing                      | —                  | `missing` / `out-of-scope` |
-| Green room `/u/:user/green-room`              | —                  | `missing`                  |
+| Green room `/u/:user/green-room`              | matching           | `done`                     |
 
 ### Auth / account
 

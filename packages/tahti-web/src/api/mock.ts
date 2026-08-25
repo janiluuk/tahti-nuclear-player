@@ -341,6 +341,7 @@ const MOCK_DIRECTORY: ChannelDirectoryResponse = {
     displayName: s.displayName,
     avatarUrl: s.avatarUrl ?? null,
     genres: s.genres,
+    isActive: LIVE_SLUGS.has(slug),
   })),
   // tahti-radio is featured via fetchRadioStation on Listen — not listed here.
 };

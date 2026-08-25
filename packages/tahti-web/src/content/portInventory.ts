@@ -127,6 +127,15 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
     detail: 'Replace apps/web listen/studio with this client.',
     section: 'backlog',
   },
+  {
+    id: 'disco-widgets',
+    surface: 'Disco-widgets',
+    route: '/settings/widgets',
+    status: 'done',
+    detail:
+      'Listener and artist store, sandboxed iframe renderer, Listen/channel/profile mounts. Admin catalog stays on Next /admin.',
+    section: 'backlog',
+  },
 ];
 
 /** Mock / stub / unwired inventory rows. */
@@ -177,7 +186,7 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
     surface: 'Help / legal',
     route: '/help',
     status: 'partial',
-    detail: 'Static POC copy + prod links.',
+    detail: 'Static help hub plus a Disco-widgets contribution guide.',
     section: 'mock',
   },
   {
@@ -227,8 +236,9 @@ export const PORT_GAP_HIGHLIGHTS: PortInventoryItem[] = [
   {
     id: 'gap-green-room',
     surface: 'Green room',
-    status: 'missing',
-    detail: 'Prod /u/:user/green-room not in POC.',
+    route: '/u/$username/green-room',
+    status: 'done',
+    detail: 'Guest preview and broadcast prefs are live-API.',
     section: 'gap',
   },
   {

@@ -75,6 +75,9 @@ const mockArchiveStore: StudioArchiveItem[] = [
     commentsEnabled: true,
     pinnedAt: '2026-07-15T12:00:00.000Z',
     createdAt: new Date().toISOString(),
+    peaks: Array.from({ length: 96 }, (_, i) =>
+      Math.round(60 + 120 * Math.abs(Math.sin(i * 0.37))),
+    ),
   },
   {
     id: 'arch-mock-2',

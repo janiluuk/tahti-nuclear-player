@@ -1,7 +1,14 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Card, CardGrid, Dialog, Textarea } from '@nuclearplayer/ui';
+import {
+  Button,
+  Card,
+  CardGrid,
+  Dialog,
+  SaveButton,
+  Textarea,
+} from '@nuclearplayer/ui';
 
 import {
   fetchMyPressKitImages,
@@ -9,6 +16,10 @@ import {
   type PublicPressKitImage,
 } from '../api/artist-settings';
 import { fetchChannel, fetchProfile } from '../api/client';
+import {
+  fetchChannelDiscoWidgets,
+  type DiscoWidgetRenderItem,
+} from '../api/disco-widgets';
 import { patchMeProfile } from '../api/studio-extras';
 import type {
   PublicChannel,
@@ -22,6 +33,7 @@ import {
 } from '../components/ArtistGalleryPanel';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
+import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { GlowMediaTile } from '../components/GlowMediaTile';
 import { ImageLightbox } from '../components/ImageLightbox';
 import { NewsletterSubscribeToggle } from '../components/NewsletterSubscribeToggle';
@@ -116,6 +128,7 @@ export function ArtistView({ username }: { username: string }) {
   > | null>(null);
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
 
   const navigate = useNavigate();
   const play = usePlayerStore((s) => s.play);
@@ -187,18 +200,23 @@ export function ArtistView({ username }: { username: string }) {
     const slug = profile?.channel?.slug;
     if (!slug) {
       setChannelVisual(null);
+      setDiscoWidgets([]);
       return;
     }
     let cancelled = false;
-    void fetchChannel(slug).then((res) => {
-      if (!cancelled) {
+    void Promise.all([fetchChannel(slug), fetchChannelDiscoWidgets(slug)]).then(
+      ([res, widgets]) => {
+        if (cancelled) {
+          return;
+        }
         setChannelVisual({
           visualPreset: res.data.visualPreset,
           colorScheme: res.data.colorScheme,
           colorSchemeJson: res.data.colorSchemeJson,
         });
-      }
-    });
+        setDiscoWidgets(widgets.data);
+      },
+    );
     return () => {
       cancelled = true;
     };
@@ -320,28 +338,39 @@ export function ArtistView({ username }: { username: string }) {
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-4">
-            {artist.avatarUrl ? (
-              <button
-                type="button"
-                className="border-border size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24"
-                aria-label={`View ${artist.displayName} profile picture`}
-                onClick={() => setAvatarOpen(true)}
-              >
-                <img
-                  src={artist.avatarUrl}
-                  alt=""
-                  className="size-full object-cover"
+            <div className="relative size-20 shrink-0 sm:size-24">
+              {channel && tab !== 'music' ? (
+                <ChannelVisualizer
+                  className="absolute -inset-2 rounded-2xl"
+                  preset={channelVisual?.visualPreset}
+                  colorScheme={channelVisual?.colorScheme}
+                  colorSchemeJson={channelVisual?.colorSchemeJson}
+                  artworkUrl={nowPlayingHere?.coverUrl ?? artist.avatarUrl}
                 />
-              </button>
-            ) : (
-              <div className="border-border size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24">
-                <img
-                  src={placeholderArtworkUrl(artist.username)}
-                  alt=""
-                  className="size-full object-cover"
-                />
-              </div>
-            )}
+              ) : null}
+              {artist.avatarUrl ? (
+                <button
+                  type="button"
+                  className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24"
+                  aria-label={`View ${artist.displayName} profile picture`}
+                  onClick={() => setAvatarOpen(true)}
+                >
+                  <img
+                    src={artist.avatarUrl}
+                    alt=""
+                    className="size-full object-cover"
+                  />
+                </button>
+              ) : (
+                <div className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24">
+                  <img
+                    src={placeholderArtworkUrl(artist.username)}
+                    alt=""
+                    className="size-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
             <div className="min-w-0">
               <h1 className="font-display text-3xl font-extrabold tracking-tight">
                 {artist.displayName}
@@ -385,10 +414,17 @@ export function ArtistView({ username }: { username: string }) {
               value={fullBioDraft}
               onChange={(e) => setFullBioDraft(e.target.value)}
             />
-            <div className="flex gap-2">
+            <div className="flex justify-end gap-2">
               <Button
                 size="sm"
+                variant="secondary"
                 disabled={savingFullBio}
+                onClick={() => setEditingFullBio(false)}
+              >
+                Cancel
+              </Button>
+              <SaveButton
+                saving={savingFullBio}
                 onClick={async () => {
                   setSavingFullBio(true);
                   const result = await patchMeProfile({
@@ -411,17 +447,7 @@ export function ArtistView({ username }: { username: string }) {
                   );
                   setEditingFullBio(false);
                 }}
-              >
-                {savingFullBio ? 'Saving…' : 'Save'}
-              </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={savingFullBio}
-                onClick={() => setEditingFullBio(false)}
-              >
-                Cancel
-              </Button>
+              />
             </div>
           </div>
         ) : artist.fullBio ? (
@@ -456,8 +482,9 @@ export function ArtistView({ username }: { username: string }) {
             + Add full bio
           </Button>
         ) : null}
+        <DiscoWidgetsSection widgets={discoWidgets} />
         <div className="mt-2 flex flex-wrap gap-3 text-sm">
-          {channel && (
+          {channel && channel.state !== 'OFFLINE' && (
             <Link
               to="/channel/$slug"
               params={{ slug: channel.slug }}
@@ -470,9 +497,10 @@ export function ArtistView({ username }: { username: string }) {
             <Link
               to="/subscribe/$username"
               params={{ username: artist.username }}
-              className="text-foreground-secondary underline-offset-2 hover:underline"
             >
-              Support artist
+              <Button size="sm" variant="secondary">
+                Support artist
+              </Button>
             </Link>
           ) : null}
           {channel && (

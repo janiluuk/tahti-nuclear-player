@@ -88,7 +88,8 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Venues list | `/venues` | `/venues` | `partial` | list only |
 | Venue register | `/venues/register` | `/venues/register` | `live-api` | `POST /api/v1/venues`; board verifies |
 | Transparency | `/transparency` | `/transparency` | `live-api` | |
-| Help | `/help/*` | `/help` | `mock-ok` | static copy |
+| Help | `/help/*` | `/help` | `live-api` | static articles including disco-widgets; support form posts to API |
+| Disco-widgets | discovery settings + listen/profile | Settings → Widgets + Listen/channel | `live-api` | sandboxed iframe; admin catalog stays Next |
 | Legal / about | `/about`… | same | `partial` | POC + prod links |
 | Platform status | `/status` | `/status` | `live-api` | |
 | Marketing home / apply | `/`, `/apply` | — | `missing` | listen hub is home |
@@ -213,7 +214,27 @@ Compared the current `apps/web/src/app/**/page.tsx` tree in the Tahti repository
 - [x] Direct-message thread URLs — new `/messages/$id` route; opening a conversation now navigates there so refresh/share preserves it.
 - [ ] Admin detail operations remain intentionally reduced: user/support/announcement detail, bulk file operations, per-subscriber payout retry, legacy-member migration, grant preview/run, and governance report/resolution/audit tools.
 - [ ] Pro editor remains shallower than Tahti's full ffmpeg/multitrack workflow; a true multitrack timeline still needs a rendering and persistence design.
-- [x] Dynamic SEO/OG parity for artist, channel, and release pages — client-side sync on real data resolve (`src/lib/seo.ts`) plus a bot-facing `/api/og/*` proxy (see SEO-OG-NOTES.md). Collection and venue pages still fall back to the generic static tags — no OG route exists for either yet.
+- [x] Dynamic SEO/OG parity for artist, channel, and release pages — client-side sync on real data resolve (`src/lib/seo.ts`) plus a bot-facing `/api/og/*` proxy (see SEO-OG-NOTES.md). Collection and venue pages now sync client-side metadata after fetch; they still have no dedicated bot OG routes.
+
+## 2026-08-25 tahti-org sweep
+
+Compared `tahti-org` (apps/web + recent API) with this SPA. Ported in this pass:
+
+- [x] Disco-widgets (listener + artist store, sandboxed iframe, Listen/channel/profile render). Admin catalog stays on Next `/admin/disco-widgets`.
+- [x] Sticky must-dismiss notifications (theme review lifecycle).
+- [x] Listen artist directory: `isActive` badges, Active-now filter, active-first sort.
+- [x] Join form: Solo / Collective toggle and “Collective name” label (kind is applied at onboarding).
+- [x] Collection and venue client-side SEO sync.
+
+Still not ported (do not block cutover unless noted):
+
+- [ ] Integrations marketplace (per-user API keys / fingerprint plugins) — Sources OAuth exists; the plugin catalog does not.
+- [ ] Theme editor public-submit / GitHub PR pipeline — local Nuclear themes only.
+- [ ] Internet Radio personal library (`/api/me/internet-radio`) — this client has a local catalog + Radio Browser search, not the server-side station library.
+- [ ] Hearthis export push — import is live; export is still a manual cross-post note.
+- [ ] Help spotlight tours covering disco-widgets specifically (generic `?` tours exist).
+- [ ] Admin Disco-widgets / Internet Radio / Themes board tools (Next admin remains canonical).
+- [ ] Collection/venue bot OG endpoints (no `/api/og/collection` or `/api/og/venue` in tahti-org yet).
 
 ### Intentionally consolidated, not missing
 

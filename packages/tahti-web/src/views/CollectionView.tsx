@@ -21,6 +21,7 @@ import { PageFrame } from '../components/PageHeader';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import type { EmbedProvider } from '../lib/embedSrc';
+import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
 
@@ -68,6 +69,15 @@ export function CollectionView({
       }
       setCollection(res.data);
       setLoading(false);
+      if (res.data) {
+        syncDocumentMetadata(window.location.pathname, {
+          title: `${res.data.name} by ${res.data.user.displayName} on Tahti`,
+          description:
+            res.data.description ??
+            `Listen to ${res.data.name}, a collection by ${res.data.user.displayName} on Tahti.`,
+          image: res.data.coverUrl ?? undefined,
+        });
+      }
     });
     return () => {
       cancelled = true;

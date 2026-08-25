@@ -13,6 +13,8 @@ describe('metadataForPath', () => {
     ['/channel/night-radio', 'Night Radio live on Tahti'],
     ['/c/night-radio', 'Night Radio live on Tahti'],
     ['/u/mart-saar', 'Mart Saar on Tahti'],
+    ['/u/mart-saar/c/late-nights', 'Late Nights by Mart Saar on Tahti'],
+    ['/v/tavastia', 'Tavastia on Tahti'],
     ['/r/summer-release', 'Summer Release on Tahti'],
     ['/radio', 'Tahti Radio'],
     ['/studio/go-live', 'Studio · Tahti'],

@@ -69,7 +69,7 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   {
     id: 'widgets',
     label: 'Widgets',
-    description: 'SoundCloud, YouTube, and internet radio, right on Listen',
+    description: 'Embeds, Disco-widgets, and internet radio',
     Icon: Blocks,
   },
   {

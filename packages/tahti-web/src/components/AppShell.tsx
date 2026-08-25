@@ -47,7 +47,7 @@ import { FullScreenPlayer } from './FullScreenPlayer';
 import { MobileBottomNav, MobileDrawer } from './MobileChrome';
 import { PageTourSpotlight } from './PageTourSpotlight';
 import { RightRailPanel } from './RightRailPanel';
-import { SidebarBuildInfo } from './SidebarBuildInfo';
+import { StickyNotificationBanner } from './StickyNotificationBanner';
 
 function SidebarNavItems({ compact }: { compact: boolean }) {
   const isBoard = useAuthStore((state) => hasAccountRole(state.user, 'BOARD'));
@@ -286,6 +286,7 @@ export function AppShell() {
         onOpenMenu={() => setMobileNavOpen(true)}
         variant={isArtistPage ? 'minimal' : 'default'}
       />
+      <StickyNotificationBanner />
 
       <AudioEngine />
 
@@ -393,7 +394,6 @@ export function AppShell() {
                       onClick={() => openSettings()}
                     />
                   </div>
-                  {isBoard && !leftCollapsed && <SidebarBuildInfo />}
                 </div>
               </div>
             </SidebarNavigation>

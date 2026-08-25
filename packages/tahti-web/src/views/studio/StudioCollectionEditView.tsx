@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, FilePicker, Input } from '@nuclearplayer/ui';
+import { Button, FilePicker, Input, SaveButton } from '@nuclearplayer/ui';
 
 import {
   addStudioCollectionItem,
@@ -469,13 +469,10 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                   title={name || col.name}
                   subtitle={`/${col.slug}${style ? `, ${style}` : ''}, ${visibility.toLowerCase()}`}
                   action={
-                    <Button
-                      size="sm"
-                      disabled={saving}
+                    <SaveButton
+                      saving={saving}
                       onClick={() => void saveMeta()}
-                    >
-                      {saving ? 'Saving…' : 'Save'}
-                    </Button>
+                    />
                   }
                 />
                 <FilePicker

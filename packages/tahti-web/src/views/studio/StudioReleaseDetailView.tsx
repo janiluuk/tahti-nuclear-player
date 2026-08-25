@@ -2,7 +2,14 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLinkIcon, Share2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, EmptyState, FilePicker, Input, Tabs } from '@nuclearplayer/ui';
+import {
+  Button,
+  EmptyState,
+  FilePicker,
+  Input,
+  SaveButton,
+  Tabs,
+} from '@nuclearplayer/ui';
 
 import {
   fetchStudioReleases,
@@ -87,9 +94,7 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
               title={release.title}
               subtitle={`${release.state} — /r/${release.smartLinkSlug}`}
               action={
-                <Button size="sm" disabled={saving} onClick={() => void save()}>
-                  {saving ? 'Saving…' : 'Save'}
-                </Button>
+                <SaveButton saving={saving} onClick={() => void save()} />
               }
             />
 

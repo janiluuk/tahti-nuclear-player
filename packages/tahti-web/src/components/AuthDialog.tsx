@@ -4,6 +4,10 @@ import { FC, useEffect, useState } from 'react';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
+import {
+  persistPendingArtistKind,
+  type ArtistKind,
+} from '../lib/pendingArtistKind';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
@@ -30,6 +34,7 @@ export const AuthDialog: FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
   const [artistName, setArtistName] = useState('');
+  const [artistKind, setArtistKind] = useState<ArtistKind>('SINGLE');
   const [totpCode, setTotpCode] = useState('');
   const [message, setMessage] = useState<string | null>(null);
 
@@ -169,8 +174,32 @@ export const AuthDialog: FC = () => {
             onChange={(e) => setUsername(e.target.value.toLowerCase())}
             description="lowercase letters, numbers, - and _"
           />
+          <div className="flex gap-2">
+            {(
+              [
+                ['SINGLE', 'Solo artist'],
+                ['COLLECTIVE', 'Band / collective'],
+              ] as const
+            ).map(([kind, label]) => (
+              <button
+                key={kind}
+                type="button"
+                aria-pressed={artistKind === kind}
+                onClick={() => setArtistKind(kind)}
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  artistKind === kind
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border text-foreground-secondary hover:text-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <Input
-            label="Artist name"
+            label={
+              artistKind === 'COLLECTIVE' ? 'Collective name' : 'Artist name'
+            }
             value={artistName}
             onChange={(e) => setArtistName(e.target.value)}
             autoComplete="name"
@@ -220,6 +249,7 @@ export const AuthDialog: FC = () => {
                   displayName: artistName,
                 })
                   .then((msg) => {
+                    persistPendingArtistKind(artistKind);
                     setMessage(msg);
                     if (import.meta.env.VITE_FORCE_MOCK === '1') {
                       setMode('login');

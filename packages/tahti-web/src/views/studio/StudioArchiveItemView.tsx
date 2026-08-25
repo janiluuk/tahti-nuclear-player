@@ -8,12 +8,16 @@ import {
   PinOffIcon,
   PlayIcon,
   RadioTowerIcon,
-  SaveIcon,
   TagsIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, CreatableCombobox, Input } from '@nuclearplayer/ui';
+import {
+  Button,
+  CreatableCombobox,
+  Input,
+  SaveButton,
+} from '@nuclearplayer/ui';
 
 import {
   activateArchiveVersion,
@@ -446,13 +450,12 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                   </Button>
                 </Link>
                 {tab === 'details' ? (
-                  <Button
-                    disabled={saving || !title.trim()}
+                  <SaveButton
+                    size="sm"
+                    disabled={!title.trim()}
+                    saving={saving}
                     onClick={() => void save()}
-                  >
-                    <SaveIcon size={16} aria-hidden className="mr-1.5" />
-                    {saving ? 'Saving…' : 'Save'}
-                  </Button>
+                  />
                 ) : null}
               </div>
             </header>

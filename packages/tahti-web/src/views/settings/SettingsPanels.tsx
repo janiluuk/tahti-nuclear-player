@@ -35,6 +35,7 @@ import {
   Input,
   PluginItem,
   PluginStoreItem,
+  SaveButton,
   Select,
   Tabs,
   Toggle,
@@ -104,13 +105,16 @@ import {
 } from '../../api/studio-extras';
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
+import { DiscoWidgetManagerPanel } from '../../components/disco-widgets/DiscoWidgetManagerPanel';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { ListenerWidgetEmbed } from '../../components/ListenerWidgetEmbed';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
+import { SidebarBuildInfo } from '../../components/SidebarBuildInfo';
 import { LISTENER_WIDGET_TYPES } from '../../content/listenerWidgets';
 import { RADIO_STATIONS } from '../../content/radioStations';
+import { hasAccountRole } from '../../lib/accountRoles';
 import { COUNTRIES, flagEmoji } from '../../lib/countries';
 import { EXPORT_TARGETS } from '../../lib/exportTargets';
 import {
@@ -119,6 +123,7 @@ import {
   normalizeGenresForPicker,
   parseGenreTags,
 } from '../../lib/genres';
+import { membershipStatusLabel } from '../../lib/membershipStatus';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useListenerWidgetsStore } from '../../stores/listenerWidgetsStore';
@@ -388,6 +393,7 @@ function MembershipCheckoutButton({
 
 function AccountPanel() {
   const user = useAuthStore((s) => s.user);
+  const isBoard = useAuthStore((s) => hasAccountRole(s.user, 'BOARD'));
   const logout = useAuthStore((s) => s.logout);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [membership, setMembership] = useState<MembershipStatus | null>(null);
@@ -433,6 +439,7 @@ function AccountPanel() {
                   Log out
                 </Button>
               </div>
+              {isBoard && <SidebarBuildInfo />}
             </div>
           ),
         },
@@ -450,7 +457,10 @@ function AccountPanel() {
                 <SettingsHint>Could not load membership.</SettingsHint>
               ) : (
                 <div className="flex flex-col gap-4">
-                  <SettingsInfo label="Status" value={membership.status} />
+                  <SettingsInfo
+                    label="Status"
+                    value={membershipStatusLabel(membership)}
+                  />
                   <SettingsInfo
                     label="Member"
                     value={membership.isMember ? 'Yes' : 'No'}
@@ -707,33 +717,33 @@ function ArtistPanel() {
                 value={profile.showFollowing ?? true}
                 onChange={(v) => setProfile({ ...profile, showFollowing: v })}
               />
-              <Button
-                size="sm"
-                disabled={busy}
-                onClick={() => {
-                  setBusy(true);
-                  void patchMeProfile({
-                    displayName: profile.displayName.trim(),
-                    bio: profile.bio?.trim() || null,
-                    tipJarUrl: profile.tipJarUrl?.trim() || null,
-                    pronouns: profile.pronouns?.trim() || null,
-                    chatEnabled: profile.chatEnabled,
-                    showFollowers: profile.showFollowers,
-                    showFollowing: profile.showFollowing,
-                    artistKind: profile.artistKind,
-                    countryCode: profile.countryCode,
-                    defaultLocation: profile.defaultLocation?.trim() || null,
-                  }).then((r) => {
-                    setBusy(false);
-                    setMsg(r.ok ? 'Artist info saved.' : r.error);
-                    if (r.ok) {
-                      setProfile(r.data);
-                    }
-                  });
-                }}
-              >
-                Save artist info
-              </Button>
+              <div className="flex justify-end">
+                <SaveButton
+                  saving={busy}
+                  label="Save artist info"
+                  onClick={() => {
+                    setBusy(true);
+                    void patchMeProfile({
+                      displayName: profile.displayName.trim(),
+                      bio: profile.bio?.trim() || null,
+                      tipJarUrl: profile.tipJarUrl?.trim() || null,
+                      pronouns: profile.pronouns?.trim() || null,
+                      chatEnabled: profile.chatEnabled,
+                      showFollowers: profile.showFollowers,
+                      showFollowing: profile.showFollowing,
+                      artistKind: profile.artistKind,
+                      countryCode: profile.countryCode,
+                      defaultLocation: profile.defaultLocation?.trim() || null,
+                    }).then((r) => {
+                      setBusy(false);
+                      setMsg(r.ok ? 'Artist info saved.' : r.error);
+                      if (r.ok) {
+                        setProfile(r.data);
+                      }
+                    });
+                  }}
+                />
+              </div>
               {msg && <SettingsHint>{msg}</SettingsHint>}
             </div>
           ),
@@ -764,22 +774,22 @@ function ArtistPanel() {
                   }
                 />
               ))}
-              <Button
-                size="sm"
-                onClick={() => {
-                  if (!social) {
-                    return;
-                  }
-                  void patchSocialConnections(social).then((r) => {
-                    setSocialMsg(r.ok ? 'Connections saved.' : r.error);
-                    if (r.ok) {
-                      setSocial(r.data);
+              <div className="flex justify-end">
+                <SaveButton
+                  label="Save connections"
+                  onClick={() => {
+                    if (!social) {
+                      return;
                     }
-                  });
-                }}
-              >
-                Save connections
-              </Button>
+                    void patchSocialConnections(social).then((r) => {
+                      setSocialMsg(r.ok ? 'Connections saved.' : r.error);
+                      if (r.ok) {
+                        setSocial(r.data);
+                      }
+                    });
+                  }}
+                />
+              </div>
               {socialMsg && <SettingsHint>{socialMsg}</SettingsHint>}
             </div>
           ),
@@ -838,20 +848,11 @@ function ArtistPanel() {
                 label="Press assets"
                 value={`${press.photoCount} photos${press.hasZip ? ', ZIP ready' : ''}`}
               />
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    void patchPressKitBio(press.bioShort).then((r) => {
-                      setMsg(r.ok ? 'Press kit bio saved.' : r.error);
-                      if (r.ok) {
-                        setPress(r.data);
-                      }
-                    });
-                  }}
-                >
-                  Save press bio
-                </Button>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <SettingsHint>
+                  The download bundles your gallery images and biography into a
+                  single press kit.
+                </SettingsHint>
                 {press.downloadPath && (
                   <a
                     href={`https://tahti.live${press.downloadPath}`}
@@ -863,10 +864,17 @@ function ArtistPanel() {
                     </Button>
                   </a>
                 )}
-                <SettingsHint>
-                  The download bundles your gallery images and biography into a
-                  single press kit.
-                </SettingsHint>
+                <SaveButton
+                  label="Save press bio"
+                  onClick={() => {
+                    void patchPressKitBio(press.bioShort).then((r) => {
+                      setMsg(r.ok ? 'Press kit bio saved.' : r.error);
+                      if (r.ok) {
+                        setPress(r.data);
+                      }
+                    });
+                  }}
+                />
               </div>
             </div>
           ),
@@ -924,6 +932,11 @@ function ChannelPanel() {
                 username={user.username}
                 channelSlug={channel?.slug}
                 avatarUrl={user.avatarUrl}
+                // This modal is a global overlay that can stay open over the
+                // owner's own live channel page (which may already be
+                // running a live ChannelVisualizer) — skip the extra WebGL
+                // context here rather than risk two at once (see 7a8060d7).
+                livePreview={false}
                 compact
               />
             </div>
@@ -1613,6 +1626,9 @@ function WidgetsPanel() {
   const removeInstance = useListenerWidgetsStore((s) => s.removeInstance);
   const toggleStation = useListenerWidgetsStore((s) => s.toggleStation);
   const play = usePlayerStore((s) => s.play);
+  const user = useAuthStore((s) => s.user);
+  const signedIn = Boolean(user);
+  const hasChannel = Boolean(user?.channel);
 
   const [inputByType, setInputByType] = useState<Record<string, string>>({});
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -1626,6 +1642,32 @@ function WidgetsPanel() {
 
   return (
     <div className="flex flex-col gap-8">
+      {signedIn ? (
+        <div>
+          <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
+            Disco-widgets
+          </h2>
+          <DiscoWidgetManagerPanel
+            scope="LISTENER"
+            description="Sandboxed add-ons on your Listen page — only you see what you enable here."
+          />
+        </div>
+      ) : (
+        <p className="text-foreground-secondary text-sm">
+          Sign in to install Disco-widgets on your Listen page.
+        </p>
+      )}
+      {hasChannel ? (
+        <div>
+          <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
+            Channel Disco-widgets
+          </h2>
+          <DiscoWidgetManagerPanel
+            scope="ARTIST"
+            description="Widgets on your public channel and artist page. Listeners see these when they visit you."
+          />
+        </div>
+      ) : null}
       <div>
         <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
           Embed widgets

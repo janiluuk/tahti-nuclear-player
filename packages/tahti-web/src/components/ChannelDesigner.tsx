@@ -26,16 +26,19 @@ import {
   fetchChannelVisual,
   fillColorScheme,
   HEADER_STYLES,
+  isVisualPreset,
   parseColorScheme,
   parseVisualSettingsMap,
   patchChannelVisual,
   resolveVisualPresetSettings,
+  shouldDockVisualizerTuning,
   VISUAL_PRESETS,
   type ChannelVisual,
   type ColorScheme,
   type VisualPreset,
   type VisualSettingsMap,
 } from '../api/channel-design';
+import { ChannelVisualizer } from './ChannelVisualizer';
 import { Eyebrow } from './tahti/Eyebrow';
 
 const PRESET_META: Record<
@@ -88,8 +91,8 @@ const PRESET_META: Record<
   },
 };
 
-const isVisualPreset = (value: string): value is VisualPreset =>
-  VISUAL_PRESETS.some((preset) => preset === value);
+const TAB_IDS = ['visualizer', 'colors', 'header'] as const;
+type TabId = (typeof TAB_IDS)[number];
 
 type Props = {
   displayName: string;
@@ -101,6 +104,13 @@ type Props = {
   compact?: boolean;
   /** Side-panel look controls only (no hero preview chrome). */
   lookOnly?: boolean;
+  /** Mount a real, animating Three.js preview in the preview chrome (the
+   * one place tuning docks). Default true. Set false wherever this
+   * designer can render *underneath* a page that may already have its own
+   * live ChannelVisualizer running — e.g. the global Settings modal, which
+   * can stay open over the owner's own live channel page — so we never end
+   * up with two live WebGL contexts at once (see 7a8060d7). */
+  livePreview?: boolean;
   onSaved?: () => void;
   /** Remount / reload trigger when an external preset applies a look. */
   reloadToken?: number;
@@ -114,6 +124,7 @@ export function ChannelDesigner({
   bio,
   compact,
   lookOnly,
+  livePreview = true,
   onSaved,
   reloadToken = 0,
 }: Props) {
@@ -124,6 +135,7 @@ export function ChannelDesigner({
   const [dirty, setDirty] = useState(false);
   const [lastVisualizerPreset, setLastVisualizerPreset] =
     useState<VisualPreset>('AURORA');
+  const [activeTab, setActiveTab] = useState<TabId>('visualizer');
 
   useEffect(() => {
     void fetchChannelVisual().then((r) => {
@@ -229,11 +241,52 @@ export function ChannelDesigner({
     });
   };
 
+  // Shared by the docked-in-preview overlay (below, next to the live
+  // preview) and the lookOnly fallback (inline, in this tab's own content —
+  // lookOnly has no local live preview to dock into, since the real one
+  // lives in the hero block elsewhere on the page in that flow).
+  const tuningSliders = (
+    <>
+      {(['speed', 'intensity'] as const).map((key) => {
+        const current = resolveVisualPresetSettings(
+          visualSettings,
+          visual.visualPreset,
+        );
+        return (
+          <Slider
+            key={key}
+            label={key === 'speed' ? 'Speed' : 'Intensity'}
+            min={0.25}
+            max={2}
+            step={0.05}
+            unit="×"
+            value={current[key]}
+            onValueChange={(value) =>
+              setPresetSetting(visual.visualPreset, key, value)
+            }
+          />
+        );
+      })}
+    </>
+  );
+
+  // Only the full (non-lookOnly) chrome, with a live preview allowed, ever
+  // gets a real preview to dock tuning into.
+  const hasLivePreview = !lookOnly && livePreview;
+
+  const dockTuning = shouldDockVisualizerTuning({
+    preset: visual.visualPreset,
+    visualizerEnabled,
+    activeTab,
+  });
+
   const controls = (
     <>
       <Tabs
         listClassName="flex-wrap border-border border-b pb-3"
         panelClassName="pt-2"
+        selectedIndex={TAB_IDS.indexOf(activeTab)}
+        onChange={(index) => setActiveTab(TAB_IDS[index] ?? 'visualizer')}
         items={[
           {
             id: 'visualizer',
@@ -286,35 +339,18 @@ export function ChannelDesigner({
                     })}
                   </div>
                 )}
-                {visualizerEnabled &&
-                  isVisualPreset(visual.visualPreset) &&
-                  visual.visualPreset !== 'MINIMAL' && (
-                    <div className="border-border flex flex-col gap-4 rounded-lg border p-3">
-                      <Eyebrow>
-                        Tune {visual.visualPreset.replace(/_/g, ' ')}
-                      </Eyebrow>
-                      {(['speed', 'intensity'] as const).map((key) => {
-                        const current = resolveVisualPresetSettings(
-                          visualSettings,
-                          visual.visualPreset,
-                        );
-                        return (
-                          <Slider
-                            key={key}
-                            label={key === 'speed' ? 'Speed' : 'Intensity'}
-                            min={0.25}
-                            max={2}
-                            step={0.05}
-                            unit="×"
-                            value={current[key]}
-                            onValueChange={(value) =>
-                              setPresetSetting(visual.visualPreset, key, value)
-                            }
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
+                {/* When there's a live preview to dock into (see the preview
+                    block in the main return), tuning shows there instead of
+                    repeated here. lookOnly and livePreview=false have no
+                    local preview to dock into, so they keep sliders inline. */}
+                {!hasLivePreview && dockTuning && (
+                  <div className="border-border flex flex-col gap-4 rounded-lg border p-3">
+                    <Eyebrow>
+                      Tune {visual.visualPreset.replace(/_/g, ' ')}
+                    </Eyebrow>
+                    {tuningSliders}
+                  </div>
+                )}
               </section>
             ),
           },
@@ -508,18 +544,29 @@ export function ChannelDesigner({
             {visual.visualPreset.replace(/_/g, ' ')}
           </span>
         </div>
-        <div className="relative mt-4 flex h-10 items-end gap-0.5">
-          {Array.from({ length: 32 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex-1 rounded-sm opacity-80"
-              style={{
-                height: `${20 + ((i * 17) % 70)}%`,
-                background:
-                  i % 2 === 0 ? previewStyle.accent : previewStyle.highlight,
-              }}
+        <div className="relative mt-4 h-28 overflow-hidden rounded-lg sm:h-36">
+          {hasLivePreview && visualizerEnabled ? (
+            <ChannelVisualizer
+              className="absolute inset-0 h-full w-full"
+              preset={visual.visualPreset}
+              colorScheme={scheme}
+              visualSettingsJson={JSON.stringify(visualSettings)}
+              artworkUrl={avatarUrl}
             />
-          ))}
+          ) : (
+            <div
+              className="absolute inset-0"
+              style={{ background: previewStyle.bg }}
+            />
+          )}
+          {/* Tuning docks inside the live preview it actually affects,
+              instead of a separate box under the preset list below. */}
+          {hasLivePreview && dockTuning && (
+            <div className="border-border bg-background/90 absolute inset-x-2 bottom-2 flex flex-col gap-3 rounded-lg border p-3 shadow-lg backdrop-blur-sm">
+              <Eyebrow>Tune {visual.visualPreset.replace(/_/g, ' ')}</Eyebrow>
+              {tuningSliders}
+            </div>
+          )}
         </div>
       </div>
 
