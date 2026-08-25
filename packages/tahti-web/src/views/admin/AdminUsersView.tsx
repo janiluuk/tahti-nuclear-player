@@ -2,7 +2,6 @@ import { Link } from '@tanstack/react-router';
 import {
   ExternalLinkIcon,
   MessageSquareIcon,
-  SaveIcon,
   SearchIcon,
   SendIcon,
   ShieldAlertIcon,
@@ -10,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, SaveButton } from '@nuclearplayer/ui';
 
 import {
   fetchAdminUser,
@@ -548,14 +547,13 @@ export const AdminUsersView = () => {
                         />
                         Association member
                       </label>
-                      <Button
-                        size="sm"
-                        disabled={busy}
-                        onClick={() => void saveUser()}
-                      >
-                        <SaveIcon size={14} aria-hidden className="mr-1.5" />
-                        Save account
-                      </Button>
+                      <div className="flex justify-end">
+                        <SaveButton
+                          saving={busy}
+                          label="Save account"
+                          onClick={() => void saveUser()}
+                        />
+                      </div>
                     </div>
                   </StudioPanel>
 

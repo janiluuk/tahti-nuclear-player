@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, SaveButton } from '@nuclearplayer/ui';
 
 import {
   createNewsPost,
@@ -148,10 +148,16 @@ export function AdminNewsView() {
                         }
                         placeholder="Read more"
                       />
-                      <div className="flex gap-2">
+                      <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
-                          disabled={busy}
+                          variant="text"
+                          onClick={() => setEditingId(null)}
+                        >
+                          Cancel
+                        </Button>
+                        <SaveButton
+                          saving={busy}
                           onClick={() => {
                             setBusy(true);
                             void updateNewsPost(post.id, {
@@ -170,16 +176,7 @@ export function AdminNewsView() {
                               reload();
                             });
                           }}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="text"
-                          onClick={() => setEditingId(null)}
-                        >
-                          Cancel
-                        </Button>
+                        />
                       </div>
                     </div>
                   </li>

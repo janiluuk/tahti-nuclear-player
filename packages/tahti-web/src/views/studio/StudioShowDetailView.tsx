@@ -2,7 +2,13 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { CheckIcon, MicIcon, RadioIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, FilePicker, Input } from '@nuclearplayer/ui';
+import {
+  Button,
+  Dialog,
+  FilePicker,
+  Input,
+  SaveButton,
+} from '@nuclearplayer/ui';
 
 import {
   createEpisode,
@@ -237,14 +243,13 @@ export function StudioShowDetailView({ id }: { id: string }) {
                     className="border-border bg-background rounded-md border px-3 py-2"
                   />
                 </label>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={savingMeta}
-                  onClick={() => void saveMeta()}
-                >
-                  {savingMeta ? 'Saving…' : 'Save defaults'}
-                </Button>
+                <div className="flex justify-end">
+                  <SaveButton
+                    saving={savingMeta}
+                    label="Save defaults"
+                    onClick={() => void saveMeta()}
+                  />
+                </div>
               </div>
             </StudioPanel>
 
@@ -555,13 +560,13 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
                 className="border-border bg-background rounded-md border px-3 py-2"
               />
             </label>
-            <Button
-              size="sm"
-              disabled={savingDetails}
-              onClick={() => void savePublicDetails()}
-            >
-              {savingDetails ? 'Saving…' : 'Save public details'}
-            </Button>
+            <div className="flex justify-end">
+              <SaveButton
+                saving={savingDetails}
+                label="Save public details"
+                onClick={() => void savePublicDetails()}
+              />
+            </div>
           </div>
         </StudioPanel>
 

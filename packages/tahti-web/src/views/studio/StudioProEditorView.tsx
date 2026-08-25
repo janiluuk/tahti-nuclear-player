@@ -6,7 +6,6 @@ import {
   PauseIcon,
   PlayIcon,
   PlusIcon,
-  SaveIcon,
   ScissorsIcon,
   UploadIcon,
   Wand2Icon,
@@ -14,7 +13,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Card, CardGrid, Dialog, Input } from '@nuclearplayer/ui';
+import {
+  Button,
+  Card,
+  CardGrid,
+  Dialog,
+  Input,
+  SaveButton,
+} from '@nuclearplayer/ui';
 
 import {
   fetchArchiveStems,
@@ -1106,15 +1112,7 @@ export function StudioProEditorView({
                     value={versionLabel}
                     onChange={(e) => setVersionLabel(e.target.value)}
                   />
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      disabled={busy}
-                      onClick={() => void save()}
-                    >
-                      <SaveIcon size={16} aria-hidden className="mr-1.5" />
-                      Save draft
-                    </Button>
+                  <div className="flex flex-wrap justify-end gap-2">
                     <Button
                       size="sm"
                       variant="secondary"
@@ -1124,6 +1122,11 @@ export function StudioProEditorView({
                       <UploadIcon size={16} aria-hidden className="mr-1.5" />
                       Render version
                     </Button>
+                    <SaveButton
+                      saving={busy}
+                      label="Save draft"
+                      onClick={() => void save()}
+                    />
                   </div>
                   {message && (
                     <p

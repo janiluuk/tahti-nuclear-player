@@ -1,7 +1,14 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Card, CardGrid, Dialog, Textarea } from '@nuclearplayer/ui';
+import {
+  Button,
+  Card,
+  CardGrid,
+  Dialog,
+  SaveButton,
+  Textarea,
+} from '@nuclearplayer/ui';
 
 import {
   fetchMyPressKitImages,
@@ -385,10 +392,17 @@ export function ArtistView({ username }: { username: string }) {
               value={fullBioDraft}
               onChange={(e) => setFullBioDraft(e.target.value)}
             />
-            <div className="flex gap-2">
+            <div className="flex justify-end gap-2">
               <Button
                 size="sm"
+                variant="secondary"
                 disabled={savingFullBio}
+                onClick={() => setEditingFullBio(false)}
+              >
+                Cancel
+              </Button>
+              <SaveButton
+                saving={savingFullBio}
                 onClick={async () => {
                   setSavingFullBio(true);
                   const result = await patchMeProfile({
@@ -411,17 +425,7 @@ export function ArtistView({ username }: { username: string }) {
                   );
                   setEditingFullBio(false);
                 }}
-              >
-                {savingFullBio ? 'Saving…' : 'Save'}
-              </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={savingFullBio}
-                onClick={() => setEditingFullBio(false)}
-              >
-                Cancel
-              </Button>
+              />
             </div>
           </div>
         ) : artist.fullBio ? (
