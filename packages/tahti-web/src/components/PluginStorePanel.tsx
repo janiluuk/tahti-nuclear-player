@@ -25,7 +25,6 @@ import {
   disconnectIntegration,
   fetchConnectionStatus,
   oauthStartUrl,
-  SOURCE_DEFS,
   type IntegrationId,
 } from '../api/sources';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
@@ -35,6 +34,7 @@ import {
 } from '../content/pluginStoreCategories';
 import { ALL_PLUGIN_IDS, AUDIO_FX_PLUGINS } from '../plugins/audio-fx';
 import { EXPORT_TARGETS } from '../plugins/export';
+import { importSourcePlugins } from '../plugins/import-sources';
 import { useThemeStore } from '../plugins/themes';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 
@@ -341,16 +341,16 @@ type ServicePlugin = {
   action: ServiceAction;
 };
 
-const IMPORT_SERVICE_PLUGINS: ServicePlugin[] = SOURCE_DEFS.filter(
-  (s) => IMPORT_SOURCE_KINDS.has(s.kind) && s.id !== 'hearthis',
-).map((s) => ({
-  id: s.id,
-  name: s.name,
-  author: s.kind === 'oauth' ? 'Connect' : 'Tool',
-  description: s.description,
-  tags: ['import'],
-  action: { kind: 'deep-link', to: s.studioDeepLink ?? `/sources/${s.id}` },
-}));
+const IMPORT_SERVICE_PLUGINS: ServicePlugin[] = importSourcePlugins
+  .filter((s) => IMPORT_SOURCE_KINDS.has(s.kind) && s.id !== 'hearthis')
+  .map((s) => ({
+    id: s.id,
+    name: s.name,
+    author: s.kind === 'oauth' ? 'Connect' : 'Tool',
+    description: s.description,
+    tags: ['import'],
+    action: { kind: 'deep-link', to: s.studioDeepLink ?? `/sources/${s.id}` },
+  }));
 
 const EXPORT_SERVICE_PLUGINS: ServicePlugin[] = EXPORT_TARGETS.map((t) => ({
   id: `export-${t.id}`,
