@@ -53,6 +53,25 @@ the prod service/upstream cutover itself hasn't happened), and a rehearsed cutov
 staging/canary. Monorepo placement, admin-host, brand, and beta-retirement policy are all already
 decided (§0 of `CUTOVER.md`) — don't re-litigate them without a reason.
 
+## Plugins
+
+`PLUGIN-STORE-PLAN.md` inventories the 7 subsystems (themes, audio FX, multicast, export,
+import/sources, fingerprinting, visualizers) that already behave like plugins and maps what
+extracting each into a standalone package would take. When extracting or authoring one:
+
+- **Each plugin is an independent unit.** It should be removable without breaking anything else
+  — own directory/package, its own registration into whatever host registry it plugs into, and as
+  few cross-plugin imports as possible. A plugin reaching into another plugin's internals is a
+  sign the boundary is wrong.
+- **A plugin owns its own configuration.** Don't split a plugin's settings across a shared
+  Settings panel *and* the plugin module (see `PLUGIN-STORE-PLAN.md`'s `IMPORT_SERVICES` /
+  `SOURCE_DEFS` duplication for what this looks like when it goes wrong — two manually-synced
+  copies of the same data). The plugin module should be the single source of truth for its
+  config shape, defaults, and validation; a host UI renders whatever the plugin exposes rather
+  than hardcoding per-plugin fields.
+- See [`docs/PLUGINS.md`](docs/PLUGINS.md) for the concrete plugin contract (interface shape,
+  directory layout, registration) once a plugin has been extracted against it.
+
 ## The goal
 
 Tahti exists to give independent artists a platform that takes their work as seriously as they
