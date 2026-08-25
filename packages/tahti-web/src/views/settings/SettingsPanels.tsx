@@ -928,6 +928,11 @@ function ChannelPanel() {
                 username={user.username}
                 channelSlug={channel?.slug}
                 avatarUrl={user.avatarUrl}
+                // This modal is a global overlay that can stay open over the
+                // owner's own live channel page (which may already be
+                // running a live ChannelVisualizer) — skip the extra WebGL
+                // context here rather than risk two at once (see 7a8060d7).
+                livePreview={false}
                 compact
               />
             </div>
