@@ -19,8 +19,15 @@ const MaybeNavLink: FC<{
   children: (isSelected: boolean) => ReactNode;
 }> = ({ to, isSelected = false, children }) => {
   if (to) {
+    // TanStack Router's default active class ('active') is only applied
+    // when the Link has no explicit `activeProps` of its own -- passing
+    // one here to add `aria-current` replaces that default outright
+    // rather than merging with it, so it has to be restated explicitly.
     return (
-      <Link to={to} activeProps={{ 'aria-current': 'page' }}>
+      <Link
+        to={to}
+        activeProps={{ className: 'active', 'aria-current': 'page' }}
+      >
         {({ isActive }) => children(isActive)}
       </Link>
     );
