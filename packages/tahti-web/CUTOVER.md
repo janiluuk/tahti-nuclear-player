@@ -154,8 +154,8 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 ### 1.4 Client-only / non-API state
 
 - [x] Document localStorage keys: theme, chat handle, favorites/history scopes (`libraryStore`) — see [`LOCALSTORAGE-KEYS.md`](LOCALSTORAGE-KEYS.md); `tahti-web:library:{scope}` is already per-user/anon, no migration step needed at cutover
-- [ ] Confirm no IndexedDB / service worker assumptions that differ from Next
-- [ ] No DB migrations expected (same API) — still verify no Next server-actions-only writes
+- [x] Confirm no IndexedDB / service worker assumptions that differ from Next — grepped: zero `indexedDB`/`serviceWorker`/`workbox` usage anywhere in `src`, no PWA plugin in `vite.config.ts`, no service-worker file in `public/`. Nothing to reconcile.
+- [x] No DB migrations expected (same API) — still verify no Next server-actions-only writes — this package has no `next` dependency at all and zero `"use server"` directives or `next/*` imports; every mutation already goes through `requestJson`/`fetch` against the real API, there's no Next-specific write path that could be left behind.
 
 ---
 
@@ -166,7 +166,7 @@ Work from FEATURES.md; mark done there and here.
 ### 2.1 Listen / public
 
 - [ ] Channel URL canonicalization (`/c/:slug`)
-- [ ] Chat captcha + access gating (already hardened — regression test)
+- [x] Chat captcha + access gating (already hardened — regression test) — audited `tahti/apps/api`: `verifyHcaptcha` fails closed when a real secret is configured (missing/invalid token → rejected), `ChatBan` is checked on both token-issue *and* message-send (defense in depth), message length is schema-capped at 500 chars (`ChatPublishProxySchema`), and `/api/chat/message` (the Centrifugo publish-proxy webhook) is gated to internal-network-only callers via `isTrustedInternalRequest` (SEC-007 — was previously reachable from the public internet, already fixed). The join-vs-publish Redis-cache fail-open/fail-closed split is deliberate and documented in `chat-captcha.ts`. No gaps found.
 - [ ] Radio parity + overlays
 - [ ] Smart link + collection OG/share
 - [ ] Venues list + register (if P0)
