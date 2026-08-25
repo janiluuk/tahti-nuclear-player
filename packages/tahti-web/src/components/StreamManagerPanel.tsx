@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/react-router';
 import {
   ActivityIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
   Clock3Icon,
   ListMusicIcon,
   PauseIcon,
@@ -119,6 +121,10 @@ export function StreamManagerPanel({
   const [selectedCollectionSlug, setSelectedCollectionSlug] = useState('');
   const [rotationBusy, setRotationBusy] = useState(false);
   const [rotationMsg, setRotationMsg] = useState<string | null>(null);
+  // Collapsed by default while the fallback rotation is carrying the
+  // station — most visits just want to see what's playing and skip/pause
+  // it, not the full stats grid and playlist-add form.
+  const [rotationExpanded, setRotationExpanded] = useState(false);
 
   useEffect(() => {
     void fetchStudioCollections().then((r) => setCollections(r.data));
@@ -321,6 +327,21 @@ export function StreamManagerPanel({
           )}
         </div>
         <div className="flex items-center gap-2">
+          {rotationPlaying && (
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              onClick={() => setRotationExpanded((v) => !v)}
+              aria-label={rotationExpanded ? 'Show less' : 'Show more'}
+              title={rotationExpanded ? 'Show less' : 'Show more'}
+            >
+              {rotationExpanded ? (
+                <ChevronDownIcon size={15} aria-hidden />
+              ) : (
+                <ChevronRightIcon size={15} aria-hidden />
+              )}
+            </Button>
+          )}
           {onPlaybackToggle && (
             <Button
               size="icon-sm"
@@ -361,82 +382,84 @@ export function StreamManagerPanel({
         </div>
       </div>
 
-      <div
-        className="grid grid-cols-2 gap-2 sm:grid-cols-3"
-        role="group"
-        aria-label="Live stream status"
-      >
-        <StatCell
-          icon={
-            rotationPlaying ? (
-              <ListMusicIcon size={14} aria-hidden />
-            ) : (
-              <RadioIcon size={14} aria-hidden />
-            )
-          }
-          label="Output"
-          value={outputLabel}
-        />
-        <StatCell
-          icon={
-            signalConnected ? (
-              <WifiIcon size={14} className="text-primary" aria-hidden />
-            ) : (
-              <WifiOffIcon size={14} aria-hidden />
-            )
-          }
-          label="Signal"
-          value={
-            signal == null && stats == null
-              ? '—'
-              : signalConnected
-                ? 'Connected'
-                : signalError
-                  ? 'Unavailable'
-                  : rotationPlaying
-                    ? 'Rotation'
-                    : 'No encoder'
-          }
-        />
-        <StatCell
-          icon={<ActivityIcon size={14} aria-hidden />}
-          label="Bitrate"
-          value={bitrate != null ? `${bitrate} kbps` : '—'}
-        />
-        <StatCell
-          icon={
-            rotationPlaying ? (
-              <Clock3Icon size={14} aria-hidden />
-            ) : (
-              <UsersIcon size={14} aria-hidden />
-            )
-          }
-          label={rotationPlaying ? 'Time left' : 'Listeners'}
-          value={
-            rotationPlaying
-              ? remainingSec != null
-                ? `≤ ${formatRemaining(remainingSec)}`
-                : 'Unknown'
-              : (listeners ?? '—')
-          }
-        />
-        <StatCell
-          icon={<TrendingUpIcon size={14} aria-hidden />}
-          label="Peak listeners"
-          value={stats?.listenerPeak ?? '—'}
-        />
-        <StatCell
-          icon={<TimerIcon size={14} aria-hidden />}
-          label="Live for"
-          value={
-            stats?.liveDurationSec != null
-              ? formatRemaining(stats.liveDurationSec)
-              : '—'
-          }
-        />
-      </div>
+      {(!rotationPlaying || rotationExpanded) && (
+        <div
+          className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+          role="group"
+          aria-label="Live stream status"
+        >
+          <StatCell
+            icon={
+              rotationPlaying ? (
+                <ListMusicIcon size={14} aria-hidden />
+              ) : (
+                <RadioIcon size={14} aria-hidden />
+              )
+            }
+            label="Output"
+            value={outputLabel}
+          />
+          <StatCell
+            icon={
+              signalConnected ? (
+                <WifiIcon size={14} className="text-primary" aria-hidden />
+              ) : (
+                <WifiOffIcon size={14} aria-hidden />
+              )
+            }
+            label="Signal"
+            value={
+              signal == null && stats == null
+                ? '—'
+                : signalConnected
+                  ? 'Connected'
+                  : signalError
+                    ? 'Unavailable'
+                    : rotationPlaying
+                      ? 'Rotation'
+                      : 'No encoder'
+            }
+          />
+          <StatCell
+            icon={<ActivityIcon size={14} aria-hidden />}
+            label="Bitrate"
+            value={bitrate != null ? `${bitrate} kbps` : '—'}
+          />
+          <StatCell
+            icon={
+              rotationPlaying ? (
+                <Clock3Icon size={14} aria-hidden />
+              ) : (
+                <UsersIcon size={14} aria-hidden />
+              )
+            }
+            label={rotationPlaying ? 'Time left' : 'Listeners'}
+            value={
+              rotationPlaying
+                ? remainingSec != null
+                  ? `≤ ${formatRemaining(remainingSec)}`
+                  : 'Unknown'
+                : (listeners ?? '—')
+            }
+          />
+          <StatCell
+            icon={<TrendingUpIcon size={14} aria-hidden />}
+            label="Peak listeners"
+            value={stats?.listenerPeak ?? '—'}
+          />
+          <StatCell
+            icon={<TimerIcon size={14} aria-hidden />}
+            label="Live for"
+            value={
+              stats?.liveDurationSec != null
+                ? formatRemaining(stats.liveDurationSec)
+                : '—'
+            }
+          />
+        </div>
+      )}
 
-      {rotationPlaying && durationSec != null && (
+      {rotationPlaying && rotationExpanded && durationSec != null && (
         <p className="text-foreground-secondary text-xs">
           Remaining time is an upper bound until Tahti reports track position;
           it resets when the next title starts.
@@ -444,9 +467,11 @@ export function StreamManagerPanel({
       )}
 
       <div className="flex flex-col gap-2">
-        <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
-          Rotation transport
-        </p>
+        {(!rotationPlaying || rotationExpanded) && (
+          <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
+            Rotation transport
+          </p>
+        )}
         <div className="flex flex-wrap items-center gap-2">
           <Button
             size="icon-sm"
@@ -487,13 +512,15 @@ export function StreamManagerPanel({
             <SkipForwardIcon size={14} />
           </Button>
         </div>
-        <p className="text-foreground-secondary text-xs">
-          These act on the 24/7 rotation only — a live broadcast always takes
-          priority.
-        </p>
+        {(!rotationPlaying || rotationExpanded) && (
+          <p className="text-foreground-secondary text-xs">
+            These act on the 24/7 rotation only — a live broadcast always takes
+            priority.
+          </p>
+        )}
       </div>
 
-      {collections.length > 0 && (
+      {(!rotationPlaying || rotationExpanded) && collections.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
             Add a playlist to the rotation
@@ -526,7 +553,7 @@ export function StreamManagerPanel({
         </div>
       )}
 
-      {targets.length > 0 && (
+      {(!rotationPlaying || rotationExpanded) && targets.length > 0 && (
         <ul className="flex flex-col gap-1.5">
           {targets.map((target) => (
             <li
