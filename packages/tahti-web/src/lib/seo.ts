@@ -28,12 +28,31 @@ export function metadataForPath(pathname: string): RouteMetadata {
     };
   }
 
-  const artist = /^\/u\/([^/]+)/.exec(pathname)?.[1];
+  const artist = /^\/u\/([^/]+)\/c\/([^/]+)/.exec(pathname);
   if (artist) {
-    const name = displaySlug(artist);
+    const collection = displaySlug(artist[2] ?? '');
+    const owner = displaySlug(artist[1] ?? '');
+    return {
+      title: `${collection} by ${owner} on Tahti`,
+      description: `Listen to ${collection}, a collection by ${owner} on Tahti.`,
+    };
+  }
+
+  const profile = /^\/u\/([^/]+)/.exec(pathname)?.[1];
+  if (profile) {
+    const name = displaySlug(profile);
     return {
       title: `${name} on Tahti`,
       description: `Explore ${name}'s music, releases, collections, and live channel on Tahti.`,
+    };
+  }
+
+  const venue = /^\/v\/([^/]+)/.exec(pathname)?.[1];
+  if (venue) {
+    const name = displaySlug(venue);
+    return {
+      title: `${name} on Tahti`,
+      description: `${name} is a verified venue on Tahti.`,
     };
   }
 

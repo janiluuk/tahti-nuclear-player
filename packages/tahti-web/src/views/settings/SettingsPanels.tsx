@@ -105,6 +105,7 @@ import {
 } from '../../api/studio-extras';
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
+import { DiscoWidgetManagerPanel } from '../../components/disco-widgets/DiscoWidgetManagerPanel';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
@@ -1625,6 +1626,9 @@ function WidgetsPanel() {
   const removeInstance = useListenerWidgetsStore((s) => s.removeInstance);
   const toggleStation = useListenerWidgetsStore((s) => s.toggleStation);
   const play = usePlayerStore((s) => s.play);
+  const user = useAuthStore((s) => s.user);
+  const signedIn = Boolean(user);
+  const hasChannel = Boolean(user?.channel);
 
   const [inputByType, setInputByType] = useState<Record<string, string>>({});
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -1638,6 +1642,32 @@ function WidgetsPanel() {
 
   return (
     <div className="flex flex-col gap-8">
+      {signedIn ? (
+        <div>
+          <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
+            Disco-widgets
+          </h2>
+          <DiscoWidgetManagerPanel
+            scope="LISTENER"
+            description="Sandboxed add-ons on your Listen page — only you see what you enable here."
+          />
+        </div>
+      ) : (
+        <p className="text-foreground-secondary text-sm">
+          Sign in to install Disco-widgets on your Listen page.
+        </p>
+      )}
+      {hasChannel ? (
+        <div>
+          <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
+            Channel Disco-widgets
+          </h2>
+          <DiscoWidgetManagerPanel
+            scope="ARTIST"
+            description="Widgets on your public channel and artist page. Listeners see these when they visit you."
+          />
+        </div>
+      ) : null}
       <div>
         <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
           Embed widgets

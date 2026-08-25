@@ -8,6 +8,7 @@ import svgr from 'vite-plugin-svgr';
 
 import pkg from './package.json';
 import { validateProductionBuildEnvironment } from './src/lib/buildPolicy';
+import { sandboxDocumentHtml } from './src/lib/disco-widget-sandbox';
 
 const commitHash = (() => {
   try {
@@ -28,6 +29,47 @@ const REVIEW_STATE_PATH = join(
 /** Dev-only endpoint: POST /__api/apply-review writes the current review
  * state (comments + approvals) to a repo file instead of just localStorage,
  * so it survives outside the browser and Claude Code can act on it. */
+function discoWidgetSandboxMiddleware(
+  req: { url?: string },
+  res: {
+    statusCode: number;
+    setHeader: (name: string, value: string) => void;
+    end: (body: string) => void;
+  },
+  next: () => void,
+) {
+  const pathname = req.url?.split('?')[0] ?? '';
+  const page = /^\/widget-sandbox\/([0-9a-f]{64})\/?$/.exec(pathname);
+  if (!page?.[1]) {
+    next();
+    return;
+  }
+  const html = sandboxDocumentHtml(page[1]);
+  if (!html) {
+    res.statusCode = 404;
+    res.end('Not found');
+    return;
+  }
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src https: data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+  );
+  res.end(html);
+}
+
+function discoWidgetSandboxPlugin(): Plugin {
+  return {
+    name: 'disco-widget-sandbox',
+    configureServer(server) {
+      server.middlewares.use(discoWidgetSandboxMiddleware);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(discoWidgetSandboxMiddleware);
+    },
+  };
+}
+
 function reviewStateApiPlugin(): Plugin {
   return {
     name: 'tahti-review-state-api',
@@ -82,7 +124,13 @@ export default defineConfig(({ command, mode }) => {
       // builds and ships the same dist/ in one step).
       __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
     },
-    plugins: [react(), tailwindcss(), svgr(), reviewStateApiPlugin()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      svgr(),
+      reviewStateApiPlugin(),
+      discoWidgetSandboxPlugin(),
+    ],
     clearScreen: false,
     server: {
       host: process.env.VITE_HOST ?? 'localhost',
@@ -93,6 +141,15 @@ export default defineConfig(({ command, mode }) => {
           target: tahtiApi,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/tahti-api/, ''),
+        },
+        '/widget-sandbox/bundle': {
+          target: tahtiApi,
+          changeOrigin: true,
+          rewrite: (path) =>
+            path.replace(
+              /^\/widget-sandbox\/bundle/,
+              '/api/v1/disco-widgets/bundle',
+            ),
         },
       },
     },

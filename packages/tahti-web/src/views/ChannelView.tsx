@@ -19,10 +19,15 @@ import {
   fetchChannel,
   fetchChannelArchive,
 } from '../api/client';
+import {
+  fetchChannelDiscoWidgets,
+  type DiscoWidgetRenderItem,
+} from '../api/disco-widgets';
 import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
+import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { EmbedButton } from '../components/EmbedButton';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -69,6 +74,7 @@ export function ChannelView({ slug }: { slug: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(true);
   const [lookTick, setLookTick] = useState(0);
   const [presetNote, setPresetNote] = useState<string | null>(null);
+  const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
 
   const play = usePlayerStore((s) => s.play);
   const currentId = usePlayerStore((s) => s.currentId);
@@ -104,35 +110,38 @@ export function ChannelView({ slug }: { slug: string }) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    void Promise.all([fetchChannel(slug), fetchChannelArchive(slug)]).then(
-      ([ch, items]) => {
-        if (cancelled) {
-          return;
-        }
-        setChannel(ch.data);
-        setArchive(items.data);
-        setLoading(false);
+    void Promise.all([
+      fetchChannel(slug),
+      fetchChannelArchive(slug),
+      fetchChannelDiscoWidgets(slug),
+    ]).then(([ch, items, widgets]) => {
+      if (cancelled) {
+        return;
+      }
+      setChannel(ch.data);
+      setArchive(items.data);
+      setDiscoWidgets(widgets.data);
+      setLoading(false);
 
-        if (ch.data) {
-          const name = ch.data.user.displayName;
-          syncDocumentMetadata(window.location.pathname, {
-            title: `${name} live on Tahti`,
-            description:
-              ch.data.user.bio ??
-              `Listen to ${name}'s live channel, archive, and programme on Tahti.`,
-            image: ch.data.user.avatarUrl ?? undefined,
-          });
-        }
-
-        const enabled = ch.data?.chatEnabled !== false;
-        setChatContext({
-          slug,
-          enabled,
-          reason: enabled ? null : 'Chat is disabled for this channel',
-          autoOpen: enabled && !editing,
+      if (ch.data) {
+        const name = ch.data.user.displayName;
+        syncDocumentMetadata(window.location.pathname, {
+          title: `${name} live on Tahti`,
+          description:
+            ch.data.user.bio ??
+            `Listen to ${name}'s live channel, archive, and programme on Tahti.`,
+          image: ch.data.user.avatarUrl ?? undefined,
         });
-      },
-    );
+      }
+
+      const enabled = ch.data?.chatEnabled !== false;
+      setChatContext({
+        slug,
+        enabled,
+        reason: enabled ? null : 'Chat is disabled for this channel',
+        autoOpen: enabled && !editing,
+      });
+    });
     return () => {
       cancelled = true;
     };
@@ -627,6 +636,7 @@ export function ChannelView({ slug }: { slug: string }) {
             </div>
           );
         })}
+        {!editing ? <DiscoWidgetsSection widgets={discoWidgets} /> : null}
       </div>
     </div>
   );

@@ -24,6 +24,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
           'Browse who’s on air from Listen, or open a channel at /channel/$slug.',
           'When an artist is offline, their channel still plays archive items.',
           'Tahti Radio (/radio) is a fair-rotation stream across the community.',
+          'Signed-in listeners can install Disco-widgets on Listen from Settings → Widgets.',
         ],
       },
       {
@@ -161,6 +162,36 @@ export const HELP_ARTICLES: HelpArticle[] = [
         heading: 'Notes',
         body: [
           'Shortcuts are disabled while typing in a text field, textarea, dropdown, or any editable content.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'disco-widgets',
+    title: 'Contribute a Disco-widget',
+    description:
+      'Build a sandboxed add-on for Listen, an artist channel, or the homepage, then submit it for review.',
+    productionPath: '/help/disco-widgets',
+    sections: [
+      {
+        heading: '1. Build it',
+        body: [
+          'Use the @tahti/widget-sdk package in the tahti-org repository. packages/widget-sdk/README.md walks through the contract (what a widget exports, how it talks to the host page, and the size/security limits it runs under). packages/widget-sdk/example/live-status/ is a complete working example.',
+          'A widget runs only inside a sandboxed iframe (no cookies, no parent DOM). It talks to the host with a small postMessage protocol: ready, init, resize, and same-origin open-link.',
+        ],
+      },
+      {
+        heading: '2. Open a pull request',
+        body: [
+          'Fork tahti-org and add your widget under contrib/disco-widgets/<your-widget-slug>/ — include src/index.ts, a short README describing the scope (listener, artist, or admin), and any config it expects.',
+          'In the PR, say what it is for and give concrete steps a reviewer can follow to verify it (build the bundle, load it in the sandbox, confirm it renders with representative context).',
+        ],
+      },
+      {
+        heading: '3. What happens next',
+        body: [
+          'A maintainer reviews the code. Once merged, an admin builds the widget, publishes it through the Disco-widgets admin panel, and approves it. After that it is live in its store, credited to you.',
+          'Install listener widgets from Settings → Widgets. Artists install channel widgets in the same panel; they render on /channel/$slug and /u/$username.',
         ],
       },
     ],

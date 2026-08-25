@@ -20,11 +20,18 @@ import {
   fetchRadioStation,
   TAHTI_RADIO_SLUG,
 } from '../api/client';
-import type {
-  ChannelDirectoryItem,
-  OnAirChannel,
-  PublicChannel,
+import {
+  fetchDiscoverDiscoWidgets,
+  fetchHomepageDiscoWidgets,
+  type DiscoWidgetRenderItem,
+} from '../api/disco-widgets';
+import {
+  isDirectoryArtistActive,
+  type ChannelDirectoryItem,
+  type OnAirChannel,
+  type PublicChannel,
 } from '../api/types';
+import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
@@ -43,6 +50,8 @@ export function ListenView() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [genre, setGenre] = useState('all');
+  const [activeOnly, setActiveOnly] = useState(false);
+  const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
@@ -76,6 +85,32 @@ export function ListenView() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    void fetchHomepageDiscoWidgets().then((home) => {
+      if (cancelled) {
+        return;
+      }
+      if (!signedIn) {
+        setDiscoWidgets(home.data);
+        return;
+      }
+      void fetchDiscoverDiscoWidgets().then((mine) => {
+        if (cancelled) {
+          return;
+        }
+        const seen = new Set(mine.data.map((w) => w.installId));
+        setDiscoWidgets([
+          ...mine.data,
+          ...home.data.filter((w) => !seen.has(w.installId)),
+        ]);
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [signedIn]);
+
   const genres = useMemo(() => {
     const counts = new Map<string, number>();
     for (const ch of items) {
@@ -94,23 +129,35 @@ export function ListenView() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return items.filter((ch) => {
-      if (
-        genre !== 'all' &&
-        !ch.genres.some((g) => g.toLowerCase() === genre.toLowerCase())
-      ) {
-        return false;
-      }
-      if (!q) {
-        return true;
-      }
-      return (
-        ch.displayName.toLowerCase().includes(q) ||
-        ch.username.toLowerCase().includes(q) ||
-        ch.genres.some((g) => g.toLowerCase().includes(q))
-      );
-    });
-  }, [items, query, genre]);
+    return items
+      .filter((ch) => {
+        if (activeOnly && !isDirectoryArtistActive(ch)) {
+          return false;
+        }
+        if (
+          genre !== 'all' &&
+          !ch.genres.some((g) => g.toLowerCase() === genre.toLowerCase())
+        ) {
+          return false;
+        }
+        if (!q) {
+          return true;
+        }
+        return (
+          ch.displayName.toLowerCase().includes(q) ||
+          ch.username.toLowerCase().includes(q) ||
+          ch.genres.some((g) => g.toLowerCase().includes(q))
+        );
+      })
+      .sort((a, b) => {
+        const aActive = isDirectoryArtistActive(a);
+        const bActive = isDirectoryArtistActive(b);
+        if (aActive !== bActive) {
+          return aActive ? -1 : 1;
+        }
+        return a.displayName.localeCompare(b.displayName);
+      });
+  }, [items, query, genre, activeOnly]);
 
   const playNow = async (slug: string) => {
     const { playable } = await fetchChannel(slug);
@@ -203,6 +250,8 @@ export function ListenView() {
           )}
         </section>
       ) : null}
+
+      <DiscoWidgetsSection widgets={discoWidgets} />
 
       {radio ? (
         <Box
@@ -307,13 +356,27 @@ export function ListenView() {
             className="max-w-md"
           />
 
-          {genres.length > 0 && (
-            <FilterChips
-              items={chipItems}
-              selected={genre}
-              onChange={setGenre}
-            />
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              aria-pressed={activeOnly}
+              onClick={() => setActiveOnly((prev) => !prev)}
+              className={`inline-flex cursor-pointer items-center justify-center rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
+                activeOnly
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-border text-foreground hover:bg-foreground/10 bg-transparent'
+              }`}
+            >
+              Active now ({items.filter(isDirectoryArtistActive).length})
+            </button>
+            {genres.length > 0 && (
+              <FilterChips
+                items={chipItems}
+                selected={genre}
+                onChange={setGenre}
+              />
+            )}
+          </div>
 
           <p className="text-foreground-secondary text-xs">
             Showing {filtered.length} of {items.length} artists
@@ -345,6 +408,7 @@ export function ListenView() {
                     }
                     subtitle={
                       <span className="font-mono">
+                        {isDirectoryArtistActive(ch) ? 'Active · ' : ''}
                         {ch.genres.slice(0, 2).join(', ') || `@${ch.username}`}
                       </span>
                     }
