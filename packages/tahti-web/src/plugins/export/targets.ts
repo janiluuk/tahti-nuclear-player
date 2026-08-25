@@ -1,11 +1,4 @@
-export type ExportTarget = {
-  id: string;
-  label: string;
-  note: string;
-  color: string;
-  to: string;
-  supportsTracks: boolean;
-};
+import type { ExportTarget } from './types';
 
 export const EXPORT_TARGETS: ExportTarget[] = [
   {

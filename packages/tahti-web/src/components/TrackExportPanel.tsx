@@ -8,7 +8,7 @@ import {
   fetchTrackExportStatus,
   type TrackExportStatus,
 } from '../api/sources';
-import { EXPORT_TARGETS } from '../lib/exportTargets';
+import { EXPORT_TARGETS } from '../plugins/export';
 
 const MIXCLOUD_TARGET = EXPORT_TARGETS.find(
   (target) => target.id === 'mixcloud' && target.supportsTracks,

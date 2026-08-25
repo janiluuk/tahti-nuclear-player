@@ -33,8 +33,8 @@ import {
   PLUGIN_CATEGORIES,
   type PluginCategoryId,
 } from '../content/pluginStoreCategories';
-import { EXPORT_TARGETS } from '../lib/exportTargets';
 import { ALL_PLUGIN_IDS, AUDIO_FX_PLUGINS } from '../plugins/audio-fx';
+import { EXPORT_TARGETS } from '../plugins/export';
 import { useThemeStore } from '../plugins/themes';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 

@@ -74,21 +74,26 @@ Ranked by extraction cost (cheapest first):
   rather than one shared host UI — de-duplicating those is the remaining
   "real work" this doc originally flagged.
 
-## 4. Export
+## 4. Export — relocated, still not a behavioral plugin
 
-- **Lives**: `src/lib/exportTargets.ts` (91 lines) — `EXPORT_TARGETS`,
-  10 entries, each just `{id, label, note, color, to, supportsTracks}`.
-  Real delivery logic is centralized in `StudioDistributionView.tsx`
-  (Revelator submission), not per-target.
-- **Settings today**: `ConnectionsPanel` in `SettingsPanels.tsx` +
-  `StudioDistributionView.tsx`.
-- **Already plugin-shaped**: no — it's a flat metadata array with a
-  deep-link, not independent implementations. Every DSP goes through the
-  same one Revelator call regardless of which box is checked.
-- **What extraction means**: there's nothing to extract yet, because
-  there's no per-target *behavior* to move — extraction here really means
-  designing a real `ExportProvider` interface first (submit/status/
-  webhook), which today doesn't exist even inside the main codebase.
+- **Lives**: `src/plugins/export/` — `EXPORT_TARGETS`, 10 entries, each
+  still just `{id, label, note, color, to, supportsTracks}`. Real delivery
+  logic is centralized in `StudioDistributionView.tsx` (Revelator
+  submission), not per-target.
+- **Settings today**: `ConnectionsPanel` in `SettingsPanels.tsx`,
+  `TrackExportPanel.tsx`, `PluginStorePanel.tsx` + `StudioDistributionView.tsx`.
+- **Done this pass**: moved to `src/plugins/export/` (same shape as
+  multicast's registry — see `docs/PLUGINS.md`'s shape A), all 3
+  importers updated, one test file covering the registry invariants
+  (unique ids, every Revelator-note target actually points at
+  `/studio/distribution`).
+- **Still not plugin-shaped, deliberately not faked**: this remains a
+  flat metadata array with a deep-link, not independent implementations —
+  every DSP still goes through the same one Revelator call regardless of
+  which box is checked. A real `ExportProvider` interface
+  (submit/status/webhook) needs API work that doesn't exist yet; writing
+  one against nothing to implement it would just be an unused interface,
+  so this extraction stopped at relocation rather than inventing one.
 
 ## 5. Import (Sources)
 
@@ -170,10 +175,12 @@ Ranked by extraction cost (cheapest first):
    tests, no more if/else per plugin id in the preview-graph hook) even
    with the host UI unmoved. The host-UI factor-out is still open, just no
    longer a blocker for the registry half.
-4. **Design work before code**: Export has no real per-implementation
-   behavior to extract yet — write the `ExportProvider` interface first,
-   implement Revelator against it, *then* extract (Fingerprinting's
-   `FingerprintProvider` half of this item is done, see §6).
+4. **Design work before code**: Export's registry was relocated (§4,
+   `src/plugins/export/`) but still has no real per-implementation
+   behavior — write the `ExportProvider` interface first, implement
+   Revelator against it, *then* the extraction is actually done
+   (Fingerprinting's `FingerprintProvider` half of this item already is,
+   see §6).
 5. **Largest, do last**: Import (993 lines, 7 importers) and Visualizers
    (a real per-preset WebGL refactor) — both need internal restructuring
    before "remove from main codebase" is even meaningful, not just a file

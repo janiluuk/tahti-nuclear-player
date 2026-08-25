@@ -120,7 +120,6 @@ import {
 } from '../../content/radioStations';
 import { hasAccountRole } from '../../lib/accountRoles';
 import { COUNTRIES, flagEmoji } from '../../lib/countries';
-import { EXPORT_TARGETS } from '../../lib/exportTargets';
 import {
   formatGenreTags,
   MAX_GENRES,
@@ -128,6 +127,7 @@ import {
   parseGenreTags,
 } from '../../lib/genres';
 import { membershipStatusLabel } from '../../lib/membershipStatus';
+import { EXPORT_TARGETS } from '../../plugins/export';
 import { useThemeStore } from '../../plugins/themes';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
