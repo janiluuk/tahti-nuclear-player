@@ -1,5 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { LibraryIcon, PlayIcon, RadioIcon } from 'lucide-react';
+import { PlayIcon, RadioIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -28,14 +28,11 @@ import type {
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
-import { Eyebrow } from '../components/tahti/Eyebrow';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
-const LIBRARY_PREVIEW_CHANNELS = 8;
-const LIBRARY_PREVIEW_TRACKS = 6;
 const LIBRARY_PREVIEW_HISTORY = 5;
 
 export function ListenView() {
@@ -50,7 +47,6 @@ export function ListenView() {
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const favoriteChannels = useLibraryStore((s) => s.favoriteChannels);
-  const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
   const history = useLibraryStore((s) => s.history);
   const user = useAuthStore((s) => s.user);
   const signedIn = Boolean(user);
@@ -157,13 +153,7 @@ export function ListenView() {
     radio?.user.avatarUrl ?? radio?.nowPlaying?.artworkUrl ?? null;
   const radioName = radio?.user.displayName ?? 'Tahti Radio';
 
-  const libraryChannels = favoriteChannels.slice(0, LIBRARY_PREVIEW_CHANNELS);
-  const libraryTracks = favoriteTracks.slice(0, LIBRARY_PREVIEW_TRACKS);
   const recentHistory = history.slice(0, LIBRARY_PREVIEW_HISTORY);
-  const hasLibraryContent =
-    libraryChannels.length > 0 ||
-    libraryTracks.length > 0 ||
-    recentHistory.length > 0;
 
   return (
     <PageFrame>
@@ -192,138 +182,24 @@ export function ListenView() {
       {signedIn ? (
         <section className="mb-6 flex w-full flex-col gap-3">
           <div className="flex w-full flex-wrap items-center justify-between gap-2">
-            <h2 className="text-2xl font-bold">My Library</h2>
-            <Link to="/library">
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                aria-label="Open My Library"
-                title="Open My Library"
-              >
-                <LibraryIcon size={16} aria-hidden />
-              </Button>
+            <h2 className="text-2xl font-bold">Recently played</h2>
+            <Link
+              to="/library/history"
+              className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+            >
+              Full history
             </Link>
           </div>
-          {!hasLibraryContent ? (
+          {recentHistory.length === 0 ? (
             <PageEmpty
-              title="Nothing saved yet"
-              description="Heart channels while browsing, or open Library for favorites, history, and messages."
-              action={
-                <Link to="/library">
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    aria-label="Open My Library"
-                    title="Open My Library"
-                  >
-                    <LibraryIcon size={16} aria-hidden />
-                  </Button>
-                </Link>
-              }
+              title="Nothing played yet"
+              description="Tracks you play show up here, most recent first."
             />
           ) : (
-            <div className="flex flex-col gap-5">
-              {libraryChannels.length > 0 ? (
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3>
-                      <Eyebrow>Favorite channels</Eyebrow>
-                    </h3>
-                    {favoriteChannels.length > LIBRARY_PREVIEW_CHANNELS ? (
-                      <Link
-                        to="/library/favorites"
-                        className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
-                      >
-                        +{favoriteChannels.length - LIBRARY_PREVIEW_CHANNELS}{' '}
-                        more
-                      </Link>
-                    ) : null}
-                  </div>
-                  <CardGrid>
-                    {libraryChannels.map((ch) => (
-                      <Card
-                        key={ch.slug}
-                        title={
-                          <Link
-                            to="/channel/$slug"
-                            params={{ slug: ch.slug }}
-                            className="hover:underline"
-                          >
-                            {ch.displayName}
-                          </Link>
-                        }
-                        subtitle={ch.slug}
-                        src={ch.avatarUrl ?? placeholderArtworkUrl(ch.slug)}
-                        onPlay={() => void playNow(ch.slug)}
-                        onQueue={() => void add(ch.slug)}
-                        favorited
-                        onFavorite={() => toggleFavoriteChannel(ch)}
-                        onClick={() => {
-                          void navigate({
-                            to: '/channel/$slug',
-                            params: { slug: ch.slug },
-                          });
-                        }}
-                      />
-                    ))}
-                  </CardGrid>
-                </div>
-              ) : null}
-
-              {libraryTracks.length > 0 ? (
-                <div className="flex flex-col gap-2">
-                  <h3>
-                    <Eyebrow>Favorite tracks</Eyebrow>
-                  </h3>
-                  <PlayableTrackTable
-                    items={libraryTracks}
-                    emptyMessage="No favorite tracks."
-                  />
-                </div>
-              ) : null}
-
-              {recentHistory.length > 0 ? (
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3>
-                      <Eyebrow>Recently played</Eyebrow>
-                    </h3>
-                    <Link
-                      to="/library/history"
-                      className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
-                    >
-                      Full history
-                    </Link>
-                  </div>
-                  <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
-                    {recentHistory.map((entry) => (
-                      <li
-                        key={`${entry.playable.id}-${entry.playedAt}`}
-                        className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm"
-                      >
-                        <div className="min-w-0">
-                          <div className="truncate font-medium">
-                            {entry.playable.title}
-                          </div>
-                          <div className="text-foreground-secondary truncate text-xs">
-                            {entry.playable.artist ?? 'Unknown'}
-                          </div>
-                        </div>
-                        <Button
-                          size="icon-sm"
-                          variant="secondary"
-                          onClick={() => play(entry.playable)}
-                          aria-label={`Play ${entry.playable.title}`}
-                          title={`Play ${entry.playable.title}`}
-                        >
-                          <PlayIcon size={16} aria-hidden />
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-            </div>
+            <PlayableTrackTable
+              items={recentHistory.map((entry) => entry.playable)}
+              emptyMessage="Nothing played yet."
+            />
           )}
         </section>
       ) : null}
