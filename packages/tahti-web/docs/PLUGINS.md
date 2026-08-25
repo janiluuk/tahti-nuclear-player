@@ -129,6 +129,34 @@ Only the plugin owns its data and behavior; the host component is what
 puts it on screen. Don't conflate "extract the plugin" with "move the
 screen that uses it."
 
+## Testing a plugin
+
+A plugin's own test file lives next to it inside its directory
+(`src/plugins/<name>/<file>.test.ts`), not in a separate top-level test
+tree — same convention as the rest of the codebase. What to stub depends
+on what the plugin touches:
+
+- **Talks to the API** (fingerprinting): stub `fetch` with `vi.stubGlobal`
+  and assert the request shape/response handling, same pattern as
+  `api/sources.test.ts`. See `src/plugins/fingerprinting/acoustid.test.ts`.
+- **Pure data/registry** (multicast): no stubbing needed — assert directly
+  on the exported array/lookup function. See
+  `src/plugins/multicast/providers.test.ts`.
+- **Browser APIs vitest's environments don't implement** (audio-fx's
+  `AudioContext` — neither the default `node` environment nor `jsdom`
+  provide real Web Audio): write a minimal fake covering only the methods
+  the plugin actually calls, and assert on what got written onto the fake
+  nodes. See `src/plugins/audio-fx/testAudioContext.ts` and its four
+  plugin tests. Don't reach for a heavier dependency (a full Web Audio
+  polyfill) just to unit-test parameter mapping.
+
+A registry-shaped plugin (§A above) is also worth a test on the registry
+itself, not just its entries: unique ids, and — if the registry mirrors
+an external source of truth like `multicastProviders` mirrors the API's
+`PROVIDER_RTMP_URLS` — a test that would fail if a real provider silently
+fell off the list, since that's exactly the kind of drift this pattern
+exists to catch.
+
 ## Extracting the next one
 
 [`PLUGIN-STORE-PLAN.md`](../PLUGIN-STORE-PLAN.md) has the full inventory

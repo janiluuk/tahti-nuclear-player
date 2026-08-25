@@ -25,23 +25,32 @@ Ranked by extraction cost (cheapest first):
 - **Extraction done**: relocated to `src/plugins/themes/`, all 6 call
   sites updated to the new import path. No behavior change.
 
-## 2. Audio plugins (Pro Editor chain) — second cheapest
+## 2. Audio plugins (Pro Editor chain) — registry done, host UI still open
 
-- **Lives**: `src/lib/proEditorPlugins.ts` (51 lines, `PLUGIN_META` +
-  `ALL_PLUGIN_IDS`) and `src/lib/audioPreviewGraph.ts` (143 lines, builds
-  the live Web Audio graph from the user's drag-ordered chain).
+- **Lives**: `src/plugins/audio-fx/` — `AudioFxPlugin` interface
+  (`isEnabled`/`buildPreviewNodes`) plus one module per plugin (`eq.ts`,
+  `compressor.ts`, `limiter.ts`, `filter.ts`), each with its own unit test
+  against a fake `AudioContext` (`testAudioContext.ts` — vitest's node/jsdom
+  environments don't implement real Web Audio).
+  `src/lib/audioPreviewGraph.ts` (the live-preview host hook) now just
+  loops `editList.pluginChain` and asks each enabled plugin to build its
+  own nodes, instead of a hardcoded if/else per plugin id.
 - **Settings today**: `src/views/studio/StudioProEditorView.tsx`
-  (1173 lines) — the plugin-chain UI (add/remove/reorder + per-plugin
-  params) lives inside this one large view, not a separate settings page.
-- **Already plugin-shaped**: yes — `PLUGIN_META` is an id→{label,
-  description, icon} tile registry, functionally identical in shape to
-  `LISTENER_WIDGET_TYPES`. Chain is already reorderable/insertable.
-- **What extraction means**: the two lib files (194 lines total, only 1
-  importer each) can lift out cleanly as `@tahti/plugin-audio-fx`. The
-  hard part isn't the plugin code — it's that its *host UI* is welded
-  into `StudioProEditorView.tsx`. Extracting the plugin registry doesn't
-  shrink that 1173-line file; a real "audio plugin store" would need a
-  generic plugin-chain host component factored out of it first.
+  (still ~1200 lines) — the plugin-chain UI (add/remove/reorder +
+  per-plugin params) lives inside this one large view, not a separate
+  settings page. Untouched by this extraction beyond swapping its
+  `PLUGIN_META`/`ALL_PLUGIN_IDS` imports to the new registry.
+- **Done**: the registry + preview-graph dispatch. A new plugin is a new
+  module implementing `AudioFxPlugin` plus one line in
+  `src/plugins/audio-fx/index.ts` — no changes to
+  `useAudioPreviewGraph` or `StudioProEditorView.tsx` needed for the
+  audio-graph half.
+- **Still open**: the *host UI* — add/remove/reorder/per-plugin param
+  controls — is still welded into `StudioProEditorView.tsx`. A real
+  "audio plugin store" (arbitrary third-party plugin tiles, not just
+  these four) still needs a generic plugin-chain host component factored
+  out of that view first; extracting the registry didn't shrink the file
+  and wasn't meant to.
 
 ## 3. Multicast (RTMP targets) — partially done
 
@@ -153,10 +162,14 @@ Ranked by extraction cost (cheapest first):
    - Still open: delete `IMPORT_SERVICES` duplication in favor of
      `SOURCE_DEFS` (§5's quick win, independent of the larger Import
      extraction below).
-3. **Medium**: lift `proEditorPlugins.ts`+`audioPreviewGraph.ts` as a
-   package once (and only once) a generic plugin-chain host component is
-   factored out of `StudioProEditorView.tsx` — don't extract the registry
-   while its only consumer is still one 1173-line view.
+3. **Medium**: DONE — the `src/plugins/audio-fx/` registry + preview-graph
+   dispatch (§2). Deliberately did **not** wait for a generic plugin-chain
+   host component to be factored out of `StudioProEditorView.tsx` first
+   (this doc originally said to) — the registry extraction turned out to
+   be independently valuable (a real plugin-authoring contract, unit
+   tests, no more if/else per plugin id in the preview-graph hook) even
+   with the host UI unmoved. The host-UI factor-out is still open, just no
+   longer a blocker for the registry half.
 4. **Design work before code**: Export has no real per-implementation
    behavior to extract yet — write the `ExportProvider` interface first,
    implement Revelator against it, *then* extract (Fingerprinting's
