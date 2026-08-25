@@ -65,7 +65,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [x] Bundle budget: mermaid is lazy (own `mermaid.core-*`/`cytoscape.esm-*`/`katex-*` chunks, confirmed in build output); Three.js is lazy too (`ChannelVisualizer.tsx` already `lazy()`-imports `ThreeVisualizer`, its own 528 kB chunk, not in `index-*.js`). CSS audit: one 152 kB CSS file for the whole app (`dist/assets/index-*.css`) — expected given Tailwind's JIT scans all sources into one stylesheet regardless of route; genuine per-route CSS splitting isn't a quick config flip without restructuring how Tailwind is wired into the build, so leaving as a known limitation rather than a bug. `LibraryView` (History's charts, `react-activity-calendar`) was pulled out of the main bundle this session (own 326 kB chunk) after it briefly regressed the main `index-*.js` by +367 kB.
 - [ ] CI: replace `apps/web` Docker build with SPA build; keep lint/format/typecheck gates.
 - [ ] Preview/PR envs serve the new client (or document that previews stay Next until cutover).
-- [ ] CDN CORS + embed parents verified for SPA origin.
+- [ ] CDN CORS + embed parents verified for SPA origin. **Embed parents: verified clean** — `deploy/nginx.conf` sets no `X-Frame-Options`/`frame-ancestors` on the SPA's own routes (the one `frame-ancestors 'none'` in that file is scoped to the unrelated disco-widget sandbox iframe document), so `/embed/*` isn't blocked from being framed by third-party sites. **CDN CORS: real gap found, not yet fixed** — `tahti/infra/Caddyfile`'s `cdn.tahti.live` block (archive items/covers/waveforms — what `StudioProEditorView`'s audio source resolves to) sets `Cross-Origin-Resource-Policy: cross-origin` but no `Access-Control-Allow-Origin`, unlike the sibling `stream.tahti.live` (live HLS) block which has `Access-Control-Allow-Origin "*"`. CORP alone doesn't satisfy a CORS check, so the Pro Editor's `crossOrigin="anonymous"` load of cdn-hosted audio (see the comment above the `audio.crossOrigin = 'anonymous'` line in `StudioProEditorView.tsx`) fails and silently falls back to non-CORS playback — the live Web Audio preview graph (EQ/Compressor/Limiter/Filter, `src/plugins/audio-fx/`) goes inaudible with no user-facing indication for any archive item served from `cdn.tahti.live`. Fix is a one-line addition mirroring the `stream.tahti.live` block (`header Access-Control-Allow-Origin "*"` in the `cdn.tahti.live` block); left unmade here — production Caddy edge config in the `tahti` repo, not something to push through without the person who owns that deploy signing off.
 - [x] Help/support form live (not link-out only) — `SupportContactForm` posts to the real `POST /api/support/contact` (see FEATURES.md).
 
 ### P2 — follow-ups / nice-to-have
@@ -165,7 +165,7 @@ Work from FEATURES.md; mark done there and here.
 
 ### 2.1 Listen / public
 
-- [ ] Channel URL canonicalization (`/c/:slug`)
+- [x] Channel URL canonicalization (`/c/:slug`) — `prodChannelAliasRoute` (`router.tsx`) redirects `/c/$slug` → `/channel/$slug`, already covered by the P0 route-compatibility item; this was a stale duplicate checkbox.
 - [x] Chat captcha + access gating (already hardened — regression test) — audited `tahti/apps/api`: `verifyHcaptcha` fails closed when a real secret is configured (missing/invalid token → rejected), `ChatBan` is checked on both token-issue *and* message-send (defense in depth), message length is schema-capped at 500 chars (`ChatPublishProxySchema`), and `/api/chat/message` (the Centrifugo publish-proxy webhook) is gated to internal-network-only callers via `isTrustedInternalRequest` (SEC-007 — was previously reachable from the public internet, already fixed). The join-vs-publish Redis-cache fail-open/fail-closed split is deliberate and documented in `chat-captcha.ts`. No gaps found.
 - [ ] Radio parity + overlays
 - [x] Smart link + collection OG/share — release (`/r/*`) already had bot-facing OG; added the same for collections (`GET /api/og/collection/:slug` in `tahti/apps/api`, plus a matching nginx bot-proxy location for `/u/:username/c/:slug`). Verified: 10/10 API tests passing against a real disposable Postgres, and the nginx rewrite/precedence logic confirmed live against a real nginx container (bot UA → correct `collection:$slug` match, real browser UA → unaffected SPA fallback, an extra path segment matches neither location).
@@ -203,7 +203,7 @@ Work from FEATURES.md; mark done there and here.
 - [ ] Settings sections vs prod settings subnav — map 1:1 critical fields
 - [ ] Fan-tier CRUD
 - [x] Sources OAuth: start on SPA, callback lands on matching in-client source result
-- [ ] Remove production link-outs in `sources.ts` / AccountView once paths exist
+- [x] Remove production link-outs in `sources.ts` / AccountView once paths exist — grepped `api/sources.ts` for `tahti.live`: none. Every `SourceDef.oauthStartPath`/`studioDeepLink` already points at an in-app SPA path (`/sources/:id`, `/studio/upload`, etc.), consumed via `src/plugins/import-sources/`. No standalone `AccountView.tsx` exists in this codebase — settings/account live in `SettingsPanels.tsx`, also link-out-free for sources. Nothing left to remove.
 
 ### 2.6 Payments / Stripe
 
