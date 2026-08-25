@@ -17,6 +17,7 @@ import {
 } from './lib/cutoverReturns';
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { useAuthStore } from './stores/authStore';
+import type { AdminModerationTabId } from './views/admin/moderation/moderationNav';
 import { AgplView } from './views/AgplView';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
@@ -115,21 +116,9 @@ const AdminAnnouncementsView = lazyRouteComponent(
   () => import('./views/admin/AdminAnnouncementsView'),
   'AdminAnnouncementsView',
 );
-const AdminBetaView = lazyRouteComponent(
-  () => import('./views/admin/AdminBetaView'),
-  'AdminBetaView',
-);
-const AdminContentReportsView = lazyRouteComponent(
-  () => import('./views/admin/AdminContentReportsView'),
-  'AdminContentReportsView',
-);
 const AdminDashboardView = lazyRouteComponent(
   () => import('./views/admin/AdminDashboardView'),
   'AdminDashboardView',
-);
-const AdminFeatureRequestsView = lazyRouteComponent(
-  () => import('./views/admin/AdminFeatureRequestsView'),
-  'AdminFeatureRequestsView',
 );
 const AdminFilesView = lazyRouteComponent(
   () => import('./views/admin/AdminFilesView'),
@@ -155,9 +144,9 @@ const AdminNewsView = lazyRouteComponent(
   () => import('./views/admin/AdminNewsView'),
   'AdminNewsView',
 );
-const AdminRadioSubmissionsView = lazyRouteComponent(
-  () => import('./views/admin/AdminRadioSubmissionsView'),
-  'AdminRadioSubmissionsView',
+const AdminModerationView = lazyRouteComponent(
+  () => import('./views/admin/moderation/AdminModerationView'),
+  'AdminModerationView',
 );
 const AdminRadioStationSuggestionsView = lazyRouteComponent(
   () => import('./views/admin/AdminRadioStationSuggestionsView'),
@@ -166,10 +155,6 @@ const AdminRadioStationSuggestionsView = lazyRouteComponent(
 const AdminRadioView = lazyRouteComponent(
   () => import('./views/admin/AdminRadioView'),
   'AdminRadioView',
-);
-const AdminSelectsView = lazyRouteComponent(
-  () => import('./views/admin/AdminSelectsView'),
-  'AdminSelectsView',
 );
 const AdminStatusView = lazyRouteComponent(
   () => import('./views/admin/AdminStatusView'),
@@ -182,10 +167,6 @@ const AdminStorageView = lazyRouteComponent(
 const AdminStreamsView = lazyRouteComponent(
   () => import('./views/admin/AdminStreamsView'),
   'AdminStreamsView',
-);
-const AdminSupportView = lazyRouteComponent(
-  () => import('./views/admin/AdminSupportView'),
-  'AdminSupportView',
 );
 const AdminTopListsView = lazyRouteComponent(
   () => import('./views/admin/AdminTopListsView'),
@@ -296,10 +277,20 @@ const adminLogsRoute = createRoute({
   component: AdminLogsView,
 });
 
+// Beta applications, radio submissions, Selects, support, content reports,
+// and feature requests used to be six standalone admin routes/pages. They
+// are now tabs on one page (see AdminModerationView) — these redirect into
+// the matching tab, same pattern as the /themes -> /settings/$section alias
+// above.
 const adminBetaRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/beta',
-  component: AdminBetaView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/admin/moderation/$tab',
+      params: { tab: 'beta' },
+    });
+  },
 });
 
 const adminUsersRoute = createRoute({
@@ -317,7 +308,12 @@ const adminRadioRoute = createRoute({
 const adminRadioSubmissionsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/radio-submissions',
-  component: AdminRadioSubmissionsView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/admin/moderation/$tab',
+      params: { tab: 'radio-submissions' },
+    });
+  },
 });
 
 const adminRadioStationSuggestionsRoute = createRoute({
@@ -335,7 +331,12 @@ const adminNewsRoute = createRoute({
 const adminSelectsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/tahti-selects',
-  component: AdminSelectsView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/admin/moderation/$tab',
+      params: { tab: 'selects' },
+    });
+  },
 });
 
 const adminStreamsRoute = createRoute({
@@ -347,7 +348,12 @@ const adminStreamsRoute = createRoute({
 const adminSupportRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/support',
-  component: AdminSupportView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/admin/moderation/$tab',
+      params: { tab: 'support' },
+    });
+  },
 });
 
 const adminTopListsRoute = createRoute({
@@ -377,7 +383,12 @@ const adminFilesRoute = createRoute({
 const adminContentReportsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/content-reports',
-  component: AdminContentReportsView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/admin/moderation/$tab',
+      params: { tab: 'content-reports' },
+    });
+  },
 });
 
 const adminFinancialRoute = createRoute({
@@ -395,7 +406,29 @@ const adminGovernanceRoute = createRoute({
 const adminFeatureRequestsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/feature-requests',
-  component: AdminFeatureRequestsView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/admin/moderation/$tab',
+      params: { tab: 'feature-requests' },
+    });
+  },
+});
+
+const adminModerationRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/moderation',
+  component: () => <AdminModerationView />,
+});
+
+const adminModerationTabRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/moderation/$tab',
+  component: function AdminModerationTabRoute() {
+    const { tab } = adminModerationTabRoute.useParams();
+    return (
+      <AdminModerationView tab={tab as AdminModerationTabId | undefined} />
+    );
+  },
 });
 
 const adminGrantsRoute = createRoute({
@@ -1191,6 +1224,8 @@ const routeTree = rootRoute.addChildren([
     adminRoute,
     adminActivityRoute,
     adminLogsRoute,
+    adminModerationRoute,
+    adminModerationTabRoute,
     adminBetaRoute,
     adminUsersRoute,
     adminRadioRoute,
