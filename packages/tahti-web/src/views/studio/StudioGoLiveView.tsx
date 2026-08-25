@@ -44,6 +44,10 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { OnAirBadge } from '../../components/tahti/OnAirBadge';
+import {
+  multicastProviderLabel,
+  multicastProviders,
+} from '../../plugins/multicast';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
@@ -552,7 +556,8 @@ export function StudioGoLiveView() {
                       <div className="flex items-center justify-between gap-2">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium">
-                            {target.label || target.provider}
+                            {target.label ||
+                              multicastProviderLabel(target.provider)}
                           </p>
                           <p className="text-foreground-secondary text-xs">
                             {target.enabled ? 'Enabled' : 'Disabled'} · …
@@ -650,13 +655,11 @@ export function StudioGoLiveView() {
                   value={newProvider}
                   onChange={(event) => setNewProvider(event.target.value)}
                 >
-                  {['YOUTUBE', 'TWITCH', 'KICK', 'FACEBOOK', 'CUSTOM'].map(
-                    (provider) => (
-                      <option key={provider} value={provider}>
-                        {provider}
-                      </option>
-                    ),
-                  )}
+                  {multicastProviders.map((provider) => (
+                    <option key={provider.id} value={provider.id}>
+                      {provider.label}
+                    </option>
+                  ))}
                 </select>
               </label>
               <label className="text-foreground-secondary text-xs uppercase">

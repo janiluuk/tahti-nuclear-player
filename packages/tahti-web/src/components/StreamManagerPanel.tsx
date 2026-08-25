@@ -44,6 +44,7 @@ import {
 } from '../api/studio';
 import { fetchProgramme, type ProgrammeItem } from '../api/studio-extras';
 import type { StudioCollection } from '../api/studio-types';
+import { multicastProviderLabel } from '../plugins/multicast';
 
 const STATS_POLL_MS = 5000;
 const STREAM_POLL_MS = 15000;
@@ -560,7 +561,9 @@ export function StreamManagerPanel({
               key={target.id}
               className="border-border flex items-center justify-between rounded-lg border px-3 py-1.5 text-sm"
             >
-              <span>{target.label || target.provider}</span>
+              <span>
+                {target.label || multicastProviderLabel(target.provider)}
+              </span>
               <span className="text-foreground-secondary text-xs uppercase">
                 Mirroring
               </span>
