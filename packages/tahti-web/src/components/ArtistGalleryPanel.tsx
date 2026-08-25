@@ -1,21 +1,36 @@
-import { ImagePlusIcon, Maximize2Icon, Trash2Icon } from 'lucide-react';
+import {
+  CheckIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ImagePlusIcon,
+  Maximize2Icon,
+  Trash2Icon,
+} from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
 import {
   deletePressKitImage,
+  updatePressKitImage,
   uploadPressKitImages,
+  type PressKitImageItem,
   type PublicPressKitImage,
 } from '../api/artist-settings';
 import { ImageLightbox } from './ImageLightbox';
 
 const ACCEPTED = 'image/jpeg,image/png,image/webp';
 
+/** Position/includeInZip are only present for the owner's own fetch
+ * (fetchMyPressKitImages) -- the public fetch omits them, and reordering is
+ * owner-only anyway, so they stay optional here. */
+type GalleryImage = PublicPressKitImage &
+  Partial<Pick<PressKitImageItem, 'position' | 'includeInZip'>>;
+
 type Props = {
-  images: PublicPressKitImage[];
+  images: GalleryImage[];
   isOwner: boolean;
-  onChange: (next: PublicPressKitImage[]) => void;
+  onChange: (next: GalleryImage[]) => void;
 };
 
 export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
@@ -23,6 +38,8 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [dragId, setDragId] = useState<string | null>(null);
 
   async function onFiles(files: FileList | null) {
     if (!files?.length || !isOwner) {
@@ -49,11 +66,77 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
     }
     const prev = images;
     onChange(images.filter((i) => i.id !== id));
+    setSelected((current) => {
+      if (!current.has(id)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
     const res = await deletePressKitImage(id);
     if (!res.ok) {
       onChange(prev);
       setError(res.error);
     }
+  }
+
+  function toggleSelected(id: string) {
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  async function removeSelected() {
+    if (!isOwner || selected.size === 0) {
+      return;
+    }
+    const ids = Array.from(selected);
+    const prev = images;
+    onChange(images.filter((i) => !selected.has(i.id)));
+    setSelected(new Set());
+    const results = await Promise.all(ids.map((id) => deletePressKitImage(id)));
+    if (results.some((r) => !r.ok)) {
+      onChange(prev);
+      setError('Some images could not be removed.');
+    }
+  }
+
+  async function reorder(fromId: string, toId: string) {
+    if (!isOwner || fromId === toId) {
+      return;
+    }
+    const fromIndex = images.findIndex((i) => i.id === fromId);
+    const toIndex = images.findIndex((i) => i.id === toId);
+    if (fromIndex === -1 || toIndex === -1) {
+      return;
+    }
+    const next = [...images];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+    onChange(next);
+    await Promise.all(
+      next.map((image, index) =>
+        image.position !== undefined && image.position !== index
+          ? updatePressKitImage(image.id, { position: index })
+          : Promise.resolve(),
+      ),
+    );
+  }
+
+  function moveBy(id: string, delta: number) {
+    const index = images.findIndex((i) => i.id === id);
+    const target = images[index + delta];
+    if (index === -1 || !target) {
+      return;
+    }
+    void reorder(id, target.id);
   }
 
   return (
@@ -62,9 +145,22 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
         <p className="text-foreground-secondary text-sm">
           {images.length === 0
             ? 'No gallery photos yet.'
-            : `${images.length} photo${images.length === 1 ? '' : 's'}`}
+            : `${images.length} photo${images.length === 1 ? '' : 's'}${
+                selected.size > 0 ? ` · ${selected.size} selected` : ''
+              }`}
         </p>
         <div className="flex items-center gap-2">
+          {isOwner && selected.size > 0 ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="text-accent-red"
+              onClick={() => void removeSelected()}
+            >
+              <Trash2Icon size={14} aria-hidden className="mr-1.5" />
+              Remove selected ({selected.size})
+            </Button>
+          ) : null}
           {images.length > 0 ? (
             <Button
               size="sm"
@@ -100,42 +196,107 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
       </div>
 
       {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {isOwner && images.length > 1 ? (
+        <p className="text-foreground-secondary text-xs">
+          Drag a photo to reorder it, or use the arrows on hover. Check photos
+          to select them, then remove the ones you don't want.
+        </p>
+      ) : null}
 
       {images.length > 0 ? (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {images.map((img, index) => (
             <li
               key={img.id}
-              className="border-border group relative overflow-hidden rounded-lg border"
+              draggable={isOwner}
+              onDragStart={() => setDragId(img.id)}
+              onDragOver={(event) => {
+                if (isOwner) {
+                  event.preventDefault();
+                }
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                if (dragId) {
+                  void reorder(dragId, img.id);
+                }
+                setDragId(null);
+              }}
+              onDragEnd={() => setDragId(null)}
+              className={`border-border group relative overflow-hidden rounded-lg border ${
+                isOwner ? 'cursor-grab active:cursor-grabbing' : ''
+              } ${dragId === img.id ? 'opacity-50' : ''}`}
             >
-              <button
-                type="button"
-                className="block w-full"
-                onClick={() => setLightbox(index)}
-                aria-label={img.title ?? 'View photo'}
-              >
-                <img
-                  src={img.imageUrl}
-                  alt={img.title ?? ''}
-                  className="aspect-square w-full object-cover"
-                  loading="lazy"
-                />
-              </button>
+              <div className="relative">
+                <button
+                  type="button"
+                  className="block w-full"
+                  onClick={() => setLightbox(index)}
+                  aria-label={img.title ?? 'View photo'}
+                >
+                  <img
+                    src={img.imageUrl}
+                    alt={img.title ?? ''}
+                    className="aspect-square w-full object-cover"
+                    loading="lazy"
+                  />
+                </button>
+                {isOwner ? (
+                  <>
+                    <button
+                      type="button"
+                      className={`absolute top-1.5 left-1.5 flex size-6 items-center justify-center rounded-md border transition-opacity ${
+                        selected.has(img.id)
+                          ? 'bg-primary border-primary text-primary-foreground opacity-100'
+                          : 'bg-background/80 border-border/60 text-transparent opacity-0 group-hover:opacity-100'
+                      }`}
+                      title={selected.has(img.id) ? 'Deselect' : 'Select'}
+                      aria-label={
+                        selected.has(img.id) ? 'Deselect photo' : 'Select photo'
+                      }
+                      aria-pressed={selected.has(img.id)}
+                      onClick={() => toggleSelected(img.id)}
+                    >
+                      <CheckIcon size={14} aria-hidden />
+                    </button>
+                    <button
+                      type="button"
+                      className="bg-background/80 text-foreground absolute top-1.5 right-1.5 rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100"
+                      title="Remove photo"
+                      aria-label="Remove photo"
+                      onClick={() => void onDelete(img.id)}
+                    >
+                      <Trash2Icon size={14} />
+                    </button>
+                    <div className="absolute inset-x-1.5 bottom-1.5 flex justify-between opacity-0 transition-opacity group-hover:opacity-100">
+                      <button
+                        type="button"
+                        className="bg-background/80 text-foreground rounded-md p-1 disabled:pointer-events-none disabled:opacity-30"
+                        title="Move earlier"
+                        aria-label="Move photo earlier"
+                        disabled={index === 0}
+                        onClick={() => moveBy(img.id, -1)}
+                      >
+                        <ChevronLeftIcon size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-background/80 text-foreground rounded-md p-1 disabled:pointer-events-none disabled:opacity-30"
+                        title="Move later"
+                        aria-label="Move photo later"
+                        disabled={index === images.length - 1}
+                        onClick={() => moveBy(img.id, 1)}
+                      >
+                        <ChevronRightIcon size={14} />
+                      </button>
+                    </div>
+                  </>
+                ) : null}
+              </div>
               {img.title ? (
                 <p className="text-foreground-secondary truncate px-2 py-1 text-xs">
                   {img.title}
                 </p>
-              ) : null}
-              {isOwner ? (
-                <button
-                  type="button"
-                  className="bg-background/80 text-foreground absolute top-1.5 right-1.5 rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100"
-                  title="Remove photo"
-                  aria-label="Remove photo"
-                  onClick={() => void onDelete(img.id)}
-                >
-                  <Trash2Icon size={14} />
-                </button>
               ) : null}
             </li>
           ))}

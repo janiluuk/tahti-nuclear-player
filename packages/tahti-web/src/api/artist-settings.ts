@@ -959,6 +959,27 @@ export async function uploadProfileAvatar(
   }
 }
 
+export async function removeProfileAvatar(): Promise<
+  { ok: true } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return { ok: true };
+  }
+  try {
+    // avatarUrl.trim() || null on the server -- an empty string clears it.
+    await requestJson('/api/me/profile', {
+      method: 'PATCH',
+      body: JSON.stringify({ avatarUrl: '' }),
+    });
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Avatar removal failed',
+    };
+  }
+}
+
 export async function deletePressKitImage(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {

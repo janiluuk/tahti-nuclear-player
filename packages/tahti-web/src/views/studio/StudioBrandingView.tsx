@@ -19,6 +19,7 @@ import {
   fetchPublicPressKitImages,
   MAX_PRESS_KIT_SELECTED_IMAGES,
   patchPressKitBio,
+  removeProfileAvatar,
   setPressKitGalleryPublic,
   updatePressKitImage,
   uploadPressKitImages,
@@ -207,6 +208,22 @@ export const StudioBrandingView: FC = () => {
     toast.success('Profile picture updated.');
   };
 
+  const removeAvatar = async () => {
+    if (!profile) {
+      return;
+    }
+    setBusy(true);
+    const result = await removeProfileAvatar();
+    setBusy(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    setProfile({ ...profile, avatarUrl: null });
+    await refreshAuth();
+    toast.success('Profile picture removed.');
+  };
+
   const pressImages = selectedPressKitImages(images);
   const avatarUrl = profile?.avatarUrl ?? user?.avatarUrl ?? null;
 
@@ -263,38 +280,74 @@ export const StudioBrandingView: FC = () => {
           <>
             <StudioPanel
               title="Profile picture"
-              description="Use a clear square portrait or mark. Click the preview to inspect the full image."
+              description="Use a clear square portrait or mark. Hover the picture to replace or remove it."
             >
               <div className="flex flex-wrap items-center gap-5">
-                {avatarUrl ? (
+                <div className="group relative size-32 shrink-0">
                   <button
                     type="button"
-                    className="border-border size-32 overflow-hidden rounded-xl border shadow-lg"
-                    aria-label={`View ${profile?.displayName ?? 'artist'} profile picture`}
-                    onClick={() => setAvatarViewerOpen(true)}
+                    className="border-border block size-32 overflow-hidden rounded-full border shadow-lg"
+                    aria-label={
+                      avatarUrl
+                        ? `View ${profile?.displayName ?? 'artist'} profile picture`
+                        : 'Upload profile picture'
+                    }
+                    onClick={() =>
+                      avatarUrl
+                        ? setAvatarViewerOpen(true)
+                        : avatarInputRef.current?.click()
+                    }
                   >
-                    <img
-                      src={avatarUrl}
-                      alt=""
-                      className="size-full object-cover"
-                    />
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt=""
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <div className="bg-primary/15 text-primary flex size-full items-center justify-center text-4xl font-bold">
+                        {(profile?.displayName ?? user?.displayName ?? 'A')
+                          .slice(0, 1)
+                          .toUpperCase()}
+                      </div>
+                    )}
                   </button>
-                ) : (
-                  <div className="bg-primary/15 text-primary flex size-32 items-center justify-center rounded-xl text-4xl font-bold">
-                    {(profile?.displayName ?? user?.displayName ?? 'A')
-                      .slice(0, 1)
-                      .toUpperCase()}
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-2 rounded-full bg-black/50 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        avatarInputRef.current?.click();
+                      }}
+                      aria-label={
+                        avatarUrl
+                          ? 'Replace profile picture'
+                          : 'Upload profile picture'
+                      }
+                      title={avatarUrl ? 'Replace picture' : 'Upload picture'}
+                      className="pointer-events-auto flex size-9 items-center justify-center rounded-full bg-white/90 text-black transition-colors hover:bg-white disabled:opacity-50"
+                    >
+                      <ImagePlusIcon size={16} aria-hidden />
+                    </button>
+                    {avatarUrl ? (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void removeAvatar();
+                        }}
+                        aria-label="Remove profile picture"
+                        title="Remove picture"
+                        className="text-accent-red pointer-events-auto flex size-9 items-center justify-center rounded-full bg-white/90 transition-colors hover:bg-white disabled:opacity-50"
+                      >
+                        <Trash2Icon size={16} aria-hidden />
+                      </button>
+                    ) : null}
                   </div>
-                )}
+                </div>
                 <div className="flex flex-col gap-2">
-                  <Button
-                    size="sm"
-                    disabled={busy}
-                    onClick={() => avatarInputRef.current?.click()}
-                  >
-                    <ImagePlusIcon size={15} aria-hidden className="mr-1.5" />
-                    {avatarUrl ? 'Replace picture' : 'Add picture'}
-                  </Button>
                   <p className="text-foreground-secondary text-xs">
                     JPEG, PNG, or WebP. The original is kept for full-size use.
                   </p>
@@ -410,8 +463,8 @@ export const StudioBrandingView: FC = () => {
             >
               <ArtistGalleryPanel
                 images={images}
-                isOwner={false}
-                onChange={() => undefined}
+                isOwner
+                onChange={(next) => setImages(next as PressKitImageItem[])}
               />
             </StudioPanel>
           </>
