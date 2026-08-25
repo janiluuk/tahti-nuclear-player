@@ -148,6 +148,30 @@ export function nextSelectionOnCellClick(
   return { day, startHour: hour, hours: 1 };
 }
 
+/** Minutes before a booking's start, and after its end, that the artist's
+ * green room should be surfaced to a viewer as "open for this show" — long
+ * enough to catch early arrivals and an after-set wind-down chat, short
+ * enough that it doesn't linger as relevant hours away from the actual slot. */
+export const GREEN_ROOM_WINDOW_BEFORE_MINUTES = 30;
+export const GREEN_ROOM_WINDOW_AFTER_MINUTES = 15;
+
+/** Whether a booking's green room should be surfaced right now — i.e. the
+ * booking is imminent, live, or just wrapped up (see the window constants
+ * above). Pure function of `now` so it's trivially testable without mocking
+ * the clock globally. */
+export function isGreenRoomWindow(
+  booking: Pick<StudioShowBooking, 'startAt' | 'endAt'>,
+  now: number = Date.now(),
+): boolean {
+  const opensAt =
+    new Date(booking.startAt).getTime() -
+    GREEN_ROOM_WINDOW_BEFORE_MINUTES * 60_000;
+  const closesAt =
+    new Date(booking.endAt).getTime() +
+    GREEN_ROOM_WINDOW_AFTER_MINUTES * 60_000;
+  return now >= opensAt && now <= closesAt;
+}
+
 export function selectionRange(selection: ScheduleSelection): {
   startAt: string;
   endAt: string;

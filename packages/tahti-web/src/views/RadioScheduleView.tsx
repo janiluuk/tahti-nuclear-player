@@ -24,6 +24,7 @@ import {
   atHour,
   buildBookingGrid,
   filterBookingsForStation,
+  isGreenRoomWindow,
   nextSelectionOnCellClick,
   SCHEDULE_HOURS,
   selectionRange,
@@ -90,6 +91,14 @@ export function RadioScheduleView() {
   const grid = useMemo(
     () => buildBookingGrid(days, visibleBookings),
     [days, visibleBookings],
+  );
+
+  // Bookings imminent, live, or just wrapped up — surfaced as a direct link
+  // into that artist's green room rather than making a viewer hunt for it on
+  // the artist's page.
+  const greenRoomBookings = useMemo(
+    () => visibleBookings.filter((b) => isGreenRoomWindow(b)),
+    [visibleBookings],
   );
 
   function bookingAt(day: Date, hour: number): StudioShowBooking | undefined {
@@ -175,6 +184,33 @@ export function RadioScheduleView() {
         title="Schedule"
         subtitle="A week at a glance on Tahti Radio — book an open hour to play a live set, or switch to your own channel to see just your slots."
       />
+
+      {greenRoomBookings.length > 0 ? (
+        <div className="border-border bg-primary/10 flex flex-col gap-2 rounded-lg border p-3">
+          {greenRoomBookings.map((b) => (
+            <div
+              key={b.id}
+              className="flex flex-wrap items-center justify-between gap-2 text-sm"
+            >
+              <span>
+                <strong>{bookingTitle(b)}</strong> by {b.displayName} —{' '}
+                {new Date(b.startAt).getTime() <= Date.now()
+                  ? 'live now'
+                  : 'starting soon'}
+              </span>
+              <Link
+                to="/u/$username/green-room"
+                params={{ username: b.username }}
+              >
+                <Button size="sm" variant="secondary">
+                  <MicIcon size={14} aria-hidden className="mr-1.5" />
+                  Green room
+                </Button>
+              </Link>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div

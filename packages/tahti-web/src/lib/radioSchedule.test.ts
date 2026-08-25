@@ -6,6 +6,9 @@ import {
   atHour,
   buildBookingGrid,
   filterBookingsForStation,
+  GREEN_ROOM_WINDOW_AFTER_MINUTES,
+  GREEN_ROOM_WINDOW_BEFORE_MINUTES,
+  isGreenRoomWindow,
   nextSelectionOnCellClick,
   selectionRange,
   startOfLocalDay,
@@ -22,6 +25,7 @@ function booking(overrides: Partial<StudioShowBooking>): StudioShowBooking {
     note: null,
     showType: 'LIVE_SET',
     channelSlug: 'demo',
+    username: 'demo',
     displayName: 'Demo Artist',
     isMine: false,
     ...overrides,
@@ -137,5 +141,38 @@ describe('selectionRange', () => {
     const range = selectionRange({ day, startHour: 20, hours: 2 });
     expect(range.startAt).toBe(atHour(day, 20).toISOString());
     expect(range.endAt).toBe(atHour(day, 22).toISOString());
+  });
+});
+
+describe('isGreenRoomWindow', () => {
+  const start = new Date('2026-08-24T20:00:00Z').getTime();
+  const end = new Date('2026-08-24T21:00:00Z').getTime();
+  const show = booking({
+    startAt: new Date(start).toISOString(),
+    endAt: new Date(end).toISOString(),
+  });
+
+  it('is closed well before the slot starts', () => {
+    const before = start - (GREEN_ROOM_WINDOW_BEFORE_MINUTES + 1) * 60_000;
+    expect(isGreenRoomWindow(show, before)).toBe(false);
+  });
+
+  it('opens within the pre-show window', () => {
+    const justBefore = start - (GREEN_ROOM_WINDOW_BEFORE_MINUTES - 1) * 60_000;
+    expect(isGreenRoomWindow(show, justBefore)).toBe(true);
+  });
+
+  it('stays open while the slot is live', () => {
+    expect(isGreenRoomWindow(show, start + 30 * 60_000)).toBe(true);
+  });
+
+  it('stays open through the post-show grace period', () => {
+    const justAfter = end + (GREEN_ROOM_WINDOW_AFTER_MINUTES - 1) * 60_000;
+    expect(isGreenRoomWindow(show, justAfter)).toBe(true);
+  });
+
+  it('closes once the grace period elapses', () => {
+    const after = end + (GREEN_ROOM_WINDOW_AFTER_MINUTES + 1) * 60_000;
+    expect(isGreenRoomWindow(show, after)).toBe(false);
   });
 });
