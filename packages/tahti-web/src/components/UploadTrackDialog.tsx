@@ -16,14 +16,16 @@ export function UploadTrackDialog({ isOpen, onClose, onUploaded }: Props) {
   const [title, setTitle] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
   const [itemId, setItemId] = useState<string | null>(null);
 
   const reset = () => {
     setTitle('');
     setFile(null);
     setBusy(false);
-    setMessage(null);
+    setError(null);
+    setNote(null);
     setItemId(null);
   };
 
@@ -34,20 +36,21 @@ export function UploadTrackDialog({ isOpen, onClose, onUploaded }: Props) {
 
   const submit = async () => {
     if (!file) {
-      setMessage('Choose an audio file.');
+      setError('Choose an audio file.');
       return;
     }
     setBusy(true);
-    setMessage(null);
+    setError(null);
+    setNote(null);
     const result = await uploadArchiveFile({ file, title: title || file.name });
     setBusy(false);
     if (!result.ok) {
-      setMessage(result.error);
+      setError(result.error);
       return;
     }
     setItemId(result.itemId);
     onUploaded?.(result.itemId);
-    setMessage('Upload complete — processing may take a minute.');
+    setNote('Upload complete — processing may take a minute.');
   };
 
   return (
@@ -85,8 +88,15 @@ export function UploadTrackDialog({ isOpen, onClose, onUploaded }: Props) {
             selectedFiles={file ? [file] : []}
             onFiles={(files) => setFile(files[0] ?? null)}
           />
-          {message && (
-            <p className="text-foreground-secondary text-sm">{message}</p>
+          {error && (
+            <p className="text-accent-red text-sm" role="alert">
+              {error}
+            </p>
+          )}
+          {note && (
+            <p className="text-foreground-secondary text-sm" role="status">
+              {note}
+            </p>
           )}
           {itemId && (
             <Link

@@ -72,7 +72,9 @@ export function StudioUploadView() {
               onFiles={(files) => setFile(files[0] ?? null)}
             />
             {message && (
-              <p className="text-foreground-secondary text-sm">{message}</p>
+              <p className="text-accent-red text-sm" role="alert">
+                {message}
+              </p>
             )}
             <div className="flex flex-wrap gap-2">
               <Button disabled={busy || !file} onClick={() => void submit()}>
