@@ -103,6 +103,14 @@ function ScreenNavigation({ c }: { c: MapCase }) {
           chart={caseFlowchart(c)}
           className="mt-1.5"
         />
+        <MapCommentForm
+          kind="flow"
+          targetId={c.id}
+          title={`${c.title} — navigation flow`}
+          label="Comment on this screen's navigation flow"
+          placeholder="Missing a path, a dead end, a link that should exist but doesn't…"
+          className="mt-3"
+        />
       </div>
     </div>
   );
@@ -136,7 +144,13 @@ function commentsToCsv(comments: MapComment[]): string {
     'submitted_at',
   ];
   const rows = comments.map((c) => {
-    const meta = c.kind === 'case' ? lookup[c.targetId] : undefined;
+    // 'flow' comments from ScreenNavigation are keyed by the same case id
+    // as 'case' comments (see caseFlowchart's per-screen comment box), so
+    // the same lookup resolves a view_name for both kinds. Flow comments
+    // from the top-level FlowGallery use flow-diagram ids instead, which
+    // this lookup has no entry for — view_name stays blank there, which is
+    // fine since `title` already carries a readable label.
+    const meta = lookup[c.targetId];
     return [
       c.kind,
       c.targetId,

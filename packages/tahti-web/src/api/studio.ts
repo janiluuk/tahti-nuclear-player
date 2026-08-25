@@ -674,6 +674,15 @@ export async function checkTrackFingerprint(
   return runTrackFingerprint(releaseId, trackId, 'fingerprint/check', null);
 }
 
+/** Matches packages/shared/src/dto/archive-stems.ts's StemSetSchema in the
+ * tahti API repo — the render endpoint 400s on anything else. */
+export type StemSet = 'TWO_STEM' | 'FOUR_STEM';
+
+export const STEM_SET_LABELS: Record<StemSet, string> = {
+  TWO_STEM: 'Vocals + instrumental',
+  FOUR_STEM: 'Vocals, drums, bass, other',
+};
+
 export type StemJob = {
   stemSet: string;
   status: string;
@@ -689,11 +698,21 @@ export async function fetchArchiveStems(archiveItemId: string): Promise<{
     return {
       data: [
         {
-          stemSet: '2STEMS',
+          stemSet: 'TWO_STEM',
           status: 'READY',
           files: [
             { label: 'Vocals', url: DEMO_MP3 },
             { label: 'Instrumental', url: DEMO_MP3 },
+          ],
+        },
+        {
+          stemSet: 'FOUR_STEM',
+          status: 'READY',
+          files: [
+            { label: 'Vocals', url: DEMO_MP3 },
+            { label: 'Drums', url: DEMO_MP3 },
+            { label: 'Bass', url: DEMO_MP3 },
+            { label: 'Other', url: DEMO_MP3 },
           ],
         },
       ],
@@ -712,7 +731,7 @@ export async function fetchArchiveStems(archiveItemId: string): Promise<{
 
 export async function requestArchiveStems(
   archiveItemId: string,
-  stemSet = '2STEMS',
+  stemSet: StemSet = 'TWO_STEM',
 ): Promise<{ ok: true; status: string } | { ok: false; error: string }> {
   if (forceMock()) {
     return { ok: true, status: 'PENDING' };

@@ -1,7 +1,17 @@
 import { Link } from '@tanstack/react-router';
+import {
+  CopyIcon,
+  DownloadIcon,
+  ExternalLinkIcon,
+  PlusIcon,
+  SaveIcon,
+  SendIcon,
+  Trash2Icon,
+  XIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Input } from '@nuclearplayer/ui';
+import { Badge, Button, Input, Tabs } from '@nuclearplayer/ui';
 
 import {
   fetchAllRoyalties,
@@ -30,6 +40,7 @@ import type {
 import { RELEASE_CREDIT_ROLES } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 
 const MUSICBRAINZ_SUBMIT_URL = 'https://musicbrainz.org/release/add';
@@ -141,26 +152,23 @@ function SpotifyProfilePanel() {
 
   if (!configured) {
     return (
-      <div className="border-border rounded-lg border p-4 text-sm">
-        <p className="font-medium">Spotify artist profile</p>
-        <p className="text-foreground-secondary mt-1 text-xs">
+      <StudioPanel title="Spotify artist profile">
+        <p className="text-foreground-secondary text-sm">
           Spotify import needs a platform API key that hasn&apos;t been set up
           yet.
         </p>
-      </div>
+      </StudioPanel>
     );
   }
 
   return (
-    <div className="border-border rounded-lg border p-4 text-sm">
-      <p className="font-medium">Spotify artist profile</p>
-      <p className="text-foreground-secondary mt-1 text-xs">
-        Link your Spotify artist page so “Your tracks” auto-loads when adding
-        tracks to a collection.
-      </p>
+    <StudioPanel
+      title="Spotify artist profile"
+      description="Link your Spotify artist page so “Your tracks” auto-loads when adding tracks to a collection."
+    >
       {profile ? (
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <span className="text-xs">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm">
             Linked{profile.name ? `: ${profile.name}` : ''}
           </span>
           <Button
@@ -183,12 +191,13 @@ function SpotifyProfilePanel() {
               });
             }}
           >
+            <XIcon size={14} aria-hidden className="mr-1.5" />
             Remove
           </Button>
         </div>
       ) : (
         <form
-          className="mt-3 flex flex-wrap gap-2"
+          className="flex flex-wrap gap-2"
           onSubmit={(e) => {
             e.preventDefault();
             if (!artistUrl.trim()) {
@@ -219,7 +228,7 @@ function SpotifyProfilePanel() {
         </form>
       )}
       {msg && <p className="text-foreground-secondary mt-2 text-xs">{msg}</p>}
-    </div>
+    </StudioPanel>
   );
 }
 
@@ -389,8 +398,352 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
     }
   };
 
+  const catalogTab = (
+    <div className="flex flex-col gap-4">
+      <ul className="flex flex-col gap-1 text-xs">
+        {checklist.map((step) => (
+          <li key={step.id}>
+            <span className="mr-1.5">{step.done ? '✓' : '○'}</span>
+            <strong>{step.label}</strong>
+            {step.hint && (
+              <span className="text-foreground-secondary"> — {step.hint}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {(
+          [
+            ['UPC / EAN', 'upc'],
+            ['MusicBrainz release MBID', 'musicbrainzReleaseId'],
+            ['MusicBrainz artist MBID', 'musicbrainzArtistId'],
+            ['Discogs release ID', 'discogsReleaseId'],
+            ['P-line', 'pLine'],
+            ['C-line', 'cLine'],
+            ['Label imprint', 'labelImprint'],
+          ] as const
+        ).map(([label, key]) => (
+          <label key={key} className="flex flex-col gap-1 text-xs">
+            <span className="text-foreground-secondary">{label}</span>
+            <Input
+              value={form![key]}
+              disabled={busy}
+              onChange={(e) => setForm({ ...form!, [key]: e.target.value })}
+            />
+          </label>
+        ))}
+      </div>
+
+      <div>
+        <p className="mb-2 text-xs font-medium">Credits & roles</p>
+        {credits.length === 0 && (
+          <p className="text-foreground-secondary mb-2 text-xs">
+            No credits yet — add writers, performers, producers, etc.
+          </p>
+        )}
+        <ul className="flex flex-col gap-2">
+          {credits.map((credit, index) => (
+            <li
+              key={index}
+              className="grid gap-2 sm:grid-cols-[8rem_1fr_8rem_auto]"
+            >
+              <select
+                className="border-border bg-background rounded-md border px-2 py-1.5 text-xs"
+                value={credit.role}
+                disabled={busy}
+                aria-label="Credit role"
+                onChange={(e) => {
+                  const next = [...credits];
+                  next[index] = {
+                    ...credit,
+                    role: e.target.value as ReleaseCreditRole,
+                  };
+                  setCredits(next);
+                }}
+              >
+                {RELEASE_CREDIT_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+              <Input
+                value={credit.name}
+                placeholder="Name"
+                disabled={busy}
+                aria-label="Credit name"
+                onChange={(e) => {
+                  const next = [...credits];
+                  next[index] = { ...credit, name: e.target.value };
+                  setCredits(next);
+                }}
+              />
+              <Input
+                value={credit.artistUsername ? `@${credit.artistUsername}` : ''}
+                placeholder="@username"
+                disabled={busy}
+                maxLength={33}
+                aria-label="Tahti username"
+                onChange={(e) => {
+                  const raw = e.target.value
+                    .trim()
+                    .replace(/^@/, '')
+                    .toLowerCase();
+                  const next = [...credits];
+                  next[index] = {
+                    ...credit,
+                    artistUsername: raw.length > 0 ? raw : undefined,
+                  };
+                  setCredits(next);
+                }}
+              />
+              <Button
+                size="icon-sm"
+                variant="text"
+                disabled={busy}
+                aria-label={`Remove credit ${credit.name || index + 1}`}
+                onClick={() =>
+                  setCredits(credits.filter((_, i) => i !== index))
+                }
+              >
+                <Trash2Icon size={14} aria-hidden />
+              </Button>
+            </li>
+          ))}
+        </ul>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="mt-2"
+          disabled={busy}
+          onClick={() => setCredits([...credits, { role: 'writer', name: '' }])}
+        >
+          <PlusIcon size={14} aria-hidden className="mr-1.5" />
+          Add credit
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" disabled={busy} onClick={saveCatalog}>
+          {!busy && <SaveIcon size={14} aria-hidden className="mr-1.5" />}
+          {busy ? 'Saving…' : 'Save catalog'}
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          disabled={busy}
+          onClick={() => void runExport('download')}
+        >
+          <DownloadIcon size={14} aria-hidden className="mr-1.5" />
+          Export JSON
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          disabled={busy}
+          onClick={() => void runExport('musicbrainz')}
+        >
+          <CopyIcon size={14} aria-hidden className="mr-1.5" />
+          Copy MusicBrainz prefill
+        </Button>
+        <a
+          href={MUSICBRAINZ_SUBMIT_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="text-foreground-secondary hover:text-foreground inline-flex items-center gap-1 text-xs underline underline-offset-2"
+        >
+          Add on MusicBrainz
+          <ExternalLinkIcon size={12} aria-hidden />
+        </a>
+        <Button
+          size="sm"
+          variant="secondary"
+          disabled={busy}
+          onClick={() => void runExport('discogs')}
+        >
+          <CopyIcon size={14} aria-hidden className="mr-1.5" />
+          Copy Discogs prefill
+        </Button>
+        <a
+          href={DISCOGS_SUBMIT_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="text-foreground-secondary hover:text-foreground inline-flex items-center gap-1 text-xs underline underline-offset-2"
+        >
+          Search on Discogs
+          <ExternalLinkIcon size={12} aria-hidden />
+        </a>
+      </div>
+      {msg && <p className="text-xs">{msg}</p>}
+    </div>
+  );
+
+  const deliveryTab = (
+    <div className="flex flex-col gap-3">
+      <p className="text-foreground-secondary text-xs">
+        Submits catalog metadata to Revelator (Spotify, Apple, etc.). Requires
+        UPC or ISRC on every track.
+      </p>
+      {revelatorStatus && (
+        <p className="text-xs">
+          Status: <strong>{revelatorStatus}</strong>
+          {revelatorId && (
+            <span className="text-foreground-secondary">
+              {' '}
+              · id {revelatorId}
+            </span>
+          )}
+        </p>
+      )}
+      {billing && !billing.paid && (
+        <p className="text-foreground-secondary text-xs">
+          {billing.feeCents === 0 && billing.studioIncludedRemaining != null
+            ? `Studio included slot (${billing.studioIncludedRemaining} left this year)`
+            : `Distribution fee: ${euros(billing.feeCents)}`}
+        </p>
+      )}
+      {billing?.paid && (
+        <p className="text-foreground-secondary text-xs">
+          {billing.waived
+            ? 'Fee waived (Studio included)'
+            : `Distribution fee paid${
+                billing.distributionPaidAt
+                  ? ` on ${new Date(billing.distributionPaidAt).toLocaleDateString()}`
+                  : ''
+              }`}
+        </p>
+      )}
+      <Button
+        size="sm"
+        className="self-start"
+        disabled={busy || !canSubmit}
+        onClick={() => {
+          setBusy(true);
+          setMsg(null);
+          void payAndSubmitToRevelator(release.id).then((r) => {
+            setBusy(false);
+            if (!r.ok) {
+              setMsg(r.error);
+              return;
+            }
+            if ('checkoutUrl' in r) {
+              window.location.href = r.checkoutUrl;
+              return;
+            }
+            setMsg('Submitted to Revelator.');
+            setCatalog((prev) =>
+              prev
+                ? { ...prev, revelatorStatus: r.data.revelatorStatus }
+                : prev,
+            );
+            setBilling((prev) => (prev ? { ...prev, paid: true } : prev));
+            loadOps();
+          });
+        }}
+      >
+        {!busy && <SendIcon size={14} aria-hidden className="mr-1.5" />}
+        {busy
+          ? 'Submitting…'
+          : billing && !billing.paid && billing.feeCents > 0
+            ? `Pay ${euros(billing.feeCents)} & submit`
+            : 'Submit to Revelator'}
+      </Button>
+
+      {showRoyalties && (
+        <div className="border-border border-t pt-3">
+          <p className="mb-1 text-xs font-medium">Royalty reports</p>
+          {!royaltiesLoaded ? (
+            <p className="text-foreground-secondary text-xs">Loading…</p>
+          ) : royalties.length === 0 ? (
+            <p className="text-foreground-secondary text-xs">
+              No reports yet — synced monthly after DSP delivery.
+            </p>
+          ) : (
+            <ul className="divide-border divide-y text-xs">
+              {royalties.map((row) => (
+                <li
+                  key={row.id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-1.5"
+                >
+                  <span>{row.periodStart.slice(0, 7)}</span>
+                  <span className="text-foreground-secondary">
+                    {row.streams != null
+                      ? `${row.streams.toLocaleString()} streams · `
+                      : ''}
+                    {euros(row.amountCents)} {row.currency}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+      {msg && <p className="text-xs">{msg}</p>}
+    </div>
+  );
+
+  const guidesTab = (
+    <div className="flex flex-col gap-4 text-xs">
+      <div>
+        <p className="mb-1 font-medium">MusicBrainz</p>
+        <ol className="text-foreground-secondary list-inside list-decimal">
+          {MUSICBRAINZ_GUIDE_STEPS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </div>
+      <div>
+        <p className="mb-1 font-medium">Discogs</p>
+        <ol className="text-foreground-secondary list-inside list-decimal">
+          {DISCOGS_GUIDE_STEPS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </div>
+      <div>
+        <p className="mb-1 font-medium">Post-release claim links</p>
+        <ul className="list-inside list-disc">
+          {POST_RELEASE_CLAIM_LINKS.map((link) => (
+            <li key={link.id}>
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noreferrer"
+                className="underline"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <p className="mb-1 font-medium">Collecting societies</p>
+        <ul className="list-inside list-disc">
+          {COLLECTING_SOCIETY_POINTERS.map((society) => (
+            <li key={society.id}>
+              <a
+                href={society.url}
+                target="_blank"
+                rel="noreferrer"
+                className="underline"
+              >
+                {society.label}
+              </a>
+              <span className="text-foreground-secondary">
+                {' '}
+                ({society.region}) — {society.hint}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="border-border rounded-lg border p-4 text-sm">
+    <StudioPanel className="text-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="font-medium">{release.title}</p>
@@ -419,366 +772,30 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
         </div>
       </div>
 
-      {open && (
-        <div className="mt-4 flex flex-col gap-4">
-          {loading || !form ? (
-            <p className="text-foreground-secondary text-xs">Loading…</p>
-          ) : (
-            <>
-              <ul className="flex flex-col gap-1 text-xs">
-                {checklist.map((step) => (
-                  <li key={step.id}>
-                    <span className="mr-1.5">{step.done ? '✓' : '○'}</span>
-                    <strong>{step.label}</strong>
-                    {step.hint && (
-                      <span className="text-foreground-secondary">
-                        {' '}
-                        — {step.hint}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="grid gap-2 sm:grid-cols-2">
-                {(
-                  [
-                    ['UPC / EAN', 'upc'],
-                    ['MusicBrainz release MBID', 'musicbrainzReleaseId'],
-                    ['MusicBrainz artist MBID', 'musicbrainzArtistId'],
-                    ['Discogs release ID', 'discogsReleaseId'],
-                    ['P-line', 'pLine'],
-                    ['C-line', 'cLine'],
-                    ['Label imprint', 'labelImprint'],
-                  ] as const
-                ).map(([label, key]) => (
-                  <label key={key} className="flex flex-col gap-1 text-xs">
-                    <span className="text-foreground-secondary">{label}</span>
-                    <Input
-                      value={form[key]}
-                      disabled={busy}
-                      onChange={(e) =>
-                        setForm({ ...form, [key]: e.target.value })
-                      }
-                    />
-                  </label>
-                ))}
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs font-medium">Credits & roles</p>
-                {credits.length === 0 && (
-                  <p className="text-foreground-secondary mb-2 text-xs">
-                    No credits yet — add writers, performers, producers, etc.
-                  </p>
-                )}
-                <ul className="flex flex-col gap-2">
-                  {credits.map((credit, index) => (
-                    <li
-                      key={index}
-                      className="grid gap-2 sm:grid-cols-[8rem_1fr_8rem_auto]"
-                    >
-                      <select
-                        className="border-border bg-background rounded-md border px-2 py-1.5 text-xs"
-                        value={credit.role}
-                        disabled={busy}
-                        aria-label="Credit role"
-                        onChange={(e) => {
-                          const next = [...credits];
-                          next[index] = {
-                            ...credit,
-                            role: e.target.value as ReleaseCreditRole,
-                          };
-                          setCredits(next);
-                        }}
-                      >
-                        {RELEASE_CREDIT_ROLES.map((role) => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
-                        ))}
-                      </select>
-                      <Input
-                        value={credit.name}
-                        placeholder="Name"
-                        disabled={busy}
-                        aria-label="Credit name"
-                        onChange={(e) => {
-                          const next = [...credits];
-                          next[index] = { ...credit, name: e.target.value };
-                          setCredits(next);
-                        }}
-                      />
-                      <Input
-                        value={
-                          credit.artistUsername
-                            ? `@${credit.artistUsername}`
-                            : ''
-                        }
-                        placeholder="@username"
-                        disabled={busy}
-                        maxLength={33}
-                        aria-label="Tahti username"
-                        onChange={(e) => {
-                          const raw = e.target.value
-                            .trim()
-                            .replace(/^@/, '')
-                            .toLowerCase();
-                          const next = [...credits];
-                          next[index] = {
-                            ...credit,
-                            artistUsername: raw.length > 0 ? raw : undefined,
-                          };
-                          setCredits(next);
-                        }}
-                      />
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        disabled={busy}
-                        onClick={() =>
-                          setCredits(credits.filter((_, i) => i !== index))
-                        }
-                      >
-                        Remove
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="mt-2"
-                  disabled={busy}
-                  onClick={() =>
-                    setCredits([...credits, { role: 'writer', name: '' }])
-                  }
-                >
-                  Add credit
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Button size="sm" disabled={busy} onClick={saveCatalog}>
-                  {busy ? 'Saving…' : 'Save catalog'}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={busy}
-                  onClick={() => void runExport('download')}
-                >
-                  Export JSON
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={busy}
-                  onClick={() => void runExport('musicbrainz')}
-                >
-                  Copy MusicBrainz prefill
-                </Button>
-                <a
-                  href={MUSICBRAINZ_SUBMIT_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs underline underline-offset-2"
-                >
-                  Add on MusicBrainz →
-                </a>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={busy}
-                  onClick={() => void runExport('discogs')}
-                >
-                  Copy Discogs prefill
-                </Button>
-                <a
-                  href={DISCOGS_SUBMIT_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs underline underline-offset-2"
-                >
-                  Search on Discogs →
-                </a>
-              </div>
-
-              <div className="border-border border-t pt-4">
-                <p className="text-xs font-medium">Revelator DSP delivery</p>
-                <p className="text-foreground-secondary mt-1 text-xs">
-                  Submits catalog metadata to Revelator (Spotify, Apple, etc.).
-                  Requires UPC or ISRC on every track.
-                </p>
-                {revelatorStatus && (
-                  <p className="mt-2 text-xs">
-                    Status: <strong>{revelatorStatus}</strong>
-                    {revelatorId && (
-                      <span className="text-foreground-secondary">
-                        {' '}
-                        · id {revelatorId}
-                      </span>
-                    )}
-                  </p>
-                )}
-                {billing && !billing.paid && (
-                  <p className="text-foreground-secondary mt-1 text-xs">
-                    {billing.feeCents === 0 &&
-                    billing.studioIncludedRemaining != null
-                      ? `Studio included slot (${billing.studioIncludedRemaining} left this year)`
-                      : `Distribution fee: ${euros(billing.feeCents)}`}
-                  </p>
-                )}
-                {billing?.paid && (
-                  <p className="text-foreground-secondary mt-1 text-xs">
-                    {billing.waived
-                      ? 'Fee waived (Studio included)'
-                      : `Distribution fee paid${
-                          billing.distributionPaidAt
-                            ? ` on ${new Date(billing.distributionPaidAt).toLocaleDateString()}`
-                            : ''
-                        }`}
-                  </p>
-                )}
-                <Button
-                  size="sm"
-                  className="mt-2"
-                  disabled={busy || !canSubmit}
-                  onClick={() => {
-                    setBusy(true);
-                    setMsg(null);
-                    void payAndSubmitToRevelator(release.id).then((r) => {
-                      setBusy(false);
-                      if (!r.ok) {
-                        setMsg(r.error);
-                        return;
-                      }
-                      if ('checkoutUrl' in r) {
-                        window.location.href = r.checkoutUrl;
-                        return;
-                      }
-                      setMsg('Submitted to Revelator.');
-                      setCatalog((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              revelatorStatus: r.data.revelatorStatus,
-                            }
-                          : prev,
-                      );
-                      setBilling((prev) =>
-                        prev ? { ...prev, paid: true } : prev,
-                      );
-                      loadOps();
-                    });
-                  }}
-                >
-                  {busy
-                    ? 'Submitting…'
-                    : billing && !billing.paid && billing.feeCents > 0
-                      ? `Pay ${euros(billing.feeCents)} & submit`
-                      : 'Submit to Revelator'}
-                </Button>
-
-                {showRoyalties && (
-                  <div className="mt-3">
-                    <p className="text-xs font-medium">Royalty reports</p>
-                    {!royaltiesLoaded ? (
-                      <p className="text-foreground-secondary mt-1 text-xs">
-                        Loading…
-                      </p>
-                    ) : royalties.length === 0 ? (
-                      <p className="text-foreground-secondary mt-1 text-xs">
-                        No reports yet — synced monthly after DSP delivery.
-                      </p>
-                    ) : (
-                      <ul className="mt-1 list-inside list-disc text-xs">
-                        {royalties.map((row) => (
-                          <li key={row.id}>
-                            {row.periodStart.slice(0, 7)}:{' '}
-                            {euros(row.amountCents)} {row.currency}
-                            {row.streams != null && (
-                              <span className="text-foreground-secondary">
-                                {' '}
-                                · {row.streams.toLocaleString()} streams
-                              </span>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <details className="text-xs">
-                <summary className="cursor-pointer font-medium">
-                  MusicBrainz / Discogs guides & claim links
-                </summary>
-                <div className="mt-2 flex flex-col gap-3">
-                  <div>
-                    <p className="mb-1 font-medium">MusicBrainz</p>
-                    <ol className="text-foreground-secondary list-inside list-decimal">
-                      {MUSICBRAINZ_GUIDE_STEPS.map((step) => (
-                        <li key={step}>{step}</li>
-                      ))}
-                    </ol>
-                  </div>
-                  <div>
-                    <p className="mb-1 font-medium">Discogs</p>
-                    <ol className="text-foreground-secondary list-inside list-decimal">
-                      {DISCOGS_GUIDE_STEPS.map((step) => (
-                        <li key={step}>{step}</li>
-                      ))}
-                    </ol>
-                  </div>
-                  <div>
-                    <p className="mb-1 font-medium">Post-release claim links</p>
-                    <ul className="list-inside list-disc">
-                      {POST_RELEASE_CLAIM_LINKS.map((link) => (
-                        <li key={link.id}>
-                          <a
-                            href={link.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="underline"
-                          >
-                            {link.label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="mb-1 font-medium">Collecting societies</p>
-                    <ul className="list-inside list-disc">
-                      {COLLECTING_SOCIETY_POINTERS.map((society) => (
-                        <li key={society.id}>
-                          <a
-                            href={society.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="underline"
-                          >
-                            {society.label}
-                          </a>
-                          <span className="text-foreground-secondary">
-                            {' '}
-                            ({society.region}) — {society.hint}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </details>
-
-              {msg && <p className="text-xs">{msg}</p>}
-            </>
-          )}
-        </div>
-      )}
-    </div>
+      {open &&
+        (loading || !form ? (
+          <p className="text-foreground-secondary mt-4 text-xs">Loading…</p>
+        ) : (
+          <Tabs
+            className="mt-4"
+            listClassName="border-border border-b pb-2"
+            panelClassName="pt-4"
+            items={[
+              {
+                id: 'catalog',
+                label: 'Catalog & credits',
+                content: catalogTab,
+              },
+              {
+                id: 'delivery',
+                label: 'Delivery & royalties',
+                content: deliveryTab,
+              },
+              { id: 'guides', label: 'Guides', content: guidesTab },
+            ]}
+          />
+        ))}
+    </StudioPanel>
   );
 }
 
@@ -803,15 +820,10 @@ export function StudioDistributionView() {
     <StudioGate>
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/distribution" />
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            Distribution
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            DSP delivery & catalog metadata — submit releases to Revelator,
-            track UPC/ISRC/MusicBrainz identifiers, and review royalty reports.
-          </p>
-        </div>
+        <StudioPageHeader
+          title="Distribution"
+          subtitle="DSP delivery & catalog metadata — submit releases to Revelator, track UPC/ISRC/MusicBrainz identifiers, and review royalty reports."
+        />
 
         <SpotifyProfilePanel />
 
@@ -837,37 +849,29 @@ export function StudioDistributionView() {
         </section>
 
         {allRoyalties.length > 0 && (
-          <section>
-            <h2>
-              <Eyebrow>All royalty reports</Eyebrow>
-            </h2>
-            <table className="mt-2 w-full text-left text-xs">
-              <thead>
-                <tr className="text-foreground-secondary">
-                  <th className="py-1 pr-3 font-medium">Release</th>
-                  <th className="py-1 pr-3 font-medium">Period</th>
-                  <th className="py-1 pr-3 font-medium">Streams</th>
-                  <th className="py-1 font-medium">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allRoyalties.map((row) => (
-                  <tr key={row.id} className="border-border border-t">
-                    <td className="py-1 pr-3">{row.releaseTitle}</td>
-                    <td className="py-1 pr-3">
+          <StudioPanel title="All royalty reports">
+            <ul className="divide-border divide-y text-sm">
+              {allRoyalties.map((row) => (
+                <li
+                  key={row.id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-2 first:pt-0 last:pb-0"
+                >
+                  <div>
+                    <div className="font-medium">{row.releaseTitle}</div>
+                    <div className="text-foreground-secondary text-xs">
                       {row.periodStart} – {row.periodEnd}
-                    </td>
-                    <td className="py-1 pr-3">
-                      {row.streams?.toLocaleString() ?? '—'}
-                    </td>
-                    <td className="py-1">
-                      {euros(row.amountCents)} {row.currency}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+                    </div>
+                  </div>
+                  <div className="text-foreground-secondary text-xs">
+                    {row.streams != null
+                      ? `${row.streams.toLocaleString()} streams · `
+                      : ''}
+                    {euros(row.amountCents)} {row.currency}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </StudioPanel>
         )}
       </div>
     </StudioGate>

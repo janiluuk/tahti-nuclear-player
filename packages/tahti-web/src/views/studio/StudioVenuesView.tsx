@@ -1,4 +1,11 @@
 import { Link } from '@tanstack/react-router';
+import {
+  CalendarPlusIcon,
+  PlusIcon,
+  SaveIcon,
+  Trash2Icon,
+  XIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -12,6 +19,7 @@ import {
 } from '../../api/venues-manage';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 
 function VenueCard({
@@ -28,6 +36,7 @@ function VenueCard({
     venue.capacity != null ? String(venue.capacity) : '',
   );
   const [msg, setMsg] = useState<string | null>(null);
+  const [bookingFormOpen, setBookingFormOpen] = useState(false);
 
   const [startAt, setStartAt] = useState('');
   const [bookingDesc, setBookingDesc] = useState('');
@@ -35,17 +44,11 @@ function VenueCard({
   const upcoming = venue.broadcasts.filter((b) => b.state !== 'CANCELED');
 
   return (
-    <div className="border-border flex flex-col gap-4 rounded-xl border p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="font-display text-lg font-bold">{venue.name}</h2>
-          <p className="text-foreground-secondary text-xs">
-            /venues/{venue.slug} ·{' '}
-            {venue.verifiedAt ? 'Verified' : 'Pending verification'}
-          </p>
-        </div>
-      </div>
-
+    <StudioPanel
+      title={venue.name}
+      description={`/venues/${venue.slug} · ${venue.verifiedAt ? 'Verified' : 'Pending verification'}`}
+      className="flex flex-col gap-4"
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Input
           label="Name"
@@ -86,13 +89,26 @@ function VenueCard({
             });
           }}
         >
+          <SaveIcon size={14} aria-hidden className="mr-1.5" />
           Save venue
         </Button>
         {msg && <p className="text-xs">{msg}</p>}
       </div>
 
       <div className="border-border border-t pt-4">
-        <Eyebrow className="mb-2 block">Bookings</Eyebrow>
+        <div className="mb-2 flex items-center justify-between">
+          <Eyebrow className="block">Bookings</Eyebrow>
+          {!bookingFormOpen && (
+            <Button
+              size="sm"
+              variant="text"
+              onClick={() => setBookingFormOpen(true)}
+            >
+              <PlusIcon size={14} aria-hidden className="mr-1.5" />
+              New booking
+            </Button>
+          )}
+        </div>
         {upcoming.length === 0 ? (
           <p className="text-foreground-secondary text-sm">
             No upcoming bookings.
@@ -115,8 +131,9 @@ function VenueCard({
                   )}
                 </div>
                 <Button
-                  size="sm"
+                  size="icon-sm"
                   variant="text"
+                  aria-label={`Cancel booking on ${new Date(b.startAt).toLocaleString()}`}
                   onClick={() => {
                     void cancelVenueBroadcast(venue.slug, b.id).then((r) => {
                       if (!r.ok) {
@@ -127,52 +144,68 @@ function VenueCard({
                     });
                   }}
                 >
-                  Cancel
+                  <Trash2Icon size={14} aria-hidden />
                 </Button>
               </li>
             ))}
           </ul>
         )}
-        <div className="mt-3 flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-foreground-secondary text-xs uppercase">
-              Start
-            </span>
-            <input
-              type="datetime-local"
-              className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-              value={startAt}
-              onChange={(e) => setStartAt(e.target.value)}
-            />
-          </label>
-          <Input
-            label="Description"
-            value={bookingDesc}
-            onChange={(e) => setBookingDesc(e.target.value)}
-          />
-          <Button
-            size="sm"
-            disabled={!startAt}
-            onClick={() => {
-              void createVenueBroadcast(venue.slug, {
-                startAt: new Date(startAt).toISOString(),
-                description: bookingDesc.trim() || undefined,
-              }).then((r) => {
-                if (!r.ok) {
-                  setMsg(r.error);
-                } else {
-                  setStartAt('');
-                  setBookingDesc('');
-                  onChanged();
-                }
-              });
-            }}
-          >
-            Add booking
-          </Button>
-        </div>
+        {bookingFormOpen && (
+          <div className="border-border bg-background mt-3 flex flex-col gap-3 rounded-lg border p-3">
+            <div className="flex flex-wrap items-end gap-2">
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="text-foreground-secondary text-xs uppercase">
+                  Start
+                </span>
+                <input
+                  type="datetime-local"
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                  value={startAt}
+                  onChange={(e) => setStartAt(e.target.value)}
+                />
+              </label>
+              <Input
+                label="Description"
+                value={bookingDesc}
+                onChange={(e) => setBookingDesc(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                disabled={!startAt}
+                onClick={() => {
+                  void createVenueBroadcast(venue.slug, {
+                    startAt: new Date(startAt).toISOString(),
+                    description: bookingDesc.trim() || undefined,
+                  }).then((r) => {
+                    if (!r.ok) {
+                      setMsg(r.error);
+                    } else {
+                      setStartAt('');
+                      setBookingDesc('');
+                      setBookingFormOpen(false);
+                      onChanged();
+                    }
+                  });
+                }}
+              >
+                <CalendarPlusIcon size={14} aria-hidden className="mr-1.5" />
+                Add booking
+              </Button>
+              <Button
+                size="sm"
+                variant="text"
+                onClick={() => setBookingFormOpen(false)}
+              >
+                <XIcon size={14} aria-hidden className="mr-1.5" />
+                Close
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </StudioPanel>
   );
 }
 
@@ -193,21 +226,18 @@ export function StudioVenuesView() {
     <StudioGate>
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/venues" />
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Venues
-            </h1>
-            <p className="text-foreground-secondary mt-1 text-sm">
-              Manage venues you registered and their live show bookings.
-            </p>
-          </div>
-          <Link to="/venues/register">
-            <Button size="sm" variant="secondary">
-              Register a venue
-            </Button>
-          </Link>
-        </div>
+        <StudioPageHeader
+          title="Venues"
+          subtitle="Manage venues you registered and their live show bookings."
+          action={
+            <Link to="/venues/register">
+              <Button size="sm" variant="secondary">
+                <PlusIcon size={14} aria-hidden className="mr-1.5" />
+                Register a venue
+              </Button>
+            </Link>
+          }
+        />
 
         {loading ? (
           <p className="text-foreground-secondary text-sm">Loading…</p>

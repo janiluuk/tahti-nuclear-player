@@ -57,37 +57,77 @@ function mermaidEscape(text: string): string {
   return text.replace(/"/g, '&quot;').replace(/\n/g, ' ');
 }
 
+/** Soft-wrap a label onto multiple `<br/>` lines so wide text can't force
+ * a node wider than its neighbours — the actual cause of the old
+ * one-rank-per-node layout overlapping once a screen had more than ~5
+ * actions/links (mermaid's dagre engine doesn't wrap node text itself). */
+function wrapLabel(text: string, maxLineLen = 24): string {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let line = '';
+  for (const word of words) {
+    const next = line ? `${line} ${word}` : word;
+    if (next.length > maxLineLen && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  }
+  if (line) {
+    lines.push(line);
+  }
+  return lines.join('<br/>');
+}
+
 /**
- * Small, focused flowchart for one screen: the screen at the centre,
- * in-page actions as one colour, real outbound navigation as another.
- * Generated from the same `actions`/`goesTo` arrays the accessible text
- * lists render from, so the diagram and the text can never drift apart —
- * the diagram is a supplementary visual, the text lists are the source of
- * truth a screen reader can actually use.
+ * Small, focused flowchart for one screen: the screen at the top, with
+ * in-page actions and outbound navigation grouped into their own labelled
+ * subgraphs below it. Generated from the same `actions`/`goesTo` arrays
+ * the accessible text lists render from, so the diagram and the text can
+ * never drift apart — the diagram is a supplementary visual, the text
+ * lists are the source of truth a screen reader can actually use.
+ *
+ * Grouping into subgraphs (rather than fanning every action/link off the
+ * screen node as its own edge, as an earlier version did) keeps the graph
+ * to at most two edges out of the screen node regardless of how many
+ * actions or links a screen has — dagre lays out unconnected siblings
+ * inside a subgraph as a clean stack, which is what actually stops nodes
+ * and edge labels from overlapping on screens with many actions/links.
  */
 export function caseFlowchart(c: MapCase): string {
   const screenId = 'screen';
+  const actions = c.actions ?? [];
+  const links = c.goesTo ?? [];
   const lines = [
-    'flowchart LR',
-    `  ${screenId}["${mermaidEscape(c.viewName)}<br/><small>${mermaidEscape(c.new.route)}</small>"]:::screen`,
+    'flowchart TD',
+    `  ${screenId}["${wrapLabel(mermaidEscape(c.viewName))}<br/><small>${mermaidEscape(c.new.route)}</small>"]:::screen`,
   ];
-  (c.actions ?? []).forEach((action, i) => {
-    const nodeId = `a${i}`;
-    lines.push(
-      `  ${screenId} --> ${nodeId}["${mermaidEscape(action)}"]:::action`,
-    );
-  });
-  (c.goesTo ?? []).forEach((link, i) => {
-    const nodeId = `g${i}`;
-    lines.push(
-      `  ${screenId} -.->|"${mermaidEscape(link.label)}"| ${nodeId}(["${mermaidEscape(link.to)}"]):::nav`,
-    );
-  });
-  if (!c.actions?.length && !c.goesTo?.length) {
+
+  if (actions.length) {
+    lines.push('  subgraph acts["Things you can do"]', '    direction TB');
+    actions.forEach((action, i) => {
+      lines.push(`    a${i}["${wrapLabel(mermaidEscape(action))}"]:::action`);
+    });
+    lines.push('  end', `  ${screenId} --> acts`);
+  }
+
+  if (links.length) {
+    lines.push('  subgraph nav["Where you can go"]', '    direction TB');
+    links.forEach((link, i) => {
+      lines.push(
+        `    g${i}(["${wrapLabel(mermaidEscape(link.label))}<br/><small>${mermaidEscape(link.to)}</small>"]):::nav`,
+      );
+    });
+    lines.push('  end', `  ${screenId} -.-> nav`);
+  }
+
+  if (!actions.length && !links.length) {
     lines.push(
       `  ${screenId} -.-> none["No verified in-page actions or outbound links found"]:::gap`,
     );
   }
+
   lines.push(
     'classDef screen fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a,font-weight:bold;',
     'classDef action fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;',
@@ -896,6 +936,46 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           image: '/map/nuclear/archive.png',
           route: '/studio/archive',
           caption: 'Nuclear archive',
+        },
+      },
+      {
+        id: 'artist-archive-item',
+        title: 'Music / track detail',
+        viewName: 'Archive item',
+        caption:
+          'Single-track page reached from Upload or Archive — polls PENDING/PROCESSING until READY (added this session), then unlocks playback and editing; ERROR shows a banner instead.',
+        actions: [
+          'Play / pause the track (disabled until READY)',
+          'Add to or remove from 24/7 rotation',
+          'Pin to page, up to the pinned-track limit',
+          'Switch between the Details and Playlists tabs',
+          'Edit title, description, genre, visibility, downloads/comments toggles',
+          'Save changes',
+          'Normalize the waveform (disabled until READY)',
+          'Auto-trim silence (disabled until READY)',
+          'Download or activate an older revision from Revision history',
+          'Add the track to one or more playlists',
+        ],
+        goesTo: [
+          { label: 'Back to Music/archive list', to: '/studio/archive' },
+          {
+            label: 'Open track insights',
+            to: '/studio/insights/$kind/$id',
+          },
+          {
+            label: 'Open the audio editor (disabled until READY)',
+            to: '/studio/archive/$id/editor',
+          },
+        ],
+        old: {
+          route: '/dashboard/archive',
+          caption:
+            'No single-track detail page in prod — edits happen inline in the list.',
+          absent: true,
+        },
+        new: {
+          route: '/studio/archive/$id',
+          caption: 'Nuclear track detail — shot pending',
         },
       },
       {

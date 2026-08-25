@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  Blocks,
   Link2,
   Paintbrush,
   Palette,
@@ -17,6 +18,7 @@ export type SettingsSectionId =
   | 'broadcast'
   | 'money'
   | 'themes'
+  | 'widgets'
   | 'connections'
   | 'whats-new';
 
@@ -65,6 +67,12 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     Icon: Palette,
   },
   {
+    id: 'widgets',
+    label: 'Widgets',
+    description: 'SoundCloud, YouTube, and internet radio, right on Listen',
+    Icon: Blocks,
+  },
+  {
     id: 'connections',
     label: 'Connections',
     description: 'Import sources and export destinations',
@@ -83,6 +91,7 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
  * stays sign-in-only rather than showing dead-end links while signed out. */
 export const PUBLIC_SETTINGS_SECTION_IDS: readonly SettingsSectionId[] = [
   'themes',
+  'widgets',
   'whats-new',
 ];
 

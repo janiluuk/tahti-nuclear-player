@@ -1,4 +1,12 @@
-import { ExternalLinkIcon, ImageIcon, PlusIcon } from 'lucide-react';
+import {
+  ExternalLinkIcon,
+  EyeIcon,
+  EyeOffIcon,
+  ImageIcon,
+  PencilIcon,
+  PlusIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
@@ -212,6 +220,7 @@ export function AdminNewsView() {
                         variant="text"
                         onClick={() => startEdit(post)}
                       >
+                        <PencilIcon size={14} aria-hidden className="mr-1.5" />
                         Edit
                       </Button>
                       <Button
@@ -229,6 +238,15 @@ export function AdminNewsView() {
                           });
                         }}
                       >
+                        {post.publishedAt ? (
+                          <EyeOffIcon
+                            size={14}
+                            aria-hidden
+                            className="mr-1.5"
+                          />
+                        ) : (
+                          <EyeIcon size={14} aria-hidden className="mr-1.5" />
+                        )}
                         {post.publishedAt ? 'Unpublish' : 'Publish'}
                       </Button>
                       <Button
@@ -251,6 +269,7 @@ export function AdminNewsView() {
                           });
                         }}
                       >
+                        <Trash2Icon size={14} aria-hidden className="mr-1.5" />
                         Delete
                       </Button>
                     </div>

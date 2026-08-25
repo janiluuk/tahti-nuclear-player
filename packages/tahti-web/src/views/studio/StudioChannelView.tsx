@@ -1,4 +1,13 @@
 import { Link, useSearch } from '@tanstack/react-router';
+import {
+  ArrowRightIcon,
+  CheckCircle2Icon,
+  GlobeIcon,
+  PencilIcon,
+  PlusIcon,
+  SaveIcon,
+  SearchIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -148,6 +157,7 @@ export function StudioChannelView() {
                 </p>
                 <Button size="sm" onClick={() => setTab('design')}>
                   Continue to design
+                  <ArrowRightIcon size={14} aria-hidden className="ml-1.5" />
                 </Button>
               </div>
             ) : (
@@ -178,6 +188,9 @@ export function StudioChannelView() {
                     });
                   }}
                 >
+                  {!setupBusy && (
+                    <PlusIcon size={14} aria-hidden className="mr-1.5" />
+                  )}
                   {setupBusy
                     ? 'Creating…'
                     : `Create ${user?.username ?? 'your-name'}.tahti.live`}
@@ -271,6 +284,9 @@ export function StudioChannelView() {
                     disabled={busy || !displayName.trim()}
                     onClick={() => void saveProfile()}
                   >
+                    {!busy && (
+                      <SaveIcon size={14} aria-hidden className="mr-1.5" />
+                    )}
                     {busy ? 'Saving…' : 'Save profile'}
                   </Button>
                 </>
@@ -301,6 +317,7 @@ export function StudioChannelView() {
                     });
                   }}
                 >
+                  <SearchIcon size={14} aria-hidden className="mr-1.5" />
                   Check availability
                 </Button>
                 <Button
@@ -316,6 +333,7 @@ export function StudioChannelView() {
                     });
                   }}
                 >
+                  <PencilIcon size={14} aria-hidden className="mr-1.5" />
                   Rename
                 </Button>
               </div>
@@ -356,6 +374,7 @@ export function StudioChannelView() {
                     });
                   }}
                 >
+                  <GlobeIcon size={14} aria-hidden className="mr-1.5" />
                   Set domain
                 </Button>
                 <Button
@@ -375,6 +394,7 @@ export function StudioChannelView() {
                     });
                   }}
                 >
+                  <CheckCircle2Icon size={14} aria-hidden className="mr-1.5" />
                   Verify DNS
                 </Button>
               </div>

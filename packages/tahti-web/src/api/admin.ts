@@ -1036,6 +1036,133 @@ export function rejectRadioSubmission(id: string, note?: string) {
   );
 }
 
+// ── Internet radio station suggestions ──────────────────────────────────────
+// Listener-submitted *external* internet radio stations (Store & forward
+// widget), not to be confused with AdminRadioSubmission above, which audits
+// tracks submitted for Tahti's own co-op radio rotation.
+
+export type AdminRadioStationSuggestionStatus =
+  | 'PENDING'
+  | 'APPROVED'
+  | 'REJECTED';
+
+export type AdminRadioStationSuggestion = {
+  id: string;
+  status: AdminRadioStationSuggestionStatus;
+  rejectionNote: string | null;
+  createdAt: string;
+  submitter: { username: string; displayName: string } | null;
+  name: string;
+  logoUrl: string | null;
+  language: string;
+  bitrateKbps: number | null;
+  streamUrl: string;
+};
+
+function mockRadioStationSuggestions(): AdminRadioStationSuggestion[] {
+  return [
+    {
+      id: 'station-sug-1',
+      status: 'PENDING',
+      rejectionNote: null,
+      createdAt: '2026-08-20T10:00:00.000Z',
+      submitter: {
+        username: 'kaiku-collective',
+        displayName: 'Kaiku Collective',
+      },
+      name: 'Basso FM',
+      logoUrl: null,
+      language: 'Finnish',
+      bitrateKbps: 128,
+      streamUrl: 'https://stream.example.fi/basso-fm.mp3',
+    },
+    {
+      id: 'station-sug-2',
+      status: 'PENDING',
+      rejectionNote: null,
+      createdAt: '2026-08-18T14:30:00.000Z',
+      submitter: { username: 'valo-radio', displayName: 'Valo Radio' },
+      name: 'Lumo Radio',
+      logoUrl: null,
+      language: 'Finnish',
+      bitrateKbps: 192,
+      streamUrl: 'https://stream.example.fi/lumo-radio.aac',
+    },
+  ];
+}
+
+export async function fetchAdminRadioStationSuggestions(): Promise<{
+  data: AdminRadioStationSuggestion[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockRadioStationSuggestions(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{ items?: AdminRadioStationSuggestion[] }>(
+      '/api/admin/radio-station-suggestions?status=PENDING',
+    );
+    return { data: data.items ?? [], meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export function approveRadioStationSuggestion(id: string) {
+  if (forceMock()) {
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(
+    `/api/admin/radio-station-suggestions/${encodeURIComponent(id)}/approve`,
+    'POST',
+  );
+}
+
+export function rejectRadioStationSuggestion(id: string, note?: string) {
+  if (forceMock()) {
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(
+    `/api/admin/radio-station-suggestions/${encodeURIComponent(id)}/reject`,
+    'POST',
+    note ? { note } : undefined,
+  );
+}
+
+export type RadioStationSuggestionInput = {
+  name: string;
+  logoUrl: string;
+  language: string;
+  bitrateKbps: string;
+  streamUrl: string;
+};
+
+export async function submitRadioStationSuggestion(
+  input: RadioStationSuggestionInput,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true };
+  }
+  try {
+    await mutate('/api/me/radio-station-suggestions', 'POST', {
+      name: input.name,
+      logoUrl: input.logoUrl || null,
+      language: input.language,
+      bitrateKbps: input.bitrateKbps ? Number(input.bitrateKbps) : null,
+      streamUrl: input.streamUrl,
+    });
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not submit suggestion',
+    };
+  }
+}
+
 // ── News ────────────────────────────────────────────────────────────────────
 
 export type AdminNewsPost = {

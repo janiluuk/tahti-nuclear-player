@@ -12,6 +12,7 @@ import {
   PlusIcon,
   RadioIcon,
   Settings2Icon,
+  Trash2Icon,
   VideoIcon,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -581,7 +582,7 @@ export function StudioGoLiveView() {
                             aria-label={`Remove ${target.label || target.provider}`}
                             title="Remove destination"
                           >
-                            ×
+                            <Trash2Icon size={14} aria-hidden />
                           </Button>
                         </div>
                       </div>

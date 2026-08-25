@@ -23,11 +23,14 @@ import {
   renderEditorDraft,
   requestArchiveStems,
   saveEditorDraft,
+  STEM_SET_LABELS,
   type StemJob,
+  type StemSet,
 } from '../../api/studio';
 import type { EditList, ProEditorPluginId } from '../../api/studio-types';
 import { createDefaultEditList } from '../../api/studio-types';
 import { ClientCapabilityNotice } from '../../components/ClientCapabilityNotice';
+import { StemPlayer } from '../../components/StemPlayer';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -148,6 +151,21 @@ export function StudioProEditorView({
       cancelled = true;
     };
   }, [archiveItemId]);
+
+  // Stem separation runs on a GPU worker and can take a while — poll until
+  // every requested job has left PENDING/PROCESSING rather than making the
+  // user manually refresh to see when a split is ready.
+  useEffect(() => {
+    if (
+      !stems.some((s) => s.status === 'PENDING' || s.status === 'PROCESSING')
+    ) {
+      return;
+    }
+    const timer = setInterval(() => {
+      void fetchArchiveStems(archiveItemId).then((r) => setStems(r.data));
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [archiveItemId, stems]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -1005,56 +1023,74 @@ export function StudioProEditorView({
               <StudioPanel
                 title="Stems"
                 action={
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => {
-                      void requestArchiveStems(archiveItemId).then((r) => {
-                        if (!r.ok) {
-                          setMessage(r.error);
-                        } else {
-                          setMessage(`Stem job: ${r.status}`);
-                          void fetchArchiveStems(archiveItemId).then((s) =>
-                            setStems(s.data),
-                          );
-                        }
-                      });
-                    }}
-                  >
-                    Request 2-stem split
-                  </Button>
+                  <div className="flex gap-2">
+                    {(['TWO_STEM', 'FOUR_STEM'] as const).map((stemSet) => {
+                      const existing = stems.find((s) => s.stemSet === stemSet);
+                      const busyStem =
+                        existing?.status === 'PENDING' ||
+                        existing?.status === 'PROCESSING';
+                      return (
+                        <Button
+                          key={stemSet}
+                          size="sm"
+                          variant="secondary"
+                          disabled={busyStem}
+                          title={STEM_SET_LABELS[stemSet]}
+                          onClick={() => {
+                            void requestArchiveStems(
+                              archiveItemId,
+                              stemSet,
+                            ).then((r) => {
+                              if (!r.ok) {
+                                setMessage(r.error);
+                              } else {
+                                void fetchArchiveStems(archiveItemId).then(
+                                  (s) => setStems(s.data),
+                                );
+                              }
+                            });
+                          }}
+                        >
+                          {busyStem
+                            ? 'Splitting…'
+                            : stemSet === 'TWO_STEM'
+                              ? 'Split 2 stems'
+                              : 'Split 4 stems'}
+                        </Button>
+                      );
+                    })}
+                  </div>
                 }
               >
                 {stems.length === 0 ? (
                   <p className="text-foreground-secondary text-sm">
-                    No stem jobs yet.
+                    No stem jobs yet — request a split above. Splits are cached
+                    for 7 days, then cleared automatically.
                   </p>
                 ) : (
                   <ul className="divide-border divide-y">
                     {stems.map((job) => (
                       <li
                         key={job.stemSet}
-                        className="py-2 text-sm first:pt-0 last:pb-0"
+                        className="py-2.5 text-sm first:pt-0 last:pb-0"
                       >
                         <div className="flex items-center justify-between">
-                          <span>{job.stemSet}</span>
+                          <span className="font-medium">
+                            {STEM_SET_LABELS[job.stemSet as StemSet] ??
+                              job.stemSet}
+                          </span>
                           <span className="text-foreground-secondary font-mono text-xs uppercase">
                             {job.status}
                           </span>
                         </div>
+                        {job.status === 'ERROR' && job.errorMessage && (
+                          <p className="mt-1 text-xs text-red-400">
+                            {job.errorMessage}
+                          </p>
+                        )}
                         {job.files && job.files.length > 0 && (
-                          <div className="mt-1 flex flex-wrap gap-2">
-                            {job.files.map((f) => (
-                              <a
-                                key={f.label}
-                                href={f.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-xs underline-offset-2 hover:underline"
-                              >
-                                {f.label}
-                              </a>
-                            ))}
+                          <div className="mt-2">
+                            <StemPlayer files={job.files} />
                           </div>
                         )}
                       </li>
