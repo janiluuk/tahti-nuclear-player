@@ -160,6 +160,9 @@ export type PublicProfileTrack = {
   bannerUrl?: string | null;
   playUrl?: string | null;
   releaseSlug?: string | null;
+  /** Same field as ArchiveItem.createdAt -- carried onto the profile track
+   * DTO so the catalog table can show a release date. */
+  createdAt?: string;
   /** Stage pin — GET /api/v1/u/:username/profile */
   pinned?: boolean;
   pinnedAt?: string | null;
@@ -320,6 +323,9 @@ export type TahtiPlayable = {
   /** Nuclear ProviderRef.provider — e.g. tahti, soundcloud, bandcamp, spotify. */
   sourceProvider?: string;
   durationSec?: number | null;
+  /** ISO date this track/release went live — shown as a "Released" column
+   * in track listings when present. */
+  releaseDate?: string | null;
 };
 
 export type ChatMessage = {

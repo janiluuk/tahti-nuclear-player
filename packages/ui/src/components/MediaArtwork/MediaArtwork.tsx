@@ -17,8 +17,9 @@ export type MediaArtworkAction = {
 export type MediaArtworkProps = {
   src?: string | null;
   alt?: string;
-  /** Visual size preset — `fill` stretches to parent (card cover). */
-  size?: 'sm' | 'md' | 'lg' | 'fill';
+  /** Visual size preset — `fill` stretches to parent (card cover). `thumb`
+   * is the standard inline track-row thumbnail (a step up from `sm`). */
+  size?: 'sm' | 'thumb' | 'md' | 'lg' | 'fill';
   className?: string;
   imageReveal?: boolean;
   placeholder?: ReactNode;
@@ -46,6 +47,7 @@ export type MediaArtworkProps = {
 
 const sizeClass = {
   sm: 'size-10 min-w-10',
+  thumb: 'size-12 min-w-12',
   md: 'size-16 min-w-16',
   lg: 'size-42 min-w-42',
   fill: 'absolute inset-0 size-full',
@@ -53,6 +55,7 @@ const sizeClass = {
 
 const playIconSize = {
   sm: 14,
+  thumb: 16,
   md: 18,
   lg: 22,
   fill: 22,
@@ -60,6 +63,7 @@ const playIconSize = {
 
 const overlayIconSize = {
   sm: 12,
+  thumb: 13,
   md: 14,
   lg: 16,
   fill: 16,

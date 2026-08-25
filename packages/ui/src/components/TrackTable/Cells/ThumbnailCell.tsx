@@ -24,10 +24,10 @@ export const ThumbnailCell = <T extends Track>({
   const isQueued = meta?.isTrackQueued?.(track) ?? false;
 
   return (
-    <td className="w-10 text-center">
+    <td className="w-12 text-center">
       <div className="flex w-full justify-center">
         <MediaArtwork
-          size="sm"
+          size="thumb"
           src={artwork?.url}
           alt={track.title}
           imageReveal={false}

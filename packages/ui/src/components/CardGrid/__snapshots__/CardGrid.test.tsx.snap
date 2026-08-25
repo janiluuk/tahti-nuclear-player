@@ -7,7 +7,7 @@ exports[`Card grid > (Snapshot) Renders correctly 1`] = `
     role="grid"
   >
     <div
-      class="text-primary-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
+      class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
       data-testid="card"
     >
       <div

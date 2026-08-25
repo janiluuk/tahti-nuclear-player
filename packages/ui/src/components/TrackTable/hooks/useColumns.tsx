@@ -1,10 +1,17 @@
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { HashIcon, Heart, ImageIcon, Trash2 } from 'lucide-react';
+import {
+  EllipsisVertical,
+  HashIcon,
+  Heart,
+  ImageIcon,
+  Trash2,
+} from 'lucide-react';
 import { useMemo } from 'react';
 
 import { pickArtwork, Track } from '@nuclearplayer/model';
 
 import { formatTimeMillis } from '../../../utils/time';
+import { ActionsCell } from '../Cells/ActionsCell';
 import { FavoriteCell } from '../Cells/FavoriteCell';
 import { PositionCell } from '../Cells/PositionCell';
 import { RemoveCell } from '../Cells/RemoveCell';
@@ -14,6 +21,7 @@ import { TitleCell } from '../Cells/TitleCell';
 import { IconHeader } from '../Headers/IconHeader';
 import { TextHeader } from '../Headers/TextHeader';
 import { TrackTableProps } from '../types';
+import { formatReleaseDate } from '../utils/date';
 
 export function useColumns<T extends Track = Track>(
   props: Pick<TrackTableProps<T>, 'display' | 'labels' | 'actions'>,
@@ -24,15 +32,10 @@ export function useColumns<T extends Track = Track>(
   const showFavorite =
     display?.displayFavorite && Boolean(actions?.onToggleFavorite);
   const showDelete = display?.displayDeleteButton && Boolean(actions?.onRemove);
+  const showActions = Boolean(display?.displayQueueControls);
 
   const columns: ColumnDef<T>[] = useMemo(
     () => [
-      showFavorite &&
-        columnHelper.display({
-          id: 'favorite',
-          header: (context) => <IconHeader Icon={Heart} context={context} />,
-          cell: FavoriteCell,
-        }),
       display?.displayPosition &&
         columnHelper.accessor((track) => track.trackNumber, {
           id: 'position',
@@ -86,6 +89,41 @@ export function useColumns<T extends Track = Track>(
           ),
           cell: TextCell,
         }),
+      display?.displayReleaseDate &&
+        columnHelper.accessor((track) => formatReleaseDate(track.releaseDate), {
+          id: 'releaseDate',
+          enableSorting: true,
+          header: (context) => (
+            <TextHeader context={context}>
+              {labels.headers.releaseDate ?? 'Released'}
+            </TextHeader>
+          ),
+          cell: TextCell,
+        }),
+      // Right-aligned trailing cluster: favorite, then the queue/edit/detail/
+      // context-menu actions column, then delete last -- every per-row
+      // control lines up at the row's right edge instead of favorite sitting
+      // at the far left while the rest hide mid-row in the title cell.
+      showFavorite &&
+        columnHelper.display({
+          id: 'favorite',
+          header: (context) => <IconHeader Icon={Heart} context={context} />,
+          cell: FavoriteCell,
+        }),
+      showActions &&
+        columnHelper.display({
+          id: 'actions',
+          // Wider than IconHeader's fixed w-10 -- this column can hold up
+          // to four icon buttons (queue, edit, context menu, open detail).
+          header: () => (
+            <th role="columnheader" className="w-28 text-center">
+              <span className="flex w-full items-center justify-center">
+                <EllipsisVertical className="h-4 w-4" />
+              </span>
+            </th>
+          ),
+          cell: ActionsCell,
+        }),
       showDelete &&
         columnHelper.display({
           id: 'delete',
@@ -93,7 +131,7 @@ export function useColumns<T extends Track = Track>(
           cell: RemoveCell,
         }),
     ],
-    [labels, display, showFavorite, showDelete],
+    [labels, display, showFavorite, showActions, showDelete],
   ).filter(Boolean) as ColumnDef<T>[];
 
   return columns;

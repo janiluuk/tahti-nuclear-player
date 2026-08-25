@@ -15,6 +15,7 @@ export function playableToTrack(item: TahtiPlayable): Track {
       item.durationSec != null
         ? Math.round(item.durationSec * 1000)
         : undefined,
+    releaseDate: item.releaseDate ?? undefined,
     album:
       provider !== 'tahti'
         ? {
