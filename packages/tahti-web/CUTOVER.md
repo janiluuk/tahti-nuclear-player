@@ -264,7 +264,7 @@ Per the admin-host decision (§0.2 / §1.1), Next `apps/web` is **not** fully re
 | `NEXT_PUBLIC_API_URL` / `API_BASE` | unset + proxy, or `VITE_TAHTI_API_URL` | Prefer proxy |
 | `NEXT_PUBLIC_CENTRIFUGO_WS` | `VITE_CENTRIFUGO_WS` | |
 | `NEXT_PUBLIC_APP_URL` | `VITE_APP_URL` (add if missing) | Absolute links, OG |
-| `NEXT_PUBLIC_HCAPTCHA_SITE_KEY` | `VITE_HCAPTCHA_SITE_KEY` | Chat/join |
+| `NEXT_PUBLIC_HCAPTCHA_SITE_KEY` | `VITE_HCAPTCHA_SITEKEY` | Chat/join |
 | `SIGNUP_OPEN` | `VITE_SIGNUP_OPEN` | |
 | — | `VITE_FORCE_MOCK` / `VITE_ALLOW_MOCK_FALLBACK` | **Must be unset/0 in prod** |
 
@@ -295,9 +295,9 @@ Per the admin-host decision (§0.2 / §1.1), Next `apps/web` is **not** fully re
 
 ### 4.3 Centrifugo / HLS / CDN
 
-- [ ] Chat WS `wss://chat.tahti.live/connection/websocket` from SPA origin
+- [x] Chat WS `wss://chat.tahti.live/connection/websocket` from SPA origin — `ChannelChatPanel.tsx`'s `centrifugoWsUrl()` defaults to exactly that for any non-dev build when `VITE_CENTRIFUGO_WS` isn't explicitly set (dev-only fallback is `ws://localhost:8000/...`); `deploy-vimage.sh` also sets it explicitly to the same value. Confirmed correct.
 - [ ] HLS/CDN absolute URLs unchanged; CORS includes new origin if any
-- [ ] Captcha sitekey present in prod build
+- [ ] Captcha sitekey present in prod build — **checked, currently missing.** `deploy/deploy-vimage.sh` (the only deploy path this repo has) never sets `VITE_HCAPTCHA_SITEKEY` — it's not in the script's explicit env list, no `.env` file exists in this checkout, and it wasn't exported in the shell that ran the beta deploy just now. `useHcaptcha.ts`'s `configured` check means the SPA degrades gracefully client-side (no widget renders, join proceeds token-less rather than erroring) — but per the earlier chat-captcha audit (§2.1), the API's `verifyHcaptcha` fails closed *if* a real `HCAPTCHA_SECRET` is configured server-side, which would mean chat join is currently broken on beta for exactly that reason. Couldn't verify the server-side secret state without probing production config, which is out of scope here. The script itself needs no code change — it doesn't unset `VITE_HCAPTCHA_SITEKEY`, so it already passes through from the deploying shell's environment — this is a missing secret in whoever's shell runs the deploy, not a script bug. (Also fixed a doc bug while here: the env-var table below said `VITE_HCAPTCHA_SITE_KEY`; the actual code/`.env.example`/`vite-env.d.ts` all agree on `VITE_HCAPTCHA_SITEKEY`, no separating underscore.)
 
 ---
 
