@@ -1,9 +1,21 @@
 # Writing a plugin
 
-`src/plugins/` holds the subsystems from [`PLUGIN-STORE-PLAN.md`](../PLUGIN-STORE-PLAN.md)
-that have been extracted into standalone units so far (`themes`, `multicast`, `fingerprinting`).
-This doc is the contract they follow — read it before adding a fourth, or
-before touching one of the three that exist.
+`src/plugins/` holds every subsystem from [`PLUGIN-STORE-PLAN.md`](../PLUGIN-STORE-PLAN.md)
+extracted into a standalone unit so far — the whole original inventory of
+7, plus `export`, though `import-sources` and `export` are deliberately
+partial (see their own READMEs for why). This doc is the contract they
+follow — read it before extracting anything else, or before touching one
+of these:
+
+| Plugin | What it is | Docs |
+|---|---|---|
+| `themes` | Theme selection, persistence, custom-theme import | [README](../src/plugins/themes/README.md) |
+| `multicast` | RTMP destination registry (YouTube, Twitch, ...) | [README](../src/plugins/multicast/README.md) |
+| `fingerprinting` | AcoustID track-match provider | [README](../src/plugins/fingerprinting/README.md) |
+| `audio-fx` | Pro Editor plugin chain (EQ/Compressor/Limiter/Filter) | [README](../src/plugins/audio-fx/README.md) |
+| `export` | DSP/export-target metadata registry (partial — no per-target behavior yet) | [README](../src/plugins/export/README.md) |
+| `import-sources` | Import-source connection-status contract (partial — see README) | [README](../src/plugins/import-sources/README.md) |
+| `visualizers` | Channel visualizer WebGL presets | [README](../src/plugins/visualizers/README.md) |
 
 There is **no single generic `Plugin` interface** shared across all of
 them. Themes, RTMP destinations, and fingerprint providers are different
@@ -159,11 +171,11 @@ exists to catch.
 
 ## Extracting the next one
 
-[`PLUGIN-STORE-PLAN.md`](../PLUGIN-STORE-PLAN.md) has the full inventory
-and per-subsystem notes for the four not yet extracted (audio FX,
-export, import/sources, visualizers), including why each is more work
-than the three done so far — read the relevant section there before
-starting. In general:
+Every subsystem in the original `PLUGIN-STORE-PLAN.md` inventory has now
+been extracted; the one open item is finishing `import-sources`'
+per-source split (§5 — the connection-status contract is done, the actual
+OAuth/search/import-job logic per source isn't). If a new plugin-shaped
+subsystem shows up later, the general process:
 
 1. Find every current importer of the subsystem's state/logic
    (`grep -rl` for the store or API functions).
