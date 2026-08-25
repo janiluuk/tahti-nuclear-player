@@ -470,9 +470,10 @@ export function ArtistView({ username }: { username: string }) {
             <Link
               to="/subscribe/$username"
               params={{ username: artist.username }}
-              className="text-foreground-secondary underline-offset-2 hover:underline"
             >
-              Support artist
+              <Button size="sm" variant="secondary">
+                Support artist
+              </Button>
             </Link>
           ) : null}
           {channel && (
