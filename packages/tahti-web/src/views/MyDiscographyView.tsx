@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import {
   AudioLinesIcon,
   ImageIcon,
+  PauseIcon,
   PencilIcon,
   PinIcon,
   PinOffIcon,
@@ -21,6 +22,7 @@ import {
 import type { StudioArchiveItem } from '../api/studio-types';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { TrackEditDialog } from '../components/TrackEditDialog';
 import {
   countPinnedTracks,
@@ -76,12 +78,18 @@ const sortItems = (items: StudioArchiveItem[], sort: SortKey) =>
 export const MyDiscographyView: FC = () => {
   const user = useAuthStore((state) => state.user);
   const play = usePlayerStore((state) => state.play);
+  const setStatus = usePlayerStore((state) => state.setStatus);
+  const seekTo = usePlayerStore((state) => state.seekTo);
+  const currentId = usePlayerStore((state) => state.currentId);
+  const status = usePlayerStore((state) => state.status);
+  const currentTime = usePlayerStore((state) => state.currentTime);
+  const duration = usePlayerStore((state) => state.duration);
   const [items, setItems] = useState<StudioArchiveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<VisibilityFilter>('all');
   const [sort, setSort] = useState<SortKey>('newest');
-  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
   const [busyPinId, setBusyPinId] = useState<string | null>(null);
   const [pinMessage, setPinMessage] = useState<string | null>(null);
@@ -131,11 +139,21 @@ export const MyDiscographyView: FC = () => {
     return sortPinnedFirst(sortItems(filtered, sort));
   }, [filter, items, query, sort]);
 
+  const playableId = (item: StudioArchiveItem) => `archive:${item.id}`;
+  const isCurrentItem = (item: StudioArchiveItem) =>
+    currentId === playableId(item);
+  const isPlayingItem = (item: StudioArchiveItem) =>
+    isCurrentItem(item) && (status === 'playing' || status === 'loading');
+
   const playItem = async (item: StudioArchiveItem) => {
-    setPlayingId(item.id);
+    if (isCurrentItem(item)) {
+      setStatus(status === 'playing' ? 'paused' : 'playing');
+      return;
+    }
+    setLoadingId(item.id);
     const { data } = await fetchEditorSource(item.id);
     play({
-      id: `archive:${item.id}`,
+      id: playableId(item),
       kind: 'archive',
       title: item.title,
       artist: item.artistName || user?.displayName || 'You',
@@ -143,7 +161,7 @@ export const MyDiscographyView: FC = () => {
       streamUrl: data.url,
       protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
     });
-    setPlayingId(null);
+    setLoadingId(null);
   };
 
   const togglePin = async (item: StudioArchiveItem) => {
@@ -275,9 +293,11 @@ export const MyDiscographyView: FC = () => {
               <li
                 key={item.id}
                 className={`hover:bg-primary/5 flex items-center gap-3 border-l-4 p-3 transition-colors ${
-                  isPinned(item)
+                  isCurrentItem(item)
                     ? 'border-l-primary bg-primary/10'
-                    : `border-l-transparent ${index % 2 === 0 ? 'bg-background-secondary/55' : 'bg-background'}`
+                    : isPinned(item)
+                      ? 'border-l-primary bg-primary/10'
+                      : `border-l-transparent ${index % 2 === 0 ? 'bg-background-secondary/55' : 'bg-background'}`
                 }`}
               >
                 <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
@@ -299,7 +319,7 @@ export const MyDiscographyView: FC = () => {
                   <Link
                     to="/studio/archive/$id"
                     params={{ id: item.id }}
-                    className="block truncate font-semibold hover:underline"
+                    className={`block truncate font-semibold hover:underline ${isCurrentItem(item) ? 'text-primary' : ''}`}
                   >
                     {item.title}
                   </Link>
@@ -316,6 +336,24 @@ export const MyDiscographyView: FC = () => {
                     <span className="text-primary mt-1 inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase">
                       <PinIcon size={11} aria-hidden /> Pinned to profile
                     </span>
+                  ) : null}
+                  {item.peaks && item.peaks.length > 0 ? (
+                    <WaveformSeekbar
+                      trackId={item.id}
+                      peaks={item.peaks}
+                      bars={48}
+                      className="mt-1.5 h-4"
+                      progress={
+                        isCurrentItem(item) && duration > 0
+                          ? currentTime / duration
+                          : 0
+                      }
+                      onSeek={
+                        isCurrentItem(item) && duration > 0
+                          ? (fraction) => seekTo(fraction * duration)
+                          : undefined
+                      }
+                    />
                   ) : null}
                 </div>
                 <Button
@@ -336,12 +374,21 @@ export const MyDiscographyView: FC = () => {
                 </Button>
                 <Button
                   size="icon-sm"
-                  disabled={playingId === item.id}
-                  aria-label={`Play ${item.title}`}
-                  title="Play"
+                  variant={isCurrentItem(item) ? 'default' : undefined}
+                  disabled={loadingId === item.id}
+                  aria-label={
+                    isPlayingItem(item)
+                      ? `Pause ${item.title}`
+                      : `Play ${item.title}`
+                  }
+                  title={isPlayingItem(item) ? 'Pause' : 'Play'}
                   onClick={() => void playItem(item)}
                 >
-                  <PlayIcon size={16} aria-hidden />
+                  {isPlayingItem(item) ? (
+                    <PauseIcon size={16} aria-hidden />
+                  ) : (
+                    <PlayIcon size={16} aria-hidden />
+                  )}
                 </Button>
                 <Button
                   size="icon-sm"
