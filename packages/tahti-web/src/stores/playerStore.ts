@@ -1,9 +1,11 @@
+import { toast } from 'sonner';
 import { create } from 'zustand';
 
 import type { QueueItem, RepeatMode } from '@nuclearplayer/model';
 
 import type { TahtiPlayable } from '../api/types';
 import { playableToTrack } from '../lib/playableToTrack';
+import { useLayoutStore } from './layoutStore';
 import { useLibraryStore } from './libraryStore';
 
 export type PlaybackStatus =
@@ -150,12 +152,24 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
   enqueue: (item) => {
     const qi = toQueueItem(item);
+    const wasBarVisible = get().playerBarVisible;
+    const alreadyQueued = get().queue.some((q) => q.id === qi.id);
     set((s) => {
       if (s.queue.some((q) => q.id === qi.id)) {
         return s;
       }
       return { queue: [...s.queue, qi], playerBarVisible: true };
     });
+    if (alreadyQueued) {
+      return;
+    }
+    // The player bar auto-shows itself above, but its queue strip is a
+    // separately toggled section (layoutStore.bottomQueueOpen) that does
+    // NOT auto-open -- without a toast, adding to queue while it's
+    // collapsed (or the bar itself was hidden) gives no feedback at all.
+    if (!wasBarVisible || !useLayoutStore.getState().bottomQueueOpen) {
+      toast(`Added "${item.title}" to queue`);
+    }
   },
 
   playNext: (item) => {

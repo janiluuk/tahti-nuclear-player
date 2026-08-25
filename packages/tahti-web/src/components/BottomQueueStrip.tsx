@@ -102,16 +102,12 @@ export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
             ))
           )}
         </div>
-      </div>
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center">
-        <span aria-hidden />
-        <div className="flex justify-center">{controls}</div>
         <Button
           size="icon-sm"
           variant="text"
           disabled={queue.length === 0}
           onClick={clearQueue}
-          className="text-foreground-secondary hover:text-accent-red justify-self-end opacity-60 hover:opacity-100"
+          className="text-foreground-secondary hover:text-accent-red shrink-0 opacity-60 hover:opacity-100"
           title="Clear queue"
           aria-label="Clear queue"
           data-testid="clear-bottom-queue"
@@ -119,6 +115,7 @@ export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
           <Trash2Icon size={14} aria-hidden />
         </Button>
       </div>
+      <div className="flex justify-center">{controls}</div>
     </div>
   );
 }
