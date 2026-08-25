@@ -415,7 +415,11 @@ export async function createRtmpTarget(input: {
     const target: RtmpTarget = {
       id: `rtmp-mock-${Date.now()}`,
       provider: input.provider,
-      label: input.label ?? input.provider,
+      // Matches tahti-org/apps/api/src/routes/me/rtmp-targets.ts: an unset
+      // label is stored as-is, not defaulted to the raw provider id -- the
+      // display label fallback (multicastProviderLabel) is what's meant to
+      // fill that in, in mock mode and prod alike.
+      label: input.label ?? null,
       rtmpUrl: input.rtmpUrl ?? 'rtmp://custom.example/live',
       alwaysMirror: false,
       enabled: input.enabled ?? true,
