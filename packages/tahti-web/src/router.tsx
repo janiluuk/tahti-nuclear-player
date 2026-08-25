@@ -131,10 +131,6 @@ const AdminFeatureRequestsView = lazyRouteComponent(
   () => import('./views/admin/AdminFeatureRequestsView'),
   'AdminFeatureRequestsView',
 );
-const AdminFilesView = lazyRouteComponent(
-  () => import('./views/admin/AdminFilesView'),
-  'AdminFilesView',
-);
 const AdminFinancialView = lazyRouteComponent(
   () => import('./views/admin/AdminFinancialView'),
   'AdminFinancialView',
@@ -178,6 +174,10 @@ const AdminStatusView = lazyRouteComponent(
 const AdminStorageView = lazyRouteComponent(
   () => import('./views/admin/AdminStorageView'),
   'AdminStorageView',
+);
+const AdminStorageUserView = lazyRouteComponent(
+  () => import('./views/admin/AdminStorageUserView'),
+  'AdminStorageUserView',
 );
 const AdminStreamsView = lazyRouteComponent(
   () => import('./views/admin/AdminStreamsView'),
@@ -368,10 +368,23 @@ const adminStorageRoute = createRoute({
   component: AdminStorageView,
 });
 
+const adminStorageUserRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/storage/$userId',
+  component: function AdminStorageUserRoute() {
+    const { userId } = adminStorageUserRoute.useParams();
+    return <AdminStorageUserView userId={userId} />;
+  },
+});
+
+// Files is now a tab on the merged Storage view rather than its own page —
+// keep the old URL alive for anyone with it bookmarked/linked.
 const adminFilesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/files',
-  component: AdminFilesView,
+  beforeLoad: () => {
+    throw redirect({ to: '/admin/storage', search: { tab: 'files' } });
+  },
 });
 
 const adminContentReportsRoute = createRoute({
@@ -1203,6 +1216,7 @@ const routeTree = rootRoute.addChildren([
     adminTopListsRoute,
     adminAnnouncementsRoute,
     adminStorageRoute,
+    adminStorageUserRoute,
     adminFilesRoute,
     adminContentReportsRoute,
     adminFinancialRoute,

@@ -79,12 +79,8 @@ const PRIMARY = [
   {
     to: '/admin/storage',
     label: 'Storage',
-    description: 'Platform storage usage and quotas.',
-  },
-  {
-    to: '/admin/files',
-    label: 'Files',
-    description: 'Browse uploaded files across the platform.',
+    description:
+      'Disk/object storage space, quotas, and every uploaded file across the platform.',
   },
   {
     to: '/admin/content-reports',
