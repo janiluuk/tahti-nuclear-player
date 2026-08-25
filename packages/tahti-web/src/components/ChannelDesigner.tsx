@@ -18,7 +18,14 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, PluginItem, Slider, Tabs, Toggle } from '@nuclearplayer/ui';
+import {
+  Button,
+  Input,
+  PluginItem,
+  Slider,
+  Tabs,
+  Toggle,
+} from '@nuclearplayer/ui';
 
 import {
   BRAND_ACCENTS,
@@ -26,6 +33,7 @@ import {
   fetchChannelVisual,
   fillColorScheme,
   HEADER_STYLES,
+  isValidHeaderVideoUrl,
   isVisualPreset,
   parseColorScheme,
   parseVisualSettingsMap,
@@ -203,6 +211,7 @@ export function ChannelDesigner({
     const result = await patchChannelVisual({
       visualPreset: visual.visualPreset,
       headerStyle: visual.headerStyle,
+      videoBackgroundUrl: visual.videoBackgroundUrl ?? null,
       brandAccentPreset: visual.brandAccentPreset,
       colorScheme: fillColorScheme(scheme),
       visualSettings,
@@ -227,6 +236,15 @@ export function ChannelDesigner({
   }
 
   const visualizerEnabled = visual.visualPreset !== 'MINIMAL';
+
+  // VIDEO_LOOP without a playable clip isn't a state worth saving — the
+  // header would just render empty on the real channel page.
+  const videoLoopNeedsUrl =
+    visual.headerStyle === 'VIDEO_LOOP' &&
+    !isValidHeaderVideoUrl(visual.videoBackgroundUrl);
+  const showHeaderVideo =
+    visual.headerStyle === 'VIDEO_LOOP' &&
+    isValidHeaderVideoUrl(visual.videoBackgroundUrl);
 
   const setVisualizerEnabled = (enabled: boolean) => {
     if (
@@ -452,6 +470,28 @@ export function ChannelDesigner({
                     );
                   })}
                 </div>
+                {visual.headerStyle === 'VIDEO_LOOP' && (
+                  <div className="flex flex-col gap-1">
+                    <Input
+                      label="Video URL"
+                      value={visual.videoBackgroundUrl ?? ''}
+                      placeholder="https://cdn.example.com/loop.mp4"
+                      onChange={(event) =>
+                        applyLocal({ videoBackgroundUrl: event.target.value })
+                      }
+                    />
+                    <p className="text-foreground-secondary text-xs">
+                      Direct link to a muted, looping .mp4 or .webm clip — plays
+                      behind your channel header.
+                    </p>
+                    {visual.videoBackgroundUrl &&
+                      !isValidHeaderVideoUrl(visual.videoBackgroundUrl) && (
+                        <p className="text-xs text-red-500">
+                          Must be an HTTPS link ending in .mp4 or .webm.
+                        </p>
+                      )}
+                  </div>
+                )}
               </section>
             ),
           },
@@ -462,11 +502,19 @@ export function ChannelDesigner({
         <Button
           size="icon"
           variant="secondary"
-          disabled={busy || !dirty}
+          disabled={busy || !dirty || videoLoopNeedsUrl}
           aria-label={
             busy ? 'Saving look…' : dirty ? 'Save look' : 'Look saved'
           }
-          title={busy ? 'Saving…' : dirty ? 'Save look' : 'Saved'}
+          title={
+            videoLoopNeedsUrl
+              ? 'Add a valid video URL to save'
+              : busy
+                ? 'Saving…'
+                : dirty
+                  ? 'Save look'
+                  : 'Saved'
+          }
           onClick={() => void save()}
         >
           {busy ? (
@@ -501,8 +549,22 @@ export function ChannelDesigner({
 
       <div
         className="relative overflow-hidden rounded-xl border border-white/10 p-5 shadow-lg"
-        style={{ background: previewStyle.gradient, color: previewStyle.fg }}
+        style={{
+          background: showHeaderVideo ? previewStyle.bg : previewStyle.gradient,
+          color: previewStyle.fg,
+        }}
       >
+        {showHeaderVideo && (
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            src={visual.videoBackgroundUrl ?? undefined}
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-hidden="true"
+          />
+        )}
         <div
           className="absolute inset-0 opacity-30"
           style={{ background: previewStyle.bg }}

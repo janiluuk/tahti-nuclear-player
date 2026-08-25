@@ -49,6 +49,10 @@ export type PublicChannel = {
   /** When false, channel chat is off — right rail chat unavailable. */
   chatEnabled?: boolean;
   visualPreset?: string | null;
+  /** Channel page header banner treatment — GRADIENT/SOLID/VIDEO_LOOP. */
+  headerStyle?: string | null;
+  /** VIDEO_LOOP's clip — reused from the backend's Gallery & backdrop field. */
+  videoBackgroundUrl?: string | null;
   colorSchemeJson?: string | null;
   colorScheme?: {
     accent?: string;
