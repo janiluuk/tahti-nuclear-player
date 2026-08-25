@@ -4,13 +4,10 @@ import { useEffect, useState } from 'react';
 import { formatArtistNames } from '@nuclearplayer/model';
 import { Button, cn, PlayerBar } from '@nuclearplayer/ui';
 
-import { hasAccountRole } from '../lib/accountRoles';
 import { useDominantColor } from '../lib/useDominantColor';
-import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { ChannelVisualizer } from './ChannelVisualizer';
-import { StreamManagerPanel } from './StreamManagerPanel';
 
 const ANIMATION_MS = 280;
 
@@ -23,8 +20,6 @@ const ANIMATION_MS = 280;
 export function FullScreenPlayer() {
   const open = useLayoutStore((s) => s.fullScreenPlayerOpen);
   const setOpen = useLayoutStore((s) => s.setFullScreenPlayerOpen);
-  const manageChannelSlug = useLayoutStore((s) => s.manageChannelSlug);
-  const setManageChannelSlug = useLayoutStore((s) => s.setManageChannelSlug);
   const queue = usePlayerStore((s) => s.queue);
   const currentId = usePlayerStore((s) => s.currentId);
   const status = usePlayerStore((s) => s.status);
@@ -42,7 +37,6 @@ export function FullScreenPlayer() {
   const toggleShuffle = usePlayerStore((s) => s.toggleShuffle);
   const cycleRepeat = usePlayerStore((s) => s.cycleRepeat);
   const seekTo = usePlayerStore((s) => s.seekTo);
-  const user = useAuthStore((s) => s.user);
 
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -60,7 +54,6 @@ export function FullScreenPlayer() {
 
   const close = () => {
     setOpen(false);
-    setManageChannelSlug(null);
   };
 
   useEffect(() => {
@@ -70,7 +63,6 @@ export function FullScreenPlayer() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setOpen(false);
-        setManageChannelSlug(null);
       }
     };
     document.addEventListener('keydown', onKey);
@@ -80,7 +72,7 @@ export function FullScreenPlayer() {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [open, setOpen, setManageChannelSlug]);
+  }, [open, setOpen]);
 
   const current = queue.find((q) => q.id === currentId);
   const playable = current ? playableFromQueueItem(current) : null;
@@ -91,11 +83,6 @@ export function FullScreenPlayer() {
     (current ? formatArtistNames(current.track.artists) : '');
   const isPlaying = status === 'playing' || status === 'loading';
   const seekProgress = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const channelSlug = manageChannelSlug ?? playable?.channelSlug ?? null;
-  const canManage = Boolean(
-    channelSlug &&
-    (user?.channel?.slug === channelSlug || hasAccountRole(user, 'BOARD')),
-  );
 
   const rgb = useDominantColor(coverUrl);
 
@@ -207,15 +194,6 @@ export function FullScreenPlayer() {
             onValueChange={(v) => setVolume(v / 100)}
           />
         </div>
-
-        {canManage && channelSlug && (
-          <div className="w-full max-w-md">
-            <StreamManagerPanel
-              slug={channelSlug}
-              channelState={isLive ? 'LIVE' : 'OFFLINE'}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

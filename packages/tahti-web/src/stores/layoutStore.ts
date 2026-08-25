@@ -11,11 +11,6 @@ type LayoutState = {
   /** Full-screen now-playing overlay -- deliberately not persisted, a
    * reload should never drop the user straight into it. */
   fullScreenPlayerOpen: boolean;
-  /** Channel the full-screen overlay's stream manager panel targets --
-   * set when opening via a channel's "Manage stream" button, so the panel
-   * still has something to manage even when that channel has nothing
-   * playable yet (e.g. no fallback rotation set up). */
-  manageChannelSlug: string | null;
   /** Channel slug for rail chat (last chat-enabled channel). */
   chatSlug: string | null;
   /** Whether that channel allows chat. */
@@ -33,7 +28,6 @@ type LayoutState = {
   setBottomQueueOpen: (open: boolean) => void;
   toggleBottomQueue: () => void;
   setFullScreenPlayerOpen: (open: boolean) => void;
-  setManageChannelSlug: (slug: string | null) => void;
   /** Bind channel chat context; optionally open right rail once per visit. */
   setChatContext: (opts: {
     slug: string;
@@ -54,7 +48,6 @@ export const useLayoutStore = create<LayoutState>()(
       rightWidth: 340,
       bottomQueueOpen: false,
       fullScreenPlayerOpen: false,
-      manageChannelSlug: null,
       chatSlug: null,
       chatEnabled: false,
       chatDisabledReason: null,
@@ -70,7 +63,6 @@ export const useLayoutStore = create<LayoutState>()(
         set((s) => ({ bottomQueueOpen: !s.bottomQueueOpen })),
       setFullScreenPlayerOpen: (fullScreenPlayerOpen) =>
         set({ fullScreenPlayerOpen }),
-      setManageChannelSlug: (manageChannelSlug) => set({ manageChannelSlug }),
 
       setChatContext: ({ slug, enabled, reason, autoOpen }) => {
         const prev = get();

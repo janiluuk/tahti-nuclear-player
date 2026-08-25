@@ -7,7 +7,6 @@ import {
   PauseIcon,
   PencilIcon,
   PlayIcon,
-  SlidersHorizontalIcon,
   WifiOffIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -28,7 +27,6 @@ import { EmbedButton } from '../components/EmbedButton';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
-import { hasAccountRole } from '../lib/accountRoles';
 import {
   addItemType,
   CHANNEL_PAGE_ITEM_META,
@@ -82,10 +80,6 @@ export function ChannelView({ slug }: { slug: string }) {
   );
   const setChatContext = useLayoutStore((s) => s.setChatContext);
   const clearChatContext = useLayoutStore((s) => s.clearChatContext);
-  const setFullScreenPlayerOpen = useLayoutStore(
-    (s) => s.setFullScreenPlayerOpen,
-  );
-  const setManageChannelSlug = useLayoutStore((s) => s.setManageChannelSlug);
   const openChatRail = useLayoutStore((s) => s.openChatRail);
 
   useEffect(() => clearChatContext, [clearChatContext]);
@@ -197,18 +191,6 @@ export function ChannelView({ slug }: { slug: string }) {
         play(playable);
       }
     });
-  };
-
-  const handleOpenManage = () => {
-    setManageChannelSlug(slug);
-    setFullScreenPlayerOpen(true);
-    if (!channelIsCurrent) {
-      void fetchChannel(slug).then(({ playable }) => {
-        if (playable) {
-          play(playable);
-        }
-      });
-    }
   };
 
   const handleToggleFavoriteChannel = () =>
@@ -587,13 +569,6 @@ export function ChannelView({ slug }: { slug: string }) {
             </Link>
           </p>
         </div>
-
-        {(isOwner || hasAccountRole(me, 'BOARD')) && !editing && (
-          <Button size="sm" variant="secondary" onClick={handleOpenManage}>
-            <SlidersHorizontalIcon size={14} aria-hidden className="mr-1.5" />
-            Manage stream
-          </Button>
-        )}
 
         {visibleItems.map((item) => {
           if (!editing && !item.visible) {
