@@ -8,7 +8,7 @@ import {
   RadioIcon,
   XIcon,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
@@ -86,6 +86,7 @@ export function MobileBottomNav({ onOpenQueue }: MobileBottomNavProps) {
           <Link
             key={item.to}
             to={item.to}
+            aria-current={active ? 'page' : undefined}
             className={cn(
               'flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-md px-1 py-1.5 text-[10px] tracking-wide',
               active
@@ -121,7 +122,14 @@ type MobileDrawerProps = {
   side?: 'left' | 'right';
 };
 
-/** Full-height slide-over used for nav / panels on mobile. */
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** Full-height slide-over used for nav / panels on mobile. Hand-rolled
+ * rather than the shared headlessui-backed `Dialog` (different slide-over
+ * shape, and `@headlessui/react` isn't a direct dependency of this
+ * package) — so it needs its own focus trap and Escape handling instead
+ * of getting them for free. */
 export function MobileDrawer({
   open,
   title,
@@ -129,6 +137,49 @@ export function MobileDrawer({
   children,
   side = 'right',
 }: MobileDrawerProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const panel = panelRef.current;
+    const focusables = () =>
+      panel
+        ? Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+        : [];
+    focusables()[0]?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab') {
+        return;
+      }
+      const items = focusables();
+      if (items.length === 0) {
+        return;
+      }
+      const first = items[0]!;
+      const last = items[items.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [open, onClose]);
+
   if (!open) {
     return null;
   }
@@ -142,6 +193,7 @@ export function MobileDrawer({
         onClick={onClose}
       />
       <div
+        ref={panelRef}
         className={cn(
           'border-border bg-background absolute inset-y-0 flex w-[min(100%,20rem)] flex-col border shadow-lg',
           side === 'left' ? 'left-0' : 'right-0',

@@ -19,7 +19,11 @@ const MaybeNavLink: FC<{
   children: (isSelected: boolean) => ReactNode;
 }> = ({ to, isSelected = false, children }) => {
   if (to) {
-    return <Link to={to}>{({ isActive }) => children(isActive)}</Link>;
+    return (
+      <Link to={to} activeProps={{ 'aria-current': 'page' }}>
+        {({ isActive }) => children(isActive)}
+      </Link>
+    );
   }
   return <>{children(isSelected)}</>;
 };

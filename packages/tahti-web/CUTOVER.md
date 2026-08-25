@@ -61,8 +61,8 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [x] Full visualizer preset parity — ten distinct Three.js scenes, lazy-loaded outside the initial listen bundle.
 - [ ] Multitrack / pro editor depth vs prod ffmpeg/waveform stack (port or keep “good enough”).
 - [x] Nuclear screenshot atlas refreshed across all 38 referenced beta screens; each comparison now explains what the user can do, and the Mermaid site map reflects the current route and workspace structure. Production `tahti/docs/e2e-screenshots/` remains a post-vendoring follow-up.
-- [ ] Accessibility pass (keyboard, focus, live regions, contrast) on listen + studio critical paths.
-- [ ] Bundle budget: code-split mermaid (already lazy), defer Three.js, audit Nuclear UI CSS.
+- [ ] Accessibility pass (keyboard, focus, live regions, contrast) on listen + studio critical paths. Covered so far: player bar seek/volume/controls keyboard + ARIA, chat `role="log"` live region and reaction labels (earlier pass); global search now a real combobox (arrow-key roving through results, `aria-activedescendant`, `role="listbox"`/`option`) instead of Tab-only; `MobileDrawer` (mobile nav/chat/queue slide-over) gained a focus trap + Escape-to-close (it was hand-rolled without either); nav links (`SidebarNavigationItem` in `@nuclearplayer/ui`, mobile bottom nav) now set `aria-current="page"`. Still open: contrast audit, and a pass over Studio's own critical paths (upload, go-live, editor) specifically.
+- [x] Bundle budget: mermaid is lazy (own `mermaid.core-*`/`cytoscape.esm-*`/`katex-*` chunks, confirmed in build output); Three.js is lazy too (`ChannelVisualizer.tsx` already `lazy()`-imports `ThreeVisualizer`, its own 528 kB chunk, not in `index-*.js`). CSS audit: one 152 kB CSS file for the whole app (`dist/assets/index-*.css`) — expected given Tailwind's JIT scans all sources into one stylesheet regardless of route; genuine per-route CSS splitting isn't a quick config flip without restructuring how Tailwind is wired into the build, so leaving as a known limitation rather than a bug. `LibraryView` (History's charts, `react-activity-calendar`) was pulled out of the main bundle this session (own 326 kB chunk) after it briefly regressed the main `index-*.js` by +367 kB.
 - [ ] CI: replace `apps/web` Docker build with SPA build; keep lint/format/typecheck gates.
 - [ ] Preview/PR envs serve the new client (or document that previews stay Next until cutover).
 - [ ] CDN CORS + embed parents verified for SPA origin.
@@ -153,7 +153,7 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 
 ### 1.4 Client-only / non-API state
 
-- [ ] Document localStorage keys: theme, chat handle, favorites/history scopes (`libraryStore`)
+- [x] Document localStorage keys: theme, chat handle, favorites/history scopes (`libraryStore`) — see [`LOCALSTORAGE-KEYS.md`](LOCALSTORAGE-KEYS.md); `tahti-web:library:{scope}` is already per-user/anon, no migration step needed at cutover
 - [ ] Confirm no IndexedDB / service worker assumptions that differ from Next
 - [ ] No DB migrations expected (same API) — still verify no Next server-actions-only writes
 
