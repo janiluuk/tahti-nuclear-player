@@ -13,6 +13,7 @@ import {
   Dialog,
   FilePicker,
   Input,
+  SaveButton,
   Textarea,
 } from '@nuclearplayer/ui';
 
@@ -591,12 +592,12 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
         <Dialog.Actions>
           <Dialog.Close>Close</Dialog.Close>
           {(tab === 'metadata' || tab === 'artwork') && item ? (
-            <Button
-              disabled={saving || artworkBusy || !form.title?.trim()}
+            <SaveButton
+              disabled={artworkBusy || !form.title?.trim()}
+              saving={saving}
+              label="Save changes"
               onClick={() => void save()}
-            >
-              {saving ? 'Saving…' : 'Save changes'}
-            </Button>
+            />
           ) : null}
         </Dialog.Actions>
       </Dialog.Root>

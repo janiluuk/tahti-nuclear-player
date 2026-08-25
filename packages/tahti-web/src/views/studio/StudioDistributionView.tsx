@@ -4,14 +4,13 @@ import {
   DownloadIcon,
   ExternalLinkIcon,
   PlusIcon,
-  SaveIcon,
   SendIcon,
   Trash2Icon,
   XIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Input, Tabs } from '@nuclearplayer/ui';
+import { Badge, Button, Input, SaveButton, Tabs } from '@nuclearplayer/ui';
 
 import {
   fetchAllRoyalties,
@@ -525,10 +524,7 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" disabled={busy} onClick={saveCatalog}>
-          {!busy && <SaveIcon size={14} aria-hidden className="mr-1.5" />}
-          {busy ? 'Saving…' : 'Save catalog'}
-        </Button>
+        <SaveButton saving={busy} label="Save catalog" onClick={saveCatalog} />
         <Button
           size="sm"
           variant="secondary"

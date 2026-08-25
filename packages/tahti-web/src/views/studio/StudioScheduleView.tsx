@@ -1,17 +1,15 @@
 import { Link } from '@tanstack/react-router';
 import {
-  CalendarClockIcon,
   CalendarDaysIcon,
   Clock3Icon,
   MapPinIcon,
   RadioIcon,
-  SaveIcon,
   Settings2Icon,
   XIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, SaveButton } from '@nuclearplayer/ui';
 
 import {
   fetchChannelSchedule,
@@ -328,18 +326,12 @@ export function StudioScheduleView() {
                   ? `${formatDate(fromLocalParts(date, time)!)} at ${formatTime(fromLocalParts(date, time)!)}`
                   : 'No next broadcast selected'}
               </p>
-              <Button
-                size="sm"
-                disabled={busy || loading}
+              <SaveButton
+                disabled={loading}
+                saving={busy}
+                label="Save broadcast"
                 onClick={() => void saveSchedule()}
-              >
-                {busy ? (
-                  <CalendarClockIcon size={15} aria-hidden />
-                ) : (
-                  <SaveIcon size={15} aria-hidden />
-                )}
-                {busy ? 'Saving…' : 'Save broadcast'}
-              </Button>
+              />
             </div>
           </div>
         </StudioPanel>

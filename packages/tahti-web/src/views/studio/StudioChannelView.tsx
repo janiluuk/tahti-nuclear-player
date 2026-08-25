@@ -5,13 +5,12 @@ import {
   GlobeIcon,
   PencilIcon,
   PlusIcon,
-  SaveIcon,
   SearchIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, Toggle } from '@nuclearplayer/ui';
+import { Button, Input, SaveButton, Toggle } from '@nuclearplayer/ui';
 
 import {
   checkSlugAvailable,
@@ -279,16 +278,14 @@ export function StudioChannelView() {
                     />
                     Allow anyone to subscribe for free
                   </label>
-                  <Button
-                    size="sm"
-                    disabled={busy || !displayName.trim()}
-                    onClick={() => void saveProfile()}
-                  >
-                    {!busy && (
-                      <SaveIcon size={14} aria-hidden className="mr-1.5" />
-                    )}
-                    {busy ? 'Saving…' : 'Save profile'}
-                  </Button>
+                  <div className="flex justify-end">
+                    <SaveButton
+                      disabled={!displayName.trim()}
+                      saving={busy}
+                      label="Save profile"
+                      onClick={() => void saveProfile()}
+                    />
+                  </div>
                 </>
               )}
             </div>

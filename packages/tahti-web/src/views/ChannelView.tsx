@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, SaveButton } from '@nuclearplayer/ui';
 
 import { patchChannelVisual } from '../api/channel-design';
 import {
@@ -725,14 +725,11 @@ export function ChannelView({ slug }: { slug: string }) {
           >
             {mobileMenuOpen ? 'Hide menu' : 'Layers menu'}
           </Button>
-          <Button
-            size="sm"
-            variant="secondary"
+          <SaveButton
             disabled={!layoutDirty}
+            label="Save layout"
             onClick={saveLayout}
-          >
-            Save layout
-          </Button>
+          />
           <Button size="sm" onClick={exitEdit}>
             Done
           </Button>

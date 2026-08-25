@@ -5,13 +5,12 @@ import {
   ImagePlusIcon,
   ImagesIcon,
   PaletteIcon,
-  SaveIcon,
   Trash2Icon,
 } from 'lucide-react';
 import { FC, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, Toggle } from '@nuclearplayer/ui';
+import { Button, Input, SaveButton, Toggle } from '@nuclearplayer/ui';
 
 import {
   deletePressKitImage,
@@ -441,10 +440,18 @@ export const StudioBrandingView: FC = () => {
                   className="border-border bg-background rounded-md border px-3 py-2"
                 />
               </label>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button
-                  size="sm"
+              <div className="mt-3 flex flex-wrap justify-end gap-2">
+                {pressKit?.downloadPath ? (
+                  <a href={pressKit.downloadPath}>
+                    <Button size="sm" variant="secondary">
+                      <DownloadIcon size={14} aria-hidden className="mr-1.5" />
+                      Download ZIP
+                    </Button>
+                  </a>
+                ) : null}
+                <SaveButton
                   disabled={!pressKit}
+                  label="Save bio"
                   onClick={() => {
                     if (!pressKit) {
                       return;
@@ -458,18 +465,7 @@ export const StudioBrandingView: FC = () => {
                       }
                     });
                   }}
-                >
-                  <SaveIcon size={14} aria-hidden className="mr-1.5" />
-                  Save bio
-                </Button>
-                {pressKit?.downloadPath ? (
-                  <a href={pressKit.downloadPath}>
-                    <Button size="sm" variant="secondary">
-                      <DownloadIcon size={14} aria-hidden className="mr-1.5" />
-                      Download ZIP
-                    </Button>
-                  </a>
-                ) : null}
+                />
               </div>
             </StudioPanel>
             <StudioPanel

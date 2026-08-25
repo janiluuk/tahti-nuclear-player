@@ -35,6 +35,7 @@ import {
   Input,
   PluginItem,
   PluginStoreItem,
+  SaveButton,
   Select,
   Tabs,
   Toggle,
@@ -707,33 +708,33 @@ function ArtistPanel() {
                 value={profile.showFollowing ?? true}
                 onChange={(v) => setProfile({ ...profile, showFollowing: v })}
               />
-              <Button
-                size="sm"
-                disabled={busy}
-                onClick={() => {
-                  setBusy(true);
-                  void patchMeProfile({
-                    displayName: profile.displayName.trim(),
-                    bio: profile.bio?.trim() || null,
-                    tipJarUrl: profile.tipJarUrl?.trim() || null,
-                    pronouns: profile.pronouns?.trim() || null,
-                    chatEnabled: profile.chatEnabled,
-                    showFollowers: profile.showFollowers,
-                    showFollowing: profile.showFollowing,
-                    artistKind: profile.artistKind,
-                    countryCode: profile.countryCode,
-                    defaultLocation: profile.defaultLocation?.trim() || null,
-                  }).then((r) => {
-                    setBusy(false);
-                    setMsg(r.ok ? 'Artist info saved.' : r.error);
-                    if (r.ok) {
-                      setProfile(r.data);
-                    }
-                  });
-                }}
-              >
-                Save artist info
-              </Button>
+              <div className="flex justify-end">
+                <SaveButton
+                  saving={busy}
+                  label="Save artist info"
+                  onClick={() => {
+                    setBusy(true);
+                    void patchMeProfile({
+                      displayName: profile.displayName.trim(),
+                      bio: profile.bio?.trim() || null,
+                      tipJarUrl: profile.tipJarUrl?.trim() || null,
+                      pronouns: profile.pronouns?.trim() || null,
+                      chatEnabled: profile.chatEnabled,
+                      showFollowers: profile.showFollowers,
+                      showFollowing: profile.showFollowing,
+                      artistKind: profile.artistKind,
+                      countryCode: profile.countryCode,
+                      defaultLocation: profile.defaultLocation?.trim() || null,
+                    }).then((r) => {
+                      setBusy(false);
+                      setMsg(r.ok ? 'Artist info saved.' : r.error);
+                      if (r.ok) {
+                        setProfile(r.data);
+                      }
+                    });
+                  }}
+                />
+              </div>
               {msg && <SettingsHint>{msg}</SettingsHint>}
             </div>
           ),
@@ -764,22 +765,22 @@ function ArtistPanel() {
                   }
                 />
               ))}
-              <Button
-                size="sm"
-                onClick={() => {
-                  if (!social) {
-                    return;
-                  }
-                  void patchSocialConnections(social).then((r) => {
-                    setSocialMsg(r.ok ? 'Connections saved.' : r.error);
-                    if (r.ok) {
-                      setSocial(r.data);
+              <div className="flex justify-end">
+                <SaveButton
+                  label="Save connections"
+                  onClick={() => {
+                    if (!social) {
+                      return;
                     }
-                  });
-                }}
-              >
-                Save connections
-              </Button>
+                    void patchSocialConnections(social).then((r) => {
+                      setSocialMsg(r.ok ? 'Connections saved.' : r.error);
+                      if (r.ok) {
+                        setSocial(r.data);
+                      }
+                    });
+                  }}
+                />
+              </div>
               {socialMsg && <SettingsHint>{socialMsg}</SettingsHint>}
             </div>
           ),
@@ -838,20 +839,11 @@ function ArtistPanel() {
                 label="Press assets"
                 value={`${press.photoCount} photos${press.hasZip ? ', ZIP ready' : ''}`}
               />
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    void patchPressKitBio(press.bioShort).then((r) => {
-                      setMsg(r.ok ? 'Press kit bio saved.' : r.error);
-                      if (r.ok) {
-                        setPress(r.data);
-                      }
-                    });
-                  }}
-                >
-                  Save press bio
-                </Button>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <SettingsHint>
+                  The download bundles your gallery images and biography into a
+                  single press kit.
+                </SettingsHint>
                 {press.downloadPath && (
                   <a
                     href={`https://tahti.live${press.downloadPath}`}
@@ -863,10 +855,17 @@ function ArtistPanel() {
                     </Button>
                   </a>
                 )}
-                <SettingsHint>
-                  The download bundles your gallery images and biography into a
-                  single press kit.
-                </SettingsHint>
+                <SaveButton
+                  label="Save press bio"
+                  onClick={() => {
+                    void patchPressKitBio(press.bioShort).then((r) => {
+                      setMsg(r.ok ? 'Press kit bio saved.' : r.error);
+                      if (r.ok) {
+                        setPress(r.data);
+                      }
+                    });
+                  }}
+                />
               </div>
             </div>
           ),

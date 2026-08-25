@@ -14,6 +14,7 @@ import {
   Dialog,
   EmptyState,
   Input,
+  SaveButton,
   TrackTable,
 } from '@nuclearplayer/ui';
 
@@ -365,13 +366,7 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
               title={name || col.name}
               subtitle="Drag tracks to reorder. Add from Library or Releases."
               action={
-                <Button
-                  size="sm"
-                  disabled={saving}
-                  onClick={() => void saveMeta()}
-                >
-                  {saving ? 'Saving…' : 'Save'}
-                </Button>
+                <SaveButton saving={saving} onClick={() => void saveMeta()} />
               }
             />
 

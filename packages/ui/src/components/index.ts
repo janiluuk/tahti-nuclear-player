@@ -37,6 +37,7 @@ export * from './QueueItemPopover';
 export * from './QueuePanel';
 export * from './RouteTransition';
 export * from './ImageReveal';
+export * from './SaveButton';
 export * from './ScrollableArea';
 export * from './SectionShell';
 export * from './SettingsPanel';

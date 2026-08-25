@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, SaveButton } from '@nuclearplayer/ui';
 
 import {
   fetchAdminStorage,
@@ -64,9 +64,8 @@ function QuotaEditor({
         disabled={saving}
       />
       <span className="text-foreground-secondary text-xs">MB</span>
-      <Button
-        size="sm"
-        disabled={saving}
+      <SaveButton
+        saving={saving}
         onClick={() => {
           const mb = Number(value);
           if (!Number.isFinite(mb) || mb <= 0) {
@@ -81,9 +80,7 @@ function QuotaEditor({
             },
           );
         }}
-      >
-        Save
-      </Button>
+      />
       <Button size="sm" variant="text" onClick={() => setEditing(false)}>
         Cancel
       </Button>

@@ -5,13 +5,12 @@ import {
   ListMusicIcon,
   PlusIcon,
   RadioIcon,
-  SaveIcon,
   Trash2Icon,
 } from 'lucide-react';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, Toggle } from '@nuclearplayer/ui';
+import { Button, Input, SaveButton, Toggle } from '@nuclearplayer/ui';
 
 import {
   createStudioCollection,
@@ -405,14 +404,12 @@ export const ChannelRadioPlaylistPanel: FC = () => {
           </label>
 
           <div className="flex justify-end">
-            <Button
-              size="sm"
-              disabled={busy || !programme || !settingsDirty}
+            <SaveButton
+              disabled={!programme || !settingsDirty}
+              saving={busy}
+              label="Save settings"
               onClick={() => void saveSettings()}
-            >
-              <SaveIcon size={14} aria-hidden className="mr-1.5" />
-              Save settings
-            </Button>
+            />
           </div>
         </div>
       </div>

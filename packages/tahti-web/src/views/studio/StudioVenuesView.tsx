@@ -1,14 +1,8 @@
 import { Link } from '@tanstack/react-router';
-import {
-  CalendarPlusIcon,
-  PlusIcon,
-  SaveIcon,
-  Trash2Icon,
-  XIcon,
-} from 'lucide-react';
+import { CalendarPlusIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, SaveButton } from '@nuclearplayer/ui';
 
 import {
   cancelVenueBroadcast,
@@ -71,9 +65,10 @@ function VenueCard({
           onChange={(e) => setCity(e.target.value)}
         />
       </div>
-      <div className="flex flex-wrap gap-2">
-        <Button
-          size="sm"
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {msg && <p className="text-xs">{msg}</p>}
+        <SaveButton
+          label="Save venue"
           onClick={() => {
             const cap = Number(capacity);
             void patchVenue(venue.slug, {
@@ -88,11 +83,7 @@ function VenueCard({
               }
             });
           }}
-        >
-          <SaveIcon size={14} aria-hidden className="mr-1.5" />
-          Save venue
-        </Button>
-        {msg && <p className="text-xs">{msg}</p>}
+        />
       </div>
 
       <div className="border-border border-t pt-4">
