@@ -116,3 +116,34 @@ export const RADIO_STATIONS: RadioStation[] = [
     detailUrl: 'https://streamurl.link/station/radio-nostalgia/',
   },
 ];
+
+export function radioStation(id: string): RadioStation | undefined {
+  return RADIO_STATIONS.find((s) => s.id === id);
+}
+
+/** Builds a TahtiPlayable for a station with a verified stream — callers
+ * must check `station.streamUrl` first (kept nullable rather than typed
+ * away so every call site is forced to handle the pending case). */
+export function radioStationPlayable(
+  station: RadioStation & { streamUrl: string },
+): {
+  id: string;
+  kind: 'radio';
+  title: string;
+  artist: string;
+  coverUrl: string;
+  streamUrl: string;
+  protocol: 'https';
+  sourceProvider: string;
+} {
+  return {
+    id: `radio-widget:${station.id}`,
+    kind: 'radio',
+    title: station.name,
+    artist: `${station.language} · ${station.genre}`,
+    coverUrl: station.logoUrl,
+    streamUrl: station.streamUrl,
+    protocol: 'https',
+    sourceProvider: 'internet-radio',
+  };
+}

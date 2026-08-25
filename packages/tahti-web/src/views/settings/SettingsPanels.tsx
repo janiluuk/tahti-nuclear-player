@@ -113,7 +113,10 @@ import { ListenerWidgetEmbed } from '../../components/ListenerWidgetEmbed';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SidebarBuildInfo } from '../../components/SidebarBuildInfo';
 import { LISTENER_WIDGET_TYPES } from '../../content/listenerWidgets';
-import { RADIO_STATIONS } from '../../content/radioStations';
+import {
+  RADIO_STATIONS,
+  radioStationPlayable,
+} from '../../content/radioStations';
 import { hasAccountRole } from '../../lib/accountRoles';
 import { COUNTRIES, flagEmoji } from '../../lib/countries';
 import { EXPORT_TARGETS } from '../../lib/exportTargets';
@@ -1852,16 +1855,12 @@ function WidgetsPanel() {
               onPlay={
                 station.streamUrl
                   ? () =>
-                      play({
-                        id: `radio-widget:${station.id}`,
-                        kind: 'radio',
-                        title: station.name,
-                        artist: `${station.language} · ${station.genre}`,
-                        coverUrl: station.logoUrl,
-                        streamUrl: station.streamUrl!,
-                        protocol: 'https',
-                        sourceProvider: 'internet-radio',
-                      })
+                      play(
+                        radioStationPlayable({
+                          ...station,
+                          streamUrl: station.streamUrl!,
+                        }),
+                      )
                   : undefined
               }
             />

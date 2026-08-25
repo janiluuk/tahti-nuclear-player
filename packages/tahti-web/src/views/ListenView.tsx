@@ -32,6 +32,7 @@ import {
   type PublicChannel,
 } from '../api/types';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
+import { ListenerWidgetsSection } from '../components/ListenerWidgetsSection';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
@@ -252,6 +253,8 @@ export function ListenView() {
       ) : null}
 
       <DiscoWidgetsSection widgets={discoWidgets} />
+
+      <ListenerWidgetsSection />
 
       {radio ? (
         <Box

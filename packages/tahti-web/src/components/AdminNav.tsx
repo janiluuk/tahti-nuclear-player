@@ -41,6 +41,12 @@ const PRIMARY = [
     description: 'Review tracks submitted for rotation consideration.',
   },
   {
+    to: '/admin/radio-station-suggestions',
+    label: 'Radio stations',
+    description:
+      'Review listener-suggested internet radio stations for the Widgets store.',
+  },
+  {
     to: '/admin/news',
     label: 'News',
     description: 'Publish platform-wide news posts.',

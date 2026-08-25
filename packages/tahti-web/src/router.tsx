@@ -160,6 +160,10 @@ const AdminRadioSubmissionsView = lazyRouteComponent(
   () => import('./views/admin/AdminRadioSubmissionsView'),
   'AdminRadioSubmissionsView',
 );
+const AdminRadioStationSuggestionsView = lazyRouteComponent(
+  () => import('./views/admin/AdminRadioStationSuggestionsView'),
+  'AdminRadioStationSuggestionsView',
+);
 const AdminRadioView = lazyRouteComponent(
   () => import('./views/admin/AdminRadioView'),
   'AdminRadioView',
@@ -315,6 +319,12 @@ const adminRadioSubmissionsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/radio-submissions',
   component: AdminRadioSubmissionsView,
+});
+
+const adminRadioStationSuggestionsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/radio-station-suggestions',
+  component: AdminRadioStationSuggestionsView,
 });
 
 const adminNewsRoute = createRoute({
@@ -1178,6 +1188,7 @@ const routeTree = rootRoute.addChildren([
     adminUsersRoute,
     adminRadioRoute,
     adminRadioSubmissionsRoute,
+    adminRadioStationSuggestionsRoute,
     adminNewsRoute,
     adminSelectsRoute,
     adminStreamsRoute,
