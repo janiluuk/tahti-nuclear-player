@@ -1,6 +1,7 @@
 import type { FetchMeta } from './client';
+import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 
-const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+const forceMock = isForceMock;
 
 const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
@@ -8,13 +9,6 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
-
-function failMeta(err: unknown): FetchMeta {
-  return {
-    source: 'mock',
-    reason: err instanceof Error ? err.message : 'fetch failed',
-  };
-}
 
 async function requestJson<T>(
   path: string,
@@ -226,7 +220,20 @@ export async function fetchNotificationPrefs(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: { ...mockNotifications }, meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: { ...mockNotifications }, meta: failMeta(err) };
+    }
+    return {
+      data: {
+        emailFanSub: false,
+        emailComment: false,
+        emailMention: false,
+        emailBroadcastReminder: false,
+        pushLiveStart: false,
+        digestWeekly: false,
+      },
+      meta: apiErrorMeta(err),
+    };
   }
 }
 
@@ -270,7 +277,20 @@ export async function fetchDiscoveryPrefs(): Promise<{
     const { data } = await requestJson<DiscoveryPrefs>('/api/me/discovery');
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: { ...mockDiscovery }, meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: { ...mockDiscovery }, meta: failMeta(err) };
+    }
+    return {
+      data: {
+        listedInDirectory: false,
+        allowRadioPickup: false,
+        showOnListenHome: false,
+        genreTags: '',
+        showFavorites: false,
+        announceReleases: false,
+      },
+      meta: apiErrorMeta(err),
+    };
   }
 }
 
@@ -457,7 +477,20 @@ export async function fetchSocialConnections(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: { ...mockSocial }, meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: { ...mockSocial }, meta: failMeta(err) };
+    }
+    return {
+      data: {
+        website: '',
+        instagram: '',
+        bandcamp: '',
+        soundcloud: '',
+        youtube: '',
+        discord: '',
+      },
+      meta: apiErrorMeta(err),
+    };
   }
 }
 
@@ -689,9 +722,15 @@ export async function fetchPressKitMeta(): Promise<{
     const { data } = await requestJson<PressKitMeta>('/api/me/press-kit');
     return { data, meta: { source: 'api' } };
   } catch (err) {
+    if (allowMockFallback()) {
+      return {
+        data: { ...mockPress, hasZip: false, downloadPath: null },
+        meta: failMeta(err),
+      };
+    }
     return {
-      data: { ...mockPress, hasZip: false, downloadPath: null },
-      meta: failMeta(err),
+      data: { hasZip: false, bioShort: '', downloadPath: null, photoCount: 0 },
+      meta: apiErrorMeta(err),
     };
   }
 }

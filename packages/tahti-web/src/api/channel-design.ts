@@ -1,6 +1,7 @@
 import type { FetchMeta } from './client';
+import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 
-const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+const forceMock = isForceMock;
 
 const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
@@ -8,13 +9,6 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
-
-function failMeta(err: unknown): FetchMeta {
-  return {
-    source: 'mock',
-    reason: err instanceof Error ? err.message : 'fetch failed',
-  };
-}
 
 async function requestJson<T>(
   path: string,
@@ -261,7 +255,23 @@ export async function fetchChannelVisual(): Promise<{
     const { data } = await requestJson<ChannelVisual>('/api/me/channel/visual');
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: { ...mockVisual }, meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: { ...mockVisual }, meta: failMeta(err) };
+    }
+    return {
+      data: {
+        visualPreset: 'MINIMAL',
+        colorSchemeJson: JSON.stringify(DEFAULT_COLOR_SCHEME),
+        headerStyle: 'GRADIENT',
+        videoBackgroundUrl: null,
+        brandAccentPreset: null,
+        slideshowPreset: 'FADE',
+        slideshowIntervalSeconds: 8,
+        slideshowTransitionMs: 600,
+        slideshowAutoplay: true,
+      },
+      meta: apiErrorMeta(err),
+    };
   }
 }
 

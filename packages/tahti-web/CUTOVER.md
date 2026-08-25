@@ -254,7 +254,7 @@ Per the admin-host decision (§0.2 / §1.1), Next `apps/web` is **not** fully re
 
 - [ ] Continue browser → same-origin `/api` or `/tahti-api` → `api.tahti.live`
 - [ ] Inventory POC client modules (`api/client.ts`, `broadcast.ts`, `studio.ts`, `sources.ts`, `messages.ts`, `revenue.ts`) vs OpenAPI
-- [ ] Remove mock fallback from production builds (already gated — audit all call sites)
+- [x] Remove mock fallback from production builds (already gated — audit all call sites) — audited every `catch` block across `src/api/*.ts` that references a `mock*` fixture: most already gate correctly through `allowMockFallback()`/`withMockFallback()` (`client.ts`, `broadcast.ts`, `discover.ts`, `distribution.ts`, `messages.ts`, `revenue.ts`, `studio.ts`), but found and fixed **11 real gaps** across `admin.ts` (5 — dashboard KPIs, radio admin, governance overview, integration status, languages), `artist-settings.ts` (4 — notification/discovery prefs, social connections, press kit), `channel-design.ts` (1 — visual/color scheme), and `studio-extras.ts` (1 — own profile) that unconditionally served rich fixture data (fake KPI numbers, a fabricated "Demo Artist" bio, etc.) on **any** API failure, regardless of environment — the exact "silent mocks: false confidence" risk this doc's own Phase 10 table names. All 4 files also had their own duplicated local `forceMock`/`failMeta` instead of importing `./mode`; consolidated. Regression test added (`admin.test.ts`) proving a production-mode failure now returns real empty/zeroed data with `meta.source: 'api'`, not the mock fixture.
 - [ ] Centrifugo: `VITE_CENTRIFUGO_WS` / equivalent build arg
 
 ### 3.4 Env vars (build-time)

@@ -1,8 +1,9 @@
 import { getAccountRole } from '../lib/accountRoles';
 import type { FetchMeta } from './client';
+import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 import type { AccountRole } from './types';
 
-const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+const forceMock = isForceMock;
 
 const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
@@ -10,13 +11,6 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
-
-function failMeta(err: unknown): FetchMeta {
-  return {
-    source: 'mock',
-    reason: err instanceof Error ? err.message : 'fetch failed',
-  };
-}
 
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(`${apiBase()}${path}`, {
@@ -278,7 +272,27 @@ export async function fetchAdminDashboard(): Promise<{
       meta: { source: 'api' },
     };
   } catch (err) {
-    return { data: mockDashboard(), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockDashboard(), meta: failMeta(err) };
+    }
+    return {
+      data: {
+        kpis: { activeMembers: 0, liveNow: 0, betaQueue: 0, openTickets: 0 },
+        actionRows: [],
+        health: {
+          icecast: 'down',
+          minio: 'down',
+          postgresBackupAgeHours: null,
+          failedFanSubPayouts: 0,
+        },
+        financeYtdCents: { surplus: 0, revenue: 0, costs: 0 },
+        liveStreams: [],
+        queues: [],
+        cronJobs: [],
+        audit: [],
+      },
+      meta: apiErrorMeta(err),
+    };
   }
 }
 
@@ -853,7 +867,18 @@ export async function fetchAdminRadio(): Promise<{
       meta: { source: 'api' },
     };
   } catch (err) {
-    return { data: mockRadioAdmin(), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockRadioAdmin(), meta: failMeta(err) };
+    }
+    return {
+      data: {
+        nowPlaying: { live: false, slug: null, artistName: null },
+        eligible: [],
+        history: [],
+        optedOut: [],
+      },
+      meta: apiErrorMeta(err),
+    };
   }
 }
 
@@ -2878,7 +2903,18 @@ export async function fetchAdminGovernanceOverview(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockGovernanceOverview(), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockGovernanceOverview(), meta: failMeta(err) };
+    }
+    return {
+      data: {
+        openMotions: 0,
+        pendingVenueVerifications: 0,
+        lastAnnualReportYear: null,
+        boardResolutionsThisYear: 0,
+      },
+      meta: apiErrorMeta(err),
+    };
   }
 }
 
@@ -3131,7 +3167,10 @@ export async function fetchAdminIntegrationStatus(): Promise<{
     );
     return { data: data.integrations, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockIntegrationStatus(), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockIntegrationStatus(), meta: failMeta(err) };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 
@@ -3252,7 +3291,10 @@ export async function fetchAdminLanguages(): Promise<{
     );
     return { data: data.languages, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockLanguages(), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockLanguages(), meta: failMeta(err) };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 

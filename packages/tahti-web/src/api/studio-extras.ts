@@ -1,7 +1,8 @@
 import type { FetchMeta } from './client';
 import { setMockFreeSubscriptionsEnabled } from './mock-profile-preferences';
+import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 
-const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+const forceMock = isForceMock;
 
 const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
@@ -9,13 +10,6 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
-
-function failMeta(err: unknown): FetchMeta {
-  return {
-    source: 'mock',
-    reason: err instanceof Error ? err.message : 'fetch failed',
-  };
-}
 
 async function requestJson<T>(
   path: string,
@@ -667,9 +661,32 @@ export async function fetchMeProfile(): Promise<{
     const { data } = await requestJson<ProfileFields>('/api/me/profile');
     return { data, meta: { source: 'api' } };
   } catch (err) {
+    if (allowMockFallback()) {
+      return {
+        data: { ...mockProfile, username: 'unknown' },
+        meta: failMeta(err),
+      };
+    }
     return {
-      data: { ...mockProfile, username: 'unknown' },
-      meta: failMeta(err),
+      data: {
+        id: '',
+        username: 'unknown',
+        displayName: '',
+        bio: '',
+        fullBio: null,
+        avatarUrl: null,
+        tipJarUrl: null,
+        pronouns: null,
+        chatEnabled: false,
+        freeSubscriptionsEnabled: false,
+        artistKind: 'SINGLE',
+        countryCode: null,
+        defaultLocation: null,
+        showFollowers: false,
+        showFollowing: false,
+        socialLinks: {},
+      },
+      meta: apiErrorMeta(err),
     };
   }
 }
