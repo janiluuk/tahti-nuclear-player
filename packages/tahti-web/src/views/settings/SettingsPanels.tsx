@@ -110,8 +110,10 @@ import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { ListenerWidgetEmbed } from '../../components/ListenerWidgetEmbed';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
+import { SidebarBuildInfo } from '../../components/SidebarBuildInfo';
 import { LISTENER_WIDGET_TYPES } from '../../content/listenerWidgets';
 import { RADIO_STATIONS } from '../../content/radioStations';
+import { hasAccountRole } from '../../lib/accountRoles';
 import { COUNTRIES, flagEmoji } from '../../lib/countries';
 import { EXPORT_TARGETS } from '../../lib/exportTargets';
 import {
@@ -390,6 +392,7 @@ function MembershipCheckoutButton({
 
 function AccountPanel() {
   const user = useAuthStore((s) => s.user);
+  const isBoard = useAuthStore((s) => hasAccountRole(s.user, 'BOARD'));
   const logout = useAuthStore((s) => s.logout);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [membership, setMembership] = useState<MembershipStatus | null>(null);
@@ -435,6 +438,7 @@ function AccountPanel() {
                   Log out
                 </Button>
               </div>
+              {isBoard && <SidebarBuildInfo />}
             </div>
           ),
         },
