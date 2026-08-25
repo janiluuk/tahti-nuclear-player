@@ -22,6 +22,7 @@ import {
   SaveButton,
 } from '@nuclearplayer/ui';
 
+import { fetchArchiveVersions } from '../../api/archive-versions';
 import {
   fetchArchiveStems,
   fetchEditorDraft,
@@ -100,6 +101,15 @@ export function StudioProEditorView({
   const [versionLabel, setVersionLabel] = useState('Edited mix');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Tracks a render's versionId while it's PENDING/PROCESSING so we can
+  // poll for completion — the old Next app streamed live SSE progress via
+  // a route handler (apps/web/.../editor/progress/[versionId]); the SPA
+  // has no equivalent, so without this the render fires-and-forgets with
+  // a one-time toast and no feedback loop until the user manually checks
+  // Revision history.
+  const [renderPendingVersionId, setRenderPendingVersionId] = useState<
+    string | null
+  >(null);
   const [loading, setLoading] = useState(true);
   const [stems, setStems] = useState<StemJob[]>([]);
   const [markers, setMarkers] = useState<number[]>([]);
@@ -172,6 +182,31 @@ export function StudioProEditorView({
     }, 4000);
     return () => clearInterval(timer);
   }, [archiveItemId, stems]);
+
+  useEffect(() => {
+    if (!renderPendingVersionId) {
+      return;
+    }
+    const timer = setInterval(() => {
+      void fetchArchiveVersions(archiveItemId).then((r) => {
+        const version = r.data.find((v) => v.id === renderPendingVersionId);
+        if (
+          !version ||
+          version.status === 'PENDING' ||
+          version.status === 'PROCESSING'
+        ) {
+          return;
+        }
+        setRenderPendingVersionId(null);
+        setMessage(
+          version.status === 'READY'
+            ? `Version ${version.versionNumber} is ready${version.isActive ? ' and live' : " — activate it from Revision history when you're ready"}.`
+            : `Version ${version.versionNumber} failed to render.`,
+        );
+      });
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [archiveItemId, renderPendingVersionId]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -497,11 +532,20 @@ export function StudioProEditorView({
       setMessage(result.error);
       return;
     }
-    setMessage(
-      activate
-        ? `Render started — version ${result.versionId} will go live, ${result.status.toLowerCase()}.`
-        : `Saved as a new revision — version ${result.versionId}, ${result.status.toLowerCase()}. The current live version is untouched; activate it from Revision history when you're ready.`,
-    );
+    if (result.status === 'PENDING' || result.status === 'PROCESSING') {
+      setRenderPendingVersionId(result.versionId);
+      setMessage(
+        activate
+          ? `Rendering — this version will go live once it's ready…`
+          : `Rendering as a new revision — the current live version is untouched…`,
+      );
+    } else {
+      setMessage(
+        activate
+          ? `Render started — version ${result.versionId} will go live, ${result.status.toLowerCase()}.`
+          : `Saved as a new revision — version ${result.versionId}, ${result.status.toLowerCase()}. The current live version is untouched; activate it from Revision history when you're ready.`,
+      );
+    }
   };
 
   return (

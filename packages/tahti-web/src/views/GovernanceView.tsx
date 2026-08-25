@@ -13,6 +13,7 @@ import {
 import type { GovernanceMotion } from '../api/types';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
+import { useSettingsModalStore } from '../stores/settingsModalStore';
 
 function stateBadge(state: string): {
   color: 'green' | 'orange' | 'secondary';
@@ -113,15 +114,13 @@ export function GovernanceView() {
             Motions are gated to active Tahti ry members. Signed in as @
             {user.username}.
           </p>
-          <a
-            href="https://tahti.live/governance"
-            target="_blank"
-            rel="noreferrer"
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => useSettingsModalStore.getState().open('account')}
           >
-            <Button size="sm" variant="secondary">
-              Open governance on tahti.live
-            </Button>
-          </a>
+            Manage membership
+          </Button>
         </div>
       )}
 

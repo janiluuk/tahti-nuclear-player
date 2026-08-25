@@ -1,6 +1,7 @@
 import {
   Archive,
   AudioWaveform,
+  Fingerprint,
   Link2,
   Radio,
   RadioTower,
@@ -34,6 +35,7 @@ const TILE: Record<
   hearthis: { bg: '#55acee', fg: '#fff', Icon: AudioWaveform },
   broadcast: { bg: '#0ea5e9', fg: '#fff', Icon: Radio },
   radio: { bg: '#7c3aed', fg: '#fff', Icon: RadioTower },
+  musicbrainz: { bg: '#ba478f', fg: '#fff', Icon: Fingerprint },
 };
 
 function BrandMark({
@@ -161,6 +163,8 @@ export function sourceTileSubtitle(id: IntegrationId): string {
       return 'Live captures';
     case 'radio':
       return 'M3U / stream URL';
+    case 'musicbrainz':
+      return 'Release/artist metadata';
     default:
       return '';
   }

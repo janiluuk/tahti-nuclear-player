@@ -16,6 +16,7 @@ const OAUTH_IDS = new Set<MockOauthId>([
   'google-drive',
   'mixcloud',
   'spotify',
+  'musicbrainz',
 ]);
 
 function asOauthId(id: string): MockOauthId | null {
@@ -79,11 +80,15 @@ export type IntegrationId =
   | 'spotify'
   | 'hearthis'
   | 'broadcast'
-  | 'radio';
+  | 'radio'
+  | 'musicbrainz';
 
 export type ConnectionStatus = {
   connected: boolean;
   configured: boolean;
+  /** Only set by providers that expose a display name once connected
+   * (e.g. musicbrainz's connected editor username). */
+  username?: string | null;
 };
 
 export type SourceDef = {
@@ -975,7 +980,7 @@ export async function connectIntegrationMock(
 }
 
 export async function disconnectIntegration(
-  id: 'bandcamp' | 'soundcloud' | 'google-drive' | 'mixcloud',
+  id: 'bandcamp' | 'soundcloud' | 'google-drive' | 'mixcloud' | 'musicbrainz',
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
     setMockOauthConnected(id, false);

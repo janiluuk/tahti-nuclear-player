@@ -20,7 +20,8 @@ export type MockOauthId =
   | 'soundcloud'
   | 'google-drive'
   | 'mixcloud'
-  | 'spotify';
+  | 'spotify'
+  | 'musicbrainz';
 
 let sessionUser: AuthUser | null = null;
 
@@ -66,6 +67,7 @@ const oauthConnected = new Map<MockOauthId, boolean>([
   ['google-drive', false],
   ['mixcloud', false],
   ['spotify', false],
+  ['musicbrainz', false],
 ]);
 
 export function getMockSessionUser(): AuthUser | null {
