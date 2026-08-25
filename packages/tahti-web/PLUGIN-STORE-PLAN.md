@@ -143,3 +143,14 @@ Ranked by extraction cost (cheapest first):
    (a real per-preset WebGL refactor) — both need internal restructuring
    before "remove from main codebase" is even meaningful, not just a file
    move.
+
+## Pending — Nuclear plugin-registry gap follow-up
+
+- **Kick / Twitch**: already fully wired, not a gap — `tahti/apps/api`'s
+  `rtmp-targets.ts` has real ingest URLs baked in for both
+  (`PROVIDER_RTMP_URLS`), and both are already options in
+  `StudioGoLiveView`'s multistream provider dropdown.
+- **mikseri.net**: requested, spec not provided yet — do not build a UI
+  stub without one; pick this up once specced.
+- **Skipped per explicit direction**: NetEase Cloud Music, KHInsider (not
+  a fit for this audience).
