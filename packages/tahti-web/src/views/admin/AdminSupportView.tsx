@@ -38,12 +38,12 @@ export function AdminSupportView() {
 
   useEffect(() => {
     setLoading(true);
-    void fetchAdminSupportTickets(filter === 'all' ? undefined : filter).then(
-      (res) => {
-        setTickets(res.data);
-        setLoading(false);
-      },
-    );
+    void fetchAdminSupportTickets({
+      status: filter === 'all' ? undefined : filter,
+    }).then((res) => {
+      setTickets(res.data);
+      setLoading(false);
+    });
   }, [filter]);
 
   return (
