@@ -95,6 +95,7 @@ import {
   type GrantEstimate,
   type GrantRow,
 } from '../../api/revenue';
+import { SOURCE_DEFS, type IntegrationId } from '../../api/sources';
 import {
   fetchMeProfile,
   fetchProgramme,
@@ -234,59 +235,42 @@ type ServiceEntry = {
   to: string;
 };
 
-// Mirrors SOURCE_DEFS (api/sources.ts) minus upload/stash/broadcast/radio,
-// which aren't external services to import *from*.
-const IMPORT_SERVICES: ServiceEntry[] = [
-  {
-    id: 'bandcamp',
-    label: 'Bandcamp',
-    note: 'Connect and import albums into your catalog.',
-    color: 'var(--accent-cyan)',
-    to: '/sources/bandcamp',
-  },
-  {
-    id: 'soundcloud',
-    label: 'SoundCloud',
-    note: 'OAuth connect, queue server-side import to your archive.',
-    color: 'var(--accent-orange)',
-    to: '/sources/soundcloud',
-  },
-  {
-    id: 'google-drive',
-    label: 'Google Drive',
-    note: 'Import audio files via cloud-import jobs.',
-    color: 'var(--accent-blue)',
-    to: '/sources/google-drive',
-  },
-  {
-    id: 'mixcloud',
-    label: 'Mixcloud',
-    note: 'Rescue mixes into your archive, or publish back out.',
-    color: 'var(--accent-purple)',
-    to: '/sources/mixcloud',
-  },
-  {
-    id: 'spotify',
-    label: 'Spotify',
-    note: 'Search tracks to add into mixed-source collections.',
-    color: 'var(--accent-green)',
-    to: '/sources/spotify',
-  },
-  {
-    id: 'hearthis',
-    label: 'hearthis.at',
-    note: 'Add your username, then import tracks, sets, and collections.',
-    color: 'var(--accent-yellow)',
-    to: '/sources/hearthis',
-  },
-  {
-    id: 'url',
-    label: 'URL / DSP paste',
-    note: 'Paste a link from any DSP to seed a smart-link target.',
-    color: 'var(--accent-yellow)',
-    to: '/sources/url',
-  },
+// The subset of SOURCE_DEFS (api/sources.ts) that's an external service to
+// import *from* — excludes upload/stash (local, not external) and
+// broadcast/radio/musicbrainz (not import sources). `color` is purely this
+// panel's avatar tint, not part of SourceDef — everything else (label,
+// note, deep link) is derived, so there's one source of truth for what
+// each service actually is instead of a manually-synced second copy.
+const IMPORT_SOURCE_IDS: IntegrationId[] = [
+  'bandcamp',
+  'soundcloud',
+  'google-drive',
+  'mixcloud',
+  'spotify',
+  'hearthis',
+  'url',
 ];
+
+const IMPORT_SOURCE_COLORS: Partial<Record<IntegrationId, string>> = {
+  bandcamp: 'var(--accent-cyan)',
+  soundcloud: 'var(--accent-orange)',
+  'google-drive': 'var(--accent-blue)',
+  mixcloud: 'var(--accent-purple)',
+  spotify: 'var(--accent-green)',
+  hearthis: 'var(--accent-yellow)',
+  url: 'var(--accent-yellow)',
+};
+
+const IMPORT_SERVICES: ServiceEntry[] = IMPORT_SOURCE_IDS.map((id) => {
+  const def = SOURCE_DEFS.find((s) => s.id === id)!;
+  return {
+    id: def.id,
+    label: def.name,
+    note: def.description,
+    color: IMPORT_SOURCE_COLORS[def.id] ?? 'var(--foreground-secondary)',
+    to: def.studioDeepLink ?? `/sources/${def.id}`,
+  };
+});
 
 // The DSP set a Tahti release actually reaches (same list the public smart
 // link page buttons use). Spotify/Apple/Tidal/Deezer/Amazon/YouTube go out
