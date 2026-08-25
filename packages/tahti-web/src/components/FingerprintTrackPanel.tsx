@@ -3,8 +3,8 @@ import { useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
-import { checkTrackFingerprint, refingerprintTrack } from '../api/studio';
 import type { FingerprintMatch, StudioReleaseTrack } from '../api/studio-types';
+import { acoustIdProvider } from '../plugins/fingerprinting';
 
 function MatchSummary({ match }: { match: FingerprintMatch }) {
   return (
@@ -35,7 +35,7 @@ export function FingerprintTrackPanel({
     setError(null);
     setCheckResult(null);
     setBusy('refingerprint');
-    const result = await refingerprintTrack(releaseId, track.id);
+    const result = await acoustIdProvider.match(releaseId, track.id);
     setBusy(null);
     if (!result.ok) {
       setError(result.error);
@@ -47,7 +47,7 @@ export function FingerprintTrackPanel({
   const handleCheck = async () => {
     setError(null);
     setBusy('check');
-    const result = await checkTrackFingerprint(releaseId, track.id);
+    const result = await acoustIdProvider.check(releaseId, track.id);
     setBusy(null);
     if (!result.ok) {
       setError(result.error);
@@ -111,7 +111,11 @@ export function FingerprintTrackPanel({
           <MatchSummary match={checkResult} />
         </div>
       )}
-      {error && <p className="text-accent-red text-sm">{error}</p>}
+      {error && (
+        <p className="text-accent-red text-sm" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
