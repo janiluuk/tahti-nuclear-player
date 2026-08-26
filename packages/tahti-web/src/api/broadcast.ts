@@ -1,3 +1,4 @@
+import type { MulticastProviderId } from '../plugins/multicast';
 import type { FetchMeta } from './client';
 import { DEMO_MP3 } from './mock';
 import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
@@ -84,7 +85,7 @@ export type BroadcastUsage = {
 
 export type RtmpTarget = {
   id: string;
-  provider: string;
+  provider: MulticastProviderId;
   label: string | null;
   rtmpUrl: string;
   alwaysMirror: boolean;
@@ -405,7 +406,7 @@ export async function fetchRtmpTargets(): Promise<{
 }
 
 export async function createRtmpTarget(input: {
-  provider: string;
+  provider: MulticastProviderId;
   streamKey: string;
   label?: string;
   rtmpUrl?: string;

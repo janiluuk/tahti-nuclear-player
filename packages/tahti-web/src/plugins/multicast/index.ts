@@ -1,2 +1,2 @@
 export { multicastProviderLabel, multicastProviders } from './providers';
-export type { MulticastProvider } from './types';
+export type { MulticastProvider, MulticastProviderId } from './types';

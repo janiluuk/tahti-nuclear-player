@@ -47,6 +47,7 @@ import { OnAirBadge } from '../../components/tahti/OnAirBadge';
 import {
   multicastProviderLabel,
   multicastProviders,
+  type MulticastProviderId,
 } from '../../plugins/multicast';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
@@ -122,7 +123,7 @@ export function StudioGoLiveView() {
   const [ingest, setIngest] = useState<Ingest>('obs');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [newProvider, setNewProvider] = useState('TWITCH');
+  const [newProvider, setNewProvider] = useState<MulticastProviderId>('TWITCH');
   const [newKey, setNewKey] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [showAddDestination, setShowAddDestination] = useState(false);
@@ -653,7 +654,9 @@ export function StudioGoLiveView() {
                 <select
                   className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm normal-case"
                   value={newProvider}
-                  onChange={(event) => setNewProvider(event.target.value)}
+                  onChange={(event) =>
+                    setNewProvider(event.target.value as MulticastProviderId)
+                  }
                 >
                   {multicastProviders.map((provider) => (
                     <option key={provider.id} value={provider.id}>

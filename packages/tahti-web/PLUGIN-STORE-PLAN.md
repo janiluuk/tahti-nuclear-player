@@ -52,27 +52,38 @@ Ranked by extraction cost (cheapest first):
   out of that view first; extracting the registry didn't shrink the file
   and wasn't meant to.
 
-## 3. Multicast (RTMP targets) — partially done
+## 3. Multicast (RTMP targets) — DONE
 
 - **Lives**: `src/api/broadcast.ts` (578 lines) — `RtmpTarget` CRUD — plus
-  the new `src/plugins/multicast/` (`MulticastProvider` type + a typed
-  registry of the 8 providers the API actually supports).
-- **Settings today**: `StudioGoLiveView.tsx` (multistream section, now
-  sourcing its provider dropdown + display labels from the registry) and
-  `StreamManagerPanel.tsx` (read-only target list, same registry for
-  labels).
-- **Done this pass**: the registry itself, built from
-  `PROVIDER_RTMP_URLS` in `tahti-org/apps/api/src/routes/me/rtmp-targets.ts`
-  (the real source of truth) rather than guessed — which caught a real
-  drift bug: the frontend dropdown only offered
-  YOUTUBE/TWITCH/KICK/FACEBOOK/CUSTOM while the API has supported TIKTOK,
-  MIXCLOUD_LIVE, and INSTAGRAM with no way to pick them in the UI. Fixed.
-- **Still open**: `RtmpTarget.provider` on the wire/type is still a plain
-  `string`, not typed against `MulticastProvider['id']`, and
-  `StudioGoLiveView`'s add-destination form and `StreamManagerPanel`'s
-  display are still two separate components reading the same registry
-  rather than one shared host UI — de-duplicating those is the remaining
-  "real work" this doc originally flagged.
+  `src/plugins/multicast/` (`MulticastProvider`/`MulticastProviderId`
+  type + a typed registry of the 8 providers the API actually supports).
+- **Settings today**: `StudioGoLiveView.tsx` (multistream section) and
+  `StreamManagerPanel.tsx` (read-only target list) both source their
+  provider dropdown/display labels from the registry. A **third** copy
+  was found while typing `RtmpTarget.provider` — `ConnectionsPanel` in
+  `SettingsPanels.tsx` (Settings → Broadcast → Multistream) had its own
+  free-text "Provider" `<Input>` (real UX debt: typos would create
+  untyped garbage on the wire) and the exact same raw-`t.provider`
+  display bug the other two already had fixed. Both fixed: the free-text
+  input is now a `Select` sourced from `multicastProviders`, and its
+  three raw-`provider` display sites (`name`, `author`, toggle
+  `aria-label`) all route through `multicastProviderLabel`.
+- **Done**: the registry, built from `PROVIDER_RTMP_URLS` in
+  `tahti-org/apps/api/src/routes/me/rtmp-targets.ts` (the real source of
+  truth) rather than guessed — which caught a real drift bug: the
+  frontend dropdown only offered YOUTUBE/TWITCH/KICK/FACEBOOK/CUSTOM
+  while the API has supported TIKTOK, MIXCLOUD_LIVE, and INSTAGRAM with
+  no way to pick them in the UI. `RtmpTarget.provider` (and
+  `createRtmpTarget`'s `provider` input) are now typed
+  `MulticastProviderId`, not a plain `string` — a typo in any of the
+  three consumers is now a compile error, not a silent untyped value on
+  the wire. Verified live: new e2e coverage for all three UIs (Go Live
+  dialog, Settings Broadcast panel, StreamManagerPanel display).
+- **Still open**: `StudioGoLiveView`'s add-destination form and
+  `SettingsPanels.tsx`'s `ConnectionsPanel` are still two separate
+  components each with their own add-destination form — de-duplicating
+  those into one shared host component is real UI work, not a type/data
+  fix, and wasn't attempted here.
 
 ## 4. Export — relocated, still not a behavioral plugin
 

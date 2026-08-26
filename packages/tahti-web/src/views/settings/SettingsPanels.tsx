@@ -129,6 +129,11 @@ import {
 } from '../../lib/genres';
 import { membershipStatusLabel } from '../../lib/membershipStatus';
 import { EXPORT_TARGETS } from '../../plugins/export';
+import {
+  multicastProviderLabel,
+  multicastProviders,
+  type MulticastProviderId,
+} from '../../plugins/multicast';
 import { useThemeStore } from '../../plugins/themes';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
@@ -1107,7 +1112,7 @@ function BroadcastPanel() {
   const [green, setGreen] = useState<GreenRoomPrefs | null>(null);
   const [mods, setMods] = useState<ModeratorRow[]>([]);
   const [targets, setTargets] = useState<RtmpTarget[]>([]);
-  const [newProvider, setNewProvider] = useState('TWITCH');
+  const [newProvider, setNewProvider] = useState<MulticastProviderId>('TWITCH');
   const [newKey, setNewKey] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
@@ -1315,8 +1320,8 @@ function BroadcastPanel() {
                     <PluginItem
                       key={t.id}
                       icon={<Cast size={22} aria-hidden />}
-                      name={t.label || t.provider}
-                      author={t.provider}
+                      name={t.label || multicastProviderLabel(t.provider)}
+                      author={multicastProviderLabel(t.provider)}
                       description={
                         t.keyLast4
                           ? `${t.rtmpUrl} · key ···${t.keyLast4}`
@@ -1332,7 +1337,7 @@ function BroadcastPanel() {
                               enabled: checked,
                             }).then(reloadTargets);
                           }}
-                          aria-label={`Toggle ${t.label || t.provider}`}
+                          aria-label={`Toggle ${t.label || multicastProviderLabel(t.provider)}`}
                         />
                       }
                       onRemove={() => {
@@ -1343,10 +1348,16 @@ function BroadcastPanel() {
                 </div>
               )}
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-                <Input
+                <Select
                   label="Provider"
                   value={newProvider}
-                  onChange={(e) => setNewProvider(e.target.value)}
+                  onValueChange={(value) =>
+                    setNewProvider(value as MulticastProviderId)
+                  }
+                  options={multicastProviders.map((provider) => ({
+                    id: provider.id,
+                    label: provider.label,
+                  }))}
                 />
                 <Input
                   label="Label"
@@ -1363,7 +1374,7 @@ function BroadcastPanel() {
                   disabled={!newKey.trim()}
                   onClick={() => {
                     void createRtmpTarget({
-                      provider: newProvider.trim(),
+                      provider: newProvider,
                       streamKey: newKey.trim(),
                       label: newLabel.trim() || undefined,
                     }).then((r) => {

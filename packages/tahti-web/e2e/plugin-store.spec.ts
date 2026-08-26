@@ -80,6 +80,38 @@ test('Studio Go Live multistream: every API-supported provider is selectable, an
   ).toBeVisible();
 });
 
+test('Settings > Broadcast > Multistream: provider picker and existing-target labels use the registry too', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/settings/broadcast');
+  await page.getByRole('tab', { name: /Multistream/ }).click();
+
+  // The seeded YouTube target's label/author must resolve through the
+  // registry, not display the raw wire id -- this panel had its own copy
+  // of the same "raw provider" bug StudioGoLiveView/StreamManagerPanel
+  // already had fixed.
+  await expect(
+    page.getByText('YouTube', { exact: true }).first(),
+  ).toBeVisible();
+
+  const providerControl = page.getByLabel('Provider');
+  await providerControl.click();
+  await expect(page.getByRole('option', { name: 'TikTok' })).toBeVisible();
+  await expect(
+    page.getByRole('option', { name: 'Mixcloud Live' }),
+  ).toBeVisible();
+  await expect(page.getByRole('option', { name: 'Instagram' })).toBeVisible();
+  await page.getByRole('option', { name: 'TikTok' }).click();
+
+  await page.getByLabel('Stream key').fill('tiktok-settings-key-1234');
+  await page.getByRole('button', { name: 'Add' }).click();
+
+  await expect(
+    page.getByTestId('plugin-name').getByText('TikTok'),
+  ).toBeVisible();
+});
+
 test('Settings connections: export targets render from the relocated plugin registry', async ({
   page,
 }) => {

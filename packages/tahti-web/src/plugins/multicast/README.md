@@ -10,12 +10,20 @@ display labels.
 ## Contract
 
 ```ts
+type MulticastProviderId =
+  | 'YOUTUBE' | 'TWITCH' | 'FACEBOOK' | 'KICK'
+  | 'TIKTOK' | 'MIXCLOUD_LIVE' | 'INSTAGRAM' | 'CUSTOM';
+
 interface MulticastProvider {
-  id: string; // wire value stored on RtmpTarget.provider
+  id: MulticastProviderId; // wire value stored on RtmpTarget.provider
   label: string;
   rtmpUrlHint?: string; // shown as a hint in the add-destination form
 }
 ```
+
+`RtmpTarget.provider` (`api/broadcast.ts`) is typed `MulticastProviderId`,
+not a plain `string` — a typo in any consumer is a compile error, not a
+silent untyped value on the wire.
 
 `multicastProviders: MulticastProvider[]` — the full list, in the order
 the add-destination dropdown shows them. `multicastProviderLabel(id)` —
@@ -36,15 +44,16 @@ entry — nothing enforces that automatically, so check
 
 ## Consumers
 
-`StudioGoLiveView.tsx` (the add-destination dropdown + display labels) and
-`StreamManagerPanel.tsx` (read-only display labels).
+`StudioGoLiveView.tsx` (add-destination dropdown + display labels),
+`StreamManagerPanel.tsx` (read-only display labels), and `ConnectionsPanel`
+in `SettingsPanels.tsx` (Settings → Broadcast → Multistream — its own
+add-destination form, a `Select` sourced from `multicastProviders`).
 
 ## Known gap
 
-`RtmpTarget.provider` (`api/broadcast.ts`) is still a plain `string`, not
-typed against `MulticastProvider['id']` — nothing stops a typo creating an
-untracked provider id. See
-[`../../../PLUGIN-STORE-PLAN.md`](../../../PLUGIN-STORE-PLAN.md) §3 for
-what a tighter version of this would need (also: de-duplicating
-`StudioGoLiveView`'s add form from `StreamManagerPanel`'s display into one
-shared component).
+`StudioGoLiveView`'s add-destination form and `SettingsPanels.tsx`'s
+`ConnectionsPanel` are two separate components, each with their own
+add-destination form reading the same registry. De-duplicating those into
+one shared host component is real UI work, not something this extraction
+attempted — see
+[`../../../PLUGIN-STORE-PLAN.md`](../../../PLUGIN-STORE-PLAN.md) §3.
