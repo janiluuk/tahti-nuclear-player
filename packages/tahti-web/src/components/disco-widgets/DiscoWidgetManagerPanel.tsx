@@ -19,7 +19,9 @@ export function DiscoWidgetManagerPanel({
   description,
 }: {
   scope: DiscoWidgetScope;
-  description: string;
+  /** Omit when the caller already shows an equivalent description above
+   * this panel (e.g. the Add-ons category body). */
+  description?: string;
 }) {
   const [widgets, setWidgets] = useState<DiscoWidgetStoreItem[]>([]);
   const [installs, setInstalls] = useState<DiscoWidgetInstallView[]>([]);
@@ -138,7 +140,9 @@ export function DiscoWidgetManagerPanel({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-foreground-secondary text-sm">{description}</p>
+      {description && (
+        <p className="text-foreground-secondary text-sm">{description}</p>
+      )}
       {loading ? (
         <p className="text-foreground-secondary text-sm">Loading widgets…</p>
       ) : (

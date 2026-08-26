@@ -35,13 +35,10 @@ import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSec
 import { ListenerWidgetsSection } from '../components/ListenerWidgetsSection';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
-import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
-
-const LIBRARY_PREVIEW_HISTORY = 5;
 
 export function ListenView() {
   const navigate = useNavigate();
@@ -57,7 +54,6 @@ export function ListenView() {
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const favoriteChannels = useLibraryStore((s) => s.favoriteChannels);
-  const history = useLibraryStore((s) => s.history);
   const user = useAuthStore((s) => s.user);
   const signedIn = Boolean(user);
 
@@ -201,15 +197,13 @@ export function ListenView() {
     radio?.user.avatarUrl ?? radio?.nowPlaying?.artworkUrl ?? null;
   const radioName = radio?.user.displayName ?? 'Tahti Radio';
 
-  const recentHistory = history.slice(0, LIBRARY_PREVIEW_HISTORY);
-
   return (
     <PageFrame>
       <PageHeader
         title="Listen"
         subtitle={
           signedIn
-            ? 'Your library up top — then discover community artists.'
+            ? 'Discover community artists — your library is one tab over.'
             : 'Discover Tahti artists. Sign in to see your library here.'
         }
         actions={
@@ -226,31 +220,6 @@ export function ListenView() {
           ) : undefined
         }
       />
-
-      {signedIn ? (
-        <section className="mb-6 flex w-full flex-col gap-3">
-          <div className="flex w-full flex-wrap items-center justify-between gap-2">
-            <h2 className="text-2xl font-bold">Recently played</h2>
-            <Link
-              to="/library/history"
-              className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
-            >
-              Full history
-            </Link>
-          </div>
-          {recentHistory.length === 0 ? (
-            <PageEmpty
-              title="Nothing played yet"
-              description="Tracks you play show up here, most recent first."
-            />
-          ) : (
-            <PlayableTrackTable
-              items={recentHistory.map((entry) => entry.playable)}
-              emptyMessage="Nothing played yet."
-            />
-          )}
-        </section>
-      ) : null}
 
       <DiscoWidgetsSection widgets={discoWidgets} />
 

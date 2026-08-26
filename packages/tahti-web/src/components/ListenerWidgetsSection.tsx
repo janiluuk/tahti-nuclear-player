@@ -7,10 +7,10 @@ import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
 
 /** Renders the listener's enabled SoundCloud/YouTube embeds and internet
- * radio stations on the Listen page — see Settings > Widgets, where
- * they're installed/enabled. Renders nothing if the listener hasn't
- * enabled anything, so it never clutters the page for people who don't
- * use this feature. */
+ * radio stations on the Listen page — see Settings > Add-ons (Radio /
+ * Embed categories), where they're installed/enabled. Renders nothing if
+ * the listener hasn't enabled anything, so it never clutters the page for
+ * people who don't use this feature. */
 export function ListenerWidgetsSection() {
   const instances = useListenerWidgetsStore((s) => s.instances);
   const enabledStationIds = useListenerWidgetsStore((s) => s.enabledStationIds);
@@ -32,7 +32,7 @@ export function ListenerWidgetsSection() {
         <h2 className="text-2xl font-bold">Your widgets</h2>
         <button
           type="button"
-          onClick={() => openSettings('widgets')}
+          onClick={() => openSettings('plugin-store')}
           className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
         >
           Manage widgets

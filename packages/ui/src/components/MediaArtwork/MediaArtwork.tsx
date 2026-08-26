@@ -281,15 +281,17 @@ export const MediaArtwork: FC<MediaArtworkProps> = ({
               <Button
                 type="button"
                 size="icon-sm"
-                variant="default"
+                variant={size === 'thumb' ? 'text' : 'default'}
                 disabled={playDisabled}
                 title={isPlaying ? pauseLabel : playLabel}
                 aria-label={isPlaying ? pauseLabel : playLabel}
                 aria-pressed={isPlaying || undefined}
                 data-testid="media-artwork-play"
                 className={cn(
-                  'pointer-events-auto rounded-full shadow-md',
-                  size === 'md' ? 'size-9' : 'size-11',
+                  'pointer-events-auto rounded-full',
+                  size === 'thumb'
+                    ? 'text-white'
+                    : ['shadow-md', size === 'md' ? 'size-9' : 'size-11'],
                 )}
                 onClick={(e) => {
                   stop(e);

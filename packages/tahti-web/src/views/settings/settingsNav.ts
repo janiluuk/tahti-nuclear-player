@@ -1,12 +1,11 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  Blocks,
+  BlocksIcon,
   Link2,
   Paintbrush,
   Palette,
   Radio,
   Sparkles,
-  StoreIcon,
   User,
   UserCircle2,
   Wallet,
@@ -19,7 +18,6 @@ export type SettingsSectionId =
   | 'broadcast'
   | 'money'
   | 'themes'
-  | 'widgets'
   | 'plugin-store'
   | 'connections'
   | 'whats-new';
@@ -69,17 +67,11 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     Icon: Palette,
   },
   {
-    id: 'widgets',
-    label: 'Widgets',
-    description: 'Embeds, Disco-widgets, and internet radio',
-    Icon: Blocks,
-  },
-  {
     id: 'plugin-store',
-    label: 'Plugin store',
+    label: 'Add-ons',
     description:
-      'Themes, visualizers, export, import, multicast, fingerprinting, audio plugins — one browser',
-    Icon: StoreIcon,
+      'Themes, visualizers, radio, embeds, discovery, channel widgets, export, import, multicast, fingerprinting, audio plugins — one browser',
+    Icon: BlocksIcon,
   },
   {
     id: 'connections',
@@ -100,7 +92,7 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
  * stays sign-in-only rather than showing dead-end links while signed out. */
 export const PUBLIC_SETTINGS_SECTION_IDS: readonly SettingsSectionId[] = [
   'themes',
-  'widgets',
+  'plugin-store',
   'whats-new',
 ];
 

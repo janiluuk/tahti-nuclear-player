@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 
 import {
   Button,
+  Card,
+  CardGrid,
   Input,
   PluginItem,
   PluginStoreItem,
@@ -11,6 +13,7 @@ import {
   Tabs,
 } from '@nuclearplayer/ui';
 
+import { submitRadioStationSuggestion } from '../api/admin';
 import { fetchRtmpTargets, type RtmpTarget } from '../api/broadcast';
 import {
   DEFAULT_VISUAL_PRESET_SETTINGS,
@@ -28,16 +31,23 @@ import {
   type IntegrationId,
 } from '../api/sources';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
+import { LISTENER_WIDGET_TYPES } from '../content/listenerWidgets';
 import {
   PLUGIN_CATEGORIES,
   type PluginCategoryId,
 } from '../content/pluginStoreCategories';
+import { RADIO_STATIONS, radioStationPlayable } from '../content/radioStations';
 import { ALL_PLUGIN_IDS, AUDIO_FX_PLUGINS } from '../plugins/audio-fx';
 import { EXPORT_TARGETS } from '../plugins/export';
 import { importSourcePlugins } from '../plugins/import-sources';
 import { useThemeStore } from '../plugins/themes';
 import { visualizerPreset } from '../plugins/visualizers';
+import { useAuthStore } from '../stores/authStore';
+import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
+import { usePlayerStore } from '../stores/playerStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
+import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
+import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
 
 // MINIMAL has no Three.js scene (see plugins/visualizers) so it isn't in
 // that registry — its description lives only here.
@@ -145,6 +155,10 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
       )}
       {categoryId === 'multicast' && <MulticastCategory />}
       {categoryId === 'audio-plugins' && <AudioPluginsCategory />}
+      {categoryId === 'radio' && <RadioCategory />}
+      {categoryId === 'embed' && <EmbedCategory />}
+      {categoryId === 'discovery' && <DiscoveryCategory />}
+      {categoryId === 'channel' && <ChannelCategory />}
     </div>
   );
 }
@@ -671,4 +685,251 @@ function AudioPluginsCategory() {
       })}
     </div>
   );
+}
+
+// ── Radio / Embed / Discovery / Channel: per-page listener & artist
+// widgets, each configured here rather than in a separate settings
+// section — see the file-level doc comment on PluginCategoryId. ───────────
+
+function RadioCategory() {
+  const play = usePlayerStore((s) => s.play);
+  const enabledStationIds = useListenerWidgetsStore((s) => s.enabledStationIds);
+  const toggleStation = useListenerWidgetsStore((s) => s.toggleStation);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestName, setSuggestName] = useState('');
+  const [suggestLogoUrl, setSuggestLogoUrl] = useState('');
+  const [suggestLanguage, setSuggestLanguage] = useState('');
+  const [suggestBitrate, setSuggestBitrate] = useState('');
+  const [suggestStreamUrl, setSuggestStreamUrl] = useState('');
+  const [suggestBusy, setSuggestBusy] = useState(false);
+  const [suggestMsg, setSuggestMsg] = useState<string | null>(null);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => setSuggestOpen((v) => !v)}
+        >
+          {suggestOpen ? 'Cancel' : 'Suggest a station'}
+        </Button>
+      </div>
+
+      {suggestOpen && (
+        <form
+          className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-lg border p-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSuggestBusy(true);
+            setSuggestMsg(null);
+            void submitRadioStationSuggestion({
+              name: suggestName.trim(),
+              logoUrl: suggestLogoUrl.trim(),
+              language: suggestLanguage.trim(),
+              bitrateKbps: suggestBitrate.trim(),
+              streamUrl: suggestStreamUrl.trim(),
+            }).then((r) => {
+              setSuggestBusy(false);
+              if (!r.ok) {
+                setSuggestMsg(r.error);
+                return;
+              }
+              setSuggestMsg('Thanks — sent to the Tahti team for review.');
+              setSuggestName('');
+              setSuggestLogoUrl('');
+              setSuggestLanguage('');
+              setSuggestBitrate('');
+              setSuggestStreamUrl('');
+            });
+          }}
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input
+              label="Station name"
+              value={suggestName}
+              onChange={(e) => setSuggestName(e.target.value)}
+              required
+            />
+            <Input
+              label="Language"
+              value={suggestLanguage}
+              onChange={(e) => setSuggestLanguage(e.target.value)}
+              placeholder="Finnish"
+            />
+            <Input
+              label="Bitrate (kbps)"
+              value={suggestBitrate}
+              onChange={(e) => setSuggestBitrate(e.target.value)}
+              placeholder="128"
+            />
+            <Input
+              label="Logo URL"
+              value={suggestLogoUrl}
+              onChange={(e) => setSuggestLogoUrl(e.target.value)}
+              placeholder="https://…"
+            />
+            <Input
+              label="Stream URL"
+              value={suggestStreamUrl}
+              onChange={(e) => setSuggestStreamUrl(e.target.value)}
+              placeholder="https://stream.example.fi/station.mp3"
+              className="sm:col-span-2"
+              required
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              type="submit"
+              disabled={
+                suggestBusy || !suggestName.trim() || !suggestStreamUrl.trim()
+              }
+            >
+              {suggestBusy ? 'Sending…' : 'Send for review'}
+            </Button>
+            {suggestMsg && (
+              <p className="text-foreground-secondary text-xs">{suggestMsg}</p>
+            )}
+          </div>
+        </form>
+      )}
+
+      <CardGrid>
+        {RADIO_STATIONS.map((station) => (
+          <Card
+            key={station.id}
+            src={station.logoUrl}
+            title={station.name}
+            subtitle={`${station.language} · ${station.bitrateKbps}kbps ${station.codec}`}
+            favorited={enabledStationIds.includes(station.id)}
+            onFavorite={() => toggleStation(station.id)}
+            playLabel={station.streamUrl ? 'Play' : 'Stream pending'}
+            playDisabled={!station.streamUrl}
+            onPlay={
+              station.streamUrl
+                ? () =>
+                    play(
+                      radioStationPlayable({
+                        ...station,
+                        streamUrl: station.streamUrl!,
+                      }),
+                    )
+                : undefined
+            }
+          />
+        ))}
+      </CardGrid>
+    </div>
+  );
+}
+
+function EmbedCategory() {
+  const installedTypeIds = useListenerWidgetsStore((s) => s.installedTypeIds);
+  const instances = useListenerWidgetsStore((s) => s.instances);
+  const installType = useListenerWidgetsStore((s) => s.installType);
+  const uninstallType = useListenerWidgetsStore((s) => s.uninstallType);
+  const addInstance = useListenerWidgetsStore((s) => s.addInstance);
+  const removeInstance = useListenerWidgetsStore((s) => s.removeInstance);
+  const [inputByType, setInputByType] = useState<Record<string, string>>({});
+
+  return (
+    <div className="flex flex-col gap-3">
+      {LISTENER_WIDGET_TYPES.map((type) => {
+        const isInstalled = installedTypeIds.includes(type.id);
+        const typeInstances = instances.filter((i) => i.typeId === type.id);
+        return (
+          <div key={type.id} className="flex flex-col gap-2">
+            <PluginStoreItem
+              name={type.name}
+              author={type.author}
+              description={type.description}
+              category={type.category}
+              isInstalled={isInstalled}
+              onInstall={() => installType(type.id)}
+            />
+            {isInstalled && (
+              <div className="border-border ml-2 flex flex-col gap-3 border-l pl-4">
+                {typeInstances.map((instance) => (
+                  <ListenerWidgetEmbed
+                    key={instance.id}
+                    instance={instance}
+                    onRemove={() => removeInstance(instance.id)}
+                  />
+                ))}
+                <form
+                  className="flex flex-wrap items-end gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const input = (inputByType[type.id] ?? '').trim();
+                    if (!input) {
+                      return;
+                    }
+                    addInstance(type.id, input, type.name);
+                    setInputByType((prev) => ({ ...prev, [type.id]: '' }));
+                  }}
+                >
+                  <Input
+                    label={`Add a ${type.name} link`}
+                    value={inputByType[type.id] ?? ''}
+                    onChange={(e) =>
+                      setInputByType((prev) => ({
+                        ...prev,
+                        [type.id]: e.target.value,
+                      }))
+                    }
+                    placeholder={type.placeholder}
+                    className="min-w-[18rem] flex-1"
+                  />
+                  <Button size="sm" type="submit">
+                    Add
+                  </Button>
+                </form>
+                <div className="flex items-center justify-between">
+                  <p className="text-foreground-secondary text-xs">
+                    {type.helpText}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="text"
+                    onClick={() => uninstallType(type.id)}
+                  >
+                    Uninstall
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function DiscoveryCategory() {
+  const user = useAuthStore((s) => s.user);
+
+  if (!user) {
+    return (
+      <p className="text-foreground-secondary text-sm">
+        Sign in to install add-ons on your Listen page.
+      </p>
+    );
+  }
+
+  return <DiscoWidgetManagerPanel scope="LISTENER" />;
+}
+
+function ChannelCategory() {
+  const user = useAuthStore((s) => s.user);
+
+  if (!user?.channel) {
+    return (
+      <p className="text-foreground-secondary text-sm">
+        Go live or set up your channel to install add-ons there.
+      </p>
+    );
+  }
+
+  return <DiscoWidgetManagerPanel scope="ARTIST" />;
 }

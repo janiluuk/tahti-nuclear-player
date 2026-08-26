@@ -22,6 +22,7 @@ import {
 import type { StudioArchiveItem } from '../api/studio-types';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { TrackEditDialog } from '../components/TrackEditDialog';
 import {
@@ -32,11 +33,14 @@ import {
   sortPinnedFirst,
 } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
+import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { MyCollectionsView } from './MyCollectionsView';
 
 type VisibilityFilter = 'all' | 'pinned' | 'private' | 'processing' | 'public';
 type SortKey = 'newest' | 'oldest' | 'title-asc' | 'title-desc';
+
+const RECENTLY_PLAYED_PREVIEW = 5;
 
 const FILTERS: Array<{ id: VisibilityFilter; label: string }> = [
   { id: 'all', label: 'All' },
@@ -77,6 +81,7 @@ const sortItems = (items: StudioArchiveItem[], sort: SortKey) =>
 
 export const MyDiscographyView: FC = () => {
   const user = useAuthStore((state) => state.user);
+  const history = useLibraryStore((state) => state.history);
   const play = usePlayerStore((state) => state.play);
   const setStatus = usePlayerStore((state) => state.setStatus);
   const seekTo = usePlayerStore((state) => state.seekTo);
@@ -190,232 +195,261 @@ export const MyDiscographyView: FC = () => {
     );
   };
 
-  if (!user?.channel) {
-    return (
-      <PageEmpty
-        title="No sounds yet"
-        description="Go live or upload music to start your complete audio archive."
-        action={
-          <Link to="/studio/go-live">
-            <Button size="sm" variant="secondary">
-              <RadioTowerIcon size={16} aria-hidden className="mr-1.5" />
-              Open Studio
-            </Button>
-          </Link>
-        }
-      />
-    );
-  }
-
-  if (loading) {
-    return <PageLoading label="Loading all sounds…" />;
-  }
+  const recentHistory = history.slice(0, RECENTLY_PLAYED_PREVIEW);
+  const hasChannel = Boolean(user?.channel);
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-4">
-        <PageHeader
-          title="All sounds"
-          subtitle="Your complete archive, including public, private, and processing audio."
-          meta={
-            <Link to="/studio/upload">
-              <Button size="sm">
-                <UploadCloudIcon size={16} aria-hidden className="mr-1.5" />
-                Upload
+      {user ? (
+        <section className="flex flex-col gap-3">
+          <div className="flex w-full flex-wrap items-center justify-between gap-2">
+            <h2 className="text-2xl font-bold">Recently played</h2>
+            <Link
+              to="/library/history"
+              className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+            >
+              Full history
+            </Link>
+          </div>
+          {recentHistory.length === 0 ? (
+            <PageEmpty
+              title="Nothing played yet"
+              description="Tracks you play show up here, most recent first."
+            />
+          ) : (
+            <PlayableTrackTable
+              items={recentHistory.map((entry) => entry.playable)}
+              emptyMessage="Nothing played yet."
+            />
+          )}
+        </section>
+      ) : null}
+
+      {!hasChannel ? (
+        <PageEmpty
+          title="No sounds yet"
+          description="Go live or upload music to start your complete audio archive."
+          action={
+            <Link to="/studio/go-live">
+              <Button size="sm" variant="secondary">
+                <RadioTowerIcon size={16} aria-hidden className="mr-1.5" />
+                Open Studio
               </Button>
             </Link>
           }
         />
-
-        <div className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-xl border p-3">
-          <div className="flex flex-wrap gap-2">
-            {FILTERS.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                aria-pressed={filter === option.id}
-                onClick={() => setFilter(option.id)}
-                className={`rounded-md px-3 py-1.5 text-xs font-semibold tracking-wide uppercase transition-colors ${
-                  filter === option.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'border-border text-foreground-secondary hover:text-foreground border'
-                }`}
-              >
-                {option.label} ({counts[option.id]})
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search all sounds…"
-              className="border-border bg-background focus:border-primary min-w-0 flex-1 rounded-md border px-3 py-2 text-sm outline-none"
-            />
-            <select
-              value={sort}
-              onChange={(event) => setSort(event.target.value as SortKey)}
-              aria-label="Sort all sounds"
-              className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-            >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <p className="text-foreground-secondary text-xs">
-            Pinned {counts.pinned}/{MAX_PINNED_TRACKS} · showing{' '}
-            {visible.length} of {items.length}
-          </p>
-        </div>
-
-        {pinMessage ? (
-          <p className="text-foreground-secondary text-sm" role="status">
-            {pinMessage}
-          </p>
-        ) : null}
-
-        {visible.length === 0 ? (
-          <PageEmpty
-            title={items.length === 0 ? 'No sounds yet' : 'No sounds match'}
-            description={
-              items.length === 0
-                ? 'Upload or import audio to start your archive.'
-                : 'Change the search or filter to see more of your archive.'
-            }
-          />
-        ) : (
-          <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
-            {visible.map((item, index) => (
-              <li
-                key={item.id}
-                className={`hover:bg-primary/5 flex items-center gap-3 border-l-4 p-3 transition-colors ${
-                  isCurrentItem(item)
-                    ? 'border-l-primary bg-primary/10'
-                    : isPinned(item)
-                      ? 'border-l-primary bg-primary/10'
-                      : `border-l-transparent ${index % 2 === 0 ? 'bg-background-secondary/55' : 'bg-background'}`
-                }`}
-              >
-                <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
-                  {item.bannerUrl ? (
-                    <img
-                      src={item.bannerUrl}
-                      alt=""
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <ImageIcon
-                      size={18}
-                      aria-hidden
-                      className="text-foreground-secondary"
-                    />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <Link
-                    to="/studio/archive/$id"
-                    params={{ id: item.id }}
-                    className={`block truncate font-semibold hover:underline ${isCurrentItem(item) ? 'text-primary' : ''}`}
-                  >
-                    {item.title}
-                  </Link>
-                  <p className="text-foreground-secondary truncate text-xs">
-                    {item.artistName || user.displayName} ·{' '}
-                    {itemFilter(item) === 'processing'
-                      ? item.status
-                      : itemFilter(item) === 'private'
-                        ? 'Private'
-                        : 'Public'}
-                    {item.genre ? ` · ${item.genre}` : ''}
-                  </p>
-                  {isPinned(item) ? (
-                    <span className="text-primary mt-1 inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase">
-                      <PinIcon size={11} aria-hidden /> Pinned to profile
-                    </span>
-                  ) : null}
-                  {item.peaks && item.peaks.length > 0 ? (
-                    <WaveformSeekbar
-                      trackId={item.id}
-                      peaks={item.peaks}
-                      bars={48}
-                      className="mt-1.5 h-4"
-                      progress={
-                        isCurrentItem(item) && duration > 0
-                          ? currentTime / duration
-                          : 0
-                      }
-                      onSeek={
-                        isCurrentItem(item) && duration > 0
-                          ? (fraction) => seekTo(fraction * duration)
-                          : undefined
-                      }
-                    />
-                  ) : null}
-                </div>
-                <Button
-                  size="icon-sm"
-                  variant="text"
-                  disabled={busyPinId === item.id}
-                  aria-label={`${isPinned(item) ? 'Unpin' : 'Pin'} ${item.title}`}
-                  title={
-                    isPinned(item) ? 'Unpin from profile' : 'Pin to profile'
-                  }
-                  onClick={() => void togglePin(item)}
-                >
-                  {isPinned(item) ? (
-                    <PinOffIcon size={16} aria-hidden />
-                  ) : (
-                    <PinIcon size={16} aria-hidden />
-                  )}
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant={isCurrentItem(item) ? 'default' : undefined}
-                  disabled={loadingId === item.id}
-                  aria-label={
-                    isPlayingItem(item)
-                      ? `Pause ${item.title}`
-                      : `Play ${item.title}`
-                  }
-                  title={isPlayingItem(item) ? 'Pause' : 'Play'}
-                  onClick={() => void playItem(item)}
-                >
-                  {isPlayingItem(item) ? (
-                    <PauseIcon size={16} aria-hidden />
-                  ) : (
-                    <PlayIcon size={16} aria-hidden />
-                  )}
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  aria-label={`Edit ${item.title}`}
-                  title="Edit track"
-                  onClick={() => setEditingArchiveId(item.id)}
-                >
-                  <PencilIcon size={16} aria-hidden />
-                </Button>
-                <Link to="/studio/archive/$id/editor" params={{ id: item.id }}>
-                  <Button
-                    size="icon-sm"
-                    variant="text"
-                    aria-label={`Open ${item.title} in audio editor`}
-                    title="Audio editor"
-                  >
-                    <AudioLinesIcon size={16} aria-hidden />
+      ) : loading ? (
+        <PageLoading label="Loading all sounds…" />
+      ) : (
+        <>
+          <section className="flex flex-col gap-4">
+            <PageHeader
+              title="All sounds"
+              subtitle="Your complete archive, including public, private, and processing audio."
+              meta={
+                <Link to="/studio/upload">
+                  <Button size="sm">
+                    <UploadCloudIcon size={16} aria-hidden className="mr-1.5" />
+                    Upload
                   </Button>
                 </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+              }
+            />
 
-      <MyCollectionsView embedded hasOtherContent={items.length > 0} />
+            <div className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-xl border p-3">
+              <div className="flex flex-wrap gap-2">
+                {FILTERS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    aria-pressed={filter === option.id}
+                    onClick={() => setFilter(option.id)}
+                    className={`rounded-md px-3 py-1.5 text-xs font-semibold tracking-wide uppercase transition-colors ${
+                      filter === option.id
+                        ? 'bg-primary text-primary-foreground'
+                        : 'border-border text-foreground-secondary hover:text-foreground border'
+                    }`}
+                  >
+                    {option.label} ({counts[option.id]})
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search all sounds…"
+                  className="border-border bg-background focus:border-primary min-w-0 flex-1 rounded-md border px-3 py-2 text-sm outline-none"
+                />
+                <select
+                  value={sort}
+                  onChange={(event) => setSort(event.target.value as SortKey)}
+                  aria-label="Sort all sounds"
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <p className="text-foreground-secondary text-xs">
+                Pinned {counts.pinned}/{MAX_PINNED_TRACKS} · showing{' '}
+                {visible.length} of {items.length}
+              </p>
+            </div>
+
+            {pinMessage ? (
+              <p className="text-foreground-secondary text-sm" role="status">
+                {pinMessage}
+              </p>
+            ) : null}
+
+            {visible.length === 0 ? (
+              <PageEmpty
+                title={items.length === 0 ? 'No sounds yet' : 'No sounds match'}
+                description={
+                  items.length === 0
+                    ? 'Upload or import audio to start your archive.'
+                    : 'Change the search or filter to see more of your archive.'
+                }
+              />
+            ) : (
+              <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
+                {visible.map((item, index) => (
+                  <li
+                    key={item.id}
+                    className={`hover:bg-primary/5 flex items-center gap-3 border-l-4 p-3 transition-colors ${
+                      isCurrentItem(item)
+                        ? 'border-l-primary bg-primary/10'
+                        : isPinned(item)
+                          ? 'border-l-primary bg-primary/10'
+                          : `border-l-transparent ${index % 2 === 0 ? 'bg-background-secondary/55' : 'bg-background'}`
+                    }`}
+                  >
+                    <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
+                      {item.bannerUrl ? (
+                        <img
+                          src={item.bannerUrl}
+                          alt=""
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <ImageIcon
+                          size={18}
+                          aria-hidden
+                          className="text-foreground-secondary"
+                        />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        to="/studio/archive/$id"
+                        params={{ id: item.id }}
+                        className={`block truncate font-semibold hover:underline ${isCurrentItem(item) ? 'text-primary' : ''}`}
+                      >
+                        {item.title}
+                      </Link>
+                      <p className="text-foreground-secondary truncate text-xs">
+                        {item.artistName || user?.displayName} ·{' '}
+                        {itemFilter(item) === 'processing'
+                          ? item.status
+                          : itemFilter(item) === 'private'
+                            ? 'Private'
+                            : 'Public'}
+                        {item.genre ? ` · ${item.genre}` : ''}
+                      </p>
+                      {isPinned(item) ? (
+                        <span className="text-primary mt-1 inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase">
+                          <PinIcon size={11} aria-hidden /> Pinned to profile
+                        </span>
+                      ) : null}
+                      {item.peaks && item.peaks.length > 0 ? (
+                        <WaveformSeekbar
+                          trackId={item.id}
+                          peaks={item.peaks}
+                          bars={48}
+                          className="mt-1.5 h-4"
+                          progress={
+                            isCurrentItem(item) && duration > 0
+                              ? currentTime / duration
+                              : 0
+                          }
+                          onSeek={
+                            isCurrentItem(item) && duration > 0
+                              ? (fraction) => seekTo(fraction * duration)
+                              : undefined
+                          }
+                        />
+                      ) : null}
+                    </div>
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      disabled={busyPinId === item.id}
+                      aria-label={`${isPinned(item) ? 'Unpin' : 'Pin'} ${item.title}`}
+                      title={
+                        isPinned(item) ? 'Unpin from profile' : 'Pin to profile'
+                      }
+                      onClick={() => void togglePin(item)}
+                    >
+                      {isPinned(item) ? (
+                        <PinOffIcon size={16} aria-hidden />
+                      ) : (
+                        <PinIcon size={16} aria-hidden />
+                      )}
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant={isCurrentItem(item) ? 'default' : undefined}
+                      disabled={loadingId === item.id}
+                      aria-label={
+                        isPlayingItem(item)
+                          ? `Pause ${item.title}`
+                          : `Play ${item.title}`
+                      }
+                      title={isPlayingItem(item) ? 'Pause' : 'Play'}
+                      onClick={() => void playItem(item)}
+                    >
+                      {isPlayingItem(item) ? (
+                        <PauseIcon size={16} aria-hidden />
+                      ) : (
+                        <PlayIcon size={16} aria-hidden />
+                      )}
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Edit ${item.title}`}
+                      title="Edit track"
+                      onClick={() => setEditingArchiveId(item.id)}
+                    >
+                      <PencilIcon size={16} aria-hidden />
+                    </Button>
+                    <Link
+                      to="/studio/archive/$id/editor"
+                      params={{ id: item.id }}
+                    >
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        aria-label={`Open ${item.title} in audio editor`}
+                        title="Audio editor"
+                      >
+                        <AudioLinesIcon size={16} aria-hidden />
+                      </Button>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <MyCollectionsView embedded hasOtherContent={items.length > 0} />
+        </>
+      )}
 
       <TrackEditDialog
         archiveItemId={editingArchiveId}

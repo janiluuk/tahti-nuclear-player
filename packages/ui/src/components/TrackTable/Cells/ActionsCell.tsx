@@ -17,7 +17,6 @@ import { ContextMenuWrapperProps } from '../types';
 
 type ActionsCellMeta = {
   displayQueueControls?: boolean;
-  displayThumbnail?: boolean;
   onAddToQueue?: (track: Track) => void;
   onEdit?: (track: Track) => void;
   onOpenDetail?: (track: Track) => void;
@@ -141,9 +140,10 @@ const ContextMenuButton = forwardRef<HTMLElement, ContextMenuButtonProps>(
 );
 
 /** Trailing, right-aligned cluster of per-row icon actions (queue, edit,
- * context menu, open detail) -- kept in one column so every row's
- * interactive controls line up at the row's right edge instead of being
- * split between the leading favorite column and a mid-row title cell. */
+ * context menu, open detail) -- kept in one column, right next to the
+ * favorite column, so every row's interactive controls line up at the
+ * row's right edge instead of being split between a thumbnail overlay,
+ * the leading favorite column, and a mid-row title cell. */
 export const ActionsCell = <T extends Track>({
   row,
   table,
@@ -153,9 +153,7 @@ export const ActionsCell = <T extends Track>({
   const track = row.original;
   const showControls = meta?.displayQueueControls;
   const ContextMenuWrapper = meta?.ContextMenuWrapper;
-  // Thumbnail column already offers a queue overlay on hover -- avoid
-  // showing the same action twice when both are on screen.
-  const hasAddToQueue = Boolean(meta?.onAddToQueue && !meta?.displayThumbnail);
+  const hasAddToQueue = Boolean(meta?.onAddToQueue);
   const hasContextMenu = Boolean(ContextMenuWrapper);
   const canEdit = Boolean(meta?.onEdit && meta.canEditTrack?.(track));
   const canOpenDetail = Boolean(

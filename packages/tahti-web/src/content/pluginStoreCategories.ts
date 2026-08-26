@@ -2,18 +2,28 @@ import {
   ArrowDownToLineIcon,
   ArrowUpFromLineIcon,
   CastIcon,
+  CodeIcon,
+  CompassIcon,
   FingerprintIcon,
   PaletteIcon,
+  RadioIcon,
   SlidersHorizontalIcon,
   SparklesIcon,
+  TvIcon,
   type LucideIcon,
 } from 'lucide-react';
 
-/** The 7 categories the user asked to unify under one app-store-style
- * browser. Each one is a real, independent subsystem today (see
+/** Categories unified under one app-store-style browser (Settings →
+ * Add-ons). Each one is a real, independent subsystem today (see
  * PLUGIN-STORE-PLAN.md for exactly where each lives and what moving it
  * behind a real plugin interface would take) — this registry is the
- * store's navigation layer, not a new plugin runtime. */
+ * store's navigation layer, not a new plugin runtime.
+ *
+ * `radio`/`embed`/`discovery`/`channel` are per-page listener/artist
+ * widgets (internet radio, SoundCloud/YouTube embeds, and sandboxed
+ * disco-widgets for the Listen page and for channel/artist pages) —
+ * each main page's customizable widgets get configured here rather than
+ * in a separate settings section, same as every other add-on. */
 export type PluginCategoryId =
   | 'themes'
   | 'visualizers'
@@ -21,7 +31,11 @@ export type PluginCategoryId =
   | 'import'
   | 'multicast'
   | 'fingerprinting'
-  | 'audio-plugins';
+  | 'audio-plugins'
+  | 'radio'
+  | 'embed'
+  | 'discovery'
+  | 'channel';
 
 export type PluginCategory = {
   id: PluginCategoryId;
@@ -73,6 +87,33 @@ export const PLUGIN_CATEGORIES: PluginCategory[] = [
     label: 'Audio plugins',
     description: 'DSP chain available in the Pro Editor.',
     icon: SlidersHorizontalIcon,
+  },
+  {
+    id: 'radio',
+    label: 'Radio',
+    description: 'Curated internet radio stations for the main player bar.',
+    icon: RadioIcon,
+  },
+  {
+    id: 'embed',
+    label: 'Embed',
+    description:
+      'SoundCloud and YouTube embeds on your Listen page, played via their own platform.',
+    icon: CodeIcon,
+  },
+  {
+    id: 'discovery',
+    label: 'Discovery',
+    description:
+      'Sandboxed add-ons on the Listen page — only you see what you enable here.',
+    icon: CompassIcon,
+  },
+  {
+    id: 'channel',
+    label: 'Channel',
+    description:
+      'Widgets on your public channel and artist page. Listeners see these when they visit you.',
+    icon: TvIcon,
   },
 ];
 
