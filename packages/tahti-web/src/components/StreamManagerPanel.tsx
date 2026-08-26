@@ -19,9 +19,9 @@ import {
   WifiIcon,
   WifiOffIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, Dialog } from '@nuclearplayer/ui';
 
 import {
   fetchChannelManageStats,
@@ -42,7 +42,11 @@ import {
   fetchStudioCollections,
   patchStudioArchiveItem,
 } from '../api/studio';
-import { fetchProgramme, type ProgrammeItem } from '../api/studio-extras';
+import {
+  fetchProgramme,
+  type ProgrammeItem,
+  type ProgrammeView,
+} from '../api/studio-extras';
 import type { StudioCollection } from '../api/studio-types';
 import { multicastProviderLabel } from '../plugins/multicast';
 
@@ -112,8 +116,10 @@ export function StreamManagerPanel({
   const [signalError, setSignalError] = useState(false);
   const [targets, setTargets] = useState<RtmpTarget[]>([]);
   const [rotation, setRotation] = useState<RotationPlayback | null>(null);
+  const [programme, setProgramme] = useState<ProgrammeView | null>(null);
   const [now, setNow] = useState(Date.now());
   const [ending, setEnding] = useState(false);
+  const [confirmEndOpen, setConfirmEndOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [transportBusy, setTransportBusy] = useState<
     'skip' | 'previous' | 'pause' | 'resume' | null
@@ -170,6 +176,7 @@ export function StreamManagerPanel({
         return;
       }
       setTargets(targetResult.data.filter((target) => target.enabled));
+      setProgramme(programmeResult.data);
       const nowPlaying = channel?.nowPlaying;
       if (!nowPlaying) {
         setRotation(null);
@@ -227,6 +234,26 @@ export function StreamManagerPanel({
     durationSec == null
       ? null
       : Math.max(0, durationSec - elapsedSinceObserved);
+
+  // Only meaningful in 'ordered' mode -- in 'shuffle' mode the server picks
+  // the next track at random, so a client-predicted "next" would just be
+  // wrong more often than not.
+  const adjacentRotationItems = useMemo(() => {
+    if (!programme || programme.fallbackMode !== 'ordered' || !rotation?.item) {
+      return null;
+    }
+    const ordered = programme.items
+      .filter((i) => i.isFallback)
+      .sort((a, b) => (a.fallbackOrder ?? 0) - (b.fallbackOrder ?? 0));
+    const currentIndex = ordered.findIndex((i) => i.id === rotation.item?.id);
+    if (currentIndex === -1 || ordered.length < 2) {
+      return null;
+    }
+    return {
+      previous: ordered[(currentIndex - 1 + ordered.length) % ordered.length],
+      next: ordered[(currentIndex + 1) % ordered.length],
+    };
+  }, [programme, rotation]);
 
   const handleTransport = async (
     action: 'skip' | 'previous' | 'pause' | 'resume',
@@ -316,6 +343,12 @@ export function StreamManagerPanel({
                   ? ` · up to ${formatRemaining(remainingSec)} left`
                   : ''}
               </p>
+              {adjacentRotationItems && (
+                <p className="text-foreground-secondary mt-0.5 truncate text-xs">
+                  ← {adjacentRotationItems.previous.title} · next:{' '}
+                  {adjacentRotationItems.next.title} →
+                </p>
+              )}
             </div>
           ) : (
             <Link
@@ -370,7 +403,7 @@ export function StreamManagerPanel({
               size="sm"
               variant="text"
               disabled={ending}
-              onClick={() => void handleEnd()}
+              onClick={() => setConfirmEndOpen(true)}
             >
               <SquareIcon
                 size={14}
@@ -467,59 +500,77 @@ export function StreamManagerPanel({
         </p>
       )}
 
-      <div className="flex flex-col gap-2">
-        {(!rotationPlaying || rotationExpanded) && (
-          <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
-            Rotation transport
-          </p>
-        )}
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            disabled={transportBusy !== null}
-            onClick={() => void handleTransport('previous')}
-            aria-label="Previous track"
-            title="Previous track"
-          >
-            <SkipBackIcon size={14} />
-          </Button>
+      {signalConnected ? (
+        // While actually live, the rotation transport controls below do
+        // nothing (the disclaimer they used to carry said as much) -- the
+        // one relevant action here is stopping the live broadcast itself.
+        <div className="flex flex-col gap-2">
           <Button
             size="sm"
             variant="secondary"
-            disabled={transportBusy !== null}
-            onClick={() => void handleTransport('pause')}
+            disabled={ending}
+            onClick={() => setConfirmEndOpen(true)}
+            className="self-start"
           >
-            <PauseIcon size={14} aria-hidden className="mr-1.5" />
-            Pause rotation
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={transportBusy !== null}
-            onClick={() => void handleTransport('resume')}
-          >
-            <PlayIcon size={14} aria-hidden className="mr-1.5" />
-            Resume
-          </Button>
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            disabled={transportBusy !== null}
-            onClick={() => void handleTransport('skip')}
-            aria-label="Skip track"
-            title="Skip track"
-          >
-            <SkipForwardIcon size={14} />
+            <SquareIcon size={14} className="mr-1.5 fill-current" aria-hidden />
+            {ending ? 'Ending…' : 'Stop stream'}
           </Button>
         </div>
-        {(!rotationPlaying || rotationExpanded) && (
-          <p className="text-foreground-secondary text-xs">
-            These act on the 24/7 rotation only — a live broadcast always takes
-            priority.
-          </p>
-        )}
-      </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {(!rotationPlaying || rotationExpanded) && (
+            <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
+              Rotation transport
+            </p>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              disabled={transportBusy !== null}
+              onClick={() => void handleTransport('previous')}
+              aria-label="Previous track"
+              title="Previous track"
+            >
+              <SkipBackIcon size={14} />
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={transportBusy !== null}
+              onClick={() => void handleTransport('pause')}
+            >
+              <PauseIcon size={14} aria-hidden className="mr-1.5" />
+              Pause rotation
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={transportBusy !== null}
+              onClick={() => void handleTransport('resume')}
+            >
+              <PlayIcon size={14} aria-hidden className="mr-1.5" />
+              Resume
+            </Button>
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              disabled={transportBusy !== null}
+              onClick={() => void handleTransport('skip')}
+              aria-label="Skip track"
+              title="Skip track"
+            >
+              <SkipForwardIcon size={14} />
+            </Button>
+          </div>
+          {(!rotationPlaying || rotationExpanded) && (
+            <p className="text-foreground-secondary text-xs">
+              These act on the 24/7 rotation only — a live broadcast always
+              takes priority.
+            </p>
+          )}
+        </div>
+      )}
 
       {(!rotationPlaying || rotationExpanded) && collections.length > 0 && (
         <div className="flex flex-col gap-2">
@@ -573,6 +624,29 @@ export function StreamManagerPanel({
       )}
 
       {error && <p className="text-accent-red text-xs">{error}</p>}
+
+      <Dialog.Root
+        isOpen={confirmEndOpen}
+        onClose={() => setConfirmEndOpen(false)}
+      >
+        <Dialog.Title>Stop your live stream?</Dialog.Title>
+        <Dialog.Description>
+          Listeners will hear the 24/7 rotation instead. You can go live again
+          any time.
+        </Dialog.Description>
+        <Dialog.Actions>
+          <Dialog.Close>Cancel</Dialog.Close>
+          <Button
+            disabled={ending}
+            onClick={() => {
+              setConfirmEndOpen(false);
+              void handleEnd();
+            }}
+          >
+            {ending ? 'Ending…' : 'Stop stream'}
+          </Button>
+        </Dialog.Actions>
+      </Dialog.Root>
     </section>
   );
 }

@@ -28,6 +28,19 @@ async function signIn(
   });
 }
 
+test('login form submits on pressing Enter, not just clicking Sign in', async ({
+  page,
+}) => {
+  await page.goto('/login');
+  await page.getByLabel('Email').fill('artist@tahti.live');
+  await page.getByLabel('Password').fill('demo-password');
+  await page.getByLabel('Password').press('Enter');
+
+  await expect(
+    page.getByRole('button', { name: /^Signed in as/ }),
+  ).toBeVisible();
+});
+
 test('a new account can complete registration and immediately log in with it', async ({
   page,
 }) => {
@@ -175,4 +188,34 @@ test('artist stats show real listen minutes and the listener geography map', asy
   // browser (see the file-level comment), so an artist has no way to see
   // like counts here or anywhere else in the product today.
   await expect(page.getByText(/^Likes$/)).toHaveCount(0);
+});
+
+test('stream manager: stopping a live broadcast requires confirmation, and the rotation controls (irrelevant while live) are replaced by it', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/studio/go-live');
+
+  // Before any signal: the fallback-rotation transport controls are the
+  // relevant thing to show (a live broadcast always takes priority over
+  // them anyway, so they'd previously still render, pointlessly, once live).
+  await expect(page.getByRole('button', { name: 'Resume' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Stop stream' })).toHaveCount(
+    0,
+  );
+
+  await page.getByRole('button', { name: 'Test connection' }).click();
+  await expect(page.getByText('Connected')).toBeVisible({ timeout: 10_000 });
+
+  // Once live, "Resume" (which only ever controlled the rotation, not the
+  // broadcast) is gone, replaced by a real "Stop stream" action.
+  await expect(page.getByRole('button', { name: 'Resume' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Stop stream' }).first().click();
+
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('Stop your live stream?');
+  // Edge case: cancelling the confirm dialog doesn't end the broadcast.
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByText('Connected')).toBeVisible();
 });

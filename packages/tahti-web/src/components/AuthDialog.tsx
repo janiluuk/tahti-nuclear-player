@@ -118,7 +118,22 @@ export const AuthDialog: FC = () => {
           </Dialog.Actions>
         </div>
       ) : mode === 'login' ? (
-        <div className="mt-4 flex flex-col gap-3">
+        <form
+          className="mt-4 flex flex-col gap-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (loading || !email || !password) {
+              return;
+            }
+            void login(email, password)
+              .then((r) => {
+                if (!r.requiresTotp) {
+                  close();
+                }
+              })
+              .catch(() => undefined);
+          }}
+        >
           <Input
             label="Email"
             value={email}
@@ -144,22 +159,11 @@ export const AuthDialog: FC = () => {
             <Button variant="text" size="sm" onClick={() => setMode('join')}>
               Join
             </Button>
-            <Button
-              disabled={loading || !email || !password}
-              onClick={() => {
-                void login(email, password)
-                  .then((r) => {
-                    if (!r.requiresTotp) {
-                      close();
-                    }
-                  })
-                  .catch(() => undefined);
-              }}
-            >
+            <Button type="submit" disabled={loading || !email || !password}>
               {loading ? 'Signing in…' : 'Sign in'}
             </Button>
           </Dialog.Actions>
-        </div>
+        </form>
       ) : (
         <div className="mt-4 flex max-h-[60vh] flex-col gap-3 overflow-y-auto">
           <Input
