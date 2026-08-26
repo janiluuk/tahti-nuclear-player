@@ -181,11 +181,11 @@ Work from FEATURES.md; mark done there and here.
 
 ### 2.3 Listener
 
-- [ ] Follows / library
+- [ ] Follows / library — **checked, real gap.** `followArtist`/`unfollowArtist`/`fetchFollowing` (`api/client.ts`) and `mergeServerFollowing` (`libraryStore.ts`, wired into login) are fully implemented server-round-trip functions, but grepped every view/component in `src` and none of them call `followArtist`/`unfollowArtist` — there is no Follow button anywhere in the SPA, and no page renders `fetchFollowing`'s result as a following list. The API surface is real; the UI for it doesn't exist.
 - [ ] Fan subscribe + customer portal returns
-- [ ] Governance vote/comments
-- [ ] DMs
-- [ ] Listener dashboard (or explicit redirect to `/library`)
+- [x] Governance vote/comments — verified real and working: motion discussion (`postMotionComment`/`fetchMotionComments`) supports reading existing comments and posting new ones on open motions; a closed motion's discussion is correctly read-only (no comment box). New e2e coverage in `real-user-journeys.spec.ts`, run live against a dev server.
+- [x] DMs — `MessagesView.tsx` (237 lines) is fully API-backed (`api/messages.ts`), already indirectly exercised by the existing `cutover-vital.spec.ts` suite (`/messages` heading assertion).
+- [x] Listener dashboard (or explicit redirect to `/library`) — `DashboardAliasView.tsx` (bare `/dashboard`) sends a member without a channel to `/feed`, not `/library` — a deliberate choice per its own doc comment ("Feed: posts/tracks/releases from artists they follow ... instead of the 'create a channel' wall"), not a gap. Channel-having accounts go to `/studio`.
 
 ### 2.4 Artist studio
 

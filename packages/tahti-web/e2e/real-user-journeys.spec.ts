@@ -131,6 +131,36 @@ test('governance: voting on an open motion records the choice and updates the ta
   ).toHaveCount(0);
 });
 
+test('governance: motion discussion supports reading existing comments and posting a new one', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/governance');
+
+  const openMotion = page
+    .getByRole('listitem')
+    .filter({ hasText: 'Approve 2026 grant formula' });
+  await openMotion.getByRole('button', { name: 'Discussion' }).click();
+
+  await expect(
+    openMotion.getByText('Mock comment — looks good.'),
+  ).toBeVisible();
+
+  await openMotion.getByPlaceholder('Add a comment…').fill('Sounds good.');
+  await openMotion.getByRole('button', { name: 'Post' }).click();
+
+  await expect(openMotion.getByText('Sounds good.')).toBeVisible();
+  await expect(page.getByText('Comment posted.')).toBeVisible();
+
+  // Edge case: a closed motion's discussion is read-only -- no comment box.
+  await openMotion.getByRole('button', { name: 'Hide discussion' }).click();
+  const closedMotion = page
+    .getByRole('listitem')
+    .filter({ hasText: 'Confirm annual report' });
+  await closedMotion.getByRole('button', { name: 'Discussion' }).click();
+  await expect(closedMotion.getByPlaceholder('Add a comment…')).toHaveCount(0);
+});
+
 test('artist stats show real listen minutes and the listener geography map', async ({
   page,
 }) => {
