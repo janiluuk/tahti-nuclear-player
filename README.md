@@ -1,6 +1,6 @@
-# Tahti Nuclear Player
+# Tahti Player
 
-**Tahti Nuclear** is the next listen + artist studio client for [Tahti](https://tahti.live) — a Finnish nonprofit, channel-first broadcasting platform for independent artists. It is built on [Nuclear](https://github.com/nukeop/nuclear)’s free, ad-free player UI (React + shared design system), and ships today as a Vite SPA on **[beta.tahti.live](https://beta.tahti.live)** against the live production API.
+**Tahti Player** is the next listen + artist studio client for [Tahti](https://tahti.live) — a Finnish nonprofit, channel-first broadcasting platform for independent artists. It is built on [Nuclear](https://github.com/nukeop/nuclear)’s free, ad-free player UI (React + shared design system), and ships today as a Vite SPA on **[beta.tahti.live](https://beta.tahti.live)** against the live production API.
 
 > **Not upstream Nuclear.** Do not open PRs against [nukeop/nuclear](https://github.com/nukeop/nuclear) from this tree. See [TAHTI.md](./TAHTI.md).
 
@@ -11,7 +11,7 @@ Tahti is channel-first radio and archive listening: artists broadcast live, publ
 This repository holds:
 
 1. **`@nuclearplayer/tahti-web`** — the Nuclear-based **listen + studio** web client (the cutover candidate for `apps/web`)
-2. **Nuclear desktop player** — the original Tauri music player, plugins, and shared UI packages this client reuses
+2. **Desktop player** — the original Tauri music player, plugins, and shared UI packages this client reuses
 
 The web client is not a separate product backend. It talks to the same public Tahti API (`api.tahti.live`), chat (`chat.tahti.live`), and media CDN that production uses. Cutover planning lives in [`packages/tahti-web/CUTOVER.md`](./packages/tahti-web/CUTOVER.md).
 
@@ -21,12 +21,10 @@ Production `apps/web` grew as a full Next stack (listen, studio, admin, marketin
 
 Goals:
 
-- Modern listen UX (directory, channel HLS/archive, radio, chat, fan subscribe) on Nuclear UI
+- Modern listen UX (directory, channel HLS/archive, radio, chat, fan subscribe) on Electron based UI for all operating systems
 - Artist studio pillars (Go Live, library, releases, playlists/albums, channel design, schedule, stats, revenue) democked against the live API
 - A clear path to replace `app.tahti.live` once route compatibility and remaining parity items land (see CUTOVER)
-- Keep Nuclear’s agent/desktop heritage: shared `@nuclearplayer/ui` themes, plugin-oriented architecture, AGPL
-
-Honest status: beta already covers the core listener and studio loops on live data. A few production surfaces remain partial or out of scope for Nuclear UI (board admin, full SEO/SSR, some settings depth). Tracked in [`FEATURES.md`](./packages/tahti-web/FEATURES.md).
+- Keep Nuclear Player’s agent/desktop heritage: shared `@nuclearplayer/ui` themes, plugin-oriented architecture, AGPL
 
 ## What it provides
 
@@ -35,7 +33,7 @@ Honest status: beta already covers the core listener and studio loops on live da
 | **Listeners** | Channel directory, live/archive listen, Tahti Radio, profiles, collections, smart links, follows, DMs, governance, Stripe fan-subscribe |
 | **Artists** | Studio home, Go Live (OBS/RTMP + multistream), music library/upload, releases, playlists & albums, channel designer, schedule, stats, revenue / Stripe Connect, distribution |
 | **Developers** | Same-origin `/tahti-api` proxy to production API on beta; public OpenAPI/Scalar at [`https://api.tahti.live/api`](https://api.tahti.live/api); offline mock mode for UI work |
-| **Desktop** | Full Nuclear Tauri player (search, local library, plugins, remote control) — separate from the Tahti web cutover |
+| **Desktop** | Full Tauri player (search, local library, plugins, remote control) — separate from the Tahti web cutover |
 
 Live beta: **https://beta.tahti.live**
 
@@ -94,8 +92,8 @@ More studio captures: [`packages/tahti-web/docs/redesign-shots/`](./packages/tah
 
 | Area | Package / path | Role |
 |------|----------------|------|
-| **Tahti web (beta)** | `@nuclearplayer/tahti-web` | Listen + studio UI → public Tahti API (or mocks) |
-| **Desktop player** | `@nuclearplayer/player` | Nuclear Tauri app (React + Rust) |
+| **Tahti web (beta)** | `@nuclearplayer/tahti-web` | Listen + studio UI → public Tahti API |
+| **Desktop player** | `@nuclearplayer/player` |  Tauri app (React + Rust) |
 | Shared UI / themes | `@nuclearplayer/ui`, `themes`, … | Design system used by player and Tahti web |
 | Plugin SDK | `@nuclearplayer/plugin-sdk` | Plugin API (published upstream to npm) |
 
