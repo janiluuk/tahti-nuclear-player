@@ -1,0 +1,77 @@
+import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
+import { ConnectedQueuePanel } from '@tahti-web/components/ConnectedQueuePanel';
+import { usePlayerStore } from '@tahti-web/stores/playerStore';
+
+import type { QueueItem } from '@nuclearplayer/model';
+
+function mockQueueItem(
+  id: string,
+  title: string,
+  artist: string,
+  durationMs?: number,
+  status: QueueItem['status'] = 'idle',
+): QueueItem {
+  return {
+    id,
+    track: {
+      title,
+      artists: [{ name: artist, roles: ['performer'] }],
+      durationMs,
+      source: { provider: 'tahti', id },
+      artwork: {
+        items: [
+          { url: `https://picsum.photos/seed/${id}/128`, purpose: 'cover' },
+        ],
+      },
+    },
+    status,
+    addedAtIso: new Date().toISOString(),
+  };
+}
+
+const mockQueue: QueueItem[] = [
+  mockQueueItem('archive:1', 'Midnight Drift', 'Northern Lights', 245000),
+  mockQueueItem(
+    'archive:2',
+    'Static Bloom',
+    'Halcyon Field',
+    198000,
+    'loading',
+  ),
+  mockQueueItem('archive:3', 'Low Tide', 'Northern Lights', 312000),
+  mockQueueItem('archive:4', 'Glass Hours', 'Halcyon Field', 221000),
+];
+
+function withSeededQueue(
+  queue: QueueItem[] = mockQueue,
+  currentId: string | null = mockQueue[0]?.id ?? null,
+): Decorator {
+  return (Story) => {
+    usePlayerStore.setState({ queue, currentId });
+    return <Story />;
+  };
+}
+
+const meta: Meta<typeof ConnectedQueuePanel> = {
+  title: 'Tahti/Player/ConnectedQueuePanel',
+  component: ConnectedQueuePanel,
+  parameters: { layout: 'padded' },
+  tags: ['autodocs'],
+  decorators: [withSeededQueue()],
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  args: { isCollapsed: false },
+};
+
+export const Collapsed: Story = {
+  args: { isCollapsed: true },
+};
+
+export const EmptyQueue: Story = {
+  decorators: [withSeededQueue([], null)],
+  args: { isCollapsed: false },
+};

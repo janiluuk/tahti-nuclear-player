@@ -53,6 +53,37 @@ the prod service/upstream cutover itself hasn't happened), and a rehearsed cutov
 staging/canary. Monorepo placement, admin-host, brand, and beta-retirement policy are all already
 decided (§0 of `CUTOVER.md`) — don't re-litigate them without a reason.
 
+## Design system compliance
+
+This app's shared UI — `@nuclearplayer/ui` plus tahti-web's own local shared components
+(`StudioPanel`/`StudioPageHeader`, `PageFrame`/`PageHeader`, `PageStates.tsx`'s
+`PageLoading`/`PageEmpty`/`PageError`, `InPageNav`, `AdminNav`/`AdminGate`,
+`StudioNav`/`StudioGate`, `Badge`, etc.) — is catalogued in Storybook
+(`pnpm storybook`, or `packages/storybook/src/tahti-web/*.stories.tsx` directly). That catalogue
+is the authoritative reference for what compliant UI looks like here, also linked from the
+board-only `/more` page. **Always check new or changed UI against it before shipping:**
+
+- Reuse an existing cataloged component instead of hand-rolling the same pattern again — a status
+  pill is `Badge variant="pill" color="..."`, not a hand-styled `<span>`; a page header is
+  `PageHeader`/`StudioPageHeader`, not a raw `<h1>`; a data-fetch loading/empty/error state is
+  `PageLoading`/`PageEmpty`/`PageError`, not ad-hoc `<p>` text; list rows are `StudioPanel` +
+  `divide-y`, not bordered `<li>` cards; icon-only row actions are `Button size="icon"` /
+  `size="icon-sm"`, not a raw styled `<button>`.
+- Colors come from the semantic Tailwind tokens (`bg-background`, `text-foreground`,
+  `border-border`, `text-accent-red`, etc. — see `packages/tailwind-config/global.css`), never raw
+  hex/rgb or Tailwind's default palette (`text-red-400` and similar), so the UI stays correct
+  across light/dark/tahti-dark. The only legitimate exception is genuinely brand-locked data (a
+  real external service's logo color, an artist's own channel-branding accent) — not the app's own
+  fixed chrome.
+- If a component you need doesn't exist yet in either `@nuclearplayer/ui` or tahti-web's local
+  shared components, that's a signal to add it there (with a story) rather than building a one-off
+  in the page that needs it — same reasoning as `AGENTS.md`'s (root) "Adding UI Components"
+  section.
+- The 2026-08-26 entry in [`UI-REDESIGN-WORKLOG.md`](UI-REDESIGN-WORKLOG.md) has the current punch
+  list of known compliance gaps across admin/artist/listener (found, not yet fixed) — check it
+  before assuming a page you're touching is already clean, and log new findings there in the same
+  format rather than fixing silently with no record.
+
 ## Plugins
 
 `PLUGIN-STORE-PLAN.md` inventories the 7 subsystems (themes, audio FX, multicast, export,

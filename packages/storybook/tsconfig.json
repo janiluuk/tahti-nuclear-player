@@ -4,7 +4,11 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "types": ["vite-plugin-svgr/client"]
+    "types": ["vite-plugin-svgr/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@tahti-web/*": ["../tahti-web/src/*"]
+    }
   },
   "include": ["src/**/*", ".storybook/**/*"],
   "exclude": ["node_modules", "storybook-static"]

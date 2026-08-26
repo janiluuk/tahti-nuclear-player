@@ -6,8 +6,14 @@ import { FlowGallery } from '../components/FlowGallery';
 import { MapCommentForm } from '../components/MapCommentForm';
 import { PortInventoryPanel } from '../components/PortInventoryPanel';
 import { ParityBadges, ScreenAtlas } from '../components/ScreenAtlas';
+import { StudioPanel } from '../components/StudioPanel';
 import type { MapParity } from '../content/mapScreens';
 import { useMapNotesStore } from '../stores/mapNotesStore';
+
+/** `storybook dev -p 6006` — see packages/storybook/package.json. Not
+ * deployed anywhere; this only resolves when someone has it running
+ * locally alongside this app. */
+const STORYBOOK_URL = 'http://localhost:6006';
 
 type Status = 'live' | 'partial' | 'missing' | 'stub' | 'studio' | 'admin';
 
@@ -628,6 +634,12 @@ export function MoreView() {
             Flows
           </a>
           <a
+            href="#design-system"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Design
+          </a>
+          <a
             href="#feature-matrix"
             className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
           >
@@ -660,6 +672,31 @@ export function MoreView() {
       <FlowGallery />
 
       <PortInventoryPanel />
+
+      <section id="design-system" className="scroll-mt-4">
+        <StudioPanel
+          title="Design system"
+          action={
+            <a href={STORYBOOK_URL} target="_blank" rel="noreferrer">
+              <Button size="sm">Open Storybook →</Button>
+            </a>
+          }
+        >
+          <p className="text-foreground-secondary text-sm">
+            Every shared tahti-web component and view — panels, dialogs,
+            admin/studio chrome — is catalogued in Storybook alongside the
+            existing <code className="text-foreground">@nuclearplayer/ui</code>{' '}
+            library. New or changed UI should match what's documented there; see{' '}
+            <code className="text-foreground">UI-REDESIGN-WORKLOG.md</code>
+            's compliance-sweep entries for known gaps still being worked
+            through.
+          </p>
+          <p className="text-foreground-secondary mt-2 text-xs">
+            Not running locally? Start it with{' '}
+            <code className="text-foreground">pnpm storybook</code> (port 6006).
+          </p>
+        </StudioPanel>
+      </section>
 
       <SavedMapComments />
 
