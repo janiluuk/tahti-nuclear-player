@@ -49,11 +49,6 @@ const PRIMARY = [
     label: 'My Library',
     description: 'All your uploaded tracks, releases, and files in one place.',
   },
-  {
-    to: '/studio/shows',
-    label: 'Shows',
-    description: 'Book and manage scheduled radio slots and episodes.',
-  },
 ] as const;
 
 type StudioTool = {
@@ -130,6 +125,12 @@ const TOOL_GROUPS: readonly StudioToolGroup[] = [
         icon: RadioTowerIcon,
         description: 'Venues you’ve played or registered with Tahti.',
       },
+      {
+        to: '/studio/shows',
+        label: 'Shows',
+        icon: LockKeyholeIcon,
+        description: 'Shows and episodes gated to your paying members.',
+      },
     ],
   },
   {
@@ -168,13 +169,6 @@ const TOOL_GROUPS: readonly StudioToolGroup[] = [
         icon: FolderLockIcon,
         section: 'Member content',
         description: 'Private files shared with paying subscribers only.',
-      },
-      {
-        to: '/studio/shows',
-        label: 'Exclusive shows',
-        icon: LockKeyholeIcon,
-        section: 'Member content',
-        description: 'Shows and episodes gated to your paying members.',
       },
     ],
   },

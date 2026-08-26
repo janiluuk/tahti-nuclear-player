@@ -122,7 +122,9 @@ test('studio dashboard shows clickable summary stats and compact broadcast actio
   await expect(page.getByRole('link', { name: 'Green room' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Stash' })).toBeVisible();
   await expect(
-    page.getByRole('link', { name: 'Exclusive shows' }),
+    page
+      .getByRole('region', { name: 'Studio tool groups' })
+      .getByRole('link', { name: 'Shows' }),
   ).toBeVisible();
 
   const goLiveCard = page.getByTestId('compact-broadcast-card').first();
