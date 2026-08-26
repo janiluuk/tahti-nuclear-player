@@ -1,10 +1,10 @@
 # AGENTS.md
 
-Guidelines for AI coding agents working on Nuclear.
+Guidelines for AI coding agents working on Tahti Player.
 
 ## Project Overview
 
-Nuclear is a free, open-source music player without ads or tracking. Search for any song or artist, build playlists, and start listening. It's a desktop app built with Tauri (Rust + React), organized as a pnpm monorepo managed with Turborepo.
+Tahti Player is a free, open-source music player without ads or tracking, built on [Nuclear](https://github.com/nukeop/nuclear)'s player UI. Search for any song or artist, build playlists, and start listening. It's a desktop app built with Tauri (Rust + React), organized as a pnpm monorepo managed with Turborepo.
 
 ### Packages
 
@@ -341,7 +341,7 @@ When building a user-facing feature, fix, or improvement, add an entry to the to
 
 ## Releasing
 
-### Nuclear Player
+### Tahti Player
 
 Releases are triggered by git tags. The workflow builds for macOS (arm64/x64), Linux, and Windows. Release notes are auto-generated from `packages/player/changelog.json`.
 

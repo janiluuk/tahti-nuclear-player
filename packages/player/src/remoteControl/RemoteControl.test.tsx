@@ -21,7 +21,7 @@ describe('RemoteControl', () => {
 
     expect(RemoteControlWrapper.connectingState).toBeInTheDocument();
     expect(RemoteControlWrapper.connectingState).toHaveTextContent(
-      'Connecting to Nuclear...',
+      'Connecting to Tahti Player...',
     );
   });
 
@@ -33,7 +33,7 @@ describe('RemoteControl', () => {
       expect(RemoteControlWrapper.errorState).toBeInTheDocument();
     });
     expect(RemoteControlWrapper.errorState).toHaveTextContent(
-      'Could not connect to Nuclear',
+      'Could not connect to Tahti Player',
     );
   });
 

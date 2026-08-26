@@ -783,7 +783,7 @@ exports[`Settings view > (Snapshot) renders the settings view 1`] = `
                                   >
                                     <button
                                       aria-checked="false"
-                                      aria-label="Nuclear Jam"
+                                      aria-label="Tahti Jam"
                                       class="border-border relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full border-(length:--border-width) transition-all focus:ring-2 focus:ring-black focus:ring-offset-2 focus:outline-none data-checked:bg-primary bg-white data-disabled:cursor-not-allowed data-disabled:opacity-50 group"
                                       data-headlessui-state=""
                                       id="headlessui-switch-:rs:"
@@ -798,13 +798,13 @@ exports[`Settings view > (Snapshot) renders the settings view 1`] = `
                                     <span
                                       class="text-foreground text-sm font-semibold"
                                     >
-                                      Nuclear Jam
+                                      Tahti Jam
                                     </span>
                                   </div>
                                   <p
                                     class="text-foreground-secondary text-sm select-none"
                                   >
-                                    Start a local web server that lets you control Nuclear from other devices on your network.
+                                    Start a local web server that lets you control Tahti Player from other devices on your network.
                                   </p>
                                 </div>
                                 <div
@@ -858,7 +858,7 @@ exports[`Settings view > (Snapshot) renders the settings view 1`] = `
                                   <p
                                     class="text-foreground-secondary text-sm select-none"
                                   >
-                                    Open this URL on another device to control Nuclear.
+                                    Open this URL on another device to control Tahti Player.
                                   </p>
                                 </div>
                                 <div
@@ -944,7 +944,7 @@ exports[`Settings view > (Snapshot) renders the settings view 1`] = `
                                   <p
                                     class="text-foreground-secondary text-sm select-none"
                                   >
-                                    Start a local MCP server that allows AI tools to control Nuclear.
+                                    Start a local MCP server that allows AI tools to control Tahti Player.
                                   </p>
                                 </div>
                                 <div
@@ -1000,7 +1000,7 @@ exports[`Settings view > (Snapshot) renders the settings view 1`] = `
                                   <p
                                     class="text-foreground-secondary text-sm select-none"
                                   >
-                                    Point your AI tool to this URL to connect to Nuclear.
+                                    Point your AI tool to this URL to connect to Tahti Player.
                                   </p>
                                 </div>
                                 <div
@@ -1032,7 +1032,7 @@ exports[`Settings view > (Snapshot) renders the settings view 1`] = `
                                   <p
                                     class="text-foreground-secondary text-sm select-none"
                                   >
-                                    Start a local MPD-compatible server so MPD clients can control Nuclear.
+                                    Start a local MPD-compatible server so MPD clients can control Tahti Player.
                                   </p>
                                 </div>
                                 <div
@@ -1088,7 +1088,7 @@ exports[`Settings view > (Snapshot) renders the settings view 1`] = `
                                   <p
                                     class="text-foreground-secondary text-sm select-none"
                                   >
-                                    Point your MPD client to this address to connect to Nuclear.
+                                    Point your MPD client to this address to connect to Tahti Player.
                                   </p>
                                 </div>
                                 <div

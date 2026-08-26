@@ -14,7 +14,7 @@ const TYPE_LABELS = {
 };
 
 const MACOS_GATEKEEPER_NOTE = `
-> **macOS:** If the app won't open, run \`sudo xattr -r -d com.apple.quarantine /Applications/Nuclear.app\` in Terminal.`;
+> **macOS:** If the app won't open, run \`sudo xattr -r -d com.apple.quarantine "/Applications/Tahti Player.app"\` in Terminal.`;
 
 const version = process.argv[2];
 if (!version) {
@@ -49,7 +49,7 @@ const entries = previousTagDate
   : changelog;
 
 if (entries.length === 0) {
-  console.log(`Nuclear Player release v${version}`);
+  console.log(`Tahti Player release v${version}`);
   console.log(MACOS_GATEKEEPER_NOTE);
   process.exit(0);
 }

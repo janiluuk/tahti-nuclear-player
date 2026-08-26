@@ -730,7 +730,7 @@ exports[`App > should render snapshot 1`] = `
                       <h3
                         class="text-foreground text-lg font-bold"
                       >
-                        Welcome to Nuclear
+                        Welcome to Tahti Player
                       </h3>
                       <p
                         class="text-foreground text-sm opacity-60"
