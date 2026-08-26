@@ -231,8 +231,8 @@ export async function startFanConnectOnboard(): Promise<
       ok: true,
       mockActivated: true,
       message: status.paymentsReady
-        ? 'Mock Connect onboard complete — payments ready.'
-        : 'Mock Connect onboard updated.',
+        ? 'Onboarding complete — payments ready.'
+        : 'Onboarding updated.',
     };
   }
   try {
@@ -261,13 +261,13 @@ export async function fetchFanConnectPortal(): Promise<
     if (!status.accountId) {
       return {
         ok: false,
-        error: 'Complete mock onboarding first (no Connect account yet).',
+        error: 'Complete onboarding first — no payout account connected yet.',
       };
     }
     return {
       ok: true,
       mockActivated: true,
-      message: `Mock Stripe portal for ${status.accountId} — no redirect offline.`,
+      message: `Payout portal preview for ${status.accountId} — no live redirect in this demo.`,
     };
   }
   try {

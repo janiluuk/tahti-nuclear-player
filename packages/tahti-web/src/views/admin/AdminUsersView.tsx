@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, SaveButton } from '@nuclearplayer/ui';
+import { Badge, Button, Input, SaveButton } from '@nuclearplayer/ui';
 
 import {
   fetchAdminUser,
@@ -360,14 +360,14 @@ export const AdminUsersView = () => {
                           <h2 className="font-display text-2xl font-bold">
                             {detail.displayName}
                           </h2>
-                          <span className="bg-accent-purple/15 text-accent-purple rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+                          <Badge variant="pill" color="purple">
                             {detail.role.charAt(0) +
                               detail.role.slice(1).toLowerCase()}
-                          </span>
+                          </Badge>
                           {detail.suspendedAt ? (
-                            <span className="bg-accent-red/15 text-accent-red rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+                            <Badge variant="pill" color="red">
                               Suspended
-                            </span>
+                            </Badge>
                           ) : null}
                         </div>
                         <p className="text-foreground-secondary text-sm">

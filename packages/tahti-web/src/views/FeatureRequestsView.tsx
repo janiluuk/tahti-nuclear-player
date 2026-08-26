@@ -12,6 +12,7 @@ import {
   type MotionComment,
 } from '../api/client';
 import type { FeatureRequest, FeatureRequestStatus } from '../api/types';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
@@ -73,29 +74,26 @@ export function FeatureRequestsView() {
   };
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <Link
-        to="/governance"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Governance
-      </Link>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            Feature requests
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Propose and vote on what Tahti builds next. Reviewed quarterly by
-            the board.
-          </p>
-        </div>
-        {user && !forbidden && (
-          <Button size="sm" onClick={() => setComposerOpen((v) => !v)}>
-            {composerOpen ? 'Cancel' : 'Propose an idea'}
-          </Button>
-        )}
-      </div>
+    <PageFrame maxWidth="3xl">
+      <PageHeader
+        title="Feature requests"
+        subtitle="Propose and vote on what Tahti builds next. Reviewed quarterly by the board."
+        back={
+          <Link
+            to="/governance"
+            className="text-foreground-secondary text-xs hover:underline"
+          >
+            ← Governance
+          </Link>
+        }
+        actions={
+          user && !forbidden ? (
+            <Button size="sm" onClick={() => setComposerOpen((v) => !v)}>
+              {composerOpen ? 'Cancel' : 'Propose an idea'}
+            </Button>
+          ) : undefined
+        }
+      />
 
       {!user && (
         <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
@@ -197,11 +195,11 @@ export function FeatureRequestsView() {
       )}
 
       {user && requests.length > 0 && (
-        <ul className="flex flex-col gap-3">
+        <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
           {requests.map((r) => {
             const badge = STATUS_BADGE[r.status];
             return (
-              <li key={r.id} className="border-border rounded-lg border p-4">
+              <li key={r.id} className="p-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h2 className="font-display text-lg font-bold">{r.title}</h2>
                   <Badge variant="pill" color={badge.color}>
@@ -277,12 +275,9 @@ export function FeatureRequestsView() {
                         No comments yet.
                       </p>
                     ) : (
-                      <ul className="space-y-2 text-sm">
+                      <ul className="border-border divide-border divide-y overflow-hidden rounded-md border text-sm">
                         {comments.map((c) => (
-                          <li
-                            key={c.id}
-                            className="border-border rounded-md border px-3 py-2"
-                          >
+                          <li key={c.id} className="px-3 py-2">
                             <div className="text-foreground-secondary text-xs">
                               {c.authorDisplayName ?? 'Member'}
                               {c.createdAt
@@ -338,6 +333,6 @@ export function FeatureRequestsView() {
           })}
         </ul>
       )}
-    </div>
+    </PageFrame>
   );
 }

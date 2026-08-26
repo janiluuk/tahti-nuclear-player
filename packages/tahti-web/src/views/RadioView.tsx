@@ -369,11 +369,11 @@ export function RadioView() {
                         Nothing booked yet — fair rotation plays when nobody is.
                       </p>
                     ) : (
-                      <ul className="flex flex-col gap-2">
+                      <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
                         {upcoming.map((b) => (
                           <li
                             key={b.id}
-                            className="border-border flex items-center gap-3 rounded-lg border px-3 py-2"
+                            className="flex items-center gap-3 px-3 py-2"
                           >
                             {b.showType === 'TALK' ? (
                               <MessageCircleIcon
@@ -418,7 +418,7 @@ export function RadioView() {
                         No recent plays logged yet.
                       </p>
                     ) : (
-                      <ul className="flex flex-col gap-2">
+                      <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
                         {recent.map((item) => {
                           const playable: TahtiPlayable | null = item.audioUrl
                             ? {
@@ -437,10 +437,10 @@ export function RadioView() {
                           return (
                             <li
                               key={item.id}
-                              className={`flex items-center gap-3 rounded-lg border px-3 py-2 ${
+                              className={`flex items-center gap-3 border-l-4 px-3 py-2 transition-colors ${
                                 isPlaying
-                                  ? 'border-accent-green bg-accent-green/10'
-                                  : 'border-border'
+                                  ? 'border-l-accent-green bg-accent-green/10'
+                                  : 'border-l-transparent'
                               }`}
                             >
                               <button

@@ -55,17 +55,17 @@ export function AdminLogsView() {
         <AdminNav current="/admin/logs" />
         <StudioPageHeader
           title="Container logs"
-          subtitle="Live output from every service in the production stack, via the Loki already running on vimage6. Auto-refreshes every 15s."
+          subtitle="Live output from every service in the production stack. Auto-refreshes every 15s."
         />
 
         <StudioPanel>
           {!lokiReachable && (
             <p
-              className="mb-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+              className="border-accent-red/40 bg-accent-red/10 text-accent-red mb-3 rounded-lg border px-4 py-3 text-sm"
               role="alert"
             >
-              Could not reach Loki. It may be down, or this environment
-              can&apos;t reach vimage6 on the LAN.
+              Could not reach the logging backend. It may be down, or this
+              environment can&apos;t reach it on the LAN.
             </p>
           )}
           {loading ? (

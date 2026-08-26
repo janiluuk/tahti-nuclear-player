@@ -1,7 +1,7 @@
 import { PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Badge, Button } from '@nuclearplayer/ui';
 
 import {
   approveRadioSubmission,
@@ -9,9 +9,23 @@ import {
   fetchAdminRadioSubmissions,
   rejectRadioSubmission,
   type AdminRadioSubmission,
+  type AdminRadioSubmissionStatus,
 } from '../../../../api/admin';
 import { StudioPanel } from '../../../../components/StudioPanel';
 import { usePlayerStore } from '../../../../stores/playerStore';
+
+function statusBadge(status: AdminRadioSubmissionStatus): {
+  label: string;
+  color: 'green' | 'red' | 'orange';
+} {
+  if (status === 'APPROVED') {
+    return { label: 'Approved', color: 'green' };
+  }
+  if (status === 'REJECTED') {
+    return { label: 'Rejected', color: 'red' };
+  }
+  return { label: 'Pending', color: 'orange' };
+}
 
 function fmtDuration(sec: number | null): string {
   if (sec == null) {
@@ -212,9 +226,13 @@ export function RadioSubmissionsTab() {
                       {new Date(row.createdAt).toLocaleDateString()}
                     </div>
                   </button>
-                  <span className="text-foreground-secondary font-mono text-xs uppercase">
-                    {row.status}
-                  </span>
+                  <Badge
+                    variant="pill"
+                    color={statusBadge(row.status).color}
+                    className="shrink-0"
+                  >
+                    {statusBadge(row.status).label}
+                  </Badge>
                 </li>
               ))}
             </ul>

@@ -77,7 +77,7 @@ function CollectionRow({ collection }: { collection: StudioCollection }) {
       <Link
         to={destination}
         params={{ slug: collection.slug }}
-        className="border-border hover:bg-background-secondary focus-visible:ring-primary flex items-center gap-3 rounded-lg border px-3 py-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        className="hover:bg-background-secondary focus-visible:ring-primary flex items-center gap-3 px-3 py-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
         aria-label={`Open ${collection.name}`}
       >
         <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
@@ -275,7 +275,7 @@ export function MyCollectionsView({
                 {group.icon}
                 {group.label}
               </h2>
-              <ul className="flex flex-col gap-2">
+              <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
                 {rows.map((c) => (
                   <CollectionRow key={c.slug} collection={c} />
                 ))}

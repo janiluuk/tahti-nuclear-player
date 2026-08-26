@@ -14,6 +14,7 @@ import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import { createStudioRelease, fetchStudioReleases } from '../../api/studio';
 import type { StudioRelease } from '../../api/studio-types';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -170,7 +171,7 @@ export function StudioReleasesView({
 
         <StudioPanel>
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading…" />
           ) : releases.length === 0 ? (
             <div className="flex flex-col gap-3 py-4 text-center">
               <p className="text-foreground-secondary text-sm">

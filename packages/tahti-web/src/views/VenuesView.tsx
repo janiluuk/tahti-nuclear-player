@@ -47,12 +47,9 @@ export function VenuesView() {
           No verified venues returned.
         </p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
           {venues.map((v) => (
-            <li
-              key={v.id}
-              className="border-border flex flex-col gap-1 rounded-lg border px-4 py-3"
-            >
+            <li key={v.id} className="flex flex-col gap-1 px-4 py-3">
               <Link
                 to="/v/$slug"
                 params={{ slug: v.slug }}

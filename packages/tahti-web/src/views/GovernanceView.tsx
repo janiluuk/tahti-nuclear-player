@@ -11,6 +11,7 @@ import {
   type MotionComment,
 } from '../api/client';
 import type { GovernanceMotion } from '../api/types';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { TahtiMapLink } from '../components/TahtiMapLink';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
@@ -69,22 +70,20 @@ export function GovernanceView() {
   };
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <TahtiMapLink />
-      <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Governance
-        </h1>
-        <p className="text-foreground-secondary mt-1 text-sm">
-          Cooperative motions — vote YES / NO / ABSTAIN and join the discussion.
-        </p>
-        <Link
-          to="/governance/feature-requests"
-          className="text-foreground-secondary mt-2 inline-block w-fit text-xs underline-offset-2 hover:underline"
-        >
-          Feature requests →
-        </Link>
-      </div>
+    <PageFrame maxWidth="3xl">
+      <PageHeader
+        title="Governance"
+        subtitle="Cooperative motions — vote YES / NO / ABSTAIN and join the discussion."
+        back={<TahtiMapLink />}
+        meta={
+          <Link
+            to="/governance/feature-requests"
+            className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
+          >
+            Feature requests →
+          </Link>
+        }
+      />
 
       {!user && (
         <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
@@ -133,11 +132,11 @@ export function GovernanceView() {
       )}
 
       {user && motions.length > 0 && (
-        <ul className="flex flex-col gap-3">
+        <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
           {motions.map((m) => {
             const badge = stateBadge(m.state);
             return (
-              <li key={m.id} className="border-border rounded-lg border p-4">
+              <li key={m.id} className="p-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h2 className="font-display text-lg font-bold">{m.title}</h2>
                   <Badge variant="pill" color={badge.color}>
@@ -223,12 +222,9 @@ export function GovernanceView() {
                         No comments yet.
                       </p>
                     ) : (
-                      <ul className="space-y-2 text-sm">
+                      <ul className="border-border divide-border divide-y overflow-hidden rounded-md border text-sm">
                         {comments.map((c) => (
-                          <li
-                            key={c.id}
-                            className="border-border rounded-md border px-3 py-2"
-                          >
+                          <li key={c.id} className="px-3 py-2">
                             <div className="text-foreground-secondary text-xs">
                               {c.authorDisplayName ?? 'Member'}
                               {c.createdAt
@@ -278,6 +274,6 @@ export function GovernanceView() {
           })}
         </ul>
       )}
-    </div>
+    </PageFrame>
   );
 }

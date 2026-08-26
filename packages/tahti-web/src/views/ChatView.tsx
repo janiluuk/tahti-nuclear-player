@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
 
-import { mockDirectory } from '../api/mock';
+import { fetchDirectory } from '../api/client';
 import { ChannelChatPanel } from '../components/ChannelChatPanel';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { TahtiMapLink } from '../components/TahtiMapLink';
@@ -12,7 +12,7 @@ import { useLayoutStore } from '../stores/layoutStore';
 export function ChatView({ slug }: { slug?: string }) {
   const navigate = useNavigate();
   const [draft, setDraft] = useState(slug ?? 'northern-lights');
-  const suggestions = mockDirectory().items.map((i) => i.slug);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const setChatContext = useLayoutStore((s) => s.setChatContext);
   const openChatRail = useLayoutStore((s) => s.openChatRail);
 
@@ -22,6 +22,15 @@ export function ChatView({ slug }: { slug?: string }) {
     }
     setChatContext({ slug, enabled: true, autoOpen: true });
   }, [slug, setChatContext]);
+
+  useEffect(() => {
+    if (slug) {
+      return;
+    }
+    void fetchDirectory().then(({ data }) => {
+      setSuggestions(data.items.map((i) => i.slug));
+    });
+  }, [slug]);
 
   if (!slug) {
     return (

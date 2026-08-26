@@ -37,6 +37,7 @@ import {
 import type { EditList, ProEditorPluginId } from '../../api/studio-types';
 import { createDefaultEditList } from '../../api/studio-types';
 import { ClientCapabilityNotice } from '../../components/ClientCapabilityNotice';
+import { PageLoading } from '../../components/PageStates';
 import { StemPlayer } from '../../components/StemPlayer';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -586,7 +587,7 @@ export function StudioProEditorView({
 
         {loading || !editList ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Loading editor…</p>
+            <PageLoading label="Loading editor…" />
           </StudioPanel>
         ) : (
           <>

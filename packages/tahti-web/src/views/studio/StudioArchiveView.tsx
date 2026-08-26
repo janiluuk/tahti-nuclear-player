@@ -22,6 +22,7 @@ import {
 import type { StudioArchiveItem } from '../../api/studio-types';
 import { AddToMusicActions } from '../../components/AddToMusicActions';
 import { AddToPlaylistButton } from '../../components/AddToPlaylistButton';
+import { PageLoading } from '../../components/PageStates';
 import { StashFilesPanel } from '../../components/StashFilesPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -189,7 +190,7 @@ export function StudioArchiveView() {
             )}
 
             {loading ? (
-              <p className="text-foreground-secondary text-sm">Loading…</p>
+              <PageLoading label="Loading…" />
             ) : filtered.length === 0 ? (
               <div className="flex flex-col gap-3 py-4 text-center">
                 <p className="text-foreground-secondary text-sm">

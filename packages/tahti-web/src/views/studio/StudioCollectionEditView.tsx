@@ -30,6 +30,7 @@ import type {
   StudioCollection,
   StudioCollectionItem,
 } from '../../api/studio-types';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -446,7 +447,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
         </Link>
         {!col ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading…" />
           </StudioPanel>
         ) : (
           <>

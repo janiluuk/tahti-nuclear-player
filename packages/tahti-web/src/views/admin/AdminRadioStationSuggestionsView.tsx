@@ -1,17 +1,31 @@
 import { RadioIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Badge, Button } from '@nuclearplayer/ui';
 
 import {
   approveRadioStationSuggestion,
   fetchAdminRadioStationSuggestions,
   rejectRadioStationSuggestion,
   type AdminRadioStationSuggestion,
+  type AdminRadioStationSuggestionStatus,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+
+function statusBadge(status: AdminRadioStationSuggestionStatus): {
+  label: string;
+  color: 'green' | 'red' | 'orange';
+} {
+  if (status === 'APPROVED') {
+    return { label: 'Approved', color: 'green' };
+  }
+  if (status === 'REJECTED') {
+    return { label: 'Rejected', color: 'red' };
+  }
+  return { label: 'Pending', color: 'orange' };
+}
 
 export function AdminRadioStationSuggestionsView() {
   const [items, setItems] = useState<AdminRadioStationSuggestion[]>([]);
@@ -92,9 +106,13 @@ export function AdminRadioStationSuggestionsView() {
                         {row.streamUrl}
                       </p>
                     </div>
-                    <span className="text-foreground-secondary shrink-0 font-mono text-xs uppercase">
-                      {row.status}
-                    </span>
+                    <Badge
+                      variant="pill"
+                      color={statusBadge(row.status).color}
+                      className="shrink-0"
+                    >
+                      {statusBadge(row.status).label}
+                    </Badge>
                   </div>
 
                   {row.status === 'PENDING' && (

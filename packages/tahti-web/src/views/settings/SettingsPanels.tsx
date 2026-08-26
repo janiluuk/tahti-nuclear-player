@@ -108,6 +108,7 @@ import { GenrePicker } from '../../components/GenrePicker';
 import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SidebarBuildInfo } from '../../components/SidebarBuildInfo';
+import { ThemeEditor } from '../../components/ThemeEditor';
 import { hasAccountRole } from '../../lib/accountRoles';
 import { COUNTRIES, flagEmoji } from '../../lib/countries';
 import {
@@ -1680,137 +1681,160 @@ function ThemesPanel() {
           </p>
         )}
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {themes.map((theme) => {
-          const active = theme.id === themeId;
-          return (
-            <button
-              key={theme.id}
-              type="button"
-              onClick={() => setTheme(theme.id)}
-              className={
-                active
-                  ? 'border-border bg-primary rounded-lg border p-4 text-left'
-                  : 'border-border bg-background hover:bg-background-secondary rounded-lg border p-4 text-left'
-              }
-            >
-              <div className="mb-3 flex gap-2">
-                {theme.palette.map((color) => (
-                  <span
-                    key={color}
-                    className="border-border size-8 rounded-md border"
-                    style={{ background: color }}
-                  />
-                ))}
-              </div>
-              <div className="font-bold">{theme.name}</div>
-              <div className="text-foreground-secondary text-xs">
-                {theme.id}
-              </div>
-            </button>
-          );
-        })}
-      </div>
 
-      {customEntries.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <h3 className="text-foreground-secondary text-xs uppercase">
-            Your imported themes
-          </h3>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {customEntries.map(([id, theme]) => {
-              const active = id === themeId;
-              return (
-                <div
-                  key={id}
-                  className={
-                    active
-                      ? 'border-border bg-primary rounded-lg border p-4'
-                      : 'border-border bg-background hover:bg-background-secondary rounded-lg border p-4'
+      <Tabs
+        items={[
+          {
+            id: 'browse',
+            label: 'Browse',
+            content: (
+              <div className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {themes.map((theme) => {
+                    const active = theme.id === themeId;
+                    return (
+                      <button
+                        key={theme.id}
+                        type="button"
+                        onClick={() => setTheme(theme.id)}
+                        className={
+                          active
+                            ? 'border-border bg-primary rounded-lg border p-4 text-left'
+                            : 'border-border bg-background hover:bg-background-secondary rounded-lg border p-4 text-left'
+                        }
+                      >
+                        <div className="mb-3 flex gap-2">
+                          {theme.palette.map((color) => (
+                            <span
+                              key={color}
+                              className="border-border size-8 rounded-md border"
+                              style={{ background: color }}
+                            />
+                          ))}
+                        </div>
+                        <div className="font-bold">{theme.name}</div>
+                        <div className="text-foreground-secondary text-xs">
+                          {theme.id}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {customEntries.length > 0 && (
+                  <div className="flex flex-col gap-3">
+                    <h3 className="text-foreground-secondary text-xs uppercase">
+                      Your imported themes
+                    </h3>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {customEntries.map(([id, theme]) => {
+                        const active = id === themeId;
+                        return (
+                          <div
+                            key={id}
+                            className={
+                              active
+                                ? 'border-border bg-primary rounded-lg border p-4'
+                                : 'border-border bg-background hover:bg-background-secondary rounded-lg border p-4'
+                            }
+                          >
+                            <button
+                              type="button"
+                              onClick={() => setTheme(id)}
+                              className="w-full text-left"
+                            >
+                              {theme.palette && (
+                                <div className="mb-3 flex gap-2">
+                                  {theme.palette.map((color, i) => (
+                                    <span
+                                      key={`${color}-${i}`}
+                                      className="border-border size-8 rounded-md border"
+                                      style={{ background: color }}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                              <div className="font-bold">{theme.name}</div>
+                              {theme.author && (
+                                <div className="text-foreground-secondary text-xs">
+                                  by {theme.author}
+                                </div>
+                              )}
+                            </button>
+                            <Button
+                              size="sm"
+                              variant="text"
+                              className="mt-2"
+                              onClick={() => removeCustomTheme(id)}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ),
+          },
+          {
+            id: 'editor',
+            label: 'Editor',
+            content: <ThemeEditor />,
+          },
+          {
+            id: 'import',
+            label: 'Import JSON',
+            content: (
+              <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
+                <h3 className="font-bold">Import a theme</h3>
+                <SettingsHint>
+                  Paste a theme JSON (matches @nuclearplayer/themes'
+                  AdvancedThemeSchema — version, name, and vars / dark CSS
+                  variable overrides) to add it without a code change.
+                </SettingsHint>
+                <textarea
+                  className="border-border bg-background text-foreground rounded-md border px-3 py-2 font-mono text-xs"
+                  rows={6}
+                  value={themeJson}
+                  onChange={(e) => setThemeJson(e.target.value)}
+                  placeholder={
+                    '{\n  "version": 1,\n  "name": "My theme",\n  "vars": { "primary": "oklch(0.7 0.15 250)" }\n}'
                   }
-                >
-                  <button
-                    type="button"
-                    onClick={() => setTheme(id)}
-                    className="w-full text-left"
-                  >
-                    {theme.palette && (
-                      <div className="mb-3 flex gap-2">
-                        {theme.palette.map((color, i) => (
-                          <span
-                            key={`${color}-${i}`}
-                            className="border-border size-8 rounded-md border"
-                            style={{ background: color }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    <div className="font-bold">{theme.name}</div>
-                    {theme.author && (
-                      <div className="text-foreground-secondary text-xs">
-                        by {theme.author}
-                      </div>
-                    )}
-                  </button>
+                />
+                <div className="flex items-center gap-2">
                   <Button
                     size="sm"
-                    variant="text"
-                    className="mt-2"
-                    onClick={() => removeCustomTheme(id)}
+                    disabled={!themeJson.trim()}
+                    onClick={() => {
+                      let parsed: unknown;
+                      try {
+                        parsed = JSON.parse(themeJson);
+                      } catch {
+                        setImportMsg('Not valid JSON.');
+                        return;
+                      }
+                      const result = importCustomTheme(parsed);
+                      if (!result.ok) {
+                        setImportMsg(result.error);
+                      } else {
+                        setImportMsg(null);
+                        setThemeJson('');
+                      }
+                    }}
                   >
-                    Remove
+                    Import & apply
                   </Button>
+                  {importMsg && (
+                    <span className="text-accent-red text-xs">{importMsg}</span>
+                  )}
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
-        <h3 className="font-bold">Import a theme</h3>
-        <SettingsHint>
-          Paste a theme JSON (matches @nuclearplayer/themes' AdvancedThemeSchema
-          — version, name, and vars / dark CSS variable overrides) to add it
-          without a code change.
-        </SettingsHint>
-        <textarea
-          className="border-border bg-background text-foreground rounded-md border px-3 py-2 font-mono text-xs"
-          rows={6}
-          value={themeJson}
-          onChange={(e) => setThemeJson(e.target.value)}
-          placeholder={
-            '{\n  "version": 1,\n  "name": "My theme",\n  "vars": { "primary": "oklch(0.7 0.15 250)" }\n}'
-          }
-        />
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            disabled={!themeJson.trim()}
-            onClick={() => {
-              let parsed: unknown;
-              try {
-                parsed = JSON.parse(themeJson);
-              } catch {
-                setImportMsg('Not valid JSON.');
-                return;
-              }
-              const result = importCustomTheme(parsed);
-              if (!result.ok) {
-                setImportMsg(result.error);
-              } else {
-                setImportMsg(null);
-                setThemeJson('');
-              }
-            }}
-          >
-            Import & apply
-          </Button>
-          {importMsg && (
-            <span className="text-accent-red text-xs">{importMsg}</span>
-          )}
-        </div>
-      </div>
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }

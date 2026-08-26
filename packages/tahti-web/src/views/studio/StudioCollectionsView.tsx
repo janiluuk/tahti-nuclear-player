@@ -16,6 +16,7 @@ import {
   fetchStudioCollections,
 } from '../../api/studio';
 import type { StudioCollection } from '../../api/studio-types';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -294,7 +295,7 @@ export function StudioCollectionsView() {
             </div>
           </div>
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading…" />
           ) : rows.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-4 text-center">
               <p className="text-foreground-secondary text-sm">

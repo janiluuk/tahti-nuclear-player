@@ -12,6 +12,7 @@ import {
   type ChatBan,
   type ModeratorRow,
 } from '../../api/artist-settings';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -67,9 +68,7 @@ export function StudioModerationView() {
                 >
                   <div className="flex flex-col gap-4">
                     {loading ? (
-                      <p className="text-foreground-secondary text-sm">
-                        Loading…
-                      </p>
+                      <PageLoading label="Loading…" />
                     ) : mods.length === 0 ? (
                       <p className="text-foreground-secondary text-sm">
                         No moderators yet.
@@ -144,9 +143,7 @@ export function StudioModerationView() {
                 >
                   <div className="flex flex-col gap-4">
                     {loading ? (
-                      <p className="text-foreground-secondary text-sm">
-                        Loading…
-                      </p>
+                      <PageLoading label="Loading…" />
                     ) : bans.length === 0 ? (
                       <p className="text-foreground-secondary text-sm">
                         No active bans.

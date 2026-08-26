@@ -37,6 +37,7 @@ import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSec
 import { GlowMediaTile } from '../components/GlowMediaTile';
 import { ImageLightbox } from '../components/ImageLightbox';
 import { NewsletterSubscribeToggle } from '../components/NewsletterSubscribeToggle';
+import { PageHeader } from '../components/PageHeader';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import {
   releasePlayables,
@@ -338,70 +339,68 @@ export function ArtistView({ username }: { username: string }) {
         ← Listen
       </Link>
 
-      <header className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="relative size-20 shrink-0 sm:size-24">
-              {channel && tab !== 'music' ? (
-                <ChannelVisualizer
-                  className="absolute -inset-2 rounded-2xl"
-                  preset={channelVisual?.visualPreset}
-                  colorScheme={channelVisual?.colorScheme}
-                  colorSchemeJson={channelVisual?.colorSchemeJson}
-                  artworkUrl={nowPlayingHere?.coverUrl ?? artist.avatarUrl}
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-start gap-4">
+          <div className="relative size-20 shrink-0 sm:size-24">
+            {channel && tab !== 'music' ? (
+              <ChannelVisualizer
+                className="absolute -inset-2 rounded-2xl"
+                preset={channelVisual?.visualPreset}
+                colorScheme={channelVisual?.colorScheme}
+                colorSchemeJson={channelVisual?.colorSchemeJson}
+                artworkUrl={nowPlayingHere?.coverUrl ?? artist.avatarUrl}
+              />
+            ) : null}
+            {artist.avatarUrl ? (
+              <button
+                type="button"
+                className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24"
+                aria-label={`View ${artist.displayName} profile picture`}
+                onClick={() => setAvatarOpen(true)}
+              >
+                <img
+                  src={artist.avatarUrl}
+                  alt=""
+                  className="size-full object-cover"
                 />
-              ) : null}
-              {artist.avatarUrl ? (
-                <button
-                  type="button"
-                  className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24"
-                  aria-label={`View ${artist.displayName} profile picture`}
-                  onClick={() => setAvatarOpen(true)}
-                >
-                  <img
-                    src={artist.avatarUrl}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                </button>
-              ) : (
-                <div className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24">
-                  <img
-                    src={placeholderArtworkUrl(artist.username)}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
-            <div className="min-w-0">
-              <h1 className="font-display text-3xl font-extrabold tracking-tight">
-                {artist.displayName}
-              </h1>
-              <p className="text-foreground-secondary text-sm">
-                @{artist.username}
-              </p>
-            </div>
+              </button>
+            ) : (
+              <div className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24">
+                <img
+                  src={placeholderArtworkUrl(artist.username)}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              </div>
+            )}
           </div>
-          {isOwner && channel?.slug ? (
-            <Link
-              to="/channel/$slug"
-              params={{ slug: channel.slug }}
-              search={{ edit: '1' }}
-            >
-              <Button size="sm" variant="secondary">
-                Edit design
-              </Button>
-            </Link>
-          ) : isOwner ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setTab('design')}
-            >
-              Edit look
-            </Button>
-          ) : null}
+          <div className="min-w-0 flex-1">
+            <PageHeader
+              title={artist.displayName}
+              subtitle={`@${artist.username}`}
+              actions={
+                isOwner && channel?.slug ? (
+                  <Link
+                    to="/channel/$slug"
+                    params={{ slug: channel.slug }}
+                    search={{ edit: '1' }}
+                  >
+                    <Button size="sm" variant="secondary">
+                      Edit design
+                    </Button>
+                  </Link>
+                ) : isOwner ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setTab('design')}
+                  >
+                    Edit look
+                  </Button>
+                ) : undefined
+              }
+            />
+          </div>
         </div>
         {artist.bio && (
           <p className="text-foreground mt-2 max-w-2xl text-sm whitespace-pre-wrap">
@@ -530,7 +529,7 @@ export function ArtistView({ username }: { username: string }) {
             </Link>
           )}
         </div>
-      </header>
+      </div>
 
       {fanTiers.length > 0 && (
         <p className="text-foreground-secondary text-xs">
@@ -777,11 +776,11 @@ export function ArtistView({ username }: { username: string }) {
               No public collections.
             </p>
           ) : (
-            <ul className="flex flex-col gap-2">
+            <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
               {collections.map((col) => (
                 <li
                   key={col.slug}
-                  className="border-border flex items-center justify-between gap-3 rounded-lg border px-4 py-3"
+                  className="flex items-center justify-between gap-3 px-4 py-3"
                 >
                   <div>
                     <Link

@@ -35,6 +35,7 @@ import type {
   StudioCollection,
   StudioRelease,
 } from '../../api/studio-types';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -154,7 +155,7 @@ export function StudioPlaylistsView() {
 
         <StudioPanel>
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading…" />
           ) : rows.length === 0 ? (
             <EmptyState
               icon={<ListMusicIcon size={40} className="opacity-40" />}
@@ -359,7 +360,7 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
         </Link>
 
         {!col ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading…" />
         ) : (
           <>
             <StudioPageHeader

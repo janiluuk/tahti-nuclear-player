@@ -14,6 +14,7 @@ import type {
   TahtiPlayable,
 } from '../api/types';
 import { EmbedButton } from '../components/EmbedButton';
+import { PageHeader } from '../components/PageHeader';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { syncDocumentMetadata } from '../lib/seo';
@@ -160,28 +161,28 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
         <EmbedButton target={{ kind: 'release', id: data.release.id }} />
       </div>
 
-      <header className="flex flex-col items-center gap-2 text-center">
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
-          {data.release.title}
-        </h1>
-        <Link
-          to="/u/$username"
-          params={{ username: data.artist.username }}
-          className="text-lg font-semibold underline-offset-2 hover:underline"
-        >
-          {data.artist.displayName}
-        </Link>
-        {metadata ? (
-          <p className="text-foreground-secondary text-sm capitalize">
-            {metadata}
-          </p>
-        ) : null}
-        {data.release.description ? (
-          <p className="text-foreground-secondary mt-2 max-w-md text-sm whitespace-pre-wrap">
-            {data.release.description}
-          </p>
-        ) : null}
-      </header>
+      <PageHeader
+        title={data.release.title}
+        subtitle={
+          <Link
+            to="/u/$username"
+            params={{ username: data.artist.username }}
+            className="text-base font-semibold underline-offset-2 hover:underline"
+          >
+            {data.artist.displayName}
+          </Link>
+        }
+        meta={
+          <>
+            {metadata ? <p className="capitalize">{metadata}</p> : null}
+            {data.release.description ? (
+              <p className="mt-2 max-w-md whitespace-pre-wrap">
+                {data.release.description}
+              </p>
+            ) : null}
+          </>
+        }
+      />
 
       {playables.length > 0 ? (
         <section className="flex flex-col gap-3">

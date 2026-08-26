@@ -127,11 +127,11 @@ export function FeedView() {
           }
         />
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
           {items.map((item) => (
             <li
               key={`${item.kind}-${item.id}`}
-              className="border-border flex items-start gap-3 rounded-lg border px-3 py-3"
+              className="flex items-start gap-3 px-3 py-3"
             >
               <Link
                 to="/u/$username"

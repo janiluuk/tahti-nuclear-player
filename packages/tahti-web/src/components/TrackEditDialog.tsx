@@ -14,6 +14,7 @@ import {
   FilePicker,
   Input,
   SaveButton,
+  Tabs,
   Textarea,
 } from '@nuclearplayer/ui';
 
@@ -69,12 +70,7 @@ const LICENSES = [
   ],
 ] as const;
 
-const TABS = [
-  { id: 'metadata' as const, label: 'Metadata', icon: TagsIcon },
-  { id: 'artwork' as const, label: 'Artwork', icon: ImageIcon },
-  { id: 'playlists' as const, label: 'Playlists', icon: ListMusicIcon },
-  { id: 'export' as const, label: 'Export', icon: Share2Icon },
-];
+const TAB_ORDER: Tab[] = ['metadata', 'artwork', 'playlists', 'export'];
 
 export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const isOpen = Boolean(archiveItemId);
@@ -249,333 +245,359 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
           {item ? `Manage “${item.title}”` : 'Loading track…'}
         </Dialog.Description>
 
-        <div
-          className="border-border mt-3 mb-4 flex gap-1 overflow-x-auto border-b"
-          role="tablist"
-          aria-label="Track editor sections"
-        >
-          {TABS.map((entry) => (
-            <button
-              key={entry.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === entry.id}
-              onClick={() => setTab(entry.id)}
-              className={`-mb-px inline-flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium ${
-                tab === entry.id
-                  ? 'border-primary text-foreground'
-                  : 'text-foreground-secondary hover:text-foreground border-transparent'
-              }`}
-            >
-              <entry.icon size={15} aria-hidden />
-              {entry.label}
-            </button>
-          ))}
-        </div>
-
         {loading ? (
           <p className="text-foreground-secondary text-sm">Loading track…</p>
         ) : item ? (
-          <>
-            {tab === 'metadata' && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Input
-                  label="Title"
-                  value={form.title ?? ''}
-                  onChange={(event) =>
-                    setForm({ ...form, title: event.target.value })
-                  }
-                />
-                <Input
-                  label="Artist credit"
-                  value={form.artistName ?? ''}
-                  placeholder="Use channel artist name"
-                  onChange={(event) =>
-                    setForm({ ...form, artistName: event.target.value })
-                  }
-                />
-                <div className="sm:col-span-2">
-                  <label className="flex flex-col gap-1 text-sm">
-                    Description
-                    <Textarea
-                      rows={4}
-                      value={form.description ?? ''}
+          <Tabs
+            className="mt-3"
+            selectedIndex={TAB_ORDER.indexOf(tab)}
+            onChange={(index) => setTab(TAB_ORDER[index]!)}
+            items={[
+              {
+                id: 'metadata',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <TagsIcon size={15} aria-hidden />
+                    Metadata
+                  </span>
+                ),
+                content: (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Input
+                      label="Title"
+                      value={form.title ?? ''}
                       onChange={(event) =>
-                        setForm({ ...form, description: event.target.value })
+                        setForm({ ...form, title: event.target.value })
                       }
                     />
-                  </label>
-                </div>
-                <CreatableCombobox
-                  label="Genre"
-                  options={[...PRESET_GENRES]}
-                  value={form.genre ?? ''}
-                  onValueChange={(genre) => setForm({ ...form, genre })}
-                  normalize={capitalizeGenre}
-                />
-                <label className="flex flex-col gap-1 text-sm">
-                  Release date
-                  <input
-                    type="date"
-                    value={form.releaseDate ?? ''}
-                    onChange={(event) =>
-                      setForm({ ...form, releaseDate: event.target.value })
-                    }
-                    className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                  />
-                </label>
-                <label className="flex flex-col gap-1 text-sm">
-                  Content type
-                  <select
-                    value={form.contentType ?? 'STUDIO'}
-                    onChange={(event) =>
-                      setForm({ ...form, contentType: event.target.value })
-                    }
-                    className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                  >
-                    {CONTENT_TYPES.map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-                  License (optional)
-                  <select
-                    value={form.license ?? ''}
-                    onChange={(event) =>
-                      setForm({ ...form, license: event.target.value })
-                    }
-                    className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                  >
-                    {LICENSES.map(([value, label]) => (
-                      <option key={value || 'none'} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex flex-col gap-1 text-sm">
-                  Visibility
-                  <select
-                    value={form.visibility ?? 'PUBLIC'}
-                    onChange={(event) =>
-                      setForm({
-                        ...form,
-                        visibility: event.target.value as
-                          | 'PUBLIC'
-                          | 'UNLISTED'
-                          | 'PRIVATE',
-                      })
-                    }
-                    className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                  >
-                    <option value="PUBLIC">Public</option>
-                    <option value="UNLISTED">
-                      Unlisted — direct link only
-                    </option>
-                    <option value="PRIVATE">Private — only you</option>
-                  </select>
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={form.downloadsEnabled ?? false}
-                    onChange={(event) =>
-                      setForm({
-                        ...form,
-                        downloadsEnabled: event.target.checked,
-                      })
-                    }
-                  />
-                  Allow downloads
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={form.commentsEnabled ?? true}
-                    onChange={(event) =>
-                      setForm({
-                        ...form,
-                        commentsEnabled: event.target.checked,
-                      })
-                    }
-                  />
-                  Allow comments
-                </label>
-
-                <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3 sm:col-span-2">
-                  <label className="flex items-start gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={form.isFallback ?? false}
+                    <Input
+                      label="Artist credit"
+                      value={form.artistName ?? ''}
+                      placeholder="Use channel artist name"
                       onChange={(event) =>
-                        setForm({ ...form, isFallback: event.target.checked })
+                        setForm({ ...form, artistName: event.target.value })
                       }
-                      className="mt-0.5"
                     />
-                    <span>
-                      <span className="block font-medium">
-                        Add to my channel&apos;s rotation
-                      </span>
-                      <span className="text-foreground-secondary block text-xs">
-                        Plays automatically on your channel when you aren&apos;t
-                        live, so listeners always hear something instead of dead
-                        air.
-                      </span>
-                    </span>
-                  </label>
-
-                  <div className="border-border/60 flex items-center gap-3 border-t pt-3">
-                    <div className="min-w-0 flex-1 text-sm">
-                      <span className="block font-medium">
-                        Tahti Radio rotation
-                      </span>
-                      <span className="text-foreground-secondary block text-xs">
-                        {radioSubmission?.status === 'PENDING'
-                          ? 'Submitted — waiting on board review.'
-                          : radioSubmission?.status === 'APPROVED'
-                            ? 'Approved — in the Tahti Radio rotation.'
-                            : radioSubmission?.status === 'REJECTED'
-                              ? (radioSubmission.rejectionNote ??
-                                'Not accepted this time — you can resubmit.')
-                              : 'Submit for board review to be considered for the shared 24/7 station.'}
-                      </span>
+                    <div className="sm:col-span-2">
+                      <label className="flex flex-col gap-1 text-sm">
+                        Description
+                        <Textarea
+                          rows={4}
+                          value={form.description ?? ''}
+                          onChange={(event) =>
+                            setForm({
+                              ...form,
+                              description: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      disabled={
-                        submittingToRadio ||
-                        radioSubmission?.status === 'PENDING' ||
-                        radioSubmission?.status === 'APPROVED'
-                      }
-                      onClick={() => {
-                        if (!archiveItemId) {
-                          return;
-                        }
-                        setSubmittingToRadio(true);
-                        void submitTrackToRadioRotation(archiveItemId)
-                          .then((result) => {
-                            if (result.ok) {
-                              setNote('Submitted to Tahti Radio for review.');
-                              setRadioSubmission({
-                                id: 'pending-local',
-                                status: 'PENDING',
-                                rejectionNote: null,
-                                createdAt: new Date().toISOString(),
-                                archiveItem: {
-                                  id: archiveItemId,
-                                  title: form.title ?? '',
-                                },
-                              });
-                            } else {
-                              setError(result.error);
-                            }
-                          })
-                          .finally(() => setSubmittingToRadio(false));
-                      }}
-                    >
-                      {submittingToRadio
-                        ? 'Submitting…'
-                        : radioSubmission?.status === 'PENDING'
-                          ? 'Pending'
-                          : radioSubmission?.status === 'APPROVED'
-                            ? 'In rotation'
-                            : radioSubmission?.status === 'REJECTED'
-                              ? 'Resubmit'
-                              : 'Submit'}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {tab === 'artwork' && (
-              <div className="grid gap-4 sm:grid-cols-[12rem_1fr]">
-                <div className="border-border bg-background-secondary flex aspect-square items-center justify-center overflow-hidden rounded-xl border">
-                  {form.bannerUrl ? (
-                    <img
-                      src={form.bannerUrl}
-                      alt="Current cover art"
-                      className="size-full object-cover"
+                    <CreatableCombobox
+                      label="Genre"
+                      options={[...PRESET_GENRES]}
+                      value={form.genre ?? ''}
+                      onValueChange={(genre) => setForm({ ...form, genre })}
+                      normalize={capitalizeGenre}
                     />
-                  ) : (
-                    <ImageIcon
-                      size={36}
-                      className="text-foreground-secondary"
-                      aria-label="No cover art"
-                    />
-                  )}
-                </div>
-                <div className="flex flex-col gap-4">
-                  <FilePicker
-                    labels={{
-                      title: 'Upload cover art',
-                      description: 'JPEG, PNG, or WebP',
-                      browse: 'Choose image',
-                    }}
-                    accept="image/jpeg,image/png,image/webp"
-                    disabled={artworkBusy}
-                    onFiles={(files) => {
-                      const file = files[0];
-                      if (file) {
-                        void uploadArtwork(file);
-                      }
-                    }}
-                  />
-                  <div className="flex items-end gap-2">
-                    <div className="min-w-0 flex-1">
-                      <Input
-                        label="Or import an image URL"
-                        value={form.bannerUrl ?? ''}
-                        placeholder="https://…"
+                    <label className="flex flex-col gap-1 text-sm">
+                      Release date
+                      <input
+                        type="date"
+                        value={form.releaseDate ?? ''}
                         onChange={(event) =>
-                          setForm({ ...form, bannerUrl: event.target.value })
+                          setForm({ ...form, releaseDate: event.target.value })
+                        }
+                        className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1 text-sm">
+                      Content type
+                      <select
+                        value={form.contentType ?? 'STUDIO'}
+                        onChange={(event) =>
+                          setForm({ ...form, contentType: event.target.value })
+                        }
+                        className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                      >
+                        {CONTENT_TYPES.map(([value, label]) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+                      License (optional)
+                      <select
+                        value={form.license ?? ''}
+                        onChange={(event) =>
+                          setForm({ ...form, license: event.target.value })
+                        }
+                        className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                      >
+                        {LICENSES.map(([value, label]) => (
+                          <option key={value || 'none'} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="flex flex-col gap-1 text-sm">
+                      Visibility
+                      <select
+                        value={form.visibility ?? 'PUBLIC'}
+                        onChange={(event) =>
+                          setForm({
+                            ...form,
+                            visibility: event.target.value as
+                              | 'PUBLIC'
+                              | 'UNLISTED'
+                              | 'PRIVATE',
+                          })
+                        }
+                        className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                      >
+                        <option value="PUBLIC">Public</option>
+                        <option value="UNLISTED">
+                          Unlisted — direct link only
+                        </option>
+                        <option value="PRIVATE">Private — only you</option>
+                      </select>
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={form.downloadsEnabled ?? false}
+                        onChange={(event) =>
+                          setForm({
+                            ...form,
+                            downloadsEnabled: event.target.checked,
+                          })
                         }
                       />
+                      Allow downloads
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={form.commentsEnabled ?? true}
+                        onChange={(event) =>
+                          setForm({
+                            ...form,
+                            commentsEnabled: event.target.checked,
+                          })
+                        }
+                      />
+                      Allow comments
+                    </label>
+
+                    <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3 sm:col-span-2">
+                      <label className="flex items-start gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={form.isFallback ?? false}
+                          onChange={(event) =>
+                            setForm({
+                              ...form,
+                              isFallback: event.target.checked,
+                            })
+                          }
+                          className="mt-0.5"
+                        />
+                        <span>
+                          <span className="block font-medium">
+                            Add to my channel&apos;s rotation
+                          </span>
+                          <span className="text-foreground-secondary block text-xs">
+                            Plays automatically on your channel when you
+                            aren&apos;t live, so listeners always hear something
+                            instead of dead air.
+                          </span>
+                        </span>
+                      </label>
+
+                      <div className="border-border/60 flex items-center gap-3 border-t pt-3">
+                        <div className="min-w-0 flex-1 text-sm">
+                          <span className="block font-medium">
+                            Tahti Radio rotation
+                          </span>
+                          <span className="text-foreground-secondary block text-xs">
+                            {radioSubmission?.status === 'PENDING'
+                              ? 'Submitted — waiting on board review.'
+                              : radioSubmission?.status === 'APPROVED'
+                                ? 'Approved — in the Tahti Radio rotation.'
+                                : radioSubmission?.status === 'REJECTED'
+                                  ? (radioSubmission.rejectionNote ??
+                                    'Not accepted this time — you can resubmit.')
+                                  : 'Submit for board review to be considered for the shared 24/7 station.'}
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={
+                            submittingToRadio ||
+                            radioSubmission?.status === 'PENDING' ||
+                            radioSubmission?.status === 'APPROVED'
+                          }
+                          onClick={() => {
+                            if (!archiveItemId) {
+                              return;
+                            }
+                            setSubmittingToRadio(true);
+                            void submitTrackToRadioRotation(archiveItemId)
+                              .then((result) => {
+                                if (result.ok) {
+                                  setNote(
+                                    'Submitted to Tahti Radio for review.',
+                                  );
+                                  setRadioSubmission({
+                                    id: 'pending-local',
+                                    status: 'PENDING',
+                                    rejectionNote: null,
+                                    createdAt: new Date().toISOString(),
+                                    archiveItem: {
+                                      id: archiveItemId,
+                                      title: form.title ?? '',
+                                    },
+                                  });
+                                } else {
+                                  setError(result.error);
+                                }
+                              })
+                              .finally(() => setSubmittingToRadio(false));
+                          }}
+                        >
+                          {submittingToRadio
+                            ? 'Submitting…'
+                            : radioSubmission?.status === 'PENDING'
+                              ? 'Pending'
+                              : radioSubmission?.status === 'APPROVED'
+                                ? 'In rotation'
+                                : radioSubmission?.status === 'REJECTED'
+                                  ? 'Resubmit'
+                                  : 'Submit'}
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      disabled={artworkBusy || !form.bannerUrl?.trim()}
-                      onClick={() => void importArtwork()}
-                    >
-                      <UploadIcon size={14} aria-hidden />
-                      {artworkBusy ? 'Working…' : 'Import'}
+                  </div>
+                ),
+              },
+              {
+                id: 'artwork',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <ImageIcon size={15} aria-hidden />
+                    Artwork
+                  </span>
+                ),
+                content: (
+                  <div className="grid gap-4 sm:grid-cols-[12rem_1fr]">
+                    <div className="border-border bg-background-secondary flex aspect-square items-center justify-center overflow-hidden rounded-xl border">
+                      {form.bannerUrl ? (
+                        <img
+                          src={form.bannerUrl}
+                          alt="Current cover art"
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <ImageIcon
+                          size={36}
+                          className="text-foreground-secondary"
+                          aria-label="No cover art"
+                        />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      <FilePicker
+                        labels={{
+                          title: 'Upload cover art',
+                          description: 'JPEG, PNG, or WebP',
+                          browse: 'Choose image',
+                        }}
+                        accept="image/jpeg,image/png,image/webp"
+                        disabled={artworkBusy}
+                        onFiles={(files) => {
+                          const file = files[0];
+                          if (file) {
+                            void uploadArtwork(file);
+                          }
+                        }}
+                      />
+                      <div className="flex items-end gap-2">
+                        <div className="min-w-0 flex-1">
+                          <Input
+                            label="Or import an image URL"
+                            value={form.bannerUrl ?? ''}
+                            placeholder="https://…"
+                            onChange={(event) =>
+                              setForm({
+                                ...form,
+                                bannerUrl: event.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={artworkBusy || !form.bannerUrl?.trim()}
+                          onClick={() => void importArtwork()}
+                        >
+                          <UploadIcon size={14} aria-hidden />
+                          {artworkBusy ? 'Working…' : 'Import'}
+                        </Button>
+                      </div>
+                      <p className="text-foreground-secondary text-xs">
+                        JPEG, PNG, or WebP. Imported images are re-hosted so the
+                        artwork stays available.
+                      </p>
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                id: 'playlists',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <ListMusicIcon size={15} aria-hidden />
+                    Playlists
+                  </span>
+                ),
+                content: (
+                  <div className="border-border flex items-center gap-4 rounded-xl border p-4">
+                    <ListMusicIcon
+                      size={28}
+                      className="text-primary shrink-0"
+                      aria-hidden
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium">Add this track to playlists</p>
+                      <p className="text-foreground-secondary text-sm">
+                        Choose one or more existing playlists, or create a new
+                        one.
+                      </p>
+                    </div>
+                    <Button size="sm" onClick={() => setPlaylistOpen(true)}>
+                      <ListMusicIcon size={15} aria-hidden />
+                      Choose playlists
                     </Button>
                   </div>
-                  <p className="text-foreground-secondary text-xs">
-                    JPEG, PNG, or WebP. Imported images are re-hosted so the
-                    artwork stays available.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {tab === 'playlists' && (
-              <div className="border-border flex items-center gap-4 rounded-xl border p-4">
-                <ListMusicIcon
-                  size={28}
-                  className="text-primary shrink-0"
-                  aria-hidden
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium">Add this track to playlists</p>
-                  <p className="text-foreground-secondary text-sm">
-                    Choose one or more existing playlists, or create a new one.
-                  </p>
-                </div>
-                <Button size="sm" onClick={() => setPlaylistOpen(true)}>
-                  <ListMusicIcon size={15} aria-hidden />
-                  Choose playlists
-                </Button>
-              </div>
-            )}
-
-            {tab === 'export' && <TrackExportPanel archiveItemId={item.id} />}
-          </>
+                ),
+              },
+              {
+                id: 'export',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Share2Icon size={15} aria-hidden />
+                    Export
+                  </span>
+                ),
+                content: <TrackExportPanel archiveItemId={item.id} />,
+              },
+            ]}
+          />
         ) : null}
 
         {error && (

@@ -10,6 +10,7 @@ import {
   type TrackInsights,
 } from '../../api/track-insights';
 import { ListenerWorldMap } from '../../components/ListenerWorldMap';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPanel } from '../../components/StudioPanel';
@@ -77,7 +78,7 @@ export function StudioTrackInsightsView({
         </div>
 
         {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading…" />
         ) : !insights ? (
           <p className="text-foreground-secondary text-sm">
             No insights available for this track.

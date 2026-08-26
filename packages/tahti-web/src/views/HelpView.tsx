@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { SupportContactForm } from '../components/SupportContactForm';
 import { TahtiMapLink } from '../components/TahtiMapLink';
 import { getHelpArticle, HELP_ARTICLES, HELP_HUB_INTRO } from '../content/help';
@@ -8,16 +9,12 @@ const PRODUCTION = 'https://tahti.live';
 
 export function HelpHubView() {
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <TahtiMapLink />
-      <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Help center
-        </h1>
-        <p className="text-foreground-secondary mt-2 text-sm">
-          {HELP_HUB_INTRO}
-        </p>
-      </div>
+    <PageFrame maxWidth="3xl">
+      <PageHeader
+        title="Help center"
+        subtitle={HELP_HUB_INTRO}
+        back={<TahtiMapLink />}
+      />
       <ul className="flex flex-col gap-4">
         {HELP_ARTICLES.map((article) => (
           <li key={article.slug} className="border-border border-b pb-4">
@@ -45,7 +42,7 @@ export function HelpHubView() {
           tahti.live/help
         </a>
       </p>
-    </div>
+    </PageFrame>
   );
 }
 
@@ -73,30 +70,30 @@ export function HelpArticleView({ slug }: { slug: string }) {
 
   return (
     <article className="mx-auto flex max-w-3xl flex-col gap-6">
-      <Link
-        to="/help"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Help
-      </Link>
-      <header className="flex flex-col gap-2">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          {article.title}
-        </h1>
-        <p className="text-foreground-secondary text-sm">
-          {article.description}
-        </p>
-        {article.productionPath ? (
-          <a
-            href={`${PRODUCTION}${article.productionPath}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+      <PageHeader
+        title={article.title}
+        subtitle={article.description}
+        back={
+          <Link
+            to="/help"
+            className="text-foreground-secondary text-xs hover:underline"
           >
-            Open on tahti.live{article.productionPath}
-          </a>
-        ) : null}
-      </header>
+            ← Help
+          </Link>
+        }
+        meta={
+          article.productionPath ? (
+            <a
+              href={`${PRODUCTION}${article.productionPath}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+            >
+              Open on tahti.live{article.productionPath}
+            </a>
+          ) : null
+        }
+      />
       {article.sections.map((section) => (
         <section key={section.heading} className="flex flex-col gap-2">
           <h2 className="font-display text-xl font-bold tracking-tight">

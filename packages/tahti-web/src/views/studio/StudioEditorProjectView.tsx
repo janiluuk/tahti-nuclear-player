@@ -6,6 +6,7 @@ import { Button } from '@nuclearplayer/ui';
 
 import { fetchEditorProject } from '../../api/studio';
 import type { EditorProjectDetail } from '../../api/studio-types';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -33,9 +34,7 @@ export function StudioEditorProjectView({ id }: { id: string }) {
         </p>
         {!project ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">
-              Loading project…
-            </p>
+            <PageLoading label="Loading project…" />
           </StudioPanel>
         ) : (
           <>

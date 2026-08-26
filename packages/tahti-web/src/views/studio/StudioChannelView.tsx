@@ -26,6 +26,7 @@ import {
 } from '../../api/studio-extras';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { ChannelRadioPlaylistPanel } from '../../components/ChannelRadioPlaylistPanel';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -233,7 +234,7 @@ export function StudioChannelView() {
           <StudioPanel title="Profile">
             <div className="flex flex-col gap-3">
               {!profile ? (
-                <p className="text-foreground-secondary text-sm">Loading…</p>
+                <PageLoading label="Loading…" />
               ) : (
                 <>
                   <Input

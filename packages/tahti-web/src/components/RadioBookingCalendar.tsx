@@ -20,6 +20,7 @@ import {
   type StudioShowSeries,
 } from '../api/shows';
 import { useAuthStore } from '../stores/authStore';
+import { PageLoading } from './PageStates';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -298,7 +299,7 @@ export function RadioBookingCalendar({
         </div>
 
         {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading…" />
         ) : selectedBookings.length === 0 ? (
           <p className="text-foreground-secondary text-sm">
             No slots booked yet.

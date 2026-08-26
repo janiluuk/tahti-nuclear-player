@@ -84,6 +84,21 @@ board-only `/more` page. **Always check new or changed UI against it before ship
   before assuming a page you're touching is already clean, and log new findings there in the same
   format rather than fixing silently with no record.
 
+## Per-page widgets configure from Add-ons, not a separate settings section
+
+For simplicity, every main page's customizable widgets — internet radio, SoundCloud/YouTube
+embeds, the Listen page's sandboxed disco-widgets, a channel/artist page's disco-widgets, and
+whatever else follows this shape — get their configuration from **one place**: Settings → Add-ons
+(`components/PluginStorePanel.tsx`, category registry in `content/pluginStoreCategories.ts`), as
+one category tab per concern (see the existing `radio`/`embed`/`discovery`/`channel` categories).
+Don't add a second, separate settings section for a new page's widgets (that's what the old
+Settings → Widgets section was, before it got folded into Add-ons — don't recreate it). If a
+category has enough to configure that one flat list of `PluginStoreItem`s isn't enough (multiple
+distinct sub-concerns, each with their own form/list), give that category's own body internal
+sub-tabs via `Tabs` rather than cramming everything into one scroll — `VisualizersCategory`'s
+per-preset `ConfigurableCard` fold-outs are the existing pattern for "one entry, more to configure
+than fits inline."
+
 ## Plugins
 
 `PLUGIN-STORE-PLAN.md` inventories the 7 subsystems (themes, audio FX, multicast, export,

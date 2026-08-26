@@ -23,6 +23,7 @@ import {
   type StudioShowSeries,
 } from '../../api/shows';
 import { uploadArchiveFile } from '../../api/studio';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -485,7 +486,7 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
       <StudioGate>
         <div className="mx-auto max-w-2xl">
           <StudioNav current="/studio/shows" />
-          <p className="text-foreground-secondary mt-6 text-sm">Loading…</p>
+          <PageLoading label="Loading…" />
         </div>
       </StudioGate>
     );

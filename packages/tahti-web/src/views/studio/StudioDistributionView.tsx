@@ -37,6 +37,7 @@ import type {
   StudioRelease,
 } from '../../api/studio-types';
 import { RELEASE_CREDIT_ROLES } from '../../api/studio-types';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -650,7 +651,7 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
         <div className="border-border border-t pt-3">
           <p className="mb-1 text-xs font-medium">Royalty reports</p>
           {!royaltiesLoaded ? (
-            <p className="text-foreground-secondary text-xs">Loading…</p>
+            <PageLoading label="Loading…" />
           ) : royalties.length === 0 ? (
             <p className="text-foreground-secondary text-xs">
               No reports yet — synced monthly after DSP delivery.
@@ -770,7 +771,7 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
 
       {open &&
         (loading || !form ? (
-          <p className="text-foreground-secondary mt-4 text-xs">Loading…</p>
+          <PageLoading label="Loading…" />
         ) : (
           <Tabs
             className="mt-4"
@@ -828,7 +829,7 @@ export function StudioDistributionView() {
             <Eyebrow>Releases</Eyebrow>
           </h2>
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading…" />
           ) : releases.length === 0 ? (
             <p className="text-foreground-secondary text-sm">
               No releases yet — create one under{' '}

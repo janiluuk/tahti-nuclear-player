@@ -14,6 +14,7 @@ import { checkSlugAvailable, updateChannelSlug } from '../api/channel-design';
 import { provisionChannel } from '../api/channel-provision';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
 import { GenrePicker } from '../components/GenrePicker';
+import { PageHeader } from '../components/PageHeader';
 import { COUNTRIES, flagEmoji } from '../lib/countries';
 import {
   formatGenreTags,
@@ -228,15 +229,10 @@ export function OnboardingView() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6 px-1 py-6">
-      <header>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Welcome to Tahti
-        </h1>
-        <p className="text-foreground-secondary mt-1 text-sm">
-          A few quick things to set up your profile — you can change any of this
-          later in Settings.
-        </p>
-      </header>
+      <PageHeader
+        title="Welcome to Tahti"
+        subtitle="A few quick things to set up your profile — you can change any of this later in Settings."
+      />
 
       {loading ? (
         <p className="text-foreground-secondary text-sm">Loading…</p>

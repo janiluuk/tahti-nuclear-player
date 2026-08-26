@@ -6,6 +6,7 @@ import {
   type StatsPlays,
   type StatsPlaysRange,
 } from '../../api/studio-extras';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -89,7 +90,7 @@ export function StudioStatsDetailView() {
 
         {loading || !data ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Loading plays…</p>
+            <PageLoading label="Loading plays…" />
           </StudioPanel>
         ) : (
           <>

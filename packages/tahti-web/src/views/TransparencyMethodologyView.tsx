@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 
+import { PageHeader } from '../components/PageHeader';
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
@@ -30,21 +32,18 @@ function CategoryList({
 export function TransparencyMethodologyView() {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
-      <Link
-        to="/transparency"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Transparency dashboard
-      </Link>
-
-      <header className="flex flex-col gap-2">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Transparency methodology
-        </h1>
-        <p className="text-foreground-secondary max-w-2xl text-sm">
-          How Tahti ry records and publishes its financial data.
-        </p>
-      </header>
+      <PageHeader
+        title="Transparency methodology"
+        subtitle="How Tahti ry records and publishes its financial data."
+        back={
+          <Link
+            to="/transparency"
+            className="text-foreground-secondary text-xs hover:underline"
+          >
+            ← Transparency dashboard
+          </Link>
+        }
+      />
 
       <Section title="Principles">
         <p className="text-foreground-secondary text-sm">

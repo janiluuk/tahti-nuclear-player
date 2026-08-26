@@ -11,6 +11,7 @@ import type {
   TransparencyLedgerEntry,
   TransparencyYtd,
 } from '../api/types';
+import { PageHeader } from '../components/PageHeader';
 import { TahtiMapLink } from '../components/TahtiMapLink';
 
 function centsLabel(raw: string) {
@@ -55,23 +56,24 @@ export function TransparencyView() {
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-8">
-      <TahtiMapLink />
-
-      <header className="flex flex-col gap-2">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Transparency
-        </h1>
-        <p className="text-foreground-secondary max-w-2xl text-sm">
-          Public co-op ledger snapshots from <code>/api/v1/transparency/*</code>
-          .
-        </p>
-        <Link
-          to="/transparency/methodology"
-          className="text-foreground-secondary w-fit text-xs underline-offset-2 hover:underline"
-        >
-          How this data is recorded and published →
-        </Link>
-      </header>
+      <PageHeader
+        title="Transparency"
+        subtitle={
+          <>
+            Public co-op ledger snapshots from{' '}
+            <code>/api/v1/transparency/*</code>.
+          </>
+        }
+        back={<TahtiMapLink />}
+        meta={
+          <Link
+            to="/transparency/methodology"
+            className="text-foreground-secondary w-fit text-xs underline-offset-2 hover:underline"
+          >
+            How this data is recorded and published →
+          </Link>
+        }
+      />
 
       {ytd && (
         <section className="flex flex-col gap-3">

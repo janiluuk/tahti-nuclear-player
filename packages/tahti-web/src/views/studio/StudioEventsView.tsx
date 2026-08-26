@@ -8,6 +8,7 @@ import {
   fetchMyEvents,
   type ArtistEvent,
 } from '../../api/events';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -57,9 +58,7 @@ export function StudioEventsView() {
                   description="Festivals, live shows, and public appearances."
                 >
                   {loading ? (
-                    <p className="text-foreground-secondary text-sm">
-                      Loading…
-                    </p>
+                    <PageLoading label="Loading…" />
                   ) : events.length === 0 ? (
                     <p className="text-foreground-secondary text-sm">
                       No events listed yet.
