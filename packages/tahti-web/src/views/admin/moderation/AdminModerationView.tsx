@@ -52,8 +52,8 @@ export function AdminModerationView({ tab }: { tab?: AdminModerationTabId }) {
 
   return (
     <AdminGate>
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/moderation" />
+      <div className="admin-moderation-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
+        <AdminNav current="/admin/moderation" splitLayout />
         <StudioPageHeader
           title="Moderation"
           subtitle="Review queues the board triages day to day — support, beta access, radio, curation, reports, and roadmap."

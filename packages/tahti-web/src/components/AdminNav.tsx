@@ -198,7 +198,13 @@ function isActive(current: string | undefined, to: string) {
 }
 
 /** Grows page-by-page alongside the admin port — see UI-REDESIGN-WORKLOG.md. */
-export function AdminNav({ current }: { current?: string }) {
+export function AdminNav({
+  current,
+  splitLayout = false,
+}: {
+  current?: string;
+  splitLayout?: boolean;
+}) {
   const routeSection = ADMIN_SECTIONS.find((section) =>
     section.items.some((item) => isActive(current, item.to)),
   );
@@ -216,33 +222,36 @@ export function AdminNav({ current }: { current?: string }) {
     ADMIN_SECTIONS.find((item) => item.id === selectedSection) ??
     ADMIN_SECTIONS[0];
 
-  return (
-    <div className="flex flex-col gap-3">
-      <div
-        aria-label="Admin sections"
-        className="border-border flex w-fit max-w-full gap-1 overflow-x-auto rounded-lg border p-1"
-        role="tablist"
-      >
-        {ADMIN_SECTIONS.map((item) => {
-          const active = item.id === selectedSection;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              className={`rounded-md px-3 py-1.5 text-sm font-semibold whitespace-nowrap ${
-                active
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
-              }`}
-              onClick={() => setSelectedSection(item.id)}
-            >
-              {item.label}
-            </button>
-          );
-        })}
-      </div>
+  const tabs = (
+    <div
+      aria-label="Admin sections"
+      className="border-border flex w-fit max-w-full gap-1 overflow-x-auto rounded-lg border p-1"
+      role="tablist"
+      data-admin-section-tabs
+    >
+      {ADMIN_SECTIONS.map((item) => {
+        const active = item.id === selectedSection;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold whitespace-nowrap ${
+              active
+                ? 'bg-primary text-primary-foreground'
+                : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
+            }`}
+            onClick={() => setSelectedSection(item.id)}
+          >
+            {item.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+  const menu = (
+    <div data-admin-section-menu>
       <SectionSidebar
         aria-label={`Admin ${section.label}`}
         items={section.items.map((link) => ({
@@ -253,6 +262,18 @@ export function AdminNav({ current }: { current?: string }) {
           active: isActive(current, link.to),
         }))}
       />
+    </div>
+  );
+
+  return splitLayout ? (
+    <>
+      {tabs}
+      {menu}
+    </>
+  ) : (
+    <div className="flex flex-col gap-3">
+      {tabs}
+      {menu}
     </div>
   );
 }
