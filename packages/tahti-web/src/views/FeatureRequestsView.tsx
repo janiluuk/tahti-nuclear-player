@@ -13,6 +13,7 @@ import {
 } from '../api/client';
 import type { FeatureRequest, FeatureRequestStatus } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
@@ -109,9 +110,7 @@ export function FeatureRequestsView() {
         </div>
       )}
 
-      {user && loading && (
-        <p className="text-foreground-secondary text-sm">Loading requests…</p>
-      )}
+      {user && loading && <PageLoading label="Loading requests…" />}
 
       {user && !loading && forbidden && (
         <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
@@ -189,9 +188,10 @@ export function FeatureRequestsView() {
       )}
 
       {user && !loading && !forbidden && requests.length === 0 && (
-        <p className="text-foreground-secondary text-sm">
-          No feature requests yet — be the first to propose one.
-        </p>
+        <PageEmpty
+          title="No feature requests yet"
+          description="Be the first to propose an idea for Tahti."
+        />
       )}
 
       {user && requests.length > 0 && (

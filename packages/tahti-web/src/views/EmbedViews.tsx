@@ -15,6 +15,7 @@ import type {
 } from '../api/types';
 import { AudioEngine } from '../components/AudioEngine';
 import { ConnectedPlayerBar } from '../components/ConnectedPlayerBar';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { useThemeStore } from '../plugins/themes';
 import { usePlayerStore } from '../stores/playerStore';
 
@@ -58,9 +59,8 @@ export function EmbedChannelView({ slug }: { slug: string }) {
 
   return (
     <EmbedChrome>
-      {loading && (
-        <p className="text-foreground-secondary text-sm">Loading embed…</p>
-      )}
+      {loading && <PageLoading label="Loading embed…" />}
+      {!loading && !data && <PageEmpty title="Channel unavailable" />}
       {!loading && data && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
@@ -130,9 +130,8 @@ export function EmbedReleaseView({ id }: { id: string }) {
 
   return (
     <EmbedChrome>
-      {loading && (
-        <p className="text-foreground-secondary text-sm">Loading embed…</p>
-      )}
+      {loading && <PageLoading label="Loading embed…" />}
+      {!loading && !data && <PageEmpty title="Release unavailable" />}
       {!loading && data && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
@@ -239,9 +238,8 @@ export function EmbedCollectionView({
 
   return (
     <EmbedChrome>
-      {loading && (
-        <p className="text-foreground-secondary text-sm">Loading embed…</p>
-      )}
+      {loading && <PageLoading label="Loading embed…" />}
+      {!loading && !data && <PageEmpty title="Collection unavailable" />}
       {!loading && data && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">

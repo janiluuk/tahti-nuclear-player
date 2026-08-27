@@ -12,6 +12,7 @@ import type {
   TransparencyYtd,
 } from '../api/types';
 import { PageHeader } from '../components/PageHeader';
+import { PageLoading } from '../components/PageStates';
 import { TahtiMapLink } from '../components/TahtiMapLink';
 
 function centsLabel(raw: string) {
@@ -49,9 +50,7 @@ export function TransparencyView() {
   }, []);
 
   if (loading) {
-    return (
-      <p className="text-foreground-secondary text-sm">Loading transparency…</p>
-    );
+    return <PageLoading label="Loading transparency…" />;
   }
 
   return (
