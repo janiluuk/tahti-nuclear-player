@@ -127,6 +127,18 @@ export function RadioView() {
     reload();
   }, []);
 
+  useEffect(() => {
+    const refreshNowPlaying = () => {
+      void fetchRadioStation().then((response) => {
+        if (response?.data) {
+          setStation(response.data);
+        }
+      });
+    };
+    const interval = window.setInterval(refreshNowPlaying, 30_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const online = Boolean(station?.hlsUrl);
   const nowPlaying = station?.nowPlaying;
   const stationLogo =
@@ -287,7 +299,7 @@ export function RadioView() {
           ) : (
             <Box
               variant="secondary"
-              className="relative overflow-hidden rounded-xl"
+              className="relative min-h-[220px] overflow-hidden rounded-xl"
             >
               <div className="absolute inset-0 opacity-40">
                 <ChannelVisualizer
@@ -296,7 +308,57 @@ export function RadioView() {
                   className="h-full min-h-[160px] w-full"
                 />
               </div>
-              <div className="relative z-10 flex flex-col gap-4 p-4 sm:p-5">
+              <div className="relative z-10 flex flex-col gap-5 p-4 sm:p-5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="bg-surface-secondary flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-bold">
+                    {nowPlaying?.artworkUrl ? (
+                      <img
+                        src={nowPlaying.artworkUrl}
+                        alt=""
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      'TR'
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <Eyebrow tone="green">Live now</Eyebrow>
+                    {nowPlaying?.title ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setInfoTrack({
+                            title: nowPlaying.title,
+                            artistName: nowPlaying.artistName,
+                            artistUsername: nowPlaying.artistUsername,
+                            artworkUrl: nowPlaying.artworkUrl,
+                            meta: 'Live now',
+                          })
+                        }
+                        className="text-foreground block max-w-full truncate text-lg font-bold tracking-tight underline-offset-4 hover:underline"
+                      >
+                        {nowPlaying.title}
+                      </button>
+                    ) : (
+                      <div className="text-foreground text-lg font-bold tracking-tight">
+                        24/7 rotation
+                      </div>
+                    )}
+                    {nowPlaying?.artistUsername ? (
+                      <Link
+                        to="/u/$username"
+                        params={{ username: nowPlaying.artistUsername }}
+                        className="text-foreground-secondary block truncate text-sm underline-offset-2 hover:underline"
+                      >
+                        {nowPlaying.artistName}
+                      </Link>
+                    ) : (
+                      <div className="text-foreground-secondary truncate text-sm">
+                        {nowPlaying?.artistName ?? 'Tahti Radio'}
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className="flex flex-wrap items-start gap-3">
                   <MediaIconActions
                     actions={[
