@@ -43,7 +43,9 @@ function ScreenNavigation({ c }: { c: MapCase }) {
         className="border-border bg-background border-t px-5 py-3 text-sm"
         role="note"
       >
-        <span className="font-semibold text-red-400">Navigation gap: </span>
+        <span className="text-accent-orange font-semibold">
+          Navigation gap:{' '}
+        </span>
         no verified in-page actions or outbound links were found for this screen
         beyond the persistent sidebar — see NAVIGATION-GAPS.md.
       </p>

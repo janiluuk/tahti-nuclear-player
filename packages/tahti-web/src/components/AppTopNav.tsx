@@ -174,7 +174,7 @@ export function AppTopNav({
                 <div className="bg-border mx-1 my-0.5 h-px" role="separator" />
                 <button
                   type="button"
-                  className="hover:bg-background-secondary flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs text-red-400 hover:text-red-300"
+                  className="text-accent-red hover:bg-background-secondary flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs"
                   role="menuitem"
                   onClick={() => {
                     setOpen(false);
@@ -360,7 +360,7 @@ export function AppTopNav({
                 <div className="bg-border mx-1 my-0.5 h-px" role="separator" />
                 <button
                   type="button"
-                  className="hover:bg-background-secondary flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs text-red-400 hover:text-red-300"
+                  className="text-accent-red hover:bg-background-secondary flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs"
                   role="menuitem"
                   onClick={() => {
                     setOpen(false);

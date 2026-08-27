@@ -485,7 +485,7 @@ export function ChannelDesigner({
                     </p>
                     {visual.videoBackgroundUrl &&
                       !isValidHeaderVideoUrl(visual.videoBackgroundUrl) && (
-                        <p className="text-xs text-red-500">
+                        <p className="text-accent-red text-xs">
                           Must be an HTTPS link ending in .mp4 or .webm.
                         </p>
                       )}
