@@ -27,6 +27,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import {
   bytesToMb,
@@ -222,7 +223,7 @@ function StorageOverviewTab() {
   if (loading) {
     return (
       <StudioPanel>
-        <p className="text-foreground-secondary text-sm">Loading…</p>
+        <PageLoading label="Loading storage…" />
       </StudioPanel>
     );
   }
@@ -439,7 +440,7 @@ function FilesBrowserTab() {
           description="Sum of every matching file's size, grouped by uploader. Click a row for their full file list and running total."
         >
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading storage users…" />
           ) : groups.length === 0 ? (
             <p className="text-foreground-secondary py-4 text-center text-sm">
               No files match this search.
@@ -476,7 +477,7 @@ function FilesBrowserTab() {
       ) : (
         <StudioPanel>
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading files…" />
           ) : files.length === 0 ? (
             <p className="text-foreground-secondary py-4 text-center text-sm">
               No files match this search.

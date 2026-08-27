@@ -6,6 +6,7 @@ import { Badge, Button } from '@nuclearplayer/ui';
 import { fetchAdminDashboard, type AdminDashboard } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
@@ -49,7 +50,7 @@ export function AdminDashboardView() {
 
         {loading || !data ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading dashboard…" />
           </StudioPanel>
         ) : (
           <>

@@ -10,6 +10,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function AdminI18nView() {
@@ -97,7 +98,7 @@ export function AdminI18nView() {
 
         <StudioPanel>
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading languages…" />
           ) : (
             <ul className="divide-border divide-y">
               {languages.map((lang) => {
