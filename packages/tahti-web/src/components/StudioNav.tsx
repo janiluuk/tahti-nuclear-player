@@ -58,8 +58,46 @@ export const STUDIO_NAV_TOUR_STEPS: TourStep[] = PRIMARY.map(
   }),
 );
 
-const isActive = (current: string | undefined, to: string) =>
-  current === to || (to !== '/studio' && Boolean(current?.startsWith(to)));
+const SECTION_PREFIXES: Record<string, readonly string[]> = {
+  '/studio': ['/studio'],
+  '/library': [
+    '/library',
+    '/studio/archive',
+    '/studio/releases',
+    '/studio/collections',
+    '/studio/recordings',
+    '/studio/upload',
+    '/studio/editor',
+    '/studio/stash',
+  ],
+  '/studio/go-live': [
+    '/studio/go-live',
+    '/studio/schedule',
+    '/studio/events',
+    '/studio/venues',
+    '/studio/shows',
+  ],
+  '/studio/stats': ['/studio/stats', '/studio/insights'],
+  '/studio/revenue': ['/studio/revenue'],
+  '/studio/channel': [
+    '/studio/channel',
+    '/studio/branding',
+    '/studio/moderation',
+    '/studio/setup-channel',
+  ],
+};
+
+const isActive = (current: string | undefined, to: string) => {
+  if (!current) {
+    return false;
+  }
+  if (to === '/studio') {
+    return current === to;
+  }
+  return (SECTION_PREFIXES[to] ?? [to]).some((prefix) =>
+    current.startsWith(prefix),
+  );
+};
 
 export const StudioNav = ({ current }: { current?: string }) => (
   <SectionSidebar
@@ -69,10 +107,7 @@ export const StudioNav = ({ current }: { current?: string }) => (
       label: link.label,
       icon: link.icon,
       to: link.to,
-      active:
-        link.to === '/library'
-          ? Boolean(current?.startsWith('/library'))
-          : isActive(current, link.to),
+      active: isActive(current, link.to),
     }))}
   />
 );
