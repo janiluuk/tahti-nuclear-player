@@ -12,6 +12,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 function statusBadge(status: AdminRadioStationSuggestionStatus): {
@@ -60,7 +61,7 @@ export function AdminRadioStationSuggestionsView() {
 
         {loading ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading station suggestions…" />
           </StudioPanel>
         ) : items.length === 0 ? (
           <StudioPanel>

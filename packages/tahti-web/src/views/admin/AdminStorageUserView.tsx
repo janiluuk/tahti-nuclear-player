@@ -9,6 +9,7 @@ import {
   type AdminStorageUserDetail,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import {
   formatBytes,
@@ -51,7 +52,7 @@ export function AdminStorageUserView({ userId }: { userId: string }) {
 
         {loading ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading storage details…" />
           </StudioPanel>
         ) : !detail ? (
           <StudioPanel>

@@ -827,3 +827,15 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Batch 3:** Support tickets, Feature requests, and Tahti Selects moderation tabs now use shared `PageLoading` states.
 
 **Final status:** all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
+
+### 2026-08-27 — Another 9 shared loading-state slices
+
+**Goal:** Continue the Storybook compliance sweep by replacing remaining bare loading paragraphs with the shared `PageLoading` treatment, in three batches of three.
+
+**Batch 1:** What's New announcements, Add-ons multistream destinations, and Account two-factor authentication use `PageLoading` with context-specific labels.
+
+**Batch 2:** Admin activity, financial overview, and top lists use `PageLoading` with context-specific labels.
+
+**Batch 3:** Admin radio-station suggestions, grant cycles, and storage-user details use `PageLoading` with context-specific labels.
+
+**Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
