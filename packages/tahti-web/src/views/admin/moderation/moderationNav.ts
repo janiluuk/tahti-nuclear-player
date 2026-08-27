@@ -3,7 +3,8 @@ export type AdminModerationTabId =
   | 'beta'
   | 'radio-submissions'
   | 'content-reports'
-  | 'feature-requests';
+  | 'feature-requests'
+  | 'missed-shows';
 
 export type AdminModerationTabItem = {
   id: AdminModerationTabId;
@@ -18,6 +19,7 @@ export const ADMIN_MODERATION_TABS: AdminModerationTabItem[] = [
   { id: 'radio-submissions', label: 'Radio submissions' },
   { id: 'content-reports', label: 'Content reports' },
   { id: 'feature-requests', label: 'Feature requests' },
+  { id: 'missed-shows', label: 'Missed shows' },
 ];
 
 export const DEFAULT_ADMIN_MODERATION_TAB: AdminModerationTabId = 'support';

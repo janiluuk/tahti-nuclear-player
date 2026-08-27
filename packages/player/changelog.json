@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Admin moderation now includes missed shows, Schedule shows recent broadcast analytics, and Admin Overview links directly to the live stream manager.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Broadcast settings now live under Studio Manage: Radio, Green room, and Multicast are separate destinations, with provider setup and activation controls in one place.",
     "type": "improvement",
     "contributors": ["jani"],

@@ -1,11 +1,8 @@
-import { Link } from '@tanstack/react-router';
 import {
   CalendarDaysIcon,
   Clock3Icon,
   MapPinIcon,
   PlusIcon,
-  RadioIcon,
-  Settings2Icon,
   XIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -25,9 +22,11 @@ import {
 } from '../../api/shows';
 import {
   fetchChannelSchedule,
+  fetchStatsPlays,
   fetchUpcomingBroadcasts,
   patchChannelSchedule,
   type ChannelSchedule,
+  type StatsPlays,
   type UpcomingBroadcast,
 } from '../../api/studio-extras';
 import {
@@ -161,6 +160,50 @@ function ScheduledTimes({ items }: { items: ScheduleCard[] }) {
         </ol>
       )}
     </section>
+  );
+}
+
+function ScheduleAnalytics() {
+  const [stats, setStats] = useState<
+    Partial<Record<'1' | '7' | '30', StatsPlays>>
+  >({});
+
+  useEffect(() => {
+    void Promise.all(
+      ['1', '7', '30'].map((range) =>
+        fetchStatsPlays(range as '1' | '7' | '30'),
+      ),
+    ).then((results) => {
+      setStats({
+        '1': results[0]?.data,
+        '7': results[1]?.data,
+        '30': results[2]?.data,
+      });
+    });
+  }, []);
+
+  return (
+    <StudioPanel
+      title="Broadcast analytics"
+      description="Recent listening activity around your scheduled broadcasts."
+    >
+      <div className="grid gap-3 sm:grid-cols-3">
+        {(['1', '7', '30'] as const).map((range) => (
+          <div
+            key={range}
+            className="border-border bg-background-secondary/40 rounded-lg border p-3"
+          >
+            <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+              Last {range} day{range === '1' ? '' : 's'}
+            </p>
+            <p className="mt-2 text-2xl font-bold tabular-nums">
+              {stats[range]?.totalPlays.toLocaleString() ?? '—'}
+            </p>
+            <p className="text-foreground-secondary text-xs">plays</p>
+          </div>
+        ))}
+      </div>
+    </StudioPanel>
   );
 }
 
@@ -469,6 +512,8 @@ export function StudioScheduleView() {
           </StudioPanel>
         ) : null}
 
+        <ScheduleAnalytics />
+
         {msg && (
           <p className="text-foreground-secondary text-sm" role="status">
             {msg}
@@ -691,29 +736,6 @@ export function StudioScheduleView() {
             <Dialog.Close>Cancel</Dialog.Close>
           </Dialog.Actions>
         </Dialog.Root>
-
-        <StudioPanel
-          title="Offline programme"
-          description="Rotation, ordering, automatic uploads, announcements, and playlist tracks are managed together in Channel."
-          action={
-            <Link to="/studio/channel" search={{ tab: 'radio' }}>
-              <Button size="sm" variant="secondary">
-                <Settings2Icon size={15} aria-hidden />
-                Open 24/7 settings
-              </Button>
-            </Link>
-          }
-        >
-          <div className="flex items-center gap-3">
-            <span className="bg-primary/15 text-primary flex size-10 items-center justify-center rounded-lg">
-              <RadioIcon size={19} aria-hidden />
-            </span>
-            <p className="text-foreground-secondary text-sm">
-              The 24/7 channel section is now the single place for everything
-              that plays while you are offline.
-            </p>
-          </div>
-        </StudioPanel>
       </div>
     </StudioGate>
   );

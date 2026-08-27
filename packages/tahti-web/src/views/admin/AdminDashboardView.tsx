@@ -168,7 +168,16 @@ export function AdminDashboardView() {
                 </StudioPanel>
 
                 {data.liveStreams.length > 0 && (
-                  <StudioPanel title={`Live now (${data.liveStreams.length})`}>
+                  <StudioPanel
+                    title={`Live now (${data.liveStreams.length})`}
+                    action={
+                      <Link to="/admin/streams">
+                        <Button size="sm" variant="secondary">
+                          Open stream manager
+                        </Button>
+                      </Link>
+                    }
+                  >
                     <ul className="divide-border divide-y">
                       {data.liveStreams.map((s) => (
                         <li

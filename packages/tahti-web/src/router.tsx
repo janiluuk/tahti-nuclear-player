@@ -133,10 +133,6 @@ const AdminGrantCycleView = lazyRouteComponent(
   () => import('./views/admin/AdminGrantCycleView'),
   'AdminGrantCycleView',
 );
-const AdminMissedShowsView = lazyRouteComponent(
-  () => import('./views/admin/AdminMissedShowsView'),
-  'AdminMissedShowsView',
-);
 const AdminI18nView = lazyRouteComponent(
   () => import('./views/admin/AdminI18nView'),
   'AdminI18nView',
@@ -469,7 +465,12 @@ const adminAgmRoute = createRoute({
 const adminMissedShowsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/missed-shows',
-  component: AdminMissedShowsView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/admin/moderation/$tab',
+      params: { tab: 'missed-shows' },
+    });
+  },
 });
 
 const adminVendorsRoute = createRoute({

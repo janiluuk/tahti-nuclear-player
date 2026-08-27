@@ -1002,3 +1002,7 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 ### 2026-08-28 — Artist branding settings tabs
 
 **Completed:** Artist settings now expose Branding, Gallery, and Press kit as separate top-level tabs. The existing Studio branding editor supports a section-only mode so the unique branding, gallery, and press-kit controls are reused without duplicated fields or nested navigation in Settings.
+
+### 2026-08-28 — Broadcast administration follow-up
+
+**Completed:** Missed shows are now a Moderation tab with the old route redirecting to it. Schedule no longer contains the redundant offline-programme panel and now includes recent broadcast analytics. Admin Overview links directly to the live Stream manager, while the existing manager retains its live controls.

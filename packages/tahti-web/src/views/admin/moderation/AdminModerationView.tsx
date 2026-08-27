@@ -7,6 +7,7 @@ import { fetchAdminDashboard } from '../../../api/admin';
 import { AdminGate } from '../../../components/AdminGate';
 import { AdminNav } from '../../../components/AdminNav';
 import { StudioPageHeader } from '../../../components/StudioPanel';
+import { AdminMissedShowsPanel } from '../AdminMissedShowsView';
 import {
   ADMIN_MODERATION_TABS,
   DEFAULT_ADMIN_MODERATION_TAB,
@@ -31,6 +32,8 @@ function tabContent(id: AdminModerationTabId) {
       return <ContentReportsTab />;
     case 'feature-requests':
       return <FeatureRequestsTab />;
+    case 'missed-shows':
+      return <AdminMissedShowsPanel />;
   }
 }
 
