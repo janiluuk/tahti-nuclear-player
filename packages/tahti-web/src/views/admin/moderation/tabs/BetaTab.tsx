@@ -94,9 +94,10 @@ export function BetaTab() {
 
       <nav className="flex flex-wrap gap-2" role="tablist">
         {FILTERS.map((f) => (
-          <button
+          <Button
             key={f.id}
             type="button"
+            variant="text"
             role="tab"
             aria-selected={filter === f.id}
             onClick={() => setFilter(f.id)}
@@ -107,7 +108,7 @@ export function BetaTab() {
             }`}
           >
             {f.label}
-          </button>
+          </Button>
         ))}
       </nav>
 
