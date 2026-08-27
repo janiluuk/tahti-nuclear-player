@@ -20,6 +20,8 @@ export type StudioArchiveItem = {
   license?: string | null;
   isPublic?: boolean;
   isFallback?: boolean;
+  selectsOptIn?: boolean;
+  topListsEligible?: boolean;
   commentsEnabled?: boolean;
   downloadsEnabled?: boolean;
   visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
@@ -30,6 +32,7 @@ export type StudioArchiveItem = {
   createdAt?: string;
   updatedAt?: string;
   bannerUrl?: string | null;
+  backdropUrl?: string | null;
   /** Set for EMBED_ONLY items imported by reference (hearthis.at, Mixcloud,
    * Spotify) — Tahti holds no audio file, so playback only works through
    * the provider's own widget, not the normal editor-source stream. */
@@ -48,12 +51,16 @@ export type StudioArchivePatch = {
   license?: string;
   isPublic?: boolean;
   isFallback?: boolean;
+  selectsOptIn?: boolean;
+  topListsEligible?: boolean;
   commentsEnabled?: boolean;
   downloadsEnabled?: boolean;
   visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
   releaseDate?: string | null;
   pinned?: boolean;
   bannerUrl?: string | null;
+  backdropUrl?: string | null;
+  replaceFallbackItemId?: string;
 };
 
 export type FingerprintMatch = {
@@ -135,6 +142,7 @@ export type StudioCollection = {
   /** Public playlists only — logged-in listeners can add catalog tracks. */
   collaborative?: boolean;
   coverUrl?: string | null;
+  backdropUrl?: string | null;
   items?: StudioCollectionItem[];
   itemCount?: number;
 };

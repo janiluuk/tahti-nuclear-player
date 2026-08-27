@@ -1,6 +1,5 @@
 import { Link, useSearch } from '@tanstack/react-router';
 import {
-  ArrowRightIcon,
   CheckCircle2Icon,
   GlobeIcon,
   PencilIcon,
@@ -34,14 +33,30 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
+import { BroadcastPanel } from '../settings/SettingsPanels';
 
-type Tab = 'setup' | 'design' | 'radio' | 'profile' | 'domain';
-type RadioTab = 'stream' | 'rotation';
+type Tab =
+  | 'setup'
+  | 'design'
+  | 'radio'
+  | 'green-room'
+  | 'multicast'
+  | 'profile'
+  | 'domain';
+type RadioTab = 'stream' | 'rotation' | 'settings';
 
 const RADIO_STATS_RANGES: StatsPlaysRange[] = ['1', '7', '30'];
 
 const isTab = (value: string | undefined): value is Tab =>
-  ['setup', 'design', 'radio', 'profile', 'domain'].includes(value ?? '');
+  [
+    'setup',
+    'design',
+    'radio',
+    'green-room',
+    'multicast',
+    'profile',
+    'domain',
+  ].includes(value ?? '');
 
 function ChannelOverallStats() {
   const [stats, setStats] = useState<
@@ -194,9 +209,7 @@ export function StudioChannelView() {
         >
           {(
             [
-              ...(!channel ? [{ id: 'setup' as const, label: 'Setup' }] : []),
-
-              { id: 'design' as const, label: 'Design' },
+              { id: 'design' as const, label: 'Channel' },
               { id: 'radio' as const, label: '24/7 radio' },
               { id: 'profile' as const, label: 'Profile' },
               { id: 'domain' as const, label: 'Username / domain' },
@@ -220,29 +233,17 @@ export function StudioChannelView() {
           ))}
         </nav>
 
-        {tab === 'setup' && (
+        {tab === 'setup' && !channel && (
           <StudioPanel title="Channel setup">
-            {channel ? (
-              <div className="flex flex-col items-start gap-3">
-                <p className="text-sm">
-                  Your channel <strong>@{channel.slug}</strong> is ready.
-                </p>
-                <Button size="sm" onClick={() => setTab('design')}>
-                  Continue to design
-                  <ArrowRightIcon size={14} aria-hidden className="ml-1.5" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-start gap-3">
-                <p className="text-foreground-secondary text-sm">
-                  Create {user?.username ?? 'your-name'}.tahti.live to unlock
-                  broadcasting, uploads, and the public channel designer.
-                </p>
-                <Button disabled={!user} onClick={openChannelSetup}>
-                  Create {user?.username ?? 'your-name'}.tahti.live
-                </Button>
-              </div>
-            )}
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-foreground-secondary text-sm">
+                Create {user?.username ?? 'your-name'}.tahti.live to unlock
+                broadcasting, uploads, and your public channel.
+              </p>
+              <Button disabled={!user} onClick={openChannelSetup}>
+                Create {user?.username ?? 'your-name'}.tahti.live
+              </Button>
+            </div>
           </StudioPanel>
         )}
 
@@ -285,6 +286,7 @@ export function StudioChannelView() {
                 [
                   ['stream', 'Stream'],
                   ['rotation', '24/7'],
+                  ['settings', 'Settings'],
                 ] as const
               ).map(([id, label]) => (
                 <Button
@@ -321,11 +323,17 @@ export function StudioChannelView() {
                   </p>
                 </StudioPanel>
               )
-            ) : (
+            ) : radioTab === 'rotation' ? (
               <ChannelRadioPlaylistPanel />
+            ) : (
+              <BroadcastPanel section="radio" />
             )}
           </div>
         )}
+
+        {tab === 'green-room' && <BroadcastPanel section="green-room" />}
+
+        {tab === 'multicast' && <BroadcastPanel section="multistream" />}
 
         {tab === 'profile' && (
           <StudioPanel title="Profile">

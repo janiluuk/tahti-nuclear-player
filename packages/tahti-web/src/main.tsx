@@ -14,15 +14,15 @@ import './styles.css';
 const boot = Promise.resolve(useThemeStore.persist.rehydrate()).then(() => {
   useThemeStore.getState().init();
 });
-void boot;
-
 const el = document.getElementById('root');
 if (!el) {
   throw new Error('#root missing');
 }
 
-createRoot(el).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
-);
+void boot.then(() => {
+  createRoot(el).render(
+    <StrictMode>
+      <RouterProvider router={router} />
+    </StrictMode>,
+  );
+});

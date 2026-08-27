@@ -1001,6 +1001,7 @@ export async function patchStudioCollection(
     genres?: string[];
     collaborative?: boolean;
     coverUrl?: string | null;
+    backdropUrl?: string | null;
   },
 ): Promise<
   { ok: true; data: StudioCollection } | { ok: false; error: string }
@@ -1020,6 +1021,7 @@ export async function patchStudioCollection(
         genres: patch.genres ?? [],
         collaborative: Boolean(patch.collaborative && (patch.isPublic ?? true)),
         coverUrl: patch.coverUrl ?? null,
+        backdropUrl: patch.backdropUrl ?? null,
         items: [],
       },
     };

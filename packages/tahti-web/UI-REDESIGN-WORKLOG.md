@@ -946,3 +946,59 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Slice 5:** Track insights are available as a track-local tab, while the standalone Studio Insights navigation entry is removed. Production admin audit found missed shows, support, announcements, governance, grants, AGM, and aggregate stream monitoring represented in beta; remaining parity work is channel-scoped stream/programme management and richer per-channel admin drill-down from `../tahti`.
 
 **Status:** implementation in progress; validation, commit, push, and beta deployment follow.
+### 2026-08-28 — Stable Studio/Admin shell width audit
+
+**Workplan:**
+
+1. Inventory every Studio and Admin route wrapper and identify layout rules that can change the navigation or content origin.
+2. Make the shared shell geometry invariant: full available width, fixed left navigation column, flexible content column, and stable scroll space.
+3. Sweep every top section and representative submenu route with Playwright at a fixed desktop viewport, measuring the navigation and content bounds after each navigation.
+4. Fix any remaining route-specific width or overflow regressions, then run type-check and lint.
+
+**Findings:** Studio and Admin pages used mixed `max-w-2xl` through `max-w-7xl` wrappers, so the centered shell changed width between routes. The shared sidebar was also absolutely positioned without a fixed shell width, making the content origin sensitive to the individual page wrapper.
+
+**Implementation:** Standardized the Studio, Admin, and Admin Moderation shells to the full available content width with an 11rem fixed navigation column, a flexible content column, consistent gap, and stable scrollbar space. Library and Sources now use the same unconstrained outer frame so they cannot reintroduce a narrower shell.
+
+**Status:** implementation complete; Playwright route-width verification and final quality checks pending.
+### 2026-08-28 — Responsive and broadcast administration follow-up
+
+**Workplan:**
+
+1. Audit mobile rendering and keyboard access across the shared AppShell, Studio navigation, Admin navigation, and all submenu routes; keep controls reachable without horizontal clipping.
+2. Finish the shared width contract and verify stable shell/sidebar/content bounds at desktop and mobile viewports with Playwright.
+3. Bring Admin Overview up to parity with `../tahti`: embed stream-manager controls, current listeners, stream listening/details, and recent broadcast recordings; use compact icon actions with accessible labels and a details modal.
+4. Consolidate missed shows under Moderation, add Schedule analytics, remove offline-programme controls from Schedule, and preserve the existing schedule booking flow.
+5. Move visualization configuration into each add-on card’s Configure modal; keep Manage → Channel limited to channel data and expose the setup wizard only from its modal action.
+6. Add the remaining Studio/Admin parity links and help-center entry points, then run type-check, lint, and the full responsive Playwright audit.
+
+**Completed in this pass:** The shared Studio/Admin shells now consume the full available pane with a fixed 11rem navigation column and flexible content column; narrow mobile shells are explicitly width-constrained to prevent overflow; Listen, Studio, and Admin surfaces now link directly to Help center.
+
+**Status:** responsive shell, mobile overflow audit, Help center links, and dedicated Admin Manage → Selects navigation are implemented. Playwright covers every listed Studio/Admin submenu route at desktop and mobile viewports; broadcast/admin parity items remain queued in the workplan above.
+
+### 2026-08-28 — Follow-up queue: Sounds, media backdrops, and modal theming
+
+**Completed:** Sounds filters are collapsed by default with an accessible toggle next to search. Track and collection metadata now carry a backdrop image URL. Admin Selects is a dedicated Manage side tab and no longer appears in Moderation. Theme hydration completes before the app mounts, preventing dialogs from flashing in the light theme.
+
+**Queued:** Extract the reusable Admin stream-manager panel for Overview (programming, duration, listener count/peak, channel link, details modal, and recent broadcast recordings); make Missed shows a Moderation tab; add Schedule analytics and remove offline-programme controls; finish provider-specific addon configuration dialogs and explanatory copy.
+
+### 2026-08-28 — Radio add-on station configuration
+
+**Completed:** Radio stations in Add-ons → Radio remain configurable even when no stream source has been set. The station dialog edits metadata, artwork, station links, and stream source; changes persist in the listener widgets store. The Listen-page station cards now consume those saved overrides, so a configured source can be played without leaving the site.
+
+**Validation:** tahti-web type-check, lint, unit tests (29 files / 183 tests), and `git diff --check` pass. Changes remain uncommitted.
+
+### 2026-08-28 — hearthis.at Embed add-on
+
+**Completed:** Added hearthis.at to the Embed add-ons alongside SoundCloud and YouTube. Users can install it, configure a numeric track ID or official hearthis.at embed URL, and render the provider's player inline on Listen. Added provider-specific help text and URL coverage tests.
+
+### 2026-08-28 — Remove redundant Settings Connections section
+
+**Completed:** Removed the standalone Connections entry and panel from Settings. Artist social links remain under Artist, while source imports/exports and add-on configuration stay in their dedicated Studio/Add-ons destinations.
+
+### 2026-08-28 — Broadcast settings moved into Studio Manage
+
+**Completed:** Removed Broadcast from Settings. Studio → Manage now provides Radio with its stream, 24/7, and settings tabs, plus separate Green room and Multicast destinations. Multicast providers without credentials remain visibly disabled with Configure actions; configured targets can be activated or deactivated, and Custom RTMP accepts its own ingest address.
+
+### 2026-08-28 — Artist branding settings tabs
+
+**Completed:** Artist settings now expose Branding, Gallery, and Press kit as separate top-level tabs. The existing Studio branding editor supports a section-only mode so the unique branding, gallery, and press-kit controls are reused without duplicated fields or nested navigation in Settings.

@@ -135,6 +135,12 @@ const PRIMARY = [
     icon: <LanguagesIcon size={16} aria-hidden />,
     description: 'Add languages and import translation CSVs.',
   },
+  {
+    to: '/admin/tahti-selects',
+    label: 'Selects',
+    icon: <RadioIcon size={16} aria-hidden />,
+    description: 'Manage the Tahti Selects editorial stream and rotation.',
+  },
 ] as const;
 
 const ADMIN_SECTIONS = [
@@ -181,7 +187,7 @@ const ADMIN_SECTIONS = [
   },
   {
     id: 'operations',
-    label: 'Operations',
+    label: 'Manage',
     items: PRIMARY.filter((item) =>
       [
         '/admin/streams',
@@ -190,6 +196,7 @@ const ADMIN_SECTIONS = [
         '/admin/financial',
         '/admin/vendors',
         '/admin/i18n',
+        '/admin/tahti-selects',
       ].includes(item.to),
     ),
   },

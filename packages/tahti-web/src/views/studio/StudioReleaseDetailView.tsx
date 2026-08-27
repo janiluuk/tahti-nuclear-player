@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { ExternalLinkIcon, Share2Icon } from 'lucide-react';
+import { ExternalLinkIcon, PlayIcon, Share2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -12,17 +12,21 @@ import {
 } from '@nuclearplayer/ui';
 
 import {
+  fetchEditorSource,
+  fetchStudioArchiveItem,
   fetchStudioReleases,
   patchStudioRelease,
   uploadReleaseArtwork,
 } from '../../api/studio';
 import type { FingerprintMatch, StudioRelease } from '../../api/studio-types';
+import { EmbedTrackRow } from '../../components/EmbedTrackRow';
 import { FingerprintTrackPanel } from '../../components/FingerprintTrackPanel';
 import { MusicBrainzSubmissionAssistant } from '../../components/MusicBrainzSubmissionAssistant';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { useAuthStore } from '../../stores/authStore';
+import { usePlayerStore } from '../../stores/playerStore';
 
 export function StudioReleaseDetailView({ id }: { id: string }) {
   const user = useAuthStore((state) => state.user);
@@ -184,21 +188,7 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                         <StudioPanel title="Tracks">
                           <ol className="text-foreground-secondary list-decimal space-y-2 pl-5 text-sm">
                             {release.tracks.map((t) => (
-                              <li key={t.id}>
-                                {t.title}
-                                {t.archiveItemId && (
-                                  <>
-                                    {' '}
-                                    <Link
-                                      to="/studio/archive/$id/editor"
-                                      params={{ id: t.archiveItemId }}
-                                      className="underline"
-                                    >
-                                      editor
-                                    </Link>
-                                  </>
-                                )}
-                              </li>
+                              <ReleaseTrackRow key={t.id} track={t} />
                             ))}
                           </ol>
                         </StudioPanel>
@@ -296,5 +286,82 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
         )}
       </div>
     </StudioGate>
+  );
+}
+
+function ReleaseTrackRow({
+  track,
+}: {
+  track: NonNullable<StudioRelease['tracks']>[number];
+}) {
+  const play = usePlayerStore((state) => state.play);
+  const [sourceUrl, setSourceUrl] = useState<string | null>(null);
+  const [embed, setEmbed] = useState<{
+    provider: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY';
+    uri: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!track.archiveItemId) {
+      return;
+    }
+    const archiveId = track.archiveItemId;
+    void fetchStudioArchiveItem(archiveId).then((result) => {
+      if (result.data.embedProvider && result.data.embedUri) {
+        setEmbed({
+          provider: result.data.embedProvider,
+          uri: result.data.embedUri,
+        });
+        return;
+      }
+      void fetchEditorSource(archiveId).then((source) =>
+        setSourceUrl(source.data.url),
+      );
+    });
+  }, [track.archiveItemId]);
+
+  if (embed) {
+    return (
+      <EmbedTrackRow
+        title={track.title}
+        provider={embed.provider}
+        embedUri={embed.uri}
+      />
+    );
+  }
+
+  return (
+    <li className="flex flex-wrap items-center gap-2">
+      <span className="min-w-0 flex-1 truncate">{track.title}</span>
+      {sourceUrl ? (
+        <Button
+          size="icon-sm"
+          variant="secondary"
+          aria-label={`Play ${track.title}`}
+          title={`Play ${track.title}`}
+          onClick={() =>
+            play({
+              id: `archive:${track.archiveItemId}`,
+              kind: 'archive',
+              title: track.title,
+              artist: 'You',
+              streamUrl: sourceUrl,
+              protocol: sourceUrl.includes('.m3u8') ? 'hls' : 'https',
+            })
+          }
+        >
+          <PlayIcon size={15} aria-hidden />
+        </Button>
+      ) : null}
+      {track.archiveItemId ? (
+        <Link
+          to="/studio/archive/$id/editor"
+          params={{ id: track.archiveItemId }}
+          className="text-primary text-xs underline"
+        >
+          editor
+        </Link>
+      ) : null}
+    </li>
   );
 }

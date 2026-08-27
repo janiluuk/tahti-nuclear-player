@@ -314,6 +314,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [releaseDate, setReleaseDate] = useState('');
   const [genres, setGenres] = useState('');
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [backdropUrl, setBackdropUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [trackQuery, setTrackQuery] = useState('');
@@ -343,6 +344,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
         setReleaseDate(c.data.releaseDate ?? '');
         setGenres((c.data.genres ?? []).join(', '));
         setCoverUrl(c.data.coverUrl ?? null);
+        setBackdropUrl(c.data.backdropUrl ?? null);
       },
     );
   };
@@ -430,6 +432,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
         .map((genre) => genre.trim())
         .filter(Boolean)
         .slice(0, 5),
+      backdropUrl: backdropUrl?.trim() || null,
     });
     setSaving(false);
     if (!result.ok) {
@@ -513,6 +516,13 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       toast.success('Cover uploaded.');
                     });
                   }}
+                />
+                <Input
+                  className="mt-2"
+                  label="Backdrop image URL"
+                  value={backdropUrl ?? ''}
+                  placeholder="https://…"
+                  onChange={(event) => setBackdropUrl(event.target.value)}
                 />
               </div>
             </div>

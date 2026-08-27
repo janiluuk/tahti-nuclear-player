@@ -20,6 +20,7 @@ import {
 
 import {
   fetchMyRadioSubmissions,
+  fetchStudioArchive,
   fetchStudioArchiveItem,
   importArchiveBanner,
   patchStudioArchiveItem,
@@ -33,10 +34,11 @@ import type {
 } from '../api/studio-types';
 import { capitalizeGenre, PRESET_GENRES } from '../lib/genres';
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
+import { MusicBrainzSubmissionAssistant } from './MusicBrainzSubmissionAssistant';
 import { PageLoading } from './PageStates';
 import { TrackExportPanel } from './TrackExportPanel';
 
-type Tab = 'metadata' | 'artwork' | 'playlists' | 'export';
+type Tab = 'metadata' | 'artwork' | 'playlists' | 'settings' | 'export';
 
 type Props = {
   archiveItemId: string | null;
@@ -71,7 +73,13 @@ const LICENSES = [
   ],
 ] as const;
 
-const TAB_ORDER: Tab[] = ['metadata', 'artwork', 'playlists', 'export'];
+const TAB_ORDER: Tab[] = [
+  'metadata',
+  'artwork',
+  'playlists',
+  'settings',
+  'export',
+];
 
 export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const isOpen = Boolean(archiveItemId);
@@ -87,6 +95,10 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const [radioSubmission, setRadioSubmission] =
     useState<RadioSubmission | null>(null);
   const [submittingToRadio, setSubmittingToRadio] = useState(false);
+  const [rotationReplacement, setRotationReplacement] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!archiveItemId) {
@@ -130,7 +142,10 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
           downloadsEnabled: res.data.downloadsEnabled ?? false,
           isFallback: res.data.isFallback ?? false,
           commentsEnabled: res.data.commentsEnabled ?? true,
+          selectsOptIn: res.data.selectsOptIn ?? false,
+          topListsEligible: res.data.topListsEligible ?? true,
           bannerUrl: res.data.bannerUrl ?? '',
+          backdropUrl: res.data.backdropUrl ?? '',
         });
       })
       .catch((err: unknown) => {
@@ -193,13 +208,31 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     setNote('Cover art imported and stored with the track.');
   };
 
-  const save = async () => {
-    if (!archiveItemId || !form.title?.trim()) {
+  const save = async (confirmedRotationReplacement = false) => {
+    if (!archiveItemId || !item || !form.title?.trim()) {
       return;
     }
     setSaving(true);
     setError(null);
     setNote(null);
+    if (form.isFallback && !item.isFallback && !confirmedRotationReplacement) {
+      const archive = await fetchStudioArchive();
+      const rotation = archive.data
+        .filter((candidate) => candidate.isFallback && candidate.id !== item.id)
+        .sort(
+          (left, right) =>
+            new Date(left.createdAt ?? 0).getTime() -
+            new Date(right.createdAt ?? 0).getTime(),
+        );
+      if (rotation.length >= 5 && rotation[0]) {
+        setSaving(false);
+        setRotationReplacement({
+          id: rotation[0].id,
+          title: rotation[0].title,
+        });
+        return;
+      }
+    }
     const { license, ...metadata } = form;
     const result = await patchStudioArchiveItem(archiveItemId, {
       ...metadata,
@@ -209,6 +242,9 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       genre: form.genre?.trim() || null,
       isPublic: form.visibility === 'PUBLIC',
       releaseDate: form.releaseDate || null,
+      ...(rotationReplacement
+        ? { replaceFallbackItemId: rotationReplacement.id }
+        : {}),
     });
     setSaving(false);
     if (!result.ok) {
@@ -233,8 +269,10 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       isFallback: result.data.isFallback ?? false,
       commentsEnabled: result.data.commentsEnabled ?? true,
       bannerUrl: result.data.bannerUrl ?? '',
+      backdropUrl: result.data.backdropUrl ?? '',
     }));
     setNote('Track details saved.');
+    setRotationReplacement(null);
     onSaved?.(result.data);
   };
 
@@ -486,6 +524,109 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                 ),
               },
               {
+                id: 'settings',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <TagsIcon size={15} aria-hidden />
+                    Settings
+                  </span>
+                ),
+                content: (
+                  <div className="flex flex-col gap-4">
+                    <p className="text-foreground-secondary text-sm">
+                      Choose where this track can appear and whether it can be
+                      selected for shared programming.
+                    </p>
+                    <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={form.visibility === 'PUBLIC'}
+                        onChange={(event) =>
+                          setForm({
+                            ...form,
+                            visibility: event.target.checked
+                              ? 'PUBLIC'
+                              : 'PRIVATE',
+                            isPublic: event.target.checked,
+                          })
+                        }
+                        className="mt-0.5"
+                      />
+                      <span>
+                        <span className="block font-medium">
+                          List in discovery and listener lists
+                        </span>
+                        <span className="text-foreground-secondary block text-xs">
+                          Private tracks stay available to you but are excluded
+                          from public catalog surfaces.
+                        </span>
+                      </span>
+                    </label>
+                    <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={form.topListsEligible ?? true}
+                        onChange={(event) =>
+                          setForm({
+                            ...form,
+                            topListsEligible: event.target.checked,
+                          })
+                        }
+                        className="mt-0.5"
+                      />
+                      <span>
+                        <span className="block font-medium">
+                          Allow discovery analytics and top lists
+                        </span>
+                        <span className="text-foreground-secondary block text-xs">
+                          Allow eligible listener activity to contribute to
+                          discovery lists.
+                        </span>
+                      </span>
+                    </label>
+                    <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={form.selectsOptIn ?? false}
+                        onChange={(event) =>
+                          setForm({
+                            ...form,
+                            selectsOptIn: event.target.checked,
+                          })
+                        }
+                        className="mt-0.5"
+                      />
+                      <span>
+                        <span className="block font-medium">
+                          Allow Tahti Selects
+                        </span>
+                        <span className="text-foreground-secondary block text-xs">
+                          Let the Tahti team consider this track for curated
+                          Tahti Selects programming.
+                        </span>
+                      </span>
+                    </label>
+                    <Button
+                      size="sm"
+                      variant={form.isFallback ? 'secondary' : undefined}
+                      className="self-start"
+                      onClick={() =>
+                        setForm({ ...form, isFallback: !form.isFallback })
+                      }
+                    >
+                      {form.isFallback
+                        ? 'Remove from rotation'
+                        : 'Add to rotation'}
+                    </Button>
+                    <SaveButton
+                      saving={saving}
+                      disabled={!form.title?.trim()}
+                      onClick={() => void save()}
+                    />
+                  </div>
+                ),
+              },
+              {
                 id: 'artwork',
                 label: (
                   <span className="inline-flex items-center gap-1.5">
@@ -554,6 +695,14 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         JPEG, PNG, or WebP. Imported images are re-hosted so the
                         artwork stays available.
                       </p>
+                      <Input
+                        label="Backdrop image URL"
+                        value={form.backdropUrl ?? ''}
+                        placeholder="https://…"
+                        onChange={(event) =>
+                          setForm({ ...form, backdropUrl: event.target.value })
+                        }
+                      />
                     </div>
                   </div>
                 ),
@@ -595,7 +744,17 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                     Export
                   </span>
                 ),
-                content: <TrackExportPanel archiveItemId={item.id} />,
+                content: (
+                  <div className="flex flex-col gap-4">
+                    <MusicBrainzSubmissionAssistant
+                      mode="track"
+                      title={item.title}
+                      artistName={item.artistName ?? ''}
+                      releaseDate={item.releaseDate}
+                    />
+                    <TrackExportPanel archiveItemId={item.id} />
+                  </div>
+                ),
               },
             ]}
           />
@@ -622,6 +781,32 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
               onClick={() => void save()}
             />
           ) : null}
+        </Dialog.Actions>
+      </Dialog.Root>
+
+      <Dialog.Root
+        isOpen={Boolean(rotationReplacement)}
+        onClose={() => {
+          setRotationReplacement(null);
+          setSaving(false);
+        }}
+      >
+        <Dialog.Title>Replace the oldest rotation track?</Dialog.Title>
+        <Dialog.Description>
+          Your channel rotation is full. Adding “{item?.title}” will remove “
+          {rotationReplacement?.title}”, the oldest track currently in the
+          rotation.
+        </Dialog.Description>
+        <Dialog.Actions>
+          <Dialog.Close>Cancel</Dialog.Close>
+          <Button
+            onClick={() => {
+              void save(true);
+            }}
+            disabled={saving}
+          >
+            {saving ? 'Replacing…' : 'Replace and add'}
+          </Button>
         </Dialog.Actions>
       </Dialog.Root>
 

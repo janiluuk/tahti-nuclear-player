@@ -17,7 +17,6 @@ import { BetaTab } from './tabs/BetaTab';
 import { ContentReportsTab } from './tabs/ContentReportsTab';
 import { FeatureRequestsTab } from './tabs/FeatureRequestsTab';
 import { RadioSubmissionsTab } from './tabs/RadioSubmissionsTab';
-import { SelectsTab } from './tabs/SelectsTab';
 import { SupportTab } from './tabs/SupportTab';
 
 function tabContent(id: AdminModerationTabId) {
@@ -28,8 +27,6 @@ function tabContent(id: AdminModerationTabId) {
       return <BetaTab />;
     case 'radio-submissions':
       return <RadioSubmissionsTab />;
-    case 'selects':
-      return <SelectsTab />;
     case 'content-reports':
       return <ContentReportsTab />;
     case 'feature-requests':

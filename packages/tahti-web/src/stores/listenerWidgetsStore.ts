@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 
 import type { RadioStation } from '../content/radioStations';
 
-/** One user-added SoundCloud/YouTube embed — see src/content/listenerWidgets.ts. */
+/** One user-added external embed — see src/content/listenerWidgets.ts. */
 export type ListenerWidgetInstance = {
   id: string;
   typeId: string;

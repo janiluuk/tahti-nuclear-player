@@ -1,7 +1,5 @@
 import { Link } from '@tanstack/react-router';
 import {
-  ArrowDownToLineIcon,
-  ArrowUpFromLineIcon,
   Bell,
   Cast,
   Compass,
@@ -46,19 +44,16 @@ import {
   fetchGreenRoomPrefs,
   fetchModerators,
   fetchNotificationPrefs,
-  fetchPressKitMeta,
   fetchSocialConnections,
   patchDiscoveryPrefs,
   patchGreenRoomPrefs,
   patchNotificationPrefs,
-  patchPressKitBio,
   patchSocialConnections,
   type ChannelMember,
   type DiscoveryPrefs,
   type GreenRoomPrefs,
   type ModeratorRow,
   type NotificationPrefs,
-  type PressKitMeta,
   type SocialConnections,
 } from '../../api/artist-settings';
 import {
@@ -92,7 +87,6 @@ import {
   type GrantEstimate,
   type GrantRow,
 } from '../../api/revenue';
-import { SOURCE_DEFS, type IntegrationId } from '../../api/sources';
 import {
   fetchMeProfile,
   fetchProgramme,
@@ -119,9 +113,7 @@ import {
   parseGenreTags,
 } from '../../lib/genres';
 import { membershipStatusLabel } from '../../lib/membershipStatus';
-import { EXPORT_TARGETS } from '../../plugins/export';
 import {
-  multicastProviderLabel,
   multicastProviders,
   type MulticastProviderId,
 } from '../../plugins/multicast';
@@ -180,17 +172,11 @@ export function SettingsSectionBody({
     case 'channel':
       content = <ChannelPanel />;
       break;
-    case 'broadcast':
-      content = <BroadcastPanel />;
-      break;
     case 'themes':
       content = <ThemesPanel />;
       break;
     case 'plugin-store':
       content = <PluginStorePanel />;
-      break;
-    case 'connections':
-      content = <ConnectionsPanel />;
       break;
     case 'whats-new':
       content = <WhatsNewPanel />;
@@ -212,116 +198,6 @@ export function SettingsSectionBody({
         </p>
       </header>
       {content}
-    </div>
-  );
-}
-
-type ServiceEntry = {
-  id: string;
-  label: string;
-  note: string;
-  color: string;
-  to: string;
-};
-
-// The subset of SOURCE_DEFS (api/sources.ts) that's an external service to
-// import *from* — excludes upload/stash (local, not external) and
-// broadcast/radio/musicbrainz (not import sources). `color` is purely this
-// panel's avatar tint, not part of SourceDef — everything else (label,
-// note, deep link) is derived, so there's one source of truth for what
-// each service actually is instead of a manually-synced second copy.
-const IMPORT_SOURCE_IDS: IntegrationId[] = [
-  'bandcamp',
-  'soundcloud',
-  'google-drive',
-  'mixcloud',
-  'spotify',
-  'hearthis',
-  'url',
-];
-
-const IMPORT_SOURCE_COLORS: Partial<Record<IntegrationId, string>> = {
-  bandcamp: 'var(--accent-cyan)',
-  soundcloud: 'var(--accent-orange)',
-  'google-drive': 'var(--accent-blue)',
-  mixcloud: 'var(--accent-purple)',
-  spotify: 'var(--accent-green)',
-  hearthis: 'var(--accent-yellow)',
-  url: 'var(--accent-yellow)',
-};
-
-const IMPORT_SERVICES: ServiceEntry[] = IMPORT_SOURCE_IDS.map((id) => {
-  const def = SOURCE_DEFS.find((s) => s.id === id)!;
-  return {
-    id: def.id,
-    label: def.name,
-    note: def.description,
-    color: IMPORT_SOURCE_COLORS[def.id] ?? 'var(--foreground-secondary)',
-    to: def.studioDeepLink ?? `/sources/${def.id}`,
-  };
-});
-
-// The DSP set a Tahti release actually reaches (same list the public smart
-// link page buttons use). Spotify/Apple/Tidal/Deezer/Amazon/YouTube go out
-// through one Revelator submission; Bandcamp/SoundCloud/Mixcloud are
-// reached by connecting them as a source instead.
-function ServiceRow({ service }: { service: ServiceEntry }) {
-  const closeSettings = useSettingsModalStore((s) => s.close);
-  return (
-    <li className="border-border flex items-center gap-3 rounded-lg border px-3 py-2">
-      <span
-        className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-black/80"
-        style={{ background: service.color }}
-        aria-hidden
-      >
-        {service.label.charAt(0)}
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium">{service.label}</div>
-        <div className="text-foreground-secondary truncate text-xs">
-          {service.note}
-        </div>
-      </div>
-      <Link to={service.to} onClick={closeSettings}>
-        <Button size="sm" variant="secondary">
-          Open
-        </Button>
-      </Link>
-    </li>
-  );
-}
-
-/** Where a release's audience actually comes from and goes to — the
- * services you can pull music in from, and the services a release
- * distributes out to. Replaces the old desktop-only MCP docs, which
- * described a capability this web SPA can't offer (see chat history:
- * MCP needs Tauri IPC into a local process, not reachable from here). */
-function ImportExportPanel() {
-  return (
-    <div className="flex flex-col gap-6 text-sm">
-      <section className="flex flex-col gap-2">
-        <h3 className="flex items-center gap-1.5 font-medium">
-          <ArrowDownToLineIcon size={14} aria-hidden />
-          Import music
-        </h3>
-        <ul className="flex flex-col gap-2">
-          {IMPORT_SERVICES.map((s) => (
-            <ServiceRow key={`import-${s.id}`} service={s} />
-          ))}
-        </ul>
-      </section>
-
-      <section className="flex flex-col gap-2">
-        <h3 className="flex items-center gap-1.5 font-medium">
-          <ArrowUpFromLineIcon size={14} aria-hidden />
-          Export music
-        </h3>
-        <ul className="flex flex-col gap-2">
-          {EXPORT_TARGETS.map((s) => (
-            <ServiceRow key={`export-${s.id}`} service={s} />
-          ))}
-        </ul>
-      </section>
     </div>
   );
 }
@@ -595,7 +471,6 @@ function ArtistPanel() {
   const refreshAuth = useAuthStore((s) => s.refresh);
   const [profile, setProfile] = useState<ProfileFields | null>(null);
   const [members, setMembers] = useState<ChannelMember[]>([]);
-  const [press, setPress] = useState<PressKitMeta | null>(null);
   const [social, setSocial] = useState<SocialConnections | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [socialMsg, setSocialMsg] = useState<string | null>(null);
@@ -605,12 +480,10 @@ function ArtistPanel() {
     void Promise.all([
       fetchMeProfile(),
       fetchChannelMembers(),
-      fetchPressKitMeta(),
       fetchSocialConnections(),
-    ]).then(([p, m, k, s]) => {
+    ]).then(([p, m, s]) => {
       setProfile(p.data);
       setMembers(m.data);
-      setPress(k.data);
       setSocial(s.data);
     });
   }, []);
@@ -808,7 +681,7 @@ function ArtistPanel() {
               ))}
               <div className="flex justify-end">
                 <SaveButton
-                  label="Save connections"
+                  label="Save social links"
                   onClick={() => {
                     if (!social) {
                       return;
@@ -829,7 +702,12 @@ function ArtistPanel() {
         {
           id: 'branding',
           label: tabLabel(Paintbrush, 'Branding'),
-          content: <StudioBrandingPanel />,
+          content: <StudioBrandingPanel section="branding" />,
+        },
+        {
+          id: 'gallery',
+          label: tabLabel(ImageIcon, 'Gallery'),
+          content: <StudioBrandingPanel section="gallery" />,
         },
         {
           id: 'members',
@@ -864,57 +742,7 @@ function ArtistPanel() {
         {
           id: 'presskit',
           label: tabLabel(ImageIcon, 'Press kit'),
-          content: !press ? (
-            <SettingsHint>Loading…</SettingsHint>
-          ) : (
-            <div className="flex flex-col gap-6">
-              <label className="flex flex-col gap-1">
-                <span className="text-foreground text-sm font-semibold">
-                  Short bio
-                </span>
-                <textarea
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                  rows={3}
-                  value={press.bioShort}
-                  onChange={(e) =>
-                    setPress({ ...press, bioShort: e.target.value })
-                  }
-                />
-              </label>
-              <SettingsInfo
-                label="Press assets"
-                value={`${press.photoCount} photos${press.hasZip ? ', ZIP ready' : ''}`}
-              />
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                <SettingsHint>
-                  The download bundles your gallery images and biography into a
-                  single press kit.
-                </SettingsHint>
-                {press.downloadPath && (
-                  <a
-                    href={`https://tahti.live${press.downloadPath}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <Button size="sm" variant="secondary">
-                      Download ZIP
-                    </Button>
-                  </a>
-                )}
-                <SaveButton
-                  label="Save press bio"
-                  onClick={() => {
-                    void patchPressKitBio(press.bioShort).then((r) => {
-                      setMsg(r.ok ? 'Press kit bio saved.' : r.error);
-                      if (r.ok) {
-                        setPress(r.data);
-                      }
-                    });
-                  }}
-                />
-              </div>
-            </div>
-          ),
+          content: <StudioBrandingPanel section="press-kit" />,
         },
       ]}
     />
@@ -1147,7 +975,13 @@ function ChannelPanel() {
   );
 }
 
-function BroadcastPanel() {
+export type BroadcastSection = 'radio' | 'green-room' | 'multistream';
+
+export function BroadcastPanel({
+  section,
+}: {
+  section?: BroadcastSection;
+} = {}) {
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [programme, setProgramme] = useState<ProgrammeView | null>(null);
   const [green, setGreen] = useState<GreenRoomPrefs | null>(null);
@@ -1156,6 +990,7 @@ function BroadcastPanel() {
   const [newProvider, setNewProvider] = useState<MulticastProviderId>('TWITCH');
   const [newKey, setNewKey] = useState('');
   const [newLabel, setNewLabel] = useState('');
+  const [newRtmpUrl, setNewRtmpUrl] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
 
   const reloadTargets = () => {
@@ -1175,270 +1010,308 @@ function BroadcastPanel() {
     reloadTargets();
   }, []);
 
-  return (
-    <Tabs
-      items={[
-        {
-          id: 'radio',
-          label: tabLabel(RadioIcon, 'Radio'),
-          content: !programme ? (
-            <SettingsHint>Loading…</SettingsHint>
-          ) : (
-            <div className="flex flex-col gap-6">
-              <SettingsToggle
-                label="Announcements enabled"
-                description="Allow platform/radio announcements on your channel programme."
-                value={programme.announcementsEnabled}
-                onChange={(v) => {
-                  const next = { ...programme, announcementsEnabled: v };
-                  setProgramme(next);
-                  void patchProgramme({ announcementsEnabled: v });
-                }}
-              />
-              <SettingsToggle
-                label="Fallback / autoplay when offline"
-                value={programme.fallbackEnabled}
-                onChange={(v) => {
-                  const next = { ...programme, fallbackEnabled: v };
-                  setProgramme(next);
-                  void patchProgramme({ fallbackEnabled: v });
-                }}
-              />
-              <SettingsToggle
-                label="Auto-enroll new archive into fallback"
-                value={programme.fallbackAutoEnroll}
-                onChange={(v) => {
-                  const next = { ...programme, fallbackAutoEnroll: v };
-                  setProgramme(next);
-                  void patchProgramme({ fallbackAutoEnroll: v });
-                }}
-              />
-              <Link to="/studio/schedule" onClick={closeSettings}>
-                <Button size="sm" variant="secondary">
-                  Open schedule / programme
-                </Button>
-              </Link>
-            </div>
-          ),
-        },
-        {
-          id: 'green-room',
-          label: tabLabel(Mic, 'Green room'),
-          content: !green ? (
-            <SettingsHint>Loading…</SettingsHint>
-          ) : (
-            <div className="flex flex-col gap-6">
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-foreground text-sm font-semibold">
-                  Who can join
-                </span>
-                <div className="flex gap-2">
-                  {(
-                    [
-                      ['everyone', 'Everyone'],
-                      ['subscribers', 'Subscribers only'],
-                    ] as const
-                  ).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      aria-pressed={green.access === value}
-                      onClick={() => {
-                        setGreen({ ...green, access: value });
-                        void patchGreenRoomPrefs({ access: value });
-                      }}
-                      className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                        green.access === value
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border text-foreground-secondary hover:text-foreground'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <span className="text-foreground-secondary text-xs">
-                  Anyone signed in, or only listeners with an active fan
-                  subscription to you.
-                </span>
-              </label>
-              <Input
-                label="Default show title"
-                value={green.defaultTitle}
-                onChange={(e) =>
-                  setGreen({ ...green, defaultTitle: e.target.value })
-                }
-                onBlur={() =>
-                  void patchGreenRoomPrefs({
-                    defaultTitle: green.defaultTitle,
-                  })
-                }
-              />
-              <Input
-                label="Default note"
-                value={green.defaultNote}
-                onChange={(e) =>
-                  setGreen({ ...green, defaultNote: e.target.value })
-                }
-                onBlur={() =>
-                  void patchGreenRoomPrefs({ defaultNote: green.defaultNote })
-                }
-              />
-              <SettingsToggle
-                label="Auto-announce when going live"
-                value={green.autoAnnounce}
-                onChange={(v) => {
-                  setGreen({ ...green, autoAnnounce: v });
-                  void patchGreenRoomPrefs({ autoAnnounce: v });
-                }}
-              />
-              <SettingsToggle
-                label="Hold music while waiting for signal"
-                value={green.holdMusicEnabled}
-                onChange={(v) => {
-                  setGreen({ ...green, holdMusicEnabled: v });
-                  void patchGreenRoomPrefs({ holdMusicEnabled: v });
-                }}
-              />
-              <Link to="/studio/go-live" onClick={closeSettings}>
-                <Button size="sm" variant="secondary">
-                  Go Live
-                </Button>
-              </Link>
-            </div>
-          ),
-        },
-        {
-          id: 'moderators',
-          label: tabLabel(Shield, 'Moderators'),
-          content: (
-            <div className="flex flex-col gap-4">
-              <SettingsHint>
-                Chat moderators for your live channel.
-              </SettingsHint>
-              {mods.length === 0 ? (
-                <SettingsHint>No moderators yet.</SettingsHint>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {mods.map((m) => (
-                    <li
-                      key={m.id}
-                      className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
-                    >
-                      <span>
-                        {m.displayName} (@{m.username})
-                      </span>
-                      <span className="text-foreground-secondary text-xs">
-                        {m.canTimeout ? 'timeout' : ''}
-                        {m.canTimeout && m.canDelete ? ', ' : ''}
-                        {m.canDelete ? 'delete' : ''}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <SettingsHint>
-                View the current team here. Manage invitations and permissions
-                from your account on tahti.live.
-              </SettingsHint>
-            </div>
-          ),
-        },
-        {
-          id: 'multistream',
-          label: tabLabel(Cast, 'Multistream'),
-          content: (
-            <div className="flex flex-col gap-4">
-              <SettingsHint>
-                Mirror shows to Twitch, YouTube, etc. Paste each platform’s
-                stream key.
-              </SettingsHint>
-              {targets.length === 0 ? (
-                <SettingsHint>No destinations yet.</SettingsHint>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {targets.map((t) => (
-                    <PluginItem
-                      key={t.id}
-                      icon={<Cast size={22} aria-hidden />}
-                      name={t.label || multicastProviderLabel(t.provider)}
-                      author={multicastProviderLabel(t.provider)}
-                      description={
-                        t.keyLast4
-                          ? `${t.rtmpUrl} · key ···${t.keyLast4}`
-                          : t.rtmpUrl
-                      }
-                      disabled={!t.enabled}
-                      labels={{ by: 'via' }}
-                      rightAccessory={
-                        <Toggle
-                          checked={t.enabled}
-                          onChange={(checked) => {
-                            void patchRtmpTarget(t.id, {
-                              enabled: checked,
-                            }).then(reloadTargets);
-                          }}
-                          aria-label={`Toggle ${t.label || multicastProviderLabel(t.provider)}`}
-                        />
-                      }
-                      onRemove={() => {
-                        void deleteRtmpTarget(t.id).then(reloadTargets);
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-                <Select
-                  label="Provider"
-                  value={newProvider}
-                  onValueChange={(value) =>
-                    setNewProvider(value as MulticastProviderId)
-                  }
-                  options={multicastProviders.map((provider) => ({
-                    id: provider.id,
-                    label: provider.label,
-                  }))}
-                />
-                <Input
-                  label="Label"
-                  value={newLabel}
-                  onChange={(e) => setNewLabel(e.target.value)}
-                />
-                <Input
-                  label="Stream key"
-                  value={newKey}
-                  onChange={(e) => setNewKey(e.target.value)}
-                />
-                <Button
-                  size="sm"
-                  disabled={!newKey.trim()}
+  const items = [
+    {
+      id: 'radio',
+      label: tabLabel(RadioIcon, 'Radio'),
+      content: !programme ? (
+        <SettingsHint>Loading…</SettingsHint>
+      ) : (
+        <div className="flex flex-col gap-6">
+          <SettingsToggle
+            label="Announcements enabled"
+            description="Allow platform/radio announcements on your channel programme."
+            value={programme.announcementsEnabled}
+            onChange={(v) => {
+              const next = { ...programme, announcementsEnabled: v };
+              setProgramme(next);
+              void patchProgramme({ announcementsEnabled: v });
+            }}
+          />
+          <SettingsToggle
+            label="Fallback / autoplay when offline"
+            value={programme.fallbackEnabled}
+            onChange={(v) => {
+              const next = { ...programme, fallbackEnabled: v };
+              setProgramme(next);
+              void patchProgramme({ fallbackEnabled: v });
+            }}
+          />
+          <SettingsToggle
+            label="Auto-enroll new archive into fallback"
+            value={programme.fallbackAutoEnroll}
+            onChange={(v) => {
+              const next = { ...programme, fallbackAutoEnroll: v };
+              setProgramme(next);
+              void patchProgramme({ fallbackAutoEnroll: v });
+            }}
+          />
+          <Link to="/studio/schedule" onClick={closeSettings}>
+            <Button size="sm" variant="secondary">
+              Open schedule / programme
+            </Button>
+          </Link>
+        </div>
+      ),
+    },
+    {
+      id: 'green-room',
+      label: tabLabel(Mic, 'Green room'),
+      content: !green ? (
+        <SettingsHint>Loading…</SettingsHint>
+      ) : (
+        <div className="flex flex-col gap-6">
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="text-foreground text-sm font-semibold">
+              Who can join
+            </span>
+            <div className="flex gap-2">
+              {(
+                [
+                  ['everyone', 'Everyone'],
+                  ['subscribers', 'Subscribers only'],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={green.access === value}
                   onClick={() => {
-                    void createRtmpTarget({
-                      provider: newProvider,
-                      streamKey: newKey.trim(),
-                      label: newLabel.trim() || undefined,
-                    }).then((r) => {
-                      if (!r.ok) {
-                        setMsg(r.error);
-                      } else {
-                        setNewKey('');
-                        setNewLabel('');
-                        reloadTargets();
-                      }
-                    });
+                    setGreen({ ...green, access: value });
+                    void patchGreenRoomPrefs({ access: value });
                   }}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                    green.access === value
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border text-foreground-secondary hover:text-foreground'
+                  }`}
                 >
-                  Add
-                </Button>
-              </div>
-              {msg && <SettingsHint>{msg}</SettingsHint>}
+                  {label}
+                </button>
+              ))}
             </div>
-          ),
-        },
-      ]}
-    />
-  );
+            <span className="text-foreground-secondary text-xs">
+              Anyone signed in, or only listeners with an active fan
+              subscription to you.
+            </span>
+          </label>
+          <Input
+            label="Default show title"
+            value={green.defaultTitle}
+            onChange={(e) =>
+              setGreen({ ...green, defaultTitle: e.target.value })
+            }
+            onBlur={() =>
+              void patchGreenRoomPrefs({
+                defaultTitle: green.defaultTitle,
+              })
+            }
+          />
+          <Input
+            label="Default note"
+            value={green.defaultNote}
+            onChange={(e) =>
+              setGreen({ ...green, defaultNote: e.target.value })
+            }
+            onBlur={() =>
+              void patchGreenRoomPrefs({ defaultNote: green.defaultNote })
+            }
+          />
+          <SettingsToggle
+            label="Auto-announce when going live"
+            value={green.autoAnnounce}
+            onChange={(v) => {
+              setGreen({ ...green, autoAnnounce: v });
+              void patchGreenRoomPrefs({ autoAnnounce: v });
+            }}
+          />
+          <SettingsToggle
+            label="Hold music while waiting for signal"
+            value={green.holdMusicEnabled}
+            onChange={(v) => {
+              setGreen({ ...green, holdMusicEnabled: v });
+              void patchGreenRoomPrefs({ holdMusicEnabled: v });
+            }}
+          />
+          <Link to="/studio/go-live" onClick={closeSettings}>
+            <Button size="sm" variant="secondary">
+              Go Live
+            </Button>
+          </Link>
+        </div>
+      ),
+    },
+    {
+      id: 'moderators',
+      label: tabLabel(Shield, 'Moderators'),
+      content: (
+        <div className="flex flex-col gap-4">
+          <SettingsHint>Chat moderators for your live channel.</SettingsHint>
+          {mods.length === 0 ? (
+            <SettingsHint>No moderators yet.</SettingsHint>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {mods.map((m) => (
+                <li
+                  key={m.id}
+                  className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
+                >
+                  <span>
+                    {m.displayName} (@{m.username})
+                  </span>
+                  <span className="text-foreground-secondary text-xs">
+                    {m.canTimeout ? 'timeout' : ''}
+                    {m.canTimeout && m.canDelete ? ', ' : ''}
+                    {m.canDelete ? 'delete' : ''}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <SettingsHint>
+            View the current team here. Manage invitations and permissions from
+            your account on tahti.live.
+          </SettingsHint>
+        </div>
+      ),
+    },
+    {
+      id: 'multistream',
+      label: tabLabel(Cast, 'Multistream'),
+      content: (
+        <div className="flex flex-col gap-4">
+          <SettingsHint>
+            Mirror shows to Twitch, YouTube, etc. Paste each platform’s stream
+            key.
+          </SettingsHint>
+          <div className="flex flex-col gap-3">
+            {multicastProviders.map((provider) => {
+              const destination = targets.find(
+                (target) => target.provider === provider.id,
+              );
+              if (!destination) {
+                return (
+                  <PluginItem
+                    key={provider.id}
+                    icon={<Cast size={22} aria-hidden />}
+                    name={provider.label}
+                    author="Multicast"
+                    description="Not configured — add the provider credentials to enable it."
+                    disabled
+                    warning
+                    warningText="Configure this destination before activating it."
+                    rightAccessory={
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => setNewProvider(provider.id)}
+                      >
+                        Configure
+                      </Button>
+                    }
+                    labels={{ by: 'via' }}
+                  />
+                );
+              }
+              return (
+                <PluginItem
+                  key={destination.id}
+                  icon={<Cast size={22} aria-hidden />}
+                  name={destination.label || provider.label}
+                  author={provider.label}
+                  description={`${destination.rtmpUrl} · key ···${destination.keyLast4 ?? 'hidden'}`}
+                  disabled={!destination.enabled}
+                  labels={{ by: 'via' }}
+                  rightAccessory={
+                    <Toggle
+                      checked={destination.enabled}
+                      onChange={(checked) => {
+                        void patchRtmpTarget(destination.id, {
+                          enabled: checked,
+                        }).then(reloadTargets);
+                      }}
+                      aria-label={`Toggle ${destination.label || provider.label}`}
+                    />
+                  }
+                  onRemove={() => {
+                    void deleteRtmpTarget(destination.id).then(reloadTargets);
+                  }}
+                />
+              );
+            })}
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <Select
+              label="Provider"
+              value={newProvider}
+              onValueChange={(value) =>
+                setNewProvider(value as MulticastProviderId)
+              }
+              options={multicastProviders.map((provider) => ({
+                id: provider.id,
+                label: provider.label,
+              }))}
+            />
+            <Input
+              label="Label"
+              value={newLabel}
+              onChange={(e) => setNewLabel(e.target.value)}
+            />
+            <Input
+              label="Stream key"
+              value={newKey}
+              onChange={(e) => setNewKey(e.target.value)}
+            />
+            {newProvider === 'CUSTOM' && (
+              <Input
+                label="RTMP address"
+                value={newRtmpUrl}
+                onChange={(e) => setNewRtmpUrl(e.target.value)}
+                placeholder="rtmp://example.com/live"
+              />
+            )}
+            <Button
+              size="sm"
+              disabled={
+                !newKey.trim() ||
+                (newProvider === 'CUSTOM' && !newRtmpUrl.trim())
+              }
+              onClick={() => {
+                void createRtmpTarget({
+                  provider: newProvider,
+                  streamKey: newKey.trim(),
+                  label: newLabel.trim() || undefined,
+                  rtmpUrl: newRtmpUrl.trim() || undefined,
+                }).then((r) => {
+                  if (!r.ok) {
+                    setMsg(r.error);
+                  } else {
+                    setNewKey('');
+                    setNewLabel('');
+                    setNewRtmpUrl('');
+                    reloadTargets();
+                  }
+                });
+              }}
+            >
+              Add
+            </Button>
+          </div>
+          {msg && <SettingsHint>{msg}</SettingsHint>}
+        </div>
+      ),
+    },
+  ];
+
+  if (section) {
+    return (
+      <div className="flex flex-col gap-6">
+        {items.find((item) => item.id === section)?.content}
+      </div>
+    );
+  }
+
+  return <Tabs items={items} />;
 }
 
 export function MoneyPanel() {
@@ -1891,22 +1764,6 @@ function ThemesPanel() {
           },
         ]}
       />
-    </div>
-  );
-}
-
-function ConnectionsPanel() {
-  const closeSettings = useSettingsModalStore((s) => s.close);
-  return (
-    <div className="flex flex-col gap-6">
-      <SettingsHint>
-        Manage where music comes from and where finished music can be sent.
-        Social links live under Artist → Social links.
-      </SettingsHint>
-      <Link to="/sources" onClick={closeSettings}>
-        <Button size="sm">Open Sources</Button>
-      </Link>
-      <ImportExportPanel />
     </div>
   );
 }

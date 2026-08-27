@@ -5,7 +5,7 @@ import { Button } from '@nuclearplayer/ui';
 import { listenerWidgetType } from '../content/listenerWidgets';
 import type { ListenerWidgetInstance } from '../stores/listenerWidgetsStore';
 
-/** Renders one enabled SoundCloud/YouTube widget instance using that
+/** Renders one enabled external widget instance using that
  * platform's real embedded player (an iframe) — this app can't legally or
  * technically proxy audio out of those platforms, so "playing" their
  * content here means embedding the official widget, same as any website. */

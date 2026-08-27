@@ -4,6 +4,7 @@ import { radioStation, radioStationPlayable } from '../content/radioStations';
 import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
+import { FavoritesView } from '../views/FavoritesView';
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
 
 /** Renders the listener's enabled SoundCloud/YouTube embeds and internet
@@ -13,16 +14,27 @@ import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
  * people who don't use this feature. */
 export function ListenerWidgetsSection() {
   const instances = useListenerWidgetsStore((s) => s.instances);
+  const installedTypeIds = useListenerWidgetsStore((s) => s.installedTypeIds);
   const enabledStationIds = useListenerWidgetsStore((s) => s.enabledStationIds);
+  const stationOverrides = useListenerWidgetsStore((s) => s.stationOverrides);
   const removeInstance = useListenerWidgetsStore((s) => s.removeInstance);
   const play = usePlayerStore((s) => s.play);
   const openSettings = useSettingsModalStore((s) => s.open);
 
   const enabledStations = enabledStationIds
-    .map((id) => radioStation(id))
+    .map((id) => {
+      const station = radioStation(id);
+      return station ? { ...station, ...stationOverrides[id] } : undefined;
+    })
     .filter((s) => s != null);
 
-  if (instances.length === 0 && enabledStations.length === 0) {
+  const favoritesEnabled = installedTypeIds.includes('favorites');
+
+  if (
+    instances.length === 0 &&
+    enabledStations.length === 0 &&
+    !favoritesEnabled
+  ) {
     return null;
   }
 
@@ -76,6 +88,8 @@ export function ListenerWidgetsSection() {
           ))}
         </div>
       )}
+
+      {favoritesEnabled ? <FavoritesView /> : null}
     </section>
   );
 }

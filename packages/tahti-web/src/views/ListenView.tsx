@@ -201,17 +201,21 @@ export function ListenView() {
             : 'Discover Tahti artists. Sign in to see your library here.'
         }
         actions={
-          user?.channel ? (
-            <Link to="/studio/go-live">
-              <Button size="sm">Go Live</Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to="/help"
+              className="text-foreground-secondary hover:text-foreground text-xs underline-offset-2 hover:underline"
+            >
+              Help center →
             </Link>
-          ) : !signedIn ? (
-            <Link to="/what-is-it">
-              <Button size="sm" variant="secondary">
-                What is tahti.live?
-              </Button>
-            </Link>
-          ) : undefined
+            {!signedIn ? (
+              <Link to="/what-is-it">
+                <Button size="sm" variant="secondary">
+                  What is tahti.live?
+                </Button>
+              </Link>
+            ) : null}
+          </div>
         }
       />
 

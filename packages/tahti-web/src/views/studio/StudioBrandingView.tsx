@@ -38,7 +38,7 @@ import { useAuthStore } from '../../stores/authStore';
 
 const ACCEPTED_IMAGES = 'image/jpeg,image/png,image/webp';
 
-type BrandingTab = 'branding' | 'gallery' | 'press-kit';
+export type StudioBrandingSection = 'branding' | 'gallery' | 'press-kit';
 type UploadMode = 'append' | 'replace';
 
 const selectedPressKitImages = (images: PressKitImageItem[]) =>
@@ -46,12 +46,14 @@ const selectedPressKitImages = (images: PressKitImageItem[]) =>
     .filter((image) => image.includeInZip)
     .sort((left, right) => left.position - right.position);
 
-export const StudioBrandingPanel: FC = () => {
+export const StudioBrandingPanel: FC<{
+  section?: StudioBrandingSection;
+}> = ({ section }) => {
   const user = useAuthStore((state) => state.user);
   const refreshAuth = useAuthStore((state) => state.refresh);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
-  const [tab, setTab] = useState<BrandingTab>('branding');
+  const [tab, setTab] = useState<StudioBrandingSection>(section ?? 'branding');
   const [profile, setProfile] = useState<ProfileFields | null>(null);
   const [images, setImages] = useState<PressKitImageItem[]>([]);
   const [pressKit, setPressKit] = useState<PressKitMeta | null>(null);
@@ -229,36 +231,38 @@ export const StudioBrandingPanel: FC = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <nav
-        className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
-        role="tablist"
-        aria-label="Branding sections"
-      >
-        {(
-          [
-            ['branding', 'Branding', PaletteIcon],
-            ['gallery', 'Gallery', ImagesIcon],
-            ['press-kit', 'Press kit', DownloadIcon],
-          ] as const
-        ).map(([id, label, Icon]) => (
-          <Button
-            key={id}
-            type="button"
-            variant="text"
-            role="tab"
-            aria-selected={tab === id}
-            className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
-              tab === id
-                ? 'bg-primary text-primary-foreground'
-                : 'text-foreground-secondary hover:text-foreground'
-            }`}
-            onClick={() => setTab(id)}
-          >
-            <Icon size={15} aria-hidden />
-            {label}
-          </Button>
-        ))}
-      </nav>
+      {section == null && (
+        <nav
+          className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
+          role="tablist"
+          aria-label="Branding sections"
+        >
+          {(
+            [
+              ['branding', 'Branding', PaletteIcon],
+              ['gallery', 'Gallery', ImagesIcon],
+              ['press-kit', 'Press kit', DownloadIcon],
+            ] as const
+          ).map(([id, label, Icon]) => (
+            <Button
+              key={id}
+              type="button"
+              variant="text"
+              role="tab"
+              aria-selected={tab === id}
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
+                tab === id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-foreground-secondary hover:text-foreground'
+              }`}
+              onClick={() => setTab(id)}
+            >
+              <Icon size={15} aria-hidden />
+              {label}
+            </Button>
+          ))}
+        </nav>
+      )}
 
       {tab === 'branding' ? (
         <>

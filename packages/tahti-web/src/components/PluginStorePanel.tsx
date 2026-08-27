@@ -1044,6 +1044,7 @@ function RadioCategory() {
             ...stationOverrides[baseStation.id],
           };
           const enabled = enabledStationIds.includes(station.id);
+          const sourceConfigured = Boolean(station.streamUrl);
           return (
             <PluginItem
               key={station.id}
@@ -1056,8 +1057,10 @@ function RadioCategory() {
               }
               name={station.name}
               author={station.language}
-              description={`${station.genre} · ${station.bitrateKbps}kbps ${station.codec} · ${station.streamUrl ?? 'Source not configured'}`}
-              disabled={!enabled}
+              description={`${station.genre} · ${station.bitrateKbps}kbps ${station.codec} · ${sourceConfigured ? 'Source configured' : 'Add a stream source in Configure'}`}
+              warning={!sourceConfigured}
+              warningText="This station needs a stream source before it can be played."
+              disabled={!enabled && sourceConfigured}
               rightAccessory={
                 <div className="flex gap-1">
                   <Button
@@ -1072,7 +1075,7 @@ function RadioCategory() {
                     variant="text"
                     onClick={() => setEditingStation(station)}
                   >
-                    Edit
+                    Configure
                   </Button>
                 </div>
               }
@@ -1085,7 +1088,7 @@ function RadioCategory() {
                           streamUrl: station.streamUrl!,
                         }),
                       )
-                  : undefined
+                  : () => setEditingStation(station)
               }
               labels={{ by: 'language' }}
             />
@@ -1187,6 +1190,32 @@ function EmbedCategory() {
 
   return (
     <div className="flex flex-col gap-3">
+      <ConfigurableCard
+        title="Favorites"
+        header={
+          <PluginStoreItem
+            name="Favorites"
+            author="Tahti"
+            description="Show your favorite channels and tracks as a section on Listen."
+            category="Listen"
+            isInstalled={installedTypeIds.includes('favorites')}
+            onInstall={() => installType('favorites')}
+          />
+        }
+      >
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-foreground-secondary text-sm">
+            Enabled favorites appear on the Listen page.
+          </p>
+          <Button
+            size="sm"
+            variant="text"
+            onClick={() => uninstallType('favorites')}
+          >
+            Uninstall
+          </Button>
+        </div>
+      </ConfigurableCard>
       {LISTENER_WIDGET_TYPES.map((type) => {
         const isInstalled = installedTypeIds.includes(type.id);
         const typeInstances = instances.filter((i) => i.typeId === type.id);

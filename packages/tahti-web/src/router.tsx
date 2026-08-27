@@ -173,6 +173,10 @@ const AdminStreamsView = lazyRouteComponent(
   () => import('./views/admin/AdminStreamsView'),
   'AdminStreamsView',
 );
+const AdminSelectsView = lazyRouteComponent(
+  () => import('./views/admin/AdminSelectsView'),
+  'AdminSelectsView',
+);
 const AdminTopListsView = lazyRouteComponent(
   () => import('./views/admin/AdminTopListsView'),
   'AdminTopListsView',
@@ -336,12 +340,7 @@ const adminNewsRoute = createRoute({
 const adminSelectsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/tahti-selects',
-  beforeLoad: () => {
-    throw redirect({
-      to: '/admin/moderation/$tab',
-      params: { tab: 'selects' },
-    });
-  },
+  component: AdminSelectsView,
 });
 
 const adminStreamsRoute = createRoute({

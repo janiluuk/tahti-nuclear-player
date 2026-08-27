@@ -8,6 +8,7 @@ import {
   LibraryIcon,
   Link2Icon,
   ListMusicIcon,
+  MicIcon,
   RadioIcon,
   RadioTowerIcon,
   Settings2Icon,
@@ -20,7 +21,6 @@ import { useEffect, useState } from 'react';
 
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
-import { useAuthStore } from '../stores/authStore';
 import { SectionSidebar } from './SectionSidebar';
 
 const PRIMARY = [
@@ -57,7 +57,7 @@ const SUBMENUS = {
     { to: '/studio/stats', label: 'Stats', icon: <TrendingUpIcon size={16} /> },
     {
       to: '/studio/updates',
-      label: 'Updates',
+      label: 'Posts',
       icon: <TrendingUpIcon size={16} />,
     },
     {
@@ -106,11 +106,6 @@ const SUBMENUS = {
     },
     { to: '/studio/stash', label: 'Stash', icon: <FolderOpenIcon size={16} /> },
     {
-      to: '/library/favorites',
-      label: 'Favorites',
-      icon: <HeartIcon size={16} />,
-    },
-    {
       to: '/library/history',
       label: 'History',
       icon: <ClockIcon size={16} />,
@@ -148,13 +143,18 @@ const SUBMENUS = {
       icon: <RadioIcon size={16} />,
     },
     {
-      to: '/studio/moderation',
-      label: 'Moderation',
-      icon: <SettingsIcon size={16} />,
+      to: '/studio/channel?tab=green-room',
+      label: 'Green room',
+      icon: <MicIcon size={16} />,
     },
     {
-      to: '/studio/setup-channel',
-      label: 'Setup channel',
+      to: '/studio/channel?tab=multicast',
+      label: 'Multicast',
+      icon: <RadioTowerIcon size={16} />,
+    },
+    {
+      to: '/studio/moderation',
+      label: 'Moderation',
       icon: <SettingsIcon size={16} />,
     },
   ],
@@ -194,12 +194,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/venues',
     '/studio/shows',
   ],
-  '/studio/channel': [
-    '/studio/channel',
-    '/sources',
-    '/studio/moderation',
-    '/studio/setup-channel',
-  ],
+  '/studio/channel': ['/studio/channel', '/sources', '/studio/moderation'],
 };
 
 const isActive = (current: string | undefined, to: string) => {
@@ -229,7 +224,6 @@ const isSubmenuActive = (current: string | undefined, to: string) =>
   (to === '/studio/collections' && current === '/library/collections') ||
   (to === '/studio/playlists' && current === '/library/playlists') ||
   (to === '/studio/recordings' && current === '/library/recordings') ||
-  (to === '/library/favorites' && current === '/library/favorites') ||
   (to === '/library/history' && current === '/library/history');
 
 export const StudioNav = ({ current }: { current?: string }) => (
@@ -238,7 +232,6 @@ export const StudioNav = ({ current }: { current?: string }) => (
 
 function StudioNavigation({ current }: { current?: string }) {
   const navigate = useNavigate();
-  const hasChannel = useAuthStore((state) => Boolean(state.user?.channel));
   const routeSection = PRIMARY.find((item) => isActive(current, item.to));
   const [selectedSection, setSelectedSection] = useState(
     routeSection?.to ?? '/studio',
@@ -250,9 +243,7 @@ function StudioNavigation({ current }: { current?: string }) {
     }
   }, [routeSection]);
 
-  const submenu = (
-    SUBMENUS[selectedSection as keyof typeof SUBMENUS] ?? []
-  ).filter((item) => item.to !== '/studio/setup-channel' || !hasChannel);
+  const submenu = SUBMENUS[selectedSection as keyof typeof SUBMENUS] ?? [];
 
   return (
     <>

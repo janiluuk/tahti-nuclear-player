@@ -1,7 +1,7 @@
 /** Listener widgets — pluggable, app-store-style embeds that play content
  * from an external platform inline on the Listen page, using that
  * platform's own official embedded player (SoundCloud's Widget API,
- * YouTube's IFrame Player API). This is deliberately not a port of
+ * YouTube's IFrame Player API, and hearthis.at's iframe widget). This is deliberately not a port of
  * Nuclear desktop's StreamProvider plugin system (search/resolve/stream
  * through a sandboxed plugin host) — a browser can't proxy audio out of
  * SoundCloud/YouTube without violating their ToS, so "playing" their
@@ -9,7 +9,7 @@
  * legitimately does.
  */
 
-export type ListenerWidgetTypeId = 'soundcloud' | 'youtube';
+export type ListenerWidgetTypeId = 'soundcloud' | 'youtube' | 'hearthis';
 
 export type ListenerWidgetType = {
   id: ListenerWidgetTypeId;
@@ -85,6 +85,47 @@ function youtubeEmbedUrl(input: string): string | null {
   return null;
 }
 
+function hearthisEmbedUrl(input: string): string | null {
+  const trimmed = input.trim();
+  if (/^\d+$/.test(trimmed)) {
+    return hearthisEmbedUrlForId(trimmed);
+  }
+
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    return null;
+  }
+
+  const host = url.hostname.replace(/^www\./, '');
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  if (
+    host !== 'hearthis.at' ||
+    pathParts[0]?.toLowerCase() !== 'embed' ||
+    !/^\d+$/.test(pathParts[1] ?? '')
+  ) {
+    return null;
+  }
+  return hearthisEmbedUrlForId(pathParts[1]);
+}
+
+function hearthisEmbedUrlForId(trackId: string): string {
+  const params = new URLSearchParams({
+    hcolor: '55acee',
+    color: '',
+    style: '2',
+    block_size: '2',
+    block_space: '2',
+    background: '1',
+    waveform: '1',
+    cover: '1',
+    autoplay: '0',
+    css: '',
+  });
+  return `https://hearthis.at/embed/${encodeURIComponent(trackId)}/transparent_black/?${params.toString()}`;
+}
+
 export const LISTENER_WIDGET_TYPES: ListenerWidgetType[] = [
   {
     id: 'soundcloud',
@@ -109,6 +150,19 @@ export const LISTENER_WIDGET_TYPES: ListenerWidgetType[] = [
     helpText: 'Paste a YouTube video or playlist URL.',
     embedHeight: 220,
     toEmbedUrl: youtubeEmbedUrl,
+  },
+  {
+    id: 'hearthis',
+    name: 'hearthis.at',
+    author: 'hearthis.at',
+    description:
+      "Play a hearthis.at track inline using hearthis.at's official embedded player.",
+    category: 'Streaming',
+    placeholder: 'https://hearthis.at/embed/12345/… or 12345',
+    helpText:
+      'Paste a hearthis.at embed URL or numeric track ID. Track pages without an embed ID are not supported yet.',
+    embedHeight: 150,
+    toEmbedUrl: hearthisEmbedUrl,
   },
 ];
 

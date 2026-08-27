@@ -1,10 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   BlocksIcon,
-  Link2,
   Paintbrush,
   Palette,
-  Radio,
   Sparkles,
   User,
   UserCircle2,
@@ -14,10 +12,8 @@ export type SettingsSectionId =
   | 'account'
   | 'artist'
   | 'channel'
-  | 'broadcast'
   | 'themes'
   | 'plugin-store'
-  | 'connections'
   | 'whats-new';
 
 export type SettingsNavItem = {
@@ -47,12 +43,6 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     Icon: Paintbrush,
   },
   {
-    id: 'broadcast',
-    label: 'Broadcast',
-    description: 'Radio, green room, mods, multistream',
-    Icon: Radio,
-  },
-  {
     id: 'themes',
     label: 'Themes',
     description: 'App appearance',
@@ -64,12 +54,6 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     description:
       'Themes, visualizers, radio, embeds, discovery, channel widgets, export, import, multicast, fingerprinting, audio plugins — one browser',
     Icon: BlocksIcon,
-  },
-  {
-    id: 'connections',
-    label: 'Connections',
-    description: 'Import sources and export destinations',
-    Icon: Link2,
   },
   {
     id: 'whats-new',

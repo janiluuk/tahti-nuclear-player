@@ -346,7 +346,19 @@ export function StudioCollectionsView() {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium">{c.name}</p>
+                    <Link
+                      to={
+                        ['PLAYLIST', 'DJ_SET_SERIES'].includes(
+                          collectionStyle(c),
+                        )
+                          ? '/studio/playlists/$slug'
+                          : '/studio/collections/$slug'
+                      }
+                      params={{ slug: c.slug }}
+                      className="font-medium hover:underline"
+                    >
+                      {c.name}
+                    </Link>
                     <p className="text-foreground-secondary text-xs">
                       /{c.slug}
                       {`, ${collectionStyle(c).replaceAll('_', ' ')}`}

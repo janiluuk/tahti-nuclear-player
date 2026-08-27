@@ -197,7 +197,13 @@ export function StudioPlaylistsView() {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium">{c.name}</p>
+                    <Link
+                      to="/studio/playlists/$slug"
+                      params={{ slug: c.slug }}
+                      className="font-medium hover:underline"
+                    >
+                      {c.name}
+                    </Link>
                     <p className="text-foreground-secondary flex flex-wrap items-center gap-2 text-xs">
                       <span className="inline-flex items-center gap-1">
                         {c.isPublic === false ? (

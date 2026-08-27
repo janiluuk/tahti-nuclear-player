@@ -45,6 +45,7 @@ export function StudioShowDetailView({ id }: { id: string }) {
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [backdropUrl, setBackdropUrl] = useState('');
   const [savingMeta, setSavingMeta] = useState(false);
+  const [showTab, setShowTab] = useState<'overview' | 'recordings'>('overview');
 
   const reload = () => {
     void fetchShowSeriesById(id).then((r) => {
@@ -235,147 +236,233 @@ export function StudioShowDetailView({ id }: { id: string }) {
               }
             />
 
-            <StudioPanel
-              title="Show defaults"
-              description="Manage the show identity and defaults inherited by new episodes."
+            <nav
+              className="border-border flex gap-1 border-b pb-2"
+              role="tablist"
+              aria-label="Show sections"
             >
-              <div className="flex flex-col gap-3">
-                <Input
-                  label="Title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs uppercase">
-                    Description
-                  </span>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={3}
-                    className="border-border bg-background rounded-md border px-3 py-2"
-                  />
-                </label>
-                <Input
-                  label="Thumbnail image URL"
-                  value={thumbnailUrl}
-                  onChange={(event) => setThumbnailUrl(event.target.value)}
-                  placeholder="https://…"
-                />
-                {thumbnailUrl ? (
-                  <img
-                    src={thumbnailUrl}
-                    alt="Show thumbnail preview"
-                    className="size-24 rounded-md object-cover"
-                  />
-                ) : null}
-                <Input
-                  label="Backdrop image URL"
-                  value={backdropUrl}
-                  onChange={(event) => setBackdropUrl(event.target.value)}
-                  placeholder="https://…"
-                />
-                {backdropUrl ? (
-                  <img
-                    src={backdropUrl}
-                    alt="Show backdrop preview"
-                    className="h-28 w-full rounded-md object-cover"
-                  />
-                ) : null}
-                <div className="flex justify-end">
-                  <SaveButton
-                    saving={savingMeta}
-                    label="Save defaults"
-                    onClick={() => void saveMeta()}
-                  />
-                </div>
-              </div>
-            </StudioPanel>
+              <Button
+                size="sm"
+                variant={showTab === 'overview' ? undefined : 'text'}
+                role="tab"
+                aria-selected={showTab === 'overview'}
+                onClick={() => setShowTab('overview')}
+              >
+                Overview
+              </Button>
+              <Button
+                size="sm"
+                variant={showTab === 'recordings' ? undefined : 'text'}
+                role="tab"
+                aria-selected={showTab === 'recordings'}
+                onClick={() => setShowTab('recordings')}
+              >
+                Recordings (
+                {
+                  episodes.filter((episode) => episode.source === 'broadcast')
+                    .length
+                }
+                )
+              </Button>
+            </nav>
 
-            <StudioPanel
-              title="Schedule"
-              action={
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={busy}
-                  onClick={() => void bookNextInterval()}
+            {showTab === 'overview' ? (
+              <>
+                <StudioPanel
+                  title="Show defaults"
+                  description="Manage the show identity and defaults inherited by new episodes."
                 >
-                  Book next {show.intervalHours}h slot
-                </Button>
-              }
-            >
-              {nextSlotHint ? (
-                <p className="text-sm">
-                  Next slot:{' '}
-                  <strong>
-                    {new Date(nextSlotHint.startAt).toLocaleString()}
-                  </strong>
-                </p>
-              ) : (
-                <p className="text-foreground-secondary text-sm">
-                  No upcoming slots — book an interval for this show.
-                </p>
-              )}
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Link to="/studio/go-live">
-                  <Button size="sm" variant="text">
-                    <MicIcon size={14} aria-hidden className="mr-1" />
-                    Stream live
-                  </Button>
-                </Link>
-              </div>
-            </StudioPanel>
+                  <div className="flex flex-col gap-3">
+                    <Input
+                      label="Title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                    <label className="flex flex-col gap-1 text-sm">
+                      <span className="text-foreground-secondary text-xs uppercase">
+                        Description
+                      </span>
+                      <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={3}
+                        className="border-border bg-background rounded-md border px-3 py-2"
+                      />
+                    </label>
+                    <Input
+                      label="Thumbnail image URL"
+                      value={thumbnailUrl}
+                      onChange={(event) => setThumbnailUrl(event.target.value)}
+                      placeholder="https://…"
+                    />
+                    {thumbnailUrl ? (
+                      <img
+                        src={thumbnailUrl}
+                        alt="Show thumbnail preview"
+                        className="size-24 rounded-md object-cover"
+                      />
+                    ) : null}
+                    <Input
+                      label="Backdrop image URL"
+                      value={backdropUrl}
+                      onChange={(event) => setBackdropUrl(event.target.value)}
+                      placeholder="https://…"
+                    />
+                    {backdropUrl ? (
+                      <img
+                        src={backdropUrl}
+                        alt="Show backdrop preview"
+                        className="h-28 w-full rounded-md object-cover"
+                      />
+                    ) : null}
+                    <div className="flex justify-end">
+                      <SaveButton
+                        saving={savingMeta}
+                        label="Save defaults"
+                        onClick={() => void saveMeta()}
+                      />
+                    </div>
+                  </div>
+                </StudioPanel>
 
-            {show.mode !== 'SINGLE' ? (
-              <StudioPanel title="Episodes">
-                {episodes.length === 0 ? (
+                <StudioPanel
+                  title="Schedule"
+                  action={
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={busy}
+                      onClick={() => void bookNextInterval()}
+                    >
+                      Book next {show.intervalHours}h slot
+                    </Button>
+                  }
+                >
+                  {nextSlotHint ? (
+                    <p className="text-sm">
+                      Next slot:{' '}
+                      <strong>
+                        {new Date(nextSlotHint.startAt).toLocaleString()}
+                      </strong>
+                    </p>
+                  ) : (
+                    <p className="text-foreground-secondary text-sm">
+                      No upcoming slots — book an interval for this show.
+                    </p>
+                  )}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link to="/studio/go-live">
+                      <Button size="sm" variant="text">
+                        <MicIcon size={14} aria-hidden className="mr-1" />
+                        Stream live
+                      </Button>
+                    </Link>
+                  </div>
+                </StudioPanel>
+
+                {show.mode !== 'SINGLE' ? (
+                  <StudioPanel title="Episodes">
+                    {episodes.length === 0 ? (
+                      <p className="text-foreground-secondary text-sm">
+                        No episodes yet. Create one — episode #
+                        {nextEpisodeNumber} is ready.
+                      </p>
+                    ) : (
+                      <ul className="divide-border divide-y">
+                        {episodes.map((ep) => (
+                          <li
+                            key={ep.id}
+                            className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
+                          >
+                            <span className="text-foreground-secondary w-10 text-xs tabular-nums">
+                              #{ep.episodeNumber}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <Link
+                                to="/studio/shows/episodes/$episodeId"
+                                params={{ episodeId: ep.id }}
+                                className="font-medium hover:underline"
+                              >
+                                {ep.title}
+                              </Link>
+                              <p className="text-foreground-secondary inline-flex items-center gap-1 text-xs">
+                                <EpisodeSourceIcon source={ep.source} />
+                                {episodeStatusLabel(ep)}
+                                {ep.source === 'broadcast'
+                                  ? ', recorded'
+                                  : ', upload'}
+                              </p>
+                            </div>
+                            <Link
+                              to="/studio/shows/episodes/$episodeId"
+                              params={{ episodeId: ep.id }}
+                            >
+                              <Button size="sm" variant="secondary">
+                                {ep.status === 'PENDING_APPROVAL'
+                                  ? 'Review'
+                                  : 'Open'}
+                              </Button>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </StudioPanel>
+                ) : null}
+              </>
+            ) : (
+              <StudioPanel
+                title="Recordings from this show"
+                description="Broadcast recordings linked to this show series."
+              >
+                {episodes.filter((episode) => episode.source === 'broadcast')
+                  .length === 0 ? (
                   <p className="text-foreground-secondary text-sm">
-                    No episodes yet. Create one — episode #{nextEpisodeNumber}{' '}
-                    is ready.
+                    No recordings from this show yet.
                   </p>
                 ) : (
                   <ul className="divide-border divide-y">
-                    {episodes.map((ep) => (
-                      <li
-                        key={ep.id}
-                        className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                      >
-                        <span className="text-foreground-secondary w-10 text-xs tabular-nums">
-                          #{ep.episodeNumber}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <Link
-                            to="/studio/shows/episodes/$episodeId"
-                            params={{ episodeId: ep.id }}
-                            className="font-medium hover:underline"
-                          >
-                            {ep.title}
-                          </Link>
-                          <p className="text-foreground-secondary inline-flex items-center gap-1 text-xs">
-                            <EpisodeSourceIcon source={ep.source} />
-                            {episodeStatusLabel(ep)}
-                            {ep.source === 'broadcast'
-                              ? ', recorded'
-                              : ', upload'}
-                          </p>
-                        </div>
-                        <Link
-                          to="/studio/shows/episodes/$episodeId"
-                          params={{ episodeId: ep.id }}
+                    {episodes
+                      .filter((episode) => episode.source === 'broadcast')
+                      .map((episode) => (
+                        <li
+                          key={episode.id}
+                          className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
                         >
-                          <Button size="sm" variant="secondary">
-                            {ep.status === 'PENDING_APPROVAL'
-                              ? 'Review'
-                              : 'Open'}
-                          </Button>
-                        </Link>
-                      </li>
-                    ))}
+                          <span className="text-foreground-secondary w-10 text-xs">
+                            #{episode.episodeNumber}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <Link
+                              to="/studio/shows/episodes/$episodeId"
+                              params={{ episodeId: episode.id }}
+                              className="font-medium hover:underline"
+                            >
+                              {episode.title}
+                            </Link>
+                            <p className="text-foreground-secondary text-xs">
+                              {episode.slotStartAt
+                                ? new Date(episode.slotStartAt).toLocaleString()
+                                : 'Recorded episode'}{' '}
+                              · {episode.status}
+                            </p>
+                          </div>
+                          {episode.archiveItemId ? (
+                            <Link
+                              to="/studio/archive/$id"
+                              params={{ id: episode.archiveItemId }}
+                            >
+                              <Button size="sm" variant="secondary">
+                                Play recording
+                              </Button>
+                            </Link>
+                          ) : null}
+                        </li>
+                      ))}
                   </ul>
                 )}
               </StudioPanel>
-            ) : null}
+            )}
 
             <Dialog.Root
               isOpen={createOpen}

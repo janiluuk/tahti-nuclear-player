@@ -1,5 +1,40 @@
 [
   {
+    "date": "2026-08-28T00:00",
+    "description": "Broadcast settings now live under Studio Manage: Radio, Green room, and Multicast are separate destinations, with provider setup and activation controls in one place.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist settings now separate Branding, Gallery, and Press kit into clear top-level tabs while keeping each press-kit field in one place.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Removed the redundant Connections section from Settings; source imports, exports, and add-on configuration remain available from their dedicated areas.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "The Embed add-ons now include hearthis.at, with persisted installation, URL or track-ID configuration, and the official hearthis.at player rendered inline on Listen.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Radio add-ons now keep station configuration changes, including stream sources, metadata, and artwork, and unconfigured stations offer a direct setup action instead of a dead disabled state.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
     "date": "2026-08-23T00:00",
     "description": "Albums, EPs, DJ sets, and playlists now share one searchable Collections hub with release dates, genres, and public, unlisted, or private visibility; My Library now includes Recordings, Messages has its own destination, and Embeds lives with release tools.",
     "type": "improvement",

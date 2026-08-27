@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { Button, SectionShell } from '@nuclearplayer/ui';
 
-import { fetchFeed } from '../api/client';
+import { fetchArtistPlayables, fetchFeed } from '../api/client';
 import type { FeedItem, TahtiPlayable } from '../api/types';
 import {
   MediaIconActions,
@@ -52,6 +52,9 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
   const [followingCount, setFollowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [infoTrack, setInfoTrack] = useState<TrackInfo | null>(null);
+  const [feedPlayables, setFeedPlayables] = useState<
+    Record<string, TahtiPlayable>
+  >({});
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const queue = usePlayerStore((s) => s.queue);
@@ -66,6 +69,30 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
       setItems(res.data.items);
       setFollowingCount(res.data.followingCount);
       setLoading(false);
+      const tracks = res.data.items.filter(
+        (item): item is Extract<FeedItem, { kind: 'track' }> =>
+          item.kind === 'track' && !item.audioUrl,
+      );
+      void Promise.all(
+        tracks.map(async (item) => {
+          const result = await fetchArtistPlayables(item.artist.username);
+          const playable =
+            result.data.find(
+              (candidate) => candidate.id === `archive:${item.id}`,
+            ) ??
+            result.data.find((candidate) => candidate.title === item.title);
+          return playable ? ([item.id, playable] as const) : null;
+        }),
+      ).then((resolved) => {
+        setFeedPlayables(
+          Object.fromEntries(
+            resolved.filter(
+              (entry): entry is readonly [string, TahtiPlayable] =>
+                entry !== null,
+            ),
+          ),
+        );
+      });
     });
   }, [user]);
 
@@ -191,7 +218,7 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
                           protocol: 'https',
                           channelSlug: item.channelSlug,
                         }
-                      : null;
+                      : (feedPlayables[item.id] ?? null);
                     return (
                       <div className="mt-2 flex items-center gap-3">
                         <button

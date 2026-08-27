@@ -34,6 +34,8 @@ export function StudioUpdatesView() {
   const [nlFansOnly, setNlFansOnly] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  const isEmpty = posts.length === 0 && drafts.length === 0;
+
   const reload = () => {
     void Promise.all([fetchArtistPosts(), fetchNewsletterDrafts()]).then(
       ([p, n]) => {
@@ -67,7 +69,7 @@ export function StudioUpdatesView() {
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/updates" />
         <StudioPageHeader
-          title="Updates"
+          title="Posts"
           subtitle="Post to your fans and send newsletter drafts."
           action={
             tab === 'posts' ? (
@@ -81,7 +83,7 @@ export function StudioUpdatesView() {
                 title="New post"
               >
                 <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                New post
+                {isEmpty ? 'New' : 'New post'}
               </Button>
             ) : (
               <Button
@@ -94,7 +96,7 @@ export function StudioUpdatesView() {
                 title="New draft"
               >
                 <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                New draft
+                {isEmpty ? 'New' : 'New draft'}
               </Button>
             )
           }
@@ -143,12 +145,14 @@ export function StudioUpdatesView() {
                 <p className="text-foreground-secondary text-sm">
                   No posts yet.
                 </p>
-                <div>
-                  <Button size="sm" onClick={() => setPostOpen(true)}>
-                    <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                    New post
-                  </Button>
-                </div>
+                {!isEmpty && (
+                  <div>
+                    <Button size="sm" onClick={() => setPostOpen(true)}>
+                      <PlusIcon size={16} aria-hidden className="mr-1.5" />
+                      New post
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : (
               <ul className="divide-border divide-y">
@@ -197,12 +201,14 @@ export function StudioUpdatesView() {
                 <p className="text-foreground-secondary text-sm">
                   No drafts yet.
                 </p>
-                <div>
-                  <Button size="sm" onClick={() => setDraftOpen(true)}>
-                    <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                    New draft
-                  </Button>
-                </div>
+                {!isEmpty && (
+                  <div>
+                    <Button size="sm" onClick={() => setDraftOpen(true)}>
+                      <PlusIcon size={16} aria-hidden className="mr-1.5" />
+                      New draft
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : (
               <ul className="divide-border divide-y">

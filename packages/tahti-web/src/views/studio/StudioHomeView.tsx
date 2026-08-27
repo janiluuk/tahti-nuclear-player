@@ -194,6 +194,15 @@ export function StudioHomeView() {
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-8">
         <StudioNav current="/studio" />
 
+        <div className="flex justify-end">
+          <Link
+            to="/help"
+            className="text-foreground-secondary hover:text-foreground text-xs underline-offset-2 hover:underline"
+          >
+            Help center →
+          </Link>
+        </div>
+
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="font-display text-3xl font-extrabold tracking-tight">

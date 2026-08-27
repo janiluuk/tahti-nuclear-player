@@ -43,6 +43,14 @@ export function AdminDashboardView() {
     <AdminGate>
       <div className="admin-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <AdminNav current="/admin" />
+        <div className="flex justify-end">
+          <Link
+            to="/help"
+            className="text-foreground-secondary hover:text-foreground text-xs underline-offset-2 hover:underline"
+          >
+            Help center →
+          </Link>
+        </div>
         <StudioPageHeader
           title="Admin"
           subtitle="Operations dashboard — members, live streams, and system health."

@@ -337,6 +337,37 @@ export type StatsSummary = {
   followerCount: number;
 };
 
+export type StorageUsage = {
+  usedBytes: number;
+  quotaBytes: number | null;
+  unlimited: boolean;
+};
+
+export async function fetchStorageUsage(): Promise<{
+  data: StorageUsage;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: {
+        usedBytes: 86_000_000,
+        quotaBytes: 524_288_000,
+        unlimited: false,
+      },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<StorageUsage>('/api/me/storage');
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return {
+      data: { usedBytes: 0, quotaBytes: null, unlimited: true },
+      meta: failMeta(err),
+    };
+  }
+}
+
 export type StatsTopTrack = {
   archiveItemId: string;
   title: string;

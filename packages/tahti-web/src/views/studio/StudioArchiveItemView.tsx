@@ -41,7 +41,6 @@ import {
   type StudioArchiveItem,
 } from '../../api/studio-types';
 import { AddToPlaylistPanel } from '../../components/AddToPlaylistPanel';
-import { MusicBrainzSubmissionAssistant } from '../../components/MusicBrainzSubmissionAssistant';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -404,11 +403,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                 </p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-2 sm:max-w-56 sm:justify-end">
-                <MusicBrainzSubmissionAssistant
-                  mode="track"
-                  title={item.title}
-                  artistName={item.artistName ?? user?.displayName ?? ''}
-                />
                 <Button
                   size="sm"
                   disabled={playBusy || notReady || hasError}
@@ -476,16 +470,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                       ? 'Unpin from page'
                       : `Pin to page (${pinnedCount}/${MAX_PINNED_TRACKS})`}
                 </Button>
-                <Link
-                  to="/studio/insights/$kind/$id"
-                  params={{ kind: 'archive', id }}
-                  aria-label="Open track insights"
-                >
-                  <Button size="sm" variant="secondary">
-                    <BarChart3Icon size={16} aria-hidden className="mr-1.5" />
-                    Insights
-                  </Button>
-                </Link>
                 {tab === 'details' ? (
                   <SaveButton
                     size="sm"

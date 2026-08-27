@@ -1,6 +1,8 @@
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import {
   AudioLinesIcon,
+  ChevronDownIcon,
+  FilterIcon,
   FolderIcon,
   MoreHorizontalIcon,
   PencilIcon,
@@ -100,6 +102,7 @@ export function StudioArchiveView() {
   const [embedFilter, setEmbedFilter] = useState<EmbedFilter>('ALL');
   const [sortField, setSortField] = useState<SortField>('uploaded');
   const [sortDescending, setSortDescending] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [uploadedFrom, setUploadedFrom] = useState('');
   const [uploadedTo, setUploadedTo] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -261,69 +264,87 @@ export function StudioArchiveView() {
                 placeholder="Search…"
                 className="border-border bg-background focus:border-primary max-w-md flex-1 rounded-md border px-3 py-2 text-sm outline-none"
               />
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="secondary"
+                aria-expanded={filtersOpen}
+                aria-label={filtersOpen ? 'Collapse filters' : 'Expand filters'}
+                title={filtersOpen ? 'Collapse filters' : 'Expand filters'}
+                onClick={() => setFiltersOpen((current) => !current)}
+              >
+                <FilterIcon size={15} aria-hidden />
+                <ChevronDownIcon
+                  size={13}
+                  aria-hidden
+                  className={filtersOpen ? 'rotate-180' : ''}
+                />
+              </Button>
               <span className="text-foreground-secondary text-xs">
                 Pinned {pinnedCount}/{MAX_PINNED_TRACKS}
               </span>
             </div>
-            <div className="border-border mb-4 flex flex-wrap items-end gap-3 border-b pb-4">
-              <label className="flex min-w-40 flex-col gap-1 text-xs">
-                Source
-                <select
-                  value={embedFilter}
-                  onChange={(event) =>
-                    setEmbedFilter(event.target.value as EmbedFilter)
-                  }
-                  className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+            {filtersOpen && (
+              <div className="border-border mb-4 flex flex-wrap items-end gap-3 border-b pb-4">
+                <label className="flex min-w-40 flex-col gap-1 text-xs">
+                  Source
+                  <select
+                    value={embedFilter}
+                    onChange={(event) =>
+                      setEmbedFilter(event.target.value as EmbedFilter)
+                    }
+                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                  >
+                    {EMBED_FILTERS.map((filterOption) => (
+                      <option key={filterOption.id} value={filterOption.id}>
+                        {filterOption.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex min-w-40 flex-col gap-1 text-xs">
+                  Sort by
+                  <select
+                    value={sortField}
+                    onChange={(event) =>
+                      setSortField(event.target.value as SortField)
+                    }
+                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                  >
+                    {SORT_FIELDS.map((sortOption) => (
+                      <option key={sortOption.id} value={sortOption.id}>
+                        {sortOption.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setSortDescending((current) => !current)}
                 >
-                  {EMBED_FILTERS.map((filterOption) => (
-                    <option key={filterOption.id} value={filterOption.id}>
-                      {filterOption.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex min-w-40 flex-col gap-1 text-xs">
-                Sort by
-                <select
-                  value={sortField}
-                  onChange={(event) =>
-                    setSortField(event.target.value as SortField)
-                  }
-                  className="border-border bg-background h-9 rounded-md border px-2 text-sm"
-                >
-                  {SORT_FIELDS.map((sortOption) => (
-                    <option key={sortOption.id} value={sortOption.id}>
-                      {sortOption.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setSortDescending((current) => !current)}
-              >
-                {sortDescending ? 'Descending' : 'Ascending'}
-              </Button>
-              <label className="flex min-w-36 flex-col gap-1 text-xs">
-                Uploaded from
-                <input
-                  type="date"
-                  value={uploadedFrom}
-                  onChange={(event) => setUploadedFrom(event.target.value)}
-                  className="border-border bg-background h-9 rounded-md border px-2 text-sm"
-                />
-              </label>
-              <label className="flex min-w-36 flex-col gap-1 text-xs">
-                Uploaded to
-                <input
-                  type="date"
-                  value={uploadedTo}
-                  onChange={(event) => setUploadedTo(event.target.value)}
-                  className="border-border bg-background h-9 rounded-md border px-2 text-sm"
-                />
-              </label>
-            </div>
+                  {sortDescending ? 'Descending' : 'Ascending'}
+                </Button>
+                <label className="flex min-w-36 flex-col gap-1 text-xs">
+                  Uploaded from
+                  <input
+                    type="date"
+                    value={uploadedFrom}
+                    onChange={(event) => setUploadedFrom(event.target.value)}
+                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                  />
+                </label>
+                <label className="flex min-w-36 flex-col gap-1 text-xs">
+                  Uploaded to
+                  <input
+                    type="date"
+                    value={uploadedTo}
+                    onChange={(event) => setUploadedTo(event.target.value)}
+                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                  />
+                </label>
+              </div>
+            )}
 
             {pinMessage && (
               <p

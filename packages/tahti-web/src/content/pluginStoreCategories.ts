@@ -98,7 +98,7 @@ export const PLUGIN_CATEGORIES: PluginCategory[] = [
     id: 'embed',
     label: 'Embed',
     description:
-      'SoundCloud and YouTube embeds on your Listen page, played via their own platform.',
+      'SoundCloud, YouTube, and hearthis.at embeds on your Listen page, played via their own platform.',
     icon: CodeIcon,
   },
   {
