@@ -17,7 +17,7 @@ import type {
 } from '../api/types';
 import { EmbedButton } from '../components/EmbedButton';
 import { EmbedTrackRow } from '../components/EmbedTrackRow';
-import { PageFrame } from '../components/PageHeader';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -188,25 +188,27 @@ export function CollectionView({
         </div>
 
         <div className="flex flex-1 flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <h1 className="font-display text-4xl font-extrabold tracking-tight">
-              {collection.name}
-            </h1>
-            <p className="text-foreground-secondary text-sm">
-              by{' '}
-              <Link
-                to="/u/$username"
-                params={{ username: collection.user.username }}
-                className="hover:text-foreground underline-offset-2 hover:underline"
-              >
-                {collection.user.displayName}
-              </Link>
-              {collection.collaborative ? ' (collaborative)' : ''}
-            </p>
-            {collection.description && (
-              <p className="text-sm">{collection.description}</p>
-            )}
-          </div>
+          <PageHeader
+            title={collection.name}
+            subtitle={
+              <>
+                by{' '}
+                <Link
+                  to="/u/$username"
+                  params={{ username: collection.user.username }}
+                  className="hover:text-foreground underline-offset-2 hover:underline"
+                >
+                  {collection.user.displayName}
+                </Link>
+                {collection.collaborative ? ' (collaborative)' : ''}
+                {collection.description ? (
+                  <span className="text-foreground mt-2 block">
+                    {collection.description}
+                  </span>
+                ) : null}
+              </>
+            }
+          />
 
           <div className="flex flex-wrap items-center gap-2">
             <Button

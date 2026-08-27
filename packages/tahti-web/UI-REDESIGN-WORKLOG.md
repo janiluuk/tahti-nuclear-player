@@ -754,6 +754,14 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
 
+### 2026-08-27 — Collection page header normalization
+
+**Goal:** Continue the remaining custom page-header cleanup against the shared Nuclear `PageHeader` component.
+
+**Collection detail:** replaced the bespoke collection title/description markup with `PageHeader` inside the existing artwork hero, retaining the artist link, collaborative marker, description, and all collection actions.
+
+**Status:** implemented; tahti-web type-check, lint, and diff checks pass.
+
 ### 2026-08-27 — Another 9 shared-control slices
 
 **Goal:** Continue the Storybook compliance sweep in three batches of three, migrating remaining bespoke controls to the shared Nuclear `Button` while retaining specialized row-selection and drag interactions.
