@@ -42,7 +42,7 @@ export function AdminStorageUserView({ userId }: { userId: string }) {
 
   return (
     <AdminGate>
-      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
+      <div className="admin-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
         <Link to="/admin/storage">
           <Button size="sm" variant="text">
             <ArrowLeftIcon size={14} aria-hidden className="mr-1.5" />

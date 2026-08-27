@@ -62,7 +62,7 @@ const PRIMARY = [
 const SUBMENUS = {
   '/studio': [],
   '/library': [
-    { to: '/library', label: 'My Library', icon: <LibraryIcon size={16} /> },
+    { to: '/library', label: 'Overview', icon: <LibraryIcon size={16} /> },
     {
       to: '/studio/archive',
       label: 'Archive',
@@ -212,6 +212,9 @@ const isActive = (current: string | undefined, to: string) => {
   return matchesSectionRoute(current, SECTION_PREFIXES[to] ?? [to]);
 };
 
+const isSubmenuActive = (current: string | undefined, to: string) =>
+  to === '/library' ? current === to : isActive(current, to);
+
 export const StudioNav = ({ current }: { current?: string }) => (
   <StudioNavigation current={current} />
 );
@@ -231,11 +234,12 @@ function StudioNavigation({ current }: { current?: string }) {
   const submenu = SUBMENUS[selectedSection as keyof typeof SUBMENUS] ?? [];
 
   return (
-    <div data-studio-layout-nav className="flex flex-col gap-3">
+    <>
       <div
         aria-label="Studio sections"
         className="border-border flex w-fit max-w-full gap-1 overflow-x-auto rounded-lg border p-1"
         role="tablist"
+        data-studio-section-tabs
       >
         {PRIMARY.map((item) => {
           const active = item.to === selectedSection;
@@ -258,17 +262,19 @@ function StudioNavigation({ current }: { current?: string }) {
         })}
       </div>
       {submenu.length > 0 && (
-        <SectionSidebar
-          aria-label={`${PRIMARY.find((item) => item.to === selectedSection)?.label ?? 'Studio'} pages`}
-          items={submenu.map((item) => ({
-            id: item.to,
-            label: item.label,
-            icon: item.icon,
-            to: item.to,
-            active: isActive(current, item.to),
-          }))}
-        />
+        <div data-studio-section-menu>
+          <SectionSidebar
+            aria-label={`${PRIMARY.find((item) => item.to === selectedSection)?.label ?? 'Studio'} pages`}
+            items={submenu.map((item) => ({
+              id: item.to,
+              label: item.label,
+              icon: item.icon,
+              to: item.to,
+              active: isSubmenuActive(current, item.to),
+            }))}
+          />
+        </div>
       )}
-    </div>
+    </>
   );
 }

@@ -200,7 +200,7 @@ function isActive(current: string | undefined, to: string) {
 /** Grows page-by-page alongside the admin port — see UI-REDESIGN-WORKLOG.md. */
 export function AdminNav({
   current,
-  splitLayout = false,
+  splitLayout = true,
 }: {
   current?: string;
   splitLayout?: boolean;

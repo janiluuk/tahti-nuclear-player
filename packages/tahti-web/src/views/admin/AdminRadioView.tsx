@@ -91,7 +91,7 @@ export function AdminRadioView() {
 
   return (
     <AdminGate>
-      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
+      <div className="admin-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
         <AdminNav current="/admin/radio" />
         <StudioPageHeader
           title="Tahti Radio"

@@ -82,7 +82,7 @@ export function AdminTopListsView() {
 
   return (
     <AdminGate>
-      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
+      <div className="admin-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
         <AdminNav current="/admin/top-lists" />
         <StudioPageHeader
           title="Top lists"
