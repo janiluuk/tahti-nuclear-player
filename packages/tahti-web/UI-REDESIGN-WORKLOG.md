@@ -813,3 +813,11 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Batch 3:** News, Service status, and Announcements use `PageLoading` with context-specific labels.
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
+
+### 2026-08-27 — Money navigation consolidation, batch 1 of 3
+
+**Goal:** Move artist money management into the Studio Fanbase panel while keeping listener subscriptions under Account.
+
+**Batch 1:** Removed Settings → Money; added Fan tiers to Studio → Fanbase; moved the Your subs tab into Settings → Account while retaining its subscription links and state display.
+
+**Status:** implemented; tahti-web type-check, lint, and diff checks pass. Pushed as the first commit of this three-batch cycle.

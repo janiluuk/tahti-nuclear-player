@@ -181,9 +181,6 @@ export function SettingsSectionBody({
     case 'broadcast':
       content = <BroadcastPanel />;
       break;
-    case 'money':
-      content = <MoneyPanel />;
-      break;
     case 'themes':
       content = <ThemesPanel />;
       break;
@@ -378,6 +375,7 @@ function AccountPanel() {
   const logout = useAuthStore((s) => s.logout);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [membership, setMembership] = useState<MembershipStatus | null>(null);
+  const [subscriptions, setSubscriptions] = useState<FanSubscriptionRow[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -387,6 +385,10 @@ function AccountPanel() {
       setMembership(r.data);
     });
   }, [user]);
+
+  useEffect(() => {
+    void fetchMySubscriptions().then((r) => setSubscriptions(r.data));
+  }, []);
 
   if (!user) {
     return (
@@ -499,6 +501,44 @@ function AccountPanel() {
           id: 'notifications',
           label: tabLabel(Bell, 'Notifications'),
           content: <NotificationsPanel />,
+        },
+        {
+          id: 'subscriptions',
+          label: tabLabel(Wallet, 'Your subs'),
+          content: (
+            <div className="flex flex-col gap-4">
+              {subscriptions.length === 0 ? (
+                <SettingsHint>
+                  No fan subscriptions on this account.
+                </SettingsHint>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {subscriptions.map((subscription) => (
+                    <li
+                      key={subscription.id}
+                      className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
+                    >
+                      <div>
+                        <Link
+                          to="/u/$username"
+                          params={{ username: subscription.artist.username }}
+                          onClick={closeSettings}
+                          className="font-medium underline-offset-2 hover:underline"
+                        >
+                          {subscription.artist.displayName}
+                        </Link>
+                        <p className="text-foreground-secondary text-xs">
+                          {subscription.tierName},{' '}
+                          {euros(subscription.amountCents)}/mo,{' '}
+                          {subscription.state}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ),
         },
       ]}
     />
@@ -1385,7 +1425,7 @@ function BroadcastPanel() {
   );
 }
 
-function MoneyPanel() {
+export function MoneyPanel() {
   const user = useAuthStore((s) => s.user);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [connect, setConnect] = useState<FanConnectStatus | null>(null);

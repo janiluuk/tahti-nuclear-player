@@ -8,7 +8,6 @@ import {
   Sparkles,
   User,
   UserCircle2,
-  Wallet,
 } from 'lucide-react';
 
 export type SettingsSectionId =
@@ -16,7 +15,6 @@ export type SettingsSectionId =
   | 'artist'
   | 'channel'
   | 'broadcast'
-  | 'money'
   | 'themes'
   | 'plugin-store'
   | 'connections'
@@ -53,12 +51,6 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     label: 'Broadcast',
     description: 'Radio, green room, mods, multistream',
     Icon: Radio,
-  },
-  {
-    id: 'money',
-    label: 'Money',
-    description: 'Fan subs & grants',
-    Icon: Wallet,
   },
   {
     id: 'themes',

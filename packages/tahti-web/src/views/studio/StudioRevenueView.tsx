@@ -16,6 +16,7 @@ import {
   type GrantRow,
 } from '../../api/revenue';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
+import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -64,6 +65,13 @@ export function StudioRevenueView() {
             {msg}
           </p>
         )}
+
+        <StudioPanel
+          title="Fan tiers"
+          description="Set the monthly support tiers fans can subscribe to."
+        >
+          <FanTiersEditor />
+        </StudioPanel>
 
         {fanPayouts ? (
           <StudioPanel
