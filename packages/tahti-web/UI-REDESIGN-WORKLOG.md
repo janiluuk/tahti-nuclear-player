@@ -74,6 +74,27 @@ Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, 
 
 ## Entries
 
+### 2026-08-27 — Studio navigation audit and follow-up fixes
+
+**Audit:** Captured 31 Studio views across Studio, Library, Perform, and Manage, including submenu routes, detail pages, query tabs, and the new event page. Verified the persistent top menu, fixed-position left navigation, one active top section, one active submenu item, and settled layout geometry. Screenshots are in `docs/redesign-shots/studio-audit/`.
+
+**Findings and fixes:**
+
+- Removed route-transition animation from stable Studio/Admin/Library shells so the left menu does not jump between views.
+- Removed desktop grid row gaps that were creating blank bands between section navigation and page content.
+- Added a direct working Insights route and included it in Studio navigation.
+- Added Studio event Upcoming/Past tabs, thumbnails, and a dedicated Add event page.
+- Added single-show versus continuing-series creation; episode controls render only for continuing series.
+- Removed Radio stations from the Admin Content navigation because it is handled by Moderation.
+
+**Status:** audit captured all requested views; the remaining duplicate-active warnings are audit-harness locator artefacts: visual inspection shows one highlighted submenu item per view. The harness now filters hidden and zero-size nodes and is retained for future audits.
+
+### 2026-08-27 — Admin Content navigation
+
+- Made Top lists the default Overview destination in the Content section.
+- Content top-tab selection now navigates to its first submenu item.
+- Removed Radio stations from the Content navigation because it belongs with moderation review.
+
 ### 2026-08-12 — Page 1 Studio home v1 (`in-review`)
 
 **Goal:** Nuclear simplicity — group by context; one primary action; hide secondary clutter.

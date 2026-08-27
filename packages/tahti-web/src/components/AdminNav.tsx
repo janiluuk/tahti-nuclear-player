@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router';
 import {
   ActivityIcon,
   BanknoteIcon,
@@ -55,13 +56,6 @@ const PRIMARY = [
       'Tahti Radio and Tahti Selects rotation, live from the station.',
   },
   {
-    to: '/admin/radio-station-suggestions',
-    label: 'Radio stations',
-    icon: <RadioIcon size={16} aria-hidden />,
-    description:
-      'Review listener-suggested internet radio stations for the Widgets store.',
-  },
-  {
     to: '/admin/news',
     label: 'News',
     icon: <FileTextIcon size={16} aria-hidden />,
@@ -75,7 +69,7 @@ const PRIMARY = [
   },
   {
     to: '/admin/top-lists',
-    label: 'Top lists',
+    label: 'Overview',
     icon: <TrophyIcon size={16} aria-hidden />,
     description: 'Editorial top-track and top-artist lists.',
   },
@@ -163,12 +157,19 @@ const ADMIN_SECTIONS = [
     items: PRIMARY.filter((item) =>
       [
         '/admin/radio',
-        '/admin/radio-station-suggestions',
         '/admin/news',
         '/admin/top-lists',
         '/admin/announcements',
       ].includes(item.to),
-    ),
+    ).sort((left, right) => {
+      if (left.to === '/admin/top-lists') {
+        return -1;
+      }
+      if (right.to === '/admin/top-lists') {
+        return 1;
+      }
+      return 0;
+    }),
   },
   {
     id: 'operations',
@@ -177,6 +178,7 @@ const ADMIN_SECTIONS = [
       [
         '/admin/streams',
         '/admin/storage',
+        '/admin/files',
         '/admin/financial',
         '/admin/vendors',
         '/admin/i18n',
@@ -201,10 +203,13 @@ function isActive(current: string | undefined, to: string) {
 export function AdminNav({
   current,
   splitLayout = true,
+  moderationPendingCount,
 }: {
   current?: string;
   splitLayout?: boolean;
+  moderationPendingCount?: number;
 }) {
+  const navigate = useNavigate();
   const routeSection = ADMIN_SECTIONS.find((section) =>
     section.items.some((item) => isActive(current, item.to)),
   );
@@ -242,7 +247,13 @@ export function AdminNav({
                 ? 'bg-primary text-primary-foreground'
                 : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
             }`}
-            onClick={() => setSelectedSection(item.id)}
+            onClick={() => {
+              setSelectedSection(item.id);
+              const firstPage = item.items[0];
+              if (firstPage) {
+                void navigate({ to: firstPage.to });
+              }
+            }}
           >
             {item.label}
           </button>
@@ -256,7 +267,10 @@ export function AdminNav({
         aria-label={`Admin ${section.label}`}
         items={section.items.map((link) => ({
           id: link.to,
-          label: link.label,
+          label:
+            link.to === '/admin/moderation' && moderationPendingCount != null
+              ? `${link.label} (${moderationPendingCount})`
+              : link.label,
           icon: link.icon,
           to: link.to,
           active: isActive(current, link.to),

@@ -1,7 +1,9 @@
+import { useNavigate } from '@tanstack/react-router';
 import {
-  CircleDollarSignIcon,
+  ClockIcon,
   FileAudioIcon,
   FolderOpenIcon,
+  HeartIcon,
   LayoutGridIcon,
   LibraryIcon,
   ListMusicIcon,
@@ -22,7 +24,7 @@ import { SectionSidebar } from './SectionSidebar';
 const PRIMARY = [
   {
     to: '/studio',
-    label: 'Overview',
+    label: 'Studio',
     icon: <LayoutGridIcon size={16} aria-hidden />,
     description:
       'Your channel snapshot — status, quick links, and recent activity.',
@@ -40,18 +42,6 @@ const PRIMARY = [
     description: 'Go live, schedule broadcasts, and manage performances.',
   },
   {
-    to: '/studio/stats',
-    label: 'Grow',
-    icon: <TrendingUpIcon size={16} aria-hidden />,
-    description: 'Understand your audience and grow your channel.',
-  },
-  {
-    to: '/studio/revenue',
-    label: 'Fanbase',
-    icon: <CircleDollarSignIcon size={16} aria-hidden />,
-    description: 'Build relationships with fans and members.',
-  },
-  {
     to: '/studio/channel',
     label: 'Manage',
     icon: <Settings2Icon size={16} aria-hidden />,
@@ -60,58 +50,8 @@ const PRIMARY = [
 ] as const;
 
 const SUBMENUS = {
-  '/studio': [],
-  '/library': [
-    { to: '/library', label: 'Overview', icon: <LibraryIcon size={16} /> },
-    {
-      to: '/studio/archive',
-      label: 'Archive',
-      icon: <FolderOpenIcon size={16} />,
-    },
-    {
-      to: '/studio/releases',
-      label: 'Releases',
-      icon: <ListMusicIcon size={16} />,
-    },
-    {
-      to: '/studio/collections',
-      label: 'Collections',
-      icon: <ListMusicIcon size={16} />,
-    },
-    {
-      to: '/studio/playlists',
-      label: 'Playlists',
-      icon: <ListMusicIcon size={16} />,
-    },
-    {
-      to: '/studio/recordings',
-      label: 'Recordings',
-      icon: <FileAudioIcon size={16} />,
-    },
-    { to: '/studio/upload', label: 'Upload', icon: <UploadIcon size={16} /> },
-    {
-      to: '/studio/editor',
-      label: 'Editor',
-      icon: <SlidersHorizontalIcon size={16} />,
-    },
-    { to: '/studio/stash', label: 'Stash', icon: <FolderOpenIcon size={16} /> },
-  ],
-  '/studio/go-live': [
-    {
-      to: '/studio/go-live',
-      label: 'Go live',
-      icon: <RadioTowerIcon size={16} />,
-    },
-    {
-      to: '/studio/schedule',
-      label: 'Schedule',
-      icon: <RadioIcon size={16} />,
-    },
-    { to: '/studio/events', label: 'Events', icon: <RadioIcon size={16} /> },
-    { to: '/studio/venues', label: 'Venues', icon: <RadioIcon size={16} /> },
-    { to: '/studio/shows', label: 'Shows', icon: <RadioIcon size={16} /> },
-  ],
-  '/studio/stats': [
+  '/studio': [
+    { to: '/studio', label: 'Overview', icon: <LayoutGridIcon size={16} /> },
     { to: '/studio/stats', label: 'Stats', icon: <TrendingUpIcon size={16} /> },
     {
       to: '/studio/updates',
@@ -128,13 +68,66 @@ const SUBMENUS = {
       label: 'Insights',
       icon: <TrendingUpIcon size={16} />,
     },
-  ],
-  '/studio/revenue': [
     {
       to: '/studio/revenue',
       label: 'Fanbase',
-      icon: <CircleDollarSignIcon size={16} />,
+      icon: <HeartIcon size={16} />,
     },
+  ],
+  '/library': [
+    { to: '/library', label: 'Overview', icon: <LibraryIcon size={16} /> },
+    {
+      to: '/studio/archive',
+      label: 'Sounds',
+      icon: <FolderOpenIcon size={16} />,
+    },
+    {
+      to: '/studio/releases',
+      label: 'Releases',
+      icon: <ListMusicIcon size={16} />,
+    },
+    {
+      to: '/studio/collections',
+      label: 'Collections',
+      icon: <ListMusicIcon size={16} />,
+    },
+    {
+      to: '/studio/recordings',
+      label: 'Recordings',
+      icon: <FileAudioIcon size={16} />,
+    },
+    { to: '/studio/upload', label: 'Upload', icon: <UploadIcon size={16} /> },
+    {
+      to: '/studio/editor',
+      label: 'Editor',
+      icon: <SlidersHorizontalIcon size={16} />,
+    },
+    { to: '/studio/stash', label: 'Stash', icon: <FolderOpenIcon size={16} /> },
+    {
+      to: '/library/favorites',
+      label: 'Favorites',
+      icon: <HeartIcon size={16} />,
+    },
+    {
+      to: '/library/history',
+      label: 'History',
+      icon: <ClockIcon size={16} />,
+    },
+  ],
+  '/studio/go-live': [
+    {
+      to: '/studio/go-live',
+      label: 'Go live',
+      icon: <RadioTowerIcon size={16} />,
+    },
+    {
+      to: '/studio/schedule',
+      label: 'Schedule',
+      icon: <RadioIcon size={16} />,
+    },
+    { to: '/studio/events', label: 'Events', icon: <RadioIcon size={16} /> },
+    { to: '/studio/venues', label: 'Venues', icon: <RadioIcon size={16} /> },
+    { to: '/studio/shows', label: 'Shows', icon: <RadioIcon size={16} /> },
   ],
   '/studio/channel': [
     {
@@ -169,7 +162,14 @@ export const STUDIO_NAV_TOUR_STEPS: TourStep[] = PRIMARY.map(
 );
 
 const SECTION_PREFIXES: Record<string, readonly string[]> = {
-  '/studio': ['/studio'],
+  '/studio': [
+    '/studio',
+    '/studio/stats',
+    '/studio/updates',
+    '/studio/distribution',
+    '/studio/insights',
+    '/studio/revenue',
+  ],
   '/library': [
     '/library',
     '/studio/archive',
@@ -187,13 +187,6 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/venues',
     '/studio/shows',
   ],
-  '/studio/stats': [
-    '/studio/stats',
-    '/studio/updates',
-    '/studio/distribution',
-    '/studio/insights',
-  ],
-  '/studio/revenue': ['/studio/revenue'],
   '/studio/channel': [
     '/studio/channel',
     '/studio/branding',
@@ -207,19 +200,27 @@ const isActive = (current: string | undefined, to: string) => {
     return false;
   }
   if (to === '/studio') {
-    return current === to;
+    return matchesSectionRoute(current, SECTION_PREFIXES[to]);
   }
   return matchesSectionRoute(current, SECTION_PREFIXES[to] ?? [to]);
 };
 
 const isSubmenuActive = (current: string | undefined, to: string) =>
-  to === '/library' ? current === to : isActive(current, to);
+  (to === '/library' || to === '/studio'
+    ? current === to
+    : current === to || current?.startsWith(`${to}/`) === true) ||
+  (to === '/studio/releases' && current === '/library/releases') ||
+  (to === '/studio/collections' && current === '/library/collections') ||
+  (to === '/studio/recordings' && current === '/library/recordings') ||
+  (to === '/library/favorites' && current === '/library/favorites') ||
+  (to === '/library/history' && current === '/library/history');
 
 export const StudioNav = ({ current }: { current?: string }) => (
   <StudioNavigation current={current} />
 );
 
 function StudioNavigation({ current }: { current?: string }) {
+  const navigate = useNavigate();
   const routeSection = PRIMARY.find((item) => isActive(current, item.to));
   const [selectedSection, setSelectedSection] = useState(
     routeSection?.to ?? '/studio',
@@ -254,7 +255,10 @@ function StudioNavigation({ current }: { current?: string }) {
                   ? 'bg-primary text-primary-foreground'
                   : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
               }`}
-              onClick={() => setSelectedSection(item.to)}
+              onClick={() => {
+                setSelectedSection(item.to);
+                void navigate({ to: item.to });
+              }}
             >
               {item.label}
             </button>

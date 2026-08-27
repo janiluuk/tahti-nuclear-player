@@ -407,6 +407,8 @@ function AccountPanel() {
 
   return (
     <Tabs
+      className="min-w-0"
+      listClassName="flex-wrap"
       items={[
         {
           id: 'session',

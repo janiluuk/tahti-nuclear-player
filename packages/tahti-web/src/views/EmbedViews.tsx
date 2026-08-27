@@ -285,14 +285,12 @@ export function EmbedCollectionView({
             </div>
           </div>
           <ol className="text-foreground-secondary space-y-1 text-xs">
-            {data.tracks.map((t, idx) => (
+            {data.tracks.map((t) => (
               <li
                 key={t.id}
                 className="flex items-center justify-between gap-2"
               >
-                <span className="truncate">
-                  {idx + 1}. {t.title}
-                </span>
+                <span className="truncate">{t.title}</span>
                 {playables.find((p) => p.id === `archive:${t.id}`) && (
                   <Button
                     size="sm"

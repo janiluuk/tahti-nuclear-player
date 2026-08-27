@@ -218,46 +218,6 @@ export function RadioView() {
                 ) : null}
               </div>
             </div>
-
-            {online && (
-              <div className="shrink-0 text-right">
-                <Eyebrow tone="green">Now playing</Eyebrow>
-                {nowPlaying?.title ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setInfoTrack({
-                        title: nowPlaying.title,
-                        artistName: nowPlaying.artistName ?? 'Tahti Radio',
-                        artistUsername: nowPlaying.artistUsername ?? null,
-                        artworkUrl: nowPlaying.artworkUrl ?? null,
-                        meta: 'Live now',
-                      })
-                    }
-                    className="text-foreground mt-1 block max-w-56 text-right text-lg font-bold tracking-tight underline-offset-4 hover:underline"
-                  >
-                    {nowPlaying.title}
-                  </button>
-                ) : (
-                  <div className="text-foreground mt-1 text-lg font-bold tracking-tight">
-                    24/7 rotation
-                  </div>
-                )}
-                <div className="text-foreground-secondary mt-0.5 text-sm">
-                  {nowPlaying?.artistUsername ? (
-                    <Link
-                      to="/u/$username"
-                      params={{ username: nowPlaying.artistUsername }}
-                      className="underline-offset-2 hover:underline"
-                    >
-                      {nowPlaying.artistName}
-                    </Link>
-                  ) : (
-                    (nowPlaying?.artistName ?? null)
-                  )}
-                </div>
-              </div>
-            )}
           </header>
 
           {memberLive ? (

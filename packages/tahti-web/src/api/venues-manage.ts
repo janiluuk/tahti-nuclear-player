@@ -68,6 +68,8 @@ export type MyVenue = {
   capacity: number | null;
   latitude: number | null;
   longitude: number | null;
+  externalLinks: Record<string, string> | null;
+  photos: string[];
   verifiedAt: string | null;
   broadcasts: VenueBroadcast[];
 };
@@ -83,6 +85,8 @@ const mockVenue: MyVenue = {
   capacity: 120,
   latitude: null,
   longitude: null,
+  externalLinks: null,
+  photos: [],
   verifiedAt: '2026-06-01T00:00:00.000Z',
   broadcasts: [
     {
@@ -121,6 +125,8 @@ export type PatchVenueInput = Partial<{
   countryCode: string;
   description: string | null;
   capacity: number | null;
+  externalLinks: Record<string, string> | null;
+  photos: string[];
 }>;
 
 export async function patchVenue(

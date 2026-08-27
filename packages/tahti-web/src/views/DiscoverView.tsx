@@ -5,6 +5,7 @@ import { Button, FilterChips, Popover } from '@nuclearplayer/ui';
 
 import {
   fetchLatestTracks,
+  fetchLovedTracks,
   fetchNewToYou,
   fetchTopTracks,
 } from '../api/discover';
@@ -18,7 +19,6 @@ import {
   useDiscoverStore,
   type DiscoverWidgetId,
 } from '../stores/discoverStore';
-import { useLibraryStore } from '../stores/libraryStore';
 
 const CONTENT_TYPE_OPTIONS = [
   { id: 'LIVE', label: 'Live' },
@@ -36,7 +36,7 @@ const WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
   'new-to-you': 'New to you',
   'latest-tracks': 'Latest tracks',
   'most-played': 'Most played',
-  loved: 'Loved',
+  loved: 'Loved by the community',
 };
 
 type WidgetData = {
@@ -54,8 +54,6 @@ export function DiscoverView() {
   const moveWidget = useDiscoverStore((s) => s.moveWidget);
   const setGenreFilter = useDiscoverStore((s) => s.setGenreFilter);
   const setContentTypeFilter = useDiscoverStore((s) => s.setContentTypeFilter);
-  const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
-
   const [data, setData] = useState<Record<string, WidgetData>>({});
 
   const filters = useMemo(
@@ -115,14 +113,7 @@ export function DiscoverView() {
             };
           }
           case 'loved': {
-            const items: DiscoverTrackItem[] = favoriteTracks.map((t) => ({
-              id: t.id,
-              title: t.title,
-              artist: t.artist,
-              channelSlug: t.channelSlug ?? '',
-              coverUrl: t.coverUrl,
-              audioUrl: t.streamUrl,
-            }));
+            const { data: items } = await fetchLovedTracks(filters);
             return { loading: false, items };
           }
         }
@@ -138,8 +129,6 @@ export function DiscoverView() {
     return () => {
       cancelled = true;
     };
-    // favoriteTracks intentionally omitted -- Loved re-derives instantly from
-    // the store without a network round-trip, no need to re-run every widget.
   }, [enabledWidgets, filters]);
 
   const availableToAdd = ALL_WIDGET_IDS.filter(
@@ -187,7 +176,7 @@ export function DiscoverView() {
               }
               emptyMessage={
                 id === 'loved'
-                  ? 'Favorite a track to see it here.'
+                  ? 'No community-loved tracks yet.'
                   : 'Nothing here yet.'
               }
               canMoveUp={index > 0}

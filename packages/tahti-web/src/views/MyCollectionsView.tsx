@@ -7,6 +7,7 @@ import {
   LibraryIcon,
   ListMusicIcon,
   LockIcon,
+  Mic2Icon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -24,7 +25,7 @@ type Group = {
   icon: ReactNode;
 };
 
-type CollectionKind = 'album' | 'ep' | 'dj-set' | 'playlist';
+type CollectionKind = 'album' | 'ep' | 'dj-set' | 'podcast' | 'playlist';
 type CollectionFilter = 'all' | CollectionKind;
 
 const GROUPS: Group[] = [
@@ -44,6 +45,11 @@ const GROUPS: Group[] = [
     icon: <HeadphonesIcon size={14} aria-hidden />,
   },
   {
+    id: 'podcast',
+    label: 'Podcasts',
+    icon: <Mic2Icon size={14} aria-hidden />,
+  },
+  {
     id: 'playlist',
     label: 'Playlists',
     icon: <ListMusicIcon size={14} aria-hidden />,
@@ -57,6 +63,9 @@ const collectionKind = (collection: StudioCollection): CollectionKind => {
   }
   if (style === 'DJ_SET_SERIES' || style === 'MIX_SERIES') {
     return 'dj-set';
+  }
+  if (style === 'PODCAST') {
+    return 'podcast';
   }
   if (!style || ['PLAYLIST', 'CUSTOM', 'LIST'].includes(style)) {
     return 'playlist';

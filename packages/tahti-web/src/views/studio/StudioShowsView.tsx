@@ -8,6 +8,7 @@ import {
   createShowSeries,
   fetchEpisodesForShow,
   fetchShowSeries,
+  type ShowMode,
   type StudioEpisode,
   type StudioShowSeries,
 } from '../../api/shows';
@@ -26,7 +27,10 @@ export function StudioShowsView() {
   const [createOpen, setCreateOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [backdropUrl, setBackdropUrl] = useState('');
   const [intervalHours, setIntervalHours] = useState<1 | 2>(1);
+  const [mode, setMode] = useState<ShowMode>('SERIES');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -60,6 +64,9 @@ export function StudioShowsView() {
       title: title.trim(),
       description: description.trim(),
       intervalHours,
+      mode,
+      coverUrl: thumbnailUrl.trim() || null,
+      backdropUrl: backdropUrl.trim() || null,
     });
     setBusy(false);
     if (!r.ok) {
@@ -69,6 +76,8 @@ export function StudioShowsView() {
     setCreateOpen(false);
     setTitle('');
     setDescription('');
+    setThumbnailUrl('');
+    setBackdropUrl('');
     void navigate({ to: '/studio/shows/$id', params: { id: r.data.id } });
   };
 
@@ -129,23 +138,54 @@ export function StudioShowsView() {
                   placeholder="Copied to every new episode"
                 />
               </label>
+              <Input
+                label="Thumbnail image URL"
+                value={thumbnailUrl}
+                onChange={(event) => setThumbnailUrl(event.target.value)}
+                placeholder="https://…"
+              />
+              <Input
+                label="Backdrop image URL"
+                value={backdropUrl}
+                onChange={(event) => setBackdropUrl(event.target.value)}
+                placeholder="https://…"
+              />
               <div className="flex flex-wrap gap-2">
-                {([1, 2] as const).map((h) => (
+                {(['SERIES', 'SINGLE'] as const).map((value) => (
                   <button
-                    key={h}
+                    key={value}
                     type="button"
                     className={`rounded-md border px-3 py-1.5 text-xs ${
-                      intervalHours === h
+                      mode === value
                         ? 'border-primary bg-primary/15 text-primary'
                         : 'border-border text-foreground-secondary'
                     }`}
-                    onClick={() => setIntervalHours(h)}
-                    aria-pressed={intervalHours === h}
+                    onClick={() => setMode(value)}
+                    aria-pressed={mode === value}
                   >
-                    {h}h slots
+                    {value === 'SERIES' ? 'Continuing series' : 'Single show'}
                   </button>
                 ))}
               </div>
+              {mode === 'SERIES' ? (
+                <div className="flex flex-wrap gap-2">
+                  {([1, 2] as const).map((h) => (
+                    <button
+                      key={h}
+                      type="button"
+                      className={`rounded-md border px-3 py-1.5 text-xs ${
+                        intervalHours === h
+                          ? 'border-primary bg-primary/15 text-primary'
+                          : 'border-border text-foreground-secondary'
+                      }`}
+                      onClick={() => setIntervalHours(h)}
+                      aria-pressed={intervalHours === h}
+                    >
+                      {h}h slots
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
             <Dialog.Actions>
               <Dialog.Close>Cancel</Dialog.Close>
@@ -221,6 +261,7 @@ function ShowRow({
           {episodeCount ? `, ${episodeCount} episodes` : ''}
           {`, ${show.intervalHours}h slots`}
           {show.scheduleNote ? `, ${show.scheduleNote}` : ''}
+          {show.mode === 'SINGLE' ? ', single show' : ', continuing series'}
         </p>
       </div>
       <Link to="/studio/shows/$id" params={{ id: show.id }}>

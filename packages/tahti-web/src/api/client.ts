@@ -530,6 +530,9 @@ export type RegisterVenueInput = {
   countryCode?: string;
   capacity?: number;
   description?: string;
+  imageUrl?: string;
+  coverUrl?: string;
+  pageUrl?: string;
 };
 
 export async function registerVenue(
@@ -560,6 +563,10 @@ export async function registerVenue(
           ? { capacity: input.capacity }
           : {}),
         ...(input.description ? { description: input.description } : {}),
+        ...(input.imageUrl || input.coverUrl
+          ? { photos: [input.imageUrl ?? '', input.coverUrl ?? ''] }
+          : {}),
+        ...(input.pageUrl ? { externalLinks: { website: input.pageUrl } } : {}),
       }),
     });
     return { ok: true, slug: data.slug ?? input.slug };

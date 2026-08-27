@@ -5,7 +5,7 @@
 import { mkdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { chromium } from 'playwright';
+import { chromium } from '@playwright/test';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = join(__dirname, '../docs/redesign-shots');
@@ -50,6 +50,8 @@ const shots = [
   // Public / listen
   { path: '/', out: 'listen-home-v1.png', auth: false },
   { path: '/radio', out: 'listen-radio-v1.png', auth: false },
+  { path: '/feed', out: 'listen-feed-v1.png', auth: false },
+  { path: '/discover', out: 'listen-discover-v1.png', auth: false },
   { path: '/channel/demo', out: 'listen-channel-v1.png', auth: false },
   { path: '/u/demo', out: 'listen-artist-v1.png', auth: true },
   { path: '/r/demo', out: 'listen-smartlink-v1.png', auth: false },
@@ -66,6 +68,31 @@ const shots = [
   { path: '/about', out: 'legal-about-v1.png', auth: false },
   // Listener
   { path: '/library', out: 'listener-library-v1.png', auth: true },
+  {
+    path: '/library/releases',
+    out: 'listener-library-releases-v1.png',
+    auth: true,
+  },
+  {
+    path: '/library/collections',
+    out: 'listener-library-collections-v1.png',
+    auth: true,
+  },
+  {
+    path: '/library/recordings',
+    out: 'listener-library-recordings-v1.png',
+    auth: true,
+  },
+  {
+    path: '/library/favorites',
+    out: 'listener-library-favorites-v1.png',
+    auth: true,
+  },
+  {
+    path: '/library/history',
+    out: 'listener-library-history-v1.png',
+    auth: true,
+  },
   { path: '/messages', out: 'listener-messages-v1.png', auth: true },
   { path: '/settings', out: 'settings-v1.png', auth: true },
   { path: '/sources', out: 'sources-v1.png', auth: true },
@@ -73,6 +100,7 @@ const shots = [
   { path: '/studio', out: 'studio-home-v1.png', auth: true },
   { path: '/studio/go-live', out: 'studio-go-live-v1.png', auth: true },
   { path: '/studio/archive', out: 'studio-archive-v1.png', auth: true },
+  { path: '/studio/recordings', out: 'studio-recordings-v1.png', auth: true },
   {
     path: '/studio/archive/arch-mock-1',
     out: 'studio-archive-item-v1.png',
@@ -95,6 +123,7 @@ const shots = [
     auth: true,
   },
   { path: '/studio/channel', out: 'studio-channel-v1.png', auth: true },
+  { path: '/studio/branding', out: 'studio-branding-v1.png', auth: true },
   {
     path: '/studio/setup-channel',
     out: 'studio-setup-channel-v1.png',
@@ -111,8 +140,116 @@ const shots = [
     auth: true,
   },
   { path: '/studio/stash', out: 'studio-stash-v1.png', auth: true },
+  { path: '/studio/moderation', out: 'studio-moderation-v1.png', auth: true },
+  { path: '/studio/venues', out: 'studio-venues-v1.png', auth: true },
+  { path: '/studio/events', out: 'studio-events-v1.png', auth: true },
+  {
+    path: '/studio/insights/track/rel-mock-1',
+    out: 'studio-insights-v1.png',
+    auth: true,
+  },
+  // Board admin
+  { path: '/admin', out: 'admin-dashboard-current-v1.png', auth: true },
+  { path: '/admin/activity', out: 'admin-activity-current-v1.png', auth: true },
+  { path: '/admin/logs', out: 'admin-logs-current-v1.png', auth: true },
+  { path: '/admin/users', out: 'admin-users-current-v1.png', auth: true },
+  { path: '/admin/radio', out: 'admin-radio-current-v1.png', auth: true },
+  {
+    path: '/admin/radio-submissions',
+    out: 'admin-radio-submissions-current-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/radio-station-suggestions',
+    out: 'admin-radio-station-suggestions-current-v1.png',
+    auth: true,
+  },
+  { path: '/admin/news', out: 'admin-news-current-v1.png', auth: true },
+  {
+    path: '/admin/tahti-selects',
+    out: 'admin-selects-current-v1.png',
+    auth: true,
+  },
+  { path: '/admin/streams', out: 'admin-streams-current-v1.png', auth: true },
+  { path: '/admin/support', out: 'admin-support-current-v1.png', auth: true },
+  {
+    path: '/admin/top-lists',
+    out: 'admin-top-lists-current-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/announcements',
+    out: 'admin-announcements-current-v1.png',
+    auth: true,
+  },
+  { path: '/admin/storage', out: 'admin-storage-current-v1.png', auth: true },
+  { path: '/admin/files', out: 'admin-files-current-v1.png', auth: true },
+  {
+    path: '/admin/content-reports',
+    out: 'admin-content-reports-current-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/financial',
+    out: 'admin-financial-current-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/governance',
+    out: 'admin-governance-current-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/feature-requests',
+    out: 'admin-feature-requests-current-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation',
+    out: 'admin-moderation-current-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/support',
+    out: 'admin-moderation-support-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/beta',
+    out: 'admin-moderation-beta-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/radio-submissions',
+    out: 'admin-moderation-radio-submissions-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/selects',
+    out: 'admin-moderation-selects-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/content-reports',
+    out: 'admin-moderation-content-reports-v1.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/feature-requests',
+    out: 'admin-moderation-feature-requests-v1.png',
+    auth: true,
+  },
+  { path: '/admin/grants', out: 'admin-grants-current-v1.png', auth: true },
+  { path: '/admin/agm', out: 'admin-agm-current-v1.png', auth: true },
+  { path: '/admin/vendors', out: 'admin-vendors-current-v1.png', auth: true },
+  { path: '/admin/status', out: 'admin-status-current-v1.png', auth: true },
+  { path: '/admin/i18n', out: 'admin-i18n-current-v1.png', auth: true },
   { path: '/more', out: 'map-more-v1.png', auth: true },
 ];
+
+const selectedShots = process.env.ATLAS_SHOT
+  ? shots.filter((shot) => shot.out.includes(process.env.ATLAS_SHOT))
+  : shots;
 
 const launchOpts = {
   executablePath: process.env.CHROMIUM_PATH || undefined,
@@ -170,9 +307,62 @@ async function ensureChatClosed() {
   }
 }
 
+async function navigationGeometry() {
+  return page
+    .locator(
+      '[data-studio-section-tabs], [data-studio-section-menu], [data-admin-section-tabs], [data-admin-section-menu]',
+    )
+    .evaluateAll((elements) =>
+      elements.map((element) => {
+        const rect = element.getBoundingClientRect();
+        return [rect.x, rect.y, rect.width, rect.height];
+      }),
+    );
+}
+
+async function validateNavigationState() {
+  const sectionTabs = page
+    .locator('[data-studio-section-tabs], [data-admin-section-tabs]')
+    .last();
+  const sectionTabCount = await sectionTabs.count();
+  if (sectionTabCount > 0) {
+    const activeSectionCount = await sectionTabs
+      .locator('[aria-selected="true"]:visible')
+      .evaluateAll(
+        (elements) =>
+          elements.filter(
+            (element) => Number(getComputedStyle(element).opacity) > 0.5,
+          ).length,
+      );
+    if (activeSectionCount !== 1) {
+      return `expected one active section tab, found ${activeSectionCount}`;
+    }
+  }
+
+  const sectionMenus = page
+    .locator('[data-studio-section-menu], [data-admin-section-menu]')
+    .last();
+  const sectionMenuCount = await sectionMenus.count();
+  if (sectionMenuCount > 0) {
+    const activeMenuCount = await sectionMenus
+      .locator('[aria-current="page"]:visible')
+      .evaluateAll(
+        (elements) =>
+          elements.filter(
+            (element) => Number(getComputedStyle(element).opacity) > 0.5,
+          ).length,
+      );
+    if (activeMenuCount > 1) {
+      return `expected at most one active menu item, found ${activeMenuCount}`;
+    }
+  }
+
+  return null;
+}
+
 let failed = 0;
 
-for (const s of shots) {
+for (const s of selectedShots) {
   await ensureAlive();
   const wantAuth = s.auth !== false;
   if (lastAuth !== wantAuth) {
@@ -218,6 +408,21 @@ for (const s of shots) {
     await ensureChatClosed();
     await page.waitForTimeout(1800);
     await ensureChatClosed();
+    const initialNavigationGeometry = await navigationGeometry();
+    await page.waitForTimeout(300);
+    const finalNavigationGeometry = await navigationGeometry();
+    if (
+      JSON.stringify(initialNavigationGeometry) !==
+      JSON.stringify(finalNavigationGeometry)
+    ) {
+      console.warn('WARN navigation shifted', s.out);
+      failed += 1;
+    }
+    const navigationError = await validateNavigationState();
+    if (navigationError) {
+      console.warn(`WARN navigation state: ${s.out} — ${navigationError}`);
+      failed += 1;
+    }
     const out = join(outDir, s.out);
     await page.screenshot({ path: out, fullPage: true });
     let text = (
@@ -252,7 +457,7 @@ for (const s of shots) {
 }
 
 await browser.close();
-console.log(`done ${shots.length} shots, warnings=${failed}`);
-if (failed > shots.length / 2) {
+console.log(`done ${selectedShots.length} shots, warnings=${failed}`);
+if (failed > selectedShots.length / 2) {
   process.exitCode = 1;
 }

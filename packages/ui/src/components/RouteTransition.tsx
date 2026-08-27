@@ -75,10 +75,22 @@ const AnimatedOutlet = forwardRef<HTMLDivElement>((_, ref) => {
   );
 });
 
-export const RouteTransition = () => {
+export const RouteTransition = ({
+  disableAnimation = false,
+}: {
+  disableAnimation?: boolean;
+}) => {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+
+  if (disableAnimation) {
+    return (
+      <div className="min-h-full w-full">
+        <Outlet />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full w-full">

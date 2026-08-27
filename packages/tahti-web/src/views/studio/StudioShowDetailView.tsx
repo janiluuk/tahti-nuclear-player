@@ -42,6 +42,8 @@ export function StudioShowDetailView({ id }: { id: string }) {
   const [busy, setBusy] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [backdropUrl, setBackdropUrl] = useState('');
   const [savingMeta, setSavingMeta] = useState(false);
 
   const reload = () => {
@@ -50,6 +52,8 @@ export function StudioShowDetailView({ id }: { id: string }) {
       if (r.data) {
         setTitle(r.data.title);
         setDescription(r.data.description);
+        setThumbnailUrl(r.data.coverUrl ?? '');
+        setBackdropUrl(r.data.backdropUrl ?? '');
       }
     });
     void fetchEpisodesForShow(id).then((r) => setEpisodes(r.data));
@@ -92,6 +96,8 @@ export function StudioShowDetailView({ id }: { id: string }) {
     const r = await patchShowSeries(show.id, {
       title: title.trim() || show.title,
       description: description.trim(),
+      coverUrl: thumbnailUrl.trim() || null,
+      backdropUrl: backdropUrl.trim() || null,
     });
     setSavingMeta(false);
     if (!r.ok) {
@@ -215,17 +221,23 @@ export function StudioShowDetailView({ id }: { id: string }) {
           <>
             <StudioPageHeader
               title={show.title}
-              subtitle={`Next episode #${show.nextEpisodeNumber}, ${show.intervalHours}h intervals`}
+              subtitle={
+                show.mode === 'SINGLE'
+                  ? 'Single show'
+                  : `Continuing series · next episode #${show.nextEpisodeNumber}, ${show.intervalHours}h intervals`
+              }
               action={
-                <Button size="sm" onClick={() => setCreateOpen(true)}>
-                  New episode
-                </Button>
+                show.mode === 'SINGLE' ? undefined : (
+                  <Button size="sm" onClick={() => setCreateOpen(true)}>
+                    New episode
+                  </Button>
+                )
               }
             />
 
             <StudioPanel
               title="Show defaults"
-              description="New episodes copy description, cover, and get the next episode number automatically."
+              description="Manage the show identity and defaults inherited by new episodes."
             >
               <div className="flex flex-col gap-3">
                 <Input
@@ -244,6 +256,32 @@ export function StudioShowDetailView({ id }: { id: string }) {
                     className="border-border bg-background rounded-md border px-3 py-2"
                   />
                 </label>
+                <Input
+                  label="Thumbnail image URL"
+                  value={thumbnailUrl}
+                  onChange={(event) => setThumbnailUrl(event.target.value)}
+                  placeholder="https://…"
+                />
+                {thumbnailUrl ? (
+                  <img
+                    src={thumbnailUrl}
+                    alt="Show thumbnail preview"
+                    className="size-24 rounded-md object-cover"
+                  />
+                ) : null}
+                <Input
+                  label="Backdrop image URL"
+                  value={backdropUrl}
+                  onChange={(event) => setBackdropUrl(event.target.value)}
+                  placeholder="https://…"
+                />
+                {backdropUrl ? (
+                  <img
+                    src={backdropUrl}
+                    alt="Show backdrop preview"
+                    className="h-28 w-full rounded-md object-cover"
+                  />
+                ) : null}
                 <div className="flex justify-end">
                   <SaveButton
                     saving={savingMeta}
@@ -289,51 +327,55 @@ export function StudioShowDetailView({ id }: { id: string }) {
               </div>
             </StudioPanel>
 
-            <StudioPanel title="Episodes">
-              {episodes.length === 0 ? (
-                <p className="text-foreground-secondary text-sm">
-                  No episodes yet. Create one — episode #{nextEpisodeNumber} is
-                  ready.
-                </p>
-              ) : (
-                <ul className="divide-border divide-y">
-                  {episodes.map((ep) => (
-                    <li
-                      key={ep.id}
-                      className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                    >
-                      <span className="text-foreground-secondary w-10 text-xs tabular-nums">
-                        #{ep.episodeNumber}
-                      </span>
-                      <div className="min-w-0 flex-1">
+            {show.mode !== 'SINGLE' ? (
+              <StudioPanel title="Episodes">
+                {episodes.length === 0 ? (
+                  <p className="text-foreground-secondary text-sm">
+                    No episodes yet. Create one — episode #{nextEpisodeNumber}{' '}
+                    is ready.
+                  </p>
+                ) : (
+                  <ul className="divide-border divide-y">
+                    {episodes.map((ep) => (
+                      <li
+                        key={ep.id}
+                        className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
+                      >
+                        <span className="text-foreground-secondary w-10 text-xs tabular-nums">
+                          #{ep.episodeNumber}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            to="/studio/shows/episodes/$episodeId"
+                            params={{ episodeId: ep.id }}
+                            className="font-medium hover:underline"
+                          >
+                            {ep.title}
+                          </Link>
+                          <p className="text-foreground-secondary inline-flex items-center gap-1 text-xs">
+                            <EpisodeSourceIcon source={ep.source} />
+                            {episodeStatusLabel(ep)}
+                            {ep.source === 'broadcast'
+                              ? ', recorded'
+                              : ', upload'}
+                          </p>
+                        </div>
                         <Link
                           to="/studio/shows/episodes/$episodeId"
                           params={{ episodeId: ep.id }}
-                          className="font-medium hover:underline"
                         >
-                          {ep.title}
+                          <Button size="sm" variant="secondary">
+                            {ep.status === 'PENDING_APPROVAL'
+                              ? 'Review'
+                              : 'Open'}
+                          </Button>
                         </Link>
-                        <p className="text-foreground-secondary inline-flex items-center gap-1 text-xs">
-                          <EpisodeSourceIcon source={ep.source} />
-                          {episodeStatusLabel(ep)}
-                          {ep.source === 'broadcast'
-                            ? ', recorded'
-                            : ', upload'}
-                        </p>
-                      </div>
-                      <Link
-                        to="/studio/shows/episodes/$episodeId"
-                        params={{ episodeId: ep.id }}
-                      >
-                        <Button size="sm" variant="secondary">
-                          {ep.status === 'PENDING_APPROVAL' ? 'Review' : 'Open'}
-                        </Button>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </StudioPanel>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </StudioPanel>
+            ) : null}
 
             <Dialog.Root
               isOpen={createOpen}

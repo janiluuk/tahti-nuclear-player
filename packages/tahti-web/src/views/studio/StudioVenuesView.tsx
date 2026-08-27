@@ -30,6 +30,9 @@ function VenueCard({
   const [capacity, setCapacity] = useState(
     venue.capacity != null ? String(venue.capacity) : '',
   );
+  const [imageUrl, setImageUrl] = useState(venue.photos[0] ?? '');
+  const [coverUrl, setCoverUrl] = useState(venue.photos[1] ?? '');
+  const [pageUrl, setPageUrl] = useState(venue.externalLinks?.website ?? '');
   const [msg, setMsg] = useState<string | null>(null);
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
 
@@ -41,9 +44,32 @@ function VenueCard({
   return (
     <StudioPanel
       title={venue.name}
-      description={`/venues/${venue.slug} · ${venue.verifiedAt ? 'Verified' : 'Pending verification'}`}
+      description={`${venue.verifiedAt ? 'Verified' : 'Pending verification'} · /v/${venue.slug}`}
       className="flex flex-col gap-4"
     >
+      <div className="flex flex-wrap items-center gap-3">
+        <Link
+          to="/v/$slug"
+          params={{ slug: venue.slug }}
+          className="text-sm font-medium underline-offset-2 hover:underline"
+        >
+          View public page →
+        </Link>
+        {venue.photos[0] && (
+          <img
+            src={venue.photos[0]}
+            alt=""
+            className="border-border h-12 w-12 rounded-md border object-cover"
+          />
+        )}
+        {venue.photos[1] && (
+          <img
+            src={venue.photos[1]}
+            alt=""
+            className="border-border h-12 w-20 rounded-md border object-cover"
+          />
+        )}
+      </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Input
           label="Name"
@@ -65,6 +91,24 @@ function VenueCard({
           value={city}
           onChange={(e) => setCity(e.target.value)}
         />
+        <Input
+          label="Venue image URL"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="https://…"
+        />
+        <Input
+          label="Cover art URL"
+          value={coverUrl}
+          onChange={(e) => setCoverUrl(e.target.value)}
+          placeholder="https://…"
+        />
+        <Input
+          label="Venue website"
+          value={pageUrl}
+          onChange={(e) => setPageUrl(e.target.value)}
+          placeholder="https://…"
+        />
       </div>
       <div className="flex flex-wrap items-center justify-end gap-2">
         {msg && <p className="text-xs">{msg}</p>}
@@ -77,6 +121,16 @@ function VenueCard({
               address: address.trim(),
               city: city.trim(),
               capacity: capacity.trim() && Number.isFinite(cap) ? cap : null,
+              photos: [imageUrl.trim(), coverUrl.trim()],
+              externalLinks: pageUrl.trim()
+                ? { ...(venue.externalLinks ?? {}), website: pageUrl.trim() }
+                : venue.externalLinks
+                  ? Object.fromEntries(
+                      Object.entries(venue.externalLinks).filter(
+                        ([key]) => key !== 'website',
+                      ),
+                    )
+                  : {},
             }).then((r) => {
               setMsg(r.ok ? 'Venue saved.' : r.error);
               if (r.ok) {

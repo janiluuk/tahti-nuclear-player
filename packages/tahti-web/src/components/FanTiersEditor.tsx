@@ -96,10 +96,6 @@ export function FanTiersEditor() {
       {tiers.length === 0 ? (
         <div className="border-border flex flex-col items-center gap-3 rounded-lg border px-4 py-6 text-center">
           <p className="text-foreground-secondary text-sm">No tiers yet.</p>
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <PlusIcon size={16} aria-hidden className="mr-1.5" />
-            New tier
-          </Button>
         </div>
       ) : (
         <ul className="flex flex-col gap-2">

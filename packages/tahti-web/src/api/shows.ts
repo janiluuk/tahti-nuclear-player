@@ -45,6 +45,7 @@ async function requestJson<T>(
 export const SHOW_SLOT_MAX_HOURS = 2;
 
 export type ShowType = 'LIVE_SET' | 'TALK';
+export type ShowMode = 'SINGLE' | 'SERIES';
 
 /** Parent show series — Nuclear studio model (local + mock; slots use live API). */
 export type StudioShowSeries = {
@@ -52,6 +53,8 @@ export type StudioShowSeries = {
   title: string;
   description: string;
   coverUrl: string | null;
+  backdropUrl?: string | null;
+  mode?: ShowMode;
   showType: ShowType;
   /** Next sequential episode number to assign (1-based). */
   nextEpisodeNumber: number;
@@ -382,6 +385,8 @@ type WireLiveShowSeries = {
   name: string;
   description: string | null;
   artworkUrl: string | null;
+  backdropUrl?: string | null;
+  mode?: ShowMode;
   showType: ShowType;
   nextEpisodeNumber: number;
   intervalHours: 1 | 2;
@@ -409,6 +414,8 @@ function seriesFromWire(w: WireLiveShowSeries): StudioShowSeries {
     title: w.name,
     description: w.description ?? '',
     coverUrl: w.artworkUrl,
+    backdropUrl: w.backdropUrl ?? null,
+    mode: w.mode ?? 'SERIES',
     showType: w.showType,
     nextEpisodeNumber: w.nextEpisodeNumber,
     intervalHours: w.intervalHours,
@@ -462,6 +469,8 @@ export async function createShowSeries(input: {
   title: string;
   description?: string;
   coverUrl?: string | null;
+  backdropUrl?: string | null;
+  mode?: ShowMode;
   showType?: ShowType;
   intervalHours?: 1 | 2;
   scheduleNote?: string | null;
@@ -479,6 +488,8 @@ export async function createShowSeries(input: {
       title,
       description: input.description?.trim() || '',
       coverUrl: input.coverUrl ?? null,
+      backdropUrl: input.backdropUrl ?? null,
+      mode: input.mode ?? 'SERIES',
       showType: input.showType ?? 'LIVE_SET',
       nextEpisodeNumber: 1,
       intervalHours: input.intervalHours ?? 1,
@@ -497,6 +508,8 @@ export async function createShowSeries(input: {
           name: title,
           description: input.description,
           artworkUrl: input.coverUrl,
+          backdropUrl: input.backdropUrl,
+          mode: input.mode,
           showType: input.showType,
           intervalHours: input.intervalHours,
           scheduleNote: input.scheduleNote,
@@ -520,6 +533,8 @@ export async function patchShowSeries(
       | 'title'
       | 'description'
       | 'coverUrl'
+      | 'backdropUrl'
+      | 'mode'
       | 'showType'
       | 'intervalHours'
       | 'scheduleNote'
@@ -549,6 +564,12 @@ export async function patchShowSeries(
     }
     if ('coverUrl' in patch) {
       body.artworkUrl = patch.coverUrl;
+    }
+    if ('backdropUrl' in patch) {
+      body.backdropUrl = patch.backdropUrl;
+    }
+    if ('mode' in patch) {
+      body.mode = patch.mode;
     }
     if ('showType' in patch) {
       body.showType = patch.showType;

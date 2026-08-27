@@ -176,55 +176,6 @@ export function AdminDashboardView() {
                     </ul>
                   </StudioPanel>
                 )}
-
-                <StudioPanel title="Queue health">
-                  <ul className="divide-border divide-y">
-                    {data.queues.map((q) => (
-                      <li
-                        key={q.name}
-                        className="flex items-center justify-between py-2 text-sm first:pt-0 last:pb-0"
-                      >
-                        <span>{q.name}</span>
-                        <span className="text-foreground-secondary text-xs">
-                          {q.waiting} waiting
-                          {q.failed > 0 ? `, ${q.failed} failed` : ''}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </StudioPanel>
-
-                <StudioPanel title="Cron jobs">
-                  <ul className="divide-border divide-y">
-                    {data.cronJobs.map((job) => (
-                      <li
-                        key={job.jobName}
-                        className="flex items-center justify-between py-2 text-sm first:pt-0 last:pb-0"
-                      >
-                        <span title={job.description}>{job.jobName}</span>
-                        <span className="text-foreground-secondary text-xs">
-                          {job.lastRun?.outcome ?? '—'}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </StudioPanel>
-
-                <StudioPanel title="Recent audit events">
-                  <ul className="divide-border divide-y">
-                    {data.audit.map((row) => (
-                      <li
-                        key={row.id}
-                        className="flex items-center justify-between py-2 text-sm first:pt-0 last:pb-0"
-                      >
-                        <span>{row.action}</span>
-                        <span className="text-foreground-secondary text-xs">
-                          {new Date(row.createdAt).toLocaleString()}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </StudioPanel>
               </>
             )}
           </>

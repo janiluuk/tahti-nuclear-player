@@ -241,3 +241,57 @@ export async function fetchNewToYou(): Promise<{
     };
   }
 }
+
+type TrackReactionResponse = {
+  reactions: Array<{ type: string }>;
+};
+
+async function countTrackLoves(trackId: string): Promise<number> {
+  const response = await getJson<TrackReactionResponse>(
+    `/api/reactions/track/${encodeURIComponent(trackId)}`,
+  );
+  return response.reactions.filter((reaction) => reaction.type === 'LOVE')
+    .length;
+}
+
+/** Community-wide Loved list, ranked from the public LOVE reactions on tracks. */
+export async function fetchLovedTracks(
+  filters: DiscoverFilters,
+): Promise<{ data: DiscoverTrackItem[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    return {
+      data: mockTopTracks('desc').map((item, index) => ({
+        ...item,
+        loves: Math.max(1, 42 - index * 7),
+      })),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const candidates = await fetchTopTracks('all_time', 'desc', filters);
+    const ranked = await Promise.all(
+      candidates.data.slice(0, 24).map(async (track) => ({
+        track,
+        loves: await countTrackLoves(track.id.replace(/^archive:/, '')),
+      })),
+    );
+    return {
+      data: ranked
+        .filter(({ loves }) => loves > 0)
+        .sort((left, right) => right.loves - left.loves)
+        .map(({ track, loves }) => ({ ...track, loves })),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return {
+        data: mockTopTracks('desc').map((item, index) => ({
+          ...item,
+          loves: Math.max(1, 42 - index * 7),
+        })),
+        meta: failMeta(err),
+      };
+    }
+    return { data: [], meta: failMeta(err) };
+  }
+}

@@ -346,7 +346,7 @@ export function ArtistView({ username }: { username: string }) {
         ← Listen
       </Link>
 
-      <div className="flex flex-col gap-2">
+      <section className="border-border bg-background-secondary/70 flex flex-col gap-5 rounded-2xl border p-4 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-start gap-4">
           <div className="relative size-20 shrink-0 sm:size-24">
             {channel && tab !== 'music' ? (
@@ -409,11 +409,32 @@ export function ArtistView({ username }: { username: string }) {
             />
           </div>
         </div>
-        {artist.bio && (
-          <p className="text-foreground mt-2 max-w-2xl text-sm whitespace-pre-wrap">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-foreground-secondary text-sm">
+            {artist.pronouns ? `${artist.pronouns} · ` : ''}
+            {channel ? 'Artist channel' : 'Artist profile'}
+          </span>
+          {fanTiers.length > 0 ? (
+            <Link
+              to="/subscribe/$username"
+              params={{ username: artist.username }}
+            >
+              <Button size="sm">Subscribe</Button>
+            </Link>
+          ) : null}
+          {channel && channelVisual?.hlsUrl ? (
+            <Link to="/channel/$slug" params={{ slug: channel.slug }}>
+              <Button size="sm" variant="secondary">
+                Open channel
+              </Button>
+            </Link>
+          ) : null}
+        </div>
+        {artist.bio ? (
+          <p className="text-foreground max-w-3xl text-sm whitespace-pre-wrap">
             {artist.bio}
           </p>
-        )}
+        ) : null}
         {editingFullBio ? (
           <div className="mt-2 flex max-w-2xl flex-col gap-2">
             <Textarea
@@ -491,27 +512,26 @@ export function ArtistView({ username }: { username: string }) {
             + Add full bio
           </Button>
         ) : null}
+        <div className="border-border/70 flex flex-wrap gap-x-7 gap-y-3 border-t pt-4">
+          {[
+            ['Followers', artist.followerCount ?? 0],
+            ['Following', artist.followingCount ?? 0],
+            ['Tracks', profile.tracks.length],
+            ['Releases', releases.length],
+            ['Collections', collections.length],
+          ].map(([label, value]) => (
+            <div key={label} className="min-w-16">
+              <div className="text-foreground text-lg font-bold tracking-tight">
+                {value}
+              </div>
+              <div className="text-foreground-secondary text-[11px] tracking-[0.12em] uppercase">
+                {label}
+              </div>
+            </div>
+          ))}
+        </div>
         <DiscoWidgetsSection widgets={discoWidgets} />
-        <div className="mt-2 flex flex-wrap gap-3 text-sm">
-          {channel && channelVisual?.hlsUrl && (
-            <Link
-              to="/channel/$slug"
-              params={{ slug: channel.slug }}
-              className="text-foreground underline-offset-2 hover:underline"
-            >
-              Open channel ({channel.state})
-            </Link>
-          )}
-          {fanTiers.length > 0 ? (
-            <Link
-              to="/subscribe/$username"
-              params={{ username: artist.username }}
-            >
-              <Button size="sm" variant="secondary">
-                Support artist
-              </Button>
-            </Link>
-          ) : null}
+        <div className="flex flex-wrap gap-3 text-sm">
           {channel && (
             <Link
               to="/u/$username/green-room"
@@ -536,7 +556,7 @@ export function ArtistView({ username }: { username: string }) {
             </Link>
           )}
         </div>
-      </div>
+      </section>
 
       {fanTiers.length > 0 && (
         <p className="text-foreground-secondary text-xs">

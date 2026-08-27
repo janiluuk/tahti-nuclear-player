@@ -46,11 +46,9 @@ const STYLE_OPTIONS = [
   'ALBUM',
   'EP',
   'SINGLE',
+  'PODCAST',
   'PLAYLIST',
-  'COMPILATION',
   'DJ_SET_SERIES',
-  'LIVE_ARCHIVE',
-  'MIX_SERIES',
 ] as const;
 
 const PEAK_BUCKETS = 200;
@@ -163,9 +161,6 @@ function TrackRow({
       }`}
     >
       <div className="flex flex-wrap items-center gap-2 px-2 py-2 text-sm">
-        <span className="text-foreground-secondary w-6 shrink-0 tabular-nums">
-          {idx + 1}.
-        </span>
         <span
           className={`min-w-0 flex-1 truncate font-medium ${
             isCurrent ? 'text-accent-green' : ''
@@ -198,7 +193,26 @@ function TrackRow({
             )}
           </Button>
         )}
-        {item.archiveItem && (
+        {item.archiveItem && isEmbed && (
+          <Button
+            size="icon-sm"
+            variant="text"
+            aria-label={
+              isExpanded
+                ? 'Hide player'
+                : `Play ${trackTitle(item)} on ${EMBED_PROVIDER_LABEL[embedProvider!]}`
+            }
+            title={
+              isExpanded
+                ? 'Hide player'
+                : `Play on ${EMBED_PROVIDER_LABEL[embedProvider!]}`
+            }
+            onClick={onToggleExpand}
+          >
+            <PlayIcon size={16} className="fill-current" aria-hidden />
+          </Button>
+        )}
+        {item.archiveItem && !isEmbed && (
           <Button
             size="icon-sm"
             variant="text"

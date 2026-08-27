@@ -441,10 +441,10 @@ export function RadioBookingCalendar({
               </div>
             </div>
             <Input
-              label="Note"
+              label="Show name"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="e.g. Friday Frequency"
+              placeholder="New show name or episode title"
             />
             <Button size="sm" disabled={busy} onClick={() => void book()}>
               {busy ? 'Booking…' : `Book ${durationHours}h slot`}

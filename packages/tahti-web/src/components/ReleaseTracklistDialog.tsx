@@ -117,9 +117,6 @@ export function ReleaseTracklistDialog({
                         : ''
                     }`}
                   >
-                    <span className="text-foreground-secondary w-5 shrink-0 text-xs tabular-nums">
-                      {track.position}
-                    </span>
                     <span
                       className={`min-w-0 flex-1 truncate text-sm ${
                         isPlaying ? 'text-accent-green font-semibold' : ''

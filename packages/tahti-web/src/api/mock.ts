@@ -728,6 +728,7 @@ export function mockProfile(username: string): PublicProfile {
       tier: 'FREE',
       pronouns: content.pronouns ?? null,
       followerCount: content.followerCount,
+      followingCount: 0,
       freeSubscriptionsEnabled: getMockFreeSubscriptionsEnabled(
         channel.user.username,
       ),
@@ -892,6 +893,8 @@ export function mockVenues(): VenueDirectoryItem[] {
       countryCode: 'FI',
       capacity: 400,
       description: 'Mock venue for the listen POC.',
+      externalLinks: { website: 'https://tahti.live' },
+      photos: [],
     },
   ];
 }

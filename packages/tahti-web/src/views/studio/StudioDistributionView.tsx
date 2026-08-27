@@ -427,9 +427,13 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
           <label key={key} className="flex flex-col gap-1 text-xs">
             <span className="text-foreground-secondary">{label}</span>
             <Input
-              value={form![key]}
+              value={form?.[key] ?? ''}
               disabled={busy}
-              onChange={(e) => setForm({ ...form!, [key]: e.target.value })}
+              onChange={(e) =>
+                setForm((previous) =>
+                  previous ? { ...previous, [key]: e.target.value } : previous,
+                )
+              }
             />
           </label>
         ))}
@@ -806,8 +810,8 @@ export function StudioDistributionView() {
   useEffect(() => {
     void Promise.all([fetchStudioReleases(), fetchAllRoyalties()]).then(
       ([rel, roy]) => {
-        setReleases(rel.data.releases);
-        setAllRoyalties(roy.data);
+        setReleases(rel.data.releases ?? []);
+        setAllRoyalties(roy.data ?? []);
         setLoading(false);
       },
     );

@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { MusicIcon, PlayIcon } from 'lucide-react';
+import { HeartIcon, MusicIcon, PlayIcon } from 'lucide-react';
 
 import type { DiscoverTrackItem } from '../../api/types';
 import { usePlayerStore } from '../../stores/playerStore';
@@ -78,6 +78,12 @@ export function WidgetTrackRow({
       {item.listens !== undefined && (
         <span className="text-foreground-secondary shrink-0 text-xs tabular-nums">
           {item.listens.toLocaleString()} plays
+        </span>
+      )}
+      {item.loves !== undefined && (
+        <span className="text-foreground-secondary flex shrink-0 items-center gap-1 text-xs tabular-nums">
+          <HeartIcon size={12} aria-hidden />
+          {item.loves.toLocaleString()}
         </span>
       )}
     </Link>

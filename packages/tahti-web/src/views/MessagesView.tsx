@@ -142,8 +142,11 @@ export function MessagesView({ threadId }: { threadId?: string } = {}) {
                 <button
                   type="button"
                   onClick={() => openThread(c.id)}
-                  className={`w-full px-3 py-2 text-left text-sm ${
-                    activeId === c.id ? 'bg-background-secondary' : ''
+                  aria-current={activeId === c.id ? 'page' : undefined}
+                  className={`w-full border-l-2 px-3 py-2 text-left text-sm transition-colors ${
+                    activeId === c.id
+                      ? 'border-accent-purple bg-accent-purple/20 text-foreground'
+                      : 'hover:bg-background-secondary border-transparent'
                   }`}
                 >
                   <div className="font-medium">{c.otherUser.displayName}</div>
@@ -173,7 +176,7 @@ export function MessagesView({ threadId }: { threadId?: string } = {}) {
                     className={`max-w-[85%] rounded-lg px-3 py-2 ${
                       m.isMine
                         ? 'bg-primary text-foreground ml-auto'
-                        : 'bg-background-secondary'
+                        : 'border-accent-purple/30 bg-accent-purple/15'
                     }`}
                   >
                     <div className="text-[10px] opacity-70">

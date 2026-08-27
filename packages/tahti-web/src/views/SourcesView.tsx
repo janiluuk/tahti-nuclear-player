@@ -460,7 +460,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     name: string,
     description: string,
     tracks: HearthisTrack[],
-    style: 'PLAYLIST' | 'LIVE_ARCHIVE',
     coverUrl?: string | null,
   ) => {
     const pendingTracks = tracks.filter(
@@ -476,7 +475,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     const created = await createStudioCollection({
       name,
       description,
-      style,
+      style: 'PLAYLIST',
       isPublic: true,
     });
     if (!created.ok || !created.data.id) {
@@ -535,7 +534,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
         collection.title,
         collection.description,
         tracks,
-        'PLAYLIST',
         collection.coverUrl,
       );
     } catch (error) {
@@ -1195,26 +1193,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                           ? 'Imported'
                           : 'Import'}
                       </Button>
-                      {hearthisTab === 'sets' && (
-                        <Button
-                          size="icon-sm"
-                          variant="secondary"
-                          disabled={busy}
-                          onClick={() =>
-                            void importTracksAsCollection(
-                              track.title,
-                              `Imported from hearthis.at · ${track.username}`,
-                              [track],
-                              'LIVE_ARCHIVE',
-                              track.coverUrl,
-                            )
-                          }
-                          aria-label={`Import ${track.title} as collection`}
-                          title="Import as collection"
-                        >
-                          <FolderDownIcon size={15} />
-                        </Button>
-                      )}
                       <a
                         href={track.url}
                         target="_blank"

@@ -84,6 +84,53 @@ export async function fetchStickyNotifications(): Promise<{
   }
 }
 
+export async function fetchNotifications(): Promise<{
+  data: TahtiNotification[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: [
+        {
+          id: 'notification-mock-1',
+          type: 'FAN',
+          actor: {
+            username: 'midnight-cartography',
+            displayName: 'Midnight Cartography',
+            avatarUrl: null,
+          },
+          title: 'New fan',
+          body: 'Midnight Cartography started following your channel.',
+          url: '/u/midnight-cartography',
+          readAt: null,
+          sticky: false,
+          createdAt: new Date(Date.now() - 15 * 60_000).toISOString(),
+        },
+        {
+          id: 'notification-mock-2',
+          type: 'EVENT',
+          actor: null,
+          title: 'Your event is coming up',
+          body: 'Album release show starts tomorrow at 18:00.',
+          url: '/studio/events',
+          readAt: null,
+          sticky: false,
+          createdAt: new Date(Date.now() - 2 * 3600_000).toISOString(),
+        },
+      ],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{
+      notifications: TahtiNotification[];
+    }>('/api/me/notifications?limit=20');
+    return { data: data.notifications, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: emptyMeta(err) };
+  }
+}
+
 export async function dismissNotification(id: string): Promise<void> {
   if (forceMock()) {
     return;

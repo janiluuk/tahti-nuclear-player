@@ -5,6 +5,7 @@ import {
   HeadphonesIcon,
   LibraryIcon,
   ListMusicIcon,
+  Mic2Icon,
   PlusIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
@@ -34,6 +35,7 @@ const CREATE_STYLES = [
     label: 'DJ set',
     icon: <HeadphonesIcon size={18} aria-hidden />,
   },
+  { id: 'PODCAST', label: 'Podcast', icon: <Mic2Icon size={18} aria-hidden /> },
 ] as const;
 
 type CreateStyle = (typeof CREATE_STYLES)[number]['id'];
@@ -46,6 +48,9 @@ const collectionStyle = (collection: StudioCollection): CreateStyle => {
   }
   if (style === 'DJ_SET_SERIES' || style === 'MIX_SERIES') {
     return 'DJ_SET_SERIES';
+  }
+  if (style === 'PODCAST') {
+    return 'PODCAST';
   }
   if (!style || ['PLAYLIST', 'CUSTOM', 'LIST'].includes(style)) {
     return 'PLAYLIST';
@@ -168,6 +173,17 @@ export function StudioCollectionsView() {
             </Button>
           }
         />
+
+        <nav className="flex flex-wrap gap-2" aria-label="Collection views">
+          <Button size="sm" variant="default" aria-current="page">
+            Collections
+          </Button>
+          <Link to="/studio/playlists">
+            <Button size="sm" variant="secondary">
+              Playlists
+            </Button>
+          </Link>
+        </nav>
 
         {msg && <p className="text-sm">{msg}</p>}
 
@@ -299,7 +315,8 @@ export function StudioCollectionsView() {
           ) : rows.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-4 text-center">
               <p className="text-foreground-secondary text-sm">
-                No collections yet — create an album, EP, DJ set, or playlist.
+                No collections yet — create an album, EP, DJ set, podcast, or
+                playlist.
               </p>
               <Button size="sm" onClick={() => setCreateOpen(true)}>
                 <PlusIcon size={16} aria-hidden className="mr-1.5" />

@@ -44,7 +44,7 @@ export function StudioTrackInsightsView({
   return (
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6">
-        <StudioNav current="/studio/archive" />
+        <StudioNav current="/studio/insights" />
         <Link
           to={kind === 'archive' ? '/studio/archive' : '/studio/releases'}
           className="text-foreground-secondary text-xs hover:underline"

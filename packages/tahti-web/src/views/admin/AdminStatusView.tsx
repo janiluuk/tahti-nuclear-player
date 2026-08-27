@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 
 import { Badge } from '@nuclearplayer/ui';
 
-import { fetchAdminStatus, type AdminStatusData } from '../../api/admin';
+import {
+  fetchAdminDashboard,
+  fetchAdminStatus,
+  type AdminDashboard,
+  type AdminStatusData,
+} from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
@@ -10,13 +15,17 @@ import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function AdminStatusView() {
   const [data, setData] = useState<AdminStatusData | null>(null);
+  const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    void fetchAdminStatus().then((res) => {
-      setData(res.data);
-      setLoading(false);
-    });
+    void Promise.all([fetchAdminStatus(), fetchAdminDashboard()]).then(
+      ([status, adminDashboard]) => {
+        setData(status.data);
+        setDashboard(adminDashboard.data);
+        setLoading(false);
+      },
+    );
   }, []);
 
   return (
@@ -79,6 +88,41 @@ export function AdminStatusView() {
             </>
           )}
         </StudioPanel>
+        {dashboard && (
+          <div className="grid gap-6 md:grid-cols-2">
+            <StudioPanel title="Queue health">
+              <ul className="divide-border divide-y">
+                {dashboard.queues.map((queue) => (
+                  <li
+                    key={queue.name}
+                    className="flex items-center justify-between py-2 text-sm first:pt-0 last:pb-0"
+                  >
+                    <span>{queue.name}</span>
+                    <span className="text-foreground-secondary text-xs">
+                      {queue.waiting} waiting
+                      {queue.failed > 0 ? `, ${queue.failed} failed` : ''}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </StudioPanel>
+            <StudioPanel title="Cron jobs">
+              <ul className="divide-border divide-y">
+                {dashboard.cronJobs.map((job) => (
+                  <li
+                    key={job.jobName}
+                    className="flex items-center justify-between py-2 text-sm first:pt-0 last:pb-0"
+                  >
+                    <span title={job.description}>{job.jobName}</span>
+                    <span className="text-foreground-secondary text-xs">
+                      {job.lastRun?.outcome ?? '—'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </StudioPanel>
+          </div>
+        )}
       </div>
     </AdminGate>
   );

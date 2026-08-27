@@ -16,6 +16,9 @@ export function VenueRegisterView() {
   const [countryCode, setCountryCode] = useState('FI');
   const [capacity, setCapacity] = useState('');
   const [description, setDescription] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [coverUrl, setCoverUrl] = useState('');
+  const [pageUrl, setPageUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [doneSlug, setDoneSlug] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -84,6 +87,9 @@ export function VenueRegisterView() {
             countryCode: countryCode.trim() || 'FI',
             capacity: capacity ? Number(capacity) : undefined,
             description: description.trim() || undefined,
+            imageUrl: imageUrl.trim() || undefined,
+            coverUrl: coverUrl.trim() || undefined,
+            pageUrl: pageUrl.trim() || undefined,
           }).then((res) => {
             setPending(false);
             if (!res.ok) {
@@ -149,6 +155,24 @@ export function VenueRegisterView() {
             rows={4}
           />
         </label>
+        <Input
+          label="Venue image URL (optional)"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="https://…"
+        />
+        <Input
+          label="Cover art URL (optional)"
+          value={coverUrl}
+          onChange={(e) => setCoverUrl(e.target.value)}
+          placeholder="https://…"
+        />
+        <Input
+          label="Venue website (optional)"
+          value={pageUrl}
+          onChange={(e) => setPageUrl(e.target.value)}
+          placeholder="https://…"
+        />
         <Button
           type="submit"
           disabled={

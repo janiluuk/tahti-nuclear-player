@@ -5,7 +5,6 @@ import {
   HistoryIcon,
   LayoutDashboardIcon,
   MapIcon,
-  MessageSquareIcon,
   RadioIcon,
   RssIcon,
   SettingsIcon,
@@ -61,18 +60,21 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             label="Listen"
           />
         </div>
+        <div
+          className="border-border ml-3 border-l pl-2"
+          data-tour-id="nav-feed"
+        >
+          <SidebarNavigationItem
+            to="/feed"
+            icon={<RssIcon size={16} />}
+            label="Feed"
+          />
+        </div>
         <div data-tour-id="nav-radio">
           <SidebarNavigationItem
             to="/radio"
             icon={<RadioIcon size={16} />}
             label="Radio"
-          />
-        </div>
-        <div data-tour-id="nav-feed">
-          <SidebarNavigationItem
-            to="/feed"
-            icon={<RssIcon size={16} />}
-            label="Feed"
           />
         </div>
         <div data-tour-id="nav-discover">
@@ -87,13 +89,6 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             to="/library/history"
             icon={<HistoryIcon size={16} />}
             label="History"
-          />
-        </div>
-        <div data-tour-id="nav-messages">
-          <SidebarNavigationItem
-            to="/messages"
-            icon={<MessageSquareIcon size={16} />}
-            label="Messages"
           />
         </div>
         <div data-tour-id="nav-studio">
@@ -148,6 +143,9 @@ export function AppShell() {
   const openSettings = useSettingsModalStore((s) => s.open);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const stableNavigationRoute = /^\/(studio|admin|library)(\/|$)/.test(
+    pathname,
+  );
   const currentTrackId = usePlayerStore((state) => state.currentId);
   const playerQueue = usePlayerStore((state) => state.queue);
   const playerStatus = usePlayerStore((state) => state.status);
@@ -294,7 +292,10 @@ export function AppShell() {
           <div
             className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
           >
-            <RouteTransition key={userId ?? 'anonymous'} />
+            <RouteTransition
+              key={userId ?? 'anonymous'}
+              disableAnimation={stableNavigationRoute}
+            />
           </div>
           {!isArtistPage && (
             <MobileBottomNav onOpenQueue={() => setMobileQueueOpen(true)} />
@@ -304,7 +305,10 @@ export function AppShell() {
         <div
           className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
         >
-          <RouteTransition key={userId ?? 'anonymous'} />
+          <RouteTransition
+            key={userId ?? 'anonymous'}
+            disableAnimation={stableNavigationRoute}
+          />
         </div>
       ) : (
         <PlayerWorkspace>
@@ -324,6 +328,16 @@ export function AppShell() {
                       label="Listen"
                     />
                   </div>
+                  <div
+                    className="border-border ml-3 border-l pl-2"
+                    data-tour-id="nav-feed"
+                  >
+                    <SidebarNavigationItem
+                      to="/feed"
+                      icon={<RssIcon size={16} />}
+                      label="Feed"
+                    />
+                  </div>
                   <div data-tour-id="nav-radio">
                     <SidebarNavigationItem
                       to="/radio"
@@ -331,25 +345,11 @@ export function AppShell() {
                       label="Radio"
                     />
                   </div>
-                  <div data-tour-id="nav-feed">
-                    <SidebarNavigationItem
-                      to="/feed"
-                      icon={<RssIcon size={16} />}
-                      label="Feed"
-                    />
-                  </div>
                   <div data-tour-id="nav-discover">
                     <SidebarNavigationItem
                       to="/discover"
                       icon={<CompassIcon size={16} />}
                       label="Discover"
-                    />
-                  </div>
-                  <div data-tour-id="nav-messages">
-                    <SidebarNavigationItem
-                      to="/messages"
-                      icon={<MessageSquareIcon size={16} />}
-                      label="Messages"
                     />
                   </div>
                   <div data-tour-id="nav-studio">
@@ -399,7 +399,10 @@ export function AppShell() {
             className={cn('min-h-0 overflow-hidden', MAIN_CONTENT_PADDING)}
           >
             <div className="h-full overflow-auto">
-              <RouteTransition key={userId ?? 'anonymous'} />
+              <RouteTransition
+                key={userId ?? 'anonymous'}
+                disableAnimation={stableNavigationRoute}
+              />
             </div>
           </PlayerWorkspace.Main>
 

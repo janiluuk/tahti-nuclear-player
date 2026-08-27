@@ -106,6 +106,21 @@ export function VenueDetailView({ slug }: { slug: string }) {
         }
       />
 
+      {venue.photos?.[1] && (
+        <img
+          src={venue.photos[1]}
+          alt={`${venue.name} cover`}
+          className="border-border max-h-72 w-full rounded-lg border object-cover"
+        />
+      )}
+      {venue.photos?.[0] && (
+        <img
+          src={venue.photos[0]}
+          alt={`${venue.name} venue`}
+          className="h-24 w-24 rounded-lg object-cover"
+        />
+      )}
+
       {venue.description ? (
         <p className="text-foreground text-sm whitespace-pre-line">
           {venue.description}
@@ -114,6 +129,16 @@ export function VenueDetailView({ slug }: { slug: string }) {
         <p className="text-foreground-secondary text-sm">
           This venue hasn't added a description yet.
         </p>
+      )}
+      {venue.externalLinks?.website && (
+        <a
+          href={venue.externalLinks.website}
+          target="_blank"
+          rel="noreferrer"
+          className="text-sm font-medium underline-offset-2 hover:underline"
+        >
+          Venue website →
+        </a>
       )}
     </PageFrame>
   );

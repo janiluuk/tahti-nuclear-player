@@ -81,7 +81,9 @@ export function filterBookingsForStation(
   if (station === 'radio' || !ownChannelSlug) {
     return bookings;
   }
-  return bookings.filter((b) => b.channelSlug === ownChannelSlug);
+  return bookings.filter(
+    (booking) => booking.isMine || booking.channelSlug === ownChannelSlug,
+  );
 }
 
 export function bookingGridKey(day: Date, hour: number): string {

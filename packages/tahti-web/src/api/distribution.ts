@@ -424,7 +424,7 @@ export async function fetchAllRoyalties(): Promise<{
     const { data } = await requestJson<{
       reports: RevelatorRoyaltyReportRow[];
     }>('/api/me/revelator/royalties');
-    return { data: data.reports, meta: { source: 'api' } };
+    return { data: data.reports ?? [], meta: { source: 'api' } };
   } catch (err) {
     if (allowMockFallback()) {
       return { data: mockRoyalties(), meta: failMeta(err) };

@@ -51,6 +51,8 @@ type AuthState = {
   clearError: () => void;
 };
 
+let sessionMutationVersion = 0;
+
 async function afterUserChange(user: AuthUser | null) {
   await rehydrateLibraryForUser(user?.id ?? null);
   if (user?.username) {
@@ -72,9 +74,14 @@ export const useAuthStore = create<AuthState>()(
       cancelTotp: () => set({ totpChallengeId: null, error: null }),
 
       refresh: async () => {
+        const refreshVersion = sessionMutationVersion;
         set({ loading: true, error: null });
         try {
           const { data } = await fetchAuthMe();
+          if (refreshVersion !== sessionMutationVersion) {
+            set({ loading: false, hydrated: true });
+            return;
+          }
           if (data) {
             set({ user: data, loading: false, hydrated: true });
             await afterUserChange(data);
@@ -95,6 +102,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       login: async (email, password) => {
+        sessionMutationVersion += 1;
         set({ loading: true, error: null, totpChallengeId: null });
         const result = await loginRequest(email, password);
         if (!result.ok) {
@@ -109,17 +117,20 @@ export const useAuthStore = create<AuthState>()(
           });
           return { requiresTotp: true, challengeId: result.challengeId };
         }
+        const session = await fetchAuthMe();
+        const user = session.data ?? result.user;
         set({
-          user: result.user,
+          user,
           loading: false,
           error: null,
           totpChallengeId: null,
         });
-        await afterUserChange(result.user);
+        await afterUserChange(user);
         return {};
       },
 
       completeTotp: async (code) => {
+        sessionMutationVersion += 1;
         const challengeId = get().totpChallengeId;
         if (!challengeId) {
           set({ error: 'No TOTP challenge — sign in again.' });
@@ -131,13 +142,15 @@ export const useAuthStore = create<AuthState>()(
           set({ loading: false, error: result.error });
           throw new Error(result.error);
         }
+        const session = await fetchAuthMe();
+        const user = session.data ?? result.user;
         set({
-          user: result.user,
+          user,
           loading: false,
           error: null,
           totpChallengeId: null,
         });
-        await afterUserChange(result.user);
+        await afterUserChange(user);
       },
 
       register: async (input) => {
@@ -192,6 +205,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
+        sessionMutationVersion += 1;
         await logoutRequest();
         set({ user: null, error: null, totpChallengeId: null });
         await afterUserChange(null);

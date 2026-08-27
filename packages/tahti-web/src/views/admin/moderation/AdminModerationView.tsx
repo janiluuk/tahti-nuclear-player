@@ -1,7 +1,9 @@
 import { useNavigate } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
 
 import { Tabs } from '@nuclearplayer/ui';
 
+import { fetchAdminDashboard } from '../../../api/admin';
 import { AdminGate } from '../../../components/AdminGate';
 import { AdminNav } from '../../../components/AdminNav';
 import { StudioPageHeader } from '../../../components/StudioPanel';
@@ -45,15 +47,28 @@ function tabContent(id: AdminModerationTabId) {
  * here re-fetches that queue rather than loading all six up front. */
 export function AdminModerationView({ tab }: { tab?: AdminModerationTabId }) {
   const navigate = useNavigate();
+  const [pendingCount, setPendingCount] = useState<number>();
   const active = isAdminModerationTabId(tab)
     ? tab
     : DEFAULT_ADMIN_MODERATION_TAB;
   const selectedIndex = ADMIN_MODERATION_TABS.findIndex((t) => t.id === active);
 
+  useEffect(() => {
+    void fetchAdminDashboard().then((result) => {
+      setPendingCount(
+        result.data.kpis.betaQueue + result.data.kpis.openTickets,
+      );
+    });
+  }, []);
+
   return (
     <AdminGate>
       <div className="admin-moderation-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/moderation" splitLayout />
+        <AdminNav
+          current="/admin/moderation"
+          splitLayout
+          moderationPendingCount={pendingCount}
+        />
         <StudioPageHeader
           title="Moderation"
           subtitle="Review queues the board triages day to day — support, beta access, radio, curation, reports, and roadmap."

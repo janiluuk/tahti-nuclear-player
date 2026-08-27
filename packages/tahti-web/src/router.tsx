@@ -63,6 +63,7 @@ import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
 import { StudioDistributionView } from './views/studio/StudioDistributionView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
 import { StudioEditorProjectView } from './views/studio/StudioEditorProjectView';
+import { StudioEventCreateView } from './views/studio/StudioEventCreateView';
 import { StudioEventsView } from './views/studio/StudioEventsView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
@@ -1063,6 +1064,18 @@ const studioEventsRoute = createRoute({
   component: StudioEventsView,
 });
 
+const studioEventCreateRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/events/new',
+  component: StudioEventCreateView,
+});
+
+const studioInsightsIndexRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/insights',
+  component: StudioStatsDetailView,
+});
+
 const studioInsightsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/insights/$kind/$id',
@@ -1342,6 +1355,8 @@ const routeTree = rootRoute.addChildren([
     studioModerationRoute,
     studioVenuesRoute,
     studioEventsRoute,
+    studioEventCreateRoute,
+    studioInsightsIndexRoute,
     studioInsightsRoute,
     dashboardIndexAliasRoute,
     dashboardSplatAliasRoute,

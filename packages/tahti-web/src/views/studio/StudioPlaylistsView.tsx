@@ -104,6 +104,17 @@ export function StudioPlaylistsView() {
           }
         />
 
+        <nav className="flex flex-wrap gap-2" aria-label="Collection views">
+          <Link to="/studio/collections">
+            <Button size="sm" variant="secondary">
+              Collections
+            </Button>
+          </Link>
+          <Button size="sm" variant="default" aria-current="page">
+            Playlists
+          </Button>
+        </nav>
+
         {msg && <p className="text-foreground-secondary px-1 text-sm">{msg}</p>}
 
         <Dialog.Root isOpen={createOpen} onClose={() => setCreateOpen(false)}>
@@ -427,7 +438,7 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                       sortable: false,
                     }}
                     display={{
-                      displayPosition: true,
+                      displayPosition: false,
                       displayArtist: false,
                       displayDuration: true,
                       displayDeleteButton: true,

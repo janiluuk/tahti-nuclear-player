@@ -153,6 +153,7 @@ export type PublicProfileArtist = {
   tier?: string;
   pronouns?: string | null;
   followerCount?: number | null;
+  followingCount?: number | null;
   freeSubscriptionsEnabled?: boolean;
 };
 
@@ -298,6 +299,8 @@ export type VenueDirectoryItem = {
   countryCode: string | null;
   capacity: number | null;
   description: string | null;
+  externalLinks?: Record<string, string> | null;
+  photos?: string[];
 };
 
 export type VenueUpcomingBroadcast = {
@@ -630,6 +633,8 @@ export type DiscoverTrackItem = {
   genre?: string | null;
   /** Only present for the two top-lists-backed widgets. */
   listens?: number;
+  /** Aggregate LOVE reactions from the community. */
+  loves?: number;
 };
 
 export type SearchTrackResult = {

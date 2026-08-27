@@ -1,5 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import {
+  BookOpenIcon,
   CalendarIcon,
   ExternalLinkIcon,
   LayoutDashboardIcon,
@@ -19,7 +20,10 @@ import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { GlobalSearch } from './GlobalSearch';
+import { RadioBookingCalendar } from './RadioBookingCalendar';
+import { ScheduleDialog } from './ScheduleDialog';
 import { TahtiLogoLink } from './TahtiLogo';
+import { UploadTrackDialog } from './UploadTrackDialog';
 
 type AppTopNavProps = {
   /** Show hamburger for mobile left drawer. */
@@ -41,6 +45,9 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const openAuth = useAuthModalStore((s) => s.open);
   const openSettings = useSettingsModalStore((s) => s.open);
   const [open, setOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [bookOpen, setBookOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const hasChannel = Boolean(user?.channel?.slug);
@@ -95,43 +102,69 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
       </div>
 
       <div className="flex min-w-0 items-center gap-1">
-        <Link
-          to="/schedule"
-          className={iconBtnClass}
+        <button
+          type="button"
+          className={cn(
+            iconBtnClass,
+            scheduleOpen && 'border-primary bg-primary/15 text-primary',
+          )}
           aria-label="Schedule"
           title="Schedule"
           data-tour-id="topbar-schedule"
+          onClick={() => setScheduleOpen(true)}
         >
           <CalendarIcon size={16} />
-        </Link>
+        </button>
 
         {user && hasChannel ? (
           <>
             <Link
               to="/studio/go-live"
-              className={iconBtnClass}
+              className={cn(
+                iconBtnClass,
+                pathname.startsWith('/studio/go-live') &&
+                  'border-primary bg-primary/15 text-primary',
+              )}
               aria-label="Go live"
               title="Go live"
               data-tour-id="topbar-golive"
             >
               <RadioIcon size={16} />
             </Link>
-            <Link
-              to="/studio/upload"
+            <button
+              type="button"
               className={iconBtnClass}
               aria-label="Upload"
               title="Upload"
               data-tour-id="topbar-upload"
+              onClick={() => setUploadOpen(true)}
             >
               <UploadIcon size={16} />
-            </Link>
+            </button>
+            <button
+              type="button"
+              className={cn(
+                iconBtnClass,
+                bookOpen && 'border-primary bg-primary/15 text-primary',
+              )}
+              aria-label="Book show"
+              title="Book show"
+              data-tour-id="topbar-book"
+              onClick={() => setBookOpen(true)}
+            >
+              <BookOpenIcon size={16} />
+            </button>
           </>
         ) : null}
 
         {user ? (
           <Link
             to="/messages"
-            className={iconBtnClass}
+            className={cn(
+              iconBtnClass,
+              pathname.startsWith('/messages') &&
+                'border-primary bg-primary/15 text-primary',
+            )}
             aria-label="Messages"
             title="Messages"
             data-tour-id="topbar-messages"
@@ -268,6 +301,18 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
           </button>
         )}
       </div>
+      <UploadTrackDialog
+        isOpen={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+      />
+      <ScheduleDialog
+        isOpen={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+      />
+      <RadioBookingCalendar
+        isOpen={bookOpen}
+        onClose={() => setBookOpen(false)}
+      />
     </header>
   );
 }

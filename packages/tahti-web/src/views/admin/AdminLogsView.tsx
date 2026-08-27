@@ -103,7 +103,7 @@ export function AdminLogsView() {
           items={[
             {
               id: 'activity',
-              label: 'Activity',
+              label: 'Audit events',
               content: <AdminActivityView embedded />,
             },
             {

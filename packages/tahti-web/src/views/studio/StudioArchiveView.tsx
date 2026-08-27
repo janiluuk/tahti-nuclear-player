@@ -32,6 +32,7 @@ import {
   EMBED_PROVIDER_HEIGHT,
   EMBED_PROVIDER_LABEL,
   embedSrcFor,
+  type EmbedProvider,
 } from '../../lib/embedSrc';
 import {
   countPinnedTracks,
@@ -43,9 +44,51 @@ import {
 import { usePlayerStore } from '../../stores/playerStore';
 
 const FOLDERS = [
-  { id: 'archive' as const, label: 'Archive', icon: AudioLinesIcon },
+  { id: 'archive' as const, label: 'Sounds', icon: AudioLinesIcon },
   { id: 'files' as const, label: 'Files', icon: FolderIcon },
 ];
+
+type EmbedFilter = 'ALL' | 'NATIVE' | EmbedProvider;
+type SortField = 'title' | 'uploaded' | 'duration';
+
+const EMBED_FILTERS: Array<{ id: EmbedFilter; label: string }> = [
+  { id: 'ALL', label: 'All sources' },
+  { id: 'NATIVE', label: 'Tahti audio' },
+  { id: 'HEARTHIS', label: 'hearthis.at' },
+  { id: 'MIXCLOUD', label: 'Mixcloud' },
+  { id: 'SPOTIFY', label: 'Spotify' },
+];
+
+const SORT_FIELDS: Array<{ id: SortField; label: string }> = [
+  { id: 'title', label: 'Title' },
+  { id: 'uploaded', label: 'Upload date' },
+  { id: 'duration', label: 'Duration' },
+];
+
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
+function parseDateInput(value: string): Date | null {
+  if (!value) {
+    return null;
+  }
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatUploadDate(value: string | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  return new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(date);
+}
 
 export function StudioArchiveView() {
   const navigate = useNavigate();
@@ -54,6 +97,11 @@ export function StudioArchiveView() {
   const [items, setItems] = useState<StudioArchiveItem[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [embedFilter, setEmbedFilter] = useState<EmbedFilter>('ALL');
+  const [sortField, setSortField] = useState<SortField>('uploaded');
+  const [sortDescending, setSortDescending] = useState(true);
+  const [uploadedFrom, setUploadedFrom] = useState('');
+  const [uploadedTo, setUploadedTo] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [openMoreId, setOpenMoreId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -75,6 +123,9 @@ export function StudioArchiveView() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const from = parseDateInput(uploadedFrom);
+    const to = parseDateInput(uploadedTo);
+    const toExclusive = to ? new Date(to.getTime() + DAY_IN_MS) : null;
     const base = !q
       ? items
       : items.filter(
@@ -83,8 +134,42 @@ export function StudioArchiveView() {
             (i.genre?.toLowerCase().includes(q) ?? false) ||
             i.status.toLowerCase().includes(q),
         );
-    return sortPinnedFirst(base);
-  }, [items, query]);
+    const filteredItems = base.filter((item) => {
+      const provider = item.embedProvider ?? 'NATIVE';
+      if (embedFilter !== 'ALL' && provider !== embedFilter) {
+        return false;
+      }
+      if (!item.createdAt) {
+        return !from && !toExclusive;
+      }
+      const uploadedAt = new Date(item.createdAt);
+      if (Number.isNaN(uploadedAt.getTime())) {
+        return !from && !toExclusive;
+      }
+      return (
+        (!from || uploadedAt >= from) &&
+        (!toExclusive || uploadedAt < toExclusive)
+      );
+    });
+    return sortPinnedFirst(filteredItems).sort((left, right) => {
+      const comparison =
+        sortField === 'title'
+          ? left.title.localeCompare(right.title)
+          : sortField === 'duration'
+            ? (left.durationSec ?? 0) - (right.durationSec ?? 0)
+            : new Date(left.createdAt ?? 0).getTime() -
+              new Date(right.createdAt ?? 0).getTime();
+      return sortDescending ? -comparison : comparison;
+    });
+  }, [
+    embedFilter,
+    items,
+    query,
+    sortDescending,
+    sortField,
+    uploadedFrom,
+    uploadedTo,
+  ]);
 
   const pinnedCount = countPinnedTracks(items);
 
@@ -129,8 +214,8 @@ export function StudioArchiveView() {
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/archive" />
         <StudioPageHeader
-          title="Music"
-          subtitle="Your archive and other files, in one place."
+          title="Sounds"
+          subtitle="Your sounds and other files, in one place."
           action={
             folder === 'archive' ? (
               <AddToMusicActions onUploaded={reload} />
@@ -180,6 +265,65 @@ export function StudioArchiveView() {
                 Pinned {pinnedCount}/{MAX_PINNED_TRACKS}
               </span>
             </div>
+            <div className="border-border mb-4 flex flex-wrap items-end gap-3 border-b pb-4">
+              <label className="flex min-w-40 flex-col gap-1 text-xs">
+                Source
+                <select
+                  value={embedFilter}
+                  onChange={(event) =>
+                    setEmbedFilter(event.target.value as EmbedFilter)
+                  }
+                  className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                >
+                  {EMBED_FILTERS.map((filterOption) => (
+                    <option key={filterOption.id} value={filterOption.id}>
+                      {filterOption.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex min-w-40 flex-col gap-1 text-xs">
+                Sort by
+                <select
+                  value={sortField}
+                  onChange={(event) =>
+                    setSortField(event.target.value as SortField)
+                  }
+                  className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                >
+                  {SORT_FIELDS.map((sortOption) => (
+                    <option key={sortOption.id} value={sortOption.id}>
+                      {sortOption.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setSortDescending((current) => !current)}
+              >
+                {sortDescending ? 'Descending' : 'Ascending'}
+              </Button>
+              <label className="flex min-w-36 flex-col gap-1 text-xs">
+                Uploaded from
+                <input
+                  type="date"
+                  value={uploadedFrom}
+                  onChange={(event) => setUploadedFrom(event.target.value)}
+                  className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                />
+              </label>
+              <label className="flex min-w-36 flex-col gap-1 text-xs">
+                Uploaded to
+                <input
+                  type="date"
+                  value={uploadedTo}
+                  onChange={(event) => setUploadedTo(event.target.value)}
+                  className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                />
+              </label>
+            </div>
 
             {pinMessage && (
               <p
@@ -221,6 +365,9 @@ export function StudioArchiveView() {
                         </Link>
                         <p className="text-foreground-secondary text-xs">
                           {item.status}
+                          {formatUploadDate(item.createdAt)
+                            ? `, uploaded ${formatUploadDate(item.createdAt)}`
+                            : ''}
                           {isPinned(item) ? ', pinned' : ''}
                           {item.durationSec != null
                             ? `, ${Math.round(item.durationSec / 60)} min`

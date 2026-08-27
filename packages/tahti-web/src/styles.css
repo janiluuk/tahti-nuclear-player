@@ -14,6 +14,8 @@ body,
     grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     align-items: start;
+    position: relative;
+    row-gap: 0;
   }
 
   .studio-page-layout > [data-studio-section-tabs] {
@@ -22,8 +24,10 @@ body,
   }
 
   .studio-page-layout > [data-studio-section-menu] {
-    grid-column: 1;
-    grid-row: 2;
+    position: absolute;
+    top: 4.5rem;
+    left: 0;
+    width: 11rem;
   }
 
   .studio-page-layout
@@ -37,6 +41,8 @@ body,
     grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     align-items: start;
+    position: relative;
+    row-gap: 0;
   }
 
   .admin-moderation-layout > [data-admin-section-tabs] {
@@ -45,8 +51,10 @@ body,
   }
 
   .admin-moderation-layout > [data-admin-section-menu] {
-    grid-column: 1;
-    grid-row: 2;
+    position: absolute;
+    top: 4rem;
+    left: 0;
+    width: 11rem;
   }
 
   .admin-moderation-layout
@@ -60,6 +68,8 @@ body,
     grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     align-items: start;
+    position: relative;
+    row-gap: 0;
   }
 
   .admin-page-layout > [data-admin-section-tabs] {
@@ -68,8 +78,10 @@ body,
   }
 
   .admin-page-layout > [data-admin-section-menu] {
-    grid-column: 1;
-    grid-row: 2;
+    position: absolute;
+    top: 4rem;
+    left: 0;
+    width: 11rem;
   }
 
   .admin-page-layout

@@ -127,22 +127,22 @@ export function FeedView() {
           }
         />
       ) : (
-        <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
+        <ul className="flex gap-3 overflow-x-auto pb-2">
           {items.map((item) => (
             <li
               key={`${item.kind}-${item.id}`}
-              className="flex items-start gap-3 px-3 py-3"
+              className="border-border bg-background-secondary flex w-[min(24rem,calc(100vw-3rem))] shrink-0 flex-col gap-3 rounded-lg border p-4"
             >
-              <Link
-                to="/u/$username"
-                params={{ username: item.artist.username }}
-              >
-                <ArtistAvatar
-                  name={item.artist.displayName}
-                  src={item.artist.avatarUrl}
-                />
-              </Link>
-              <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 items-center gap-3">
+                <Link
+                  to="/u/$username"
+                  params={{ username: item.artist.username }}
+                >
+                  <ArtistAvatar
+                    name={item.artist.displayName}
+                    src={item.artist.avatarUrl}
+                  />
+                </Link>
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
                   <Link
                     to="/u/$username"
@@ -158,16 +158,22 @@ export function FeedView() {
                     {formatFeedDate(item.date)}
                   </span>
                 </div>
+              </div>
 
+              <div className="min-w-0 flex-1">
                 {item.kind === 'post' && (
-                  <div className="mt-2">
+                  <Link
+                    to="/u/$username"
+                    params={{ username: item.artist.username }}
+                    className="hover:bg-background mt-2 block rounded-md text-left"
+                  >
                     {item.title && (
                       <div className="text-sm font-medium">{item.title}</div>
                     )}
                     <p className="text-foreground-secondary mt-0.5 text-sm">
                       {item.body}
                     </p>
-                  </div>
+                  </Link>
                 )}
 
                 {item.kind === 'track' &&
@@ -270,7 +276,13 @@ export function FeedView() {
                           item.title.slice(0, 2).toUpperCase()
                         )}
                       </div>
-                      <span className="text-sm font-medium">{item.title}</span>
+                      <Link
+                        to="/u/$username"
+                        params={{ username: item.artist.username }}
+                        className="text-sm font-medium underline-offset-2 hover:underline"
+                      >
+                        {item.title}
+                      </Link>
                     </div>
                   ))}
               </div>
