@@ -2,7 +2,7 @@
 
 exports[`QueuePanel > (Snapshot) renders collapsed empty state 1`] = `
 <div
-  class="flex h-full flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150 opacity-0"
+  class="flex h-full min-h-0 flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150 opacity-0"
   data-testid="queue-empty-state"
 >
   <svg
@@ -49,14 +49,14 @@ exports[`QueuePanel > (Snapshot) renders collapsed empty state 1`] = `
 
 exports[`QueuePanel > (Snapshot) renders collapsed state 1`] = `
 <div
-  class="flex h-full flex-col"
+  class="flex h-full min-h-0 flex-col"
   data-testid="queue-panel"
 >
   <div
-    class="relative h-full w-full"
+    class="relative h-full w-full min-h-0 flex-1"
   >
     <div
-      class="scrollbar-hide flex h-full w-full flex-col overflow-auto"
+      class="scrollbar-hide flex h-full w-full flex-col overflow-auto min-h-0"
       style="scrollbar-width: none;"
     >
       <div
@@ -213,14 +213,14 @@ exports[`QueuePanel > (Snapshot) renders collapsed state 1`] = `
 
 exports[`QueuePanel > (Snapshot) renders default state 1`] = `
 <div
-  class="flex h-full flex-col"
+  class="flex h-full min-h-0 flex-col"
   data-testid="queue-panel"
 >
   <div
-    class="relative h-full w-full"
+    class="relative h-full w-full min-h-0 flex-1"
   >
     <div
-      class="scrollbar-hide flex h-full w-full flex-col overflow-auto"
+      class="scrollbar-hide flex h-full w-full flex-col overflow-auto min-h-0"
       style="scrollbar-width: none;"
     >
       <div
@@ -536,7 +536,7 @@ exports[`QueuePanel > (Snapshot) renders default state 1`] = `
 
 exports[`QueuePanel > (Snapshot) renders empty state 1`] = `
 <div
-  class="flex h-full flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150 opacity-100"
+  class="flex h-full min-h-0 flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150 opacity-100"
   data-testid="queue-empty-state"
 >
   <svg
@@ -583,7 +583,7 @@ exports[`QueuePanel > (Snapshot) renders empty state 1`] = `
 
 exports[`QueuePanel > (Snapshot) renders empty state with labels 1`] = `
 <div
-  class="flex h-full flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150 opacity-100"
+  class="flex h-full min-h-0 flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150 opacity-100"
   data-testid="queue-empty-state"
 >
   <svg

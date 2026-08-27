@@ -82,6 +82,57 @@ This maps the public Tahti product described at [tahti.live](https://tahti.live/
 4. Prioritize admin detail and bulk workflows: users/support, storage files, financial payout operations, grants run/preview, announcements, and widget catalog management.
 5. Repeat a live beta-vs-production route and permission sweep after each batch; retain intentional consolidations such as Admin Logs and Moderation tabs.
 
+## Cutover no-drop ledger
+
+This is the decision gate for switching the official listener/artist client. A route that merely redirects to a nearby page is not automatically parity: the target must preserve the user’s task, data, permissions, and return path.
+
+### Must be green before listener/artist cutover
+
+| Production surface | Current beta/cutover handling | Gate |
+| --- | --- | --- |
+| `/listen` | Redirects to the beta listener hub `/` | Verify directory, live/archive playback, radio preview, widgets, and anonymous chat on the cutover host. |
+| `/c/:slug` | Redirects to `/channel/$slug` | Verify wildcard channel hosts, HLS, archive fallback, chat access, reactions, downloads, and now-playing state. |
+| `/u/:username/subscribe` | Redirects to `/subscribe/$username` | Verify checkout, signed-in return, cancellation, and subscription state refresh. |
+| `/dashboard/*` | `prodPathRedirects` maps the principal routes to `/studio/*` | Test every email, Stripe, OAuth, and bookmark URL; do not rely on the generic `/studio` fallback for a task-specific link. |
+| Upload imports | Production has dedicated SoundCloud, Bandcamp, Google Drive, URL, Mixcloud rescue, and from-broadcast routes; beta consolidates these into Sources, Upload, or Recordings | P0: each old URL must land on the equivalent importer or explain the next action, with no silent loss of selected source/upload state. |
+| Channel editing | Production splits channel, gallery, text, playlist, and visual editing routes; beta consolidates them into Channel design tabs and inline editing | P0: verify every editor operation, saved layout, image/gallery action, playlist setting, and public preview. |
+| Settings | Production has many dashboard settings routes; beta consolidates them into Account, Artist, Channel, Broadcast, Add-ons, Connections, and Themes | P0: create a field-by-field settings matrix; ensure no setting is only redirected to a page that cannot edit it. |
+| Auth/payment returns | Beta has SPA routes, but the API still owns cookies, OAuth callbacks, and Stripe return URLs | P0: test same-origin cookies, OAuth callback query cleanup, checkout success/cancel, Connect onboarding/portal, email verification, and password links on the final host. |
+| Embeds | Beta has `/embed/*` routes | P0: test all production embed shapes (`c`, `r`, `col`, and user collection), iframe CSP, playback, and third-party embedding. |
+
+### Artist routes requiring explicit parity decisions
+
+The production app has dedicated surfaces that the beta currently folds together or does not expose as a separate screen:
+
+- `/dashboard/newsletter/compose` is represented by the Updates/newsletter surface; verify draft/send behavior and subscriber targeting rather than accepting a generic Updates redirect.
+- `/dashboard/collections/new` is folded into the Collections hub; verify that creating an album, EP, DJ set, and playlist still reaches the correct editor.
+- `/dashboard/upload/[uploadId]` and the upload import routes need an upload-progress and failure/retry equivalent, not just a redirect to the upload landing page.
+- `/dashboard/channel/gallery`, `/dashboard/channel/text`, and `/dashboard/channel/playlist` are folded into Channel design; verify that old deep links preserve the relevant tab.
+- Production dashboard settings for media, discovery, internet radio, green room, moderators, multistream, distribution, and members are split between Studio, Settings, and Add-ons in beta. Each must have one canonical beta destination and an automated route test.
+- `/dashboard/governance/*` and `/dashboard/messages/*` are represented by the global `/governance` and `/messages` surfaces. Verify artist permissions and thread deep links for both roles, not just listener access.
+
+### Admin cutover boundary
+
+The current cutover decision keeps production Next `/admin/*` canonical and switches only the public listener/artist client. That decision prevents accidental loss of admin capabilities. If Admin is moved to the Nuclear client later, the following production routes need to be ported or explicitly retained on Next before changing the host:
+
+- channel-specific archive and programme management (`/admin/channels/[slug]/archive`, `/admin/channels/[slug]/programme`)
+- announcement editor/detail (`/admin/announcements/editor/[id]`)
+- widget catalog administration (`/admin/disco-widgets`), themes, internet radio, and missed shows
+- financial fan-subscriptions, ledger, and legacy-member workflows
+- governance audit, reports, resolutions, and publishing
+- grant year/run/preview detail (`/admin/grants/[year]`)
+- support ticket detail (`/admin/support/[id]`) and user detail/restrictions (`/admin/users/[id]`)
+
+The beta Admin port should remain clearly labelled partial until those surfaces either exist in Nuclear or the deployment contract guarantees that `/admin/*` stays on Next. The existing Admin Logs and Moderation tab consolidations are intentional and must retain their deep-link compatibility aliases.
+
+### Deployment safeguards
+
+- Freeze this mapping with a baseline commit and record the matching `tahti-org` API revision.
+- Run route smoke tests on the cutover candidate for anonymous listener, authenticated listener, artist/channel owner, moderator, and board roles.
+- Assert that production-only redirects never fall through to a generic page when they carry a task, identifier, upload, OAuth, or payment return state.
+- Verify live API mode has no mock fallback and that all build-time secrets are present, especially hCaptcha, app URL, Centrifugo, and Stripe/OAuth return configuration.
+- Keep Next Admin and the beta client dual-running through soak; only retire beta/Next surfaces after route, permission, and payment-return checks pass on the final host.
+
 ## Evidence
 
 - Production product principles and listener/artist capabilities: [How Tahti works](https://tahti.live/how-it-works) and [About Tahti](https://tahti.live/about).

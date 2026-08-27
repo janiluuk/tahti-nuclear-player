@@ -3,7 +3,11 @@ import { Button, Tabs } from '@nuclearplayer/ui';
 import { HistoryListSection } from '../components/history/HistoryListSection';
 import { HistoryStatsSection } from '../components/history/HistoryStatsSection';
 import { PageHeader } from '../components/PageHeader';
+import { PageEmpty } from '../components/PageStates';
+import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { useLibraryStore } from '../stores/libraryStore';
+
+const RECENTLY_PLAYED_PREVIEW = 5;
 
 /** Ported from Nuclear desktop's History view (packages/player/src/views/
  * History) — same two-tab layout (Stats / Listening history) and the same
@@ -15,6 +19,7 @@ import { useLibraryStore } from '../stores/libraryStore';
 export function HistoryView() {
   const history = useLibraryStore((s) => s.history);
   const clearHistory = useLibraryStore((s) => s.clearHistory);
+  const recentHistory = history.slice(0, RECENTLY_PLAYED_PREVIEW);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
@@ -31,6 +36,22 @@ export function HistoryView() {
           </Button>
         }
       />
+      <section className="flex flex-col gap-3">
+        <div className="flex w-full flex-wrap items-center justify-between gap-2">
+          <h2 className="text-2xl font-bold">Recently played</h2>
+        </div>
+        {recentHistory.length === 0 ? (
+          <PageEmpty
+            title="Nothing played yet"
+            description="Tracks you play show up here, most recent first."
+          />
+        ) : (
+          <PlayableTrackTable
+            items={recentHistory.map((entry) => entry.playable)}
+            emptyMessage="Nothing played yet."
+          />
+        )}
+      </section>
       <Tabs
         className="flex flex-1 flex-col overflow-hidden"
         panelsClassName="flex-1 overflow-hidden"

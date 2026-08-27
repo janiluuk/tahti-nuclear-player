@@ -22,7 +22,6 @@ import {
 import type { StudioArchiveItem } from '../api/studio-types';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
-import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { TrackEditDialog } from '../components/TrackEditDialog';
 import {
@@ -33,14 +32,11 @@ import {
   sortPinnedFirst,
 } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
-import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { MyCollectionsView } from './MyCollectionsView';
 
 type VisibilityFilter = 'all' | 'pinned' | 'private' | 'processing' | 'public';
 type SortKey = 'newest' | 'oldest' | 'title-asc' | 'title-desc';
-
-const RECENTLY_PLAYED_PREVIEW = 5;
 
 const FILTERS: Array<{ id: VisibilityFilter; label: string }> = [
   { id: 'all', label: 'All' },
@@ -81,7 +77,6 @@ const sortItems = (items: StudioArchiveItem[], sort: SortKey) =>
 
 export const MyDiscographyView: FC = () => {
   const user = useAuthStore((state) => state.user);
-  const history = useLibraryStore((state) => state.history);
   const play = usePlayerStore((state) => state.play);
   const setStatus = usePlayerStore((state) => state.setStatus);
   const seekTo = usePlayerStore((state) => state.seekTo);
@@ -195,36 +190,10 @@ export const MyDiscographyView: FC = () => {
     );
   };
 
-  const recentHistory = history.slice(0, RECENTLY_PLAYED_PREVIEW);
   const hasChannel = Boolean(user?.channel);
 
   return (
     <div className="flex flex-col gap-8">
-      {user ? (
-        <section className="flex flex-col gap-3">
-          <div className="flex w-full flex-wrap items-center justify-between gap-2">
-            <h2 className="text-2xl font-bold">Recently played</h2>
-            <Link
-              to="/library/history"
-              className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
-            >
-              Full history
-            </Link>
-          </div>
-          {recentHistory.length === 0 ? (
-            <PageEmpty
-              title="Nothing played yet"
-              description="Tracks you play show up here, most recent first."
-            />
-          ) : (
-            <PlayableTrackTable
-              items={recentHistory.map((entry) => entry.playable)}
-              emptyMessage="Nothing played yet."
-            />
-          )}
-        </section>
-      ) : null}
-
       {!hasChannel ? (
         <PageEmpty
           title="No sounds yet"

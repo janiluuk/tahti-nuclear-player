@@ -15,6 +15,7 @@ import {
   fetchTotpStatus,
   setupTotp,
 } from '../api/security';
+import { PageLoading } from './PageStates';
 
 function formatSecret(secret: string): string {
   return secret.replace(/(.{4})/g, '$1 ').trim();
@@ -42,7 +43,7 @@ export function SecurityTotpPanel() {
   if (enabled === null) {
     return (
       <SectionShell title="Two-factor authentication">
-        <p className="text-foreground-secondary text-sm">Loading…</p>
+        <PageLoading label="Loading two-factor authentication…" />
       </SectionShell>
     );
   }

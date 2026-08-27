@@ -48,6 +48,7 @@ import { usePlayerStore } from '../stores/playerStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
+import { PageLoading } from './PageStates';
 
 // MINIMAL has no Three.js scene (see plugins/visualizers) so it isn't in
 // that registry — its description lives only here.
@@ -636,7 +637,7 @@ function MulticastCategory() {
   return (
     <div className="flex flex-col gap-3">
       {targets == null ? (
-        <p className="text-foreground-secondary text-sm">Loading…</p>
+        <PageLoading label="Loading multistream destinations…" />
       ) : targets.length === 0 ? (
         <p className="text-foreground-secondary text-sm">
           No multistream destinations configured yet.

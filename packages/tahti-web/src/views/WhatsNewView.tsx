@@ -5,6 +5,7 @@ import { cn, ViewShell } from '@nuclearplayer/ui';
 
 import { fetchAnnouncements } from '../api/client';
 import type { Announcement } from '../api/types';
+import { PageLoading } from '../components/PageStates';
 
 function TimelineNode({ isLatest }: { isLatest?: boolean }) {
   return isLatest ? (
@@ -141,7 +142,7 @@ export function WhatsNewPanel() {
         News, releases, and service updates from Tahti.
       </p>
 
-      {loading && <p className="text-foreground-secondary text-sm">Loading…</p>}
+      {loading && <PageLoading label="Loading announcements…" />}
 
       {!loading && entries.length === 0 && (
         <p className="text-foreground-secondary text-sm">

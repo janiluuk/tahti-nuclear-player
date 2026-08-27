@@ -64,7 +64,7 @@ export const QueuePanel: FC<QueuePanelProps> = ({
       <div
         data-testid="queue-empty-state"
         className={cn(
-          'flex h-full flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150',
+          'flex h-full min-h-0 flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150',
           {
             'opacity-0': isCollapsed,
             'opacity-100': !isCollapsed,
@@ -96,9 +96,9 @@ export const QueuePanel: FC<QueuePanelProps> = ({
   return (
     <div
       data-testid="queue-panel"
-      className={cn('flex h-full flex-col', classes?.root)}
+      className={cn('flex h-full min-h-0 flex-col', classes?.root)}
     >
-      <ScrollableArea>
+      <ScrollableArea className="min-h-0 flex-1" viewportClassName="min-h-0">
         <QueueReorderLayer
           enabled={reorderable}
           items={itemIds}
