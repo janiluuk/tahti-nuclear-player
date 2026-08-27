@@ -176,9 +176,10 @@ export function AddToPlaylistPanel({
               const added = addedSlugs.has(c.slug);
               const busy = addingSlug === c.slug;
               return (
-                <button
+                <Button
                   key={c.slug}
                   type="button"
+                  variant="text"
                   className={`border-border hover:border-primary flex flex-col items-center gap-1.5 rounded-lg border px-2 py-3 text-center disabled:opacity-50 ${
                     added ? 'border-primary bg-primary/10' : ''
                   }`}
@@ -201,11 +202,12 @@ export function AddToPlaylistPanel({
                   <span className="line-clamp-2 w-full text-[11px] leading-tight">
                     {c.name}
                   </span>
-                </button>
+                </Button>
               );
             })}
-            <button
+            <Button
               type="button"
+              variant="text"
               className="border-border hover:border-primary flex flex-col items-center gap-1.5 rounded-lg border border-dashed px-2 py-3 text-center"
               onClick={() => setCreating(true)}
               aria-label="Create new playlist"
@@ -215,7 +217,7 @@ export function AddToPlaylistPanel({
                 <PlusIcon size={22} aria-hidden />
               </span>
               <span className="text-[11px] leading-tight">New</span>
-            </button>
+            </Button>
             {collections.length === 0 && (
               <p className="text-foreground-secondary col-span-full px-1 text-xs">
                 No playlists yet — tap New.

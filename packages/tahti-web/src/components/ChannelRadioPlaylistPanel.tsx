@@ -357,9 +357,10 @@ export const ChannelRadioPlaylistPanel: FC = () => {
                 ['ordered', 'In order'] as const,
               ] as const
             ).map(([mode, label]) => (
-              <button
+              <Button
                 key={mode}
                 type="button"
+                variant="text"
                 className={`rounded px-3 py-2 text-xs font-semibold uppercase transition-colors ${
                   fallbackMode === mode
                     ? 'bg-primary text-primary-foreground'
@@ -369,7 +370,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
                 aria-pressed={fallbackMode === mode}
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
 
