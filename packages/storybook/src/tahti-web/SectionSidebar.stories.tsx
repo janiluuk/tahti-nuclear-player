@@ -79,3 +79,53 @@ export const MobileOverflow: Story = {
   },
   parameters: { viewport: { defaultViewport: 'mobile1' } },
 };
+
+export const StudioManage: Story = {
+  args: {
+    'aria-label': 'Manage pages',
+    items: [
+      {
+        id: 'channel',
+        to: '/studio/channel',
+        label: 'Channel',
+        icon: <SettingsIcon size={16} aria-hidden />,
+        active: true,
+      },
+      {
+        id: 'sources',
+        to: '/sources',
+        label: 'Sources',
+        icon: <SettingsIcon size={16} aria-hidden />,
+      },
+      {
+        id: 'radio',
+        to: '/studio/channel?tab=radio',
+        label: 'Radio',
+        icon: <RadioIcon size={16} aria-hidden />,
+      },
+    ],
+  },
+  decorators: [withTahtiRouter('/studio/channel')],
+};
+
+export const AdminModeration: Story = {
+  args: {
+    'aria-label': 'Moderation pages',
+    items: [
+      {
+        id: 'moderation',
+        to: '/admin/moderation',
+        label: 'Moderation',
+        icon: <SettingsIcon size={16} aria-hidden />,
+        active: true,
+      },
+      {
+        id: 'logs',
+        to: '/admin/logs',
+        label: 'Logs',
+        icon: <SettingsIcon size={16} aria-hidden />,
+      },
+    ],
+  },
+  decorators: [withTahtiRouter('/admin/moderation')],
+};

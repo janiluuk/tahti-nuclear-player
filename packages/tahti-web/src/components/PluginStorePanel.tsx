@@ -1,21 +1,26 @@
 import { Link } from '@tanstack/react-router';
-import { SettingsIcon } from 'lucide-react';
+import { Cast, SettingsIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
   Button,
-  Card,
-  CardGrid,
   Dialog,
   Input,
   PluginItem,
   PluginStoreItem,
+  Select,
   Slider,
   Tabs,
 } from '@nuclearplayer/ui';
 
 import { submitRadioStationSuggestion } from '../api/admin';
-import { fetchRtmpTargets, type RtmpTarget } from '../api/broadcast';
+import {
+  createRtmpTarget,
+  deleteRtmpTarget,
+  fetchRtmpTargets,
+  patchRtmpTarget,
+  type RtmpTarget,
+} from '../api/broadcast';
 import {
   DEFAULT_VISUAL_PRESET_SETTINGS,
   fetchChannelVisual,
@@ -37,10 +42,19 @@ import {
   PLUGIN_CATEGORIES,
   type PluginCategoryId,
 } from '../content/pluginStoreCategories';
-import { RADIO_STATIONS, radioStationPlayable } from '../content/radioStations';
+import {
+  RADIO_STATIONS,
+  radioStationPlayable,
+  type RadioStation,
+} from '../content/radioStations';
 import { ALL_PLUGIN_IDS, AUDIO_FX_PLUGINS } from '../plugins/audio-fx';
 import { EXPORT_TARGETS } from '../plugins/export';
 import { importSourcePlugins } from '../plugins/import-sources';
+import {
+  multicastProviderLabel,
+  multicastProviders,
+  type MulticastProviderId,
+} from '../plugins/multicast';
 import { useThemeStore } from '../plugins/themes';
 import { visualizerPreset } from '../plugins/visualizers';
 import { useAuthStore } from '../stores/authStore';
@@ -123,9 +137,8 @@ function ConfigurableCard({
  * surface, which still owns the actual editing UI.
  *
  * Import/Export/Fingerprinting share one tagged registry (`SERVICE_PLUGINS`
- * below) so a service that spans categories — hearthis.at is both an
- * import source and an export target — is one entry with multiple tags,
- * not duplicated per category. */
+ * below) so shared services can stay a single entry without duplicating
+ * their configuration UI. */
 export function PluginStorePanel() {
   const [category, setCategory] = useState<PluginCategoryId>('themes');
 
@@ -275,7 +288,7 @@ function VisualizersCategory() {
                 isInstalled={preset === id}
                 onInstall={() => usePreset(id)}
                 labels={{
-                  install: saving === id ? 'Applying…' : 'Use this preset',
+                  install: saving === id ? 'Applying…' : 'Use',
                   installed: 'In use',
                 }}
               />
@@ -378,7 +391,9 @@ const IMPORT_SERVICE_PLUGINS: ServicePlugin[] = importSourcePlugins
     action: { kind: 'deep-link', to: s.studioDeepLink ?? `/sources/${s.id}` },
   }));
 
-const EXPORT_SERVICE_PLUGINS: ServicePlugin[] = EXPORT_TARGETS.map((t) => ({
+const EXPORT_SERVICE_PLUGINS: ServicePlugin[] = EXPORT_TARGETS.filter(
+  (target) => target.id !== 'hearthis',
+).map((t) => ({
   id: `export-${t.id}`,
   name: t.label,
   author: 'Tahti distribution',
@@ -387,15 +402,14 @@ const EXPORT_SERVICE_PLUGINS: ServicePlugin[] = EXPORT_TARGETS.map((t) => ({
   action: { kind: 'deep-link', to: t.to },
 }));
 
-// hearthis.at spans two categories — one entry, two tags — rather than a
-// duplicated card per category (see the file-level doc comment).
+// hearthis.at is an import source (see the file-level doc comment).
 const HEARTHIS_PLUGIN: ServicePlugin = {
   id: 'hearthis',
   name: 'hearthis.at',
-  author: 'Import & export',
+  author: 'Import',
   description:
-    "Search hearthis.at's public catalogue to import tracks and sets, or export your own releases there.",
-  tags: ['import', 'export'],
+    "Search hearthis.at's public catalogue to import tracks and sets.",
+  tags: ['import'],
   action: { kind: 'deep-link', to: '/sources/hearthis' },
 };
 
@@ -704,13 +718,84 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
 
 function MulticastCategory() {
   const [targets, setTargets] = useState<RtmpTarget[] | null>(null);
+  const [provider, setProvider] = useState<MulticastProviderId>('TWITCH');
+  const [streamKey, setStreamKey] = useState('');
+  const [address, setAddress] = useState('');
+  const [port, setPort] = useState('1935');
+  const [label, setLabel] = useState('');
+  const [message, setMessage] = useState<string | null>(null);
+
+  const reload = () => {
+    void fetchRtmpTargets().then((r) => setTargets(r.data));
+  };
 
   useEffect(() => {
     void fetchRtmpTargets().then((r) => setTargets(r.data));
   }, []);
 
+  const isCustom = provider === 'CUSTOM';
+  const addDestination = () => {
+    if (!streamKey.trim() || (isCustom && !address.trim())) {
+      return;
+    }
+    const rtmpUrl = isCustom
+      ? `${address.trim().replace(/\/$/, '')}:${port.trim() || '1935'}`
+      : undefined;
+    void createRtmpTarget({
+      provider,
+      streamKey: streamKey.trim(),
+      label: label.trim() || undefined,
+      rtmpUrl,
+    }).then((result) => {
+      if (!result.ok) {
+        setMessage(result.error);
+        return;
+      }
+      setStreamKey('');
+      setAddress('');
+      setLabel('');
+      setMessage(`${multicastProviderLabel(provider)} destination added.`);
+      reload();
+    });
+  };
+
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
+        <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+          Stream destinations
+        </h3>
+        {multicastProviders.map((destination) => {
+          const configured = targets?.some(
+            (target) => target.provider === destination.id,
+          );
+          return (
+            <PluginStoreItem
+              key={destination.id}
+              name={destination.label}
+              author="Multicast"
+              description={
+                destination.rtmpUrlHint
+                  ? `Mirror your live stream via ${destination.rtmpUrlHint}.`
+                  : 'Mirror your live stream to a custom RTMP server.'
+              }
+              isInstalled={configured}
+              onInstall={() => {
+                setProvider(destination.id);
+                setMessage(`${destination.label} selected below.`);
+              }}
+              labels={{
+                install: 'Configure',
+                installed: 'Configured',
+              }}
+            />
+          );
+        })}
+      </div>
+
+      <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+        Configured destinations
+      </h3>
       {targets == null ? (
         <PageLoading label="Loading multistream destinations…" />
       ) : targets.length === 0 ? (
@@ -722,22 +807,98 @@ function MulticastCategory() {
           {targets.map((t) => (
             <PluginItem
               key={t.id}
+              icon={<Cast size={22} aria-hidden />}
               name={t.label || t.provider}
-              author={t.provider}
-              description={t.enabled ? 'Enabled' : 'Disabled'}
+              author={multicastProviderLabel(t.provider)}
+              description={`${t.enabled ? 'Enabled' : 'Disabled'} · ${t.rtmpUrl}${t.keyLast4 ? ` · key ···${t.keyLast4}` : ''}`}
+              disabled={!t.enabled}
+              rightAccessory={
+                <Button
+                  size="sm"
+                  variant="text"
+                  onClick={() =>
+                    void patchRtmpTarget(t.id, {
+                      enabled: !t.enabled,
+                    }).then(reload)
+                  }
+                >
+                  {t.enabled ? 'Disable' : 'Enable'}
+                </Button>
+              }
+              onRemove={() => void deleteRtmpTarget(t.id).then(reload)}
             />
           ))}
         </ul>
       )}
-      <Link to="/studio/go-live">
-        <PluginStoreItem
-          name="Manage multistream destinations"
-          author="Studio"
-          description="Add, enable, or remove RTMP mirror destinations."
-          onInstall={() => {}}
-          labels={{ install: 'Open' }}
-        />
-      </Link>
+      <div className="border-border flex flex-col gap-3 rounded-lg border p-3">
+        <div>
+          <h3 className="font-semibold">Add destination</h3>
+          <p className="text-foreground-secondary text-xs">
+            Choose a platform and enter the credential it uses for live
+            streaming. Custom RTMP also needs its server address and port.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Select
+            label="Platform"
+            value={provider}
+            onValueChange={(value) => setProvider(value as MulticastProviderId)}
+            options={multicastProviders.map((item) => ({
+              id: item.id,
+              label: item.label,
+            }))}
+          />
+          <Input
+            label="Label (optional)"
+            value={label}
+            onChange={(event) => setLabel(event.target.value)}
+            placeholder={multicastProviderLabel(provider)}
+          />
+        </div>
+        {isCustom ? (
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
+            <Input
+              label="RTMP address"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              placeholder="rtmp://stream.example.com/live"
+            />
+            <Input
+              label="Port"
+              value={port}
+              onChange={(event) => setPort(event.target.value)}
+              placeholder="1935"
+              inputMode="numeric"
+            />
+          </div>
+        ) : (
+          <p className="text-foreground-secondary text-xs">
+            Ingest server:{' '}
+            {multicastProviders.find((item) => item.id === provider)
+              ?.rtmpUrlHint ?? 'the platform chooses the ingest server'}
+          </p>
+        )}
+        <div className="flex flex-wrap items-end gap-3">
+          <Input
+            label={isCustom ? 'Stream key' : 'Stream key / API key'}
+            value={streamKey}
+            onChange={(event) => setStreamKey(event.target.value)}
+            placeholder={
+              isCustom ? 'Paste stream key' : 'Paste platform credential'
+            }
+          />
+          <Button
+            size="sm"
+            disabled={!streamKey.trim() || (isCustom && !address.trim())}
+            onClick={addDestination}
+          >
+            Add destination
+          </Button>
+        </div>
+        {message && (
+          <p className="text-foreground-secondary text-xs">{message}</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -771,6 +932,11 @@ function RadioCategory() {
   const play = usePlayerStore((s) => s.play);
   const enabledStationIds = useListenerWidgetsStore((s) => s.enabledStationIds);
   const toggleStation = useListenerWidgetsStore((s) => s.toggleStation);
+  const stationOverrides = useListenerWidgetsStore((s) => s.stationOverrides);
+  const updateStation = useListenerWidgetsStore((s) => s.updateStation);
+  const [editingStation, setEditingStation] = useState<RadioStation | null>(
+    null,
+  );
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [suggestName, setSuggestName] = useState('');
   const [suggestLogoUrl, setSuggestLogoUrl] = useState('');
@@ -871,31 +1037,141 @@ function RadioCategory() {
         </form>
       )}
 
-      <CardGrid>
-        {RADIO_STATIONS.map((station) => (
-          <Card
-            key={station.id}
-            src={station.logoUrl}
-            title={station.name}
-            subtitle={`${station.language} · ${station.bitrateKbps}kbps ${station.codec}`}
-            favorited={enabledStationIds.includes(station.id)}
-            onFavorite={() => toggleStation(station.id)}
-            playLabel={station.streamUrl ? 'Play' : 'Stream pending'}
-            playDisabled={!station.streamUrl}
-            onPlay={
-              station.streamUrl
-                ? () =>
-                    play(
-                      radioStationPlayable({
-                        ...station,
-                        streamUrl: station.streamUrl!,
-                      }),
-                    )
-                : undefined
-            }
-          />
-        ))}
-      </CardGrid>
+      <div className="flex flex-col gap-2">
+        {RADIO_STATIONS.map((baseStation) => {
+          const station = {
+            ...baseStation,
+            ...stationOverrides[baseStation.id],
+          };
+          const enabled = enabledStationIds.includes(station.id);
+          return (
+            <PluginItem
+              key={station.id}
+              icon={
+                <img
+                  src={station.logoUrl}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              }
+              name={station.name}
+              author={station.language}
+              description={`${station.genre} · ${station.bitrateKbps}kbps ${station.codec} · ${station.streamUrl ?? 'Source not configured'}`}
+              disabled={!enabled}
+              rightAccessory={
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant={enabled ? undefined : 'secondary'}
+                    onClick={() => toggleStation(station.id)}
+                  >
+                    {enabled ? 'Enabled' : 'Enable'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="text"
+                    onClick={() => setEditingStation(station)}
+                  >
+                    Edit
+                  </Button>
+                </div>
+              }
+              onViewDetails={
+                station.streamUrl
+                  ? () =>
+                      play(
+                        radioStationPlayable({
+                          ...station,
+                          streamUrl: station.streamUrl!,
+                        }),
+                      )
+                  : undefined
+              }
+              labels={{ by: 'language' }}
+            />
+          );
+        })}
+      </div>
+
+      <Dialog.Root
+        isOpen={editingStation !== null}
+        onClose={() => setEditingStation(null)}
+        className="max-w-lg"
+      >
+        {editingStation && (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const form = new FormData(event.currentTarget);
+              updateStation(editingStation.id, {
+                name: String(form.get('name') ?? '').trim(),
+                language: String(form.get('language') ?? '').trim(),
+                genre: String(form.get('genre') ?? '').trim(),
+                bitrateKbps: Number(form.get('bitrateKbps') ?? 0),
+                codec: String(form.get('codec') ?? '').trim(),
+                logoUrl: String(form.get('logoUrl') ?? '').trim(),
+                streamUrl: String(form.get('streamUrl') ?? '').trim() || null,
+                detailUrl: String(form.get('detailUrl') ?? '').trim(),
+              });
+              setEditingStation(null);
+            }}
+          >
+            <Dialog.Title>Edit {editingStation.name}</Dialog.Title>
+            <Dialog.Description>
+              Update the station metadata, cover image, and programming source.
+            </Dialog.Description>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <Input
+                name="name"
+                label="Station name"
+                defaultValue={editingStation.name}
+              />
+              <Input
+                name="language"
+                label="Language"
+                defaultValue={editingStation.language}
+              />
+              <Input
+                name="genre"
+                label="Genre"
+                defaultValue={editingStation.genre}
+              />
+              <Input
+                name="bitrateKbps"
+                label="Bitrate (kbps)"
+                defaultValue={String(editingStation.bitrateKbps)}
+                inputMode="numeric"
+              />
+              <Input
+                name="codec"
+                label="Codec"
+                defaultValue={editingStation.codec}
+              />
+              <Input
+                name="logoUrl"
+                label="Cover image URL"
+                defaultValue={editingStation.logoUrl}
+              />
+              <Input
+                name="streamUrl"
+                label="Programming source / stream URL"
+                defaultValue={editingStation.streamUrl ?? ''}
+                className="sm:col-span-2"
+              />
+              <Input
+                name="detailUrl"
+                label="Station details URL"
+                defaultValue={editingStation.detailUrl}
+                className="sm:col-span-2"
+              />
+            </div>
+            <Dialog.Actions>
+              <Dialog.Close>Cancel</Dialog.Close>
+              <Button type="submit">Save station</Button>
+            </Dialog.Actions>
+          </form>
+        )}
+      </Dialog.Root>
     </div>
   );
 }

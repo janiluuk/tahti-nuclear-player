@@ -21,21 +21,87 @@ import {
 import { provisionChannel } from '../../api/channel-provision';
 import {
   fetchMeProfile,
+  fetchStatsPlays,
   patchMeProfile,
   type ProfileFields,
+  type StatsPlays,
+  type StatsPlaysRange,
 } from '../../api/studio-extras';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { ChannelRadioPlaylistPanel } from '../../components/ChannelRadioPlaylistPanel';
 import { PageLoading } from '../../components/PageStates';
+import { StreamManagerPanel } from '../../components/StreamManagerPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { useAuthStore } from '../../stores/authStore';
 
 type Tab = 'setup' | 'design' | 'radio' | 'profile' | 'domain';
+type RadioTab = 'stream' | 'rotation';
+
+const RADIO_STATS_RANGES: StatsPlaysRange[] = ['1', '7', '30'];
 
 const isTab = (value: string | undefined): value is Tab =>
   ['setup', 'design', 'radio', 'profile', 'domain'].includes(value ?? '');
+
+function ChannelOverallStats() {
+  const [stats, setStats] = useState<
+    Partial<Record<StatsPlaysRange, StatsPlays>>
+  >({});
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all(
+      RADIO_STATS_RANGES.map((range) => fetchStatsPlays(range)),
+    ).then((results) => {
+      if (cancelled) {
+        return;
+      }
+      const next: Partial<Record<StatsPlaysRange, StatsPlays>> = {};
+      results.forEach((result, index) => {
+        const range = RADIO_STATS_RANGES[index];
+        if (range) {
+          next[range] = result.data;
+        }
+      });
+      setStats(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <StudioPanel title="Overall statistics">
+      {RADIO_STATS_RANGES.every((range) => !stats[range]) ? (
+        <PageLoading label="Loading statistics…" />
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-3">
+          {RADIO_STATS_RANGES.map((range) => {
+            const periodStats = stats[range];
+            return (
+              <div
+                key={range}
+                className="border-border bg-background-secondary/40 rounded-lg border p-3"
+              >
+                <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                  Last {range} day{range === '1' ? '' : 's'}
+                </p>
+                <p className="mt-2 text-2xl font-bold tabular-nums">
+                  {periodStats?.totalPlays.toLocaleString() ?? '—'}
+                </p>
+                <p className="text-foreground-secondary text-xs">
+                  plays · {periodStats?.totalDownloads.toLocaleString() ?? '—'}{' '}
+                  downloads
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </StudioPanel>
+  );
+}
 
 export function StudioChannelView() {
   const search = useSearch({ strict: false }) as { tab?: string };
@@ -43,6 +109,7 @@ export function StudioChannelView() {
   const refresh = useAuthStore((s) => s.refresh);
   const channel = user?.channel;
   const [tab, setTab] = useState<Tab>(channel ? 'design' : 'setup');
+  const [radioTab, setRadioTab] = useState<RadioTab>('stream');
   const [profile, setProfile] = useState<ProfileFields | null>(null);
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
@@ -233,7 +300,58 @@ export function StudioChannelView() {
           </StudioPanel>
         )}
 
-        {tab === 'radio' && <ChannelRadioPlaylistPanel />}
+        {tab === 'radio' && (
+          <div className="flex flex-col gap-4">
+            <nav
+              className="border-border flex w-fit flex-wrap gap-1 rounded-lg border p-1"
+              role="tablist"
+              aria-label="Radio settings"
+            >
+              {(
+                [
+                  ['stream', 'Stream'],
+                  ['rotation', '24/7'],
+                ] as const
+              ).map(([id, label]) => (
+                <Button
+                  key={id}
+                  type="button"
+                  size="sm"
+                  variant="text"
+                  role="tab"
+                  aria-selected={radioTab === id}
+                  onClick={() => setRadioTab(id)}
+                  className={
+                    radioTab === id
+                      ? 'bg-primary text-foreground rounded-md'
+                      : 'text-foreground-secondary rounded-md'
+                  }
+                >
+                  {label}
+                </Button>
+              ))}
+            </nav>
+            {radioTab === 'stream' ? (
+              channel?.slug ? (
+                <>
+                  <StreamManagerPanel
+                    slug={channel.slug}
+                    channelState={channel.state}
+                  />
+                  <ChannelOverallStats />
+                </>
+              ) : (
+                <StudioPanel title="Stream manager">
+                  <p className="text-foreground-secondary text-sm">
+                    Create your channel first to manage its stream.
+                  </p>
+                </StudioPanel>
+              )
+            ) : (
+              <ChannelRadioPlaylistPanel />
+            )}
+          </div>
+        )}
 
         {tab === 'profile' && (
           <StudioPanel title="Profile">

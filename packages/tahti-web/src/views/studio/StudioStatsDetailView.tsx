@@ -52,18 +52,18 @@ export function StudioStatsDetailView() {
   return (
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
-        <StudioNav current="/studio/stats" />
+        <StudioNav current="/studio/insights" />
         <p className="text-foreground-secondary -mb-2 text-xs">
           <Link
-            to="/studio/stats"
+            to="/studio/insights"
             className="underline-offset-2 hover:underline"
           >
-            ← Stats
+            ← Insights
           </Link>
         </p>
         <StudioPageHeader
-          title="Plays & listeners"
-          subtitle="Daily plays for the selected range."
+          title="Insights"
+          subtitle="Daily plays, downloads, and listener activity."
           action={
             <div
               className="border-border flex gap-1 rounded-lg border p-1"

@@ -36,27 +36,30 @@ export function HistoryView() {
           </Button>
         }
       />
-      <section className="flex flex-col gap-3">
-        <div className="flex w-full flex-wrap items-center justify-between gap-2">
-          <h2 className="text-2xl font-bold">Recently played</h2>
-        </div>
-        {recentHistory.length === 0 ? (
-          <PageEmpty
-            title="Nothing played yet"
-            description="Tracks you play show up here, most recent first."
-          />
-        ) : (
-          <PlayableTrackTable
-            items={recentHistory.map((entry) => entry.playable)}
-            emptyMessage="Nothing played yet."
-          />
-        )}
-      </section>
       <Tabs
         className="flex flex-1 flex-col overflow-hidden"
         panelsClassName="flex-1 overflow-hidden"
         panelClassName="flex flex-1 overflow-hidden"
         items={[
+          {
+            id: 'recently-played',
+            label: 'Recently played',
+            content: (
+              <section className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto">
+                {recentHistory.length === 0 ? (
+                  <PageEmpty
+                    title="Nothing played yet"
+                    description="Tracks you play show up here, most recent first."
+                  />
+                ) : (
+                  <PlayableTrackTable
+                    items={recentHistory.map((entry) => entry.playable)}
+                    emptyMessage="Nothing played yet."
+                  />
+                )}
+              </section>
+            ),
+          },
           {
             id: 'stats',
             label: 'Stats',

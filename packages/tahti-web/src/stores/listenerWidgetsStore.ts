@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import type { RadioStation } from '../content/radioStations';
+
 /** One user-added SoundCloud/YouTube embed — see src/content/listenerWidgets.ts. */
 export type ListenerWidgetInstance = {
   id: string;
@@ -17,11 +19,13 @@ type ListenerWidgetsState = {
   instances: ListenerWidgetInstance[];
   /** RADIO_STATIONS ids the user has enabled from the store. */
   enabledStationIds: string[];
+  stationOverrides: Record<string, Partial<RadioStation>>;
   installType: (typeId: string) => void;
   uninstallType: (typeId: string) => void;
   addInstance: (typeId: string, input: string, label: string) => void;
   removeInstance: (id: string) => void;
   toggleStation: (stationId: string) => void;
+  updateStation: (stationId: string, patch: Partial<RadioStation>) => void;
 };
 
 export const useListenerWidgetsStore = create<ListenerWidgetsState>()(
@@ -30,6 +34,7 @@ export const useListenerWidgetsStore = create<ListenerWidgetsState>()(
       installedTypeIds: [],
       instances: [],
       enabledStationIds: [],
+      stationOverrides: {},
       installType: (typeId) =>
         set((s) => ({
           installedTypeIds: s.installedTypeIds.includes(typeId)
@@ -61,6 +66,13 @@ export const useListenerWidgetsStore = create<ListenerWidgetsState>()(
           enabledStationIds: s.enabledStationIds.includes(stationId)
             ? s.enabledStationIds.filter((id) => id !== stationId)
             : [...s.enabledStationIds, stationId],
+        })),
+      updateStation: (stationId, patch) =>
+        set((s) => ({
+          stationOverrides: {
+            ...s.stationOverrides,
+            [stationId]: { ...s.stationOverrides[stationId], ...patch },
+          },
         })),
     }),
     { name: 'tahti-web-listener-widgets' },

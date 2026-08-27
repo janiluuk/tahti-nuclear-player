@@ -31,7 +31,16 @@ export const GrowActive: Story = {
 };
 
 export const ManageActive: Story = {
-  args: { current: '/studio/branding' },
+  args: { current: '/studio/channel' },
+};
+
+export const ManageRadioActive: Story = {
+  args: { current: '/studio/channel?tab=radio' },
+};
+
+export const ManageSourcesActive: Story = {
+  args: { current: '/sources' },
+  decorators: [withTahtiRouter('/sources')],
 };
 
 export const NoCurrentRoute: Story = {

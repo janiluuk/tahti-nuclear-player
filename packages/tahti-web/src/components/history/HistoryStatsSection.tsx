@@ -99,9 +99,9 @@ export function HistoryStatsSection({ history }: { history: HistoryEntry[] }) {
   return (
     <ScrollableArea
       data-testid="history-stats"
-      viewportClassName="@container flex flex-col gap-4 p-4"
+      viewportClassName="@container flex flex-col gap-3 p-3"
     >
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center justify-end gap-2">
         {rangeDates && (
           <span
             data-testid="history-stats-range-dates"
@@ -120,7 +120,7 @@ export function HistoryStatsSection({ history }: { history: HistoryEntry[] }) {
       </div>
 
       {hasTopLists && (
-        <div className="grid grid-cols-1 items-start gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-3 @2xl:grid-cols-2 @5xl:grid-cols-3">
           <StatsTopList
             testId="history-top-artists"
             title="Top artists"
@@ -140,9 +140,9 @@ export function HistoryStatsSection({ history }: { history: HistoryEntry[] }) {
       )}
 
       {hasListening ? (
-        <div className="flex flex-col items-stretch gap-4 @3xl:flex-row">
-          <Box variant="tertiary" className="w-auto flex-col gap-3">
-            <h3 className="font-heading text-xl">Time of day</h3>
+        <div className="flex flex-col items-stretch gap-3 @3xl:flex-row">
+          <Box variant="tertiary" className="w-auto flex-col gap-2">
+            <h3 className="font-heading text-lg">Time of day</h3>
             <ListeningClock
               values={hourlyValues}
               labels={{
@@ -153,9 +153,9 @@ export function HistoryStatsSection({ history }: { history: HistoryEntry[] }) {
               formatHour={formatHour}
             />
           </Box>
-          <Box variant="tertiary" className="min-w-0 flex-1 flex-col gap-3">
-            <h3 className="font-heading text-xl">Day of week</h3>
-            <div className="min-h-0 flex-1">
+          <Box variant="tertiary" className="min-w-0 flex-1 flex-col gap-2">
+            <h3 className="font-heading text-lg">Day of week</h3>
+            <div className="h-44 min-h-0 w-full">
               <DayOfWeekChart
                 values={dayOfWeekValues}
                 labels={{ weekdays: weekdayLabelsShort() }}
@@ -174,8 +174,8 @@ export function HistoryStatsSection({ history }: { history: HistoryEntry[] }) {
         />
       )}
 
-      <Box variant="tertiary" className="min-w-fit flex-col gap-3">
-        <h3 className="font-heading text-xl">Listening calendar</h3>
+      <Box variant="tertiary" className="min-w-fit flex-col gap-2">
+        <h3 className="font-heading text-lg">Listening calendar</h3>
         <CalendarHeatmap
           className="mx-auto"
           days={dailyDays}

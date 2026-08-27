@@ -56,7 +56,6 @@ import { SourcesView } from './views/SourcesView';
 import { StatusView } from './views/StatusView';
 import { StudioArchiveItemView } from './views/studio/StudioArchiveItemView';
 import { StudioArchiveView } from './views/studio/StudioArchiveView';
-import { StudioBrandingView } from './views/studio/StudioBrandingView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionEditView } from './views/studio/StudioCollectionEditView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
@@ -1004,7 +1003,7 @@ const studioChannelRoute = createRoute({
 const studioBrandingRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/branding',
-  component: StudioBrandingView,
+  component: () => <SettingsView sectionId="artist" />,
 });
 
 const studioShowsRoute = createRoute({

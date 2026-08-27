@@ -920,3 +920,13 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Batch 3:** Admin radio-station suggestions, grant cycles, and storage-user details use `PageLoading` with context-specific labels.
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
+
+### 2026-08-28 — Storybook navigation states after the Studio redesign
+
+**Goal:** Refresh stale navigation stories so the Storybook catalogue reflects the current Studio/Admin information architecture and does not point at removed routes.
+
+**Studio navigation:** The Manage story now uses the current Channel route instead of the removed Branding route, with dedicated Radio and Sources route states. Sources uses its own router decorator so the nested route is represented correctly.
+
+**Sidebar coverage:** Added representative Studio Manage and Admin Moderation SectionSidebar stories, including active and inactive sibling items and route context. These preserve the six-section Studio navigation and the fixed left-menu pattern in the design-system reference.
+
+**Status:** implemented; tahti-web type-check, lint, targeted Storybook ESLint, and diff checks pass. The Storybook package-wide type-check remains blocked by existing unrelated story prop errors and missing Vite/test globals; no errors came from the changed stories. Changes remain uncommitted.

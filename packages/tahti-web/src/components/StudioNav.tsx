@@ -6,6 +6,7 @@ import {
   HeartIcon,
   LayoutGridIcon,
   LibraryIcon,
+  Link2Icon,
   ListMusicIcon,
   RadioIcon,
   RadioTowerIcon,
@@ -136,14 +137,14 @@ const SUBMENUS = {
       icon: <Settings2Icon size={16} />,
     },
     {
-      to: '/studio/channel?tab=radio',
-      label: '24/7 playlist',
-      icon: <RadioIcon size={16} />,
+      to: '/sources',
+      label: 'Sources',
+      icon: <Link2Icon size={16} />,
     },
     {
-      to: '/studio/branding',
-      label: 'Branding',
-      icon: <SettingsIcon size={16} />,
+      to: '/studio/channel?tab=radio',
+      label: 'Radio',
+      icon: <RadioIcon size={16} />,
     },
     {
       to: '/studio/moderation',
@@ -194,7 +195,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
   ],
   '/studio/channel': [
     '/studio/channel',
-    '/studio/branding',
+    '/sources',
     '/studio/moderation',
     '/studio/setup-channel',
   ],

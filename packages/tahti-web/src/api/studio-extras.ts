@@ -420,7 +420,7 @@ export async function fetchStatsTopCountries(
   }
 }
 
-export type StatsPlaysRange = '7' | '30' | 'all';
+export type StatsPlaysRange = '1' | '7' | '30' | 'all';
 
 export type StatsPlaysDay = {
   date: string;
@@ -467,7 +467,8 @@ export async function fetchStatsPlays(range: StatsPlaysRange = '30'): Promise<{
   meta: FetchMeta;
 }> {
   if (forceMock()) {
-    const days = range === '7' ? 7 : range === '30' ? 30 : 14;
+    const days =
+      range === '1' ? 1 : range === '7' ? 7 : range === '30' ? 30 : 14;
     const daily: StatsPlaysDay[] = Array.from({ length: days }, (_, i) => {
       const d = new Date();
       d.setUTCDate(d.getUTCDate() - (days - 1 - i));

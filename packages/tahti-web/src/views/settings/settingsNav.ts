@@ -37,7 +37,7 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   {
     id: 'artist',
     label: 'Artist',
-    description: 'Profile, social links, members, press kit',
+    description: 'Profile, branding, social links, members, press kit',
     Icon: UserCircle2,
   },
   {

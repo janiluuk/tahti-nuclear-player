@@ -27,6 +27,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
+import { toast } from 'sonner';
 
 import {
   Button,
@@ -128,6 +129,7 @@ import { useThemeStore } from '../../plugins/themes';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useSettingsModalStore } from '../../stores/settingsModalStore';
+import { StudioBrandingPanel } from '../studio/StudioBrandingView';
 import { WhatsNewPanel } from '../WhatsNewView';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
 import { SETTINGS_NAV, type SettingsSectionId } from './settingsNav';
@@ -561,20 +563,22 @@ function PronounsField({
 
   return (
     <div className="flex flex-col gap-2">
-      <Select
-        label="Pronouns"
-        value={showCustomInput ? 'other' : current}
-        onValueChange={(id) => {
-          if (id === 'other') {
-            setShowCustomInput(true);
-            return;
-          }
-          setShowCustomInput(false);
-          setProfile({ ...profile, pronouns: id });
-        }}
-        placeholder="Not set"
-        options={PRONOUN_OPTIONS}
-      />
+      <div className="w-fit min-w-40">
+        <Select
+          label="Pronouns"
+          value={showCustomInput ? 'other' : current}
+          onValueChange={(id) => {
+            if (id === 'other') {
+              setShowCustomInput(true);
+              return;
+            }
+            setShowCustomInput(false);
+            setProfile({ ...profile, pronouns: id });
+          }}
+          placeholder="Not set"
+          options={PRONOUN_OPTIONS}
+        />
+      </div>
       {showCustomInput && (
         <Input
           label="Custom pronouns"
@@ -588,6 +592,7 @@ function PronounsField({
 
 function ArtistPanel() {
   const user = useAuthStore((s) => s.user);
+  const refreshAuth = useAuthStore((s) => s.refresh);
   const [profile, setProfile] = useState<ProfileFields | null>(null);
   const [members, setMembers] = useState<ChannelMember[]>([]);
   const [press, setPress] = useState<PressKitMeta | null>(null);
@@ -754,7 +759,7 @@ function ArtistPanel() {
                       chatEnabled: profile.chatEnabled,
                       showFollowers: profile.showFollowers,
                       showFollowing: profile.showFollowing,
-                      artistKind: profile.artistKind,
+                      artistKind: profile.artistKind ?? 'SINGLE',
                       countryCode: profile.countryCode,
                       defaultLocation: profile.defaultLocation?.trim() || null,
                     }).then((r) => {
@@ -762,6 +767,10 @@ function ArtistPanel() {
                       setMsg(r.ok ? 'Artist info saved.' : r.error);
                       if (r.ok) {
                         setProfile(r.data);
+                        void refreshAuth();
+                        toast.success('Artist info saved.');
+                      } else {
+                        toast.error(r.error);
                       }
                     });
                   }}
@@ -816,6 +825,11 @@ function ArtistPanel() {
               {socialMsg && <SettingsHint>{socialMsg}</SettingsHint>}
             </div>
           ),
+        },
+        {
+          id: 'branding',
+          label: tabLabel(Paintbrush, 'Branding'),
+          content: <StudioBrandingPanel />,
         },
         {
           id: 'members',

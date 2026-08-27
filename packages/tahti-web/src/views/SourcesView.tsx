@@ -71,6 +71,7 @@ import {
   SourceServiceIcon,
   sourceTileSubtitle,
 } from '../components/SourceServiceIcon';
+import { StudioNav } from '../components/StudioNav';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
@@ -562,557 +563,530 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   };
 
   return (
-    <PageFrame>
-      <PageHeader
-        title="Sources"
-        subtitle="Connect and import from services — pick a tile to open its tools."
-        meta={
-          !user ? (
-            <button
-              type="button"
-              className="underline-offset-2 hover:underline"
-              onClick={() => useAuthModalStore.getState().open('login')}
+    <PageFrame maxWidth="full" className="max-w-[1400px] px-4">
+      <div className="studio-page-layout flex w-full flex-col gap-6">
+        <StudioNav current="/sources" />
+        <div className="min-w-0 flex-1">
+          <PageHeader
+            title="Sources"
+            subtitle="Connect and import from services — pick a tile to open its tools."
+            meta={
+              !user ? (
+                <button
+                  type="button"
+                  className="underline-offset-2 hover:underline"
+                  onClick={() => useAuthModalStore.getState().open('login')}
+                >
+                  Sign in to connect OAuth sources.
+                </button>
+              ) : undefined
+            }
+          />
+
+          {!selected && (
+            <CardGrid
+              data-testid="sources-grid"
+              className="grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]"
             >
-              Sign in to connect OAuth sources.
-            </button>
-          ) : undefined
-        }
-      />
-
-      {!selected && (
-        <CardGrid
-          data-testid="sources-grid"
-          className="grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]"
-        >
-          {overview.map((d) => {
-            const chip = statusChip(d.kind, tiles[d.id]);
-            return (
-              <div key={d.id} className="relative">
-                <Card
-                  title={d.name}
-                  subtitle={sourceTileSubtitle(d.id)}
-                  className="w-full max-w-none"
-                  image={<SourceServiceIcon id={d.id} />}
-                  onClick={() => {
-                    void navigate({ to: '/sources/$id', params: { id: d.id } });
-                  }}
-                />
-                <div className="pointer-events-none absolute top-3 right-3 z-10">
-                  <Badge variant="pill" color={chip.color}>
-                    {chip.label}
-                  </Badge>
-                </div>
-              </div>
-            );
-          })}
-        </CardGrid>
-      )}
-
-      {selected && def && (
-        <>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              size="sm"
-              variant="text"
-              onClick={() => {
-                void navigate({ to: '/sources' });
-              }}
-            >
-              ← All sources
-            </Button>
-            <nav className="flex flex-wrap gap-1.5">
-              {overview.map((t) => (
-                <Link
-                  key={t.id}
-                  to="/sources/$id"
-                  params={{ id: t.id }}
-                  className={`rounded-md px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase ${
-                    selected === t.id
-                      ? 'bg-primary text-foreground'
-                      : 'border-border text-foreground-secondary hover:text-foreground border'
-                  }`}
-                >
-                  {t.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          <section className="border-border flex flex-col gap-4 rounded-xl border p-4 sm:flex-row sm:items-start">
-            <div className="border-border h-24 w-24 shrink-0 overflow-hidden rounded-lg border">
-              <SourceServiceIcon id={selected} size="detail" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-display text-xl font-bold">{def.name}</h2>
-                {(() => {
-                  const chip = statusChip(def.kind, {
-                    status,
-                  });
-                  return (
-                    <Badge variant="pill" color={chip.color}>
-                      {chip.label}
-                    </Badge>
-                  );
-                })()}
-              </div>
-              <p className="text-foreground-secondary mt-2 text-sm">
-                {def.description}
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {def.kind === 'oauth' && def.oauthStartPath && (
-                  <>
-                    {forceMock() ? (
-                      <Button
-                        size="sm"
-                        disabled={!user}
-                        onClick={() => {
-                          const id = selected as
-                            | 'bandcamp'
-                            | 'soundcloud'
-                            | 'google-drive'
-                            | 'mixcloud'
-                            | 'spotify';
-                          void connectIntegrationMock(id).then((r) => {
-                            setNote(r.ok ? `${def.name} connected.` : r.error);
-                            void fetchConnectionStatus(selected).then((x) => {
-                              setStatus(x.data);
-                              setTiles((prev) => ({
-                                ...prev,
-                                [selected]: {
-                                  status: x.data,
-                                },
-                              }));
-                            });
-                          });
-                        }}
-                      >
-                        <PlugIcon size={16} aria-hidden className="mr-1.5" />
-                        {status?.connected ? 'Reconnect' : 'Connect'}
-                      </Button>
-                    ) : (
-                      <a href={oauthStartUrl(def.oauthStartPath)}>
-                        <Button size="sm" disabled={!user}>
-                          <PlugIcon size={16} aria-hidden className="mr-1.5" />
-                          {status?.connected ? 'Reconnect' : 'Connect'}
-                        </Button>
-                      </a>
-                    )}
-                    {status?.connected && (
-                      <Button
-                        size="sm"
-                        variant="text"
-                        onClick={() => {
-                          const id = selected as
-                            | 'bandcamp'
-                            | 'soundcloud'
-                            | 'google-drive'
-                            | 'mixcloud';
-                          void disconnectIntegration(id).then((r) => {
-                            setNote(r.ok ? 'Disconnected.' : r.error);
-                            void fetchConnectionStatus(selected).then((x) => {
-                              setStatus(x.data);
-                              setTiles((prev) => ({
-                                ...prev,
-                                [selected]: {
-                                  status: x.data,
-                                },
-                              }));
-                            });
-                          });
-                        }}
-                      >
-                        <UnplugIcon size={16} aria-hidden className="mr-1.5" />
-                        Disconnect
-                      </Button>
-                    )}
-                  </>
-                )}
-                {def.studioDeepLink && (
-                  <Link to={def.studioDeepLink as '/studio/upload'}>
-                    <Button size="sm" variant="secondary">
-                      <UploadIcon size={16} aria-hidden className="mr-1.5" />
-                      Open in Studio
-                    </Button>
-                  </Link>
-                )}
-                {selected === 'stash' && (
-                  <Link to="/studio/stash">
-                    <Button size="sm" variant="secondary">
-                      Studio stash
-                    </Button>
-                  </Link>
-                )}
-              </div>
-            </div>
-          </section>
-
-          {note && (
-            <p className="text-foreground-secondary border-border rounded border px-3 py-2 text-sm">
-              {note}
-            </p>
-          )}
-
-          {selected === 'soundcloud' && status?.connected && (
-            <section className="flex flex-col gap-3">
-              <Eyebrow>Tracks</Eyebrow>
-              {scTracks.length === 0 ? (
-                <p className="text-foreground-secondary text-sm">
-                  No tracks returned.
-                </p>
-              ) : (
-                <>
-                  <p className="text-foreground-secondary text-xs">
-                    Play/Queue below use placeholder demo audio, not this
-                    track&apos;s real audio — use Import to bring the actual
-                    file into your archive.
-                  </p>
-                  <ul className="flex flex-col gap-2">
-                    {scTracks.map((t) => (
-                      <li
-                        key={t.id}
-                        className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
-                      >
-                        <div className="flex min-w-0 flex-1 items-center gap-3">
-                          <MediaArtwork
-                            size="sm"
-                            src={t.artworkUrl}
-                            alt={t.title}
-                            imageReveal={false}
-                            onPlay={() => play(playableFromSoundcloud(t))}
-                            playLabel="Play demo audio"
-                            onQueue={() => enqueue(playableFromSoundcloud(t))}
-                            queueLabel="Queue demo audio"
-                            className="border-border shrink-0 rounded border"
-                          />
-                          <span className="truncate text-sm">{t.title}</span>
-                        </div>
-                        <Button
-                          size="sm"
-                          disabled={busy}
-                          onClick={() => {
-                            setBusy(true);
-                            void importSoundcloudTracks([
-                              { trackId: t.id, title: t.title },
-                            ]).then((r) => {
-                              setBusy(false);
-                              setNote(
-                                r.ok
-                                  ? `Queued import (${r.count}). Check Studio → Music.`
-                                  : r.error,
-                              );
-                            });
-                          }}
-                        >
-                          <DownloadIcon
-                            size={16}
-                            aria-hidden
-                            className="mr-1.5"
-                          />
-                          Import
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </section>
-          )}
-
-          {selected === 'spotify' && (
-            <section className="flex flex-col gap-3">
-              <div className="flex flex-wrap gap-2">
-                <input
-                  className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
-                  value={spotifyQ}
-                  onChange={(e) => setSpotifyQ(e.target.value)}
-                  placeholder="Search Spotify tracks"
-                />
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    void searchSpotifyTracks(spotifyQ.trim()).then((r) =>
-                      setSpotifyHits(r.data),
-                    );
-                  }}
-                >
-                  <SearchIcon size={16} aria-hidden className="mr-1.5" />
-                  Search
-                </Button>
-              </div>
-              {spotifyHits.length > 0 && (
-                <p className="text-foreground-secondary text-xs">
-                  Play/Queue below use placeholder demo audio — Spotify does not
-                  offer real per-track previews here.
-                </p>
-              )}
-              <ul className="flex flex-col gap-2">
-                {spotifyHits.map((t) => (
-                  <li
-                    key={t.id}
-                    className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
-                  >
-                    <MediaArtwork
-                      size="sm"
-                      src={t.artworkUrl}
-                      alt={t.name}
-                      imageReveal={false}
-                      onPlay={() => play(playableFromSpotify(t))}
-                      playLabel="Play demo audio"
-                      onQueue={() => enqueue(playableFromSpotify(t))}
-                      queueLabel="Queue demo audio"
-                      className="border-border shrink-0 rounded border"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">
-                        {t.name}
-                      </div>
-                      <div className="text-foreground-secondary truncate text-xs">
-                        {t.artists?.join(', ')}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {selected === 'hearthis' && (
-            <section className="flex flex-col gap-4">
-              <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-2 rounded-lg border p-3">
-                {hearthisLibrary?.username ? (
-                  <span className="text-sm">
-                    Connected as{' '}
-                    <span className="font-medium">
-                      @{hearthisLibrary.username}
-                    </span>
-                  </span>
-                ) : (
-                  <span className="text-foreground-secondary text-sm">
-                    Add your hearthis.at username to load your library and
-                    enable cross-posting.
-                  </span>
-                )}
-                <input
-                  className="border-border bg-background text-foreground min-w-[10rem] flex-1 rounded border px-2 py-1.5 text-sm"
-                  value={hearthisUsernameDraft}
-                  onChange={(e) => setHearthisUsernameDraft(e.target.value)}
-                  placeholder={
-                    hearthisLibrary?.username
-                      ? 'Change username…'
-                      : 'hearthis.at username'
-                  }
-                  aria-label="hearthis.at username"
-                />
-                <Button
-                  size="sm"
-                  disabled={
-                    !hearthisUsernameDraft.trim() || savingHearthisUsername
-                  }
-                  onClick={() => void saveHearthisUsername()}
-                >
-                  <PlugIcon size={14} aria-hidden className="mr-1.5" />
-                  {savingHearthisUsername
-                    ? 'Saving…'
-                    : hearthisLibrary?.username
-                      ? 'Update'
-                      : 'Connect'}
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <nav
-                  className="flex flex-wrap gap-2"
-                  aria-label="HearThis library"
-                >
-                  {(
-                    [
-                      ['tracks', 'Tracks', hearthisLibrary?.tracks.length ?? 0],
-                      ['sets', 'DJ sets', hearthisLibrary?.sets.length ?? 0],
-                      [
-                        'collections',
-                        'Collections',
-                        hearthisLibrary?.collections.length ?? 0,
-                      ],
-                      ['search', 'Search', hearthisHits.length],
-                    ] as const
-                  ).map(([tab, label, count]) => (
-                    <Button
-                      key={tab}
-                      size="sm"
-                      variant={hearthisTab === tab ? 'default' : 'secondary'}
+              {overview.map((d) => {
+                const chip = statusChip(d.kind, tiles[d.id]);
+                return (
+                  <div key={d.id} className="relative">
+                    <Card
+                      title={d.name}
+                      subtitle={sourceTileSubtitle(d.id)}
+                      className="w-full max-w-none"
+                      image={<SourceServiceIcon id={d.id} />}
                       onClick={() => {
-                        setHearthisTab(tab);
-                        setHearthisSelected(new Set());
+                        void navigate({
+                          to: '/sources/$id',
+                          params: { id: d.id },
+                        });
                       }}
+                    />
+                    <div className="pointer-events-none absolute top-3 right-3 z-10">
+                      <Badge variant="pill" color={chip.color}>
+                        {chip.label}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </CardGrid>
+          )}
+
+          {selected && def && (
+            <>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  size="sm"
+                  variant="text"
+                  onClick={() => {
+                    void navigate({ to: '/sources' });
+                  }}
+                >
+                  ← All sources
+                </Button>
+                <nav className="flex flex-wrap gap-1.5">
+                  {overview.map((t) => (
+                    <Link
+                      key={t.id}
+                      to="/sources/$id"
+                      params={{ id: t.id }}
+                      className={`rounded-md px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase ${
+                        selected === t.id
+                          ? 'bg-primary text-foreground'
+                          : 'border-border text-foreground-secondary hover:text-foreground border'
+                      }`}
                     >
-                      {tab === 'collections' ? (
-                        <FolderDownIcon
-                          size={14}
-                          className="mr-1.5"
-                          aria-hidden
-                        />
-                      ) : tab === 'search' ? (
-                        <SearchIcon size={14} className="mr-1.5" aria-hidden />
-                      ) : (
-                        <ListPlusIcon
-                          size={14}
-                          className="mr-1.5"
-                          aria-hidden
-                        />
-                      )}
-                      {label} ({count})
-                    </Button>
+                      {t.name}
+                    </Link>
                   ))}
                 </nav>
               </div>
 
-              {hearthisTab === 'search' && (
-                <div className="flex flex-wrap gap-2">
-                  <input
-                    className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
-                    value={hearthisQ}
-                    onChange={(event) => setHearthisQ(event.target.value)}
-                    placeholder="Search hearthis.at"
-                  />
-                  <Button
-                    size="sm"
-                    disabled={!hearthisQ.trim() || hearthisBusy}
-                    onClick={() => {
-                      setHearthisBusy(true);
-                      void searchHearthisTracks(hearthisQ.trim()).then(
-                        (result) => {
-                          setHearthisBusy(false);
-                          setHearthisHits(result.data);
-                        },
+              <section className="border-border flex flex-col gap-4 rounded-xl border p-4 sm:flex-row sm:items-start">
+                <div className="border-border h-24 w-24 shrink-0 overflow-hidden rounded-lg border">
+                  <SourceServiceIcon id={selected} size="detail" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="font-display text-xl font-bold">
+                      {def.name}
+                    </h2>
+                    {(() => {
+                      const chip = statusChip(def.kind, {
+                        status,
+                      });
+                      return (
+                        <Badge variant="pill" color={chip.color}>
+                          {chip.label}
+                        </Badge>
                       );
-                    }}
-                  >
-                    <SearchIcon size={16} aria-hidden className="mr-1.5" />
-                    {hearthisBusy ? 'Searching…' : 'Search'}
-                  </Button>
+                    })()}
+                  </div>
+                  <p className="text-foreground-secondary mt-2 text-sm">
+                    {def.description}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {def.kind === 'oauth' && def.oauthStartPath && (
+                      <>
+                        {forceMock() ? (
+                          <Button
+                            size="sm"
+                            disabled={!user}
+                            onClick={() => {
+                              const id = selected as
+                                | 'bandcamp'
+                                | 'soundcloud'
+                                | 'google-drive'
+                                | 'mixcloud'
+                                | 'spotify';
+                              void connectIntegrationMock(id).then((r) => {
+                                setNote(
+                                  r.ok ? `${def.name} connected.` : r.error,
+                                );
+                                void fetchConnectionStatus(selected).then(
+                                  (x) => {
+                                    setStatus(x.data);
+                                    setTiles((prev) => ({
+                                      ...prev,
+                                      [selected]: {
+                                        status: x.data,
+                                      },
+                                    }));
+                                  },
+                                );
+                              });
+                            }}
+                          >
+                            <PlugIcon
+                              size={16}
+                              aria-hidden
+                              className="mr-1.5"
+                            />
+                            {status?.connected ? 'Reconnect' : 'Connect'}
+                          </Button>
+                        ) : (
+                          <a href={oauthStartUrl(def.oauthStartPath)}>
+                            <Button size="sm" disabled={!user}>
+                              <PlugIcon
+                                size={16}
+                                aria-hidden
+                                className="mr-1.5"
+                              />
+                              {status?.connected ? 'Reconnect' : 'Connect'}
+                            </Button>
+                          </a>
+                        )}
+                        {status?.connected && (
+                          <Button
+                            size="sm"
+                            variant="text"
+                            onClick={() => {
+                              const id = selected as
+                                | 'bandcamp'
+                                | 'soundcloud'
+                                | 'google-drive'
+                                | 'mixcloud';
+                              void disconnectIntegration(id).then((r) => {
+                                setNote(r.ok ? 'Disconnected.' : r.error);
+                                void fetchConnectionStatus(selected).then(
+                                  (x) => {
+                                    setStatus(x.data);
+                                    setTiles((prev) => ({
+                                      ...prev,
+                                      [selected]: {
+                                        status: x.data,
+                                      },
+                                    }));
+                                  },
+                                );
+                              });
+                            }}
+                          >
+                            <UnplugIcon
+                              size={16}
+                              aria-hidden
+                              className="mr-1.5"
+                            />
+                            Disconnect
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    {def.studioDeepLink && (
+                      <Link to={def.studioDeepLink as '/studio/upload'}>
+                        <Button size="sm" variant="secondary">
+                          <UploadIcon
+                            size={16}
+                            aria-hidden
+                            className="mr-1.5"
+                          />
+                          Open in Studio
+                        </Button>
+                      </Link>
+                    )}
+                    {selected === 'stash' && (
+                      <Link to="/studio/stash">
+                        <Button size="sm" variant="secondary">
+                          Studio stash
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
                 </div>
+              </section>
+
+              {note && (
+                <p className="text-foreground-secondary border-border rounded border px-3 py-2 text-sm">
+                  {note}
+                </p>
               )}
 
-              {hearthisTab !== 'collections' && (
-                <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-2 rounded-lg border p-3">
-                  <select
-                    className="border-border bg-background text-foreground min-w-48 flex-1 rounded border px-2 py-1.5 text-sm"
-                    value={destinationId}
-                    onChange={(event) => setDestinationId(event.target.value)}
-                    aria-label="Import destination playlist"
-                  >
-                    <option value="">Choose destination playlist</option>
-                    <option value={NEW_PLAYLIST_DESTINATION}>
-                      New playlist…
-                    </option>
-                    {playlistDestinations.map((collection) => (
-                      <option key={collection.slug} value={collection.id}>
-                        {collection.name}
-                      </option>
-                    ))}
-                  </select>
-                  {destinationId === NEW_PLAYLIST_DESTINATION ? (
+              {selected === 'soundcloud' && status?.connected && (
+                <section className="flex flex-col gap-3">
+                  <Eyebrow>Tracks</Eyebrow>
+                  {scTracks.length === 0 ? (
+                    <p className="text-foreground-secondary text-sm">
+                      No tracks returned.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-foreground-secondary text-xs">
+                        Play/Queue below use placeholder demo audio, not this
+                        track&apos;s real audio — use Import to bring the actual
+                        file into your archive.
+                      </p>
+                      <ul className="flex flex-col gap-2">
+                        {scTracks.map((t) => (
+                          <li
+                            key={t.id}
+                            className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
+                          >
+                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                              <MediaArtwork
+                                size="sm"
+                                src={t.artworkUrl}
+                                alt={t.title}
+                                imageReveal={false}
+                                onPlay={() => play(playableFromSoundcloud(t))}
+                                playLabel="Play demo audio"
+                                onQueue={() =>
+                                  enqueue(playableFromSoundcloud(t))
+                                }
+                                queueLabel="Queue demo audio"
+                                className="border-border shrink-0 rounded border"
+                              />
+                              <span className="truncate text-sm">
+                                {t.title}
+                              </span>
+                            </div>
+                            <Button
+                              size="sm"
+                              disabled={busy}
+                              onClick={() => {
+                                setBusy(true);
+                                void importSoundcloudTracks([
+                                  { trackId: t.id, title: t.title },
+                                ]).then((r) => {
+                                  setBusy(false);
+                                  setNote(
+                                    r.ok
+                                      ? `Queued import (${r.count}). Check Studio → Music.`
+                                      : r.error,
+                                  );
+                                });
+                              }}
+                            >
+                              <DownloadIcon
+                                size={16}
+                                aria-hidden
+                                className="mr-1.5"
+                              />
+                              Import
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </section>
+              )}
+
+              {selected === 'spotify' && (
+                <section className="flex flex-col gap-3">
+                  <div className="flex flex-wrap gap-2">
                     <input
-                      value={newDestinationName}
-                      onChange={(event) =>
-                        setNewDestinationName(event.target.value)
-                      }
-                      aria-label="New playlist name"
-                      placeholder="Playlist name"
-                      className="border-border bg-background min-w-48 flex-1 rounded border px-2 py-1.5 text-sm"
+                      className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
+                      value={spotifyQ}
+                      onChange={(e) => setSpotifyQ(e.target.value)}
+                      placeholder="Search Spotify tracks"
                     />
-                  ) : null}
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    disabled={hearthisVisibleTracks.length === 0}
-                    onClick={() =>
-                      setHearthisSelected(
-                        new Set(
-                          hearthisVisibleTracks
-                            .filter(
-                              (track) => !importedHearthisIds.has(track.id),
-                            )
-                            .map((track) => track.id),
-                        ),
-                      )
-                    }
-                  >
-                    <CheckSquareIcon size={15} className="mr-1.5" aria-hidden />
-                    Select all
-                  </Button>
-                  <Button
-                    size="sm"
-                    disabled={
-                      busy ||
-                      !destinationId ||
-                      (destinationId === NEW_PLAYLIST_DESTINATION &&
-                        !newDestinationName.trim()) ||
-                      hearthisSelected.size === 0
-                    }
-                    onClick={() => void importHearthisSelection()}
-                  >
-                    <DownloadIcon size={15} className="mr-1.5" aria-hidden />
-                    Import selected ({hearthisSelected.size})
-                  </Button>
-                </div>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        void searchSpotifyTracks(spotifyQ.trim()).then((r) =>
+                          setSpotifyHits(r.data),
+                        );
+                      }}
+                    >
+                      <SearchIcon size={16} aria-hidden className="mr-1.5" />
+                      Search
+                    </Button>
+                  </div>
+                  {spotifyHits.length > 0 && (
+                    <p className="text-foreground-secondary text-xs">
+                      Play/Queue below use placeholder demo audio — Spotify does
+                      not offer real per-track previews here.
+                    </p>
+                  )}
+                  <ul className="flex flex-col gap-2">
+                    {spotifyHits.map((t) => (
+                      <li
+                        key={t.id}
+                        className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
+                      >
+                        <MediaArtwork
+                          size="sm"
+                          src={t.artworkUrl}
+                          alt={t.name}
+                          imageReveal={false}
+                          onPlay={() => play(playableFromSpotify(t))}
+                          playLabel="Play demo audio"
+                          onQueue={() => enqueue(playableFromSpotify(t))}
+                          queueLabel="Queue demo audio"
+                          className="border-border shrink-0 rounded border"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">
+                            {t.name}
+                          </div>
+                          <div className="text-foreground-secondary truncate text-xs">
+                            {t.artists?.join(', ')}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
               )}
 
-              {hearthisTab === 'collections' ? (
-                <ul className="grid gap-3 sm:grid-cols-2">
-                  {(hearthisLibrary?.collections ?? []).map((collection) => (
-                    <li
-                      key={collection.id}
-                      className="border-border flex items-center gap-3 rounded-lg border p-3"
+              {selected === 'hearthis' && (
+                <section className="flex flex-col gap-4">
+                  <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-2 rounded-lg border p-3">
+                    {hearthisLibrary?.username ? (
+                      <span className="text-sm">
+                        Connected as{' '}
+                        <span className="font-medium">
+                          @{hearthisLibrary.username}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-foreground-secondary text-sm">
+                        Add your hearthis.at username to load your library and
+                        enable cross-posting.
+                      </span>
+                    )}
+                    <input
+                      className="border-border bg-background text-foreground min-w-[10rem] flex-1 rounded border px-2 py-1.5 text-sm"
+                      value={hearthisUsernameDraft}
+                      onChange={(e) => setHearthisUsernameDraft(e.target.value)}
+                      placeholder={
+                        hearthisLibrary?.username
+                          ? 'Change username…'
+                          : 'hearthis.at username'
+                      }
+                      aria-label="hearthis.at username"
+                    />
+                    <Button
+                      size="sm"
+                      disabled={
+                        !hearthisUsernameDraft.trim() || savingHearthisUsername
+                      }
+                      onClick={() => void saveHearthisUsername()}
                     >
+                      <PlugIcon size={14} aria-hidden className="mr-1.5" />
+                      {savingHearthisUsername
+                        ? 'Saving…'
+                        : hearthisLibrary?.username
+                          ? 'Update'
+                          : 'Connect'}
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <nav
+                      className="flex flex-wrap gap-2"
+                      aria-label="HearThis library"
+                    >
+                      {(
+                        [
+                          [
+                            'tracks',
+                            'Tracks',
+                            hearthisLibrary?.tracks.length ?? 0,
+                          ],
+                          [
+                            'sets',
+                            'DJ sets',
+                            hearthisLibrary?.sets.length ?? 0,
+                          ],
+                          [
+                            'collections',
+                            'Collections',
+                            hearthisLibrary?.collections.length ?? 0,
+                          ],
+                          ['search', 'Search', hearthisHits.length],
+                        ] as const
+                      ).map(([tab, label, count]) => (
+                        <Button
+                          key={tab}
+                          size="sm"
+                          variant={
+                            hearthisTab === tab ? 'default' : 'secondary'
+                          }
+                          onClick={() => {
+                            setHearthisTab(tab);
+                            setHearthisSelected(new Set());
+                          }}
+                        >
+                          {tab === 'collections' ? (
+                            <FolderDownIcon
+                              size={14}
+                              className="mr-1.5"
+                              aria-hidden
+                            />
+                          ) : tab === 'search' ? (
+                            <SearchIcon
+                              size={14}
+                              className="mr-1.5"
+                              aria-hidden
+                            />
+                          ) : (
+                            <ListPlusIcon
+                              size={14}
+                              className="mr-1.5"
+                              aria-hidden
+                            />
+                          )}
+                          {label} ({count})
+                        </Button>
+                      ))}
+                    </nav>
+                  </div>
+
+                  {hearthisTab === 'search' && (
+                    <div className="flex flex-wrap gap-2">
                       <input
-                        type="checkbox"
-                        checked={hearthisSelected.has(collection.id)}
-                        onChange={() => toggleHearthisSelected(collection.id)}
-                        aria-label={`Select ${collection.title}`}
+                        className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
+                        value={hearthisQ}
+                        onChange={(event) => setHearthisQ(event.target.value)}
+                        placeholder="Search hearthis.at"
                       />
-                      <MediaArtwork
-                        size="sm"
-                        src={collection.coverUrl}
-                        alt={collection.title}
-                        imageReveal={false}
-                        className="border-border shrink-0 rounded border"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">
-                          {collection.title}
-                        </p>
-                        <p className="text-foreground-secondary text-xs">
-                          {collection.trackCount} items
-                        </p>
-                      </div>
                       <Button
-                        size="icon-sm"
-                        variant="secondary"
-                        disabled={busy}
-                        onClick={() =>
-                          void importHearthisCollection(collection)
-                        }
-                        aria-label={`Import ${collection.title} as collection`}
-                        title="Import as collection"
+                        size="sm"
+                        disabled={!hearthisQ.trim() || hearthisBusy}
+                        onClick={() => {
+                          setHearthisBusy(true);
+                          void searchHearthisTracks(hearthisQ.trim()).then(
+                            (result) => {
+                              setHearthisBusy(false);
+                              setHearthisHits(result.data);
+                            },
+                          );
+                        }}
                       >
-                        <FolderDownIcon size={15} />
+                        <SearchIcon size={16} aria-hidden className="mr-1.5" />
+                        {hearthisBusy ? 'Searching…' : 'Search'}
                       </Button>
-                    </li>
-                  ))}
-                  {(hearthisLibrary?.collections.length ?? 0) > 0 && (
-                    <li className="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                    </div>
+                  )}
+
+                  {hearthisTab !== 'collections' && (
+                    <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-2 rounded-lg border p-3">
+                      <select
+                        className="border-border bg-background text-foreground min-w-48 flex-1 rounded border px-2 py-1.5 text-sm"
+                        value={destinationId}
+                        onChange={(event) =>
+                          setDestinationId(event.target.value)
+                        }
+                        aria-label="Import destination playlist"
+                      >
+                        <option value="">Choose destination playlist</option>
+                        <option value={NEW_PLAYLIST_DESTINATION}>
+                          New playlist…
+                        </option>
+                        {playlistDestinations.map((collection) => (
+                          <option key={collection.slug} value={collection.id}>
+                            {collection.name}
+                          </option>
+                        ))}
+                      </select>
+                      {destinationId === NEW_PLAYLIST_DESTINATION ? (
+                        <input
+                          value={newDestinationName}
+                          onChange={(event) =>
+                            setNewDestinationName(event.target.value)
+                          }
+                          aria-label="New playlist name"
+                          placeholder="Playlist name"
+                          className="border-border bg-background min-w-48 flex-1 rounded border px-2 py-1.5 text-sm"
+                        />
+                      ) : null}
                       <Button
                         size="sm"
                         variant="secondary"
+                        disabled={hearthisVisibleTracks.length === 0}
                         onClick={() =>
                           setHearthisSelected(
                             new Set(
-                              hearthisLibrary?.collections.map(
-                                (collection) => collection.id,
-                              ),
+                              hearthisVisibleTracks
+                                .filter(
+                                  (track) => !importedHearthisIds.has(track.id),
+                                )
+                                .map((track) => track.id),
                             ),
                           )
                         }
@@ -1126,375 +1100,479 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                       </Button>
                       <Button
                         size="sm"
-                        disabled={busy || hearthisSelected.size === 0}
-                        onClick={() => void importHearthisSelection()}
-                      >
-                        <FolderDownIcon
-                          size={15}
-                          className="mr-1.5"
-                          aria-hidden
-                        />
-                        Import selected ({hearthisSelected.size})
-                      </Button>
-                    </li>
-                  )}
-                </ul>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {hearthisVisibleTracks.map((track) => (
-                    <li
-                      key={track.id}
-                      className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={hearthisSelected.has(track.id)}
-                        disabled={importedHearthisIds.has(track.id)}
-                        onChange={() => toggleHearthisSelected(track.id)}
-                        aria-label={`Select ${track.title}`}
-                      />
-                      <MediaArtwork
-                        size="sm"
-                        src={track.coverUrl}
-                        alt={track.title}
-                        imageReveal={false}
-                        onPlay={() => play(playableFromHearthis(track))}
-                        playLabel="Preview"
-                        onQueue={() => enqueue(playableFromHearthis(track))}
-                        queueLabel="Queue"
-                        className="border-border shrink-0 rounded border"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">
-                          {track.title}
-                        </div>
-                        <div className="text-foreground-secondary truncate text-xs">
-                          {track.username}
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="secondary"
                         disabled={
                           busy ||
                           !destinationId ||
                           (destinationId === NEW_PLAYLIST_DESTINATION &&
                             !newDestinationName.trim()) ||
-                          importedHearthisIds.has(track.id)
+                          hearthisSelected.size === 0
                         }
-                        onClick={() => void importTracksToDestination([track])}
+                        onClick={() => void importHearthisSelection()}
                       >
                         <DownloadIcon
                           size={15}
                           className="mr-1.5"
                           aria-hidden
                         />
-                        {importedHearthisIds.has(track.id)
-                          ? 'Imported'
-                          : 'Import'}
+                        Import selected ({hearthisSelected.size})
                       </Button>
-                      <a
-                        href={track.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-foreground-secondary shrink-0 text-xs underline-offset-2 hover:underline"
-                      >
-                        hearthis.at ↗
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                    </div>
+                  )}
 
-              {!hearthisBusy &&
-                hearthisTab !== 'search' &&
-                hearthisVisibleTracks.length === 0 &&
-                hearthisTab !== 'collections' && (
-                  <p className="text-foreground-secondary text-sm">
-                    No {hearthisTab} found for this profile.
-                  </p>
-                )}
-            </section>
-          )}
-
-          {selected === 'stash' && (
-            <section className="flex flex-col gap-3">
-              <Eyebrow>Files</Eyebrow>
-              {stash.length === 0 ? (
-                <p className="text-foreground-secondary text-sm">
-                  Stash is empty.
-                </p>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {stash.map((f) => (
-                    <li
-                      key={f.id}
-                      className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm"
-                    >
-                      <span>{f.filename}</span>
-                      <Button
-                        size="icon-sm"
-                        variant="secondary"
-                        title="Play"
-                        aria-label="Play"
-                        onClick={() => {
-                          void fetchStashDownload(f.id).then((r) => {
-                            if (r.data?.url) {
-                              play({
-                                id: `stash:${f.id}`,
-                                kind: 'archive',
-                                title: f.filename,
-                                artist: 'Stash',
-                                streamUrl: r.data.url,
-                                protocol: 'https',
-                                sourceProvider: 'stash',
-                              });
+                  {hearthisTab === 'collections' ? (
+                    <ul className="grid gap-3 sm:grid-cols-2">
+                      {(hearthisLibrary?.collections ?? []).map(
+                        (collection) => (
+                          <li
+                            key={collection.id}
+                            className="border-border flex items-center gap-3 rounded-lg border p-3"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={hearthisSelected.has(collection.id)}
+                              onChange={() =>
+                                toggleHearthisSelected(collection.id)
+                              }
+                              aria-label={`Select ${collection.title}`}
+                            />
+                            <MediaArtwork
+                              size="sm"
+                              src={collection.coverUrl}
+                              alt={collection.title}
+                              imageReveal={false}
+                              className="border-border shrink-0 rounded border"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium">
+                                {collection.title}
+                              </p>
+                              <p className="text-foreground-secondary text-xs">
+                                {collection.trackCount} items
+                              </p>
+                            </div>
+                            <Button
+                              size="icon-sm"
+                              variant="secondary"
+                              disabled={busy}
+                              onClick={() =>
+                                void importHearthisCollection(collection)
+                              }
+                              aria-label={`Import ${collection.title} as collection`}
+                              title="Import as collection"
+                            >
+                              <FolderDownIcon size={15} />
+                            </Button>
+                          </li>
+                        ),
+                      )}
+                      {(hearthisLibrary?.collections.length ?? 0) > 0 && (
+                        <li className="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() =>
+                              setHearthisSelected(
+                                new Set(
+                                  hearthisLibrary?.collections.map(
+                                    (collection) => collection.id,
+                                  ),
+                                ),
+                              )
                             }
-                          });
-                        }}
-                      >
-                        <PlayIcon size={16} className="fill-current" />
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
+                          >
+                            <CheckSquareIcon
+                              size={15}
+                              className="mr-1.5"
+                              aria-hidden
+                            />
+                            Select all
+                          </Button>
+                          <Button
+                            size="sm"
+                            disabled={busy || hearthisSelected.size === 0}
+                            onClick={() => void importHearthisSelection()}
+                          >
+                            <FolderDownIcon
+                              size={15}
+                              className="mr-1.5"
+                              aria-hidden
+                            />
+                            Import selected ({hearthisSelected.size})
+                          </Button>
+                        </li>
+                      )}
+                    </ul>
+                  ) : (
+                    <ul className="flex flex-col gap-2">
+                      {hearthisVisibleTracks.map((track) => (
+                        <li
+                          key={track.id}
+                          className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={hearthisSelected.has(track.id)}
+                            disabled={importedHearthisIds.has(track.id)}
+                            onChange={() => toggleHearthisSelected(track.id)}
+                            aria-label={`Select ${track.title}`}
+                          />
+                          <MediaArtwork
+                            size="sm"
+                            src={track.coverUrl}
+                            alt={track.title}
+                            imageReveal={false}
+                            onPlay={() => play(playableFromHearthis(track))}
+                            playLabel="Preview"
+                            onQueue={() => enqueue(playableFromHearthis(track))}
+                            queueLabel="Queue"
+                            className="border-border shrink-0 rounded border"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-medium">
+                              {track.title}
+                            </div>
+                            <div className="text-foreground-secondary truncate text-xs">
+                              {track.username}
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            disabled={
+                              busy ||
+                              !destinationId ||
+                              (destinationId === NEW_PLAYLIST_DESTINATION &&
+                                !newDestinationName.trim()) ||
+                              importedHearthisIds.has(track.id)
+                            }
+                            onClick={() =>
+                              void importTracksToDestination([track])
+                            }
+                          >
+                            <DownloadIcon
+                              size={15}
+                              className="mr-1.5"
+                              aria-hidden
+                            />
+                            {importedHearthisIds.has(track.id)
+                              ? 'Imported'
+                              : 'Import'}
+                          </Button>
+                          <a
+                            href={track.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-foreground-secondary shrink-0 text-xs underline-offset-2 hover:underline"
+                          >
+                            hearthis.at ↗
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {!hearthisBusy &&
+                    hearthisTab !== 'search' &&
+                    hearthisVisibleTracks.length === 0 &&
+                    hearthisTab !== 'collections' && (
+                      <p className="text-foreground-secondary text-sm">
+                        No {hearthisTab} found for this profile.
+                      </p>
+                    )}
+                </section>
               )}
-            </section>
-          )}
 
-          {selected === 'url' && (
-            <section className="flex flex-col gap-3">
-              <p className="text-foreground-secondary text-sm">
-                Paste a DSP URL to open Studio releases (smart-link targets).
-              </p>
-              <input
-                className="border-border bg-background text-foreground w-full rounded border px-2 py-1.5 text-sm"
-                value={urlPaste}
-                onChange={(e) => setUrlPaste(e.target.value)}
-                placeholder="https://open.spotify.com/track/…"
-              />
-              <Link to="/studio/releases">
-                <Button size="sm">
-                  <Link2Icon size={16} aria-hidden className="mr-1.5" />
-                  Open releases editor
-                </Button>
-              </Link>
-            </section>
-          )}
+              {selected === 'stash' && (
+                <section className="flex flex-col gap-3">
+                  <Eyebrow>Files</Eyebrow>
+                  {stash.length === 0 ? (
+                    <p className="text-foreground-secondary text-sm">
+                      Stash is empty.
+                    </p>
+                  ) : (
+                    <ul className="flex flex-col gap-2">
+                      {stash.map((f) => (
+                        <li
+                          key={f.id}
+                          className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm"
+                        >
+                          <span>{f.filename}</span>
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            title="Play"
+                            aria-label="Play"
+                            onClick={() => {
+                              void fetchStashDownload(f.id).then((r) => {
+                                if (r.data?.url) {
+                                  play({
+                                    id: `stash:${f.id}`,
+                                    kind: 'archive',
+                                    title: f.filename,
+                                    artist: 'Stash',
+                                    streamUrl: r.data.url,
+                                    protocol: 'https',
+                                    sourceProvider: 'stash',
+                                  });
+                                }
+                              });
+                            }}
+                          >
+                            <PlayIcon size={16} className="fill-current" />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              )}
 
-          {selected === 'radio' && (
-            <section className="flex flex-col gap-5">
-              <div className="flex flex-col gap-3">
-                <p className="text-foreground-secondary text-sm">
-                  Paste an M3U/M3U8 playlist or a direct stream URL. Station
-                  metadata is looked up in the public Radio Browser directory;
-                  live "now playing" is read from the stream's ICY metadata when
-                  the server allows it.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <input
-                    className="border-border bg-background text-foreground min-w-[240px] flex-1 rounded border px-2 py-1.5 text-sm"
-                    value={radioUrl}
-                    onChange={(e) => setRadioUrl(e.target.value)}
-                    placeholder="https://example.com/stream.m3u8"
-                  />
-                  <Button
-                    size="sm"
-                    disabled={!radioUrl.trim() || radioBusy}
-                    onClick={resolveRadioUrl}
-                  >
-                    <RadioIcon size={16} aria-hidden className="mr-1.5" />
-                    {radioBusy ? 'Resolving…' : 'Resolve'}
-                  </Button>
-                </div>
-                {radioNote && (
-                  <p className="text-foreground-secondary text-xs">
-                    {radioNote}
+              {selected === 'url' && (
+                <section className="flex flex-col gap-3">
+                  <p className="text-foreground-secondary text-sm">
+                    Paste a DSP URL to open Studio releases (smart-link
+                    targets).
                   </p>
-                )}
-              </div>
-
-              {radioStation && (
-                <div className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-3">
-                  <MediaArtwork
-                    size="sm"
-                    src={radioStation.favicon}
-                    alt={radioStation.name}
-                    imageReveal={false}
-                    onPlay={() =>
-                      play(
-                        playableFromRadioStation(radioStation, radioNowPlaying),
-                      )
-                    }
-                    playLabel="Play"
-                    onQueue={() =>
-                      enqueue(
-                        playableFromRadioStation(radioStation, radioNowPlaying),
-                      )
-                    }
-                    queueLabel="Queue"
-                    onFavorite={() =>
-                      toggleFavoriteTrack(
-                        playableFromRadioStation(radioStation, radioNowPlaying),
-                      )
-                    }
-                    favorited={isFavoriteTrack(`radio:${radioStation.id}`)}
-                    className="border-border shrink-0 rounded border"
+                  <input
+                    className="border-border bg-background text-foreground w-full rounded border px-2 py-1.5 text-sm"
+                    value={urlPaste}
+                    onChange={(e) => setUrlPaste(e.target.value)}
+                    placeholder="https://open.spotify.com/track/…"
                   />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">
-                      {radioStation.name}
+                  <Link to="/studio/releases">
+                    <Button size="sm">
+                      <Link2Icon size={16} aria-hidden className="mr-1.5" />
+                      Open releases editor
+                    </Button>
+                  </Link>
+                </section>
+              )}
+
+              {selected === 'radio' && (
+                <section className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-3">
+                    <p className="text-foreground-secondary text-sm">
+                      Paste an M3U/M3U8 playlist or a direct stream URL. Station
+                      metadata is looked up in the public Radio Browser
+                      directory; live "now playing" is read from the stream's
+                      ICY metadata when the server allows it.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <input
+                        className="border-border bg-background text-foreground min-w-[240px] flex-1 rounded border px-2 py-1.5 text-sm"
+                        value={radioUrl}
+                        onChange={(e) => setRadioUrl(e.target.value)}
+                        placeholder="https://example.com/stream.m3u8"
+                      />
+                      <Button
+                        size="sm"
+                        disabled={!radioUrl.trim() || radioBusy}
+                        onClick={resolveRadioUrl}
+                      >
+                        <RadioIcon size={16} aria-hidden className="mr-1.5" />
+                        {radioBusy ? 'Resolving…' : 'Resolve'}
+                      </Button>
                     </div>
-                    <div className="text-foreground-secondary truncate text-xs">
-                      {radioNowPlaying
-                        ? `Now playing: ${radioNowPlaying}`
-                        : radioNowPlaying === null
-                          ? 'Live "now playing" unavailable for this stream'
-                          : '…'}
-                    </div>
-                    {radioStation.tags && radioStation.tags.length > 0 && (
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {radioStation.tags.slice(0, 4).map((tag) => (
-                          <Badge key={tag} variant="pill" color="secondary">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
+                    {radioNote && (
+                      <p className="text-foreground-secondary text-xs">
+                        {radioNote}
+                      </p>
                     )}
                   </div>
-                </div>
-              )}
 
-              <div className="flex flex-col gap-2">
-                <h3 className="font-display text-sm font-bold tracking-wide uppercase">
-                  Search the public directory
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  <input
-                    className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
-                    value={radioQuery}
-                    onChange={(e) => setRadioQuery(e.target.value)}
-                    placeholder="Station name"
-                  />
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => {
-                      void searchStationsByName(radioQuery.trim()).then(
-                        setRadioResults,
-                      );
-                    }}
-                  >
-                    <SearchIcon size={16} aria-hidden className="mr-1.5" />
-                    Search
-                  </Button>
-                </div>
-                {radioResults.length > 0 && (
-                  <ul className="flex flex-col gap-1.5">
-                    {radioResults.map((s) => (
-                      <li
-                        key={s.id}
-                        className="border-border hover:bg-background-secondary flex items-center gap-1 rounded-md border pr-1"
-                      >
-                        <button
-                          type="button"
-                          className="flex min-w-0 flex-1 items-center justify-between px-3 py-2 text-left text-sm"
-                          onClick={() => openRadioStation(s)}
-                        >
-                          <span className="truncate">{s.name}</span>
-                          <span className="text-foreground-secondary ml-2 shrink-0 text-xs">
-                            {s.codec}
-                            {s.bitrateKbps ? ` ${s.bitrateKbps}kbps` : ''}
-                          </span>
-                        </button>
-                        <FavoriteButton
-                          size="sm"
-                          isFavorite={isFavoriteTrack(`radio:${s.id}`)}
-                          onToggle={() =>
-                            toggleFavoriteTrack(playableFromRadioStation(s))
-                          }
-                          ariaLabelAdd={`Add ${s.name} to library`}
-                          ariaLabelRemove={`Remove ${s.name} from library`}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <h3 className="font-display text-sm font-bold tracking-wide uppercase">
-                  Common stations
-                </h3>
-                <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                  {COMMON_STATIONS.map((s) => (
-                    <li
-                      key={s.id}
-                      className="border-border hover:bg-background-secondary flex items-center gap-1 rounded-md border pr-1"
-                    >
-                      <button
-                        type="button"
-                        className="flex min-w-0 flex-1 items-center justify-between px-3 py-2 text-left text-sm"
-                        onClick={() => openRadioStation(s)}
-                      >
-                        <span className="truncate">{s.name}</span>
-                        <span className="text-foreground-secondary ml-2 shrink-0 text-xs">
-                          {s.tags?.[0]}
-                        </span>
-                      </button>
-                      <FavoriteButton
+                  {radioStation && (
+                    <div className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-3">
+                      <MediaArtwork
                         size="sm"
-                        isFavorite={isFavoriteTrack(`radio:${s.id}`)}
-                        onToggle={() =>
-                          toggleFavoriteTrack(playableFromRadioStation(s))
+                        src={radioStation.favicon}
+                        alt={radioStation.name}
+                        imageReveal={false}
+                        onPlay={() =>
+                          play(
+                            playableFromRadioStation(
+                              radioStation,
+                              radioNowPlaying,
+                            ),
+                          )
                         }
-                        ariaLabelAdd={`Add ${s.name} to library`}
-                        ariaLabelRemove={`Remove ${s.name} from library`}
+                        playLabel="Play"
+                        onQueue={() =>
+                          enqueue(
+                            playableFromRadioStation(
+                              radioStation,
+                              radioNowPlaying,
+                            ),
+                          )
+                        }
+                        queueLabel="Queue"
+                        onFavorite={() =>
+                          toggleFavoriteTrack(
+                            playableFromRadioStation(
+                              radioStation,
+                              radioNowPlaying,
+                            ),
+                          )
+                        }
+                        favorited={isFavoriteTrack(`radio:${radioStation.id}`)}
+                        className="border-border shrink-0 rounded border"
                       />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-          )}
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">
+                          {radioStation.name}
+                        </div>
+                        <div className="text-foreground-secondary truncate text-xs">
+                          {radioNowPlaying
+                            ? `Now playing: ${radioNowPlaying}`
+                            : radioNowPlaying === null
+                              ? 'Live "now playing" unavailable for this stream'
+                              : '…'}
+                        </div>
+                        {radioStation.tags && radioStation.tags.length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {radioStation.tags.slice(0, 4).map((tag) => (
+                              <Badge key={tag} variant="pill" color="secondary">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
-          {(selected === 'bandcamp' ||
-            selected === 'google-drive' ||
-            selected === 'mixcloud' ||
-            selected === 'broadcast' ||
-            selected === 'upload') && (
-            <p className="text-foreground-secondary text-sm">
-              {selected === 'broadcast' ? (
-                <>
-                  Promote captures from{' '}
-                  <Link
-                    to="/studio/go-live"
-                    className="underline-offset-2 hover:underline"
-                  >
-                    Go Live
-                  </Link>{' '}
-                  or browse Music after a show ends.
-                </>
-              ) : selected === 'upload' ? (
-                <>
-                  Use{' '}
-                  <Link
-                    to="/studio/upload"
-                    className="underline-offset-2 hover:underline"
-                  >
-                    Studio → Upload
-                  </Link>{' '}
-                  for prepare → PUT → complete.
-                </>
-              ) : (
-                <>
-                  Connect above to browse and import content from this source.
-                </>
+                  <div className="flex flex-col gap-2">
+                    <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+                      Search the public directory
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      <input
+                        className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
+                        value={radioQuery}
+                        onChange={(e) => setRadioQuery(e.target.value)}
+                        placeholder="Station name"
+                      />
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          void searchStationsByName(radioQuery.trim()).then(
+                            setRadioResults,
+                          );
+                        }}
+                      >
+                        <SearchIcon size={16} aria-hidden className="mr-1.5" />
+                        Search
+                      </Button>
+                    </div>
+                    {radioResults.length > 0 && (
+                      <ul className="flex flex-col gap-1.5">
+                        {radioResults.map((s) => (
+                          <li
+                            key={s.id}
+                            className="border-border hover:bg-background-secondary flex items-center gap-1 rounded-md border pr-1"
+                          >
+                            <button
+                              type="button"
+                              className="flex min-w-0 flex-1 items-center justify-between px-3 py-2 text-left text-sm"
+                              onClick={() => openRadioStation(s)}
+                            >
+                              <span className="truncate">{s.name}</span>
+                              <span className="text-foreground-secondary ml-2 shrink-0 text-xs">
+                                {s.codec}
+                                {s.bitrateKbps ? ` ${s.bitrateKbps}kbps` : ''}
+                              </span>
+                            </button>
+                            <FavoriteButton
+                              size="sm"
+                              isFavorite={isFavoriteTrack(`radio:${s.id}`)}
+                              onToggle={() =>
+                                toggleFavoriteTrack(playableFromRadioStation(s))
+                              }
+                              ariaLabelAdd={`Add ${s.name} to library`}
+                              ariaLabelRemove={`Remove ${s.name} from library`}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+                      Common stations
+                    </h3>
+                    <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                      {COMMON_STATIONS.map((s) => (
+                        <li
+                          key={s.id}
+                          className="border-border hover:bg-background-secondary flex items-center gap-1 rounded-md border pr-1"
+                        >
+                          <button
+                            type="button"
+                            className="flex min-w-0 flex-1 items-center justify-between px-3 py-2 text-left text-sm"
+                            onClick={() => openRadioStation(s)}
+                          >
+                            <span className="truncate">{s.name}</span>
+                            <span className="text-foreground-secondary ml-2 shrink-0 text-xs">
+                              {s.tags?.[0]}
+                            </span>
+                          </button>
+                          <FavoriteButton
+                            size="sm"
+                            isFavorite={isFavoriteTrack(`radio:${s.id}`)}
+                            onToggle={() =>
+                              toggleFavoriteTrack(playableFromRadioStation(s))
+                            }
+                            ariaLabelAdd={`Add ${s.name} to library`}
+                            ariaLabelRemove={`Remove ${s.name} from library`}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </section>
               )}
-            </p>
+
+              {(selected === 'bandcamp' ||
+                selected === 'google-drive' ||
+                selected === 'mixcloud' ||
+                selected === 'broadcast' ||
+                selected === 'upload') && (
+                <p className="text-foreground-secondary text-sm">
+                  {selected === 'broadcast' ? (
+                    <>
+                      Promote captures from{' '}
+                      <Link
+                        to="/studio/go-live"
+                        className="underline-offset-2 hover:underline"
+                      >
+                        Go Live
+                      </Link>{' '}
+                      or browse Music after a show ends.
+                    </>
+                  ) : selected === 'upload' ? (
+                    <>
+                      Use{' '}
+                      <Link
+                        to="/studio/upload"
+                        className="underline-offset-2 hover:underline"
+                      >
+                        Studio → Upload
+                      </Link>{' '}
+                      for prepare → PUT → complete.
+                    </>
+                  ) : (
+                    <>
+                      Connect above to browse and import content from this
+                      source.
+                    </>
+                  )}
+                </p>
+              )}
+            </>
           )}
-        </>
-      )}
+        </div>
+      </div>
     </PageFrame>
   );
 }
