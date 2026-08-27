@@ -10,6 +10,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 function formatEur(cents: number): string {
@@ -48,7 +49,7 @@ export function AdminFinancialView() {
         />
 
         {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading financial data…" />
         ) : !overview ? (
           <p className="text-foreground-secondary py-4 text-center text-sm">
             Could not load financial data.

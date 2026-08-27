@@ -9,6 +9,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 const REFRESH_INTERVAL_MS = 15_000;
@@ -160,7 +161,7 @@ export function AdminActivityView({
         </a>
       </p>
       {loading ? (
-        <p className="text-foreground-secondary text-sm">Loading…</p>
+        <PageLoading label="Loading activity…" />
       ) : (
         <div className="h-[70vh]">
           <LogViewer.Root

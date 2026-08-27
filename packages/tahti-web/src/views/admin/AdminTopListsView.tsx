@@ -12,6 +12,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { usePlayerStore } from '../../stores/playerStore';
 
@@ -99,7 +100,7 @@ export function AdminTopListsView() {
 
         {loading ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading top lists…" />
           </StudioPanel>
         ) : buckets.length === 0 ? (
           <StudioPanel>
