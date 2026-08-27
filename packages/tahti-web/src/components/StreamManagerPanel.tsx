@@ -19,7 +19,7 @@ import {
   WifiIcon,
   WifiOffIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button, Dialog } from '@nuclearplayer/ui';
 
@@ -116,6 +116,8 @@ export function StreamManagerPanel({
   const [signalError, setSignalError] = useState(false);
   const [targets, setTargets] = useState<RtmpTarget[]>([]);
   const [rotation, setRotation] = useState<RotationPlayback | null>(null);
+  const [rotationPaused, setRotationPaused] = useState(false);
+  const rotationTitleRef = useRef<string | null>(null);
   const [programme, setProgramme] = useState<ProgrammeView | null>(null);
   const [now, setNow] = useState(Date.now());
   const [ending, setEnding] = useState(false);
@@ -180,7 +182,13 @@ export function StreamManagerPanel({
       const nowPlaying = channel?.nowPlaying;
       if (!nowPlaying) {
         setRotation(null);
+        setRotationPaused(false);
+        rotationTitleRef.current = null;
         return;
+      }
+      if (rotationTitleRef.current !== nowPlaying.title) {
+        setRotationPaused(false);
+        rotationTitleRef.current = nowPlaying.title;
       }
       const item =
         programmeResult.data.items.find(
@@ -211,7 +219,8 @@ export function StreamManagerPanel({
   }, []);
 
   const signalConnected = stats?.signalConnected ?? signal?.connected ?? false;
-  const rotationPlaying = Boolean(rotation) && !signalConnected;
+  const rotationPlaying =
+    Boolean(rotation) && !signalConnected && !rotationPaused;
 
   useEffect(() => {
     onRotationChange?.(rotationPlaying);
@@ -270,6 +279,8 @@ export function StreamManagerPanel({
     setTransportBusy(null);
     if (!result.ok) {
       setError(result.error);
+    } else if (action === 'pause' || action === 'resume') {
+      setRotationPaused(action === 'pause');
     }
   };
 
@@ -538,19 +549,21 @@ export function StreamManagerPanel({
               size="sm"
               variant="secondary"
               disabled={transportBusy !== null}
-              onClick={() => void handleTransport('pause')}
+              onClick={() =>
+                void handleTransport(rotationPlaying ? 'pause' : 'resume')
+              }
             >
-              <PauseIcon size={14} aria-hidden className="mr-1.5" />
-              Pause rotation
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              disabled={transportBusy !== null}
-              onClick={() => void handleTransport('resume')}
-            >
-              <PlayIcon size={14} aria-hidden className="mr-1.5" />
-              Resume
+              {rotationPlaying ? (
+                <>
+                  <PauseIcon size={14} aria-hidden className="mr-1.5" />
+                  Pause rotation
+                </>
+              ) : (
+                <>
+                  <PlayIcon size={14} aria-hidden className="mr-1.5" />
+                  Resume rotation
+                </>
+              )}
             </Button>
             <Button
               size="icon-sm"

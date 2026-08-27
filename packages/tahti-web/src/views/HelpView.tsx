@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageEmpty } from '../components/PageStates';
 import { SupportContactForm } from '../components/SupportContactForm';
 import { TahtiMapLink } from '../components/TahtiMapLink';
 import { getHelpArticle, HELP_ARTICLES, HELP_HUB_INTRO } from '../content/help';
@@ -50,21 +51,17 @@ export function HelpArticleView({ slug }: { slug: string }) {
   const article = getHelpArticle(slug);
   if (!article) {
     return (
-      <div className="mx-auto flex max-w-3xl flex-col gap-4">
-        <Link
-          to="/help"
-          className="text-foreground-secondary text-xs hover:underline"
-        >
-          ← Help
-        </Link>
-        <h1 className="font-display text-2xl font-bold">Article not found</h1>
-        <p className="text-foreground-secondary text-sm">
-          No help page for <code>{slug}</code>.{' '}
-          <Link to="/help" className="underline-offset-2 hover:underline">
-            Back to help hub
-          </Link>
-        </p>
-      </div>
+      <PageFrame maxWidth="3xl">
+        <PageEmpty
+          title="Article not found"
+          description={`No help page for ${slug}.`}
+          action={
+            <Link to="/help" className="underline-offset-2 hover:underline">
+              Back to help hub
+            </Link>
+          }
+        />
+      </PageFrame>
     );
   }
 

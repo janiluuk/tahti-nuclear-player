@@ -31,6 +31,7 @@ import type { AccountRole, PublicProfile } from '../../api/types';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { ImageLightbox } from '../../components/ImageLightbox';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 const ROLES = ['', 'BOARD', 'ARTIST', 'LISTENER'] as const;
@@ -315,9 +316,7 @@ export const AdminUsersView = () => {
           <div className="min-w-0">
             {detailLoading ? (
               <StudioPanel>
-                <p className="text-foreground-secondary text-sm">
-                  Loading user details…
-                </p>
+                <PageLoading label="Loading user details…" />
               </StudioPanel>
             ) : !detail ? (
               <StudioPanel className="flex min-h-72 items-center justify-center">
