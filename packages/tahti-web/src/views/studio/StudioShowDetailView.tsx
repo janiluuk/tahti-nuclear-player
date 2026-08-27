@@ -525,16 +525,11 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
           ← {show?.title ?? 'Show'}
         </Link>
 
-        <header>
-          <Eyebrow className="block">Episode #{episode.episodeNumber}</Eyebrow>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            {episode.title}
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            {episodeStatusLabel(episode)}
-            {episode.source === 'broadcast' ? ' · recorded' : ' · upload'}
-          </p>
-        </header>
+        <StudioPageHeader
+          title={episode.title}
+          subtitle={`${episodeStatusLabel(episode)}${episode.source === 'broadcast' ? ' · recorded' : ' · upload'}`}
+          action={<Eyebrow>Episode #{episode.episodeNumber}</Eyebrow>}
+        />
 
         {episode.description ? (
           <p className="text-sm">{episode.description}</p>

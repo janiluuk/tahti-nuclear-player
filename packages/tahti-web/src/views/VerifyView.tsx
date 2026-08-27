@@ -84,7 +84,7 @@ export function VerifyView() {
             onChange={(e) => setToken(e.target.value)}
             description="From ?token= in the email link"
           />
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-accent-red text-sm">{error}</p>}
           {message && !error && (
             <p className="text-foreground-secondary text-sm">{message}</p>
           )}

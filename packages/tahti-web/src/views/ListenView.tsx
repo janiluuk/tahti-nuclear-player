@@ -163,13 +163,6 @@ export function ListenView() {
     }
   };
 
-  const add = async (slug: string) => {
-    const { playable } = await fetchChannel(slug);
-    if (playable) {
-      enqueue(playable);
-    }
-  };
-
   const playArtist = async (username: string) => {
     const { data } = await fetchArtistPlayables(username);
     const [first, ...rest] = data;
@@ -305,7 +298,6 @@ export function ListenView() {
                   channel.user.avatarUrl ?? placeholderArtworkUrl(channel.slug)
                 }
                 onPlay={() => void playNow(channel.slug)}
-                onQueue={() => void add(channel.slug)}
                 onClick={() => {
                   void navigate({
                     to: '/channel/$slug',
