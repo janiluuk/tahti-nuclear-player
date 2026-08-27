@@ -173,10 +173,12 @@ export function ChannelLayersMenu({
                       {meta.hint}
                     </div>
                   </button>
-                  <button
+                  <Button
                     type="button"
-                    className="text-foreground-secondary hover:text-foreground rounded p-1"
+                    size="icon-sm"
+                    variant="text"
                     aria-label={item.visible ? 'Hide' : 'Show'}
+                    title={item.visible ? 'Hide layer' : 'Show layer'}
                     onClick={() => onToggleVisible(item.id)}
                   >
                     {item.visible ? (
@@ -184,15 +186,17 @@ export function ChannelLayersMenu({
                     ) : (
                       <EyeOffIcon size={14} />
                     )}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
-                    className="text-foreground-secondary hover:text-foreground rounded p-1"
+                    size="icon-sm"
+                    variant="text"
                     aria-label="Remove from page"
+                    title="Remove from page"
                     onClick={() => onRemove(item.id)}
                   >
                     <Trash2Icon size={14} />
-                  </button>
+                  </Button>
                 </li>
               );
             })}

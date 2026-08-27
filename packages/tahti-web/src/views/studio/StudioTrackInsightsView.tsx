@@ -13,7 +13,7 @@ import { ListenerWorldMap } from '../../components/ListenerWorldMap';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPanel } from '../../components/StudioPanel';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
 
@@ -52,30 +52,24 @@ export function StudioTrackInsightsView({
           ← {kind === 'archive' ? 'Music' : 'Releases'}
         </Link>
 
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Track insights
-            </h1>
-            {insights && (
-              <p className="text-foreground-secondary mt-1 text-sm">
-                {insights.title}
-              </p>
-            )}
-          </div>
-          <div className="flex gap-1.5">
-            {PERIODS.map((p) => (
-              <Button
-                key={p}
-                size="sm"
-                variant={p === period ? undefined : 'text'}
-                onClick={() => setPeriod(p)}
-              >
-                {p === 'all' ? 'All time' : p}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <StudioPageHeader
+          title="Track insights"
+          subtitle={insights?.title}
+          action={
+            <div className="flex gap-1.5">
+              {PERIODS.map((p) => (
+                <Button
+                  key={p}
+                  size="sm"
+                  variant={p === period ? undefined : 'text'}
+                  onClick={() => setPeriod(p)}
+                >
+                  {p === 'all' ? 'All time' : p}
+                </Button>
+              ))}
+            </div>
+          }
+        />
 
         {loading ? (
           <PageLoading label="Loading…" />

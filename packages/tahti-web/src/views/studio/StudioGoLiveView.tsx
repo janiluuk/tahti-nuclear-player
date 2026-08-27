@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Badge, Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
   createRtmpTarget,
@@ -95,11 +95,14 @@ function CopyField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function statusTone(state: string): string {
-  if (state === 'PREVIEW') {
-    return 'border-border text-foreground border';
+function channelStateColor(state: string): 'green' | 'cyan' | 'secondary' {
+  if (state === 'LIVE') {
+    return 'green';
   }
-  return 'bg-background-secondary text-foreground-secondary';
+  if (state === 'PREVIEW') {
+    return 'cyan';
+  }
+  return 'secondary';
 }
 
 export function StudioGoLiveView() {
@@ -305,11 +308,9 @@ export function StudioGoLiveView() {
             ) : rotationPlaying ? (
               <OnAirBadge label="ROTATION" />
             ) : (
-              <span
-                className={`rounded px-3 py-1 text-xs font-bold tracking-wide uppercase ${statusTone(channelState)}`}
-              >
+              <Badge variant="pill" color={channelStateColor(channelState)}>
                 {channelState}
-              </span>
+              </Badge>
             )
           }
         />
