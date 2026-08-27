@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import type { FC } from 'react';
 
+import { Badge } from '@nuclearplayer/ui';
+
 import type { FanPayoutStats } from '../api/revenue';
 
 type FanSubscriptionStatsProps = {
@@ -15,6 +17,21 @@ type FanSubscriptionStatsProps = {
 };
 
 const euros = (cents: number): string => `€${(cents / 100).toFixed(2)}`;
+
+function payoutStateColor(
+  state: string,
+): 'green' | 'orange' | 'red' | 'secondary' {
+  if (state === 'PAID' || state === 'COMPLETED') {
+    return 'green';
+  }
+  if (state === 'FAILED') {
+    return 'red';
+  }
+  if (state === 'PENDING' || state === 'PROCESSING') {
+    return 'orange';
+  }
+  return 'secondary';
+}
 
 const FanStat: FC<{
   label: string;
@@ -122,9 +139,9 @@ export const FanSubscriptionStats: FC<FanSubscriptionStatsProps> = ({
                   {euros(payout.netToArtistCents)}
                 </td>
                 <td className="px-2 py-2.5">
-                  <span className="border-border rounded-full border px-2 py-0.5 text-xs">
+                  <Badge variant="pill" color={payoutStateColor(payout.state)}>
                     {payout.state}
-                  </span>
+                  </Badge>
                 </td>
                 <td className="text-foreground-secondary px-2 py-2.5">
                   {new Date(

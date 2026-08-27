@@ -195,7 +195,7 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
         </div>
       </div>
 
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-accent-red text-sm">{error}</p> : null}
       {isOwner && images.length > 1 ? (
         <p className="text-foreground-secondary text-xs">
           Drag a photo to reorder it, or use the arrows on hover. Check photos
@@ -243,8 +243,10 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
                 </button>
                 {isOwner ? (
                   <>
-                    <button
+                    <Button
                       type="button"
+                      size="icon-sm"
+                      variant="text"
                       className={`absolute top-1.5 left-1.5 flex size-6 items-center justify-center rounded-md border transition-opacity ${
                         selected.has(img.id)
                           ? 'bg-primary border-primary text-primary-foreground opacity-100'
@@ -258,19 +260,23 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
                       onClick={() => toggleSelected(img.id)}
                     >
                       <CheckIcon size={14} aria-hidden />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      size="icon-sm"
+                      variant="text"
                       className="bg-background/80 text-foreground absolute top-1.5 right-1.5 rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100"
                       title="Remove photo"
                       aria-label="Remove photo"
                       onClick={() => void onDelete(img.id)}
                     >
                       <Trash2Icon size={14} />
-                    </button>
+                    </Button>
                     <div className="absolute inset-x-1.5 bottom-1.5 flex justify-between opacity-0 transition-opacity group-hover:opacity-100">
-                      <button
+                      <Button
                         type="button"
+                        size="icon-sm"
+                        variant="text"
                         className="bg-background/80 text-foreground rounded-md p-1 disabled:pointer-events-none disabled:opacity-30"
                         title="Move earlier"
                         aria-label="Move photo earlier"
@@ -278,9 +284,11 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
                         onClick={() => moveBy(img.id, -1)}
                       >
                         <ChevronLeftIcon size={14} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        size="icon-sm"
+                        variant="text"
                         className="bg-background/80 text-foreground rounded-md p-1 disabled:pointer-events-none disabled:opacity-30"
                         title="Move later"
                         aria-label="Move photo later"
@@ -288,7 +296,7 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
                         onClick={() => moveBy(img.id, 1)}
                       >
                         <ChevronRightIcon size={14} />
-                      </button>
+                      </Button>
                     </div>
                   </>
                 ) : null}

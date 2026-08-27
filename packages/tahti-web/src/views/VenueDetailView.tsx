@@ -7,6 +7,7 @@ import { EmptyState } from '@nuclearplayer/ui';
 import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageLoading } from '../components/PageStates';
 import { countryFlagAndName } from '../lib/countries';
 import { syncDocumentMetadata } from '../lib/seo';
 
@@ -55,7 +56,7 @@ export function VenueDetailView({ slug }: { slug: string }) {
     return (
       <PageFrame maxWidth="3xl">
         {backLink}
-        <p className="text-foreground-secondary text-sm">Loading venue…</p>
+        <PageLoading label="Loading venue…" />
       </PageFrame>
     );
   }
