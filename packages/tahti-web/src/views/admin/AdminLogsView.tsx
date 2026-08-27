@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { LogViewer, type LogEntryData } from '@nuclearplayer/ui';
+import { LogViewer, Tabs, type LogEntryData } from '@nuclearplayer/ui';
 
 import { fetchAdminContainerLogs, type AdminLogEntry } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { AdminActivityView } from './AdminActivityView';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
@@ -49,52 +50,68 @@ export function AdminLogsView() {
   const logs = entries.map(toLogEntry);
   const scopes = [...new Set(logs.map((l) => l.source.scope))].sort();
 
+  const containerLogs = (
+    <StudioPanel>
+      {!lokiReachable && (
+        <p
+          className="border-accent-red/40 bg-accent-red/10 text-accent-red mb-3 rounded-lg border px-4 py-3 text-sm"
+          role="alert"
+        >
+          Could not reach the logging backend. It may be down, or this
+          environment can&apos;t reach it on the LAN.
+        </p>
+      )}
+      {loading ? (
+        <p className="text-foreground-secondary text-sm">Loading…</p>
+      ) : logs.length === 0 ? (
+        <p className="text-foreground-secondary py-4 text-center text-sm">
+          No log lines in the last hour.
+        </p>
+      ) : (
+        <div className="h-[70vh]">
+          <LogViewer.Root
+            logs={logs}
+            scopes={scopes}
+            onClear={() => {}}
+            onExport={() => {}}
+            onOpenLogFolder={() => {}}
+          >
+            <div className="flex flex-wrap items-center gap-4">
+              <LogViewer.SearchInput />
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <LogViewer.ScopeFilter />
+              <LogViewer.EntryCount />
+            </div>
+            <LogViewer.VirtualizedList />
+          </LogViewer.Root>
+        </div>
+      )}
+    </StudioPanel>
+  );
+
   return (
     <AdminGate>
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-1 py-2">
         <AdminNav current="/admin/logs" />
         <StudioPageHeader
-          title="Container logs"
-          subtitle="Live output from every service in the production stack. Auto-refreshes every 15s."
+          title="Logs"
+          subtitle="Review platform activity and live container output in separate tabs."
         />
-
-        <StudioPanel>
-          {!lokiReachable && (
-            <p
-              className="border-accent-red/40 bg-accent-red/10 text-accent-red mb-3 rounded-lg border px-4 py-3 text-sm"
-              role="alert"
-            >
-              Could not reach the logging backend. It may be down, or this
-              environment can&apos;t reach it on the LAN.
-            </p>
-          )}
-          {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
-          ) : logs.length === 0 ? (
-            <p className="text-foreground-secondary py-4 text-center text-sm">
-              No log lines in the last hour.
-            </p>
-          ) : (
-            <div className="h-[70vh]">
-              <LogViewer.Root
-                logs={logs}
-                scopes={scopes}
-                onClear={() => {}}
-                onExport={() => {}}
-                onOpenLogFolder={() => {}}
-              >
-                <div className="flex flex-wrap items-center gap-4">
-                  <LogViewer.SearchInput />
-                </div>
-                <div className="flex flex-wrap items-center gap-4">
-                  <LogViewer.ScopeFilter />
-                  <LogViewer.EntryCount />
-                </div>
-                <LogViewer.VirtualizedList />
-              </LogViewer.Root>
-            </div>
-          )}
-        </StudioPanel>
+        <Tabs
+          items={[
+            {
+              id: 'activity',
+              label: 'Activity',
+              content: <AdminActivityView embedded />,
+            },
+            {
+              id: 'containers',
+              label: 'Container logs',
+              content: containerLogs,
+            },
+          ]}
+        />
       </div>
     </AdminGate>
   );

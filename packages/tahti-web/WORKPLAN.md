@@ -35,6 +35,7 @@ Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which
 - [x] Stash share access (grant expiring read/download access + revoke)
 - [x] Sources OAuth callback-return verification (SoundCloud, Bandcamp, Google Drive, and Mixcloud production redirect shapes land on the matching source result in the SPA)
 - [ ] Radio slots depth
+- [ ] **Channel moderator management** — expose the existing `/studio/moderation` workflow from the Studio Manage/Broadcast navigation, verify owner-only user assignment and removal, and cover the moderator permissions (chat mute/remove/ban) with mock/API tests so channel owners can reliably delegate moderation.
 - [ ] Multitrack timeline + press-kit polish
 - [ ] Production cutover for `apps/web`
 

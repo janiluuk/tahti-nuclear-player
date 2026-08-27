@@ -100,10 +100,6 @@ import { WhatsNewView } from './views/WhatsNewView';
 // Board-only, gated on user.isBoard — never needed on the anonymous listen
 // path, so keep these 22 pages out of the main bundle entirely rather than
 // paying for them on every page load (see CUTOVER.md's Bundle budget item).
-const AdminActivityView = lazyRouteComponent(
-  () => import('./views/admin/AdminActivityView'),
-  'AdminActivityView',
-);
 const AdminAgmView = lazyRouteComponent(
   () => import('./views/admin/AdminAgmView'),
   'AdminAgmView',
@@ -268,7 +264,7 @@ const adminRoute = createRoute({
 const adminActivityRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/activity',
-  component: AdminActivityView,
+  component: AdminLogsView,
 });
 
 const adminLogsRoute = createRoute({

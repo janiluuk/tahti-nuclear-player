@@ -27,13 +27,6 @@ const PRIMARY = [
     description: 'Platform-wide overview — activity, health, and shortcuts.',
   },
   {
-    to: '/admin/activity',
-    label: 'Activity',
-    icon: <ActivityIcon size={16} aria-hidden />,
-    description:
-      'Live system events — logins, uploads, releases, likes, follows, subscriptions.',
-  },
-  {
     to: '/admin/logs',
     label: 'Logs',
     icon: <FileTextIcon size={16} aria-hidden />,

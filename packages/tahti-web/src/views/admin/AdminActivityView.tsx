@@ -120,7 +120,11 @@ function toLogEntry(entry: AdminActivityEntry): LogEntryData {
   };
 }
 
-export function AdminActivityView() {
+export function AdminActivityView({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const [entries, setEntries] = useState<AdminActivityEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -141,52 +145,59 @@ export function AdminActivityView() {
   const logs = entries.map(toLogEntry);
   const scopes = [...new Set(logs.map((l) => l.source.scope))].sort();
 
+  const content = (
+    <StudioPanel>
+      <p className="text-foreground-secondary mb-3 text-xs">
+        {total} event{total === 1 ? '' : 's'} in the current window. Listen
+        counts are anonymous by design (no per-user attribution exists for
+        plays) so individual listens aren&apos;t shown here — see Stats for
+        aggregate play counts.{' '}
+        <a
+          href={adminActivityExportCsvUrl()}
+          className="text-primary underline-offset-2 hover:underline"
+        >
+          Export full audit log as CSV
+        </a>
+      </p>
+      {loading ? (
+        <p className="text-foreground-secondary text-sm">Loading…</p>
+      ) : (
+        <div className="h-[70vh]">
+          <LogViewer.Root
+            logs={logs}
+            scopes={scopes}
+            onClear={() => {}}
+            onExport={() => {}}
+            onOpenLogFolder={() => {}}
+          >
+            <div className="flex flex-wrap items-center gap-4">
+              <LogViewer.SearchInput />
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <LogViewer.LevelFilter />
+              <LogViewer.ScopeFilter />
+              <LogViewer.EntryCount />
+            </div>
+            <LogViewer.VirtualizedList />
+          </LogViewer.Root>
+        </div>
+      )}
+    </StudioPanel>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
   return (
     <AdminGate>
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/activity" />
+        <AdminNav current="/admin/logs" />
         <StudioPageHeader
           title="Activity"
           subtitle="Real system events — logins, uploads, releases, likes, follows, and new fan subscriptions. Auto-refreshes every 15s."
         />
-
-        <StudioPanel>
-          <p className="text-foreground-secondary mb-3 text-xs">
-            {total} event{total === 1 ? '' : 's'} in the current window. Listen
-            counts are anonymous by design (no per-user attribution exists for
-            plays) so individual listens aren&apos;t shown here — see Stats for
-            aggregate play counts.{' '}
-            <a
-              href={adminActivityExportCsvUrl()}
-              className="text-primary underline-offset-2 hover:underline"
-            >
-              Export full audit log as CSV
-            </a>
-          </p>
-          {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
-          ) : (
-            <div className="h-[70vh]">
-              <LogViewer.Root
-                logs={logs}
-                scopes={scopes}
-                onClear={() => {}}
-                onExport={() => {}}
-                onOpenLogFolder={() => {}}
-              >
-                <div className="flex flex-wrap items-center gap-4">
-                  <LogViewer.SearchInput />
-                </div>
-                <div className="flex flex-wrap items-center gap-4">
-                  <LogViewer.LevelFilter />
-                  <LogViewer.ScopeFilter />
-                  <LogViewer.EntryCount />
-                </div>
-                <LogViewer.VirtualizedList />
-              </LogViewer.Root>
-            </div>
-          )}
-        </StudioPanel>
+        {content}
       </div>
     </AdminGate>
   );
