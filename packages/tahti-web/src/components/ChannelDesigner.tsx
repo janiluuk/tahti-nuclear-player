@@ -47,6 +47,7 @@ import {
   type VisualSettingsMap,
 } from '../api/channel-design';
 import { ChannelVisualizer } from './ChannelVisualizer';
+import { PageLoading } from './PageStates';
 import { Eyebrow } from './tahti/Eyebrow';
 
 const PRESET_META: Record<
@@ -230,9 +231,7 @@ export function ChannelDesigner({
   };
 
   if (!visual) {
-    return (
-      <p className="text-foreground-secondary text-sm">Loading designer…</p>
-    );
+    return <PageLoading label="Loading designer…" />;
   }
 
   const visualizerEnabled = visual.visualPreset !== 'MINIMAL';

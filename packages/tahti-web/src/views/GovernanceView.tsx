@@ -12,6 +12,7 @@ import {
 } from '../api/client';
 import type { GovernanceMotion } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageLoading } from '../components/PageStates';
 import { TahtiMapLink } from '../components/TahtiMapLink';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
@@ -99,9 +100,7 @@ export function GovernanceView() {
         </div>
       )}
 
-      {user && loading && (
-        <p className="text-foreground-secondary text-sm">Loading motions…</p>
-      )}
+      {user && loading && <PageLoading label="Loading motions…" />}
 
       {user && !loading && forbidden && (
         <div className="border-border flex flex-col gap-3 rounded-lg border p-4">

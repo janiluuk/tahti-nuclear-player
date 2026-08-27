@@ -13,6 +13,7 @@ import {
   type DiscoWidgetScope,
   type DiscoWidgetStoreItem,
 } from '../../api/disco-widgets';
+import { PageLoading } from '../PageStates';
 
 export function DiscoWidgetManagerPanel({
   scope,
@@ -144,7 +145,7 @@ export function DiscoWidgetManagerPanel({
         <p className="text-foreground-secondary text-sm">{description}</p>
       )}
       {loading ? (
-        <p className="text-foreground-secondary text-sm">Loading widgets…</p>
+        <PageLoading label="Loading widgets…" />
       ) : (
         <>
           {installs.length === 0 ? (
