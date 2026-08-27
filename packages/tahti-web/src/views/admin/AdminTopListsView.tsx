@@ -44,9 +44,10 @@ function FilterRow<T extends string>({
   return (
     <nav className="flex flex-wrap gap-2" role="tablist">
       {options.map((o) => (
-        <button
+        <Button
           key={o.id}
           type="button"
+          variant="text"
           role="tab"
           aria-selected={value === o.id}
           onClick={() => onChange(o.id)}
@@ -57,7 +58,7 @@ function FilterRow<T extends string>({
           }`}
         >
           {o.label}
-        </button>
+        </Button>
       ))}
     </nav>
   );

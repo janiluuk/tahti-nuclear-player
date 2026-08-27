@@ -754,6 +754,18 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
 
+### 2026-08-27 — Another 9 shared-control slices
+
+**Goal:** Continue the Storybook compliance sweep in three batches of three, migrating remaining bespoke controls to the shared Nuclear `Button` while retaining specialized row-selection and drag interactions.
+
+**Batch 1:** Playlist cards, radio rotation controls, and fan-tier perks now use shared buttons.
+
+**Batch 2:** Admin Support, Beta, and Feature Requests filters now use shared buttons.
+
+**Batch 3:** Content Reports filters, Top Lists filters, and the Admin Dashboard expand/collapse action now use shared buttons.
+
+**Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
+
 ### 2026-08-27 — Another 9 compliance-sweep slices
 
 **Goal:** Continue the Storybook compliance sweep in three batches of three, standardizing the remaining loading and navigation presentation gaps.

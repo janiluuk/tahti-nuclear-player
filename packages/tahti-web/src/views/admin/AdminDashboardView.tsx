@@ -137,13 +137,14 @@ export function AdminDashboardView() {
             </StudioPanel>
 
             <div>
-              <button
+              <Button
                 type="button"
+                variant="text"
                 className="text-foreground-secondary hover:text-foreground text-xs tracking-wide uppercase"
                 onClick={() => setMoreOpen((v) => !v)}
               >
                 {moreOpen ? 'Hide more' : 'Finance, streams, queues & audit'}
-              </button>
+              </Button>
             </div>
 
             {moreOpen && (
