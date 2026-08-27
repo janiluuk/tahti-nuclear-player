@@ -753,3 +753,15 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Batch 3:** `ChannelView`, `ArtistView`, and `VenuesView` use shared loading and empty states.
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
+
+### 2026-08-27 — Another 9 compliance-sweep slices
+
+**Goal:** Continue the remaining design-system cleanup in three batches of three, committing and pushing after each batch.
+
+**Batch 1:** `CollectionView`, `SubscribeView`, and `SmartLinkView` now use shared loading and empty states.
+
+**Batch 2:** `DiscoverView` and all `VenueRegisterView` states now use `PageHeader`; `SecurityTotpPanel` uses the semantic error token.
+
+**Batch 3:** `SupportContactForm`, the remaining `ArtistGalleryPanel` error path, and `StudioGoLiveView` status errors now use semantic accent colors.
+
+**Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.

@@ -112,7 +112,7 @@ export function SupportContactForm() {
       >
         {pending ? 'Sending…' : 'Send message'}
       </Button>
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-accent-red text-sm">{error}</p>}
     </form>
   );
 }

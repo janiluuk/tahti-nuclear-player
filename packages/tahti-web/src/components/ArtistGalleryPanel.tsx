@@ -374,7 +374,7 @@ export function ArtistGalleryAddIcon({
         className="hidden"
         onChange={(e) => void onFiles(e.target.files)}
       />
-      {error ? <p className="text-xs text-red-400">{error}</p> : null}
+      {error ? <p className="text-accent-red text-xs">{error}</p> : null}
     </div>
   );
 }
