@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 
 import { LegalHubLinks } from '../views/LegalView';
+import { PageHeader } from './PageHeader';
 
 export function LegalDocSection({
   title,
@@ -35,12 +36,7 @@ export function LegalDocShell({
       >
         ← Tahti map
       </Link>
-      <header className="flex flex-col gap-2">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          {title}
-        </h1>
-        <p className="text-foreground-secondary text-sm">{meta}</p>
-      </header>
+      <PageHeader title={title} subtitle={meta} />
       {children}
       <LegalHubLinks />
     </article>

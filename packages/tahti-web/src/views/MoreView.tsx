@@ -4,6 +4,7 @@ import { Badge, Button } from '@nuclearplayer/ui';
 
 import { FlowGallery } from '../components/FlowGallery';
 import { MapCommentForm } from '../components/MapCommentForm';
+import { PageHeader } from '../components/PageHeader';
 import { PortInventoryPanel } from '../components/PortInventoryPanel';
 import { ParityBadges, ScreenAtlas } from '../components/ScreenAtlas';
 import { StudioPanel } from '../components/StudioPanel';
@@ -576,26 +577,29 @@ export function MoreView() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-8">
+      <PageHeader
+        title="Tahti map"
+        subtitle={
+          <>
+            Three surfaces, one API: canonical{' '}
+            <code className="text-foreground">apps/web</code>, this Nuclear
+            client (<code className="text-foreground">beta.tahti.live</code>),
+            and public docs at{' '}
+            <a
+              href="https://api.tahti.live/api"
+              target="_blank"
+              rel="noreferrer"
+              className="underline-offset-2 hover:underline"
+            >
+              api.tahti.live/api
+            </a>
+            . Side-by-side screenshots, mermaid journeys, and the feature
+            matrix. Port checklist:{' '}
+            <code className="text-foreground">FEATURES.md</code>.
+          </>
+        }
+      />
       <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Tahti map
-        </h1>
-        <p className="text-foreground-secondary mt-1 max-w-2xl text-sm">
-          Three surfaces, one API: canonical{' '}
-          <code className="text-foreground">apps/web</code>, this Nuclear client
-          (<code className="text-foreground">beta.tahti.live</code>), and public
-          docs at{' '}
-          <a
-            href="https://api.tahti.live/api"
-            target="_blank"
-            rel="noreferrer"
-            className="underline-offset-2 hover:underline"
-          >
-            api.tahti.live/api
-          </a>
-          . Side-by-side screenshots, mermaid journeys, and the feature matrix.
-          Port checklist: <code className="text-foreground">FEATURES.md</code>.
-        </p>
         <nav className="mt-3 flex flex-wrap gap-2 text-xs">
           <a
             href="#cases-anonymous"
