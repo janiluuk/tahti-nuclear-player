@@ -97,7 +97,7 @@ export function ResetPasswordView() {
         </div>
       ) : infoError ? (
         <div className="flex flex-col gap-3">
-          <p className="text-sm text-red-400">{infoError}</p>
+          <p className="text-accent-red text-sm">{infoError}</p>
           <p className="text-foreground-secondary text-sm">
             Request a new one from the{' '}
             <Link
@@ -125,7 +125,7 @@ export function ResetPasswordView() {
             autoFocus
           />
           {tooShort && (
-            <p className="text-sm text-red-400">
+            <p className="text-accent-red text-sm">
               Password must be at least 8 characters.
             </p>
           )}
@@ -137,9 +137,11 @@ export function ResetPasswordView() {
             autoComplete="new-password"
           />
           {mismatch && (
-            <p className="text-sm text-red-400">Passwords don&apos;t match.</p>
+            <p className="text-accent-red text-sm">
+              Passwords don&apos;t match.
+            </p>
           )}
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-accent-red text-sm">{error}</p>}
           <Button disabled={!canSubmit} onClick={onSubmit}>
             {loading ? 'Saving…' : 'Reset password & sign in'}
           </Button>

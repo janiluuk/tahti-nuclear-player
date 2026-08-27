@@ -754,6 +754,18 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
 
+### 2026-08-27 — Another 9 cleanup slices
+
+**Goal:** Continue the remaining design-system cleanup in three batches of three, committing and pushing after each batch.
+
+**Batch 1:** `FeatureRequestsView`, `TransparencyView`, and `EmbedViews` now use shared loading/empty states.
+
+**Batch 2:** `StudioArchiveItemView`, `StudioProEditorView`, and `VenueRegisterView` now use semantic error colors.
+
+**Batch 3:** `ForgotPasswordView`, `ResetPasswordView`, and `SetupPasswordView` now use semantic success/error colors.
+
+**Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
+
 ### 2026-08-27 — Another 9 compliance-sweep slices
 
 **Goal:** Continue the remaining design-system cleanup in three batches of three, committing and pushing after each batch.
