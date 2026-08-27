@@ -40,6 +40,34 @@ Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which
 
 Done since last update (was listed here as remaining, verified shipped): channel chat hardening (hCaptcha + rail parity), Stash upload UI, Stats detail page, Venue register, Membership purchase, Password/account security (TOTP panel), board admin (22/22 pages, now `partial` not `out-of-scope`).
 
+## Storybook UI compliance backlog
+
+This backlog comes from the Storybook comparison audit. Prefer the original Nuclear primitives from `@nuclearplayer/ui` wherever they cover the need. Admin-specific Storybook entries are secondary references: keep board workflows dense where necessary, but match the shared Nuclear chrome, controls, states, and spacing first.
+
+### High priority
+
+- [ ] Update stale Storybook stories after the navigation redesign: remove the deleted `AppTopNav` `minimal` variant stories and replace the removed Studio tools-panel story with the six-section Studio navigation states.
+- [ ] Add Storybook coverage for `SectionSidebar`, including active, inactive, no-current-route, deep-route, mobile overflow, and all Studio/Admin variants.
+- [ ] Decide whether `SectionSidebar` should wrap Nuclear's existing `SidebarNavigation` and `SidebarNavigationItem` rather than maintaining duplicate sidebar markup; use the Nuclear components where practical.
+- [ ] Normalize remaining custom page headers against `PageHeader` / `StudioPageHeader`: Collection, Track detail, Studio home, Studio archive detail, More/map, and any later raw `<h1>` findings.
+
+### Medium priority
+
+- [ ] Replace hand-styled native controls in listener and Studio surfaces with Storybook-backed Nuclear components where behavior permits: `Input`, `Select`, and `Textarea` in `ChannelRadioPlaylistPanel`, `RadioBookingCalendar`, `StreamManagerPanel`, `StudioEditorListView`, `StudioDistributionView`, `StudioReleasesView`, and related forms.
+- [ ] Replace repeated bespoke bordered panels with `Box`, `SectionShell`, `Card`, `CardGrid`, or `StudioPanel` where the content is a standard panel/card/list rather than a deliberately custom visualization or editor.
+- [ ] Audit custom actions against Nuclear `Button`, `FavoriteButton`, `MediaIconActions`, `CopyButton`, and `SaveButton`; prioritize Artist gallery actions, channel layer actions, collection actions, and Radio actions while preserving legitimate custom tab, drag-handle, and row-selection buttons.
+- [ ] Normalize remaining loading, empty, error, and status treatments against `PageLoading`, `PageEmpty`, `EmptyState`, `Loader`, and `Badge`.
+
+### Storybook quality and verification
+
+- [ ] Add Storybook states for Studio deep routes, Admin nested/moderation routes, artist-page standard top navigation, mobile navigation, and active/inactive navigation states.
+- [ ] Enable Storybook story type-checking, or add a dedicated Storybook TypeScript check, so stale props and removed stories fail before build; investigate the current docgen warnings caused by `tahti-web` files being outside the active TypeScript project.
+- [ ] Run a full Storybook render sweep after each compliance batch and record intentional exceptions, especially for Admin operational tables and specialized editor controls.
+
+### Nuclear component reference order
+
+When replacing a bespoke element, check these existing Storybook components first: `SidebarNavigation`, `TopBar`, `Button`, `Box`, `SectionShell`, `Card`, `CardGrid`, `Tabs`, `Input`, `Select`, `Textarea`, `Dialog`, `SaveButton`, `FavoriteButton`, `FilterChips`, `Pagination`, `EmptyState`, `Loader`, `TrackTable`, `MediaArtwork`, and `Badge`.
+
 ## Verify
 
 ```bash

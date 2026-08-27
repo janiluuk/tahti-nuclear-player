@@ -30,16 +30,18 @@ export const SignedInArtist: Story = {
   },
 };
 
-export const MinimalVariantSignedIn: Story = {
+export const SignedInArtistWithMenu: Story = {
   decorators: [withMockAuth(MOCK_USERS.artist)],
   args: {
-    variant: 'minimal',
+    showMenuButton: true,
+    onOpenMenu: () => {},
   },
 };
 
-export const MinimalVariantSignedOut: Story = {
+export const SignedOutWithMenu: Story = {
   decorators: [withMockAuth(null)],
   args: {
-    variant: 'minimal',
+    showMenuButton: true,
+    onOpenMenu: () => {},
   },
 };

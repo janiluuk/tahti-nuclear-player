@@ -18,9 +18,20 @@ export const Overview: Story = {
   args: { current: '/studio' },
 };
 
-/** A tool-group route auto-expands the "Studio tools" panel on mount. */
-export const ToolActive: Story = {
+export const PerformActive: Story = {
   args: { current: '/studio/schedule' },
+};
+
+export const LibraryActive: Story = {
+  args: { current: '/studio/archive' },
+};
+
+export const GrowActive: Story = {
+  args: { current: '/studio/insights/archive/1' },
+};
+
+export const ManageActive: Story = {
+  args: { current: '/studio/branding' },
 };
 
 export const NoCurrentRoute: Story = {
