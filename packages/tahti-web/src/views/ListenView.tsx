@@ -219,7 +219,7 @@ export function ListenView() {
 
       <ListenerWidgetsSection />
 
-      <FeedView embedded />
+      {signedIn ? <FeedView embedded /> : null}
 
       {radio ? (
         <Box

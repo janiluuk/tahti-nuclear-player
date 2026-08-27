@@ -62,7 +62,32 @@ export type StudioShowSeries = {
   intervalHours: 1 | 2;
   /** Optional recurring note / weekday hint for booking. */
   scheduleNote: string | null;
+  visibility?: 'PUBLIC' | 'FAN_ONLY';
+  autoArchive?: boolean;
+  episodeNumberEnabled?: boolean;
+  recurrenceEnabled?: boolean;
+  recurrenceDays?: number[];
+  recurrenceTimeOfDay?: string | null;
+  recurrenceDurationMin?: number | null;
+  recurrenceTimezone?: string | null;
+  recurrenceHorizonDays?: number;
   createdAt: string;
+};
+
+export type ScheduledShow = {
+  id: string;
+  seriesId: string;
+  startAt: string;
+  episodeNumber: number | null;
+  title: string;
+  description: string | null;
+  tagline: string | null;
+  venue: string | null;
+  location: string | null;
+  artworkUrl: string | null;
+  showType: ShowType;
+  visibility: 'PUBLIC' | 'FAN_ONLY';
+  autoArchive: boolean;
 };
 
 export type EpisodeSource = 'upload' | 'broadcast';
@@ -396,7 +421,20 @@ type WireLiveShowSeries = {
   nextEpisodeNumber: number;
   intervalHours: 1 | 2;
   scheduleNote: string | null;
+  visibility?: 'PUBLIC' | 'FAN_ONLY';
+  autoArchive?: boolean;
+  episodeNumberEnabled?: boolean;
+  recurrenceEnabled?: boolean;
+  recurrenceDays?: number[];
+  recurrenceTimeOfDay?: string | null;
+  recurrenceDurationMin?: number | null;
+  recurrenceTimezone?: string | null;
+  recurrenceHorizonDays?: number;
   createdAt: string;
+};
+
+type WireScheduledShow = Omit<ScheduledShow, 'showType'> & {
+  showType: ShowType;
 };
 
 type WireLiveShowEpisode = {
@@ -425,8 +463,21 @@ function seriesFromWire(w: WireLiveShowSeries): StudioShowSeries {
     nextEpisodeNumber: w.nextEpisodeNumber,
     intervalHours: w.intervalHours,
     scheduleNote: w.scheduleNote,
+    visibility: w.visibility,
+    autoArchive: w.autoArchive,
+    episodeNumberEnabled: w.episodeNumberEnabled,
+    recurrenceEnabled: w.recurrenceEnabled,
+    recurrenceDays: w.recurrenceDays,
+    recurrenceTimeOfDay: w.recurrenceTimeOfDay,
+    recurrenceDurationMin: w.recurrenceDurationMin,
+    recurrenceTimezone: w.recurrenceTimezone,
+    recurrenceHorizonDays: w.recurrenceHorizonDays,
     createdAt: w.createdAt,
   };
+}
+
+function scheduledShowFromWire(w: WireScheduledShow): ScheduledShow {
+  return w;
 }
 
 function episodeFromWire(w: WireLiveShowEpisode): StudioEpisode {
@@ -470,6 +521,42 @@ export async function fetchShowSeries(): Promise<{
   }
 }
 
+export async function fetchShowSchedule(): Promise<{
+  data: { series: StudioShowSeries[]; scheduledShows: ScheduledShow[] };
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: { series: seedSeries(), scheduledShows: [] },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{
+      series: WireLiveShowSeries[];
+      scheduledShows: WireScheduledShow[];
+    }>('/api/me/channel/show-series');
+    return {
+      data: {
+        series: data.series.map(seriesFromWire),
+        scheduledShows: data.scheduledShows.map(scheduledShowFromWire),
+      },
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return {
+        data: { series: seedSeries(), scheduledShows: [] },
+        meta: failMeta(err),
+      };
+    }
+    return {
+      data: { series: [], scheduledShows: [] },
+      meta: apiErrorMeta(err),
+    };
+  }
+}
+
 export async function createShowSeries(input: {
   title: string;
   description?: string;
@@ -479,6 +566,16 @@ export async function createShowSeries(input: {
   showType?: ShowType;
   intervalHours?: 1 | 2;
   scheduleNote?: string | null;
+  visibility?: 'PUBLIC' | 'FAN_ONLY';
+  autoArchive?: boolean;
+  episodeNumberEnabled?: boolean;
+  nextEpisodeNumber?: number;
+  recurrenceEnabled?: boolean;
+  recurrenceDays?: number[];
+  recurrenceTimeOfDay?: string | null;
+  recurrenceDurationMin?: number | null;
+  recurrenceTimezone?: string | null;
+  recurrenceHorizonDays?: number;
 }): Promise<
   { ok: true; data: StudioShowSeries } | { ok: false; error: string }
 > {
@@ -499,6 +596,15 @@ export async function createShowSeries(input: {
       nextEpisodeNumber: 1,
       intervalHours: input.intervalHours ?? 1,
       scheduleNote: input.scheduleNote?.trim() || null,
+      visibility: input.visibility ?? 'PUBLIC',
+      autoArchive: input.autoArchive ?? true,
+      episodeNumberEnabled: input.episodeNumberEnabled ?? true,
+      recurrenceEnabled: input.recurrenceEnabled ?? false,
+      recurrenceDays: input.recurrenceDays ?? [],
+      recurrenceTimeOfDay: input.recurrenceTimeOfDay ?? null,
+      recurrenceDurationMin: input.recurrenceDurationMin ?? null,
+      recurrenceTimezone: input.recurrenceTimezone ?? null,
+      recurrenceHorizonDays: input.recurrenceHorizonDays ?? 28,
       createdAt: new Date().toISOString(),
     };
     writeJson(SERIES_KEY, [series, ...list]);
@@ -518,6 +624,16 @@ export async function createShowSeries(input: {
           showType: input.showType,
           intervalHours: input.intervalHours,
           scheduleNote: input.scheduleNote,
+          visibility: input.visibility,
+          autoArchive: input.autoArchive,
+          episodeNumberEnabled: input.episodeNumberEnabled,
+          nextEpisodeNumber: input.nextEpisodeNumber,
+          recurrenceEnabled: input.recurrenceEnabled,
+          recurrenceDays: input.recurrenceDays,
+          recurrenceTimeOfDay: input.recurrenceTimeOfDay,
+          recurrenceDurationMin: input.recurrenceDurationMin,
+          recurrenceTimezone: input.recurrenceTimezone,
+          recurrenceHorizonDays: input.recurrenceHorizonDays,
         }),
       },
     );
@@ -526,6 +642,93 @@ export async function createShowSeries(input: {
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Failed to create show',
+    };
+  }
+}
+
+export async function updateShowSeriesRecurrence(
+  id: string,
+  patch: {
+    recurrenceEnabled: boolean;
+    recurrenceDays: number[];
+    recurrenceTimeOfDay: string | null;
+    recurrenceDurationMin: number | null;
+    recurrenceTimezone: string | null;
+    recurrenceHorizonDays?: number;
+  },
+): Promise<
+  { ok: true; data: StudioShowSeries } | { ok: false; error: string }
+> {
+  return patchShowSeries(id, patch);
+}
+
+export async function scheduleShowEpisode(
+  seriesId: string,
+  input: {
+    startAt: string;
+    title?: string | null;
+    venue?: string | null;
+    location?: string | null;
+    artworkUrl?: string | null;
+  },
+): Promise<{ ok: true; data: ScheduledShow } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const show = seedSeries().find((item) => item.id === seriesId);
+    if (!show) {
+      return { ok: false, error: 'Show not found' };
+    }
+    return {
+      ok: true,
+      data: {
+        id: `scheduled-${Date.now()}`,
+        seriesId,
+        startAt: input.startAt,
+        episodeNumber: show.nextEpisodeNumber,
+        title:
+          input.title?.trim() || `${show.title} #${show.nextEpisodeNumber}`,
+        description: show.description,
+        tagline: null,
+        venue: input.venue ?? null,
+        location: input.location ?? null,
+        artworkUrl: input.artworkUrl ?? show.coverUrl,
+        showType: show.showType,
+        visibility: show.visibility ?? 'PUBLIC',
+        autoArchive: show.autoArchive ?? true,
+      },
+    };
+  }
+  try {
+    const { data } = await requestJson<WireScheduledShow>(
+      `/api/me/channel/show-series/${encodeURIComponent(seriesId)}/episodes`,
+      { method: 'POST', body: JSON.stringify(input) },
+    );
+    return { ok: true, data: scheduledShowFromWire(data) };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not schedule show',
+    };
+  }
+}
+
+export async function cancelScheduledShow(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true };
+  }
+  try {
+    await requestJson(
+      `/api/me/channel/scheduled-shows/${encodeURIComponent(id)}`,
+      {
+        method: 'DELETE',
+      },
+    );
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not cancel show',
     };
   }
 }
@@ -544,6 +747,15 @@ export async function patchShowSeries(
       | 'intervalHours'
       | 'scheduleNote'
       | 'nextEpisodeNumber'
+      | 'visibility'
+      | 'autoArchive'
+      | 'episodeNumberEnabled'
+      | 'recurrenceEnabled'
+      | 'recurrenceDays'
+      | 'recurrenceTimeOfDay'
+      | 'recurrenceDurationMin'
+      | 'recurrenceTimezone'
+      | 'recurrenceHorizonDays'
     >
   >,
 ): Promise<
@@ -587,6 +799,33 @@ export async function patchShowSeries(
     }
     if ('nextEpisodeNumber' in patch) {
       body.nextEpisodeNumber = patch.nextEpisodeNumber;
+    }
+    if ('visibility' in patch) {
+      body.visibility = patch.visibility;
+    }
+    if ('autoArchive' in patch) {
+      body.autoArchive = patch.autoArchive;
+    }
+    if ('episodeNumberEnabled' in patch) {
+      body.episodeNumberEnabled = patch.episodeNumberEnabled;
+    }
+    if ('recurrenceEnabled' in patch) {
+      body.recurrenceEnabled = patch.recurrenceEnabled;
+    }
+    if ('recurrenceDays' in patch) {
+      body.recurrenceDays = patch.recurrenceDays;
+    }
+    if ('recurrenceTimeOfDay' in patch) {
+      body.recurrenceTimeOfDay = patch.recurrenceTimeOfDay;
+    }
+    if ('recurrenceDurationMin' in patch) {
+      body.recurrenceDurationMin = patch.recurrenceDurationMin;
+    }
+    if ('recurrenceTimezone' in patch) {
+      body.recurrenceTimezone = patch.recurrenceTimezone;
+    }
+    if ('recurrenceHorizonDays' in patch) {
+      body.recurrenceHorizonDays = patch.recurrenceHorizonDays;
     }
     const { data } = await requestJson<WireLiveShowSeries>(
       `/api/me/channel/show-series/${encodeURIComponent(id)}`,

@@ -48,6 +48,12 @@ async function requestJson<T>(
 export type ChannelSchedule = {
   nextBroadcastAt: string | null;
   nextBroadcastNote: string | null;
+  nextBroadcastShowType?: 'LIVE_SET' | 'TALK' | null;
+  nextBroadcastShowId?: string | null;
+  nextBroadcastMode?: 'SINGLE' | 'SERIES' | null;
+  nextBroadcastDescription?: string | null;
+  nextBroadcastCoverUrl?: string | null;
+  nextBroadcastDurationHours?: 1 | 2 | null;
 };
 
 export type UpcomingBroadcast = {
@@ -81,6 +87,11 @@ export type ProgrammeView = {
 let mockSchedule: ChannelSchedule = {
   nextBroadcastAt: new Date(Date.now() + 3 * 24 * 3600_000).toISOString(),
   nextBroadcastNote: 'Mock Friday set',
+  nextBroadcastShowType: 'LIVE_SET',
+  nextBroadcastMode: 'SERIES',
+  nextBroadcastDescription: 'A two-hour northern lights session.',
+  nextBroadcastCoverUrl: null,
+  nextBroadcastDurationHours: 2,
 };
 
 let mockProgramme: ProgrammeView = {

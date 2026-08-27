@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import {
+  ArchiveIcon,
   AudioLinesIcon,
   BarChart3Icon,
   ListMusicIcon,
@@ -105,7 +106,9 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const [releaseDate, setReleaseDate] = useState('');
   const [downloadsEnabled, setDownloadsEnabled] = useState(false);
   const [commentsEnabled, setCommentsEnabled] = useState(true);
-  const [tab, setTab] = useState<'details' | 'playlists'>('details');
+  const [tab, setTab] = useState<'details' | 'playlists' | 'insights'>(
+    'details',
+  );
   const [playlistOpen, setPlaylistOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -229,6 +232,22 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     setMessage(
       next ? 'Added to your 24/7 rotation.' : 'Removed from rotation.',
     );
+  };
+
+  const moveToStash = async () => {
+    setSaving(true);
+    const result = await patchStudioArchiveItem(id, {
+      visibility: 'PRIVATE',
+      isPublic: false,
+    });
+    setSaving(false);
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setItem(result.data);
+    setVisibility('PRIVATE');
+    setMessage('Moved to your private stash.');
   };
 
   const startPlayback = async (startAt?: number) => {
@@ -428,6 +447,16 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                 <Button
                   size="sm"
                   variant="secondary"
+                  disabled={saving || visibility === 'PRIVATE'}
+                  onClick={() => void moveToStash()}
+                  title="Move to private stash"
+                >
+                  <ArchiveIcon size={16} aria-hidden className="mr-1.5" />
+                  Stash
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
                   disabled={pinBusy || pinBlocked}
                   title={
                     pinBlocked
@@ -501,9 +530,17 @@ export function StudioArchiveItemView({ id }: { id: string }) {
             )}
 
             <Tabs
-              selectedIndex={tab === 'details' ? 0 : 1}
+              selectedIndex={
+                tab === 'details' ? 0 : tab === 'playlists' ? 1 : 2
+              }
               onChange={(index) =>
-                setTab(index === 0 ? 'details' : 'playlists')
+                setTab(
+                  index === 0
+                    ? 'details'
+                    : index === 1
+                      ? 'playlists'
+                      : 'insights',
+                )
               }
               items={[
                 {
@@ -812,6 +849,30 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                         />
                         Choose playlists
                       </Button>
+                    </section>
+                  ),
+                },
+                {
+                  id: 'insights',
+                  label: (
+                    <span className="inline-flex items-center gap-1.5">
+                      <BarChart3Icon size={15} aria-hidden />
+                      Insights
+                    </span>
+                  ),
+                  content: (
+                    <section className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-xl border p-5">
+                      <h2 className="font-semibold">Track insights</h2>
+                      <p className="text-foreground-secondary text-sm">
+                        Plays, downloads, and listener geography for this track.
+                      </p>
+                      <Link
+                        to="/studio/insights/$kind/$id"
+                        params={{ kind: 'archive', id }}
+                        className="self-start"
+                      >
+                        <Button size="sm">Open track insights</Button>
+                      </Link>
                     </section>
                   ),
                 },

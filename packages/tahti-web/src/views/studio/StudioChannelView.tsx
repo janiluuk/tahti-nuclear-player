@@ -4,7 +4,6 @@ import {
   CheckCircle2Icon,
   GlobeIcon,
   PencilIcon,
-  PlusIcon,
   SearchIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -18,7 +17,6 @@ import {
   updateChannelSlug,
   verifyCustomDomain,
 } from '../../api/channel-design';
-import { provisionChannel } from '../../api/channel-provision';
 import {
   fetchMeProfile,
   fetchStatsPlays,
@@ -35,6 +33,7 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { useAuthStore } from '../../stores/authStore';
+import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
 
 type Tab = 'setup' | 'design' | 'radio' | 'profile' | 'domain';
 type RadioTab = 'stream' | 'rotation';
@@ -106,7 +105,7 @@ function ChannelOverallStats() {
 export function StudioChannelView() {
   const search = useSearch({ strict: false }) as { tab?: string };
   const user = useAuthStore((s) => s.user);
-  const refresh = useAuthStore((s) => s.refresh);
+  const openChannelSetup = useChannelSetupModalStore((s) => s.open);
   const channel = user?.channel;
   const [tab, setTab] = useState<Tab>(channel ? 'design' : 'setup');
   const [radioTab, setRadioTab] = useState<RadioTab>('stream');
@@ -123,8 +122,6 @@ export function StudioChannelView() {
   const [domain, setDomain] = useState('');
   const [domainInfo, setDomainInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [setupBusy, setSetupBusy] = useState(false);
-  const [setupError, setSetupError] = useState<string | null>(null);
 
   useEffect(() => {
     void fetchMeProfile().then((r) => {
@@ -140,10 +137,12 @@ export function StudioChannelView() {
   }, [channel?.slug]);
 
   useEffect(() => {
-    if (isTab(search.tab)) {
+    if (isTab(search.tab) && (search.tab !== 'setup' || !channel)) {
       setTab(search.tab);
     } else if (!channel) {
       setTab('setup');
+    } else {
+      setTab('design');
     }
   }, [channel, search.tab]);
 
@@ -195,7 +194,8 @@ export function StudioChannelView() {
         >
           {(
             [
-              { id: 'setup' as const, label: 'Setup' },
+              ...(!channel ? [{ id: 'setup' as const, label: 'Setup' }] : []),
+
               { id: 'design' as const, label: 'Design' },
               { id: 'radio' as const, label: '24/7 radio' },
               { id: 'profile' as const, label: 'Profile' },
@@ -238,34 +238,8 @@ export function StudioChannelView() {
                   Create {user?.username ?? 'your-name'}.tahti.live to unlock
                   broadcasting, uploads, and the public channel designer.
                 </p>
-                {setupError ? (
-                  <p className="text-accent-red text-sm" role="alert">
-                    {setupError}
-                  </p>
-                ) : null}
-                <Button
-                  disabled={setupBusy || !user}
-                  onClick={() => {
-                    setSetupBusy(true);
-                    setSetupError(null);
-                    void provisionChannel().then(async (result) => {
-                      setSetupBusy(false);
-                      if (!result.ok) {
-                        setSetupError(result.error);
-                        return;
-                      }
-                      await refresh();
-                      setTab('design');
-                      toast.success('Channel created.');
-                    });
-                  }}
-                >
-                  {!setupBusy && (
-                    <PlusIcon size={14} aria-hidden className="mr-1.5" />
-                  )}
-                  {setupBusy
-                    ? 'Creating…'
-                    : `Create ${user?.username ?? 'your-name'}.tahti.live`}
+                <Button disabled={!user} onClick={openChannelSetup}>
+                  Create {user?.username ?? 'your-name'}.tahti.live
                 </Button>
               </div>
             )}

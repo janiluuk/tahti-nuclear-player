@@ -1,10 +1,12 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeftIcon, CalendarPlusIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button, Input, Textarea } from '@nuclearplayer/ui';
 
+import { fetchVenues } from '../../api/client';
 import { createEvent } from '../../api/events';
+import type { VenueDirectoryItem } from '../../api/types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -19,6 +21,11 @@ export function StudioEventCreateView() {
   const [startAt, setStartAt] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [venues, setVenues] = useState<VenueDirectoryItem[]>([]);
+
+  useEffect(() => {
+    void fetchVenues().then((result) => setVenues(result.data));
+  }, []);
 
   const canSubmit = Boolean(
     title.trim() && place.trim() && location.trim() && startAt,
@@ -46,6 +53,46 @@ export function StudioEventCreateView() {
                 onChange={(event) => setPlace(event.target.value)}
                 placeholder="Northern Lights Hall"
               />
+              <div className="flex flex-col gap-1">
+                <label
+                  className="text-foreground-secondary text-xs uppercase"
+                  htmlFor="event-venue"
+                >
+                  Venue from directory
+                </label>
+                <select
+                  id="event-venue"
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                  defaultValue=""
+                  onChange={(event) => {
+                    const venue = venues.find(
+                      (candidate) => candidate.slug === event.target.value,
+                    );
+                    if (venue) {
+                      setPlace(venue.name);
+                      setLocation(
+                        [venue.city, venue.countryCode]
+                          .filter(Boolean)
+                          .join(', '),
+                      );
+                    }
+                  }}
+                >
+                  <option value="">Choose a venue or enter one below</option>
+                  {venues.map((venue) => (
+                    <option key={venue.slug} value={venue.slug}>
+                      {venue.name}
+                      {venue.city ? ` · ${venue.city}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <Link
+                  to="/venues/register"
+                  className="text-primary text-xs hover:underline"
+                >
+                  Register a new venue
+                </Link>
+              </div>
               <Input
                 label="Location"
                 value={location}
@@ -53,10 +100,10 @@ export function StudioEventCreateView() {
                 placeholder="Helsinki, Finland"
               />
               <Input
-                label="Event URL (optional)"
+                label="Tickets / event link (optional)"
                 value={eventUrl}
                 onChange={(event) => setEventUrl(event.target.value)}
-                placeholder="https://…"
+                placeholder="https://tickets.example/event"
               />
             </div>
             <label className="flex flex-col gap-1 text-sm">

@@ -3,14 +3,26 @@ import {
   CalendarDaysIcon,
   Clock3Icon,
   MapPinIcon,
+  PlusIcon,
   RadioIcon,
   Settings2Icon,
   XIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Input, SaveButton } from '@nuclearplayer/ui';
+import { Button, Dialog, SaveButton } from '@nuclearplayer/ui';
 
+import {
+  cancelScheduledShow,
+  createShowSeries,
+  fetchShowSchedule,
+  fetchShowSeries,
+  scheduleShowEpisode,
+  updateShowSeriesRecurrence,
+  type ScheduledShow,
+  type ShowType,
+  type StudioShowSeries,
+} from '../../api/shows';
 import {
   fetchChannelSchedule,
   fetchUpcomingBroadcasts,
@@ -18,6 +30,10 @@ import {
   type ChannelSchedule,
   type UpcomingBroadcast,
 } from '../../api/studio-extras';
+import {
+  BroadcastDetailsFields,
+  type BroadcastDetailsValues,
+} from '../../components/BroadcastDetailsFields';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -25,6 +41,8 @@ import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 const DEFAULT_BROADCAST_HOUR = 20;
 const DAYS_PER_WEEK = 7;
+const FREQUENCY_DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 type LocalDateTime = {
   date: string;
@@ -155,29 +173,159 @@ export function StudioScheduleView() {
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [shows, setShows] = useState<StudioShowSeries[]>([]);
+  const [scheduledShows, setScheduledShows] = useState<ScheduledShow[]>([]);
+  const [selectedShowId, setSelectedShowId] = useState('');
+  const [showDescription, setShowDescription] = useState('');
+  const [showCoverUrl, setShowCoverUrl] = useState('');
+  const [showMode, setShowMode] = useState<'SINGLE' | 'SERIES'>('SERIES');
+  const [showType, setShowType] = useState<ShowType>('LIVE_SET');
+  const [durationHours, setDurationHours] = useState<1 | 2>(1);
+  const [frequencyDays, setFrequencyDays] = useState<number[]>([]);
+  const [venue, setVenue] = useState('');
+  const [location, setLocation] = useState('');
+  const [episodeArtworkUrl, setEpisodeArtworkUrl] = useState('');
 
   useEffect(() => {
-    void Promise.all([fetchChannelSchedule(), fetchUpcomingBroadcasts()]).then(
-      ([scheduleResult, upcomingResult]) => {
-        const local = toLocalParts(scheduleResult.data.nextBroadcastAt);
-        setSchedule(scheduleResult.data);
-        setDate(local.date);
-        setTime(local.time);
-        setNote(scheduleResult.data.nextBroadcastNote ?? '');
-        setUpcoming(upcomingResult.data);
-        setLoading(false);
-      },
-    );
+    void Promise.all([
+      fetchChannelSchedule(),
+      fetchUpcomingBroadcasts(),
+      fetchShowSchedule(),
+    ]).then(([scheduleResult, upcomingResult, showScheduleResult]) => {
+      const local = toLocalParts(scheduleResult.data.nextBroadcastAt);
+      setSchedule(scheduleResult.data);
+      setDate(local.date);
+      setTime(local.time);
+      setNote(scheduleResult.data.nextBroadcastNote ?? '');
+      setShowType(scheduleResult.data.nextBroadcastShowType ?? 'LIVE_SET');
+      setShowMode(scheduleResult.data.nextBroadcastMode ?? 'SERIES');
+      setShowDescription(scheduleResult.data.nextBroadcastDescription ?? '');
+      setShowCoverUrl(scheduleResult.data.nextBroadcastCoverUrl ?? '');
+      setDurationHours(scheduleResult.data.nextBroadcastDurationHours ?? 1);
+      setUpcoming(upcomingResult.data);
+      setShows(showScheduleResult.data.series);
+      setScheduledShows(showScheduleResult.data.scheduledShows);
+      setLoading(false);
+    });
   }, []);
 
+  useEffect(() => {
+    if (editorOpen) {
+      void fetchShowSeries().then((result) => setShows(result.data));
+    }
+  }, [editorOpen]);
+
+  const selectShow = (showId: string) => {
+    setSelectedShowId(showId);
+    const show = shows.find((candidate) => candidate.id === showId);
+    if (!show) {
+      return;
+    }
+    setNote(show.title);
+    setShowDescription(show.description);
+    setShowCoverUrl(show.coverUrl ?? '');
+    setShowMode(show.mode ?? 'SERIES');
+    setShowType(show.showType);
+    setDurationHours(show.intervalHours);
+    setFrequencyDays(show.recurrenceDays ?? []);
+  };
+
+  const toggleFrequencyDay = (day: number) => {
+    setFrequencyDays((current) =>
+      current.includes(day)
+        ? current.filter((value) => value !== day)
+        : [...current, day],
+    );
+  };
+
+  const saveRecurringSchedule = async () => {
+    const selectedShow = shows.find((show) => show.id === selectedShowId);
+    if (!selectedShow || !date || !time || frequencyDays.length === 0) {
+      setMsg('Choose a show, date, time, and at least one weekday.');
+      return;
+    }
+    setBusy(true);
+    const recurrence = await updateShowSeriesRecurrence(selectedShow.id, {
+      recurrenceEnabled: true,
+      recurrenceDays: frequencyDays,
+      recurrenceTimeOfDay: time,
+      recurrenceDurationMin: durationHours * 60,
+      recurrenceTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
+    setBusy(false);
+    if (!recurrence.ok) {
+      setMsg(recurrence.error);
+      return;
+    }
+    setShows((current) =>
+      current.map((show) =>
+        show.id === recurrence.data.id ? recurrence.data : show,
+      ),
+    );
+    setMsg('Recurring schedule saved. Upcoming episodes are being generated.');
+  };
+
+  const scheduleEpisode = async () => {
+    if (!selectedShowId || !date || !time) {
+      setMsg('Choose a show, date, and time.');
+      return;
+    }
+    const startAt = fromLocalParts(date, time);
+    if (!startAt) {
+      setMsg('Choose a valid date and time.');
+      return;
+    }
+    setBusy(true);
+    const result = await scheduleShowEpisode(selectedShowId, {
+      startAt,
+      title: note.trim() || null,
+      venue: venue.trim() || null,
+      location: location.trim() || null,
+      artworkUrl: episodeArtworkUrl.trim() || null,
+    });
+    setBusy(false);
+    if (!result.ok) {
+      setMsg(result.error);
+      return;
+    }
+    setScheduledShows((current) =>
+      [...current, result.data].sort(
+        (left, right) =>
+          new Date(left.startAt).getTime() - new Date(right.startAt).getTime(),
+      ),
+    );
+    setMsg(`${result.data.title} scheduled.`);
+    setEditorOpen(false);
+  };
+
+  const cancelEpisode = async (id: string) => {
+    const result = await cancelScheduledShow(id);
+    if (!result.ok) {
+      setMsg(result.error);
+      return;
+    }
+    setScheduledShows((current) => current.filter((show) => show.id !== id));
+    setMsg('Scheduled show canceled.');
+  };
+
   const scheduledTimes = useMemo<ScheduleCard[]>(() => {
-    const rows: ScheduleCard[] = upcoming.map((item) => ({
+    const rows: ScheduleCard[] = scheduledShows.map((item) => ({
       id: item.id,
       startAt: item.startAt,
       title: item.title,
       location: item.venue ?? item.location,
       visibility: item.visibility,
     }));
+    rows.push(
+      ...upcoming.map((item) => ({
+        id: item.id,
+        startAt: item.startAt,
+        title: item.title,
+        location: item.venue ?? item.location,
+        visibility: item.visibility,
+      })),
+    );
     if (
       schedule?.nextBroadcastAt &&
       !rows.some(
@@ -196,7 +344,7 @@ export function StudioScheduleView() {
       (left, right) =>
         new Date(left.startAt).getTime() - new Date(right.startAt).getTime(),
     );
-  }, [schedule, upcoming]);
+  }, [schedule, upcoming, scheduledShows]);
 
   const setQuickDate = (value: Date) => {
     const local = toLocalParts(value.toISOString());
@@ -212,9 +360,32 @@ export function StudioScheduleView() {
     }
     setBusy(true);
     setMsg(null);
+    let selectedShow = shows.find((show) => show.id === selectedShowId);
+    if (!selectedShow) {
+      if (!note.trim()) {
+        setBusy(false);
+        setMsg('Enter a show name to create a new show.');
+        return;
+      }
+      const created = await createShowSeries({
+        title: note.trim(),
+        description: showDescription.trim(),
+        coverUrl: showCoverUrl.trim() || null,
+        mode: showMode,
+        showType,
+        intervalHours: durationHours,
+      });
+      if (!created.ok) {
+        setBusy(false);
+        setMsg(created.error);
+        return;
+      }
+      selectedShow = created.data;
+      setShows((current) => [created.data, ...current]);
+    }
     const result = await patchChannelSchedule({
       nextBroadcastAt,
-      nextBroadcastNote: note.trim() || null,
+      nextBroadcastNote: selectedShow.title,
     });
     setBusy(false);
     if (!result.ok) {
@@ -223,6 +394,8 @@ export function StudioScheduleView() {
     }
     setSchedule(result.data);
     setMsg('Next broadcast saved.');
+    setSelectedShowId(selectedShow.id);
+    setEditorOpen(false);
   };
 
   const tomorrow = new Date(Date.now() + MILLISECONDS_PER_DAY);
@@ -236,9 +409,65 @@ export function StudioScheduleView() {
         <StudioPageHeader
           title="Schedule"
           subtitle="Plan your next broadcasts. Times use your local timezone."
+          action={
+            <Button
+              size="icon-sm"
+              aria-label="Add next broadcast"
+              title="Add next broadcast"
+              onClick={() => setEditorOpen(true)}
+            >
+              <PlusIcon size={16} aria-hidden />
+            </Button>
+          }
         />
 
         <ScheduledTimes items={scheduledTimes} />
+
+        {scheduledShows.length > 0 ? (
+          <StudioPanel
+            title="Scheduled show episodes"
+            description="One-off and recurring episodes generated from your shows."
+          >
+            <ul className="divide-border divide-y">
+              {scheduledShows.map((show) => (
+                <li
+                  key={show.id}
+                  className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    {show.artworkUrl ? (
+                      <img
+                        src={show.artworkUrl}
+                        alt=""
+                        className="size-10 rounded-md object-cover"
+                      />
+                    ) : null}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">
+                        {show.title}
+                        {show.episodeNumber != null
+                          ? ` · Episode ${show.episodeNumber}`
+                          : ''}
+                      </p>
+                      <p className="text-foreground-secondary text-xs">
+                        {formatDate(show.startAt)} at {formatTime(show.startAt)}
+                        {show.venue ? ` · ${show.venue}` : ''}
+                        {show.location ? `, ${show.location}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="text"
+                    onClick={() => void cancelEpisode(show.id)}
+                  >
+                    Cancel
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </StudioPanel>
+        ) : null}
 
         {msg && (
           <p className="text-foreground-secondary text-sm" role="status">
@@ -246,11 +475,17 @@ export function StudioScheduleView() {
           </p>
         )}
 
-        <StudioPanel
-          title="Next planned broadcast"
-          description="This is shown on your public channel so listeners know when to return."
+        <Dialog.Root
+          isOpen={editorOpen}
+          onClose={() => setEditorOpen(false)}
+          className="max-w-2xl"
         >
-          <div className="flex flex-col gap-5">
+          <Dialog.Title>Next planned broadcast</Dialog.Title>
+          <Dialog.Description>
+            This is shown on your public channel so listeners know when to
+            return.
+          </Dialog.Description>
+          <div className="mt-4 flex flex-col gap-5">
             <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_11rem]">
               <label className="flex flex-col gap-1.5 text-sm">
                 <span className="text-foreground-secondary inline-flex items-center gap-1.5 text-xs uppercase">
@@ -313,12 +548,120 @@ export function StudioScheduleView() {
               )}
             </div>
 
-            <Input
-              label="Broadcast title or note"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              placeholder="e.g. Friday deep set"
+            <BroadcastDetailsFields
+              values={
+                {
+                  title: note,
+                  description: showDescription,
+                  coverUrl: showCoverUrl,
+                  mode: showMode,
+                  showType,
+                  durationHours,
+                } satisfies BroadcastDetailsValues
+              }
+              shows={shows}
+              selectedShowId={selectedShowId}
+              episodeNumber={
+                shows.find((show) => show.id === selectedShowId)
+                  ?.nextEpisodeNumber ?? 1
+              }
+              onShowChange={selectShow}
+              onChange={(values) => {
+                setNote(values.title);
+                setShowDescription(values.description);
+                setShowCoverUrl(values.coverUrl);
+                setShowMode(values.mode);
+                setShowType(values.showType);
+                setDurationHours(values.durationHours);
+              }}
             />
+
+            <div className="border-border flex flex-col gap-2 border-t pt-3">
+              <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                Weekly recurrence
+              </span>
+              <div className="flex flex-wrap gap-1">
+                {FREQUENCY_DAY_ORDER.map((day) => (
+                  <Button
+                    key={day}
+                    type="button"
+                    size="sm"
+                    variant={frequencyDays.includes(day) ? undefined : 'text'}
+                    aria-pressed={frequencyDays.includes(day)}
+                    onClick={() => toggleFrequencyDay(day)}
+                  >
+                    Every {WEEKDAY_LABELS[day]}
+                  </Button>
+                ))}
+              </div>
+              <p className="text-foreground-secondary text-xs">
+                Select days to generate episodes automatically; leave empty for
+                a one-off show.
+              </p>
+              <Button
+                size="sm"
+                variant="text"
+                disabled={
+                  busy ||
+                  !selectedShowId ||
+                  !date ||
+                  !time ||
+                  frequencyDays.length === 0
+                }
+                onClick={() => void saveRecurringSchedule()}
+              >
+                Save weekly schedule
+              </Button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label
+                  className="text-foreground-secondary text-xs uppercase"
+                  htmlFor="schedule-venue"
+                >
+                  Venue
+                </label>
+                <input
+                  id="schedule-venue"
+                  value={venue}
+                  onChange={(event) => setVenue(event.target.value)}
+                  placeholder="Optional venue"
+                  className="border-border bg-background mt-1 h-10 w-full rounded-md border px-3 text-sm"
+                />
+              </div>
+              <div>
+                <label
+                  className="text-foreground-secondary text-xs uppercase"
+                  htmlFor="schedule-location"
+                >
+                  Location
+                </label>
+                <input
+                  id="schedule-location"
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                  placeholder="City, country, or online"
+                  className="border-border bg-background mt-1 h-10 w-full rounded-md border px-3 text-sm"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label
+                  className="text-foreground-secondary text-xs uppercase"
+                  htmlFor="schedule-episode-artwork"
+                >
+                  Episode artwork URL
+                </label>
+                <input
+                  id="schedule-episode-artwork"
+                  type="url"
+                  value={episodeArtworkUrl}
+                  onChange={(event) => setEpisodeArtworkUrl(event.target.value)}
+                  placeholder="Leave blank to use show artwork"
+                  className="border-border bg-background mt-1 h-10 w-full rounded-md border px-3 text-sm"
+                />
+              </div>
+            </div>
 
             <div className="border-border flex flex-wrap items-center justify-between gap-3 border-t pt-4">
               <p className="text-foreground-secondary text-xs">
@@ -326,15 +669,28 @@ export function StudioScheduleView() {
                   ? `${formatDate(fromLocalParts(date, time)!)} at ${formatTime(fromLocalParts(date, time)!)}`
                   : 'No next broadcast selected'}
               </p>
-              <SaveButton
-                disabled={loading}
-                saving={busy}
-                label="Save broadcast"
-                onClick={() => void saveSchedule()}
-              />
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={busy || !selectedShowId || !date || !time}
+                  onClick={() => void scheduleEpisode()}
+                >
+                  Schedule episode
+                </Button>
+                <SaveButton
+                  disabled={loading || !date || !time}
+                  saving={busy}
+                  label="Save next broadcast"
+                  onClick={() => void saveSchedule()}
+                />
+              </div>
             </div>
           </div>
-        </StudioPanel>
+          <Dialog.Actions>
+            <Dialog.Close>Cancel</Dialog.Close>
+          </Dialog.Actions>
+        </Dialog.Root>
 
         <StudioPanel
           title="Offline programme"

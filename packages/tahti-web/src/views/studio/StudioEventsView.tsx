@@ -67,7 +67,7 @@ export function StudioEventsView() {
                     rel="noreferrer"
                     className="text-primary text-xs hover:underline"
                   >
-                    {event.eventUrl}
+                    Tickets / event link
                   </a>
                 )}
               </div>

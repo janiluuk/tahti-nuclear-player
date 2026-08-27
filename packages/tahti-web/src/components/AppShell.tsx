@@ -39,6 +39,7 @@ import { hasSeenOnboarding } from '../views/OnboardingView';
 import { AppTopNav } from './AppTopNav';
 import { AudioEngine } from './AudioEngine';
 import { AuthDialog } from './AuthDialog';
+import { ChannelSetupDialog } from './ChannelSetupDialog';
 import { ConnectedPlayerBar } from './ConnectedPlayerBar';
 import { ConnectedSettingsModal } from './ConnectedSettingsModal';
 import { FullScreenPlayer } from './FullScreenPlayer';
@@ -400,6 +401,7 @@ export function AppShell() {
       <ConnectedPlayerBar />
       <FullScreenPlayer />
       <AuthDialog />
+      <ChannelSetupDialog />
       <ConnectedSettingsModal />
       <PageTourSpotlight />
       <Toaster position="bottom-right" richColors />

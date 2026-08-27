@@ -74,6 +74,7 @@ import { StudioReleaseDetailView } from './views/studio/StudioReleaseDetailView'
 import { StudioReleasesView } from './views/studio/StudioReleasesView';
 import { StudioRevenueView } from './views/studio/StudioRevenueView';
 import { StudioScheduleView } from './views/studio/StudioScheduleView';
+import { StudioSetupChannelRedirect } from './views/studio/StudioSetupChannelRedirect';
 import {
   StudioEpisodeReviewView,
   StudioShowDetailView,
@@ -989,9 +990,7 @@ const studioStatsDetailRoute = createRoute({
 const studioSetupChannelRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/setup-channel',
-  beforeLoad: () => {
-    throw redirect({ to: '/studio/channel', search: { tab: 'setup' } });
-  },
+  component: StudioSetupChannelRedirect,
 });
 
 const studioChannelRoute = createRoute({

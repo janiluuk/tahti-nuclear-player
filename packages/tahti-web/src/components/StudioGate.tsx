@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import { LayoutDashboard, Lock } from 'lucide-react';
 import type { ReactNode } from 'react';
 
@@ -6,6 +5,7 @@ import { Button, EmptyState } from '@nuclearplayer/ui';
 
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
+import { useChannelSetupModalStore } from '../stores/channelSetupModalStore';
 import { PageLoading } from './PageStates';
 
 type Props = {
@@ -18,6 +18,7 @@ export function StudioGate({ children, requireChannel = true }: Props) {
   const user = useAuthStore((s) => s.user);
   const hydrated = useAuthStore((s) => s.hydrated);
   const openAuth = useAuthModalStore((s) => s.open);
+  const openChannelSetup = useChannelSetupModalStore((s) => s.open);
 
   if (!hydrated) {
     return <PageLoading label="Loading session…" />;
@@ -42,14 +43,9 @@ export function StudioGate({ children, requireChannel = true }: Props) {
         description={`Signed in as @${user.username}, but this account has no channel yet.`}
         action={
           <div className="flex flex-wrap justify-center gap-2">
-            <Link to="/studio/channel" search={{ tab: 'setup' }}>
-              <Button size="sm">Create channel</Button>
-            </Link>
-            <Link to="/studio">
-              <Button size="sm" variant="secondary">
-                Studio overview
-              </Button>
-            </Link>
+            <Button size="sm" onClick={openChannelSetup}>
+              Create channel
+            </Button>
           </div>
         }
       />

@@ -36,6 +36,7 @@ import {
   type StationFilter,
 } from '../lib/radioSchedule';
 import { useAuthStore } from '../stores/authStore';
+import { useChannelSetupModalStore } from '../stores/channelSetupModalStore';
 
 function formatHour(hour: number): string {
   return `${String(hour).padStart(2, '0')}:00`;
@@ -49,6 +50,7 @@ function bookingTitle(booking: StudioShowBooking): string {
 
 export function RadioScheduleView() {
   const user = useAuthStore((s) => s.user);
+  const openChannelSetup = useChannelSetupModalStore((s) => s.open);
   const ownChannelSlug = user?.channel?.slug ?? null;
 
   const [station, setStation] = useState<StationFilter>('radio');
@@ -458,12 +460,13 @@ export function RadioScheduleView() {
         </p>
       ) : !ownChannelSlug ? (
         <p className="text-foreground-secondary text-sm">
-          <Link
-            to="/studio/setup-channel"
+          <button
+            type="button"
+            onClick={openChannelSetup}
             className="text-foreground underline-offset-2 hover:underline"
           >
             Set up a channel
-          </Link>{' '}
+          </button>{' '}
           to book a slot on Tahti Radio.
         </p>
       ) : (

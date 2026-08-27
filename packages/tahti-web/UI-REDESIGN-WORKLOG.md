@@ -930,3 +930,19 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Sidebar coverage:** Added representative Studio Manage and Admin Moderation SectionSidebar stories, including active and inactive sibling items and route context. These preserve the six-section Studio navigation and the fixed left-menu pattern in the design-system reference.
 
 **Status:** implemented; tahti-web type-check, lint, targeted Storybook ESLint, and diff checks pass. The Storybook package-wide type-check remains blocked by existing unrelated story prop errors and missing Vite/test globals; no errors came from the changed stories. Changes remain uncommitted.
+
+### 2026-08-28 — Artist/admin parity and library privacy slices
+
+**Goal:** Continue the unfinished parity work in five focused slices and audit the production admin information architecture.
+
+**Slice 1:** Events now expose a clear tickets/event link field, can select an existing venue from the directory, and link to venue registration for a new venue.
+
+**Slice 2:** The listener feed is hidden from the Listen page when signed out.
+
+**Slice 3:** Stash can move owned tracks and collections from the library into private visibility; track settings now has a direct Stash action. Private items are excluded from public listings by the existing visibility contract.
+
+**Slice 4:** Playlists are restored as a Library submenu entry and Audience replaces Fanbase, with fan tiers separated into an Audience → Tiers view.
+
+**Slice 5:** Track insights are available as a track-local tab, while the standalone Studio Insights navigation entry is removed. Production admin audit found missed shows, support, announcements, governance, grants, AGM, and aggregate stream monitoring represented in beta; remaining parity work is channel-scoped stream/programme management and richer per-channel admin drill-down from `../tahti`.
+
+**Status:** implementation in progress; validation, commit, push, and beta deployment follow.

@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react';
 
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
+import { useAuthStore } from '../stores/authStore';
 import { SectionSidebar } from './SectionSidebar';
 
 const PRIMARY = [
@@ -65,13 +66,8 @@ const SUBMENUS = {
       icon: <TrendingUpIcon size={16} />,
     },
     {
-      to: '/studio/insights',
-      label: 'Insights',
-      icon: <TrendingUpIcon size={16} />,
-    },
-    {
       to: '/studio/revenue',
-      label: 'Fanbase',
+      label: 'Audience',
       icon: <HeartIcon size={16} />,
     },
   ],
@@ -90,6 +86,11 @@ const SUBMENUS = {
     {
       to: '/studio/collections',
       label: 'Collections',
+      icon: <ListMusicIcon size={16} />,
+    },
+    {
+      to: '/studio/playlists',
+      label: 'Playlists',
       icon: <ListMusicIcon size={16} />,
     },
     {
@@ -173,7 +174,6 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/stats',
     '/studio/updates',
     '/studio/distribution',
-    '/studio/insights',
     '/studio/revenue',
   ],
   '/library': [
@@ -181,6 +181,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/archive',
     '/studio/releases',
     '/studio/collections',
+    '/studio/playlists',
     '/studio/recordings',
     '/studio/upload',
     '/studio/editor',
@@ -226,6 +227,7 @@ const isSubmenuActive = (current: string | undefined, to: string) =>
       : current === to || current?.startsWith(`${to}/`) === true) ||
   (to === '/studio/releases' && current === '/library/releases') ||
   (to === '/studio/collections' && current === '/library/collections') ||
+  (to === '/studio/playlists' && current === '/library/playlists') ||
   (to === '/studio/recordings' && current === '/library/recordings') ||
   (to === '/library/favorites' && current === '/library/favorites') ||
   (to === '/library/history' && current === '/library/history');
@@ -236,6 +238,7 @@ export const StudioNav = ({ current }: { current?: string }) => (
 
 function StudioNavigation({ current }: { current?: string }) {
   const navigate = useNavigate();
+  const hasChannel = useAuthStore((state) => Boolean(state.user?.channel));
   const routeSection = PRIMARY.find((item) => isActive(current, item.to));
   const [selectedSection, setSelectedSection] = useState(
     routeSection?.to ?? '/studio',
@@ -247,7 +250,9 @@ function StudioNavigation({ current }: { current?: string }) {
     }
   }, [routeSection]);
 
-  const submenu = SUBMENUS[selectedSection as keyof typeof SUBMENUS] ?? [];
+  const submenu = (
+    SUBMENUS[selectedSection as keyof typeof SUBMENUS] ?? []
+  ).filter((item) => item.to !== '/studio/setup-channel' || !hasChannel);
 
   return (
     <>

@@ -18,6 +18,13 @@ import {
   uploadStashFile,
   type StashFile,
 } from '../api/sources';
+import {
+  fetchStudioArchive,
+  fetchStudioCollections,
+  patchStudioArchiveItem,
+  patchStudioCollection,
+} from '../api/studio';
+import type { StudioArchiveItem, StudioCollection } from '../api/studio-types';
 import { usePlayerStore } from '../stores/playerStore';
 import { StudioPanel } from './StudioPanel';
 
@@ -50,6 +57,8 @@ export const StashFilesPanel = () => {
   const [granteeUsername, setGranteeUsername] = useState('');
   const [permission, setPermission] = useState<'READ' | 'DOWNLOAD'>('DOWNLOAD');
   const [expiryDays, setExpiryDays] = useState(7);
+  const [archiveItems, setArchiveItems] = useState<StudioArchiveItem[]>([]);
+  const [collections, setCollections] = useState<StudioCollection[]>([]);
 
   const reload = () =>
     fetchStashFiles().then((result) => {
@@ -58,7 +67,47 @@ export const StashFilesPanel = () => {
 
   useEffect(() => {
     void reload();
+    void Promise.all([fetchStudioArchive(), fetchStudioCollections()]).then(
+      ([archive, collectionResult]) => {
+        setArchiveItems(archive.data);
+        setCollections(collectionResult.data);
+      },
+    );
   }, []);
+
+  const moveTrackToStash = async (item: StudioArchiveItem) => {
+    setBusy(true);
+    const result = await patchStudioArchiveItem(item.id, {
+      visibility: 'PRIVATE',
+      isPublic: false,
+    });
+    setBusy(false);
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setArchiveItems((current) =>
+      current.filter((candidate) => candidate.id !== item.id),
+    );
+    setMessage(`${item.title} moved to your private stash.`);
+  };
+
+  const moveCollectionToStash = async (collection: StudioCollection) => {
+    setBusy(true);
+    const result = await patchStudioCollection(collection.slug, {
+      visibility: 'PRIVATE',
+      isPublic: false,
+    });
+    setBusy(false);
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setCollections((current) =>
+      current.filter((candidate) => candidate.slug !== collection.slug),
+    );
+    setMessage(`${collection.name} moved to your private stash.`);
+  };
 
   const createShare = async (file: StashFile) => {
     setBusy(true);
@@ -163,6 +212,64 @@ export const StashFilesPanel = () => {
           {message}
         </p>
       ) : null}
+
+      <StudioPanel
+        title="Add from your library"
+        description="Move tracks and collections into your private stash. Private items are removed from public listings."
+      >
+        {archiveItems.length === 0 && collections.length === 0 ? (
+          <p className="text-foreground-secondary text-sm">
+            Everything in your library is already private or there is nothing to
+            move.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {archiveItems
+              .filter(
+                (item) =>
+                  item.visibility !== 'PRIVATE' && item.isPublic !== false,
+              )
+              .map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between gap-2 text-sm"
+                >
+                  <span className="min-w-0 truncate">{item.title}</span>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() => void moveTrackToStash(item)}
+                  >
+                    Move track
+                  </Button>
+                </div>
+              ))}
+            {collections
+              .filter(
+                (collection) =>
+                  collection.visibility !== 'PRIVATE' &&
+                  collection.isPublic !== false,
+              )
+              .map((collection) => (
+                <div
+                  key={collection.slug}
+                  className="flex items-center justify-between gap-2 text-sm"
+                >
+                  <span className="min-w-0 truncate">{collection.name}</span>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() => void moveCollectionToStash(collection)}
+                  >
+                    Move collection
+                  </Button>
+                </div>
+              ))}
+          </div>
+        )}
+      </StudioPanel>
 
       <StudioPanel>
         {files.length === 0 ? (

@@ -29,6 +29,7 @@ import { StudioNav } from '../../components/StudioNav';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { timeOfDayGreeting } from '../../lib/greeting';
 import { useAuthStore } from '../../stores/authStore';
+import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
 
 type Counts = { archive: number; collections: number; releases: number };
 
@@ -159,6 +160,7 @@ const SummaryStat: FC<SummaryStatProps> = ({
 
 export function StudioHomeView() {
   const user = useAuthStore((s) => s.user);
+  const openChannelSetup = useChannelSetupModalStore((s) => s.open);
   const [counts, setCounts] = useState<Counts>({
     archive: 0,
     collections: 0,
@@ -216,13 +218,13 @@ export function StudioHomeView() {
               </p>
             ) : (
               <p className="text-foreground-secondary mt-1 text-sm">
-                <Link
-                  to="/studio/channel"
-                  search={{ tab: 'setup' }}
+                <button
+                  type="button"
+                  onClick={openChannelSetup}
                   className="text-foreground underline-offset-2 hover:underline"
                 >
                   Create your channel
-                </Link>{' '}
+                </button>{' '}
                 to unlock Music and Go Live.
               </p>
             )}

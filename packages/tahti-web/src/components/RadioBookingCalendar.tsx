@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog } from '@nuclearplayer/ui';
 
 import {
   createEpisode,
@@ -15,12 +15,15 @@ import {
   createShowSeries,
   fetchShowBookings,
   fetchShowSeries,
-  SHOW_SLOT_MAX_HOURS,
   type ShowType,
   type StudioShowBooking,
   type StudioShowSeries,
 } from '../api/shows';
 import { useAuthStore } from '../stores/authStore';
+import {
+  BroadcastDetailsFields,
+  type BroadcastDetailsValues,
+} from './BroadcastDetailsFields';
 import { PageLoading } from './PageStates';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -395,29 +398,6 @@ export function RadioBookingCalendar({
           </p>
         ) : (
           <div className="bg-background-secondary flex flex-col gap-3 rounded-lg p-3">
-            {shows.length > 0 ? (
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Prepared show
-                </span>
-                <select
-                  value={selectedShowId}
-                  onChange={(event) => selectShow(event.target.value)}
-                  className="border-border bg-background rounded-md border px-3 py-2"
-                >
-                  <option value="">Create a new show</option>
-                  {shows.map((show) => (
-                    <option key={show.id} value={show.id}>
-                      {show.title}
-                    </option>
-                  ))}
-                </select>
-                <span className="text-foreground-secondary text-xs">
-                  Existing show details fill in below and prepare the next
-                  episode automatically.
-                </span>
-              </label>
-            ) : null}
             <div className="flex flex-wrap items-end gap-3">
               <label className="flex flex-col gap-1 text-sm">
                 <span className="text-foreground-secondary text-xs uppercase">
@@ -430,111 +410,34 @@ export function RadioBookingCalendar({
                   className="border-border bg-background rounded-md border px-3 py-2"
                 />
               </label>
-              <div
-                className="border-border flex gap-1 rounded-lg border p-1"
-                role="group"
-                aria-label="Duration"
-              >
-                {Array.from(
-                  { length: SHOW_SLOT_MAX_HOURS },
-                  (_, i) => (i + 1) as 1 | 2,
-                ).map((h) => (
-                  <button
-                    key={h}
-                    type="button"
-                    onClick={() => setDurationHours(h)}
-                    aria-pressed={durationHours === h}
-                    className={`rounded-md px-3 py-1.5 text-xs font-semibold tracking-wide uppercase ${
-                      durationHours === h
-                        ? 'bg-primary text-foreground'
-                        : 'text-foreground-secondary hover:text-foreground'
-                    }`}
-                  >
-                    {h}h
-                  </button>
-                ))}
-              </div>
-              <div
-                className="border-border flex gap-1 rounded-lg border p-1"
-                role="group"
-                aria-label="Show type"
-              >
-                {(
-                  [
-                    ['LIVE_SET', 'Live set', MicIcon] as const,
-                    ['TALK', 'Talk', MessageCircleIcon] as const,
-                  ] as const
-                ).map(([type, label, Icon]) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setShowType(type)}
-                    aria-pressed={showType === type}
-                    className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold tracking-wide uppercase ${
-                      showType === type
-                        ? 'bg-primary text-foreground'
-                        : 'text-foreground-secondary hover:text-foreground'
-                    }`}
-                  >
-                    <Icon size={13} aria-hidden />
-                    {label}
-                  </button>
-                ))}
-              </div>
             </div>
-            <Input
-              label="Show name"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="New show name or episode title"
+            <BroadcastDetailsFields
+              values={
+                {
+                  title: note,
+                  description: showDescription,
+                  coverUrl: showCoverUrl,
+                  mode: newShowMode,
+                  showType,
+                  durationHours,
+                } satisfies BroadcastDetailsValues
+              }
+              shows={shows}
+              selectedShowId={selectedShowId}
+              episodeNumber={
+                shows.find((show) => show.id === selectedShowId)
+                  ?.nextEpisodeNumber ?? 1
+              }
+              onShowChange={selectShow}
+              onChange={(values) => {
+                setNote(values.title);
+                setShowDescription(values.description);
+                setShowCoverUrl(values.coverUrl);
+                setNewShowMode(values.mode);
+                setShowType(values.showType);
+                setDurationHours(values.durationHours);
+              }}
             />
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="text-foreground-secondary text-xs uppercase">
-                Show description
-              </span>
-              <textarea
-                value={showDescription}
-                onChange={(event) => setShowDescription(event.target.value)}
-                rows={2}
-                className="border-border bg-background rounded-md border px-3 py-2"
-                placeholder="What listeners can expect"
-              />
-            </label>
-            <Input
-              label="Cover image URL"
-              value={showCoverUrl}
-              onChange={(event) => setShowCoverUrl(event.target.value)}
-              placeholder="https://…"
-            />
-            {showCoverUrl && (
-              <img
-                src={showCoverUrl}
-                alt="Show cover preview"
-                className="h-20 w-20 rounded-md object-cover"
-              />
-            )}
-            <div className="flex flex-wrap gap-2">
-              {(['SERIES', 'SINGLE'] as const).map((mode) => (
-                <Button
-                  key={mode}
-                  type="button"
-                  size="sm"
-                  variant={newShowMode === mode ? undefined : 'text'}
-                  onClick={() => setNewShowMode(mode)}
-                >
-                  {mode === 'SERIES' ? 'Recurring series' : 'Single show'}
-                </Button>
-              ))}
-              {newShowMode === 'SERIES' && (
-                <span className="text-foreground-secondary self-center text-xs">
-                  Episode #
-                  {selectedShowId
-                    ? (shows.find((show) => show.id === selectedShowId)
-                        ?.nextEpisodeNumber ?? 1)
-                    : 1}
-                </span>
-              )}
-            </div>
             <Button size="sm" disabled={busy} onClick={() => void book()}>
               {busy ? 'Booking…' : `Book ${durationHours}h slot`}
             </Button>
