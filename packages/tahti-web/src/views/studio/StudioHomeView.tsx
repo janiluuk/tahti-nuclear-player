@@ -1,23 +1,14 @@
 import { Link } from '@tanstack/react-router';
 import {
   BarChart3Icon,
-  CalendarDaysIcon,
   CalendarIcon,
-  ChevronDownIcon,
   DiscAlbumIcon,
-  DiscIcon,
-  FolderLockIcon,
-  Globe2Icon,
-  LayoutGridIcon,
   LayoutTemplateIcon,
   LibraryBigIcon,
   MicIcon,
   NewspaperIcon,
-  PlugIcon,
   RadioIcon,
   RocketIcon,
-  ScissorsIcon,
-  ShieldCheckIcon,
   UploadCloudIcon,
   UsersIcon,
   WalletIcon,
@@ -174,7 +165,6 @@ export function StudioHomeView() {
     releases: 0,
   });
   const [stats, setStats] = useState<StatsSummary>(EMPTY_STATS);
-  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     if (!user?.channel) {
@@ -289,7 +279,6 @@ export function StudioHomeView() {
                 />
               </div>
             </Group>
-
             <Group title="Music">
               <CardGrid>
                 <StudioActionTile
@@ -341,7 +330,6 @@ export function StudioHomeView() {
                 />
               </CardGrid>
             </Group>
-
             <Group title="Audience & channel">
               <CardGrid>
                 <StudioActionTile
@@ -374,82 +362,6 @@ export function StudioHomeView() {
                 />
               </CardGrid>
             </Group>
-
-            <div>
-              <button
-                type="button"
-                className="border-border bg-background-secondary/40 hover:bg-background-secondary flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs font-semibold tracking-wide uppercase transition-colors"
-                onClick={() => setShowMore((v) => !v)}
-                aria-expanded={showMore}
-              >
-                <LayoutGridIcon
-                  size={15}
-                  aria-hidden
-                  className="text-primary"
-                />
-                <span className="flex-1">More studio tools</span>
-                <ChevronDownIcon
-                  size={15}
-                  aria-hidden
-                  className={`transition-transform ${showMore ? 'rotate-180' : ''}`}
-                />
-              </button>
-              {showMore && (
-                <div className="mt-3">
-                  <CardGrid>
-                    <StudioActionTile
-                      to="/studio/editor"
-                      icon={ScissorsIcon}
-                      label="Editor"
-                      subtitle="Trim & process"
-                      color="var(--accent-orange)"
-                    />
-                    <StudioActionTile
-                      to="/studio/stash"
-                      icon={FolderLockIcon}
-                      label="Stash"
-                      subtitle="Private files"
-                      color="var(--accent-yellow)"
-                    />
-                    <StudioActionTile
-                      to="/sources"
-                      icon={PlugIcon}
-                      label="Sources"
-                      subtitle="Import services"
-                      color="var(--accent-red)"
-                    />
-                    <StudioActionTile
-                      to="/studio/recordings"
-                      icon={DiscIcon}
-                      label="Recordings"
-                      subtitle="Past broadcasts"
-                      color="var(--accent-blue)"
-                    />
-                    <StudioActionTile
-                      to="/studio/distribution"
-                      icon={Globe2Icon}
-                      label="Distribution"
-                      subtitle="DSP delivery"
-                      color="var(--accent-green)"
-                    />
-                    <StudioActionTile
-                      to="/studio/moderation"
-                      icon={ShieldCheckIcon}
-                      label="Moderation"
-                      subtitle="Channel access"
-                      color="var(--accent-red)"
-                    />
-                    <StudioActionTile
-                      to="/studio/events"
-                      icon={CalendarDaysIcon}
-                      label="Events"
-                      subtitle="Live dates"
-                      color="var(--accent-purple)"
-                    />
-                  </CardGrid>
-                </div>
-              )}
-            </div>
           </>
         )}
       </div>

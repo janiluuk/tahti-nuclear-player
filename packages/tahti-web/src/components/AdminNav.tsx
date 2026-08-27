@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 import type { TourStep } from '../lib/pageTour';
+import { matchesSectionRoute } from '../lib/sectionNavigation';
 import { SectionSidebar } from './SectionSidebar';
 
 const PRIMARY = [
@@ -150,9 +151,7 @@ export const ADMIN_NAV_TOUR_STEPS: TourStep[] = PRIMARY.map(
 );
 
 function isActive(current: string | undefined, to: string) {
-  return (
-    current === to || (to !== '/admin' && Boolean(current?.startsWith(to)))
-  );
+  return to === '/admin' ? current === to : matchesSectionRoute(current, [to]);
 }
 
 /** Grows page-by-page alongside the admin port — see UI-REDESIGN-WORKLOG.md. */

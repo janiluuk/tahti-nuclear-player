@@ -104,23 +104,14 @@ test('studio dashboard shows clickable summary stats and compact broadcast actio
     page.getByRole('link', { name: '910 total downloads' }),
   ).toBeVisible();
   await expect(page.getByRole('link', { name: '284 followers' })).toBeVisible();
-  await page.getByRole('button', { name: 'Studio tools', exact: true }).click();
-  await expect(
-    page
-      .getByRole('region', { name: 'Studio tool groups' })
-      .getByRole('heading', { name: 'Music' }),
-  ).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Recordings' })).toBeVisible();
-  await expect(
-    page
-      .getByRole('navigation', { name: 'Studio' })
-      .getByRole('link', { name: 'Releases' }),
-  ).toHaveCount(0);
-  await expect(
-    page.getByRole('heading', { name: 'Member content' }),
-  ).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Green room' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Stash' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Studio tools' })).toHaveCount(
+    0,
+  );
+  await expect(page.getByRole('link', { name: 'Library' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Perform' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Grow' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Fanbase' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Manage' })).toBeVisible();
   await expect(
     page
       .getByRole('region', { name: 'Studio tool groups' })
