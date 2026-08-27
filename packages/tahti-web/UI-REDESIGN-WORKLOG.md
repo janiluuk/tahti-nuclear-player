@@ -821,3 +821,9 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Batch 1:** Removed Settings → Money; added Fan tiers to Studio → Fanbase; moved the Your subs tab into Settings → Account while retaining its subscription links and state display.
 
 **Status:** implemented; tahti-web type-check, lint, and diff checks pass. Pushed as the first commit of this three-batch cycle.
+
+**Batch 2:** Beta applications, Radio submissions, and Content reports moderation tabs now use shared `PageLoading` states.
+
+**Batch 3:** Support tickets, Feature requests, and Tahti Selects moderation tabs now use shared `PageLoading` states.
+
+**Final status:** all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.

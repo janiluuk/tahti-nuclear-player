@@ -8,6 +8,7 @@ import {
   type AdminFeatureRequestRow,
   type AdminFeatureRequestStatus,
 } from '../../../../api/admin';
+import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
 
 const FILTERS: { id: AdminFeatureRequestStatus | 'all'; label: string }[] = [
@@ -149,7 +150,7 @@ export function FeatureRequestsTab() {
 
       <StudioPanel>
         {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading feature requests…" />
         ) : rows.length === 0 ? (
           <p className="text-foreground-secondary py-4 text-center text-sm">
             No feature requests in this view.

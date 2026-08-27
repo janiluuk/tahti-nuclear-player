@@ -11,6 +11,7 @@ import {
   type AdminSupportTicket,
   type AdminSupportTicketDetail,
 } from '../../../../api/admin';
+import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
 
 function statusBadge(status: AdminSupportStatus): {
@@ -169,7 +170,7 @@ export function SupportTab() {
       <div className="grid gap-4 md:grid-cols-[20rem_1fr]">
         <StudioPanel className="max-h-[32rem] overflow-y-auto p-0 sm:p-0">
           {loading ? (
-            <p className="text-foreground-secondary p-4 text-sm">Loading…</p>
+            <PageLoading label="Loading support tickets…" />
           ) : tickets.length === 0 ? (
             <p className="text-foreground-secondary p-4 text-center text-sm">
               No tickets in this view.
@@ -213,7 +214,7 @@ export function SupportTab() {
               Select a ticket.
             </p>
           ) : detailLoading || !detail ? (
-            <p className="text-foreground-secondary p-4 text-sm">Loading…</p>
+            <PageLoading label="Loading ticket…" />
           ) : (
             <>
               <div className="border-border flex flex-wrap items-start justify-between gap-3 border-b px-4 py-3">

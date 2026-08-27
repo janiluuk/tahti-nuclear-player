@@ -15,6 +15,7 @@ import {
   type AdminSelectsItem,
   type AdminSelectsStream,
 } from '../../../../api/admin';
+import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
 import { TahtiRotationPlaylistEditor } from '../../../../components/TahtiRotationPlaylistEditor';
 import { usePlayerStore } from '../../../../stores/playerStore';
@@ -244,7 +245,7 @@ export function SelectsTab() {
 
       <StudioPanel title={`Current rotation (${items.length})`}>
         {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading Selects rotation…" />
         ) : items.length === 0 ? (
           <p className="text-foreground-secondary py-4 text-center text-sm">
             Nothing in rotation yet — add tracks below.
