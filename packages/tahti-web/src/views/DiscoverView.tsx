@@ -10,7 +10,7 @@ import {
 } from '../api/discover';
 import type { DiscoverTrackItem } from '../api/types';
 import { WidgetCard } from '../components/discover/WidgetCard';
-import { PageFrame } from '../components/PageHeader';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { PRESET_GENRES } from '../lib/genres';
 import {
@@ -148,15 +148,11 @@ export function DiscoverView() {
 
   return (
     <PageFrame>
-      <div className="flex flex-col gap-1">
-        <Eyebrow>Discover</Eyebrow>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Your dashboard
-        </h1>
-        <p className="text-foreground-secondary text-sm">
-          Pick the widgets you want to see, and filter by genre or type.
-        </p>
-      </div>
+      <PageHeader
+        title="Your dashboard"
+        subtitle="Pick the widgets you want to see, and filter by genre or type."
+        meta={<Eyebrow>Discover</Eyebrow>}
+      />
 
       <div className="flex flex-col gap-3">
         <FilterChips

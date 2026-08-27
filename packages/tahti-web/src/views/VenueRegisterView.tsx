@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button, Input } from '@nuclearplayer/ui';
 
 import { registerVenue } from '../api/client';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useAuthStore } from '../stores/authStore';
 
 export function VenueRegisterView() {
@@ -21,29 +22,25 @@ export function VenueRegisterView() {
 
   if (!user) {
     return (
-      <div className="mx-auto flex max-w-lg flex-col gap-4">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Register a venue
-        </h1>
-        <p className="text-foreground-secondary text-sm">
-          Sign in to submit a venue for board review.
-        </p>
+      <PageFrame maxWidth="lg">
+        <PageHeader
+          title="Register a venue"
+          subtitle="Sign in to submit a venue for board review."
+        />
         <Link
           to="/login"
           className="text-sm underline-offset-2 hover:underline"
         >
           Log in →
         </Link>
-      </div>
+      </PageFrame>
     );
   }
 
   if (doneSlug) {
     return (
-      <div className="mx-auto flex max-w-lg flex-col gap-4">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Submitted
-        </h1>
+      <PageFrame maxWidth="lg">
+        <PageHeader title="Submitted" />
         <p className="text-foreground-secondary text-sm">
           <code>{doneSlug}</code> is pending board verification before it
           appears in the public directory.
@@ -54,26 +51,24 @@ export function VenueRegisterView() {
         >
           ← Back to venues
         </Link>
-      </div>
+      </PageFrame>
     );
   }
 
   return (
-    <div className="mx-auto flex max-w-lg flex-col gap-6">
-      <div>
-        <Link
-          to="/venues"
-          className="text-foreground-secondary text-xs hover:underline"
-        >
-          ← Venues
-        </Link>
-        <h1 className="font-display mt-2 text-3xl font-extrabold tracking-tight">
-          Register a venue
-        </h1>
-        <p className="text-foreground-secondary mt-1 text-sm">
-          New venues are reviewed by the board before appearing publicly.
-        </p>
-      </div>
+    <PageFrame maxWidth="lg">
+      <PageHeader
+        title="Register a venue"
+        subtitle="New venues are reviewed by the board before appearing publicly."
+        back={
+          <Link
+            to="/venues"
+            className="text-foreground-secondary text-xs hover:underline"
+          >
+            ← Venues
+          </Link>
+        }
+      />
 
       <form
         className="flex flex-col gap-3"
@@ -168,6 +163,6 @@ export function VenueRegisterView() {
         </Button>
         {error && <p className="text-sm text-red-400">{error}</p>}
       </form>
-    </div>
+    </PageFrame>
   );
 }
