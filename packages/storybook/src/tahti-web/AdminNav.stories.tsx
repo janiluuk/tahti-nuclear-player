@@ -25,3 +25,10 @@ export const ModerationActive: Story = {
     current: '/admin/moderation',
   },
 };
+
+export const NestedModerationRoute: Story = {
+  args: {
+    current: '/admin/moderation/feature-requests',
+  },
+  decorators: [withTahtiRouter('/admin/moderation/feature-requests')],
+};

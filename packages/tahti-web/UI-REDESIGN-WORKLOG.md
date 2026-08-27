@@ -754,6 +754,18 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
 
+### 2026-08-27 — Another 9 compliance-sweep slices
+
+**Goal:** Continue the Storybook compliance sweep in three batches of three, standardizing the remaining loading and navigation presentation gaps.
+
+**Batch 1:** Onboarding profile setup, Admin logs, and the Admin users list now use shared `PageLoading` states.
+
+**Batch 2:** The Tahti map, legal hub, and legal document shell now use the shared `PageHeader` component.
+
+**Batch 3:** SectionSidebar gained deep-route and mobile-overflow stories; AdminNav gained nested moderation-route coverage; StudioNav gained nested Perform-route and mobile-overflow coverage.
+
+**Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Storybook production build also completed successfully. Pushed as three commits to `master`.
+
 ### 2026-08-27 — Another 9 loading and theme-token slices
 
 **Goal:** Continue the remaining design-system cleanup in three batches of three, committing and pushing after each batch.

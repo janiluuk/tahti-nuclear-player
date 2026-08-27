@@ -56,3 +56,26 @@ export const NoActiveItem: Story = {
     items: ITEMS.map((item) => ({ ...item, active: false })),
   },
 };
+
+export const DeepRoute: Story = {
+  args: {
+    'aria-label': 'Library sections',
+    items: ITEMS.map((item) => ({
+      ...item,
+      active: item.id === 'favorites',
+    })),
+  },
+  decorators: [withTahtiRouter('/library/favorites')],
+};
+
+export const MobileOverflow: Story = {
+  args: {
+    'aria-label': 'Sections',
+    items: [...ITEMS, ...ITEMS].map((item, index) => ({
+      ...item,
+      id: `${item.id}-${index}`,
+      active: index === 0,
+    })),
+  },
+  parameters: { viewport: { defaultViewport: 'mobile1' } },
+};

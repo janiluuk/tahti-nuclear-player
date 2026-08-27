@@ -37,3 +37,13 @@ export const ManageActive: Story = {
 export const NoCurrentRoute: Story = {
   args: {},
 };
+
+export const NestedPerformRoute: Story = {
+  args: { current: '/studio/shows/weekly-session' },
+  decorators: [withTahtiRouter('/studio/shows/weekly-session')],
+};
+
+export const MobileOverflow: Story = {
+  args: { current: '/studio/channel' },
+  parameters: { viewport: { defaultViewport: 'mobile1' } },
+};
