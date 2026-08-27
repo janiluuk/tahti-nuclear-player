@@ -30,24 +30,45 @@ import { cn } from '@nuclearplayer/ui';
 
 import type { TourStep } from '../lib/pageTour';
 import { useTourStore } from '../stores/tourStore';
-import { InPageNav } from './InPageNav';
+import { SectionSidebar } from './SectionSidebar';
 
 const PRIMARY = [
   {
     to: '/studio',
     label: 'Overview',
+    icon: <LayoutGridIcon size={16} aria-hidden />,
     description:
       'Your channel snapshot — status, quick links, and recent activity.',
   },
   {
-    to: '/studio/go-live',
-    label: 'Go Live',
-    description: 'Start broadcasting and manage your live stream setup.',
+    to: '/library',
+    label: 'Library',
+    icon: <LibraryIcon size={16} aria-hidden />,
+    description: 'All your uploaded tracks, releases, and files in one place.',
   },
   {
-    to: '/library',
-    label: 'My Library',
-    description: 'All your uploaded tracks, releases, and files in one place.',
+    to: '/studio/go-live',
+    label: 'Perform',
+    icon: <RadioTowerIcon size={16} aria-hidden />,
+    description: 'Go live, schedule broadcasts, and manage performances.',
+  },
+  {
+    to: '/studio/stats',
+    label: 'Grow',
+    icon: <TrendingUpIcon size={16} aria-hidden />,
+    description: 'Understand your audience and grow your channel.',
+  },
+  {
+    to: '/studio/revenue',
+    label: 'Fanbase',
+    icon: <CircleDollarSignIcon size={16} aria-hidden />,
+    description: 'Build relationships with fans and members.',
+  },
+  {
+    to: '/studio/channel',
+    label: 'Manage',
+    icon: <Settings2Icon size={16} aria-hidden />,
+    description: 'Manage your channel, branding, and access.',
   },
 ] as const;
 
@@ -237,13 +258,19 @@ export const StudioNav = ({ current }: { current?: string }) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <InPageNav
+      <SectionSidebar
         aria-label="Studio"
         items={PRIMARY.map((link) => ({
           id: link.to,
           label: link.label,
+          icon: link.icon,
           to: link.to,
-          active: isActive(current, link.to),
+          active:
+            link.to === '/library'
+              ? Boolean(current?.startsWith('/library'))
+              : link.to === '/studio'
+                ? current === '/studio'
+                : Boolean(current?.startsWith(link.to)),
         }))}
       />
       <div className="border-border overflow-hidden rounded-lg border">

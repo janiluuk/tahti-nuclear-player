@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import {
   ClockIcon,
   DiscIcon,
@@ -10,6 +9,7 @@ import {
 import type { ReactNode } from 'react';
 
 import { PageFrame } from '../components/PageHeader';
+import { SectionSidebar } from '../components/SectionSidebar';
 import { FavoritesView } from './FavoritesView';
 import { HistoryView } from './HistoryView';
 import { MyCollectionsView } from './MyCollectionsView';
@@ -73,26 +73,13 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
   return (
     <PageFrame maxWidth="5xl">
       <div className="flex flex-col gap-6 sm:flex-row sm:gap-8">
-        <nav
+        <SectionSidebar
           aria-label="Library"
-          className="flex shrink-0 gap-1 overflow-x-auto sm:w-44 sm:flex-col sm:overflow-visible"
-        >
-          {ITEMS.map((item) => (
-            <Link
-              key={item.id}
-              to={item.to}
-              className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap ${
-                tab === item.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
-              }`}
-              aria-current={tab === item.id ? 'page' : undefined}
-            >
-              {item.icon}
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+          items={ITEMS.map((item) => ({
+            ...item,
+            active: tab === item.id,
+          }))}
+        />
 
         <div className="min-w-0 flex-1">
           {tab === 'discography' && <MyDiscographyView />}
