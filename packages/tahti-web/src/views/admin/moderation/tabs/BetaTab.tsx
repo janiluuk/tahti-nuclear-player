@@ -10,6 +10,7 @@ import {
   type AdminBetaApplication,
   type AdminBetaStatus,
 } from '../../../../api/admin';
+import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
 
 const COMBINING_DIACRITICS = new RegExp('[̀-ͯ]', 'g');
@@ -118,7 +119,7 @@ export function BetaTab() {
 
       <StudioPanel>
         {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading applications…" />
         ) : apps.length === 0 ? (
           <p className="text-foreground-secondary py-4 text-center text-sm">
             No applications in this view.

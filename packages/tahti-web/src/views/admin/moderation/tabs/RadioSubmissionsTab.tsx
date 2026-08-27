@@ -11,6 +11,7 @@ import {
   type AdminRadioSubmission,
   type AdminRadioSubmissionStatus,
 } from '../../../../api/admin';
+import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
 import { usePlayerStore } from '../../../../stores/playerStore';
 
@@ -93,7 +94,7 @@ export function RadioSubmissionsTab() {
 
       {loading ? (
         <StudioPanel>
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading radio submissions…" />
         </StudioPanel>
       ) : items.length === 0 ? (
         <StudioPanel>

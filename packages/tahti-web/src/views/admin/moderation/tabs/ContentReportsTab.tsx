@@ -8,6 +8,7 @@ import {
   type AdminContentReportRow,
   type AdminContentReportStatus,
 } from '../../../../api/admin';
+import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
 
 const FILTERS: { id: AdminContentReportStatus | 'all'; label: string }[] = [
@@ -141,7 +142,7 @@ export function ContentReportsTab() {
 
       <StudioPanel>
         {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading content reports…" />
         ) : reports.length === 0 ? (
           <p className="text-foreground-secondary py-4 text-center text-sm">
             No reports in this view.
