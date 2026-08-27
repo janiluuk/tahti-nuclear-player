@@ -292,7 +292,6 @@ export function AppShell() {
       <AppTopNav
         showMenuButton={isMobile && !isArtistPage}
         onOpenMenu={() => setMobileNavOpen(true)}
-        variant={isArtistPage ? 'minimal' : 'default'}
       />
       <StickyNotificationBanner />
 
