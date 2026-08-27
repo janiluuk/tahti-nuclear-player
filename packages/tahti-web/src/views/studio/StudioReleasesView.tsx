@@ -90,7 +90,7 @@ export function StudioReleasesView({
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
+      <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         {!embedded ? <StudioNav current="/studio/releases" /> : null}
         <StudioPageHeader
           title="Releases"

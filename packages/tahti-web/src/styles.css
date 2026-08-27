@@ -7,3 +7,20 @@ body,
   overflow: hidden;
   margin: 0;
 }
+
+@media (min-width: 640px) {
+  .studio-page-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .studio-page-layout > [data-studio-layout-nav] {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+
+  .studio-page-layout > :not([data-studio-layout-nav]) {
+    grid-column: 2;
+  }
+}

@@ -14,6 +14,7 @@ import {
   TrophyIcon,
   UsersIcon,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
@@ -135,6 +136,55 @@ const PRIMARY = [
   },
 ] as const;
 
+const ADMIN_SECTIONS = [
+  {
+    id: 'overview',
+    label: 'Overview',
+    items: PRIMARY.filter((item) =>
+      ['/admin', '/admin/logs', '/admin/status'].includes(item.to),
+    ),
+  },
+  {
+    id: 'community',
+    label: 'Community',
+    items: PRIMARY.filter((item) =>
+      [
+        '/admin/moderation',
+        '/admin/users',
+        '/admin/governance',
+        '/admin/grants',
+        '/admin/agm',
+      ].includes(item.to),
+    ),
+  },
+  {
+    id: 'content',
+    label: 'Content',
+    items: PRIMARY.filter((item) =>
+      [
+        '/admin/radio',
+        '/admin/radio-station-suggestions',
+        '/admin/news',
+        '/admin/top-lists',
+        '/admin/announcements',
+      ].includes(item.to),
+    ),
+  },
+  {
+    id: 'operations',
+    label: 'Operations',
+    items: PRIMARY.filter((item) =>
+      [
+        '/admin/streams',
+        '/admin/storage',
+        '/admin/financial',
+        '/admin/vendors',
+        '/admin/i18n',
+      ].includes(item.to),
+    ),
+  },
+] as const;
+
 export const ADMIN_NAV_TOUR_STEPS: TourStep[] = PRIMARY.map(
   (item): TourStep => ({
     id: `nav-item-${item.to}`,
@@ -149,16 +199,60 @@ function isActive(current: string | undefined, to: string) {
 
 /** Grows page-by-page alongside the admin port — see UI-REDESIGN-WORKLOG.md. */
 export function AdminNav({ current }: { current?: string }) {
+  const routeSection = ADMIN_SECTIONS.find((section) =>
+    section.items.some((item) => isActive(current, item.to)),
+  );
+  const [selectedSection, setSelectedSection] = useState(
+    routeSection?.id ?? ADMIN_SECTIONS[0].id,
+  );
+
+  useEffect(() => {
+    if (routeSection) {
+      setSelectedSection(routeSection.id);
+    }
+  }, [routeSection]);
+
+  const section =
+    ADMIN_SECTIONS.find((item) => item.id === selectedSection) ??
+    ADMIN_SECTIONS[0];
+
   return (
-    <SectionSidebar
-      aria-label="Admin"
-      items={PRIMARY.map((link) => ({
-        id: link.to,
-        label: link.label,
-        icon: link.icon,
-        to: link.to,
-        active: isActive(current, link.to),
-      }))}
-    />
+    <div className="flex flex-col gap-3">
+      <div
+        aria-label="Admin sections"
+        className="border-border flex w-fit max-w-full gap-1 overflow-x-auto rounded-lg border p-1"
+        role="tablist"
+      >
+        {ADMIN_SECTIONS.map((item) => {
+          const active = item.id === selectedSection;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              className={`rounded-md px-3 py-1.5 text-sm font-semibold whitespace-nowrap ${
+                active
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
+              }`}
+              onClick={() => setSelectedSection(item.id)}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+      <SectionSidebar
+        aria-label={`Admin ${section.label}`}
+        items={section.items.map((link) => ({
+          id: link.to,
+          label: link.label,
+          icon: link.icon,
+          to: link.to,
+          active: isActive(current, link.to),
+        }))}
+      />
+    </div>
   );
 }

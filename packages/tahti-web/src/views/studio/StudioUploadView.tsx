@@ -37,7 +37,7 @@ export function StudioUploadView() {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-lg flex-col gap-6">
+      <div className="studio-page-layout mx-auto flex max-w-lg flex-col gap-6">
         <StudioNav current="/studio/upload" />
         <StudioPageHeader
           title="Upload"

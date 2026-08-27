@@ -49,6 +49,7 @@ import { TrackEditDialog } from '../components/TrackEditDialog';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { isPinned } from '../lib/pinnedTracks';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
+import { formatDuration } from '../lib/playableToTrack';
 import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -678,47 +679,75 @@ export function ArtistView({ username }: { username: string }) {
                 )}
               </div>
               <CardGrid className="grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-8">
-                {releaseTiles.map(({ release, playable }, i) => (
-                  <GlowMediaTile
-                    key={release.id}
-                    title={release.title}
-                    subtitle={release.type ?? 'Release'}
-                    src={
-                      release.artworkUrl ?? placeholderArtworkUrl(release.id)
-                    }
-                    glowColor={GLOW_COLORS[(i + 2) % GLOW_COLORS.length]}
-                    className="w-full"
-                    onClick={
-                      release.smartLinkSlug
-                        ? () => {
-                            void navigate({
-                              to: '/r/$slug',
-                              params: { slug: release.smartLinkSlug! },
-                            });
-                          }
-                        : undefined
-                    }
-                    onTitleClick={() => setTracklistRelease(release)}
-                    onPlay={
-                      playable
-                        ? () =>
-                            playOrPromptAlbum(
-                              release,
-                              artist.displayName,
-                              channel?.slug,
-                            )
-                        : undefined
-                    }
-                    onFavorite={
-                      playable ? () => toggleFavoriteTrack(playable) : undefined
-                    }
-                    favorited={
-                      playable
-                        ? favoriteTracks.some((t) => t.id === playable.id)
-                        : false
-                    }
-                  />
-                ))}
+                {releaseTiles.map(({ release, playable }, i) => {
+                  const releasePlayablesList = releasePlayables(
+                    release,
+                    artist.displayName,
+                    channel?.slug,
+                  );
+                  const totalDurationSec = (release.tracks ?? []).reduce(
+                    (total, track) => total + (track.durationSec ?? 0),
+                    0,
+                  );
+                  const releaseSubtitle = [
+                    release.type ?? 'Release',
+                    `${release.tracks?.length ?? 0} tracks`,
+                    totalDurationSec > 0
+                      ? formatDuration(totalDurationSec)
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ');
+
+                  return (
+                    <GlowMediaTile
+                      key={release.id}
+                      title={release.title}
+                      subtitle={releaseSubtitle}
+                      src={
+                        release.artworkUrl ?? placeholderArtworkUrl(release.id)
+                      }
+                      glowColor={GLOW_COLORS[(i + 2) % GLOW_COLORS.length]}
+                      className="w-full"
+                      onClick={
+                        release.smartLinkSlug
+                          ? () => {
+                              void navigate({
+                                to: '/r/$slug',
+                                params: { slug: release.smartLinkSlug! },
+                              });
+                            }
+                          : undefined
+                      }
+                      onTitleClick={() => setTracklistRelease(release)}
+                      onPlay={
+                        playable
+                          ? () =>
+                              playOrPromptAlbum(
+                                release,
+                                artist.displayName,
+                                channel?.slug,
+                              )
+                          : undefined
+                      }
+                      onQueue={
+                        releasePlayablesList.length > 0
+                          ? () => queueAlbum(releasePlayablesList)
+                          : undefined
+                      }
+                      onFavorite={
+                        playable
+                          ? () => toggleFavoriteTrack(playable)
+                          : undefined
+                      }
+                      favorited={
+                        playable
+                          ? favoriteTracks.some((t) => t.id === playable.id)
+                          : false
+                      }
+                    />
+                  );
+                })}
               </CardGrid>
             </div>
           )}

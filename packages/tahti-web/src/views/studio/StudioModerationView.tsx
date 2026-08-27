@@ -45,7 +45,7 @@ export function StudioModerationView() {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/moderation" />
         <StudioPageHeader
           title="Moderation"

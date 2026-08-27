@@ -4,7 +4,6 @@ import {
   GaugeIcon,
   HistoryIcon,
   LayoutDashboardIcon,
-  LibraryIcon,
   MapIcon,
   MessageSquareIcon,
   RadioIcon,
@@ -81,13 +80,6 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             to="/discover"
             icon={<CompassIcon size={16} />}
             label="Discover"
-          />
-        </div>
-        <div data-tour-id="nav-library">
-          <SidebarNavigationItem
-            to="/library"
-            icon={<LibraryIcon size={16} />}
-            label="My Library"
           />
         </div>
         <div data-tour-id="nav-history">
@@ -302,7 +294,7 @@ export function AppShell() {
           <div
             className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
           >
-            <RouteTransition />
+            <RouteTransition key={userId ?? 'anonymous'} />
           </div>
           {!isArtistPage && (
             <MobileBottomNav onOpenQueue={() => setMobileQueueOpen(true)} />
@@ -312,7 +304,7 @@ export function AppShell() {
         <div
           className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
         >
-          <RouteTransition />
+          <RouteTransition key={userId ?? 'anonymous'} />
         </div>
       ) : (
         <PlayerWorkspace>
@@ -351,13 +343,6 @@ export function AppShell() {
                       to="/discover"
                       icon={<CompassIcon size={16} />}
                       label="Discover"
-                    />
-                  </div>
-                  <div data-tour-id="nav-library">
-                    <SidebarNavigationItem
-                      to="/library"
-                      icon={<LibraryIcon size={16} />}
-                      label="My Library"
                     />
                   </div>
                   <div data-tour-id="nav-messages">
@@ -414,7 +399,7 @@ export function AppShell() {
             className={cn('min-h-0 overflow-hidden', MAIN_CONTENT_PADDING)}
           >
             <div className="h-full overflow-auto">
-              <RouteTransition />
+              <RouteTransition key={userId ?? 'anonymous'} />
             </div>
           </PlayerWorkspace.Main>
 

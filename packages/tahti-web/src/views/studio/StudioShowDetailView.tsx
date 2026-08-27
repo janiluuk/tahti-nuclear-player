@@ -198,7 +198,7 @@ export function StudioShowDetailView({ id }: { id: string }) {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
+      <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/shows" />
         <Link
           to="/studio/shows"
@@ -484,7 +484,7 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
   if (!episode) {
     return (
       <StudioGate>
-        <div className="mx-auto max-w-2xl">
+        <div className="studio-page-layout mx-auto max-w-2xl">
           <StudioNav current="/studio/shows" />
           <PageLoading label="Loading…" />
         </div>
@@ -515,7 +515,7 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      <div className="studio-page-layout mx-auto flex max-w-2xl flex-col gap-6">
         <StudioNav current="/studio/shows" />
         <Link
           to="/studio/shows/$id"

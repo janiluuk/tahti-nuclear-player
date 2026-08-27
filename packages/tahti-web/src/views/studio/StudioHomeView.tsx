@@ -189,7 +189,7 @@ export function StudioHomeView() {
 
   return (
     <StudioGate requireChannel={false}>
-      <div className="mx-auto flex max-w-3xl flex-col gap-8">
+      <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-8">
         <StudioNav current="/studio" />
 
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

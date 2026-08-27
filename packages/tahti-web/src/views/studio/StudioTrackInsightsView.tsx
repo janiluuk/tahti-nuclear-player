@@ -43,7 +43,7 @@ export function StudioTrackInsightsView({
     : 1;
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6">
         <StudioNav current="/studio/archive" />
         <Link
           to={kind === 'archive' ? '/studio/archive' : '/studio/releases'}
