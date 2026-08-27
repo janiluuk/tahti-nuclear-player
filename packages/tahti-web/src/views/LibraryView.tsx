@@ -26,8 +26,8 @@ const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
 
 export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
   return (
-    <PageFrame maxWidth="5xl">
-      <div className="studio-page-layout flex flex-col gap-6">
+    <PageFrame maxWidth="full" className="max-w-[1400px] px-4">
+      <div className="studio-page-layout flex w-full flex-col gap-6">
         <StudioNav current={LIBRARY_ROUTE_BY_TAB[tab]} />
         <div className="min-w-0 flex-1">
           {tab === 'discography' && <MyDiscographyView />}

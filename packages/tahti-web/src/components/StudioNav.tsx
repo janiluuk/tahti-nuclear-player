@@ -206,7 +206,13 @@ const isActive = (current: string | undefined, to: string) => {
   }
   const pathname = current.split('?')[0];
   if (to === '/studio') {
-    return matchesSectionRoute(pathname, SECTION_PREFIXES[to]);
+    return (
+      pathname === '/studio' ||
+      matchesSectionRoute(
+        pathname,
+        SECTION_PREFIXES[to].filter((prefix) => prefix !== '/studio'),
+      )
+    );
   }
   return matchesSectionRoute(pathname, SECTION_PREFIXES[to] ?? [to]);
 };
