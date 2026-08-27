@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 
 import type { TourStep } from '../lib/pageTour';
+import { matchesSectionRoute } from '../lib/sectionNavigation';
 import { SectionSidebar } from './SectionSidebar';
 
 const PRIMARY = [
@@ -77,7 +78,12 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/venues',
     '/studio/shows',
   ],
-  '/studio/stats': ['/studio/stats', '/studio/insights'],
+  '/studio/stats': [
+    '/studio/stats',
+    '/studio/updates',
+    '/studio/distribution',
+    '/studio/insights',
+  ],
   '/studio/revenue': ['/studio/revenue'],
   '/studio/channel': [
     '/studio/channel',
@@ -94,9 +100,7 @@ const isActive = (current: string | undefined, to: string) => {
   if (to === '/studio') {
     return current === to;
   }
-  return (SECTION_PREFIXES[to] ?? [to]).some((prefix) =>
-    current.startsWith(prefix),
-  );
+  return matchesSectionRoute(current, SECTION_PREFIXES[to] ?? [to]);
 };
 
 export const StudioNav = ({ current }: { current?: string }) => (

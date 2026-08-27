@@ -19,10 +19,12 @@ describe('getPageTourSteps', () => {
     expect(ids('/admin')).not.toContain('topbar-golive');
   });
 
-  it('includes Studio panel steps on /studio and /library, not elsewhere', () => {
+  it('includes Studio section steps on /studio and /library, not elsewhere', () => {
     const studioIds = ids('/studio/upload');
     expect(studioIds).toContain('nav-item-/studio');
-    expect(studioIds).toContain('nav-item-tool-Upload');
+    expect(studioIds).toContain('nav-item-/studio/go-live');
+    expect(studioIds).toContain('nav-item-/studio/channel');
+    expect(studioIds).not.toContain('nav-item-tool-Upload');
     expect(ids('/library')).toContain('nav-item-/studio');
     expect(ids('/radio')).not.toContain('nav-item-/studio');
   });
