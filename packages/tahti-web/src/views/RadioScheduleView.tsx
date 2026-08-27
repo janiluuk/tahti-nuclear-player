@@ -218,8 +218,9 @@ export function RadioScheduleView() {
           role="tablist"
           aria-label="Station"
         >
-          <button
+          <Button
             type="button"
+            variant="text"
             role="tab"
             aria-selected={station === 'radio'}
             onClick={() => setStation('radio')}
@@ -231,10 +232,11 @@ export function RadioScheduleView() {
             )}
           >
             Tahti Radio
-          </button>
+          </Button>
           {ownChannelSlug ? (
-            <button
+            <Button
               type="button"
+              variant="text"
               role="tab"
               aria-selected={station === 'mine'}
               onClick={() => setStation('mine')}
@@ -246,7 +248,7 @@ export function RadioScheduleView() {
               )}
             >
               My channel
-            </button>
+            </Button>
           ) : null}
         </div>
 

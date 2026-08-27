@@ -131,9 +131,10 @@ export function StudioChannelView() {
               { id: 'domain' as const, label: 'Username / domain' },
             ] as const
           ).map((t) => (
-            <button
+            <Button
               key={t.id}
               type="button"
+              variant="text"
               role="tab"
               aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
@@ -144,7 +145,7 @@ export function StudioChannelView() {
               }`}
             >
               {t.label}
-            </button>
+            </Button>
           ))}
         </nav>
 

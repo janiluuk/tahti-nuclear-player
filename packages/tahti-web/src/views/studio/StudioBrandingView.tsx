@@ -258,9 +258,10 @@ export const StudioBrandingView: FC = () => {
               ['press-kit', 'Press kit', DownloadIcon],
             ] as const
           ).map(([id, label, Icon]) => (
-            <button
+            <Button
               key={id}
               type="button"
+              variant="text"
               role="tab"
               aria-selected={tab === id}
               className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
@@ -272,7 +273,7 @@ export const StudioBrandingView: FC = () => {
             >
               <Icon size={15} aria-hidden />
               {label}
-            </button>
+            </Button>
           ))}
         </nav>
 
