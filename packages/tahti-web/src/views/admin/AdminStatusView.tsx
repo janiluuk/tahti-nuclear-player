@@ -5,6 +5,7 @@ import { Badge } from '@nuclearplayer/ui';
 import { fetchAdminStatus, type AdminStatusData } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function AdminStatusView() {
@@ -26,7 +27,7 @@ export function AdminStatusView() {
 
         <StudioPanel>
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading service status…" />
           ) : !data ? (
             <p className="text-foreground-secondary py-4 text-center text-sm">
               Could not load status.

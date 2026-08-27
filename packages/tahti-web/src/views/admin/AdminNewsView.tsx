@@ -20,6 +20,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function AdminNewsView() {
@@ -91,7 +92,7 @@ export function AdminNewsView() {
 
         <StudioPanel>
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading news…" />
           ) : posts.length === 0 ? (
             <div className="flex flex-col gap-3 py-4 text-center">
               <p className="text-foreground-secondary text-sm">

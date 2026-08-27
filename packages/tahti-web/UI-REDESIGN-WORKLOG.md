@@ -801,3 +801,15 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Batch 3:** `SupportContactForm`, the remaining `ArtistGalleryPanel` error path, and `StudioGoLiveView` status errors now use semantic accent colors.
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
+
+### 2026-08-27 — Another 9 Admin loading-state slices
+
+**Goal:** Continue the design-system compliance sweep by replacing remaining Admin bare loading paragraphs with the shared `PageLoading` treatment, in three batches of three.
+
+**Batch 1:** AGM, Radio, and Streams use `PageLoading` with context-specific labels.
+
+**Batch 2:** Dashboard, Storage overview/users/files, and Languages use `PageLoading` with context-specific labels.
+
+**Batch 3:** News, Service status, and Announcements use `PageLoading` with context-specific labels.
+
+**Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
