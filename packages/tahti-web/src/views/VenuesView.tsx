@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { TahtiMapLink } from '../components/TahtiMapLink';
 import { countryFlagAndName } from '../lib/countries';
 
@@ -41,11 +42,12 @@ export function VenuesView() {
       />
 
       {loading ? (
-        <p className="text-foreground-secondary text-sm">Loading venues…</p>
+        <PageLoading label="Loading venues…" />
       ) : venues.length === 0 ? (
-        <p className="text-foreground-secondary text-sm">
-          No verified venues returned.
-        </p>
+        <PageEmpty
+          title="No verified venues"
+          description="No verified venues are available right now."
+        />
       ) : (
         <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
           {venues.map((v) => (

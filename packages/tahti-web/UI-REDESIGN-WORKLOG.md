@@ -742,3 +742,14 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Status:** implemented; `tsc --noEmit`, `eslint`, and the full `vitest` suite (179/179) are clean for every batch, checked incrementally as each landed rather than once at the end. The two systemic sweeps (studio Loading→PageLoading, listener h1/li fixes) were done by parallel subagents working from this same audit's file lists, each independently typechecked/linted before merging back. Not click-verified in a live browser this session.
 
+### 2026-08-27 — Next 9 compliance-sweep slices
+
+**Goal:** Continue the remaining design-system punch list in three batches of three, committing and pushing after each batch.
+
+**Batch 1:** `ChannelLayersMenu` hide/remove actions now use shared icon buttons; `StudioTrackInsightsView` uses `StudioPageHeader`; `StudioGoLiveView` uses semantic channel-state badges.
+
+**Batch 2:** `FanSubscriptionStats` uses semantic payout badges; `ArtistGalleryPanel` uses shared icon actions and semantic error color; `VenueDetailView` uses `PageLoading`.
+
+**Batch 3:** `ChannelView`, `ArtistView`, and `VenuesView` use shared loading and empty states.
+
+**Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.

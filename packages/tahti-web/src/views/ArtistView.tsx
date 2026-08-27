@@ -38,6 +38,7 @@ import { GlowMediaTile } from '../components/GlowMediaTile';
 import { ImageLightbox } from '../components/ImageLightbox';
 import { NewsletterSubscribeToggle } from '../components/NewsletterSubscribeToggle';
 import { PageHeader } from '../components/PageHeader';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import {
   releasePlayables,
@@ -306,11 +307,16 @@ export function ArtistView({ username }: { username: string }) {
     }, [profile]);
 
   if (loading) {
-    return <p className="text-foreground-secondary text-sm">Loading artist…</p>;
+    return <PageLoading label="Loading artist…" />;
   }
 
   if (!profile) {
-    return <p className="text-sm">Artist not found.</p>;
+    return (
+      <PageEmpty
+        title="Artist not found"
+        description="This artist profile may have been removed or is not available."
+      />
+    );
   }
 
   const { artist, channel, releases, collections, fanTiers } = profile;

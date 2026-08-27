@@ -33,6 +33,7 @@ import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { EmbedButton } from '../components/EmbedButton';
 import { PageHeader } from '../components/PageHeader';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
@@ -169,13 +170,16 @@ export function ChannelView({ slug }: { slug: string }) {
   }, [archive, slug]);
 
   if (loading) {
-    return (
-      <p className="text-foreground-secondary text-sm">Loading channel…</p>
-    );
+    return <PageLoading label="Loading channel…" />;
   }
 
   if (!channel) {
-    return <p className="text-sm">Channel not found.</p>;
+    return (
+      <PageEmpty
+        title="Channel not found"
+        description="This channel may have been removed or is not available."
+      />
+    );
   }
 
   const live = channel.state === 'LIVE' && Boolean(channel.hlsUrl);
