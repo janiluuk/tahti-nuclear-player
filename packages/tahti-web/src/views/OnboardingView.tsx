@@ -15,6 +15,7 @@ import { provisionChannel } from '../api/channel-provision';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
 import { GenrePicker } from '../components/GenrePicker';
 import { PageHeader } from '../components/PageHeader';
+import { PageLoading } from '../components/PageStates';
 import { COUNTRIES, flagEmoji } from '../lib/countries';
 import {
   formatGenreTags,
@@ -235,7 +236,7 @@ export function OnboardingView() {
       />
 
       {loading ? (
-        <p className="text-foreground-secondary text-sm">Loading…</p>
+        <PageLoading label="Loading your profile…" />
       ) : (
         <>
           <Tabs

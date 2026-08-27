@@ -5,6 +5,7 @@ import { LogViewer, Tabs, type LogEntryData } from '@nuclearplayer/ui';
 import { fetchAdminContainerLogs, type AdminLogEntry } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { AdminActivityView } from './AdminActivityView';
 
@@ -62,7 +63,7 @@ export function AdminLogsView() {
         </p>
       )}
       {loading ? (
-        <p className="text-foreground-secondary text-sm">Loading…</p>
+        <PageLoading label="Loading logs…" />
       ) : logs.length === 0 ? (
         <p className="text-foreground-secondary py-4 text-center text-sm">
           No log lines in the last hour.

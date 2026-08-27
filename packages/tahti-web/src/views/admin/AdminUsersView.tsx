@@ -271,9 +271,7 @@ export const AdminUsersView = () => {
 
             <div className="min-h-0 flex-1 overflow-y-auto">
               {loading ? (
-                <p className="text-foreground-secondary p-3 text-sm">
-                  Loading…
-                </p>
+                <PageLoading label="Loading users…" />
               ) : users.length === 0 ? (
                 <p className="text-foreground-secondary p-3 text-sm">
                   No users match these filters.
