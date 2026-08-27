@@ -1135,7 +1135,7 @@ export function StudioProEditorView({
                           </span>
                         </div>
                         {job.status === 'ERROR' && job.errorMessage && (
-                          <p className="mt-1 text-xs text-red-400">
+                          <p className="text-accent-red mt-1 text-xs">
                             {job.errorMessage}
                           </p>
                         )}

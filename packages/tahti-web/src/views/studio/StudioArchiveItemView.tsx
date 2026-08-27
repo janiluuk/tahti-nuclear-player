@@ -476,7 +476,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
 
             {hasError && (
               <p
-                className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+                className="border-accent-red/40 bg-accent-red/10 text-foreground rounded-lg border px-4 py-3 text-sm"
                 role="alert"
               >
                 Processing failed for this file. Try uploading it again, or
