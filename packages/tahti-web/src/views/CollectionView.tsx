@@ -18,6 +18,7 @@ import type {
 import { EmbedButton } from '../components/EmbedButton';
 import { EmbedTrackRow } from '../components/EmbedTrackRow';
 import { PageFrame } from '../components/PageHeader';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import type { EmbedProvider } from '../lib/embedSrc';
@@ -112,13 +113,16 @@ export function CollectionView({
   }, [collection]);
 
   if (loading) {
-    return (
-      <p className="text-foreground-secondary text-sm">Loading collection…</p>
-    );
+    return <PageLoading label="Loading collection…" />;
   }
 
   if (!collection) {
-    return <p className="text-sm">Collection not found.</p>;
+    return (
+      <PageEmpty
+        title="Collection not found"
+        description="This collection may have been removed or is not available."
+      />
+    );
   }
 
   const isOwner = Boolean(me && me.username === collection.user.username);

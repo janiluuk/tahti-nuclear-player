@@ -15,6 +15,7 @@ import type {
 } from '../api/types';
 import { EmbedButton } from '../components/EmbedButton';
 import { PageHeader } from '../components/PageHeader';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { syncDocumentMetadata } from '../lib/seo';
@@ -112,13 +113,16 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
   }, [slug]);
 
   if (loading) {
-    return (
-      <p className="text-foreground-secondary text-sm">Loading release…</p>
-    );
+    return <PageLoading label="Loading release…" />;
   }
 
   if (!data) {
-    return <p className="text-sm">Release not found.</p>;
+    return (
+      <PageEmpty
+        title="Release not found"
+        description="This release may have been removed or is not available."
+      />
+    );
   }
 
   const targets = Object.entries(data.targets).filter(([, url]) => url?.trim());

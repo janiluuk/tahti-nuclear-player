@@ -10,6 +10,7 @@ import {
 } from '../api/client';
 import type { FanTiersResponse } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
@@ -42,11 +43,16 @@ export function SubscribeView({ username }: { username: string }) {
   }, [username]);
 
   if (loading) {
-    return <p className="text-foreground-secondary text-sm">Loading tiers…</p>;
+    return <PageLoading label="Loading tiers…" />;
   }
 
   if (!data) {
-    return <p className="text-sm">Artist not found.</p>;
+    return (
+      <PageEmpty
+        title="Artist not found"
+        description="This artist may have been removed or is not available."
+      />
+    );
   }
 
   return (
