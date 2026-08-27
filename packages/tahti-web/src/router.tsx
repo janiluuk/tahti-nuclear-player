@@ -129,6 +129,14 @@ const AdminGrantsView = lazyRouteComponent(
   () => import('./views/admin/AdminGrantsView'),
   'AdminGrantsView',
 );
+const AdminGrantCycleView = lazyRouteComponent(
+  () => import('./views/admin/AdminGrantCycleView'),
+  'AdminGrantCycleView',
+);
+const AdminMissedShowsView = lazyRouteComponent(
+  () => import('./views/admin/AdminMissedShowsView'),
+  'AdminMissedShowsView',
+);
 const AdminI18nView = lazyRouteComponent(
   () => import('./views/admin/AdminI18nView'),
   'AdminI18nView',
@@ -447,10 +455,22 @@ const adminGrantsRoute = createRoute({
   component: AdminGrantsView,
 });
 
+const adminGrantCycleRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/grants/$year',
+  component: AdminGrantCycleView,
+});
+
 const adminAgmRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/agm',
   component: AdminAgmView,
+});
+
+const adminMissedShowsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/missed-shows',
+  component: AdminMissedShowsView,
 });
 
 const adminVendorsRoute = createRoute({
@@ -1267,7 +1287,9 @@ const routeTree = rootRoute.addChildren([
     adminGovernanceRoute,
     adminFeatureRequestsRoute,
     adminGrantsRoute,
+    adminGrantCycleRoute,
     adminAgmRoute,
+    adminMissedShowsRoute,
     adminVendorsRoute,
     adminStatusRoute,
     adminI18nRoute,

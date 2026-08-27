@@ -6,7 +6,6 @@ import {
   LayoutDashboardIcon,
   MapIcon,
   RadioIcon,
-  RssIcon,
   SettingsIcon,
   ShieldIcon,
 } from 'lucide-react';
@@ -58,16 +57,6 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             to="/"
             icon={<GaugeIcon size={16} />}
             label="Listen"
-          />
-        </div>
-        <div
-          className="border-border ml-3 border-l pl-2"
-          data-tour-id="nav-feed"
-        >
-          <SidebarNavigationItem
-            to="/feed"
-            icon={<RssIcon size={16} />}
-            label="Feed"
           />
         </div>
         <div data-tour-id="nav-radio">
@@ -325,16 +314,6 @@ export function AppShell() {
                       to="/"
                       icon={<GaugeIcon size={16} />}
                       label="Listen"
-                    />
-                  </div>
-                  <div
-                    className="border-border ml-3 border-l pl-2"
-                    data-tour-id="nav-feed"
-                  >
-                    <SidebarNavigationItem
-                      to="/feed"
-                      icon={<RssIcon size={16} />}
-                      label="Feed"
                     />
                   </div>
                   <div data-tour-id="nav-radio">

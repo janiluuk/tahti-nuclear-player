@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import {
   ActivityIcon,
+  AlertTriangleIcon,
   BanknoteIcon,
   FileTextIcon,
   FlagIcon,
@@ -111,6 +112,12 @@ const PRIMARY = [
     description: 'Annual general meeting scheduling and records.',
   },
   {
+    to: '/admin/missed-shows',
+    label: 'Missed shows',
+    icon: <AlertTriangleIcon size={16} aria-hidden />,
+    description: 'Review scheduled shows that passed without a broadcast.',
+  },
+  {
     to: '/admin/vendors',
     label: 'Vendors',
     icon: <SettingsIcon size={16} aria-hidden />,
@@ -148,6 +155,7 @@ const ADMIN_SECTIONS = [
         '/admin/governance',
         '/admin/grants',
         '/admin/agm',
+        '/admin/missed-shows',
       ].includes(item.to),
     ),
   },

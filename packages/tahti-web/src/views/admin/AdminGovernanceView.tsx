@@ -38,6 +38,7 @@ export function AdminGovernanceView() {
       title: 'Member motions & voting',
       desc: 'Open member motions and the public governance portal.',
       badge: overview ? `${overview.openMotions} open` : undefined,
+      to: '/governance',
     },
     {
       icon: BuildingIcon,
@@ -73,6 +74,7 @@ export function AdminGovernanceView() {
       icon: ShieldCheckIcon,
       title: 'Audit log',
       desc: 'Searchable log of privileged actions across the platform.',
+      to: '/admin/logs',
     },
     {
       icon: FileTextIcon,

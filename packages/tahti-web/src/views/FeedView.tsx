@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, SectionShell } from '@nuclearplayer/ui';
 
 import { fetchFeed } from '../api/client';
 import type { FeedItem, TahtiPlayable } from '../api/types';
@@ -45,7 +45,7 @@ function ArtistAvatar({ name, src }: { name: string; src: string | null }) {
   );
 }
 
-export function FeedView() {
+export function FeedView({ embedded = false }: { embedded?: boolean }) {
   const user = useAuthStore((s) => s.user);
   const hydrated = useAuthStore((s) => s.hydrated);
   const [items, setItems] = useState<FeedItem[]>([]);
@@ -98,12 +98,14 @@ export function FeedView() {
     );
   }
 
-  return (
-    <PageFrame maxWidth="3xl">
-      <PageHeader
-        title="Your feed"
-        subtitle={`New posts, tracks, and releases from the ${followingCount} artist${followingCount === 1 ? '' : 's'} you follow.`}
-      />
+  const content = (
+    <>
+      {!embedded && (
+        <PageHeader
+          title="Your feed"
+          subtitle={`New posts, tracks, and releases from the ${followingCount} artist${followingCount === 1 ? '' : 's'} you follow.`}
+        />
+      )}
 
       {items.length === 0 ? (
         <PageEmpty
@@ -296,6 +298,12 @@ export function FeedView() {
         onClose={() => setInfoTrack(null)}
         track={infoTrack}
       />
-    </PageFrame>
+    </>
+  );
+
+  return embedded ? (
+    <SectionShell title="Your feed">{content}</SectionShell>
+  ) : (
+    <PageFrame maxWidth="3xl">{content}</PageFrame>
   );
 }

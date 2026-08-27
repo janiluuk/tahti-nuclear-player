@@ -6,6 +6,22 @@ Screenshots: `docs/redesign-shots/{page-slug}-v{n}.png`
 
 Workflow rules: one page at a time; do not advance until user approves.
 
+## Cross-repo parity audit — Tahti-org → beta (2026-08-27)
+
+Compared the artist and admin routes in `../tahti` with the current beta panels.
+
+- Governance: beta has motions, voting, comments, and feature requests, but the artist overview is missing the org-style “Needs your attention” and “Top topics” summary; admin governance cards for member register, audit, resolutions, annual report, and venue verification are mostly informational rather than actionable.
+- AGM: beta has the editable agenda, motions list, and notice checklist, but is missing the org links for member-register export, board resolutions, annual report generation, audit log, and governance portal.
+- Grants: beta shows disbursement history only; org has year/cycle preview, pool validation, recipient breakdown, and an approve/disburse action.
+- Feature requests: beta has status filtering and row status changes, but not the org quarterly review report.
+- Missed shows: missing as an admin route and navigation entry in beta; org provides status filters, artist/show context, inspect/message actions, and review/action/dismiss transitions.
+- Support queue: beta has the primary list, detail, status changes, replies, and search; no material route-level gap found in this pass.
+- Tahti Selects: beta has the editor, search/add, ordering, removal, preview, and stream controls; it is merged under Moderation rather than a standalone page.
+- Posts/newsletter: beta combines these under Updates and supports create/edit/delete drafts; org’s separate surfaces make the workflows clearer, so parity review remains for publish/scheduling and delivery reporting.
+- Channel: beta combines design, profile, domain, gallery layers, and 24/7 radio in one view; org splits text, gallery, links, widgets, schedule, and playlist into dedicated pages. Beta needs a deeper control-by-control audit before claiming parity.
+
+First implementation slice: add the missing admin Missed shows queue as an addressable beta view.
+
 ---
 
 ## Artist studio (POC routes)

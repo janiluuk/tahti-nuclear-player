@@ -1,16 +1,17 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button } from '@nuclearplayer/ui';
+import { Badge, Button, SectionShell } from '@nuclearplayer/ui';
 
 import {
+  fetchFeatureRequests,
   fetchGovernanceMotions,
   fetchMotionComments,
   postMotionComment,
   voteOnMotion,
   type MotionComment,
 } from '../api/client';
-import type { GovernanceMotion } from '../api/types';
+import type { FeatureRequest, GovernanceMotion } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
 import { TahtiMapLink } from '../components/TahtiMapLink';
@@ -34,6 +35,7 @@ function stateBadge(state: string): {
 export function GovernanceView() {
   const user = useAuthStore((s) => s.user);
   const [motions, setMotions] = useState<GovernanceMotion[]>([]);
+  const [requests, setRequests] = useState<FeatureRequest[]>([]);
   const [forbidden, setForbidden] = useState(false);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -46,11 +48,18 @@ export function GovernanceView() {
     if (!user) {
       return;
     }
-    void fetchGovernanceMotions().then((res) => {
-      setMotions(res.data);
-      setForbidden(Boolean(res.forbidden) && res.data.length === 0);
-      setLoading(false);
-    });
+    void Promise.all([fetchGovernanceMotions(), fetchFeatureRequests()]).then(
+      ([motionsResult, requestsResult]) => {
+        setMotions(motionsResult.data);
+        setRequests(requestsResult.data);
+        setForbidden(
+          Boolean(motionsResult.forbidden || requestsResult.forbidden) &&
+            motionsResult.data.length === 0 &&
+            requestsResult.data.length === 0,
+        );
+        setLoading(false);
+      },
+    );
   };
 
   useEffect(() => {
@@ -122,6 +131,83 @@ export function GovernanceView() {
         <p className="text-foreground-secondary text-sm">
           No motions returned.
         </p>
+      )}
+
+      {user && !loading && !forbidden && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <SectionShell title="Needs your attention">
+            <p className="text-foreground-secondary text-sm">
+              {
+                motions.filter(
+                  (motion) => motion.state === 'OPEN' && !motion.youVoted,
+                ).length
+              }{' '}
+              open motion
+              {motions.filter(
+                (motion) => motion.state === 'OPEN' && !motion.youVoted,
+              ).length === 1
+                ? ''
+                : 's'}{' '}
+              still need your vote.
+            </p>
+            <p className="text-foreground-secondary mt-2 text-xs">
+              {motions.filter((motion) => motion.state === 'OPEN').length} open
+              motion
+              {motions.filter((motion) => motion.state === 'OPEN').length === 1
+                ? ''
+                : 's'}{' '}
+              ·{' '}
+              {
+                requests.filter(
+                  (request) => request.status === 'OPEN' && !request.youVoted,
+                ).length
+              }{' '}
+              topics you have not voted on
+            </p>
+            <Link
+              to="/governance"
+              className="text-foreground-secondary mt-3 text-xs hover:underline"
+            >
+              View all motions →
+            </Link>
+          </SectionShell>
+          <SectionShell title="Top topics">
+            {requests.length === 0 ? (
+              <p className="text-foreground-secondary text-sm">
+                No topics yet.
+              </p>
+            ) : (
+              <ul className="divide-border divide-y">
+                {requests
+                  .filter(
+                    (request) =>
+                      !['DONE', 'DECLINED', 'DUPLICATE'].includes(
+                        request.status,
+                      ),
+                  )
+                  .sort((left, right) => right.voteCount - left.voteCount)
+                  .slice(0, 5)
+                  .map((request) => (
+                    <li
+                      key={request.id}
+                      className="flex items-center justify-between gap-3 py-2 text-sm first:pt-0 last:pb-0"
+                    >
+                      <span className="min-w-0 truncate">{request.title}</span>
+                      <span className="text-foreground-secondary shrink-0 text-xs">
+                        {request.voteCount} votes
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            )}
+            <Link
+              to="/governance/feature-requests"
+              className="text-foreground-secondary mt-3 text-xs hover:underline"
+            >
+              View all topics →
+            </Link>
+          </SectionShell>
+        </div>
       )}
 
       {actionMsg && (

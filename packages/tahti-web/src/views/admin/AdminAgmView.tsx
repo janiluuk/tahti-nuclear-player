@@ -199,6 +199,30 @@ export function AdminAgmView() {
             </ul>
           </div>
         </details>
+
+        <StudioPanel title="Minutes & records">
+          <p className="text-foreground-secondary text-sm">
+            Keep the meeting record connected to the board&apos;s formal records
+            and member register.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a href="/tahti-api/api/admin/members/export.csv">
+              <Button size="sm" variant="secondary">
+                Export member register
+              </Button>
+            </a>
+            <a href="/admin/logs">
+              <Button size="sm" variant="secondary">
+                Open audit log
+              </Button>
+            </a>
+            <a href="/admin/governance">
+              <Button size="sm" variant="secondary">
+                Governance tools
+              </Button>
+            </a>
+          </div>
+        </StudioPanel>
       </div>
     </AdminGate>
   );

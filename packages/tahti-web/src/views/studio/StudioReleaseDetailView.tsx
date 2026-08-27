@@ -18,11 +18,14 @@ import {
 } from '../../api/studio';
 import type { FingerprintMatch, StudioRelease } from '../../api/studio-types';
 import { FingerprintTrackPanel } from '../../components/FingerprintTrackPanel';
+import { MusicBrainzSubmissionAssistant } from '../../components/MusicBrainzSubmissionAssistant';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { useAuthStore } from '../../stores/authStore';
 
 export function StudioReleaseDetailView({ id }: { id: string }) {
+  const user = useAuthStore((state) => state.user);
   const [release, setRelease] = useState<StudioRelease | null>(null);
   const [description, setDescription] = useState('');
   const [spotify, setSpotify] = useState('');
@@ -94,7 +97,17 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
               title={release.title}
               subtitle={`${release.state} — /r/${release.smartLinkSlug}`}
               action={
-                <SaveButton saving={saving} onClick={() => void save()} />
+                <div className="flex flex-wrap justify-end gap-2">
+                  <MusicBrainzSubmissionAssistant
+                    mode="release"
+                    title={release.title}
+                    artistName={user?.displayName ?? ''}
+                    releaseDate={release.releaseDate}
+                    barcode={release.upc}
+                    tracks={release.tracks}
+                  />
+                  <SaveButton saving={saving} onClick={() => void save()} />
+                </div>
               }
             />
 

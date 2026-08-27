@@ -1,4 +1,7 @@
+import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
+
+import { Button } from '@nuclearplayer/ui';
 
 import { fetchAdminGrants, type AdminGrantYearSummary } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
@@ -51,10 +54,46 @@ export function AdminGrantsView() {
                   <div className="text-sm font-medium">
                     {formatEur(row.totalCents)}
                   </div>
+                  <Link
+                    to="/admin/grants/$year"
+                    params={{ year: String(row.year) }}
+                  >
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      aria-label={`View ${row.year} grants`}
+                      title={`View ${row.year} grants`}
+                    >
+                      →
+                    </Button>
+                  </Link>
                 </li>
               ))}
             </ul>
           )}
+        </StudioPanel>
+        <StudioPanel title="Preview a grant cycle">
+          <p className="text-foreground-secondary text-sm">
+            Review a dry-run allocation by year. Approval is only enabled when
+            the allocation balances to the cent.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[
+              new Date().getUTCFullYear() - 1,
+              new Date().getUTCFullYear() - 2,
+              new Date().getUTCFullYear() - 3,
+            ].map((year) => (
+              <Link
+                key={year}
+                to="/admin/grants/$year"
+                params={{ year: String(year) }}
+              >
+                <Button size="sm" variant="secondary">
+                  {year}
+                </Button>
+              </Link>
+            ))}
+          </div>
         </StudioPanel>
       </div>
     </AdminGate>

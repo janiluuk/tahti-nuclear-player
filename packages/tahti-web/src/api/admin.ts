@@ -1964,6 +1964,59 @@ export async function postAdminSupportTicketMessage(
   }
 }
 
+// ── Missed live shows ──────────────────────────────────────────────────────
+
+export type AdminMissedShowStatus =
+  | 'OPEN'
+  | 'REVIEWING'
+  | 'ACTIONED'
+  | 'DISMISSED';
+
+export type AdminMissedShow = {
+  id: string;
+  status: AdminMissedShowStatus;
+  detectedAt: string;
+  scheduledLiveShow: {
+    id: string;
+    title: string;
+    startAt: string;
+  };
+  channel: {
+    slug: string;
+    userId: string;
+    username: string;
+    displayName: string;
+  };
+};
+
+export async function fetchAdminMissedShows(
+  status?: AdminMissedShowStatus,
+): Promise<{ data: AdminMissedShow[]; meta: FetchMeta }> {
+  try {
+    const query = new URLSearchParams({ limit: '100' });
+    if (status) {
+      query.set('status', status);
+    }
+    const data = await getJson<{ flags: AdminMissedShow[] }>(
+      `/api/admin/missed-live-shows?${query.toString()}`,
+    );
+    return { data: data.flags, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function updateAdminMissedShow(
+  id: string,
+  status: AdminMissedShowStatus,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  return mutate(
+    `/api/admin/missed-live-shows/${encodeURIComponent(id)}`,
+    'PATCH',
+    { status },
+  );
+}
+
 // ── Top lists ───────────────────────────────────────────────────────────────
 
 export type AdminTopListPeriod = 'month' | 'half_year' | 'all_time';
@@ -3078,6 +3131,107 @@ export async function fetchAdminGrants(): Promise<{
   } catch (err) {
     return { data: [], meta: failMeta(err) };
   }
+}
+
+export type AdminGrantPreviewArtist = {
+  userId: string;
+  username: string;
+  displayName: string;
+  units: number;
+  amountCents: number;
+  freeDownloads: number;
+  paidDownloads: number;
+  fanSubEuros: number;
+};
+
+export type AdminGrantPreview = {
+  forYear: number;
+  alreadyRun: boolean;
+  poolCents: number;
+  totalUnits: number;
+  unallocatedCents: number;
+  artists: AdminGrantPreviewArtist[];
+};
+
+export type AdminGrantHistoryDetail = AdminGrantYearSummary & {
+  disbursedAt: string | null;
+  grants: Array<{
+    publishedAs: string | null;
+    units: number;
+    amountCents: string;
+    state: string;
+  }>;
+};
+
+function mockGrantPreview(year: number): AdminGrantPreview {
+  const artists = [
+    {
+      userId: 'artist-1',
+      username: 'northern-lights',
+      displayName: 'Northern Lights',
+      units: 128,
+      amountCents: 64000,
+      freeDownloads: 48,
+      paidDownloads: 12,
+      fanSubEuros: 20,
+    },
+    {
+      userId: 'artist-2',
+      username: 'kaiku-collective',
+      displayName: 'Kaiku Collective',
+      units: 74,
+      amountCents: 37000,
+      freeDownloads: 32,
+      paidDownloads: 5,
+      fanSubEuros: 17,
+    },
+  ];
+  return {
+    forYear: year,
+    alreadyRun: false,
+    poolCents: 101000,
+    totalUnits: 202,
+    unallocatedCents: 0,
+    artists,
+  };
+}
+
+export async function fetchAdminGrantPreview(
+  year: number,
+): Promise<{ data: AdminGrantPreview | null; meta: FetchMeta }> {
+  if (forceMock()) {
+    return {
+      data: mockGrantPreview(year),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminGrantPreview>(
+      `/api/admin/grants/preview/${year}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export async function fetchAdminGrantHistory(
+  year: number,
+): Promise<{ data: AdminGrantHistoryDetail | null; meta: FetchMeta }> {
+  try {
+    const data = await getJson<AdminGrantHistoryDetail>(
+      `/api/v1/transparency/grants/${year}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export async function runAdminGrantCycle(
+  year: number,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  return mutate(`/api/admin/grants/run/${year}`, 'POST');
 }
 
 // ── AGM ─────────────────────────────────────────────────────────────────────

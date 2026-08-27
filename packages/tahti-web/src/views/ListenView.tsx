@@ -39,6 +39,7 @@ import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
+import { FeedView } from './FeedView';
 
 export function ListenView() {
   const navigate = useNavigate();
@@ -217,6 +218,8 @@ export function ListenView() {
       <DiscoWidgetsSection widgets={discoWidgets} />
 
       <ListenerWidgetsSection />
+
+      <FeedView embedded />
 
       {radio ? (
         <Box
