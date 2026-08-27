@@ -140,9 +140,10 @@ export function StudioArchiveView() {
 
         <nav className="flex flex-wrap gap-2" role="tablist">
           {FOLDERS.map((f) => (
-            <button
+            <Button
               key={f.id}
               type="button"
+              variant="text"
               role="tab"
               aria-selected={folder === f.id}
               onClick={() =>
@@ -159,7 +160,7 @@ export function StudioArchiveView() {
             >
               <f.icon size={14} aria-hidden />
               {f.label}
-            </button>
+            </Button>
           ))}
         </nav>
 

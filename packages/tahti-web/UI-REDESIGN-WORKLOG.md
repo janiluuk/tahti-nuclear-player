@@ -766,6 +766,18 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Storybook production build also completed successfully. Pushed as three commits to `master`.
 
+### 2026-08-27 — Another 9 shared-control slices
+
+**Goal:** Continue the Storybook compliance sweep in three batches of three, migrating remaining bespoke controls to the shared Nuclear `Button` while preserving their behavior and accessibility semantics.
+
+**Batch 1:** Playlist selection cards, radio rotation-mode toggles, and fan-tier perk toggles now use shared buttons.
+
+**Batch 2:** Radio Schedule, Studio Channel, and Studio Branding tab controls now use shared buttons.
+
+**Batch 3:** Studio Archive, Studio Updates, and Artist profile tab controls now use shared buttons.
+
+**Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
+
 ### 2026-08-27 — Another 9 loading and theme-token slices
 
 **Goal:** Continue the remaining design-system cleanup in three batches of three, committing and pushing after each batch.

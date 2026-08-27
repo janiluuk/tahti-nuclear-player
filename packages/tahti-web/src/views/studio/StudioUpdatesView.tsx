@@ -111,9 +111,10 @@ export function StudioUpdatesView() {
               },
             ] as const
           ).map((t) => (
-            <button
+            <Button
               key={t.id}
               type="button"
+              variant="text"
               role="tab"
               aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
@@ -125,7 +126,7 @@ export function StudioUpdatesView() {
             >
               <t.icon size={14} aria-hidden />
               {t.label}
-            </button>
+            </Button>
           ))}
         </nav>
 

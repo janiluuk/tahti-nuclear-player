@@ -553,9 +553,10 @@ export function ArtistView({ username }: { username: string }) {
           aria-label="Profile sections"
         >
           {tabs.map((t) => (
-            <button
+            <Button
               key={t.id}
               type="button"
+              variant="text"
               role="tab"
               aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
@@ -566,7 +567,7 @@ export function ArtistView({ username }: { username: string }) {
               }`}
             >
               {t.label}
-            </button>
+            </Button>
           ))}
         </nav>
         {isOwner && galleryLoaded && !hasGallery ? (
