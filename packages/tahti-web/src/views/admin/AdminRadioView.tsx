@@ -17,6 +17,7 @@ import {
 import { fetchRadioStation } from '../../api/client';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { TahtiRotationPlaylistEditor } from '../../components/TahtiRotationPlaylistEditor';
 import { usePlayerStore } from '../../stores/playerStore';
@@ -105,7 +106,7 @@ export function AdminRadioView() {
 
         {loading || !data ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading radio…" />
           </StudioPanel>
         ) : (
           <>

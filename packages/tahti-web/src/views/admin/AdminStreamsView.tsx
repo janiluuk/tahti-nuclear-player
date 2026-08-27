@@ -13,6 +13,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 function formatDuration(sec: number): string {
@@ -81,7 +82,7 @@ export function AdminStreamsView() {
 
         <StudioPanel>
           {loading ? (
-            <p className="text-foreground-secondary text-sm">Loading…</p>
+            <PageLoading label="Loading streams…" />
           ) : streams.length === 0 ? (
             <p className="text-foreground-secondary py-4 text-center text-sm">
               No channels are live right now.
