@@ -18,6 +18,7 @@ import {
 } from '../api/studio';
 import type { StudioCollection } from '../api/studio-types';
 import { useAuthStore } from '../stores/authStore';
+import { PageLoading } from './PageStates';
 
 type Props = {
   isOpen: boolean;
@@ -166,9 +167,7 @@ export function AddToPlaylistPanel({
             to save tracks to a playlist.
           </p>
         ) : collections === null ? (
-          <p className="text-foreground-secondary text-sm">
-            Loading playlists…
-          </p>
+          <PageLoading label="Loading playlists…" />
         ) : loadError && collections.length === 0 ? (
           <p className="text-foreground-secondary text-sm">{loadError}</p>
         ) : (

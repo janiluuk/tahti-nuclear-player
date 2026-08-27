@@ -6,6 +6,7 @@ import { Button, Tabs } from '@nuclearplayer/ui';
 import { fetchMembership, fetchMySubscriptions } from '../api/client';
 import type { FanSubscriptionRow, MembershipStatus } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageLoading } from '../components/PageStates';
 import { membershipStatusLabel } from '../lib/membershipStatus';
 import { useAuthStore } from '../stores/authStore';
 
@@ -76,7 +77,7 @@ export function AccountView() {
         }
       />
 
-      {loading && <p className="text-foreground-secondary text-sm">Loading…</p>}
+      {loading && <PageLoading label="Loading account…" />}
 
       <div className="border-border bg-background-secondary/40 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
         <div>

@@ -33,6 +33,7 @@ import type {
 } from '../api/studio-types';
 import { capitalizeGenre, PRESET_GENRES } from '../lib/genres';
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
+import { PageLoading } from './PageStates';
 import { TrackExportPanel } from './TrackExportPanel';
 
 type Tab = 'metadata' | 'artwork' | 'playlists' | 'export';
@@ -246,7 +247,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
         </Dialog.Description>
 
         {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading track…</p>
+          <PageLoading label="Loading track…" />
         ) : item ? (
           <Tabs
             className="mt-3"

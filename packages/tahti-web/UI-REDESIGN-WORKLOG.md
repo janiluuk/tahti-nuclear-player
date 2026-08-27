@@ -754,6 +754,18 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
 
+### 2026-08-27 — Another 9 loading and theme-token slices
+
+**Goal:** Continue the remaining design-system cleanup in three batches of three, committing and pushing after each batch.
+
+**Batch 1:** `GovernanceView`, `ChannelDesigner`, and `DiscoWidgetManagerPanel` now use shared loading states.
+
+**Batch 2:** `ChannelDesigner`, `AppTopNav`, and `ScreenAtlas` now use semantic warning/error colors.
+
+**Batch 3:** `TrackEditDialog`, `AddToPlaylistPanel`, and `AccountView` now use shared loading states.
+
+**Status:** implemented; all three batches passed tahti-web type-check, lint, and diff checks. Pushed as three commits to `master`.
+
 ### 2026-08-27 — Another 9 cleanup slices
 
 **Goal:** Continue the remaining design-system cleanup in three batches of three, committing and pushing after each batch.
