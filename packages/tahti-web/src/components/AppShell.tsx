@@ -128,7 +128,6 @@ export function AppShell() {
     rightCollapsed,
     leftWidth,
     rightWidth,
-    chatEnabled,
     toggleLeft,
     toggleRight,
     setLeftWidth,
@@ -406,7 +405,7 @@ export function AppShell() {
             </div>
           </PlayerWorkspace.Main>
 
-          {chatEnabled && (
+          {userId && (
             <PlayerWorkspace.RightSidebar
               width={rightWidth}
               isCollapsed={rightCollapsed}

@@ -12,6 +12,7 @@ import { Button, Dialog, Input } from '@nuclearplayer/ui';
 import {
   createEpisode,
   createShowBooking,
+  createShowSeries,
   fetchShowBookings,
   fetchShowSeries,
   SHOW_SLOT_MAX_HOURS,
@@ -84,6 +85,9 @@ export function RadioBookingCalendar({
   const [startTime, setStartTime] = useState('20:00');
   const [durationHours, setDurationHours] = useState<1 | 2>(1);
   const [note, setNote] = useState('');
+  const [showDescription, setShowDescription] = useState('');
+  const [showCoverUrl, setShowCoverUrl] = useState('');
+  const [newShowMode, setNewShowMode] = useState<'SINGLE' | 'SERIES'>('SERIES');
   const [showType, setShowType] = useState<ShowType>('LIVE_SET');
   const [shows, setShows] = useState<StudioShowSeries[]>([]);
   const [selectedShowId, setSelectedShowId] = useState('');
@@ -117,11 +121,17 @@ export function RadioBookingCalendar({
     setSelectedShowId(showId);
     const show = shows.find((candidate) => candidate.id === showId);
     if (!show) {
+      setShowDescription('');
+      setShowCoverUrl('');
+      setNewShowMode('SERIES');
       return;
     }
     setShowType(show.showType);
     setDurationHours(show.intervalHours);
     setNote(show.title);
+    setShowDescription(show.description);
+    setShowCoverUrl(show.coverUrl ?? '');
+    setNewShowMode(show.mode ?? 'SERIES');
   };
 
   const bookingsByDay = useMemo(() => {
@@ -154,18 +164,40 @@ export function RadioBookingCalendar({
     }
     const end = new Date(start.getTime() + durationHours * 3600_000);
     setBusy(true);
+    let selectedShow = shows.find((show) => show.id === selectedShowId);
+    if (!selectedShow) {
+      if (!note.trim()) {
+        setBusy(false);
+        setMsg('Enter a show name to create a new show.');
+        return;
+      }
+      const created = await createShowSeries({
+        title: note.trim(),
+        description: showDescription.trim(),
+        coverUrl: showCoverUrl.trim() || null,
+        mode: newShowMode,
+        showType,
+        intervalHours: durationHours,
+      });
+      if (!created.ok) {
+        setBusy(false);
+        setMsg(created.error);
+        return;
+      }
+      selectedShow = created.data;
+      setShows((current) => [created.data, ...current]);
+    }
     const r = await createShowBooking({
       startAt: start.toISOString(),
       endAt: end.toISOString(),
-      note: note.trim() || undefined,
-      showType,
+      note: selectedShow.title,
+      showType: selectedShow.showType,
     });
     setBusy(false);
     if (!r.ok) {
       setMsg(r.error);
       return;
     }
-    const selectedShow = shows.find((show) => show.id === selectedShowId);
     if (selectedShow) {
       const episode = await createEpisode({
         showId: selectedShow.id,
@@ -183,6 +215,8 @@ export function RadioBookingCalendar({
         return;
       }
       setNote('');
+      setShowDescription('');
+      setShowCoverUrl('');
       setSelectedShowId('');
       reload();
       onBooked?.();
@@ -327,10 +361,18 @@ export function RadioBookingCalendar({
                 <span className="text-foreground-secondary shrink-0 tabular-nums">
                   {formatTimeRange(b.startAt, b.endAt)}
                 </span>
-                <span className="min-w-0 flex-1 truncate">
-                  {b.note ?? b.displayName}
+                <Link
+                  to="/radio/show/$channelSlug"
+                  params={{ channelSlug: b.channelSlug }}
+                  onClick={onClose}
+                  className="min-w-0 flex-1 truncate font-medium hover:underline"
+                >
+                  {b.showTitle ?? b.note ?? b.displayName}
+                  {b.episodeNumber != null
+                    ? ` · Episode ${b.episodeNumber}`
+                    : ''}
                   {b.isMine ? ' (you)' : ''}
-                </span>
+                </Link>
               </li>
             ))}
           </ul>
@@ -363,7 +405,7 @@ export function RadioBookingCalendar({
                   onChange={(event) => selectShow(event.target.value)}
                   className="border-border bg-background rounded-md border px-3 py-2"
                 >
-                  <option value="">One-off slot</option>
+                  <option value="">Create a new show</option>
                   {shows.map((show) => (
                     <option key={show.id} value={show.id}>
                       {show.title}
@@ -371,8 +413,8 @@ export function RadioBookingCalendar({
                   ))}
                 </select>
                 <span className="text-foreground-secondary text-xs">
-                  Choosing a show prepares its next episode and asks for the
-                  public details after booking.
+                  Existing show details fill in below and prepare the next
+                  episode automatically.
                 </span>
               </label>
             ) : null}
@@ -446,6 +488,53 @@ export function RadioBookingCalendar({
               onChange={(e) => setNote(e.target.value)}
               placeholder="New show name or episode title"
             />
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-foreground-secondary text-xs uppercase">
+                Show description
+              </span>
+              <textarea
+                value={showDescription}
+                onChange={(event) => setShowDescription(event.target.value)}
+                rows={2}
+                className="border-border bg-background rounded-md border px-3 py-2"
+                placeholder="What listeners can expect"
+              />
+            </label>
+            <Input
+              label="Cover image URL"
+              value={showCoverUrl}
+              onChange={(event) => setShowCoverUrl(event.target.value)}
+              placeholder="https://…"
+            />
+            {showCoverUrl && (
+              <img
+                src={showCoverUrl}
+                alt="Show cover preview"
+                className="h-20 w-20 rounded-md object-cover"
+              />
+            )}
+            <div className="flex flex-wrap gap-2">
+              {(['SERIES', 'SINGLE'] as const).map((mode) => (
+                <Button
+                  key={mode}
+                  type="button"
+                  size="sm"
+                  variant={newShowMode === mode ? undefined : 'text'}
+                  onClick={() => setNewShowMode(mode)}
+                >
+                  {mode === 'SERIES' ? 'Recurring series' : 'Single show'}
+                </Button>
+              ))}
+              {newShowMode === 'SERIES' && (
+                <span className="text-foreground-secondary self-center text-xs">
+                  Episode #
+                  {selectedShowId
+                    ? (shows.find((show) => show.id === selectedShowId)
+                        ?.nextEpisodeNumber ?? 1)
+                    : 1}
+                </span>
+              )}
+            </div>
             <Button size="sm" disabled={busy} onClick={() => void book()}>
               {busy ? 'Booking…' : `Book ${durationHours}h slot`}
             </Button>

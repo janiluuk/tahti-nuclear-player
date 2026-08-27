@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { MessageCircleIcon, MicIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, SectionShell } from '@nuclearplayer/ui';
+import { Button, SectionShell, Tabs } from '@nuclearplayer/ui';
 
 import {
   fetchPublicRadioShow,
@@ -144,17 +144,30 @@ export const RadioShowView = ({ channelSlug }: { channelSlug: string }) => {
 
       {show.artist.bio ? <p className="text-sm">{show.artist.bio}</p> : null}
 
-      <SectionShell title="Upcoming schedule">
-        <EpisodeList
-          episodes={show.upcomingEpisodes}
-          emptyMessage="No upcoming slots booked right now."
-        />
-      </SectionShell>
-
-      <SectionShell title="Past episodes">
-        <EpisodeList
-          episodes={show.pastEpisodes}
-          emptyMessage="Nothing has aired yet."
+      <SectionShell title="Episodes">
+        <Tabs
+          items={[
+            {
+              id: 'upcoming',
+              label: 'Upcoming',
+              content: (
+                <EpisodeList
+                  episodes={show.upcomingEpisodes}
+                  emptyMessage="No upcoming slots booked right now."
+                />
+              ),
+            },
+            {
+              id: 'past',
+              label: 'Past episodes',
+              content: (
+                <EpisodeList
+                  episodes={show.pastEpisodes}
+                  emptyMessage="Nothing has aired yet."
+                />
+              ),
+            },
+          ]}
         />
       </SectionShell>
     </PageFrame>

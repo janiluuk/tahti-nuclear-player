@@ -103,6 +103,11 @@ export type StudioShowBooking = {
   username: string;
   displayName: string;
   isMine: boolean;
+  showId?: string | null;
+  showTitle?: string | null;
+  showDescription?: string | null;
+  coverUrl?: string | null;
+  episodeNumber?: number | null;
 };
 
 export type PublicRadioShowEpisode = {

@@ -102,7 +102,11 @@ export function StudioChannelView() {
   return (
     <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
-        <StudioNav current="/studio/channel" />
+        <StudioNav
+          current={
+            search.tab ? `/studio/channel?tab=${search.tab}` : '/studio/channel'
+          }
+        />
         <StudioPageHeader
           title="Channel design"
           subtitle="Set up your channel, then manage its look, 24/7 radio, profile, and domain."

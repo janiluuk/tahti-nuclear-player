@@ -15,11 +15,9 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
   const chatDisabledReason = useLayoutStore((s) => s.chatDisabledReason);
   const [tab, setTab] = useState<'chat' | 'notifications'>('chat');
   const [notifications, setNotifications] = useState<TahtiNotification[]>([]);
+  const toggleRight = useLayoutStore((s) => s.toggleRight);
 
   useEffect(() => {
-    if (isCollapsed || tab !== 'notifications') {
-      return;
-    }
     void fetchNotifications().then((result) => {
       setNotifications(result.data.filter((item) => !item.readAt));
     });
@@ -27,8 +25,36 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
 
   if (isCollapsed) {
     return (
-      <div className="flex h-full flex-col items-center gap-3 py-3 opacity-40">
-        <MessageCircle size={18} />
+      <div className="flex h-full flex-col items-center gap-2 py-3">
+        <button
+          type="button"
+          className={`text-foreground-secondary hover:text-foreground rounded-md p-1.5 ${tab === 'chat' ? 'bg-primary/15 text-primary' : ''}`}
+          aria-label="Open chat"
+          title="Open chat"
+          onClick={() => {
+            setTab('chat');
+            toggleRight();
+          }}
+        >
+          <MessageCircle size={18} />
+        </button>
+        <button
+          type="button"
+          className={`text-foreground-secondary hover:text-foreground relative rounded-md p-1.5 ${tab === 'notifications' ? 'bg-primary/15 text-primary' : ''}`}
+          aria-label="Open notifications"
+          title="Open notifications"
+          onClick={() => {
+            setTab('notifications');
+            toggleRight();
+          }}
+        >
+          <Bell size={18} />
+          {notifications.length > 0 ? (
+            <span className="bg-accent-red text-foreground absolute -top-1 -right-1 min-w-3 rounded-full px-1 text-center text-[9px] leading-3">
+              {notifications.length}
+            </span>
+          ) : null}
+        </button>
       </div>
     );
   }

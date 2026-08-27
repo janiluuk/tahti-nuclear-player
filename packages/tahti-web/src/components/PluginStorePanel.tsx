@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardGrid,
+  Dialog,
   Input,
   PluginItem,
   PluginStoreItem,
@@ -72,10 +73,12 @@ const IMPORT_SOURCE_KINDS = new Set(['oauth', 'search', 'tool']);
 function ConfigurableCard({
   header,
   children,
+  title,
   defaultOpen = false,
 }: {
   header: React.ReactNode;
   children: React.ReactNode;
+  title: string;
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -93,11 +96,20 @@ function ConfigurableCard({
           <SettingsIcon size={15} aria-hidden />
         </Button>
       </div>
-      {open && (
-        <div className="border-border bg-background-secondary/40 ml-2 flex flex-col gap-3 rounded-lg border p-4">
-          {children}
-        </div>
-      )}
+      <Dialog.Root
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        className="max-w-lg"
+      >
+        <Dialog.Title>Configure {title}</Dialog.Title>
+        <Dialog.Description>
+          Changes are saved for this add-on.
+        </Dialog.Description>
+        <div className="flex flex-col gap-3">{children}</div>
+        <Dialog.Actions>
+          <Dialog.Close>Done</Dialog.Close>
+        </Dialog.Actions>
+      </Dialog.Root>
     </div>
   );
 }
@@ -106,7 +118,7 @@ function ConfigurableCard({
  * PLUGIN-STORE-PLAN.md for what actually turning each one into a real,
  * removable plugin would take. This view is the navigation/config layer
  * over the *existing* implementations, not a new plugin runtime: themes
- * apply in place, visualizer/hearthis/MusicBrainz configure inline
+ * apply in place, visualizer/hearthis/embed/MusicBrainz configure in dialogs
  * (real API calls, not stubs), everything else opens its real settings
  * surface, which still owns the actual editing UI.
  *
@@ -254,6 +266,7 @@ function VisualizersCategory() {
         return (
           <ConfigurableCard
             key={id}
+            title={presetLabel(id)}
             header={
               <PluginStoreItem
                 name={presetLabel(id)}
@@ -474,6 +487,9 @@ function OAuthServiceCard({
     username?: string | null;
   } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [profileUrl, setProfileUrl] = useState('');
+  const [profileDraft, setProfileDraft] = useState('');
+  const [profileMsg, setProfileMsg] = useState<string | null>(null);
 
   const reload = () =>
     void fetchConnectionStatus(action.integrationId).then((r) =>
@@ -481,6 +497,41 @@ function OAuthServiceCard({
     );
 
   useEffect(reload, [action.integrationId]);
+
+  useEffect(() => {
+    if (action.integrationId !== 'soundcloud') {
+      return;
+    }
+    void fetchMeProfile().then((r) => {
+      const value = r.data.socialLinks?.soundcloud ?? '';
+      setProfileUrl(value);
+      setProfileDraft(value);
+    });
+  }, [action.integrationId]);
+
+  const saveProfileUrl = () => {
+    const value = profileDraft.trim();
+    if (!value) {
+      return;
+    }
+    setProfileMsg(null);
+    void fetchMeProfile().then((profile) =>
+      patchMeProfile({
+        socialLinks: {
+          ...(profile.data.socialLinks ?? {}),
+          soundcloud: value,
+        },
+      }).then((r) => {
+        if (!r.ok) {
+          setProfileMsg(r.error);
+          return;
+        }
+        setProfileUrl(value);
+        setProfileDraft(value);
+        setProfileMsg('Saved.');
+      }),
+    );
+  };
 
   const disconnect = () => {
     setBusy(true);
@@ -499,7 +550,7 @@ function OAuthServiceCard({
 
   return (
     <ConfigurableCard
-      defaultOpen={Boolean(status && !status.connected)}
+      title={plugin.name}
       header={
         <PluginStoreItem
           name={plugin.name}
@@ -527,6 +578,30 @@ function OAuthServiceCard({
           >
             {busy ? 'Disconnecting…' : 'Disconnect'}
           </Button>
+          {action.integrationId === 'soundcloud' && (
+            <div className="border-border flex flex-col gap-2 border-t pt-3">
+              <Input
+                label="SoundCloud profile URL"
+                value={profileDraft}
+                onChange={(e) => setProfileDraft(e.target.value)}
+                placeholder="https://soundcloud.com/your-name"
+              />
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  disabled={!profileDraft.trim() || profileDraft === profileUrl}
+                  onClick={saveProfileUrl}
+                >
+                  Save profile URL
+                </Button>
+                {profileMsg && (
+                  <p className="text-foreground-secondary text-xs">
+                    {profileMsg}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <>
@@ -586,7 +661,7 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
 
   return (
     <ConfigurableCard
-      defaultOpen={handle === null}
+      title={plugin.name}
       header={
         <Link to={HEARTHIS_SOURCES_PATH}>
           <PluginStoreItem
@@ -840,16 +915,21 @@ function EmbedCategory() {
         const isInstalled = installedTypeIds.includes(type.id);
         const typeInstances = instances.filter((i) => i.typeId === type.id);
         return (
-          <div key={type.id} className="flex flex-col gap-2">
-            <PluginStoreItem
-              name={type.name}
-              author={type.author}
-              description={type.description}
-              category={type.category}
-              isInstalled={isInstalled}
-              onInstall={() => installType(type.id)}
-            />
-            {isInstalled && (
+          <ConfigurableCard
+            key={type.id}
+            title={type.name}
+            header={
+              <PluginStoreItem
+                name={type.name}
+                author={type.author}
+                description={type.description}
+                category={type.category}
+                isInstalled={isInstalled}
+                onInstall={() => installType(type.id)}
+              />
+            }
+          >
+            {isInstalled ? (
               <div className="border-border ml-2 flex flex-col gap-3 border-l pl-4">
                 {typeInstances.map((instance) => (
                   <ListenerWidgetEmbed
@@ -899,8 +979,12 @@ function EmbedCategory() {
                   </Button>
                 </div>
               </div>
+            ) : (
+              <p className="text-foreground-secondary text-sm">
+                Install this add-on to add and manage embeds.
+              </p>
             )}
-          </div>
+          </ConfigurableCard>
         );
       })}
     </div>

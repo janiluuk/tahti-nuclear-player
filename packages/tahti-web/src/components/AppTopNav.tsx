@@ -308,6 +308,10 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
       <ScheduleDialog
         isOpen={scheduleOpen}
         onClose={() => setScheduleOpen(false)}
+        onBook={() => {
+          setScheduleOpen(false);
+          setBookOpen(true);
+        }}
       />
       <RadioBookingCalendar
         isOpen={bookOpen}

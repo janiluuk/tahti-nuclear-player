@@ -136,6 +136,11 @@ const SUBMENUS = {
       icon: <Settings2Icon size={16} />,
     },
     {
+      to: '/studio/channel?tab=radio',
+      label: '24/7 playlist',
+      icon: <RadioIcon size={16} />,
+    },
+    {
       to: '/studio/branding',
       label: 'Branding',
       icon: <SettingsIcon size={16} />,
@@ -199,16 +204,19 @@ const isActive = (current: string | undefined, to: string) => {
   if (!current) {
     return false;
   }
+  const pathname = current.split('?')[0];
   if (to === '/studio') {
-    return matchesSectionRoute(current, SECTION_PREFIXES[to]);
+    return matchesSectionRoute(pathname, SECTION_PREFIXES[to]);
   }
-  return matchesSectionRoute(current, SECTION_PREFIXES[to] ?? [to]);
+  return matchesSectionRoute(pathname, SECTION_PREFIXES[to] ?? [to]);
 };
 
 const isSubmenuActive = (current: string | undefined, to: string) =>
-  (to === '/library' || to === '/studio'
+  (to.includes('?')
     ? current === to
-    : current === to || current?.startsWith(`${to}/`) === true) ||
+    : to === '/library' || to === '/studio'
+      ? current === to
+      : current === to || current?.startsWith(`${to}/`) === true) ||
   (to === '/studio/releases' && current === '/library/releases') ||
   (to === '/studio/collections' && current === '/library/collections') ||
   (to === '/studio/recordings' && current === '/library/recordings') ||
