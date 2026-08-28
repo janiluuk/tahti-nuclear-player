@@ -108,7 +108,7 @@ export const SOURCE_DEFS: SourceDef[] = [
     description:
       'Upload audio files into your archive (prepare → MinIO → complete).',
     oauthStartPath: null,
-    studioDeepLink: '/studio/upload',
+    studioDeepLink: '/library/upload',
     kind: 'upload',
   },
   {
@@ -327,6 +327,83 @@ export type SpotifySearchTrack = {
   externalUrl?: string;
 };
 
+export type BandcampAlbum = {
+  id: string;
+  title: string;
+  url: string;
+  artistName?: string | null;
+  type?: 'ALBUM' | 'EP' | 'SINGLE' | string;
+  releaseDate?: string | null;
+  coverUrl?: string | null;
+  trackCount?: number;
+};
+
+export async function fetchBandcampAlbums(): Promise<{
+  data: BandcampAlbum[];
+  connected: boolean;
+  message?: string;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: [
+        {
+          id: 'bc-mock-1',
+          title: 'Night Signals',
+          url: 'https://mockartist.bandcamp.com/album/night-signals',
+          artistName: 'Mock Artist',
+          type: 'ALBUM',
+          releaseDate: '2026-01-20',
+          trackCount: 8,
+        },
+      ],
+      connected: true,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{
+      albums?: BandcampAlbum[];
+      message?: string;
+    }>('/api/me/bandcamp/albums');
+    return {
+      data: data.albums ?? [],
+      connected: true,
+      message: data.message,
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return {
+      data: [],
+      connected: false,
+      meta: failMeta(err),
+    };
+  }
+}
+
+export async function importBandcampAlbum(
+  album: BandcampAlbum,
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true, count: album.trackCount ?? 0 };
+  }
+  try {
+    const { data } = await requestJson<{ imported?: number }>(
+      '/api/v1/imports/bandcamp/add',
+      {
+        method: 'POST',
+        body: JSON.stringify({ albumUrl: album.url }),
+      },
+    );
+    return { ok: true, count: data.imported ?? album.trackCount ?? 0 };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Bandcamp import failed',
+    };
+  }
+}
+
 export async function searchSpotifyTracks(q: string): Promise<{
   data: SpotifySearchTrack[];
   meta: FetchMeta;
@@ -351,6 +428,26 @@ export async function searchSpotifyTracks(q: string): Promise<{
     return { data: data.tracks ?? [], meta: { source: 'api' } };
   } catch (err) {
     return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function importSpotifyTracks(
+  tracks: Array<{ trackId: string; title: string; externalUrl?: string }>,
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true, count: tracks.length };
+  }
+  try {
+    const { data } = await requestJson<{ imported?: number }>(
+      '/api/v1/imports/spotify/add',
+      { method: 'POST', body: JSON.stringify({ tracks }) },
+    );
+    return { ok: true, count: data.imported ?? tracks.length };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Spotify import failed',
+    };
   }
 }
 

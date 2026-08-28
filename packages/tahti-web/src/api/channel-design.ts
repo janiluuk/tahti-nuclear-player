@@ -64,17 +64,44 @@ export const isVisualPreset = (value: string): value is VisualPreset =>
 export const HEADER_STYLES = ['GRADIENT', 'SOLID', 'VIDEO_LOOP'] as const;
 export type HeaderStyle = (typeof HEADER_STYLES)[number];
 
-/** Direct, HTTPS-served .mp4/.webm file only — VIDEO_LOOP renders a raw
- * <video> element, so (unlike the backend's broader Gallery & backdrop
- * feature, which also allows YouTube/Vimeo links for that separate,
- * iframe-embedded use) it needs a file the browser can actually decode. */
+/** Direct video files and YouTube watch links supported by the VIDEO_LOOP
+ * header. YouTube links are rendered as muted looped iframe embeds. */
 const HEADER_VIDEO_URL_PATTERN = /^https:\/\/\S+\.(mp4|webm)(\?\S*)?$/i;
+
+export function youtubeEmbedUrl(url: string | null | undefined): string | null {
+  if (!url) {
+    return null;
+  }
+  try {
+    const parsed = new URL(url.trim());
+    let videoId = '';
+    if (parsed.hostname === 'youtu.be') {
+      videoId = parsed.pathname.slice(1);
+    } else if (
+      parsed.hostname === 'youtube.com' ||
+      parsed.hostname === 'www.youtube.com' ||
+      parsed.hostname === 'm.youtube.com'
+    ) {
+      videoId = parsed.searchParams.get('v') ?? '';
+      if (parsed.pathname.startsWith('/shorts/')) {
+        videoId = parsed.pathname.split('/')[2] ?? videoId;
+      }
+    }
+    return /^[\w-]{11}$/.test(videoId)
+      ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0`
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 export function isValidHeaderVideoUrl(url: string | null | undefined): boolean {
   if (!url) {
     return false;
   }
-  return HEADER_VIDEO_URL_PATTERN.test(url.trim());
+  return (
+    HEADER_VIDEO_URL_PATTERN.test(url.trim()) || youtubeEmbedUrl(url) !== null
+  );
 }
 
 export const MAX_HEADER_VIDEO_BYTES = 10 * 1024 * 1024;
@@ -165,6 +192,13 @@ export const BRAND_ACCENTS = [
     highlight: '#35D6C4',
     gradient: 'linear-gradient(135deg,#0A0E1A,#FFB020,#35D6C4)',
   },
+  {
+    id: 'rose-night',
+    label: 'Rose night',
+    accent: '#FB7185',
+    highlight: '#F0ABFC',
+    gradient: 'linear-gradient(135deg,#4C1D4F,#FB7185,#F0ABFC)',
+  },
 ] as const;
 
 /** Keys must match the backend's ColorSchemeSchema exactly (bg/accent/text/
@@ -199,7 +233,7 @@ export type ChannelVisual = {
   visualSettingsJson?: string | null;
   headerStyle: HeaderStyle | string;
   /** Reused from the backend's Channel.videoBackgroundUrl column — plays as
-   * the VIDEO_LOOP header style. Must be a direct .mp4/.webm URL. */
+   * the VIDEO_LOOP header style. Supports direct .mp4/.webm and YouTube links. */
   videoBackgroundUrl?: string | null;
   brandAccentPreset: string | null;
   slideshowPreset?: string | null;

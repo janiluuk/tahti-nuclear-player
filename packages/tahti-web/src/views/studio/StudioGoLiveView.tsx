@@ -22,7 +22,7 @@ import { Badge, Button, Dialog, Input } from '@nuclearplayer/ui';
 import {
   createRtmpTarget,
   deleteRtmpTarget,
-  fetchAutoRecordEnabled,
+  fetchBroadcastPreflight,
   fetchBroadcastUsage,
   fetchRtmpTargets,
   fetchSignalStatus,
@@ -31,7 +31,7 @@ import {
   getMockChannelState,
   liveChannelPlayable,
   mockSimulateSignal,
-  patchAutoRecordEnabled,
+  patchBroadcastPreflight,
   patchRtmpTarget,
   postGoLive,
   type BroadcastUsage,
@@ -162,17 +162,17 @@ export function StudioGoLiveView() {
   }, []);
 
   const reload = useCallback(async () => {
-    const [settingsResult, usageResult, targetResult, recordingResult] =
+    const [settingsResult, usageResult, targetResult, preflightResult] =
       await Promise.all([
         fetchStreamSettings(),
         fetchBroadcastUsage(),
         fetchRtmpTargets(),
-        fetchAutoRecordEnabled(),
+        fetchBroadcastPreflight(),
       ]);
     setSettings(settingsResult.data);
     setUsage(usageResult.data);
     setTargets(targetResult.data);
-    setRecordEnabled(recordingResult.data);
+    setRecordEnabled(preflightResult.data?.autoArchive ?? true);
     if (
       !settingsResult.data &&
       settingsResult.meta.source === 'api' &&
@@ -263,9 +263,9 @@ export function StudioGoLiveView() {
     setRecordEnabled(next);
     setRecordBusy(true);
     setMessage(null);
-    const result = await patchAutoRecordEnabled(next);
+    const result = await patchBroadcastPreflight({ autoArchive: next });
     setRecordBusy(false);
-    if (!result.ok) {
+    if ('error' in result) {
       setRecordEnabled(!next);
       setMessage(result.error);
     }

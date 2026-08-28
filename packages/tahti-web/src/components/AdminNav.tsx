@@ -7,6 +7,7 @@ import {
   FlagIcon,
   GaugeIcon,
   LanguagesIcon,
+  LibraryIcon,
   MegaphoneIcon,
   RadioIcon,
   ServerIcon,
@@ -50,6 +51,13 @@ const PRIMARY = [
     description: 'Search accounts and edit role, membership, and suspension.',
   },
   {
+    to: '/admin/content',
+    label: 'Content',
+    icon: <LibraryIcon size={16} aria-hidden />,
+    description:
+      'System content overview — catalog totals, latest uploads, and recordings.',
+  },
+  {
     to: '/admin/radio',
     label: 'Radio',
     icon: <RadioIcon size={16} aria-hidden />,
@@ -70,7 +78,7 @@ const PRIMARY = [
   },
   {
     to: '/admin/top-lists',
-    label: 'Overview',
+    label: 'Top lists',
     icon: <TrophyIcon size={16} aria-hidden />,
     description: 'Editorial top-track and top-artist lists.',
   },
@@ -178,15 +186,16 @@ const ADMIN_SECTIONS = [
     items: PRIMARY.filter((item) =>
       [
         '/admin/radio',
+        '/admin/content',
         '/admin/news',
         '/admin/top-lists',
         '/admin/announcements',
       ].includes(item.to),
     ).sort((left, right) => {
-      if (left.to === '/admin/top-lists') {
+      if (left.to === '/admin/content') {
         return -1;
       }
-      if (right.to === '/admin/top-lists') {
+      if (right.to === '/admin/content') {
         return 1;
       }
       return 0;

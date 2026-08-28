@@ -1,4 +1,12 @@
 import { useNavigate } from '@tanstack/react-router';
+import {
+  FileWarningIcon,
+  FlagIcon,
+  LightbulbIcon,
+  RadioIcon,
+  TicketIcon,
+  UsersIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Tabs } from '@nuclearplayer/ui';
@@ -36,6 +44,15 @@ function tabContent(id: AdminModerationTabId) {
       return <AdminMissedShowsPanel />;
   }
 }
+
+const MODERATION_TAB_ICONS: Record<AdminModerationTabId, typeof UsersIcon> = {
+  support: TicketIcon,
+  beta: UsersIcon,
+  'radio-submissions': RadioIcon,
+  'content-reports': FlagIcon,
+  'feature-requests': LightbulbIcon,
+  'missed-shows': FileWarningIcon,
+};
 
 /** One page, one tab per review queue: Support, Beta applications, Radio
  * submissions, Selects, Content reports, Feature requests — see
@@ -88,7 +105,14 @@ export function AdminModerationView({ tab }: { tab?: AdminModerationTabId }) {
           }}
           items={ADMIN_MODERATION_TABS.map((t) => ({
             id: t.id,
-            label: t.label,
+            label: (() => {
+              const Icon = MODERATION_TAB_ICONS[t.id];
+              return (
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon size={14} aria-hidden /> {t.label}
+                </span>
+              );
+            })(),
             content: tabContent(t.id),
           }))}
         />

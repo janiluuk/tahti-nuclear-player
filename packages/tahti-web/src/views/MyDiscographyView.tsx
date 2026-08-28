@@ -215,7 +215,7 @@ export const MyDiscographyView: FC = () => {
               title="All sounds"
               subtitle="Your complete archive, including public, private, and processing audio."
               meta={
-                <Link to="/studio/upload">
+                <Link to="/library/upload">
                   <Button size="sm">
                     <UploadCloudIcon size={16} aria-hidden className="mr-1.5" />
                     Upload

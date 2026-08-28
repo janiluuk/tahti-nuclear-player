@@ -123,6 +123,122 @@ export type AdminDashboard = {
   audit: AdminAuditRow[];
 };
 
+export type AdminContentOverview = {
+  counts: {
+    tracks: number;
+    shows: number;
+    uploads: number;
+    listens: number;
+  };
+  latestContent: Array<{
+    id: string;
+    title: string;
+    type: string;
+    artistName?: string | null;
+    createdAt: string;
+  }>;
+  latestBroadcasts: Array<{
+    id: string;
+    title: string;
+    artistName?: string | null;
+    recordedAt: string;
+    durationSec?: number | null;
+    archiveItemId?: string | null;
+  }>;
+};
+
+function mockContentOverview(): AdminContentOverview {
+  return {
+    counts: { tracks: 1842, shows: 318, uploads: 2675, listens: 48216 },
+    latestContent: [
+      {
+        id: 'content-1',
+        title: 'Northern Lights — Live Set',
+        type: 'DJ mix',
+        artistName: 'Northern Lights',
+        createdAt: '2026-08-28T09:30:00.000Z',
+      },
+      {
+        id: 'content-2',
+        title: 'Blue Hour',
+        type: 'Track',
+        artistName: 'Northern Lights',
+        createdAt: '2026-08-27T18:10:00.000Z',
+      },
+      {
+        id: 'content-3',
+        title: 'Saimaa Sessions',
+        type: 'Show',
+        artistName: 'Kaiku Collective',
+        createdAt: '2026-08-27T14:40:00.000Z',
+      },
+      {
+        id: 'content-4',
+        title: 'Field Notes Vol. 2',
+        type: 'Release',
+        artistName: 'Moss Archive',
+        createdAt: '2026-08-26T11:15:00.000Z',
+      },
+    ],
+    latestBroadcasts: [
+      {
+        id: 'broadcast-1',
+        title: 'Late-night broadcast',
+        artistName: 'DJ Moonlight',
+        recordedAt: '2026-08-28T01:20:00.000Z',
+        durationSec: 6840,
+        archiveItemId: 'arch-mock-1',
+      },
+      {
+        id: 'broadcast-2',
+        title: 'Boathouse Sessions',
+        artistName: 'Kaiku Collective',
+        recordedAt: '2026-08-27T20:00:00.000Z',
+        durationSec: 4920,
+        archiveItemId: 'arch-mock-3',
+      },
+      {
+        id: 'broadcast-3',
+        title: 'Ring Rail after dark',
+        artistName: 'Moss Archive',
+        recordedAt: '2026-08-26T22:15:00.000Z',
+        durationSec: 3780,
+        archiveItemId: null,
+      },
+    ],
+  };
+}
+
+export async function fetchAdminContentOverview(): Promise<{
+  data: AdminContentOverview;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockContentOverview(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminContentOverview>(
+      '/api/admin/stats/content',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return { data: mockContentOverview(), meta: failMeta(err) };
+    }
+    return {
+      data: {
+        counts: { tracks: 0, shows: 0, uploads: 0, listens: 0 },
+        latestContent: [],
+        latestBroadcasts: [],
+      },
+      meta: apiErrorMeta(err),
+    };
+  }
+}
+
 function mockDashboard(): AdminDashboard {
   return {
     kpis: { activeMembers: 214, liveNow: 3, betaQueue: 5, openTickets: 2 },
@@ -3818,6 +3934,36 @@ function mockActivityEntries(): AdminActivityEntry[] {
       meta: {},
       createdAt: minutesAgo(80),
     },
+    {
+      id: 'mock-act-7',
+      action: 'VOTE_CAST',
+      actorId: 'u-4',
+      actorDisplayName: 'Rautatie',
+      actorUsername: 'rautatie',
+      targetId: 'motion-1',
+      meta: { choice: 'YES', subjectTitle: 'Approve 2026 grant formula' },
+      createdAt: minutesAgo(95),
+    },
+    {
+      id: 'mock-act-8',
+      action: 'MOTION_COMMENT_CREATE',
+      actorId: 'u-1',
+      actorDisplayName: 'Nova Drift',
+      actorUsername: 'nova-drift',
+      targetId: 'motion-1',
+      meta: { subjectTitle: 'Approve 2026 grant formula' },
+      createdAt: minutesAgo(110),
+    },
+    {
+      id: 'mock-act-9',
+      action: 'FEATURE_REQUEST_COMMENT_CREATE',
+      actorId: 'u-2',
+      actorDisplayName: 'Echo Harbor',
+      actorUsername: 'echo-harbor',
+      targetId: 'fr-1',
+      meta: { subjectTitle: 'Crossfade between archive tracks' },
+      createdAt: minutesAgo(125),
+    },
   ];
 }
 
@@ -3876,6 +4022,44 @@ export async function fetchAdminActivity(
   } catch (err) {
     return { data: [], total: 0, page, limit, meta: failMeta(err) };
   }
+}
+
+const GOVERNANCE_ACTIVITY_ACTIONS = [
+  'VOTE_CAST',
+  'FEATURE_REQUEST_VOTE',
+  'FEATURE_REQUEST_UNVOTE',
+  'MOTION_COMMENT_CREATE',
+  'FEATURE_REQUEST_COMMENT_CREATE',
+] as const;
+
+export async function fetchAdminGovernanceActivity(): Promise<{
+  data: AdminActivityEntry[];
+  totalVotes: number;
+  totalComments: number;
+  meta: FetchMeta;
+}> {
+  const results = await Promise.all(
+    GOVERNANCE_ACTIVITY_ACTIONS.map((action) =>
+      fetchAdminActivity({ action, limit: 100 }),
+    ),
+  );
+  const data = results
+    .flatMap((result) => result.data)
+    .sort(
+      (left, right) =>
+        new Date(right.createdAt).getTime() -
+        new Date(left.createdAt).getTime(),
+    );
+  return {
+    data,
+    totalVotes: results
+      .slice(0, 3)
+      .reduce((total, result) => total + result.total, 0),
+    totalComments: results
+      .slice(3)
+      .reduce((total, result) => total + result.total, 0),
+    meta: results[0]?.meta ?? { source: 'api' },
+  };
 }
 
 export function adminActivityExportCsvUrl(): string {

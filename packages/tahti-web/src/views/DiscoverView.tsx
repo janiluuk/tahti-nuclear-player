@@ -1,4 +1,4 @@
-import { PlusIcon } from 'lucide-react';
+import { ChevronDownIcon, PlusIcon, SlidersHorizontalIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, FilterChips, Popover } from '@nuclearplayer/ui';
@@ -53,17 +53,38 @@ export function DiscoverView() {
   const enabledWidgets = useDiscoverStore((s) => s.enabledWidgets);
   const genreFilter = useDiscoverStore((s) => s.genreFilter);
   const contentTypeFilter = useDiscoverStore((s) => s.contentTypeFilter);
+  const unheardOnly = useDiscoverStore((s) => s.unheardOnly);
   const addWidget = useDiscoverStore((s) => s.addWidget);
   const removeWidget = useDiscoverStore((s) => s.removeWidget);
   const moveWidget = useDiscoverStore((s) => s.moveWidget);
   const setGenreFilter = useDiscoverStore((s) => s.setGenreFilter);
   const setContentTypeFilter = useDiscoverStore((s) => s.setContentTypeFilter);
+  const setUnheardOnly = useDiscoverStore((s) => s.setUnheardOnly);
   const [data, setData] = useState<Record<string, WidgetData>>({});
+  const [unheardIds, setUnheardIds] = useState<Set<string> | null>(null);
+  const [genresOpen, setGenresOpen] = useState(false);
 
   const filters = useMemo(
     () => ({ genres: genreFilter, contentTypes: contentTypeFilter }),
     [genreFilter, contentTypeFilter],
   );
+
+  useEffect(() => {
+    if (!unheardOnly) {
+      setUnheardIds(null);
+      return;
+    }
+    setUnheardIds(new Set());
+    let cancelled = false;
+    void fetchNewToYou().then((result) => {
+      if (!cancelled) {
+        setUnheardIds(new Set(result.data.map((track) => track.id)));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [unheardOnly]);
 
   useEffect(() => {
     let cancelled = false;
@@ -129,7 +150,14 @@ export function DiscoverView() {
 
       void load().then((result) => {
         if (!cancelled) {
-          setData((prev) => ({ ...prev, [id]: result }));
+          const filteredItems =
+            unheardOnly && unheardIds
+              ? result.items.filter((item) => unheardIds.has(item.id))
+              : result.items;
+          setData((prev) => ({
+            ...prev,
+            [id]: { ...result, items: filteredItems },
+          }));
         }
       });
     }
@@ -137,7 +165,7 @@ export function DiscoverView() {
     return () => {
       cancelled = true;
     };
-  }, [enabledWidgets, filters]);
+  }, [enabledWidgets, filters, unheardIds, unheardOnly]);
 
   const availableToAdd = ALL_WIDGET_IDS.filter(
     (id) => !enabledWidgets.includes(id),
@@ -152,12 +180,38 @@ export function DiscoverView() {
       />
 
       <div className="flex flex-col gap-3">
-        <FilterChips
-          multiple
-          items={PRESET_GENRES.map((g) => ({ id: g, label: g }))}
-          selected={genreFilter}
-          onChange={setGenreFilter}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            aria-expanded={genresOpen}
+            onClick={() => setGenresOpen((open) => !open)}
+          >
+            <SlidersHorizontalIcon size={15} className="mr-1.5" aria-hidden />
+            Genres{genreFilter.length > 0 ? ` (${genreFilter.length})` : ''}
+            <ChevronDownIcon
+              size={15}
+              className={`ml-1.5 transition-transform ${genresOpen ? 'rotate-180' : ''}`}
+              aria-hidden
+            />
+          </Button>
+          <FilterChips
+            multiple
+            items={[{ id: 'unheard', label: 'Tracks I haven’t heard' }]}
+            selected={unheardOnly ? ['unheard'] : []}
+            onChange={(selected) =>
+              setUnheardOnly(selected.includes('unheard'))
+            }
+          />
+        </div>
+        {genresOpen ? (
+          <FilterChips
+            multiple
+            items={PRESET_GENRES.map((g) => ({ id: g, label: g }))}
+            selected={genreFilter}
+            onChange={setGenreFilter}
+          />
+        ) : null}
         <FilterChips
           multiple
           items={CONTENT_TYPE_OPTIONS}

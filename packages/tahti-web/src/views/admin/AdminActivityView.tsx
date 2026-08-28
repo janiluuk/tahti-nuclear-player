@@ -85,6 +85,11 @@ function messageFor(entry: AdminActivityEntry): string {
   const meta = entry.meta;
   const str = (key: string) =>
     typeof meta[key] === 'string' ? (meta[key] as string) : null;
+  const subject =
+    str('subjectTitle') ??
+    str('title') ??
+    entry.targetId ??
+    'a governance item';
 
   switch (entry.action) {
     case 'USER_LOGIN':
@@ -99,6 +104,16 @@ function messageFor(entry: AdminActivityEntry): string {
       return `${actor} liked ${str('title') ?? 'a track'}`;
     case 'ARTIST_FOLLOW':
       return `${actor} followed ${str('artistDisplayName') ?? str('artistUsername') ?? 'an artist'}`;
+    case 'VOTE_CAST':
+      return `${actor} voted ${str('choice') ?? 'on'} on ${subject}`;
+    case 'FEATURE_REQUEST_VOTE':
+      return `${actor} voted for ${subject}`;
+    case 'FEATURE_REQUEST_UNVOTE':
+      return `${actor} removed their vote from ${subject}`;
+    case 'MOTION_COMMENT_CREATE':
+      return `${actor} commented on ${subject}`;
+    case 'FEATURE_REQUEST_COMMENT_CREATE':
+      return `${actor} commented on ${subject}`;
     case 'FAN_SUBSCRIPTION_CREATE': {
       const cents =
         typeof meta.amountCents === 'number' ? meta.amountCents : null;

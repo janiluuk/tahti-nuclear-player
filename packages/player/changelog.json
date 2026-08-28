@@ -1,6 +1,293 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Stash now opens with editable private tracks in an All stash tab, while files have their own tab; track editors also support audience visibility and fan-tier access.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Audio uploads now read embedded metadata first and use the filename as a fallback, with naming available after upload in the editor.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Upload now shows the five latest recorded broadcasts with waveform progress, playback controls, seeking, and direct editor links for archived recordings.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "24/7 rotation controls are now centered and compact, with icon-only previous/skip actions and a clearly red stop/start toggle.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Broadcast", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Go Live show details are now compacted into an Info tab, duplicate simulcast controls were removed, and recording uses one show-aware Record toggle with a default set in the show editor.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Broadcast", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Removed Smartlinks from Library navigation and added a one-click copy button for each release's public smartlink in the release list.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin Content now opens with overall catalog statistics, latest system content, and recent recorded broadcasts; Top lists has its own tab.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin and artist page tabs are now smaller and use contextual icons for quicker scanning and more consistent navigation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "The Help Center now includes a plain-language Releasing guide covering UPC/EAN, MusicBrainz, Discogs, smart links, and automated delivery.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Help", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Distribution release operations now use catalog method toggles and focused icon-based guides for UPC/EAN, MusicBrainz, Discogs, rights metadata, and delivery automation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Spotify artist-profile setup now lives in the Spotify add-on configuration, with a searchable multi-select dialog for adding Spotify content as library embeds.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Release drafts now have a Smart links tab with six DSP destinations and a searchable, filterable playlist editor for adding, playing, reordering, and removing library tracks.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artists can now safely delete their posts later with confirmation and clear result feedback.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist channel pages now include the shared Stream manager for owners and read-only stream status for administrators.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Broadcast", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist Branding now includes a promoter-facing press kit preview using the selected bio and included images.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added a Library Media tab for managing Cloudflare R2 background images and videos used by artist channels.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Video loop backdrops now support drag-and-drop uploads and YouTube links with in-editor and public-channel previews.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist branding background media now supports drag-and-drop image uploads, live previews, slideshow effects, and single-image visual effects.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added a sixth live color scheme preset, Rose night, to artist branding previews.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist branding now separates Visualizer and Color scheme tabs, with continuously modulated live previews even when playback is stopped.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist Branding now provides a live channel backdrop preview with browsable visualizer presets and configuration modals that keep the preview visible.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Discover now keeps genre filters in a collapsible control and can filter widgets to tracks the listener has not heard.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discover", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist identity settings now support tag-style creative roles such as producer, DJ, instrumentalist, vocalist, songwriter, and visual artist.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Ported the artist Identity, Story, and collective People editor, adding per-image Profile, Gallery, or Press kit purpose selection before upload.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Standardized active love and favorite icons so toggled hearts use the red accent color and filled treatment across track actions and artwork overlays.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Player", "color": "red" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Broadcast schedule cards and show details now display both the timeslot start and end time.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Fixed audio editor waveform rendering by normalizing API amplitude buckets in both the waveform canvas and zoom minimap.",
+    "type": "bugfix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added @mention autocomplete to artist descriptions and DJ-set tracklists, a conditional Tagged in profile section, and Storybook entries documenting the new community metadata controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Community", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Audio Editor now exposes only activated audio plugins, with clearer activation switches and visual filter-type and slope selectors including brickwall response.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Schedule show names now open a promo details modal with banner, artwork, timing, description, episode information, and a link to manage the show. Upload is now routed under the Library section.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Expanded the theme editor with live color pickers, per-section hue controls, validated JSON import, custom-theme rename, and JSON export.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Themes", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added a visualizer gallery with a persistent live preview, one-click preset selection, per-visualizer configuration, parameter explanations, and an audio-reactivity toggle.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Add-ons", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added an agent-facing plugin authoring guide, a runnable settings-plugin example, explicit Tahti API counterpart metadata, and typed add-on configuration controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Plugins", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Moved DJ-set tracklists into the track editor with Traktor/text import, waveform timestamp pins, equal distribution, and configurable current-track overlays.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Improved the mobile app shell by removing low-priority top-bar actions and Help from mobile navigation, keeping primary navigation large and stable without horizontal overflow.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Mobile", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added the remaining practical Nuclear registry integrations to Settings → Add-ons with dedicated configuration screens and clear runtime/API availability status.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Add-ons", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Closed a direct-route access gap for Studio branding and enforced artist or Board role checks across the full artist area.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Security", "color": "red" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Hardened Studio access so only Artist and Board roles can enter artist pages; lower-level accounts are denied even when opening routes directly.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Security", "color": "red" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin Governance now shows attributed voting activity, discussion and comment totals, and subject context for governance audit actions.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "The artist dashboard now surfaces governance votes and unresolved discussion activity with direct review links.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Clips are now listed as their own content type when opening or adding content from the library.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Consolidated the Tahti artist/admin feature ports: Radio announcements and submissions, Clips, Sounds archive parity, HEARTHIS shared playback, bounded drag-and-drop rotations, notification settings, and track statistics in a modal.",
     "type": "improvement",
     "contributors": ["jani"],

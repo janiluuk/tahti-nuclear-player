@@ -15,6 +15,7 @@ import {
   LogOutIcon,
   Mic,
   Paintbrush,
+  Pencil,
   Radio as RadioIcon,
   Share2,
   Shield,
@@ -104,11 +105,13 @@ import {
 } from '../../api/studio-extras';
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { ApiTokensPanel } from '../../components/ApiTokensPanel';
+import { ArtistImagePurposePicker } from '../../components/ArtistImagePurposePicker';
 import { ChannelControlsWidget } from '../../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
+import { MentionTextarea } from '../../components/MentionTextarea';
 import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SidebarBuildInfo } from '../../components/SidebarBuildInfo';
@@ -150,6 +153,26 @@ const PRONOUN_OPTIONS: SelectOption[] = [
   { id: 'he/they', label: 'he/they' },
   { id: 'other', label: 'Other' },
 ];
+
+const ARTIST_ROLE_OPTIONS = [
+  ['producer', 'Producer'],
+  ['dj', 'DJ'],
+  ['live-performer', 'Live performer'],
+  ['instrumentalist', 'Instrumentalist'],
+  ['singer', 'Singer / vocalist'],
+  ['songwriter', 'Songwriter'],
+  ['composer', 'Composer'],
+  ['sound-engineer', 'Sound engineer'],
+  ['visual-artist', 'Visual artist'],
+  ['curator', 'Curator / label'],
+] as const;
+
+function parseArtistRoles(profile: ProfileFields): string[] {
+  return (profile.socialLinks?.artistRoles ?? '')
+    .split(',')
+    .map((role) => role.trim())
+    .filter(Boolean);
+}
 
 function detectCountryCode(): string | null {
   if (typeof navigator === 'undefined') {
@@ -707,6 +730,7 @@ function ArtistPanel() {
   const [profile, setProfile] = useState<ProfileFields | null>(null);
   const [members, setMembers] = useState<ChannelMember[]>([]);
   const [social, setSocial] = useState<SocialConnections | null>(null);
+  const [artistRoles, setArtistRoles] = useState<string[]>([]);
   const [msg, setMsg] = useState<string | null>(null);
   const [socialMsg, setSocialMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -723,6 +747,7 @@ function ArtistPanel() {
       );
       setMembers(m.data);
       setSocial(s.data);
+      setArtistRoles(parseArtistRoles(p.data));
     });
   }, []);
 
@@ -743,6 +768,10 @@ function ArtistPanel() {
       artistKind: profile.artistKind ?? 'SINGLE',
       countryCode: profile.countryCode,
       defaultLocation: profile.defaultLocation?.trim() || null,
+      socialLinks: {
+        ...(profile.socialLinks ?? {}),
+        artistRoles: artistRoles.join(', '),
+      },
     }).then((result) => {
       setBusy(false);
       setMsg(result.ok ? 'Artist info saved.' : result.error);
@@ -787,6 +816,70 @@ function ArtistPanel() {
                 onChange={(e) =>
                   setProfile({ ...profile, displayName: e.target.value })
                 }
+              />
+              <div className="flex flex-col gap-2">
+                <div>
+                  <p className="text-foreground text-sm font-semibold">
+                    What do you do?
+                  </p>
+                  <p className="text-foreground-secondary mt-1 text-xs">
+                    Choose the creative roles you want listeners to associate
+                    with you.
+                  </p>
+                </div>
+                <div
+                  className="flex flex-wrap gap-2"
+                  role="group"
+                  aria-label="Creative roles"
+                >
+                  {ARTIST_ROLE_OPTIONS.map(([id, label]) => {
+                    const selected = artistRoles.includes(id);
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() =>
+                          setArtistRoles((current) =>
+                            selected
+                              ? current.filter((role) => role !== id)
+                              : [...current, id],
+                          )
+                        }
+                        className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                          selected
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border text-foreground-secondary hover:text-foreground'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-foreground-secondary text-xs">
+                  Selected:{' '}
+                  {artistRoles.length > 0
+                    ? artistRoles
+                        .map(
+                          (role) =>
+                            ARTIST_ROLE_OPTIONS.find(
+                              ([id]) => id === role,
+                            )?.[1] ?? role,
+                        )
+                        .join(', ')
+                    : 'None yet'}
+                </p>
+              </div>
+              <ArtistImagePurposePicker
+                onProfileUploaded={(avatarUrl) => {
+                  setProfile({ ...profile, avatarUrl });
+                  void refreshAuth();
+                  toast.success('Profile image updated.');
+                }}
+                onGalleryUploaded={() => {
+                  toast.success('Image added to your gallery.');
+                }}
               />
               <PronounsField profile={profile} setProfile={setProfile} />
               <label className="flex flex-col gap-1.5 text-sm">
@@ -846,34 +939,20 @@ function ArtistPanel() {
             <SettingsHint>Loading…</SettingsHint>
           ) : (
             <div className="flex flex-col gap-6">
-              <label className="flex flex-col gap-1">
-                <span className="text-foreground text-sm font-semibold">
-                  Short bio
-                </span>
-                <textarea
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                  rows={4}
-                  value={profile.bio ?? ''}
-                  onChange={(event) =>
-                    setProfile({ ...profile, bio: event.target.value })
-                  }
-                  placeholder="The concise introduction shown on your profile."
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-foreground text-sm font-semibold">
-                  Your story
-                </span>
-                <textarea
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                  rows={8}
-                  value={profile.fullBio ?? ''}
-                  onChange={(event) =>
-                    setProfile({ ...profile, fullBio: event.target.value })
-                  }
-                  placeholder="Share your history, influences, milestones, and what listeners should know."
-                />
-              </label>
+              <MentionTextarea
+                label="Short bio"
+                rows={4}
+                value={profile.bio ?? ''}
+                onChange={(bio) => setProfile({ ...profile, bio })}
+                placeholder="The concise introduction shown on your profile."
+              />
+              <MentionTextarea
+                label="Your story"
+                rows={8}
+                value={profile.fullBio ?? ''}
+                onChange={(fullBio) => setProfile({ ...profile, fullBio })}
+                placeholder="Share your history, influences, milestones, and what listeners should know."
+              />
               <div className="flex justify-end">
                 <SaveButton
                   saving={busy}
@@ -1022,6 +1101,7 @@ function ArtistPanel() {
                       patchSocialConnections(connectionValues),
                       patchMeProfile({
                         socialLinks: {
+                          ...(profile?.socialLinks ?? {}),
                           ...connectionValues,
                           showConnections: String(showConnections),
                         },
@@ -1058,7 +1138,9 @@ function ArtistPanel() {
           label: tabLabel(ImageIcon, 'Gallery'),
           content: <StudioBrandingPanel section="gallery" />,
         },
-      ]}
+      ].filter(
+        (item) => item.id !== 'people' || profile?.artistKind === 'COLLECTIVE',
+      )}
     />
   );
 }
@@ -2100,12 +2182,30 @@ function ThemesPanel() {
     setTheme,
     setColorMode,
     importCustomTheme,
+    renameCustomTheme,
     removeCustomTheme,
   } = useThemeStore();
   const [themeJson, setThemeJson] = useState('');
   const [importMsg, setImportMsg] = useState<string | null>(null);
 
   const customEntries = Object.entries(customThemes);
+
+  const exportTheme = (id: string, theme: (typeof customThemes)[string]) => {
+    const blob = new Blob([JSON.stringify(theme, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${
+      theme.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') || id
+    }.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -2214,14 +2314,41 @@ function ThemesPanel() {
                                 </div>
                               )}
                             </button>
-                            <Button
-                              size="sm"
-                              variant="text"
-                              className="mt-2"
-                              onClick={() => removeCustomTheme(id)}
-                            >
-                              Remove
-                            </Button>
+                            <div className="mt-2 flex items-center gap-2">
+                              <Button
+                                size="icon-sm"
+                                variant="secondary"
+                                aria-label={`Rename ${theme.name}`}
+                                title={`Rename ${theme.name}`}
+                                onClick={() => {
+                                  const nextName = window.prompt(
+                                    'Rename theme',
+                                    theme.name,
+                                  );
+                                  if (nextName !== null) {
+                                    renameCustomTheme(id, nextName);
+                                  }
+                                }}
+                              >
+                                <Pencil size={14} aria-hidden />
+                              </Button>
+                              <Button
+                                size="icon-sm"
+                                variant="secondary"
+                                aria-label={`Export ${theme.name} as JSON`}
+                                title="Export theme JSON"
+                                onClick={() => exportTheme(id, theme)}
+                              >
+                                <Download size={14} aria-hidden />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="text"
+                                onClick={() => removeCustomTheme(id)}
+                              >
+                                Remove
+                              </Button>
+                            </div>
                           </div>
                         );
                       })}

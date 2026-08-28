@@ -1,3 +1,4 @@
+import { ActivityIcon, ContainerIcon, HistoryIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { LogViewer, Tabs, type LogEntryData } from '@nuclearplayer/ui';
@@ -154,17 +155,29 @@ export function AdminLogsView() {
           items={[
             {
               id: 'activity',
-              label: 'Audit events',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  <ActivityIcon size={14} aria-hidden /> Audit events
+                </span>
+              ),
               content: <AdminActivityView embedded />,
             },
             {
               id: 'containers',
-              label: 'Container logs',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  <ContainerIcon size={14} aria-hidden /> Container logs
+                </span>
+              ),
               content: containerLogs,
             },
             {
               id: 'recent-audit',
-              label: 'Recent audit',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  <HistoryIcon size={14} aria-hidden /> Recent audit
+                </span>
+              ),
               content: <RecentAuditEntries />,
             },
           ]}

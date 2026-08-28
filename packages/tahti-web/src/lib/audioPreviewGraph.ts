@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import type { EditList } from '../api/studio-types';
-import { AUDIO_FX_PLUGINS } from '../plugins/audio-fx';
+import { AUDIO_FX_PLUGINS, useAudioFxStore } from '../plugins/audio-fx';
 
 type Graph = { ctx: AudioContext; source: MediaElementAudioSourceNode };
 
@@ -29,6 +29,7 @@ export function useAudioPreviewGraph(
 ) {
   const graphRef = useRef<Graph | null>(null);
   const chainNodesRef = useRef<AudioNode[]>([]);
+  const enabledPluginIds = useAudioFxStore((state) => state.enabledPluginIds);
 
   function ensureGraph(): Graph | null {
     const audio = audioRef.current;
@@ -102,6 +103,9 @@ export function useAudioPreviewGraph(
     // -- adding a plugin means adding it to that registry, not a branch
     // here.
     for (const id of editList.pluginChain ?? []) {
+      if (!enabledPluginIds.includes(id)) {
+        continue;
+      }
       const plugin = AUDIO_FX_PLUGINS[id];
       if (!plugin?.isEnabled(editList)) {
         continue;
@@ -116,5 +120,5 @@ export function useAudioPreviewGraph(
     connect(gain);
 
     last.connect(ctx.destination);
-  }, [editList]);
+  }, [editList, enabledPluginIds]);
 }

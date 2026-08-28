@@ -1,0 +1,143 @@
+import { ImageIcon, PlayIcon, Trash2Icon, VideoIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
+import { Button } from '@nuclearplayer/ui';
+
+import {
+  deleteUserMedia,
+  fetchUserMedia,
+  type UserMediaFile,
+} from '../api/user-media';
+import { StudioPanel } from '../components/StudioPanel';
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024 * 1024) {
+    return `${Math.round(bytes / 1024)} KB`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export function LibraryMediaView() {
+  const [files, setFiles] = useState<UserMediaFile[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const reload = async () => {
+    setLoading(true);
+    const result = await fetchUserMedia();
+    setFiles(result.data);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    void reload();
+  }, []);
+
+  const remove = async (file: UserMediaFile) => {
+    if (!window.confirm(`Remove ${file.filename} from your media files?`)) {
+      return;
+    }
+    const previous = files;
+    setFiles((current) => current.filter((item) => item.id !== file.id));
+    const result = await deleteUserMedia(file.id);
+    if (!result.ok) {
+      setFiles(previous);
+      toast.error(result.error);
+      return;
+    }
+    toast.success('Media file removed.');
+  };
+
+  return (
+    <StudioPanel
+      title="Media files"
+      description="Background images and videos stored in your Cloudflare R2 media library."
+    >
+      {loading ? (
+        <p className="text-foreground-secondary text-sm">Loading media…</p>
+      ) : files.length === 0 ? (
+        <p className="text-foreground-secondary text-sm">
+          No media files yet. Add background images or a Video loop backdrop
+          from Artist → Branding.
+        </p>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {files.map((file) => {
+            const isVideo = file.contentType.startsWith('video/');
+            return (
+              <article
+                key={file.id}
+                className="border-border overflow-hidden rounded-lg border"
+              >
+                <div className="bg-background-secondary relative aspect-video">
+                  {isVideo ? (
+                    <video
+                      src={file.url}
+                      controls
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={file.url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                  <span className="bg-background/80 text-foreground-secondary absolute top-2 left-2 rounded px-2 py-1 text-[10px] font-semibold uppercase backdrop-blur-sm">
+                    {isVideo ? (
+                      <VideoIcon
+                        size={12}
+                        className="mr-1 inline"
+                        aria-hidden
+                      />
+                    ) : (
+                      <ImageIcon
+                        size={12}
+                        className="mr-1 inline"
+                        aria-hidden
+                      />
+                    )}
+                    {isVideo ? 'Video' : 'Image'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 p-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">
+                      {file.filename}
+                    </p>
+                    <p className="text-foreground-secondary text-xs">
+                      {formatBytes(file.sizeBytes)}
+                    </p>
+                  </div>
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`Open ${file.filename}`}
+                    title="Open preview"
+                    className="text-foreground-secondary hover:text-foreground"
+                  >
+                    <PlayIcon size={16} aria-hidden />
+                  </a>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    aria-label={`Remove ${file.filename}`}
+                    title="Remove"
+                    onClick={() => void remove(file)}
+                  >
+                    <Trash2Icon
+                      size={16}
+                      className="text-accent-red"
+                      aria-hidden
+                    />
+                  </Button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </StudioPanel>
+  );
+}

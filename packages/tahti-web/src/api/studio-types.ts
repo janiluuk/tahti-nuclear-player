@@ -24,7 +24,8 @@ export type StudioArchiveItem = {
   topListsEligible?: boolean;
   commentsEnabled?: boolean;
   downloadsEnabled?: boolean;
-  visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+  visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE' | 'STASH';
+  fanTierIds?: string[];
   releaseDate?: string | null;
   pinnedAt?: string | null;
   effectiveBpm?: number | null;
@@ -40,6 +41,22 @@ export type StudioArchiveItem = {
   embedUri?: string | null;
   /** [0..255] amplitude buckets for the real waveform — null/absent when not yet decoded. */
   peaks?: number[] | null;
+  tracklist?: TracklistEntry[] | null;
+  tracklistOverlay?: TracklistOverlaySettings | null;
+};
+
+export type TracklistEntry = {
+  id: string;
+  title: string;
+  artist?: string | null;
+  /** Tahti member handle; saving this creates a tracklist mention. */
+  artistUsername?: string | null;
+  startSec?: number | null;
+};
+
+export type TracklistOverlaySettings = {
+  enabled: boolean;
+  preset: 'minimal' | 'cards' | 'ticker';
 };
 
 export type StudioArchivePatch = {
@@ -55,12 +72,15 @@ export type StudioArchivePatch = {
   topListsEligible?: boolean;
   commentsEnabled?: boolean;
   downloadsEnabled?: boolean;
-  visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE';
+  visibility?: 'PUBLIC' | 'UNLISTED' | 'PRIVATE' | 'STASH';
+  fanTierIds?: string[];
   releaseDate?: string | null;
   pinned?: boolean;
   bannerUrl?: string | null;
   backdropUrl?: string | null;
   replaceFallbackItemId?: string;
+  tracklist?: TracklistEntry[] | null;
+  tracklistOverlay?: TracklistOverlaySettings | null;
 };
 
 export type FingerprintMatch = {

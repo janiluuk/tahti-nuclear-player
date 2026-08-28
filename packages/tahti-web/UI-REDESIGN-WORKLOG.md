@@ -1,5 +1,177 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Stash track management and audience access
+
+**Completed:** Studio → Stash now opens on an All stash tab listing private archive tracks with the normal track editor, while uploaded locker files remain under a separate Files tab. Track editors now share an Audience control for Public, Not listed, Private, or Stash visibility. Stash visibility shows the artist’s fan tiers with selectable access and a compact add-tier action when no tiers exist.
+
+## 2026-08-28 — Metadata-first audio upload
+
+**Completed:** Upload no longer asks for a title before the file is transferred. The upload API now allows the server to use embedded audio metadata first, falling back to the filename when metadata is absent; the resulting item can then be named in the editor after upload.
+
+## 2026-08-28 — Recent recordings on Upload
+
+**Completed:** Studio → Upload now shows the five latest recorded broadcasts with compact waveform progress bars. Archived recordings can be played, paused, scrubbed, and opened directly in the recording editor; recordings that are not archived remain clearly identified as unavailable for playback until promoted.
+
+## 2026-08-28 — Compact rotation transport controls
+
+**Completed:** While a 24/7 rotation is playing, previous, stop, and skip controls now sit centered in the stream manager header and use icon-only buttons with accessible labels. The stop/start rotation control is highlighted red and remains available as a compact centered control when the rotation is paused.
+
+## 2026-08-28 — Go Live info and recording controls
+
+**Completed:** Go Live pre-flight details now live in a compact Info tab. Duplicate simulcast controls were removed because Multistream is the single destination manager. The separate auto-record action was removed; the page uses one Record broadcast toggle, initialized from the current show/pre-flight default. Show creation and show editing now expose “Record broadcasts by default,” which is persisted with the show and inherited by new broadcasts.
+
+## 2026-08-28 — Release smartlink navigation
+
+**Completed:** Removed Smartlinks from the Library submenu so release smartlink setup has one clear home in the release drafting/editor flow. Release rows now expose an icon-only copy action for the public `/r/:slug` URL, with accessible labeling and success/failure feedback; the existing open-smartlink action remains available.
+
+## 2026-08-28 — Admin content overview
+
+**Completed:** Admin → Content now has its own landing page with overall track, show, upload, and listen totals, a latest-system-content list, and latest recorded broadcasts. Top lists is now a separate Content navigation item and no longer occupies the overview position.
+
+**API contract:** The overview reads `/api/admin/stats/content` with aggregate counts and the latest content/broadcast rows.
+
+## 2026-08-28 — Compact admin and artist tabs
+
+**Completed:** Reduced the shared tab button size to the compact `xs` treatment across the application. Added contextual icons to the admin moderation queues, logs, storage, and studio release, distribution, events, moderation, stats, channel, visualizer, and color/design tab rows so the top-level page navigation is easier to scan and remains consistent with the smaller navigation language.
+
+## 2026-08-28 — Help Center releasing guide
+
+**Completed:** Added a Help Center → Releasing category covering the available release methods in non-technical language: UPC/EAN, MusicBrainz, Discogs, smart links, and automated delivery. It includes a practical workflow, plain-language MusicBrainz and Discogs instructions, and explanations for MBIDs, copyright lines, and label metadata.
+
+## 2026-08-28 — Distribution catalog method toggles and guides
+
+**Completed:** Distribution → release operations now groups catalog setup into independent method toggles for UPC/EAN, MusicBrainz, Discogs, and rights/label metadata. Only the fields for enabled methods are shown, while values remain preserved when a method is temporarily disabled. The Guides tab now uses large icon choices with focused instructions, direct links, MusicBrainz/Discogs prefill and export actions, and Revelator automation guidance.
+
+## 2026-08-28 — Spotify import add-on configuration
+
+**Completed:** Moved Spotify artist-profile linking out of Studio → Distribution and into the Spotify add-on configuration dialog. Once a profile is linked, the add-on provides a HearThis-style content picker with search, multi-select, and import feedback; selected Spotify items are submitted as provider embeds for the user’s library. Unlinking the profile is available in the same configuration surface.
+
+**API contract:** Profile setup uses `/api/me/spotify-profile`; content search uses `/api/v1/imports/spotify/search`; selected content uses `POST /api/v1/imports/spotify/add` with `{ tracks: [{ trackId, title, externalUrl }] }`.
+
+## 2026-08-28 — Release smart-link draft editor
+
+**Completed:** Added a dedicated Smart links tab to the release editor, matching the sibling release draft destinations for Spotify, Apple Music, Bandcamp, SoundCloud, YouTube Music, and Tidal. Spotify and Bandcamp URLs now live in that tab, alongside the public smart-link shortcut and view count.
+
+The tab also includes a standard release playlist editor: tracks can be dragged into a new order, played through the Tahti player, removed from the release, or added from the user’s library. The library picker supports basic text search and content-type filtering and prevents duplicate additions.
+
+**API contract:** Uses the existing `POST /api/me/releases/:id/tracks` endpoint for library additions and the corresponding release-track reorder/delete client routes for playlist editing. The beta API should expose `PUT /api/me/releases/:id/tracks/reorder` and `DELETE /api/me/releases/:id/tracks/:trackId`.
+
+## 2026-08-28 — Artist post deletion
+
+**Completed:** Artist → Posts now confirms before deleting a published post, removes it from the list after the owner-only delete API succeeds, and reports success or failure with a toast. The existing `/api/me/posts/:id` authorization boundary remains the source of ownership enforcement.
+
+## 2026-08-28 — Artist channel stream manager
+
+**Completed:** Ported the sibling artist-channel Stream manager into the public artist page using the existing shared stream widget. Channel owners get the full live stream, overlay, transport, and rotation controls; Board administrators can also see the selected artist channel’s signal, bitrate, output, listeners, peak, and duration in a read-only management view.
+
+## 2026-08-28 — Press kit preview parity
+
+**Completed:** Merged the sibling artist design press-kit preview into Artist → Branding → Press kit. It now shows the lead included photo, artist name, short bio, and up to four additional included gallery images using the same data as the downloadable press kit.
+
+## 2026-08-28 — User media library
+
+**Completed:** Channel background image and video uploads now use the dedicated user-media prepare → Cloudflare R2 upload → complete flow. Added Library → Media as a separate tab with image/video previews, direct open links, file sizes, and confirmed deletion. The channel designer keeps using the returned media URL for the artist backdrop.
+
+**API contract:** The client uses `/api/me/media`, `/api/me/media/prepare`, `/api/me/media/complete`, and `DELETE /api/me/media/:id`; the beta API must expose these endpoints against the user R2 bucket.
+
+## 2026-08-28 — Video loop backdrop sources
+
+**Completed:** Kept channel video backdrop controls inside the Video loop header option, with the standard drag-and-drop upload box as the primary action and a link icon for an optional YouTube URL field. Direct MP4/WebM uploads and YouTube watch, shorts, and short-link URLs now preview in the designer and render as muted looping public-channel backdrops.
+
+## 2026-08-28 — Channel background media effects
+
+**Completed:** Ported the sibling channel editor’s background-media flow into Artist → Branding. The standard drag-and-drop image picker uploads up to 10 artist images, shows a live thumbnail and header preview, cycles multiple images automatically, offers slideshow effect controls, and exposes single-image gallery/WebGL effects when only one image is present.
+
+## 2026-08-28 — Color scheme presets
+
+**Completed:** Added a sixth live color scheme preset, Rose night, to Artist → Branding → Color scheme. It follows the existing preset behavior: selecting it immediately updates the channel preview, and the change is persisted only when the user saves the branding look.
+
+## 2026-08-28 — Visualizer preset editor parity
+
+**Completed:** Ported the sibling preset-editor behavior into the shared artist branding designer. Visualizer selection and Color scheme controls now have separate tab pills, while the artist channel preview remains available as the persistent live example. Preset previews now continue to pulse with a synthetic modulation when no track is playing, and playing audio still drives the analyser-reactive level.
+
+## 2026-08-28 — Artist backdrop visualizer preview
+
+**Completed:** Artist → Branding now presents the channel backdrop as an artist channel preview. Presets can be browsed without changing the saved look, animated presets expose a configuration icon, and their parameters open in a modal while the full preview stays visible. Applying a preset still controls the public artist channel backdrop through the existing channel visual API.
+
+## 2026-08-28 — Artist creative role tags
+
+**Completed:** Artist → Identity now includes compact tag-style role selection for production, DJing, live performance, instruments, vocals, songwriting, composition, engineering, visual work, and curation/label work. Selections persist through the existing profile metadata contract and are preserved when Connections is saved.
+
+## 2026-08-28 — Artist info editor and image purposes
+
+**Completed:** Artist settings now follows the sibling editor’s Identity, Story, and conditional People structure; People is shown only for collective profiles. Identity includes a multi-image drag/drop picker that asks for a purpose per image before upload: Profile image, Gallery, or Press kit. Profile images update the artist avatar, while gallery and press-kit images use the existing press-kit image API with the selected inclusion setting.
+
+## 2026-08-28 — Active love icon treatment
+
+**Completed:** Standardized favorited/loved icon states across artwork overlays, track context menus, and track information dialogs. Active hearts now use the red accent and filled icon treatment, while inactive hearts remain neutral.
+
+## 2026-08-28 — Broadcast slot end times
+
+**Completed:** Broadcast schedule cards, show details, and scheduled episode rows now show the complete local time range. End times are derived from each show’s configured one- or two-hour slot duration, with the channel-level next broadcast using its configured duration.
+
+## 2026-08-28 — Audio editor waveform scaling
+
+**Fixed:** The editor now normalizes API waveform buckets before drawing. Tahti’s editor peaks are commonly encoded as `0–255`, while the canvas renderer expects normalized amplitude; previously values above `1` were clamped and produced an almost solid block instead of a waveform. The main waveform and zoom minimap now use the actual peak range, preserve normalized inputs, and continue to render safely when server peaks are unavailable.
+
+## 2026-08-28 — Mention controls and Storybook references
+
+**Completed:** Added reusable @mention autocomplete to track descriptions and artist story fields, plus artist tagging on DJ-set tracklist pins. The public artist profile now renders a conditional “Tagged in” section and links to the source when the API provides one. Storybook now has interactive entries for `MentionTextarea` and `TracklistEditor`, with each entry documenting the production view and source file where the element is used.
+
+**API note:** The UI uses the sibling API’s authenticated user search (`/api/me/users/search`) and public mentions endpoint (`/api/v1/u/:username/mentions`). The sibling tracklist contract supports `artistUsername` and mention notifications. Source title/link fields are optional because the current public response does not yet return them; the profile falls back to the mentioning artist until that API response is extended.
+
+## 2026-08-28 — Audio plugin activation and filter controls
+
+**Completed:** Added persisted activation state for Pro Editor audio add-ons. The editor's chain and picker now exclude plugins that are not activated in Settings → Add-ons → Audio plugins, and both the add-on catalog and active chain use prominent switch controls. Filter configuration now presents response-curve previews for low/high-pass and shelf types, plus clear 12 dB/octave, 24 dB/octave, and brickwall slope choices.
+
+## 2026-08-28 — Schedule show details and Library upload
+
+**Completed:** Show names in the Schedule page now open a promo details modal with the show's banner or artwork, description, tagline, time, location, episode number, and an optional link to manage the show. Upload now belongs to the Library route and submenu (`/library/upload`); the former Studio upload URL remains a compatibility redirect.
+
+## 2026-08-28 — Theme editor controls and custom theme library
+
+**Completed:** Added a color picker and simple hue slider to every curated theme section, with the existing live preview updating on every edit. Theme JSON import is now available from an icon-triggered modal, validates against the shared AdvancedTheme schema before applying, and stores the result in the user theme library. User-owned themes can be renamed and exported as formatted JSON.
+
+## 2026-08-28 — Visualizer gallery and live preview
+
+**Completed:** Ported the sibling Tahti visualizer-gallery interaction into Settings → Add-ons → Visualizers. The gallery now keeps one full-size visualizer mounted while presets are browsed, provides a clear preview selection state, and gives each configurable visualizer a gear button that opens its tuning dialog without removing the preview from the page. Speed and intensity controls now include concise footnotes explaining their effect, and the preview exposes an audio-reactivity toggle when the selected visualizer supports animated response.
+
+## 2026-08-28 — Mobile app-shell navigation audit
+
+**Completed:** Audited the mobile shell, bottom navigation, mobile drawer, top bar, and Studio contextual navigation. Removed lower-priority Schedule, Go live, Upload, and Book actions from the narrow top bar so the menu button, logo, Messages, and account controls remain usable at phone widths. The same actions remain reachable from the mobile drawer and Studio pages. Help center is retained on desktop and hidden from the mobile Studio menu to prevent navigation clutter. The mobile header now clips accidental horizontal overflow instead of becoming a scrolling strip.
+
+## 2026-08-28 — Nuclear registry add-on catalog
+
+**Completed:** Added a dedicated Settings → Add-ons → Nuclear plugins category for the remaining practical Nuclear registry integrations: Discogs, Deezer, ListenBrainz, Last.fm, YouTube provider tools, Bandcamp and SoundCloud dashboards, and OmniSource. Each entry has its own configuration dialog, labelled fields, status, and API/runtime explanation. Existing Tahti behavior is marked available or partial; integrations without a Tahti runtime contract remain explicitly planned rather than being presented as working providers.
+
+**Pending:** The configuration surface is in place, but Last.fm/ListenBrainz scrobbling, Deezer/Discogs provider search, YouTube provider streaming/playlists, and OmniSource need server-side contracts and runtime adapters before activation. NetEase and KHInsider remain intentionally excluded per the existing plugin parity decision.
+
+## 2026-08-28 — Admin and Studio role-access audit
+
+**Audit result:** All admin views are wrapped in `AdminGate`, which requires the canonical Board role, and legacy admin URLs redirect to those gated views. The sibling API admin route set was also checked: admin endpoints use `requireBoard`. Studio views use `StudioGate`; the audit found that it previously checked only authentication/channel presence, allowing an authenticated lower-level account to reach channel-less Studio pages.
+
+**Completed:** StudioGate now requires Artist or Board access for every Studio view, including channel-less dashboard, governance, revenue, and channel setup flows. The setup-channel redirect also rejects lower-level accounts before opening the wizard. Direct navigation is covered by the gate; API ownership/authorization remains enforced server-side by the sibling API.
+
+**Follow-up:** The direct `/studio/branding` route was also wrapped with StudioGate after route-level review found it rendered artist settings directly.
+
+## 2026-08-28 — Admin governance activity context
+
+**Completed:** Admin → Governance now shows total recorded votes, discussion subjects, and comments, plus a recent voting activity table with actor, action, time, and subject context. Governance actions in the shared audit log now render as readable actor-focused messages instead of generic action names.
+
+## 2026-08-28 — Governance dashboard signals
+
+**Completed:** Added a Governance section to the artist dashboard. It surfaces open motions and feature topics where the member has not yet voted, plus unresolved motions and topics with active discussion comments, with direct links to review each area.
+
+## 2026-08-28 — Clips in library browsers
+
+**Completed:** Added Clips as a dedicated content group in the rotation editor’s “Add from library” browser and as a clearly labelled type in the audio editor’s “Open from library” dialog. Audio clips no longer appear mixed into the ordinary Tracks group.
+
+## 2026-08-28 — Bandcamp release links and importer surface
+
+**Completed:** Added Bandcamp as a first-class importer add-on surface with connected discography browsing, release import actions, mock coverage data, and shop links. Release editing now accepts a Bandcamp shop URL; configured album/EP releases and their track rows show the Bandcamp brand icon linking to that shop page. The UI targets the sibling API's Bandcamp album/import contracts and keeps the existing OAuth connection flow.
+
+**Pending:** The sibling API currently exposes the album listing as a stub and does not yet expose the `/api/v1/imports/bandcamp/add` write endpoint. The beta UI is ready for those API responses, but production Bandcamp catalog import remains blocked until that server-side Bandcamp API approval/import implementation lands.
+
 ## 2026-08-28 — Three.js ambient background
 
 **Completed:** Added a persistent, low-intensity Three.js ambient canvas based on the sibling Tahti public-site background approach. Settings → Themes now provides Aurora, Particles, and Reactive grid presets plus a persistent off switch; the canvas uses the shared player analyser for gentle playback response and stays pointer-inert behind the app.
@@ -1337,3 +1509,10 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 ### 2026-08-28 — Random artist of the week widget
 
 **Completed:** Added the Discover widget “Random artist of the week”. It rotates deterministically each week across public artists, shows a large profile image and bio, and links to the artist’s channel for listening.
+
+### 2026-08-28 — DJ-set tracklist editor
+
+**Completed:** Replaced the read-only DJ-mix tracklist tab in the track editor with an editable timeline tool. DJ sets can import Traktor `.nml` playlists or line-separated text, add and remove track pins, place timestamps by clicking the waveform, distribute entries equally across the duration, and choose whether the current track appears as a minimal label, card, or ticker overlay. The tab remains hidden for non-DJ content types.
+## 2026-08-28 — Discover filter controls
+
+**Completed:** Genre filters on Discover are now tucked into an expandable Genres control, while the content-type filters remain visible. Added a persisted “Tracks I haven’t heard” filter backed by the personalized new-to-you API; it narrows the other Discover widgets to tracks the listener has not heard.

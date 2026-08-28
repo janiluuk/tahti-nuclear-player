@@ -115,11 +115,16 @@ export const ChannelRadioPlaylistPanel: FC = () => {
   );
 
   const libraryGroups = useMemo(() => {
+    const clips = libraryItems.filter(
+      (item) => item.contentType?.toUpperCase() === 'AUDIOCLIPS',
+    );
     const djSets = libraryItems.filter((item) =>
       item.contentType?.toUpperCase().includes('DJ'),
     );
     const tracks = libraryItems.filter(
-      (item) => !djSets.some((djSet) => djSet.id === item.id),
+      (item) =>
+        item.contentType?.toUpperCase() !== 'AUDIOCLIPS' &&
+        !djSets.some((djSet) => djSet.id === item.id),
     );
     const releaseGroups = releases.map((release) => ({
       id: `release-${release.id}`,
@@ -144,6 +149,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
     return [
       { id: 'tracks', label: 'Tracks', items: tracks },
       { id: 'dj-sets', label: 'DJ Sets', items: djSets },
+      { id: 'clips', label: 'Clips', items: clips },
       ...releaseGroups,
       ...playlistGroups,
     ].filter((group) => group.items.length > 0);

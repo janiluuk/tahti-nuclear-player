@@ -10,6 +10,7 @@ import {
 import type { IntegrationId } from './api/sources';
 import { SOURCE_DEFS } from './api/sources';
 import { AppShell } from './components/AppShell';
+import { StudioGate } from './components/StudioGate';
 import { diagnosticsEnabled } from './lib/buildPolicy';
 import {
   appendSearchParams,
@@ -177,6 +178,10 @@ const AdminSelectsView = lazyRouteComponent(
 const AdminTopListsView = lazyRouteComponent(
   () => import('./views/admin/AdminTopListsView'),
   'AdminTopListsView',
+);
+const AdminContentView = lazyRouteComponent(
+  () => import('./views/admin/AdminContentView'),
+  'AdminContentView',
 );
 const AdminUsersView = lazyRouteComponent(
   () => import('./views/admin/AdminUsersView'),
@@ -367,6 +372,12 @@ const adminTopListsRoute = createRoute({
   component: AdminTopListsView,
 });
 
+const adminContentRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/content',
+  component: AdminContentView,
+});
+
 const adminAnnouncementsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/announcements',
@@ -550,6 +561,12 @@ const librarySmartLinksRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/smartlinks',
   component: () => <LibraryView tab="smartlinks" />,
+});
+
+const libraryMediaRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/library/media',
+  component: () => <LibraryView tab="media" />,
 });
 
 const libraryMessagesRoute = createRoute({
@@ -962,6 +979,14 @@ const studioCollectionEditRoute = createRoute({
 const studioUploadRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/upload',
+  beforeLoad: () => {
+    throw redirect({ to: '/library/upload' });
+  },
+});
+
+const libraryUploadRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/library/upload',
   component: StudioUploadView,
 });
 
@@ -1025,7 +1050,11 @@ const studioChannelRoute = createRoute({
 const studioBrandingRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/branding',
-  component: () => <SettingsView sectionId="artist" />,
+  component: () => (
+    <StudioGate requireChannel={false}>
+      <SettingsView sectionId="artist" />
+    </StudioGate>
+  ),
 });
 
 const studioShowsRoute = createRoute({
@@ -1298,6 +1327,7 @@ const routeTree = rootRoute.addChildren([
     adminSelectsRoute,
     adminStreamsRoute,
     adminSupportRoute,
+    adminContentRoute,
     adminTopListsRoute,
     adminAnnouncementsRoute,
     adminStorageRoute,
@@ -1322,6 +1352,7 @@ const routeTree = rootRoute.addChildren([
     libraryFavoritesRoute,
     libraryHistoryRoute,
     librarySmartLinksRoute,
+    libraryMediaRoute,
     libraryMessagesRoute,
     messagesAliasRoute,
     messagesThreadRoute,
@@ -1381,6 +1412,7 @@ const routeTree = rootRoute.addChildren([
     studioCollectionsRoute,
     studioCollectionEditRoute,
     studioUploadRoute,
+    libraryUploadRoute,
     studioEditorRoute,
     studioEditorProjectRoute,
     studioStashRoute,

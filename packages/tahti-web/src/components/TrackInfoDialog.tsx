@@ -100,7 +100,9 @@ export function TrackInfoDialog({
                     >
                       <HeartIcon
                         size={16}
-                        className={favorited ? 'fill-current' : undefined}
+                        className={
+                          favorited ? 'text-accent-red fill-current' : undefined
+                        }
                       />
                     </Button>
                     {archiveItemId && (

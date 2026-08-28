@@ -3,24 +3,173 @@ import {
   CircleDotIcon,
   CloudIcon,
   LinkIcon,
+  PauseIcon,
+  PencilIcon,
+  PlayIcon,
   RadioIcon,
   UploadIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Button, FilePicker, Input } from '@nuclearplayer/ui';
+import { Button, FilePicker } from '@nuclearplayer/ui';
 
-import { uploadArchiveFile } from '../../api/studio';
+import {
+  fetchRecentBroadcasts,
+  type RecentBroadcast,
+} from '../../api/broadcast';
+import { fetchEditorSource, uploadArchiveFile } from '../../api/studio';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader } from '../../components/StudioPanel';
+import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
+import { usePlayerStore } from '../../stores/playerStore';
+
+function formatRecordingDate(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function formatRecordingDuration(seconds?: number | null): string {
+  if (!seconds) {
+    return 'Duration unavailable';
+  }
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+}
+
+function RecordedBroadcastCard({
+  broadcast,
+  currentId,
+  currentTime,
+  duration,
+  status,
+  loading,
+  onPlay,
+  onSeek,
+}: {
+  broadcast: RecentBroadcast;
+  currentId: string | null;
+  currentTime: number;
+  duration: number;
+  status: string;
+  loading: boolean;
+  onPlay: () => void;
+  onSeek: (fraction: number) => void;
+}) {
+  const playableId = `broadcast:${broadcast.id}`;
+  const isCurrent = currentId === playableId;
+  const isPlaying = isCurrent && status === 'playing';
+  const progressDuration =
+    isCurrent && duration > 0 ? duration : (broadcast.durationSec ?? 0);
+  const title =
+    broadcast.title || broadcast.archiveItemTitle || 'Recorded broadcast';
+
+  return (
+    <li className="border-border bg-background-secondary rounded-lg border p-3">
+      <div className="flex items-start gap-3">
+        <Button
+          size="icon-sm"
+          variant="secondary"
+          disabled={loading || !broadcast.archiveItemId}
+          onClick={onPlay}
+          aria-label={`${isPlaying ? 'Pause' : 'Play'} ${title}`}
+          title={isPlaying ? 'Pause recording' : 'Play recording'}
+        >
+          {isPlaying ? (
+            <PauseIcon size={14} aria-hidden />
+          ) : (
+            <PlayIcon size={14} aria-hidden />
+          )}
+        </Button>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-semibold">{title}</div>
+          <div className="text-foreground-secondary truncate text-xs">
+            {formatRecordingDate(broadcast.startedAt)} ·{' '}
+            {formatRecordingDuration(broadcast.durationSec)}
+          </div>
+        </div>
+        {broadcast.archiveItemId ? (
+          <Link
+            to="/studio/archive/$id"
+            params={{ id: broadcast.archiveItemId }}
+          >
+            <Button
+              size="icon-sm"
+              variant="text"
+              aria-label={`Edit ${title}`}
+              title="Edit recording"
+            >
+              <PencilIcon size={14} aria-hidden />
+            </Button>
+          </Link>
+        ) : null}
+      </div>
+      <WaveformSeekbar
+        trackId={playableId}
+        progress={
+          progressDuration > 0 && isCurrent ? currentTime / progressDuration : 0
+        }
+        bars={72}
+        className="mt-2 h-8"
+        onSeek={isCurrent && progressDuration > 0 ? onSeek : undefined}
+      />
+    </li>
+  );
+}
 
 export function StudioUploadView() {
   const navigate = useNavigate();
-  const [title, setTitle] = useState('');
+  const play = usePlayerStore((state) => state.play);
+  const setStatus = usePlayerStore((state) => state.setStatus);
+  const seekTo = usePlayerStore((state) => state.seekTo);
+  const currentId = usePlayerStore((state) => state.currentId);
+  const currentTime = usePlayerStore((state) => state.currentTime);
+  const duration = usePlayerStore((state) => state.duration);
+  const playbackStatus = usePlayerStore((state) => state.status);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [recordings, setRecordings] = useState<RecentBroadcast[]>([]);
+  const [recordingsLoading, setRecordingsLoading] = useState(true);
+  const [recordingLoadingId, setRecordingLoadingId] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    void fetchRecentBroadcasts(5).then((result) => {
+      setRecordings(result.data);
+      setRecordingsLoading(false);
+    });
+  }, []);
+
+  const playRecording = async (recording: RecentBroadcast) => {
+    const playableId = `broadcast:${recording.id}`;
+    if (currentId === playableId) {
+      setStatus(playbackStatus === 'playing' ? 'paused' : 'playing');
+      return;
+    }
+    if (!recording.archiveItemId) {
+      return;
+    }
+    setRecordingLoadingId(recording.id);
+    const source = await fetchEditorSource(recording.archiveItemId);
+    play({
+      id: playableId,
+      kind: 'archive',
+      title:
+        recording.title || recording.archiveItemTitle || 'Recorded broadcast',
+      artist: 'Recorded broadcast',
+      streamUrl: source.data.url,
+      protocol: source.data.url.includes('.m3u8') ? 'hls' : 'https',
+      durationSec: recording.durationSec,
+    });
+    setRecordingLoadingId(null);
+  };
 
   const alternateSources = [
     {
@@ -63,7 +212,7 @@ export function StudioUploadView() {
     }
     setBusy(true);
     setMessage(null);
-    const result = await uploadArchiveFile({ file, title: title || file.name });
+    const result = await uploadArchiveFile({ file });
     setBusy(false);
     if (!result.ok) {
       setMessage(result.error);
@@ -78,7 +227,7 @@ export function StudioUploadView() {
   return (
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6">
-        <StudioNav current="/studio/upload" />
+        <StudioNav current="/library/upload" />
         <StudioPageHeader
           title="Upload"
           subtitle="Add music to your archive from a local file, a broadcast, or an external source."
@@ -96,12 +245,11 @@ export function StudioUploadView() {
               selectedFiles={file ? [file] : []}
               onFiles={(files) => setFile(files[0] ?? null)}
             />
-            <Input
-              label="Title"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Optional — defaults to filename"
-            />
+            <p className="text-foreground-secondary mt-3 text-xs">
+              Upload first and we’ll read the embedded title and artist
+              metadata. If the file has none, its filename is used and you can
+              name it in the editor afterwards.
+            </p>
             {message && (
               <p className="text-accent-red text-sm" role="alert">
                 {message}
@@ -115,20 +263,46 @@ export function StudioUploadView() {
             </div>
           </div>
 
-          <div className="border-accent-green flex min-h-48 flex-col justify-between rounded-xl border p-5 sm:p-6">
+          <div className="border-accent-green rounded-xl border p-5 sm:p-6">
             <div className="flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
               <RadioIcon size={15} aria-hidden />
-              Publish from broadcast
+              Last recorded broadcasts
             </div>
-            <p className="text-foreground-secondary text-sm">
-              No recent unpublished broadcasts.
-              <Link
-                to="/studio/go-live"
-                className="text-accent-cyan ml-1 underline-offset-2 hover:underline"
-              >
-                Go live to record one.
-              </Link>
-            </p>
+            {recordingsLoading ? (
+              <p className="text-foreground-secondary mt-4 text-sm">
+                Loading recordings…
+              </p>
+            ) : recordings.length === 0 ? (
+              <p className="text-foreground-secondary mt-4 text-sm">
+                No recordings yet.{' '}
+                <Link
+                  to="/studio/go-live"
+                  className="text-accent-cyan underline-offset-2 hover:underline"
+                >
+                  Go live to record one.
+                </Link>
+              </p>
+            ) : (
+              <ul className="mt-4 flex flex-col gap-2">
+                {recordings.map((recording) => (
+                  <RecordedBroadcastCard
+                    key={recording.id}
+                    broadcast={recording}
+                    currentId={currentId}
+                    currentTime={currentTime}
+                    duration={duration}
+                    status={playbackStatus}
+                    loading={recordingLoadingId === recording.id}
+                    onPlay={() => void playRecording(recording)}
+                    onSeek={(fraction) =>
+                      seekTo(
+                        fraction * (duration || recording.durationSec || 0),
+                      )
+                    }
+                  />
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 

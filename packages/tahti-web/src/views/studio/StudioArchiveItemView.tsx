@@ -41,6 +41,10 @@ import {
   type StudioArchiveItem,
 } from '../../api/studio-types';
 import { AddToPlaylistPanel } from '../../components/AddToPlaylistPanel';
+import {
+  AudienceVisibilitySection,
+  type TrackVisibility,
+} from '../../components/AudienceVisibilitySection';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -112,9 +116,8 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const [description, setDescription] = useState('');
   const [genre, setGenre] = useState('');
   const [contentType, setContentType] = useState('STUDIO');
-  const [visibility, setVisibility] = useState<
-    'PUBLIC' | 'UNLISTED' | 'PRIVATE'
-  >('PUBLIC');
+  const [visibility, setVisibility] = useState<TrackVisibility>('PUBLIC');
+  const [fanTierIds, setFanTierIds] = useState<string[]>([]);
   const [releaseDate, setReleaseDate] = useState('');
   const [downloadsEnabled, setDownloadsEnabled] = useState(false);
   const [commentsEnabled, setCommentsEnabled] = useState(true);
@@ -151,6 +154,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
         res.data.visibility ??
           (res.data.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
       );
+      setFanTierIds(res.data.fanTierIds ?? []);
       setReleaseDate(res.data.releaseDate ?? '');
       setDownloadsEnabled(res.data.downloadsEnabled ?? false);
       setCommentsEnabled(res.data.commentsEnabled ?? true);
@@ -197,6 +201,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
       contentType,
       isPublic: visibility === 'PUBLIC',
       visibility,
+      fanTierIds,
       ...(isAudioClip
         ? { releaseDate: null }
         : { releaseDate: releaseDate || null }),
@@ -624,28 +629,12 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                             />
                           </>
                         ) : null}
-                        <label className="flex flex-col gap-1 text-sm">
-                          Visibility
-                          <select
-                            aria-label="Visibility"
-                            value={visibility}
-                            onChange={(event) =>
-                              setVisibility(
-                                event.target.value as
-                                  | 'PUBLIC'
-                                  | 'UNLISTED'
-                                  | 'PRIVATE',
-                              )
-                            }
-                            className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                          >
-                            <option value="PUBLIC">Public</option>
-                            <option value="UNLISTED">
-                              Unlisted — direct link only
-                            </option>
-                            <option value="PRIVATE">Private — only you</option>
-                          </select>
-                        </label>
+                        <AudienceVisibilitySection
+                          visibility={visibility}
+                          onVisibilityChange={setVisibility}
+                          tierIds={fanTierIds}
+                          onTierIdsChange={setFanTierIds}
+                        />
                         <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
                           <input
                             type="checkbox"

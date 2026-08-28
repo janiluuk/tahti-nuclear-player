@@ -2,8 +2,11 @@ import { Link, useSearch } from '@tanstack/react-router';
 import {
   CheckCircle2Icon,
   GlobeIcon,
+  ImageIcon,
   PencilIcon,
+  RadioIcon,
   SearchIcon,
+  UserCircleIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -226,10 +229,18 @@ export function StudioChannelView() {
           >
             {(
               [
-                { id: 'design' as const, label: 'Channel' },
-                { id: 'radio' as const, label: '24/7 radio' },
-                { id: 'profile' as const, label: 'Profile' },
-                { id: 'domain' as const, label: 'Username / domain' },
+                { id: 'design' as const, label: 'Channel', icon: ImageIcon },
+                { id: 'radio' as const, label: '24/7 radio', icon: RadioIcon },
+                {
+                  id: 'profile' as const,
+                  label: 'Profile',
+                  icon: UserCircleIcon,
+                },
+                {
+                  id: 'domain' as const,
+                  label: 'Username / domain',
+                  icon: GlobeIcon,
+                },
               ] as const
             ).map((t) => (
               <Button
@@ -239,12 +250,13 @@ export function StudioChannelView() {
                 role="tab"
                 aria-selected={tab === t.id}
                 onClick={() => setTab(t.id)}
-                className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
                   tab === t.id
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'border-border text-foreground-secondary hover:text-foreground border'
                 }`}
               >
+                <t.icon size={14} aria-hidden />
                 {t.label}
               </Button>
             ))}

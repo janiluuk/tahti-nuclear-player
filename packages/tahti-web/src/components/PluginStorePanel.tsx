@@ -1,5 +1,12 @@
 import { Link } from '@tanstack/react-router';
-import { Cast, SettingsIcon } from 'lucide-react';
+import {
+  Cast,
+  CheckSquareIcon,
+  Eye,
+  SearchIcon,
+  SettingsIcon,
+  XIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -31,12 +38,21 @@ import {
   type VisualSettingsMap,
 } from '../api/channel-design';
 import {
+  fetchSpotifyArtistProfile,
+  linkSpotifyArtistProfile,
+  unlinkSpotifyArtistProfile,
+} from '../api/distribution';
+import {
   disconnectIntegration,
   fetchConnectionStatus,
+  importSpotifyTracks,
   oauthStartUrl,
+  searchSpotifyTracks,
   type IntegrationId,
+  type SpotifySearchTrack,
 } from '../api/sources';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
+import type { SpotifyArtistProfile } from '../api/studio-types';
 import { LISTENER_WIDGET_TYPES } from '../content/listenerWidgets';
 import {
   PLUGIN_CATEGORIES,
@@ -47,7 +63,11 @@ import {
   radioStationPlayable,
   type RadioStation,
 } from '../content/radioStations';
-import { ALL_PLUGIN_IDS, AUDIO_FX_PLUGINS } from '../plugins/audio-fx';
+import {
+  ALL_PLUGIN_IDS,
+  AUDIO_FX_PLUGINS,
+  useAudioFxStore,
+} from '../plugins/audio-fx';
 import { EXPORT_TARGETS } from '../plugins/export';
 import { importSourcePlugins } from '../plugins/import-sources';
 import {
@@ -61,8 +81,10 @@ import { useAuthStore } from '../stores/authStore';
 import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
+import { ChannelVisualizer } from './ChannelVisualizer';
 import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
+import { NuclearPluginAddonsCategory } from './NuclearPluginAddonsCategory';
 import { PageLoading } from './PageStates';
 
 function visualizerDescription(id: string): string {
@@ -178,6 +200,7 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
       {categoryId === 'embed' && <EmbedCategory />}
       {categoryId === 'discovery' && <DiscoveryCategory />}
       {categoryId === 'channel' && <ChannelCategory />}
+      {categoryId === 'nuclear-plugins' && <NuclearPluginAddonsCategory />}
     </div>
   );
 }
@@ -235,12 +258,18 @@ function presetLabel(id: string): string {
 
 function VisualizersCategory() {
   const [preset, setPreset] = useState<string | null>(null);
+  const [previewPreset, setPreviewPreset] = useState<string>('AURORA');
   const [settingsMap, setSettingsMap] = useState<VisualSettingsMap>({});
   const [saving, setSaving] = useState<string | null>(null);
+  const [configurationPreset, setConfigurationPreset] = useState<string | null>(
+    null,
+  );
+  const [audioReactive, setAudioReactive] = useState(true);
 
   useEffect(() => {
     void fetchChannelVisual().then((r) => {
       setPreset(r.data.visualPreset);
+      setPreviewPreset(r.data.visualPreset);
       setSettingsMap(parseVisualSettingsMap(r.data.visualSettingsJson));
     });
   }, []);
@@ -264,78 +293,191 @@ function VisualizersCategory() {
     void patchChannelVisual({ visualSettings: nextMap });
   };
 
+  const configurationSettings = configurationPreset
+    ? resolveVisualPresetSettings(settingsMap, configurationPreset)
+    : null;
+
   return (
-    <div className="flex flex-col gap-2">
-      {VISUAL_PRESETS.map((id) => {
-        const tuning = resolveVisualPresetSettings(settingsMap, id);
-        const isTunable = id !== 'MINIMAL';
-        return (
-          <ConfigurableCard
-            key={id}
-            title={presetLabel(id)}
-            header={
-              <PluginStoreItem
-                name={presetLabel(id)}
-                author="Tahti"
-                description={visualizerDescription(id)}
-                isInstalled={preset === id}
-                onInstall={() => usePreset(id)}
-                labels={{
-                  install: saving === id ? 'Applying…' : 'Use',
-                  installed: 'In use',
-                }}
-              />
-            }
-          >
-            {isTunable ? (
-              <>
-                <Slider
-                  label="Speed"
-                  min={0.25}
-                  max={2}
-                  step={0.05}
-                  value={tuning.speed}
-                  showValue
-                  onValueChange={(v) => saveTuning(id, { ...tuning, speed: v })}
-                >
-                  <Slider.Surface>
-                    <Slider.Track />
-                    <Slider.RangeInput />
-                  </Slider.Surface>
-                </Slider>
-                <Slider
-                  label="Intensity"
-                  min={0.25}
-                  max={2}
-                  step={0.05}
-                  value={tuning.intensity}
-                  showValue
-                  onValueChange={(v) =>
-                    saveTuning(id, { ...tuning, intensity: v })
-                  }
-                >
-                  <Slider.Surface>
-                    <Slider.Track />
-                    <Slider.RangeInput />
-                  </Slider.Surface>
-                </Slider>
-                <Button
-                  size="sm"
-                  variant="text"
-                  className="self-start"
-                  onClick={() => saveTuning(id, DEFAULT_VISUAL_PRESET_SETTINGS)}
-                >
-                  Reset to default
-                </Button>
-              </>
-            ) : (
-              <p className="text-foreground-secondary text-xs">
-                Minimal has no tunable speed/intensity.
+    <div className="flex flex-col gap-4">
+      <div className="border-border bg-background-secondary overflow-hidden rounded-lg border">
+        <div className="relative h-64 min-h-52">
+          {previewPreset === 'MINIMAL' ? (
+            <div className="bg-background text-foreground-secondary flex h-full items-center justify-center text-sm">
+              No animated background
+            </div>
+          ) : (
+            <ChannelVisualizer
+              preset={previewPreset}
+              visualSettingsJson={JSON.stringify(settingsMap)}
+              audioReactive={audioReactive}
+              className="h-full w-full"
+            />
+          )}
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12 text-white">
+            <div>
+              <p className="text-sm font-semibold">
+                {presetLabel(previewPreset)}
               </p>
-            )}
-          </ConfigurableCard>
-        );
-      })}
+              <p className="text-xs text-white/75">
+                {visualizerDescription(previewPreset)}
+              </p>
+            </div>
+            <Eye size={18} aria-hidden />
+          </div>
+        </div>
+        {previewPreset !== 'MINIMAL' ? (
+          <label className="border-border text-foreground-secondary flex items-center gap-2 border-t px-4 py-3 text-xs">
+            <input
+              type="checkbox"
+              checked={audioReactive}
+              onChange={(event) => setAudioReactive(event.target.checked)}
+            />
+            <span>
+              Audio reactivity
+              <span className="text-foreground-tertiary ml-1">
+                (let the visualizer respond to the playing track)
+              </span>
+            </span>
+          </label>
+        ) : null}
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {VISUAL_PRESETS.map((id) => {
+          const active = preset === id;
+          const selected = previewPreset === id;
+          const metadata = visualizerMetadata(id);
+          const Icon = metadata.Icon;
+          return (
+            <div
+              key={id}
+              className={`flex items-center gap-3 rounded-lg border p-3 ${selected ? 'border-primary bg-primary/10' : 'border-border bg-background-secondary'}`}
+            >
+              <button
+                type="button"
+                className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                aria-pressed={selected}
+                onClick={() => setPreviewPreset(id)}
+              >
+                <span className="bg-background text-primary flex size-9 shrink-0 items-center justify-center rounded-md">
+                  <Icon size={18} aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium">
+                    {presetLabel(id)}
+                    {active ? ' · active' : ''}
+                  </span>
+                  <span className="text-foreground-secondary block text-xs">
+                    {metadata.description}
+                  </span>
+                </span>
+              </button>
+              {id !== 'MINIMAL' ? (
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label={`Configure ${presetLabel(id)}`}
+                  title={`Configure ${presetLabel(id)}`}
+                  onClick={() => {
+                    setPreviewPreset(id);
+                    setConfigurationPreset(id);
+                  }}
+                >
+                  <SettingsIcon size={15} aria-hidden />
+                </Button>
+              ) : null}
+              <Button
+                size="sm"
+                variant={active ? 'secondary' : 'default'}
+                disabled={active || saving === id}
+                onClick={() => usePreset(id)}
+              >
+                {saving === id ? 'Applying…' : active ? 'In use' : 'Use'}
+              </Button>
+            </div>
+          );
+        })}
+      </div>
+
+      {configurationPreset && configurationSettings ? (
+        <Dialog.Root
+          isOpen
+          onClose={() => setConfigurationPreset(null)}
+          className="max-w-lg"
+        >
+          <Dialog.Title>
+            Configure {presetLabel(configurationPreset)}
+          </Dialog.Title>
+          <Dialog.Description>
+            Tune this visualizer while its live preview stays visible behind the
+            dialog.
+          </Dialog.Description>
+          <div className="flex flex-col gap-4">
+            <div>
+              <Slider
+                label="Speed"
+                min={0.25}
+                max={2}
+                step={0.05}
+                value={configurationSettings.speed}
+                showValue
+                onValueChange={(value) =>
+                  saveTuning(configurationPreset, {
+                    ...configurationSettings,
+                    speed: value,
+                  })
+                }
+              >
+                <Slider.Surface>
+                  <Slider.Track />
+                  <Slider.RangeInput />
+                </Slider.Surface>
+              </Slider>
+              <p className="text-foreground-secondary mt-1 text-xs">
+                Controls how quickly the shapes, particles, and camera movement
+                evolve.
+              </p>
+            </div>
+            <div>
+              <Slider
+                label="Intensity"
+                min={0.25}
+                max={2}
+                step={0.05}
+                value={configurationSettings.intensity}
+                showValue
+                onValueChange={(value) =>
+                  saveTuning(configurationPreset, {
+                    ...configurationSettings,
+                    intensity: value,
+                  })
+                }
+              >
+                <Slider.Surface>
+                  <Slider.Track />
+                  <Slider.RangeInput />
+                </Slider.Surface>
+              </Slider>
+              <p className="text-foreground-secondary mt-1 text-xs">
+                Controls how strongly the scene responds to audio levels.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="text"
+              className="self-start"
+              onClick={() =>
+                saveTuning(configurationPreset, DEFAULT_VISUAL_PRESET_SETTINGS)
+              }
+            >
+              Reset to default
+            </Button>
+          </div>
+          <Dialog.Actions>
+            <Dialog.Close>Done</Dialog.Close>
+          </Dialog.Actions>
+        </Dialog.Root>
+      ) : null}
       <p className="text-foreground-secondary text-xs">
         Header style, color scheme, and enable/disable live in{' '}
         <button
@@ -455,6 +597,9 @@ function ServiceCard({ plugin }: { plugin: ServicePlugin }) {
   if (plugin.id === 'hearthis') {
     return <HearthisCard plugin={plugin} />;
   }
+  if (plugin.id === 'spotify') {
+    return <SpotifyCard plugin={plugin} />;
+  }
   if (plugin.action.kind === 'oauth') {
     return <OAuthServiceCard plugin={plugin} action={plugin.action} />;
   }
@@ -480,6 +625,227 @@ function ServiceCard({ plugin }: { plugin: ServicePlugin }) {
     return <Link to={plugin.action.to}>{header}</Link>;
   }
   return header;
+}
+
+function SpotifyCard({ plugin }: { plugin: ServicePlugin }) {
+  const [profile, setProfile] = useState<SpotifyArtistProfile | null>(null);
+  const [configured, setConfigured] = useState(true);
+  const [artistUrl, setArtistUrl] = useState('');
+  const [importOpen, setImportOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [tracks, setTracks] = useState<SpotifySearchTrack[]>([]);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetchSpotifyArtistProfile().then((result) => {
+      setConfigured(result.data.configured);
+      setProfile(result.data.profile);
+      if (result.data.profile?.name) {
+        setQuery(result.data.profile.name);
+      }
+    });
+  }, []);
+
+  const search = async () => {
+    if (!query.trim()) {
+      return;
+    }
+    setBusy(true);
+    const result = await searchSpotifyTracks(query.trim());
+    setTracks(result.data);
+    setSelected(new Set());
+    setBusy(false);
+  };
+
+  const toggle = (id: string) => {
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const importSelected = async () => {
+    const chosen = tracks.filter((track) => selected.has(track.id));
+    if (chosen.length === 0) {
+      return;
+    }
+    setBusy(true);
+    const result = await importSpotifyTracks(
+      chosen.map((track) => ({
+        trackId: track.id,
+        title: track.name,
+        externalUrl: track.externalUrl,
+      })),
+    );
+    setBusy(false);
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setMessage(
+      `Added ${result.count} Spotify item${result.count === 1 ? '' : 's'} as embeds.`,
+    );
+    setSelected(new Set());
+    setImportOpen(false);
+  };
+
+  return (
+    <ConfigurableCard
+      title={plugin.name}
+      header={
+        <PluginStoreItem
+          name={plugin.name}
+          author={plugin.author}
+          description="Link your Spotify artist profile and choose tracks to embed in your Tahti library."
+          isInstalled={Boolean(profile)}
+          onInstall={() => setImportOpen(true)}
+          labels={{
+            install: profile ? 'Import' : 'Configure',
+            installed: 'Configured',
+          }}
+        />
+      }
+    >
+      {!configured ? (
+        <p className="text-foreground-secondary text-sm">
+          Spotify import is not available until the platform Spotify credentials
+          are configured.
+        </p>
+      ) : profile ? (
+        <>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span>Linked{profile.name ? `: ${profile.name}` : ''}</span>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setImportOpen(true)}
+            >
+              <SearchIcon size={14} aria-hidden className="mr-1.5" /> Choose
+              content
+            </Button>
+            <Button
+              size="sm"
+              variant="text"
+              onClick={() => {
+                void unlinkSpotifyArtistProfile().then((result) => {
+                  if (result.ok) {
+                    setProfile(null);
+                  } else {
+                    setMessage(result.error);
+                  }
+                });
+              }}
+            >
+              <XIcon size={14} aria-hidden className="mr-1.5" /> Unlink
+            </Button>
+          </div>
+          {message && (
+            <p className="text-foreground-secondary text-xs">{message}</p>
+          )}
+        </>
+      ) : (
+        <form
+          className="flex flex-wrap gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!artistUrl.trim()) {
+              return;
+            }
+            setBusy(true);
+            void linkSpotifyArtistProfile(artistUrl.trim()).then((result) => {
+              setBusy(false);
+              if (!result.ok) {
+                setMessage(result.error);
+              } else {
+                setProfile(result.data.profile);
+                setQuery(result.data.profile?.name ?? '');
+              }
+            });
+          }}
+        >
+          <Input
+            label="Spotify artist URL"
+            value={artistUrl}
+            onChange={(event) => setArtistUrl(event.target.value)}
+            placeholder="https://open.spotify.com/artist/…"
+          />
+          <Button size="sm" type="submit" disabled={busy || !artistUrl.trim()}>
+            {busy ? 'Linking…' : 'Link profile'}
+          </Button>
+        </form>
+      )}
+      <Dialog.Root
+        isOpen={importOpen}
+        onClose={() => setImportOpen(false)}
+        className="max-w-xl"
+      >
+        <Dialog.Title>Choose Spotify content</Dialog.Title>
+        <Dialog.Description>
+          Search the linked artist or another Spotify query, select the items
+          you want, and add them as provider embeds.
+        </Dialog.Description>
+        <div className="flex gap-2 py-3">
+          <Input
+            label="Search Spotify"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+          <Button
+            className="mt-6"
+            size="sm"
+            onClick={() => void search()}
+            disabled={busy || !query.trim()}
+          >
+            <SearchIcon size={15} aria-hidden /> Search
+          </Button>
+        </div>
+        <div className="flex max-h-72 flex-col gap-2 overflow-y-auto">
+          {tracks.map((track) => (
+            <label
+              key={track.id}
+              className="border-border flex cursor-pointer items-center gap-2 rounded border p-2 text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={selected.has(track.id)}
+                onChange={() => toggle(track.id)}
+              />
+              <span className="min-w-0 flex-1 truncate">{track.name}</span>
+              <span className="text-foreground-secondary truncate text-xs">
+                {track.artists?.join(', ')}
+              </span>
+              <CheckSquareIcon
+                size={15}
+                className="text-foreground-secondary"
+                aria-hidden
+              />
+            </label>
+          ))}
+          {tracks.length === 0 && (
+            <p className="text-foreground-secondary py-5 text-sm">
+              Search to see Spotify content.
+            </p>
+          )}
+        </div>
+        <Dialog.Actions>
+          <Dialog.Close>Cancel</Dialog.Close>
+          <Button
+            onClick={() => void importSelected()}
+            disabled={busy || selected.size === 0}
+          >
+            Add selected ({selected.size})
+          </Button>
+        </Dialog.Actions>
+      </Dialog.Root>
+    </ConfigurableCard>
+  );
 }
 
 function OAuthServiceCard({
@@ -585,6 +951,13 @@ function OAuthServiceCard({
           >
             {busy ? 'Disconnecting…' : 'Disconnect'}
           </Button>
+          {action.integrationId === 'bandcamp' && (
+            <Link to="/sources/$id" params={{ id: 'bandcamp' }}>
+              <Button size="sm" variant="secondary">
+                Open discography importer
+              </Button>
+            </Link>
+          )}
           {action.integrationId === 'soundcloud' && (
             <div className="border-border flex flex-col gap-2 border-t pt-3">
               <Input
@@ -897,22 +1270,47 @@ function MulticastCategory() {
 }
 
 function AudioPluginsCategory() {
+  const enabledPluginIds = useAudioFxStore((state) => state.enabledPluginIds);
+  const togglePlugin = useAudioFxStore((state) => state.togglePlugin);
+
   return (
     <div className="flex flex-col gap-2">
       {ALL_PLUGIN_IDS.map((id) => {
         const meta = AUDIO_FX_PLUGINS[id];
+        const enabled = enabledPluginIds.includes(id);
         return (
-          <Link key={id} to="/studio/archive">
-            <PluginStoreItem
-              name={meta.label}
-              author="Pro Editor"
-              description={meta.description}
-              onInstall={() => {}}
-              labels={{ install: 'Open Pro Editor' }}
-            />
-          </Link>
+          <div
+            key={id}
+            className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3"
+          >
+            <div className="min-w-0 flex-1">
+              <PluginStoreItem
+                name={meta.label}
+                author="Pro Editor"
+                description={meta.description}
+                onInstall={() => togglePlugin(id)}
+                labels={{ install: enabled ? 'Activated' : 'Activate' }}
+                isInstalled={enabled}
+              />
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={enabled}
+              aria-label={`${enabled ? 'Deactivate' : 'Activate'} ${meta.label}`}
+              onClick={() => togglePlugin(id)}
+              className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border-2 transition-colors ${enabled ? 'border-primary bg-primary' : 'border-border bg-background'}`}
+            >
+              <span
+                className={`size-4 rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`}
+              />
+            </button>
+          </div>
         );
       })}
+      <p className="text-foreground-secondary text-xs">
+        Only activated audio plugins are available to add in the Pro Editor.
+      </p>
     </div>
   );
 }

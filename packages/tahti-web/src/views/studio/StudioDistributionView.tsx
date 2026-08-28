@@ -1,12 +1,16 @@
 import { Link } from '@tanstack/react-router';
 import {
+  BarcodeIcon,
+  BookOpenIcon,
   CopyIcon,
+  Disc3Icon,
   DownloadIcon,
   ExternalLinkIcon,
+  LinkIcon,
+  Music2Icon,
   PlusIcon,
   SendIcon,
   Trash2Icon,
-  XIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -18,12 +22,9 @@ import {
   fetchReleaseExportJson,
   fetchReleaseRoyalties,
   fetchRevelatorBilling,
-  fetchSpotifyArtistProfile,
-  linkSpotifyArtistProfile,
   parseCredits,
   patchReleaseCatalog,
   payAndSubmitToRevelator,
-  unlinkSpotifyArtistProfile,
 } from '../../api/distribution';
 import { fetchStudioReleases } from '../../api/studio';
 import type {
@@ -33,7 +34,6 @@ import type {
   ReleaseCreditRole,
   RevelatorBillingStatus,
   RevelatorRoyaltyReportRow,
-  SpotifyArtistProfile,
   StudioRelease,
 } from '../../api/studio-types';
 import { RELEASE_CREDIT_ROLES } from '../../api/studio-types';
@@ -62,6 +62,33 @@ const DISCOGS_GUIDE_STEPS = [
   'Add the tracklist in order with durations from your export.',
   'Add barcode and catalog number if applicable, then submit for review.',
   'Copy the release URL or numeric ID back into Tahti.',
+] as const;
+
+const CATALOG_METHODS = [
+  {
+    id: 'upc',
+    label: 'UPC / EAN',
+    description: 'Identify the release with its barcode.',
+    icon: BarcodeIcon,
+  },
+  {
+    id: 'musicbrainz',
+    label: 'MusicBrainz',
+    description: 'Link the open catalog release and artist records.',
+    icon: Music2Icon,
+  },
+  {
+    id: 'discogs',
+    label: 'Discogs',
+    description: 'Link the community catalog release entry.',
+    icon: Disc3Icon,
+  },
+  {
+    id: 'rights',
+    label: 'Rights & label',
+    description: 'Store P-line, C-line, and label imprint details.',
+    icon: BookOpenIcon,
+  },
 ] as const;
 
 const POST_RELEASE_CLAIM_LINKS = [
@@ -136,124 +163,6 @@ function statusColor(
   return 'secondary';
 }
 
-function SpotifyProfilePanel() {
-  const [configured, setConfigured] = useState(true);
-  const [profile, setProfile] = useState<SpotifyArtistProfile | null>(null);
-  const [artistUrl, setArtistUrl] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    void fetchSpotifyArtistProfile().then((r) => {
-      setConfigured(r.data.configured);
-      setProfile(r.data.profile);
-    });
-  }, []);
-
-  if (!configured) {
-    return (
-      <StudioPanel
-        title="Spotify artist profile"
-        action={
-          <Link to="/admin/vendors">
-            <Button size="sm" variant="secondary">
-              Configure
-            </Button>
-          </Link>
-        }
-      >
-        <p className="text-foreground-secondary text-sm">
-          Spotify import needs platform credentials before an artist profile can
-          be linked.
-        </p>
-        <div className="border-border bg-background-secondary/40 mt-4 rounded-lg border p-3 text-sm">
-          <p className="font-medium">Required configuration</p>
-          <ul className="text-foreground-secondary mt-2 list-disc space-y-1 pl-5 text-xs">
-            <li>Spotify Web API client ID</li>
-            <li>Spotify Web API client secret</li>
-            <li>Server-side Spotify API access enabled for artist lookup</li>
-          </ul>
-          <p className="text-foreground-secondary mt-3 text-xs">
-            Configure these once in Admin → Vendors. Secrets stay on the server;
-            artists only need to provide their public Spotify artist URL
-            afterward.
-          </p>
-        </div>
-      </StudioPanel>
-    );
-  }
-
-  return (
-    <StudioPanel
-      title="Spotify artist profile"
-      description="Link your Spotify artist page so “Your tracks” auto-loads when adding tracks to a collection."
-    >
-      {profile ? (
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm">
-            Linked{profile.name ? `: ${profile.name}` : ''}
-          </span>
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={busy}
-            onClick={() => {
-              if (!confirm('Remove your linked Spotify artist profile?')) {
-                return;
-              }
-              setBusy(true);
-              setMsg(null);
-              void unlinkSpotifyArtistProfile().then((r) => {
-                setBusy(false);
-                if (!r.ok) {
-                  setMsg(r.error);
-                  return;
-                }
-                setProfile(null);
-              });
-            }}
-          >
-            <XIcon size={14} aria-hidden className="mr-1.5" />
-            Remove
-          </Button>
-        </div>
-      ) : (
-        <form
-          className="flex flex-wrap gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!artistUrl.trim()) {
-              return;
-            }
-            setBusy(true);
-            setMsg(null);
-            void linkSpotifyArtistProfile(artistUrl.trim()).then((r) => {
-              setBusy(false);
-              if (!r.ok) {
-                setMsg(r.error);
-                return;
-              }
-              setProfile(r.data.profile);
-              setArtistUrl('');
-            });
-          }}
-        >
-          <Input
-            value={artistUrl}
-            onChange={(e) => setArtistUrl(e.target.value)}
-            placeholder="https://open.spotify.com/artist/…"
-            className="min-w-[16rem] flex-1"
-          />
-          <Button size="sm" type="submit" disabled={busy}>
-            {busy ? 'Linking…' : 'Link'}
-          </Button>
-        </form>
-      )}
-      {msg && <p className="text-foreground-secondary mt-2 text-xs">{msg}</p>}
-    </StudioPanel>
-  );
-}
-
 type CatalogForm = {
   upc: string;
   musicbrainzReleaseId: string;
@@ -276,6 +185,40 @@ function catalogToForm(catalog: ReleaseCatalog): CatalogForm {
   };
 }
 
+function GuideDetail({
+  title,
+  steps,
+  href,
+  linkLabel,
+}: {
+  title: string;
+  steps: readonly string[];
+  href?: string;
+  linkLabel?: string;
+}) {
+  return (
+    <div className="border-border bg-background-secondary/30 rounded-lg border p-4">
+      <h3 className="text-sm font-medium">{title}</h3>
+      <ol className="text-foreground-secondary mt-2 list-inside list-decimal space-y-1">
+        {steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ol>
+      {href && linkLabel ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          className="text-primary mt-3 inline-flex items-center gap-1 underline underline-offset-2"
+        >
+          {linkLabel}
+          <ExternalLinkIcon size={12} aria-hidden />
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
 function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
   const [open, setOpen] = useState(false);
   const [catalog, setCatalog] = useState<ReleaseCatalog | null>(null);
@@ -288,6 +231,10 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [activeMethods, setActiveMethods] = useState<Set<string>>(
+    new Set(['upc', 'musicbrainz', 'discogs', 'rights']),
+  );
+  const [selectedGuide, setSelectedGuide] = useState('musicbrainz');
 
   const revelatorStatus =
     catalog?.revelatorStatus ?? release.revelatorStatus ?? null;
@@ -309,6 +256,18 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
         setForm(catalogToForm(c.data));
         setCredits(parseCredits(c.data.credits));
         setChecklist(c.data.checklist);
+        setActiveMethods(
+          new Set([
+            ...(c.data.upc ? ['upc'] : []),
+            ...(c.data.musicbrainzReleaseId || c.data.musicbrainzArtistId
+              ? ['musicbrainz']
+              : []),
+            ...(c.data.discogsReleaseId ? ['discogs'] : []),
+            ...(c.data.pLine || c.data.cLine || c.data.labelImprint
+              ? ['rights']
+              : []),
+          ]),
+        );
       }
       setBilling(b.data);
       setLoading(false);
@@ -434,31 +393,139 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
         ))}
       </ul>
 
+      <div>
+        <p className="mb-2 text-xs font-medium">Catalog methods</p>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {CATALOG_METHODS.map((method) => {
+            const Icon = method.icon;
+            const active = activeMethods.has(method.id);
+            return (
+              <button
+                key={method.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() =>
+                  setActiveMethods((current) => {
+                    const next = new Set(current);
+                    if (next.has(method.id)) {
+                      next.delete(method.id);
+                    } else {
+                      next.add(method.id);
+                    }
+                    return next;
+                  })
+                }
+                className={`border-border flex items-center gap-2 rounded-md border p-2 text-left text-xs ${active ? 'bg-accent-blue/10 border-accent-blue' : 'opacity-70'}`}
+              >
+                <Icon size={18} aria-hidden />
+                <span className="min-w-0 flex-1">
+                  <span className="block font-medium">{method.label}</span>
+                  <span className="text-foreground-secondary block">
+                    {method.description}
+                  </span>
+                </span>
+                <span aria-hidden>{active ? '✓' : '○'}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid gap-2 sm:grid-cols-2">
-        {(
-          [
-            ['UPC / EAN', 'upc'],
-            ['MusicBrainz release MBID', 'musicbrainzReleaseId'],
-            ['MusicBrainz artist MBID', 'musicbrainzArtistId'],
-            ['Discogs release ID', 'discogsReleaseId'],
-            ['P-line', 'pLine'],
-            ['C-line', 'cLine'],
-            ['Label imprint', 'labelImprint'],
-          ] as const
-        ).map(([label, key]) => (
-          <label key={key} className="flex flex-col gap-1 text-xs">
-            <span className="text-foreground-secondary">{label}</span>
+        {activeMethods.has('upc') && (
+          <label className="flex flex-col gap-1 text-xs">
+            <span className="text-foreground-secondary">UPC / EAN</span>
             <Input
-              value={form?.[key] ?? ''}
+              value={form?.upc ?? ''}
               disabled={busy}
               onChange={(e) =>
                 setForm((previous) =>
-                  previous ? { ...previous, [key]: e.target.value } : previous,
+                  previous ? { ...previous, upc: e.target.value } : previous,
                 )
               }
             />
           </label>
-        ))}
+        )}
+        {activeMethods.has('musicbrainz') && (
+          <>
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="text-foreground-secondary">
+                MusicBrainz release MBID
+              </span>
+              <Input
+                value={form?.musicbrainzReleaseId ?? ''}
+                disabled={busy}
+                onChange={(e) =>
+                  setForm((previous) =>
+                    previous
+                      ? { ...previous, musicbrainzReleaseId: e.target.value }
+                      : previous,
+                  )
+                }
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="text-foreground-secondary">
+                MusicBrainz artist MBID
+              </span>
+              <Input
+                value={form?.musicbrainzArtistId ?? ''}
+                disabled={busy}
+                onChange={(e) =>
+                  setForm((previous) =>
+                    previous
+                      ? { ...previous, musicbrainzArtistId: e.target.value }
+                      : previous,
+                  )
+                }
+              />
+            </label>
+          </>
+        )}
+        {activeMethods.has('discogs') && (
+          <label className="flex flex-col gap-1 text-xs">
+            <span className="text-foreground-secondary">
+              Discogs release ID
+            </span>
+            <Input
+              value={form?.discogsReleaseId ?? ''}
+              disabled={busy}
+              onChange={(e) =>
+                setForm((previous) =>
+                  previous
+                    ? { ...previous, discogsReleaseId: e.target.value }
+                    : previous,
+                )
+              }
+            />
+          </label>
+        )}
+        {activeMethods.has('rights') && (
+          <>
+            {(['pLine', 'cLine', 'labelImprint'] as const).map((key) => (
+              <label key={key} className="flex flex-col gap-1 text-xs">
+                <span className="text-foreground-secondary">
+                  {key === 'pLine'
+                    ? 'P-line'
+                    : key === 'cLine'
+                      ? 'C-line'
+                      : 'Label imprint'}
+                </span>
+                <Input
+                  value={form?.[key] ?? ''}
+                  disabled={busy}
+                  onChange={(e) =>
+                    setForm((previous) =>
+                      previous
+                        ? { ...previous, [key]: e.target.value }
+                        : previous,
+                    )
+                  }
+                />
+              </label>
+            ))}
+          </>
+        )}
       </div>
 
       <div>
@@ -708,22 +775,63 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
 
   const guidesTab = (
     <div className="flex flex-col gap-4 text-xs">
-      <div>
-        <p className="mb-1 font-medium">MusicBrainz</p>
-        <ol className="text-foreground-secondary list-inside list-decimal">
-          {MUSICBRAINZ_GUIDE_STEPS.map((step) => (
-            <li key={step}>{step}</li>
-          ))}
-        </ol>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { id: 'musicbrainz', label: 'MusicBrainz', icon: Music2Icon },
+          { id: 'discogs', label: 'Discogs', icon: Disc3Icon },
+          { id: 'upc', label: 'UPC / EAN', icon: BarcodeIcon },
+          { id: 'automation', label: 'Automation', icon: LinkIcon },
+        ].map((guide) => {
+          const Icon = guide.icon;
+          return (
+            <button
+              key={guide.id}
+              type="button"
+              onClick={() => setSelectedGuide(guide.id)}
+              className={`border-border flex min-h-24 flex-col items-center justify-center gap-2 rounded-lg border p-3 text-center ${selectedGuide === guide.id ? 'bg-accent-blue/10 border-accent-blue' : ''}`}
+            >
+              <Icon size={28} aria-hidden />
+              <span className="font-medium">{guide.label}</span>
+            </button>
+          );
+        })}
       </div>
-      <div>
-        <p className="mb-1 font-medium">Discogs</p>
-        <ol className="text-foreground-secondary list-inside list-decimal">
-          {DISCOGS_GUIDE_STEPS.map((step) => (
-            <li key={step}>{step}</li>
-          ))}
-        </ol>
-      </div>
+      {selectedGuide === 'musicbrainz' && (
+        <GuideDetail
+          title="MusicBrainz"
+          steps={MUSICBRAINZ_GUIDE_STEPS}
+          href={MUSICBRAINZ_SUBMIT_URL}
+          linkLabel="Open MusicBrainz release editor"
+        />
+      )}
+      {selectedGuide === 'discogs' && (
+        <GuideDetail
+          title="Discogs"
+          steps={DISCOGS_GUIDE_STEPS}
+          href={DISCOGS_SUBMIT_URL}
+          linkLabel="Search Discogs"
+        />
+      )}
+      {selectedGuide === 'upc' && (
+        <GuideDetail
+          title="UPC / EAN"
+          steps={[
+            'Use the barcode assigned to this exact release, not an artist or catalog number.',
+            'Save it under Catalog & credits; it is included in the export JSON and distribution checklist.',
+            'If the release has no UPC/EAN, add ISRC values to every track before delivery.',
+          ]}
+        />
+      )}
+      {selectedGuide === 'automation' && (
+        <GuideDetail
+          title="Automation"
+          steps={[
+            'Export JSON creates a portable metadata package for MusicBrainz, Discogs, and future delivery tools.',
+            'Copy prefill prepares the relevant form with the release title, barcode, credits, and tracklist.',
+            'Delivery & royalties can submit eligible releases to Revelator and show status and royalty reports here.',
+          ]}
+        />
+      )}
       <div>
         <p className="mb-1 font-medium">Post-release claim links</p>
         <ul className="list-inside list-disc">
@@ -806,15 +914,31 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
             items={[
               {
                 id: 'catalog',
-                label: 'Catalog & credits',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <BookOpenIcon size={14} aria-hidden /> Catalog & credits
+                  </span>
+                ),
                 content: catalogTab,
               },
               {
                 id: 'delivery',
-                label: 'Delivery & royalties',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <LinkIcon size={14} aria-hidden /> Delivery & royalties
+                  </span>
+                ),
                 content: deliveryTab,
               },
-              { id: 'guides', label: 'Guides', content: guidesTab },
+              {
+                id: 'guides',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <BookOpenIcon size={14} aria-hidden /> Guides
+                  </span>
+                ),
+                content: guidesTab,
+              },
             ]}
           />
         ))}
@@ -847,8 +971,6 @@ export function StudioDistributionView() {
           title="Distribution"
           subtitle="DSP delivery & catalog metadata — submit releases to Revelator, track UPC/ISRC/MusicBrainz identifiers, and review royalty reports."
         />
-
-        <SpotifyProfilePanel />
 
         <section className="flex flex-col gap-3">
           <h2>

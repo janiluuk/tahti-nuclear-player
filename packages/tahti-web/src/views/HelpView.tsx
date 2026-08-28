@@ -40,6 +40,13 @@ const GUIDE_GROUPS: Array<{
     slugs: ['broadcast', 'multistream'],
   },
   {
+    title: 'Releasing',
+    description:
+      'Understand release identifiers, catalogs, smart links, and delivery.',
+    icon: BookOpenIcon,
+    slugs: ['releasing'],
+  },
+  {
     title: 'Account and support',
     description: 'Understand limits, shortcuts, and where to get help.',
     icon: ShieldCheckIcon,

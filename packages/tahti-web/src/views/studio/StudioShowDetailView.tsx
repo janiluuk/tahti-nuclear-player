@@ -1,5 +1,12 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { CheckIcon, MicIcon, RadioIcon, UploadIcon } from 'lucide-react';
+import {
+  CheckIcon,
+  CircleDotIcon,
+  InfoIcon,
+  MicIcon,
+  RadioIcon,
+  UploadIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -47,6 +54,7 @@ export function StudioShowDetailView({ id }: { id: string }) {
   const [backdropUrl, setBackdropUrl] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [backdropFile, setBackdropFile] = useState<File | null>(null);
+  const [autoArchive, setAutoArchive] = useState(true);
   const [savingMeta, setSavingMeta] = useState(false);
   const [showTab, setShowTab] = useState<'overview' | 'recordings'>('overview');
 
@@ -58,6 +66,7 @@ export function StudioShowDetailView({ id }: { id: string }) {
         setDescription(r.data.description);
         setThumbnailUrl(r.data.coverUrl ?? '');
         setBackdropUrl(r.data.backdropUrl ?? '');
+        setAutoArchive(r.data.autoArchive ?? true);
       }
     });
     void fetchEpisodesForShow(id).then((r) => setEpisodes(r.data));
@@ -102,6 +111,7 @@ export function StudioShowDetailView({ id }: { id: string }) {
       description: description.trim(),
       coverUrl: thumbnailUrl.trim() || null,
       backdropUrl: backdropUrl.trim() || null,
+      autoArchive,
     });
     setSavingMeta(false);
     if (!r.ok) {
@@ -245,21 +255,23 @@ export function StudioShowDetailView({ id }: { id: string }) {
               aria-label="Show sections"
             >
               <Button
-                size="sm"
+                size="xs"
                 variant={showTab === 'overview' ? undefined : 'text'}
                 role="tab"
                 aria-selected={showTab === 'overview'}
                 onClick={() => setShowTab('overview')}
               >
+                <InfoIcon size={14} aria-hidden />
                 Overview
               </Button>
               <Button
-                size="sm"
+                size="xs"
                 variant={showTab === 'recordings' ? undefined : 'text'}
                 role="tab"
                 aria-selected={showTab === 'recordings'}
                 onClick={() => setShowTab('recordings')}
               >
+                <CircleDotIcon size={14} aria-hidden />
                 Recordings (
                 {
                   episodes.filter((episode) => episode.source === 'broadcast')
@@ -314,6 +326,24 @@ export function StudioShowDetailView({ id }: { id: string }) {
                       }}
                       onUrlChange={setBackdropUrl}
                     />
+                    <label className="border-border bg-background-secondary/30 flex items-center gap-2 rounded-md border p-3 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={autoArchive}
+                        onChange={(event) =>
+                          setAutoArchive(event.target.checked)
+                        }
+                      />
+                      <span>
+                        <span className="block font-medium">
+                          Record broadcasts by default
+                        </span>
+                        <span className="text-foreground-secondary block text-xs">
+                          New broadcasts for this show start with recording
+                          enabled.
+                        </span>
+                      </span>
+                    </label>
                     <div className="flex justify-end">
                       <SaveButton
                         saving={savingMeta}

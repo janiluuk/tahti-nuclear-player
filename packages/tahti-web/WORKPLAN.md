@@ -51,7 +51,7 @@ This backlog comes from the Storybook comparison audit. Prefer the original Nucl
 ### High priority
 
 - [ ] Update stale Storybook stories after the navigation redesign: remove the deleted `AppTopNav` `minimal` variant stories and replace the removed Studio tools-panel story with the six-section Studio navigation states.
-- [ ] Add Storybook coverage for `SectionSidebar`, including active, inactive, no-current-route, deep-route, mobile overflow, and all Studio/Admin variants.
+- [x] Add Storybook coverage for `SectionSidebar`, including active, inactive, no-current-route, deep-route, mobile overflow, and representative Studio/Admin variants.
 - [x] `SectionSidebar` now wraps Nuclear's existing `SidebarNavigation` and `SidebarNavigationItem`; explicit route selection is retained for beta deep/query routes.
 - [ ] Normalize remaining custom page headers against `PageHeader` / `StudioPageHeader`: Collection, Track detail, Studio home, Studio archive detail, More/map, and any later raw `<h1>` findings.
 
@@ -78,6 +78,10 @@ This backlog comes from the Storybook comparison audit. Prefer the original Nucl
 - [ ] Add Storybook states for Studio deep routes, Admin nested/moderation routes, artist-page standard top navigation, mobile navigation, and active/inactive navigation states.
 - [ ] Enable Storybook story type-checking, or add a dedicated Storybook TypeScript check, so stale props and removed stories fail before build; investigate the current docgen warnings caused by `tahti-web` files being outside the active TypeScript project.
 - [ ] Run a full Storybook render sweep after each compliance batch and record intentional exceptions, especially for Admin operational tables and specialized editor controls.
+
+### Community metadata follow-up
+
+- [ ] Extend the sibling archive metadata API to record mentions from archive descriptions and return source title/link context in the public mentions response; then remove the artist-page fallback link and verify notification delivery end to end.
 
 ### Nuclear component reference order
 

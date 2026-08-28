@@ -45,7 +45,7 @@ import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
 import { WaveformMinimap } from '../../components/WaveformMinimap';
 import { useAudioPreviewGraph } from '../../lib/audioPreviewGraph';
-import { ALL_PLUGIN_IDS, AUDIO_FX_PLUGINS } from '../../plugins/audio-fx';
+import { AUDIO_FX_PLUGINS, useAudioFxStore } from '../../plugins/audio-fx';
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec)) {
@@ -79,6 +79,44 @@ function PluginIcon({
         className="text-white opacity-95"
       />
     </div>
+  );
+}
+
+const FILTER_MODES = [
+  { id: 'lowpass', label: 'Low-pass', path: 'M2 4 C8 4 10 20 22 20 H30' },
+  { id: 'highpass', label: 'High-pass', path: 'M2 20 H12 C20 20 22 4 30 4' },
+  {
+    id: 'lowshelf',
+    label: 'Low shelf',
+    path: 'M2 18 C10 18 14 17 20 10 S26 6 30 6',
+  },
+  {
+    id: 'highshelf',
+    label: 'High shelf',
+    path: 'M2 6 C10 6 14 7 20 14 S26 18 30 18',
+  },
+] as const;
+
+const FILTER_SLOPES = [
+  {
+    id: '12db',
+    label: '12 dB/oct',
+    path: 'M2 5 C12 5 17 8 22 13 S27 19 30 20',
+  },
+  {
+    id: '24db',
+    label: '24 dB/oct',
+    path: 'M2 5 C14 5 19 8 24 17 S28 20 30 20',
+  },
+  { id: 'brickwall', label: 'Brickwall', path: 'M2 5 H22 V20 H30' },
+] as const;
+
+function FilterCurve({ path }: { path: string }) {
+  return (
+    <svg viewBox="0 0 32 24" className="h-7 w-10" aria-hidden>
+      <path d="M1 20 H31" stroke="currentColor" strokeOpacity=".2" />
+      <path d={path} fill="none" stroke="currentColor" strokeWidth="2" />
+    </svg>
   );
 }
 
@@ -396,9 +434,17 @@ export function StudioProEditorView({
   };
 
   const pluginChain = editList?.pluginChain ?? [];
+  const enabledPluginIds = useAudioFxStore((state) => state.enabledPluginIds);
+  const visiblePluginChain = pluginChain.filter((id) =>
+    enabledPluginIds.includes(id),
+  );
 
   const addPlugin = (id: ProEditorPluginId) => {
-    if (!editList || pluginChain.includes(id)) {
+    if (
+      !editList ||
+      pluginChain.includes(id) ||
+      !enabledPluginIds.includes(id)
+    ) {
       return;
     }
     setEditList({
@@ -407,6 +453,27 @@ export function StudioProEditorView({
       [id]: { ...editList[id], enabled: true },
     });
     setPluginPickerOpen(false);
+  };
+
+  const togglePluginEnabled = (id: ProEditorPluginId) => {
+    if (!editList) {
+      return;
+    }
+    const enabled = !AUDIO_FX_PLUGINS[id].isEnabled(editList);
+    const next = { ...editList };
+    if (id === 'eq') {
+      next.eq = { ...next.eq, enabled };
+    }
+    if (id === 'comp') {
+      next.comp = { ...next.comp, enabled };
+    }
+    if (id === 'limiter') {
+      next.limiter = { ...next.limiter, enabled };
+    }
+    if (id === 'filter') {
+      next.filter = { ...next.filter, enabled };
+    }
+    setEditList(next);
   };
 
   const removePlugin = (id: ProEditorPluginId) => {
@@ -797,12 +864,12 @@ export function StudioProEditorView({
                   </label>
 
                   <div className="flex flex-col gap-3">
-                    {pluginChain.length === 0 ? (
+                    {visiblePluginChain.length === 0 ? (
                       <p className="text-foreground-secondary text-sm">
                         No plugins in the chain yet.
                       </p>
                     ) : (
-                      pluginChain.map((id) => {
+                      visiblePluginChain.map((id) => {
                         const meta = AUDIO_FX_PLUGINS[id];
                         return (
                           <div
@@ -840,6 +907,18 @@ export function StudioProEditorView({
                               <span className="text-foreground-secondary flex-1 truncate text-xs">
                                 {meta.description}
                               </span>
+                              <button
+                                type="button"
+                                role="switch"
+                                aria-checked={meta.isEnabled(editList)}
+                                aria-label={`${meta.isEnabled(editList) ? 'Disable' : 'Enable'} ${meta.label}`}
+                                onClick={() => togglePluginEnabled(id)}
+                                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border-2 transition-colors ${meta.isEnabled(editList) ? 'border-primary bg-primary' : 'border-border bg-background'}`}
+                              >
+                                <span
+                                  className={`size-3.5 rounded-full bg-white shadow transition-transform ${meta.isEnabled(editList) ? 'translate-x-5' : 'translate-x-1'}`}
+                                />
+                              </button>
                               <Button
                                 size="icon-sm"
                                 variant="text"
@@ -958,31 +1037,36 @@ export function StudioProEditorView({
                             )}
 
                             {id === 'filter' && (
-                              <div className="grid gap-2 sm:grid-cols-3">
-                                <label className="text-foreground-secondary text-xs">
-                                  Mode
-                                  <select
-                                    value={editList.filter.mode}
-                                    className="border-border bg-background-input w-full rounded border px-2 py-1"
-                                    onChange={(e) =>
-                                      setEditList({
-                                        ...editList,
-                                        filter: {
-                                          ...editList.filter,
-                                          mode: e.target
-                                            .value as EditList['filter']['mode'],
-                                        },
-                                      })
-                                    }
-                                  >
-                                    <option value="highpass">High-pass</option>
-                                    <option value="lowpass">Low-pass</option>
-                                    <option value="highshelf">
-                                      High shelf
-                                    </option>
-                                    <option value="lowshelf">Low shelf</option>
-                                  </select>
-                                </label>
+                              <div className="flex flex-col gap-3">
+                                <div>
+                                  <p className="text-foreground-secondary mb-2 text-xs uppercase">
+                                    Filter type
+                                  </p>
+                                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                    {FILTER_MODES.map((option) => (
+                                      <button
+                                        key={option.id}
+                                        type="button"
+                                        aria-pressed={
+                                          editList.filter.mode === option.id
+                                        }
+                                        onClick={() =>
+                                          setEditList({
+                                            ...editList,
+                                            filter: {
+                                              ...editList.filter,
+                                              mode: option.id,
+                                            },
+                                          })
+                                        }
+                                        className={`border-border flex flex-col items-center gap-1 rounded border p-2 text-xs ${editList.filter.mode === option.id ? 'border-primary bg-primary/10 text-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
+                                      >
+                                        <FilterCurve path={option.path} />
+                                        {option.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
                                 <label className="text-foreground-secondary text-xs">
                                   Freq ({editList.filter.freq} Hz)
                                   <input
@@ -1003,27 +1087,35 @@ export function StudioProEditorView({
                                     }
                                   />
                                 </label>
-                                <label className="text-foreground-secondary text-xs">
-                                  Slope
-                                  <select
-                                    value={editList.filter.slope}
-                                    className="border-border bg-background-input w-full rounded border px-2 py-1"
-                                    onChange={(e) =>
-                                      setEditList({
-                                        ...editList,
-                                        filter: {
-                                          ...editList.filter,
-                                          slope: e.target
-                                            .value as EditList['filter']['slope'],
-                                        },
-                                      })
-                                    }
-                                  >
-                                    <option value="12db">12 dB/oct</option>
-                                    <option value="24db">24 dB/oct</option>
-                                    <option value="brickwall">Brickwall</option>
-                                  </select>
-                                </label>
+                                <div>
+                                  <p className="text-foreground-secondary mb-2 text-xs uppercase">
+                                    Slope
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {FILTER_SLOPES.map((option) => (
+                                      <button
+                                        key={option.id}
+                                        type="button"
+                                        aria-pressed={
+                                          editList.filter.slope === option.id
+                                        }
+                                        onClick={() =>
+                                          setEditList({
+                                            ...editList,
+                                            filter: {
+                                              ...editList.filter,
+                                              slope: option.id,
+                                            },
+                                          })
+                                        }
+                                        className={`border-border flex items-center gap-2 rounded border px-2 py-1 text-xs ${editList.filter.slope === option.id ? 'border-primary bg-primary/10 text-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
+                                      >
+                                        <FilterCurve path={option.path} />
+                                        {option.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -1031,7 +1123,9 @@ export function StudioProEditorView({
                       })
                     )}
 
-                    {ALL_PLUGIN_IDS.some((id) => !pluginChain.includes(id)) && (
+                    {enabledPluginIds.some(
+                      (id) => !pluginChain.includes(id),
+                    ) && (
                       <Button
                         size="sm"
                         variant="secondary"
@@ -1053,8 +1147,9 @@ export function StudioProEditorView({
             >
               <Dialog.Title>Add a plugin</Dialog.Title>
               <CardGrid className="grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]">
-                {ALL_PLUGIN_IDS.filter((id) => !pluginChain.includes(id)).map(
-                  (id) => (
+                {enabledPluginIds
+                  .filter((id) => !pluginChain.includes(id))
+                  .map((id) => (
                     <Card
                       key={id}
                       title={AUDIO_FX_PLUGINS[id].label}
@@ -1062,8 +1157,7 @@ export function StudioProEditorView({
                       image={<PluginIcon id={id} />}
                       onClick={() => addPlugin(id)}
                     />
-                  ),
-                )}
+                  ))}
               </CardGrid>
               <Dialog.Actions>
                 <Dialog.Close>Close</Dialog.Close>

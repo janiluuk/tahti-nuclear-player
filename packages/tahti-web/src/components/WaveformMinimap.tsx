@@ -36,6 +36,10 @@ export function WaveformMinimap({ peaks, viewStart, viewEnd, onSeek }: Props) {
       ctx.clearRect(0, 0, w, h);
 
       const data = peaks.length > 0 ? peaks : [];
+      const peakMax = Math.max(
+        1,
+        ...data.filter((peak) => Number.isFinite(peak)),
+      );
       const mid = h / 2;
       const barColor =
         getComputedStyle(canvas)
@@ -45,7 +49,7 @@ export function WaveformMinimap({ peaks, viewStart, viewEnd, onSeek }: Props) {
       ctx.globalAlpha = 0.5;
       const barW = w / Math.max(1, data.length);
       for (let i = 0; i < data.length; i++) {
-        const amp = Math.max(0.05, Math.min(1, data[i]!));
+        const amp = Math.max(0.05, Math.min(1, (data[i] ?? 0) / peakMax));
         const bh = amp * (h - 4);
         ctx.fillRect(i * barW, mid - bh / 2, Math.max(1, barW - 0.5), bh);
       }

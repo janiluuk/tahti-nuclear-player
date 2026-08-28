@@ -3,6 +3,7 @@ import {
   CircleHelpIcon,
   FolderOpenIcon,
   HeartIcon,
+  ImageIcon,
   LandmarkIcon,
   LayoutGridIcon,
   LibraryIcon,
@@ -82,12 +83,8 @@ const SUBMENUS = {
       label: 'Releases',
       icon: <ListMusicIcon size={16} />,
     },
-    {
-      to: '/library/smartlinks',
-      label: 'Smartlinks',
-      icon: <Link2Icon size={16} />,
-    },
-    { to: '/studio/upload', label: 'Upload', icon: <UploadIcon size={16} /> },
+    { to: '/library/media', label: 'Media', icon: <ImageIcon size={16} /> },
+    { to: '/library/upload', label: 'Upload', icon: <UploadIcon size={16} /> },
     {
       to: '/studio/editor',
       label: 'Editor',
@@ -173,7 +170,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/library/collections',
     '/library/recordings',
     '/library/smartlinks',
-    '/studio/upload',
+    '/library/upload',
     '/studio/editor',
     '/studio/stash',
   ],
@@ -273,7 +270,7 @@ function StudioNavigation({ current }: { current?: string }) {
       )}
       <Link
         to="/help"
-        className="text-foreground-secondary hover:bg-background-secondary hover:text-foreground mt-1 flex w-fit max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium"
+        className="text-foreground-secondary hover:bg-background-secondary hover:text-foreground mt-1 hidden w-fit max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium sm:flex"
       >
         <CircleHelpIcon size={16} aria-hidden />
         <span className="truncate">Help center</span>

@@ -1,5 +1,6 @@
 import { NewspaperIcon, PlusIcon, SendIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
@@ -176,12 +177,23 @@ export function StudioUpdatesView() {
                       aria-label="Delete post"
                       title="Delete"
                       onClick={() => {
-                        void deleteArtistPost(p.id).then((r) => {
-                          if (!r.ok) {
-                            setMsg(r.error);
-                          } else {
-                            reload();
+                        if (
+                          !window.confirm(
+                            `Delete “${p.title || 'Untitled'}”? This cannot be undone.`,
+                          )
+                        ) {
+                          return;
+                        }
+                        void deleteArtistPost(p.id).then((result) => {
+                          if (!result.ok) {
+                            setMsg(result.error);
+                            toast.error(result.error);
+                            return;
                           }
+                          setPosts((current) =>
+                            current.filter((post) => post.id !== p.id),
+                          );
+                          toast.success('Post deleted.');
                         });
                       }}
                     >

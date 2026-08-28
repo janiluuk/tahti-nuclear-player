@@ -21,6 +21,7 @@ import {
   fetchChannelDiscoWidgets,
   type DiscoWidgetRenderItem,
 } from '../api/disco-widgets';
+import { fetchPublicMentions, type PublicMention } from '../api/mentions';
 import {
   fetchPublicRadioShow,
   type PublicRadioShow,
@@ -52,8 +53,10 @@ import {
   ReleaseTracklistDialog,
 } from '../components/ReleaseTracklistDialog';
 import { SocialLinkIcon, socialLinkLabel } from '../components/SocialLinkIcon';
+import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { TrackEditDialog } from '../components/TrackEditDialog';
+import { hasAccountRole } from '../lib/accountRoles';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { isPinned } from '../lib/pinnedTracks';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
@@ -222,6 +225,7 @@ export function ArtistView({ username }: { username: string }) {
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
   const [liveShows, setLiveShows] = useState<PublicRadioShow | null>(null);
+  const [taggedIn, setTaggedIn] = useState<PublicMention[]>([]);
 
   const navigate = useNavigate();
   const play = usePlayerStore((s) => s.play);
@@ -261,6 +265,7 @@ export function ArtistView({ username }: { username: string }) {
   };
 
   const isOwner = Boolean(me && me.username === username);
+  const isAdministrator = hasAccountRole(me, 'BOARD');
   const hasGallery = galleryImages.length > 0;
 
   useEffect(() => {
@@ -272,6 +277,12 @@ export function ArtistView({ username }: { username: string }) {
       }
       setProfile(res.data);
       setLoading(false);
+
+      void fetchPublicMentions(username).then((mentions) => {
+        if (!cancelled) {
+          setTaggedIn(mentions.data);
+        }
+      });
 
       if (res.data) {
         const { displayName, bio, avatarUrl } = res.data.artist;
@@ -730,6 +741,14 @@ export function ArtistView({ username }: { username: string }) {
         </div>
       </section>
 
+      {channel && (isOwner || isAdministrator) ? (
+        <StreamManagerPanel
+          slug={channel.slug}
+          channelState={channel.state}
+          readOnly={!isOwner}
+        />
+      ) : null}
+
       {liveShows &&
       (liveShows.upcomingEpisodes.length > 0 ||
         liveShows.pastEpisodes.length > 0) ? (
@@ -775,6 +794,51 @@ export function ArtistView({ username }: { username: string }) {
             .join(', ')}
         </p>
       )}
+
+      {taggedIn.length > 0 ? (
+        <section className="border-border bg-background-secondary/50 rounded-2xl border p-4 sm:p-6">
+          <div className="mb-3">
+            <h2 className="font-display text-lg font-bold tracking-tight">
+              Tagged in
+            </h2>
+            <p className="text-foreground-secondary mt-1 text-sm">
+              Projects and artist pages where this artist has been credited.
+            </p>
+          </div>
+          <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
+            {taggedIn.map((mention) => {
+              const href =
+                mention.sourceUrl ?? `/u/${mention.mentioner.username}`;
+              const title =
+                mention.sourceTitle ?? mention.mentioner.displayName;
+              return (
+                <li
+                  key={mention.id}
+                  className="flex items-center justify-between gap-3 p-3"
+                >
+                  <div className="min-w-0">
+                    <a
+                      href={href}
+                      className="text-primary truncate text-sm font-semibold hover:underline"
+                    >
+                      {title}
+                    </a>
+                    <p className="text-foreground-secondary text-xs">
+                      {mention.surface === 'TRACKLIST'
+                        ? 'Tracklist credit'
+                        : 'Artist description'}
+                      {` · by ${mention.mentioner.displayName}`}
+                    </p>
+                  </div>
+                  <span className="text-foreground-secondary shrink-0 text-xs">
+                    {new Date(mention.createdAt).toLocaleDateString()}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
 
       <div className="border-border flex flex-wrap items-center gap-2 border-b pb-3">
         <nav

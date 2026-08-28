@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import {
   CalendarDaysIcon,
   Clock3Icon,
@@ -52,9 +53,16 @@ type LocalDateTime = {
 type ScheduleCard = {
   id: string;
   startAt: string;
+  endAt?: string | null;
   title: string;
   location?: string | null;
   visibility?: 'PUBLIC' | 'FAN_ONLY';
+  description?: string | null;
+  tagline?: string | null;
+  artworkUrl?: string | null;
+  backdropUrl?: string | null;
+  showId?: string;
+  episodeNumber?: number | null;
 };
 
 const pad = (value: number) => value.toString().padStart(2, '0');
@@ -96,6 +104,19 @@ function formatTime(iso: string): string {
   }).format(new Date(iso));
 }
 
+function endAtFor(startAt: string, durationHours: number | null | undefined) {
+  const start = new Date(startAt);
+  if (Number.isNaN(start.getTime())) {
+    return null;
+  }
+  const duration = Math.max(1, durationHours ?? 1);
+  return new Date(start.getTime() + duration * 60 * 60 * 1000).toISOString();
+}
+
+function formatTimeRange(startAt: string, endAt?: string | null): string {
+  return `${formatTime(startAt)}${endAt ? `–${formatTime(endAt)}` : ''}`;
+}
+
 function nextFriday(): Date {
   const value = new Date();
   const friday = 5;
@@ -114,6 +135,7 @@ function ScheduledTimes({
   onEdit: () => void;
 }) {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const [selectedShow, setSelectedShow] = useState<ScheduleCard | null>(null);
 
   return (
     <section className="border-border bg-background-secondary/40 overflow-hidden rounded-xl border shadow-sm">
@@ -158,7 +180,13 @@ function ScheduledTimes({
                   ) : null}
                 </div>
               </div>
-              <p className="truncate text-sm font-semibold">{item.title}</p>
+              <button
+                type="button"
+                className="text-primary block max-w-full truncate text-left text-sm font-semibold hover:underline"
+                onClick={() => setSelectedShow(item)}
+              >
+                {item.title}
+              </button>
               <div className="text-foreground-secondary mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
                 <span className="inline-flex items-center gap-1">
                   <CalendarDaysIcon size={13} aria-hidden />
@@ -166,7 +194,7 @@ function ScheduledTimes({
                 </span>
                 <span className="text-foreground inline-flex items-center gap-1 font-medium">
                   <Clock3Icon size={13} aria-hidden />
-                  {formatTime(item.startAt)}
+                  {formatTimeRange(item.startAt, item.endAt)}
                 </span>
               </div>
               {item.location ? (
@@ -179,6 +207,82 @@ function ScheduledTimes({
           ))}
         </ol>
       )}
+      <Dialog.Root
+        isOpen={selectedShow !== null}
+        onClose={() => setSelectedShow(null)}
+        className="max-w-xl"
+      >
+        {selectedShow ? (
+          <>
+            <div className="border-border bg-background-secondary relative -mx-6 -mt-6 mb-5 h-40 overflow-hidden border-b">
+              {selectedShow.backdropUrl || selectedShow.artworkUrl ? (
+                <img
+                  src={
+                    selectedShow.backdropUrl ?? selectedShow.artworkUrl ?? ''
+                  }
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : null}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            </div>
+            <Dialog.Title>{selectedShow.title}</Dialog.Title>
+            <Dialog.Description>
+              {selectedShow.tagline ?? 'Upcoming broadcast'}
+              {selectedShow.episodeNumber != null
+                ? ` · Episode ${selectedShow.episodeNumber}`
+                : ''}
+            </Dialog.Description>
+            <div className="mt-4 flex flex-col gap-4">
+              {selectedShow.artworkUrl ? (
+                <img
+                  src={selectedShow.artworkUrl}
+                  alt=""
+                  className="size-24 rounded-lg object-cover"
+                />
+              ) : null}
+              <div className="grid gap-2 text-sm sm:grid-cols-2">
+                <div>
+                  <span className="text-foreground-secondary block text-xs uppercase">
+                    When
+                  </span>
+                  {formatDate(selectedShow.startAt)} at{' '}
+                  {formatTimeRange(selectedShow.startAt, selectedShow.endAt)}
+                </div>
+                {selectedShow.location ? (
+                  <div>
+                    <span className="text-foreground-secondary block text-xs uppercase">
+                      Location
+                    </span>
+                    {selectedShow.location}
+                  </div>
+                ) : null}
+              </div>
+              {selectedShow.description ? (
+                <p className="text-foreground-secondary text-sm leading-relaxed">
+                  {selectedShow.description}
+                </p>
+              ) : (
+                <p className="text-foreground-secondary text-sm">
+                  Show details will appear here once the show has a description.
+                </p>
+              )}
+            </div>
+            <Dialog.Actions>
+              {selectedShow.showId ? (
+                <Link
+                  to="/studio/shows/$id"
+                  params={{ id: selectedShow.showId }}
+                  onClick={() => setSelectedShow(null)}
+                >
+                  <Button variant="secondary">Open show</Button>
+                </Link>
+              ) : null}
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Actions>
+          </>
+        ) : null}
+      </Dialog.Root>
     </section>
   );
 }
@@ -418,17 +522,38 @@ export function StudioScheduleView() {
     const rows: ScheduleCard[] = scheduledShows.map((item) => ({
       id: item.id,
       startAt: item.startAt,
+      endAt: endAtFor(
+        item.startAt,
+        shows.find((show) => show.id === item.seriesId)?.intervalHours,
+      ),
       title: item.title,
       location: item.venue ?? item.location,
       visibility: item.visibility,
+      description: item.description,
+      tagline: item.tagline,
+      artworkUrl: item.artworkUrl,
+      backdropUrl: shows.find((show) => show.id === item.seriesId)?.backdropUrl,
+      showId: item.seriesId,
+      episodeNumber: item.episodeNumber,
     }));
     rows.push(
       ...upcoming.map((item) => ({
         id: item.id,
         startAt: item.startAt,
+        endAt: endAtFor(
+          item.startAt,
+          shows.find((show) => show.title === item.title)?.intervalHours,
+        ),
         title: item.title,
         location: item.venue ?? item.location,
         visibility: item.visibility,
+        description: shows.find((show) => show.title === item.title)
+          ?.description,
+        artworkUrl: shows.find((show) => show.title === item.title)?.coverUrl,
+        backdropUrl: shows.find((show) => show.title === item.title)
+          ?.backdropUrl,
+        showId: shows.find((show) => show.title === item.title)?.id,
+        episodeNumber: item.episodeNumber,
       })),
     );
     if (
@@ -442,6 +567,10 @@ export function StudioScheduleView() {
       rows.push({
         id: 'channel-next-broadcast',
         startAt: schedule.nextBroadcastAt,
+        endAt: endAtFor(
+          schedule.nextBroadcastAt,
+          schedule.nextBroadcastDurationHours,
+        ),
         title: schedule.nextBroadcastNote ?? 'Next live session',
       });
     }
@@ -449,7 +578,7 @@ export function StudioScheduleView() {
       (left, right) =>
         new Date(left.startAt).getTime() - new Date(right.startAt).getTime(),
     );
-  }, [schedule, upcoming, scheduledShows]);
+  }, [schedule, upcoming, scheduledShows, shows]);
 
   const setQuickDate = (value: Date) => {
     const local = toLocalParts(value.toISOString());
@@ -566,42 +695,50 @@ export function StudioScheduleView() {
             description="One-off and recurring episodes generated from your shows."
           >
             <ul className="divide-border divide-y">
-              {scheduledShows.map((show) => (
-                <li
-                  key={show.id}
-                  className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    {show.artworkUrl ? (
-                      <img
-                        src={show.artworkUrl}
-                        alt=""
-                        className="size-10 rounded-md object-cover"
-                      />
-                    ) : null}
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">
-                        {show.title}
-                        {show.episodeNumber != null
-                          ? ` · Episode ${show.episodeNumber}`
-                          : ''}
-                      </p>
-                      <p className="text-foreground-secondary text-xs">
-                        {formatDate(show.startAt)} at {formatTime(show.startAt)}
-                        {show.venue ? ` · ${show.venue}` : ''}
-                        {show.location ? `, ${show.location}` : ''}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() => void cancelEpisode(show.id)}
+              {scheduledShows.map((show) => {
+                const endAt = endAtFor(
+                  show.startAt,
+                  shows.find((series) => series.id === show.seriesId)
+                    ?.intervalHours,
+                );
+                return (
+                  <li
+                    key={show.id}
+                    className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
                   >
-                    Cancel
-                  </Button>
-                </li>
-              ))}
+                    <div className="flex min-w-0 items-center gap-3">
+                      {show.artworkUrl ? (
+                        <img
+                          src={show.artworkUrl}
+                          alt=""
+                          className="size-10 rounded-md object-cover"
+                        />
+                      ) : null}
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">
+                          {show.title}
+                          {show.episodeNumber != null
+                            ? ` · Episode ${show.episodeNumber}`
+                            : ''}
+                        </p>
+                        <p className="text-foreground-secondary text-xs">
+                          {formatDate(show.startAt)} at{' '}
+                          {formatTimeRange(show.startAt, endAt)}
+                          {show.venue ? ` · ${show.venue}` : ''}
+                          {show.location ? `, ${show.location}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="text"
+                      onClick={() => void cancelEpisode(show.id)}
+                    >
+                      Cancel
+                    </Button>
+                  </li>
+                );
+              })}
             </ul>
           </StudioPanel>
         ) : null}

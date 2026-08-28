@@ -34,6 +34,7 @@ export function StudioShowsView() {
   const [backdropFile, setBackdropFile] = useState<File | null>(null);
   const [intervalHours, setIntervalHours] = useState<1 | 2>(1);
   const [mode, setMode] = useState<ShowMode>('SERIES');
+  const [autoArchive, setAutoArchive] = useState(true);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -68,6 +69,7 @@ export function StudioShowsView() {
       description: description.trim(),
       intervalHours,
       mode,
+      autoArchive,
       coverUrl: thumbnailUrl.trim() || null,
       backdropUrl: backdropUrl.trim() || null,
     });
@@ -83,6 +85,7 @@ export function StudioShowsView() {
     setBackdropUrl('');
     setThumbnailFile(null);
     setBackdropFile(null);
+    setAutoArchive(true);
     void navigate({ to: '/studio/shows/$id', params: { id: r.data.id } });
   };
 
@@ -165,6 +168,22 @@ export function StudioShowsView() {
                 }}
                 onUrlChange={setBackdropUrl}
               />
+              <label className="border-border bg-background-secondary/30 flex items-center gap-2 rounded-md border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={autoArchive}
+                  onChange={(event) => setAutoArchive(event.target.checked)}
+                />
+                <span>
+                  <span className="block font-medium">
+                    Record broadcasts by default
+                  </span>
+                  <span className="text-foreground-secondary block text-xs">
+                    New broadcasts for this show will start with recording
+                    enabled.
+                  </span>
+                </span>
+              </label>
               <div className="flex flex-wrap gap-2">
                 {(['SERIES', 'SINGLE'] as const).map((value) => (
                   <button

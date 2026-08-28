@@ -95,12 +95,16 @@ export function WaveformCanvas({
 
       const all =
         peaks.length > 0 ? peaks : Array.from({ length: 256 }, () => 0.3);
+      const peakMax = Math.max(
+        1,
+        ...all.filter((peak) => Number.isFinite(peak)),
+      );
       const startIdx = Math.floor(viewStart * all.length);
       const endIdx = Math.max(startIdx + 1, Math.ceil(viewEnd * all.length));
       const data = all.slice(startIdx, endIdx);
       const barW = w / data.length;
       for (let i = 0; i < data.length; i++) {
-        const amp = Math.max(0.05, Math.min(1, data[i]!));
+        const amp = Math.max(0.05, Math.min(1, (data[i] ?? 0) / peakMax));
         const bh = amp * (h - 8);
         const x = i * barW;
         const y = (h - bh) / 2;

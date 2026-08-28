@@ -89,7 +89,9 @@ export function PlayableTrackContextMenu({
             icon={
               <HeartIcon
                 size={16}
-                className={isFavorite ? 'fill-current' : undefined}
+                className={
+                  isFavorite ? 'text-accent-red fill-current' : undefined
+                }
               />
             }
             onClick={() => {

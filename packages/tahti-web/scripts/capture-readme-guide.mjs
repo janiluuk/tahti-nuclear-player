@@ -545,7 +545,9 @@ const results = [];
 for (const [path, file, title, narration] of routes) {
   const errors = [];
   const onConsole = (message) => {
-    if (message.type() === 'error') errors.push(message.text());
+    if (message.type() === 'error') {
+      errors.push(message.text());
+    }
   };
   page.on('console', onConsole);
   await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });

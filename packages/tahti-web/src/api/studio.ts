@@ -78,6 +78,27 @@ const mockArchiveStore: StudioArchiveItem[] = [
     peaks: Array.from({ length: 96 }, (_, i) =>
       Math.round(60 + 120 * Math.abs(Math.sin(i * 0.37))),
     ),
+    tracklist: [
+      {
+        id: 'mix-track-1',
+        title: 'Aurora Drift',
+        artist: 'Northern Lights',
+        startSec: 0,
+      },
+      {
+        id: 'mix-track-2',
+        title: 'Midnight Broadcast',
+        artist: 'Northern Lights',
+        startSec: 900,
+      },
+      {
+        id: 'mix-track-3',
+        title: 'Kaamos Bloom',
+        artist: 'Northern Lights',
+        startSec: 1800,
+      },
+    ],
+    tracklistOverlay: { enabled: true, preset: 'cards' },
   },
   {
     id: 'arch-mock-2',
@@ -620,6 +641,86 @@ export async function patchStudioRelease(
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Patch failed',
+    };
+  }
+}
+
+export async function addStudioReleaseTrack(
+  releaseId: string,
+  track: { title: string; archiveItemId?: string; durationSec?: number | null },
+): Promise<
+  | { ok: true; data: NonNullable<StudioRelease['tracks']>[number] }
+  | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return {
+      ok: true,
+      data: {
+        id: `release-track-${Date.now()}`,
+        position: 1,
+        title: track.title,
+        archiveItemId: track.archiveItemId,
+        durationSec: track.durationSec,
+      },
+    };
+  }
+  try {
+    const { data } = await requestJson<
+      NonNullable<StudioRelease['tracks']>[number]
+    >(`/api/me/releases/${encodeURIComponent(releaseId)}/tracks`, {
+      method: 'POST',
+      body: JSON.stringify(track),
+    });
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Track add failed',
+    };
+  }
+}
+
+export async function reorderStudioReleaseTracks(
+  releaseId: string,
+  trackIds: string[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true };
+  }
+  try {
+    await requestJson(
+      `/api/me/releases/${encodeURIComponent(releaseId)}/tracks/reorder`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ trackIds }),
+      },
+    );
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Track order save failed',
+    };
+  }
+}
+
+export async function removeStudioReleaseTrack(
+  releaseId: string,
+  trackId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true };
+  }
+  try {
+    await requestJson(
+      `/api/me/releases/${encodeURIComponent(releaseId)}/tracks/${encodeURIComponent(trackId)}`,
+      { method: 'DELETE' },
+    );
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Track removal failed',
     };
   }
 }
@@ -1171,7 +1272,7 @@ export async function uploadCollectionCover(
 
 export async function uploadArchiveFile(input: {
   file: File;
-  title: string;
+  title?: string;
 }): Promise<
   { ok: true; itemId: string; meta: FetchMeta } | { ok: false; error: string }
 > {
@@ -1201,7 +1302,7 @@ export async function uploadArchiveFile(input: {
         filename: input.file.name,
         contentType: input.file.type || 'audio/mpeg',
         fileSizeBytes: input.file.size,
-        title: input.title || input.file.name,
+        ...(input.title ? { title: input.title } : {}),
       }),
     });
     const put = await fetch(prep.uploadUrl, {
@@ -1221,7 +1322,7 @@ export async function uploadArchiveFile(input: {
         body: JSON.stringify({
           uploadId: prep.uploadId,
           etag: etag.replace(/"/g, ''),
-          title: input.title || input.file.name,
+          ...(input.title ? { title: input.title } : {}),
         }),
       },
     );

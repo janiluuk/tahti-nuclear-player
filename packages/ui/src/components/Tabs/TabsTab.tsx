@@ -22,6 +22,7 @@ export const TabsTab: FC<TabsTabProps> = ({
         <Button
           type="button"
           disabled={disabled}
+          size="xs"
           variant={selected ? 'default' : 'text'}
           className={cn(tabClassName, className)}
           data-selected={selected ? '' : undefined}

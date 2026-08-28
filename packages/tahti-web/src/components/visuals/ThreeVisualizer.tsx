@@ -24,6 +24,7 @@ export type ThreeVisualizerProps = {
   settings: VisualizerSettings;
   className?: string;
   artworkUrl?: string | null;
+  audioReactive?: boolean;
 };
 
 const CAMERA_DISTANCE = 8;
@@ -73,6 +74,7 @@ export const ThreeVisualizer: FC<ThreeVisualizerProps> = ({
   settings,
   className,
   artworkUrl,
+  audioReactive = true,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const analyser = usePlayerStore((state) => state.analyser);
@@ -120,8 +122,11 @@ export const ThreeVisualizer: FC<ThreeVisualizerProps> = ({
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      const level = playing ? readLevel(analyser, frequencyData) : 0.2;
       const elapsed = clock.getElapsedTime() * settings.speed;
+      const level =
+        audioReactive && playing
+          ? readLevel(analyser, frequencyData)
+          : 0.2 + Math.sin(elapsed * 2.2) * 0.14;
       presetScene.update(elapsed, level * settings.intensity);
       renderer.render(scene, camera);
       animationFrame = requestAnimationFrame(draw);
@@ -134,7 +139,7 @@ export const ThreeVisualizer: FC<ThreeVisualizerProps> = ({
       disposeScene(scene);
       renderer.dispose();
     };
-  }, [analyser, artworkUrl, playing, preset, scheme, settings]);
+  }, [analyser, artworkUrl, audioReactive, playing, preset, scheme, settings]);
 
   return (
     <div

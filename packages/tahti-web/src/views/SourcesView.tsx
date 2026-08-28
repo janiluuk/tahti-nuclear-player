@@ -36,12 +36,14 @@ import {
 import {
   connectIntegrationMock,
   disconnectIntegration,
+  fetchBandcampAlbums,
   fetchConnectionStatus,
   fetchHearthisCollectionTracks,
   fetchHearthisLibrary,
   fetchSoundcloudTracks,
   fetchStashDownload,
   fetchStashFiles,
+  importBandcampAlbum,
   importHearthisTracks,
   importSoundcloudTracks,
   oauthStartUrl,
@@ -51,6 +53,7 @@ import {
   searchHearthisTracks,
   searchSpotifyTracks,
   SOURCE_DEFS,
+  type BandcampAlbum,
   type ConnectionStatus,
   type HearthisLibrary,
   type HearthisTrack,
@@ -129,6 +132,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   const [spotifyQ, setSpotifyQ] = useState('');
   const [spotifyHits, setSpotifyHits] = useState<SpotifySearchTrack[]>([]);
   const [hearthisQ, setHearthisQ] = useState('');
+  const [bandcampAlbums, setBandcampAlbums] = useState<BandcampAlbum[]>([]);
+  const [bandcampBusy, setBandcampBusy] = useState(false);
+  const [bandcampMessage, setBandcampMessage] = useState<string | null>(null);
   const [hearthisHits, setHearthisHits] = useState<HearthisTrack[]>([]);
   const [hearthisBusy, setHearthisBusy] = useState(false);
   const [hearthisLibrary, setHearthisLibrary] =
@@ -231,6 +237,19 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
       cancelled = true;
     };
   }, [selected]);
+
+  useEffect(() => {
+    if (selected !== 'bandcamp' || !status?.connected) {
+      return;
+    }
+    setBandcampBusy(true);
+    setBandcampMessage(null);
+    void fetchBandcampAlbums().then((result) => {
+      setBandcampAlbums(result.data);
+      setBandcampMessage(result.message ?? null);
+      setBandcampBusy(false);
+    });
+  }, [selected, status?.connected]);
 
   useEffect(() => {
     if (selected !== 'soundcloud' || !status?.connected) {
@@ -746,7 +765,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                     </>
                   )}
                   {def.studioDeepLink && (
-                    <Link to={def.studioDeepLink as '/studio/upload'}>
+                    <Link to={def.studioDeepLink as '/library/upload'}>
                       <Button size="sm" variant="secondary">
                         <UploadIcon size={16} aria-hidden className="mr-1.5" />
                         Open in Studio
@@ -891,6 +910,90 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                     </li>
                   ))}
                 </ul>
+              </section>
+            )}
+
+            {selected === 'bandcamp' && status?.connected && (
+              <section className="flex flex-col gap-3">
+                <div>
+                  <h3 className="font-display text-lg font-bold">
+                    Your Bandcamp discography
+                  </h3>
+                  <p className="text-foreground-secondary mt-1 text-sm">
+                    Import releases you own into your Tahti archive. Imported
+                    items keep their Bandcamp shop link.
+                  </p>
+                </div>
+                {bandcampBusy ? (
+                  <p className="text-foreground-secondary text-sm">
+                    Loading your releases…
+                  </p>
+                ) : bandcampAlbums.length === 0 ? (
+                  <p className="text-foreground-secondary text-sm">
+                    {bandcampMessage ?? 'No Bandcamp releases were found.'}
+                  </p>
+                ) : (
+                  <ul className="flex flex-col gap-2">
+                    {bandcampAlbums.map((album) => (
+                      <li
+                        key={album.id}
+                        className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
+                      >
+                        <div className="bg-background-secondary size-12 shrink-0 overflow-hidden rounded-md">
+                          {album.coverUrl ? (
+                            <img
+                              src={album.coverUrl}
+                              alt=""
+                              className="size-full object-cover"
+                            />
+                          ) : null}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">
+                            {album.title}
+                          </div>
+                          <div className="text-foreground-secondary text-xs">
+                            {album.type ?? 'Release'}
+                            {album.trackCount != null
+                              ? ` · ${album.trackCount} tracks`
+                              : ''}
+                          </div>
+                        </div>
+                        <a
+                          href={album.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+                        >
+                          Shop ↗
+                        </a>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setBandcampMessage(null);
+                            void importBandcampAlbum(album).then((result) => {
+                              setBandcampMessage(
+                                result.ok
+                                  ? `Imported ${result.count} item${result.count === 1 ? '' : 's'}.`
+                                  : result.error,
+                              );
+                            });
+                          }}
+                        >
+                          Import
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {bandcampMessage && bandcampAlbums.length > 0 ? (
+                  <p
+                    className="text-foreground-secondary text-xs"
+                    role="status"
+                  >
+                    {bandcampMessage}
+                  </p>
+                ) : null}
               </section>
             )}
 
@@ -1518,7 +1621,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                   <>
                     Use{' '}
                     <Link
-                      to="/studio/upload"
+                      to="/library/upload"
                       className="underline-offset-2 hover:underline"
                     >
                       Studio → Upload

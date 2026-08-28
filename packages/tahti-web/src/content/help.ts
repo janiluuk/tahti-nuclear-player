@@ -90,6 +90,58 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
   },
   {
+    slug: 'releasing',
+    title: 'Releasing music',
+    description:
+      'A simple guide to preparing a release, choosing identifiers, and sharing it everywhere.',
+    productionPath: '/help/releasing',
+    sections: [
+      {
+        heading: 'Which release method should I use?',
+        body: [
+          'You do not need every method. Choose the ones that match what you already have.',
+          'UPC / EAN is the barcode that identifies the whole release. Use it when a label, distributor, or barcode provider has given you one.',
+          'MusicBrainz is a community-maintained music catalog. Use it when you want your release and artist information to be part of an open public database.',
+          'Discogs is another community catalog, especially useful for physical releases and historical editions.',
+          'Smart links collect the places where people can listen — such as Spotify, Apple Music, Bandcamp, SoundCloud, YouTube Music, and Tidal — onto one Tahti page.',
+          'Delivery sends eligible release information to a distribution service such as Revelator. It is the automated option for delivering music to supported DSPs; fees or requirements may apply.',
+        ],
+      },
+      {
+        heading: 'A straightforward release workflow',
+        body: [
+          'Create the release in Studio → Releases and add the final tracklist, artwork, date, and description.',
+          'Open Release ops → Catalog & credits. Turn on only the methods you want to use; each method then shows the fields it needs.',
+          'Save your catalog information. Export JSON when you want a portable copy of the release metadata.',
+          'Use the Guides icons for MusicBrainz or Discogs. Their Copy prefill actions prepare the title, barcode, credits, and tracklist for you, while the external links open the relevant service.',
+          'After submitting to an external catalog, copy its release or artist ID back into Tahti so the connection is recorded.',
+        ],
+      },
+      {
+        heading: 'MusicBrainz in plain language',
+        body: [
+          'Open the MusicBrainz release editor from the Guide. Choose the release type, enter the artist and date, add the tracks in order, and save the entry.',
+          'MusicBrainz is not a music store and does not deliver audio to Spotify. It is an open reference catalog, so use it for accurate public metadata and identification.',
+        ],
+      },
+      {
+        heading: 'Discogs in plain language',
+        body: [
+          'Search Discogs before creating a new entry so you do not duplicate an existing release.',
+          'Use Discogs for cataloging an edition, label, format, country, date, barcode, and tracklist. It is especially useful when documenting vinyl, CD, or other physical versions.',
+        ],
+      },
+      {
+        heading: 'What the technical fields mean',
+        body: [
+          'A release MBID is MusicBrainz’s unique ID for the release. An artist MBID identifies the artist there. A Discogs release ID identifies the Discogs entry.',
+          'P-line describes who owns the recording copyright. C-line describes who owns the artwork or publishing copyright. Label imprint is the label name shown with the release.',
+          'If you do not know a field, leave that method switched off or ask your label/distributor. Do not invent identifiers.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'multistream',
     title: 'Multistream',
     description:

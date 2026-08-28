@@ -1,5 +1,10 @@
 import { Link } from '@tanstack/react-router';
-import { CalendarDaysIcon, PlusIcon } from 'lucide-react';
+import {
+  CalendarClockIcon,
+  CalendarDaysIcon,
+  HistoryIcon,
+  PlusIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Tabs } from '@nuclearplayer/ui';
@@ -114,7 +119,11 @@ export function StudioEventsView() {
           items={[
             {
               id: 'upcoming',
-              label: 'Upcoming',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarClockIcon size={14} aria-hidden /> Upcoming
+                </span>
+              ),
               content: (
                 <StudioPanel
                   title="Upcoming events"
@@ -130,7 +139,11 @@ export function StudioEventsView() {
             },
             {
               id: 'past',
-              label: 'Past',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  <HistoryIcon size={14} aria-hidden /> Past
+                </span>
+              ),
               content: (
                 <StudioPanel
                   title="Past events"

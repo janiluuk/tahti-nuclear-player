@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { Button, EmptyState } from '@nuclearplayer/ui';
 
+import { hasAccountRole } from '../lib/accountRoles';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useChannelSetupModalStore } from '../stores/channelSetupModalStore';
@@ -31,6 +32,25 @@ export function StudioGate({ children, requireChannel = true }: Props) {
         title="Studio"
         description="Sign in to manage your catalog, uploads, and audio editor."
         action={<Button onClick={() => openAuth('login')}>Log in</Button>}
+      />
+    );
+  }
+
+  if (!hasAccountRole(user, 'ARTIST') && !hasAccountRole(user, 'BOARD')) {
+    return (
+      <EmptyState
+        icon={<Lock size={40} className="opacity-40" />}
+        title="Artist access required"
+        description={`Signed in as @${user.username}, but this account does not have artist access.`}
+        action={
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => openAuth('login')}
+          >
+            Switch account
+          </Button>
+        }
       />
     );
   }

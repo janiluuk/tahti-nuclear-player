@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import {
+  CopyIcon,
   Disc3Icon,
   DiscAlbumIcon,
   ExternalLinkIcon,
@@ -9,12 +10,14 @@ import {
   Share2Icon,
 } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import { createStudioRelease, fetchStudioReleases } from '../../api/studio';
 import type { StudioRelease } from '../../api/studio-types';
 import { PageLoading } from '../../components/PageStates';
+import { SourceServiceIcon } from '../../components/SourceServiceIcon';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -211,6 +214,33 @@ export function StudioReleasesView({
                       Edit
                     </Button>
                   </Link>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    aria-label={`Copy smartlink for ${r.title}`}
+                    title="Copy smartlink"
+                    onClick={() => {
+                      const smartLink = `${window.location.origin}/r/${r.smartLinkSlug}`;
+                      void navigator.clipboard.writeText(smartLink).then(
+                        () => toast.success('Smartlink copied.'),
+                        () => toast.error('Could not copy smartlink.'),
+                      );
+                    }}
+                  >
+                    <CopyIcon size={16} aria-hidden />
+                  </Button>
+                  {r.smartLinkTargets?.bandcamp ? (
+                    <a
+                      href={r.smartLinkTargets.bandcamp}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="border-border inline-flex size-8 items-center justify-center overflow-hidden rounded border"
+                      aria-label={`Open ${r.title} on Bandcamp`}
+                      title="Open on Bandcamp"
+                    >
+                      <SourceServiceIcon id="bandcamp" size="detail" />
+                    </a>
+                  ) : null}
                   <Button
                     size="icon-sm"
                     variant="text"

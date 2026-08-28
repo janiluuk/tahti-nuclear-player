@@ -23,3 +23,5 @@ export const AUDIO_FX_PLUGINS: Record<ProEditorPluginId, AudioFxPlugin> =
     ProEditorPluginId,
     AudioFxPlugin
   >;
+
+export { useAudioFxStore } from './store';

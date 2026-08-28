@@ -16,7 +16,6 @@ import {
   Input,
   SaveButton,
   Tabs,
-  Textarea,
 } from '@nuclearplayer/ui';
 
 import {
@@ -32,12 +31,20 @@ import {
 import type {
   StudioArchiveItem,
   StudioArchivePatch,
+  TracklistEntry,
+  TracklistOverlaySettings,
 } from '../api/studio-types';
 import { capitalizeGenre, PRESET_GENRES } from '../lib/genres';
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
+import {
+  AudienceVisibilitySection,
+  type TrackVisibility,
+} from './AudienceVisibilitySection';
+import { MentionTextarea } from './MentionTextarea';
 import { MusicBrainzSubmissionAssistant } from './MusicBrainzSubmissionAssistant';
 import { PageLoading } from './PageStates';
 import { TrackExportPanel } from './TrackExportPanel';
+import { TracklistEditor } from './TracklistEditor';
 
 type Tab =
   | 'basics'
@@ -56,7 +63,7 @@ type Props = {
 const CONTENT_TYPES = [
   ['STUDIO', 'Studio track'],
   ['LIVE', 'Live recording'],
-  ['DJ_MIX', 'DJ mix'],
+  ['DJ_MIX', 'DJ set'],
   ['PODCAST', 'Podcast'],
   ['ORIGINAL', 'Original'],
   ['REMIX', 'Remix'],
@@ -109,8 +116,12 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     title: string;
   } | null>(null);
 
-  const isDjMix = form.contentType === 'DJ_MIX';
+  const isDjMix =
+    form.contentType === 'DJ_MIX' || form.contentType === 'DJ_SET';
   const isAudioClip = form.contentType === 'AUDIOCLIPS';
+  const visibleTabOrder = isDjMix
+    ? TAB_ORDER
+    : TAB_ORDER.filter((tabId) => tabId !== 'tracklist');
 
   useEffect(() => {
     if (!archiveItemId) {
@@ -164,6 +175,12 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
           topListsEligible: res.data.topListsEligible ?? true,
           bannerUrl: res.data.bannerUrl ?? '',
           backdropUrl: res.data.backdropUrl ?? '',
+          tracklist: res.data.tracklist ?? [],
+          fanTierIds: res.data.fanTierIds ?? [],
+          tracklistOverlay: res.data.tracklistOverlay ?? {
+            enabled: false,
+            preset: 'cards',
+          },
         });
       })
       .catch((err: unknown) => {
@@ -288,6 +305,12 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       commentsEnabled: result.data.commentsEnabled ?? true,
       bannerUrl: result.data.bannerUrl ?? '',
       backdropUrl: result.data.backdropUrl ?? '',
+      tracklist: result.data.tracklist ?? [],
+      fanTierIds: result.data.fanTierIds ?? current.fanTierIds ?? [],
+      tracklistOverlay: result.data.tracklistOverlay ?? {
+        enabled: false,
+        preset: 'cards',
+      },
     }));
     setNote('Track details saved.');
     setRotationReplacement(null);
@@ -307,8 +330,8 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
         ) : item ? (
           <Tabs
             className="mt-3"
-            selectedIndex={TAB_ORDER.indexOf(tab)}
-            onChange={(index) => setTab(TAB_ORDER[index]!)}
+            selectedIndex={visibleTabOrder.indexOf(tab)}
+            onChange={(index) => setTab(visibleTabOrder[index]!)}
             items={[
               {
                 id: 'basics',
@@ -336,19 +359,14 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                       }
                     />
                     <div className="sm:col-span-2">
-                      <label className="flex flex-col gap-1 text-sm">
-                        Description
-                        <Textarea
-                          rows={4}
-                          value={form.description ?? ''}
-                          onChange={(event) =>
-                            setForm({
-                              ...form,
-                              description: event.target.value,
-                            })
-                          }
-                        />
-                      </label>
+                      <MentionTextarea
+                        label="Description"
+                        rows={4}
+                        value={form.description ?? ''}
+                        onChange={(description) =>
+                          setForm({ ...form, description })
+                        }
+                      />
                     </div>
                     {!isAudioClip ? (
                       <>
@@ -407,28 +425,22 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         ))}
                       </select>
                     </label>
-                    <label className="flex flex-col gap-1 text-sm">
-                      Visibility
-                      <select
-                        value={form.visibility ?? 'PUBLIC'}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            visibility: event.target.value as
-                              | 'PUBLIC'
-                              | 'UNLISTED'
-                              | 'PRIVATE',
-                          })
-                        }
-                        className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                      >
-                        <option value="PUBLIC">Public</option>
-                        <option value="UNLISTED">
-                          Unlisted — direct link only
-                        </option>
-                        <option value="PRIVATE">Private — only you</option>
-                      </select>
-                    </label>
+                    <AudienceVisibilitySection
+                      visibility={
+                        (form.visibility ?? 'PUBLIC') as TrackVisibility
+                      }
+                      onVisibilityChange={(visibility) =>
+                        setForm({
+                          ...form,
+                          visibility,
+                          isPublic: visibility === 'PUBLIC',
+                        })
+                      }
+                      tierIds={form.fanTierIds ?? []}
+                      onTierIdsChange={(fanTierIds) =>
+                        setForm({ ...form, fanTierIds })
+                      }
+                    />
                     <label className="flex items-center gap-2 text-sm">
                       <input
                         type="checkbox"
@@ -561,58 +573,28 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         </span>
                       ),
                       content: (
-                        <div className="flex flex-col gap-3">
-                          <p className="text-foreground-secondary text-sm">
-                            Add the tracks played in this DJ mix so listeners
-                            can discover and credit them.
-                          </p>
-                          {Array.isArray(
-                            (
-                              item as StudioArchiveItem & {
-                                tracklist?: Array<{
-                                  title?: string;
-                                  artist?: string;
-                                }>;
-                              }
-                            ).tracklist,
-                          ) &&
-                          (
-                            item as StudioArchiveItem & {
-                              tracklist?: Array<{
-                                title?: string;
-                                artist?: string;
-                              }>;
+                        <TracklistEditor
+                          durationSec={item.durationSec ?? 0}
+                          peaks={item.peaks ?? []}
+                          value={
+                            (form.tracklist as TracklistEntry[] | undefined) ??
+                            []
+                          }
+                          overlay={
+                            (form.tracklistOverlay as
+                              | TracklistOverlaySettings
+                              | undefined) ?? {
+                              enabled: false,
+                              preset: 'cards',
                             }
-                          ).tracklist!.length > 0 ? (
-                            <ol className="border-border divide-border divide-y rounded-xl border">
-                              {(
-                                item as StudioArchiveItem & {
-                                  tracklist?: Array<{
-                                    title?: string;
-                                    artist?: string;
-                                  }>;
-                                }
-                              ).tracklist!.map((entry, index) => (
-                                <li
-                                  key={`${entry.title ?? 'track'}-${index}`}
-                                  className="flex gap-3 px-3 py-2 text-sm"
-                                >
-                                  <span className="text-foreground-secondary w-5 shrink-0 tabular-nums">
-                                    {index + 1}
-                                  </span>
-                                  <span>
-                                    {entry.title ?? 'Untitled track'}
-                                    {entry.artist ? ` · ${entry.artist}` : ''}
-                                  </span>
-                                </li>
-                              ))}
-                            </ol>
-                          ) : (
-                            <p className="border-border text-foreground-secondary rounded-xl border border-dashed p-4 text-sm">
-                              No tracklist has been added yet.
-                            </p>
-                          )}
-                        </div>
+                          }
+                          onChange={(tracklist) =>
+                            setForm({ ...form, tracklist })
+                          }
+                          onOverlayChange={(tracklistOverlay) =>
+                            setForm({ ...form, tracklistOverlay })
+                          }
+                        />
                       ),
                     },
                   ]
@@ -747,31 +729,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                       Choose where this track can appear and whether it can be
                       selected for shared programming.
                     </p>
-                    <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={form.visibility === 'PUBLIC'}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            visibility: event.target.checked
-                              ? 'PUBLIC'
-                              : 'PRIVATE',
-                            isPublic: event.target.checked,
-                          })
-                        }
-                        className="mt-0.5"
-                      />
-                      <span>
-                        <span className="block font-medium">
-                          List in discovery and listener lists
-                        </span>
-                        <span className="text-foreground-secondary block text-xs">
-                          Private tracks stay available to you but are excluded
-                          from public catalog surfaces.
-                        </span>
-                      </span>
-                    </label>
                     <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
                       <input
                         type="checkbox"

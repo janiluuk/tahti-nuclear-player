@@ -16,6 +16,7 @@ import { Button, SaveButton } from '@nuclearplayer/ui';
 import {
   isValidHeaderVideoUrl,
   patchChannelVisual,
+  youtubeEmbedUrl,
 } from '../api/channel-design';
 import {
   archiveItemToPlayable,
@@ -302,15 +303,25 @@ export function ChannelView({ slug }: { slug: string }) {
             }`}
           >
             {showHeaderVideo ? (
-              <video
-                className="absolute inset-0 h-full w-full object-cover"
-                src={channel.videoBackgroundUrl ?? undefined}
-                autoPlay
-                loop
-                muted
-                playsInline
-                aria-hidden="true"
-              />
+              youtubeEmbedUrl(channel.videoBackgroundUrl) ? (
+                <iframe
+                  title="Channel video backdrop"
+                  src={youtubeEmbedUrl(channel.videoBackgroundUrl) ?? undefined}
+                  className="pointer-events-none absolute inset-0 h-full w-full"
+                  allow="autoplay; encrypted-media"
+                  aria-hidden="true"
+                />
+              ) : (
+                <video
+                  className="absolute inset-0 h-full w-full object-cover"
+                  src={channel.videoBackgroundUrl ?? undefined}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  aria-hidden="true"
+                />
+              )
             ) : (
               <ChannelVisualizer
                 className="absolute inset-0 h-full w-full"
@@ -543,17 +554,29 @@ export function ChannelView({ slug }: { slug: string }) {
       {!editing &&
         !heroVisible &&
         (showHeaderVideo ? (
-          <video
-            className={`pointer-events-none absolute inset-0 z-0 h-full w-full object-cover ${
-              live ? 'opacity-[0.32]' : 'opacity-[0.55]'
-            }`}
-            src={channel.videoBackgroundUrl ?? undefined}
-            autoPlay
-            loop
-            muted
-            playsInline
-            aria-hidden="true"
-          />
+          youtubeEmbedUrl(channel.videoBackgroundUrl) ? (
+            <iframe
+              title="Channel video backdrop"
+              src={youtubeEmbedUrl(channel.videoBackgroundUrl) ?? undefined}
+              className={`pointer-events-none absolute inset-0 z-0 h-full w-full ${
+                live ? 'opacity-[0.32]' : 'opacity-[0.55]'
+              }`}
+              allow="autoplay; encrypted-media"
+              aria-hidden="true"
+            />
+          ) : (
+            <video
+              className={`pointer-events-none absolute inset-0 z-0 h-full w-full object-cover ${
+                live ? 'opacity-[0.32]' : 'opacity-[0.55]'
+              }`}
+              src={channel.videoBackgroundUrl ?? undefined}
+              autoPlay
+              loop
+              muted
+              playsInline
+              aria-hidden="true"
+            />
+          )
         ) : (
           <ChannelVisualizer
             className={`pointer-events-none absolute inset-0 z-0 ${

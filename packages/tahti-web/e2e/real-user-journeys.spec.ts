@@ -199,7 +199,9 @@ test('stream manager: stopping a live broadcast requires confirmation, and the r
   // Before any signal: the fallback-rotation transport controls are the
   // relevant thing to show (a live broadcast always takes priority over
   // them anyway, so they'd previously still render, pointlessly, once live).
-  await expect(page.getByRole('button', { name: 'Resume' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Start rotation' }),
+  ).toBeVisible();
   await expect(page.getByRole('button', { name: 'Stop stream' })).toHaveCount(
     0,
   );
@@ -207,9 +209,11 @@ test('stream manager: stopping a live broadcast requires confirmation, and the r
   await page.getByRole('button', { name: 'Test connection' }).click();
   await expect(page.getByText('Connected')).toBeVisible({ timeout: 10_000 });
 
-  // Once live, "Resume" (which only ever controlled the rotation, not the
+  // Once live, "Start rotation" (which only ever controlled the rotation, not the
   // broadcast) is gone, replaced by a real "Stop stream" action.
-  await expect(page.getByRole('button', { name: 'Resume' })).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Start rotation' }),
+  ).toHaveCount(0);
   await page.getByRole('button', { name: 'Stop stream' }).first().click();
 
   const dialog = page.getByRole('dialog');

@@ -28,6 +28,7 @@ export function SectionSidebar({
               label={item.label}
               to={item.to}
               isSelected={item.active}
+              aria-current={item.active ? 'page' : undefined}
             />
           ))}
         </div>

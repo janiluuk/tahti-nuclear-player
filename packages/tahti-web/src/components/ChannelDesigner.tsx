@@ -1,9 +1,20 @@
-import { CheckIcon, LinkIcon, Loader2Icon, SaveIcon } from 'lucide-react';
+import {
+  CheckIcon,
+  ImageIcon,
+  LinkIcon,
+  Loader2Icon,
+  PaletteIcon,
+  PlaySquareIcon,
+  SaveIcon,
+  SettingsIcon,
+  TypeIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
   Button,
+  Dialog,
   FilePicker,
   Input,
   PluginItem,
@@ -26,8 +37,8 @@ import {
   patchChannelVisual,
   resolveVisualPresetSettings,
   shouldDockVisualizerTuning,
-  uploadChannelHeaderVideo,
   VISUAL_PRESETS,
+  youtubeEmbedUrl,
   type ChannelVisual,
   type ColorScheme,
   type VisualPreset,
@@ -38,13 +49,14 @@ import {
   patchChannelGallery,
   type ChannelGalleryMode,
 } from '../api/channel-gallery';
+import { uploadUserMediaFile } from '../api/user-media';
 import { visualizerMetadata } from '../plugins/visualizers';
 import { ChannelControlsWidget } from './ChannelControlsWidget';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { PageLoading } from './PageStates';
 import { Eyebrow } from './tahti/Eyebrow';
 
-const TAB_IDS = ['visualizer', 'colors', 'header'] as const;
+const TAB_IDS = ['visualizer', 'color-scheme', 'header'] as const;
 type TabId = (typeof TAB_IDS)[number];
 
 const GALLERY_MODES: Array<{ id: ChannelGalleryMode; label: string }> = [
@@ -107,6 +119,8 @@ export function ChannelDesigner({
   const [visualSettings, setVisualSettings] = useState<VisualSettingsMap>({});
   const [galleryMode, setGalleryMode] = useState<ChannelGalleryMode>('NONE');
   const [galleryImages, setGalleryImages] = useState('');
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryPreviewIndex, setGalleryPreviewIndex] = useState(0);
   const [videoBackgroundUrl, setVideoBackgroundUrl] = useState('');
   const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
   const [pendingVideoPreviewUrl, setPendingVideoPreviewUrl] = useState<
@@ -121,6 +135,9 @@ export function ChannelDesigner({
   const [dirty, setDirty] = useState(false);
   const [lastVisualizerPreset, setLastVisualizerPreset] =
     useState<VisualPreset>('AURORA');
+  const [previewPreset, setPreviewPreset] = useState<VisualPreset>('AURORA');
+  const [configurationPreset, setConfigurationPreset] =
+    useState<VisualPreset | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('visualizer');
 
   useEffect(() => {
@@ -136,6 +153,9 @@ export function ChannelDesigner({
           visualResult.data.visualPreset !== 'MINIMAL'
         ) {
           setLastVisualizerPreset(visualResult.data.visualPreset);
+          setPreviewPreset(visualResult.data.visualPreset);
+        } else {
+          setPreviewPreset('AURORA');
         }
         setGalleryMode(galleryResult.data.galleryMode);
         setGalleryImages(galleryResult.data.slideshowImages.join('\n'));
@@ -148,6 +168,29 @@ export function ChannelDesigner({
       },
     );
   }, [reloadToken]);
+
+  const galleryImageList = useMemo(
+    () =>
+      galleryImages
+        .split(/\r?\n/)
+        .map((image) => image.trim())
+        .filter(Boolean),
+    [galleryImages],
+  );
+
+  useEffect(() => {
+    setGalleryPreviewIndex(0);
+  }, [galleryImages]);
+
+  useEffect(() => {
+    if (galleryImageList.length < 2 || !slideshowAutoplay) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setGalleryPreviewIndex((index) => (index + 1) % galleryImageList.length);
+    }, slideshowInterval * 1000);
+    return () => window.clearInterval(timer);
+  }, [galleryImageList.length, slideshowAutoplay, slideshowInterval]);
 
   const previewStyle = useMemo(() => {
     const accent = scheme.accent ?? '#22D3EE';
@@ -205,6 +248,45 @@ export function ChannelDesigner({
     setDirty(true);
   };
 
+  const selectGalleryFiles = async (files: readonly File[]) => {
+    const imageFiles = files.filter((file) =>
+      ['image/jpeg', 'image/png', 'image/webp'].includes(file.type),
+    );
+    if (imageFiles.length === 0) {
+      toast.error('Choose JPEG, PNG, or WebP images.');
+      return;
+    }
+    if (galleryImageList.length + imageFiles.length > 10) {
+      toast.error('Use up to 10 background images.');
+      return;
+    }
+    setGalleryFiles(imageFiles);
+    setBusy(true);
+    const uploads = await Promise.all(
+      imageFiles.map((file) => uploadUserMediaFile(file)),
+    );
+    setBusy(false);
+    setGalleryFiles([]);
+    const uploadedUrls = uploads.flatMap((result) =>
+      result.ok ? [result.data.url] : [],
+    );
+    if (uploadedUrls.length > 0) {
+      const nextImages = [...galleryImageList, ...uploadedUrls];
+      setGalleryImages(nextImages.join('\n'));
+      setGalleryMode('STATIC_SLIDESHOW');
+      setDirty(true);
+      toast.success(
+        `${uploadedUrls.length} image${uploadedUrls.length === 1 ? '' : 's'} added to background media.`,
+      );
+    }
+    const errors = uploads.flatMap((result) =>
+      result.ok ? [] : [result.error],
+    );
+    if (errors.length > 0) {
+      toast.error(errors.join('; '));
+    }
+  };
+
   const setPresetSetting = (
     preset: string,
     key: 'speed' | 'intensity',
@@ -246,14 +328,14 @@ export function ChannelDesigner({
     setBusy(true);
     let savedVideoUrl = videoBackgroundUrl.trim() || null;
     if (pendingVideoFile) {
-      const upload = await uploadChannelHeaderVideo(pendingVideoFile);
+      const upload = await uploadUserMediaFile(pendingVideoFile);
       if (!upload.ok) {
         setBusy(false);
         toast.error(upload.error);
         return;
       }
-      savedVideoUrl = upload.videoBackgroundUrl;
-      setVideoBackgroundUrl(upload.videoBackgroundUrl);
+      savedVideoUrl = upload.data.url;
+      setVideoBackgroundUrl(upload.data.url);
       if (pendingVideoPreviewUrl) {
         URL.revokeObjectURL(pendingVideoPreviewUrl);
       }
@@ -318,6 +400,8 @@ export function ChannelDesigner({
   const showHeaderVideo =
     visual.headerStyle === 'VIDEO_LOOP' &&
     isValidHeaderVideoUrl(visual.videoBackgroundUrl);
+  const showGalleryBackdrop =
+    galleryImageList.length > 0 && galleryMode !== 'NONE' && !showHeaderVideo;
 
   const setVisualizerEnabled = (enabled: boolean) => {
     if (
@@ -336,13 +420,10 @@ export function ChannelDesigner({
   // preview) and the lookOnly fallback (inline, in this tab's own content —
   // lookOnly has no local live preview to dock into, since the real one
   // lives in the hero block elsewhere on the page in that flow).
-  const tuningSliders = (
+  const tuningSliders = (preset: string) => (
     <>
       {(['speed', 'intensity'] as const).map((key) => {
-        const current = resolveVisualPresetSettings(
-          visualSettings,
-          visual.visualPreset,
-        );
+        const current = resolveVisualPresetSettings(visualSettings, preset);
         return (
           <Slider
             key={key}
@@ -352,9 +433,7 @@ export function ChannelDesigner({
             step={0.05}
             unit="×"
             value={current[key]}
-            onValueChange={(value) =>
-              setPresetSetting(visual.visualPreset, key, value)
-            }
+            onValueChange={(value) => setPresetSetting(preset, key, value)}
           />
         );
       })}
@@ -366,8 +445,8 @@ export function ChannelDesigner({
   const hasLivePreview = !lookOnly && livePreview;
 
   const dockTuning = shouldDockVisualizerTuning({
-    preset: visual.visualPreset,
-    visualizerEnabled,
+    preset: previewPreset,
+    visualizerEnabled: previewPreset !== 'MINIMAL',
     activeTab,
   });
 
@@ -377,9 +456,9 @@ export function ChannelDesigner({
         sections={[
           {
             id: 'visual-style',
-            title: 'Visual style',
+            title: 'Artist backdrop banner',
             description:
-              'Choose the preset, colours, and header treatment for your channel.',
+              'Choose an animated backdrop, tune it, and preview how your artist channel will look.',
             children: (
               <Tabs
                 listClassName="flex-wrap border-border border-b pb-3"
@@ -391,7 +470,11 @@ export function ChannelDesigner({
                 items={[
                   {
                     id: 'visualizer',
-                    label: 'Visualizer',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <PlaySquareIcon size={14} aria-hidden /> Visualizer
+                      </span>
+                    ),
                     content: (
                       <section className="flex flex-col gap-4">
                         <div className="flex items-center gap-3">
@@ -425,17 +508,34 @@ export function ChannelDesigner({
                                       : undefined
                                   }
                                   rightAccessory={
-                                    <Button
-                                      size="sm"
-                                      variant={active ? undefined : 'secondary'}
-                                      disabled={active}
-                                      onClick={() => {
-                                        setLastVisualizerPreset(preset);
-                                        applyLocal({ visualPreset: preset });
-                                      }}
-                                    >
-                                      {active ? 'In use' : 'Use'}
-                                    </Button>
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        size="icon-sm"
+                                        variant="text"
+                                        aria-label={`Configure ${meta.description}`}
+                                        title={`Configure ${preset.replace(/_/g, ' ')}`}
+                                        onClick={() => {
+                                          setPreviewPreset(preset);
+                                          setConfigurationPreset(preset);
+                                        }}
+                                      >
+                                        <SettingsIcon size={15} aria-hidden />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant={
+                                          active ? undefined : 'secondary'
+                                        }
+                                        disabled={active}
+                                        onClick={() => {
+                                          setLastVisualizerPreset(preset);
+                                          setPreviewPreset(preset);
+                                          applyLocal({ visualPreset: preset });
+                                        }}
+                                      >
+                                        {active ? 'In use' : 'Use'}
+                                      </Button>
+                                    </div>
                                   }
                                 />
                               );
@@ -451,15 +551,19 @@ export function ChannelDesigner({
                             <Eyebrow>
                               Tune {visual.visualPreset.replace(/_/g, ' ')}
                             </Eyebrow>
-                            {tuningSliders}
+                            {tuningSliders(visual.visualPreset)}
                           </div>
                         )}
                       </section>
                     ),
                   },
                   {
-                    id: 'colors',
-                    label: 'Colors',
+                    id: 'color-scheme',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <PaletteIcon size={14} aria-hidden /> Color scheme
+                      </span>
+                    ),
                     content: (
                       <section className="flex flex-col gap-5">
                         <div className="flex flex-col gap-2">
@@ -536,7 +640,11 @@ export function ChannelDesigner({
                   },
                   {
                     id: 'header',
-                    label: 'Header',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <TypeIcon size={14} aria-hidden /> Header
+                      </span>
+                    ),
                     content: (
                       <section className="flex flex-col gap-3">
                         <Eyebrow>Header style</Eyebrow>
@@ -584,9 +692,9 @@ export function ChannelDesigner({
                             </div>
                             {videoUrlOpen ? (
                               <Input
-                                label="Video URL"
+                                label="YouTube or video URL"
                                 value={videoBackgroundUrl}
-                                placeholder="https://cdn.example/video.mp4"
+                                placeholder="https://youtube.com/watch?v=…"
                                 onChange={(event) => {
                                   setVideoBackgroundUrl(event.target.value);
                                   setPendingVideoFile(null);
@@ -609,20 +717,35 @@ export function ChannelDesigner({
                             />
                             {(pendingVideoPreviewUrl || videoBackgroundUrl) && (
                               <div className="border-border bg-background relative overflow-hidden rounded-lg border">
-                                <video
-                                  key={
-                                    pendingVideoPreviewUrl ?? videoBackgroundUrl
-                                  }
-                                  src={
-                                    pendingVideoPreviewUrl ?? videoBackgroundUrl
-                                  }
-                                  muted
-                                  loop
-                                  autoPlay
-                                  playsInline
-                                  controls
-                                  className="aspect-video max-h-64 w-full object-cover"
-                                />
+                                {youtubeEmbedUrl(videoBackgroundUrl) &&
+                                !pendingVideoPreviewUrl ? (
+                                  <iframe
+                                    title="YouTube backdrop preview"
+                                    src={
+                                      youtubeEmbedUrl(videoBackgroundUrl) ??
+                                      undefined
+                                    }
+                                    className="pointer-events-none aspect-video max-h-64 w-full"
+                                    allow="autoplay; encrypted-media"
+                                  />
+                                ) : (
+                                  <video
+                                    key={
+                                      pendingVideoPreviewUrl ??
+                                      videoBackgroundUrl
+                                    }
+                                    src={
+                                      pendingVideoPreviewUrl ??
+                                      videoBackgroundUrl
+                                    }
+                                    muted
+                                    loop
+                                    autoPlay
+                                    playsInline
+                                    controls
+                                    className="aspect-video max-h-64 w-full object-cover"
+                                  />
+                                )}
                                 <div className="bg-background/85 text-foreground-secondary absolute inset-x-0 bottom-0 px-3 py-2 text-xs backdrop-blur-sm">
                                   {pendingVideoFile
                                     ? 'Preview — save your channel design to approve and upload it.'
@@ -653,9 +776,67 @@ export function ChannelDesigner({
             id: 'background-media',
             title: 'Background media',
             description:
-              'Choose a gallery style and the media used by the current design.',
+              'Add artist images and choose how they appear behind your channel.',
             children: (
               <div className="flex flex-col gap-4">
+                <FilePicker
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  disabled={busy}
+                  selectedFiles={galleryFiles}
+                  icon={<ImageIcon size={20} aria-hidden />}
+                  labels={{
+                    title: 'Drop background images here',
+                    description: 'JPEG, PNG, or WebP · up to 10 images',
+                    browse: 'Browse images',
+                  }}
+                  onFiles={selectGalleryFiles}
+                />
+                {galleryImageList.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <Eyebrow>
+                        {galleryImageList.length === 1
+                          ? 'Single image preview'
+                          : `Slideshow preview · ${galleryImageList.length} images`}
+                      </Eyebrow>
+                      <span className="text-foreground-secondary text-xs">
+                        {galleryPreviewIndex + 1} / {galleryImageList.length}
+                      </span>
+                    </div>
+                    <div className="border-border bg-background relative h-36 overflow-hidden rounded-lg border">
+                      <img
+                        key={galleryImageList[galleryPreviewIndex]}
+                        src={galleryImageList[galleryPreviewIndex]}
+                        alt=""
+                        className="h-full w-full object-cover transition-all duration-700"
+                      />
+                      <div className="bg-background/80 text-foreground-secondary absolute inset-x-0 bottom-0 px-3 py-2 text-xs backdrop-blur-sm">
+                        {galleryImageList.length === 1
+                          ? 'Preview of the image used behind the artist channel.'
+                          : `Automatic ${slideshowPreset.toLowerCase()} slideshow preview.`}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2">
+                      {galleryImageList.map((image, index) => (
+                        <button
+                          key={`${image}-${index}`}
+                          type="button"
+                          className={`border-border h-12 overflow-hidden rounded-md border ${index === galleryPreviewIndex ? 'border-primary ring-primary ring-2' : ''}`}
+                          aria-label={`Preview background image ${index + 1}`}
+                          aria-pressed={index === galleryPreviewIndex}
+                          onClick={() => setGalleryPreviewIndex(index)}
+                        >
+                          <img
+                            src={image}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 <label className="flex flex-col gap-1 text-sm">
                   <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
                     Gallery style
@@ -695,16 +876,50 @@ export function ChannelDesigner({
                   />
                 </label>
                 <p className="text-foreground-secondary text-xs">
-                  Video backdrops are managed in Header → Video loop and are
-                  stored with your channel media.
+                  Video backdrops are managed in Header → Video loop. Uploaded
+                  images use your artist media storage and can also be reused in
+                  your public gallery.
                 </p>
+                {galleryImageList.length === 1 ? (
+                  <div className="border-border flex flex-col gap-2 rounded-lg border p-3">
+                    <Eyebrow>Single image effect</Eyebrow>
+                    <p className="text-foreground-secondary text-xs">
+                      Try an effect designed for one persistent artist backdrop.
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {GALLERY_MODES.filter(
+                        (mode) => mode.id !== 'STATIC_SLIDESHOW',
+                      ).map((mode) => {
+                        const active = galleryMode === mode.id;
+                        return (
+                          <button
+                            key={mode.id}
+                            type="button"
+                            aria-pressed={active}
+                            onClick={() => {
+                              setGalleryMode(mode.id);
+                              setDirty(true);
+                            }}
+                            className={`border-border rounded-md border px-3 py-2 text-left text-xs font-semibold ${active ? 'border-primary bg-primary/10' : 'hover:border-primary/50'}`}
+                          >
+                            {mode.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ),
           },
           {
             id: 'slideshow-transitions',
-            title: 'Slideshow transitions',
-            description: 'Control how gallery images change on your channel.',
+            title:
+              galleryImageList.length > 1
+                ? 'Slideshow effects'
+                : 'Slideshow effects · add more images',
+            description:
+              'Choose how multiple background images change on your channel.',
             defaultOpen: false,
             children: (
               <div className="flex flex-col gap-4">
@@ -806,7 +1021,7 @@ export function ChannelDesigner({
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight">
-            Design your channel
+            Artist channel preview
           </h2>
           <p className="text-foreground-secondary text-xs">
             Prefer editing on the live channel page — open your channel and hit
@@ -831,6 +1046,13 @@ export function ChannelDesigner({
             muted
             playsInline
             aria-hidden="true"
+          />
+        )}
+        {showGalleryBackdrop && (
+          <img
+            src={galleryImageList[galleryPreviewIndex]}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-45 transition-opacity duration-700"
           />
         )}
         <div
@@ -875,10 +1097,10 @@ export function ChannelDesigner({
           </span>
         </div>
         <div className="relative mt-4 h-28 overflow-hidden rounded-lg sm:h-36">
-          {hasLivePreview && visualizerEnabled ? (
+          {hasLivePreview && previewPreset !== 'MINIMAL' ? (
             <ChannelVisualizer
               className="absolute inset-0 h-full w-full"
-              preset={visual.visualPreset}
+              preset={previewPreset}
               colorScheme={scheme}
               visualSettingsJson={JSON.stringify(visualSettings)}
               artworkUrl={avatarUrl}
@@ -893,12 +1115,31 @@ export function ChannelDesigner({
               instead of a separate box under the preset list below. */}
           {hasLivePreview && dockTuning && (
             <div className="border-border bg-background/90 absolute inset-x-2 bottom-2 flex flex-col gap-3 rounded-lg border p-3 shadow-lg backdrop-blur-sm">
-              <Eyebrow>Tune {visual.visualPreset.replace(/_/g, ' ')}</Eyebrow>
-              {tuningSliders}
+              <Eyebrow>Tune {previewPreset.replace(/_/g, ' ')}</Eyebrow>
+              {tuningSliders(previewPreset)}
             </div>
           )}
         </div>
       </div>
+
+      {configurationPreset ? (
+        <Dialog.Root
+          isOpen
+          onClose={() => setConfigurationPreset(null)}
+          className="max-w-lg"
+        >
+          <Dialog.Title>
+            Configure {configurationPreset.replace(/_/g, ' ')} backdrop
+          </Dialog.Title>
+          <Dialog.Description>
+            Adjust the artist channel backdrop while the selected animated
+            preview remains visible behind this dialog.
+          </Dialog.Description>
+          <div className="flex flex-col gap-4">
+            {tuningSliders(configurationPreset)}
+          </div>
+        </Dialog.Root>
+      ) : null}
 
       {controls}
     </div>

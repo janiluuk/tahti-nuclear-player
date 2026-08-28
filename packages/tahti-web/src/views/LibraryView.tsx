@@ -13,6 +13,7 @@ import { StudioNav } from '../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../components/StudioPanel';
 import { FavoritesView } from './FavoritesView';
 import { HistoryView } from './HistoryView';
+import { LibraryMediaView } from './LibraryMediaView';
 import { LibrarySmartLinksView } from './LibrarySmartLinksView';
 import { MyCollectionsView } from './MyCollectionsView';
 import { MyDiscographyView } from './MyDiscographyView';
@@ -26,7 +27,8 @@ type Tab =
   | 'recordings'
   | 'favorites'
   | 'history'
-  | 'smartlinks';
+  | 'smartlinks'
+  | 'media';
 
 const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
   discography: '/library',
@@ -36,11 +38,15 @@ const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
   favorites: '/library/favorites',
   history: '/library/history',
   smartlinks: '/library/smartlinks',
+  media: '/library/media',
 };
 
 export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
   const overviewTab =
-    tab === 'discography' || tab === 'collections' || tab === 'recordings'
+    tab === 'discography' ||
+    tab === 'collections' ||
+    tab === 'recordings' ||
+    tab === 'media'
       ? tab
       : null;
 
@@ -66,6 +72,7 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
                   ['discography', 'All sounds', '/library'],
                   ['collections', 'Collections', '/library/collections'],
                   ['recordings', 'Recordings', '/library/recordings'],
+                  ['media', 'Media', '/library/media'],
                 ] as const
               ).map(([id, label, to]) => (
                 <Link
@@ -99,12 +106,18 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
                 <StudioRecordingsView embedded />
               </div>
             )}
+            {tab === 'media' && (
+              <div className="mt-6">
+                <LibraryMediaView />
+              </div>
+            )}
           </>
         ) : null}
         {tab === 'releases' && <StudioReleasesView embedded />}
         {tab === 'favorites' && <FavoritesView />}
         {tab === 'history' && <HistoryView />}
         {tab === 'smartlinks' && <LibrarySmartLinksView />}
+        {tab === 'media' && <LibraryMediaView />}
       </div>
     </div>
   );

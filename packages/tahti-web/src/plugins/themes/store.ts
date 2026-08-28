@@ -123,6 +123,10 @@ type ThemeState = {
   importCustomTheme: (
     json: unknown,
   ) => { ok: true; id: string } | { ok: false; error: string };
+  renameCustomTheme: (
+    id: string,
+    name: string,
+  ) => { ok: true } | { ok: false; error: string };
   removeCustomTheme: (id: string) => void;
 };
 
@@ -197,6 +201,26 @@ export const useThemeStore = create<ThemeState>()(
         applyToDocument(id, get().dark, customThemes);
         set({ customThemes, themeId: id });
         return { ok: true, id };
+      },
+
+      renameCustomTheme: (id, name) => {
+        const trimmedName = name.trim();
+        if (!trimmedName) {
+          return { ok: false, error: 'Theme name cannot be empty.' };
+        }
+        const existing = get().customThemes[id];
+        if (!existing) {
+          return { ok: false, error: 'Theme was not found.' };
+        }
+        const customThemes = {
+          ...get().customThemes,
+          [id]: { ...existing, name: trimmedName },
+        };
+        if (get().themeId === id) {
+          applyToDocument(id, get().dark, customThemes);
+        }
+        set({ customThemes });
+        return { ok: true };
       },
 
       removeCustomTheme: (id) => {

@@ -58,11 +58,13 @@ export function StudioEditorListView() {
   const formatLibraryType = (type: string) =>
     type === 'ALL'
       ? 'All'
-      : type
-          .toLowerCase()
-          .split(/[_-]/)
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
+      : type === 'AUDIOCLIPS'
+        ? 'Clips'
+        : type
+            .toLowerCase()
+            .split(/[_-]/)
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
 
   const reload = () => {
     void Promise.all([fetchEditorProjects(), fetchStudioArchive()]).then(

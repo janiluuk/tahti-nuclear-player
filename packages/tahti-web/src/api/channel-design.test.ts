@@ -87,10 +87,10 @@ describe('isValidHeaderVideoUrl', () => {
     );
   });
 
-  it('rejects YouTube/Vimeo links — those need an iframe embed, not a raw <video>', () => {
+  it('accepts YouTube watch links for iframe-backed video loops', () => {
     expect(
       isValidHeaderVideoUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('rejects non-HTTPS, non-video, empty, and null/undefined input', () => {

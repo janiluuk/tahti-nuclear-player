@@ -17,6 +17,7 @@ type Props = {
   visualSettingsJson?: string | null;
   className?: string;
   artworkUrl?: string | null;
+  audioReactive?: boolean;
 };
 
 const ThreeVisualizer = lazy(() =>
@@ -96,6 +97,7 @@ export const ChannelVisualizer = ({
   visualSettingsJson,
   className,
   artworkUrl,
+  audioReactive = true,
 }: Props) => {
   const [canAnimate, setCanAnimate] = useState(false);
   const mode = (preset ?? 'AURORA').toUpperCase();
@@ -137,6 +139,7 @@ export const ChannelVisualizer = ({
         scheme={scheme}
         settings={settings}
         artworkUrl={artworkUrl}
+        audioReactive={audioReactive}
       />
     </Suspense>
   );

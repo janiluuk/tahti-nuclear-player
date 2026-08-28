@@ -129,3 +129,65 @@ export const AdminModeration: Story = {
   },
   decorators: [withTahtiRouter('/admin/moderation')],
 };
+
+export const StudioDeepRoute: Story = {
+  args: {
+    'aria-label': 'Studio pages',
+    items: [
+      {
+        id: 'overview',
+        to: '/studio',
+        label: 'Overview',
+        icon: <LibraryIcon size={16} aria-hidden />,
+      },
+      {
+        id: 'schedule',
+        to: '/studio/schedule',
+        label: 'Schedule',
+        icon: <RadioIcon size={16} aria-hidden />,
+        active: true,
+      },
+      {
+        id: 'analytics',
+        to: '/studio/schedule?tab=analytics',
+        label: 'Analytics',
+        icon: <HeartIcon size={16} aria-hidden />,
+      },
+    ],
+  },
+  decorators: [withTahtiRouter('/studio/schedule?tab=analytics')],
+};
+
+export const AdminAllSections: Story = {
+  args: {
+    'aria-label': 'Admin pages',
+    items: [
+      {
+        id: 'overview',
+        to: '/admin',
+        label: 'Overview',
+        icon: <LibraryIcon size={16} aria-hidden />,
+        active: true,
+      },
+      {
+        id: 'content',
+        to: '/admin/content',
+        label: 'Content',
+        icon: <RadioIcon size={16} aria-hidden />,
+      },
+      {
+        id: 'moderation',
+        to: '/admin/moderation',
+        label: 'Moderation',
+        icon: <SettingsIcon size={16} aria-hidden />,
+      },
+      {
+        id: 'logs',
+        to: '/admin/logs',
+        label: 'Logs',
+        icon: <HeartIcon size={16} aria-hidden />,
+      },
+    ],
+  },
+  decorators: [withTahtiRouter('/admin')],
+};

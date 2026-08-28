@@ -1,3 +1,4 @@
+import { BanIcon, ShieldCheckIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input, Tabs } from '@nuclearplayer/ui';
@@ -60,7 +61,11 @@ export function StudioModerationView() {
           items={[
             {
               id: 'moderators',
-              label: 'Moderators',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  <ShieldCheckIcon size={14} aria-hidden /> Moderators
+                </span>
+              ),
               content: (
                 <StudioPanel
                   title="Delegated moderators"
@@ -135,7 +140,11 @@ export function StudioModerationView() {
             },
             {
               id: 'bans',
-              label: 'Chat bans',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  <BanIcon size={14} aria-hidden /> Chat bans
+                </span>
+              ),
               content: (
                 <StudioPanel
                   title="Chat bans"

@@ -4,10 +4,12 @@ import {
   BarChart3Icon,
   DownloadIcon,
   ExternalLinkIcon,
+  LayoutDashboardIcon,
+  ListOrderedIcon,
   RadioTowerIcon,
   UsersIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { useEffect, useMemo, useState, type FC, type ReactNode } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
@@ -49,10 +51,31 @@ const RANGES: Array<{ id: StatsPlaysRange; label: string }> = [
 
 type StatsTab = 'overview' | 'plays' | 'top-lists';
 
-const STATS_TABS: Array<{ id: StatsTab; label: string }> = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'plays', label: 'Plays & listeners' },
-  { id: 'top-lists', label: 'Top lists' },
+const STATS_TABS: Array<{ id: StatsTab; label: ReactNode }> = [
+  {
+    id: 'overview',
+    label: (
+      <span className="inline-flex items-center gap-1.5">
+        <LayoutDashboardIcon size={14} aria-hidden /> Overview
+      </span>
+    ),
+  },
+  {
+    id: 'plays',
+    label: (
+      <span className="inline-flex items-center gap-1.5">
+        <BarChart3Icon size={14} aria-hidden /> Plays & listeners
+      </span>
+    ),
+  },
+  {
+    id: 'top-lists',
+    label: (
+      <span className="inline-flex items-center gap-1.5">
+        <ListOrderedIcon size={14} aria-hidden /> Top lists
+      </span>
+    ),
+  },
 ];
 
 const EMPTY_SUMMARY: StatsSummary = {

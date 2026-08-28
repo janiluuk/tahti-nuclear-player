@@ -30,11 +30,13 @@ type DiscoverState = {
   enabledWidgets: DiscoverWidgetId[];
   genreFilter: string[];
   contentTypeFilter: string[];
+  unheardOnly: boolean;
   addWidget: (id: DiscoverWidgetId) => void;
   removeWidget: (id: DiscoverWidgetId) => void;
   moveWidget: (id: DiscoverWidgetId, direction: 'up' | 'down') => void;
   setGenreFilter: (genres: string[]) => void;
   setContentTypeFilter: (types: string[]) => void;
+  setUnheardOnly: (enabled: boolean) => void;
 };
 
 export const useDiscoverStore = create<DiscoverState>()(
@@ -43,6 +45,7 @@ export const useDiscoverStore = create<DiscoverState>()(
       enabledWidgets: DEFAULT_WIDGETS,
       genreFilter: [],
       contentTypeFilter: [],
+      unheardOnly: false,
 
       addWidget: (id) =>
         set((s) =>
@@ -73,6 +76,7 @@ export const useDiscoverStore = create<DiscoverState>()(
 
       setGenreFilter: (genres) => set({ genreFilter: genres }),
       setContentTypeFilter: (types) => set({ contentTypeFilter: types }),
+      setUnheardOnly: (enabled) => set({ unheardOnly: enabled }),
     }),
     { name: 'tahti-web:discover' },
   ),

@@ -578,12 +578,20 @@ export function AdminStorageView() {
           items={[
             {
               id: 'storage',
-              label: 'Storage',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  <HardDriveIcon size={14} aria-hidden /> Storage
+                </span>
+              ),
               content: <StorageOverviewTab />,
             },
             {
               id: 'files',
-              label: 'Files',
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  <CloudIcon size={14} aria-hidden /> Files
+                </span>
+              ),
               content: <FilesBrowserTab />,
             },
           ]}
