@@ -1517,6 +1517,18 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Completed:** Genre filters on Discover are now tucked into an expandable Genres control, while the content-type filters remain visible. Added a persisted “Tracks I haven’t heard” filter backed by the personalized new-to-you API; it narrows the other Discover widgets to tracks the listener has not heard.
 
+## 2026-08-28 — Latest surface extraction into Storybook
+
+**Completed:** Added real Storybook coverage for the Sounds library (`StudioArchiveView`), Go Live (`StudioGoLiveView` and `BroadcastPreflightPanel`), Admin Stream Manager, channel rotation editing, and track insights. Added `ElementLocations` as a reference story mapping the latest tahti-web components and views to the listener, artist, Studio, and Admin pages where they live.
+
+**Validation:** New stories pass formatting and targeted lint. The Storybook package-wide type-check still has the previously tracked failures in legacy core stories and tahti-web build/test globals; the new stories introduce no reported type errors.
+
+**Follow-up:** Added rendered route stories for the latest Admin Content, Missed Shows, and Selects surfaces plus Studio Schedule, Stats, and Upload. These sit beside the Element locations reference so both the visual surface and its product destination are discoverable.
+
+## 2026-08-28 — Public sitemap refresh
+
+**Completed:** Regenerated the static sitemap from the current public router surface. It now includes Discover, Radio, Schedule, Chat, Venues, Status, Transparency methodology, Help, Join, Apply, Governance, and the current informational/legal pages. Dynamic channel, profile, and release URLs remain in the API-fed sitemap entries.
+
 ## 2026-08-28 — Admin stream-manager 3×3 follow-up
 
 **Slice 1:** Admin Overview now keeps the live stream manager visible instead of hiding the primary operational control behind the secondary dashboard disclosure.
