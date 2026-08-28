@@ -37,9 +37,9 @@ Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which
 - [x] Full Three.js visualizer presets (ten distinct analyser-reactive scenes, lazy-loaded in the channel hero and ambient page background)
 - [x] Stash share access (grant expiring read/download access + revoke)
 - [x] Sources OAuth callback-return verification (SoundCloud, Bandcamp, Google Drive, and Mixcloud production redirect shapes land on the matching source result in the SPA)
-- [ ] Radio slots depth
-- [ ] **Channel moderator management** — expose the existing `/studio/moderation` workflow from the Studio Manage/Broadcast navigation, verify owner-only user assignment and removal, and cover the moderator permissions (chat mute/remove/ban) with mock/API tests so channel owners can reliably delegate moderation.
-- [ ] Multitrack timeline + press-kit polish
+- [x] Radio slots depth — weekly Tahti Radio and own-channel filters, two-hour selection, show type/notes, green-room links, cancellation, and mobile-safe horizontal schedule grid are implemented.
+- [ ] **Channel moderator management** — `/studio/moderation` is exposed from Studio Manage, with the owner-gated assignment/removal and chat-ban UI now mobile-safe; mock/API coverage for owner-only assignment/removal and moderator chat permissions remains.
+- [ ] Multitrack timeline + press-kit polish — press-kit gallery and download flows are shipped; a true multitrack timeline remains blocked on a rendering and persistence contract (see FEATURES.md).
 - [ ] Production cutover for `apps/web` — complete the listener/artist/admin no-drop ledger in [GAP-MAPPING.md](GAP-MAPPING.md) before changing the official client; keep Next Admin canonical unless the Admin parity gate is explicitly closed.
 
 Done since last update (was listed here as remaining, verified shipped): channel chat hardening (hCaptcha + rail parity), Stash upload UI, Stats detail page, Venue register, Membership purchase, Password/account security (TOTP panel), board admin (22/22 pages, now `partial` not `out-of-scope`).
@@ -50,18 +50,18 @@ This backlog comes from the Storybook comparison audit. Prefer the original Nucl
 
 ### High priority
 
-- [ ] Update stale Storybook stories after the navigation redesign: remove the deleted `AppTopNav` `minimal` variant stories and replace the removed Studio tools-panel story with the six-section Studio navigation states.
+- [x] Update stale Storybook stories after the navigation redesign: remove the deleted `AppTopNav` `minimal` variant stories and replace the removed Studio tools-panel story with the six-section Studio navigation states.
 - [x] Add Storybook coverage for `SectionSidebar`, including active, inactive, no-current-route, deep-route, mobile overflow, and representative Studio/Admin variants.
 - [x] `SectionSidebar` now wraps Nuclear's existing `SidebarNavigation` and `SidebarNavigationItem`; explicit route selection is retained for beta deep/query routes.
-- [ ] Normalize remaining custom page headers against `PageHeader` / `StudioPageHeader`: Collection, Track detail, Studio home, Studio archive detail, More/map, and any later raw `<h1>` findings.
+- [x] Normalize remaining custom page headers against `PageHeader` / `StudioPageHeader`: Collection, Track detail, Studio home, Studio archive detail, More/map, and any later raw `<h1>` findings.
 
 ### Plugin integration follow-up
 
 - [x] **Authoring and parity baseline** — added the agent-facing plugin contract, typed add-on settings, explicit sibling-API counterpart metadata, and a runnable example plugin/tutorial. The remaining items below are the implementation backlog, not unverified claims of runtime support.
-- [ ] **Bandcamp catalog import API** — complete the sibling API's Bandcamp album listing and import endpoint; the beta add-on UI, OAuth connection, release shop-link editor, and Bandcamp brand actions are now wired to those contracts.
+- [x] **Bandcamp catalog import API** — complete the sibling API's Bandcamp album listing and import endpoint; the beta add-on UI, OAuth connection, release shop-link editor, and Bandcamp brand actions are now wired to those contracts.
 - [ ] **Nuclear registry runtime parity** — the remaining Nuclear registry entries are now visible in Add-ons with plugin-owned configuration forms and explicit available/partial/planned status; implement provider runtime/API contracts for the planned entries before marking them active.
 - [ ] **Slice 4 — generic Audio FX chain host** — extract add/remove/reorder and per-plugin parameter controls from `StudioProEditorView` so third-party audio plugins can own their controls.
-- [ ] **Slice 5 — shared multicast destination form** — share the destination form between Go Live and Settings, keeping provider-specific credentials inside each provider configuration.
+- [x] **Slice 5 — shared multicast destination form** — share the destination form between Go Live and Settings, keeping provider-specific credentials inside each provider configuration.
 - [ ] Define and implement an `ExportProvider` only after `../tahti` exposes submit/status/webhook contracts; the current registry is metadata/deep-link only.
 - [ ] **Slice 6 — source capability contracts** — split Sources into OAuth, search, and link/tool adapter contracts and route `SourcesView` through them without losing provider-specific behavior.
 - [ ] Define the credential/permission lifecycle for a real integrations marketplace before implementing it.
@@ -76,7 +76,7 @@ This backlog comes from the Storybook comparison audit. Prefer the original Nucl
 ### Storybook quality and verification
 
 - [ ] Add Storybook states for Studio deep routes, Admin nested/moderation routes, artist-page standard top navigation, mobile navigation, and active/inactive navigation states.
-- [x] Added a dedicated Storybook TypeScript check so stale props and removed stories fail before build; docgen warnings caused by `tahti-web` files being outside the active TypeScript project remain tracked separately.
+- [ ] Add a dedicated Storybook TypeScript check after updating legacy stories for required label props and adding the Vite/global declarations needed by imported `tahti-web` files.
 - [ ] Run a full Storybook render sweep after each compliance batch and record intentional exceptions, especially for Admin operational tables and specialized editor controls.
 
 ### Community metadata follow-up

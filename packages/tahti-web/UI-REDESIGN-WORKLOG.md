@@ -1590,3 +1590,45 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 ### 2026-08-28 — Spotify playlist listener widget
 
 **Completed:** Added Spotify to Listen → Your widgets. Users can install the widget and add a specific public Spotify playlist URL; it renders Spotify’s official playlist embed as a row alongside SoundCloud, YouTube, and hearthis.at widgets. Track, profile, non-Spotify, and unsupported Spotify URLs are rejected so the configuration remains playlist-specific.
+
+### 2026-08-28 — Next roadmap 3×3: multistream Storybook surfaces
+
+**Slice 1:** Added dedicated Storybook states for the shared multistream destination form, covering Twitch, YouTube, and Custom RTMP.
+
+**Slice 2:** Added the multistream form to the Element locations reference with its Settings and Studio destinations.
+
+**Slice 3:** Recorded the deployed multistream widget surface as the next roadmap verification point; provider runtime remains backed by the existing RTMP target API.
+
+### 2026-08-28 — Roadmap follow-up verification: three shipped items
+
+**Slice 1:** Verified and closed the remaining shared page-header cleanup: Collection and More already used `PageHeader`, while Track detail, Studio home, and Studio archive detail now use the shared header primitives.
+
+**Slice 2:** Verified and closed the Bandcamp catalog import contract: the API client now consumes `/api/me/bandcamp/albums` and submits `/api/v1/imports/bandcamp/add`, with the Sources UI exposing listing, metadata, and import actions.
+
+**Slice 3:** Verified and closed the shared multicast destination form slice: Settings and Go Live both use the reusable form, including Twitch, YouTube, and custom RTMP configuration.
+
+**Next open implementation:** Nuclear registry runtime parity remains the next substantive plugin/API item; planned providers still need real contracts before activation.
+
+### 2026-08-28 — Plugin roadmap contract follow-up
+
+**Slice 1:** Extracted Audio FX chain add, remove, and reorder operations into a reusable host utility with regression tests; `StudioProEditorView` now consumes the shared chain operations.
+
+**Slice 2:** Audited Nuclear registry parity. The remaining planned entries still lack Tahti provider/search/scrobble contracts, so they remain explicitly partial or planned rather than being activated as fake runtime providers.
+
+**Slice 3:** Confirmed `ExportProvider` remains contract-gated: no sibling submit/status/webhook API exists to implement against. The existing export targets therefore remain metadata/deep-link integrations until that API is available.
+
+### 2026-08-28 — Responsive UX audit and next workplan items
+
+**Radio slots:** The weekly schedule keeps its intentional horizontal scroll on narrow screens, now with an explicit minimum canvas width, stacked mobile controls, and accessible labels for every available/unavailable hour. The station filter, week navigation, booking form, and green-room actions remain usable without viewport overflow.
+
+**Channel moderation:** Moderator and chat-ban forms now stack on phones and expand into inline controls from the small breakpoint; long usernames and fingerprints remain constrained by the surrounding layout.
+
+**Multitrack boundary:** Press-kit gallery work is already complete. The full multitrack timeline remains unimplemented until the sibling API defines a persisted track/timeline model and the player/editor rendering architecture is agreed.
+
+### 2026-08-28 — Moderator API coverage and production cutover audit
+
+**Moderator follow-up:** Added API contract tests for moderator listing, owner-scoped assignment/removal, and channel-scoped chat bans. `StudioGate` continues to restrict the surface to artist or board accounts with a channel; the remaining gap is an explicit rendered permission test for the gate.
+
+**Production cutover:** Rechecked the cutover boundary in `FEATURES.md`. The official client remains protected by the no-drop ledger requirement, and Admin remains canonical in the production web client. No cutover flag or route ownership was changed.
+
+**Responsive audit:** Reviewed the next workplan surfaces at phone and small-tablet constraints. Schedule controls and the seven-day grid now have deliberate stacked/scrolling behavior; moderation forms stack on phones. The editor and Admin operational tables retain horizontal scrolling where dense data requires it rather than clipping controls.

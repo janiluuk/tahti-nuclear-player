@@ -46,6 +46,11 @@ import { WaveformCanvas } from '../../components/WaveformCanvas';
 import { WaveformMinimap } from '../../components/WaveformMinimap';
 import { useAudioPreviewGraph } from '../../lib/audioPreviewGraph';
 import { AUDIO_FX_PLUGINS, useAudioFxStore } from '../../plugins/audio-fx';
+import {
+  addPluginToChain,
+  removePluginFromChain,
+  reorderPluginChain,
+} from '../../plugins/audio-fx/chain';
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec)) {
@@ -447,11 +452,7 @@ export function StudioProEditorView({
     ) {
       return;
     }
-    setEditList({
-      ...editList,
-      pluginChain: [...pluginChain, id],
-      [id]: { ...editList[id], enabled: true },
-    });
+    setEditList(addPluginToChain(editList, id));
     setPluginPickerOpen(false);
   };
 
@@ -480,11 +481,7 @@ export function StudioProEditorView({
     if (!editList) {
       return;
     }
-    setEditList({
-      ...editList,
-      pluginChain: pluginChain.filter((p) => p !== id),
-      [id]: { ...editList[id], enabled: false },
-    });
+    setEditList(removePluginFromChain(editList, id));
   };
 
   const reorderPlugin = (
@@ -494,15 +491,7 @@ export function StudioProEditorView({
     if (!editList || dragId === dropId) {
       return;
     }
-    const next = [...pluginChain];
-    const from = next.indexOf(dragId);
-    const to = next.indexOf(dropId);
-    if (from === -1 || to === -1) {
-      return;
-    }
-    next.splice(from, 1);
-    next.splice(to, 0, dragId);
-    setEditList({ ...editList, pluginChain: next });
+    setEditList(reorderPluginChain(editList, dragId, dropId));
   };
 
   const normalize = () => {

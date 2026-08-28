@@ -107,12 +107,13 @@ export function StudioModerationView() {
                         ))}
                       </ul>
                     )}
-                    <div className="flex flex-wrap items-end gap-2">
+                    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-end">
                       <Input
                         label="Username"
                         value={newModUsername}
                         onChange={(e) => setNewModUsername(e.target.value)}
                         placeholder="listener-handle"
+                        className="min-w-0 sm:min-w-48"
                       />
                       <Button
                         size="sm"
@@ -194,12 +195,13 @@ export function StudioModerationView() {
                         ))}
                       </ul>
                     )}
-                    <div className="flex flex-wrap items-end gap-2">
+                    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-end">
                       <Input
                         label="Fingerprint hash"
                         value={newBanHash}
                         onChange={(e) => setNewBanHash(e.target.value)}
                         placeholder="from a chat message's report action"
+                        className="min-w-0 sm:min-w-48"
                       />
                       <Button
                         size="sm"

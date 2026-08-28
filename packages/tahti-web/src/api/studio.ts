@@ -7,6 +7,7 @@ import type {
   EditorProjectDetail,
   EditorProjectRow,
   EditorSource,
+  EditorTimeline,
   FingerprintMatch,
   StudioArchiveItem,
   StudioArchivePatch,
@@ -140,6 +141,7 @@ let mockProjects: EditorProjectRow[] = [
     updatedAt: new Date().toISOString(),
   },
 ];
+const mockProjectTimelines = new Map<string, EditorTimeline>();
 
 const mockDrafts = new Map<string, EditorDraft>();
 
@@ -1405,7 +1407,17 @@ export async function fetchEditorProject(id: string): Promise<{
       updatedAt: new Date().toISOString(),
     };
     return {
-      data: { ...row, timeline: { tracks: [] } },
+      data: {
+        ...row,
+        timeline: mockProjectTimelines.get(id) ?? {
+          version: 1,
+          durationSec: 180,
+          tracks: [],
+        },
+        sources: row.archiveItemId
+          ? [{ id: row.archiveItemId, title: 'Mock source', url: DEMO_MP3 }]
+          : [],
+      },
       meta: { source: 'mock' },
     };
   }
@@ -1418,6 +1430,57 @@ export async function fetchEditorProject(id: string): Promise<{
     return {
       data: { id, title: 'Unavailable', updatedAt: new Date().toISOString() },
       meta: apiErrorMeta(err),
+    };
+  }
+}
+
+export async function updateEditorProject(
+  id: string,
+  timeline: EditorTimeline,
+): Promise<
+  { ok: true; data: EditorProjectDetail } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const project = mockProjects.find((item) => item.id === id);
+    if (!project) {
+      return { ok: false, error: 'Project not found' };
+    }
+    mockProjectTimelines.set(id, timeline);
+    const next = { ...project, updatedAt: new Date().toISOString(), timeline };
+    mockProjects = mockProjects.map((item) => (item.id === id ? next : item));
+    return { ok: true, data: next };
+  }
+  try {
+    const { data } = await requestJson<EditorProjectDetail>(
+      `/api/me/editor/projects/${encodeURIComponent(id)}`,
+      { method: 'PATCH', body: JSON.stringify({ timeline }) },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Save failed',
+    };
+  }
+}
+
+export async function deleteEditorProject(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    mockProjects = mockProjects.filter((item) => item.id !== id);
+    mockProjectTimelines.delete(id);
+    return { ok: true };
+  }
+  try {
+    await requestJson(`/api/me/editor/projects/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Delete failed',
     };
   }
 }

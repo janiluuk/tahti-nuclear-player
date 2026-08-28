@@ -214,7 +214,7 @@ export function RadioScheduleView() {
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div
           className="border-border inline-flex gap-1 rounded-lg border p-1"
           role="tablist"
@@ -254,7 +254,7 @@ export function RadioScheduleView() {
           ) : null}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 sm:justify-end">
           <Button
             size="icon-sm"
             variant="secondary"
@@ -290,7 +290,7 @@ export function RadioScheduleView() {
       </div>
 
       <div className="border-border overflow-x-auto rounded-xl border">
-        <div className="grid grid-cols-[4.5rem_repeat(7,minmax(6rem,1fr))]">
+        <div className="grid min-w-[46.5rem] grid-cols-[4.5rem_repeat(7,minmax(6rem,1fr))]">
           <div className="border-border bg-background-secondary/40 border-r border-b" />
           {days.map((day) => (
             <div
@@ -335,7 +335,13 @@ export function RadioScheduleView() {
                         ? `${bookingTitle(booking)} by ${booking.displayName}${
                             booking.isMine ? ' — click to cancel' : ''
                           }`
-                        : undefined
+                        : `${day.toLocaleDateString(undefined, {
+                            weekday: 'long',
+                            month: 'long',
+                            day: 'numeric',
+                          })} at ${formatHour(hour)}${
+                            isPast ? ' — unavailable' : ' — available'
+                          }`
                     }
                     className={cn(
                       'border-border h-8 border-r border-b px-1.5 text-left text-[11px] transition-colors',
@@ -434,7 +440,7 @@ export function RadioScheduleView() {
                 ? 'Note (optional) — topic or guests'
                 : "Note (optional) — what you're playing"
             }
-            className="min-w-48 flex-1"
+            className="min-w-0 flex-1 sm:min-w-48"
           />
           <Button size="sm" disabled={busy} onClick={confirmBooking}>
             {busy ? 'Booking…' : 'Confirm booking'}

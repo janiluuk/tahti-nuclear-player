@@ -156,6 +156,11 @@ const locations: ElementLocation[] = [
     pages: 'Listen add-ons, channel widgets',
   },
   {
+    element: 'MulticastDestinationForm',
+    kind: 'Component',
+    pages: 'Settings → Broadcast → Multistream, Studio → Go Live',
+  },
+  {
     element: 'GlobalSearch',
     kind: 'Component',
     pages: 'Top navigation and search route',

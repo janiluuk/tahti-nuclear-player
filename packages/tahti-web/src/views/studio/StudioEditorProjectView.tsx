@@ -1,24 +1,97 @@
-import { Link } from '@tanstack/react-router';
-import { AudioLinesIcon } from 'lucide-react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { AudioLinesIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
-import { fetchEditorProject } from '../../api/studio';
-import type { EditorProjectDetail } from '../../api/studio-types';
+import {
+  deleteEditorProject,
+  fetchEditorProject,
+  fetchEditorSource,
+  updateEditorProject,
+} from '../../api/studio';
+import type {
+  EditorProjectDetail,
+  EditorSource,
+  EditorTimeline,
+} from '../../api/studio-types';
+import {
+  MultitrackTimeline,
+  normalizeTimeline,
+} from '../../components/MultitrackTimeline';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function StudioEditorProjectView({ id }: { id: string }) {
+  const navigate = useNavigate();
   const [project, setProject] = useState<EditorProjectDetail | null>(null);
+  const [timeline, setTimeline] = useState<EditorTimeline | null>(null);
+  const [sources, setSources] = useState<EditorSource[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>(
+    'saved',
+  );
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    void fetchEditorProject(id).then((res) => {
+    void fetchEditorProject(id).then(async (res) => {
       setProject(res.data);
+      if (res.meta.source === 'api' && res.meta.reason) {
+        setError(res.meta.reason);
+      }
+      let resolved: EditorSource[] = (res.data.sources ?? [])
+        .filter(
+          (source): source is { id: string; title: string; url: string } =>
+            Boolean(source.url),
+        )
+        .map((source) => ({
+          url: source.url,
+          title: source.title,
+          sourceKey: source.id,
+          durationSec: null,
+        }));
+      if (!resolved.length && res.data.archiveItemId) {
+        const source = await fetchEditorSource(res.data.archiveItemId);
+        if (source.data.url) {
+          resolved = [{ ...source.data, sourceKey: res.data.archiveItemId }];
+        } else {
+          setError('The archive source is unavailable.');
+        }
+      }
+      setSources(resolved);
+      setTimeline(normalizeTimeline(res.data.timeline, resolved[0]));
     });
   }, [id]);
+
+  useEffect(() => {
+    if (!timeline || !project) {
+      return;
+    }
+    setSaveState('saving');
+    const timer = window.setTimeout(() => {
+      void updateEditorProject(id, timeline).then((result) =>
+        setSaveState(result.ok ? 'saved' : 'error'),
+      );
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [id, project, timeline]);
+
+  const removeProject = () => {
+    if (deleting || !window.confirm(`Delete “${project?.title}”?`)) {
+      return;
+    }
+    setDeleting(true);
+    void deleteEditorProject(id).then((result) => {
+      if (result.ok) {
+        void navigate({ to: '/studio/editor' });
+      } else {
+        setError(result.error);
+        setDeleting(false);
+      }
+    });
+  };
 
   return (
     <StudioGate>
@@ -42,27 +115,71 @@ export function StudioEditorProjectView({ id }: { id: string }) {
               title={project.title}
               subtitle="Multitrack session. Open the linked archive in the pro trim editor when available."
               action={
-                project.archiveItemId ? (
-                  <Link
-                    to="/studio/archive/$id/editor"
-                    params={{ id: project.archiveItemId }}
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={removeProject}
+                    disabled={deleting}
+                    aria-label="Delete project"
                   >
-                    <Button
-                      size="sm"
-                      aria-label="Open pro editor"
-                      title="Open pro editor"
+                    <Trash2Icon size={16} aria-hidden className="mr-1.5" />
+                    Delete
+                  </Button>
+                  {project.archiveItemId ? (
+                    <Link
+                      to="/studio/archive/$id/editor"
+                      params={{ id: project.archiveItemId }}
                     >
-                      <AudioLinesIcon
-                        size={16}
-                        aria-hidden
-                        className="mr-1.5"
-                      />
-                      Pro editor
-                    </Button>
-                  </Link>
-                ) : undefined
+                      <Button
+                        size="sm"
+                        aria-label="Open pro editor"
+                        title="Open pro editor"
+                      >
+                        <AudioLinesIcon
+                          size={16}
+                          aria-hidden
+                          className="mr-1.5"
+                        />
+                        Pro editor
+                      </Button>
+                    </Link>
+                  ) : null}
+                </div>
               }
             />
+            {error && (
+              <p className="text-accent-red text-sm" role="alert">
+                {error}
+              </p>
+            )}
+            {timeline && (
+              <StudioPanel
+                title="Timeline"
+                description="Arrange native archive clips into a non-destructive multitrack session."
+                action={
+                  <span
+                    className="text-foreground-secondary text-xs"
+                    role="status"
+                  >
+                    {saveState === 'saving'
+                      ? 'Saving…'
+                      : saveState === 'error'
+                        ? 'Save failed'
+                        : 'Saved'}
+                  </span>
+                }
+              >
+                <MultitrackTimeline
+                  value={timeline}
+                  sources={sources}
+                  onChange={setTimeline}
+                  unavailableSourceIds={sources
+                    .filter((source) => !source.url)
+                    .map((source) => source.sourceKey ?? '')}
+                />
+              </StudioPanel>
+            )}
             <StudioPanel title="Session">
               <dl className="grid gap-3 text-sm sm:grid-cols-2">
                 <div>

@@ -176,8 +176,32 @@ export type EditorProjectRow = {
 };
 
 export type EditorProjectDetail = EditorProjectRow & {
-  timeline?: unknown;
+  timeline?: EditorTimeline | null;
   sources?: Array<{ id: string; title: string; url?: string }>;
+};
+
+export type EditorTimelineClip = {
+  id: string;
+  sourceArchiveItemId: string;
+  startSec: number;
+  sourceOffsetSec: number;
+  durationSec: number;
+};
+
+export type EditorTimelineTrack = {
+  id: string;
+  name: string;
+  color: string;
+  gainDb: number;
+  muted: boolean;
+  solo: boolean;
+  clips: EditorTimelineClip[];
+};
+
+export type EditorTimeline = {
+  version: 1;
+  durationSec: number;
+  tracks: EditorTimelineTrack[];
 };
 
 export type EditCut = { start: number; end: number };

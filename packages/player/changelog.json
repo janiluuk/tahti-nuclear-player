@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Studio editor sessions now open as responsive multitrack timelines with clip arrangement, synchronized preview, track controls, and autosaved projects.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Admin Overview now keeps live stream controls visible, with resilient stream metrics loading and an accessible refresh action.",
     "type": "improvement",
     "contributors": ["jani"],
