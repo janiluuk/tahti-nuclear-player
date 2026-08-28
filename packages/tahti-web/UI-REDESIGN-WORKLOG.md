@@ -1546,3 +1546,7 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Batch 2:** Added rendered stories for Studio Revenue, Distribution, and Manage → Channel.
 
 **Batch 3:** Added rendered stories for Studio Branding, Moderation, and Events, each with its product destination in Storybook docs. Refreshed the static sitemap with the current `/listen` and `/whats-new` public aliases.
+
+## 2026-08-28 — hearthis.at shared-player sync follow-up
+
+**Completed:** Studio → Music → Sounds now keeps hearthis.at archive references visible. When hearthis.at exposes a playable stream, the row resolves it into the shared Tahti player with the provider title, artist, artwork, and source metadata, keeping global transport controls in sync. If the provider does not expose a stream, the official hearthis.at iframe remains the fallback instead of playing an unrelated preview file.

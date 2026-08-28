@@ -14,9 +14,14 @@ import {
   Trash2Icon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Dialog } from '@nuclearplayer/ui';
 
+import {
+  fetchHearthisTrackById,
+  playableFromHearthis,
+} from '../../api/sources';
 import {
   deleteStudioArchiveItem,
   fetchEditorSource,
@@ -149,9 +154,6 @@ export function StudioArchiveView() {
             i.status.toLowerCase().includes(q),
         );
     const filteredItems = base.filter((item) => {
-      if (item.embedProvider === 'HEARTHIS') {
-        return false;
-      }
       if (folder === 'clips' && item.contentType !== 'AUDIOCLIPS') {
         return false;
       }
@@ -209,6 +211,29 @@ export function StudioArchiveView() {
       protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
     });
     setBusyId(null);
+  };
+
+  const playEmbedItem = async (item: StudioArchiveItem) => {
+    if (item.embedProvider !== 'HEARTHIS' || !item.embedUri) {
+      setEmbedOpenId((id) => (id === item.id ? null : item.id));
+      return;
+    }
+
+    setBusyId(item.id);
+    try {
+      const track = await fetchHearthisTrackById(item.embedUri);
+      if (track?.streamUrl) {
+        play({ ...playableFromHearthis({ ...track, title: item.title }) });
+        setEmbedOpenId(null);
+        return;
+      }
+      setEmbedOpenId((id) => (id === item.id ? null : item.id));
+    } catch {
+      setEmbedOpenId((id) => (id === item.id ? null : item.id));
+      toast.error('Could not load the hearthis.at track.');
+    } finally {
+      setBusyId(null);
+    }
   };
 
   const downloadItem = async (item: StudioArchiveItem) => {
@@ -443,9 +468,7 @@ export function StudioArchiveView() {
                         disabled={busyId === item.id}
                         onClick={() =>
                           embedSrc
-                            ? setEmbedOpenId((id) =>
-                                id === item.id ? null : item.id,
-                              )
+                            ? void playEmbedItem(item)
                             : void playItem(item.id, item.title)
                         }
                         aria-label={
