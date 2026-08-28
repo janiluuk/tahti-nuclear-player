@@ -58,11 +58,11 @@ function HelpGuideCard({ article }: { article: HelpArticle }) {
     <Link
       to="/help/$slug"
       params={{ slug: article.slug }}
-      className="border-border bg-background-secondary/50 hover:border-primary group flex min-h-32 flex-col justify-between rounded-xl border p-4 transition-colors"
+      className="border-border bg-background-secondary/50 hover:border-primary group flex min-h-32 min-w-0 flex-col justify-between rounded-xl border p-4 transition-colors"
     >
       <div>
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-base font-bold tracking-tight">
+          <h3 className="font-display min-w-0 text-base font-bold tracking-tight">
             {article.title}
           </h3>
           <ArrowRightIcon
@@ -81,7 +81,7 @@ function HelpGuideCard({ article }: { article: HelpArticle }) {
 
 export function HelpHubView() {
   return (
-    <PageFrame maxWidth="5xl" className="pb-8">
+    <PageFrame maxWidth="full" className="max-w-full min-w-0 pb-8">
       <PageHeader
         title="Help center"
         subtitle={HELP_HUB_INTRO}
@@ -96,7 +96,7 @@ export function HelpHubView() {
           </Link>
         }
       />
-      <section className="border-border bg-primary text-primary-foreground rounded-2xl border p-5 shadow-sm sm:p-6">
+      <section className="border-border bg-primary text-primary-foreground min-w-0 rounded-2xl border p-5 shadow-sm sm:p-6">
         <div className="flex items-start gap-3">
           <CircleHelpIcon size={22} className="mt-0.5 shrink-0" aria-hidden />
           <div>
@@ -113,14 +113,14 @@ export function HelpHubView() {
         </div>
       </section>
 
-      <div className="flex flex-col gap-8">
+      <div className="flex min-w-0 flex-col gap-8">
         {GUIDE_GROUPS.map((group) => {
           const GroupIcon = group.icon;
           const articles = group.slugs
             .map((slug) => getHelpArticle(slug))
             .filter((article): article is HelpArticle => Boolean(article));
           return (
-            <section key={group.title}>
+            <section key={group.title} className="min-w-0">
               <div className="mb-3 flex items-start gap-3">
                 <div className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
                   <GroupIcon size={18} aria-hidden />
@@ -134,7 +134,7 @@ export function HelpHubView() {
                   </p>
                 </div>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                 {articles.map((article) => (
                   <HelpGuideCard key={article.slug} article={article} />
                 ))}
@@ -179,7 +179,7 @@ export function HelpArticleView({ slug }: { slug: string }) {
   }
 
   return (
-    <article className="mx-auto flex max-w-3xl flex-col gap-6">
+    <article className="mx-auto flex w-full max-w-3xl min-w-0 flex-col gap-6">
       <PageHeader
         title={article.title}
         subtitle={article.description}

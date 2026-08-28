@@ -1373,6 +1373,292 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
     ],
   },
   {
+    id: 'recent-beta-views',
+    title: 'Recently ported beta views',
+    description:
+      'Screens added or substantially changed in the latest Tahti parity work. Use each card’s explanation and Mermaid graph to review what the view does and where it leads.',
+    cases: [
+      {
+        id: 'artist-channel-radio',
+        title: 'Studio Radio management',
+        viewName: 'Studio Channel · Radio',
+        caption:
+          'Manage the channel stream, 24/7 rotation, announcements, pinned announcements, and Tahti Radio submissions.',
+        actions: [
+          'Start, stop, or listen to the channel stream',
+          'Review and reorder the 24/7 rotation',
+          'Create channel announcements and pinned announcements',
+          'Submit up to five tracks to Tahti Radio',
+        ],
+        goesTo: [
+          { label: 'Open channel design', to: '/studio/channel' },
+          { label: 'Open Go Live', to: '/studio/go-live' },
+          { label: 'Open the Sounds library', to: '/studio/archive' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct production equivalent',
+        },
+        new: {
+          image: '/map/nuclear/studio-channel-radio.png',
+          route: '/studio/channel?tab=radio',
+          caption: 'Channel radio controls',
+        },
+      },
+      {
+        id: 'artist-channel-announcements',
+        title: 'Channel announcements',
+        viewName: 'Announcements',
+        caption:
+          'Publish channel updates and manage the smaller set of announcements that should remain pinned.',
+        actions: [
+          'Publish an announcement',
+          'Pin or unpin an announcement',
+          'Remove an outdated pinned announcement',
+        ],
+        goesTo: [
+          {
+            label: 'Return to Radio controls',
+            to: '/studio/channel?tab=radio',
+          },
+          { label: 'Open the public channel', to: '/channel/$slug' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct production equivalent',
+        },
+        new: {
+          image: '/map/nuclear/studio-channel-announcements.png',
+          route: '/studio/channel?tab=announcements',
+          caption: 'Announcements editor',
+        },
+      },
+      {
+        id: 'artist-channel-tahti-radio',
+        title: 'Tahti Radio submissions',
+        viewName: 'Tahti Radio',
+        caption:
+          'Choose individual library tracks for consideration in the shared Tahti Radio rotation and follow their review state.',
+        actions: [
+          'Select up to five tracks from the library',
+          'Add an optional submission note',
+          'Enable or disable channel participation',
+          'Review pending, approved, or rejected results',
+        ],
+        goesTo: [
+          { label: 'Browse Sounds', to: '/studio/archive' },
+          {
+            label: 'Return to Radio controls',
+            to: '/studio/channel?tab=radio',
+          },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct production equivalent',
+        },
+        new: {
+          image: '/map/nuclear/studio-channel-tahti-radio.png',
+          route: '/studio/channel?tab=tahti-radio',
+          caption: 'Tahti Radio submission panel',
+        },
+      },
+      {
+        id: 'artist-governance',
+        title: 'Artist governance',
+        viewName: 'Studio Governance',
+        caption:
+          'Review member-gated motions and participate in the artist governance workflow.',
+        actions: [
+          'Review active motions',
+          'Read discussion and context',
+          'Vote when eligible',
+          'Submit a feature request',
+        ],
+        goesTo: [
+          { label: 'Open Studio home', to: '/studio' },
+          { label: 'Open account settings', to: '/settings/account' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct production equivalent',
+        },
+        new: {
+          image: '/map/nuclear/studio-governance.png',
+          route: '/studio/governance',
+          caption: 'Governance workspace',
+        },
+      },
+      {
+        id: 'artist-events',
+        title: 'Artist events',
+        viewName: 'Studio Events',
+        caption:
+          'Review scheduled events, see venue details, and open the dedicated event creation flow.',
+        actions: [
+          'Browse event cards and thumbnails',
+          'Open event details',
+          'Open a venue from the directory',
+          'Create a new event',
+        ],
+        goesTo: [
+          { label: 'Open the new event page', to: '/studio/events/new' },
+          { label: 'Open the Studio schedule', to: '/studio/schedule' },
+          { label: 'Open venues', to: '/studio/venues' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct production equivalent',
+        },
+        new: {
+          image: '/map/nuclear/studio-events.png',
+          route: '/studio/events',
+          caption: 'Events listing',
+        },
+      },
+      {
+        id: 'artist-event-new',
+        title: 'Create an event',
+        viewName: 'New Event',
+        caption:
+          'Create an event as a dedicated page, with a thumbnail, venue, ticket link, and show metadata.',
+        actions: [
+          'Add event title and description',
+          'Choose or create a venue',
+          'Attach a ticket link',
+          'Save the event',
+        ],
+        goesTo: [
+          { label: 'Return to Events', to: '/studio/events' },
+          { label: 'Open the schedule', to: '/studio/schedule' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct production equivalent',
+        },
+        new: {
+          image: '/map/nuclear/studio-event-new.png',
+          route: '/studio/events/new',
+          caption: 'Dedicated event form',
+        },
+      },
+      {
+        id: 'admin-vendors',
+        title: 'Admin vendors overview',
+        viewName: 'Admin · Vendors',
+        caption:
+          'Review critical and integration vendors, distribution state, and DPA tracking from the admin overview.',
+        actions: [
+          'Review critical vendor status',
+          'Review integration vendors',
+          'Check DPA indicators',
+        ],
+        goesTo: [
+          { label: 'Return to Admin overview', to: '/admin' },
+          { label: 'Open platform status', to: '/admin/status' },
+          { label: 'Open Admin logs', to: '/admin/logs' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct Nuclear-era capture',
+        },
+        new: {
+          image: '/map/nuclear/admin-vendors.png',
+          route: '/admin/vendors',
+          caption: 'Vendor and DPA overview',
+        },
+      },
+      {
+        id: 'admin-disco-widgets',
+        title: 'Admin widget catalog',
+        viewName: 'Admin · Disco Widgets',
+        caption:
+          'Manage the available discovery widgets and their parameters, artwork, placement, and lifecycle.',
+        actions: [
+          'Filter widgets by audience',
+          'Register a widget in a modal',
+          'Edit widget parameters and cover art',
+          'Delete a widget after confirmation',
+        ],
+        goesTo: [
+          { label: 'Return to Admin overview', to: '/admin' },
+          { label: 'Open the listener home', to: '/' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct Nuclear-era capture',
+        },
+        new: {
+          image: '/map/nuclear/admin-disco-widgets.png',
+          route: '/admin/disco-widgets',
+          caption: 'Widget catalog and editor',
+        },
+      },
+      {
+        id: 'admin-status',
+        title: 'Admin platform status',
+        viewName: 'Admin · Status',
+        caption:
+          'Inspect platform health, queue health, cron jobs, and service status from one admin view.',
+        actions: [
+          'Review service health',
+          'Inspect queue health',
+          'Inspect cron jobs',
+          'Check platform version and uptime',
+        ],
+        goesTo: [
+          { label: 'Return to Admin overview', to: '/admin' },
+          { label: 'Open Admin logs', to: '/admin/logs' },
+          { label: 'Open stream management', to: '/admin/streams' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct Nuclear-era capture',
+        },
+        new: {
+          image: '/map/nuclear/admin-status.png',
+          route: '/admin/status',
+          caption: 'Platform and service status',
+        },
+      },
+      {
+        id: 'account-notifications',
+        title: 'Account notifications',
+        viewName: 'Settings · Notifications',
+        caption:
+          'Control notification delivery and profile visibility without leaving Account settings.',
+        actions: [
+          'Toggle money-movement notifications',
+          'Toggle listener-activity and weekly recap notifications',
+          'Control follower, following, listener, and chat visibility',
+          'Save notification preferences',
+        ],
+        goesTo: [
+          { label: 'Open account security', to: '/settings/account' },
+          { label: 'Open artist settings', to: '/settings/artist' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct Nuclear-era capture',
+        },
+        new: {
+          image: '/map/nuclear/settings-notifications.png',
+          route: '/settings/account · Notifications tab',
+          caption: 'Account notification and visibility controls',
+        },
+      },
+    ],
+  },
+  {
     id: 'edge',
     title: 'Edge / gate cases',
     description:

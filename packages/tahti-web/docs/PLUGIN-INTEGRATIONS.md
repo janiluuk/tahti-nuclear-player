@@ -1,0 +1,94 @@
+# Tahti add-on and plugin integration guide
+
+This agent-facing guide explains how to extend the Tahti web client’s add-ons. The UI hosts two
+related kinds of extension:
+
+1. **Nuclear-style runtime plugins** under `src/plugins/`. These own a typed registry or behavior
+   contract and can be tested independently.
+2. **Tahti page add-ons** in `src/content/` and `PluginStorePanel.tsx`. These are user-enabled
+   widgets or integrations whose configuration belongs in Settings → Add-ons.
+
+Do not create a third settings destination for a new add-on. The add-on’s settings must be owned by
+its registry/module and rendered by the existing category host. A provider should be removable
+without breaking unrelated categories.
+
+## Before writing code
+
+1. Read the relevant entry in [`PLUGIN-STORE-PLAN.md`](../PLUGIN-STORE-PLAN.md).
+2. Search the sibling `../tahti` checkout for the production page, API client, route, DTO, and
+   database model. The sibling API is the contract source of truth; this repository is only the
+   frontend half.
+3. Confirm the API counterpart exists before adding a live operation. Record the exact method and
+   path in the worklog. If there is no endpoint, implement a clearly labelled UI-only state or add
+   the API task to the workplan—do not invent a successful mutation.
+4. Decide whether the integration is a runtime provider, a configured page widget, or a deep-link
+   to an existing Tahti flow. Keep those shapes separate.
+
+## Plugin-owned settings
+
+Each plugin should expose its own configuration shape, defaults, labels, help text, and validation.
+The host should ask the plugin for those details and persist through the plugin’s API adapter. Keep
+settings in the plugin boundary:
+
+- use a local/state store for browser-only preferences;
+- use an API client in `src/api/` for server-backed configuration;
+- use `Dialog` or `ConfigurableCard` for forms too large for a catalog tile;
+- show Configure only when a provider has configurable parameters;
+- show configured/unconfigured and save/error feedback explicitly;
+- never duplicate the same provider fields in Settings, Go Live, and a page widget.
+
+For a standalone Nuclear plugin, follow `.agents/skills/writing-plugins/SKILL.md`: create a package
+with `package.json`, `src/index.ts`, a `nuclear` manifest, and a default `NuclearPlugin` export.
+Use `api.Settings` for plugin-owned settings, `api.Http` for network access, and the relevant
+provider registry for behavior. Validate user input before calling the host API.
+
+## API parity checklist
+
+For every feature, verify all of these against `../tahti` before calling it live:
+
+- request method and path;
+- request body/query names and enum values;
+- response DTO shape and nullable fields;
+- authentication and owner/board permissions;
+- optimistic update rollback behavior;
+- mock fixture shape for offline Playwright and component tests;
+- loading, empty, error, and unavailable states.
+
+The API route and shared DTO are authoritative when the production UI and beta UI differ. Add a
+focused API wrapper rather than making components call `fetch` directly. Add registry-invariant
+tests and user-facing coverage for every new configuration flow.
+
+## Add-on types and current state
+
+| Type | Registry/module | Purpose | Current state |
+| --- | --- | --- | --- |
+| Themes | `src/plugins/themes` | App palettes and imported custom themes | Implemented; browser-persisted |
+| Visualizers | `src/plugins/visualizers` | Three.js channel visual scenes | Implemented; ten WebGL presets plus CSS-only Minimal |
+| Audio plugins | `src/plugins/audio-fx` | Pro Editor EQ, compressor, limiter, and filter chain | Registry and preview graph implemented; generic third-party host UI pending |
+| Multicast | `src/plugins/multicast` + `api/broadcast.ts` | YouTube, Twitch, Kick, Facebook, TikTok, Mixcloud Live, Instagram, Custom RTMP | Provider registry and API typing implemented; shared add-target form pending |
+| Export | `src/plugins/export` | DSP/export destinations and source deep links | Metadata registry only; provider submit/status API contract pending |
+| Import / Sources | `src/plugins/import-sources` + `api/sources.ts` | OAuth sources, search sources, and link/tool imports | Shared status contract implemented; per-source adapters pending |
+| Fingerprinting | `src/plugins/fingerprinting` | AcoustID match/check actions | Provider contract and AcoustID adapter implemented; additional providers pending |
+| Radio | `content/radioStations.ts` | Configurable internet-radio stations | Page add-on implemented with local station configuration |
+| Embed | embed add-on registry | SoundCloud, YouTube, and hearthis.at embeds | Implemented; provider configuration and shared playback are present |
+| Discovery | `content/listenerWidgets.ts` | Sandboxed Listen-page widgets | Implemented; catalog/runtime remains Tahti-specific |
+| Channel | Disco widget manager | Public artist/channel widgets | Implemented; admin catalog supports registration/edit/delete |
+
+## Three slices completed in this pass
+
+1. Added this contract, API-parity, settings-ownership, and inventory guide.
+2. Centralized visualizer descriptions and icons in `src/plugins/visualizers/meta.ts`; Channel
+   Design and Add-ons now consume the same metadata.
+3. Added registry coverage for every visualizer metadata entry and the unknown-id fallback.
+
+## Remaining plugin work
+
+- Extract a generic Audio FX chain host UI from `StudioProEditorView`.
+- Share the multicast destination form between Go Live and Settings, keeping provider-specific
+  credentials inside each provider configuration.
+- Design and implement an `ExportProvider` only after `../tahti` exposes submit/status/webhook
+  contracts; current Revelator delivery is not provider-specific.
+- Split Sources into OAuth, search, and link/tool adapter contracts without forcing them into one
+  misleading `start/status/import` interface.
+- Add a real integrations marketplace only when per-user credentials, permissions, and API
+  lifecycle are specified.

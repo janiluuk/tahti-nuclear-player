@@ -1,21 +1,4 @@
-import {
-  AudioLines,
-  CheckIcon,
-  Cloud,
-  Droplets,
-  Flashlight,
-  Grid3x3,
-  LinkIcon,
-  Loader2Icon,
-  SaveIcon,
-  Slash,
-  Sparkles,
-  Spline,
-  Square,
-  Sun,
-  Waves,
-  type LucideIcon,
-} from 'lucide-react';
+import { CheckIcon, LinkIcon, Loader2Icon, SaveIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -55,60 +38,11 @@ import {
   patchChannelGallery,
   type ChannelGalleryMode,
 } from '../api/channel-gallery';
+import { visualizerMetadata } from '../plugins/visualizers';
 import { ChannelControlsWidget } from './ChannelControlsWidget';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { PageLoading } from './PageStates';
 import { Eyebrow } from './tahti/Eyebrow';
-
-const PRESET_META: Record<
-  VisualPreset,
-  { description: string; Icon: LucideIcon }
-> = {
-  MINIMAL: {
-    description: 'No animated background — solid color only.',
-    Icon: Slash,
-  },
-  WATER_RIPPLE: {
-    description: 'Soft ripple distortion synced to audio level.',
-    Icon: Droplets,
-  },
-  WAVEFORM_BARS: {
-    description: 'Classic frequency bars across the bottom.',
-    Icon: AudioLines,
-  },
-  PARTICLE_FIELD: {
-    description: 'Drifting particles that pulse with the beat.',
-    Icon: Sparkles,
-  },
-  AURORA: {
-    description: 'Flowing aurora-style color bands.',
-    Icon: Waves,
-  },
-  REACTIVE_GRID: {
-    description: 'Pulsing grid lines that react to the mix.',
-    Icon: Grid3x3,
-  },
-  CLOUDSCAPE: {
-    description: 'Slow-moving cloud gradients.',
-    Icon: Cloud,
-  },
-  LINE_TANGLE: {
-    description: 'Tangled line art that reacts to levels.',
-    Icon: Spline,
-  },
-  BACKDROP_BOX: {
-    description: 'Boxed grid backdrop, subtle motion.',
-    Icon: Square,
-  },
-  LENS_FLARES: {
-    description: 'Soft lens-flare glints over the artwork.',
-    Icon: Sun,
-  },
-  IES_SPOTLIGHT: {
-    description: 'Spotlight-style beam sweep.',
-    Icon: Flashlight,
-  },
-};
 
 const TAB_IDS = ['visualizer', 'colors', 'header'] as const;
 type TabId = (typeof TAB_IDS)[number];
@@ -475,7 +409,7 @@ export function ChannelDesigner({
                             {VISUAL_PRESETS.filter(
                               (preset) => preset !== 'MINIMAL',
                             ).map((preset) => {
-                              const meta = PRESET_META[preset];
+                              const meta = visualizerMetadata(preset);
                               const active = visual.visualPreset === preset;
                               return (
                                 <PluginItem

@@ -1,5 +1,6 @@
-import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+
+import { SidebarNavigation, SidebarNavigationItem } from '@nuclearplayer/ui';
 
 export type SectionSidebarItem = {
   id: string;
@@ -17,26 +18,20 @@ export function SectionSidebar({
   'aria-label': string;
 }) {
   return (
-    <nav
-      aria-label={ariaLabel}
-      className="flex shrink-0 gap-1 overflow-x-auto sm:w-44 sm:flex-col sm:overflow-visible"
-    >
-      {items.map((item) => (
-        <Link
-          key={item.id}
-          to={item.to}
-          activeOptions={{ exact: true }}
-          className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap ${
-            item.active
-              ? 'bg-primary text-primary-foreground'
-              : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
-          }`}
-          aria-current={item.active ? 'page' : undefined}
-        >
-          {item.icon}
-          {item.label}
-        </Link>
-      ))}
+    <nav aria-label={ariaLabel} className="shrink-0 sm:w-44">
+      <SidebarNavigation>
+        <div className="flex gap-1 overflow-x-auto sm:flex-col sm:overflow-visible">
+          {items.map((item) => (
+            <SidebarNavigationItem
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              to={item.to}
+              isSelected={item.active}
+            />
+          ))}
+        </div>
+      </SidebarNavigation>
     </nav>
   );
 }

@@ -128,6 +128,11 @@ import {
   type MulticastProviderId,
 } from '../../plugins/multicast';
 import { useThemeStore } from '../../plugins/themes';
+import {
+  AMBIENT_PRESETS,
+  useAmbientStore,
+  type AmbientPreset,
+} from '../../stores/ambientStore';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelShareStore } from '../../stores/channelShareStore';
@@ -145,6 +150,24 @@ const PRONOUN_OPTIONS: SelectOption[] = [
   { id: 'he/they', label: 'he/they' },
   { id: 'other', label: 'Other' },
 ];
+
+function detectCountryCode(): string | null {
+  if (typeof navigator === 'undefined') {
+    return null;
+  }
+  const locales = [navigator.language, ...(navigator.languages ?? [])];
+  for (const locale of locales) {
+    try {
+      const region = new Intl.Locale(locale).region;
+      if (region && COUNTRIES.some((country) => country.code === region)) {
+        return region;
+      }
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
 const PRONOUN_PRESET_IDS = new Set(
   PRONOUN_OPTIONS.map((o) => o.id).filter((id) => id !== 'other'),
 );
@@ -694,7 +717,10 @@ function ArtistPanel() {
       fetchChannelMembers(),
       fetchSocialConnections(),
     ]).then(([p, m, s]) => {
-      setProfile(p.data);
+      const detectedCountry = p.data.countryCode ? null : detectCountryCode();
+      setProfile(
+        detectedCountry ? { ...p.data, countryCode: detectedCountry } : p.data,
+      );
       setMembers(m.data);
       setSocial(s.data);
     });
@@ -785,14 +811,16 @@ function ArtistPanel() {
                   ))}
                 </select>
               </label>
-              <Input
-                label="City / location"
-                value={profile.defaultLocation ?? ''}
-                onChange={(e) =>
-                  setProfile({ ...profile, defaultLocation: e.target.value })
-                }
-                description="Optional — shown on your public profile"
-              />
+              {profile.countryCode && (
+                <Input
+                  label="City / location"
+                  value={profile.defaultLocation ?? ''}
+                  onChange={(e) =>
+                    setProfile({ ...profile, defaultLocation: e.target.value })
+                  }
+                  description="Optional — shown on your public profile"
+                />
+              )}
               <Input
                 label="Tip jar URL"
                 value={profile.tipJarUrl ?? ''}
@@ -1030,11 +1058,6 @@ function ArtistPanel() {
           label: tabLabel(ImageIcon, 'Gallery'),
           content: <StudioBrandingPanel section="gallery" />,
         },
-        {
-          id: 'presskit',
-          label: tabLabel(ImageIcon, 'Press kit'),
-          content: <StudioBrandingPanel section="press-kit" />,
-        },
       ]}
     />
   );
@@ -1045,6 +1068,9 @@ function ChannelPanel() {
   const closeSettings = useSettingsModalStore((s) => s.close);
   const channel = user?.channel;
   const [discovery, setDiscovery] = useState<DiscoveryPrefs | null>(null);
+  const [channelProfile, setChannelProfile] = useState<ProfileFields | null>(
+    null,
+  );
   const [slug, setSlug] = useState(channel?.slug ?? '');
   const [domain, setDomain] = useState('');
   const [note, setNote] = useState<string | null>(null);
@@ -1055,6 +1081,7 @@ function ChannelPanel() {
 
   useEffect(() => {
     void fetchDiscoveryPrefs().then((r) => setDiscovery(r.data));
+    void fetchMeProfile().then((r) => setChannelProfile(r.data));
     setSlug(channel?.slug ?? user?.username ?? '');
   }, [channel?.slug, user?.username]);
 
@@ -1195,6 +1222,34 @@ function ChannelPanel() {
                   void patchDiscoveryPrefs({ announceReleases: v });
                 }}
               />
+              {channelProfile && (
+                <SettingsToggle
+                  label="Enable live chat on my channel"
+                  description="Allow listeners to chat while you are broadcasting."
+                  value={channelProfile.chatEnabled}
+                  onChange={(value) => {
+                    const previous = channelProfile.chatEnabled;
+                    setChannelProfile({
+                      ...channelProfile,
+                      chatEnabled: value,
+                    });
+                    void patchMeProfile({ chatEnabled: value }).then(
+                      (result) => {
+                        if (!result.ok) {
+                          setChannelProfile({
+                            ...channelProfile,
+                            chatEnabled: previous,
+                          });
+                          toast.error(result.error);
+                          return;
+                        }
+                        setChannelProfile(result.data);
+                        toast.success('Channel chat setting saved.');
+                      },
+                    );
+                  }}
+                />
+              )}
             </div>
           ),
         },
@@ -1926,8 +1981,7 @@ function NotificationsVisibilityPanel() {
       | 'showJoinDate'
       | 'showFollowers'
       | 'showFollowing'
-      | 'showDailyListeners'
-      | 'chatEnabled',
+      | 'showDailyListeners',
     value: boolean,
   ) => {
     if (!profile) {
@@ -2007,11 +2061,6 @@ function NotificationsVisibilityPanel() {
             onChange={(value) => updateVisibility('showDailyListeners', value)}
           />
           <SettingsToggle
-            label="Enable live chat on my channel"
-            value={profile.chatEnabled}
-            onChange={(value) => updateVisibility('chatEnabled', value)}
-          />
-          <SettingsToggle
             label="Show my connections on my artist profile"
             value={profile.socialLinks?.showConnections !== 'false'}
             onChange={updateConnectionsVisibility}
@@ -2065,6 +2114,7 @@ function ThemesPanel() {
           Choose a palette and the light, dark, or time-of-day appearance that
           suits you.
         </SettingsHint>
+        <AmbientBackgroundSettings />
         <div className="flex items-center gap-3">
           {THEME_MODE_OPTIONS.map((mode) => (
             <Button
@@ -2239,5 +2289,56 @@ function ThemesPanel() {
         ]}
       />
     </div>
+  );
+}
+
+const AMBIENT_PRESET_LABELS: Record<AmbientPreset, string> = {
+  AURORA: 'Aurora',
+  PARTICLE_FIELD: 'Particles',
+  REACTIVE_GRID: 'Reactive grid',
+};
+
+function AmbientBackgroundSettings() {
+  const enabled = useAmbientStore((state) => state.enabled);
+  const preset = useAmbientStore((state) => state.preset);
+  const setEnabled = useAmbientStore((state) => state.setEnabled);
+  const setPreset = useAmbientStore((state) => state.setPreset);
+
+  return (
+    <section className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-lg border p-4">
+      <div>
+        <h2 className="font-display text-lg font-bold tracking-tight">
+          Ambient background
+        </h2>
+        <p className="text-foreground-secondary mt-1 text-sm">
+          A quiet Three.js canvas inspired by the Tahti public site. It reacts
+          gently to playback and stays behind the app content.
+        </p>
+      </div>
+      <SettingsToggle
+        label="Show animated background"
+        description="Turn this off if you prefer a still background or need to reduce GPU use."
+        value={enabled}
+        onChange={setEnabled}
+      />
+      {enabled ? (
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label="Ambient background preset"
+        >
+          {AMBIENT_PRESETS.map((option) => (
+            <Button
+              key={option}
+              size="sm"
+              variant={preset === option ? undefined : 'text'}
+              onClick={() => setPreset(option)}
+            >
+              {AMBIENT_PRESET_LABELS[option]}
+            </Button>
+          ))}
+        </div>
+      ) : null}
+    </section>
   );
 }

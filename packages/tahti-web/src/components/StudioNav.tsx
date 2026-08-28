@@ -1,6 +1,6 @@
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
-  FileAudioIcon,
+  CircleHelpIcon,
   FolderOpenIcon,
   HeartIcon,
   LandmarkIcon,
@@ -17,7 +17,6 @@ import {
   TrendingUpIcon,
   UploadIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
@@ -77,12 +76,7 @@ const SUBMENUS = {
     },
   ],
   '/library': [
-    { to: '/library', label: 'Overview', icon: <LibraryIcon size={16} /> },
-    {
-      to: '/studio/archive',
-      label: 'Sounds',
-      icon: <FolderOpenIcon size={16} />,
-    },
+    { to: '/library', label: 'Library', icon: <LibraryIcon size={16} /> },
     {
       to: '/studio/releases',
       label: 'Releases',
@@ -92,16 +86,6 @@ const SUBMENUS = {
       to: '/library/smartlinks',
       label: 'Smartlinks',
       icon: <Link2Icon size={16} />,
-    },
-    {
-      to: '/studio/collections',
-      label: 'Collections',
-      icon: <ListMusicIcon size={16} />,
-    },
-    {
-      to: '/studio/recordings',
-      label: 'Recordings',
-      icon: <FileAudioIcon size={16} />,
     },
     { to: '/studio/upload', label: 'Upload', icon: <UploadIcon size={16} /> },
     {
@@ -186,9 +170,9 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/library',
     '/studio/archive',
     '/studio/releases',
+    '/library/collections',
+    '/library/recordings',
     '/library/smartlinks',
-    '/studio/collections',
-    '/studio/recordings',
     '/studio/upload',
     '/studio/editor',
     '/studio/stash',
@@ -238,20 +222,12 @@ export const StudioNav = ({ current }: { current?: string }) => (
 function StudioNavigation({ current }: { current?: string }) {
   const navigate = useNavigate();
   const routeSection = PRIMARY.find((item) => isActive(current, item.to));
-  const [selectedSection, setSelectedSection] = useState(
-    routeSection?.to ?? '/studio',
-  );
-
-  useEffect(() => {
-    if (routeSection) {
-      setSelectedSection(routeSection.to);
-    }
-  }, [routeSection]);
+  const selectedSection = routeSection?.to ?? '/studio';
 
   const submenu = SUBMENUS[selectedSection as keyof typeof SUBMENUS] ?? [];
 
   return (
-    <>
+    <div className="flex min-w-0 flex-col gap-1" data-studio-navigation>
       <div
         aria-label="Studio sections"
         className="border-border flex w-fit max-w-full gap-1 overflow-x-auto rounded-lg border p-1"
@@ -272,7 +248,6 @@ function StudioNavigation({ current }: { current?: string }) {
                   : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
               }`}
               onClick={() => {
-                setSelectedSection(item.to);
                 void navigate({ to: item.to });
               }}
             >
@@ -296,6 +271,13 @@ function StudioNavigation({ current }: { current?: string }) {
           />
         </div>
       )}
-    </>
+      <Link
+        to="/help"
+        className="text-foreground-secondary hover:bg-background-secondary hover:text-foreground mt-1 flex w-fit max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium"
+      >
+        <CircleHelpIcon size={16} aria-hidden />
+        <span className="truncate">Help center</span>
+      </Link>
+    </div>
   );
 }

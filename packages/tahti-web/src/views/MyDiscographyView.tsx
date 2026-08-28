@@ -33,7 +33,6 @@ import {
 } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
-import { MyCollectionsView } from './MyCollectionsView';
 
 type VisibilityFilter = 'all' | 'pinned' | 'private' | 'processing' | 'public';
 type SortKey = 'newest' | 'oldest' | 'title-asc' | 'title-desc';
@@ -143,7 +142,7 @@ export const MyDiscographyView: FC = () => {
   const isCurrentItem = (item: StudioArchiveItem) =>
     currentId === playableId(item);
   const isPlayingItem = (item: StudioArchiveItem) =>
-    isCurrentItem(item) && (status === 'playing' || status === 'loading');
+    isCurrentItem(item) && status === 'playing';
 
   const playItem = async (item: StudioArchiveItem) => {
     if (isCurrentItem(item)) {
@@ -291,7 +290,7 @@ export const MyDiscographyView: FC = () => {
                   <li
                     key={item.id}
                     className={`hover:bg-primary/5 flex items-center gap-3 border-l-4 p-3 transition-colors ${
-                      isCurrentItem(item)
+                      isPlayingItem(item)
                         ? 'border-l-primary bg-primary/10'
                         : isPinned(item)
                           ? 'border-l-primary bg-primary/10'
@@ -317,7 +316,7 @@ export const MyDiscographyView: FC = () => {
                       <Link
                         to="/studio/archive/$id"
                         params={{ id: item.id }}
-                        className={`block truncate font-semibold hover:underline ${isCurrentItem(item) ? 'text-primary' : ''}`}
+                        className={`block truncate font-semibold hover:underline ${isPlayingItem(item) ? 'text-primary' : ''}`}
                       >
                         {item.title}
                       </Link>
@@ -372,7 +371,7 @@ export const MyDiscographyView: FC = () => {
                     </Button>
                     <Button
                       size="icon-sm"
-                      variant={isCurrentItem(item) ? 'default' : undefined}
+                      variant={isPlayingItem(item) ? 'default' : undefined}
                       disabled={loadingId === item.id}
                       aria-label={
                         isPlayingItem(item)
@@ -415,8 +414,6 @@ export const MyDiscographyView: FC = () => {
               </ul>
             )}
           </section>
-
-          <MyCollectionsView embedded hasOtherContent={items.length > 0} />
         </>
       )}
 

@@ -2,6 +2,8 @@
 
 ## Shipped
 
+- [x] **Plugin integration guide and metadata parity** — documented plugin authoring/API checks, add-on types and current state; centralized visualizer metadata and added registry drift coverage ([docs/PLUGIN-INTEGRATIONS.md](docs/PLUGIN-INTEGRATIONS.md))
+- [x] **Tahti Map refresh** — added privileged screenshots for recently ported Studio/Admin/Settings views and documented each screen’s actions and destinations with per-view Mermaid navigation diagrams ([UI-REDESIGN-WORKLOG.md](UI-REDESIGN-WORKLOG.md))
 - [x] **Beta feature-port consolidation** — Radio announcements/pinned announcements, Tahti Radio submissions, Clips, archive/Sounds parity, HEARTHIS shared playback, rotation drag-and-drop/capacity handling, notification parity, track statistics modal, and the latest admin/studio audit documentation ([UI-REDESIGN-WORKLOG.md](UI-REDESIGN-WORKLOG.md))
 - [x] Sparse sidebar + Studio/Sources/Library/Channel tabs
 - [x] Sources **CardGrid** big service icon tiles + detail pane
@@ -50,8 +52,16 @@ This backlog comes from the Storybook comparison audit. Prefer the original Nucl
 
 - [ ] Update stale Storybook stories after the navigation redesign: remove the deleted `AppTopNav` `minimal` variant stories and replace the removed Studio tools-panel story with the six-section Studio navigation states.
 - [ ] Add Storybook coverage for `SectionSidebar`, including active, inactive, no-current-route, deep-route, mobile overflow, and all Studio/Admin variants.
-- [ ] Decide whether `SectionSidebar` should wrap Nuclear's existing `SidebarNavigation` and `SidebarNavigationItem` rather than maintaining duplicate sidebar markup; use the Nuclear components where practical.
+- [x] `SectionSidebar` now wraps Nuclear's existing `SidebarNavigation` and `SidebarNavigationItem`; explicit route selection is retained for beta deep/query routes.
 - [ ] Normalize remaining custom page headers against `PageHeader` / `StudioPageHeader`: Collection, Track detail, Studio home, Studio archive detail, More/map, and any later raw `<h1>` findings.
+
+### Plugin integration follow-up
+
+- [ ] Extract a generic Audio FX chain host UI from `StudioProEditorView` so third-party audio plugins can own their controls.
+- [ ] Share the multicast destination form between Go Live and Settings, keeping provider-specific credentials inside each provider configuration.
+- [ ] Define and implement an `ExportProvider` only after `../tahti` exposes submit/status/webhook contracts; the current registry is metadata/deep-link only.
+- [ ] Split Sources into OAuth, search, and link/tool adapter contracts and route `SourcesView` through them without losing provider-specific behavior.
+- [ ] Define the credential/permission lifecycle for a real integrations marketplace before implementing it.
 
 ### Medium priority
 

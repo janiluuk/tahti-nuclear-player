@@ -48,22 +48,24 @@ body,
     row-gap: 0;
   }
 
-  .studio-page-layout > [data-studio-section-tabs] {
+  .studio-page-layout > [data-studio-navigation] {
     grid-column: 1 / -1;
     grid-row: 1;
+    position: relative;
+    padding-bottom: 0.5rem;
   }
 
-  .studio-page-layout > [data-studio-section-menu] {
+  .studio-page-layout > [data-studio-navigation] > [data-studio-section-menu] {
     position: absolute;
-    top: 4.5rem;
+    top: 2.75rem;
     left: 0;
     width: 11rem;
   }
 
-  .studio-page-layout
-    > :not([data-studio-section-tabs]):not([data-studio-section-menu]) {
+  .studio-page-layout > :not([data-studio-navigation]) {
     grid-column: 2;
     min-width: 0;
+    padding-inline-start: 0.5rem;
   }
 
   .admin-moderation-layout,

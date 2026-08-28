@@ -36,6 +36,7 @@ import { usePlayerStore } from '../stores/playerStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { useTourStore } from '../stores/tourStore';
 import { hasSeenOnboarding } from '../views/OnboardingView';
+import { AmbientBackground } from './AmbientBackground';
 import { AppTopNav } from './AppTopNav';
 import { AudioEngine } from './AudioEngine';
 import { AuthDialog } from './AuthDialog';
@@ -293,6 +294,7 @@ export function AppShell() {
         showMenuButton={isMobile && !isArtistPage}
         onOpenMenu={() => setMobileNavOpen(true)}
       />
+      <AmbientBackground />
       <StickyNotificationBanner />
 
       <AudioEngine />

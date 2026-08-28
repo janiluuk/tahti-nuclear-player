@@ -77,7 +77,7 @@ export const useAuthStore = create<AuthState>()(
         const refreshVersion = sessionMutationVersion;
         set({ loading: true, error: null });
         try {
-          const { data } = await fetchAuthMe();
+          const { data, meta } = await fetchAuthMe();
           if (refreshVersion !== sessionMutationVersion) {
             set({ loading: false, hydrated: true });
             return;
@@ -92,6 +92,10 @@ export const useAuthStore = create<AuthState>()(
             setMockSessionUser(get().user);
             set({ loading: false, hydrated: true });
             await afterUserChange(get().user);
+            return;
+          }
+          if (meta.reason && get().user) {
+            set({ loading: false, hydrated: true });
             return;
           }
           set({ user: null, loading: false, hydrated: true });

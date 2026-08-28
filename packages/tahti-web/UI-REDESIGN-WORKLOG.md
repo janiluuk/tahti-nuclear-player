@@ -1,5 +1,59 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Three.js ambient background
+
+**Completed:** Added a persistent, low-intensity Three.js ambient canvas based on the sibling Tahti public-site background approach. Settings → Themes now provides Aurora, Particles, and Reactive grid presets plus a persistent off switch; the canvas uses the shared player analyser for gentle playback response and stays pointer-inert behind the app.
+
+## 2026-08-28 — Library overview tabs
+
+**Completed:** Reworked the Library overview into a Library page with All sounds as the default tab, Collections as the second tab, and Recordings as the third tab. Removed the duplicate Sounds, Collections, and Recordings entries from the contextual Library menu, removed the embedded collections list from All sounds, and kept existing deep routes available through the new tabs.
+
+## 2026-08-28 — Library playback state
+
+**Completed:** Library sound rows now highlight only the track that is actively playing. Paused or loading tracks keep the normal play button treatment, while pinned-row styling remains visible independently.
+
+## 2026-08-28 — Stats plays layout
+
+**Completed:** Kept the Plays & listeners tab inside its own grid container so the charts cannot enter the Studio sidebar column. The listener map remains first and the Plays over time chart now sits below it at full content width.
+
+## 2026-08-28 — Stable Studio navigation and dashboard status
+
+**Completed:** Wrapped the Studio top navigation, contextual menu, and Help center link in one stable grid item so changing sections cannot create an extra layout row or move the navigation vertically. Studio content now receives a consistent inset on desktop while retaining the responsive mobile flow. The Studio dashboard now shows clear account-role, membership, and channel-state badges beside the greeting.
+
+## 2026-08-28 — Preserve sessions through temporary API failures
+
+**Completed:** Auth refresh no longer clears the persisted user when `/api/auth/me` temporarily fails due to a network or server error. A genuine unauthorised response still signs the user out, while transient failures keep the current session visible until the next successful refresh. The API already issues a 30-day session cookie; extending that server expiry requires the sibling API configuration.
+
+## 2026-08-28 — Channel chat setting placement
+
+**Completed:** Moved “Enable live chat on my channel” from Account → Notifications & visibility to Settings → Channel → Discovery, alongside the other public channel discovery controls. It still uses the same profile API field with optimistic update rollback and save feedback.
+
+## 2026-08-28 — Conditional artist location and country suggestion
+
+**Completed:** Artist Identity now shows City / location only when a country is selected. When an existing profile has no country, the form makes a best-effort suggestion from the browser’s locale region using the supported country list; it remains editable and is saved only with the normal identity save action.
+
+## 2026-08-28 — Artist Press kit navigation consolidation
+
+**Completed:** Removed the duplicate top-level Press kit tab from Settings → Artist. Press kit editing remains available from the Branding panel’s own Branding / Gallery / Press kit navigation, keeping the Artist settings tabs focused and avoiding two entry points to the same content.
+
+## 2026-08-28 — Conditional custom channel genre
+
+**Completed:** The Channel & design genre picker now keeps the “Add a genre” field hidden for the standard genre choices. It appears only after `Other` is selected, while existing custom genre chips remain visible and removable. Added component coverage for both states.
+
+## 2026-08-28 — Studio Help Center entry and contained help layout
+
+**Completed:** Added a persistent Help center link below the contextual Studio submenu, so artists can reach help without leaving the Studio navigation model. The Help hub and article layout now explicitly allow shrinking inside the app content pane, with full-width bounded framing, min-width guards on sections/cards, and responsive grids that do not push the container wider.
+
+## 2026-08-28 — Tahti Map screenshots and navigation atlas refresh
+
+**Completed:** Refreshed the Map capture set with admin-privileged/mock-authenticated screenshots for the newly touched Studio Radio, announcements, Tahti Radio, governance, events, Admin Vendors, Admin Disco Widgets, Admin Status, and Account Notifications views. Added the missing screenshot IDs to `capture-map-screens.mjs` so the set can be reproduced with `MAP_SHOT_IDS`.
+
+**Completed:** Added a “Recently ported beta views” section to the Tahti Map atlas. Each view now has a plain-language explanation, verified in-screen actions, verified destinations, and the same zoomable Mermaid navigation diagram used by the other map cases. Production-only panes are marked explicitly instead of showing invented screenshots.
+
+## 2026-08-28 — Section sidebar uses Nuclear primitives
+
+**Completed:** Replaced the duplicated Studio/Admin section-sidebar markup with Nuclear’s shared `SidebarNavigation` and `SidebarNavigationItem` components. The wrapper retains the beta shell’s responsive horizontal-to-vertical layout and explicit route selection, while the shared item now supports both router-derived and caller-provided active state so deep and query routes keep one stable highlighted item.
+
 ## 2026-08-28 — Beta feature-port and UI audit consolidation
 
 **Completed:** Consolidated the latest beta work from the sibling Tahti application and the Storybook/Nuclear UI audit. Studio and Admin navigation now expose the ported artist/admin surfaces through stable section sidebars and top-level tabs, including governance, vendors, Disco Widgets, announcements, pinned announcements, Radio, Tahti Radio submissions, moderation, logs, and account/settings parity. The audit screenshots and navigation notes remain part of this worklog so each view can be reviewed against the shared layout.

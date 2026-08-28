@@ -15,6 +15,7 @@ type Props = {
  * either an unpicked preset or a freshly-typed one. */
 export function GenrePicker({ value, onChange }: Props) {
   const atLimit = value.length >= MAX_GENRES;
+  const canAddCustomGenre = value.includes('Other') && !atLimit;
   const extras = value.filter(
     (g) => !PRESET_GENRES.includes(g as (typeof PRESET_GENRES)[number]),
   );
@@ -69,7 +70,7 @@ export function GenrePicker({ value, onChange }: Props) {
           );
         })}
       </div>
-      {!atLimit && (
+      {canAddCustomGenre && (
         <CreatableCombobox
           label="Add a genre"
           placeholder="Search or type to add a genre…"

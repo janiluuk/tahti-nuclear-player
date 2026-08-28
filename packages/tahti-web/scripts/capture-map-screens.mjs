@@ -51,6 +51,19 @@ const shots = [
   { id: 'stats', path: '/studio/stats' },
   { id: 'stats-detail', path: '/studio/insights/archive/arch-mock-1' },
   { id: 'channel-design', path: '/studio/channel' },
+  { id: 'studio-channel-radio', path: '/studio/channel?tab=radio' },
+  {
+    id: 'studio-channel-announcements',
+    path: '/studio/channel?tab=announcements',
+  },
+  { id: 'studio-channel-tahti-radio', path: '/studio/channel?tab=tahti-radio' },
+  { id: 'studio-governance', path: '/studio/governance' },
+  { id: 'studio-events', path: '/studio/events' },
+  { id: 'studio-event-new', path: '/studio/events/new' },
+  { id: 'admin-vendors', path: '/admin/vendors' },
+  { id: 'admin-disco-widgets', path: '/admin/disco-widgets' },
+  { id: 'admin-status', path: '/admin/status' },
+  { id: 'settings-account', path: '/settings/account' },
   { id: 'setup-channel-gated', path: '/studio/channel?tab=setup' },
   { id: 'updates', path: '/studio/updates' },
   { id: 'revenue', path: '/studio/revenue' },
@@ -185,6 +198,10 @@ for (const s of selectedShots) {
       await page
         .getByRole('region', { name: 'Fan subscription summary' })
         .waitFor();
+    }
+    if (s.id === 'settings-account') {
+      await page.getByRole('tab', { name: 'Notifications' }).click();
+      await page.getByRole('heading', { name: /notifications/i }).waitFor();
     }
     await page.waitForTimeout(s.wait ?? 900);
     // Hide cookie/noise if any; capture main viewport

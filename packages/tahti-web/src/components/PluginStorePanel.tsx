@@ -56,7 +56,7 @@ import {
   type MulticastProviderId,
 } from '../plugins/multicast';
 import { useThemeStore } from '../plugins/themes';
-import { visualizerPreset } from '../plugins/visualizers';
+import { visualizerMetadata } from '../plugins/visualizers';
 import { useAuthStore } from '../stores/authStore';
 import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -65,15 +65,8 @@ import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
 import { PageLoading } from './PageStates';
 
-// MINIMAL has no Three.js scene (see plugins/visualizers) so it isn't in
-// that registry — its description lives only here.
-const MINIMAL_VISUALIZER_DESCRIPTION =
-  'A quiet baseline — subtle motion, no distraction.';
-
 function visualizerDescription(id: string): string {
-  return id === 'MINIMAL'
-    ? MINIMAL_VISUALIZER_DESCRIPTION
-    : visualizerPreset(id).description;
+  return visualizerMetadata(id).description;
 }
 
 const IMPORT_SOURCE_KINDS = new Set(['oauth', 'search', 'tool']);

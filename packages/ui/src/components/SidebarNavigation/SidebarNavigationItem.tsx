@@ -46,32 +46,36 @@ export const SidebarNavigationItem: FC<SidebarNavigationItemProps> = ({
 
   return (
     <MaybeNavLink to={to} isSelected={isSelected}>
-      {(active) => (
-        <Tooltip content={label} side="right" disabled={!isCompact}>
-          <div
-            role={onClick ? 'button' : undefined}
-            onClick={onClick}
-            data-testid="sidebar-navigation-item"
-            className={cn(
-              'flex w-full items-center overflow-hidden rounded-md border-(length:--border-width)',
-              {
-                'cursor-pointer': onClick,
-                'bg-primary text-primary-foreground border-border font-bold':
-                  active,
-                'hover:bg-background-secondary border-transparent': !active,
-              },
-            )}
-          >
-            <div className="flex size-8 shrink-0 items-center justify-center">
-              {icon}
+      {(routeActive) => {
+        const active = isSelected ?? routeActive;
+
+        return (
+          <Tooltip content={label} side="right" disabled={!isCompact}>
+            <div
+              role={onClick ? 'button' : undefined}
+              onClick={onClick}
+              data-testid="sidebar-navigation-item"
+              className={cn(
+                'flex w-full items-center overflow-hidden rounded-md border-(length:--border-width)',
+                {
+                  'cursor-pointer': onClick,
+                  'bg-primary text-primary-foreground border-border font-bold':
+                    active,
+                  'hover:bg-background-secondary border-transparent': !active,
+                },
+              )}
+            >
+              <div className="flex size-8 shrink-0 items-center justify-center">
+                {icon}
+              </div>
+              {!isCompact && (
+                <span className="text-sm whitespace-nowrap">{label}</span>
+              )}
+              {isCompact && <span className="sr-only">{label}</span>}
             </div>
-            {!isCompact && (
-              <span className="text-sm whitespace-nowrap">{label}</span>
-            )}
-            {isCompact && <span className="sr-only">{label}</span>}
-          </div>
-        </Tooltip>
-      )}
+          </Tooltip>
+        );
+      }}
     </MaybeNavLink>
   );
 };

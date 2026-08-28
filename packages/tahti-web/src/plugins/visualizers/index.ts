@@ -11,6 +11,8 @@ import { waveformBarsPreset } from './presets/waveformBars';
 import type { VisualizerPreset } from './types';
 
 export type { PresetScene, VisualizerPreset, VisualizerScheme } from './types';
+export { VISUALIZER_METADATA, visualizerMetadata } from './meta';
+export type { VisualizerMetadata } from './meta';
 
 /** Every WebGL-backed preset. `MINIMAL` (see `api/channel-design.ts`'s
  * `VISUAL_PRESETS`) isn't here — it's a CSS-only fallback with no Three.js

@@ -303,7 +303,19 @@ export const StudioStatsView: FC = () => {
           })}
         </section>
 
-        <div className={activeTab === 'plays' ? 'contents' : 'hidden'}>
+        <div className={activeTab === 'plays' ? 'grid gap-6' : 'hidden'}>
+          <StudioPanel title="Listener map">
+            <div className="mb-4 flex flex-wrap justify-between gap-2">
+              <p className="text-foreground-secondary text-sm">
+                Anonymized countries from channel listening and downloads.
+              </p>
+              <span className="text-foreground-secondary text-xs tabular-nums">
+                Peak day: {live.peakDailyListeners.toLocaleString()} listeners
+              </span>
+            </div>
+            <ListenerWorldMap data={listenerGeo} loading={loading} />
+          </StudioPanel>
+
           <StudioPanel title="Plays over time">
             <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
               <div>
@@ -348,18 +360,6 @@ export const StudioStatsView: FC = () => {
                 </span>
               </div>
             ) : null}
-          </StudioPanel>
-
-          <StudioPanel title="Listener map">
-            <div className="mb-4 flex flex-wrap justify-between gap-2">
-              <p className="text-foreground-secondary text-sm">
-                Anonymized countries from channel listening and downloads.
-              </p>
-              <span className="text-foreground-secondary text-xs tabular-nums">
-                Peak day: {live.peakDailyListeners.toLocaleString()} listeners
-              </span>
-            </div>
-            <ListenerWorldMap data={listenerGeo} loading={loading} />
           </StudioPanel>
         </div>
 

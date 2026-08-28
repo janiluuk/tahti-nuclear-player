@@ -10,7 +10,7 @@ import {
   type StorageUsage,
 } from '../api/studio-extras';
 import { StudioNav } from '../components/StudioNav';
-import { StudioPanel } from '../components/StudioPanel';
+import { StudioPageHeader, StudioPanel } from '../components/StudioPanel';
 import { FavoritesView } from './FavoritesView';
 import { HistoryView } from './HistoryView';
 import { LibrarySmartLinksView } from './LibrarySmartLinksView';
@@ -39,21 +39,69 @@ const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
 };
 
 export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
+  const overviewTab =
+    tab === 'discography' || tab === 'collections' || tab === 'recordings'
+      ? tab
+      : null;
+
   return (
     <div className="studio-page-layout flex w-full flex-col gap-6">
       {tab !== 'history' && tab !== 'favorites' ? (
         <StudioNav current={LIBRARY_ROUTE_BY_TAB[tab]} />
       ) : null}
       <div className="min-w-0 flex-1">
-        {tab === 'discography' && (
+        {overviewTab ? (
           <>
-            <LibraryStats />
-            <MyDiscographyView />
+            <StudioPageHeader
+              title="Library"
+              subtitle="Your sounds, collections, and recordings."
+            />
+            <nav
+              aria-label="Library sections"
+              className="border-border mt-4 flex w-full gap-1 overflow-x-auto border-b"
+              role="tablist"
+            >
+              {(
+                [
+                  ['discography', 'All sounds', '/library'],
+                  ['collections', 'Collections', '/library/collections'],
+                  ['recordings', 'Recordings', '/library/recordings'],
+                ] as const
+              ).map(([id, label, to]) => (
+                <Link
+                  key={id}
+                  to={to}
+                  role="tab"
+                  aria-selected={overviewTab === id}
+                  className={`border-b-2 px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
+                    overviewTab === id
+                      ? 'border-primary text-foreground'
+                      : 'text-foreground-secondary hover:text-foreground border-transparent'
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+            {tab === 'discography' && (
+              <div className="mt-6 flex flex-col gap-6">
+                <LibraryStats />
+                <MyDiscographyView />
+              </div>
+            )}
+            {tab === 'collections' && (
+              <div className="mt-6">
+                <MyCollectionsView embedded />
+              </div>
+            )}
+            {tab === 'recordings' && (
+              <div className="mt-6">
+                <StudioRecordingsView embedded />
+              </div>
+            )}
           </>
-        )}
-        {tab === 'collections' && <MyCollectionsView />}
+        ) : null}
         {tab === 'releases' && <StudioReleasesView embedded />}
-        {tab === 'recordings' && <StudioRecordingsView embedded />}
         {tab === 'favorites' && <FavoritesView />}
         {tab === 'history' && <HistoryView />}
         {tab === 'smartlinks' && <LibrarySmartLinksView />}

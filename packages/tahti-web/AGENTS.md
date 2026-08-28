@@ -118,6 +118,11 @@ extracting each into a standalone package would take. When extracting or authori
 - See [`docs/PLUGINS.md`](docs/PLUGINS.md) for the concrete plugin contract (interface shape,
   directory layout, registration) once a plugin has been extracted against it.
 
+The add-on inventory, API-counterpart checklist, settings ownership rules, and current integration
+state are documented in [`docs/PLUGIN-INTEGRATIONS.md`](docs/PLUGIN-INTEGRATIONS.md). Read it before
+adding a provider or configuration dialog; it distinguishes standalone Nuclear runtime plugins
+from Tahti page add-ons and records which sibling `../tahti` API contract each one needs.
+
 ## The goal
 
 Tahti exists to give independent artists a platform that takes their work as seriously as they

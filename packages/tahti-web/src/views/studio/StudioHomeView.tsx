@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, type FC, type ReactNode } from 'react';
 
-import { Button, CardGrid } from '@nuclearplayer/ui';
+import { Badge, Button, CardGrid } from '@nuclearplayer/ui';
 
 import { fetchShowSchedule, type ScheduledShow } from '../../api/shows';
 import {
@@ -28,6 +28,7 @@ import { fetchStatsSummary, type StatsSummary } from '../../api/studio-extras';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
+import { accountRoleLabel, getAccountRole } from '../../lib/accountRoles';
 import { timeOfDayGreeting } from '../../lib/greeting';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
@@ -40,6 +41,18 @@ const EMPTY_STATS: StatsSummary = {
   downloadsToday: 0,
   downloadsTotal: 0,
   followerCount: 0,
+};
+
+const channelStatusColor = (
+  state: string | undefined,
+): 'green' | 'cyan' | 'secondary' => {
+  if (state === 'LIVE') {
+    return 'green';
+  }
+  if (state === 'PREVIEW') {
+    return 'cyan';
+  }
+  return 'secondary';
 };
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
@@ -226,6 +239,30 @@ export function StudioHomeView() {
               <p className="text-foreground-secondary mt-1 text-xs font-semibold tracking-wide uppercase">
                 Studio
               </p>
+            ) : null}
+            {user ? (
+              <div
+                aria-label="Account status"
+                className="mt-3 flex flex-wrap items-center gap-2"
+              >
+                <Badge variant="pill" color="purple">
+                  {accountRoleLabel(getAccountRole(user))}
+                </Badge>
+                <Badge
+                  variant="pill"
+                  color={user.isMember ? 'green' : 'secondary'}
+                >
+                  {user.isMember ? 'Member' : 'Community account'}
+                </Badge>
+                <Badge
+                  variant="pill"
+                  color={channelStatusColor(channel?.state)}
+                >
+                  {channel
+                    ? `Channel ${channel.state.toLowerCase()}`
+                    : 'No channel'}
+                </Badge>
+              </div>
             ) : null}
             {channel ? (
               <p className="text-foreground-secondary mt-1 text-sm">
