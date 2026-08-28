@@ -14,6 +14,7 @@ import { useLayoutStore } from '../stores/layoutStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { BottomQueueStrip } from './BottomQueueStrip';
+import { HearthisEmbedSurface } from './HearthisEmbedSurface';
 
 const QUEUE_ANIMATION_MS = 200;
 
@@ -64,6 +65,7 @@ export function ConnectedPlayerBar() {
   const playable = current ? playableFromQueueItem(current) : null;
   const isPlaying = status === 'playing' || status === 'loading';
   const seekProgress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const hearthisEmbed = playable?.embed;
 
   if (!playerBarVisible) {
     return null;
@@ -139,6 +141,19 @@ export function ConnectedPlayerBar() {
           }}
         />
       )}
+      {hearthisEmbed ? (
+        <div className="bg-background-secondary px-4 py-2">
+          <HearthisEmbedSurface
+            embedUri={hearthisEmbed.embedUri}
+            title={title}
+            autoplay={isPlaying}
+            compact
+          />
+          <p className="text-foreground-secondary mt-1 text-center text-[11px]">
+            Playback is controlled by the hearthis.at widget.
+          </p>
+        </div>
+      ) : null}
       <PlayerBar
         className={cn(
           'transition-all duration-200',

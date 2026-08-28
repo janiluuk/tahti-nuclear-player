@@ -31,22 +31,30 @@ export function playableToTrack(item: TahtiPlayable): Track {
         },
       ],
     },
-    source: { provider, id: item.id, url: item.streamUrl },
-    streamCandidates: [
-      {
-        id: `${item.id}:stream`,
-        title: item.title,
-        thumbnail: item.coverUrl,
-        failed: false,
-        source: { provider, id: item.id },
-        stream: {
-          url: item.streamUrl,
-          protocol: item.protocol === 'hls' ? 'hls' : 'https',
-          source: { provider, id: item.id },
-        },
-        lastResolvedAtIso: new Date().toISOString(),
-      },
-    ],
+    source: {
+      provider,
+      id: item.embed?.embedUri ?? item.id,
+      ...(item.embed ? {} : { url: item.streamUrl }),
+    },
+    ...(item.embed
+      ? {}
+      : {
+          streamCandidates: [
+            {
+              id: `${item.id}:stream`,
+              title: item.title,
+              thumbnail: item.coverUrl,
+              failed: false,
+              source: { provider, id: item.id },
+              stream: {
+                url: item.streamUrl,
+                protocol: item.protocol === 'hls' ? 'hls' : 'https',
+                source: { provider, id: item.id },
+              },
+              lastResolvedAtIso: new Date().toISOString(),
+            },
+          ],
+        }),
   };
 }
 

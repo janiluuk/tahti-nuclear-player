@@ -1,0 +1,131 @@
+import { Button, Slider, Toggle } from '@nuclearplayer/ui';
+
+import { useThemeStore } from '../plugins/themes';
+import { useAmbientStore } from '../stores/ambientStore';
+
+const TAHTI_THEME_ID = 'nuclear:tahti-dark';
+
+export function isThemeVisualizationEnabled(themeId: string): boolean {
+  return themeId === TAHTI_THEME_ID;
+}
+
+export function ThemeVisualizationSettings() {
+  const themeId = useThemeStore((state) => state.themeId);
+  const enabled = useAmbientStore((state) => state.enabled);
+  const preset = useAmbientStore((state) => state.preset);
+  const opacity = useAmbientStore((state) => state.opacity);
+  const speed = useAmbientStore((state) => state.speed);
+  const intensity = useAmbientStore((state) => state.intensity);
+  const audioReactive = useAmbientStore((state) => state.audioReactive);
+  const setEnabled = useAmbientStore((state) => state.setEnabled);
+  const setPreset = useAmbientStore((state) => state.setPreset);
+  const setOpacity = useAmbientStore((state) => state.setOpacity);
+  const setSpeed = useAmbientStore((state) => state.setSpeed);
+  const setIntensity = useAmbientStore((state) => state.setIntensity);
+  const setAudioReactive = useAmbientStore((state) => state.setAudioReactive);
+
+  return (
+    <section className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-lg border p-4">
+      <div>
+        <h2 className="font-display text-lg font-bold tracking-tight">
+          Background visualizations
+        </h2>
+        <p className="text-foreground-secondary mt-1 text-sm">
+          The Tahti theme can show a quiet, audio-reactive Three.js ambience
+          behind the app. More themes can opt into visualizations later.
+        </p>
+      </div>
+      {!isThemeVisualizationEnabled(themeId) ? (
+        <p className="text-foreground-secondary text-sm">
+          Background visualization settings are not available for this theme
+          yet.
+        </p>
+      ) : (
+        <>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium">Show animated background</p>
+              <p className="text-foreground-secondary text-xs">
+                Turn it off to use a still background or reduce GPU use.
+              </p>
+            </div>
+            <Toggle
+              checked={enabled}
+              onChange={setEnabled}
+              label="Show animated background"
+            />
+          </div>
+          {enabled ? (
+            <>
+              <div>
+                <p className="mb-2 text-sm font-medium">Presets</p>
+                <Button
+                  size="sm"
+                  variant={preset === 'AURORA' ? undefined : 'text'}
+                  onClick={() => setPreset('AURORA')}
+                >
+                  Tahti Aurora
+                </Button>
+                <p className="text-foreground-secondary mt-1 text-xs">
+                  The first preset ported from the Tahti frontend; it blends
+                  soft color fields and playback movement.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Slider
+                  label="Opacity"
+                  min={0.05}
+                  max={0.45}
+                  step={0.01}
+                  value={opacity}
+                  showValue
+                  onValueChange={setOpacity}
+                />
+                <p className="text-foreground-secondary -mt-2 text-xs">
+                  How visible the ambience is over the theme.
+                </p>
+                <Slider
+                  label="Motion speed"
+                  min={0.05}
+                  max={0.5}
+                  step={0.01}
+                  value={speed}
+                  showValue
+                  onValueChange={setSpeed}
+                />
+                <p className="text-foreground-secondary -mt-2 text-xs">
+                  How quickly the color fields evolve.
+                </p>
+                <Slider
+                  label="Intensity"
+                  min={0.1}
+                  max={1.5}
+                  step={0.05}
+                  value={intensity}
+                  showValue
+                  onValueChange={setIntensity}
+                />
+                <p className="text-foreground-secondary -mt-2 text-xs">
+                  How strongly playback levels influence the animation.
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium">Audio reactivity</p>
+                  <p className="text-foreground-secondary text-xs">
+                    Let the background respond to the current player level.
+                  </p>
+                </div>
+                <Toggle
+                  checked={audioReactive}
+                  onChange={setAudioReactive}
+                  label="Audio reactivity"
+                />
+              </div>
+            </>
+          ) : null}
+        </>
+      )}
+    </section>
+  );
+}

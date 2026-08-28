@@ -1,6 +1,27 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Top-level navigation now keeps the app shell mounted and shows a lightweight content-only loading state while changing views.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "HearThis tracks now become first-class queued embeds in the player bar and full-screen player instead of falling back to an unrelated demo stream.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Playback", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added Tahti theme background visualization controls with an audio-reactive Aurora preset and adjustable opacity, speed, and intensity.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Themes", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Added a configurable Multicast destinations plugin entry for YouTube, Twitch, and other RTMP providers, using the existing secure RTMP target workflow.",
     "type": "improvement",
     "contributors": ["jani"],

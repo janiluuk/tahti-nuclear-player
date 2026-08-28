@@ -1,0 +1,86 @@
+---
+description: Local API contract guide for the Tahti Nuclear client.
+---
+
+# Tahti API reference
+
+This client uses the API served by the sibling `../tahti` repository. The
+authoritative interactive documentation is available at
+[`https://api.tahti.live/api`](https://api.tahti.live/api), with the machine
+readable contract at [`../tahti/openapi.json`](../../../tahti/openapi.json)
+when both repositories are checked out together.
+
+This page records the contract areas used by the Nuclear client and the
+permission boundaries that must be checked before adding a new view. It is
+not a replacement for the generated OpenAPI document.
+
+<!-- API_PATHS_SHA256: 1ab015de1e7ca39209d8e5f20a4afd29f4e1f6517bf2577069e4159b26731322 -->
+
+## Authentication
+
+The API accepts the `tahti_session` session cookie for browser requests. A
+personal bearer token is also supported for scripts and integrations. Tokens
+are created and revoked through `/api/me/api-tokens`; read-only tokens are
+restricted to safe methods.
+
+Login is `POST /api/auth/login`, TOTP login is
+`POST /api/auth/login/totp`, the current session is checked with
+`GET /api/auth/me`, and logout is `POST /api/auth/logout`.
+
+## Contract areas used by this client
+
+| Area | Representative API operations | Client surfaces |
+| --- | --- | --- |
+| Public discovery | `GET /api/v1/search`, `GET /api/v1/channels/directory`, `GET /api/channels/{slug}`, `GET /api/channels/{slug}/items` | Listen, Discover, public artist/channel pages |
+| Playback and engagement | `POST/DELETE/GET /api/v1/c/{slug}/archive/{itemId}/like`, `POST/DELETE/GET .../repost`, `GET .../download-gates` | Player, sounds, releases, favourites |
+| Artist channel | `GET/PATCH /api/me/channel/slug`, `GET/PATCH /api/me/stream-settings`, `GET/PATCH /api/me/channel/publish-defaults` | Studio → Manage → Channel |
+| Broadcast controls | `POST /api/channels/{slug}/skip`, `/pause`, `/resume`, `/previous`; `GET /api/channels/{slug}/rtmp-status` | Go Live, Radio, stream manager |
+| Rotation and programming | `GET/PATCH /api/channels/{slug}/fallback-collections`, `GET /api/channels/{slug}/programme`, `PATCH /api/channels/{slug}/fallback-collection` | 24/7 rotation and radio management |
+| Multicast | `GET/POST /api/me/rtmp-targets`, `PATCH/DELETE /api/me/rtmp-targets/{id}`, `GET /api/me/rtmp-targets/{id}/stream-key` | Studio → Manage → Multicast and Go Live |
+| Archive and editing | `/api/me/archive`, `/api/me/archive/{id}`, `/api/me/archive/{id}/editor/draft`, `/api/me/archive/{id}/fingerprint` | Sounds, upload, stash, track editor, audio editor |
+| Collections and releases | `/api/me/collections`, `/api/me/releases`, `/api/me/releases/{id}`, release export and royalty routes | Collections, releases, distribution, smartlinks |
+| Shows and schedule | `/api/me/shows`, `/api/me/shows/{id}`, `/api/me/show-bookings`, `/api/me/episodes` | Shows, calendar, schedule, recordings |
+| Profile and audience | `/api/me/profile`, `/api/me/notification-preferences`, `/api/me/fan-tiers`, `/api/me/fan-subscriptions`, `/api/me/grants` | Settings, Artist, Audience, subscriptions |
+| Chat and mentions | `/api/channels/{slug}/presence`, `/api/me/chat/settings`, `/api/me/chat/announcements`, `/api/me/channel/moderators`, `/api/me/mentions` | Chat rail, moderation, tagged-in profile sections |
+| Governance | `GET/POST /api/v1/governance/motions`, `PATCH /api/v1/governance/motions/{id}`, `POST .../vote`, comments and reports | Artist and public Governance |
+| Admin operations | `/api/admin/users`, `/api/admin/streams`, `/api/admin/files`, `/api/admin/logs`, `/api/admin/audit`, `/api/admin/storage` | Admin overview, users, streams, logs, storage |
+| Admin moderation | `/api/admin/support/tickets`, `/api/admin/content-reports`, `/api/admin/radio-submissions`, `/api/admin/missed-live-shows`, `/api/admin/feature-requests` | Admin → Moderation queues |
+| Admin governance and finance | `/api/admin/ledger`, `/api/admin/resolutions`, `/api/admin/grants`, `/api/admin/fansubs`, `/api/admin/reports` | Admin governance, financial, grants, AGM |
+| Widgets and announcements | `/api/me/disco-widgets`, `/api/me/disco-widgets/installs`, `/api/admin/disco-widgets`, `/api/admin/announcements` | Add-ons, channel widgets, announcements |
+
+## Permission boundaries
+
+- Public read routes must work without a session and must not leak private
+  archive, stash, audience, or moderation data.
+- `/api/me/*` routes require the signed-in user and must enforce ownership on
+  archive, channel, collection, show, audience, and RTMP resources.
+- Moderator routes are limited to assigned channel moderation scope.
+- `/api/admin/*` routes are board/admin-only. A client-side hidden menu is not
+  authorization; the API must reject lower-role requests.
+- Download gates, stash access, fan tiers, and private audience content must
+  be checked server-side for every request, including direct URLs.
+
+## Adding or changing an API call
+
+1. Find the route, Zod/shared DTO, permission check, and mock fixture in
+   `../tahti` before changing the client.
+2. Put the request in a focused `src/api/*.ts` wrapper using the existing
+   response and error conventions; views should not call `fetch` directly.
+3. Match method, path, query/body names, enum values, nullable fields, and
+   error states exactly.
+4. Add a client test for the response shape and a user-facing test for
+   loading, empty, error, and success states.
+5. Update `UI-REDESIGN-WORKLOG.md` and run the freshness check below.
+
+## Freshness check
+
+Run this from the Nuclear repository root:
+
+```bash
+pnpm --filter @nuclearplayer/tahti-web check:api-docs
+```
+
+The check hashes the sibling OpenAPI `paths` object and compares it with the
+marker in this page. If the check fails, review new and removed paths in
+`../tahti/openapi.json`, update this reference, and re-audit affected client
+wrappers before committing.

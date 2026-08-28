@@ -88,6 +88,7 @@ import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
 import { NuclearPluginAddonsCategory } from './NuclearPluginAddonsCategory';
 import { PageLoading } from './PageStates';
+import { ThemeVisualizationSettings } from './ThemeVisualizationSettings';
 
 function visualizerDescription(id: string): string {
   return visualizerMetadata(id).description;
@@ -246,6 +247,7 @@ function ThemesCategory() {
         </button>
         .
       </p>
+      <ThemeVisualizationSettings />
     </div>
   );
 }

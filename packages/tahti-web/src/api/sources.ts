@@ -843,11 +843,12 @@ export function playableFromHearthis(t: HearthisTrack): TahtiPlayable {
     title: t.title,
     artist: t.username || 'hearthis.at',
     coverUrl: t.coverUrl ?? undefined,
-    // Not every track is downloadable — fall back to the POC demo stream,
-    // same as the Spotify/SoundCloud preview rows below.
-    streamUrl: t.streamUrl || DEMO_MP3,
+    streamUrl: t.streamUrl ?? '',
     protocol: 'https',
     sourceProvider: 'hearthis',
+    ...(t.streamUrl
+      ? {}
+      : { embed: { provider: 'hearthis' as const, embedUri: t.id } }),
   };
 }
 

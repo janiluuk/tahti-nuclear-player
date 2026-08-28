@@ -13,16 +13,15 @@ export function TahtiLogo({
   return (
     <span
       className={cn(
-        'font-display inline-flex items-center gap-2 tracking-[0.25em]',
+        'font-display text-foreground inline-flex items-center gap-2 text-lg font-medium tracking-[0.25em]',
         className,
       )}
     >
-      <span aria-hidden className="bg-accent-orange h-5 w-0.75 shrink-0" />
-      {!markOnly && (
-        <span className="text-base leading-none font-bold uppercase">
-          TAHTI
-        </span>
-      )}
+      <span
+        aria-hidden
+        className="bg-accent-orange h-5 w-[3px] shrink-0 rounded-[1px]"
+      />
+      {!markOnly && <span className="leading-none uppercase">TAHTI</span>}
     </span>
   );
 }

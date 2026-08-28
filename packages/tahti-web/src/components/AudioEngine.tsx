@@ -142,9 +142,13 @@ export function AudioEngine() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !playable) {
+    if (!audio || !playable || playable.embed) {
       hlsRef.current?.destroy();
       hlsRef.current = null;
+      if (audio && playable?.embed) {
+        audio.removeAttribute('src');
+        audio.load();
+      }
       return;
     }
 

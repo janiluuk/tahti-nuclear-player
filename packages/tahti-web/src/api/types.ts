@@ -337,6 +337,10 @@ export type TahtiPlayable = {
   coverUrl?: string;
   streamUrl: string;
   protocol: 'hls' | 'https';
+  embed?: {
+    provider: 'hearthis';
+    embedUri: string;
+  };
   channelSlug?: string;
   /** Nuclear ProviderRef.provider — e.g. tahti, soundcloud, bandcamp, spotify. */
   sourceProvider?: string;

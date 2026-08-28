@@ -10,6 +10,7 @@ import { useLayoutStore } from '../stores/layoutStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { ChannelVisualizer } from './ChannelVisualizer';
+import { HearthisEmbedSurface } from './HearthisEmbedSurface';
 
 const ANIMATION_MS = 280;
 
@@ -86,6 +87,7 @@ export function FullScreenPlayer() {
   const archiveItemId = archiveItemIdFromPlayableId(playable?.id ?? currentId);
   const isPlaying = status === 'playing' || status === 'loading';
   const seekProgress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const hearthisEmbed = playable?.embed;
 
   const rgb = useDominantColor(coverUrl);
 
@@ -171,6 +173,13 @@ export function FullScreenPlayer() {
         </div>
 
         <div className="flex w-full max-w-md flex-col items-center gap-2">
+          {hearthisEmbed ? (
+            <HearthisEmbedSurface
+              embedUri={hearthisEmbed.embedUri}
+              title={title}
+              autoplay={isPlaying}
+            />
+          ) : null}
           <PlayerBar.Controls
             isPlaying={isPlaying}
             isShuffleActive={!isLive && shuffle}

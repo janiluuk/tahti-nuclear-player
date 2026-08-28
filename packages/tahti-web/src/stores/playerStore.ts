@@ -84,13 +84,19 @@ function streamUrlFromQueueItem(qi: QueueItem): string | null {
 
 export function playableFromQueueItem(qi: QueueItem): TahtiPlayable | null {
   const url = streamUrlFromQueueItem(qi);
-  if (!url) {
+  const provider = qi.track.source.provider;
+  if (!url && provider !== 'hearthis') {
     return null;
   }
-  const protocol =
-    qi.track.streamCandidates?.[0]?.stream?.protocol === 'hls'
+  const protocol = url
+    ? qi.track.streamCandidates?.[0]?.stream?.protocol === 'hls'
       ? 'hls'
-      : 'https';
+      : 'https'
+    : 'https';
+  const embed =
+    provider === 'hearthis' && !url
+      ? { provider: 'hearthis' as const, embedUri: qi.track.source.id }
+      : undefined;
   return {
     id: qi.id,
     kind: qi.id.startsWith('radio:')
@@ -101,8 +107,10 @@ export function playableFromQueueItem(qi: QueueItem): TahtiPlayable | null {
     title: qi.track.title,
     artist: qi.track.artists.map((a) => a.name).join(', '),
     coverUrl: qi.track.artwork?.items[0]?.url,
-    streamUrl: url,
+    streamUrl: url ?? '',
     protocol,
+    embed,
+    sourceProvider: provider,
     channelSlug: qi.id.includes(':') ? qi.id.split(':')[1] : undefined,
   };
 }
@@ -138,7 +146,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     set({
       queue,
       currentId: head.id,
-      status: 'loading',
+      status: item.embed ? 'playing' : 'loading',
       error: null,
       currentTime: 0,
       duration: 0,
@@ -202,7 +210,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       playable?.kind === 'live' || playable?.kind === 'radio';
     set({
       currentId: id,
-      status: 'loading',
+      status: playable?.embed ? 'playing' : 'loading',
       error: null,
       currentTime: 0,
       seekTarget: null,

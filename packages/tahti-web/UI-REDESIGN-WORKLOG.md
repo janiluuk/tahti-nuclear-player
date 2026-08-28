@@ -1,5 +1,13 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Shared Tahti logo treatment
+
+**Completed:** Matched the app logo to `../tahti`'s `BrandLogo`: medium-weight display typography, 18px wordmark sizing, 3px amber bar, 1px bar radius, and the same tracking. The existing home link and mark-only variant remain compatible with the Nuclear shell.
+
+## 2026-08-28 — Tahti API documentation parity audit
+
+**Completed:** Added `docs/API-REFERENCE.md`, documenting the sibling API authentication model, listener/artist/admin contract areas, permission boundaries, and the procedure for adding API-backed features. Added `scripts/check-api-docs.mjs` and the `check:api-docs` package command; it hashes the sibling `../tahti/openapi.json` paths object and fails when the local reference needs review. The current audit matches all 546 OpenAPI paths.
+
 ## 2026-08-28 — Source adapter contract slices
 
 **Batch 1:** Split source integrations into typed OAuth, search, and tool/upload adapter groups. The registry now exposes those groups and tests enforce that every source belongs to exactly one group while retaining its capability metadata.
@@ -1757,3 +1765,15 @@ The multitrack timeline keeps its intentional horizontal scroll region isolated 
 - Mermaid-related chunks remain large (`mermaid.core` ~598 KB, `cynefin` ~688 KB, plus diagram chunks). They are already deferred from the entry path, but the diagram renderer could be split by diagram family or loaded only after the first `/more` flow interaction.
 - The Three.js visualizer remains correctly deferred to its own ~351 KB chunk; avoid importing visualizer presets from listener routes or shared shell code.
 - The responsive Playwright matrix is not yet a valid performance/layout signal because its mock sign-in flow lands on Listen before `/studio` assertions. Repair that fixture/navigation precondition before using route timing or overflow results as release evidence.
+
+## 2026-08-28 — Theme background visualization controls
+
+The Themes surfaces now share one theme-aware visualization settings panel. The Tahti theme exposes the ported Aurora background preset with a visibility toggle, opacity, motion speed, intensity, and audio-reactivity controls. Settings are persisted locally and the renderer is disabled automatically for themes that have not opted into visualizations yet.
+
+## 2026-08-28 — HearThis player embed integration
+
+HearThis tracks now remain embed-only, matching the sibling Tahti API contract. They enter the shared queue without the old demo-audio fallback, and the official widget is rendered from the global player bar and full-screen player. Native player transport remains available when a real provider stream URL exists; HearThis-only transport is delegated to the provider widget because no documented iframe control API is available.
+
+## 2026-08-28 — Content-only route loading
+
+Top-level navigation now keeps the app shell, top bar, and workspace mounted while routes change. A lightweight loading overlay is scoped to the routed content viewport across desktop, mobile, and public artist layouts, reducing the impression of a full-page reload while lazy route content is resolving.

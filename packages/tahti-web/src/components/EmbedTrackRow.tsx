@@ -1,8 +1,7 @@
 import { PlayIcon } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
-import { fetchHearthisTrackById, playableFromHearthis } from '../api/sources';
+import { playableFromHearthis } from '../api/sources';
 import {
   EMBED_PROVIDER_HEIGHT,
   EMBED_PROVIDER_LABEL,
@@ -27,7 +26,6 @@ type Props = {
  */
 export function EmbedTrackRow({ title, provider, embedUri }: Props) {
   const [embedOpen, setEmbedOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const src = embedSrcFor(provider, embedUri);
   const label = EMBED_PROVIDER_LABEL[provider];
   const currentId = usePlayerStore((state) => state.currentId);
@@ -42,7 +40,7 @@ export function EmbedTrackRow({ title, provider, embedUri }: Props) {
     return null;
   }
 
-  const start = async () => {
+  const start = () => {
     if (provider !== 'HEARTHIS') {
       setEmbedOpen(true);
       return;
@@ -51,18 +49,16 @@ export function EmbedTrackRow({ title, provider, embedUri }: Props) {
       setStatus(isPlaying ? 'paused' : 'playing');
       return;
     }
-    setLoading(true);
-    const track = await fetchHearthisTrackById(embedUri);
-    setLoading(false);
-    if (track?.streamUrl) {
-      setEmbedOpen(false);
-      play(playableFromHearthis({ ...track, title }));
-      return;
-    }
-    setEmbedOpen(true);
-    if (!track) {
-      toast.error('Could not load the hearthis.at track.');
-    }
+    setEmbedOpen(false);
+    play(
+      playableFromHearthis({
+        id: embedUri,
+        url: `https://hearthis.at/embed/${embedUri}/`,
+        title,
+        username: 'hearthis.at',
+        durationSec: 0,
+      }),
+    );
   };
 
   return (
@@ -82,7 +78,6 @@ export function EmbedTrackRow({ title, provider, embedUri }: Props) {
           type="button"
           className="hover:bg-background-secondary flex w-full items-center gap-3 px-3 py-2 text-left transition-colors"
           onClick={() => void start()}
-          disabled={loading}
           aria-label={`${isPlaying ? 'Pause' : 'Play'} ${title} on ${label}`}
         >
           <span className="bg-primary/15 text-primary flex size-10 shrink-0 items-center justify-center rounded-md">
@@ -91,11 +86,7 @@ export function EmbedTrackRow({ title, provider, embedUri }: Props) {
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium">{title}</span>
             <span className="text-foreground-secondary block truncate text-xs">
-              {loading
-                ? 'Loading…'
-                : isPlaying
-                  ? 'Playing in Tahti player'
-                  : `Listen on ${label}`}
+              {isPlaying ? 'Playing in Tahti player' : `Listen on ${label}`}
             </span>
           </span>
           <span className="text-foreground-secondary shrink-0 font-mono text-[10px] tracking-wide uppercase">

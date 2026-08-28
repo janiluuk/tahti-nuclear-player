@@ -117,6 +117,7 @@ import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SocialLinkIcon } from '../../components/SocialLinkIcon';
 import { ThemeEditor } from '../../components/ThemeEditor';
+import { ThemeVisualizationSettings } from '../../components/ThemeVisualizationSettings';
 import { COUNTRIES, flagEmoji } from '../../lib/countries';
 import {
   formatGenreTags,
@@ -130,11 +131,6 @@ import {
   type MulticastProviderId,
 } from '../../plugins/multicast';
 import { useThemeStore } from '../../plugins/themes';
-import {
-  AMBIENT_PRESETS,
-  useAmbientStore,
-  type AmbientPreset,
-} from '../../stores/ambientStore';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelShareStore } from '../../stores/channelShareStore';
@@ -2181,7 +2177,7 @@ function ThemesPanel() {
           Choose a palette and the light, dark, or time-of-day appearance that
           suits you.
         </SettingsHint>
-        <AmbientBackgroundSettings />
+        <ThemeVisualizationSettings />
         <div className="flex items-center gap-3">
           {THEME_MODE_OPTIONS.map((mode) => (
             <Button
@@ -2383,56 +2379,5 @@ function ThemesPanel() {
         ]}
       />
     </div>
-  );
-}
-
-const AMBIENT_PRESET_LABELS: Record<AmbientPreset, string> = {
-  AURORA: 'Aurora',
-  PARTICLE_FIELD: 'Particles',
-  REACTIVE_GRID: 'Reactive grid',
-};
-
-function AmbientBackgroundSettings() {
-  const enabled = useAmbientStore((state) => state.enabled);
-  const preset = useAmbientStore((state) => state.preset);
-  const setEnabled = useAmbientStore((state) => state.setEnabled);
-  const setPreset = useAmbientStore((state) => state.setPreset);
-
-  return (
-    <section className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-lg border p-4">
-      <div>
-        <h2 className="font-display text-lg font-bold tracking-tight">
-          Ambient background
-        </h2>
-        <p className="text-foreground-secondary mt-1 text-sm">
-          A quiet Three.js canvas inspired by the Tahti public site. It reacts
-          gently to playback and stays behind the app content.
-        </p>
-      </div>
-      <SettingsToggle
-        label="Show animated background"
-        description="Turn this off if you prefer a still background or need to reduce GPU use."
-        value={enabled}
-        onChange={setEnabled}
-      />
-      {enabled ? (
-        <div
-          className="flex flex-wrap gap-2"
-          role="group"
-          aria-label="Ambient background preset"
-        >
-          {AMBIENT_PRESETS.map((option) => (
-            <Button
-              key={option}
-              size="sm"
-              variant={preset === option ? undefined : 'text'}
-              onClick={() => setPreset(option)}
-            >
-              {AMBIENT_PRESET_LABELS[option]}
-            </Button>
-          ))}
-        </div>
-      ) : null}
-    </section>
   );
 }

@@ -11,6 +11,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 import {
+  Loader,
   PlayerShell,
   PlayerWorkspace,
   RouteTransition,
@@ -101,6 +102,37 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
         )}
       </div>
     </SidebarNavigation>
+  );
+}
+
+function RouteContent({ children }: { children: React.ReactNode }) {
+  const isPending = useRouterState({
+    select: (state) => state.status === 'pending',
+  });
+
+  return (
+    <div className="relative h-full min-h-0">
+      <div
+        className={cn(
+          'h-full transition-opacity duration-100',
+          isPending && 'opacity-60',
+        )}
+      >
+        {children}
+      </div>
+      {isPending ? (
+        <div
+          className="bg-background/45 pointer-events-none absolute inset-0 z-10 flex items-start justify-center pt-6 backdrop-blur-[1px]"
+          aria-live="polite"
+          aria-label="Loading page content"
+        >
+          <div className="border-border bg-background-secondary/90 text-foreground-secondary flex items-center gap-2 rounded-md border px-3 py-2 text-xs shadow-sm">
+            <Loader size="sm" />
+            Loading content…
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -296,10 +328,12 @@ export function AppShell() {
           <div
             className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
           >
-            <RouteTransition
-              key={userId ?? 'anonymous'}
-              disableAnimation={stableNavigationRoute}
-            />
+            <RouteContent>
+              <RouteTransition
+                key={userId ?? 'anonymous'}
+                disableAnimation={stableNavigationRoute}
+              />
+            </RouteContent>
           </div>
           {!isArtistPage && (
             <MobileBottomNav onOpenQueue={() => setMobileQueueOpen(true)} />
@@ -309,10 +343,12 @@ export function AppShell() {
         <div
           className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
         >
-          <RouteTransition
-            key={userId ?? 'anonymous'}
-            disableAnimation={stableNavigationRoute}
-          />
+          <RouteContent>
+            <RouteTransition
+              key={userId ?? 'anonymous'}
+              disableAnimation={stableNavigationRoute}
+            />
+          </RouteContent>
         </div>
       ) : (
         <PlayerWorkspace>
@@ -393,10 +429,12 @@ export function AppShell() {
             className={cn('min-h-0 overflow-hidden', MAIN_CONTENT_PADDING)}
           >
             <div className="h-full overflow-auto">
-              <RouteTransition
-                key={userId ?? 'anonymous'}
-                disableAnimation={stableNavigationRoute}
-              />
+              <RouteContent>
+                <RouteTransition
+                  key={userId ?? 'anonymous'}
+                  disableAnimation={stableNavigationRoute}
+                />
+              </RouteContent>
             </div>
           </PlayerWorkspace.Main>
 

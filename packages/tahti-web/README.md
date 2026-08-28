@@ -137,3 +137,5 @@ The capture uses deterministic mock content and reduced motion for stable docume
 ## Documentation and architecture
 
 The application is a Vite/React client in a pnpm monorepo. Shared Nuclear components live in `packages/ui`; the Tahti web client lives in `packages/tahti-web`; plugin contracts and player services live in the surrounding packages. Product planning and implementation notes are kept in [`WORKPLAN.md`](./WORKPLAN.md) and [`UI-REDESIGN-WORKLOG.md`](./UI-REDESIGN-WORKLOG.md).
+
+The API contract is documented in [`docs/API-REFERENCE.md`](./docs/API-REFERENCE.md). It is checked against `../tahti/openapi.json` so route and contract changes in the sibling API trigger a documentation review.
