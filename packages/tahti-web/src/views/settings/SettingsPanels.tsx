@@ -9,6 +9,7 @@ import {
   Gift,
   Globe,
   Image as ImageIcon,
+  KeyRound,
   Landmark,
   Lock,
   LogInIcon,
@@ -135,6 +136,7 @@ import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelShareStore } from '../../stores/channelShareStore';
 import { useSettingsModalStore } from '../../stores/settingsModalStore';
+import { GovernanceView } from '../GovernanceView';
 import { StudioBrandingPanel } from '../studio/StudioBrandingView';
 import { WhatsNewPanel } from '../WhatsNewView';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
@@ -366,21 +368,34 @@ function AccountPanel() {
           id: 'security',
           label: tabLabel(Lock, 'Security'),
           content: (
-            <div className="flex flex-col gap-6">
-              <SecurityTotpPanel />
-              <ApiTokensPanel />
-            </div>
+            <Tabs
+              className="min-w-0"
+              listClassName="border-border flex-wrap gap-1 border-b pb-2"
+              panelClassName="pt-3"
+              items={[
+                {
+                  id: 'two-factor',
+                  label: tabLabel(Lock, 'Two-factor authentication'),
+                  content: <SecurityTotpPanel />,
+                },
+                {
+                  id: 'api-tokens',
+                  label: tabLabel(KeyRound, 'API tokens'),
+                  content: <ApiTokensPanel />,
+                },
+              ]}
+            />
           ),
         },
         {
           id: 'membership',
           label: tabLabel(Wallet, 'Membership'),
           content: (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {!membership ? (
                 <SettingsHint>Could not load membership.</SettingsHint>
               ) : (
-                <div className="flex flex-col gap-4">
+                <div className="grid gap-2 sm:grid-cols-2">
                   <SettingsInfo
                     label="Status"
                     value={membershipStatusLabel(membership)}
@@ -437,6 +452,11 @@ function AccountPanel() {
               </Link>
             </div>
           ),
+        },
+        {
+          id: 'governance',
+          label: tabLabel(Landmark, 'Governance'),
+          content: <GovernanceView />,
         },
         {
           id: 'storage',

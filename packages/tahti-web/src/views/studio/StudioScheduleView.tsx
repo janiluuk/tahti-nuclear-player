@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import {
   CalendarDaysIcon,
   Clock3Icon,
+  ListIcon,
   MapPinIcon,
   PencilIcon,
   PlusIcon,
@@ -137,6 +138,7 @@ function ScheduledTimes({
 }) {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [selectedShow, setSelectedShow] = useState<ScheduleCard | null>(null);
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
 
   return (
     <section className="border-border bg-background-secondary/40 overflow-hidden rounded-xl border shadow-sm">
@@ -145,7 +147,41 @@ function ScheduledTimes({
           <CalendarDaysIcon size={18} className="text-primary" aria-hidden />
           <h2 className="font-display font-bold">Your next broadcasts</h2>
         </div>
-        <span className="text-foreground-secondary text-xs">{timezone}</span>
+        <div className="flex items-center gap-2">
+          <div
+            className="border-border flex gap-1 rounded-md border p-0.5"
+            role="group"
+            aria-label="Schedule view"
+          >
+            <Button
+              size="icon-sm"
+              variant="text"
+              aria-label="Card view"
+              title="Card view"
+              aria-pressed={viewMode === 'cards'}
+              className={
+                viewMode === 'cards' ? 'bg-primary/15 text-primary' : ''
+              }
+              onClick={() => setViewMode('cards')}
+            >
+              <CalendarDaysIcon size={14} aria-hidden />
+            </Button>
+            <Button
+              size="icon-sm"
+              variant="text"
+              aria-label="List view"
+              title="List view"
+              aria-pressed={viewMode === 'list'}
+              className={
+                viewMode === 'list' ? 'bg-primary/15 text-primary' : ''
+              }
+              onClick={() => setViewMode('list')}
+            >
+              <ListIcon size={14} aria-hidden />
+            </Button>
+          </div>
+          <span className="text-foreground-secondary text-xs">{timezone}</span>
+        </div>
       </header>
       {items.length === 0 ? (
         <div className="px-4 py-5">
@@ -155,57 +191,72 @@ function ScheduledTimes({
           </p>
         </div>
       ) : (
-        <ol className="bg-border grid gap-px sm:grid-cols-2 lg:grid-cols-3">
-          {items.slice(0, 3).map((item, index) => (
-            <li key={item.id} className="bg-background p-4">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="text-primary text-xs font-bold tracking-wide uppercase">
-                  {index === 0 ? 'Next' : `Upcoming ${index + 1}`}
-                </span>
-                <div className="flex items-center gap-2">
-                  {item.visibility === 'FAN_ONLY' ? (
-                    <span className="text-foreground-secondary text-[10px] uppercase">
-                      Fans only
-                    </span>
-                  ) : null}
-                  {index === 0 ? (
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      aria-label="Edit next broadcast"
-                      title="Edit next broadcast"
-                      onClick={onEdit}
-                    >
-                      <PencilIcon size={14} aria-hidden />
-                    </Button>
-                  ) : null}
-                </div>
-              </div>
-              <button
-                type="button"
-                className="text-primary block max-w-full truncate text-left text-sm font-semibold hover:underline"
-                onClick={() => setSelectedShow(item)}
+        <ol
+          className={
+            viewMode === 'list'
+              ? 'divide-border divide-y'
+              : 'bg-border grid gap-px sm:grid-cols-2 lg:grid-cols-3'
+          }
+        >
+          {items
+            .slice(0, viewMode === 'list' ? undefined : 3)
+            .map((item, index) => (
+              <li
+                key={item.id}
+                className={
+                  viewMode === 'list'
+                    ? 'bg-background p-3'
+                    : 'bg-background p-4'
+                }
               >
-                {item.title}
-              </button>
-              <div className="text-foreground-secondary mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                <span className="inline-flex items-center gap-1">
-                  <CalendarDaysIcon size={13} aria-hidden />
-                  {formatDate(item.startAt)}
-                </span>
-                <span className="text-foreground inline-flex items-center gap-1 font-medium">
-                  <Clock3Icon size={13} aria-hidden />
-                  {formatTimeRange(item.startAt, item.endAt)}
-                </span>
-              </div>
-              {item.location ? (
-                <p className="text-foreground-secondary mt-2 flex items-center gap-1 truncate text-xs">
-                  <MapPinIcon size={13} aria-hidden />
-                  {item.location}
-                </p>
-              ) : null}
-            </li>
-          ))}
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="text-primary text-xs font-bold tracking-wide uppercase">
+                    {index === 0 ? 'Next' : `Upcoming ${index + 1}`}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {item.visibility === 'FAN_ONLY' ? (
+                      <span className="text-foreground-secondary text-[10px] uppercase">
+                        Fans only
+                      </span>
+                    ) : null}
+                    {index === 0 ? (
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        aria-label="Edit next broadcast"
+                        title="Edit next broadcast"
+                        onClick={onEdit}
+                      >
+                        <PencilIcon size={14} aria-hidden />
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="text-primary block max-w-full truncate text-left text-sm font-semibold hover:underline"
+                  onClick={() => setSelectedShow(item)}
+                >
+                  {item.title}
+                </button>
+                <div className="text-foreground-secondary mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                  <span className="inline-flex items-center gap-1">
+                    <CalendarDaysIcon size={13} aria-hidden />
+                    {formatDate(item.startAt)}
+                  </span>
+                  <span className="text-foreground inline-flex items-center gap-1 font-medium">
+                    <Clock3Icon size={13} aria-hidden />
+                    {formatTimeRange(item.startAt, item.endAt)}
+                  </span>
+                </div>
+                {item.location ? (
+                  <p className="text-foreground-secondary mt-2 flex items-center gap-1 truncate text-xs">
+                    <MapPinIcon size={13} aria-hidden />
+                    {item.location}
+                  </p>
+                ) : null}
+              </li>
+            ))}
         </ol>
       )}
       <Dialog.Root

@@ -238,7 +238,7 @@ function StudioNavigation({ current }: { current?: string }) {
               type="button"
               role="tab"
               aria-selected={active}
-              className={`flex shrink-0 items-center gap-2 rounded-md px-3 py-1.5 text-sm font-semibold whitespace-nowrap ${
+              className={`flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold whitespace-nowrap ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'

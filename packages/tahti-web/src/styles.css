@@ -49,16 +49,21 @@ body,
   }
 
   .studio-page-layout > [data-studio-navigation] {
-    grid-column: 1 / -1;
+    display: contents;
+  }
+
+  .studio-page-layout > [data-studio-navigation] > [data-studio-section-tabs] {
+    grid-column: 2;
     grid-row: 1;
-    position: relative;
-    padding-bottom: 0.5rem;
+    min-width: 0;
+    align-self: start;
   }
 
   .studio-page-layout > [data-studio-navigation] > [data-studio-section-menu] {
-    position: absolute;
-    top: 2.75rem;
-    left: 0;
+    grid-column: 1;
+    grid-row: 2 / span 2;
+    position: relative;
+    align-self: start;
     width: 11rem;
   }
 
@@ -85,7 +90,7 @@ body,
 
   .admin-moderation-layout > [data-admin-section-menu] {
     grid-column: 1;
-    grid-row: 1 / span 2;
+    grid-row: 2 / span 2;
     position: relative;
     align-self: start;
     width: 11rem;
@@ -104,7 +109,7 @@ body,
 
   .admin-page-layout > [data-admin-section-menu] {
     grid-column: 1;
-    grid-row: 1 / span 2;
+    grid-row: 2 / span 2;
     position: relative;
     align-self: start;
     width: 11rem;
@@ -114,5 +119,13 @@ body,
     > :not([data-admin-section-tabs]):not([data-admin-section-menu]) {
     grid-column: 2;
     min-width: 0;
+  }
+
+  [role='tablist'] > button[role='tab'],
+  [role='tablist'] > button:not([role]) {
+    height: 2rem;
+    padding-inline: 0.625rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
   }
 }
