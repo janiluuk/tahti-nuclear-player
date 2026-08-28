@@ -1,4 +1,9 @@
-import { BanIcon, ShieldCheckIcon } from 'lucide-react';
+import {
+  BanIcon,
+  ShieldCheckIcon,
+  Trash2Icon,
+  UserRoundPlusIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input, Tabs } from '@nuclearplayer/ui';
@@ -89,8 +94,10 @@ export function StudioModerationView() {
                               {m.displayName} (@{m.username})
                             </span>
                             <Button
-                              size="sm"
+                              size="icon-sm"
                               variant="text"
+                              aria-label={`Remove ${m.displayName} as moderator`}
+                              title="Remove moderator"
                               onClick={() => {
                                 void removeModerator(m.id).then((r) => {
                                   if (!r.ok) {
@@ -101,7 +108,7 @@ export function StudioModerationView() {
                                 });
                               }}
                             >
-                              Remove
+                              <Trash2Icon size={14} aria-hidden />
                             </Button>
                           </li>
                         ))}
@@ -116,8 +123,10 @@ export function StudioModerationView() {
                         className="min-w-0 sm:min-w-48"
                       />
                       <Button
-                        size="sm"
+                        size="icon-sm"
                         disabled={!newModUsername.trim()}
+                        aria-label="Add moderator"
+                        title="Add moderator"
                         onClick={() => {
                           void addModerator(newModUsername.trim()).then((r) => {
                             if (!r.ok) {
@@ -132,7 +141,7 @@ export function StudioModerationView() {
                           });
                         }}
                       >
-                        Add moderator
+                        <UserRoundPlusIcon size={15} aria-hidden />
                       </Button>
                     </div>
                   </div>
@@ -174,8 +183,10 @@ export function StudioModerationView() {
                               </div>
                             </div>
                             <Button
-                              size="sm"
+                              size="icon-sm"
                               variant="text"
+                              aria-label={`Unban ${b.fingerprintHash}`}
+                              title="Unban fingerprint"
                               onClick={() => {
                                 void unbanChatFingerprint(
                                   slug,
@@ -189,7 +200,7 @@ export function StudioModerationView() {
                                 });
                               }}
                             >
-                              Unban
+                              <Trash2Icon size={14} aria-hidden />
                             </Button>
                           </li>
                         ))}
@@ -204,8 +215,10 @@ export function StudioModerationView() {
                         className="min-w-0 sm:min-w-48"
                       />
                       <Button
-                        size="sm"
+                        size="icon-sm"
                         disabled={!newBanHash.trim()}
+                        aria-label="Ban fingerprint"
+                        title="Ban fingerprint"
                         onClick={() => {
                           void banChatFingerprint(slug, newBanHash.trim()).then(
                             (r) => {
@@ -219,7 +232,7 @@ export function StudioModerationView() {
                           );
                         }}
                       >
-                        Ban
+                        <BanIcon size={15} aria-hidden />
                       </Button>
                     </div>
                   </div>

@@ -1,4 +1,12 @@
-import { RefreshCw } from 'lucide-react';
+import {
+  ExternalLinkIcon,
+  PauseIcon,
+  PlayIcon,
+  PowerIcon,
+  RefreshCw,
+  RotateCwIcon,
+  SkipForwardIcon,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button, Dialog } from '@nuclearplayer/ui';
@@ -154,8 +162,9 @@ export function AdminStreamManagerPanel({
                         href={stream.hlsUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+                        className="text-foreground-secondary inline-flex items-center gap-1 text-xs underline-offset-2 hover:underline"
                       >
+                        <ExternalLinkIcon size={13} aria-hidden />
                         Listen
                       </a>
                     )}
@@ -170,8 +179,10 @@ export function AdminStreamManagerPanel({
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Button
-                    size="sm"
+                    size="icon-sm"
                     variant="secondary"
+                    aria-label={`Restart ${stream.artistName}`}
+                    title="Restart stream"
                     disabled={busySlug === stream.slug}
                     onClick={() =>
                       run(
@@ -181,35 +192,43 @@ export function AdminStreamManagerPanel({
                       )
                     }
                   >
-                    Restart
+                    <RotateCwIcon size={14} aria-hidden />
                   </Button>
                   <Button
-                    size="sm"
+                    size="icon-sm"
                     variant="secondary"
+                    aria-label={`Skip ${stream.artistName}`}
+                    title="Skip current item"
                     disabled={busySlug === stream.slug}
                     onClick={() => run(stream.slug, skipStreamTrack)}
                   >
-                    Skip
+                    <SkipForwardIcon size={14} aria-hidden />
                   </Button>
                   <Button
-                    size="sm"
+                    size="icon-sm"
                     variant="secondary"
+                    aria-label={`Pause ${stream.artistName}`}
+                    title="Pause stream"
                     disabled={busySlug === stream.slug}
                     onClick={() => run(stream.slug, pauseStream)}
                   >
-                    Pause
+                    <PauseIcon size={14} aria-hidden />
                   </Button>
                   <Button
-                    size="sm"
+                    size="icon-sm"
                     variant="secondary"
+                    aria-label={`Resume ${stream.artistName}`}
+                    title="Resume stream"
                     disabled={busySlug === stream.slug}
                     onClick={() => run(stream.slug, resumeStream)}
                   >
-                    Resume
+                    <PlayIcon size={14} aria-hidden />
                   </Button>
                   <Button
-                    size="sm"
+                    size="icon-sm"
                     variant="text"
+                    aria-label={`Take ${stream.artistName} offline`}
+                    title="Force offline"
                     disabled={busySlug === stream.slug}
                     onClick={() =>
                       run(
@@ -219,7 +238,7 @@ export function AdminStreamManagerPanel({
                       )
                     }
                   >
-                    Force offline
+                    <PowerIcon size={14} aria-hidden />
                   </Button>
                 </div>
               </>

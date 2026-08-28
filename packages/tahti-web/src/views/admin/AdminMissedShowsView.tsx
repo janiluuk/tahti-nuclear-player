@@ -1,4 +1,4 @@
-import { AlertTriangleIcon } from 'lucide-react';
+import { AlertTriangleIcon, CheckIcon, EyeIcon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
@@ -124,32 +124,38 @@ export function AdminMissedShowsPanel() {
                 <div className="flex shrink-0 flex-wrap gap-1.5">
                   {flag.status !== 'REVIEWING' && (
                     <Button
-                      size="sm"
+                      size="icon-sm"
                       variant="secondary"
+                      aria-label={`Mark ${flag.scheduledLiveShow.title} as reviewing`}
+                      title="Mark reviewing"
                       disabled={busyId === flag.id}
                       onClick={() => void setStatus(flag, 'REVIEWING')}
                     >
-                      Reviewing
+                      <EyeIcon size={14} aria-hidden />
                     </Button>
                   )}
                   {flag.status !== 'ACTIONED' && (
                     <Button
-                      size="sm"
+                      size="icon-sm"
                       variant="secondary"
+                      aria-label={`Mark ${flag.scheduledLiveShow.title} as actioned`}
+                      title="Mark actioned"
                       disabled={busyId === flag.id}
                       onClick={() => void setStatus(flag, 'ACTIONED')}
                     >
-                      Actioned
+                      <CheckIcon size={14} aria-hidden />
                     </Button>
                   )}
                   {flag.status !== 'DISMISSED' && (
                     <Button
-                      size="sm"
+                      size="icon-sm"
                       variant="secondary"
+                      aria-label={`Dismiss ${flag.scheduledLiveShow.title}`}
+                      title="Dismiss missed show"
                       disabled={busyId === flag.id}
                       onClick={() => void setStatus(flag, 'DISMISSED')}
                     >
-                      Dismiss
+                      <XIcon size={14} aria-hidden />
                     </Button>
                   )}
                 </div>
