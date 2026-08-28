@@ -1,6 +1,27 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Settings now shows the deployment version in its footer alongside GitHub, API docs, and About links; each deployment receives a unique build version.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Settings", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Top-bar schedule, broadcast, and messages actions now provide compact previews with direct links to the full schedule, broadcast studio, and message threads.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "The Tahti Radio booking modal now links directly to the full schedule view.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Schedule", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Studio editor sessions now open as responsive multitrack timelines with clip arrangement, synchronized preview, track controls, and autosaved projects.",
     "type": "improvement",
     "contributors": ["jani"],

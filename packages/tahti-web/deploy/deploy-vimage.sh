@@ -25,6 +25,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NUCLEAR_ROOT="$(cd "$ROOT/../.." && pwd)"
 IMAGE="${DEPLOY_IMAGE:-tahti-beta-web:local}"
 CENTRIFUGO_WS="${VITE_CENTRIFUGO_WS:-wss://chat.tahti.live/connection/websocket}"
+DEPLOY_VERSION="$(date -u +%Y%m%d%H%M%S%3N)"
 
 need() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -47,11 +48,13 @@ fi
 echo "==> Building @nuclearplayer/tahti-web"
 echo "    API: same-origin /tahti-api (proxied to https://api.tahti.live)"
 echo "    Chat WS: ${CENTRIFUGO_WS}"
+echo "    Deploy version: ${DEPLOY_VERSION}"
 cd "$NUCLEAR_ROOT"
 # Leave VITE_TAHTI_API_URL unset so the client uses /tahti-api.
 # Unset mock so production data is used.
 env -u VITE_TAHTI_API_URL -u VITE_FORCE_MOCK -u VITE_ALLOW_MOCK_FALLBACK \
   VITE_CENTRIFUGO_WS="${CENTRIFUGO_WS}" \
+  VITE_DEPLOY_VERSION="${DEPLOY_VERSION}" \
   VITE_ENABLE_DIAGNOSTICS=1 \
   pnpm --filter @nuclearplayer/tahti-web build
 

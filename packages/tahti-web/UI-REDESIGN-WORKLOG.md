@@ -1,5 +1,17 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Deployment version in settings footer
+
+**Completed:** Settings now places the build version and deployment fingerprint beneath the GitHub, API docs, and About links. Deploy builds receive a UTC millisecond timestamp, so the displayed version changes on every deployment while retaining the package version as its base.
+
+## 2026-08-28 — Top-bar schedule, broadcast, and messages previews
+
+**Completed:** The top navigation now follows the sibling Tahti interaction model: schedule opens its compact upcoming-show preview, broadcast opens a live/offline status preview with a link to the broadcast studio, and messages opens a conversation preview with unread counts and direct thread links. Each preview can still be opened as a full page where appropriate.
+
+## 2026-08-28 — Full schedule link in booking modal
+
+**Completed:** The Tahti Radio booking/calendar modal now includes an “Open full schedule” link alongside the existing close action, taking listeners and artists to the full-screen schedule view.
+
 ## 2026-08-28 — Stash track management and audience access
 
 **Completed:** Studio → Stash now opens on an All stash tab listing private archive tracks with the normal track editor, while uploaded locker files remain under a separate Files tab. Track editors now share an Audience control for Public, Not listed, Private, or Stash visibility. Stash visibility shows the artist’s fan tiers with selectable access and a compact add-tier action when no tiers exist.

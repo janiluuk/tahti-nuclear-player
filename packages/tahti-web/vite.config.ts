@@ -110,6 +110,8 @@ function reviewStateApiPlugin(): Plugin {
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   validateProductionBuildEnvironment(command, env);
+  const deployVersion =
+    env.VITE_DEPLOY_VERSION ?? new Date().toISOString().replace(/\D/g, '');
   const tahtiApi =
     env.VITE_TAHTI_API_PROXY_TARGET ||
     env.VITE_TAHTI_API_URL ||
@@ -117,7 +119,7 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     define: {
-      __APP_VERSION__: JSON.stringify(pkg.version),
+      __APP_VERSION__: JSON.stringify(`${pkg.version}+${deployVersion}`),
       __COMMIT_HASH__: JSON.stringify(commitHash),
       // Baked in at build time, not request time — reflects when this
       // bundle was built, which for beta is deploy time (deploy-vimage.sh

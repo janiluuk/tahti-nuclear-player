@@ -1,4 +1,4 @@
-import { BookOpenIcon, GithubIcon } from 'lucide-react';
+import { BookOpenIcon, GithubIcon, InfoIcon } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { Button, SettingsPanel } from '@nuclearplayer/ui';
@@ -14,12 +14,14 @@ import {
   type SettingsSectionId,
 } from '../views/settings/settingsNav';
 import { SettingsSectionBody } from '../views/settings/SettingsPanels';
+import { SidebarBuildInfo } from './SidebarBuildInfo';
 
 /** Canonical Tahti Nuclear origin (TAHTI.md / README remotes). */
 const GITHUB_REPO_URL =
   'https://github.com/janiluuk/tahti-electron-compatible-client';
 /** Public Scalar/OpenAPI docs (packages/tahti-web/README.md). */
 const API_DOCS_URL = 'https://api.tahti.live/api';
+const ABOUT_URL = '/about';
 
 const footerLinkClass =
   'text-foreground-secondary hover:text-foreground hover:bg-background-secondary flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors';
@@ -85,24 +87,31 @@ export function ConnectedSettingsModal() {
             </div>
           ) : null}
           <div className="border-border flex flex-col gap-0.5 border-t pt-2">
-            <a
-              href={GITHUB_REPO_URL}
-              className={footerLinkClass}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <GithubIcon size={14} aria-hidden />
-              GitHub
-            </a>
-            <a
-              href={API_DOCS_URL}
-              className={footerLinkClass}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <BookOpenIcon size={14} aria-hidden />
-              API docs
-            </a>
+            <div className="flex flex-col gap-0.5">
+              <a
+                href={GITHUB_REPO_URL}
+                className={footerLinkClass}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <GithubIcon size={14} aria-hidden />
+                GitHub
+              </a>
+              <a
+                href={API_DOCS_URL}
+                className={footerLinkClass}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <BookOpenIcon size={14} aria-hidden />
+                API docs
+              </a>
+              <a href={ABOUT_URL} className={footerLinkClass}>
+                <InfoIcon size={14} aria-hidden />
+                About
+              </a>
+            </div>
+            <SidebarBuildInfo />
           </div>
         </div>
       }

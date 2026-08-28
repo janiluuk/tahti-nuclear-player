@@ -3,6 +3,7 @@ import {
   CalendarPlusIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ExternalLinkIcon,
   MessageCircleIcon,
   MicIcon,
 } from 'lucide-react';
@@ -431,6 +432,12 @@ export function RadioBookingCalendar({
 
         <Dialog.Actions>
           <Dialog.Close>Close</Dialog.Close>
+          <Link to="/schedule" onClick={onClose}>
+            <Button size="sm" variant="secondary">
+              <ExternalLinkIcon size={14} aria-hidden className="mr-1.5" />
+              Open full schedule
+            </Button>
+          </Link>
         </Dialog.Actions>
       </Dialog.Root>
 

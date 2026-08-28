@@ -115,10 +115,8 @@ import { MentionTextarea } from '../../components/MentionTextarea';
 import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
 import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
-import { SidebarBuildInfo } from '../../components/SidebarBuildInfo';
 import { SocialLinkIcon } from '../../components/SocialLinkIcon';
 import { ThemeEditor } from '../../components/ThemeEditor';
-import { hasAccountRole } from '../../lib/accountRoles';
 import { COUNTRIES, flagEmoji } from '../../lib/countries';
 import {
   formatGenreTags,
@@ -313,7 +311,6 @@ function MembershipCheckoutButton({
 
 function AccountPanel() {
   const user = useAuthStore((s) => s.user);
-  const isBoard = useAuthStore((s) => hasAccountRole(s.user, 'BOARD'));
   const logout = useAuthStore((s) => s.logout);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [membership, setMembership] = useState<MembershipStatus | null>(null);
@@ -366,7 +363,6 @@ function AccountPanel() {
                   Log out
                 </Button>
               </div>
-              {isBoard && <SidebarBuildInfo />}
             </div>
           ),
         },

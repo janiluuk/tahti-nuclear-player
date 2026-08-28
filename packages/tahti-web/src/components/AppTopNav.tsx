@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { fetchConversations, type ConversationSummary } from '../api/messages';
 import { cn } from '../lib/cn';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
@@ -48,7 +49,11 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [bookOpen, setBookOpen] = useState(false);
+  const [broadcastOpen, setBroadcastOpen] = useState(false);
+  const [messagesOpen, setMessagesOpen] = useState(false);
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   const hasChannel = Boolean(user?.channel?.slug);
   const isLive = user?.channel?.state === 'LIVE';
@@ -78,7 +83,43 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   }, [open]);
 
   useEffect(() => {
+    if (!broadcastOpen && !messagesOpen) {
+      return;
+    }
+    function onPointerDown(event: PointerEvent) {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node)
+      ) {
+        setBroadcastOpen(false);
+        setMessagesOpen(false);
+      }
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setBroadcastOpen(false);
+        setMessagesOpen(false);
+      }
+    }
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [broadcastOpen, messagesOpen]);
+
+  useEffect(() => {
+    if (!messagesOpen) {
+      return;
+    }
+    void fetchConversations().then((result) => setConversations(result.data));
+  }, [messagesOpen]);
+
+  useEffect(() => {
     setOpen(false);
+    setBroadcastOpen(false);
+    setMessagesOpen(false);
   }, [pathname]);
 
   return (
@@ -101,7 +142,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
         <GlobalSearch />
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1" ref={popupRef}>
         <button
           type="button"
           className={cn(
@@ -119,20 +160,55 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
 
         {user && hasChannel ? (
           <>
-            <Link
-              to="/studio/go-live"
-              className={cn(
-                'hidden sm:inline-flex',
-                iconBtnClass,
-                pathname.startsWith('/studio/go-live') &&
-                  'border-primary bg-primary/15 text-primary',
-              )}
-              aria-label="Go live"
-              title="Go live"
-              data-tour-id="topbar-golive"
-            >
-              <RadioIcon size={16} />
-            </Link>
+            <div className="relative hidden sm:block">
+              <button
+                type="button"
+                className={cn(
+                  iconBtnClass,
+                  (broadcastOpen || pathname.startsWith('/studio/go-live')) &&
+                    'border-primary bg-primary/15 text-primary',
+                )}
+                aria-label="Broadcast status"
+                aria-haspopup="menu"
+                aria-expanded={broadcastOpen}
+                title="Broadcast status"
+                data-tour-id="topbar-golive"
+                onClick={() => {
+                  setBroadcastOpen((current) => !current);
+                  setMessagesOpen(false);
+                }}
+              >
+                <RadioIcon size={16} />
+              </button>
+              {broadcastOpen ? (
+                <div
+                  className="border-border bg-background absolute top-[calc(100%+6px)] right-0 z-40 min-w-52 rounded-lg border p-2 shadow-lg"
+                  role="menu"
+                >
+                  <div className="flex items-center gap-2 px-2 py-2 text-sm font-semibold">
+                    <span
+                      className={cn(
+                        'size-2 rounded-full',
+                        isLive
+                          ? 'bg-accent-green'
+                          : 'bg-foreground-secondary/40',
+                      )}
+                      aria-hidden
+                    />
+                    {isLive ? 'Live now' : 'Broadcast offline'}
+                  </div>
+                  <Link
+                    to="/studio/go-live"
+                    role="menuitem"
+                    onClick={() => setBroadcastOpen(false)}
+                    className="hover:bg-background-secondary flex items-center gap-2 rounded-md px-2 py-2 text-xs"
+                  >
+                    <RadioIcon size={14} aria-hidden />
+                    Open broadcast studio
+                  </Link>
+                </div>
+              ) : null}
+            </div>
             <button
               type="button"
               className={cn('hidden sm:inline-flex', iconBtnClass)}
@@ -161,19 +237,99 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
         ) : null}
 
         {user ? (
-          <Link
-            to="/messages"
-            className={cn(
-              iconBtnClass,
-              pathname.startsWith('/messages') &&
-                'border-primary bg-primary/15 text-primary',
-            )}
-            aria-label="Messages"
-            title="Messages"
-            data-tour-id="topbar-messages"
-          >
-            <MessageSquareIcon size={16} />
-          </Link>
+          <div className="relative">
+            <button
+              type="button"
+              className={cn(
+                iconBtnClass,
+                (messagesOpen || pathname.startsWith('/messages')) &&
+                  'border-primary bg-primary/15 text-primary',
+              )}
+              aria-label="Messages"
+              aria-haspopup="menu"
+              aria-expanded={messagesOpen}
+              title="Messages"
+              data-tour-id="topbar-messages"
+              onClick={() => {
+                setMessagesOpen((current) => !current);
+                setBroadcastOpen(false);
+              }}
+            >
+              <MessageSquareIcon size={16} />
+              {conversations.reduce(
+                (total, conversation) => total + conversation.unreadCount,
+                0,
+              ) > 0 ? (
+                <span className="bg-accent-red text-background absolute -top-1 -right-1 min-w-4 rounded-full px-1 text-center text-[9px] font-bold">
+                  {Math.min(
+                    9,
+                    conversations.reduce(
+                      (total, conversation) => total + conversation.unreadCount,
+                      0,
+                    ),
+                  )}
+                </span>
+              ) : null}
+            </button>
+            {messagesOpen ? (
+              <div
+                className="border-border bg-background absolute top-[calc(100%+6px)] right-0 z-40 w-72 rounded-lg border p-2 shadow-lg"
+                role="menu"
+              >
+                <div className="flex items-center justify-between px-2 py-1">
+                  <span className="text-sm font-semibold">Messages</span>
+                  <Link
+                    to="/messages"
+                    role="menuitem"
+                    onClick={() => setMessagesOpen(false)}
+                    className="text-accent-cyan text-xs hover:underline"
+                  >
+                    Open all
+                  </Link>
+                </div>
+                {conversations.length === 0 ? (
+                  <p className="text-foreground-secondary px-2 py-3 text-xs">
+                    No messages yet.
+                  </p>
+                ) : (
+                  conversations.slice(0, 5).map((conversation) => (
+                    <Link
+                      key={conversation.id}
+                      to="/messages/$id"
+                      params={{ id: conversation.id }}
+                      role="menuitem"
+                      onClick={() => setMessagesOpen(false)}
+                      className={cn(
+                        'hover:bg-background-secondary flex gap-2 rounded-md px-2 py-2 text-xs',
+                        conversation.unreadCount > 0 && 'bg-accent-purple/10',
+                      )}
+                    >
+                      <span className="bg-primary/20 text-primary flex size-7 shrink-0 items-center justify-center rounded-full font-semibold">
+                        {conversation.otherUser.displayName
+                          .charAt(0)
+                          .toUpperCase()}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center justify-between gap-2 font-medium">
+                          <span className="truncate">
+                            {conversation.otherUser.displayName}
+                          </span>
+                          {conversation.unreadCount > 0 ? (
+                            <span className="text-accent-red">
+                              {conversation.unreadCount}
+                            </span>
+                          ) : null}
+                        </span>
+                        <span className="text-foreground-secondary block truncate">
+                          {conversation.lastMessage?.body ?? 'No messages yet'}
+                        </span>
+                      </span>
+                    </Link>
+                  ))
+                )}
+              </div>
+            ) : null}
+          </div>
         ) : null}
 
         {user ? (
