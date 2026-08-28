@@ -1,0 +1,657 @@
+[
+  {
+    "path": "/",
+    "file": "listen-home.png",
+    "title": "Listener home",
+    "narration": "Browse stations, releases and the active player.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/radio",
+    "file": "listen-radio.png",
+    "title": "Radio directory",
+    "narration": "Find live channels and open a station.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/discover",
+    "file": "listen-discover.png",
+    "title": "Discover",
+    "narration": "Explore tracks, artists and collections.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/feed",
+    "file": "listen-feed.png",
+    "title": "Your feed",
+    "narration": "Follow updates and play shared tracks.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/library",
+    "file": "library-all-sounds.png",
+    "title": "Library / All sounds",
+    "narration": "Manage uploaded audio with search, filters and playback.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/library/collections",
+    "file": "library-collections.png",
+    "title": "Library / Collections",
+    "narration": "Organize albums, EPs, playlists and podcasts.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/library/recordings",
+    "file": "library-recordings.png",
+    "title": "Library / Recordings",
+    "narration": "Review recordings from broadcasts and shows.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/library/history",
+    "file": "library-history.png",
+    "title": "Library / History",
+    "narration": "Return to recently played items and listening history.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/library/favorites",
+    "file": "library-favorites.png",
+    "title": "Library / Favourites",
+    "narration": "Keep loved tracks available from the main library.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/library/smartlinks",
+    "file": "library-smartlinks.png",
+    "title": "Library / Smartlinks",
+    "narration": "Create and monitor shareable release links.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/messages",
+    "file": "listener-messages.png",
+    "title": "Messages",
+    "narration": "Open conversations and highlighted message threads.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/settings/account",
+    "file": "settings-account.png",
+    "title": "Settings / Account",
+    "narration": "Manage identity, security, privacy and notifications.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/settings/artist",
+    "file": "settings-artist.png",
+    "title": "Settings / Artist",
+    "narration": "Edit artist identity, branding, gallery and connections.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/settings/channel",
+    "file": "settings-channel.png",
+    "title": "Settings / Channel",
+    "narration": "Configure channel details and public discovery.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/settings/broadcast",
+    "file": "settings-broadcast.png",
+    "title": "Settings / Broadcast",
+    "narration": "Configure radio, green room and multicast destinations.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/settings/audience",
+    "file": "settings-audience.png",
+    "title": "Settings / Audience",
+    "narration": "Manage tiers, subscriptions and grants.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/settings/themes",
+    "file": "settings-themes.png",
+    "title": "Settings / Themes",
+    "narration": "Choose the visual language and appearance.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/settings/plugin-store",
+    "file": "settings-addons.png",
+    "title": "Settings / Add-ons",
+    "narration": "Configure player, import, export and channel extensions.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/settings/whats-new",
+    "file": "settings-whats-new.png",
+    "title": "Settings / What’s new",
+    "narration": "Read product changes and release notes.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/channel/demo",
+    "file": "public-channel-aurora.png",
+    "title": "Public channel / Aurora",
+    "narration": "A public artist channel with the Aurora visualizer.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/radio/show/northern-lights",
+    "file": "public-radio-grid.png",
+    "title": "Public radio channel / Reactive Grid",
+    "narration": "Listen to a live channel with a different visualizer preset.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/u/demo",
+    "file": "public-artist.png",
+    "title": "Artist profile",
+    "narration": "See the artist identity, story, people and public catalogue.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/governance",
+    "file": "governance.png",
+    "title": "Governance",
+    "narration": "Review proposals, voting and community decisions.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/help",
+    "file": "help-center.png",
+    "title": "Help center",
+    "narration": "Find guidance for listening, publishing and broadcasting.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/status",
+    "file": "platform-status.png",
+    "title": "Platform status",
+    "narration": "Check service health and operational status.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio",
+    "file": "studio-overview.png",
+    "title": "Studio / Overview",
+    "narration": "See channel health, upcoming shows and work that needs attention.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/stats",
+    "file": "studio-stats-overview.png",
+    "title": "Studio / Stats / Overview",
+    "narration": "Review audience and catalogue performance at a glance.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/stats?tab=plays",
+    "file": "studio-stats-plays.png",
+    "title": "Studio / Stats / Plays & listeners",
+    "narration": "Compare plays, listeners and activity over time.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/stats?tab=top-lists",
+    "file": "studio-stats-top-lists.png",
+    "title": "Studio / Stats / Top lists",
+    "narration": "Inspect top tracks, countries and content types.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/updates",
+    "file": "studio-posts.png",
+    "title": "Studio / Posts",
+    "narration": "Publish updates and manage newsletter communication.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/distribution",
+    "file": "studio-distribution.png",
+    "title": "Studio / Distribution",
+    "narration": "Prepare catalogue delivery to external services.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/insights",
+    "file": "studio-insights.png",
+    "title": "Studio / Insights",
+    "narration": "Review track and catalogue insights.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/revenue",
+    "file": "studio-audience.png",
+    "title": "Studio / Audience",
+    "narration": "Manage audience relationships and fan revenue.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/archive",
+    "file": "studio-sounds.png",
+    "title": "Studio / Library / Sounds",
+    "narration": "Filter, sort, play and edit sound content.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/archive?tab=clips",
+    "file": "studio-clips.png",
+    "title": "Studio / Library / Clips",
+    "narration": "Manage short clips and radio announcements.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/collections",
+    "file": "studio-collections.png",
+    "title": "Studio / Library / Collections",
+    "narration": "Create and browse organized collections.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/releases",
+    "file": "studio-releases.png",
+    "title": "Studio / Library / Releases",
+    "narration": "Manage singles, EPs and albums.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/recordings",
+    "file": "studio-recordings.png",
+    "title": "Studio / Library / Recordings",
+    "narration": "Polish and publish broadcast recordings.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/upload",
+    "file": "studio-upload.png",
+    "title": "Studio / Library / Upload",
+    "narration": "Add tracks, releases, clips and imports.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/editor",
+    "file": "studio-editor.png",
+    "title": "Studio / Library / Editor",
+    "narration": "Open an audio session or import from the library.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/stash",
+    "file": "studio-stash.png",
+    "title": "Studio / Library / Stash",
+    "narration": "Keep private content out of the public catalogue.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/go-live",
+    "file": "studio-go-live.png",
+    "title": "Studio / Perform / Go live",
+    "narration": "Run pre-flight, rotation and live broadcast controls.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/schedule",
+    "file": "studio-schedule.png",
+    "title": "Studio / Perform / Schedule",
+    "narration": "Plan broadcasts and inspect analytics.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/events",
+    "file": "studio-events.png",
+    "title": "Studio / Perform / Events",
+    "narration": "Manage upcoming and past events.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/events/new",
+    "file": "studio-event-new.png",
+    "title": "Studio / Perform / New event",
+    "narration": "Create an event with venue, ticket and artwork details.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/venues",
+    "file": "studio-venues.png",
+    "title": "Studio / Perform / Venues",
+    "narration": "Browse and manage venue directory entries.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/shows",
+    "file": "studio-shows.png",
+    "title": "Studio / Perform / Shows",
+    "narration": "Manage single shows and continuing series.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/shows/show-series-demo",
+    "file": "studio-show-detail.png",
+    "title": "Studio / Perform / Show detail",
+    "narration": "Review show metadata, episodes and recordings.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/channel",
+    "file": "studio-channel.png",
+    "title": "Studio / Manage / Channel",
+    "narration": "Edit channel information and channel wizard access.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/channel?tab=radio",
+    "file": "studio-radio.png",
+    "title": "Studio / Manage / Radio",
+    "narration": "Control stream statistics and 24/7 rotation.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/channel?tab=green-room",
+    "file": "studio-green-room.png",
+    "title": "Studio / Manage / Green room",
+    "narration": "Configure the broadcast preparation space.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/channel?tab=multicast",
+    "file": "studio-multicast.png",
+    "title": "Studio / Manage / Multicast",
+    "narration": "Activate configured stream destinations.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/channel?tab=selects",
+    "file": "studio-selects.png",
+    "title": "Studio / Manage / Tahti Selects",
+    "narration": "Curate the community rotation.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/studio/moderation",
+    "file": "studio-moderation.png",
+    "title": "Studio / Manage / Moderation",
+    "narration": "Assign moderators and review channel queues.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin",
+    "file": "admin-overview.png",
+    "title": "Admin / Overview",
+    "narration": "Monitor platform needs action, streams and system status.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/status",
+    "file": "admin-status.png",
+    "title": "Admin / Status",
+    "narration": "View platform health alongside operational data.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/logs",
+    "file": "admin-logs.png",
+    "title": "Admin / Logs / Activity",
+    "narration": "Inspect operational activity.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/logs?tab=containers",
+    "file": "admin-logs-containers.png",
+    "title": "Admin / Logs / Containers",
+    "narration": "Inspect container and service logs.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/logs?tab=recent-audit",
+    "file": "admin-logs-audit.png",
+    "title": "Admin / Logs / Recent audit",
+    "narration": "Review recent privileged actions and context.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/moderation",
+    "file": "admin-moderation.png",
+    "title": "Admin / Moderation / Support",
+    "narration": "Triage moderation queues.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/moderation/beta",
+    "file": "admin-moderation-beta.png",
+    "title": "Admin / Moderation / Beta applications",
+    "narration": "Review beta applications.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/moderation/radio-submissions",
+    "file": "admin-moderation-radio.png",
+    "title": "Admin / Moderation / Radio submissions",
+    "narration": "Review Tahti Radio submissions.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/moderation/content-reports",
+    "file": "admin-moderation-reports.png",
+    "title": "Admin / Moderation / Content reports",
+    "narration": "Resolve content reports.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/moderation/feature-requests",
+    "file": "admin-moderation-features.png",
+    "title": "Admin / Moderation / Feature requests",
+    "narration": "Track product requests.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/moderation/missed-shows",
+    "file": "admin-moderation-missed.png",
+    "title": "Admin / Moderation / Missed shows",
+    "narration": "Resolve missed broadcast follow-up.",
+    "hasContent": true,
+    "errors": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ]
+  },
+  {
+    "path": "/admin/users",
+    "file": "admin-users.png",
+    "title": "Admin / Users",
+    "narration": "Manage accounts and roles.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/radio",
+    "file": "admin-radio.png",
+    "title": "Admin / Radio",
+    "narration": "Manage station configuration.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/news",
+    "file": "admin-news.png",
+    "title": "Admin / Posts",
+    "narration": "Publish generic announcements.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/streams",
+    "file": "admin-streams.png",
+    "title": "Admin / Streams",
+    "narration": "Manage streams, listeners and controls.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/top-lists",
+    "file": "admin-top-lists.png",
+    "title": "Admin / Top lists",
+    "narration": "Explore platform listening rankings.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/announcements",
+    "file": "admin-announcements.png",
+    "title": "Admin / Announcements",
+    "narration": "Manage pinned and public announcements.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/storage",
+    "file": "admin-storage.png",
+    "title": "Admin / Storage",
+    "narration": "Review storage usage.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/storage?tab=files",
+    "file": "admin-storage-files.png",
+    "title": "Admin / Storage / Files",
+    "narration": "Inspect stored files.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/financial",
+    "file": "admin-financial.png",
+    "title": "Admin / Financial",
+    "narration": "Review platform financial summaries.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/governance",
+    "file": "admin-governance.png",
+    "title": "Admin / Governance",
+    "narration": "Review proposals, votes and discussion activity.",
+    "hasContent": true,
+    "errors": [
+      "Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s mock-act-7 \n    at ul\n    at div\n    at section\n    at StudioPanel (http://127.0.0.1:5191/src/components/StudioPanel.tsx:3:3)\n    at div\n    at AdminGate (http://127.0.0.1:5191/src/components/AdminGate.tsx?t=1787886185795:10:29)\n    at AdminGovernanceView (http://127.0.0.1:5191/src/views/admin/AdminGovernanceView.tsx?t=1787886185795:22:35)\n    at Lazy\n    at MatchInnerImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7054:59)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at MatchImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6985:49)\n    at OutletImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7128:18)\n    at div\n    at RouteTransition (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/RouteTransition.tsx:94:3)\n    at div\n    at main\n    at PlayerWorkspaceMain (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/PlayerWorkspace/PlayerWorkspace.tsx:5:32)\n    at div\n    at PlayerWorkspaceImpl (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/PlayerWorkspace/PlayerWorkspace.tsx:25:3)\n    at div\n    at PlayerShell (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/PlayerShell.tsx:4:3)\n    at AppShell (http://127.0.0.1:5191/src/components/AppShell.tsx?t=1787886185795:239:20)\n    at MatchInnerImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7054:59)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at MatchImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6985:49)\n    at Suspense\n    at OutletImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7128:18)\n    at component\n    at MatchInnerImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7054:59)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at MatchImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6985:49)\n    at CatchBoundaryImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:5881:5)\n    at CatchBoundary (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:5866:32)\n    at MatchesInner (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7269:18)\n    at Suspense\n    at Matches (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7259:18)\n    at RouterContextProvider (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7363:34)\n    at RouterProvider (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7379:27)",
+      "Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s mock-act-7 \n    at ul\n    at div\n    at section\n    at StudioPanel (http://127.0.0.1:5191/src/components/StudioPanel.tsx:3:3)\n    at div\n    at AdminGate (http://127.0.0.1:5191/src/components/AdminGate.tsx?t=1787886185795:10:29)\n    at AdminGovernanceView (http://127.0.0.1:5191/src/views/admin/AdminGovernanceView.tsx?t=1787886185795:22:35)\n    at Lazy\n    at MatchInnerImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7054:59)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at MatchImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6985:49)\n    at OutletImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7128:18)\n    at div\n    at RouteTransition (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/RouteTransition.tsx:94:3)\n    at div\n    at main\n    at PlayerWorkspaceMain (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/PlayerWorkspace/PlayerWorkspace.tsx:5:32)\n    at div\n    at PlayerWorkspaceImpl (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/PlayerWorkspace/PlayerWorkspace.tsx:25:3)\n    at div\n    at PlayerShell (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/PlayerShell.tsx:4:3)\n    at AppShell (http://127.0.0.1:5191/src/components/AppShell.tsx?t=1787886185795:239:20)\n    at MatchInnerImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7054:59)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at MatchImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6985:49)\n    at Suspense\n    at OutletImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7128:18)\n    at component\n    at MatchInnerImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7054:59)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at MatchImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6985:49)\n    at CatchBoundaryImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:5881:5)\n    at CatchBoundary (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:5866:32)\n    at MatchesInner (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7269:18)\n    at Suspense\n    at Matches (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7259:18)\n    at RouterContextProvider (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7363:34)\n    at RouterProvider (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7379:27)",
+      "Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s mock-act-7 \n    at ul\n    at div\n    at section\n    at StudioPanel (http://127.0.0.1:5191/src/components/StudioPanel.tsx:3:3)\n    at div\n    at AdminGate (http://127.0.0.1:5191/src/components/AdminGate.tsx?t=1787886185795:10:29)\n    at AdminGovernanceView (http://127.0.0.1:5191/src/views/admin/AdminGovernanceView.tsx?t=1787886185795:22:35)\n    at Lazy\n    at MatchInnerImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7054:59)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at MatchImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6985:49)\n    at OutletImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7128:18)\n    at div\n    at RouteTransition (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/RouteTransition.tsx:94:3)\n    at div\n    at main\n    at PlayerWorkspaceMain (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/PlayerWorkspace/PlayerWorkspace.tsx:5:32)\n    at div\n    at PlayerWorkspaceImpl (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/PlayerWorkspace/PlayerWorkspace.tsx:25:3)\n    at div\n    at PlayerShell (http://127.0.0.1:5191/@fs/home/jani/workspace/tahti-nuclear/packages/ui/src/components/PlayerShell.tsx:4:3)\n    at AppShell (http://127.0.0.1:5191/src/components/AppShell.tsx?t=1787886185795:239:20)\n    at MatchInnerImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7054:59)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at MatchImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6985:49)\n    at Suspense\n    at OutletImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7128:18)\n    at component\n    at MatchInnerImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7054:59)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at SafeFragment (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6949:87)\n    at MatchImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:6985:49)\n    at CatchBoundaryImpl (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:5881:5)\n    at CatchBoundary (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:5866:32)\n    at MatchesInner (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7269:18)\n    at Suspense\n    at Matches (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7259:18)\n    at RouterContextProvider (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7363:34)\n    at RouterProvider (http://127.0.0.1:5191/node_modules/.vite/deps/@tanstack_react-router.js?v=022c37a4:7379:27)"
+    ]
+  },
+  {
+    "path": "/admin/grants",
+    "file": "admin-grants.png",
+    "title": "Admin / Grants",
+    "narration": "Manage grant cycles and awards.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/agm",
+    "file": "admin-agm.png",
+    "title": "Admin / AGM",
+    "narration": "Prepare and review annual meeting decisions.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/vendors",
+    "file": "admin-vendors.png",
+    "title": "Admin / Vendors",
+    "narration": "Manage platform vendors and integrations.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/disco-widgets",
+    "file": "admin-widgets.png",
+    "title": "Admin / Widgets",
+    "narration": "Catalog and configure discovery widgets.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/i18n",
+    "file": "admin-i18n.png",
+    "title": "Admin / Localization",
+    "narration": "Manage translated product content.",
+    "hasContent": true,
+    "errors": []
+  },
+  {
+    "path": "/admin/tahti-selects",
+    "file": "admin-selects.png",
+    "title": "Admin / Tahti Selects",
+    "narration": "Curate the platform-wide selection.",
+    "hasContent": true,
+    "errors": []
+  }
+]
