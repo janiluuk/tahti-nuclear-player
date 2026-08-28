@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Admin and Studio moderation actions now use compact icon controls with accessible labels, and the navigation Storybook coverage includes mobile and nested routes.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Settings now shows the deployment version in its footer alongside GitHub, API docs, and About links; each deployment receives a unique build version.",
     "type": "improvement",
     "contributors": ["jani"],

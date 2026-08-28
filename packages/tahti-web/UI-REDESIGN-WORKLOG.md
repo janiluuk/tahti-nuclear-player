@@ -1,5 +1,15 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — 3×3 Storybook action and navigation sweep
+
+**Batch 1:** Admin stream controls, Studio moderator management, and Admin missed-show actions now use compact shared icon buttons with accessible labels and tooltips.
+
+**Batch 2:** Added rendered Storybook states for the Admin stream manager, Studio moderation workspace, and Admin missed-show queue.
+
+**Batch 3:** Added mobile and nested-route navigation states for Admin and top chrome, plus a Settings deployment-footer story covering GitHub, API docs, About, and the build fingerprint.
+
+**Validation:** Affected files pass formatting, lint-staged checks, type-check, and diff checks. The Storybook package has no standalone type-check script; its stories are included in the repository TypeScript configuration and are covered by the Storybook build.
+
 ## 2026-08-28 — Deployment version in settings footer
 
 **Completed:** Settings now places the build version and deployment fingerprint beneath the GitHub, API docs, and About links. Deploy builds receive a UTC millisecond timestamp, so the displayed version changes on every deployment while retaining the package version as its base.
