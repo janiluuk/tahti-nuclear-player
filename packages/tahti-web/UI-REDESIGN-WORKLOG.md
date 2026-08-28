@@ -1,5 +1,9 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Tahti Map screenshot and navigation refresh
+
+**Completed:** Regenerated the Tahti Map atlas from the local mock API with a privileged board user, covering public/listener views plus current Studio and Admin pages. Added Admin Overview, Financial, Storage, Logs, Content, Moderation, and Streams captures. Added a Mermaid graph for the stable app shell and current Studio/Admin section menus. Legacy Money Fan subs and TOTP interactions remain documented as soft-capture cases because those views no longer expose the old controls in the current app.
+
 ## 2026-08-28 — Consistent Studio and Admin create actions
 
 **Completed:** Standardized new/create controls across Studio and Admin page headers, empty states, and nested tools to the shared 32px icon-button treatment. Each compact control retains an accessible label and tooltip title.
@@ -1698,3 +1702,24 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Production cutover:** Rechecked the cutover boundary in `FEATURES.md`. The official client remains protected by the no-drop ledger requirement, and Admin remains canonical in the production web client. No cutover flag or route ownership was changed.
 
 **Responsive audit:** Reviewed the next workplan surfaces at phone and small-tablet constraints. Schedule controls and the seven-day grid now have deliberate stacked/scrolling behavior; moderation forms stack on phones. The editor and Admin operational tables retain horizontal scrolling where dense data requires it rather than clipping controls.
+## 2026-08-28 — Responsive UX follow-up and workplan audit
+
+**Audit result:** The existing Playwright layout-stability audit was run against the mock app at 1440px and 390px. It currently stops before measuring layout: the mock sign-in flow lands on the Listen view when the test navigates to `/studio`, so `.studio-page-layout` is absent. This is an auth/route harness failure, not evidence of horizontal overflow. The stale process occupying the audit port was replaced before the run.
+
+The next contract-gated workplan items were checked against the implementation. Slice 4 (generic Audio FX chain host) is implemented in `src/plugins/audio-fx/chain.ts` and consumed by the pro editor, with regression tests, so it is now marked shipped. Production cutover remains a no-drop ledger gate; ExportProvider remains blocked on sibling submit/status/webhook contracts. These two items were not marked complete without their required external contracts.
+
+The multitrack timeline keeps its intentional horizontal scroll region isolated to the canvas, stacks track controls above it on narrow screens, and uses bounded flex children (`min-w-0`) so it does not intentionally widen the page. A follow-up audit should first repair the mock auth navigation precondition, then rerun the full route matrix and record per-route overflow dimensions.
+
+## 2026-08-28 — Web performance audit
+
+**Build baseline:** The production build completed successfully. Before this pass, the entry bundle was 3.54 MB minified / 1.020 MB gzip. `StudioArchiveItemView`, `StudioCollectionEditView`, `StudioDistributionView`, `StudioProEditorView`, and `StudioShowDetailView` were statically reachable from the router.
+
+**Completed:** Those studio detail/editor routes now use `lazyRouteComponent`, producing route chunks instead of loading their code in the entry bundle. The entry bundle is now 3.45 MB minified / 997 KB gzip, a reduction of approximately 87 KB minified / 22 KB gzip. The build still passes type-checking and reports no new dynamic-import warning for those studio views.
+
+**Remaining issues and opportunities:**
+
+- The entry bundle remains large because broad listener/studio modules are still statically imported by the router. A follow-up should lazy-load additional infrequently visited studio/admin routes while preserving the shared shell.
+- Vite reports `api/admin.ts` cannot be split because `PluginStorePanel` statically imports it while admin routes also import it. Moving admin API access behind a settings/plugin-specific dynamic boundary is the highest-value next split candidate.
+- Mermaid-related chunks remain large (`mermaid.core` ~598 KB, `cynefin` ~688 KB, plus diagram chunks). They are already deferred from the entry path, but the diagram renderer could be split by diagram family or loaded only after the first `/more` flow interaction.
+- The Three.js visualizer remains correctly deferred to its own ~351 KB chunk; avoid importing visualizer presets from listener routes or shared shell code.
+- The responsive Playwright matrix is not yet a valid performance/layout signal because its mock sign-in flow lands on Listen before `/studio` assertions. Repair that fixture/navigation precondition before using route timing or overflow results as release evidence.

@@ -73,6 +73,42 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
 `,
   },
   {
+    id: 'nuclear-navigation-stable-2026-08',
+    pack: 'nuclear',
+    source: 'StudioNav · AdminNav · current beta routes',
+    title: 'Current navigation — stable sections',
+    blurb:
+      'The persistent app shell stays fixed while each section changes only its submenu and page content.',
+    mermaid: `flowchart TB
+  Shell["Persistent app shell"] --> Listener["Listen · Radio · Discover"]
+  Shell --> Studio["Studio"]
+  Shell --> Admin["Admin · board role"]
+
+  subgraph studio["Studio sections"]
+    Studio --> StudioOverview["Studio: Overview · Stats · Governance · Posts · Distribution · Audience"]
+    Studio --> Perform["Perform: Go Live · Schedule · Events · Venues · Shows"]
+    Studio --> Library["Library: Library · Releases · Media · Upload · Editor · Stash"]
+    Studio --> Manage["Manage: Channel · Sources · Radio · Green room · Multicast · Selects · Moderation"]
+  end
+
+  subgraph admin["Admin sections"]
+    Admin --> AdminOverview["Overview: Dashboard · Financial · Storage · Vendors · Logs · Status"]
+    Admin --> AdminCommunity["Community: Moderation · Users · Governance · Grants · AGM · Missed shows"]
+    Admin --> AdminContent["Content: Content · Radio · News · Top lists · Announcements"]
+    Admin --> AdminManage["Manage: Streams · Widgets · Languages · Selects"]
+  end
+
+  Studio -.-> Content["Only the page content changes"]
+  Admin -.-> Content
+  classDef shell fill:#0a0f1e,stroke:#f0a500,color:#e8eaf6;
+  classDef studioNode fill:#f3e8ff,stroke:#9333ea,color:#4c1d95;
+  classDef adminNode fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
+  class Shell,Content shell;
+  class Studio,StudioOverview,Perform,Library,Manage studioNode;
+  class Admin,AdminOverview,AdminCommunity,AdminContent,AdminManage adminNode;
+`,
+  },
+  {
     id: 'nuclear-journey-artist-admin-2026',
     pack: 'nuclear',
     source: 'router.tsx · Studio and Admin gates',

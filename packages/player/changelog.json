@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Refreshed the Tahti Map screenshot atlas with current listener, Studio, and privileged Admin views, and added a current stable-navigation Mermaid graph.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Documentation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Studio and Admin create actions now use one consistent compact icon-button size across page headers, empty states, and nested creation tools.",
     "type": "improvement",
     "contributors": ["jani"],

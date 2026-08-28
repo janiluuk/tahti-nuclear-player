@@ -38,8 +38,8 @@ Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which
 - [x] Stash share access (grant expiring read/download access + revoke)
 - [x] Sources OAuth callback-return verification (SoundCloud, Bandcamp, Google Drive, and Mixcloud production redirect shapes land on the matching source result in the SPA)
 - [x] Radio slots depth — weekly Tahti Radio and own-channel filters, two-hour selection, show type/notes, green-room links, cancellation, and mobile-safe horizontal schedule grid are implemented.
-- [ ] **Channel moderator management** — `/studio/moderation` is exposed from Studio Manage, with the owner-gated assignment/removal and chat-ban UI now mobile-safe; mock/API coverage for owner-only assignment/removal and moderator chat permissions remains.
-- [ ] Multitrack timeline + press-kit polish — press-kit gallery and download flows are shipped; a true multitrack timeline remains blocked on a rendering and persistence contract (see FEATURES.md).
+- [x] **Channel moderator management** — `/studio/moderation` is exposed from Studio Manage, with owner-gated assignment/removal, chat-ban UI, and mock/API coverage for the delegated moderator contract.
+- [x] Multitrack timeline + press-kit polish — press-kit gallery and download flows are shipped; editor projects now have a typed, autosaved multitrack timeline with synchronized preview and responsive controls.
 - [ ] Production cutover for `apps/web` — complete the listener/artist/admin no-drop ledger in [GAP-MAPPING.md](GAP-MAPPING.md) before changing the official client; keep Next Admin canonical unless the Admin parity gate is explicitly closed.
 
 Done since last update (was listed here as remaining, verified shipped): channel chat hardening (hCaptcha + rail parity), Stash upload UI, Stats detail page, Venue register, Membership purchase, Password/account security (TOTP panel), board admin (22/22 pages, now `partial` not `out-of-scope`).
@@ -60,7 +60,7 @@ This backlog comes from the Storybook comparison audit. Prefer the original Nucl
 - [x] **Authoring and parity baseline** — added the agent-facing plugin contract, typed add-on settings, explicit sibling-API counterpart metadata, and a runnable example plugin/tutorial. The remaining items below are the implementation backlog, not unverified claims of runtime support.
 - [x] **Bandcamp catalog import API** — complete the sibling API's Bandcamp album listing and import endpoint; the beta add-on UI, OAuth connection, release shop-link editor, and Bandcamp brand actions are now wired to those contracts.
 - [ ] **Nuclear registry runtime parity** — the remaining Nuclear registry entries are now visible in Add-ons with plugin-owned configuration forms and explicit available/partial/planned status; implement provider runtime/API contracts for the planned entries before marking them active.
-- [ ] **Slice 4 — generic Audio FX chain host** — extract add/remove/reorder and per-plugin parameter controls from `StudioProEditorView` so third-party audio plugins can own their controls.
+- [x] **Slice 4 — generic Audio FX chain host** — extracted add/remove/reorder operations and plugin-owned parameter metadata/controls from `StudioProEditorView`, with chain regression coverage.
 - [x] **Slice 5 — shared multicast destination form** — share the destination form between Go Live and Settings, keeping provider-specific credentials inside each provider configuration.
 - [ ] Define and implement an `ExportProvider` only after `../tahti` exposes submit/status/webhook contracts; the current registry is metadata/deep-link only.
 - [ ] **Slice 6 — source capability contracts** — split Sources into OAuth, search, and link/tool adapter contracts and route `SourcesView` through them without losing provider-specific behavior.

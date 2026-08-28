@@ -55,12 +55,9 @@ import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
 import { SourcesView } from './views/SourcesView';
 import { StatusView } from './views/StatusView';
-import { StudioArchiveItemView } from './views/studio/StudioArchiveItemView';
 import { StudioArchiveView } from './views/studio/StudioArchiveView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
-import { StudioCollectionEditView } from './views/studio/StudioCollectionEditView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
-import { StudioDistributionView } from './views/studio/StudioDistributionView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
 import { StudioEditorProjectView } from './views/studio/StudioEditorProjectView';
 import { StudioEventCreateView } from './views/studio/StudioEventCreateView';
@@ -70,17 +67,12 @@ import { StudioGovernanceView } from './views/studio/StudioGovernanceView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
 import { StudioModerationView } from './views/studio/StudioModerationView';
 import { StudioPlaylistEditorView } from './views/studio/StudioPlaylistsView';
-import { StudioProEditorView } from './views/studio/StudioProEditorView';
 import { StudioRecordingsView } from './views/studio/StudioRecordingsView';
 import { StudioReleaseDetailView } from './views/studio/StudioReleaseDetailView';
 import { StudioReleasesView } from './views/studio/StudioReleasesView';
 import { StudioRevenueView } from './views/studio/StudioRevenueView';
 import { StudioScheduleView } from './views/studio/StudioScheduleView';
 import { StudioSetupChannelRedirect } from './views/studio/StudioSetupChannelRedirect';
-import {
-  StudioEpisodeReviewView,
-  StudioShowDetailView,
-} from './views/studio/StudioShowDetailView';
 import { StudioShowsView } from './views/studio/StudioShowsView';
 import { StudioStashView } from './views/studio/StudioStashView';
 import { StudioStatsDetailView } from './views/studio/StudioStatsDetailView';
@@ -106,6 +98,30 @@ import { WhatsNewView } from './views/WhatsNewView';
 const AdminAgmView = lazyRouteComponent(
   () => import('./views/admin/AdminAgmView'),
   'AdminAgmView',
+);
+const StudioArchiveItemView = lazyRouteComponent(
+  () => import('./views/studio/StudioArchiveItemView'),
+  'StudioArchiveItemView',
+);
+const StudioCollectionEditView = lazyRouteComponent(
+  () => import('./views/studio/StudioCollectionEditView'),
+  'StudioCollectionEditView',
+);
+const StudioDistributionView = lazyRouteComponent(
+  () => import('./views/studio/StudioDistributionView'),
+  'StudioDistributionView',
+);
+const StudioProEditorView = lazyRouteComponent(
+  () => import('./views/studio/StudioProEditorView'),
+  'StudioProEditorView',
+);
+const StudioShowDetailView = lazyRouteComponent(
+  () => import('./views/studio/StudioShowDetailView'),
+  'StudioShowDetailView',
+);
+const StudioEpisodeReviewView = lazyRouteComponent(
+  () => import('./views/studio/StudioShowDetailView'),
+  'StudioEpisodeReviewView',
 );
 const AdminLogsView = lazyRouteComponent(
   () => import('./views/admin/AdminLogsView'),
