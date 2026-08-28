@@ -6,23 +6,12 @@ import { withMockAuth, withTahtiRouter } from './_lib/decorators';
 const meta: Meta<typeof AdminStreamManagerPanel> = {
   title: 'Tahti/Admin/AdminStreamManagerPanel',
   component: AdminStreamManagerPanel,
-  parameters: {
-    layout: 'padded',
-    docs: {
-      description: {
-        component:
-          'Shared live-stream operations surface. Lives on Admin → Overview and Admin → Streams.',
-      },
-    },
-  },
+  parameters: { layout: 'padded' },
+  tags: ['autodocs'],
   decorators: [withTahtiRouter('/admin/streams'), withMockAuth()],
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const FullPanel: Story = {};
-
-export const EmbeddedWithoutHeading: Story = {
-  args: { showHeading: false },
-};
+export const LiveStreams: Story = {};
