@@ -314,6 +314,63 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     },
   },
   {
+    id: 'multicast-destinations',
+    name: 'Multicast destinations',
+    category: 'Streaming',
+    description: 'Configure destinations that mirror your live broadcast.',
+    status: 'available',
+    statusLabel: 'RTMP configuration available',
+    fields: [
+      {
+        id: 'provider',
+        label: 'Destination provider',
+        placeholder: 'Choose a provider',
+        kind: 'select',
+        options: [
+          { value: 'YOUTUBE', label: 'YouTube' },
+          { value: 'TWITCH', label: 'Twitch' },
+          { value: 'FACEBOOK', label: 'Facebook' },
+          { value: 'KICK', label: 'Kick' },
+          { value: 'TIKTOK', label: 'TikTok' },
+          { value: 'MIXCLOUD_LIVE', label: 'Mixcloud Live' },
+          { value: 'INSTAGRAM', label: 'Instagram' },
+          { value: 'CUSTOM', label: 'Custom RTMP' },
+        ],
+        description:
+          'Choose the service receiving the mirrored broadcast. Provider-specific ingest details are validated in the Multicast add-on.',
+      },
+      {
+        id: 'label',
+        label: 'Destination label',
+        placeholder: 'Main live stream',
+        description: 'A private label to identify this destination in Go Live.',
+      },
+      {
+        id: 'streamKey',
+        label: 'Stream key',
+        placeholder: 'Paste the provider stream key',
+        kind: 'password',
+        secret: true,
+        description:
+          'Stored only in the configured destination. Never share this key publicly.',
+      },
+      {
+        id: 'rtmpUrl',
+        label: 'Custom RTMP address',
+        placeholder: 'rtmps://…',
+        kind: 'url',
+        description:
+          'Only needed for Custom RTMP; fixed-provider ingest addresses are supplied automatically.',
+      },
+    ],
+    note: 'The shared Multicast add-on already supports provider selection, credentials, activation, and deactivation. This Nuclear catalog entry exposes the same configuration vocabulary for plugin discovery.',
+    apiCounterpart: {
+      status: 'implemented',
+      routes: ['/api/me/rtmp-targets'],
+      note: 'Configured targets are stored and managed by the existing RTMP target API and shared MulticastDestinationForm.',
+    },
+  },
+  {
     id: 'youtube-liked-songs-sync',
     name: 'YouTube liked songs sync',
     category: 'Playlists',

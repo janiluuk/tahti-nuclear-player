@@ -88,6 +88,7 @@ tests and user-facing coverage for every new configuration flow.
 | Radio | `content/radioStations.ts` | Configurable internet-radio stations | Page add-on implemented with local station configuration |
 | Embed | embed add-on registry | SoundCloud, YouTube, and hearthis.at embeds | Implemented; provider configuration and shared playback are present |
 | YouTube Liked Songs Sync | `src/plugins/youtube-liked-songs` + Nuclear add-on catalog | YouTube Music liked-song parsing and configuration | Parser and configuration are ported; secure Tahti sync/API contract is still missing |
+| Multicast destinations | `src/plugins/multicast` + Nuclear add-on catalog | Provider RTMP destination configuration | Ready; uses `/api/me/rtmp-targets` and the shared destination form |
 | Discovery | `content/listenerWidgets.ts` | Sandboxed Listen-page widgets | Implemented; catalog/runtime remains Tahti-specific |
 | Channel | Disco widget manager | Public artist/channel widgets | Implemented; admin catalog supports registration/edit/delete |
 

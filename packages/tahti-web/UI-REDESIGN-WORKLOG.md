@@ -10,6 +10,10 @@
 
 **Boundary:** The upstream plugin depends on Nuclear’s private local playlist API. Tahti does not yet expose a secure server-side YouTube Music OAuth/credential and playlist-sync contract, so the add-on is configurable but remains explicitly partial rather than offering an unsafe browser-only sync.
 
+**Batch 3:** Replaced the remaining native add-on select with the shared Nuclear `Select` component and added a Storybook catalog story for filtering and configuring Nuclear registry entries. The complete Storybook build remains the render sweep for these states; the dedicated Tahti story type-check stays isolated from known legacy story prop errors.
+
+**Multicast follow-up:** Added the Multicast destinations plugin entry to the Nuclear catalog with provider, label, stream-key, and custom-RTMP configuration fields. It points to the existing RTMP target API and shared Multicast destination form, so it is ready to configure without creating a second persistence path.
+
 ## 2026-08-28 — 3×3 source and Storybook compliance slices
 
 **Batch 1:** Added typed source capabilities for connection, search, import, and playback; converted the import-source plugin contract to a structural type; and added registry coverage requiring every provider to declare all capabilities.

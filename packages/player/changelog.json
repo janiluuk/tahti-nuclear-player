@@ -1,6 +1,20 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Added a configurable Multicast destinations plugin entry for YouTube, Twitch, and other RTMP providers, using the existing secure RTMP target workflow.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Broadcast", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Nuclear add-on configuration now uses the shared Select control and has a dedicated Storybook catalog state for provider filtering and setup.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Quality", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Ported the YouTube Music Liked Songs parser and added secure configuration guidance for cookie, authorization, destination playlist, and sync frequency in Add-ons.",
     "type": "improvement",
     "contributors": ["jani"],
