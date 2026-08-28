@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { FC, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, Select } from '@nuclearplayer/ui';
 
 import {
   MAX_RADIO_PLAYLIST_ITEMS,
@@ -81,32 +81,25 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
         {onAdd &&
         availableItems.length > 0 &&
         items.length < MAX_RADIO_PLAYLIST_ITEMS ? (
-          <label className="flex items-center gap-2 text-xs">
-            <span className="text-foreground-secondary uppercase">
-              Quick add
-            </span>
-            <select
-              value=""
+          <div className="flex items-center gap-2 text-xs">
+            <Select
+              label="Quick add"
+              placeholder="Choose track…"
+              options={availableItems.map((item) => ({
+                id: item.id,
+                label: item.title,
+              }))}
               disabled={busy}
-              onChange={(event) => {
+              onValueChange={(itemId) => {
                 const item = availableItems.find(
-                  (candidate) => candidate.id === event.target.value,
+                  (candidate) => candidate.id === itemId,
                 );
                 if (item) {
                   onAdd(item);
                 }
               }}
-              className="border-border bg-background rounded-md border px-2 py-1.5"
-              aria-label="Quick add archive track"
-            >
-              <option value="">Choose track…</option>
-              {availableItems.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.title}
-                </option>
-              ))}
-            </select>
-          </label>
+            />
+          </div>
         ) : null}
       </div>
 

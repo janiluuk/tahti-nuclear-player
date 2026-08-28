@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Select } from '@nuclearplayer/ui';
 
 import {
   fetchChannelManageStats,
@@ -780,18 +780,17 @@ export function StreamManagerPanel({
               Add a playlist to the rotation
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <select
+              <Select
+                label="Playlist"
                 value={selectedCollectionSlug}
-                onChange={(e) => setSelectedCollectionSlug(e.target.value)}
-                className="border-border bg-background rounded-md border px-2 py-1.5 text-sm"
-              >
-                <option value="">Choose a playlist…</option>
-                {collections.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                onValueChange={setSelectedCollectionSlug}
+                placeholder="Choose a playlist…"
+                options={collections.map((collection) => ({
+                  id: collection.slug,
+                  label: collection.name,
+                }))}
+                className="min-w-52"
+              />
               <Button
                 size="sm"
                 variant="secondary"

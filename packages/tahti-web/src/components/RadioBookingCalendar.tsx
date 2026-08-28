@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
   createEpisode,
@@ -450,17 +450,12 @@ export function RadioBookingCalendar({
           broadcast.
         </Dialog.Description>
         <div className="mt-4 flex flex-col gap-3">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-foreground-secondary text-xs uppercase">
-              Start
-            </span>
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="border-border bg-background rounded-md border px-3 py-2"
-            />
-          </label>
+          <Input
+            type="time"
+            label="Start"
+            value={startTime}
+            onChange={(event) => setStartTime(event.target.value)}
+          />
           <BroadcastDetailsFields
             values={
               {

@@ -48,6 +48,7 @@ import {
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
@@ -420,16 +421,10 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="font-display text-3xl font-extrabold tracking-tight">
-                  {item.title}
-                </h1>
-                <p className="text-foreground-secondary mt-1 text-sm">
-                  Edit title, description, and visibility.
-                  <span className="ml-2 text-xs tracking-wide uppercase opacity-70">
-                    {item.status}, {visibilityLabel}
-                    {pinned ? ', Pinned' : ''}
-                  </span>
-                </p>
+                <StudioPageHeader
+                  title={item.title}
+                  subtitle={`Edit title, description, and visibility. ${item.status}, ${visibilityLabel}${pinned ? ', Pinned' : ''}`}
+                />
               </div>
               <div className="flex shrink-0 flex-wrap gap-2 sm:max-w-56 sm:justify-end">
                 <Button

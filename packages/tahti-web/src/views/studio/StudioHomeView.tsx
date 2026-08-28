@@ -29,6 +29,7 @@ import { fetchStatsSummary, type StatsSummary } from '../../api/studio-extras';
 import type { FeatureRequest, GovernanceMotion } from '../../api/types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { accountRoleLabel, getAccountRole } from '../../lib/accountRoles';
 import { timeOfDayGreeting } from '../../lib/greeting';
@@ -268,22 +269,20 @@ export function StudioHomeView() {
           </Link>
         </div>
 
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              {user
+        <div className="flex flex-col gap-4">
+          <StudioPageHeader
+            title={
+              user
                 ? `${timeOfDayGreeting(new Date().getHours())}, ${user.displayName || user.username}`
-                : 'Studio'}
-            </h1>
-            {user ? (
-              <p className="text-foreground-secondary mt-1 text-xs font-semibold tracking-wide uppercase">
-                Studio
-              </p>
-            ) : null}
+                : 'Studio'
+            }
+            subtitle={user ? 'Studio' : undefined}
+          />
+          <div>
             {user ? (
               <div
                 aria-label="Account status"
-                className="mt-3 flex flex-wrap items-center gap-2"
+                className="flex flex-wrap items-center gap-2"
               >
                 <Badge variant="pill" color="purple">
                   {accountRoleLabel(getAccountRole(user))}
@@ -327,7 +326,7 @@ export function StudioHomeView() {
               </p>
             )}
           </div>
-        </header>
+        </div>
 
         {!channel ? null : (
           <>

@@ -7,7 +7,6 @@ import {
   CopyIcon,
   FolderOpenIcon,
   HeadphonesIcon,
-  KeyRoundIcon,
   ListMusicIcon,
   PlusIcon,
   RadioIcon,
@@ -17,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Badge, Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Badge, Button, Dialog } from '@nuclearplayer/ui';
 
 import {
   createRtmpTarget,
@@ -41,6 +40,7 @@ import {
 } from '../../api/broadcast';
 import { BroadcastPreflightPanel } from '../../components/BroadcastPreflightPanel';
 import { ChannelShareButton } from '../../components/ChannelShareButton';
+import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -48,7 +48,6 @@ import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { OnAirBadge } from '../../components/tahti/OnAirBadge';
 import {
   multicastProviderLabel,
-  multicastProviders,
   type MulticastProviderId,
 } from '../../plugins/multicast';
 import { useAuthStore } from '../../stores/authStore';
@@ -131,6 +130,7 @@ export function StudioGoLiveView() {
   const [newProvider, setNewProvider] = useState<MulticastProviderId>('TWITCH');
   const [newKey, setNewKey] = useState('');
   const [newLabel, setNewLabel] = useState('');
+  const [newRtmpUrl, setNewRtmpUrl] = useState('');
   const [showAddDestination, setShowAddDestination] = useState(false);
   const [recordEnabled, setRecordEnabled] = useState(true);
   const [recordBusy, setRecordBusy] = useState(false);
@@ -630,29 +630,13 @@ export function StudioGoLiveView() {
             setShowAddDestination(false);
             setNewKey('');
             setNewLabel('');
+            setNewRtmpUrl('');
           }}
         >
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              if (!newKey.trim()) {
-                return;
-              }
-              void createRtmpTarget({
-                provider: newProvider,
-                streamKey: newKey.trim(),
-                label: newLabel.trim() || undefined,
-                enabled: true,
-              }).then((result) => {
-                if (!result.ok) {
-                  setMessage(result.error);
-                  return;
-                }
-                setNewKey('');
-                setNewLabel('');
-                setShowAddDestination(false);
-                void reload();
-              });
+              event.preventDefault();
             }}
           >
             <Dialog.Title>
@@ -661,52 +645,40 @@ export function StudioGoLiveView() {
                 Add multistream destination
               </span>
             </Dialog.Title>
-            <div className="mt-4 flex flex-col gap-3">
-              <label className="text-foreground-secondary text-xs uppercase">
-                Provider
-                <select
-                  className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm normal-case"
-                  value={newProvider}
-                  onChange={(event) =>
-                    setNewProvider(event.target.value as MulticastProviderId)
-                  }
-                >
-                  {multicastProviders.map((provider) => (
-                    <option key={provider.id} value={provider.id}>
-                      {provider.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-foreground-secondary text-xs uppercase">
-                Stream key
-                <span className="relative mt-1 block">
-                  <KeyRoundIcon
-                    size={14}
-                    aria-hidden
-                    className="text-foreground-secondary pointer-events-none absolute top-1/2 left-2 -translate-y-1/2"
-                  />
-                  <input
-                    className="border-border bg-background text-foreground w-full rounded border py-1.5 pr-2 pl-8 text-sm normal-case"
-                    value={newKey}
-                    onChange={(event) => setNewKey(event.target.value)}
-                    placeholder="Paste platform stream key"
-                    autoFocus
-                  />
-                </span>
-              </label>
-              <Input
-                label="Label (optional)"
-                value={newLabel}
-                onChange={(event) => setNewLabel(event.target.value)}
+            <div className="mt-4">
+              <MulticastDestinationForm
+                provider={newProvider}
+                label={newLabel}
+                streamKey={newKey}
+                rtmpUrl={newRtmpUrl}
+                onProviderChange={setNewProvider}
+                onLabelChange={setNewLabel}
+                onStreamKeyChange={setNewKey}
+                onRtmpUrlChange={setNewRtmpUrl}
+                submitLabel="Save destination"
+                onSubmit={() => {
+                  void createRtmpTarget({
+                    provider: newProvider,
+                    streamKey: newKey.trim(),
+                    label: newLabel.trim() || undefined,
+                    rtmpUrl: newRtmpUrl.trim() || undefined,
+                    enabled: true,
+                  }).then((result) => {
+                    if (!result.ok) {
+                      setMessage(result.error);
+                      return;
+                    }
+                    setNewKey('');
+                    setNewLabel('');
+                    setNewRtmpUrl('');
+                    setShowAddDestination(false);
+                    void reload();
+                  });
+                }}
               />
             </div>
             <Dialog.Actions>
               <Dialog.Close>Cancel</Dialog.Close>
-              <Button type="submit" disabled={!newKey.trim()}>
-                <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                Save destination
-              </Button>
             </Dialog.Actions>
           </form>
         </Dialog.Root>

@@ -1,7 +1,8 @@
 /** Listener widgets — pluggable, app-store-style embeds that play content
  * from an external platform inline on the Listen page, using that
  * platform's own official embedded player (SoundCloud's Widget API,
- * YouTube's IFrame Player API, and hearthis.at's iframe widget). This is deliberately not a port of
+ * Spotify's playlist embed, YouTube's IFrame Player API, and hearthis.at's
+ * iframe widget). This is deliberately not a port of
  * Nuclear desktop's StreamProvider plugin system (search/resolve/stream
  * through a sandboxed plugin host) — a browser can't proxy audio out of
  * SoundCloud/YouTube without violating their ToS, so "playing" their
@@ -9,7 +10,11 @@
  * legitimately does.
  */
 
-export type ListenerWidgetTypeId = 'soundcloud' | 'youtube' | 'hearthis';
+export type ListenerWidgetTypeId =
+  | 'soundcloud'
+  | 'spotify'
+  | 'youtube'
+  | 'hearthis';
 
 export type ListenerWidgetType = {
   id: ListenerWidgetTypeId;
@@ -41,6 +46,26 @@ function soundcloudEmbedUrl(input: string): string | null {
     visual: 'false',
   });
   return `https://w.soundcloud.com/player/?${params.toString()}`;
+}
+
+export function soundcloudProfileUrl(input: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(input.trim());
+  } catch {
+    return null;
+  }
+  const host = url.hostname.replace(/^www\./, '').toLowerCase();
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  if (
+    host !== 'soundcloud.com' ||
+    pathParts.length !== 1 ||
+    url.search ||
+    url.hash
+  ) {
+    return null;
+  }
+  return `https://soundcloud.com/${pathParts[0]}`;
 }
 
 function youtubeIds(input: string): {
@@ -83,6 +108,26 @@ function youtubeEmbedUrl(input: string): string | null {
     return `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}`;
   }
   return null;
+}
+
+function spotifyPlaylistEmbedUrl(input: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(input.trim());
+  } catch {
+    return null;
+  }
+  const host = url.hostname.replace(/^www\./, '').toLowerCase();
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  if (
+    host !== 'open.spotify.com' ||
+    pathParts.length !== 2 ||
+    pathParts[0] !== 'playlist' ||
+    !/^[A-Za-z0-9]+$/.test(pathParts[1])
+  ) {
+    return null;
+  }
+  return `https://open.spotify.com/embed/playlist/${encodeURIComponent(pathParts[1])}`;
 }
 
 function hearthisEmbedUrl(input: string): string | null {
@@ -150,6 +195,18 @@ export const LISTENER_WIDGET_TYPES: ListenerWidgetType[] = [
     helpText: 'Paste a YouTube video or playlist URL.',
     embedHeight: 220,
     toEmbedUrl: youtubeEmbedUrl,
+  },
+  {
+    id: 'spotify',
+    name: 'Spotify',
+    author: 'Spotify',
+    description:
+      "Play a specific Spotify playlist inline using Spotify's official embedded player.",
+    category: 'Streaming',
+    placeholder: 'https://open.spotify.com/playlist/…',
+    helpText: 'Paste a public Spotify playlist URL.',
+    embedHeight: 352,
+    toEmbedUrl: spotifyPlaylistEmbedUrl,
   },
   {
     id: 'hearthis',

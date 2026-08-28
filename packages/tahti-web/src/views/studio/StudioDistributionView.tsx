@@ -14,7 +14,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Input, SaveButton, Tabs } from '@nuclearplayer/ui';
+import {
+  Badge,
+  Button,
+  Input,
+  SaveButton,
+  Select,
+  Tabs,
+} from '@nuclearplayer/ui';
 
 import {
   fetchAllRoyalties,
@@ -541,26 +548,24 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
               key={index}
               className="grid gap-2 sm:grid-cols-[8rem_1fr_8rem_auto]"
             >
-              <select
-                className="border-border bg-background rounded-md border px-2 py-1.5 text-xs"
+              <Select
+                className="text-xs"
+                options={RELEASE_CREDIT_ROLES.map((role) => ({
+                  id: role,
+                  label: role,
+                }))}
                 value={credit.role}
                 disabled={busy}
-                aria-label="Credit role"
-                onChange={(e) => {
+                label="Credit role"
+                onValueChange={(role) => {
                   const next = [...credits];
                   next[index] = {
                     ...credit,
-                    role: e.target.value as ReleaseCreditRole,
+                    role: role as ReleaseCreditRole,
                   };
                   setCredits(next);
                 }}
-              >
-                {RELEASE_CREDIT_ROLES.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
+              />
               <Input
                 value={credit.name}
                 placeholder="Name"

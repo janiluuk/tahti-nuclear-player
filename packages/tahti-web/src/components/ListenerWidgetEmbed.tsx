@@ -41,7 +41,7 @@ export function ListenerWidgetEmbed({
           width="100%"
           height={type.embedHeight}
           style={{ border: 0 }}
-          allow="autoplay"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"
         />
       ) : (

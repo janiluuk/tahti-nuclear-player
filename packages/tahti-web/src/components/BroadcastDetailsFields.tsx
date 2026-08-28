@@ -1,6 +1,6 @@
 import { MessageCircleIcon, MicIcon } from 'lucide-react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, Select } from '@nuclearplayer/ui';
 
 import type { ShowType, StudioShowSeries } from '../api/shows';
 
@@ -33,27 +33,22 @@ export function BroadcastDetailsFields({
   return (
     <div className="flex flex-col gap-3">
       {onShowChange && shows.length > 0 ? (
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-foreground-secondary text-xs uppercase">
-            Prepared show
-          </span>
-          <select
+        <div className="flex flex-col gap-1 text-sm">
+          <Select
+            label="Prepared show"
+            placeholder="Create a new show"
+            options={shows.map((show) => ({
+              id: show.id,
+              label: show.title,
+            }))}
             value={selectedShowId}
-            onChange={(event) => onShowChange(event.target.value)}
-            className="border-border bg-background rounded-md border px-3 py-2"
-          >
-            <option value="">Create a new show</option>
-            {shows.map((show) => (
-              <option key={show.id} value={show.id}>
-                {show.title}
-              </option>
-            ))}
-          </select>
+            onValueChange={onShowChange}
+          />
           <span className="text-foreground-secondary text-xs">
             Existing show details fill in below and prepare the next episode
             automatically.
           </span>
-        </label>
+        </div>
       ) : null}
 
       <div

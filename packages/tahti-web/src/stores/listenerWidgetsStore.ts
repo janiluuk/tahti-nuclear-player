@@ -13,7 +13,7 @@ export type ListenerWidgetInstance = {
 };
 
 type ListenerWidgetsState = {
-  /** Widget types (SoundCloud, YouTube) the user has "installed" from the
+  /** Widget types (SoundCloud, Spotify, YouTube) the user has "installed" from the
    * store — gates whether the add-instance form is shown. */
   installedTypeIds: string[];
   instances: ListenerWidgetInstance[];

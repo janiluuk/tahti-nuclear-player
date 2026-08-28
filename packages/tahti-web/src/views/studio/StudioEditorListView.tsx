@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { AudioLinesIcon, FolderOpenIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Select } from '@nuclearplayer/ui';
 
 import {
   createEditorProject,
@@ -159,23 +159,16 @@ export function StudioEditorListView() {
                 placeholder="Untitled session"
                 autoFocus
               />
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Seed from archive (optional)
-                </span>
-                <select
-                  value={archiveItemId}
-                  onChange={(e) => setArchiveItemId(e.target.value)}
-                  className="border-border bg-background rounded-md border px-3 py-2"
-                >
-                  <option value="">None</option>
-                  {archive.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <Select
+                label="Seed from archive (optional)"
+                value={archiveItemId}
+                onValueChange={setArchiveItemId}
+                placeholder="None"
+                options={archive.map((item) => ({
+                  id: item.id,
+                  label: item.title,
+                }))}
+              />
             </div>
             <Dialog.Actions>
               <Dialog.Close>Cancel</Dialog.Close>

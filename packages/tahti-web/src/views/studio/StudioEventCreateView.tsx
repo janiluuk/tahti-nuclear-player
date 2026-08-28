@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeftIcon, CalendarPlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, Textarea } from '@nuclearplayer/ui';
+import { Button, Input, Select, Textarea } from '@nuclearplayer/ui';
 
 import { fetchVenues } from '../../api/client';
 import { createEvent } from '../../api/events';
@@ -54,19 +54,17 @@ export function StudioEventCreateView() {
                 placeholder="Northern Lights Hall"
               />
               <div className="flex flex-col gap-1">
-                <label
-                  className="text-foreground-secondary text-xs uppercase"
-                  htmlFor="event-venue"
-                >
-                  Venue from directory
-                </label>
-                <select
+                <Select
                   id="event-venue"
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                  defaultValue=""
-                  onChange={(event) => {
+                  label="Venue from directory"
+                  placeholder="Choose a venue or enter one below"
+                  options={venues.map((venue) => ({
+                    id: venue.slug,
+                    label: `${venue.name}${venue.city ? ` · ${venue.city}` : ''}`,
+                  }))}
+                  onValueChange={(venueSlug) => {
                     const venue = venues.find(
-                      (candidate) => candidate.slug === event.target.value,
+                      (candidate) => candidate.slug === venueSlug,
                     );
                     if (venue) {
                       setPlace(venue.name);
@@ -77,15 +75,7 @@ export function StudioEventCreateView() {
                       );
                     }
                   }}
-                >
-                  <option value="">Choose a venue or enter one below</option>
-                  {venues.map((venue) => (
-                    <option key={venue.slug} value={venue.slug}>
-                      {venue.name}
-                      {venue.city ? ` · ${venue.city}` : ''}
-                    </option>
-                  ))}
-                </select>
+                />
                 <Link
                   to="/venues/register"
                   className="text-primary text-xs hover:underline"

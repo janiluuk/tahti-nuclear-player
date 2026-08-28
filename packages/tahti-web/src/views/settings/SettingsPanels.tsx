@@ -112,6 +112,7 @@ import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { MentionTextarea } from '../../components/MentionTextarea';
+import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
 import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SidebarBuildInfo } from '../../components/SidebarBuildInfo';
@@ -1692,63 +1693,33 @@ export function BroadcastPanel({
               );
             })}
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-            <Select
-              label="Provider"
-              value={newProvider}
-              onValueChange={(value) =>
-                setNewProvider(value as MulticastProviderId)
-              }
-              options={multicastProviders.map((provider) => ({
-                id: provider.id,
-                label: provider.label,
-              }))}
-            />
-            <Input
-              label="Label"
-              value={newLabel}
-              onChange={(e) => setNewLabel(e.target.value)}
-            />
-            <Input
-              label="Stream key"
-              value={newKey}
-              onChange={(e) => setNewKey(e.target.value)}
-            />
-            {newProvider === 'CUSTOM' && (
-              <Input
-                label="RTMP address"
-                value={newRtmpUrl}
-                onChange={(e) => setNewRtmpUrl(e.target.value)}
-                placeholder="rtmp://example.com/live"
-              />
-            )}
-            <Button
-              size="sm"
-              disabled={
-                !newKey.trim() ||
-                (newProvider === 'CUSTOM' && !newRtmpUrl.trim())
-              }
-              onClick={() => {
-                void createRtmpTarget({
-                  provider: newProvider,
-                  streamKey: newKey.trim(),
-                  label: newLabel.trim() || undefined,
-                  rtmpUrl: newRtmpUrl.trim() || undefined,
-                }).then((r) => {
-                  if (!r.ok) {
-                    setMsg(r.error);
-                  } else {
-                    setNewKey('');
-                    setNewLabel('');
-                    setNewRtmpUrl('');
-                    reloadTargets();
-                  }
-                });
-              }}
-            >
-              Add
-            </Button>
-          </div>
+          <MulticastDestinationForm
+            provider={newProvider}
+            label={newLabel}
+            streamKey={newKey}
+            rtmpUrl={newRtmpUrl}
+            onProviderChange={setNewProvider}
+            onLabelChange={setNewLabel}
+            onStreamKeyChange={setNewKey}
+            onRtmpUrlChange={setNewRtmpUrl}
+            onSubmit={() => {
+              void createRtmpTarget({
+                provider: newProvider,
+                streamKey: newKey.trim(),
+                label: newLabel.trim() || undefined,
+                rtmpUrl: newRtmpUrl.trim() || undefined,
+              }).then((r) => {
+                if (!r.ok) {
+                  setMsg(r.error);
+                } else {
+                  setNewKey('');
+                  setNewLabel('');
+                  setNewRtmpUrl('');
+                  reloadTargets();
+                }
+              });
+            }}
+          />
           {msg && <SettingsHint>{msg}</SettingsHint>}
         </div>
       ),

@@ -3,7 +3,14 @@ import { ListMusicIcon, PlusIcon, RadioIcon } from 'lucide-react';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, Input, SaveButton, Toggle } from '@nuclearplayer/ui';
+import {
+  Button,
+  Dialog,
+  Input,
+  SaveButton,
+  Select,
+  Toggle,
+} from '@nuclearplayer/ui';
 
 import {
   createStudioCollection,
@@ -378,26 +385,20 @@ export const ChannelRadioPlaylistPanel: FC = () => {
               </p>
             </div>
 
-            <label className="flex flex-col gap-1.5 text-sm">
-              <span className="text-foreground-secondary text-xs uppercase">
-                Playlist
-              </span>
-              <select
-                value={selectedSlug}
-                onChange={(event) => setSelectedSlug(event.target.value)}
-                className="border-border bg-background-secondary rounded-md border px-3 py-2"
-              >
-                {playlists.length === 0 ? (
-                  <option value="">No playlists yet</option>
-                ) : null}
-                {playlists.map((playlist) => (
-                  <option key={playlist.slug} value={playlist.slug}>
-                    {playlist.name} ·{' '}
-                    {playlist.itemCount ?? playlist.items?.length ?? 0} tracks
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Select
+              label="Playlist"
+              value={selectedSlug}
+              onValueChange={setSelectedSlug}
+              placeholder={
+                playlists.length === 0
+                  ? 'No playlists yet'
+                  : 'Choose a playlist'
+              }
+              options={playlists.map((playlist) => ({
+                id: playlist.slug,
+                label: `${playlist.name} · ${playlist.itemCount ?? playlist.items?.length ?? 0} tracks`,
+              }))}
+            />
 
             <div className="flex flex-wrap gap-2">
               <Button

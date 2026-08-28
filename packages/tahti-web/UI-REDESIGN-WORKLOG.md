@@ -1513,6 +1513,18 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 ### 2026-08-28 — DJ-set tracklist editor
 
 **Completed:** Replaced the read-only DJ-mix tracklist tab in the track editor with an editable timeline tool. DJ sets can import Traktor `.nml` playlists or line-separated text, add and remove track pins, place timestamps by clicking the waveform, distribute entries equally across the duration, and choose whether the current track appears as a minimal label, card, or ticker overlay. The tab remains hidden for non-DJ content types.
+
+### 2026-08-28 — Nuclear plugin parity inventory refresh
+
+**Ported already:** Themes, visualizers, the Audio FX registry/preview graph (EQ, compressor, limiter, and filter), multicast provider registry (including TikTok, Mixcloud Live, and Instagram), AcoustID fingerprinting, source connection status, radio stations, SoundCloud/YouTube/hearthis.at embeds, discovery/channel widgets, and MediaSession playback controls. MediaSession is wired in `AudioEngine` to the shared player’s metadata, play/pause, previous, next, and playback-state lifecycle.
+
+**Registry coverage:** Added the complete current 17-entry Nuclear plugin-registry inventory to the Tahti Add-ons catalogue: Discogs, YouTube, Bandcamp, SoundCloud, Spotify, Deezer Dashboard, MusicBrainz, ListenBrainz Dashboard, Last.fm, YouTube Playlists, KHInsider, OmniSource, Bandcamp Dashboard, MediaSession, YouTube Liked Songs Sync, SoundCloud Dashboard, and NetEase Cloud Music. Each entry now records whether Tahti has an implemented, partial, or missing API/runtime counterpart.
+
+**Still unimplemented:** Discogs/Deezer/MusicBrainz provider search, Last.fm and ListenBrainz scrobbling, YouTube provider streaming and playlist import, KHInsider, OmniSource, NetEase, and the Nuclear dashboard variants need provider or account contracts that are not present in `../tahti`. They remain explicitly planned or partial in the catalogue; no fake successful playback or mutations were added. Bandcamp and SoundCloud remain partial because Tahti currently provides connection/import flows rather than Nuclear’s provider contracts.
+
+### 2026-08-28 — Listen SoundCloud and hearthis.at widgets
+
+**Completed:** The Listen → Your widgets add-on now exposes both SoundCloud and hearthis.at official embed players. SoundCloud configuration reads the signed-in account’s `socialLinks.soundcloud` profile URL and pre-fills it; when the account link is missing or invalid, the configuration form requires a valid profile URL, saves it back to the account links, and uses that profile as the widget instance. Added focused SoundCloud profile URL normalization/rejection coverage; hearthis.at numeric IDs and official embed URLs remain supported.
 ## 2026-08-28 — Discover filter controls
 
 **Completed:** Genre filters on Discover are now tucked into an expandable Genres control, while the content-type filters remain visible. Added a persisted “Tracks I haven’t heard” filter backed by the personalized new-to-you API; it narrows the other Discover widgets to tracks the listener has not heard.
@@ -1550,3 +1562,31 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 ## 2026-08-28 — hearthis.at shared-player sync follow-up
 
 **Completed:** Studio → Music → Sounds now keeps hearthis.at archive references visible. When hearthis.at exposes a playable stream, the row resolves it into the shared Tahti player with the provider title, artist, artwork, and source metadata, keeping global transport controls in sync. If the provider does not expose a stream, the official hearthis.at iframe remains the fallback instead of playing an unrelated preview file.
+
+### 2026-08-28 — Next 3×3 shared-surface slices
+
+**Batch 1:** Replaced native playlist controls with the shared Nuclear `Select` in channel radio playlist setup, Admin Stream Manager, and Studio editor archive seeding.
+
+**Batch 2:** Normalized Studio home, Studio archive detail, and public track detail around the shared Studio/Page header primitives while preserving their existing metadata, actions, and descriptions.
+
+**Batch 3:** Replaced native venue selection, release credit-role selection, and channel rotation quick-add controls with the shared `Select` component.
+
+**Status:** Implemented; validation follows for the affected web package.
+
+### 2026-08-28 — Roadmap 3×3 shared input slices
+
+**Slice 1:** Radio booking now uses the shared Nuclear `Input` for start-time entry.
+
+**Slice 2:** Prepared-show selection in radio booking now uses the shared Nuclear `Select` while retaining the create-new-show path and automatic detail fill.
+
+**Slice 3:** Studio release creation now uses the shared Nuclear `Input` for release dates, with date input semantics preserved.
+
+**Status:** Implemented; the shared UI package and tahti-web checks are next.
+
+### 2026-08-28 — Twitch and YouTube multistream widget
+
+**Completed:** Confirmed Twitch and YouTube as supported multicast providers and extracted the shared multistream destination form used by both Settings → Broadcast → Multistream and Studio → Go Live. Provider selection, optional labels, custom RTMP addressing, and masked stream-key entry now share one widget; adding either Twitch or YouTube creates the same live RTMP mirror target used by the broadcast runtime.
+
+### 2026-08-28 — Spotify playlist listener widget
+
+**Completed:** Added Spotify to Listen → Your widgets. Users can install the widget and add a specific public Spotify playlist URL; it renders Spotify’s official playlist embed as a row alongside SoundCloud, YouTube, and hearthis.at widgets. Track, profile, non-Spotify, and unsupported Spotify URLs are rejected so the configuration remains playlist-specific.

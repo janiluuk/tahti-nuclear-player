@@ -23,7 +23,7 @@ import type {
   TrackComment,
 } from '../api/types';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
-import { PageFrame } from '../components/PageHeader';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
@@ -206,37 +206,41 @@ export function TrackDetailView({ id }: { id: string }) {
               />
             </div>
             <div className="flex w-full min-w-0 flex-col items-center gap-1 text-center">
-              <h1 className="font-display text-3xl font-extrabold tracking-tight">
-                {playable.title}
-              </h1>
-              <p className="text-foreground-secondary text-sm">
-                {detail?.channel.username ? (
-                  <Link
-                    to="/u/$username"
-                    params={{ username: detail.channel.username }}
-                    className="hover:text-foreground underline-offset-2 hover:underline"
-                  >
-                    {playable.artist}
-                  </Link>
-                ) : (
-                  playable.artist
-                )}
-                {provider ? ` · ${provider}` : ''}
-                {detail?.genre ? ` · ${detail.genre}` : ''}
-                {playable.durationSec
-                  ? ` · ${formatDuration(playable.durationSec)}`
-                  : ''}
-              </p>
-              {detail?.channel.bio ? (
-                <p className="text-foreground-secondary mt-1 max-w-md text-sm">
-                  {detail.channel.bio}
-                </p>
-              ) : null}
-              {detail?.description ? (
-                <p className="text-foreground-secondary mt-1 max-w-md text-sm">
-                  {detail.description}
-                </p>
-              ) : null}
+              <PageHeader
+                title={playable.title}
+                subtitle={
+                  <>
+                    <span>
+                      {detail?.channel.username ? (
+                        <Link
+                          to="/u/$username"
+                          params={{ username: detail.channel.username }}
+                          className="hover:text-foreground underline-offset-2 hover:underline"
+                        >
+                          {playable.artist}
+                        </Link>
+                      ) : (
+                        playable.artist
+                      )}
+                      {provider ? ` · ${provider}` : ''}
+                      {detail?.genre ? ` · ${detail.genre}` : ''}
+                      {playable.durationSec
+                        ? ` · ${formatDuration(playable.durationSec)}`
+                        : ''}
+                    </span>
+                    {detail?.channel.bio ? (
+                      <span className="mt-1 block max-w-md">
+                        {detail.channel.bio}
+                      </span>
+                    ) : null}
+                    {detail?.description ? (
+                      <span className="mt-1 block max-w-md">
+                        {detail.description}
+                      </span>
+                    ) : null}
+                  </>
+                }
+              />
               <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                 <Button
                   disabled={!canPlay}

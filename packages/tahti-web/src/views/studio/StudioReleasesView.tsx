@@ -149,15 +149,12 @@ export function StudioReleasesView({
                   />
                 ))}
               </div>
-              <label className="text-foreground-secondary text-xs uppercase">
-                Release date
-                <input
-                  type="date"
-                  className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm normal-case"
-                  value={releaseDate}
-                  onChange={(e) => setReleaseDate(e.target.value)}
-                />
-              </label>
+              <Input
+                type="date"
+                label="Release date"
+                value={releaseDate}
+                onChange={(event) => setReleaseDate(event.target.value)}
+              />
             </div>
             <Dialog.Actions>
               <Dialog.Close>Cancel</Dialog.Close>
