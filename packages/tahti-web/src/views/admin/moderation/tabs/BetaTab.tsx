@@ -1,3 +1,9 @@
+import {
+  CheckCircle2Icon,
+  Clock3Icon,
+  ListFilterIcon,
+  XCircleIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge, Button, Dialog, Input } from '@nuclearplayer/ui';
@@ -12,6 +18,7 @@ import {
 } from '../../../../api/admin';
 import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
+import { ModerationTabs } from '../ModerationTabs';
 
 const COMBINING_DIACRITICS = new RegExp('[̀-ͯ]', 'g');
 
@@ -45,6 +52,13 @@ const FILTERS: { id: AdminBetaStatus | 'all'; label: string }[] = [
   { id: 'APPROVED', label: 'Approved' },
   { id: 'REJECTED', label: 'Rejected' },
 ];
+
+const FILTER_TAB_ICONS = {
+  all: ListFilterIcon,
+  PENDING: Clock3Icon,
+  APPROVED: CheckCircle2Icon,
+  REJECTED: XCircleIcon,
+};
 
 /** Beta applications tab — ported as-is from the standalone admin route
  * (see AdminModerationView). Approving creates an artist account and emails
@@ -92,25 +106,15 @@ export function BetaTab() {
         Approving creates an artist account and emails a password setup link.
       </p>
 
-      <nav className="flex flex-wrap gap-2" role="tablist">
-        {FILTERS.map((f) => (
-          <Button
-            key={f.id}
-            type="button"
-            variant="text"
-            role="tab"
-            aria-selected={filter === f.id}
-            onClick={() => setFilter(f.id)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-              filter === f.id
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'border-border text-foreground-secondary hover:text-foreground border'
-            }`}
-          >
-            {f.label}
-          </Button>
-        ))}
-      </nav>
+      <ModerationTabs
+        activeId={filter}
+        items={FILTERS.map((item) => ({
+          ...item,
+          icon: FILTER_TAB_ICONS[item.id],
+        }))}
+        ariaLabel="Beta application status"
+        onChange={(id) => setFilter(id as AdminBetaStatus | 'all')}
+      />
 
       {msg && (
         <p className="text-foreground-secondary text-sm" role="status">

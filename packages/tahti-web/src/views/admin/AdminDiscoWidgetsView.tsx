@@ -14,6 +14,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader } from '../../components/StudioPanel';
 
@@ -130,13 +131,11 @@ function WidgetEditor({
             onChange({ ...draft, authorName: event.target.value })
           }
         />
-        <Input
-          label="Cover image URL"
+        <ImageUploadField
+          label="Widget cover"
+          description="JPEG, PNG, WebP, or GIF"
           value={draft.iconUrl ?? ''}
-          placeholder="https://…/cover.png"
-          onChange={(event) =>
-            onChange({ ...draft, iconUrl: event.target.value })
-          }
+          onChange={(iconUrl) => onChange({ ...draft, iconUrl })}
         />
       </div>
       <Input

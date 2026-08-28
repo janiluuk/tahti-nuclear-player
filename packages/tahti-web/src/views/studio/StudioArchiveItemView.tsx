@@ -30,7 +30,6 @@ import {
 import {
   fetchEditorDraft,
   fetchEditorSource,
-  fetchStudioArchive,
   fetchStudioArchiveItem,
   patchStudioArchiveItem,
   renderEditorDraft,
@@ -53,12 +52,7 @@ import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
 import { capitalizeGenre, PRESET_GENRES } from '../../lib/genres';
-import {
-  countPinnedTracks,
-  isPinned,
-  MAX_PINNED_TRACKS,
-  pinBlockedMessage,
-} from '../../lib/pinnedTracks';
+import { isPinned } from '../../lib/pinnedTracks';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
@@ -131,7 +125,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const [pinBusy, setPinBusy] = useState(false);
   const [rotationBusy, setRotationBusy] = useState(false);
   const [playBusy, setPlayBusy] = useState(false);
-  const [pinnedCount, setPinnedCount] = useState(0);
 
   const [editList, setEditList] = useState<EditList | null>(null);
   const [peaks, setPeaks] = useState<number[]>([]);
@@ -159,9 +152,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
       setReleaseDate(res.data.releaseDate ?? '');
       setDownloadsEnabled(res.data.downloadsEnabled ?? false);
       setCommentsEnabled(res.data.commentsEnabled ?? true);
-    });
-    void fetchStudioArchive().then((res) => {
-      setPinnedCount(countPinnedTracks(res.data));
     });
     void fetchEditorDraft(id).then((res) => {
       setEditList(res.data.editList);
@@ -224,13 +214,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     }
     const next = !isPinned(item);
     setMessage(null);
-    if (next) {
-      const blocked = pinBlockedMessage(pinnedCount);
-      if (blocked) {
-        setMessage(blocked);
-        return;
-      }
-    }
     setPinBusy(true);
     const result = await patchStudioArchiveItem(id, { pinned: next });
     setPinBusy(false);
@@ -239,7 +222,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
       return;
     }
     setItem(result.data);
-    setPinnedCount((c) => (next ? c + 1 : Math.max(0, c - 1)));
     setMessage(next ? 'Pinned to your public page.' : 'Unpinned.');
   };
 
@@ -383,7 +365,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     : '';
   const isAudioClip = contentType === 'AUDIOCLIPS';
   const pinned = item ? isPinned(item) : false;
-  const pinBlocked = !pinned && pinnedCount >= MAX_PINNED_TRACKS;
   const hasError = status === 'ERROR';
   const notReady = status != null && status !== 'READY' && !hasError;
   const isCurrent = currentId === `archive:${id}`;
@@ -479,12 +460,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                 <Button
                   size="sm"
                   variant="secondary"
-                  disabled={pinBusy || pinBlocked}
-                  title={
-                    pinBlocked
-                      ? (pinBlockedMessage(pinnedCount) ?? undefined)
-                      : undefined
-                  }
+                  disabled={pinBusy}
                   onClick={() => void togglePin()}
                 >
                   {pinned ? (
@@ -492,11 +468,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                   ) : (
                     <PinIcon size={16} aria-hidden className="mr-1.5" />
                   )}
-                  {pinBusy
-                    ? '…'
-                    : pinned
-                      ? 'Unpin from page'
-                      : `Pin to page (${pinnedCount}/${MAX_PINNED_TRACKS})`}
+                  {pinBusy ? '…' : pinned ? 'Unpin from page' : 'Pin to page'}
                 </Button>
                 {tab === 'details' ? (
                   <SaveButton
@@ -528,12 +500,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
               >
                 Processing failed for this file. Try uploading it again, or
                 contact support if it keeps happening.
-              </p>
-            )}
-
-            {pinBlocked && (
-              <p className="text-foreground-secondary text-sm" role="status">
-                {pinBlockedMessage(pinnedCount)}
               </p>
             )}
 

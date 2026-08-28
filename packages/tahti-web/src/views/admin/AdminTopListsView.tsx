@@ -1,7 +1,8 @@
-import { PlayIcon } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { ListFilterIcon, PlayIcon, SearchIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, Input } from '@nuclearplayer/ui';
 
 import {
   fetchAdminTopLists,
@@ -36,31 +37,35 @@ function FilterRow<T extends string>({
   options,
   value,
   onChange,
+  label,
 }: {
   options: { id: T; label: string }[];
   value: T;
   onChange: (v: T) => void;
+  label: string;
 }) {
   return (
-    <nav className="flex flex-wrap gap-2" role="tablist">
+    <div
+      className="border-border flex gap-1 rounded-lg border p-1"
+      role="group"
+      aria-label={label}
+    >
       {options.map((o) => (
-        <Button
+        <button
           key={o.id}
           type="button"
-          variant="text"
-          role="tab"
-          aria-selected={value === o.id}
+          aria-pressed={value === o.id}
           onClick={() => onChange(o.id)}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
+          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
             value === o.id
               ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'border-border text-foreground-secondary hover:text-foreground border'
+              : 'text-foreground-secondary hover:text-foreground'
           }`}
         >
           {o.label}
-        </Button>
+        </button>
       ))}
-    </nav>
+    </div>
   );
 }
 
@@ -69,6 +74,7 @@ export function AdminTopListsView() {
   const [period, setPeriod] = useState<AdminTopListPeriod>('month');
   const [dimension, setDimension] = useState<AdminTopListDimension>('type');
   const [sort, setSort] = useState<AdminTopListSort>('desc');
+  const [query, setQuery] = useState('');
   const [buckets, setBuckets] = useState<AdminTopListBucket[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,6 +86,21 @@ export function AdminTopListsView() {
     });
   }, [period, dimension, sort]);
 
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleBuckets = buckets
+    .map((bucket) => ({
+      ...bucket,
+      entries: bucket.entries.filter((entry) => {
+        if (!normalizedQuery) {
+          return true;
+        }
+        return [entry.title, entry.artistName, entry.channelSlug].some(
+          (value) => value.toLowerCase().includes(normalizedQuery),
+        );
+      }),
+    }))
+    .filter((bucket) => bucket.entries.length > 0);
+
   return (
     <AdminGate>
       <div className="admin-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
@@ -89,31 +110,68 @@ export function AdminTopListsView() {
           subtitle="Listens are counted once per track per listener per day — a genuine play, not a raw click."
         />
 
-        <div className="flex flex-col gap-2">
-          <FilterRow options={PERIODS} value={period} onChange={setPeriod} />
-          <FilterRow
-            options={DIMENSIONS}
-            value={dimension}
-            onChange={setDimension}
-          />
-          <FilterRow options={SORTS} value={sort} onChange={setSort} />
+        <div className="flex flex-col gap-3">
+          <div className="relative max-w-xl">
+            <SearchIcon
+              size={16}
+              aria-hidden
+              className="text-foreground-secondary pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+            />
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search title, artist, or channel…"
+              aria-label="Search top lists"
+              className="pl-9"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <ListFilterIcon
+              size={15}
+              aria-hidden
+              className="text-foreground-secondary"
+            />
+            <FilterRow
+              options={PERIODS}
+              value={period}
+              onChange={setPeriod}
+              label="Top list period"
+            />
+            <FilterRow
+              options={DIMENSIONS}
+              value={dimension}
+              onChange={setDimension}
+              label="Top list grouping"
+            />
+            <FilterRow
+              options={SORTS}
+              value={sort}
+              onChange={setSort}
+              label="Top list order"
+            />
+          </div>
         </div>
 
         {loading ? (
           <StudioPanel>
             <PageLoading label="Loading top lists…" />
           </StudioPanel>
-        ) : buckets.length === 0 ? (
+        ) : visibleBuckets.length === 0 ? (
           <StudioPanel>
             <p className="text-foreground-secondary py-4 text-center text-sm">
-              No listens recorded for this period yet.
+              {normalizedQuery
+                ? 'No matching top-list entries.'
+                : 'No listens recorded for this period yet.'}
             </p>
           </StudioPanel>
         ) : (
-          buckets.map((bucket) => {
+          visibleBuckets.map((bucket) => {
             const max = Math.max(...bucket.entries.map((e) => e.listens), 1);
             return (
-              <StudioPanel key={bucket.bucket} title={bucket.bucket}>
+              <StudioPanel key={bucket.bucket}>
+                <h2 className="mb-3 text-sm font-semibold capitalize">
+                  {bucket.bucket.toLowerCase().replaceAll('_', ' ')}
+                </h2>
                 <div className="flex flex-col gap-3">
                   {bucket.entries.map((entry, i) => (
                     <div key={entry.archiveItemId} className="text-sm">
@@ -140,9 +198,13 @@ export function AdminTopListsView() {
                               <PlayIcon size={14} aria-hidden />
                             </Button>
                           )}
-                          <span className="min-w-0 truncate">
+                          <Link
+                            to="/studio/archive/$id"
+                            params={{ id: entry.archiveItemId }}
+                            className="min-w-0 truncate hover:underline"
+                          >
                             #{i + 1} {entry.title} — {entry.artistName}
-                          </span>
+                          </Link>
                         </span>
                         <span className="text-foreground-secondary shrink-0 text-xs">
                           {entry.listens}{' '}

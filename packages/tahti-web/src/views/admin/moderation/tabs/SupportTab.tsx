@@ -1,3 +1,9 @@
+import {
+  CheckIcon,
+  CircleDotIcon,
+  Clock3Icon,
+  ListFilterIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge, Button, Input } from '@nuclearplayer/ui';
@@ -13,6 +19,7 @@ import {
 } from '../../../../api/admin';
 import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
+import { ModerationTabs } from '../ModerationTabs';
 
 function statusBadge(status: AdminSupportStatus): {
   label: string;
@@ -33,6 +40,13 @@ const FILTERS: { id: AdminSupportStatus | 'all'; label: string }[] = [
   { id: 'IN_PROGRESS', label: 'In progress' },
   { id: 'RESOLVED', label: 'Resolved' },
 ];
+
+const FILTER_TAB_ICONS = {
+  all: ListFilterIcon,
+  OPEN: CircleDotIcon,
+  IN_PROGRESS: Clock3Icon,
+  RESOLVED: CheckIcon,
+};
 
 function requesterLabel(t: {
   artistUsername: string | null;
@@ -139,25 +153,15 @@ export function SupportTab() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <nav className="flex flex-wrap gap-2" role="tablist">
-          {FILTERS.map((f) => (
-            <Button
-              key={f.id}
-              type="button"
-              variant="text"
-              role="tab"
-              aria-selected={filter === f.id}
-              onClick={() => setFilter(f.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-                filter === f.id
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              {f.label}
-            </Button>
-          ))}
-        </nav>
+        <ModerationTabs
+          activeId={filter}
+          items={FILTERS.map((item) => ({
+            ...item,
+            icon: FILTER_TAB_ICONS[item.id],
+          }))}
+          ariaLabel="Support ticket status"
+          onChange={(id) => setFilter(id as AdminSupportStatus | 'all')}
+        />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}

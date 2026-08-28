@@ -16,6 +16,7 @@ import { Button, SaveButton } from '@nuclearplayer/ui';
 import {
   isValidHeaderVideoUrl,
   patchChannelVisual,
+  resolvePublicVisualizerPreset,
   youtubeEmbedUrl,
 } from '../api/channel-design';
 import {
@@ -325,7 +326,7 @@ export function ChannelView({ slug }: { slug: string }) {
             ) : (
               <ChannelVisualizer
                 className="absolute inset-0 h-full w-full"
-                preset={channel.visualPreset ?? 'AURORA'}
+                preset={resolvePublicVisualizerPreset(channel.visualPreset)}
                 colorScheme={channel.colorScheme}
                 colorSchemeJson={channel.colorSchemeJson}
                 artworkUrl={
@@ -582,7 +583,7 @@ export function ChannelView({ slug }: { slug: string }) {
             className={`pointer-events-none absolute inset-0 z-0 ${
               live ? 'opacity-[0.32]' : 'opacity-[0.55]'
             }`}
-            preset={channel.visualPreset ?? 'AURORA'}
+            preset={resolvePublicVisualizerPreset(channel.visualPreset)}
             colorScheme={channel.colorScheme}
             colorSchemeJson={channel.colorSchemeJson}
             artworkUrl={

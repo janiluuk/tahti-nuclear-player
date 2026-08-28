@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 
-import { LegalHubLinks } from '../views/LegalView';
+import { LegalHubLinks } from './LegalHubLinks';
 import { PageHeader } from './PageHeader';
 
 export function LegalDocSection({

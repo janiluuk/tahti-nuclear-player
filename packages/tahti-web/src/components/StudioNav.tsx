@@ -1,6 +1,5 @@
-import { Link, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import {
-  CircleHelpIcon,
   FolderOpenIcon,
   HeartIcon,
   ImageIcon,
@@ -104,7 +103,6 @@ const SUBMENUS = {
       icon: <RadioIcon size={16} />,
     },
     { to: '/studio/events', label: 'Events', icon: <RadioIcon size={16} /> },
-    { to: '/studio/venues', label: 'Venues', icon: <RadioIcon size={16} /> },
     { to: '/studio/shows', label: 'Shows', icon: <RadioIcon size={16} /> },
   ],
   '/studio/channel': [
@@ -178,7 +176,6 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/go-live',
     '/studio/schedule',
     '/studio/events',
-    '/studio/venues',
     '/studio/shows',
   ],
   '/studio/channel': ['/studio/channel', '/sources', '/studio/moderation'],
@@ -229,7 +226,7 @@ function StudioNavigation({ current }: { current?: string }) {
     <div className="flex min-w-0 flex-col gap-1" data-studio-navigation>
       <div
         aria-label="Studio sections"
-        className="border-border flex w-fit max-w-full gap-1 overflow-x-auto rounded-lg border p-1"
+        className="border-border flex w-full max-w-full min-w-0 gap-1 overflow-x-auto rounded-lg border p-1"
         role="tablist"
         data-studio-section-tabs
       >
@@ -241,7 +238,7 @@ function StudioNavigation({ current }: { current?: string }) {
               type="button"
               role="tab"
               aria-selected={active}
-              className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${
+              className={`flex shrink-0 items-center gap-2 rounded-md px-3 py-1.5 text-sm font-semibold whitespace-nowrap ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
@@ -270,13 +267,6 @@ function StudioNavigation({ current }: { current?: string }) {
           />
         </div>
       )}
-      <Link
-        to="/help"
-        className="text-foreground-secondary hover:bg-background-secondary hover:text-foreground mt-1 hidden w-fit max-w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium sm:flex"
-      >
-        <CircleHelpIcon size={16} aria-hidden />
-        <span className="truncate">Help center</span>
-      </Link>
     </div>
   );
 }

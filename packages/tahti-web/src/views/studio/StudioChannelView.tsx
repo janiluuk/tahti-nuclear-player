@@ -1,14 +1,16 @@
 import { Link, useSearch } from '@tanstack/react-router';
 import {
   CheckCircle2Icon,
+  CircleHelpIcon,
   GlobeIcon,
   ImageIcon,
   PencilIcon,
   RadioIcon,
   SearchIcon,
+  SettingsIcon,
   UserCircleIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button, Input, SaveButton, Toggle } from '@nuclearplayer/ui';
@@ -41,6 +43,10 @@ import { useAuthStore } from '../../stores/authStore';
 import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
 import { SelectsTab } from '../admin/moderation/tabs/SelectsTab';
 import { BroadcastPanel } from '../settings/SettingsPanels';
+
+const LazyHelpHubView = lazy(() =>
+  import('../HelpView').then((module) => ({ default: module.HelpHubView })),
+);
 
 type Tab =
   | 'setup'
@@ -139,6 +145,7 @@ export function StudioChannelView() {
   const channel = user?.channel;
   const [tab, setTab] = useState<Tab>(channel ? 'design' : 'setup');
   const [radioTab, setRadioTab] = useState<RadioTab>('stream');
+  const [helpOpen, setHelpOpen] = useState(false);
   const [profile, setProfile] = useState<ProfileFields | null>(null);
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
@@ -339,10 +346,30 @@ export function StudioChannelView() {
                       : 'text-foreground-secondary rounded-md'
                   }
                 >
-                  {label}
+                  {id === 'settings' ? (
+                    <SettingsIcon size={16} aria-hidden />
+                  ) : (
+                    label
+                  )}
                 </Button>
               ))}
+              <Button
+                type="button"
+                size="icon-sm"
+                variant={helpOpen ? undefined : 'text'}
+                aria-label="Toggle help center"
+                aria-pressed={helpOpen}
+                title="Help center"
+                onClick={() => setHelpOpen((open) => !open)}
+              >
+                <CircleHelpIcon size={16} aria-hidden />
+              </Button>
             </nav>
+            {helpOpen ? (
+              <Suspense fallback={<PageLoading label="Loading help…" />}>
+                <LazyHelpHubView />
+              </Suspense>
+            ) : null}
             {radioTab === 'stream' ? (
               channel?.slug ? (
                 <>

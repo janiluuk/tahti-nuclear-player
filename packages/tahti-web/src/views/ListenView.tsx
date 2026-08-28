@@ -5,6 +5,7 @@ import {
   PauseIcon,
   PlayIcon,
   RadioIcon,
+  RadioTowerIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -18,6 +19,7 @@ import {
   SectionShell,
 } from '@nuclearplayer/ui';
 
+import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {
   fetchArtistPlayables,
   fetchChannel,
@@ -37,6 +39,7 @@ import {
   type OnAirChannel,
   type PublicChannel,
 } from '../api/types';
+import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { ListenerWidgetsSection } from '../components/ListenerWidgetsSection';
 import { PageFrame, PageHeader } from '../components/PageHeader';
@@ -296,9 +299,21 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
           {radio ? (
             <Box
               variant="secondary"
-              className="flex flex-wrap items-center justify-between gap-3"
+              className="relative flex flex-wrap items-center justify-between gap-3 overflow-hidden"
             >
-              <div className="flex min-w-0 items-start gap-3">
+              {radioIsPlaying ? (
+                <div className="pointer-events-none absolute inset-0 opacity-45">
+                  <ChannelVisualizer
+                    preset={resolvePublicVisualizerPreset(radio.visualPreset)}
+                    colorScheme={radio.colorScheme}
+                    colorSchemeJson={radio.colorSchemeJson}
+                    visualSettingsJson={radio.visualSettingsJson}
+                    artworkUrl={radio.nowPlaying?.artworkUrl ?? undefined}
+                    className="h-full min-h-28 w-full"
+                  />
+                </div>
+              ) : null}
+              <div className="relative z-10 flex min-w-0 items-start gap-3">
                 <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-bold tracking-tight">
                   {radioLogo ? (
                     <img
@@ -327,7 +342,7 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="relative z-10 flex flex-wrap items-center gap-2">
                 <Button
                   size="icon-sm"
                   disabled={!radio.hlsUrl}
@@ -343,8 +358,13 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
                   )}
                 </Button>
                 <Link to="/radio">
-                  <Button size="sm" variant="secondary">
-                    Open radio
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    title="Open radio"
+                    aria-label="Open radio"
+                  >
+                    <RadioTowerIcon size={16} aria-hidden />
                   </Button>
                 </Link>
               </div>

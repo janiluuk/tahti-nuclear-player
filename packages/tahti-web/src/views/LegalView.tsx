@@ -1,25 +1,10 @@
-import { Link } from '@tanstack/react-router';
-
+import { LegalHubLinks } from '../components/LegalHubLinks';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';
 import { TahtiMapLink } from '../components/TahtiMapLink';
-import { getLegalPage, LEGAL_HUB_LINKS } from '../content/legal';
+import { getLegalPage } from '../content/legal';
 
 const PRODUCTION = 'https://tahti.live';
-
-export function LegalHubLinks() {
-  return (
-    <ul className="text-foreground-secondary flex flex-wrap gap-3 text-xs">
-      {LEGAL_HUB_LINKS.map((l) => (
-        <li key={l.slug}>
-          <Link to={l.to} className="underline-offset-2 hover:underline">
-            {l.title}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 export function LegalView({ slug }: { slug: string }) {
   const page = getLegalPage(slug);

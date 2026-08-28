@@ -1,3 +1,9 @@
+import {
+  CheckCircle2Icon,
+  Clock3Icon,
+  ListFilterIcon,
+  XCircleIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -10,6 +16,7 @@ import {
 } from '../../../../api/admin';
 import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
+import { ModerationTabs } from '../ModerationTabs';
 
 const FILTERS: { id: AdminContentReportStatus | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -18,6 +25,14 @@ const FILTERS: { id: AdminContentReportStatus | 'all'; label: string }[] = [
   { id: 'ACTIONED', label: 'Actioned' },
   { id: 'DISMISSED', label: 'Dismissed' },
 ];
+
+const FILTER_TAB_ICONS = {
+  all: ListFilterIcon,
+  OPEN: Clock3Icon,
+  REVIEWING: Clock3Icon,
+  ACTIONED: CheckCircle2Icon,
+  DISMISSED: XCircleIcon,
+};
 
 function ReportActions({
   report,
@@ -121,25 +136,15 @@ export function ContentReportsTab() {
         — reporting needs no account.
       </p>
 
-      <nav className="flex flex-wrap gap-2" role="tablist">
-        {FILTERS.map((f) => (
-          <Button
-            key={f.id}
-            type="button"
-            variant="text"
-            role="tab"
-            aria-selected={filter === f.id}
-            onClick={() => setFilter(f.id)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-              filter === f.id
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'border-border text-foreground-secondary hover:text-foreground border'
-            }`}
-          >
-            {f.label}
-          </Button>
-        ))}
-      </nav>
+      <ModerationTabs
+        activeId={filter}
+        items={FILTERS.map((item) => ({
+          ...item,
+          icon: FILTER_TAB_ICONS[item.id],
+        }))}
+        ariaLabel="Content report status"
+        onChange={(id) => setFilter(id as AdminContentReportStatus | 'all')}
+      />
 
       <StudioPanel>
         {loading ? (

@@ -32,6 +32,7 @@ import type {
   StudioCollection,
   StudioCollectionItem,
 } from '../../api/studio-types';
+import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -544,12 +545,12 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                     });
                   }}
                 />
-                <Input
+                <ImageUploadField
                   className="mt-2"
-                  label="Backdrop image URL"
+                  label="Upload backdrop"
+                  description="Wide JPEG, PNG, WebP, or GIF"
                   value={backdropUrl ?? ''}
-                  placeholder="https://…"
-                  onChange={(event) => setBackdropUrl(event.target.value)}
+                  onChange={setBackdropUrl}
                 />
               </div>
             </div>

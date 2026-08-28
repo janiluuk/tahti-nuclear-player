@@ -31,14 +31,10 @@ import {
   EmbedCollectionView,
   EmbedReleaseView,
 } from './views/EmbedViews';
-import { FeatureRequestsView } from './views/FeatureRequestsView';
 import { FeedView } from './views/FeedView';
 import { ForgotPasswordView } from './views/ForgotPasswordView';
-import { GovernanceView } from './views/GovernanceView';
 import { GreenRoomView } from './views/GreenRoomView';
-import { HelpArticleView, HelpHubView } from './views/HelpView';
 import { JoinView } from './views/JoinView';
-import { LegalView } from './views/LegalView';
 import { ListenView } from './views/ListenView';
 import { LoginView } from './views/LoginView';
 import { MessagesView } from './views/MessagesView';
@@ -52,7 +48,6 @@ import { SetupPasswordView } from './views/SetupPasswordView';
 import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
 import { SourcesView } from './views/SourcesView';
-import { StatusView } from './views/StatusView';
 import { StudioArchiveView } from './views/studio/StudioArchiveView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
@@ -78,12 +73,9 @@ import { StudioStatsView } from './views/studio/StudioStatsView';
 import { StudioTrackInsightsView } from './views/studio/StudioTrackInsightsView';
 import { StudioUpdatesView } from './views/studio/StudioUpdatesView';
 import { StudioUploadView } from './views/studio/StudioUploadView';
-import { StudioVenuesView } from './views/studio/StudioVenuesView';
 import { SubscribeView } from './views/SubscribeView';
 import { TermsView } from './views/TermsView';
 import { TrackDetailView } from './views/TrackDetailView';
-import { TransparencyMethodologyView } from './views/TransparencyMethodologyView';
-import { TransparencyView } from './views/TransparencyView';
 import { VenueDetailView } from './views/VenueDetailView';
 import { VenueRegisterView } from './views/VenueRegisterView';
 import { VenuesView } from './views/VenuesView';
@@ -124,6 +116,38 @@ const StudioEpisodeReviewView = lazyRouteComponent(
 const MoreView = lazyRouteComponent(
   () => import('./views/MoreView'),
   'MoreView',
+);
+const FeatureRequestsView = lazyRouteComponent(
+  () => import('./views/FeatureRequestsView'),
+  'FeatureRequestsView',
+);
+const GovernanceView = lazyRouteComponent(
+  () => import('./views/GovernanceView'),
+  'GovernanceView',
+);
+const HelpArticleView = lazyRouteComponent(
+  () => import('./views/HelpView'),
+  'HelpArticleView',
+);
+const HelpHubView = lazyRouteComponent(
+  () => import('./views/HelpView'),
+  'HelpHubView',
+);
+const LegalView = lazyRouteComponent(
+  () => import('./views/LegalView'),
+  'LegalView',
+);
+const StatusView = lazyRouteComponent(
+  () => import('./views/StatusView'),
+  'StatusView',
+);
+const TransparencyMethodologyView = lazyRouteComponent(
+  () => import('./views/TransparencyMethodologyView'),
+  'TransparencyMethodologyView',
+);
+const TransparencyView = lazyRouteComponent(
+  () => import('./views/TransparencyView'),
+  'TransparencyView',
 );
 const SettingsView = lazyRouteComponent(
   () => import('./views/settings/SettingsView'),
@@ -212,6 +236,10 @@ const AdminUsersView = lazyRouteComponent(
 const AdminVendorsView = lazyRouteComponent(
   () => import('./views/admin/AdminVendorsView'),
   'AdminVendorsView',
+);
+const AdminVenuesView = lazyRouteComponent(
+  () => import('./views/admin/AdminVenuesView'),
+  'AdminVenuesView',
 );
 const AdminDiscoWidgetsView = lazyRouteComponent(
   () => import('./views/admin/AdminDiscoWidgetsView'),
@@ -527,6 +555,12 @@ const adminVendorsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/vendors',
   component: AdminVendorsView,
+});
+
+const adminVenuesRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/venues',
+  component: AdminVenuesView,
 });
 
 const adminDiscoWidgetsRoute = createRoute({
@@ -1161,7 +1195,9 @@ const studioModerationRoute = createRoute({
 const studioVenuesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/venues',
-  component: StudioVenuesView,
+  beforeLoad: () => {
+    throw redirect({ to: '/admin/venues' });
+  },
 });
 
 const studioEventsRoute = createRoute({
@@ -1380,6 +1416,7 @@ const routeTree = rootRoute.addChildren([
     adminAgmRoute,
     adminMissedShowsRoute,
     adminVendorsRoute,
+    adminVenuesRoute,
     adminDiscoWidgetsRoute,
     adminStatusRoute,
     adminI18nRoute,

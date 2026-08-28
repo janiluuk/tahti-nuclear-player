@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button, Input } from '@nuclearplayer/ui';
 
 import { registerVenue } from '../api/client';
+import { ImageUploadField } from '../components/ImageUploadField';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useAuthStore } from '../stores/authStore';
 
@@ -155,17 +156,17 @@ export function VenueRegisterView() {
             rows={4}
           />
         </label>
-        <Input
-          label="Venue image URL (optional)"
+        <ImageUploadField
+          label="Venue image"
+          description="JPEG, PNG, WebP, or GIF"
           value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://…"
+          onChange={setImageUrl}
         />
-        <Input
-          label="Cover art URL (optional)"
+        <ImageUploadField
+          label="Cover art"
+          description="JPEG, PNG, WebP, or GIF"
           value={coverUrl}
-          onChange={(e) => setCoverUrl(e.target.value)}
-          placeholder="https://…"
+          onChange={setCoverUrl}
         />
         <Input
           label="Venue website (optional)"

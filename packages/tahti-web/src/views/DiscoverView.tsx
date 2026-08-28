@@ -63,6 +63,7 @@ export function DiscoverView() {
   const [data, setData] = useState<Record<string, WidgetData>>({});
   const [unheardIds, setUnheardIds] = useState<Set<string> | null>(null);
   const [genresOpen, setGenresOpen] = useState(false);
+  const [contentTypesOpen, setContentTypesOpen] = useState(false);
 
   const filters = useMemo(
     () => ({ genres: genreFilter, contentTypes: contentTypeFilter }),
@@ -195,6 +196,23 @@ export function DiscoverView() {
               aria-hidden
             />
           </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            aria-expanded={contentTypesOpen}
+            onClick={() => setContentTypesOpen((open) => !open)}
+          >
+            <SlidersHorizontalIcon size={15} className="mr-1.5" aria-hidden />
+            Types
+            {contentTypeFilter.length > 0
+              ? ` (${contentTypeFilter.length})`
+              : ''}
+            <ChevronDownIcon
+              size={15}
+              className={`ml-1.5 transition-transform ${contentTypesOpen ? 'rotate-180' : ''}`}
+              aria-hidden
+            />
+          </Button>
           <FilterChips
             multiple
             items={[{ id: 'unheard', label: 'Tracks I haven’t heard' }]}
@@ -212,12 +230,14 @@ export function DiscoverView() {
             onChange={setGenreFilter}
           />
         ) : null}
-        <FilterChips
-          multiple
-          items={CONTENT_TYPE_OPTIONS}
-          selected={contentTypeFilter}
-          onChange={setContentTypeFilter}
-        />
+        {contentTypesOpen ? (
+          <FilterChips
+            multiple
+            items={CONTENT_TYPE_OPTIONS}
+            selected={contentTypeFilter}
+            onChange={setContentTypeFilter}
+          />
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">

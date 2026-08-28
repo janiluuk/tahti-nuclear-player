@@ -1,8 +1,10 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
+  BarChart3Icon,
   CheckIcon,
   CircleDotIcon,
   InfoIcon,
+  ListMusicIcon,
   MicIcon,
   PlusIcon,
   RadioIcon,
@@ -39,6 +41,144 @@ import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { EpisodeSourceIcon, episodeStatusLabel } from './StudioShowsView';
 
+function EpisodeEditorRow({
+  episode,
+  onSaved,
+}: {
+  episode: StudioEpisode;
+  onSaved: (episode: StudioEpisode) => void;
+}) {
+  const [title, setTitle] = useState(episode.title);
+  const [description, setDescription] = useState(episode.description);
+  const [saving, setSaving] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const save = async () => {
+    setSaving(true);
+    setMessage(null);
+    const result = await patchEpisode(episode.id, {
+      title: title.trim() || episode.title,
+      description: description.trim(),
+    });
+    setSaving(false);
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    onSaved(result.data);
+    setTitle(result.data.title);
+    setDescription(result.data.description);
+    setMessage('Saved');
+  };
+
+  return (
+    <li className="border-border rounded-xl border p-4">
+      <div className="flex flex-wrap items-start gap-3">
+        <Eyebrow>Episode #{episode.episodeNumber}</Eyebrow>
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">{episode.title}</p>
+          <p className="text-foreground-secondary mt-1 text-xs">
+            {episodeStatusLabel(episode)} ·{' '}
+            {episode.source === 'broadcast' ? 'Recorded' : 'Uploaded'}
+          </p>
+        </div>
+        <Button
+          size="sm"
+          variant="text"
+          onClick={() => setStatsOpen((open) => !open)}
+          aria-expanded={statsOpen}
+        >
+          <BarChart3Icon size={14} aria-hidden />
+          Statistics
+        </Button>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        <Input
+          label="Episode title"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+        />
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="text-foreground-secondary text-xs uppercase">
+            Description
+          </span>
+          <textarea
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            rows={3}
+            className="border-border bg-background rounded-md border px-3 py-2"
+          />
+        </label>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          {message ? (
+            <span className="text-foreground-secondary text-xs">{message}</span>
+          ) : (
+            <span />
+          )}
+          <SaveButton
+            saving={saving}
+            label="Save episode"
+            onClick={() => void save()}
+          />
+        </div>
+      </div>
+
+      {statsOpen ? (
+        <div className="border-border bg-background-secondary/40 mt-4 grid gap-3 rounded-lg border p-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <p className="text-foreground-secondary text-xs uppercase">
+              Status
+            </p>
+            <p className="mt-1 text-sm font-medium">
+              {episodeStatusLabel(episode)}
+            </p>
+          </div>
+          <div>
+            <p className="text-foreground-secondary text-xs uppercase">
+              Source
+            </p>
+            <p className="mt-1 text-sm font-medium">
+              {episode.source === 'broadcast'
+                ? 'Broadcast recording'
+                : 'Uploaded audio'}
+            </p>
+          </div>
+          <div>
+            <p className="text-foreground-secondary text-xs uppercase">Audio</p>
+            <p className="mt-1 text-sm font-medium">
+              {episode.archiveItemId ? 'Attached' : 'Not attached'}
+            </p>
+          </div>
+          <div>
+            <p className="text-foreground-secondary text-xs uppercase">
+              Created
+            </p>
+            <p className="mt-1 text-sm font-medium">
+              {new Date(episode.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+          {episode.slotStartAt ? (
+            <div className="sm:col-span-2 lg:col-span-4">
+              <p className="text-foreground-secondary text-xs uppercase">
+                Scheduled
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {new Date(episode.slotStartAt).toLocaleString()}
+              </p>
+            </div>
+          ) : null}
+          <p className="text-foreground-secondary text-xs sm:col-span-2 lg:col-span-4">
+            Listener play and download totals will appear here when
+            episode-level analytics are available.
+          </p>
+        </div>
+      ) : null}
+    </li>
+  );
+}
+
 export function StudioShowDetailView({ id }: { id: string }) {
   const navigate = useNavigate();
   const [show, setShow] = useState<StudioShowSeries | null>(null);
@@ -57,7 +197,9 @@ export function StudioShowDetailView({ id }: { id: string }) {
   const [backdropFile, setBackdropFile] = useState<File | null>(null);
   const [autoArchive, setAutoArchive] = useState(true);
   const [savingMeta, setSavingMeta] = useState(false);
-  const [showTab, setShowTab] = useState<'overview' | 'recordings'>('overview');
+  const [showTab, setShowTab] = useState<
+    'overview' | 'episodes' | 'recordings'
+  >('overview');
 
   const reload = () => {
     void fetchShowSeriesById(id).then((r) => {
@@ -272,6 +414,16 @@ export function StudioShowDetailView({ id }: { id: string }) {
               </Button>
               <Button
                 size="xs"
+                variant={showTab === 'episodes' ? undefined : 'text'}
+                role="tab"
+                aria-selected={showTab === 'episodes'}
+                onClick={() => setShowTab('episodes')}
+              >
+                <ListMusicIcon size={14} aria-hidden />
+                Episodes ({episodes.length})
+              </Button>
+              <Button
+                size="xs"
                 variant={showTab === 'recordings' ? undefined : 'text'}
                 role="tab"
                 aria-selected={showTab === 'recordings'}
@@ -445,6 +597,33 @@ export function StudioShowDetailView({ id }: { id: string }) {
                   </StudioPanel>
                 ) : null}
               </>
+            ) : showTab === 'episodes' ? (
+              <StudioPanel
+                title="All episodes"
+                description="Edit every episode and review its publishing and listening metadata."
+              >
+                {episodes.length === 0 ? (
+                  <p className="text-foreground-secondary text-sm">
+                    No episodes have been created for this show yet.
+                  </p>
+                ) : (
+                  <ul className="flex flex-col gap-3">
+                    {episodes.map((episode) => (
+                      <EpisodeEditorRow
+                        key={episode.id}
+                        episode={episode}
+                        onSaved={(updated) =>
+                          setEpisodes((current) =>
+                            current.map((item) =>
+                              item.id === updated.id ? updated : item,
+                            ),
+                          )
+                        }
+                      />
+                    ))}
+                  </ul>
+                )}
+              </StudioPanel>
             ) : (
               <StudioPanel
                 title="Recordings from this show"

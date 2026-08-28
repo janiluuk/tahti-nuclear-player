@@ -212,6 +212,7 @@ const ADMIN_SECTIONS = [
     items: PRIMARY.filter((item) =>
       [
         '/admin/streams',
+        '/admin/venues',
         '/admin/files',
         '/admin/disco-widgets',
         '/admin/i18n',
@@ -278,7 +279,7 @@ export function AdminNav({
             type="button"
             role="tab"
             aria-selected={active}
-            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${
+            className={`flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold whitespace-nowrap ${
               active
                 ? 'bg-primary text-primary-foreground'
                 : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'

@@ -9,8 +9,6 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Tabs } from '@nuclearplayer/ui';
-
 import { fetchAdminDashboard } from '../../../api/admin';
 import { AdminGate } from '../../../components/AdminGate';
 import { AdminNav } from '../../../components/AdminNav';
@@ -22,6 +20,7 @@ import {
   isAdminModerationTabId,
   type AdminModerationTabId,
 } from './moderationNav';
+import { ModerationTabs, type ModerationTabItem } from './ModerationTabs';
 import { BetaTab } from './tabs/BetaTab';
 import { ContentReportsTab } from './tabs/ContentReportsTab';
 import { FeatureRequestsTab } from './tabs/FeatureRequestsTab';
@@ -53,6 +52,13 @@ const MODERATION_TAB_ICONS: Record<AdminModerationTabId, typeof UsersIcon> = {
   'feature-requests': LightbulbIcon,
   'missed-shows': FileWarningIcon,
 };
+
+const MODERATION_TAB_ITEMS: ModerationTabItem[] = ADMIN_MODERATION_TABS.map(
+  (item) => ({
+    ...item,
+    icon: MODERATION_TAB_ICONS[item.id],
+  }),
+);
 
 /** One page, one tab per review queue: Support, Beta applications, Radio
  * submissions, Selects, Content reports, Feature requests — see
@@ -90,32 +96,21 @@ export function AdminModerationView({ tab }: { tab?: AdminModerationTabId }) {
           title="Moderation"
           subtitle="Review queues the board triages day to day — support, beta access, radio, curation, reports, and roadmap."
         />
-        <Tabs
-          selectedIndex={selectedIndex < 0 ? 0 : selectedIndex}
-          onChange={(index) => {
-            const next = ADMIN_MODERATION_TABS[index];
-            if (!next) {
-              return;
-            }
+        <ModerationTabs
+          activeId={
+            ADMIN_MODERATION_TABS[selectedIndex < 0 ? 0 : selectedIndex].id
+          }
+          items={MODERATION_TAB_ITEMS}
+          ariaLabel="Moderation queues"
+          onChange={(nextId) => {
             void navigate({
               to: '/admin/moderation/$tab',
-              params: { tab: next.id },
+              params: { tab: nextId as AdminModerationTabId },
               replace: true,
             });
           }}
-          items={ADMIN_MODERATION_TABS.map((t) => ({
-            id: t.id,
-            label: (() => {
-              const Icon = MODERATION_TAB_ICONS[t.id];
-              return (
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon size={14} aria-hidden /> {t.label}
-                </span>
-              );
-            })(),
-            content: tabContent(t.id),
-          }))}
         />
+        {tabContent(active)}
       </div>
     </AdminGate>
   );

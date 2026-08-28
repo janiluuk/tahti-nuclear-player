@@ -66,7 +66,7 @@ export type SignalStatus = {
 
 export type BroadcastPreflight = {
   title: string | null;
-  visibility: 'PUBLIC' | 'FAN_ONLY';
+  visibility: 'PUBLIC' | 'PRIVATE' | 'FAN_ONLY';
   autoArchive: boolean;
   showType: 'LIVE_SET' | 'TALK';
   episodeNumber: number | null;

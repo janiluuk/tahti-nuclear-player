@@ -20,6 +20,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
@@ -135,13 +136,11 @@ export function AdminNewsView() {
                           className="border-border bg-background rounded-md border px-3 py-2"
                         />
                       </label>
-                      <Input
-                        label="Image URL"
+                      <ImageUploadField
+                        label="News image"
+                        description="JPEG, PNG, WebP, or GIF"
                         value={editImageUrl}
-                        onChange={(event) =>
-                          setEditImageUrl(event.target.value)
-                        }
-                        placeholder="https://…"
+                        onChange={setEditImageUrl}
                       />
                       <Input
                         label="Link URL"
@@ -306,11 +305,11 @@ export function AdminNewsView() {
                 className="border-border bg-background rounded-md border px-3 py-2"
               />
             </label>
-            <Input
-              label="Image URL"
+            <ImageUploadField
+              label="News image"
+              description="JPEG, PNG, WebP, or GIF"
               value={imageUrl}
-              onChange={(event) => setImageUrl(event.target.value)}
-              placeholder="https://…"
+              onChange={setImageUrl}
             />
             <Input
               label="Link URL"

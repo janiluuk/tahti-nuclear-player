@@ -1,5 +1,31 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-29 — Image upload UX sweep
+
+Replaced image URL text fields with the shared drag-and-drop upload widget across
+channel backgrounds, show and episode artwork, track and collection backdrops,
+venue images, news images, widget covers, broadcast covers, and stream overlays.
+Uploads now use the existing user media storage flow and retain previews. Removed
+duplicate URL fallbacks where a proper upload control was already available;
+external source and website URL fields remain intentional URL inputs.
+
+**Validation:** Tahti web type-check, lint, and diff checks pass.
+
+## 2026-08-29 — Performance follow-up route slices
+
+**Slice 1:** Help Center hub and article routes now load on demand, so the
+structured guide and support form are not part of the initial listener bundle.
+
+**Slice 2:** Public legal pages (`About`, `What is Tahti?`, `How it works`,
+and `For artists`) now share one deferred Legal route module.
+
+**Slice 3:** Public transparency, status, governance, and feature-request
+pages now load only when opened. The persistent app shell remains mounted while
+these route modules resolve.
+
+**Validation:** Tahti web type-check and lint pass. The remaining performance
+candidate is the shared `api/admin.ts` dependency reachable from plugin settings.
+
 ## 2026-08-28 — Shared Tahti logo treatment
 
 **Completed:** Matched the app logo to `../tahti`'s `BrandLogo`: medium-weight display typography, 18px wordmark sizing, 3px amber bar, 1px bar radius, and the same tracking. The existing home link and mark-only variant remain compatible with the Nuclear shell.

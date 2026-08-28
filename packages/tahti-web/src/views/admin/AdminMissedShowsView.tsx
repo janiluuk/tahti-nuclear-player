@@ -1,4 +1,10 @@
-import { AlertTriangleIcon, CheckIcon, EyeIcon, XIcon } from 'lucide-react';
+import {
+  AlertTriangleIcon,
+  CheckIcon,
+  EyeIcon,
+  ListFilterIcon,
+  XIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
@@ -13,6 +19,7 @@ import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { ModerationTabs } from './moderation/ModerationTabs';
 
 const FILTERS: Array<{ id: AdminMissedShowStatus | 'ALL'; label: string }> = [
   { id: 'ALL', label: 'All' },
@@ -21,6 +28,14 @@ const FILTERS: Array<{ id: AdminMissedShowStatus | 'ALL'; label: string }> = [
   { id: 'ACTIONED', label: 'Actioned' },
   { id: 'DISMISSED', label: 'Dismissed' },
 ];
+
+const FILTER_TAB_ICONS = {
+  ALL: ListFilterIcon,
+  OPEN: AlertTriangleIcon,
+  REVIEWING: EyeIcon,
+  ACTIONED: CheckIcon,
+  DISMISSED: XIcon,
+};
 
 const formatDate = (iso: string) => new Date(iso).toLocaleString();
 
@@ -65,27 +80,19 @@ export function AdminMissedShowsPanel() {
   return (
     <div className="flex flex-col gap-6">
       <StudioPanel>
-        <div
-          className="flex flex-wrap gap-2"
-          role="tablist"
-          aria-label="Missed show status"
-        >
-          {FILTERS.map((item) => (
-            <Button
-              key={item.id}
-              size="sm"
-              variant={filter === item.id ? 'default' : 'secondary'}
-              role="tab"
-              aria-selected={filter === item.id}
-              onClick={() => {
-                setFilter(item.id);
-                load(item.id);
-              }}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </div>
+        <ModerationTabs
+          activeId={filter}
+          items={FILTERS.map((item) => ({
+            ...item,
+            icon: FILTER_TAB_ICONS[item.id],
+          }))}
+          ariaLabel="Missed show status"
+          onChange={(id) => {
+            const nextFilter = id as (typeof FILTERS)[number]['id'];
+            setFilter(nextFilter);
+            load(nextFilter);
+          }}
+        />
       </StudioPanel>
 
       <StudioPanel title={`Queue · ${flags.length}`}>

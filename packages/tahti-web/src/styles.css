@@ -79,14 +79,15 @@ body,
   }
 
   .admin-moderation-layout > [data-admin-section-tabs] {
-    grid-column: 1 / -1;
+    grid-column: 2;
     grid-row: 1;
   }
 
   .admin-moderation-layout > [data-admin-section-menu] {
-    position: absolute;
-    top: 4rem;
-    left: 0;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: relative;
+    align-self: start;
     width: 11rem;
   }
 
@@ -97,14 +98,15 @@ body,
   }
 
   .admin-page-layout > [data-admin-section-tabs] {
-    grid-column: 1 / -1;
+    grid-column: 2;
     grid-row: 1;
   }
 
   .admin-page-layout > [data-admin-section-menu] {
-    position: absolute;
-    top: 4rem;
-    left: 0;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: relative;
+    align-self: start;
     width: 11rem;
   }
 

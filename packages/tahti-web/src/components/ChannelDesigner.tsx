@@ -318,7 +318,7 @@ export function ChannelDesigner({
       return;
     }
     if (galleryMode !== 'NONE' && images.length === 0) {
-      toast.error('Add at least one image URL for the selected gallery.');
+      toast.error('Add at least one image for the selected gallery.');
       return;
     }
     if (images.some((image) => !/^https:\/\/\S+$/i.test(image))) {
@@ -855,25 +855,6 @@ export function ChannelDesigner({
                       </option>
                     ))}
                   </select>
-                </label>
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                    Gallery images
-                  </span>
-                  <span className="text-foreground-secondary text-xs">
-                    Add one public HTTPS image URL per line. Up to 10 images.
-                  </span>
-                  <textarea
-                    rows={5}
-                    value={galleryImages}
-                    disabled={galleryMode === 'NONE'}
-                    onChange={(event) => {
-                      setGalleryImages(event.target.value);
-                      setDirty(true);
-                    }}
-                    placeholder="https://cdn.example/photo.jpg"
-                    className="border-border bg-background text-foreground placeholder:text-foreground-secondary resize-y rounded-md border px-3 py-2 text-sm"
-                  />
                 </label>
                 <p className="text-foreground-secondary text-xs">
                   Video backdrops are managed in Header → Video loop. Uploaded

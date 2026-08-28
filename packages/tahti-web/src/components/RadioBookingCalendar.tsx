@@ -74,10 +74,12 @@ export function RadioBookingCalendar({
   isOpen,
   onClose,
   onBooked,
+  scope = 'all',
 }: {
   isOpen: boolean;
   onClose: () => void;
   onBooked?: () => void;
+  scope?: 'all' | 'mine';
 }) {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
@@ -99,6 +101,8 @@ export function RadioBookingCalendar({
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] =
+    useState<StudioShowBooking | null>(null);
 
   const days = useMemo(() => monthGridDays(monthCursor), [monthCursor]);
 
@@ -109,7 +113,7 @@ export function RadioBookingCalendar({
       days[days.length - 1]!.getTime() + 24 * 3600_000,
     ).toISOString();
     void fetchShowBookings(from, to).then((r) => {
-      setBookings(r.data);
+      setBookings(scope === 'mine' ? r.data.filter((b) => b.isMine) : r.data);
       setLoading(false);
     });
   };
@@ -121,7 +125,7 @@ export function RadioBookingCalendar({
         void fetchShowSeries().then((result) => setShows(result.data));
       }
     }
-  }, [isOpen, monthCursor, user?.channel]);
+  }, [isOpen, monthCursor, scope, user?.channel]);
 
   const selectShow = (showId: string) => {
     setSelectedShowId(showId);
@@ -251,9 +255,13 @@ export function RadioBookingCalendar({
   return (
     <>
       <Dialog.Root isOpen={isOpen} onClose={onClose} className="max-w-2xl">
-        <Dialog.Title>Tahti Radio schedule</Dialog.Title>
+        <Dialog.Title>
+          {scope === 'mine' ? 'My channel schedule' : 'Tahti Radio schedule'}
+        </Dialog.Title>
         <Dialog.Description>
-          Community slot calendar — book time to broadcast on Tahti Radio.
+          {scope === 'mine'
+            ? 'Your booked slots and shows on Tahti Radio.'
+            : 'Community slot calendar — book time to broadcast on Tahti Radio.'}
         </Dialog.Description>
 
         <div className="mt-4 flex items-center justify-between">
@@ -380,18 +388,17 @@ export function RadioBookingCalendar({
                   <span className="text-foreground-secondary shrink-0 tabular-nums">
                     {formatTimeRange(b.startAt, b.endAt)}
                   </span>
-                  <Link
-                    to="/radio/show/$channelSlug"
-                    params={{ channelSlug: b.channelSlug }}
-                    onClick={onClose}
-                    className="min-w-0 flex-1 truncate font-medium hover:underline"
+                  <button
+                    type="button"
+                    onClick={() => setSelectedBooking(b)}
+                    className="min-w-0 flex-1 truncate text-left font-medium hover:underline"
                   >
                     {b.showTitle ?? b.note ?? b.displayName}
                     {b.episodeNumber != null
                       ? ` · Episode ${b.episodeNumber}`
                       : ''}
                     {b.isMine ? ' (you)' : ''}
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -439,6 +446,85 @@ export function RadioBookingCalendar({
             </Button>
           </Link>
         </Dialog.Actions>
+      </Dialog.Root>
+
+      <Dialog.Root
+        isOpen={selectedBooking !== null}
+        onClose={() => setSelectedBooking(null)}
+        className="max-w-xl"
+      >
+        {selectedBooking ? (
+          <>
+            {selectedBooking.coverUrl ? (
+              <div className="border-border bg-background-secondary relative -mx-6 -mt-6 mb-5 h-40 overflow-hidden border-b">
+                <img
+                  src={selectedBooking.coverUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              </div>
+            ) : null}
+            <Dialog.Title>
+              {selectedBooking.showTitle ??
+                selectedBooking.note ??
+                selectedBooking.displayName}
+            </Dialog.Title>
+            <Dialog.Description>
+              {selectedBooking.displayName}
+              {selectedBooking.episodeNumber != null
+                ? ` · Episode ${selectedBooking.episodeNumber}`
+                : ''}
+            </Dialog.Description>
+            <div className="mt-4 flex flex-col gap-3 text-sm">
+              <div>
+                <span className="text-foreground-secondary block text-xs uppercase">
+                  When
+                </span>
+                {new Date(selectedBooking.startAt).toLocaleDateString([], {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric',
+                })}{' '}
+                {formatTimeRange(
+                  selectedBooking.startAt,
+                  selectedBooking.endAt,
+                )}
+              </div>
+              {selectedBooking.showDescription ? (
+                <p className="text-foreground-secondary leading-relaxed">
+                  {selectedBooking.showDescription}
+                </p>
+              ) : null}
+            </div>
+            <Dialog.Actions>
+              {selectedBooking.isMine && selectedBooking.showId ? (
+                <Link
+                  to="/studio/shows/$id"
+                  params={{ id: selectedBooking.showId }}
+                  onClick={() => {
+                    setSelectedBooking(null);
+                    onClose();
+                  }}
+                >
+                  <Button variant="secondary">Edit show</Button>
+                </Link>
+              ) : (
+                <Link
+                  to="/radio/show/$channelSlug"
+                  params={{ channelSlug: selectedBooking.channelSlug }}
+                  onClick={() => {
+                    setSelectedBooking(null);
+                    onClose();
+                  }}
+                >
+                  <Button variant="secondary">Open show</Button>
+                </Link>
+              )}
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Actions>
+          </>
+        ) : null}
       </Dialog.Root>
 
       <Dialog.Root

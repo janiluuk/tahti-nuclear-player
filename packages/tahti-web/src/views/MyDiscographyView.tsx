@@ -24,13 +24,7 @@ import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { TrackEditDialog } from '../components/TrackEditDialog';
-import {
-  countPinnedTracks,
-  isPinned,
-  MAX_PINNED_TRACKS,
-  pinBlockedMessage,
-  sortPinnedFirst,
-} from '../lib/pinnedTracks';
+import { isPinned, sortPinnedFirst } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
 
@@ -166,13 +160,6 @@ export const MyDiscographyView: FC = () => {
   const togglePin = async (item: StudioArchiveItem) => {
     const nextPinned = !isPinned(item);
     setPinMessage(null);
-    if (nextPinned) {
-      const blocked = pinBlockedMessage(countPinnedTracks(items));
-      if (blocked) {
-        setPinMessage(blocked);
-        return;
-      }
-    }
     setBusyPinId(item.id);
     const result = await patchStudioArchiveItem(item.id, {
       pinned: nextPinned,
@@ -264,8 +251,8 @@ export const MyDiscographyView: FC = () => {
                 </select>
               </div>
               <p className="text-foreground-secondary text-xs">
-                Pinned {counts.pinned}/{MAX_PINNED_TRACKS} · showing{' '}
-                {visible.length} of {items.length}
+                Pinned {counts.pinned} · showing {visible.length} of{' '}
+                {items.length}
               </p>
             </div>
 

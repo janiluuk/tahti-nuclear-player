@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/react-router';
-import { HeartIcon, MusicIcon, PlayIcon } from 'lucide-react';
+import { HeartIcon, LoaderCircleIcon, MusicIcon, PlayIcon } from 'lucide-react';
+import { useState } from 'react';
 
+import { fetchTrackDetail } from '../../api/client';
 import type { DiscoverTrackItem } from '../../api/types';
 import { usePlayerStore } from '../../stores/playerStore';
 
@@ -30,7 +32,33 @@ export function WidgetTrackRow({
   rank?: number;
 }) {
   const play = usePlayerStore((s) => s.play);
+  const [loading, setLoading] = useState(false);
   const playable = toPlayable(item);
+
+  const handlePlay = async () => {
+    if (playable) {
+      play(playable);
+      return;
+    }
+    setLoading(true);
+    const result = await fetchTrackDetail(item.id.replace(/^archive:/, ''));
+    setLoading(false);
+    const detail = result.data;
+    if (!detail?.audioUrl) {
+      return;
+    }
+    play({
+      id: item.id,
+      kind: 'archive',
+      title: detail.title,
+      artist: detail.artistName,
+      coverUrl: detail.bannerUrl ?? undefined,
+      streamUrl: detail.audioUrl,
+      protocol: detail.audioUrl.includes('.m3u8') ? 'hls' : 'https',
+      channelSlug: detail.channelSlug,
+      durationSec: detail.durationSec,
+    });
+  };
 
   const artwork = (
     <span className="bg-background relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded">
@@ -43,17 +71,30 @@ export function WidgetTrackRow({
           aria-hidden
         />
       )}
-      {playable && (
+      {
         <button
           type="button"
-          onClick={() => play(playable)}
-          className="bg-background/70 absolute inset-0 flex items-center justify-center opacity-0 transition-opacity hover:opacity-100"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            void handlePlay();
+          }}
+          className="bg-background/70 absolute inset-0 flex items-center justify-center opacity-0 transition-opacity hover:opacity-100 disabled:opacity-100"
+          disabled={loading}
           title={`Play ${item.title}`}
           aria-label={`Play ${item.title}`}
         >
-          <PlayIcon size={16} className="text-foreground" aria-hidden />
+          {loading ? (
+            <LoaderCircleIcon
+              size={16}
+              className="text-foreground animate-spin"
+              aria-hidden
+            />
+          ) : (
+            <PlayIcon size={16} className="text-foreground" aria-hidden />
+          )}
         </button>
-      )}
+      }
     </span>
   );
 

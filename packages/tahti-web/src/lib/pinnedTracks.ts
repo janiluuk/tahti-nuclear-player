@@ -1,6 +1,3 @@
-/** Client-side Stage pin cap (prod API does not enforce a max yet). */
-export const MAX_PINNED_TRACKS = 4;
-
 export function isPinned(item: {
   pinnedAt?: string | null;
   pinned?: boolean;
@@ -25,11 +22,4 @@ export function sortPinnedFirst<
     }
     return bPinned - aPinned;
   });
-}
-
-export function pinBlockedMessage(pinnedCount: number): string | null {
-  if (pinnedCount >= MAX_PINNED_TRACKS) {
-    return `Unpin one first — max ${MAX_PINNED_TRACKS} pinned tracks on your page.`;
-  }
-  return null;
 }

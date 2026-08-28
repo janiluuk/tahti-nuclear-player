@@ -26,7 +26,6 @@ import {
   fetchRtmpTargets,
   fetchSignalStatus,
   fetchStreamSettings,
-  formatUsageMinutes,
   getMockChannelState,
   liveChannelPlayable,
   mockSimulateSignal,
@@ -112,9 +111,7 @@ export function StudioGoLiveView() {
   const play = usePlayerStore((state) => state.play);
   const playbackStatus = usePlayerStore((state) => state.status);
   const currentId = usePlayerStore((state) => state.currentId);
-  const muted = usePlayerStore((state) => state.muted);
   const setPlaybackStatus = usePlayerStore((state) => state.setStatus);
-  const toggleMute = usePlayerStore((state) => state.toggleMute);
 
   const [settings, setSettings] = useState<StreamSettings | null>(null);
   const [signal, setSignal] = useState<SignalStatus | null>(null);
@@ -134,6 +131,9 @@ export function StudioGoLiveView() {
   const [showAddDestination, setShowAddDestination] = useState(false);
   const [recordEnabled, setRecordEnabled] = useState(true);
   const [recordBusy, setRecordBusy] = useState(false);
+  const [liveVisibility, setLiveVisibility] = useState<
+    'PUBLIC' | 'PRIVATE' | 'FAN_ONLY'
+  >('PUBLIC');
 
   const slug = user?.channel?.slug ?? '';
   const displayName = user?.displayName ?? slug;
@@ -173,6 +173,7 @@ export function StudioGoLiveView() {
     setUsage(usageResult.data);
     setTargets(targetResult.data);
     setRecordEnabled(preflightResult.data?.autoArchive ?? true);
+    setLiveVisibility(preflightResult.data?.visibility ?? 'PUBLIC');
     if (
       !settingsResult.data &&
       settingsResult.meta.source === 'api' &&
@@ -343,9 +344,7 @@ export function StudioGoLiveView() {
             slug={slug}
             channelState={channelState}
             isPlaying={isStreamPlaying}
-            isMuted={muted}
             onPlaybackToggle={toggleStreamPlayback}
-            onMuteToggle={toggleMute}
             onEnded={handleStreamEnded}
             onRotationChange={setRotationPlaying}
           />
@@ -530,15 +529,45 @@ export function StudioGoLiveView() {
               </Link>
             </StudioPanel>
 
-            <StudioPanel title="Live allowance">
-              <p className="text-sm font-semibold">
-                {usage ? formatUsageMinutes(usage) : 'Loading…'}
-              </p>
-              {usage?.blocked && (
-                <p className="text-accent-red mt-1 text-xs">
+            <StudioPanel title="Live audience">
+              <div
+                className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
+                role="radiogroup"
+                aria-label="Live audience"
+              >
+                {(
+                  [
+                    ['PUBLIC', 'Public'],
+                    ['PRIVATE', 'Private'],
+                    ['FAN_ONLY', 'Fans only'],
+                  ] as const
+                ).map(([value, label]) => (
+                  <Button
+                    key={value}
+                    type="button"
+                    size="sm"
+                    variant="text"
+                    role="radio"
+                    aria-checked={liveVisibility === value}
+                    onClick={() => {
+                      setLiveVisibility(value);
+                      void patchBroadcastPreflight({ visibility: value });
+                    }}
+                    className={
+                      liveVisibility === value
+                        ? 'bg-primary text-primary-foreground rounded-md'
+                        : 'text-foreground-secondary rounded-md'
+                    }
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+              {usage?.blocked ? (
+                <p className="text-accent-red mt-2 text-xs">
                   Weekly live limit reached.
                 </p>
-              )}
+              ) : null}
             </StudioPanel>
 
             <StudioPanel

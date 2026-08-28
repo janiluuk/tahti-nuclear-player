@@ -1,13 +1,21 @@
 import { Link } from '@tanstack/react-router';
 import {
+  ArrowLeftIcon,
   ArrowRightIcon,
   BookOpenIcon,
+  ChevronRightIcon,
   CircleHelpIcon,
   HeadphonesIcon,
+  LifeBuoyIcon,
+  ListIcon,
   RadioTowerIcon,
+  SearchIcon,
   ShieldCheckIcon,
   SparklesIcon,
 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+
+import { Input } from '@nuclearplayer/ui';
 
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';
@@ -15,6 +23,7 @@ import { SupportContactForm } from '../components/SupportContactForm';
 import { TahtiMapLink } from '../components/TahtiMapLink';
 import {
   getHelpArticle,
+  HELP_ARTICLES,
   HELP_HUB_INTRO,
   type HelpArticle,
 } from '../content/help';
@@ -22,24 +31,28 @@ import {
 const PRODUCTION = 'https://tahti.live';
 
 const GUIDE_GROUPS: Array<{
+  id: string;
   title: string;
   description: string;
   icon: typeof HeadphonesIcon;
   slugs: string[];
 }> = [
   {
+    id: 'start-here',
     title: 'Start here',
     description: 'Find something to listen to or set up your artist profile.',
     icon: HeadphonesIcon,
     slugs: ['for-listeners', 'for-artists'],
   },
   {
+    id: 'broadcasting',
     title: 'Broadcasting',
     description: 'Get on air and mirror your show to other platforms.',
     icon: RadioTowerIcon,
     slugs: ['broadcast', 'multistream'],
   },
   {
+    id: 'releasing',
     title: 'Releasing',
     description:
       'Understand release identifiers, catalogs, smart links, and delivery.',
@@ -47,12 +60,14 @@ const GUIDE_GROUPS: Array<{
     slugs: ['releasing'],
   },
   {
+    id: 'account-support',
     title: 'Account and support',
     description: 'Understand limits, shortcuts, and where to get help.',
     icon: ShieldCheckIcon,
     slugs: ['tier-limits', 'keyboard-shortcuts', 'support'],
   },
   {
+    id: 'build-with-tahti',
     title: 'Build with Tahti',
     description: 'Learn how to make a Disco-widget for the platform.',
     icon: SparklesIcon,
@@ -60,12 +75,55 @@ const GUIDE_GROUPS: Array<{
   },
 ];
 
+const QUICK_STARTS = [
+  {
+    title: 'I want to listen',
+    description: 'Browse channels, play Tahti Radio, and join the community.',
+    slug: 'for-listeners',
+    icon: HeadphonesIcon,
+  },
+  {
+    title: 'I want to broadcast',
+    description: 'Create a channel and connect your broadcast software.',
+    slug: 'for-artists',
+    icon: RadioTowerIcon,
+  },
+  {
+    title: 'I need support',
+    description: 'Send the team a question about your account or a problem.',
+    slug: 'support',
+    icon: LifeBuoyIcon,
+  },
+] as const;
+
+function articleMatches(article: HelpArticle, query: string): boolean {
+  const haystack = [
+    article.title,
+    article.description,
+    ...article.sections.flatMap((section) => [
+      section.heading,
+      ...section.body,
+    ]),
+  ]
+    .join(' ')
+    .toLowerCase();
+  return haystack.includes(query.trim().toLowerCase());
+}
+
+function sectionId(heading: string, index: number): string {
+  const slug = heading
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `${slug || 'section'}-${index}`;
+}
+
 function HelpGuideCard({ article }: { article: HelpArticle }) {
   return (
     <Link
       to="/help/$slug"
       params={{ slug: article.slug }}
-      className="border-border bg-background-secondary/50 hover:border-primary group flex min-h-32 min-w-0 flex-col justify-between rounded-xl border p-4 transition-colors"
+      className="border-border bg-background-secondary/50 hover:border-primary group flex min-h-36 min-w-0 flex-col justify-between rounded-xl border p-4 transition-colors"
     >
       <div>
         <div className="flex items-start justify-between gap-3">
@@ -82,11 +140,30 @@ function HelpGuideCard({ article }: { article: HelpArticle }) {
           {article.description}
         </p>
       </div>
+      <span className="text-foreground-secondary mt-4 text-xs font-semibold tracking-wide uppercase">
+        {article.sections.length}{' '}
+        {article.sections.length === 1 ? 'section' : 'sections'}
+      </span>
     </Link>
   );
 }
 
 export function HelpHubView() {
+  const [query, setQuery] = useState('');
+  const visibleGroups = useMemo(
+    () =>
+      GUIDE_GROUPS.map((group) => ({
+        ...group,
+        articles: group.slugs
+          .map((slug) => getHelpArticle(slug))
+          .filter(
+            (article): article is HelpArticle =>
+              article !== undefined && articleMatches(article, query),
+          ),
+      })).filter((group) => group.articles.length > 0),
+    [query],
+  );
+
   return (
     <PageFrame maxWidth="full" className="max-w-full min-w-0 pb-8">
       <PageHeader
@@ -103,53 +180,163 @@ export function HelpHubView() {
           </Link>
         }
       />
+
       <section className="border-border bg-primary text-primary-foreground min-w-0 rounded-2xl border p-5 shadow-sm sm:p-6">
         <div className="flex items-start gap-3">
           <CircleHelpIcon size={22} className="mt-0.5 shrink-0" aria-hidden />
-          <div>
-            <h2 className="font-display text-lg font-bold tracking-tight">
-              The essentials
+          <div className="min-w-0">
+            <p className="text-xs font-bold tracking-[0.16em] uppercase opacity-75">
+              A practical guide
+            </p>
+            <h2 className="font-display mt-1 text-2xl font-bold tracking-tight">
+              Start with what you want to do.
             </h2>
-            <p className="mt-1 max-w-3xl text-sm leading-relaxed opacity-85">
-              You can listen without an account. Sign in when you want to save
-              favorites, build playlists, chat with your community, or manage an
-              artist channel. Artists can create a channel in Studio and use its
-              broadcast credentials with OBS, Mixxx, or another live tool.
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed opacity-85">
+              Listening is open to everyone. Sign in when you want to save
+              favorites, build playlists, chat, or support artists. Artists can
+              create a channel in Studio, publish their archive, and broadcast
+              with OBS, Mixxx, Traktor, or the browser studio.
             </p>
           </div>
         </div>
       </section>
 
-      <div className="flex min-w-0 flex-col gap-8">
-        {GUIDE_GROUPS.map((group) => {
-          const GroupIcon = group.icon;
-          const articles = group.slugs
-            .map((slug) => getHelpArticle(slug))
-            .filter((article): article is HelpArticle => Boolean(article));
-          return (
-            <section key={group.title} className="min-w-0">
-              <div className="mb-3 flex items-start gap-3">
-                <div className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
-                  <GroupIcon size={18} aria-hidden />
-                </div>
-                <div>
-                  <h2 className="font-display text-xl font-bold tracking-tight">
-                    {group.title}
-                  </h2>
-                  <p className="text-foreground-secondary mt-0.5 text-sm">
-                    {group.description}
-                  </p>
-                </div>
-              </div>
-              <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-                {articles.map((article) => (
-                  <HelpGuideCard key={article.slug} article={article} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
-      </div>
+      <section aria-labelledby="quick-start-heading">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-foreground-secondary text-xs font-bold tracking-[0.16em] uppercase">
+              Quick start
+            </p>
+            <h2
+              id="quick-start-heading"
+              className="font-display mt-1 text-xl font-bold tracking-tight"
+            >
+              Pick a path
+            </h2>
+          </div>
+          <span className="text-foreground-secondary hidden text-xs sm:block">
+            {HELP_ARTICLES.length} guides
+          </span>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {QUICK_STARTS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.title}
+                to="/help/$slug"
+                params={{ slug: item.slug }}
+                className="border-border bg-background-secondary/40 hover:border-primary group flex min-w-0 items-start gap-3 rounded-xl border p-4 transition-colors"
+              >
+                <span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
+                  <Icon size={18} aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="flex items-center gap-1 text-sm font-bold">
+                    {item.title}
+                    <ChevronRightIcon
+                      size={15}
+                      aria-hidden
+                      className="text-foreground-secondary transition-transform group-hover:translate-x-0.5"
+                    />
+                  </span>
+                  <span className="text-foreground-secondary mt-1 block text-sm leading-relaxed">
+                    {item.description}
+                  </span>
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section
+        aria-labelledby="guide-index-heading"
+        className="flex min-w-0 flex-col gap-5"
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-foreground-secondary text-xs font-bold tracking-[0.16em] uppercase">
+              Guide index
+            </p>
+            <h2
+              id="guide-index-heading"
+              className="font-display mt-1 text-xl font-bold tracking-tight"
+            >
+              Browse all help
+            </h2>
+          </div>
+          <div className="relative w-full sm:max-w-sm">
+            <SearchIcon
+              size={16}
+              aria-hidden
+              className="text-foreground-secondary pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+            />
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search guides…"
+              aria-label="Search help guides"
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        {visibleGroups.length === 0 ? (
+          <PageEmpty
+            title="No guides match"
+            description={`Try another search${query ? ` instead of “${query}”` : ''}.`}
+          />
+        ) : (
+          <div className="grid min-w-0 gap-8 lg:grid-cols-[12rem_minmax(0,1fr)]">
+            <nav
+              aria-label="Help guide sections"
+              className="border-border hidden h-fit gap-1 border-l pl-3 lg:sticky lg:top-4 lg:flex lg:flex-col"
+            >
+              {visibleGroups.map((group) => (
+                <a
+                  key={group.id}
+                  href={`#${group.id}`}
+                  className="text-foreground-secondary hover:text-foreground py-1 text-xs font-semibold"
+                >
+                  {group.title}
+                </a>
+              ))}
+            </nav>
+            <div className="flex min-w-0 flex-col gap-8">
+              {visibleGroups.map((group) => {
+                const GroupIcon = group.icon;
+                return (
+                  <section
+                    key={group.id}
+                    id={group.id}
+                    className="min-w-0 scroll-mt-4"
+                  >
+                    <div className="mb-3 flex items-start gap-3">
+                      <div className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
+                        <GroupIcon size={18} aria-hidden />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-xl font-bold tracking-tight">
+                          {group.title}
+                        </h3>
+                        <p className="text-foreground-secondary mt-0.5 text-sm">
+                          {group.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+                      {group.articles.map((article) => (
+                        <HelpGuideCard key={article.slug} article={article} />
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </section>
 
       <p className="text-foreground-secondary border-border border-t pt-5 text-xs">
         Looking for the latest public version?{' '}
@@ -185,17 +372,24 @@ export function HelpArticleView({ slug }: { slug: string }) {
     );
   }
 
+  const articleIndex = HELP_ARTICLES.findIndex((item) => item.slug === slug);
+  const previous = articleIndex > 0 ? HELP_ARTICLES[articleIndex - 1] : null;
+  const next =
+    articleIndex >= 0 && articleIndex < HELP_ARTICLES.length - 1
+      ? HELP_ARTICLES[articleIndex + 1]
+      : null;
+
   return (
-    <article className="mx-auto flex w-full max-w-3xl min-w-0 flex-col gap-6">
+    <PageFrame maxWidth="full" className="max-w-5xl min-w-0 pb-8">
       <PageHeader
         title={article.title}
         subtitle={article.description}
         back={
           <Link
             to="/help"
-            className="text-foreground-secondary text-xs hover:underline"
+            className="text-foreground-secondary inline-flex items-center gap-1 text-xs hover:underline"
           >
-            ← Help
+            <ArrowLeftIcon size={14} aria-hidden /> Help center
           </Link>
         }
         meta={
@@ -211,19 +405,101 @@ export function HelpArticleView({ slug }: { slug: string }) {
           ) : null
         }
       />
-      {article.sections.map((section) => (
-        <section key={section.heading} className="flex flex-col gap-2">
-          <h2 className="font-display text-xl font-bold tracking-tight">
-            {section.heading}
-          </h2>
-          <ul className="text-foreground-secondary list-disc space-y-1 pl-5 text-sm">
-            {section.body.map((line) => (
-              <li key={line}>{line}</li>
+
+      <div className="grid min-w-0 gap-8 lg:grid-cols-[13rem_minmax(0,1fr)]">
+        <aside className="h-fit lg:sticky lg:top-4">
+          <div className="border-border bg-background-secondary/40 rounded-xl border p-4">
+            <div className="flex items-center gap-2 text-sm font-bold">
+              <ListIcon size={16} aria-hidden />
+              In this guide
+            </div>
+            <nav
+              className="mt-3 flex flex-col gap-2"
+              aria-label="Article sections"
+            >
+              {article.sections.map((section, index) => (
+                <a
+                  key={`${section.heading}-${index}`}
+                  href={`#${sectionId(section.heading, index)}`}
+                  className="text-foreground-secondary hover:text-foreground text-xs leading-relaxed"
+                >
+                  {index + 1}. {section.heading}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </aside>
+
+        <article className="min-w-0">
+          <div className="flex flex-col gap-4">
+            {article.sections.map((section, index) => (
+              <section
+                key={`${section.heading}-${index}`}
+                id={sectionId(section.heading, index)}
+                className="border-border bg-background-secondary/35 scroll-mt-4 rounded-xl border p-5 sm:p-6"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="bg-primary text-primary-foreground flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+                    {index + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="font-display text-xl font-bold tracking-tight">
+                      {section.heading}
+                    </h2>
+                    <ul className="text-foreground-secondary mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed">
+                      {section.body.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </section>
             ))}
-          </ul>
-        </section>
-      ))}
-      {slug === 'support' && <SupportContactForm />}
-    </article>
+          </div>
+
+          {slug === 'support' && (
+            <div className="mt-6">
+              <SupportContactForm />
+            </div>
+          )}
+
+          <nav
+            aria-label="More help guides"
+            className="border-border mt-8 grid gap-3 border-t pt-5 sm:grid-cols-2"
+          >
+            {previous ? (
+              <Link
+                to="/help/$slug"
+                params={{ slug: previous.slug }}
+                className="border-border hover:border-primary group rounded-xl border p-4 transition-colors"
+              >
+                <span className="text-foreground-secondary flex items-center gap-1 text-xs font-semibold tracking-wide uppercase">
+                  <ArrowLeftIcon size={14} aria-hidden /> Previous
+                </span>
+                <span className="mt-2 block text-sm font-bold">
+                  {previous.title}
+                </span>
+              </Link>
+            ) : (
+              <span />
+            )}
+            {next ? (
+              <Link
+                to="/help/$slug"
+                params={{ slug: next.slug }}
+                className="border-border hover:border-primary group rounded-xl border p-4 text-right transition-colors"
+              >
+                <span className="text-foreground-secondary flex items-center justify-end gap-1 text-xs font-semibold tracking-wide uppercase">
+                  Next <ArrowRightIcon size={14} aria-hidden />
+                </span>
+                <span className="mt-2 block text-sm font-bold">
+                  {next.title}
+                </span>
+              </Link>
+            ) : null}
+          </nav>
+        </article>
+      </div>
+    </PageFrame>
   );
 }

@@ -48,8 +48,6 @@ import {
 import {
   countPinnedTracks,
   isPinned,
-  MAX_PINNED_TRACKS,
-  pinBlockedMessage,
   sortPinnedFirst,
 } from '../../lib/pinnedTracks';
 import { usePlayerStore } from '../../stores/playerStore';
@@ -256,13 +254,6 @@ export function StudioArchiveView() {
   const togglePin = async (item: StudioArchiveItem) => {
     const next = !isPinned(item);
     setPinMessage(null);
-    if (next) {
-      const blocked = pinBlockedMessage(pinnedCount);
-      if (blocked) {
-        setPinMessage(blocked);
-        return;
-      }
-    }
     setBusyId(item.id);
     const result = await patchStudioArchiveItem(item.id, { pinned: next });
     setBusyId(null);
@@ -344,7 +335,7 @@ export function StudioArchiveView() {
                 />
               </Button>
               <span className="text-foreground-secondary text-xs">
-                Pinned {pinnedCount}/{MAX_PINNED_TRACKS}
+                Pinned {pinnedCount}
               </span>
             </div>
             {filtersOpen && (
@@ -541,15 +532,7 @@ export function StudioArchiveView() {
                               isPinned(item) ? 'Unpin from page' : 'Pin to page'
                             }
                             title={
-                              !isPinned(item) &&
-                              pinnedCount >= MAX_PINNED_TRACKS
-                                ? (pinBlockedMessage(pinnedCount) ??
-                                  (isPinned(item)
-                                    ? 'Unpin from page'
-                                    : 'Pin to page'))
-                                : isPinned(item)
-                                  ? 'Unpin from page'
-                                  : 'Pin to page'
+                              isPinned(item) ? 'Unpin from page' : 'Pin to page'
                             }
                             onClick={() => void togglePin(item)}
                           >

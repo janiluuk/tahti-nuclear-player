@@ -1,3 +1,11 @@
+import {
+  BanIcon,
+  CheckCircle2Icon,
+  Clock3Icon,
+  CopyIcon,
+  ListFilterIcon,
+  LoaderCircleIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge, Button } from '@nuclearplayer/ui';
@@ -10,6 +18,7 @@ import {
 } from '../../../../api/admin';
 import { PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
+import { ModerationTabs } from '../ModerationTabs';
 
 const FILTERS: { id: AdminFeatureRequestStatus | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -19,6 +28,16 @@ const FILTERS: { id: AdminFeatureRequestStatus | 'all'; label: string }[] = [
   { id: 'DONE', label: 'Done' },
   { id: 'DECLINED', label: 'Declined' },
 ];
+
+const FILTER_TAB_ICONS = {
+  all: ListFilterIcon,
+  OPEN: Clock3Icon,
+  PLANNED: Clock3Icon,
+  IN_PROGRESS: LoaderCircleIcon,
+  DONE: CheckCircle2Icon,
+  DECLINED: BanIcon,
+  DUPLICATE: CopyIcon,
+};
 
 function statusBadge(status: AdminFeatureRequestStatus): {
   label: string;
@@ -129,25 +148,15 @@ export function FeatureRequestsTab() {
         Member-suggested features, ranked by votes. Review quarterly.
       </p>
 
-      <nav className="flex flex-wrap gap-2" role="tablist">
-        {FILTERS.map((f) => (
-          <Button
-            key={f.id}
-            type="button"
-            variant="text"
-            role="tab"
-            aria-selected={filter === f.id}
-            onClick={() => setFilter(f.id)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-              filter === f.id
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'border-border text-foreground-secondary hover:text-foreground border'
-            }`}
-          >
-            {f.label}
-          </Button>
-        ))}
-      </nav>
+      <ModerationTabs
+        activeId={filter}
+        items={FILTERS.map((item) => ({
+          ...item,
+          icon: FILTER_TAB_ICONS[item.id],
+        }))}
+        ariaLabel="Feature request status"
+        onChange={(id) => setFilter(id as AdminFeatureRequestStatus | 'all')}
+      />
 
       <StudioPanel>
         {loading ? (

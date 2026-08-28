@@ -61,6 +61,16 @@ export type VisualPreset = (typeof VISUAL_PRESETS)[number];
 export const isVisualPreset = (value: string): value is VisualPreset =>
   (VISUAL_PRESETS as readonly string[]).includes(value);
 
+export const PUBLIC_FALLBACK_VISUAL_PRESET: VisualPreset = 'AURORA';
+
+export function resolvePublicVisualizerPreset(
+  preset: string | null | undefined,
+): string {
+  return !preset || preset === 'MINIMAL'
+    ? PUBLIC_FALLBACK_VISUAL_PRESET
+    : preset;
+}
+
 export const HEADER_STYLES = ['GRADIENT', 'SOLID', 'VIDEO_LOOP'] as const;
 export type HeaderStyle = (typeof HEADER_STYLES)[number];
 

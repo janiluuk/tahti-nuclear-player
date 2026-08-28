@@ -204,9 +204,13 @@ export function RadioScheduleView() {
                 to="/u/$username/green-room"
                 params={{ username: b.username }}
               >
-                <Button size="sm" variant="secondary">
-                  <MicIcon size={14} aria-hidden className="mr-1.5" />
-                  Green room
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label={`Open ${b.displayName}'s green room`}
+                  title="Green room"
+                >
+                  <MicIcon size={16} aria-hidden />
                 </Button>
               </Link>
             </div>

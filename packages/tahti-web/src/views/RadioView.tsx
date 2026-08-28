@@ -5,11 +5,13 @@ import {
   MessageCircleIcon,
   MicIcon,
   PlayIcon,
+  RadioTowerIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Box, Button, Tabs } from '@nuclearplayer/ui';
 
+import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {
   fetchRadio,
   fetchRadioRecentlyPlayed,
@@ -218,6 +220,29 @@ export function RadioView() {
                 ) : null}
               </div>
             </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <Link to="/channel/$slug" params={{ slug: TAHTI_RADIO_SLUG }}>
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Open Tahti Radio channel"
+                  title="Open channel"
+                >
+                  <RadioTowerIcon size={16} aria-hidden />
+                </Button>
+              </Link>
+              {user && (
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Open booking calendar"
+                  title="Book a slot"
+                  onClick={() => setCalendarOpen(true)}
+                >
+                  <CalendarIcon size={16} aria-hidden />
+                </Button>
+              )}
+            </div>
           </header>
 
           {memberLive ? (
@@ -263,7 +288,7 @@ export function RadioView() {
             >
               <div className="absolute inset-0 opacity-40">
                 <ChannelVisualizer
-                  preset={station.visualPreset ?? 'REACTIVE_GRID'}
+                  preset={resolvePublicVisualizerPreset(station.visualPreset)}
                   colorSchemeJson={station.colorSchemeJson}
                   className="h-full min-h-[160px] w-full"
                 />
@@ -353,20 +378,7 @@ export function RadioView() {
           )}
 
           <section className="flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-xl font-bold tracking-tight">Programming</h2>
-              {user && (
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  aria-label="Open booking calendar"
-                  title="Book a slot"
-                  onClick={() => setCalendarOpen(true)}
-                >
-                  <CalendarIcon size={16} aria-hidden />
-                </Button>
-              )}
-            </div>
+            <h2 className="text-xl font-bold tracking-tight">Programming</h2>
 
             <Tabs
               listClassName="border-border border-b"

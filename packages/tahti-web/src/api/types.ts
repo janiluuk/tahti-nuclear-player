@@ -182,6 +182,10 @@ export type PublicProfileTrack = {
   /** Stage pin — GET /api/v1/u/:username/profile */
   pinned?: boolean;
   pinnedAt?: string | null;
+  /** Optional public engagement totals returned by newer profile APIs. */
+  likeCount?: number;
+  commentCount?: number;
+  repostCount?: number;
 };
 
 export type PublicProfileRelease = {

@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
+import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {
   fetchChannel,
   fetchTrackComments,
@@ -188,7 +189,7 @@ export function TrackDetailView({ id }: { id: string }) {
     <div className="relative min-h-full overflow-hidden" style={bgStyle}>
       <div className="pointer-events-none absolute inset-0 opacity-70">
         <ChannelVisualizer
-          preset={channel?.visualPreset}
+          preset={resolvePublicVisualizerPreset(channel?.visualPreset)}
           colorScheme={visualScheme}
           colorSchemeJson={channel?.colorSchemeJson}
           artworkUrl={playable.coverUrl}

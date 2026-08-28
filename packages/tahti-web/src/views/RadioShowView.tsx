@@ -125,9 +125,13 @@ export const RadioShowView = ({ channelSlug }: { channelSlug: string }) => {
                 to="/u/$username/green-room"
                 params={{ username: show.artist.username }}
               >
-                <Button size="sm" variant="secondary">
-                  <MicIcon size={14} aria-hidden className="mr-1.5" />
-                  Green room
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Open green room"
+                  title="Green room"
+                >
+                  <MicIcon size={16} aria-hidden />
                 </Button>
               </Link>
             ) : null}

@@ -53,7 +53,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         heading: 'Create your channel',
         body: [
-          'In Studio, set your channel slug — your public home will be /c/yourname.',
+          'In Studio, set your channel slug — your public channel is /channel/your-slug, and your artist profile is /u/your-username.',
           'Use the Studio tools to broadcast, manage music, plan shows, understand your audience, and design your channel.',
         ],
       },

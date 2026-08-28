@@ -3,6 +3,7 @@ import { MessageCircleIcon, MicIcon } from 'lucide-react';
 import { Button, Input, Select } from '@nuclearplayer/ui';
 
 import type { ShowType, StudioShowSeries } from '../api/shows';
+import { ShowImagePicker } from './ShowImagePicker';
 
 export type BroadcastDetailsValues = {
   title: string;
@@ -145,21 +146,12 @@ export function BroadcastDetailsFields({
           placeholder="What listeners can expect"
         />
       </label>
-      <Input
-        label="Cover image URL"
+      <ShowImagePicker
+        label="Show cover"
+        description="JPEG, PNG, WebP, or GIF"
         value={values.coverUrl}
-        onChange={(event) =>
-          onChange({ ...values, coverUrl: event.target.value })
-        }
-        placeholder="https://…"
+        onUrlChange={(coverUrl) => onChange({ ...values, coverUrl })}
       />
-      {values.coverUrl ? (
-        <img
-          src={values.coverUrl}
-          alt="Show cover preview"
-          className="h-20 w-20 rounded-md object-cover"
-        />
-      ) : null}
     </div>
   );
 }

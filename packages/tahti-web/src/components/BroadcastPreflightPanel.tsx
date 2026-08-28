@@ -13,6 +13,7 @@ import { fetchShowSeries } from '../api/shows';
 export function BroadcastPreflightPanel() {
   const [preflight, setPreflight] = useState<BroadcastPreflight | null>(null);
   const [title, setTitle] = useState('');
+  const [episodeNumberInput, setEpisodeNumberInput] = useState('');
   const [tagline, setTagline] = useState('');
   const [series, setSeries] = useState<
     Array<{ id: string; title: string; nextEpisodeNumber: number }>
@@ -28,6 +29,13 @@ export function BroadcastPreflightPanel() {
         if (preflightResult.data) {
           setPreflight(preflightResult.data);
           setTitle(preflightResult.data.title ?? '');
+          setEpisodeNumberInput(
+            String(
+              preflightResult.data.episodeNumber ??
+                preflightResult.data.plannedRadioShow?.episodeNumber ??
+                '',
+            ),
+          );
           setTagline(
             preflightResult.data.tagline ??
               preflightResult.data.plannedRadioShow?.tagline ??
@@ -63,6 +71,13 @@ export function BroadcastPreflightPanel() {
       if ('data' in result) {
         setPreflight(result.data);
         setTitle(result.data.title ?? '');
+        setEpisodeNumberInput(
+          String(
+            result.data.episodeNumber ??
+              result.data.plannedRadioShow?.episodeNumber ??
+              '',
+          ),
+        );
         setTagline(result.data.tagline ?? '');
       }
     });
@@ -92,7 +107,7 @@ export function BroadcastPreflightPanel() {
             ),
             content: (
               <div className="flex flex-col gap-4">
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
                   <label className="flex flex-col gap-1 text-sm">
                     Show name
                     <input
@@ -101,8 +116,34 @@ export function BroadcastPreflightPanel() {
                       onBlur={() =>
                         title.trim() && update({ title: title.trim() })
                       }
-                      placeholder={
-                        episodeNumber ? `Show #${episodeNumber}` : 'Show name'
+                      placeholder="Show name"
+                      className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm">
+                    Episode number
+                    <input
+                      type="number"
+                      min={1}
+                      value={episodeNumberInput}
+                      disabled={Boolean(preflight.plannedLiveShow)}
+                      onChange={(event) => {
+                        const nextNumber = event.target.value;
+                        setEpisodeNumberInput(nextNumber);
+                        const parsedNumber = Number(nextNumber);
+                        if (
+                          !Number.isInteger(parsedNumber) ||
+                          parsedNumber < 1
+                        ) {
+                          return;
+                        }
+                        const baseTitle = title.replace(/\s+#\d+$/, '').trim();
+                        if (baseTitle) {
+                          setTitle(`${baseTitle} #${parsedNumber}`);
+                        }
+                      }}
+                      onBlur={() =>
+                        title.trim() && update({ title: title.trim() })
                       }
                       className="border-border bg-background h-10 rounded-md border px-3 text-sm"
                     />
@@ -178,24 +219,33 @@ export function BroadcastPreflightPanel() {
                     More options
                   </summary>
                   <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                    <label className="flex flex-col gap-1 text-sm">
+                    <div className="flex flex-col gap-1 text-sm">
                       Visibility
-                      <select
-                        value={preflight.visibility}
-                        onChange={(event) =>
-                          update({
-                            visibility: event.target
-                              .value as BroadcastPreflight['visibility'],
-                          })
-                        }
-                        className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                      <div
+                        className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
+                        role="radiogroup"
+                        aria-label="Broadcast visibility"
                       >
-                        <option value="PUBLIC">
-                          Public — anyone can listen
-                        </option>
-                        <option value="FAN_ONLY">Fan-subscribers only</option>
-                      </select>
-                    </label>
+                        {(
+                          [
+                            ['PUBLIC', 'Public'],
+                            ['PRIVATE', 'Private'],
+                            ['FAN_ONLY', 'Fans only'],
+                          ] as const
+                        ).map(([value, label]) => (
+                          <button
+                            key={value}
+                            type="button"
+                            role="radio"
+                            aria-checked={preflight.visibility === value}
+                            onClick={() => update({ visibility: value })}
+                            className={`rounded-md px-3 py-2 text-xs font-semibold ${preflight.visibility === value ? 'bg-primary text-primary-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </details>
               </div>

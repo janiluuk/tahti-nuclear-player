@@ -475,6 +475,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
       <RadioBookingCalendar
         isOpen={bookOpen}
         onClose={() => setBookOpen(false)}
+        scope="mine"
       />
     </header>
   );

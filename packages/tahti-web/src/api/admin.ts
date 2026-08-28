@@ -79,6 +79,58 @@ export type AdminActionRow = {
   href: string;
 };
 
+export type AdminVenue = {
+  id: string;
+  slug: string;
+  name: string;
+  city: string;
+  countryCode: string;
+  verifiedAt: string | null;
+  createdAt: string;
+  createdBy: string;
+};
+
+export async function fetchAdminVenues(): Promise<{
+  data: AdminVenue[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: [
+        {
+          id: 'venue-admin-mock-1',
+          slug: 'northern-lights-hall',
+          name: 'Northern Lights Hall',
+          city: 'Helsinki',
+          countryCode: 'FI',
+          verifiedAt: '2026-06-01T00:00:00.000Z',
+          createdAt: '2026-05-20T00:00:00.000Z',
+          createdBy: 'artist@example.test',
+        },
+      ],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    return {
+      data: await getJson<AdminVenue[]>('/api/admin/venues'),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return { data: [], meta: apiErrorMeta(err) };
+  }
+}
+
+export async function setAdminVenueVerification(
+  slug: string,
+  verified: boolean,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  return mutate(
+    `/api/admin/venues/${encodeURIComponent(slug)}/${verified ? 'verify' : 'unverify'}`,
+    'POST',
+  );
+}
+
 export type AdminSystemHealth = {
   icecast: 'up' | 'down';
   minio: 'up' | 'down';

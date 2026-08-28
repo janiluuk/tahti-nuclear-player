@@ -6,10 +6,8 @@ import { Button, Dialog } from '@nuclearplayer/ui';
 
 import type { TahtiPlayable } from '../api/types';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
-import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
-import { TrackExportPanel } from './TrackExportPanel';
 
 export type TrackInfoTracklistEntry = {
   id: string;
@@ -46,9 +44,6 @@ export function TrackInfoDialog({
   track: TrackInfo | null;
 }) {
   const [playlistOpen, setPlaylistOpen] = useState(false);
-  const hasArtistChannel = useAuthStore((state) =>
-    Boolean(state.user?.channel),
-  );
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
 
@@ -149,10 +144,6 @@ export function TrackInfoDialog({
                   ))}
                 </ul>
               </div>
-            )}
-
-            {archiveItemId && hasArtistChannel && (
-              <TrackExportPanel archiveItemId={archiveItemId} />
             )}
 
             <Dialog.Actions>

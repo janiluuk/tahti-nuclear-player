@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   isValidHeaderVideoUrl,
   isVisualPreset,
+  resolvePublicVisualizerPreset,
   shouldDockVisualizerTuning,
 } from './channel-design';
 
@@ -68,6 +69,20 @@ describe('shouldDockVisualizerTuning', () => {
         activeTab: 'visualizer',
       }),
     ).toBe(false);
+  });
+});
+
+describe('resolvePublicVisualizerPreset', () => {
+  it('uses a lively fallback when a channel has no public visual preset', () => {
+    expect(resolvePublicVisualizerPreset(undefined)).toBe('AURORA');
+    expect(resolvePublicVisualizerPreset(null)).toBe('AURORA');
+    expect(resolvePublicVisualizerPreset('MINIMAL')).toBe('AURORA');
+  });
+
+  it('preserves an explicitly selected lively preset', () => {
+    expect(resolvePublicVisualizerPreset('REACTIVE_GRID')).toBe(
+      'REACTIVE_GRID',
+    );
   });
 });
 

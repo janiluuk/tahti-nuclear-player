@@ -4,7 +4,6 @@ import {
   ImageIcon,
   ListMusicIcon,
   TagsIcon,
-  UploadIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -22,7 +21,6 @@ import {
   fetchMyRadioSubmissions,
   fetchStudioArchive,
   fetchStudioArchiveItem,
-  importArchiveBanner,
   patchStudioArchiveItem,
   submitTrackToRadioRotation,
   uploadArchiveBanner,
@@ -40,6 +38,7 @@ import {
   AudienceVisibilitySection,
   type TrackVisibility,
 } from './AudienceVisibilitySection';
+import { ImageUploadField } from './ImageUploadField';
 import { MentionTextarea } from './MentionTextarea';
 import { MusicBrainzSubmissionAssistant } from './MusicBrainzSubmissionAssistant';
 import { PageLoading } from './PageStates';
@@ -221,26 +220,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     }
     updateArtwork(result.url);
     setNote('Cover art uploaded.');
-  };
-
-  const importArtwork = async () => {
-    if (!archiveItemId || !form.bannerUrl?.trim()) {
-      return;
-    }
-    setArtworkBusy(true);
-    setError(null);
-    setNote(null);
-    const result = await importArchiveBanner(
-      archiveItemId,
-      form.bannerUrl.trim(),
-    );
-    setArtworkBusy(false);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    updateArtwork(result.url);
-    setNote('Cover art imported and stored with the track.');
   };
 
   const save = async (confirmedRotationReplacement = false) => {
@@ -675,40 +654,16 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                           }
                         }}
                       />
-                      <div className="flex items-end gap-2">
-                        <div className="min-w-0 flex-1">
-                          <Input
-                            label="Or import an image URL"
-                            value={form.bannerUrl ?? ''}
-                            placeholder="https://…"
-                            onChange={(event) =>
-                              setForm({
-                                ...form,
-                                bannerUrl: event.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          disabled={artworkBusy || !form.bannerUrl?.trim()}
-                          onClick={() => void importArtwork()}
-                        >
-                          <UploadIcon size={14} aria-hidden />
-                          {artworkBusy ? 'Working…' : 'Import'}
-                        </Button>
-                      </div>
                       <p className="text-foreground-secondary text-xs">
-                        JPEG, PNG, or WebP. Imported images are re-hosted so the
-                        artwork stays available.
+                        JPEG, PNG, or WebP. Uploaded images are stored with the
+                        track so the artwork stays available.
                       </p>
-                      <Input
-                        label="Backdrop image URL"
+                      <ImageUploadField
+                        label="Upload backdrop"
+                        description="Wide JPEG, PNG, WebP, or GIF"
                         value={form.backdropUrl ?? ''}
-                        placeholder="https://…"
-                        onChange={(event) =>
-                          setForm({ ...form, backdropUrl: event.target.value })
+                        onChange={(backdropUrl) =>
+                          setForm({ ...form, backdropUrl })
                         }
                       />
                     </div>

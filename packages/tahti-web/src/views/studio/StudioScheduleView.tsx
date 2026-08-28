@@ -35,6 +35,7 @@ import {
   BroadcastDetailsFields,
   type BroadcastDetailsValues,
 } from '../../components/BroadcastDetailsFields';
+import { ImageUploadField } from '../../components/ImageUploadField';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -997,19 +998,11 @@ export function StudioScheduleView() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label
-                  className="text-foreground-secondary text-xs uppercase"
-                  htmlFor="schedule-episode-artwork"
-                >
-                  Episode artwork URL
-                </label>
-                <input
-                  id="schedule-episode-artwork"
-                  type="url"
+                <ImageUploadField
+                  label="Episode artwork"
+                  description="JPEG, PNG, WebP, or GIF"
                   value={episodeArtworkUrl}
-                  onChange={(event) => setEpisodeArtworkUrl(event.target.value)}
-                  placeholder="Leave blank to use show artwork"
-                  className="border-border bg-background mt-1 h-10 w-full rounded-md border px-3 text-sm"
+                  onChange={setEpisodeArtworkUrl}
                 />
               </div>
             </div>

@@ -11,6 +11,7 @@ import {
   patchVenue,
   type MyVenue,
 } from '../../api/venues-manage';
+import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -91,17 +92,17 @@ function VenueCard({
           value={city}
           onChange={(e) => setCity(e.target.value)}
         />
-        <Input
-          label="Venue image URL"
+        <ImageUploadField
+          label="Venue image"
+          description="JPEG, PNG, WebP, or GIF"
           value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://…"
+          onChange={setImageUrl}
         />
-        <Input
-          label="Cover art URL"
+        <ImageUploadField
+          label="Cover art"
+          description="JPEG, PNG, WebP, or GIF"
           value={coverUrl}
-          onChange={(e) => setCoverUrl(e.target.value)}
-          placeholder="https://…"
+          onChange={setCoverUrl}
         />
         <Input
           label="Venue website"

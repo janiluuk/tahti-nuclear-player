@@ -8,21 +8,18 @@ import {
   PauseIcon,
   PlayIcon,
   RadioIcon,
-  Settings2Icon,
   SkipBackIcon,
   SkipForwardIcon,
   SquareIcon,
   TimerIcon,
   TrendingUpIcon,
   UsersIcon,
-  Volume2Icon,
-  VolumeXIcon,
   WifiIcon,
   WifiOffIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Dialog, Input, Select } from '@nuclearplayer/ui';
+import { Button, Dialog, FilePicker, Input, Select } from '@nuclearplayer/ui';
 
 import {
   fetchChannelManageStats,
@@ -53,6 +50,7 @@ import {
   type ProgrammeView,
 } from '../api/studio-extras';
 import type { StudioCollection } from '../api/studio-types';
+import { uploadUserMediaFile } from '../api/user-media';
 import { multicastProviderLabel } from '../plugins/multicast';
 import { ChannelRotationEditor } from './ChannelRotationEditor';
 
@@ -102,9 +100,7 @@ export function StreamManagerPanel({
   slug,
   channelState,
   isPlaying = false,
-  isMuted = false,
   onPlaybackToggle,
-  onMuteToggle,
   onEnded,
   onRotationChange,
   readOnly = false,
@@ -112,9 +108,7 @@ export function StreamManagerPanel({
   slug: string;
   channelState: string;
   isPlaying?: boolean;
-  isMuted?: boolean;
   onPlaybackToggle?: () => void;
-  onMuteToggle?: () => void;
   onEnded?: () => void;
   onRotationChange?: (playing: boolean) => void;
   readOnly?: boolean;
@@ -138,22 +132,27 @@ export function StreamManagerPanel({
   const [selectedCollectionSlug, setSelectedCollectionSlug] = useState('');
   const [rotationBusy, setRotationBusy] = useState(false);
   const [rotationMsg, setRotationMsg] = useState<string | null>(null);
+  const [liveStartedAt, setLiveStartedAt] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<'rotation' | 'stats' | 'overlay'>(
+    'rotation',
+  );
   // Collapsed by default while the fallback rotation is carrying the
   // station — most visits just want to see what's playing and skip/pause
   // it, not the full stats grid and playlist-add form.
   const [rotationExpanded, setRotationExpanded] = useState(false);
-  const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlay, setOverlay] = useState({
     streamOverlayTitle: '',
     streamOverlaySubtitle: '',
     streamOverlayCoverUrl: '',
   });
   const [overlaySaving, setOverlaySaving] = useState(false);
+  const [overlayCoverFile, setOverlayCoverFile] = useState<File | null>(null);
+  const [overlayCoverUploading, setOverlayCoverUploading] = useState(false);
   const [overlayError, setOverlayError] = useState<string | null>(null);
   const canControl = !readOnly;
 
   useEffect(() => {
-    if (!overlayOpen) {
+    if (activeTab !== 'overlay') {
       return;
     }
     setOverlayError(null);
@@ -163,8 +162,9 @@ export function StreamManagerPanel({
         streamOverlaySubtitle: result.data.streamOverlaySubtitle ?? '',
         streamOverlayCoverUrl: result.data.streamOverlayCoverUrl ?? '',
       });
+      setOverlayCoverFile(null);
     });
-  }, [overlayOpen]);
+  }, [activeTab]);
 
   const saveOverlay = () => {
     setOverlaySaving(true);
@@ -179,7 +179,7 @@ export function StreamManagerPanel({
         setOverlayError(result.error);
         return;
       }
-      setOverlayOpen(false);
+      setActiveTab('rotation');
     });
   };
 
@@ -267,6 +267,21 @@ export function StreamManagerPanel({
   }, []);
 
   const signalConnected = stats?.signalConnected ?? signal?.connected ?? false;
+  const liveActive = channelState === 'LIVE' || signalConnected;
+
+  useEffect(() => {
+    if (liveActive) {
+      setLiveStartedAt((startedAt) => startedAt ?? Date.now());
+    } else {
+      setLiveStartedAt(null);
+    }
+  }, [liveActive]);
+
+  const liveDurationSec =
+    stats?.liveDurationSec ??
+    (liveActive && liveStartedAt !== null
+      ? Math.max(0, Math.floor((now - liveStartedAt) / SECOND_MS))
+      : null);
   const rotationPlaying =
     Boolean(rotation) && !signalConnected && !rotationPaused;
 
@@ -440,8 +455,8 @@ export function StreamManagerPanel({
   };
 
   return (
-    <section className="border-primary bg-primary/10 flex flex-col gap-4 rounded-xl border p-4 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <section className="border-primary bg-primary/10 flex flex-col gap-2 rounded-xl border p-3 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="order-1 min-w-0 flex-1">
           <div className="font-display flex items-center gap-2 text-lg font-bold">
             {rotationPlaying ? (
@@ -519,17 +534,6 @@ export function StreamManagerPanel({
           </div>
         )}
         <div className="order-2 flex items-center gap-2 sm:order-3">
-          {canControl ? (
-            <Button
-              size="icon-sm"
-              variant="secondary"
-              onClick={() => setOverlayOpen(true)}
-              aria-label="Configure stream overlay"
-              title="Configure stream overlay"
-            >
-              <Settings2Icon size={15} aria-hidden />
-            </Button>
-          ) : null}
           {rotationPlaying && (
             <Button
               size="icon-sm"
@@ -556,17 +560,6 @@ export function StreamManagerPanel({
               {isPlaying ? <PauseIcon size={15} /> : <PlayIcon size={15} />}
             </Button>
           )}
-          {canControl && onMuteToggle && (
-            <Button
-              size="icon-sm"
-              variant="secondary"
-              onClick={onMuteToggle}
-              aria-label={isMuted ? 'Unmute stream' : 'Mute stream'}
-              title={isMuted ? 'Unmute stream' : 'Mute stream'}
-            >
-              {isMuted ? <VolumeXIcon size={15} /> : <Volume2Icon size={15} />}
-            </Button>
-          )}
           {canControl && signalConnected && (
             <Button
               size="sm"
@@ -586,6 +579,37 @@ export function StreamManagerPanel({
       </div>
 
       {(!rotationPlaying || rotationExpanded) && (
+        <div
+          className="border-border flex flex-wrap gap-1 border-b pb-2"
+          role="tablist"
+          aria-label="Stream manager sections"
+        >
+          {(
+            [
+              ['rotation', 'Active rotation'],
+              ['stats', 'Stream stats'],
+              ['overlay', 'Overlay'],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === id}
+              onClick={() => setActiveTab(id)}
+              className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+                activeTab === id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-foreground-secondary hover:text-foreground'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'stats' && (!rotationPlaying || rotationExpanded) && (
         <div
           className="grid grid-cols-2 gap-2 sm:grid-cols-3"
           role="group"
@@ -626,7 +650,13 @@ export function StreamManagerPanel({
           <StatCell
             icon={<ActivityIcon size={14} aria-hidden />}
             label="Bitrate"
-            value={bitrate != null ? `${bitrate} kbps` : '—'}
+            value={
+              bitrate != null
+                ? `${bitrate} kbps`
+                : liveActive
+                  ? 'Detecting…'
+                  : '—'
+            }
           />
           <StatCell
             icon={
@@ -654,174 +684,259 @@ export function StreamManagerPanel({
             icon={<TimerIcon size={14} aria-hidden />}
             label="Live for"
             value={
-              stats?.liveDurationSec != null
-                ? formatRemaining(stats.liveDurationSec)
-                : '—'
+              liveDurationSec != null
+                ? formatRemaining(liveDurationSec)
+                : liveActive
+                  ? 'Starting…'
+                  : '—'
             }
           />
         </div>
       )}
 
-      {rotationPlaying && rotationExpanded && durationSec != null && (
-        <p className="text-foreground-secondary text-xs">
-          Remaining time is an upper bound until Tahti reports track position;
-          it resets when the next title starts.
-        </p>
-      )}
-
-      {canControl &&
-        (signalConnected ? (
-          // While actually live, the rotation transport controls below do
-          // nothing (the disclaimer they used to carry said as much) -- the
-          // one relevant action here is stopping the live broadcast itself.
-          <div className="flex flex-col gap-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              disabled={ending}
-              onClick={() => setConfirmEndOpen(true)}
-              className="self-start"
-            >
-              <SquareIcon
-                size={14}
-                className="mr-1.5 fill-current"
-                aria-hidden
-              />
-              {ending ? 'Ending…' : 'Stop stream'}
-            </Button>
-          </div>
-        ) : (
-          !rotationPlaying && (
-            <div className="flex flex-col gap-2">
-              {(!rotationPlaying || rotationExpanded) && (
-                <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
-                  Rotation transport
-                </p>
-              )}
-              <div className="flex flex-wrap items-center justify-center gap-2">
+      {activeTab === 'rotation' && (
+        <>
+          {canControl &&
+            (signalConnected ? (
+              // While actually live, the rotation transport controls below do
+              // nothing (the disclaimer they used to carry said as much) -- the
+              // one relevant action here is stopping the live broadcast itself.
+              <div className="flex flex-col gap-2">
                 <Button
-                  size="icon-sm"
+                  size="sm"
                   variant="secondary"
-                  disabled={transportBusy !== null}
-                  onClick={() => void handleTransport('previous')}
-                  aria-label="Previous track"
-                  title="Previous track"
+                  disabled={ending}
+                  onClick={() => setConfirmEndOpen(true)}
+                  className="self-start"
                 >
-                  <SkipBackIcon size={14} />
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  intent="danger"
-                  disabled={transportBusy !== null}
-                  onClick={() =>
-                    void handleTransport(rotationPlaying ? 'pause' : 'resume')
-                  }
-                  aria-label={
-                    rotationPlaying ? 'Stop rotation' : 'Start rotation'
-                  }
-                  title={rotationPlaying ? 'Stop rotation' : 'Start rotation'}
-                >
-                  {rotationPlaying ? (
-                    <>
-                      <SquareIcon
-                        size={14}
-                        aria-hidden
-                        className="fill-current"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <PlayIcon size={14} aria-hidden />
-                    </>
-                  )}
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  disabled={transportBusy !== null}
-                  onClick={() => void handleTransport('skip')}
-                  aria-label="Skip track"
-                  title="Skip track"
-                >
-                  <SkipForwardIcon size={14} />
+                  <SquareIcon
+                    size={14}
+                    className="mr-1.5 fill-current"
+                    aria-hidden
+                  />
+                  {ending ? 'Ending…' : 'Stop stream'}
                 </Button>
               </div>
-              {(!rotationPlaying || rotationExpanded) && (
-                <p className="text-foreground-secondary text-xs">
-                  These act on the 24/7 rotation only — a live broadcast always
-                  takes priority.
-                </p>
-              )}
-            </div>
-          )
-        ))}
+            ) : (
+              !rotationPlaying && (
+                <div className="flex flex-col gap-2">
+                  {(!rotationPlaying || rotationExpanded) && (
+                    <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
+                      Rotation transport
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      disabled={transportBusy !== null}
+                      onClick={() => void handleTransport('previous')}
+                      aria-label="Previous track"
+                      title="Previous track"
+                    >
+                      <SkipBackIcon size={14} />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      intent="danger"
+                      disabled={transportBusy !== null}
+                      onClick={() =>
+                        void handleTransport(
+                          rotationPlaying ? 'pause' : 'resume',
+                        )
+                      }
+                      aria-label={
+                        rotationPlaying ? 'Stop rotation' : 'Start rotation'
+                      }
+                      title={
+                        rotationPlaying ? 'Stop rotation' : 'Start rotation'
+                      }
+                    >
+                      {rotationPlaying ? (
+                        <>
+                          <SquareIcon
+                            size={14}
+                            aria-hidden
+                            className="fill-current"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <PlayIcon size={14} aria-hidden />
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      disabled={transportBusy !== null}
+                      onClick={() => void handleTransport('skip')}
+                      aria-label="Skip track"
+                      title="Skip track"
+                    >
+                      <SkipForwardIcon size={14} />
+                    </Button>
+                  </div>
+                  {(!rotationPlaying || rotationExpanded) && (
+                    <p className="text-foreground-secondary text-xs">
+                      These act on the 24/7 rotation only — a live broadcast
+                      always takes priority.
+                    </p>
+                  )}
+                </div>
+              )
+            ))}
 
-      {canControl && (!rotationPlaying || rotationExpanded) && programme && (
-        <ChannelRotationEditor
-          items={editableRotation}
-          availableItems={availableRotationItems}
-          busy={rotationBusy}
-          onAdd={(item) => void addRotationItem(item)}
-          onReorder={(next) => void saveEditableRotation(next)}
-          onRemove={(item) =>
-            void saveEditableRotation(
-              editableRotation.filter((candidate) => candidate.id !== item.id),
-            )
-          }
-        />
+          {canControl &&
+            (!rotationPlaying || rotationExpanded) &&
+            programme && (
+              <ChannelRotationEditor
+                items={editableRotation}
+                availableItems={availableRotationItems}
+                busy={rotationBusy}
+                onAdd={(item) => void addRotationItem(item)}
+                onReorder={(next) => void saveEditableRotation(next)}
+                onRemove={(item) =>
+                  void saveEditableRotation(
+                    editableRotation.filter(
+                      (candidate) => candidate.id !== item.id,
+                    ),
+                  )
+                }
+              />
+            )}
+
+          {canControl &&
+            (!rotationPlaying || rotationExpanded) &&
+            collections.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
+                  Add a playlist to the rotation
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Select
+                    label="Playlist"
+                    value={selectedCollectionSlug}
+                    onValueChange={setSelectedCollectionSlug}
+                    placeholder="Choose a playlist…"
+                    options={collections.map((collection) => ({
+                      id: collection.slug,
+                      label: collection.name,
+                    }))}
+                    className="min-w-52"
+                  />
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={!selectedCollectionSlug || rotationBusy}
+                    onClick={() => void handleAddCollectionToRotation()}
+                  >
+                    {rotationBusy ? 'Adding…' : 'Add to rotation'}
+                  </Button>
+                </div>
+                {rotationMsg && (
+                  <p className="text-foreground-secondary text-xs">
+                    {rotationMsg}
+                  </p>
+                )}
+              </div>
+            )}
+
+          {(!rotationPlaying || rotationExpanded) && targets.length > 0 && (
+            <ul className="flex flex-col gap-1.5">
+              {targets.map((target) => (
+                <li
+                  key={target.id}
+                  className="border-border flex items-center justify-between rounded-lg border px-3 py-1.5 text-sm"
+                >
+                  <span>
+                    {target.label || multicastProviderLabel(target.provider)}
+                  </span>
+                  <span className="text-foreground-secondary text-xs uppercase">
+                    Mirroring
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
 
-      {canControl &&
-        (!rotationPlaying || rotationExpanded) &&
-        collections.length > 0 && (
-          <div className="flex flex-col gap-2">
-            <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
-              Add a playlist to the rotation
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Select
-                label="Playlist"
-                value={selectedCollectionSlug}
-                onValueChange={setSelectedCollectionSlug}
-                placeholder="Choose a playlist…"
-                options={collections.map((collection) => ({
-                  id: collection.slug,
-                  label: collection.name,
-                }))}
-                className="min-w-52"
-              />
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={!selectedCollectionSlug || rotationBusy}
-                onClick={() => void handleAddCollectionToRotation()}
-              >
-                {rotationBusy ? 'Adding…' : 'Add to rotation'}
-              </Button>
-            </div>
-            {rotationMsg && (
-              <p className="text-foreground-secondary text-xs">{rotationMsg}</p>
-            )}
+      {activeTab === 'overlay' && canControl && (
+        <div className="flex flex-col gap-4">
+          <div>
+            <h3 className="font-display text-base font-bold">Stream overlay</h3>
           </div>
-        )}
-
-      {(!rotationPlaying || rotationExpanded) && targets.length > 0 && (
-        <ul className="flex flex-col gap-1.5">
-          {targets.map((target) => (
-            <li
-              key={target.id}
-              className="border-border flex items-center justify-between rounded-lg border px-3 py-1.5 text-sm"
-            >
-              <span>
-                {target.label || multicastProviderLabel(target.provider)}
-              </span>
-              <span className="text-foreground-secondary text-xs uppercase">
-                Mirroring
-              </span>
-            </li>
-          ))}
-        </ul>
+          {overlayError && (
+            <p className="text-accent-red text-sm" role="alert">
+              {overlayError}
+            </p>
+          )}
+          <Input
+            label="Overlay title"
+            placeholder="Your display name"
+            maxLength={80}
+            value={overlay.streamOverlayTitle}
+            onChange={(event) =>
+              setOverlay({
+                ...overlay,
+                streamOverlayTitle: event.target.value,
+              })
+            }
+          />
+          <Input
+            label="Overlay subtitle"
+            placeholder="e.g. Every Friday, 8pm CET"
+            maxLength={120}
+            value={overlay.streamOverlaySubtitle}
+            onChange={(event) =>
+              setOverlay({
+                ...overlay,
+                streamOverlaySubtitle: event.target.value,
+              })
+            }
+          />
+          <FilePicker
+            labels={{
+              title: 'Overlay cover image',
+              description: 'JPEG, PNG, or WebP',
+              browse: overlayCoverFile
+                ? 'Choose another image'
+                : 'Choose image',
+            }}
+            accept="image/jpeg,image/png,image/webp"
+            selectedFiles={overlayCoverFile ? [overlayCoverFile] : []}
+            disabled={overlayCoverUploading}
+            onFiles={(files) => {
+              const file = files[0];
+              if (!file) {
+                return;
+              }
+              setOverlayCoverFile(file);
+              setOverlayCoverUploading(true);
+              setOverlayError(null);
+              void uploadUserMediaFile(file).then((result) => {
+                setOverlayCoverUploading(false);
+                if (!result.ok) {
+                  setOverlayError(result.error);
+                  return;
+                }
+                setOverlay((current) => ({
+                  ...current,
+                  streamOverlayCoverUrl: result.data.url,
+                }));
+              });
+            }}
+          />
+          <Button
+            disabled={overlaySaving || overlayCoverUploading}
+            onClick={saveOverlay}
+            className="self-start"
+          >
+            {overlaySaving ? 'Saving…' : 'Save overlay'}
+          </Button>
+        </div>
       )}
 
       {error && <p className="text-accent-red text-xs">{error}</p>}
@@ -846,68 +961,6 @@ export function StreamManagerPanel({
               }}
             >
               {ending ? 'Ending…' : 'Stop stream'}
-            </Button>
-          </Dialog.Actions>
-        </Dialog.Root>
-      ) : null}
-
-      {canControl ? (
-        <Dialog.Root
-          isOpen={overlayOpen}
-          onClose={() => setOverlayOpen(false)}
-          className="max-w-lg"
-        >
-          <Dialog.Title>Stream overlay</Dialog.Title>
-          <Dialog.Description>
-            RTMP mirrors carry a static video frame with this text and cover.
-            Leave fields blank to use your display name and avatar.
-          </Dialog.Description>
-          <div className="flex flex-col gap-3">
-            {overlayError && (
-              <p className="text-accent-red text-sm" role="alert">
-                {overlayError}
-              </p>
-            )}
-            <Input
-              label="Overlay title"
-              placeholder="Your display name"
-              maxLength={80}
-              value={overlay.streamOverlayTitle}
-              onChange={(event) =>
-                setOverlay({
-                  ...overlay,
-                  streamOverlayTitle: event.target.value,
-                })
-              }
-            />
-            <Input
-              label="Overlay subtitle"
-              placeholder="e.g. Every Friday, 8pm CET"
-              maxLength={120}
-              value={overlay.streamOverlaySubtitle}
-              onChange={(event) =>
-                setOverlay({
-                  ...overlay,
-                  streamOverlaySubtitle: event.target.value,
-                })
-              }
-            />
-            <Input
-              label="Cover image URL"
-              placeholder="Your avatar"
-              value={overlay.streamOverlayCoverUrl}
-              onChange={(event) =>
-                setOverlay({
-                  ...overlay,
-                  streamOverlayCoverUrl: event.target.value,
-                })
-              }
-            />
-          </div>
-          <Dialog.Actions>
-            <Dialog.Close>Cancel</Dialog.Close>
-            <Button disabled={overlaySaving} onClick={saveOverlay}>
-              {overlaySaving ? 'Saving…' : 'Save overlay'}
             </Button>
           </Dialog.Actions>
         </Dialog.Root>

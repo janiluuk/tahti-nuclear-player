@@ -11,7 +11,6 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 import {
-  Loader,
   PlayerShell,
   PlayerWorkspace,
   RouteTransition,
@@ -112,25 +111,13 @@ function RouteContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative h-full min-h-0">
-      <div
-        className={cn(
-          'h-full transition-opacity duration-100',
-          isPending && 'opacity-60',
-        )}
-      >
-        {children}
-      </div>
+      <div className="h-full">{children}</div>
       {isPending ? (
         <div
-          className="bg-background/45 pointer-events-none absolute inset-0 z-10 flex items-start justify-center pt-6 backdrop-blur-[1px]"
+          className="bg-primary pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 animate-pulse"
           aria-live="polite"
           aria-label="Loading page content"
-        >
-          <div className="border-border bg-background-secondary/90 text-foreground-secondary flex items-center gap-2 rounded-md border px-3 py-2 text-xs shadow-sm">
-            <Loader size="sm" />
-            Loading content…
-          </div>
-        </div>
+        />
       ) : null}
     </div>
   );
