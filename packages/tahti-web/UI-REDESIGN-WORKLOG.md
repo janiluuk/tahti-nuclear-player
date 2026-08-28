@@ -1,5 +1,9 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Tahti Map navigation and sitemap refresh
+
+**Completed:** Renamed the board-only More entry to its own Tahti map tab in desktop and mobile navigation. Removed the map page’s top row of shortcuts to unrelated application pages, keeping only in-page map section navigation. Added current route-based Mermaid diagrams for the beta sitemap, listener journey, and artist/governing-person journeys in the Flow gallery.
+
 ## 2026-08-28 — 3×3 Storybook action and navigation sweep
 
 **Batch 1:** Admin stream controls, Studio moderator management, and Admin missed-show actions now use compact shared icon buttons with accessible labels and tooltips.

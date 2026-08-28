@@ -1,5 +1,3 @@
-import { Link } from '@tanstack/react-router';
-
 import { Badge, Button } from '@nuclearplayer/ui';
 
 import { FlowGallery } from '../components/FlowGallery';
@@ -401,27 +399,6 @@ function statusClass(status: Status): string {
   }
 }
 
-const QUICK_LINKS: Array<{
-  to: string;
-  label: string;
-  params?: Record<string, string>;
-}> = [
-  { to: '/studio/go-live', label: 'Go Live' },
-  { to: '/sources', label: 'Sources' },
-  { to: '/studio/schedule', label: 'Schedule' },
-  { to: '/studio/stats', label: 'Stats' },
-  { to: '/studio/updates', label: 'Updates' },
-  { to: '/studio/revenue', label: 'Revenue' },
-  { to: '/messages', label: 'Messages' },
-  { to: '/settings', label: 'Settings' },
-  { to: '/settings/$section', label: 'Themes', params: { section: 'themes' } },
-  { to: '/governance', label: 'Governance' },
-  { to: '/help', label: 'Help' },
-  { to: '/venues', label: 'Venues' },
-  { to: '/transparency', label: 'Transparency' },
-  { to: '/chat', label: 'Chat' },
-];
-
 const TOP_BAR_GUIDE = [
   ['Upload', 'Open the upload dialog without leaving the current view.'],
   ['Messages', 'Open chat-style direct messages and keep the icon active.'],
@@ -665,19 +642,6 @@ export function MoreView() {
           </a>
         </nav>
       </div>
-
-      <nav className="flex flex-wrap gap-2">
-        {QUICK_LINKS.map((link) => (
-          <Link
-            key={`${link.to}-${link.label}`}
-            to={link.to}
-            params={link.params}
-            className="border-border text-foreground-secondary hover:text-foreground rounded-md border px-3 py-1.5 text-xs font-medium tracking-wide uppercase"
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
 
       <StudioPanel
         title="Top bar actions"

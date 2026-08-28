@@ -99,11 +99,11 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
           />
         </div>
         {isBoard && (
-          <div data-tour-id="nav-more">
+          <div data-tour-id="nav-map">
             <SidebarNavigationItem
               to="/more"
               icon={<MapIcon size={16} />}
-              label="More"
+              label="Tahti map"
             />
           </div>
         )}
@@ -378,11 +378,11 @@ export function AppShell() {
                     />
                   </div>
                   {isBoard && (
-                    <div data-tour-id="nav-more">
+                    <div data-tour-id="nav-map">
                       <SidebarNavigationItem
                         to="/more"
                         icon={<MapIcon size={16} />}
-                        label="More"
+                        label="Tahti map"
                       />
                     </div>
                   )}

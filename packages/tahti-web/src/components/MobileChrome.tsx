@@ -58,7 +58,7 @@ const NAV = [
   },
   {
     to: '/more',
-    label: 'More',
+    label: 'Tahti map',
     icon: MapIcon,
     match: (p: string) =>
       p.startsWith('/more') ||

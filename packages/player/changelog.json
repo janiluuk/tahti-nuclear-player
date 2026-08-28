@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Tahti Map is now a dedicated navigation tab with an updated beta sitemap and listener, artist, and governing-person Mermaid journeys.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Admin and Studio moderation actions now use compact icon controls with accessible labels, and the navigation Storybook coverage includes mobile and nested routes.",
     "type": "improvement",
     "contributors": ["jani"],

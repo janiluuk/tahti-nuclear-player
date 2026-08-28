@@ -12,6 +12,92 @@ export type FlowDiagram = {
 
 export const FLOW_DIAGRAMS: FlowDiagram[] = [
   {
+    id: 'nuclear-sitemap-2026',
+    pack: 'nuclear',
+    source: 'router.tsx · current beta routes',
+    title: 'Tahti map — current sitemap',
+    blurb:
+      'The deployed beta route tree grouped by anonymous, listener, artist, and board access.',
+    mermaid: `flowchart TB
+  Home["/ Listen"] --> Public["Public listening"]
+  Public --> Radio["/radio"]
+  Public --> Discover["/discover"]
+  Public --> Channel["/channel/$slug"]
+  Public --> Artist["/u/$username"]
+  Artist --> Collection["/u/$username/c/$slug"]
+  Artist --> Subscribe["/subscribe/$username"]
+  Public --> Help["/help"]
+  Public --> About["/about · /terms · /privacy"]
+  Login["/login · /join"] --> Library["/library"]
+  Library --> History["/library/history"]
+  Library --> Collections["/library/collections"]
+  Login --> Messages["/messages"]
+  Login --> Governance["/governance"]
+  Login --> Studio["/studio"]
+  Studio --> Perform["Go Live · Schedule · Shows"]
+  Studio --> Music["Sounds · Collections · Releases · Upload"]
+  Studio --> Grow["Stats · Audience · Updates"]
+  Studio --> Manage["Channel · Radio · Sources · Moderation"]
+  Login --> Settings["/settings"]
+  Board["Board role"] --> Admin["/admin"]
+  Admin --> AdminSections["Overview · Content · Moderation · Logs · Status"]
+  classDef public fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;
+  classDef session fill:#ecfdf5,stroke:#10b981,color:#065f46;
+  classDef artist fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;
+  classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
+  class Home,Public,Radio,Discover,Channel,Artist,Collection,Subscribe,Help,About public;
+  class Login,Library,History,Collections,Messages,Governance session;
+  class Studio,Perform,Music,Grow,Manage,Settings artist;
+  class Board,Admin,AdminSections board;
+`,
+  },
+  {
+    id: 'nuclear-journey-listener-2026',
+    pack: 'nuclear',
+    source: 'router.tsx · listener journey',
+    title: 'Listener journey — discover to listening',
+    blurb:
+      'A listener can browse anonymously, then keep history, favorites, messages, and governance access after signing in.',
+    mermaid: `flowchart LR
+  Start([Open Tahti]) --> Browse[Listen / Discover / Radio]
+  Browse --> Profile[Open artist channel]
+  Profile --> Play[Play live or archive]
+  Play --> Queue[Queue and favorite]
+  Browse --> Join{Sign in?}
+  Join -->|No| Anonymous[Continue anonymously]
+  Join -->|Yes| Library[Library and History]
+  Library --> Messages[Messages and notifications]
+  Library --> Subscribe[Subscribe to an artist]
+  Library --> Governance[Vote and discuss]
+  Play --> Chat[Join channel chat]
+`,
+  },
+  {
+    id: 'nuclear-journey-artist-admin-2026',
+    pack: 'nuclear',
+    source: 'router.tsx · Studio and Admin gates',
+    title: 'Artist and governing-person journeys',
+    blurb:
+      'Artists work in Studio; governing people use the board-gated Admin sections while both retain the shared public shell.',
+    mermaid: `flowchart TB
+  Login["/login"] --> Role{Role}
+  Role -->|Artist| Studio["/studio"]
+  Studio --> Perform["Perform: Go Live · Schedule · Shows"]
+  Studio --> Library["Library: Sounds · Upload · Collections"]
+  Studio --> Grow["Grow: Stats · Audience · Posts"]
+  Studio --> Manage["Manage: Channel · Radio · Sources"]
+  Manage --> Moderation["Moderation and moderators"]
+  Studio --> Settings["Settings: artist and account"]
+  Role -->|Board| Admin["/admin"]
+  Admin --> Overview["Overview: needs action and streams"]
+  Admin --> Content["Content: catalog and top lists"]
+  Admin --> ModerationQueue["Moderation: support · reports · missed shows"]
+  Admin --> Logs["Logs: activity and audit"]
+  Admin --> Governance["Governance and AGM"]
+  Admin --> Status["Status: queues · cron · platform"]
+`,
+  },
+  {
     id: 'current-README',
     pack: 'current',
     source: 'docs/flows/README.md',
