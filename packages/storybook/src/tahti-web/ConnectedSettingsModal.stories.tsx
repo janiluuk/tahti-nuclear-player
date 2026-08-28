@@ -47,3 +47,15 @@ export const ChannelDesignTab: Story = {
 export const ThemesTab: Story = {
   decorators: [withMockAuth(MOCK_USERS.listener), withOpenSettings('themes')],
 };
+
+export const DeploymentFooter: Story = {
+  decorators: [withMockAuth(MOCK_USERS.listener), withOpenSettings('account')],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The account settings footer keeps GitHub, API docs, About, and the deployment fingerprint together.',
+      },
+    },
+  },
+};

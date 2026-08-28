@@ -45,3 +45,12 @@ export const SignedOutWithMenu: Story = {
     onOpenMenu: () => {},
   },
 };
+
+export const MobileStableChrome: Story = {
+  decorators: [withMockAuth(MOCK_USERS.artist)],
+  args: {
+    showMenuButton: true,
+    onOpenMenu: () => {},
+  },
+  parameters: { viewport: { defaultViewport: 'mobile1' } },
+};

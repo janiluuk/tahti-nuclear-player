@@ -32,3 +32,11 @@ export const NestedModerationRoute: Story = {
   },
   decorators: [withTahtiRouter('/admin/moderation/feature-requests')],
 };
+
+export const MobileModeration: Story = {
+  args: {
+    current: '/admin/moderation/missed-shows',
+  },
+  parameters: { viewport: { defaultViewport: 'mobile1' } },
+  decorators: [withTahtiRouter('/admin/moderation/missed-shows')],
+};
