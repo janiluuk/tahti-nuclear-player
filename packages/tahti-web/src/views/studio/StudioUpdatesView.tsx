@@ -75,7 +75,7 @@ export function StudioUpdatesView() {
           action={
             tab === 'posts' ? (
               <Button
-                size="sm"
+                size="icon-sm"
                 onClick={() => {
                   setMsg(null);
                   setPostOpen(true);
@@ -83,12 +83,11 @@ export function StudioUpdatesView() {
                 aria-label="New post"
                 title="New post"
               >
-                <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                {isEmpty ? 'New' : 'New post'}
+                <PlusIcon size={16} aria-hidden />
               </Button>
             ) : (
               <Button
-                size="sm"
+                size="icon-sm"
                 onClick={() => {
                   setMsg(null);
                   setDraftOpen(true);
@@ -96,8 +95,7 @@ export function StudioUpdatesView() {
                 aria-label="New draft"
                 title="New draft"
               >
-                <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                {isEmpty ? 'New' : 'New draft'}
+                <PlusIcon size={16} aria-hidden />
               </Button>
             )
           }
@@ -148,9 +146,13 @@ export function StudioUpdatesView() {
                 </p>
                 {!isEmpty && (
                   <div>
-                    <Button size="sm" onClick={() => setPostOpen(true)}>
-                      <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                      New post
+                    <Button
+                      size="icon-sm"
+                      onClick={() => setPostOpen(true)}
+                      aria-label="New post"
+                      title="New post"
+                    >
+                      <PlusIcon size={16} aria-hidden />
                     </Button>
                   </div>
                 )}
@@ -215,9 +217,13 @@ export function StudioUpdatesView() {
                 </p>
                 {!isEmpty && (
                   <div>
-                    <Button size="sm" onClick={() => setDraftOpen(true)}>
-                      <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                      New draft
+                    <Button
+                      size="icon-sm"
+                      onClick={() => setDraftOpen(true)}
+                      aria-label="New draft"
+                      title="New draft"
+                    >
+                      <PlusIcon size={16} aria-hidden />
                     </Button>
                   </div>
                 )}

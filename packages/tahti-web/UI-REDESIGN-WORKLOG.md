@@ -1,5 +1,25 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Consistent Studio and Admin create actions
+
+**Completed:** Standardized new/create controls across Studio and Admin page headers, empty states, and nested tools to the shared 32px icon-button treatment. Each compact control retains an accessible label and tooltip title.
+
+## 2026-08-28 — Stable Studio and Admin navigation slots
+
+**Completed:** Reserved a stable desktop slot for the Studio and Admin submenus so switching between Perform, Manage, and other sections no longer moves the page content up or down when submenu lengths differ. Mobile navigation remains content-sized, and the existing stable-route transition continues to avoid a full-page fade.
+
+## 2026-08-28 — Admin vendors overview placement
+
+**Completed:** Admin → Vendors is now a single Overview submenu item immediately before Logs. Removed the duplicate Manage placement while preserving the existing vendors route and page.
+
+## 2026-08-28 — Admin storage overview placement
+
+**Completed:** Moved Admin → Storage from Manage into Overview, placing it before Logs. The existing storage routes and file-management tab remain unchanged.
+
+## 2026-08-28 — Admin financial overview placement
+
+**Completed:** Moved Admin → Financial from Manage into Overview, immediately after Dashboard. Logs and Status remain available after it, and the existing financial route is unchanged.
+
 ## 2026-08-28 — Tahti shared branding
 
 **Completed:** Replaced the app-shell star mark with the sibling Tahti website's amber-bar `TAHTI` wordmark. The web app now serves the matching SVG, ICO, 16px, 32px, and Apple touch favicon assets from `../tahti`.

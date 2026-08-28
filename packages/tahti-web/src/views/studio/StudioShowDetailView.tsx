@@ -4,6 +4,7 @@ import {
   CircleDotIcon,
   InfoIcon,
   MicIcon,
+  PlusIcon,
   RadioIcon,
   UploadIcon,
 } from 'lucide-react';
@@ -242,8 +243,13 @@ export function StudioShowDetailView({ id }: { id: string }) {
               }
               action={
                 show.mode === 'SINGLE' ? undefined : (
-                  <Button size="sm" onClick={() => setCreateOpen(true)}>
-                    New episode
+                  <Button
+                    size="icon-sm"
+                    onClick={() => setCreateOpen(true)}
+                    aria-label="New episode"
+                    title="New episode"
+                  >
+                    <PlusIcon size={16} aria-hidden />
                   </Button>
                 )
               }

@@ -98,13 +98,12 @@ export function StudioShowsView() {
           subtitle="Create a show, book intervals, then upload or record each episode. Episode numbers increment automatically."
           action={
             <Button
-              size="sm"
+              size="icon-sm"
               onClick={() => setCreateOpen(true)}
               aria-label="New show"
               title="New show"
             >
-              <PlusIcon size={16} aria-hidden className="mr-1.5" />
-              New show
+              <PlusIcon size={16} aria-hidden />
             </Button>
           }
         />
@@ -239,9 +238,13 @@ export function StudioShowsView() {
                 No shows yet. Create one to start numbering episodes.
               </p>
               <div>
-                <Button size="sm" onClick={() => setCreateOpen(true)}>
-                  <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                  New show
+                <Button
+                  size="icon-sm"
+                  onClick={() => setCreateOpen(true)}
+                  aria-label="New show"
+                  title="New show"
+                >
+                  <PlusIcon size={16} aria-hidden />
                 </Button>
               </div>
             </div>

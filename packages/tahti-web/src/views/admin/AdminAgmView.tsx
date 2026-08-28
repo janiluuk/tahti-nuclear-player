@@ -1,3 +1,4 @@
+import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -107,12 +108,14 @@ function AgendaBuilder() {
         ))}
       </ol>
       <Button
-        size="sm"
+        size="icon-sm"
         variant="secondary"
         className="mt-3"
         onClick={() => setItems((prev) => [...prev, ''])}
+        aria-label="Add agenda item"
+        title="Add agenda item"
       >
-        + Add item
+        <PlusIcon size={16} aria-hidden />
       </Button>
     </StudioPanel>
   );

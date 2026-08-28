@@ -77,9 +77,13 @@ export function AdminNewsView() {
           title="News"
           subtitle="Posts published to the platform news feed."
           action={
-            <Button size="sm" onClick={() => setComposeOpen(true)}>
-              <PlusIcon size={16} aria-hidden className="mr-1.5" />
-              Write post
+            <Button
+              size="icon-sm"
+              onClick={() => setComposeOpen(true)}
+              aria-label="Write post"
+              title="Write post"
+            >
+              <PlusIcon size={16} aria-hidden />
             </Button>
           }
         />
@@ -99,9 +103,13 @@ export function AdminNewsView() {
                 No news posts yet.
               </p>
               <div>
-                <Button size="sm" onClick={() => setComposeOpen(true)}>
-                  <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                  Write post
+                <Button
+                  size="icon-sm"
+                  onClick={() => setComposeOpen(true)}
+                  aria-label="Write post"
+                  title="Write post"
+                >
+                  <PlusIcon size={16} aria-hidden />
                 </Button>
               </div>
             </div>

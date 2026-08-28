@@ -106,7 +106,7 @@ export function StudioEventsView() {
           subtitle="List upcoming appearances tied to your artist profile."
           action={
             <Link to="/studio/events/new">
-              <Button size="sm" aria-label="Add event" title="Add event">
+              <Button size="icon-sm" aria-label="Add event" title="Add event">
                 <PlusIcon size={16} aria-hidden />
               </Button>
             </Link>

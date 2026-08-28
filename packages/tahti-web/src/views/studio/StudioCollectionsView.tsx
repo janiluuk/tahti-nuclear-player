@@ -160,7 +160,7 @@ export function StudioCollectionsView() {
           subtitle="Create and manage albums, EPs, DJ sets, and playlists in one place."
           action={
             <Button
-              size="sm"
+              size="icon-sm"
               onClick={() => {
                 setMsg(null);
                 setCreateOpen(true);
@@ -168,8 +168,7 @@ export function StudioCollectionsView() {
               aria-label="New collection"
               title="New collection"
             >
-              <PlusIcon size={16} aria-hidden className="mr-1.5" />
-              New collection
+              <PlusIcon size={16} aria-hidden />
             </Button>
           }
         />
@@ -307,9 +306,13 @@ export function StudioCollectionsView() {
                 No collections yet — create an album, EP, DJ set, podcast, or
                 playlist.
               </p>
-              <Button size="sm" onClick={() => setCreateOpen(true)}>
-                <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                New collection
+              <Button
+                size="icon-sm"
+                onClick={() => setCreateOpen(true)}
+                aria-label="New collection"
+                title="New collection"
+              >
+                <PlusIcon size={16} aria-hidden />
               </Button>
             </div>
           ) : filteredRows.length === 0 ? (

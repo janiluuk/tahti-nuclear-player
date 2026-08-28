@@ -117,7 +117,7 @@ export function StudioEditorListView() {
           action={
             projects.length > 0 ? (
               <Button
-                size="sm"
+                size="icon-sm"
                 onClick={() => {
                   setMessage(null);
                   setCreateOpen(true);
@@ -125,8 +125,7 @@ export function StudioEditorListView() {
                 aria-label="New session"
                 title="New session"
               >
-                <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                New session
+                <PlusIcon size={16} aria-hidden />
               </Button>
             ) : undefined
           }
@@ -189,9 +188,13 @@ export function StudioEditorListView() {
                 No editor projects yet.
               </p>
               <div>
-                <Button size="sm" onClick={() => setCreateOpen(true)}>
-                  <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                  New session
+                <Button
+                  size="icon-sm"
+                  onClick={() => setCreateOpen(true)}
+                  aria-label="New session"
+                  title="New session"
+                >
+                  <PlusIcon size={16} aria-hidden />
                 </Button>
               </div>
             </div>

@@ -1,6 +1,41 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Studio and Admin create actions now use one consistent compact icon-button size across page headers, empty states, and nested creation tools.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Studio and Admin navigation now reserve a stable desktop submenu space, preventing content from jumping when changing sections.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin Vendors is now a single Overview tab immediately before Logs; the duplicate Manage entry has been removed.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin Storage is now grouped under Overview before Logs, keeping platform operations and storage visibility together.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin Financial is now grouped under Overview directly after Dashboard for faster access to platform financial reporting.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Updated the web app branding to match Tahti: the shared amber-bar wordmark and the sibling site's favicon set are now used across the app shell and browser install surfaces.",
     "type": "improvement",
     "contributors": ["jani"],

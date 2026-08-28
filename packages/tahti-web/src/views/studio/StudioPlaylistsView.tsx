@@ -97,9 +97,13 @@ export function StudioPlaylistsView() {
           title="Playlists"
           subtitle="Organize archive tracks and releases. Drag to reorder in the editor."
           action={
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <PlusIcon size={16} aria-hidden className="mr-1.5" />
-              New
+            <Button
+              size="icon-sm"
+              onClick={() => setCreateOpen(true)}
+              aria-label="New playlist"
+              title="New playlist"
+            >
+              <PlusIcon size={16} aria-hidden />
             </Button>
           }
         />
@@ -173,8 +177,13 @@ export function StudioPlaylistsView() {
               title="No playlists yet"
               description="Create a playlist to organize tracks and releases."
               action={
-                <Button size="sm" onClick={() => setCreateOpen(true)}>
-                  New playlist
+                <Button
+                  size="icon-sm"
+                  onClick={() => setCreateOpen(true)}
+                  aria-label="New playlist"
+                  title="New playlist"
+                >
+                  <PlusIcon size={16} aria-hidden />
                 </Button>
               }
             />

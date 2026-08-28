@@ -1,3 +1,4 @@
+import { PlusIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Badge, Button, Dialog, Input } from '@nuclearplayer/ui';
@@ -54,8 +55,13 @@ export function AdminI18nView() {
           title="Languages"
           subtitle="Add a language, then import a CSV translated from the English base."
           action={
-            <Button size="sm" onClick={() => setNewOpen(true)}>
-              New language
+            <Button
+              size="icon-sm"
+              onClick={() => setNewOpen(true)}
+              aria-label="New language"
+              title="New language"
+            >
+              <PlusIcon size={16} aria-hidden />
             </Button>
           }
         />

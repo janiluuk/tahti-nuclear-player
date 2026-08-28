@@ -146,12 +146,13 @@ function VenueCard({
           <Eyebrow className="block">Bookings</Eyebrow>
           {!bookingFormOpen && (
             <Button
-              size="sm"
+              size="icon-sm"
               variant="text"
               onClick={() => setBookingFormOpen(true)}
+              aria-label="New booking"
+              title="New booking"
             >
-              <PlusIcon size={14} aria-hidden className="mr-1.5" />
-              New booking
+              <PlusIcon size={16} aria-hidden />
             </Button>
           )}
         </div>

@@ -101,7 +101,7 @@ export function StudioReleasesView({
           action={
             <div className="flex flex-wrap gap-2">
               <Button
-                size="sm"
+                size="icon-sm"
                 onClick={() => {
                   setMsg(null);
                   setCreateOpen(true);
@@ -109,8 +109,7 @@ export function StudioReleasesView({
                 aria-label="New release"
                 title="New release"
               >
-                <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                New
+                <PlusIcon size={16} aria-hidden />
               </Button>
             </div>
           }
@@ -178,9 +177,13 @@ export function StudioReleasesView({
                 No releases yet. Create one to share a public link.
               </p>
               <div>
-                <Button size="sm" onClick={() => setCreateOpen(true)}>
-                  <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                  New release
+                <Button
+                  size="icon-sm"
+                  onClick={() => setCreateOpen(true)}
+                  aria-label="New release"
+                  title="New release"
+                >
+                  <PlusIcon size={16} aria-hidden />
                 </Button>
               </div>
             </div>

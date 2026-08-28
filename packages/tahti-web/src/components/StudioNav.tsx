@@ -184,6 +184,8 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
   '/studio/channel': ['/studio/channel', '/sources', '/studio/moderation'],
 };
 
+const SUBMENU_SLOT_CLASS = 'min-h-0 sm:min-h-56';
+
 const isActive = (current: string | undefined, to: string) => {
   if (!current) {
     return false;
@@ -255,7 +257,7 @@ function StudioNavigation({ current }: { current?: string }) {
         })}
       </div>
       {submenu.length > 0 && (
-        <div data-studio-section-menu>
+        <div className={SUBMENU_SLOT_CLASS} data-studio-section-menu>
           <SectionSidebar
             aria-label={`${PRIMARY.find((item) => item.to === selectedSection)?.label ?? 'Studio'} pages`}
             items={submenu.map((item) => ({

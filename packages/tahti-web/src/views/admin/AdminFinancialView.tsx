@@ -1,3 +1,4 @@
+import { PlusIcon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -98,8 +99,17 @@ export function AdminFinancialView() {
             <StudioPanel
               title="Ledger entries"
               action={
-                <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-                  {showForm ? 'Cancel' : 'Add entry'}
+                <Button
+                  size="icon-sm"
+                  onClick={() => setShowForm((v) => !v)}
+                  aria-label={showForm ? 'Cancel entry' : 'Add entry'}
+                  title={showForm ? 'Cancel entry' : 'Add entry'}
+                >
+                  {showForm ? (
+                    <XIcon size={16} aria-hidden />
+                  ) : (
+                    <PlusIcon size={16} aria-hidden />
+                  )}
                 </Button>
               }
             >

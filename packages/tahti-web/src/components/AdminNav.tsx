@@ -162,9 +162,14 @@ const ADMIN_SECTIONS = [
   {
     id: 'overview',
     label: 'Overview',
-    items: PRIMARY.filter((item) =>
-      ['/admin', '/admin/logs', '/admin/status'].includes(item.to),
-    ),
+    items: [
+      '/admin',
+      '/admin/financial',
+      '/admin/storage',
+      '/admin/vendors',
+      '/admin/logs',
+      '/admin/status',
+    ].map((to) => PRIMARY.find((item) => item.to === to)!),
   },
   {
     id: 'community',
@@ -207,10 +212,7 @@ const ADMIN_SECTIONS = [
     items: PRIMARY.filter((item) =>
       [
         '/admin/streams',
-        '/admin/storage',
         '/admin/files',
-        '/admin/financial',
-        '/admin/vendors',
         '/admin/disco-widgets',
         '/admin/i18n',
         '/admin/tahti-selects',
@@ -218,6 +220,8 @@ const ADMIN_SECTIONS = [
     ),
   },
 ] as const;
+
+const SUBMENU_SLOT_CLASS = 'min-h-0 sm:min-h-56';
 
 export const ADMIN_NAV_TOUR_STEPS: TourStep[] = PRIMARY.map(
   (item): TourStep => ({
@@ -295,7 +299,7 @@ export function AdminNav({
     </div>
   );
   const menu = (
-    <div data-admin-section-menu>
+    <div className={SUBMENU_SLOT_CLASS} data-admin-section-menu>
       <SectionSidebar
         aria-label={`Admin ${section.label}`}
         items={section.items.map((link) => ({
