@@ -21,7 +21,9 @@ import {
   Card,
   CardGrid,
   FavoriteButton,
+  Input,
   MediaArtwork,
+  Select,
 } from '@nuclearplayer/ui';
 
 import {
@@ -858,8 +860,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
             {selected === 'spotify' && (
               <section className="flex flex-col gap-3">
                 <div className="flex flex-wrap gap-2">
-                  <input
-                    className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
+                  <Input
+                    className="min-w-[200px] flex-1"
+                    size="sm"
                     value={spotifyQ}
                     onChange={(e) => setSpotifyQ(e.target.value)}
                     placeholder="Search Spotify tracks"
@@ -1013,8 +1016,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                       enable cross-posting.
                     </span>
                   )}
-                  <input
-                    className="border-border bg-background text-foreground min-w-[10rem] flex-1 rounded border px-2 py-1.5 text-sm"
+                  <Input
+                    className="min-w-[10rem] flex-1"
+                    size="sm"
                     value={hearthisUsernameDraft}
                     onChange={(e) => setHearthisUsernameDraft(e.target.value)}
                     placeholder={
@@ -1097,8 +1101,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
 
                 {hearthisTab === 'search' && (
                   <div className="flex flex-wrap gap-2">
-                    <input
-                      className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
+                    <Input
+                      className="min-w-[200px] flex-1"
+                      size="sm"
                       value={hearthisQ}
                       onChange={(event) => setHearthisQ(event.target.value)}
                       placeholder="Search hearthis.at"
@@ -1124,31 +1129,32 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
 
                 {hearthisTab !== 'collections' && (
                   <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-2 rounded-lg border p-3">
-                    <select
-                      className="border-border bg-background text-foreground min-w-48 flex-1 rounded border px-2 py-1.5 text-sm"
+                    <Select
+                      className="min-w-48 flex-1"
+                      options={[
+                        { id: '', label: 'Choose destination playlist' },
+                        {
+                          id: NEW_PLAYLIST_DESTINATION,
+                          label: 'New playlist…',
+                        },
+                        ...playlistDestinations.map((collection) => ({
+                          id: collection.id ?? collection.slug,
+                          label: collection.name,
+                        })),
+                      ]}
                       value={destinationId}
-                      onChange={(event) => setDestinationId(event.target.value)}
-                      aria-label="Import destination playlist"
-                    >
-                      <option value="">Choose destination playlist</option>
-                      <option value={NEW_PLAYLIST_DESTINATION}>
-                        New playlist…
-                      </option>
-                      {playlistDestinations.map((collection) => (
-                        <option key={collection.slug} value={collection.id}>
-                          {collection.name}
-                        </option>
-                      ))}
-                    </select>
+                      onValueChange={setDestinationId}
+                    />
                     {destinationId === NEW_PLAYLIST_DESTINATION ? (
-                      <input
+                      <Input
+                        size="sm"
                         value={newDestinationName}
                         onChange={(event) =>
                           setNewDestinationName(event.target.value)
                         }
                         aria-label="New playlist name"
                         placeholder="Playlist name"
-                        className="border-border bg-background min-w-48 flex-1 rounded border px-2 py-1.5 text-sm"
+                        className="min-w-48 flex-1"
                       />
                     ) : null}
                     <Button
@@ -1400,8 +1406,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                 <p className="text-foreground-secondary text-sm">
                   Paste a DSP URL to open Studio releases (smart-link targets).
                 </p>
-                <input
-                  className="border-border bg-background text-foreground w-full rounded border px-2 py-1.5 text-sm"
+                <Input
+                  className="w-full"
+                  size="sm"
                   value={urlPaste}
                   onChange={(e) => setUrlPaste(e.target.value)}
                   placeholder="https://open.spotify.com/track/…"
@@ -1425,8 +1432,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                     when the server allows it.
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <input
-                      className="border-border bg-background text-foreground min-w-[240px] flex-1 rounded border px-2 py-1.5 text-sm"
+                    <Input
+                      className="min-w-[240px] flex-1"
+                      size="sm"
                       value={radioUrl}
                       onChange={(e) => setRadioUrl(e.target.value)}
                       placeholder="https://example.com/stream.m3u8"
@@ -1512,8 +1520,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                     Search the public directory
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    <input
-                      className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
+                    <Input
+                      className="min-w-[200px] flex-1"
+                      size="sm"
                       value={radioQuery}
                       onChange={(e) => setRadioQuery(e.target.value)}
                       placeholder="Station name"

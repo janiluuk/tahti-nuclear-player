@@ -1,5 +1,15 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — 3×3 source and Storybook compliance slices
+
+**Batch 1:** Added typed source capabilities for connection, search, import, and playback; converted the import-source plugin contract to a structural type; and added registry coverage requiring every provider to declare all capabilities.
+
+**Batch 2:** Added Storybook coverage for Studio deep routes, Library, Admin moderation/logs, and mobile overflow. Migrated the Sources search, destination, URL, and radio forms to Nuclear `Input` and `Select` components.
+
+**Batch 3:** Documented the capability contract, added a dedicated Storybook TypeScript check, and updated the workplan to distinguish explicit metadata parity from providers that still need real API runtime contracts.
+
+**Validation:** Tahti web type-check, source registry tests, and Storybook build/type-check are required before the release push.
+
 ## 2026-08-28 — Performance follow-up slices
 
 **Slice 1:** Settings and the Tahti Map/More route are now lazy-loaded, keeping their large secondary workflows out of the initial listener bundle.

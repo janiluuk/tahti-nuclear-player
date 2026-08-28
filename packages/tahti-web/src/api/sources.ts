@@ -99,6 +99,14 @@ export type SourceDef = {
   oauthStartPath: string | null;
   studioDeepLink?: string;
   kind: 'oauth' | 'upload' | 'search' | 'tool';
+  capabilities: SourceCapabilities;
+};
+
+export type SourceCapabilities = {
+  connect: boolean;
+  search: boolean;
+  import: boolean;
+  playback: boolean;
 };
 
 export const SOURCE_DEFS: SourceDef[] = [
@@ -110,6 +118,12 @@ export const SOURCE_DEFS: SourceDef[] = [
     oauthStartPath: null,
     studioDeepLink: '/library/upload',
     kind: 'upload',
+    capabilities: {
+      connect: false,
+      search: false,
+      import: true,
+      playback: true,
+    },
   },
   {
     id: 'stash',
@@ -118,6 +132,12 @@ export const SOURCE_DEFS: SourceDef[] = [
       'Private file locker — upload stems/masters without publishing to the channel.',
     oauthStartPath: null,
     kind: 'upload',
+    capabilities: {
+      connect: false,
+      search: false,
+      import: true,
+      playback: false,
+    },
   },
   {
     id: 'bandcamp',
@@ -125,6 +145,12 @@ export const SOURCE_DEFS: SourceDef[] = [
     description: 'Connect Bandcamp and import albums into your catalog.',
     oauthStartPath: '/api/me/bandcamp/oauth/start',
     kind: 'oauth',
+    capabilities: {
+      connect: true,
+      search: false,
+      import: true,
+      playback: false,
+    },
   },
   {
     id: 'soundcloud',
@@ -133,6 +159,12 @@ export const SOURCE_DEFS: SourceDef[] = [
       'OAuth connect, list downloadable tracks, queue server-side import to archive.',
     oauthStartPath: '/api/me/soundcloud/oauth/start',
     kind: 'oauth',
+    capabilities: {
+      connect: true,
+      search: false,
+      import: true,
+      playback: false,
+    },
   },
   {
     id: 'google-drive',
@@ -140,6 +172,12 @@ export const SOURCE_DEFS: SourceDef[] = [
     description: 'Connect Drive and import audio files via cloud-import jobs.',
     oauthStartPath: '/api/me/google-drive/oauth/start',
     kind: 'oauth',
+    capabilities: {
+      connect: true,
+      search: false,
+      import: true,
+      playback: false,
+    },
   },
   {
     id: 'mixcloud',
@@ -148,6 +186,12 @@ export const SOURCE_DEFS: SourceDef[] = [
       'Connect Mixcloud for rescue/upload of mixes to/from your archive.',
     oauthStartPath: '/api/me/mixcloud/oauth/start',
     kind: 'oauth',
+    capabilities: {
+      connect: true,
+      search: false,
+      import: true,
+      playback: false,
+    },
   },
   {
     id: 'url',
@@ -156,6 +200,12 @@ export const SOURCE_DEFS: SourceDef[] = [
       'Paste Spotify/Bandcamp/etc. URLs to seed smart-link targets on a release.',
     oauthStartPath: null,
     kind: 'tool',
+    capabilities: {
+      connect: false,
+      search: false,
+      import: false,
+      playback: false,
+    },
   },
   {
     id: 'spotify',
@@ -164,6 +214,12 @@ export const SOURCE_DEFS: SourceDef[] = [
       'Search Spotify tracks (app token) to add into mixed-source collections.',
     oauthStartPath: null,
     kind: 'search',
+    capabilities: {
+      connect: false,
+      search: true,
+      import: true,
+      playback: true,
+    },
   },
   {
     id: 'hearthis',
@@ -172,6 +228,12 @@ export const SOURCE_DEFS: SourceDef[] = [
       "Search hearthis.at's public catalogue and queue tracks as provider-hosted embeds.",
     oauthStartPath: null,
     kind: 'search',
+    capabilities: {
+      connect: false,
+      search: true,
+      import: true,
+      playback: true,
+    },
   },
   {
     id: 'radio',
@@ -180,8 +242,25 @@ export const SOURCE_DEFS: SourceDef[] = [
       'Paste an M3U/M3U8 playlist or direct stream URL to play a station, with metadata looked up automatically.',
     oauthStartPath: null,
     kind: 'tool',
+    capabilities: {
+      connect: false,
+      search: true,
+      import: false,
+      playback: true,
+    },
   },
 ];
+
+export function sourceCapabilities(id: IntegrationId): SourceCapabilities {
+  return (
+    SOURCE_DEFS.find((source) => source.id === id)?.capabilities ?? {
+      connect: false,
+      search: false,
+      import: false,
+      playback: false,
+    }
+  );
+}
 
 export function oauthStartUrl(path: string): string {
   return `${apiBase()}${path}`;

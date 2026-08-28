@@ -13,9 +13,9 @@ import type { ConnectionStatus, SourceDef } from '../../api/sources';
  * connection-status contract rather than forcing all ten sources into one
  * `start/status/import` shape that doesn't actually fit search/tool kinds.
  */
-export interface ImportSourcePlugin extends SourceDef {
+export type ImportSourcePlugin = SourceDef & {
   /** Full OAuth authorize URL, or null if this source isn't OAuth-based. */
   oauthUrl: string | null;
   /** Live connection/configuration state for this source. */
   checkStatus(): Promise<{ data: ConnectionStatus; meta: FetchMeta }>;
-}
+};

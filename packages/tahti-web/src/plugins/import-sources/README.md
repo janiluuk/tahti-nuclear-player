@@ -8,11 +8,16 @@ source is connected.
 ## Contract
 
 ```ts
-interface ImportSourcePlugin extends SourceDef {
+type ImportSourcePlugin = SourceDef & {
   oauthUrl: string | null; // full authorize URL, only for oauth-kind sources
   checkStatus(): Promise<{ data: ConnectionStatus; meta: FetchMeta }>;
-}
+};
 ```
+
+Every source also declares `capabilities` with `connect`, `search`,
+`import`, and `playback` flags. The registry test requires every source to
+declare all four so a future UI can expose only operations backed by the
+provider contract.
 
 `importSourcePlugins: ImportSourcePlugin[]` — every source.
 `importSourcePlugin(id)` — look up one by id.

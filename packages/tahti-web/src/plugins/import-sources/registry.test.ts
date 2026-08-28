@@ -19,6 +19,17 @@ describe('importSourcePlugins', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it('exposes an explicit capability contract for every source', () => {
+    for (const plugin of importSourcePlugins) {
+      expect(plugin.capabilities).toEqual({
+        connect: plugin.kind === 'oauth',
+        search: expect.any(Boolean),
+        import: expect.any(Boolean),
+        playback: expect.any(Boolean),
+      });
+    }
+  });
+
   it('builds a full oauth URL only for oauth-kind sources', () => {
     for (const plugin of importSourcePlugins) {
       if (plugin.kind === 'oauth') {

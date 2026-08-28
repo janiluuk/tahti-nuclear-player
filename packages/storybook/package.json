@@ -8,6 +8,7 @@
     "dev": "storybook dev -p 6006",
     "build": "storybook build",
     "preview": "storybook preview",
+    "type-check": "tsc -p tsconfig.tahti.json --noEmit",
     "clean": "rm -rf storybook-static .turbo node_modules/.cache"
   },
   "dependencies": {
