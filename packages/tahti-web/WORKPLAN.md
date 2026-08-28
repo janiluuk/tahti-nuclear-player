@@ -57,10 +57,13 @@ This backlog comes from the Storybook comparison audit. Prefer the original Nucl
 
 ### Plugin integration follow-up
 
-- [ ] Extract a generic Audio FX chain host UI from `StudioProEditorView` so third-party audio plugins can own their controls.
-- [ ] Share the multicast destination form between Go Live and Settings, keeping provider-specific credentials inside each provider configuration.
+- [x] **Authoring and parity baseline** — added the agent-facing plugin contract, typed add-on settings, explicit sibling-API counterpart metadata, and a runnable example plugin/tutorial. The remaining items below are the implementation backlog, not unverified claims of runtime support.
+- [ ] **Bandcamp catalog import API** — complete the sibling API's Bandcamp album listing and import endpoint; the beta add-on UI, OAuth connection, release shop-link editor, and Bandcamp brand actions are now wired to those contracts.
+- [ ] **Nuclear registry runtime parity** — the remaining Nuclear registry entries are now visible in Add-ons with plugin-owned configuration forms and explicit available/partial/planned status; implement provider runtime/API contracts for the planned entries before marking them active.
+- [ ] **Slice 4 — generic Audio FX chain host** — extract add/remove/reorder and per-plugin parameter controls from `StudioProEditorView` so third-party audio plugins can own their controls.
+- [ ] **Slice 5 — shared multicast destination form** — share the destination form between Go Live and Settings, keeping provider-specific credentials inside each provider configuration.
 - [ ] Define and implement an `ExportProvider` only after `../tahti` exposes submit/status/webhook contracts; the current registry is metadata/deep-link only.
-- [ ] Split Sources into OAuth, search, and link/tool adapter contracts and route `SourcesView` through them without losing provider-specific behavior.
+- [ ] **Slice 6 — source capability contracts** — split Sources into OAuth, search, and link/tool adapter contracts and route `SourcesView` through them without losing provider-specific behavior.
 - [ ] Define the credential/permission lifecycle for a real integrations marketplace before implementing it.
 
 ### Medium priority

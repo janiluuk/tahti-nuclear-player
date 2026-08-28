@@ -17,6 +17,7 @@
 * [Playlists](core-concepts/playlists.md)
 * [Listening history](core-concepts/listening-history.md)
 * [Listening stats](core-concepts/listening-stats.md)
+* [Tahti sitemap and user journeys](core-concepts/tahti-sitemap-and-journeys.md)
 
 ## Theming
 
@@ -52,6 +53,7 @@
 * [HTTP](plugins/http.md)
 * [yt-dlp](plugins/ytdlp.md)
 * [Providers](plugins/providers.md)
+* [Tahti add-on and plugin authoring](plugins/tahti-web-authoring.md)
 
 ## Integrations
 

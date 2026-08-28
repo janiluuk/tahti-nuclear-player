@@ -1,5 +1,7 @@
 # Tahti add-on and plugin integration guide
 
+Agent-facing reference for authoring, reviewing, and extending plugins in this checkout. The GitHub documentation version is [Tahti add-on and plugin authoring](../../docs/plugins/tahti-web-authoring.md), and the copyable standalone example is [`examples/nuclear-plugin-example`](../../../examples/nuclear-plugin-example).
+
 This agent-facing guide explains how to extend the Tahti web client’s add-ons. The UI hosts two
 related kinds of extension:
 
@@ -54,6 +56,20 @@ For every feature, verify all of these against `../tahti` before calling it live
 - mock fixture shape for offline Playwright and component tests;
 - loading, empty, error, and unavailable states.
 
+The current counterpart inventory is intentionally explicit:
+
+| Integration boundary | `../tahti` counterpart | Permission boundary |
+| --- | --- | --- |
+| User integrations | `apps/api/src/routes/me/integrations.ts` (`/api/me/integrations`) | Authenticated user; provider-specific OAuth/API-key validation |
+| RTMP multicast | `apps/api/src/routes/me/rtmp-targets.ts` (`/api/me/rtmp-targets`) | Authenticated channel owner |
+| Artist widgets | `apps/api/src/routes/me/disco-widgets.ts` (`/api/me/disco-widgets/installs`) | Authenticated artist |
+| Admin widget catalog | `apps/api/src/routes/admin/disco-widgets.ts` (`/api/admin/disco-widgets`) | Board only |
+| Audio editor | `apps/api/src/routes/me/archive-editor.ts` (`/api/me/archive/:id/editor/draft`) | Authenticated owner of archive item |
+| Track insights | `apps/api/src/routes/me/track-insights.ts` | Authenticated owner or permitted viewer |
+| Export/delivery | `apps/api/src/routes/releases` and distribution routes | Authenticated artist; provider-specific contract still incomplete |
+
+The route file and shared Zod DTO win when the production UI, beta UI, and local assumptions disagree. Keep a short parity note beside every new adapter and update the workplan when a required route is absent.
+
 The API route and shared DTO are authoritative when the production UI and beta UI differ. Add a
 focused API wrapper rather than making components call `fetch` directly. Add registry-invariant
 tests and user-facing coverage for every new configuration flow.
@@ -80,6 +96,12 @@ tests and user-facing coverage for every new configuration flow.
 2. Centralized visualizer descriptions and icons in `src/plugins/visualizers/meta.ts`; Channel
    Design and Add-ons now consume the same metadata.
 3. Added registry coverage for every visualizer metadata entry and the unknown-id fallback.
+
+## Three slices executed from the follow-up plan
+
+1. **Plugin-owned settings schema:** Nuclear registry add-ons now describe input kinds (`text`, `password`, `url`, `textarea`, and `select`) and the Add-ons host renders the appropriate control instead of assuming every value is a plain text input.
+2. **API counterpart metadata:** Each Nuclear registry add-on now records its implementation state, exact Tahti route counterparts, and the reason a partial or missing contract cannot be marked active.
+3. **Authoring example:** Added a minimal installable settings plugin and a GitHub-facing tutorial covering lifecycle, settings ownership, provider registration, permissions, API parity, testing, and publishing.
 
 ## Remaining plugin work
 
