@@ -1516,3 +1516,13 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 ## 2026-08-28 — Discover filter controls
 
 **Completed:** Genre filters on Discover are now tucked into an expandable Genres control, while the content-type filters remain visible. Added a persisted “Tracks I haven’t heard” filter backed by the personalized new-to-you API; it narrows the other Discover widgets to tracks the listener has not heard.
+
+## 2026-08-28 — Admin stream-manager 3×3 follow-up
+
+**Slice 1:** Admin Overview now keeps the live stream manager visible instead of hiding the primary operational control behind the secondary dashboard disclosure.
+
+**Slice 2:** Stream metrics are collected with settled requests, so one unavailable channel-stats response no longer prevents the remaining live streams from rendering.
+
+**Slice 3:** Added an accessible refresh action and explicit API-load feedback to the shared stream manager. The dashboard disclosure now only controls finance, queue, and audit details.
+
+**Status:** implemented; tahti-web type-check, lint, tests, and diff checks pass. Changes are ready to commit and deploy.

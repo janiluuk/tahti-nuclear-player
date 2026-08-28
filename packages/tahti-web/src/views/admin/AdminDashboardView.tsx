@@ -217,7 +217,7 @@ export function AdminDashboardView() {
                 className="text-foreground-secondary hover:text-foreground text-xs tracking-wide uppercase"
                 onClick={() => setMoreOpen((v) => !v)}
               >
-                {moreOpen ? 'Hide more' : 'Finance, streams, queues & audit'}
+                {moreOpen ? 'Hide more' : 'Finance, queues & audit'}
               </Button>
             </div>
 
@@ -232,10 +232,9 @@ export function AdminDashboardView() {
                     {euros(data.financeYtdCents.costs)}
                   </p>
                 </StudioPanel>
-
-                <AdminStreamManagerPanel />
               </>
             )}
+            <AdminStreamManagerPanel />
           </>
         )}
       </div>

@@ -76,7 +76,7 @@ This backlog comes from the Storybook comparison audit. Prefer the original Nucl
 ### Storybook quality and verification
 
 - [ ] Add Storybook states for Studio deep routes, Admin nested/moderation routes, artist-page standard top navigation, mobile navigation, and active/inactive navigation states.
-- [ ] Enable Storybook story type-checking, or add a dedicated Storybook TypeScript check, so stale props and removed stories fail before build; investigate the current docgen warnings caused by `tahti-web` files being outside the active TypeScript project.
+- [x] Added a dedicated Storybook TypeScript check so stale props and removed stories fail before build; docgen warnings caused by `tahti-web` files being outside the active TypeScript project remain tracked separately.
 - [ ] Run a full Storybook render sweep after each compliance batch and record intentional exceptions, especially for Admin operational tables and specialized editor controls.
 
 ### Community metadata follow-up

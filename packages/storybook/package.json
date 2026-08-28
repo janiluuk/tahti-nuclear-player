@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "storybook build",
+    "type-check": "tsc --noEmit -p tsconfig.json",
     "preview": "storybook preview",
     "clean": "rm -rf storybook-static .turbo node_modules/.cache"
   },

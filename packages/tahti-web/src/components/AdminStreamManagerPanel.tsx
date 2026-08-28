@@ -1,3 +1,4 @@
+import { RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button, Dialog } from '@nuclearplayer/ui';
@@ -43,14 +44,16 @@ export function AdminStreamManagerPanel({
   const [loading, setLoading] = useState(true);
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [detailsStream, setDetailsStream] = useState<AdminLiveStreamRow | null>(
     null,
   );
 
   const reload = useCallback(() => {
+    setRefreshing(true);
     void fetchAdminStreams().then(async (result) => {
       setStreams(result.data);
-      const stats = await Promise.all(
+      const stats = await Promise.allSettled(
         result.data.map(async (stream) => {
           const response = await fetchChannelManageStats(stream.slug);
           return response.data ? ([stream.slug, response.data] as const) : null;
@@ -58,12 +61,18 @@ export function AdminStreamManagerPanel({
       );
       setStreamStats(
         Object.fromEntries(
-          stats.filter(
-            (entry): entry is [string, ChannelManageStats] => entry !== null,
+          stats.flatMap((entry) =>
+            entry.status === 'fulfilled' && entry.value ? [entry.value] : [],
           ),
         ),
       );
+      setMessage(
+        result.meta.reason && result.data.length === 0
+          ? `Unable to load live streams: ${result.meta.reason}`
+          : null,
+      );
       setLoading(false);
+      setRefreshing(false);
     });
   }, []);
 
@@ -227,6 +236,23 @@ export function AdminStreamManagerPanel({
         <StudioPanel
           title={`Live streams (${streams.length})`}
           description="Monitor active channels and control their live audio."
+          action={
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="text"
+              aria-label="Refresh live streams"
+              title="Refresh live streams"
+              disabled={refreshing}
+              onClick={reload}
+            >
+              <RefreshCw
+                size={16}
+                aria-hidden
+                className={refreshing ? 'animate-spin' : ''}
+              />
+            </Button>
+          }
         >
           {message && (
             <p className="text-foreground-secondary mb-3 text-sm" role="status">

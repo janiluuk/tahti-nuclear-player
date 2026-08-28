@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Admin Overview now keeps live stream controls visible, with resilient stream metrics loading and an accessible refresh action.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Stash now opens with editable private tracks in an All stash tab, while files have their own tab; track editors also support audience visibility and fan-tier access.",
     "type": "improvement",
     "contributors": ["jani"],
