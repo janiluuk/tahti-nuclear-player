@@ -6,6 +6,7 @@ import {
   Dialog,
   Input,
   PluginStoreItem,
+  Select,
   Textarea,
 } from '@nuclearplayer/ui';
 
@@ -173,24 +174,21 @@ export function NuclearPluginAddonsCategory() {
                   }
                   if (kind === 'select') {
                     return (
-                      <label
+                      <Select
                         key={field.id}
-                        className="flex flex-col gap-1 text-sm"
-                      >
-                        {field.label}
-                        <select
-                          className="border-border bg-background-input rounded border px-3 py-2 text-sm"
-                          value={value}
-                          onChange={(event) => onChange(event.target.value)}
-                        >
-                          <option value="">Select…</option>
-                          {field.options?.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                        label={field.label}
+                        placeholder={field.placeholder}
+                        options={[
+                          { id: '', label: 'Select…' },
+                          ...(field.options ?? []).map((option) => ({
+                            id: option.value,
+                            label: option.label,
+                          })),
+                        ]}
+                        value={value}
+                        onValueChange={onChange}
+                        description={field.description}
+                      />
                     );
                   }
                   return (
