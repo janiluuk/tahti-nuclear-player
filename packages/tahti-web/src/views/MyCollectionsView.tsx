@@ -75,11 +75,7 @@ const collectionKind = (collection: StudioCollection): CollectionKind => {
 
 function CollectionRow({ collection }: { collection: StudioCollection }) {
   const trackCount = collection.itemCount ?? collection.items?.length ?? 0;
-  const kind = collectionKind(collection);
-  const destination =
-    kind === 'playlist' || kind === 'dj-set'
-      ? '/studio/playlists/$slug'
-      : '/studio/collections/$slug';
+  const destination = '/studio/collections/$slug';
 
   return (
     <li>

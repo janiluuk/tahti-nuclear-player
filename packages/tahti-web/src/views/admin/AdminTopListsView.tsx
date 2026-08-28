@@ -53,7 +53,7 @@ function FilterRow<T extends string>({
           onClick={() => onChange(o.id)}
           className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
             value === o.id
-              ? 'bg-primary text-foreground shadow-sm'
+              ? 'bg-primary text-primary-foreground shadow-sm'
               : 'border-border text-foreground-secondary hover:text-foreground border'
           }`}
         >

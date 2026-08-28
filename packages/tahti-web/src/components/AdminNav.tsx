@@ -257,7 +257,7 @@ export function AdminNav({
             type="button"
             role="tab"
             aria-selected={active}
-            className={`rounded-md px-3 py-1.5 text-sm font-semibold whitespace-nowrap ${
+            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${
               active
                 ? 'bg-primary text-primary-foreground'
                 : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
@@ -270,6 +270,7 @@ export function AdminNav({
               }
             }}
           >
+            <span className="shrink-0">{item.items[0]?.icon}</span>
             {item.label}
           </button>
         );

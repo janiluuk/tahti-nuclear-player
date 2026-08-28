@@ -386,7 +386,7 @@ const FEATURES: FeatureRow[] = [
 function statusClass(status: Status): string {
   switch (status) {
     case 'live':
-      return 'bg-primary text-foreground';
+      return 'bg-primary text-primary-foreground';
     case 'stub':
       return 'border-border text-foreground-secondary border';
     case 'partial':

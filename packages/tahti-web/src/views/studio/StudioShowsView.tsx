@@ -13,6 +13,7 @@ import {
   type StudioShowSeries,
 } from '../../api/shows';
 import { PageLoading } from '../../components/PageStates';
+import { ShowImagePicker } from '../../components/ShowImagePicker';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -29,6 +30,8 @@ export function StudioShowsView() {
   const [description, setDescription] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [backdropUrl, setBackdropUrl] = useState('');
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [backdropFile, setBackdropFile] = useState<File | null>(null);
   const [intervalHours, setIntervalHours] = useState<1 | 2>(1);
   const [mode, setMode] = useState<ShowMode>('SERIES');
   const [busy, setBusy] = useState(false);
@@ -78,6 +81,8 @@ export function StudioShowsView() {
     setDescription('');
     setThumbnailUrl('');
     setBackdropUrl('');
+    setThumbnailFile(null);
+    setBackdropFile(null);
     void navigate({ to: '/studio/shows/$id', params: { id: r.data.id } });
   };
 
@@ -138,17 +143,27 @@ export function StudioShowsView() {
                   placeholder="Copied to every new episode"
                 />
               </label>
-              <Input
-                label="Thumbnail image URL"
+              <ShowImagePicker
+                label="Show thumbnail"
+                description="JPEG, PNG, WebP, or GIF"
                 value={thumbnailUrl}
-                onChange={(event) => setThumbnailUrl(event.target.value)}
-                placeholder="https://…"
+                file={thumbnailFile}
+                onFile={(file) => {
+                  setThumbnailFile(file);
+                  setThumbnailUrl(file ? URL.createObjectURL(file) : '');
+                }}
+                onUrlChange={setThumbnailUrl}
               />
-              <Input
-                label="Backdrop image URL"
+              <ShowImagePicker
+                label="Show backdrop"
+                description="Wide JPEG, PNG, WebP, or GIF"
                 value={backdropUrl}
-                onChange={(event) => setBackdropUrl(event.target.value)}
-                placeholder="https://…"
+                file={backdropFile}
+                onFile={(file) => {
+                  setBackdropFile(file);
+                  setBackdropUrl(file ? URL.createObjectURL(file) : '');
+                }}
+                onUrlChange={setBackdropUrl}
               />
               <div className="flex flex-wrap gap-2">
                 {(['SERIES', 'SINGLE'] as const).map((value) => (

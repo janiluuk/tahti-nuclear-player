@@ -74,13 +74,6 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             label="Discover"
           />
         </div>
-        <div data-tour-id="nav-history">
-          <SidebarNavigationItem
-            to="/library/history"
-            icon={<HistoryIcon size={16} />}
-            label="History"
-          />
-        </div>
         <div data-tour-id="nav-studio">
           <SidebarNavigationItem
             to="/studio"
@@ -97,6 +90,13 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             />
           </div>
         )}
+        <div data-tour-id="nav-history">
+          <SidebarNavigationItem
+            to="/library/history"
+            icon={<HistoryIcon size={16} />}
+            label="History"
+          />
+        </div>
         {isBoard && (
           <div data-tour-id="nav-more">
             <SidebarNavigationItem
@@ -347,6 +347,13 @@ export function AppShell() {
                       />
                     </div>
                   )}
+                  <div data-tour-id="nav-history">
+                    <SidebarNavigationItem
+                      to="/library/history"
+                      icon={<HistoryIcon size={16} />}
+                      label="History"
+                    />
+                  </div>
                   {isBoard && (
                     <div data-tour-id="nav-more">
                       <SidebarNavigationItem

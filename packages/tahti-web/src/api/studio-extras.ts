@@ -71,6 +71,7 @@ export type ProgrammeItem = {
   id: string;
   title: string;
   status: string;
+  contentType?: string | null;
   durationSec: number | null;
   isFallback: boolean;
   fallbackOrder: number | null;
@@ -375,6 +376,20 @@ export type StatsTopTrack = {
 };
 export type StatsTopCountry = { country: string; count: number };
 
+export type StatsTopListDimension = 'type' | 'genre';
+export type StatsTopListSort = 'asc' | 'desc';
+export type StatsTopListEntry = {
+  archiveItemId: string;
+  listens: number;
+  title: string;
+  contentType: string;
+  genre: string | null;
+};
+export type StatsTopListBucket = {
+  bucket: string;
+  entries: StatsTopListEntry[];
+};
+
 export async function fetchStatsSummary(): Promise<{
   data: StatsSummary;
   meta: FetchMeta;
@@ -457,6 +472,45 @@ export async function fetchStatsTopCountries(
       `/api/me/stats/top-countries?range=${range}`,
     );
     return { data: data.items ?? [], meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function fetchStatsTopLists(
+  range: StatsPlaysRange = '30',
+  dimension: StatsTopListDimension = 'type',
+  sort: StatsTopListSort = 'desc',
+): Promise<{
+  data: StatsTopListBucket[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: [
+        {
+          bucket: 'TRACK',
+          entries: [
+            {
+              archiveItemId: 'arch-mock-1',
+              listens: 420,
+              title: 'Northern Lights — Live Set',
+              contentType: 'TRACK',
+              genre: 'Electronic',
+            },
+          ],
+        },
+      ],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  const period =
+    range === '7' ? 'week' : range === 'all' ? 'all_time' : 'month';
+  try {
+    const { data } = await requestJson<{ buckets: StatsTopListBucket[] }>(
+      `/api/me/stats/top-lists?period=${period}&dimension=${dimension}&sort=${sort}`,
+    );
+    return { data: data.buckets ?? [], meta: { source: 'api' } };
   } catch (err) {
     return { data: [], meta: failMeta(err) };
   }
@@ -665,8 +719,10 @@ export type ProfileFields = {
   /** ISO 3166-1 alpha-2, e.g. 'FI'. */
   countryCode?: string | null;
   defaultLocation?: string | null;
+  showJoinDate?: boolean;
   showFollowers?: boolean;
   showFollowing?: boolean;
+  showDailyListeners?: boolean;
   /** Handles for cross-posting/import sources — e.g. { hearthisAt: 'myhandle' }. */
   socialLinks?: Record<string, string> | null;
 };
@@ -685,8 +741,10 @@ let mockProfile: ProfileFields = {
   artistKind: 'SINGLE',
   countryCode: null,
   defaultLocation: null,
+  showJoinDate: true,
   showFollowers: true,
   showFollowing: true,
+  showDailyListeners: true,
   socialLinks: {},
 };
 
@@ -725,8 +783,10 @@ export async function fetchMeProfile(): Promise<{
         artistKind: 'SINGLE',
         countryCode: null,
         defaultLocation: null,
+        showJoinDate: false,
         showFollowers: false,
         showFollowing: false,
+        showDailyListeners: false,
         socialLinks: {},
       },
       meta: apiErrorMeta(err),
@@ -748,8 +808,10 @@ export async function patchMeProfile(
       | 'artistKind'
       | 'countryCode'
       | 'defaultLocation'
+      | 'showJoinDate'
       | 'showFollowers'
       | 'showFollowing'
+      | 'showDailyListeners'
       | 'socialLinks'
     >
   >,

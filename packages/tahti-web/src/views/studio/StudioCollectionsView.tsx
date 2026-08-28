@@ -174,17 +174,6 @@ export function StudioCollectionsView() {
           }
         />
 
-        <nav className="flex flex-wrap gap-2" aria-label="Collection views">
-          <Button size="sm" variant="default" aria-current="page">
-            Collections
-          </Button>
-          <Link to="/studio/playlists">
-            <Button size="sm" variant="secondary">
-              Playlists
-            </Button>
-          </Link>
-        </nav>
-
         {msg && <p className="text-sm">{msg}</p>}
 
         <Dialog.Root isOpen={createOpen} onClose={closeCreate}>
@@ -347,13 +336,7 @@ export function StudioCollectionsView() {
                   )}
                   <div className="min-w-0 flex-1">
                     <Link
-                      to={
-                        ['PLAYLIST', 'DJ_SET_SERIES'].includes(
-                          collectionStyle(c),
-                        )
-                          ? '/studio/playlists/$slug'
-                          : '/studio/collections/$slug'
-                      }
+                      to="/studio/collections/$slug"
                       params={{ slug: c.slug }}
                       className="font-medium hover:underline"
                     >
@@ -373,11 +356,7 @@ export function StudioCollectionsView() {
                     </p>
                   </div>
                   <Link
-                    to={
-                      ['PLAYLIST', 'DJ_SET_SERIES'].includes(collectionStyle(c))
-                        ? '/studio/playlists/$slug'
-                        : '/studio/collections/$slug'
-                    }
+                    to="/studio/collections/$slug"
                     params={{ slug: c.slug }}
                   >
                     <Button size="sm">

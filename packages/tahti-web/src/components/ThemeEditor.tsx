@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { applyAdvancedTheme, type AdvancedTheme } from '@nuclearplayer/themes';
 import { Button, Input } from '@nuclearplayer/ui';
@@ -54,6 +54,7 @@ export function ThemeEditor() {
   const dark = useThemeStore((s) => s.dark);
   const themeId = useThemeStore((s) => s.themeId);
   const importCustomTheme = useThemeStore((s) => s.importCustomTheme);
+  const originalThemeId = useRef(themeId);
 
   const [name, setName] = useState('My theme');
   const [lightValues, setLightValues] = useState<Record<string, string>>({});
@@ -78,10 +79,14 @@ export function ThemeEditor() {
   // preview stuck applied.
   useEffect(() => {
     applyAdvancedTheme(draft);
-    return () => {
-      useThemeStore.getState().setTheme(themeId);
-    };
   }, [draft]);
+
+  useEffect(
+    () => () => {
+      useThemeStore.getState().setTheme(originalThemeId.current);
+    },
+    [],
+  );
 
   const save = () => {
     const result = importCustomTheme(draft);

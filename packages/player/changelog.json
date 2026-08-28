@@ -1,6 +1,321 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Added Audio clip as a library content type. Clip editing keeps shared metadata and media controls while hiding music-specific fields, and radio announcement uploads are tagged as audio clips.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Audio editor now opens library content through an All-by-default browser modal with content types, search, and direct pro-editor actions.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "The audio editor empty state now shows one New session action instead of duplicating the create action.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Removed the standalone Playlists navigation from Studio Collections; playlists remain available inside Collections and open their contents directly.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Collection and playlist names now open their unified contents editor from the library and Studio collection views.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Collection editing now defaults to an icon-led Tracks tab, moves visibility into its own tab, adds searchable library browsing with genre metadata, and keeps removal scoped to the collection.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Organized 24/7 rotation additions by library content type and added an Append or Overwrite confirmation before changing the active rotation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Radio", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "The 24/7 channel panel now has a dedicated Active rotation tab with library track additions, drag-and-drop ordering, and per-track playback controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Radio", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Header video loops now use a short MP4/WebM upload with a 10 MB limit, local preview before approval, and user-scoped R2 storage instead of a pasted video URL.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Channel", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added an artist announcement library under Studio Radio for uploading, enabling, previewing, deleting, and assigning station-ID clips as page music; Admin Announcements remains the site-wide system manager.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Radio", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist settings now follow Tahti's Identity, Story, and People structure, including long-form story editing, project type, and public member credits.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Ported the Tahti channel design workflow into the channel designer with visual styling, background galleries, channel backdrops, slideshow transitions, autoplay, and validated image sources.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Channel", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Standardized artist channel controls in a reusable collapsible widget with consistent section styling across Studio, Settings, setup, and channel editing, with a Storybook example.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Channel", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Made Studio and Admin section tabs more compact with icons, and added a little more breathing room around main content.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Design", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Opening a track from Sounds now uses a full canvas player with cover art, waveform seeking, visual motion, playback controls, and comments. The canvas follows the cover palette unless the channel has an explicit background override.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Improved Tahti theme contrast for amber active states by using the dedicated primary foreground color across navigation, filters, selects, pagination, and other highlighted controls.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Design", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Spotify artist profile import now explains its required platform credentials and provides a direct Configure action to Admin → Vendors when setup is incomplete.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added the Tahti-style channel share action to public channel headers and Go Live, with native sharing, copy-link fallback, and a setting to hide it.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Channel", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Go Live now includes Tahti's pre-flight workflow for naming broadcasts, selecting show types and series, setting visibility, and managing simulcast destinations before going on air.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Broadcast", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Tracklist is now shown in the track editor only for DJ mixes, matching the Tahti editor workflow.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Aligned the track editor with Tahti's five-step workflow: Basics, Audio, Cover & visuals, Sharing, and Advanced.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Removed the broken Playlists entry from the Library sidebar and made Playlists a working view within Collections.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Renamed the Sounds Files tab to Move to stash to clarify where private files belong.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Track insights now render directly inside the track Insights tab, and MusicBrainz preparation is available from the Export tab instead of the release header.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Live show artwork fields now use the standard drag-and-drop image picker for thumbnails and backdrops, with previews and URL fallback support.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Studio Schedule now lets artists edit their next broadcast directly from the Next card, including its linked show details and timing.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Go Live and channel Radio management now share the same editable 24/7 rotation component for adding, ordering, and removing tracks.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Tahti Radio booking now keeps the calendar focused and opens the wider slot form as a separate overlay from the booking icon.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Radio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Discover now offers a Random artist of the week widget with a large profile, bio, and direct listen action.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discover", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "On air cards now show Replay for archive rotations and Live now only for channels present in the API's live tier.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin stream management now shows server-backed current listeners, listener peak, and tracked live duration for each live channel.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Fixed a Settings theme-preview lifecycle issue that could briefly flash the base palette when opening or switching Settings sections.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "History is now a primary navigation destination placed immediately before More, including on mobile navigation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Studio Upload now presents local audio, broadcast publishing, external import sources, and collection organization together in one compact view.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Studio Stats now follows the tahti dashboard with Overview, Plays & listeners, and Top lists tabs covering audience, playback, broadcast, engagement, geography, and ranked performance metrics.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Library now includes a Smartlinks view with release public pages, DSP target summaries, click counts, artwork, and release management links.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Studio Manage → Radio now has a focused Radio surface without channel designer or setup tabs; new channels open the designer as a separate creation step.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Studio Manage → Radio now has a focused Radio heading and hides channel setup/designer navigation while managing the stream and 24/7 rotation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Schedule now supports stopping recurring show schedules, minute-precise recurrence duration, and show visibility, tagline, archive, and episode-numbering defaults.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Stream Manager now provides an icon-only overlay configuration button with modal controls for mirror title, subtitle, and cover image.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Account Security now includes personal API token management with read-only or read/write scopes, one-time token reveal, copy, and revoke controls.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Account settings now include a dedicated Notifications & visibility tab with profile visibility, listener-count, live-chat, and notification controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin Overview now shares the live stream manager with the dedicated Streams page, including channel details, listen links, and live controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin Overview needs-action rows now offer direct review actions and detail dialogs, while Admin Logs includes a Recent audit tab for the latest audit entries.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Studio Manage now includes Tahti Selects, with the editorial stream controls, current rotation editor, and searchable track selector available from the channel management menu.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Admin moderation now includes missed shows, Schedule shows recent broadcast analytics, and Admin Overview links directly to the live stream manager.",
     "type": "improvement",
     "contributors": ["jani"],

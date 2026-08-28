@@ -2,12 +2,13 @@ import {
   CalendarDaysIcon,
   Clock3Icon,
   MapPinIcon,
+  PencilIcon,
   PlusIcon,
   XIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, SaveButton } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, SaveButton } from '@nuclearplayer/ui';
 
 import {
   cancelScheduledShow,
@@ -105,7 +106,13 @@ function nextFriday(): Date {
   return value;
 }
 
-function ScheduledTimes({ items }: { items: ScheduleCard[] }) {
+function ScheduledTimes({
+  items,
+  onEdit,
+}: {
+  items: ScheduleCard[];
+  onEdit: () => void;
+}) {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
@@ -132,11 +139,24 @@ function ScheduledTimes({ items }: { items: ScheduleCard[] }) {
                 <span className="text-primary text-xs font-bold tracking-wide uppercase">
                   {index === 0 ? 'Next' : `Upcoming ${index + 1}`}
                 </span>
-                {item.visibility === 'FAN_ONLY' ? (
-                  <span className="text-foreground-secondary text-[10px] uppercase">
-                    Fans only
-                  </span>
-                ) : null}
+                <div className="flex items-center gap-2">
+                  {item.visibility === 'FAN_ONLY' ? (
+                    <span className="text-foreground-secondary text-[10px] uppercase">
+                      Fans only
+                    </span>
+                  ) : null}
+                  {index === 0 ? (
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      aria-label="Edit next broadcast"
+                      title="Edit next broadcast"
+                      onClick={onEdit}
+                    >
+                      <PencilIcon size={14} aria-hidden />
+                    </Button>
+                  ) : null}
+                </div>
               </div>
               <p className="truncate text-sm font-semibold">{item.title}</p>
               <div className="text-foreground-secondary mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
@@ -225,10 +245,18 @@ export function StudioScheduleView() {
   const [showMode, setShowMode] = useState<'SINGLE' | 'SERIES'>('SERIES');
   const [showType, setShowType] = useState<ShowType>('LIVE_SET');
   const [durationHours, setDurationHours] = useState<1 | 2>(1);
+  const [durationMinutes, setDurationMinutes] = useState(0);
   const [frequencyDays, setFrequencyDays] = useState<number[]>([]);
   const [venue, setVenue] = useState('');
   const [location, setLocation] = useState('');
   const [episodeArtworkUrl, setEpisodeArtworkUrl] = useState('');
+  const [showTagline, setShowTagline] = useState('');
+  const [showVisibility, setShowVisibility] = useState<'PUBLIC' | 'FAN_ONLY'>(
+    'PUBLIC',
+  );
+  const [autoArchive, setAutoArchive] = useState(true);
+  const [episodeNumberEnabled, setEpisodeNumberEnabled] = useState(true);
+  const [nextEpisodeNumber, setNextEpisodeNumber] = useState(1);
 
   useEffect(() => {
     void Promise.all([
@@ -271,7 +299,15 @@ export function StudioScheduleView() {
     setShowMode(show.mode ?? 'SERIES');
     setShowType(show.showType);
     setDurationHours(show.intervalHours);
+    setShowTagline(show.scheduleNote ?? '');
+    setShowVisibility(show.visibility ?? 'PUBLIC');
+    setAutoArchive(show.autoArchive ?? true);
+    setEpisodeNumberEnabled(show.episodeNumberEnabled ?? true);
+    setNextEpisodeNumber(show.nextEpisodeNumber);
     setFrequencyDays(show.recurrenceDays ?? []);
+    setDurationMinutes(
+      (show.recurrenceDurationMin ?? show.intervalHours * 60) % 60,
+    );
   };
 
   const toggleFrequencyDay = (day: number) => {
@@ -293,7 +329,7 @@ export function StudioScheduleView() {
       recurrenceEnabled: true,
       recurrenceDays: frequencyDays,
       recurrenceTimeOfDay: time,
-      recurrenceDurationMin: durationHours * 60,
+      recurrenceDurationMin: durationHours * 60 + durationMinutes,
       recurrenceTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
     setBusy(false);
@@ -307,6 +343,32 @@ export function StudioScheduleView() {
       ),
     );
     setMsg('Recurring schedule saved. Upcoming episodes are being generated.');
+  };
+
+  const stopRecurringSchedule = async () => {
+    if (!selectedShowId) {
+      return;
+    }
+    setBusy(true);
+    const result = await updateShowSeriesRecurrence(selectedShowId, {
+      recurrenceEnabled: false,
+      recurrenceDays: [],
+      recurrenceTimeOfDay: null,
+      recurrenceDurationMin: null,
+      recurrenceTimezone: null,
+    });
+    setBusy(false);
+    if (!result.ok) {
+      setMsg(result.error);
+      return;
+    }
+    setShows((current) =>
+      current.map((show) => (show.id === result.data.id ? result.data : show)),
+    );
+    setFrequencyDays([]);
+    setMsg(
+      'Recurring schedule stopped. Existing upcoming episodes remain scheduled.',
+    );
   };
 
   const scheduleEpisode = async () => {
@@ -395,6 +457,27 @@ export function StudioScheduleView() {
     setTime(local.time);
   };
 
+  const openEditor = () => {
+    if (schedule?.nextBroadcastAt) {
+      const local = toLocalParts(schedule.nextBroadcastAt);
+      setDate(local.date);
+      setTime(local.time);
+      setNote(schedule.nextBroadcastNote ?? '');
+      setShowType(schedule.nextBroadcastShowType ?? 'LIVE_SET');
+      setShowMode(schedule.nextBroadcastMode ?? 'SERIES');
+      setShowDescription(schedule.nextBroadcastDescription ?? '');
+      setShowCoverUrl(schedule.nextBroadcastCoverUrl ?? '');
+      setDurationHours(schedule.nextBroadcastDurationHours ?? 1);
+      setSelectedShowId(
+        schedule.nextBroadcastShowId ??
+          shows.find((show) => show.title === schedule.nextBroadcastNote)?.id ??
+          '',
+      );
+    }
+    setMsg(null);
+    setEditorOpen(true);
+  };
+
   const saveSchedule = async () => {
     const nextBroadcastAt = fromLocalParts(date, time);
     if ((date || time) && !nextBroadcastAt) {
@@ -417,6 +500,11 @@ export function StudioScheduleView() {
         mode: showMode,
         showType,
         intervalHours: durationHours,
+        scheduleNote: showTagline.trim() || null,
+        visibility: showVisibility,
+        autoArchive,
+        episodeNumberEnabled,
+        nextEpisodeNumber,
       });
       if (!created.ok) {
         setBusy(false);
@@ -429,6 +517,12 @@ export function StudioScheduleView() {
     const result = await patchChannelSchedule({
       nextBroadcastAt,
       nextBroadcastNote: selectedShow.title,
+      nextBroadcastShowId: selectedShow.id,
+      nextBroadcastShowType: selectedShow.showType,
+      nextBroadcastMode: selectedShow.mode ?? showMode,
+      nextBroadcastDescription: showDescription.trim() || null,
+      nextBroadcastCoverUrl: showCoverUrl.trim() || null,
+      nextBroadcastDurationHours: durationHours,
     });
     setBusy(false);
     if (!result.ok) {
@@ -464,7 +558,7 @@ export function StudioScheduleView() {
           }
         />
 
-        <ScheduledTimes items={scheduledTimes} />
+        <ScheduledTimes items={scheduledTimes} onEdit={openEditor} />
 
         {scheduledShows.length > 0 ? (
           <StudioPanel
@@ -621,6 +715,70 @@ export function StudioScheduleView() {
               }}
             />
 
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Input
+                label="Show tagline"
+                value={showTagline}
+                onChange={(event) => setShowTagline(event.target.value)}
+                placeholder="Optional subtitle"
+              />
+              <label className="flex flex-col gap-1.5 text-sm">
+                <span className="text-foreground-secondary text-xs uppercase">
+                  Visibility
+                </span>
+                <select
+                  value={showVisibility}
+                  onChange={(event) =>
+                    setShowVisibility(
+                      event.target.value as 'PUBLIC' | 'FAN_ONLY',
+                    )
+                  }
+                  className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                >
+                  <option value="PUBLIC">Public</option>
+                  <option value="FAN_ONLY">Fans only</option>
+                </select>
+              </label>
+              <label className="text-foreground-secondary flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={autoArchive}
+                  onChange={(event) => setAutoArchive(event.target.checked)}
+                />
+                Publish recordings automatically
+              </label>
+              {showMode === 'SERIES' ? (
+                <label className="text-foreground-secondary flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={episodeNumberEnabled}
+                    onChange={(event) =>
+                      setEpisodeNumberEnabled(event.target.checked)
+                    }
+                  />
+                  Number episodes automatically
+                </label>
+              ) : null}
+              {showMode === 'SERIES' && episodeNumberEnabled ? (
+                <label className="flex items-center gap-2 text-sm">
+                  <span className="text-foreground-secondary text-xs uppercase">
+                    Start episode
+                  </span>
+                  <input
+                    type="number"
+                    min={1}
+                    value={nextEpisodeNumber}
+                    onChange={(event) =>
+                      setNextEpisodeNumber(
+                        Math.max(1, Number(event.target.value)),
+                      )
+                    }
+                    className="border-border bg-background h-10 w-24 rounded-md border px-3 text-sm"
+                  />
+                </label>
+              ) : null}
+            </div>
+
             <div className="border-border flex flex-col gap-2 border-t pt-3">
               <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
                 Weekly recurrence
@@ -643,6 +801,17 @@ export function StudioScheduleView() {
                 Select days to generate episodes automatically; leave empty for
                 a one-off show.
               </p>
+              {shows.find((show) => show.id === selectedShowId)
+                ?.recurrenceEnabled ? (
+                <Button
+                  size="sm"
+                  variant="text"
+                  disabled={busy}
+                  onClick={() => void stopRecurringSchedule()}
+                >
+                  Stop recurring schedule
+                </Button>
+              ) : null}
               <Button
                 size="sm"
                 variant="text"
@@ -715,6 +884,24 @@ export function StudioScheduleView() {
                   : 'No next broadcast selected'}
               </p>
               <div className="flex flex-wrap gap-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <span className="text-foreground-secondary text-xs uppercase">
+                    Minutes
+                  </span>
+                  <select
+                    value={durationMinutes}
+                    onChange={(event) =>
+                      setDurationMinutes(Number(event.target.value))
+                    }
+                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                  >
+                    {[0, 15, 30, 45].map((minutes) => (
+                      <option key={minutes} value={minutes}>
+                        {minutes}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <Button
                   size="sm"
                   variant="secondary"

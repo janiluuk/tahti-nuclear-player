@@ -8,6 +8,7 @@ import {
   PauseIcon,
   PlayIcon,
   RadioIcon,
+  Settings2Icon,
   SkipBackIcon,
   SkipForwardIcon,
   SquareIcon,
@@ -21,12 +22,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Dialog } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
   fetchChannelManageStats,
   fetchRtmpTargets,
   fetchSignalStatus,
+  fetchStreamOverlay,
+  patchStreamOverlay,
   pauseChannelRotation,
   postEndBroadcast,
   previousChannelRotation,
@@ -44,11 +47,13 @@ import {
 } from '../api/studio';
 import {
   fetchProgramme,
+  patchProgramme,
   type ProgrammeItem,
   type ProgrammeView,
 } from '../api/studio-extras';
 import type { StudioCollection } from '../api/studio-types';
 import { multicastProviderLabel } from '../plugins/multicast';
+import { ChannelRotationEditor } from './ChannelRotationEditor';
 
 const STATS_POLL_MS = 5000;
 const STREAM_POLL_MS = 15000;
@@ -134,6 +139,45 @@ export function StreamManagerPanel({
   // station — most visits just want to see what's playing and skip/pause
   // it, not the full stats grid and playlist-add form.
   const [rotationExpanded, setRotationExpanded] = useState(false);
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  const [overlay, setOverlay] = useState({
+    streamOverlayTitle: '',
+    streamOverlaySubtitle: '',
+    streamOverlayCoverUrl: '',
+  });
+  const [overlaySaving, setOverlaySaving] = useState(false);
+  const [overlayError, setOverlayError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!overlayOpen) {
+      return;
+    }
+    setOverlayError(null);
+    void fetchStreamOverlay().then((result) => {
+      setOverlay({
+        streamOverlayTitle: result.data.streamOverlayTitle ?? '',
+        streamOverlaySubtitle: result.data.streamOverlaySubtitle ?? '',
+        streamOverlayCoverUrl: result.data.streamOverlayCoverUrl ?? '',
+      });
+    });
+  }, [overlayOpen]);
+
+  const saveOverlay = () => {
+    setOverlaySaving(true);
+    setOverlayError(null);
+    void patchStreamOverlay({
+      streamOverlayTitle: overlay.streamOverlayTitle.trim(),
+      streamOverlaySubtitle: overlay.streamOverlaySubtitle.trim(),
+      streamOverlayCoverUrl: overlay.streamOverlayCoverUrl.trim(),
+    }).then((result) => {
+      setOverlaySaving(false);
+      if (!result.ok) {
+        setOverlayError(result.error);
+        return;
+      }
+      setOverlayOpen(false);
+    });
+  };
 
   useEffect(() => {
     void fetchStudioCollections().then((r) => setCollections(r.data));
@@ -264,6 +308,24 @@ export function StreamManagerPanel({
     };
   }, [programme, rotation]);
 
+  const editableRotation = useMemo(
+    () =>
+      (programme?.items ?? [])
+        .filter((item) => item.isFallback)
+        .sort(
+          (left, right) =>
+            (left.fallbackOrder ?? 0) - (right.fallbackOrder ?? 0),
+        ),
+    [programme],
+  );
+  const availableRotationItems = useMemo(
+    () =>
+      (programme?.items ?? []).filter(
+        (item) => item.status === 'READY' && !item.isFallback,
+      ),
+    [programme],
+  );
+
   const handleTransport = async (
     action: 'skip' | 'previous' | 'pause' | 'resume',
   ) => {
@@ -319,6 +381,42 @@ export function StreamManagerPanel({
     );
   };
 
+  const saveEditableRotation = async (nextRotation: ProgrammeItem[]) => {
+    if (!programme) {
+      return;
+    }
+    setRotationBusy(true);
+    setRotationMsg(null);
+    const positions = new Map(
+      nextRotation.map((item, index) => [item.id, index]),
+    );
+    const result = await patchProgramme({
+      fallbackMode: programme.fallbackMode,
+      fallbackEnabled: programme.fallbackEnabled,
+      fallbackAutoEnroll: programme.fallbackAutoEnroll,
+      announcementsEnabled: programme.announcementsEnabled,
+      items: programme.items.map((item) => {
+        const position = positions.get(item.id);
+        return {
+          archiveItemId: item.id,
+          isFallback: position !== undefined,
+          ...(position !== undefined ? { fallbackOrder: position } : {}),
+        };
+      }),
+    });
+    setRotationBusy(false);
+    if (!result.ok) {
+      setRotationMsg(result.error);
+      return;
+    }
+    setProgramme(result.data);
+    setRotationMsg('Rotation updated.');
+  };
+
+  const addRotationItem = async (item: ProgrammeItem) => {
+    await saveEditableRotation([...editableRotation, item]);
+  };
+
   const handleEnd = async () => {
     setEnding(true);
     setError(null);
@@ -372,6 +470,15 @@ export function StreamManagerPanel({
           )}
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            onClick={() => setOverlayOpen(true)}
+            aria-label="Configure stream overlay"
+            title="Configure stream overlay"
+          >
+            <Settings2Icon size={15} aria-hidden />
+          </Button>
           {rotationPlaying && (
             <Button
               size="icon-sm"
@@ -585,6 +692,21 @@ export function StreamManagerPanel({
         </div>
       )}
 
+      {(!rotationPlaying || rotationExpanded) && programme && (
+        <ChannelRotationEditor
+          items={editableRotation}
+          availableItems={availableRotationItems}
+          busy={rotationBusy}
+          onAdd={(item) => void addRotationItem(item)}
+          onReorder={(next) => void saveEditableRotation(next)}
+          onRemove={(item) =>
+            void saveEditableRotation(
+              editableRotation.filter((candidate) => candidate.id !== item.id),
+            )
+          }
+        />
+      )}
+
       {(!rotationPlaying || rotationExpanded) && collections.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
@@ -657,6 +779,66 @@ export function StreamManagerPanel({
             }}
           >
             {ending ? 'Ending…' : 'Stop stream'}
+          </Button>
+        </Dialog.Actions>
+      </Dialog.Root>
+
+      <Dialog.Root
+        isOpen={overlayOpen}
+        onClose={() => setOverlayOpen(false)}
+        className="max-w-lg"
+      >
+        <Dialog.Title>Stream overlay</Dialog.Title>
+        <Dialog.Description>
+          RTMP mirrors carry a static video frame with this text and cover.
+          Leave fields blank to use your display name and avatar.
+        </Dialog.Description>
+        <div className="flex flex-col gap-3">
+          {overlayError && (
+            <p className="text-accent-red text-sm" role="alert">
+              {overlayError}
+            </p>
+          )}
+          <Input
+            label="Overlay title"
+            placeholder="Your display name"
+            maxLength={80}
+            value={overlay.streamOverlayTitle}
+            onChange={(event) =>
+              setOverlay({
+                ...overlay,
+                streamOverlayTitle: event.target.value,
+              })
+            }
+          />
+          <Input
+            label="Overlay subtitle"
+            placeholder="e.g. Every Friday, 8pm CET"
+            maxLength={120}
+            value={overlay.streamOverlaySubtitle}
+            onChange={(event) =>
+              setOverlay({
+                ...overlay,
+                streamOverlaySubtitle: event.target.value,
+              })
+            }
+          />
+          <Input
+            label="Cover image URL"
+            placeholder="Your avatar"
+            value={overlay.streamOverlayCoverUrl}
+            onChange={(event) =>
+              setOverlay({
+                ...overlay,
+                streamOverlayCoverUrl: event.target.value,
+              })
+            }
+          />
+        </div>
+        <Dialog.Actions>
+          <Dialog.Close>Cancel</Dialog.Close>
+          <Button disabled={overlaySaving} onClick={saveOverlay}>
+            {overlaySaving ? 'Saving…' : 'Save overlay'}
           </Button>
         </Dialog.Actions>
       </Dialog.Root>

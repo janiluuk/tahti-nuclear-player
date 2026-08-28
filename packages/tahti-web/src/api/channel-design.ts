@@ -77,6 +77,58 @@ export function isValidHeaderVideoUrl(url: string | null | undefined): boolean {
   return HEADER_VIDEO_URL_PATTERN.test(url.trim());
 }
 
+export const MAX_HEADER_VIDEO_BYTES = 10 * 1024 * 1024;
+
+export async function uploadChannelHeaderVideo(
+  file: File,
+): Promise<
+  { ok: true; videoBackgroundUrl: string } | { ok: false; error: string }
+> {
+  if (file.size > MAX_HEADER_VIDEO_BYTES) {
+    return { ok: false, error: 'Video must be 10 MB or smaller.' };
+  }
+  if (!['video/mp4', 'video/webm'].includes(file.type)) {
+    return { ok: false, error: 'Use an MP4 or WebM video.' };
+  }
+  if (forceMock()) {
+    return { ok: true, videoBackgroundUrl: URL.createObjectURL(file) };
+  }
+  try {
+    const { data: prepared } = await requestJson<{
+      uploadKey: string;
+      uploadUrl: string;
+    }>('/api/me/channel/video-background/prepare', {
+      method: 'POST',
+      body: JSON.stringify({
+        filename: file.name,
+        contentType: file.type,
+        fileSizeBytes: file.size,
+      }),
+    });
+    const upload = await fetch(prepared.uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type },
+    });
+    if (!upload.ok) {
+      throw new Error(`Video upload failed (${upload.status})`);
+    }
+    const { data } = await requestJson<{ videoBackgroundUrl: string }>(
+      '/api/me/channel/video-background/complete',
+      {
+        method: 'POST',
+        body: JSON.stringify({ uploadKey: prepared.uploadKey }),
+      },
+    );
+    return { ok: true, videoBackgroundUrl: data.videoBackgroundUrl };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Video upload failed',
+    };
+  }
+}
+
 export const BRAND_ACCENTS = [
   {
     id: 'aurora',
@@ -282,6 +334,10 @@ export async function patchChannelVisual(patch: {
   headerStyle?: string;
   videoBackgroundUrl?: string | null;
   brandAccentPreset?: string | null;
+  slideshowPreset?: string;
+  slideshowIntervalSeconds?: number;
+  slideshowTransitionMs?: number;
+  slideshowAutoplay?: boolean;
 }): Promise<{ ok: true; data: ChannelVisual } | { ok: false; error: string }> {
   if (forceMock()) {
     mockVisual = {
@@ -297,6 +353,18 @@ export async function patchChannelVisual(patch: {
         : {}),
       ...(patch.brandAccentPreset !== undefined
         ? { brandAccentPreset: patch.brandAccentPreset }
+        : {}),
+      ...(patch.slideshowPreset !== undefined
+        ? { slideshowPreset: patch.slideshowPreset }
+        : {}),
+      ...(patch.slideshowIntervalSeconds !== undefined
+        ? { slideshowIntervalSeconds: patch.slideshowIntervalSeconds }
+        : {}),
+      ...(patch.slideshowTransitionMs !== undefined
+        ? { slideshowTransitionMs: patch.slideshowTransitionMs }
+        : {}),
+      ...(patch.slideshowAutoplay !== undefined
+        ? { slideshowAutoplay: patch.slideshowAutoplay }
         : {}),
       ...(patch.colorScheme !== undefined
         ? {

@@ -142,6 +142,15 @@ export type PublicTrackDetail = {
   downloadCount: number;
 };
 
+export type TrackComment = {
+  id: string;
+  body: string;
+  authorUsername: string;
+  authorDisplayName: string;
+  authorAvatarUrl: string | null;
+  createdAt: string;
+};
+
 export type PublicProfileArtist = {
   username: string;
   displayName: string;

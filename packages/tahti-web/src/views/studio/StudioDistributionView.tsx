@@ -152,11 +152,33 @@ function SpotifyProfilePanel() {
 
   if (!configured) {
     return (
-      <StudioPanel title="Spotify artist profile">
+      <StudioPanel
+        title="Spotify artist profile"
+        action={
+          <Link to="/admin/vendors">
+            <Button size="sm" variant="secondary">
+              Configure
+            </Button>
+          </Link>
+        }
+      >
         <p className="text-foreground-secondary text-sm">
-          Spotify import needs a platform API key that hasn&apos;t been set up
-          yet.
+          Spotify import needs platform credentials before an artist profile can
+          be linked.
         </p>
+        <div className="border-border bg-background-secondary/40 mt-4 rounded-lg border p-3 text-sm">
+          <p className="font-medium">Required configuration</p>
+          <ul className="text-foreground-secondary mt-2 list-disc space-y-1 pl-5 text-xs">
+            <li>Spotify Web API client ID</li>
+            <li>Spotify Web API client secret</li>
+            <li>Server-side Spotify API access enabled for artist lookup</li>
+          </ul>
+          <p className="text-foreground-secondary mt-3 text-xs">
+            Configure these once in Admin → Vendors. Secrets stay on the server;
+            artists only need to provide their public Spotify artist URL
+            afterward.
+          </p>
+        </div>
       </StudioPanel>
     );
   }

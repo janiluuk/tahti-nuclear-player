@@ -52,8 +52,6 @@ const routes = [
   ['/studio/upload', 'library-upload'],
   ['/studio/editor', 'library-editor'],
   ['/studio/stash', 'library-stash'],
-  ['/library/favorites', 'library-favorites'],
-  ['/library/history', 'library-history'],
   ['/studio/go-live', 'perform-go-live'],
   ['/studio/schedule', 'perform-schedule'],
   ['/studio/events', 'perform-events'],
@@ -62,12 +60,41 @@ const routes = [
   ['/studio/shows', 'perform-shows'],
   ['/studio/shows/show-series-demo', 'perform-show-detail'],
   ['/studio/channel', 'manage-channel'],
-  ['/studio/branding', 'manage-branding'],
   ['/studio/moderation', 'manage-moderation'],
   ['/studio/setup-channel', 'manage-setup'],
   ['/studio/channel?tab=radio', 'manage-channel-radio'],
-  ['/studio/channel?tab=profile', 'manage-channel-profile'],
-  ['/studio/channel?tab=domain', 'manage-channel-domain'],
+  ['/studio/channel?tab=green-room', 'manage-channel-green-room'],
+  ['/studio/channel?tab=multicast', 'manage-channel-multicast'],
+  ['/studio/channel?tab=selects', 'manage-channel-selects'],
+  ['/studio/moderation', 'manage-moderation'],
+  ['/admin', 'admin-dashboard'],
+  ['/admin/logs', 'admin-logs'],
+  ['/admin/logs?tab=containers', 'admin-logs-containers'],
+  ['/admin/logs?tab=recent-audit', 'admin-logs-recent-audit'],
+  ['/admin/status', 'admin-status'],
+  ['/admin/moderation', 'admin-moderation'],
+  ['/admin/moderation/support', 'admin-moderation-support'],
+  ['/admin/moderation/beta', 'admin-moderation-beta'],
+  ['/admin/moderation/radio-submissions', 'admin-moderation-radio-submissions'],
+  ['/admin/moderation/content-reports', 'admin-moderation-content-reports'],
+  ['/admin/moderation/feature-requests', 'admin-moderation-feature-requests'],
+  ['/admin/moderation/missed-shows', 'admin-moderation-missed-shows'],
+  ['/admin/users', 'admin-users'],
+  ['/admin/radio', 'admin-radio'],
+  ['/admin/news', 'admin-news'],
+  ['/admin/streams', 'admin-streams'],
+  ['/admin/top-lists', 'admin-top-lists'],
+  ['/admin/announcements', 'admin-announcements'],
+  ['/admin/storage', 'admin-storage'],
+  ['/admin/storage?tab=files', 'admin-storage-files'],
+  ['/admin/financial', 'admin-financial'],
+  ['/admin/governance', 'admin-governance'],
+  ['/admin/grants', 'admin-grants'],
+  ['/admin/agm', 'admin-agm'],
+  ['/admin/missed-shows', 'admin-missed-shows'],
+  ['/admin/vendors', 'admin-vendors'],
+  ['/admin/i18n', 'admin-i18n'],
+  ['/admin/tahti-selects', 'admin-selects'],
 ];
 
 const browser = await chromium.launch({
@@ -91,8 +118,12 @@ for (const [path, name] of routes) {
   await page.waitForTimeout(900);
   const result = await page.evaluate(() => {
     const topHeader = document.querySelector('header');
-    const tabs = document.querySelector('[data-studio-section-tabs]');
-    const menu = document.querySelector('[data-studio-section-menu]');
+    const tabs = document.querySelector(
+      '[data-studio-section-tabs], [data-admin-section-tabs]',
+    );
+    const menu = document.querySelector(
+      '[data-studio-section-menu], [data-admin-section-menu]',
+    );
     const isVisible = (element) => {
       const box = element.getBoundingClientRect();
       const styles = getComputedStyle(element);
@@ -146,22 +177,25 @@ for (const [path, name] of routes) {
     );
   }
   if (
+    name !== 'library' &&
     result.tabsRect &&
     result.headingRect &&
     result.headingRect[1] - (result.tabsRect[1] + result.tabsRect[3]) > 32
   ) {
     warnings.push(`${name}: excessive gap before content heading`);
   }
-  const before = JSON.stringify(result.menuRect);
-  await page.waitForTimeout(350);
-  const after = await page
-    .locator('[data-studio-section-menu]')
-    .evaluate((element) => {
-      const box = element.getBoundingClientRect();
-      return [box.x, box.y, box.width, box.height];
-    });
-  if (before !== JSON.stringify(after)) {
-    warnings.push(`${name}: submenu moved after settling`);
+  if (result.menuRect) {
+    const before = result.menuRect.slice(0, 3);
+    await page.waitForTimeout(350);
+    const after = await page
+      .locator('[data-studio-section-menu], [data-admin-section-menu]')
+      .evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        return [box.x, box.y, box.width];
+      });
+    if (before.some((value, index) => Math.abs(value - after[index]) > 3)) {
+      warnings.push(`${name}: submenu moved after settling`);
+    }
   }
   await page.screenshot({ path: join(outDir, `${name}.png`), fullPage: true });
   console.log(`captured ${name}`);

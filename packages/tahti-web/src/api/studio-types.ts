@@ -116,6 +116,7 @@ export type StudioCollectionItem = {
     id: string;
     title: string;
     durationSec?: number | null;
+    genre?: string | null;
     /** Set for EMBED_ONLY items — Tahti holds only the reference, so the
      * provider's widget is the only way to play them. */
     embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | null;

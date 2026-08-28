@@ -1,3 +1,4 @@
+import { fetchDirectory, fetchProfile } from './client';
 import { mockLatestTracks, mockNewToYou, mockTopTracks } from './mock';
 import {
   allowMockFallback,
@@ -34,6 +35,49 @@ export type DiscoverFilters = {
   genres: string[];
   contentTypes: string[];
 };
+
+export type DiscoverArtistOfWeek = {
+  username: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  channelSlug: string;
+};
+
+function getWeekIndex(): number {
+  const weekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+  return Math.floor(Date.now() / weekInMilliseconds);
+}
+
+export async function fetchArtistOfTheWeek(): Promise<{
+  data: DiscoverArtistOfWeek | null;
+  meta: FetchMeta;
+}> {
+  try {
+    const directory = await fetchDirectory();
+    const artists = directory.data.items.filter(
+      (artist) => artist.slug !== 'tahti-radio',
+    );
+    if (artists.length === 0) {
+      return { data: null, meta: directory.meta };
+    }
+
+    const selected = artists[getWeekIndex() % artists.length]!;
+    const profile = await fetchProfile(selected.username);
+    return {
+      data: {
+        username: profile.data.artist.username,
+        displayName: profile.data.artist.displayName,
+        bio: profile.data.artist.bio,
+        avatarUrl: profile.data.artist.avatarUrl ?? selected.avatarUrl,
+        channelSlug: selected.slug,
+      },
+      meta: profile.meta,
+    };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
 
 function filterQuery(filters: DiscoverFilters): string {
   const params = new URLSearchParams();

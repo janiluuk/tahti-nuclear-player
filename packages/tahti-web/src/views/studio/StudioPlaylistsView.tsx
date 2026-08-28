@@ -198,7 +198,7 @@ export function StudioPlaylistsView() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <Link
-                      to="/studio/playlists/$slug"
+                      to="/studio/collections/$slug"
                       params={{ slug: c.slug }}
                       className="font-medium hover:underline"
                     >
@@ -226,7 +226,10 @@ export function StudioPlaylistsView() {
                           : ''}
                     </p>
                   </div>
-                  <Link to="/studio/playlists/$slug" params={{ slug: c.slug }}>
+                  <Link
+                    to="/studio/collections/$slug"
+                    params={{ slug: c.slug }}
+                  >
                     <Button size="sm">Edit</Button>
                   </Link>
                 </li>

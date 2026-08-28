@@ -64,6 +64,66 @@ export type SignalStatus = {
   listeners: number | null;
 };
 
+export type BroadcastPreflight = {
+  title: string | null;
+  visibility: 'PUBLIC' | 'FAN_ONLY';
+  autoArchive: boolean;
+  showType: 'LIVE_SET' | 'TALK';
+  episodeNumber: number | null;
+  tagline: string | null;
+  plannedRadioShow: {
+    episodeNumber: number;
+    tagline: string | null;
+    showType: 'LIVE_SET' | 'TALK';
+  } | null;
+  plannedLiveShow: { seriesId: string; episodeNumber: number | null } | null;
+};
+
+export async function fetchBroadcastPreflight(): Promise<{
+  data: BroadcastPreflight | null;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: {
+        title: null,
+        visibility: 'PUBLIC',
+        autoArchive: true,
+        showType: 'LIVE_SET',
+        episodeNumber: null,
+        tagline: null,
+        plannedRadioShow: null,
+        plannedLiveShow: null,
+      },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<BroadcastPreflight>(
+      '/api/me/channel/preflight',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: apiErrorMeta(err) };
+  }
+}
+
+export async function patchBroadcastPreflight(
+  patch: Partial<BroadcastPreflight> & { seriesId?: string },
+): Promise<{ data: BroadcastPreflight } | { error: string }> {
+  try {
+    const { data } = await requestJson<BroadcastPreflight>(
+      '/api/me/channel/preflight',
+      { method: 'PATCH', body: JSON.stringify(patch) },
+    );
+    return { data };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : 'Pre-flight update failed',
+    };
+  }
+}
+
 export type ChannelManageStats = {
   audioBitrateKbps: number | null;
   signalConnected: boolean;
@@ -483,6 +543,72 @@ export async function deleteRtmpTarget(
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Delete failed',
+    };
+  }
+}
+
+export type StreamOverlay = {
+  streamOverlayTitle: string | null;
+  streamOverlaySubtitle: string | null;
+  streamOverlayCoverUrl: string | null;
+};
+
+let mockStreamOverlay: StreamOverlay = {
+  streamOverlayTitle: null,
+  streamOverlaySubtitle: null,
+  streamOverlayCoverUrl: null,
+};
+
+export async function fetchStreamOverlay(): Promise<{
+  data: StreamOverlay;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: { ...mockStreamOverlay },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<StreamOverlay>(
+      '/api/me/channel/stream-overlay',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return { data: { ...mockStreamOverlay }, meta: failMeta(err) };
+    }
+    return {
+      data: {
+        streamOverlayTitle: null,
+        streamOverlaySubtitle: null,
+        streamOverlayCoverUrl: null,
+      },
+      meta: apiErrorMeta(err),
+    };
+  }
+}
+
+export async function patchStreamOverlay(
+  patch: StreamOverlay,
+): Promise<{ ok: true; data: StreamOverlay } | { ok: false; error: string }> {
+  if (forceMock()) {
+    mockStreamOverlay = { ...patch };
+    return { ok: true, data: { ...mockStreamOverlay } };
+  }
+  try {
+    const { data } = await requestJson<StreamOverlay>(
+      '/api/me/channel/stream-overlay',
+      {
+        method: 'PATCH',
+        body: JSON.stringify(patch),
+      },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Save failed',
     };
   }
 }

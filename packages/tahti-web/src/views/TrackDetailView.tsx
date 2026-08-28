@@ -10,14 +10,26 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
-import { fetchTrackDetail } from '../api/client';
-import type { PublicTrackDetail, TahtiPlayable } from '../api/types';
+import {
+  fetchChannel,
+  fetchTrackComments,
+  fetchTrackDetail,
+  postTrackComment,
+} from '../api/client';
+import type {
+  PublicChannel,
+  PublicTrackDetail,
+  TahtiPlayable,
+  TrackComment,
+} from '../api/types';
+import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { PageFrame } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { formatDuration, providerLabel } from '../lib/playableToTrack';
 import { useDominantColor } from '../lib/useDominantColor';
+import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { useTrackDetailStore } from '../stores/trackDetailStore';
@@ -40,6 +52,7 @@ function playableFromDetail(
 }
 
 export function TrackDetailView({ id }: { id: string }) {
+  const user = useAuthStore((s) => s.user);
   const playableId = `archive:${id}`;
   const remembered = useTrackDetailStore((s) => s.cache[playableId]);
   const queueItem = usePlayerStore((s) =>
@@ -49,6 +62,12 @@ export function TrackDetailView({ id }: { id: string }) {
     remembered ?? (queueItem ? playableFromQueueItem(queueItem) : null);
 
   const [detail, setDetail] = useState<PublicTrackDetail | null>(null);
+  const [channel, setChannel] = useState<PublicChannel | null>(null);
+  const [comments, setComments] = useState<TrackComment[]>([]);
+  const [commentsEnabled, setCommentsEnabled] = useState(true);
+  const [commentBody, setCommentBody] = useState('');
+  const [commentBusy, setCommentBusy] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,6 +77,24 @@ export function TrackDetailView({ id }: { id: string }) {
       if (!cancelled) {
         setDetail(data);
         setLoading(false);
+        if (data) {
+          void fetchChannel(data.channelSlug).then((result) =>
+            setChannel(result.data),
+          );
+        }
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchTrackComments(id).then((result) => {
+      if (!cancelled) {
+        setComments(result.data.comments);
+        setCommentsEnabled(result.data.commentsEnabled);
       }
     });
     return () => {
@@ -78,9 +115,6 @@ export function TrackDetailView({ id }: { id: string }) {
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
 
   const playable = detail ? playableFromDetail(id, detail) : fastPath;
-  // Tracks have no background-override field of their own (unlike channels'
-  // colorScheme/colorSchemeJson) -- the cover art's dominant colour is
-  // simply always the page tint, same technique FullScreenPlayer uses.
   const rgb = useDominantColor(playable?.coverUrl);
 
   if (!playable) {
@@ -115,25 +149,63 @@ export function TrackDetailView({ id }: { id: string }) {
   const queued = queue.some((q) => q.id === playable.id);
   const provider = providerLabel(playable.sourceProvider);
   const canPlay = Boolean(playable.streamUrl);
-  const bgStyle = rgb
+  const hasBackgroundOverride = Boolean(channel?.colorScheme?.background);
+  const bgStyle = hasBackgroundOverride
+    ? { backgroundColor: channel?.colorScheme?.background }
+    : rgb
+      ? {
+          backgroundImage: `radial-gradient(circle at 50% 0%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.28), transparent 70%)`,
+        }
+      : undefined;
+  const visualScheme = channel?.colorScheme
     ? {
-        backgroundImage: `radial-gradient(circle at 50% 0%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.16), transparent 70%)`,
+        accent: channel.colorScheme.accent,
+        highlight: channel.colorScheme.highlight,
+        bg: channel.colorScheme.background,
+        text: channel.colorScheme.foreground,
+        muted: channel.colorScheme.muted,
       }
     : undefined;
 
+  const submitComment = async () => {
+    const body = commentBody.trim();
+    if (!body || !commentsEnabled || !user) {
+      return;
+    }
+    setCommentBusy(true);
+    setCommentError(null);
+    const result = await postTrackComment(id, body);
+    setCommentBusy(false);
+    if (!result.ok) {
+      setCommentError(result.error);
+      return;
+    }
+    setComments((current) => [...current, result.data]);
+    setCommentBody('');
+  };
+
   return (
-    <div className="min-h-full" style={bgStyle}>
-      <PageFrame maxWidth="lg">
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-            <div className="border-border bg-background-secondary flex size-40 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+    <div className="relative min-h-full overflow-hidden" style={bgStyle}>
+      <div className="pointer-events-none absolute inset-0 opacity-70">
+        <ChannelVisualizer
+          preset={channel?.visualPreset}
+          colorScheme={visualScheme}
+          colorSchemeJson={channel?.colorSchemeJson}
+          artworkUrl={playable.coverUrl}
+          className="size-full"
+        />
+      </div>
+      <PageFrame maxWidth="lg" className="relative z-10 py-8">
+        <div className="flex flex-col gap-8">
+          <div className="border-border bg-background/70 flex flex-col items-center gap-6 rounded-2xl border p-6 shadow-2xl backdrop-blur-md sm:p-8">
+            <div className="border-border bg-background-secondary aspect-square w-full max-w-md shrink-0 overflow-hidden rounded-xl border shadow-2xl">
               <img
                 src={playable.coverUrl ?? placeholderArtworkUrl(playable.id)}
                 alt=""
                 className="size-full object-cover"
               />
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-1 text-center sm:text-left">
+            <div className="flex w-full min-w-0 flex-col items-center gap-1 text-center">
               <h1 className="font-display text-3xl font-extrabold tracking-tight">
                 {playable.title}
               </h1>
@@ -165,7 +237,7 @@ export function TrackDetailView({ id }: { id: string }) {
                   {detail.description}
                 </p>
               ) : null}
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                 <Button
                   disabled={!canPlay}
                   onClick={() => {
@@ -227,28 +299,110 @@ export function TrackDetailView({ id }: { id: string }) {
             </div>
           </div>
 
-          <WaveformSeekbar
-            trackId={playable.id}
-            progress={progress}
-            peaks={detail?.peaks}
-            onSeek={(fraction) => {
-              if (!canPlay) {
-                return;
-              }
-              if (!isCurrent) {
-                play(playable);
-                return;
-              }
-              if (duration > 0) {
-                seekTo(fraction * duration);
-              }
-            }}
-          />
-          {isCurrent && duration > 0 ? (
-            <p className="text-foreground-secondary -mt-2 text-xs tabular-nums">
-              {formatDuration(currentTime)} / {formatDuration(duration)}
-            </p>
-          ) : null}
+          <div className="border-border bg-background/70 rounded-2xl border p-5 shadow-xl backdrop-blur-md">
+            <WaveformSeekbar
+              trackId={playable.id}
+              progress={progress}
+              peaks={detail?.peaks}
+              className="h-28"
+              onSeek={(fraction) => {
+                if (!canPlay) {
+                  return;
+                }
+                if (!isCurrent) {
+                  play(playable);
+                  return;
+                }
+                if (duration > 0) {
+                  seekTo(fraction * duration);
+                }
+              }}
+            />
+            <div className="text-foreground-secondary mt-2 flex justify-between text-xs tabular-nums">
+              <span>{isCurrent ? formatDuration(currentTime) : '0:00'}</span>
+              <span>
+                {formatDuration(duration || playable.durationSec || 0)}
+              </span>
+            </div>
+          </div>
+          <section
+            className="border-border bg-background/80 rounded-2xl border p-5 shadow-xl backdrop-blur-md"
+            aria-labelledby="track-comments-heading"
+          >
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2
+                id="track-comments-heading"
+                className="font-heading text-lg font-bold"
+              >
+                Comments
+              </h2>
+              <span className="text-foreground-secondary text-xs">
+                {comments.length}{' '}
+                {comments.length === 1 ? 'comment' : 'comments'}
+              </span>
+            </div>
+            {comments.length > 0 ? (
+              <ul className="border-border divide-border mb-5 divide-y border-y">
+                {comments.map((comment) => (
+                  <li key={comment.id} className="py-3">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-sm font-semibold">
+                        {comment.authorDisplayName}
+                      </span>
+                      <time
+                        className="text-foreground-secondary text-xs"
+                        dateTime={comment.createdAt}
+                      >
+                        {new Date(comment.createdAt).toLocaleDateString()}
+                      </time>
+                    </div>
+                    <p className="text-foreground-secondary mt-1 text-sm">
+                      {comment.body}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-foreground-secondary mb-5 text-sm">
+                No comments yet.
+              </p>
+            )}
+            {!commentsEnabled ? (
+              <p className="text-foreground-secondary text-sm">
+                Comments are off for this track.
+              </p>
+            ) : user ? (
+              <div className="flex flex-col gap-2">
+                <textarea
+                  value={commentBody}
+                  onChange={(event) => setCommentBody(event.target.value)}
+                  placeholder="Add a comment…"
+                  maxLength={2000}
+                  rows={3}
+                  disabled={commentBusy}
+                  className="border-border bg-background text-foreground placeholder:text-foreground-secondary focus:border-primary resize-y rounded-md border px-3 py-2 text-sm outline-none"
+                />
+                <div className="flex items-center justify-between gap-3">
+                  {commentError ? (
+                    <p className="text-accent-red text-xs">{commentError}</p>
+                  ) : (
+                    <span />
+                  )}
+                  <Button
+                    size="sm"
+                    disabled={commentBusy || !commentBody.trim()}
+                    onClick={() => void submitComment()}
+                  >
+                    {commentBusy ? 'Posting…' : 'Post comment'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-foreground-secondary text-sm">
+                Log in to comment.
+              </p>
+            )}
+          </section>
         </div>
       </PageFrame>
     </div>

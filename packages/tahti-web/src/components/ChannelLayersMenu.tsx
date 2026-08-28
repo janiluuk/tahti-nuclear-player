@@ -71,7 +71,7 @@ export function ChannelLayersMenu({
             onClick={() => setPanel(t.id)}
             className={`flex-1 rounded-md px-1.5 py-1.5 text-[10px] font-medium tracking-wide uppercase ${
               panel === t.id
-                ? 'bg-primary text-foreground'
+                ? 'bg-primary text-primary-foreground'
                 : 'text-foreground-secondary hover:text-foreground'
             }`}
           >

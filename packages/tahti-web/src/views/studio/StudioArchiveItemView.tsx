@@ -45,6 +45,7 @@ import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
+import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
 import { capitalizeGenre, PRESET_GENRES } from '../../lib/genres';
 import {
@@ -58,6 +59,17 @@ import { usePlayerStore } from '../../stores/playerStore';
 
 const SILENCE_THRESHOLD = 0.06;
 const MIN_TRIM_SEC = 0.5;
+
+const CONTENT_TYPES = [
+  ['STUDIO', 'Studio track'],
+  ['LIVE', 'Live recording'],
+  ['DJ_MIX', 'DJ mix'],
+  ['PODCAST', 'Podcast'],
+  ['ORIGINAL', 'Original'],
+  ['REMIX', 'Remix'],
+  ['RADIO_SHOW', 'Radio show'],
+  ['AUDIOCLIPS', 'Audio clip'],
+] as const;
 
 /** Finds leading/trailing near-silent regions from downsampled peaks and
  * returns cut regions to remove them — a client-side heuristic, not true
@@ -99,6 +111,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [genre, setGenre] = useState('');
+  const [contentType, setContentType] = useState('STUDIO');
   const [visibility, setVisibility] = useState<
     'PUBLIC' | 'UNLISTED' | 'PRIVATE'
   >('PUBLIC');
@@ -133,6 +146,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
       setTitle(res.data.title);
       setDescription(res.data.description ?? '');
       setGenre(res.data.genre ? capitalizeGenre(res.data.genre) : '');
+      setContentType(res.data.contentType ?? 'STUDIO');
       setVisibility(
         res.data.visibility ??
           (res.data.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
@@ -151,6 +165,12 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     });
     reloadVersions();
   }, [id]);
+
+  useEffect(() => {
+    if (contentType === 'AUDIOCLIPS' && tab === 'playlists') {
+      setTab('details');
+    }
+  }, [contentType, tab]);
 
   const status = item?.status;
   // Landing here straight from Upload (see StudioUploadView), or a refresh /
@@ -173,10 +193,13 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     const result = await patchStudioArchiveItem(id, {
       title,
       description,
-      genre: genre || null,
+      ...(isAudioClip ? { genre: null } : { genre: genre || null }),
+      contentType,
       isPublic: visibility === 'PUBLIC',
       visibility,
-      releaseDate: releaseDate || null,
+      ...(isAudioClip
+        ? { releaseDate: null }
+        : { releaseDate: releaseDate || null }),
       downloadsEnabled,
       commentsEnabled,
     });
@@ -352,6 +375,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
             .toLowerCase(),
         )
     : '';
+  const isAudioClip = contentType === 'AUDIOCLIPS';
   const pinned = item ? isPinned(item) : false;
   const pinBlocked = !pinned && pinnedCount >= MAX_PINNED_TRACKS;
   const hasError = status === 'ERROR';
@@ -422,22 +446,26 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                   )}
                   {isPlaying ? 'Pause' : 'Play'}
                 </Button>
-                <Button
-                  size="sm"
-                  variant={item.isFallback ? 'secondary' : 'default'}
-                  disabled={rotationBusy}
-                  aria-label={
-                    item.isFallback ? 'Remove from rotation' : 'Add to rotation'
-                  }
-                  onClick={() => void toggleRotation()}
-                >
-                  <RadioTowerIcon size={16} aria-hidden className="mr-1.5" />
-                  {rotationBusy
-                    ? 'Updating…'
-                    : item.isFallback
-                      ? 'In rotation'
-                      : 'Add to rotation'}
-                </Button>
+                {!isAudioClip ? (
+                  <Button
+                    size="sm"
+                    variant={item.isFallback ? 'secondary' : 'default'}
+                    disabled={rotationBusy}
+                    aria-label={
+                      item.isFallback
+                        ? 'Remove from rotation'
+                        : 'Add to rotation'
+                    }
+                    onClick={() => void toggleRotation()}
+                  >
+                    <RadioTowerIcon size={16} aria-hidden className="mr-1.5" />
+                    {rotationBusy
+                      ? 'Updating…'
+                      : item.isFallback
+                        ? 'In rotation'
+                        : 'Add to rotation'}
+                  </Button>
+                ) : null}
                 <Button
                   size="sm"
                   variant="secondary"
@@ -544,15 +572,20 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                           onChange={(event) => setTitle(event.target.value)}
                         />
                         <label className="flex flex-col gap-1 text-sm">
-                          Release date
-                          <input
-                            type="date"
-                            value={releaseDate}
+                          Content type
+                          <select
+                            value={contentType}
                             onChange={(event) =>
-                              setReleaseDate(event.target.value)
+                              setContentType(event.target.value)
                             }
                             className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                          />
+                          >
+                            {CONTENT_TYPES.map(([value, label]) => (
+                              <option key={value} value={value}>
+                                {label}
+                              </option>
+                            ))}
+                          </select>
                         </label>
                         <div className="sm:col-span-2">
                           <label className="flex flex-col gap-1 text-sm">
@@ -569,13 +602,28 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                             />
                           </label>
                         </div>
-                        <CreatableCombobox
-                          label="Genre"
-                          options={[...PRESET_GENRES]}
-                          value={genre}
-                          onValueChange={setGenre}
-                          normalize={capitalizeGenre}
-                        />
+                        {!isAudioClip ? (
+                          <>
+                            <label className="flex flex-col gap-1 text-sm">
+                              Release date
+                              <input
+                                type="date"
+                                value={releaseDate}
+                                onChange={(event) =>
+                                  setReleaseDate(event.target.value)
+                                }
+                                className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                              />
+                            </label>
+                            <CreatableCombobox
+                              label="Genre"
+                              options={[...PRESET_GENRES]}
+                              value={genre}
+                              onValueChange={setGenre}
+                              normalize={capitalizeGenre}
+                            />
+                          </>
+                        ) : null}
                         <label className="flex flex-col gap-1 text-sm">
                           Visibility
                           <select
@@ -797,45 +845,52 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                     </>
                   ),
                 },
-                {
-                  id: 'playlists',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <ListMusicIcon size={15} aria-hidden />
-                      Playlists
-                    </span>
-                  ),
-                  content: (
-                    <section className="border-border bg-background-secondary/30 flex flex-col gap-4 rounded-xl border p-5">
-                      <div className="flex items-start gap-3">
-                        <ListMusicIcon
-                          size={28}
-                          className="text-primary shrink-0"
-                          aria-hidden
-                        />
-                        <div>
-                          <h2 className="font-semibold">Add to playlists</h2>
-                          <p className="text-foreground-secondary text-sm">
-                            Add this track to one or more playlists, or create a
-                            new playlist without leaving the track page.
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="self-start"
-                        onClick={() => setPlaylistOpen(true)}
-                      >
-                        <ListMusicIcon
-                          size={15}
-                          aria-hidden
-                          className="mr-1.5"
-                        />
-                        Choose playlists
-                      </Button>
-                    </section>
-                  ),
-                },
+                ...(!isAudioClip
+                  ? [
+                      {
+                        id: 'playlists' as const,
+                        label: (
+                          <span className="inline-flex items-center gap-1.5">
+                            <ListMusicIcon size={15} aria-hidden />
+                            Playlists
+                          </span>
+                        ),
+                        content: (
+                          <section className="border-border bg-background-secondary/30 flex flex-col gap-4 rounded-xl border p-5">
+                            <div className="flex items-start gap-3">
+                              <ListMusicIcon
+                                size={28}
+                                className="text-primary shrink-0"
+                                aria-hidden
+                              />
+                              <div>
+                                <h2 className="font-semibold">
+                                  Add to playlists
+                                </h2>
+                                <p className="text-foreground-secondary text-sm">
+                                  Add this track to one or more playlists, or
+                                  create a new playlist without leaving the
+                                  track page.
+                                </p>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              className="self-start"
+                              onClick={() => setPlaylistOpen(true)}
+                            >
+                              <ListMusicIcon
+                                size={15}
+                                aria-hidden
+                                className="mr-1.5"
+                              />
+                              Choose playlists
+                            </Button>
+                          </section>
+                        ),
+                      },
+                    ]
+                  : []),
                 {
                   id: 'insights',
                   label: (
@@ -844,21 +899,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                       Insights
                     </span>
                   ),
-                  content: (
-                    <section className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-xl border p-5">
-                      <h2 className="font-semibold">Track insights</h2>
-                      <p className="text-foreground-secondary text-sm">
-                        Plays, downloads, and listener geography for this track.
-                      </p>
-                      <Link
-                        to="/studio/insights/$kind/$id"
-                        params={{ kind: 'archive', id }}
-                        className="self-start"
-                      >
-                        <Button size="sm">Open track insights</Button>
-                      </Link>
-                    </section>
-                  ),
+                  content: <TrackInsightsPanel kind="archive" id={id} />,
                 },
               ]}
             />

@@ -175,7 +175,7 @@ export function MessagesView({ threadId }: { threadId?: string } = {}) {
                     key={m.id}
                     className={`max-w-[85%] rounded-lg px-3 py-2 ${
                       m.isMine
-                        ? 'bg-primary text-foreground ml-auto'
+                        ? 'bg-primary text-primary-foreground ml-auto'
                         : 'border-accent-purple/30 bg-accent-purple/15'
                     }`}
                   >

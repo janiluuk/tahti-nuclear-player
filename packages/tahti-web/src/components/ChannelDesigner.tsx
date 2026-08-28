@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 
 import {
   Button,
-  Input,
+  FilePicker,
   PluginItem,
   Slider,
   Tabs,
@@ -35,17 +35,25 @@ import {
   HEADER_STYLES,
   isValidHeaderVideoUrl,
   isVisualPreset,
+  MAX_HEADER_VIDEO_BYTES,
   parseColorScheme,
   parseVisualSettingsMap,
   patchChannelVisual,
   resolveVisualPresetSettings,
   shouldDockVisualizerTuning,
+  uploadChannelHeaderVideo,
   VISUAL_PRESETS,
   type ChannelVisual,
   type ColorScheme,
   type VisualPreset,
   type VisualSettingsMap,
 } from '../api/channel-design';
+import {
+  fetchChannelGallery,
+  patchChannelGallery,
+  type ChannelGalleryMode,
+} from '../api/channel-gallery';
+import { ChannelControlsWidget } from './ChannelControlsWidget';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { PageLoading } from './PageStates';
 import { Eyebrow } from './tahti/Eyebrow';
@@ -103,6 +111,27 @@ const PRESET_META: Record<
 const TAB_IDS = ['visualizer', 'colors', 'header'] as const;
 type TabId = (typeof TAB_IDS)[number];
 
+const GALLERY_MODES: Array<{ id: ChannelGalleryMode; label: string }> = [
+  { id: 'NONE', label: 'None' },
+  { id: 'STATIC_SLIDESHOW', label: 'Static slideshow' },
+  { id: 'TWISTED_WAVE_GLSL', label: 'Twisted wave (WebGL)' },
+  { id: 'ZOOM_BLUR_GLSL', label: 'Cinematic zoom blur (WebGL)' },
+  { id: 'RGB_SHIFT_GLSL', label: 'RGB shift strip (WebGL)' },
+  { id: 'POSTER_WALL_GLSL', label: 'Poster scroll wall (WebGL)' },
+  { id: 'SHATTER_CAROUSEL_GLSL', label: 'Shatter carousel (WebGL)' },
+];
+
+const SLIDESHOW_PRESETS = [
+  ['FADE', 'Fade'],
+  ['ZOOM', 'Zoom'],
+  ['PAN', 'Pan'],
+  ['BLUR_CROSS', 'Blur crossfade'],
+  ['PARTICLE_DISSOLVE', 'Particle dissolve'],
+  ['GLITCH_WIPE', 'Glitch wipe'],
+  ['CUBE_FLIP', 'Cube flip'],
+  ['LIQUID_DISTORTION', 'Liquid distortion'],
+] as const;
+
 type Props = {
   displayName: string;
   username: string;
@@ -140,6 +169,17 @@ export function ChannelDesigner({
   const [visual, setVisual] = useState<ChannelVisual | null>(null);
   const [scheme, setScheme] = useState<ColorScheme>({});
   const [visualSettings, setVisualSettings] = useState<VisualSettingsMap>({});
+  const [galleryMode, setGalleryMode] = useState<ChannelGalleryMode>('NONE');
+  const [galleryImages, setGalleryImages] = useState('');
+  const [videoBackgroundUrl, setVideoBackgroundUrl] = useState('');
+  const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
+  const [pendingVideoPreviewUrl, setPendingVideoPreviewUrl] = useState<
+    string | null
+  >(null);
+  const [slideshowPreset, setSlideshowPreset] = useState('FADE');
+  const [slideshowInterval, setSlideshowInterval] = useState(8);
+  const [slideshowTransition, setSlideshowTransition] = useState(600);
+  const [slideshowAutoplay, setSlideshowAutoplay] = useState(true);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [lastVisualizerPreset, setLastVisualizerPreset] =
@@ -147,18 +187,29 @@ export function ChannelDesigner({
   const [activeTab, setActiveTab] = useState<TabId>('visualizer');
 
   useEffect(() => {
-    void fetchChannelVisual().then((r) => {
-      setVisual(r.data);
-      setScheme(parseColorScheme(r.data.colorSchemeJson));
-      setVisualSettings(parseVisualSettingsMap(r.data.visualSettingsJson));
-      if (
-        isVisualPreset(r.data.visualPreset) &&
-        r.data.visualPreset !== 'MINIMAL'
-      ) {
-        setLastVisualizerPreset(r.data.visualPreset);
-      }
-      setDirty(false);
-    });
+    void Promise.all([fetchChannelVisual(), fetchChannelGallery()]).then(
+      ([visualResult, galleryResult]) => {
+        setVisual(visualResult.data);
+        setScheme(parseColorScheme(visualResult.data.colorSchemeJson));
+        setVisualSettings(
+          parseVisualSettingsMap(visualResult.data.visualSettingsJson),
+        );
+        if (
+          isVisualPreset(visualResult.data.visualPreset) &&
+          visualResult.data.visualPreset !== 'MINIMAL'
+        ) {
+          setLastVisualizerPreset(visualResult.data.visualPreset);
+        }
+        setGalleryMode(galleryResult.data.galleryMode);
+        setGalleryImages(galleryResult.data.slideshowImages.join('\n'));
+        setVideoBackgroundUrl(galleryResult.data.videoBackgroundUrl ?? '');
+        setSlideshowPreset(visualResult.data.slideshowPreset ?? 'FADE');
+        setSlideshowInterval(visualResult.data.slideshowIntervalSeconds ?? 8);
+        setSlideshowTransition(visualResult.data.slideshowTransitionMs ?? 600);
+        setSlideshowAutoplay(visualResult.data.slideshowAutoplay ?? true);
+        setDirty(false);
+      },
+    );
   }, [reloadToken]);
 
   const previewStyle = useMemo(() => {
@@ -186,6 +237,37 @@ export function ChannelDesigner({
     setDirty(true);
   };
 
+  const selectVideoFile = (files: readonly File[]) => {
+    const file = files[0];
+    if (!file) {
+      return;
+    }
+    if (file.size > MAX_HEADER_VIDEO_BYTES) {
+      toast.error('Video must be 10 MB or smaller.');
+      return;
+    }
+    if (!['video/mp4', 'video/webm'].includes(file.type)) {
+      toast.error('Use an MP4 or WebM video.');
+      return;
+    }
+    if (pendingVideoPreviewUrl) {
+      URL.revokeObjectURL(pendingVideoPreviewUrl);
+    }
+    setPendingVideoFile(file);
+    setPendingVideoPreviewUrl(URL.createObjectURL(file));
+    setDirty(true);
+  };
+
+  const clearVideo = () => {
+    if (pendingVideoPreviewUrl) {
+      URL.revokeObjectURL(pendingVideoPreviewUrl);
+    }
+    setPendingVideoFile(null);
+    setPendingVideoPreviewUrl(null);
+    setVideoBackgroundUrl('');
+    setDirty(true);
+  };
+
   const setPresetSetting = (
     preset: string,
     key: 'speed' | 'intensity',
@@ -208,23 +290,77 @@ export function ChannelDesigner({
     if (!visual) {
       return;
     }
+    const images = galleryImages
+      .split(/\r?\n/)
+      .map((image) => image.trim())
+      .filter(Boolean);
+    if (images.length > 10) {
+      toast.error('Use up to 10 gallery images.');
+      return;
+    }
+    if (galleryMode !== 'NONE' && images.length === 0) {
+      toast.error('Add at least one image URL for the selected gallery.');
+      return;
+    }
+    if (images.some((image) => !/^https:\/\/\S+$/i.test(image))) {
+      toast.error('Gallery images must use public HTTPS URLs.');
+      return;
+    }
     setBusy(true);
+    let savedVideoUrl = videoBackgroundUrl.trim() || null;
+    if (pendingVideoFile) {
+      const upload = await uploadChannelHeaderVideo(pendingVideoFile);
+      if (!upload.ok) {
+        setBusy(false);
+        toast.error(upload.error);
+        return;
+      }
+      savedVideoUrl = upload.videoBackgroundUrl;
+      setVideoBackgroundUrl(upload.videoBackgroundUrl);
+      if (pendingVideoPreviewUrl) {
+        URL.revokeObjectURL(pendingVideoPreviewUrl);
+      }
+      setPendingVideoFile(null);
+      setPendingVideoPreviewUrl(null);
+    }
     const result = await patchChannelVisual({
       visualPreset: visual.visualPreset,
       headerStyle: visual.headerStyle,
-      videoBackgroundUrl: visual.videoBackgroundUrl ?? null,
+      videoBackgroundUrl: savedVideoUrl,
       brandAccentPreset: visual.brandAccentPreset,
       colorScheme: fillColorScheme(scheme),
       visualSettings,
+      slideshowPreset,
+      slideshowIntervalSeconds: slideshowInterval,
+      slideshowTransitionMs: slideshowTransition,
+      slideshowAutoplay,
+    });
+    if (!result.ok) {
+      setBusy(false);
+      toast.error(result.error);
+      return;
+    }
+    const galleryResult = await patchChannelGallery({
+      galleryMode,
+      slideshowImages: images,
+      videoBackgroundUrl: savedVideoUrl,
     });
     setBusy(false);
-    if (!result.ok) {
-      toast.error(result.error);
+    if (!galleryResult.ok) {
+      toast.error(galleryResult.error);
       return;
     }
     setVisual(result.data);
     setScheme(parseColorScheme(result.data.colorSchemeJson));
     setVisualSettings(parseVisualSettingsMap(result.data.visualSettingsJson));
+    setSlideshowPreset(result.data.slideshowPreset ?? slideshowPreset);
+    setSlideshowInterval(
+      result.data.slideshowIntervalSeconds ?? slideshowInterval,
+    );
+    setSlideshowTransition(
+      result.data.slideshowTransitionMs ?? slideshowTransition,
+    );
+    setSlideshowAutoplay(result.data.slideshowAutoplay ?? slideshowAutoplay);
     setDirty(false);
     toast.success('Look saved — public channel will pick this up.');
     onSaved?.();
@@ -240,7 +376,8 @@ export function ChannelDesigner({
   // header would just render empty on the real channel page.
   const videoLoopNeedsUrl =
     visual.headerStyle === 'VIDEO_LOOP' &&
-    !isValidHeaderVideoUrl(visual.videoBackgroundUrl);
+    !pendingVideoFile &&
+    !isValidHeaderVideoUrl(videoBackgroundUrl);
   const showHeaderVideo =
     visual.headerStyle === 'VIDEO_LOOP' &&
     isValidHeaderVideoUrl(visual.videoBackgroundUrl);
@@ -299,199 +436,370 @@ export function ChannelDesigner({
 
   const controls = (
     <>
-      <Tabs
-        listClassName="flex-wrap border-border border-b pb-3"
-        panelClassName="pt-2"
-        selectedIndex={TAB_IDS.indexOf(activeTab)}
-        onChange={(index) => setActiveTab(TAB_IDS[index] ?? 'visualizer')}
-        items={[
+      <ChannelControlsWidget
+        sections={[
           {
-            id: 'visualizer',
-            label: 'Visualizer',
-            content: (
-              <section className="flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                  <Toggle
-                    checked={visualizerEnabled}
-                    onChange={setVisualizerEnabled}
-                    aria-label="Use visualizer"
-                  />
-                  <span className="text-sm font-semibold">Use visualizer</span>
-                </div>
-                {visualizerEnabled && (
-                  <div className="flex flex-col gap-2">
-                    {VISUAL_PRESETS.filter(
-                      (preset) => preset !== 'MINIMAL',
-                    ).map((preset) => {
-                      const meta = PRESET_META[preset];
-                      const active = visual.visualPreset === preset;
-                      return (
-                        <PluginItem
-                          key={preset}
-                          icon={<meta.Icon size={22} aria-hidden />}
-                          name={preset.replace(/_/g, ' ')}
-                          author={active ? 'In use' : 'Visualizer'}
-                          description={meta.description}
-                          labels={{ by: '' }}
-                          className={
-                            active
-                              ? 'ring-primary bg-primary/10 ring-2 ring-inset'
-                              : undefined
-                          }
-                          rightAccessory={
-                            <Button
-                              size="sm"
-                              variant={active ? undefined : 'secondary'}
-                              disabled={active}
-                              onClick={() => {
-                                setLastVisualizerPreset(preset);
-                                applyLocal({ visualPreset: preset });
-                              }}
-                            >
-                              {active ? 'In use' : 'Use'}
-                            </Button>
-                          }
-                        />
-                      );
-                    })}
-                  </div>
-                )}
-                {/* When there's a live preview to dock into (see the preview
+            id: 'visual-style',
+            title: 'Visual style',
+            description:
+              'Choose the preset, colours, and header treatment for your channel.',
+            children: (
+              <Tabs
+                listClassName="flex-wrap border-border border-b pb-3"
+                panelClassName="pt-2"
+                selectedIndex={TAB_IDS.indexOf(activeTab)}
+                onChange={(index) =>
+                  setActiveTab(TAB_IDS[index] ?? 'visualizer')
+                }
+                items={[
+                  {
+                    id: 'visualizer',
+                    label: 'Visualizer',
+                    content: (
+                      <section className="flex flex-col gap-4">
+                        <div className="flex items-center gap-3">
+                          <Toggle
+                            checked={visualizerEnabled}
+                            onChange={setVisualizerEnabled}
+                            aria-label="Use visualizer"
+                          />
+                          <span className="text-sm font-semibold">
+                            Use visualizer
+                          </span>
+                        </div>
+                        {visualizerEnabled && (
+                          <div className="flex flex-col gap-2">
+                            {VISUAL_PRESETS.filter(
+                              (preset) => preset !== 'MINIMAL',
+                            ).map((preset) => {
+                              const meta = PRESET_META[preset];
+                              const active = visual.visualPreset === preset;
+                              return (
+                                <PluginItem
+                                  key={preset}
+                                  icon={<meta.Icon size={22} aria-hidden />}
+                                  name={preset.replace(/_/g, ' ')}
+                                  author={active ? 'In use' : 'Visualizer'}
+                                  description={meta.description}
+                                  labels={{ by: '' }}
+                                  className={
+                                    active
+                                      ? 'ring-primary bg-primary/10 ring-2 ring-inset'
+                                      : undefined
+                                  }
+                                  rightAccessory={
+                                    <Button
+                                      size="sm"
+                                      variant={active ? undefined : 'secondary'}
+                                      disabled={active}
+                                      onClick={() => {
+                                        setLastVisualizerPreset(preset);
+                                        applyLocal({ visualPreset: preset });
+                                      }}
+                                    >
+                                      {active ? 'In use' : 'Use'}
+                                    </Button>
+                                  }
+                                />
+                              );
+                            })}
+                          </div>
+                        )}
+                        {/* When there's a live preview to dock into (see the preview
                     block in the main return), tuning shows there instead of
                     repeated here. lookOnly and livePreview=false have no
                     local preview to dock into, so they keep sliders inline. */}
-                {!hasLivePreview && dockTuning && (
-                  <div className="border-border flex flex-col gap-4 rounded-lg border p-3">
-                    <Eyebrow>
-                      Tune {visual.visualPreset.replace(/_/g, ' ')}
-                    </Eyebrow>
-                    {tuningSliders}
-                  </div>
-                )}
-              </section>
+                        {!hasLivePreview && dockTuning && (
+                          <div className="border-border flex flex-col gap-4 rounded-lg border p-3">
+                            <Eyebrow>
+                              Tune {visual.visualPreset.replace(/_/g, ' ')}
+                            </Eyebrow>
+                            {tuningSliders}
+                          </div>
+                        )}
+                      </section>
+                    ),
+                  },
+                  {
+                    id: 'colors',
+                    label: 'Colors',
+                    content: (
+                      <section className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-2">
+                          <Eyebrow>Brand accent</Eyebrow>
+                          <div className="flex flex-wrap gap-2">
+                            {BRAND_ACCENTS.map((brand) => (
+                              <button
+                                key={brand.id}
+                                type="button"
+                                title={brand.label}
+                                aria-label={brand.label}
+                                aria-pressed={
+                                  visual.brandAccentPreset === brand.id
+                                }
+                                onClick={() =>
+                                  applyLocal(
+                                    { brandAccentPreset: brand.id },
+                                    {
+                                      ...scheme,
+                                      accent: brand.accent,
+                                      highlight: brand.highlight,
+                                    },
+                                  )
+                                }
+                                className={`h-10 w-16 rounded-md border-2 transition-transform hover:scale-105 ${
+                                  visual.brandAccentPreset === brand.id
+                                    ? 'border-primary shadow-md'
+                                    : 'border-transparent'
+                                }`}
+                                style={{ background: brand.gradient }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {(
+                            [
+                              ['accent', 'Accent'] as const,
+                              ['highlight', 'Highlight'] as const,
+                              ['bg', 'Background'] as const,
+                              ['text', 'Foreground'] as const,
+                              ['muted', 'Muted'] as const,
+                            ] as const
+                          ).map(([key, label]) => (
+                            <label
+                              key={key}
+                              className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm"
+                            >
+                              <input
+                                type="color"
+                                value={scheme[key] ?? DEFAULT_COLOR_SCHEME[key]}
+                                onChange={(event) => {
+                                  const next = {
+                                    ...scheme,
+                                    [key]: event.target.value,
+                                  };
+                                  applyLocal({}, next);
+                                }}
+                                className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
+                              />
+                              <span className="min-w-0">
+                                <span className="block text-sm font-semibold">
+                                  {label}
+                                </span>
+                                <code className="text-foreground-secondary text-xs">
+                                  {scheme[key]}
+                                </code>
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </section>
+                    ),
+                  },
+                  {
+                    id: 'header',
+                    label: 'Header',
+                    content: (
+                      <section className="flex flex-col gap-3">
+                        <Eyebrow>Header style</Eyebrow>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {HEADER_STYLES.map((headerStyle) => {
+                            const active = visual.headerStyle === headerStyle;
+                            return (
+                              <button
+                                key={headerStyle}
+                                type="button"
+                                aria-pressed={active}
+                                onClick={() => applyLocal({ headerStyle })}
+                                className={`rounded-lg border p-4 text-left text-sm font-semibold tracking-wide uppercase transition-colors ${
+                                  active
+                                    ? 'border-primary bg-primary/10 ring-primary ring-1'
+                                    : 'border-border bg-background hover:bg-background-secondary text-foreground-secondary hover:text-foreground'
+                                }`}
+                              >
+                                {headerStyle.replace(/_/g, ' ')}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {visual.headerStyle === 'VIDEO_LOOP' && (
+                          <div className="flex flex-col gap-3">
+                            <div>
+                              <Eyebrow>Short video backdrop</Eyebrow>
+                              <p className="text-foreground-secondary mt-1 text-xs">
+                                Upload an MP4 or WebM up to 10 MB. It will loop
+                                muted behind your channel header and is stored
+                                in your private R2 storage.
+                              </p>
+                            </div>
+                            <FilePicker
+                              accept="video/mp4,video/webm"
+                              disabled={busy}
+                              selectedFiles={
+                                pendingVideoFile ? [pendingVideoFile] : []
+                              }
+                              labels={{
+                                title: 'Choose a short video',
+                                description: 'MP4 or WebM · maximum 10 MB',
+                                browse: 'Browse videos',
+                              }}
+                              onFiles={selectVideoFile}
+                            />
+                            {(pendingVideoPreviewUrl || videoBackgroundUrl) && (
+                              <div className="border-border bg-background relative overflow-hidden rounded-lg border">
+                                <video
+                                  key={
+                                    pendingVideoPreviewUrl ?? videoBackgroundUrl
+                                  }
+                                  src={
+                                    pendingVideoPreviewUrl ?? videoBackgroundUrl
+                                  }
+                                  muted
+                                  loop
+                                  autoPlay
+                                  playsInline
+                                  controls
+                                  className="aspect-video max-h-64 w-full object-cover"
+                                />
+                                <div className="bg-background/85 text-foreground-secondary absolute inset-x-0 bottom-0 px-3 py-2 text-xs backdrop-blur-sm">
+                                  {pendingVideoFile
+                                    ? 'Preview — save your channel design to approve and upload it.'
+                                    : 'Current uploaded backdrop'}
+                                </div>
+                              </div>
+                            )}
+                            {(pendingVideoFile || videoBackgroundUrl) && (
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="self-start"
+                                onClick={clearVideo}
+                              >
+                                Remove video backdrop
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </section>
+                    ),
+                  },
+                ]}
+              />
             ),
           },
           {
-            id: 'colors',
-            label: 'Colors',
-            content: (
-              <section className="flex flex-col gap-5">
-                <div className="flex flex-col gap-2">
-                  <Eyebrow>Brand accent</Eyebrow>
-                  <div className="flex flex-wrap gap-2">
-                    {BRAND_ACCENTS.map((brand) => (
-                      <button
-                        key={brand.id}
-                        type="button"
-                        title={brand.label}
-                        aria-label={brand.label}
-                        aria-pressed={visual.brandAccentPreset === brand.id}
-                        onClick={() =>
-                          applyLocal(
-                            { brandAccentPreset: brand.id },
-                            {
-                              ...scheme,
-                              accent: brand.accent,
-                              highlight: brand.highlight,
-                            },
-                          )
-                        }
-                        className={`h-10 w-16 rounded-md border-2 transition-transform hover:scale-105 ${
-                          visual.brandAccentPreset === brand.id
-                            ? 'border-primary shadow-md'
-                            : 'border-transparent'
-                        }`}
-                        style={{ background: brand.gradient }}
-                      />
+            id: 'background-media',
+            title: 'Background media',
+            description:
+              'Choose a gallery style and the media used by the current design.',
+            children: (
+              <div className="flex flex-col gap-4">
+                <label className="flex flex-col gap-1 text-sm">
+                  <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                    Gallery style
+                  </span>
+                  <select
+                    value={galleryMode}
+                    onChange={(event) => {
+                      setGalleryMode(event.target.value as ChannelGalleryMode);
+                      setDirty(true);
+                    }}
+                    className="border-border bg-background text-foreground rounded-md border px-3 py-2"
+                  >
+                    {GALLERY_MODES.map((mode) => (
+                      <option key={mode.id} value={mode.id}>
+                        {mode.label}
+                      </option>
                     ))}
-                  </div>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {(
-                    [
-                      ['accent', 'Accent'] as const,
-                      ['highlight', 'Highlight'] as const,
-                      ['bg', 'Background'] as const,
-                      ['text', 'Foreground'] as const,
-                      ['muted', 'Muted'] as const,
-                    ] as const
-                  ).map(([key, label]) => (
-                    <label
-                      key={key}
-                      className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm"
-                    >
-                      <input
-                        type="color"
-                        value={scheme[key] ?? DEFAULT_COLOR_SCHEME[key]}
-                        onChange={(event) => {
-                          const next = { ...scheme, [key]: event.target.value };
-                          applyLocal({}, next);
-                        }}
-                        className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
-                      />
-                      <span className="min-w-0">
-                        <span className="block text-sm font-semibold">
-                          {label}
-                        </span>
-                        <code className="text-foreground-secondary text-xs">
-                          {scheme[key]}
-                        </code>
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </section>
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1 text-sm">
+                  <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                    Gallery images
+                  </span>
+                  <span className="text-foreground-secondary text-xs">
+                    Add one public HTTPS image URL per line. Up to 10 images.
+                  </span>
+                  <textarea
+                    rows={5}
+                    value={galleryImages}
+                    disabled={galleryMode === 'NONE'}
+                    onChange={(event) => {
+                      setGalleryImages(event.target.value);
+                      setDirty(true);
+                    }}
+                    placeholder="https://cdn.example/photo.jpg"
+                    className="border-border bg-background text-foreground placeholder:text-foreground-secondary resize-y rounded-md border px-3 py-2 text-sm"
+                  />
+                </label>
+                <p className="text-foreground-secondary text-xs">
+                  Video backdrops are managed in Header → Video loop and are
+                  stored with your channel media.
+                </p>
+              </div>
             ),
           },
           {
-            id: 'header',
-            label: 'Header',
-            content: (
-              <section className="flex flex-col gap-3">
-                <Eyebrow>Header style</Eyebrow>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {HEADER_STYLES.map((headerStyle) => {
-                    const active = visual.headerStyle === headerStyle;
-                    return (
-                      <button
-                        key={headerStyle}
-                        type="button"
-                        aria-pressed={active}
-                        onClick={() => applyLocal({ headerStyle })}
-                        className={`rounded-lg border p-4 text-left text-sm font-semibold tracking-wide uppercase transition-colors ${
-                          active
-                            ? 'border-primary bg-primary/10 ring-primary ring-1'
-                            : 'border-border bg-background hover:bg-background-secondary text-foreground-secondary hover:text-foreground'
-                        }`}
-                      >
-                        {headerStyle.replace(/_/g, ' ')}
-                      </button>
-                    );
-                  })}
-                </div>
-                {visual.headerStyle === 'VIDEO_LOOP' && (
-                  <div className="flex flex-col gap-1">
-                    <Input
-                      label="Video URL"
-                      value={visual.videoBackgroundUrl ?? ''}
-                      placeholder="https://cdn.example.com/loop.mp4"
-                      onChange={(event) =>
-                        applyLocal({ videoBackgroundUrl: event.target.value })
-                      }
-                    />
-                    <p className="text-foreground-secondary text-xs">
-                      Direct link to a muted, looping .mp4 or .webm clip — plays
-                      behind your channel header.
-                    </p>
-                    {visual.videoBackgroundUrl &&
-                      !isValidHeaderVideoUrl(visual.videoBackgroundUrl) && (
-                        <p className="text-accent-red text-xs">
-                          Must be an HTTPS link ending in .mp4 or .webm.
-                        </p>
-                      )}
-                  </div>
-                )}
-              </section>
+            id: 'slideshow-transitions',
+            title: 'Slideshow transitions',
+            description: 'Control how gallery images change on your channel.',
+            defaultOpen: false,
+            children: (
+              <div className="flex flex-col gap-4">
+                <label className="flex flex-col gap-1 text-sm">
+                  <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                    Transition
+                  </span>
+                  <select
+                    value={slideshowPreset}
+                    onChange={(event) => {
+                      setSlideshowPreset(event.target.value);
+                      setDirty(true);
+                    }}
+                    className="border-border bg-background text-foreground rounded-md border px-3 py-2"
+                  >
+                    {SLIDESHOW_PRESETS.map(([id, label]) => (
+                      <option key={id} value={id}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <Slider
+                  label={`Interval: ${slideshowInterval}s`}
+                  min={5}
+                  max={30}
+                  step={1}
+                  value={slideshowInterval}
+                  onValueChange={(value) => {
+                    setSlideshowInterval(value);
+                    setDirty(true);
+                  }}
+                />
+                <Slider
+                  label={`Transition speed: ${slideshowTransition}ms`}
+                  min={300}
+                  max={1500}
+                  step={100}
+                  value={slideshowTransition}
+                  onValueChange={(value) => {
+                    setSlideshowTransition(value);
+                    setDirty(true);
+                  }}
+                />
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={slideshowAutoplay}
+                    onChange={(event) => {
+                      setSlideshowAutoplay(event.target.checked);
+                      setDirty(true);
+                    }}
+                  />
+                  Automatically advance slides
+                </label>
+              </div>
             ),
           },
         ]}

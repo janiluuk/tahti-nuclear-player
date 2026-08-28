@@ -13,6 +13,7 @@ import { StudioNav } from '../components/StudioNav';
 import { StudioPanel } from '../components/StudioPanel';
 import { FavoritesView } from './FavoritesView';
 import { HistoryView } from './HistoryView';
+import { LibrarySmartLinksView } from './LibrarySmartLinksView';
 import { MyCollectionsView } from './MyCollectionsView';
 import { MyDiscographyView } from './MyDiscographyView';
 import { StudioRecordingsView } from './studio/StudioRecordingsView';
@@ -24,7 +25,8 @@ type Tab =
   | 'releases'
   | 'recordings'
   | 'favorites'
-  | 'history';
+  | 'history'
+  | 'smartlinks';
 
 const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
   discography: '/library',
@@ -33,12 +35,15 @@ const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
   recordings: '/library/recordings',
   favorites: '/library/favorites',
   history: '/library/history',
+  smartlinks: '/library/smartlinks',
 };
 
 export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
   return (
     <div className="studio-page-layout flex w-full flex-col gap-6">
-      <StudioNav current={LIBRARY_ROUTE_BY_TAB[tab]} />
+      {tab !== 'history' && tab !== 'favorites' ? (
+        <StudioNav current={LIBRARY_ROUTE_BY_TAB[tab]} />
+      ) : null}
       <div className="min-w-0 flex-1">
         {tab === 'discography' && (
           <>
@@ -51,6 +56,7 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
         {tab === 'recordings' && <StudioRecordingsView embedded />}
         {tab === 'favorites' && <FavoritesView />}
         {tab === 'history' && <HistoryView />}
+        {tab === 'smartlinks' && <LibrarySmartLinksView />}
       </div>
     </div>
   );

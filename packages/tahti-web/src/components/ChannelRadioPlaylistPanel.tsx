@@ -1,21 +1,17 @@
 import { Link } from '@tanstack/react-router';
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ListMusicIcon,
-  PlusIcon,
-  RadioIcon,
-  Trash2Icon,
-} from 'lucide-react';
+import { ListMusicIcon, PlusIcon, RadioIcon } from 'lucide-react';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, SaveButton, Toggle } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, SaveButton, Toggle } from '@nuclearplayer/ui';
 
 import {
   createStudioCollection,
+  fetchEditorSource,
+  fetchStudioArchive,
   fetchStudioCollection,
   fetchStudioCollections,
+  fetchStudioReleases,
 } from '../api/studio';
 import {
   applyPlaylistToProgramme,
@@ -25,18 +21,9 @@ import {
   type ProgrammeItem,
   type ProgrammeView,
 } from '../api/studio-extras';
-import type { StudioCollection } from '../api/studio-types';
-
-const SECONDS_PER_MINUTE = 60;
-
-const formatDuration = (durationSec: number | null) => {
-  if (durationSec == null) {
-    return null;
-  }
-  const minutes = Math.floor(durationSec / SECONDS_PER_MINUTE);
-  const seconds = durationSec % SECONDS_PER_MINUTE;
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-};
+import type { StudioCollection, StudioRelease } from '../api/studio-types';
+import { usePlayerStore } from '../stores/playerStore';
+import { ChannelRotationEditor } from './ChannelRotationEditor';
 
 const isPlaylist = (collection: StudioCollection) =>
   !collection.style ||
@@ -56,6 +43,16 @@ export const ChannelRadioPlaylistPanel: FC = () => {
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [busy, setBusy] = useState(false);
+  const [libraryItems, setLibraryItems] = useState<ProgrammeItem[]>([]);
+  const [releases, setReleases] = useState<StudioRelease[]>([]);
+  const [pendingAdd, setPendingAdd] = useState<{
+    label: string;
+    items: ProgrammeItem[];
+  } | null>(null);
+  const [activeTab, setActiveTab] = useState<'programme' | 'rotation'>(
+    'programme',
+  );
+  const play = usePlayerStore((state) => state.play);
 
   const applyProgramme = (next: ProgrammeView) => {
     setProgramme(next);
@@ -66,9 +63,26 @@ export const ChannelRadioPlaylistPanel: FC = () => {
   };
 
   const reload = () => {
-    void Promise.all([fetchProgramme(), fetchStudioCollections()]).then(
-      ([programmeResult, collectionResult]) => {
+    void Promise.all([
+      fetchProgramme(),
+      fetchStudioCollections(),
+      fetchStudioArchive(),
+      fetchStudioReleases(),
+    ]).then(
+      ([programmeResult, collectionResult, archiveResult, releaseResult]) => {
         applyProgramme(programmeResult.data);
+        setLibraryItems(
+          archiveResult.data.map((item) => ({
+            id: item.id,
+            title: item.title,
+            status: item.status,
+            contentType: item.contentType ?? null,
+            durationSec: item.durationSec ?? null,
+            isFallback: Boolean(item.isFallback),
+            fallbackOrder: null,
+          })),
+        );
+        setReleases(releaseResult.data.releases);
         const nextPlaylists = collectionResult.data.filter(isPlaylist);
         setPlaylists(nextPlaylists);
         setSelectedSlug((current) => current || nextPlaylists[0]?.slug || '');
@@ -92,11 +106,48 @@ export const ChannelRadioPlaylistPanel: FC = () => {
   );
   const availableItems = useMemo(
     () =>
-      (programme?.items ?? []).filter(
-        (item) => item.status === 'READY' && !item.isFallback,
+      libraryItems.filter(
+        (item) =>
+          item.status === 'READY' &&
+          !rotation.some((active) => active.id === item.id),
       ),
-    [programme],
+    [libraryItems, rotation],
   );
+
+  const libraryGroups = useMemo(() => {
+    const djSets = libraryItems.filter((item) =>
+      item.contentType?.toUpperCase().includes('DJ'),
+    );
+    const tracks = libraryItems.filter(
+      (item) => !djSets.some((djSet) => djSet.id === item.id),
+    );
+    const releaseGroups = releases.map((release) => ({
+      id: `release-${release.id}`,
+      label: `Release · ${release.title}`,
+      items: (release.tracks ?? [])
+        .map((track) =>
+          libraryItems.find((item) => item.id === track.archiveItemId),
+        )
+        .filter((item): item is ProgrammeItem => Boolean(item)),
+    }));
+    const playlistGroups = playlists.map((playlist) => ({
+      id: `playlist-${playlist.slug}`,
+      label: `Playlist · ${playlist.name}`,
+      items: (playlist.items ?? [])
+        .map((item) =>
+          libraryItems.find(
+            (libraryItem) => libraryItem.id === item.archiveItemId,
+          ),
+        )
+        .filter((item): item is ProgrammeItem => Boolean(item)),
+    }));
+    return [
+      { id: 'tracks', label: 'Tracks', items: tracks },
+      { id: 'dj-sets', label: 'DJ Sets', items: djSets },
+      ...releaseGroups,
+      ...playlistGroups,
+    ].filter((group) => group.items.length > 0);
+  }, [libraryItems, playlists, releases]);
   const selectedPlaylist = playlists.find(
     (playlist) => playlist.slug === selectedSlug,
   );
@@ -185,20 +236,6 @@ export const ChannelRadioPlaylistPanel: FC = () => {
     toast.success('Rotation updated.');
   };
 
-  const moveRotationItem = (index: number, direction: -1 | 1) => {
-    const target = index + direction;
-    if (target < 0 || target >= rotation.length) {
-      return;
-    }
-    const next = [...rotation];
-    const [moved] = next.splice(index, 1);
-    if (!moved) {
-      return;
-    }
-    next.splice(target, 0, moved);
-    void saveRotation(next, 'ordered');
-  };
-
   const createInline = async () => {
     if (!newName.trim()) {
       return;
@@ -219,6 +256,39 @@ export const ChannelRadioPlaylistPanel: FC = () => {
     setPlaylists((current) => [created.data, ...current]);
     setSelectedSlug(created.data.slug);
     toast.success(`Created “${created.data.name}”.`);
+  };
+
+  const playRotationItem = async (item: ProgrammeItem) => {
+    const { data } = await fetchEditorSource(item.id);
+    play({
+      id: `archive:${item.id}`,
+      kind: 'archive',
+      title: item.title,
+      artist: 'You',
+      streamUrl: data.url,
+      protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
+    });
+  };
+
+  const confirmAdd = async (mode: 'append' | 'overwrite') => {
+    if (!pendingAdd) {
+      return;
+    }
+    const uniqueItems = pendingAdd.items.filter(
+      (item, index, items) =>
+        items.findIndex((candidate) => candidate.id === item.id) === index,
+    );
+    const next =
+      mode === 'overwrite'
+        ? uniqueItems.slice(0, MAX_RADIO_PLAYLIST_ITEMS)
+        : [
+            ...rotation,
+            ...uniqueItems.filter(
+              (item) => !rotation.some((active) => active.id === item.id),
+            ),
+          ].slice(0, MAX_RADIO_PLAYLIST_ITEMS);
+    setPendingAdd(null);
+    await saveRotation(next);
   };
 
   return (
@@ -256,282 +326,247 @@ export const ChannelRadioPlaylistPanel: FC = () => {
         </div>
       </header>
 
-      <div className="grid gap-4 p-4 lg:grid-cols-2 lg:p-5">
-        <div className="border-border bg-background flex flex-col gap-4 rounded-lg border p-4">
-          <div>
-            <h3 className="text-sm font-bold">Playlist source</h3>
-            <p className="text-foreground-secondary mt-0.5 text-xs">
-              Choose a playlist, then publish its archive tracks to rotation.
-            </p>
-          </div>
-
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-foreground-secondary text-xs uppercase">
-              Playlist
-            </span>
-            <select
-              value={selectedSlug}
-              onChange={(event) => setSelectedSlug(event.target.value)}
-              className="border-border bg-background-secondary rounded-md border px-3 py-2"
-            >
-              {playlists.length === 0 ? (
-                <option value="">No playlists yet</option>
-              ) : null}
-              {playlists.map((playlist) => (
-                <option key={playlist.slug} value={playlist.slug}>
-                  {playlist.name} ·{' '}
-                  {playlist.itemCount ?? playlist.items?.length ?? 0} tracks
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              disabled={busy || !selectedSlug}
-              onClick={() => void applySelected()}
-            >
-              Use playlist
-            </Button>
-            {selectedPlaylist ? (
-              <Link
-                to="/studio/playlists/$slug"
-                params={{ slug: selectedPlaylist.slug }}
-              >
-                <Button size="sm" variant="secondary">
-                  <ListMusicIcon size={14} aria-hidden className="mr-1.5" />
-                  Edit tracks
-                </Button>
-              </Link>
-            ) : null}
-            <Button
-              size="icon-sm"
-              variant="text"
-              onClick={() => setCreating((current) => !current)}
-              aria-label="Create playlist"
-              title="Create playlist"
-              aria-pressed={creating}
-            >
-              <PlusIcon size={16} aria-hidden />
-            </Button>
-          </div>
-
-          {creating ? (
-            <div className="border-border bg-background-secondary flex flex-col gap-2 rounded-lg border p-3">
-              <Input
-                label="Playlist name"
-                value={newName}
-                onChange={(event) => setNewName(event.target.value)}
-                autoFocus
-              />
-              <div className="flex justify-end">
-                <Button
-                  size="sm"
-                  disabled={busy || !newName.trim()}
-                  onClick={() => void createInline()}
-                >
-                  Create
-                </Button>
-              </div>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="border-border bg-background flex flex-col gap-4 rounded-lg border p-4">
-          <div>
-            <h3 className="text-sm font-bold">Offline programme settings</h3>
-            <p className="text-foreground-secondary mt-0.5 text-xs">
-              Keep the rotation predictable or let Tahti balance it.
-            </p>
-          </div>
-
-          <div
-            className="border-border grid grid-cols-2 rounded-md border p-1"
-            role="group"
-            aria-label="Rotation mode"
+      <nav
+        className="border-border flex flex-wrap gap-1 border-b px-4 pt-3 sm:px-5"
+        role="tablist"
+        aria-label="24/7 programme sections"
+      >
+        {(
+          [
+            ['programme', 'Programme'],
+            ['rotation', `Active rotation (${rotation.length})`],
+          ] as const
+        ).map(([id, label]) => (
+          <Button
+            key={id}
+            type="button"
+            size="sm"
+            variant="text"
+            role="tab"
+            aria-selected={activeTab === id}
+            onClick={() => setActiveTab(id)}
+            className={
+              activeTab === id
+                ? 'bg-primary text-primary-foreground rounded-t-md'
+                : 'text-foreground-secondary rounded-t-md'
+            }
           >
-            {(
-              [
-                ['shuffle', 'Shuffle'] as const,
-                ['ordered', 'In order'] as const,
-              ] as const
-            ).map(([mode, label]) => (
-              <Button
-                key={mode}
-                type="button"
-                variant="text"
-                className={`rounded px-3 py-2 text-xs font-semibold uppercase transition-colors ${
-                  fallbackMode === mode
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground-secondary hover:text-foreground'
-                }`}
-                onClick={() => setFallbackMode(mode)}
-                aria-pressed={fallbackMode === mode}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
+            {label}
+          </Button>
+        ))}
+      </nav>
 
-          <label className="flex items-center justify-between gap-3 text-sm">
-            <span>
-              Auto-add uploads
-              <span className="text-foreground-secondary block text-xs">
-                Until the {MAX_RADIO_PLAYLIST_ITEMS}-track limit
-              </span>
-            </span>
-            <Toggle
-              checked={fallbackAutoEnroll}
-              disabled={busy || !programme}
-              onChange={setFallbackAutoEnroll}
-              aria-label="Auto-add uploads"
-            />
-          </label>
+      {activeTab === 'programme' ? (
+        <div className="grid gap-4 p-4 lg:grid-cols-2 lg:p-5">
+          <div className="border-border bg-background flex flex-col gap-4 rounded-lg border p-4">
+            <div>
+              <h3 className="text-sm font-bold">Playlist source</h3>
+              <p className="text-foreground-secondary mt-0.5 text-xs">
+                Choose a playlist, then publish its archive tracks to rotation.
+              </p>
+            </div>
 
-          <label className="flex items-center justify-between gap-3 text-sm">
-            <span>
-              Artist announcements
-              <span className="text-foreground-secondary block text-xs">
-                Include your station IDs and clips
-              </span>
-            </span>
-            <Toggle
-              checked={announcementsEnabled}
-              disabled={busy || !programme}
-              onChange={setAnnouncementsEnabled}
-              aria-label="Artist announcements"
-            />
-          </label>
-
-          <div className="flex justify-end">
-            <SaveButton
-              disabled={!programme || !settingsDirty}
-              saving={busy}
-              label="Save settings"
-              onClick={() => void saveSettings()}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="border-border border-t px-4 py-4 sm:px-5">
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-bold">
-              Active rotation · {rotation.length}/{MAX_RADIO_PLAYLIST_ITEMS}
-            </h3>
-            <p className="text-foreground-secondary text-xs">
-              Reordering switches playback to In order.
-            </p>
-          </div>
-          {availableItems.length > 0 &&
-          rotation.length < MAX_RADIO_PLAYLIST_ITEMS ? (
-            <label className="flex items-center gap-2 text-xs">
-              <span className="text-foreground-secondary uppercase">
-                Quick add
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="text-foreground-secondary text-xs uppercase">
+                Playlist
               </span>
               <select
-                value=""
-                disabled={busy}
-                onChange={(event) => {
-                  const item = availableItems.find(
-                    (candidate) => candidate.id === event.target.value,
-                  );
-                  if (item) {
-                    void saveRotation([...rotation, item]);
-                  }
-                }}
-                className="border-border bg-background rounded-md border px-2 py-1.5"
-                aria-label="Quick add archive track"
+                value={selectedSlug}
+                onChange={(event) => setSelectedSlug(event.target.value)}
+                className="border-border bg-background-secondary rounded-md border px-3 py-2"
               >
-                <option value="">Choose track…</option>
-                {availableItems.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.title}
+                {playlists.length === 0 ? (
+                  <option value="">No playlists yet</option>
+                ) : null}
+                {playlists.map((playlist) => (
+                  <option key={playlist.slug} value={playlist.slug}>
+                    {playlist.name} ·{' '}
+                    {playlist.itemCount ?? playlist.items?.length ?? 0} tracks
                   </option>
                 ))}
               </select>
             </label>
-          ) : null}
-        </div>
 
-        {rotation.length === 0 ? (
-          <div className="border-border rounded-lg border border-dashed px-4 py-8 text-center">
-            <ListMusicIcon
-              size={28}
-              className="text-foreground-secondary mx-auto opacity-50"
-              aria-hidden
-            />
-            <p className="mt-2 text-sm font-medium">Rotation is empty</p>
-            <p className="text-foreground-secondary mt-1 text-xs">
-              Choose a playlist above or add a ready archive track.
-            </p>
-          </div>
-        ) : (
-          <ol className="border-border divide-border divide-y overflow-hidden rounded-lg border">
-            {rotation.map((item, index) => {
-              const duration = formatDuration(item.durationSec);
-              return (
-                <li
-                  key={item.id}
-                  className="bg-background flex items-center gap-3 px-3 py-2.5"
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                disabled={busy || !selectedSlug}
+                onClick={() => void applySelected()}
+              >
+                Use playlist
+              </Button>
+              {selectedPlaylist ? (
+                <Link
+                  to="/studio/collections/$slug"
+                  params={{ slug: selectedPlaylist.slug }}
                 >
-                  <span className="text-foreground-secondary w-5 shrink-0 text-center font-mono text-xs">
-                    {index + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">
-                      {item.title}
-                    </div>
-                    <div className="text-foreground-secondary text-xs">
-                      {duration ?? item.status}
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 gap-1">
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      disabled={busy || index === 0}
-                      onClick={() => moveRotationItem(index, -1)}
-                      aria-label={`Move ${item.title} up`}
-                      title="Move up"
-                    >
-                      <ArrowUpIcon size={14} aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      disabled={busy || index === rotation.length - 1}
-                      onClick={() => moveRotationItem(index, 1)}
-                      aria-label={`Move ${item.title} down`}
-                      title="Move down"
-                    >
-                      <ArrowDownIcon size={14} aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      disabled={busy}
-                      onClick={() =>
-                        void saveRotation(
-                          rotation.filter(
-                            (candidate) => candidate.id !== item.id,
-                          ),
-                        )
-                      }
-                      aria-label={`Remove ${item.title} from rotation`}
-                      title="Remove"
-                    >
-                      <Trash2Icon size={14} aria-hidden />
-                    </Button>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        )}
-      </div>
+                  <Button size="sm" variant="secondary">
+                    <ListMusicIcon size={14} aria-hidden className="mr-1.5" />
+                    Edit tracks
+                  </Button>
+                </Link>
+              ) : null}
+              <Button
+                size="icon-sm"
+                variant="text"
+                onClick={() => setCreating((current) => !current)}
+                aria-label="Create playlist"
+                title="Create playlist"
+                aria-pressed={creating}
+              >
+                <PlusIcon size={16} aria-hidden />
+              </Button>
+            </div>
+
+            {creating ? (
+              <div className="border-border bg-background-secondary flex flex-col gap-2 rounded-lg border p-3">
+                <Input
+                  label="Playlist name"
+                  value={newName}
+                  onChange={(event) => setNewName(event.target.value)}
+                  autoFocus
+                />
+                <div className="flex justify-end">
+                  <Button
+                    size="sm"
+                    disabled={busy || !newName.trim()}
+                    onClick={() => void createInline()}
+                  >
+                    Create
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="border-border bg-background flex flex-col gap-4 rounded-lg border p-4">
+            <div>
+              <h3 className="text-sm font-bold">Offline programme settings</h3>
+              <p className="text-foreground-secondary mt-0.5 text-xs">
+                Keep the rotation predictable or let Tahti balance it.
+              </p>
+            </div>
+
+            <div
+              className="border-border grid grid-cols-2 rounded-md border p-1"
+              role="group"
+              aria-label="Rotation mode"
+            >
+              {(
+                [
+                  ['shuffle', 'Shuffle'] as const,
+                  ['ordered', 'In order'] as const,
+                ] as const
+              ).map(([mode, label]) => (
+                <Button
+                  key={mode}
+                  type="button"
+                  variant="text"
+                  className={`rounded px-3 py-2 text-xs font-semibold uppercase transition-colors ${
+                    fallbackMode === mode
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-foreground-secondary hover:text-foreground'
+                  }`}
+                  onClick={() => setFallbackMode(mode)}
+                  aria-pressed={fallbackMode === mode}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+
+            <label className="flex items-center justify-between gap-3 text-sm">
+              <span>
+                Auto-add uploads
+                <span className="text-foreground-secondary block text-xs">
+                  Until the {MAX_RADIO_PLAYLIST_ITEMS}-track limit
+                </span>
+              </span>
+              <Toggle
+                checked={fallbackAutoEnroll}
+                disabled={busy || !programme}
+                onChange={setFallbackAutoEnroll}
+                aria-label="Auto-add uploads"
+              />
+            </label>
+
+            <label className="flex items-center justify-between gap-3 text-sm">
+              <span>
+                Artist announcements
+                <span className="text-foreground-secondary block text-xs">
+                  Include your station IDs and clips
+                </span>
+              </span>
+              <Toggle
+                checked={announcementsEnabled}
+                disabled={busy || !programme}
+                onChange={setAnnouncementsEnabled}
+                aria-label="Artist announcements"
+              />
+            </label>
+
+            <div className="flex justify-end">
+              <SaveButton
+                disabled={!programme || !settingsDirty}
+                saving={busy}
+                label="Save settings"
+                onClick={() => void saveSettings()}
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {activeTab === 'rotation' ? (
+        <ChannelRotationEditor
+          items={rotation}
+          availableItems={availableItems}
+          busy={busy}
+          onAdd={(item) => void saveRotation([...rotation, item])}
+          onReorder={(next) => void saveRotation(next, 'ordered')}
+          onRemove={(item) =>
+            void saveRotation(
+              rotation.filter((candidate) => candidate.id !== item.id),
+            )
+          }
+          onPlay={(item) => void playRotationItem(item)}
+          libraryGroups={libraryGroups}
+          onAddGroup={(group) => setPendingAdd(group)}
+        />
+      ) : null}
+
+      <Dialog.Root
+        isOpen={Boolean(pendingAdd)}
+        onClose={() => setPendingAdd(null)}
+        className="max-w-md"
+      >
+        <Dialog.Title>Add tracks to active rotation</Dialog.Title>
+        <Dialog.Description>
+          {pendingAdd
+            ? `${pendingAdd.label} contains ${pendingAdd.items.length} track${pendingAdd.items.length === 1 ? '' : 's'}. Choose how to add it.`
+            : ''}
+        </Dialog.Description>
+        <div className="border-border bg-background-secondary/40 rounded-lg border p-3 text-sm">
+          <p>
+            Append keeps the current rotation and adds new tracks until the{' '}
+            {MAX_RADIO_PLAYLIST_ITEMS}-track limit.
+          </p>
+          <p className="mt-2">
+            Overwrite replaces the active rotation with this selection.
+          </p>
+        </div>
+        <Dialog.Actions>
+          <Button variant="secondary" onClick={() => setPendingAdd(null)}>
+            Cancel
+          </Button>
+          <Button variant="secondary" onClick={() => void confirmAdd('append')}>
+            Append tracks
+          </Button>
+          <Button onClick={() => void confirmAdd('overwrite')}>
+            Overwrite rotation
+          </Button>
+        </Dialog.Actions>
+      </Dialog.Root>
     </section>
   );
 };

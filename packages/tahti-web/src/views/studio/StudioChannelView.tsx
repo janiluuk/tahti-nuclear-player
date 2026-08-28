@@ -24,7 +24,8 @@ import {
   type StatsPlays,
   type StatsPlaysRange,
 } from '../../api/studio-extras';
-import { ChannelDesigner } from '../../components/ChannelDesigner';
+import { ChannelAnnouncementsPanel } from '../../components/ChannelAnnouncementsPanel';
+import { ChannelControlsWidget } from '../../components/ChannelControlsWidget';
 import { ChannelRadioPlaylistPanel } from '../../components/ChannelRadioPlaylistPanel';
 import { PageLoading } from '../../components/PageStates';
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
@@ -33,6 +34,7 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
+import { SelectsTab } from '../admin/moderation/tabs/SelectsTab';
 import { BroadcastPanel } from '../settings/SettingsPanels';
 
 type Tab =
@@ -41,9 +43,10 @@ type Tab =
   | 'radio'
   | 'green-room'
   | 'multicast'
+  | 'selects'
   | 'profile'
   | 'domain';
-type RadioTab = 'stream' | 'rotation' | 'settings';
+type RadioTab = 'stream' | 'rotation' | 'announcements' | 'settings';
 
 const RADIO_STATS_RANGES: StatsPlaysRange[] = ['1', '7', '30'];
 
@@ -54,6 +57,7 @@ const isTab = (value: string | undefined): value is Tab =>
     'radio',
     'green-room',
     'multicast',
+    'selects',
     'profile',
     'domain',
   ].includes(value ?? '');
@@ -189,10 +193,14 @@ export function StudioChannelView() {
           }
         />
         <StudioPageHeader
-          title="Channel design"
-          subtitle="Set up your channel, then manage its look, 24/7 radio, profile, and domain."
+          title={tab === 'radio' ? 'Radio' : 'Channel'}
+          subtitle={
+            tab === 'radio'
+              ? 'Manage your stream and 24/7 rotation.'
+              : 'Manage your channel and public profile.'
+          }
         />
-        {user && (
+        {user && tab !== 'radio' && (
           <Link
             to="/u/$username"
             params={{ username: user.username }}
@@ -202,36 +210,38 @@ export function StudioChannelView() {
           </Link>
         )}
 
-        <nav
-          className="flex flex-wrap gap-2"
-          role="tablist"
-          aria-label="Channel sections"
-        >
-          {(
-            [
-              { id: 'design' as const, label: 'Channel' },
-              { id: 'radio' as const, label: '24/7 radio' },
-              { id: 'profile' as const, label: 'Profile' },
-              { id: 'domain' as const, label: 'Username / domain' },
-            ] as const
-          ).map((t) => (
-            <Button
-              key={t.id}
-              type="button"
-              variant="text"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-                tab === t.id
-                  ? 'bg-primary text-foreground shadow-sm'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              {t.label}
-            </Button>
-          ))}
-        </nav>
+        {tab !== 'radio' && (
+          <nav
+            className="flex flex-wrap gap-2"
+            role="tablist"
+            aria-label="Channel sections"
+          >
+            {(
+              [
+                { id: 'design' as const, label: 'Channel' },
+                { id: 'radio' as const, label: '24/7 radio' },
+                { id: 'profile' as const, label: 'Profile' },
+                { id: 'domain' as const, label: 'Username / domain' },
+              ] as const
+            ).map((t) => (
+              <Button
+                key={t.id}
+                type="button"
+                variant="text"
+                role="tab"
+                aria-selected={tab === t.id}
+                onClick={() => setTab(t.id)}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
+                  tab === t.id
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'border-border text-foreground-secondary hover:text-foreground border'
+                }`}
+              >
+                {t.label}
+              </Button>
+            ))}
+          </nav>
+        )}
 
         {tab === 'setup' && !channel && (
           <StudioPanel title="Channel setup">
@@ -248,31 +258,34 @@ export function StudioChannelView() {
         )}
 
         {tab === 'design' && user && (
-          <StudioPanel>
-            {channel?.slug ? (
-              <div className="border-border bg-background mb-4 flex flex-col gap-2 rounded-lg border px-4 py-3 shadow-sm">
-                <p className="text-sm">
-                  Prefer editing on the live page — drag layers and tune Look
-                  there.
-                </p>
-                <Link
-                  to="/channel/$slug"
-                  params={{ slug: channel.slug }}
-                  search={{ edit: '1' }}
-                  className="text-sm font-medium underline-offset-2 hover:underline"
-                >
-                  Open channel design editor →
-                </Link>
-              </div>
-            ) : null}
-            <ChannelDesigner
-              displayName={displayName || user.displayName}
-              username={user.username}
-              channelSlug={channel?.slug}
-              avatarUrl={user.avatarUrl}
-              bio={bio || profile?.bio}
-            />
-          </StudioPanel>
+          <ChannelControlsWidget
+            sections={[
+              {
+                id: 'channel-design',
+                title: 'Channel appearance',
+                description:
+                  'Open the complete channel designer to edit visual presets, colours, and the header.',
+                children: (
+                  <div className="flex flex-col gap-3">
+                    <p className="text-foreground-secondary text-sm">
+                      Your channel is ready. The same channel controls are
+                      available from the public channel editor.
+                    </p>
+                    {channel?.slug ? (
+                      <Link
+                        to="/channel/$slug"
+                        params={{ slug: channel.slug }}
+                        search={{ edit: '1' }}
+                        className="text-sm font-medium underline-offset-2 hover:underline"
+                      >
+                        Open channel design editor →
+                      </Link>
+                    ) : null}
+                  </div>
+                ),
+              },
+            ]}
+          />
         )}
 
         {tab === 'radio' && (
@@ -286,6 +299,7 @@ export function StudioChannelView() {
                 [
                   ['stream', 'Stream'],
                   ['rotation', '24/7'],
+                  ['announcements', 'Announcements'],
                   ['settings', 'Settings'],
                 ] as const
               ).map(([id, label]) => (
@@ -299,7 +313,7 @@ export function StudioChannelView() {
                   onClick={() => setRadioTab(id)}
                   className={
                     radioTab === id
-                      ? 'bg-primary text-foreground rounded-md'
+                      ? 'bg-primary text-primary-foreground rounded-md'
                       : 'text-foreground-secondary rounded-md'
                   }
                 >
@@ -325,6 +339,8 @@ export function StudioChannelView() {
               )
             ) : radioTab === 'rotation' ? (
               <ChannelRadioPlaylistPanel />
+            ) : radioTab === 'announcements' ? (
+              <ChannelAnnouncementsPanel />
             ) : (
               <BroadcastPanel section="radio" />
             )}
@@ -334,6 +350,8 @@ export function StudioChannelView() {
         {tab === 'green-room' && <BroadcastPanel section="green-room" />}
 
         {tab === 'multicast' && <BroadcastPanel section="multistream" />}
+
+        {tab === 'selects' && <SelectsTab />}
 
         {tab === 'profile' && (
           <StudioPanel title="Profile">

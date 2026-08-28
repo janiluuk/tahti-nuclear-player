@@ -76,7 +76,7 @@ export function BroadcastDetailsFields({
             aria-pressed={values.showType === type}
             className={
               values.showType === type
-                ? 'bg-primary text-foreground rounded-md'
+                ? 'bg-primary text-primary-foreground rounded-md'
                 : 'text-foreground-secondary rounded-md'
             }
           >
@@ -102,7 +102,7 @@ export function BroadcastDetailsFields({
               aria-pressed={values.durationHours === hours}
               className={
                 values.durationHours === hours
-                  ? 'bg-primary text-foreground rounded-md'
+                  ? 'bg-primary text-primary-foreground rounded-md'
                   : 'text-foreground-secondary rounded-md'
               }
             >

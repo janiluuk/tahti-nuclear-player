@@ -1,7 +1,8 @@
+import { Link } from '@tanstack/react-router';
 import {
+  AudioLinesIcon,
   ImageIcon,
   ListMusicIcon,
-  Share2Icon,
   TagsIcon,
   UploadIcon,
 } from 'lucide-react';
@@ -38,7 +39,13 @@ import { MusicBrainzSubmissionAssistant } from './MusicBrainzSubmissionAssistant
 import { PageLoading } from './PageStates';
 import { TrackExportPanel } from './TrackExportPanel';
 
-type Tab = 'metadata' | 'artwork' | 'playlists' | 'settings' | 'export';
+type Tab =
+  | 'basics'
+  | 'tracklist'
+  | 'audio'
+  | 'visuals'
+  | 'sharing'
+  | 'advanced';
 
 type Props = {
   archiveItemId: string | null;
@@ -54,6 +61,7 @@ const CONTENT_TYPES = [
   ['ORIGINAL', 'Original'],
   ['REMIX', 'Remix'],
   ['RADIO_SHOW', 'Radio show'],
+  ['AUDIOCLIPS', 'Audio clip'],
 ] as const;
 
 const LICENSES = [
@@ -74,16 +82,17 @@ const LICENSES = [
 ] as const;
 
 const TAB_ORDER: Tab[] = [
-  'metadata',
-  'artwork',
-  'playlists',
-  'settings',
-  'export',
+  'basics',
+  'tracklist',
+  'audio',
+  'visuals',
+  'sharing',
+  'advanced',
 ];
 
 export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const isOpen = Boolean(archiveItemId);
-  const [tab, setTab] = useState<Tab>('metadata');
+  const [tab, setTab] = useState<Tab>('basics');
   const [item, setItem] = useState<StudioArchiveItem | null>(null);
   const [form, setForm] = useState<StudioArchivePatch>({});
   const [loading, setLoading] = useState(false);
@@ -100,6 +109,9 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     title: string;
   } | null>(null);
 
+  const isDjMix = form.contentType === 'DJ_MIX';
+  const isAudioClip = form.contentType === 'AUDIOCLIPS';
+
   useEffect(() => {
     if (!archiveItemId) {
       setRadioSubmission(null);
@@ -112,6 +124,12 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   }, [archiveItemId]);
 
   useEffect(() => {
+    if (!isDjMix && tab === 'tracklist') {
+      setTab('basics');
+    }
+  }, [isDjMix, tab]);
+
+  useEffect(() => {
     if (!archiveItemId) {
       setItem(null);
       return;
@@ -120,7 +138,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     setLoading(true);
     setError(null);
     setNote(null);
-    setTab('metadata');
+    setTab('basics');
     void fetchStudioArchiveItem(archiveItemId)
       .then((res) => {
         if (cancelled) {
@@ -293,11 +311,11 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
             onChange={(index) => setTab(TAB_ORDER[index]!)}
             items={[
               {
-                id: 'metadata',
+                id: 'basics',
                 label: (
                   <span className="inline-flex items-center gap-1.5">
                     <TagsIcon size={15} aria-hidden />
-                    Metadata
+                    Basics
                   </span>
                 ),
                 content: (
@@ -332,24 +350,31 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         />
                       </label>
                     </div>
-                    <CreatableCombobox
-                      label="Genre"
-                      options={[...PRESET_GENRES]}
-                      value={form.genre ?? ''}
-                      onValueChange={(genre) => setForm({ ...form, genre })}
-                      normalize={capitalizeGenre}
-                    />
-                    <label className="flex flex-col gap-1 text-sm">
-                      Release date
-                      <input
-                        type="date"
-                        value={form.releaseDate ?? ''}
-                        onChange={(event) =>
-                          setForm({ ...form, releaseDate: event.target.value })
-                        }
-                        className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                      />
-                    </label>
+                    {!isAudioClip ? (
+                      <>
+                        <CreatableCombobox
+                          label="Genre"
+                          options={[...PRESET_GENRES]}
+                          value={form.genre ?? ''}
+                          onValueChange={(genre) => setForm({ ...form, genre })}
+                          normalize={capitalizeGenre}
+                        />
+                        <label className="flex flex-col gap-1 text-sm">
+                          Release date
+                          <input
+                            type="date"
+                            value={form.releaseDate ?? ''}
+                            onChange={(event) =>
+                              setForm({
+                                ...form,
+                                releaseDate: event.target.value,
+                              })
+                            }
+                            className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                          />
+                        </label>
+                      </>
+                    ) : null}
                     <label className="flex flex-col gap-1 text-sm">
                       Content type
                       <select
@@ -431,104 +456,289 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                       Allow comments
                     </label>
 
-                    <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3 sm:col-span-2">
-                      <label className="flex items-start gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={form.isFallback ?? false}
-                          onChange={(event) =>
-                            setForm({
-                              ...form,
-                              isFallback: event.target.checked,
-                            })
-                          }
-                          className="mt-0.5"
-                        />
-                        <span>
-                          <span className="block font-medium">
-                            Add to my channel&apos;s rotation
+                    {!isAudioClip ? (
+                      <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3 sm:col-span-2">
+                        <label className="flex items-start gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={form.isFallback ?? false}
+                            onChange={(event) =>
+                              setForm({
+                                ...form,
+                                isFallback: event.target.checked,
+                              })
+                            }
+                            className="mt-0.5"
+                          />
+                          <span>
+                            <span className="block font-medium">
+                              Add to my channel&apos;s rotation
+                            </span>
+                            <span className="text-foreground-secondary block text-xs">
+                              Plays automatically on your channel when you
+                              aren&apos;t live, so listeners always hear
+                              something instead of dead air.
+                            </span>
                           </span>
-                          <span className="text-foreground-secondary block text-xs">
-                            Plays automatically on your channel when you
-                            aren&apos;t live, so listeners always hear something
-                            instead of dead air.
-                          </span>
-                        </span>
-                      </label>
+                        </label>
 
-                      <div className="border-border/60 flex items-center gap-3 border-t pt-3">
-                        <div className="min-w-0 flex-1 text-sm">
-                          <span className="block font-medium">
-                            Tahti Radio rotation
-                          </span>
-                          <span className="text-foreground-secondary block text-xs">
-                            {radioSubmission?.status === 'PENDING'
-                              ? 'Submitted — waiting on board review.'
-                              : radioSubmission?.status === 'APPROVED'
-                                ? 'Approved — in the Tahti Radio rotation.'
-                                : radioSubmission?.status === 'REJECTED'
-                                  ? (radioSubmission.rejectionNote ??
-                                    'Not accepted this time — you can resubmit.')
-                                  : 'Submit for board review to be considered for the shared 24/7 station.'}
-                          </span>
+                        <div className="border-border/60 flex items-center gap-3 border-t pt-3">
+                          <div className="min-w-0 flex-1 text-sm">
+                            <span className="block font-medium">
+                              Tahti Radio rotation
+                            </span>
+                            <span className="text-foreground-secondary block text-xs">
+                              {radioSubmission?.status === 'PENDING'
+                                ? 'Submitted — waiting on board review.'
+                                : radioSubmission?.status === 'APPROVED'
+                                  ? 'Approved — in the Tahti Radio rotation.'
+                                  : radioSubmission?.status === 'REJECTED'
+                                    ? (radioSubmission.rejectionNote ??
+                                      'Not accepted this time — you can resubmit.')
+                                    : 'Submit for board review to be considered for the shared 24/7 station.'}
+                            </span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            disabled={
+                              submittingToRadio ||
+                              radioSubmission?.status === 'PENDING' ||
+                              radioSubmission?.status === 'APPROVED'
+                            }
+                            onClick={() => {
+                              if (!archiveItemId) {
+                                return;
+                              }
+                              setSubmittingToRadio(true);
+                              void submitTrackToRadioRotation(archiveItemId)
+                                .then((result) => {
+                                  if (result.ok) {
+                                    setNote(
+                                      'Submitted to Tahti Radio for review.',
+                                    );
+                                    setRadioSubmission({
+                                      id: 'pending-local',
+                                      status: 'PENDING',
+                                      rejectionNote: null,
+                                      createdAt: new Date().toISOString(),
+                                      archiveItem: {
+                                        id: archiveItemId,
+                                        title: form.title ?? '',
+                                      },
+                                    });
+                                  } else {
+                                    setError(result.error);
+                                  }
+                                })
+                                .finally(() => setSubmittingToRadio(false));
+                            }}
+                          >
+                            {submittingToRadio
+                              ? 'Submitting…'
+                              : radioSubmission?.status === 'PENDING'
+                                ? 'Pending'
+                                : radioSubmission?.status === 'APPROVED'
+                                  ? 'In rotation'
+                                  : radioSubmission?.status === 'REJECTED'
+                                    ? 'Resubmit'
+                                    : 'Submit'}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                ),
+              },
+              ...(isDjMix
+                ? [
+                    {
+                      id: 'tracklist' as const,
+                      label: (
+                        <span className="inline-flex items-center gap-1.5">
+                          <ListMusicIcon size={15} aria-hidden />
+                          Tracklist
+                        </span>
+                      ),
+                      content: (
+                        <div className="flex flex-col gap-3">
+                          <p className="text-foreground-secondary text-sm">
+                            Add the tracks played in this DJ mix so listeners
+                            can discover and credit them.
+                          </p>
+                          {Array.isArray(
+                            (
+                              item as StudioArchiveItem & {
+                                tracklist?: Array<{
+                                  title?: string;
+                                  artist?: string;
+                                }>;
+                              }
+                            ).tracklist,
+                          ) &&
+                          (
+                            item as StudioArchiveItem & {
+                              tracklist?: Array<{
+                                title?: string;
+                                artist?: string;
+                              }>;
+                            }
+                          ).tracklist!.length > 0 ? (
+                            <ol className="border-border divide-border divide-y rounded-xl border">
+                              {(
+                                item as StudioArchiveItem & {
+                                  tracklist?: Array<{
+                                    title?: string;
+                                    artist?: string;
+                                  }>;
+                                }
+                              ).tracklist!.map((entry, index) => (
+                                <li
+                                  key={`${entry.title ?? 'track'}-${index}`}
+                                  className="flex gap-3 px-3 py-2 text-sm"
+                                >
+                                  <span className="text-foreground-secondary w-5 shrink-0 tabular-nums">
+                                    {index + 1}
+                                  </span>
+                                  <span>
+                                    {entry.title ?? 'Untitled track'}
+                                    {entry.artist ? ` · ${entry.artist}` : ''}
+                                  </span>
+                                </li>
+                              ))}
+                            </ol>
+                          ) : (
+                            <p className="border-border text-foreground-secondary rounded-xl border border-dashed p-4 text-sm">
+                              No tracklist has been added yet.
+                            </p>
+                          )}
+                        </div>
+                      ),
+                    },
+                  ]
+                : []),
+              {
+                id: 'audio',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <AudioLinesIcon size={15} aria-hidden />
+                    Audio
+                  </span>
+                ),
+                content: (
+                  <div className="flex flex-col gap-4">
+                    <div className="border-border bg-background-secondary/40 rounded-xl border p-4">
+                      <p className="font-medium">Audio source</p>
+                      <p className="text-foreground-secondary mt-1 text-sm">
+                        {item.embedUri
+                          ? 'This track is embedded from its original source.'
+                          : 'This track is stored as Tahti audio.'}
+                      </p>
+                      <p className="text-foreground-secondary mt-3 text-xs">
+                        {item.durationSec != null
+                          ? `${Math.round(item.durationSec / 60)} min · ${item.status}`
+                          : 'Source details are available after processing.'}
+                      </p>
+                    </div>
+                    {!item.embedUri && (
+                      <Link
+                        to="/studio/archive/$id/editor"
+                        params={{ id: item.id }}
+                        className="text-primary text-sm hover:underline"
+                      >
+                        Open audio editor →
+                      </Link>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                id: 'visuals',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <ImageIcon size={15} aria-hidden />
+                    Cover &amp; visuals
+                  </span>
+                ),
+                content: (
+                  <div className="grid gap-4 sm:grid-cols-[12rem_1fr]">
+                    <div className="border-border bg-background-secondary flex aspect-square items-center justify-center overflow-hidden rounded-xl border">
+                      {form.bannerUrl ? (
+                        <img
+                          src={form.bannerUrl}
+                          alt="Current cover art"
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <ImageIcon
+                          size={36}
+                          className="text-foreground-secondary"
+                          aria-label="No cover art"
+                        />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      <FilePicker
+                        labels={{
+                          title: 'Upload cover art',
+                          description: 'JPEG, PNG, or WebP',
+                          browse: 'Choose image',
+                        }}
+                        accept="image/jpeg,image/png,image/webp"
+                        disabled={artworkBusy}
+                        onFiles={(files) => {
+                          const file = files[0];
+                          if (file) {
+                            void uploadArtwork(file);
+                          }
+                        }}
+                      />
+                      <div className="flex items-end gap-2">
+                        <div className="min-w-0 flex-1">
+                          <Input
+                            label="Or import an image URL"
+                            value={form.bannerUrl ?? ''}
+                            placeholder="https://…"
+                            onChange={(event) =>
+                              setForm({
+                                ...form,
+                                bannerUrl: event.target.value,
+                              })
+                            }
+                          />
                         </div>
                         <Button
                           size="sm"
                           variant="secondary"
-                          disabled={
-                            submittingToRadio ||
-                            radioSubmission?.status === 'PENDING' ||
-                            radioSubmission?.status === 'APPROVED'
-                          }
-                          onClick={() => {
-                            if (!archiveItemId) {
-                              return;
-                            }
-                            setSubmittingToRadio(true);
-                            void submitTrackToRadioRotation(archiveItemId)
-                              .then((result) => {
-                                if (result.ok) {
-                                  setNote(
-                                    'Submitted to Tahti Radio for review.',
-                                  );
-                                  setRadioSubmission({
-                                    id: 'pending-local',
-                                    status: 'PENDING',
-                                    rejectionNote: null,
-                                    createdAt: new Date().toISOString(),
-                                    archiveItem: {
-                                      id: archiveItemId,
-                                      title: form.title ?? '',
-                                    },
-                                  });
-                                } else {
-                                  setError(result.error);
-                                }
-                              })
-                              .finally(() => setSubmittingToRadio(false));
-                          }}
+                          disabled={artworkBusy || !form.bannerUrl?.trim()}
+                          onClick={() => void importArtwork()}
                         >
-                          {submittingToRadio
-                            ? 'Submitting…'
-                            : radioSubmission?.status === 'PENDING'
-                              ? 'Pending'
-                              : radioSubmission?.status === 'APPROVED'
-                                ? 'In rotation'
-                                : radioSubmission?.status === 'REJECTED'
-                                  ? 'Resubmit'
-                                  : 'Submit'}
+                          <UploadIcon size={14} aria-hidden />
+                          {artworkBusy ? 'Working…' : 'Import'}
                         </Button>
                       </div>
+                      <p className="text-foreground-secondary text-xs">
+                        JPEG, PNG, or WebP. Imported images are re-hosted so the
+                        artwork stays available.
+                      </p>
+                      <Input
+                        label="Backdrop image URL"
+                        value={form.backdropUrl ?? ''}
+                        placeholder="https://…"
+                        onChange={(event) =>
+                          setForm({ ...form, backdropUrl: event.target.value })
+                        }
+                      />
                     </div>
                   </div>
                 ),
               },
               {
-                id: 'settings',
+                id: 'sharing',
                 label: (
                   <span className="inline-flex items-center gap-1.5">
                     <TagsIcon size={15} aria-hidden />
-                    Settings
+                    Sharing
                   </span>
                 ),
                 content: (
@@ -627,131 +837,45 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                 ),
               },
               {
-                id: 'artwork',
+                id: 'advanced',
                 label: (
                   <span className="inline-flex items-center gap-1.5">
-                    <ImageIcon size={15} aria-hidden />
-                    Artwork
-                  </span>
-                ),
-                content: (
-                  <div className="grid gap-4 sm:grid-cols-[12rem_1fr]">
-                    <div className="border-border bg-background-secondary flex aspect-square items-center justify-center overflow-hidden rounded-xl border">
-                      {form.bannerUrl ? (
-                        <img
-                          src={form.bannerUrl}
-                          alt="Current cover art"
-                          className="size-full object-cover"
-                        />
-                      ) : (
-                        <ImageIcon
-                          size={36}
-                          className="text-foreground-secondary"
-                          aria-label="No cover art"
-                        />
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      <FilePicker
-                        labels={{
-                          title: 'Upload cover art',
-                          description: 'JPEG, PNG, or WebP',
-                          browse: 'Choose image',
-                        }}
-                        accept="image/jpeg,image/png,image/webp"
-                        disabled={artworkBusy}
-                        onFiles={(files) => {
-                          const file = files[0];
-                          if (file) {
-                            void uploadArtwork(file);
-                          }
-                        }}
-                      />
-                      <div className="flex items-end gap-2">
-                        <div className="min-w-0 flex-1">
-                          <Input
-                            label="Or import an image URL"
-                            value={form.bannerUrl ?? ''}
-                            placeholder="https://…"
-                            onChange={(event) =>
-                              setForm({
-                                ...form,
-                                bannerUrl: event.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          disabled={artworkBusy || !form.bannerUrl?.trim()}
-                          onClick={() => void importArtwork()}
-                        >
-                          <UploadIcon size={14} aria-hidden />
-                          {artworkBusy ? 'Working…' : 'Import'}
-                        </Button>
-                      </div>
-                      <p className="text-foreground-secondary text-xs">
-                        JPEG, PNG, or WebP. Imported images are re-hosted so the
-                        artwork stays available.
-                      </p>
-                      <Input
-                        label="Backdrop image URL"
-                        value={form.backdropUrl ?? ''}
-                        placeholder="https://…"
-                        onChange={(event) =>
-                          setForm({ ...form, backdropUrl: event.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                id: 'playlists',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <ListMusicIcon size={15} aria-hidden />
-                    Playlists
-                  </span>
-                ),
-                content: (
-                  <div className="border-border flex items-center gap-4 rounded-xl border p-4">
-                    <ListMusicIcon
-                      size={28}
-                      className="text-primary shrink-0"
-                      aria-hidden
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium">Add this track to playlists</p>
-                      <p className="text-foreground-secondary text-sm">
-                        Choose one or more existing playlists, or create a new
-                        one.
-                      </p>
-                    </div>
-                    <Button size="sm" onClick={() => setPlaylistOpen(true)}>
-                      <ListMusicIcon size={15} aria-hidden />
-                      Choose playlists
-                    </Button>
-                  </div>
-                ),
-              },
-              {
-                id: 'export',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Share2Icon size={15} aria-hidden />
-                    Export
+                    <TagsIcon size={15} aria-hidden />
+                    Advanced
                   </span>
                 ),
                 content: (
                   <div className="flex flex-col gap-4">
-                    <MusicBrainzSubmissionAssistant
-                      mode="track"
-                      title={item.title}
-                      artistName={item.artistName ?? ''}
-                      releaseDate={item.releaseDate}
-                    />
+                    {!isAudioClip ? (
+                      <div className="border-border flex items-center gap-4 rounded-xl border p-4">
+                        <ListMusicIcon
+                          size={28}
+                          className="text-primary shrink-0"
+                          aria-hidden
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium">
+                            Add this track to playlists
+                          </p>
+                          <p className="text-foreground-secondary text-sm">
+                            Choose one or more existing playlists, or create a
+                            new one.
+                          </p>
+                        </div>
+                        <Button size="sm" onClick={() => setPlaylistOpen(true)}>
+                          <ListMusicIcon size={15} aria-hidden />
+                          Choose playlists
+                        </Button>
+                      </div>
+                    ) : null}
+                    {!isAudioClip ? (
+                      <MusicBrainzSubmissionAssistant
+                        mode="track"
+                        title={item.title}
+                        artistName={item.artistName ?? ''}
+                        releaseDate={item.releaseDate}
+                      />
+                    ) : null}
                     <TrackExportPanel archiveItemId={item.id} />
                   </div>
                 ),
@@ -773,7 +897,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
 
         <Dialog.Actions>
           <Dialog.Close>Close</Dialog.Close>
-          {(tab === 'metadata' || tab === 'artwork') && item ? (
+          {item ? (
             <SaveButton
               disabled={artworkBusy || !form.title?.trim()}
               saving={saving}

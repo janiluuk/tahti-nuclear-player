@@ -77,7 +77,7 @@ export function StudioStatsDetailView() {
                   onClick={() => setRange(r)}
                   className={`rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide uppercase ${
                     range === r
-                      ? 'bg-primary text-foreground'
+                      ? 'bg-primary text-primary-foreground'
                       : 'text-foreground-secondary hover:text-foreground'
                   }`}
                 >

@@ -96,6 +96,8 @@ import {
   type ProgrammeView,
 } from '../../api/studio-extras';
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
+import { ApiTokensPanel } from '../../components/ApiTokensPanel';
+import { ChannelControlsWidget } from '../../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
@@ -120,6 +122,7 @@ import {
 import { useThemeStore } from '../../plugins/themes';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
+import { useChannelShareStore } from '../../stores/channelShareStore';
 import { useSettingsModalStore } from '../../stores/settingsModalStore';
 import { StudioBrandingPanel } from '../studio/StudioBrandingView';
 import { WhatsNewPanel } from '../WhatsNewView';
@@ -309,7 +312,12 @@ function AccountPanel() {
         {
           id: 'security',
           label: tabLabel(Lock, 'Security'),
-          content: <SecurityTotpPanel />,
+          content: (
+            <div className="flex flex-col gap-6">
+              <SecurityTotpPanel />
+              <ApiTokensPanel />
+            </div>
+          ),
         },
         {
           id: 'membership',
@@ -379,8 +387,8 @@ function AccountPanel() {
         },
         {
           id: 'notifications',
-          label: tabLabel(Bell, 'Notifications'),
-          content: <NotificationsPanel />,
+          label: tabLabel(Bell, 'Notifications & visibility'),
+          content: <NotificationsVisibilityPanel />,
         },
         {
           id: 'subscriptions',
@@ -488,6 +496,36 @@ function ArtistPanel() {
     });
   }, []);
 
+  const saveArtistInfo = () => {
+    if (!profile) {
+      return;
+    }
+    setBusy(true);
+    void patchMeProfile({
+      displayName: profile.displayName.trim(),
+      bio: profile.bio?.trim() || null,
+      fullBio: profile.fullBio?.trim() || null,
+      tipJarUrl: profile.tipJarUrl?.trim() || null,
+      pronouns: profile.pronouns?.trim() || null,
+      chatEnabled: profile.chatEnabled,
+      showFollowers: profile.showFollowers,
+      showFollowing: profile.showFollowing,
+      artistKind: profile.artistKind ?? 'SINGLE',
+      countryCode: profile.countryCode,
+      defaultLocation: profile.defaultLocation?.trim() || null,
+    }).then((result) => {
+      setBusy(false);
+      setMsg(result.ok ? 'Artist info saved.' : result.error);
+      if (result.ok) {
+        setProfile(result.data);
+        void refreshAuth();
+        toast.success('Artist info saved.');
+      } else {
+        toast.error(result.error);
+      }
+    });
+  };
+
   if (!user) {
     return (
       <SettingsHint>
@@ -507,8 +545,8 @@ function ArtistPanel() {
     <Tabs
       items={[
         {
-          id: 'profile',
-          label: tabLabel(UserCircle2, 'Profile'),
+          id: 'identity',
+          label: tabLabel(UserCircle2, 'Identity'),
           content: !profile ? (
             <SettingsHint>Loading…</SettingsHint>
           ) : (
@@ -520,49 +558,7 @@ function ArtistPanel() {
                   setProfile({ ...profile, displayName: e.target.value })
                 }
               />
-              <label className="flex flex-col gap-1">
-                <span className="text-foreground text-sm font-semibold">
-                  Bio
-                </span>
-                <textarea
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                  rows={4}
-                  value={profile.bio ?? ''}
-                  onChange={(e) =>
-                    setProfile({ ...profile, bio: e.target.value })
-                  }
-                />
-              </label>
               <PronounsField profile={profile} setProfile={setProfile} />
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-foreground text-sm font-semibold">
-                  I am a…
-                </span>
-                <div className="flex gap-2">
-                  {(
-                    [
-                      ['SINGLE', 'Solo artist'],
-                      ['COLLECTIVE', 'Band / collective'],
-                    ] as const
-                  ).map(([kind, label]) => (
-                    <button
-                      key={kind}
-                      type="button"
-                      aria-pressed={(profile.artistKind ?? 'SINGLE') === kind}
-                      onClick={() =>
-                        setProfile({ ...profile, artistKind: kind })
-                      }
-                      className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                        (profile.artistKind ?? 'SINGLE') === kind
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border text-foreground-secondary hover:text-foreground'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </label>
               <label className="flex flex-col gap-1.5 text-sm">
                 <span className="text-foreground text-sm font-semibold">
                   Country
@@ -600,53 +596,136 @@ function ArtistPanel() {
                   setProfile({ ...profile, tipJarUrl: e.target.value })
                 }
               />
-              <SettingsToggle
-                label="Public channel chat"
-                description="Allow listeners to chat on your live channel."
-                value={profile.chatEnabled}
-                onChange={(v) => setProfile({ ...profile, chatEnabled: v })}
-              />
-              <SettingsToggle
-                label="Show followers"
-                description="Follower count is visible on your public profile."
-                value={profile.showFollowers ?? true}
-                onChange={(v) => setProfile({ ...profile, showFollowers: v })}
-              />
-              <SettingsToggle
-                label="Show following"
-                description="Who you follow is visible on your public profile."
-                value={profile.showFollowing ?? true}
-                onChange={(v) => setProfile({ ...profile, showFollowing: v })}
-              />
               <div className="flex justify-end">
                 <SaveButton
                   saving={busy}
-                  label="Save artist info"
-                  onClick={() => {
-                    setBusy(true);
-                    void patchMeProfile({
-                      displayName: profile.displayName.trim(),
-                      bio: profile.bio?.trim() || null,
-                      tipJarUrl: profile.tipJarUrl?.trim() || null,
-                      pronouns: profile.pronouns?.trim() || null,
-                      chatEnabled: profile.chatEnabled,
-                      showFollowers: profile.showFollowers,
-                      showFollowing: profile.showFollowing,
-                      artistKind: profile.artistKind ?? 'SINGLE',
-                      countryCode: profile.countryCode,
-                      defaultLocation: profile.defaultLocation?.trim() || null,
-                    }).then((r) => {
-                      setBusy(false);
-                      setMsg(r.ok ? 'Artist info saved.' : r.error);
-                      if (r.ok) {
-                        setProfile(r.data);
-                        void refreshAuth();
-                        toast.success('Artist info saved.');
-                      } else {
-                        toast.error(r.error);
+                  label="Save identity"
+                  onClick={saveArtistInfo}
+                />
+              </div>
+              {msg && <SettingsHint>{msg}</SettingsHint>}
+            </div>
+          ),
+        },
+        {
+          id: 'story',
+          label: tabLabel(UserCircle2, 'Story'),
+          content: !profile ? (
+            <SettingsHint>Loading…</SettingsHint>
+          ) : (
+            <div className="flex flex-col gap-6">
+              <label className="flex flex-col gap-1">
+                <span className="text-foreground text-sm font-semibold">
+                  Short bio
+                </span>
+                <textarea
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                  rows={4}
+                  value={profile.bio ?? ''}
+                  onChange={(event) =>
+                    setProfile({ ...profile, bio: event.target.value })
+                  }
+                  placeholder="The concise introduction shown on your profile."
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-foreground text-sm font-semibold">
+                  Your story
+                </span>
+                <textarea
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                  rows={8}
+                  value={profile.fullBio ?? ''}
+                  onChange={(event) =>
+                    setProfile({ ...profile, fullBio: event.target.value })
+                  }
+                  placeholder="Share your history, influences, milestones, and what listeners should know."
+                />
+              </label>
+              <div className="flex justify-end">
+                <SaveButton
+                  saving={busy}
+                  label="Save story"
+                  onClick={saveArtistInfo}
+                />
+              </div>
+              {msg && <SettingsHint>{msg}</SettingsHint>}
+            </div>
+          ),
+        },
+        {
+          id: 'people',
+          label: tabLabel(Users, 'People'),
+          content: (
+            <div className="flex flex-col gap-5">
+              <label className="flex flex-col gap-1.5 text-sm">
+                <span className="text-foreground text-sm font-semibold">
+                  Project type
+                </span>
+                <span className="text-foreground-secondary text-xs">
+                  Tell listeners whether this profile represents one artist or a
+                  collective.
+                </span>
+                <div className="flex gap-2">
+                  {(
+                    [
+                      ['SINGLE', 'Solo artist'],
+                      ['COLLECTIVE', 'Band / collective'],
+                    ] as const
+                  ).map(([kind, label]) => (
+                    <button
+                      key={kind}
+                      type="button"
+                      aria-pressed={(profile?.artistKind ?? 'SINGLE') === kind}
+                      onClick={() =>
+                        profile && setProfile({ ...profile, artistKind: kind })
                       }
-                    });
-                  }}
+                      className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                        (profile?.artistKind ?? 'SINGLE') === kind
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border text-foreground-secondary hover:text-foreground'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </label>
+              <div className="flex flex-col gap-3">
+                <div>
+                  <h3 className="text-foreground text-sm font-semibold">
+                    Members and credits
+                  </h3>
+                  <p className="text-foreground-secondary mt-1 text-xs">
+                    People shown alongside this project on its public artist
+                    page.
+                  </p>
+                </div>
+                {members.length === 0 ? (
+                  <SettingsHint>No members listed.</SettingsHint>
+                ) : (
+                  <ul className="flex flex-col gap-2">
+                    {members.map((member) => (
+                      <li
+                        key={member.id}
+                        className="border-border flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                      >
+                        <span>
+                          {member.displayName} (@{member.username})
+                        </span>
+                        <span className="text-foreground-secondary text-xs uppercase">
+                          {member.role}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="flex justify-end">
+                <SaveButton
+                  saving={busy}
+                  label="Save people settings"
+                  onClick={saveArtistInfo}
                 />
               </div>
               {msg && <SettingsHint>{msg}</SettingsHint>}
@@ -710,36 +789,6 @@ function ArtistPanel() {
           content: <StudioBrandingPanel section="gallery" />,
         },
         {
-          id: 'members',
-          label: tabLabel(Users, 'Members'),
-          content: (
-            <div className="flex flex-col gap-4">
-              <SettingsHint>
-                Collective or band members who share access to this channel.
-              </SettingsHint>
-              {members.length === 0 ? (
-                <SettingsHint>No members listed.</SettingsHint>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {members.map((m) => (
-                    <li
-                      key={m.id}
-                      className="border-border flex items-center justify-between rounded-md border px-3 py-2 text-sm"
-                    >
-                      <span>
-                        {m.displayName} (@{m.username})
-                      </span>
-                      <span className="text-foreground-secondary text-xs uppercase">
-                        {m.role}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ),
-        },
-        {
           id: 'presskit',
           label: tabLabel(ImageIcon, 'Press kit'),
           content: <StudioBrandingPanel section="press-kit" />,
@@ -757,6 +806,10 @@ function ChannelPanel() {
   const [slug, setSlug] = useState(channel?.slug ?? '');
   const [domain, setDomain] = useState('');
   const [note, setNote] = useState<string | null>(null);
+  const shareEnabled = useChannelShareStore(
+    (state) => state.enabledByChannel[channel?.slug ?? ''] !== false,
+  );
+  const setShareEnabled = useChannelShareStore((state) => state.setEnabled);
 
   useEffect(() => {
     void fetchDiscoveryPrefs().then((r) => setDiscovery(r.data));
@@ -792,17 +845,27 @@ function ChannelPanel() {
                 </Link>
                 .
               </SettingsHint>
-              <ChannelDesigner
-                displayName={user.displayName}
-                username={user.username}
-                channelSlug={channel?.slug}
-                avatarUrl={user.avatarUrl}
-                // This modal is a global overlay that can stay open over the
-                // owner's own live channel page (which may already be
-                // running a live ChannelVisualizer) — skip the extra WebGL
-                // context here rather than risk two at once (see 7a8060d7).
-                livePreview={false}
-                compact
+              <ChannelControlsWidget
+                sections={[
+                  {
+                    id: 'channel-design',
+                    title: 'Channel appearance',
+                    children: (
+                      <ChannelDesigner
+                        displayName={user.displayName}
+                        username={user.username}
+                        channelSlug={channel?.slug}
+                        avatarUrl={user.avatarUrl}
+                        // This modal is a global overlay that can stay open over the
+                        // owner's own live channel page (which may already be
+                        // running a live ChannelVisualizer) — skip the extra WebGL
+                        // context here rather than risk two at once (see 7a8060d7).
+                        livePreview={false}
+                        compact
+                      />
+                    ),
+                  },
+                ]}
               />
             </div>
           ),
@@ -814,6 +877,16 @@ function ChannelPanel() {
             <SettingsHint>Loading…</SettingsHint>
           ) : (
             <div className="flex flex-col gap-6">
+              <SettingsToggle
+                label="Show share button on my channel and Go Live"
+                description="Let listeners and collaborators copy or share your live channel link."
+                value={shareEnabled}
+                onChange={(value) => {
+                  if (channel?.slug) {
+                    setShareEnabled(channel.slug, value);
+                  }
+                }}
+              />
               <SettingsToggle
                 label="List in Listen directory"
                 value={discovery.listedInDirectory}
@@ -1558,6 +1631,100 @@ function NotificationsPanel() {
         value={prefs.digestWeekly}
         onChange={(v) => set('digestWeekly', v)}
       />
+    </div>
+  );
+}
+
+function NotificationsVisibilityPanel() {
+  const [profile, setProfile] = useState<ProfileFields | null>(null);
+  const [savingKey, setSavingKey] = useState<keyof ProfileFields | null>(null);
+
+  useEffect(() => {
+    void fetchMeProfile().then((result) => setProfile(result.data));
+  }, []);
+
+  const updateVisibility = (
+    key:
+      | 'showJoinDate'
+      | 'showFollowers'
+      | 'showFollowing'
+      | 'showDailyListeners'
+      | 'chatEnabled',
+    value: boolean,
+  ) => {
+    if (!profile) {
+      return;
+    }
+    const previous = profile[key] ?? true;
+    setProfile({ ...profile, [key]: value });
+    setSavingKey(key);
+    void patchMeProfile({ [key]: value }).then((result) => {
+      setSavingKey(null);
+      if (!result.ok) {
+        setProfile({ ...profile, [key]: previous });
+        toast.error(result.error);
+        return;
+      }
+      setProfile(result.data);
+      toast.success('Visibility setting saved.');
+    });
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="font-display text-lg font-bold tracking-tight">
+          Visibility
+        </h2>
+        <p className="text-foreground-secondary mt-1 text-sm">
+          Choose what appears publicly on your profile and channel.
+        </p>
+      </div>
+      {!profile ? (
+        <SettingsHint>Loading…</SettingsHint>
+      ) : (
+        <div className="flex flex-col gap-5">
+          <SettingsToggle
+            label="Show join date on my profile"
+            value={profile.showJoinDate ?? true}
+            onChange={(value) => updateVisibility('showJoinDate', value)}
+          />
+          <SettingsToggle
+            label="Show my followers on my profile"
+            value={profile.showFollowers ?? true}
+            onChange={(value) => updateVisibility('showFollowers', value)}
+          />
+          <SettingsToggle
+            label="Show who I follow on my profile"
+            value={profile.showFollowing ?? true}
+            onChange={(value) => updateVisibility('showFollowing', value)}
+          />
+          <SettingsToggle
+            label="Show today’s listener count in my chat"
+            value={profile.showDailyListeners ?? true}
+            onChange={(value) => updateVisibility('showDailyListeners', value)}
+          />
+          <SettingsToggle
+            label="Enable live chat on my channel"
+            value={profile.chatEnabled}
+            onChange={(value) => updateVisibility('chatEnabled', value)}
+          />
+        </div>
+      )}
+      <div className="border-border border-t pt-5">
+        <h2 className="font-display text-lg font-bold tracking-tight">
+          Notifications
+        </h2>
+        <p className="text-foreground-secondary mt-1 mb-5 text-sm">
+          Choose which activity reaches you by email or in the app.
+        </p>
+        <NotificationsPanel />
+      </div>
+      {savingKey ? (
+        <p className="text-foreground-secondary text-xs" role="status">
+          Saving visibility…
+        </p>
+      ) : null}
     </div>
   );
 }

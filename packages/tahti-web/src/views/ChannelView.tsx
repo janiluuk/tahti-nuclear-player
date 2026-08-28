@@ -27,8 +27,10 @@ import {
   type DiscoWidgetRenderItem,
 } from '../api/disco-widgets';
 import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
+import { ChannelControlsWidget } from '../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
+import { ChannelShareButton } from '../components/ChannelShareButton';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { EmbedButton } from '../components/EmbedButton';
@@ -619,6 +621,12 @@ export function ChannelView({ slug }: { slug: string }) {
                 </Button>
               )}
               {!editing && <EmbedButton target={{ kind: 'channel', slug }} />}
+              {!editing && (
+                <ChannelShareButton
+                  channelSlug={slug}
+                  displayName={channel.user.displayName}
+                />
+              )}
             </>
           }
         />
@@ -713,15 +721,25 @@ export function ChannelView({ slug }: { slug: string }) {
       }}
       onApplyPreset={applyPreset}
       lookSlot={
-        <ChannelDesigner
-          lookOnly
-          reloadToken={lookTick}
-          displayName={channel.user.displayName}
-          username={channel.user.username}
-          channelSlug={slug}
-          avatarUrl={channel.user.avatarUrl}
-          bio={channel.user.bio}
-          onSaved={() => setLookTick((n) => n + 1)}
+        <ChannelControlsWidget
+          sections={[
+            {
+              id: 'channel-design',
+              title: 'Channel appearance',
+              children: (
+                <ChannelDesigner
+                  lookOnly
+                  reloadToken={lookTick}
+                  displayName={channel.user.displayName}
+                  username={channel.user.username}
+                  channelSlug={slug}
+                  avatarUrl={channel.user.avatarUrl}
+                  bio={channel.user.bio}
+                  onSaved={() => setLookTick((n) => n + 1)}
+                />
+              ),
+            },
+          ]}
         />
       }
     />

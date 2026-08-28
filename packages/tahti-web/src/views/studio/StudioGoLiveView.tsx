@@ -39,6 +39,8 @@ import {
   type SignalStatus,
   type StreamSettings,
 } from '../../api/broadcast';
+import { BroadcastPreflightPanel } from '../../components/BroadcastPreflightPanel';
+import { ChannelShareButton } from '../../components/ChannelShareButton';
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -303,15 +305,23 @@ export function StudioGoLiveView() {
           title="Go Live"
           subtitle="Monitor what listeners hear, connect your broadcast software, go on air, and manage destinations from one place."
           action={
-            isBroadcastLive ? (
-              <OnAirBadge />
-            ) : rotationPlaying ? (
-              <OnAirBadge label="ROTATION" />
-            ) : (
-              <Badge variant="pill" color={channelStateColor(channelState)}>
-                {channelState}
-              </Badge>
-            )
+            <div className="flex items-center gap-2">
+              {slug && (
+                <ChannelShareButton
+                  channelSlug={slug}
+                  displayName={displayName}
+                />
+              )}
+              {isBroadcastLive ? (
+                <OnAirBadge />
+              ) : rotationPlaying ? (
+                <OnAirBadge label="ROTATION" />
+              ) : (
+                <Badge variant="pill" color={channelStateColor(channelState)}>
+                  {channelState}
+                </Badge>
+              )}
+            </div>
           }
         />
 
@@ -340,6 +350,8 @@ export function StudioGoLiveView() {
             onRotationChange={setRotationPlaying}
           />
         )}
+
+        <BroadcastPreflightPanel />
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(17rem,2fr)]">
           <div className="flex min-w-0 flex-col gap-5">

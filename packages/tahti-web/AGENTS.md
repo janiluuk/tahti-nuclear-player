@@ -127,3 +127,72 @@ hobbyist toy. This port's job is to deliver that experience on Nuclear's player-
 regressing anything the current production client already does well. When a design or scope
 decision is ambiguous, weigh it against that bar: does this read as a serious tool an artist would
 trust with their channel and their income, or a demo?
+
+## Current implementation state — 2026-08-28
+
+This is a working cutover build, not a blank scaffold. The following surfaces are implemented in
+`packages/tahti-web` and should be extended in place rather than recreated:
+
+- The Nuclear shell has stable listener, artist/studio, admin, settings, chat, notifications, and
+  history navigation. Studio uses four top sections — Studio, Library, Perform, and Manage — with
+  contextual left navigation; Collections owns the Playlists filter instead of exposing a separate
+  broken Library sidebar route.
+- Artist library includes Sounds, Releases, Collections, Smartlinks, Recordings, Upload, Editor,
+  and Stash. Sounds supports upload-date/source filtering, compact filters, hover playback, stash
+  movement, release playback/embeds, track editing, privacy/discovery controls, rotation, and
+  MusicBrainz export preparation.
+- Go Live includes stream status, encoder credentials, recording, multistream destinations, the
+  shared rotation editor, and the Tahti pre-flight workflow. Pre-flight uses the existing
+  `/api/me/channel/preflight`, `/api/me/rtmp-targets`, and show-series endpoints.
+- Public channel pages and Go Live expose the Tahti-style share icon. The share preference is
+  currently persisted client-side per channel in `channelShareStore`; it defaults to visible and is
+  controlled from Settings → Channel → Discovery. Do not describe this as a server-wide privacy
+  setting until the API has a corresponding persisted field.
+- The track editor follows the reference five-section workflow — Basics, Audio, Cover & visuals,
+  Sharing, and Advanced — and shows Tracklist only while the selected content type is `DJ_MIX`.
+- Add-ons are configured from Settings → Add-ons. Configurable providers use modal/fold-out
+  configuration, and unconfigured Spotify artist import links to Admin → Vendors with the required
+  Web API credential explanation.
+- Cross-repo parity work is tracked in `UI-REDESIGN-WORKLOG.md`, `CUTOVER.md`, and `FEATURES.md`.
+  Reference production behavior and source live in the sibling `../tahti` checkout; inspect that
+  code before inventing new API contracts or UI flows.
+
+Known limitations and handoff notes:
+
+- The Spotify Configure CTA currently routes to the existing Admin → Vendors information page;
+  credential entry still needs a real server-backed admin form if that page is to configure secrets.
+- Share visibility is local/persisted in the browser until a backend preference is added.
+- The pre-flight panel is integrated into Go Live, but should receive a Playwright pass against a
+  real authenticated API before deployment, especially series selection, simulcast changes, and
+  auto-record persistence.
+- The working tree may contain large, intentional uncommitted UI audit screenshots, worklog,
+  changelog, and feature changes from the ongoing cutover. Inspect `git status` and preserve
+  unrelated changes; never reset or clean the tree to make a task easier.
+
+## Agent workflow for this checkout
+
+1. Read this file, the root `AGENTS.md`, and the relevant worklog entry before changing a Tahti
+   view. For parity work, inspect the matching page in `../tahti` and its API route first.
+2. Search with `rg`, follow existing API clients and shared components, and keep route behavior
+   stable. Prefer `StudioPanel`, `StudioPageHeader`, `PageHeader`, `Badge`, `Button`, `Tabs`,
+   `Dialog`, `FilePicker`, and `SettingsToggle` over new one-off markup.
+3. Keep API calls in `src/api`, state in an existing store or local component state as appropriate,
+   and keep user-facing text consistent with existing Tahti wording. Add a changelog entry and a
+   concise dated worklog entry for user-visible changes.
+4. For navigation changes, verify both route selection and rendered menu state. A route must not
+   light two submenu items, move the sidebar, hide the top navigation, or change content width.
+5. Run focused checks after edits:
+
+   ```bash
+   pnpm exec prettier --write <changed-files>
+   pnpm --filter @nuclearplayer/tahti-web type-check
+   pnpm --filter @nuclearplayer/tahti-web lint
+   git diff --check
+   ```
+
+   Use the existing Playwright/audit scripts when changing navigation or responsive layout. Do not
+   claim deployment or production verification unless the deploy script was actually run and its
+   result is reported.
+6. Do not commit, push, deploy, or modify the sibling `../tahti` checkout unless the user asks for
+   that operation. When asked to commit, include only the intended files and report any pre-existing
+   unrelated changes left in the working tree.

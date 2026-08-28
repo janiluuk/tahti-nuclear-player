@@ -88,7 +88,7 @@ exports[`TitleBar > (Snapshot) renders Windows variant 1`] = `
     data-testid="windows-window-controls"
   >
     <button
-      class="text-foreground hover:bg-primary hover:text-foreground inline-flex h-full w-11 items-center justify-center border-none bg-transparent"
+      class="text-foreground hover:bg-primary hover:text-primary-foreground inline-flex h-full w-11 items-center justify-center border-none bg-transparent"
       title="Minimize"
     >
       <svg
@@ -110,7 +110,7 @@ exports[`TitleBar > (Snapshot) renders Windows variant 1`] = `
       </svg>
     </button>
     <button
-      class="text-foreground hover:bg-primary hover:text-foreground inline-flex h-full w-11 items-center justify-center border-none bg-transparent"
+      class="text-foreground hover:bg-primary hover:text-primary-foreground inline-flex h-full w-11 items-center justify-center border-none bg-transparent"
       title="Maximize"
     >
       <svg

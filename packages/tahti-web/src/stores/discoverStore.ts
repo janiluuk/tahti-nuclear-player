@@ -7,7 +7,8 @@ export type DiscoverWidgetId =
   | 'new-to-you'
   | 'latest-tracks'
   | 'most-played'
-  | 'loved';
+  | 'loved'
+  | 'artist-of-the-week';
 
 export const ALL_WIDGET_IDS: DiscoverWidgetId[] = [
   'this-week-most-played',
@@ -16,6 +17,7 @@ export const ALL_WIDGET_IDS: DiscoverWidgetId[] = [
   'latest-tracks',
   'most-played',
   'loved',
+  'artist-of-the-week',
 ];
 
 export const DEFAULT_WIDGETS: DiscoverWidgetId[] = [

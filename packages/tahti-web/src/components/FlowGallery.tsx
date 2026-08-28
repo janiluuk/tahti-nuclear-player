@@ -95,7 +95,7 @@ export function FlowGallery() {
                 onClick={() => setSelectedId(d.id)}
                 className={`rounded-md px-3 py-2 text-left text-sm transition-colors ${
                   active
-                    ? 'bg-primary text-foreground'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-foreground-secondary hover:text-foreground hover:bg-background-secondary'
                 }`}
               >

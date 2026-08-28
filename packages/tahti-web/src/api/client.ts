@@ -73,6 +73,7 @@ import type {
   SearchResponse,
   SmartLinkView,
   TahtiPlayable,
+  TrackComment,
   TransparencyGrantReport,
   TransparencyLedgerEntry,
   TransparencyYtd,
@@ -301,6 +302,62 @@ export async function fetchTrackDetail(id: string): Promise<{
       () => mockTrackDetail(id),
       () => null,
     );
+  }
+}
+
+export async function fetchTrackComments(id: string): Promise<{
+  data: { comments: TrackComment[]; commentsEnabled: boolean };
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: { comments: [], commentsEnabled: true },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{
+      comments: TrackComment[];
+      commentsEnabled: boolean;
+    }>(`/api/comments/track/${encodeURIComponent(id)}`);
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return withMockFallback(
+      err,
+      () => ({ comments: [], commentsEnabled: true }),
+      () => ({ comments: [], commentsEnabled: true }),
+    );
+  }
+}
+
+export async function postTrackComment(
+  id: string,
+  body: string,
+): Promise<{ ok: true; data: TrackComment } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return {
+      ok: true,
+      data: {
+        id: `mock-comment-${Date.now()}`,
+        body,
+        authorUsername: 'you',
+        authorDisplayName: 'You',
+        authorAvatarUrl: null,
+        createdAt: new Date().toISOString(),
+      },
+    };
+  }
+  try {
+    const { data } = await requestJson<TrackComment>(
+      `/api/comments/track/${encodeURIComponent(id)}`,
+      { method: 'POST', body: JSON.stringify({ body }) },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not post comment',
+    };
   }
 }
 

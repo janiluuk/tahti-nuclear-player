@@ -535,6 +535,12 @@ const libraryHistoryRoute = createRoute({
   component: () => <LibraryView tab="history" />,
 });
 
+const librarySmartLinksRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/library/smartlinks',
+  component: () => <LibraryView tab="smartlinks" />,
+});
+
 const libraryMessagesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/messages',
@@ -1297,6 +1303,7 @@ const routeTree = rootRoute.addChildren([
     libraryRecordingsRoute,
     libraryFavoritesRoute,
     libraryHistoryRoute,
+    librarySmartLinksRoute,
     libraryMessagesRoute,
     messagesAliasRoute,
     messagesThreadRoute,

@@ -1,8 +1,10 @@
+import { Link } from '@tanstack/react-router';
 import { ChevronDownIcon, ChevronUpIcon, InboxIcon, XIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { Button, EmptyState, Loader } from '@nuclearplayer/ui';
 
+import type { DiscoverArtistOfWeek } from '../../api/discover';
 import type { DiscoverTrackItem } from '../../api/types';
 import type { DiscoverWidgetId } from '../../stores/discoverStore';
 import { WidgetTrackRow } from './WidgetTrackRow';
@@ -15,6 +17,7 @@ export function WidgetCard({
   subtitle,
   loading,
   items,
+  artist,
   showRank,
   emptyMessage,
   canMoveUp,
@@ -27,6 +30,7 @@ export function WidgetCard({
   subtitle?: ReactNode;
   loading: boolean;
   items: DiscoverTrackItem[];
+  artist?: DiscoverArtistOfWeek;
   showRank?: boolean;
   emptyMessage: string;
   canMoveUp: boolean;
@@ -82,6 +86,31 @@ export function WidgetCard({
       {loading ? (
         <div className="flex flex-1 items-center justify-center">
           <Loader size="sm" />
+        </div>
+      ) : artist ? (
+        <div className="flex flex-1 flex-col items-center text-center">
+          {artist.avatarUrl ? (
+            <img
+              src={artist.avatarUrl}
+              alt={`${artist.displayName} profile`}
+              className="bg-background-secondary size-40 rounded-full object-cover"
+            />
+          ) : (
+            <div className="bg-background-secondary text-foreground-secondary flex size-40 items-center justify-center rounded-full text-4xl font-bold">
+              {artist.displayName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <h4 className="mt-4 text-lg font-semibold">{artist.displayName}</h4>
+          <p className="text-foreground-secondary mt-2 line-clamp-4 max-w-xl text-sm">
+            {artist.bio ?? 'Discover this artist’s music on Tahti.'}
+          </p>
+          <Link
+            to="/channel/$slug"
+            params={{ slug: artist.channelSlug }}
+            className="mt-4"
+          >
+            <Button size="sm">Listen to their music</Button>
+          </Link>
         </div>
       ) : items.length === 0 ? (
         <EmptyState

@@ -1,5 +1,117 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Audio clips content type
+
+**Completed:** Added the Audio clip content type to archive editing and announcement uploads. Clip editing keeps the shared title, description, visibility, comments, downloads, audio, and visual controls while hiding musical metadata, rotation, playlist, and MusicBrainz controls.
+
+## 2026-08-28 — Audio editor library browser
+
+**Completed:** Replaced the inline archive shortcuts with an Open from library modal. It starts on All, provides a content-type browser on the left, searchable matching library contents on the right, and opens the selected item in the pro editor.
+
+## 2026-08-28 — Audio editor empty state
+
+**Completed:** The audio editor now shows a single New session action when no projects exist; the header action is only shown once existing projects are available.
+
+## 2026-08-28 — Playlists nested under Collections
+
+**Completed:** Removed the standalone Playlists view switch from Studio Collections. Playlists remain available as collection entries and open through the unified collection contents editor.
+
+## 2026-08-28 — Collection names open contents
+
+**Completed:** Collection and playlist names in the library and Studio collection views now open the unified collection contents editor, so every collection type drills into its track contents consistently.
+
+## 2026-08-28 — Collection track and visibility tabs
+
+**Completed:** Collection editing now opens on an icon-led Tracks tab, with Visibility in its own tab. The add-from-library browser supports title, genre, and content-type search; collection rows show genre metadata; and the trash action removes only the item from the collection.
+
+## 2026-08-28 — Organized rotation library additions
+
+**Completed:** The Active rotation tab now organizes library additions into Tracks, DJ Sets, Releases, and Playlists. Adding a group opens an explicit Append or Overwrite confirmation, de-duplicates tracks, and respects the rotation capacity before publishing.
+
+## 2026-08-28 — 24/7 active rotation tab
+
+**Completed:** Split the channel 24/7 panel into Programme and Active rotation tabs. Active rotation now pulls ready content from the full library, supports drag-and-drop ordering, and provides a play action for every track while retaining playlist-based bulk additions.
+
+## 2026-08-28 — Uploaded channel video backdrop
+
+**Completed:** Replaced the Header → Video loop URL field with a short MP4/WebM uploader. Files are limited to 10 MB, preview locally in a muted looping container before approval, and upload through a user-scoped presigned R2 flow only when the channel design is saved. Existing backdrops can be previewed or removed.
+
+## 2026-08-28 — Radio announcements
+
+**Completed:** Added the Tahti artist announcement library as a dedicated Studio → Manage → Radio → Announcements tab. Artists can upload, enable, preview, remove, and assign ready station-ID clips as public page music. The existing Admin → Announcements route remains the site-wide system announcement manager for generic announcements.
+
+## 2026-08-28 — Artist identity, story, and people
+
+**Completed:** Ported the Tahti artist-info structure into Settings → Artist. Identity now owns the public artist essentials, Story provides short and long-form biography editing, and People combines solo/collective selection with the public member and credit list. Existing branding, gallery, social links, and press-kit tabs remain available.
+
+## 2026-08-28 — Tahti channel design parity
+
+**Completed:** Replaced the channel designer's limited visual controls with the Tahti channel-design workflow: shared visual styling, background gallery modes, public image sources, optional channel backdrop, slideshow transition presets, interval, transition speed, and autoplay. Gallery and visual settings are loaded and published through the channel APIs, with HTTPS image validation and the source repo's WebGL/gallery preset names.
+
+## 2026-08-28 — Collapsible channel controls
+
+**Completed:** Added `ChannelControlsWidget` as the shared channel-control shell. Channel designer controls now use consistent collapsible sections in Studio, Settings, channel setup, public channel editing, and the artist channel surface. Added a Storybook story covering expanded and collapsed sections.
+
+## 2026-08-28 — Compact section navigation
+
+**Completed:** Studio and Admin top-level section tabs now show their section icons in a smaller, tighter control. Shared shell content receives a slightly larger inset while the left navigation remains fixed in place.
+
+## 2026-08-28 — Sounds canvas player
+
+**Completed:** Tracks opened from Sounds now use the standalone canvas player route. The view combines cover art, a cover-colour visual background, the channel visual preset, a large seekable waveform, playback controls, and the track comments thread. Explicit channel background colours override the cover-derived tint.
+
+## 2026-08-28 — Amber active-state contrast
+
+**Completed:** Tahti’s amber primary fill now consistently uses the dedicated primary foreground token instead of the normal page foreground. Active navigation, filters, calendar selections, messages, selects, pagination, and other highlighted controls remain readable on the orange background.
+
+## 2026-08-28 — Spotify import configuration CTA
+
+**Completed:** The Spotify artist profile panel now shows the required Web API client ID, client secret, and server-side access requirements, with a direct Configure button to Admin → Vendors when the integration is unavailable.
+
+## 2026-08-28 — Channel share action
+
+**Completed:** Added the Tahti-style share icon to the public channel header and Go Live. It opens the native share sheet when supported and otherwise offers a copyable channel link. Settings → Channel → Discovery now controls visibility, enabled by default.
+
+## 2026-08-28 — Go Live pre-flight
+
+**Completed:** Ported the Tahti pre-flight workflow into Go Live. Artists can set the broadcast name and type, select a series episode, add a tagline, choose visibility, toggle simulcast targets, and control auto-recording before going on air.
+
+## 2026-08-28 — Conditional DJ mix tracklist
+
+**Completed:** Added the reference editor’s Tracklist section only for DJ mix tracks; changing the content type away from DJ mix hides it and resets the editor to Basics.
+
+## 2026-08-28 — Track editor workflow
+
+**Completed:** Aligned the track editor with the Tahti reference workflow by adding Basics, Audio, Cover & visuals, Sharing, and Advanced sections. Playlist and export actions remain available from Advanced.
+
+## 2026-08-28 — Playlists under Collections
+
+**Completed:** Removed the broken standalone Playlists sidebar entry and made the Collections page’s Playlists view filter playlists in place.
+
+## 2026-08-28 — Clarify Sounds stash tab
+
+**Completed:** Renamed the Sounds Files tab to “Move to stash” while preserving the existing private-file view and route.
+
+## 2026-08-28 — Track insights and export placement
+
+**Completed:** Extracted the track insights content into a reusable panel and embedded it directly in the track Insights tab without a second navigation button. Removed the release-header MusicBrainz action and placed it in the release Export tab.
+
+## 2026-08-28 — Live show image picker
+
+**Completed:** Show creation and show-detail editing now use the shared Storybook image picker for thumbnails and backdrops. The picker supports drag-and-drop, image type filtering, local preview, and retained URL editing for existing remote artwork.
+
+## 2026-08-28 — Edit next broadcast
+
+**Completed:** Added an edit action to the next scheduled broadcast card. It reopens the existing schedule form populated with the saved timing, show, description, artwork, type, and duration, and persists those fields when saved.
+
+## 2026-08-28 — Shared live rotation editor
+
+**Completed:** Extracted the editable channel 24/7 rotation list into `ChannelRotationEditor`. Go Live and Studio → Manage → Radio now share the same capacity-aware quick-add, reorder, duration, and remove controls.
+
+## 2026-08-28 — Radio booking form overlay
+
+**Completed:** The Tahti Radio calendar modal now shows the calendar and bookings without the full booking form. The form opens in a wider dedicated overlay from the Book a slot icon or action, preserving the selected date and show details.
+
 Page-by-page loop: redesign → screenshot → **wait for comment or `approved`** → next page.
 
 Screenshots: `docs/redesign-shots/{page-slug}-v{n}.png`
@@ -1003,6 +1115,79 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Completed:** Artist settings now expose Branding, Gallery, and Press kit as separate top-level tabs. The existing Studio branding editor supports a section-only mode so the unique branding, gallery, and press-kit controls are reused without duplicated fields or nested navigation in Settings.
 
+### 2026-08-28 — Admin action and audit visibility
+
+**Completed:** Admin Overview needs-action rows now expose direct queue actions and detail dialogs. Admin → Logs now includes a Recent audit tab showing the latest dashboard audit entries alongside Audit events and Container logs.
+
+### 2026-08-28 — Tahti Selects in Studio Manage
+
+**Completed:** Added Tahti Selects as a Studio → Manage submenu. It reuses the Selects rotation editor with stream start/stop/listen controls, the current rotation list, drag ordering, and searchable public-track selection.
+
 ### 2026-08-28 — Broadcast administration follow-up
 
 **Completed:** Missed shows are now a Moderation tab with the old route redirecting to it. Schedule no longer contains the redundant offline-programme panel and now includes recent broadcast analytics. Admin Overview links directly to the live Stream manager, while the existing manager retains its live controls.
+
+### 2026-08-28 — Reusable admin stream manager
+
+**Completed:** Admin Overview now embeds the same live stream manager used by Admin → Streams. The shared panel includes duration, channel and listen links, a details modal, and restart, skip, pause, resume, and force-offline controls.
+
+**Queued:** Add server-backed listener count, listener peak, current programming, and recent broadcast recordings when those fields are available from the admin API; continue provider-specific add-on configuration dialogs and explanatory copy.
+
+### 2026-08-28 — Account notifications and visibility
+
+**Completed:** Added a dedicated Account → Notifications & visibility tab based on tahti-org. It now owns profile join date, followers, following, daily listener count, and live-chat visibility, alongside the existing notification preferences. Visibility changes persist through the profile API and show success/error feedback.
+
+### 2026-08-28 — API tokens in Account Security
+
+**Completed:** Ported tahti-org personal API token management into Account → Security. Users can create read-only or read/write tokens, copy the secret during its one-time reveal, review token usage metadata, and revoke tokens.
+
+### 2026-08-28 — Stream overlay configuration
+
+**Completed:** Added an icon-only Stream Manager action that opens a modal for configuring the shared RTMP mirror overlay title, subtitle, and cover image. Values load from and save to the channel stream-overlay API.
+
+### 2026-08-28 — Live show scheduling parity
+
+**Completed:** Ported the remaining live-show scheduling behavior from tahti-org into Studio → Schedule: recurring schedules can be stopped, recurrence duration supports minutes, and new show scheduling carries tagline, audience visibility, automatic archive publishing, and episode-numbering defaults.
+
+### 2026-08-28 — Focused Studio Radio surface
+
+**Completed:** Studio → Manage → Radio now uses a dedicated Radio heading and hides the channel setup/designer/profile navigation while the radio stream and 24/7 rotation are being managed. Channel setup remains available through the separate create-channel wizard.
+
+### 2026-08-28 — Channel designer creation step
+
+**Completed:** Removed the channel designer from the Manage surface and added it as a separate step in the create-channel dialog after provisioning. The Radio page now contains only radio management controls.
+
+### 2026-08-28 — Library smartlinks
+
+**Completed:** Added Library → Smartlinks based on the tahti artist panel. Releases now have a dedicated view showing artwork, state, track count, DSP targets, smartlink views, public-page links, and release management actions.
+
+### 2026-08-28 — Studio stats tabs
+
+**Completed:** Ported the tahti stats organization into Studio → Stats with Overview, Plays & listeners, and Top lists tabs. Existing plays, downloads, smart-link, follower, listening, broadcast, engagement, listener geography, top-track, and top-country metrics are now grouped into the matching views, with the existing 7-day, 30-day, and all-time ranges shared across the page.
+
+### 2026-08-28 — Unified upload page
+
+**Completed:** Reworked Studio → Upload to match the Tahti upload experience: local upload and broadcast publishing are presented together at the top, alternate import methods are grouped into a compact source grid, and the collections shortcut remains visible below the upload choices.
+
+### 2026-08-28 — Primary History navigation
+
+**Completed:** Moved History out of the Studio/Library submenu into the primary navigation immediately before More. The same placement is available in the desktop sidebar, mobile drawer, and mobile bottom navigation, with the duplicate Studio submenu entry removed.
+
+### 2026-08-28 — Settings theme flicker
+
+**Completed:** Fixed the Settings theme editor preview lifecycle so it applies preview CSS without restoring the base theme between draft updates. Theme restoration now happens only when the editor unmounts, preventing palette flashes while opening Settings or switching its sections.
+
+### 2026-08-28 — Admin stream manager metrics
+
+**Completed:** Admin → Streams now enriches each live stream with the existing channel manage-stats endpoint, showing current listeners, listener peak, and server-tracked live duration both in the stream row and details dialog. Current programming and recent recordings remain pending dedicated admin API fields.
+
+### 2026-08-28 — Studio/Admin navigation screenshot audit
+
+**Completed:** Expanded the Playwright audit to capture 59 Studio, Library, Perform, Manage, Admin, and Admin Moderation views, including addressable submenu/query-tab routes. The audit now compares each fixed sidebar’s left/top/width geometry against the Library → Sounds shell, verifies one active top section and submenu item where applicable, and stores screenshots under `docs/redesign-shots/studio-audit/`. Fixed fuzzy parent-link activation in the shared SectionSidebar and removed obsolete Studio navigation from Favorites and History. Final capture completed without meaningful shell-position or duplicate-active warnings; the Library overview gap warning was a harness heading-selection false positive and is excluded because that page intentionally starts with the overview metrics panel.
+
+### 2026-08-28 — On air replay status
+
+**Completed:** Listen → On air now derives its badge from the API tier: only channels in the live collection are labeled Live now, while archive rotations are labeled Replay even if their channel state reports a generic active value.
+### 2026-08-28 — Random artist of the week widget
+
+**Completed:** Added the Discover widget “Random artist of the week”. It rotates deterministically each week across public artists, shows a large profile image and bio, and links to the artist’s channel for listening.

@@ -634,7 +634,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                     params={{ id: t.id }}
                     className={`rounded-md px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase ${
                       selected === t.id
-                        ? 'bg-primary text-foreground'
+                        ? 'bg-primary text-primary-foreground'
                         : 'border-border text-foreground-secondary hover:text-foreground border'
                     }`}
                   >

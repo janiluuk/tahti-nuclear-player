@@ -47,7 +47,7 @@ import { usePlayerStore } from '../../stores/playerStore';
 
 const FOLDERS = [
   { id: 'archive' as const, label: 'Sounds', icon: AudioLinesIcon },
-  { id: 'files' as const, label: 'Files', icon: FolderIcon },
+  { id: 'files' as const, label: 'Move to stash', icon: FolderIcon },
 ];
 
 type EmbedFilter = 'ALL' | 'NATIVE' | EmbedProvider;
@@ -242,7 +242,7 @@ export function StudioArchiveView() {
               }
               className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
                 folder === f.id
-                  ? 'bg-primary text-foreground shadow-sm'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'border-border text-foreground-secondary hover:text-foreground border'
               }`}
             >
@@ -378,7 +378,7 @@ export function StudioArchiveView() {
                     >
                       <div className="min-w-0 flex-1">
                         <Link
-                          to="/studio/archive/$id"
+                          to="/t/$id"
                           params={{ id: item.id }}
                           className="font-medium hover:underline"
                         >

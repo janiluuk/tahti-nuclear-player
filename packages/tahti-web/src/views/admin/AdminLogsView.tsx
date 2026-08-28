@@ -2,7 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { LogViewer, Tabs, type LogEntryData } from '@nuclearplayer/ui';
 
-import { fetchAdminContainerLogs, type AdminLogEntry } from '../../api/admin';
+import {
+  fetchAdminContainerLogs,
+  fetchAdminDashboard,
+  type AdminAuditRow,
+  type AdminLogEntry,
+} from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
@@ -10,6 +15,52 @@ import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { AdminActivityView } from './AdminActivityView';
 
 const REFRESH_INTERVAL_MS = 15_000;
+
+function RecentAuditEntries() {
+  const [entries, setEntries] = useState<AdminAuditRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void fetchAdminDashboard().then((result) => {
+      setEntries(result.data.audit);
+      setLoading(false);
+    });
+  }, []);
+
+  return (
+    <StudioPanel title="Recent audit entries">
+      {loading ? (
+        <PageLoading label="Loading recent audit entries…" />
+      ) : entries.length === 0 ? (
+        <p className="text-foreground-secondary text-sm">
+          No recent audit entries.
+        </p>
+      ) : (
+        <ul className="divide-border divide-y">
+          {entries.map((entry) => (
+            <li
+              key={entry.id}
+              className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
+            >
+              <div>
+                <p className="font-medium">{entry.action}</p>
+                <p className="text-foreground-secondary text-xs">
+                  Actor {entry.actorId}
+                </p>
+              </div>
+              <time
+                className="text-foreground-secondary text-xs"
+                dateTime={entry.createdAt}
+              >
+                {new Date(entry.createdAt).toLocaleString()}
+              </time>
+            </li>
+          ))}
+        </ul>
+      )}
+    </StudioPanel>
+  );
+}
 
 // Container names carry the compose project prefix ("tahti-stack-api-1")
 // — group by the middle segment so the ScopeFilter reads as service names
@@ -110,6 +161,11 @@ export function AdminLogsView() {
               id: 'containers',
               label: 'Container logs',
               content: containerLogs,
+            },
+            {
+              id: 'recent-audit',
+              label: 'Recent audit',
+              content: <RecentAuditEntries />,
             },
           ]}
         />

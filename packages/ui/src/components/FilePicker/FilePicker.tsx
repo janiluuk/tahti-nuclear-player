@@ -1,6 +1,7 @@
 import { FileIcon, UploadCloudIcon } from 'lucide-react';
 import {
   useId,
+  useState,
   type ChangeEventHandler,
   type ComponentPropsWithoutRef,
   type FC,
@@ -39,6 +40,7 @@ export const FilePicker: FC<FilePickerProps> = ({
   selectedFiles = [],
   ...props
 }) => {
+  const [dragActive, setDragActive] = useState(false);
   const generatedId = useId();
   const inputId = id ?? `file-picker-${generatedId}`;
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -49,8 +51,27 @@ export const FilePicker: FC<FilePickerProps> = ({
     <div className={cn('flex w-full flex-col gap-2', className)}>
       <label
         htmlFor={inputId}
+        onDragEnter={(event) => {
+          event.preventDefault();
+          if (!disabled) {
+            setDragActive(true);
+          }
+        }}
+        onDragOver={(event) => event.preventDefault()}
+        onDragLeave={(event) => {
+          event.preventDefault();
+          setDragActive(false);
+        }}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDragActive(false);
+          if (!disabled) {
+            onFiles?.(Array.from(event.dataTransfer.files));
+          }
+        }}
         className={cn(
           'border-border bg-background-secondary/40 hover:bg-background-secondary flex min-h-32 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed px-5 py-6 text-center transition-colors',
+          dragActive && 'border-primary bg-primary/10',
           disabled && 'cursor-not-allowed opacity-60',
         )}
       >

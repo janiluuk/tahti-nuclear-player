@@ -31,6 +31,7 @@ import {
   ArtistGalleryAddIcon,
   ArtistGalleryPanel,
 } from '../components/ArtistGalleryPanel';
+import { ChannelControlsWidget } from '../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
@@ -583,7 +584,7 @@ export function ArtistView({ username }: { username: string }) {
               onClick={() => setTab(t.id)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
                 tab === t.id
-                  ? 'bg-primary text-foreground'
+                  ? 'bg-primary text-primary-foreground'
                   : 'border-border text-foreground-secondary hover:text-foreground border'
               }`}
             >
@@ -890,13 +891,23 @@ export function ArtistView({ username }: { username: string }) {
               . Quick look controls below.
             </p>
           ) : null}
-          <ChannelDesigner
-            displayName={artist.displayName}
-            username={artist.username}
-            channelSlug={channel?.slug}
-            avatarUrl={artist.avatarUrl}
-            bio={artist.bio}
-            compact
+          <ChannelControlsWidget
+            sections={[
+              {
+                id: 'channel-design',
+                title: 'Channel appearance',
+                children: (
+                  <ChannelDesigner
+                    displayName={artist.displayName}
+                    username={artist.username}
+                    channelSlug={channel?.slug}
+                    avatarUrl={artist.avatarUrl}
+                    bio={artist.bio}
+                    compact
+                  />
+                ),
+              },
+            ]}
           />
         </div>
       )}

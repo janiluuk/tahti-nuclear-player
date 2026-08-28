@@ -1,11 +1,12 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button } from '@nuclearplayer/ui';
+import { Badge, Button, Dialog } from '@nuclearplayer/ui';
 
 import { fetchAdminDashboard, type AdminDashboard } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { AdminStreamManagerPanel } from '../../components/AdminStreamManagerPanel';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
@@ -13,12 +14,6 @@ import { StatNumber } from '../../components/tahti/StatNumber';
 
 function euros(cents: number): string {
   return `€${(cents / 100).toLocaleString('fi-FI', { minimumFractionDigits: 0 })}`;
-}
-
-function formatDuration(sec: number): string {
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
 function healthChip(ok: boolean): { label: string; color: 'green' | 'orange' } {
@@ -31,6 +26,9 @@ export function AdminDashboardView() {
   const [data, setData] = useState<AdminDashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<
+    AdminDashboard['actionRows'][number] | null
+  >(null);
 
   useEffect(() => {
     void fetchAdminDashboard().then((res) => {
@@ -98,21 +96,56 @@ export function AdminDashboardView() {
                           {row.meta}
                         </div>
                       </div>
-                      <Link to={row.href}>
+                      <div className="flex flex-wrap gap-2">
+                        <Link to={row.href}>
+                          <Button
+                            size="sm"
+                            variant={
+                              row.actionTone === 'amber'
+                                ? 'secondary'
+                                : 'default'
+                            }
+                          >
+                            {row.actionLabel}
+                          </Button>
+                        </Link>
                         <Button
                           size="sm"
-                          variant={
-                            row.actionTone === 'amber' ? 'secondary' : 'default'
-                          }
+                          variant="text"
+                          onClick={() => setSelectedAction(row)}
                         >
-                          {row.actionLabel}
+                          View details
                         </Button>
-                      </Link>
+                      </div>
                     </li>
                   ))}
                 </ul>
               )}
             </StudioPanel>
+
+            <Dialog.Root
+              isOpen={selectedAction !== null}
+              onClose={() => setSelectedAction(null)}
+              className="max-w-lg"
+            >
+              {selectedAction ? (
+                <>
+                  <Dialog.Title>{selectedAction.title}</Dialog.Title>
+                  <Dialog.Description>{selectedAction.meta}</Dialog.Description>
+                  <div className="border-border bg-background-secondary/40 mt-4 rounded-lg border p-3 text-sm">
+                    This item is waiting for an admin action. Open its queue to
+                    inspect the full record before completing “
+                    {selectedAction.actionLabel}”.
+                  </div>
+                  <Dialog.Actions>
+                    <Dialog.Close>Close</Dialog.Close>
+                    <Link to={selectedAction.href}>
+                      <Button>{selectedAction.actionLabel}</Button>
+                    </Link>
+                  </Dialog.Actions>
+                </>
+              ) : null}
+            </Dialog.Root>
 
             <StudioPanel title="System health">
               <div className="grid gap-3 sm:grid-cols-2">
@@ -167,32 +200,7 @@ export function AdminDashboardView() {
                   </p>
                 </StudioPanel>
 
-                {data.liveStreams.length > 0 && (
-                  <StudioPanel
-                    title={`Live now (${data.liveStreams.length})`}
-                    action={
-                      <Link to="/admin/streams">
-                        <Button size="sm" variant="secondary">
-                          Open stream manager
-                        </Button>
-                      </Link>
-                    }
-                  >
-                    <ul className="divide-border divide-y">
-                      {data.liveStreams.map((s) => (
-                        <li
-                          key={s.slug}
-                          className="flex items-center justify-between py-2 text-sm first:pt-0 last:pb-0"
-                        >
-                          <span>{s.artistName}</span>
-                          <span className="text-foreground-secondary text-xs">
-                            {formatDuration(s.elapsedSec)}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </StudioPanel>
-                )}
+                <AdminStreamManagerPanel />
               </>
             )}
           </>

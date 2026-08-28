@@ -1,5 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
+  CalendarPlusIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   MessageCircleIcon,
@@ -96,6 +97,7 @@ export function RadioBookingCalendar({
   const [selectedShowId, setSelectedShowId] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [bookingFormOpen, setBookingFormOpen] = useState(false);
 
   const days = useMemo(() => monthGridDays(monthCursor), [monthCursor]);
 
@@ -223,6 +225,7 @@ export function RadioBookingCalendar({
       setSelectedShowId('');
       reload();
       onBooked?.();
+      setBookingFormOpen(false);
       onClose();
       void navigate({
         to: '/studio/shows/episodes/$episodeId',
@@ -245,215 +248,259 @@ export function RadioBookingCalendar({
   };
 
   return (
-    <Dialog.Root isOpen={isOpen} onClose={onClose} className="max-w-2xl">
-      <Dialog.Title>Tahti Radio schedule</Dialog.Title>
-      <Dialog.Description>
-        Community slot calendar — book time to broadcast on Tahti Radio.
-      </Dialog.Description>
+    <>
+      <Dialog.Root isOpen={isOpen} onClose={onClose} className="max-w-2xl">
+        <Dialog.Title>Tahti Radio schedule</Dialog.Title>
+        <Dialog.Description>
+          Community slot calendar — book time to broadcast on Tahti Radio.
+        </Dialog.Description>
 
-      <div className="mt-4 flex items-center justify-between">
-        <Button
-          size="icon-sm"
-          variant="text"
-          aria-label="Previous month"
-          onClick={() =>
-            setMonthCursor(
-              (m) => new Date(m.getFullYear(), m.getMonth() - 1, 1),
-            )
-          }
-        >
-          <ChevronLeftIcon size={16} aria-hidden />
-        </Button>
-        <div className="text-sm font-semibold">
-          {monthCursor.toLocaleDateString([], {
-            month: 'long',
-            year: 'numeric',
+        <div className="mt-4 flex items-center justify-between">
+          <Button
+            size="icon-sm"
+            variant="text"
+            aria-label="Previous month"
+            onClick={() =>
+              setMonthCursor(
+                (m) => new Date(m.getFullYear(), m.getMonth() - 1, 1),
+              )
+            }
+          >
+            <ChevronLeftIcon size={16} aria-hidden />
+          </Button>
+          <div className="text-sm font-semibold">
+            {monthCursor.toLocaleDateString([], {
+              month: 'long',
+              year: 'numeric',
+            })}
+          </div>
+          {user && (
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              aria-label="Book a slot"
+              title="Book a slot"
+              onClick={() => setBookingFormOpen(true)}
+            >
+              <CalendarPlusIcon size={15} aria-hidden />
+            </Button>
+          )}
+          <Button
+            size="icon-sm"
+            variant="text"
+            aria-label="Next month"
+            onClick={() =>
+              setMonthCursor(
+                (m) => new Date(m.getFullYear(), m.getMonth() + 1, 1),
+              )
+            }
+          >
+            <ChevronRightIcon size={16} aria-hidden />
+          </Button>
+        </div>
+
+        <div className="mt-3 grid grid-cols-7 gap-1">
+          {WEEKDAY_LABELS.map((label) => (
+            <div
+              key={label}
+              className="text-foreground-secondary py-1 text-center text-[11px] font-semibold tracking-wide uppercase"
+            >
+              {label}
+            </div>
+          ))}
+          {days.map((day) => {
+            const inMonth = day.getMonth() === monthCursor.getMonth();
+            const dayBookings = bookingsByDay.get(day.toDateString()) ?? [];
+            const isToday = isSameDay(day, today);
+            const isSelected = isSameDay(day, selectedDate);
+            return (
+              <button
+                key={day.toISOString()}
+                type="button"
+                onClick={() => setSelectedDate(day)}
+                className={`flex flex-col items-center gap-1 rounded-md py-1.5 text-sm ${
+                  isSelected
+                    ? 'bg-primary text-primary-foreground'
+                    : inMonth
+                      ? 'hover:bg-background-secondary'
+                      : 'text-foreground-secondary hover:bg-background-secondary opacity-40'
+                } ${isToday && !isSelected ? 'ring-primary ring-1' : ''}`}
+              >
+                <span className="tabular-nums">{day.getDate()}</span>
+                <span
+                  className={`h-1 w-1 rounded-full ${
+                    dayBookings.length > 0
+                      ? isSelected
+                        ? 'bg-background'
+                        : 'bg-primary'
+                      : 'bg-transparent'
+                  }`}
+                />
+              </button>
+            );
           })}
         </div>
-        <Button
-          size="icon-sm"
-          variant="text"
-          aria-label="Next month"
-          onClick={() =>
-            setMonthCursor(
-              (m) => new Date(m.getFullYear(), m.getMonth() + 1, 1),
-            )
-          }
-        >
-          <ChevronRightIcon size={16} aria-hidden />
-        </Button>
-      </div>
 
-      <div className="mt-3 grid grid-cols-7 gap-1">
-        {WEEKDAY_LABELS.map((label) => (
-          <div
-            key={label}
-            className="text-foreground-secondary py-1 text-center text-[11px] font-semibold tracking-wide uppercase"
-          >
-            {label}
+        <div className="border-border mt-4 flex flex-col gap-3 border-t pt-3">
+          <div className="text-sm font-semibold">
+            {selectedDate.toLocaleDateString([], {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+            })}
           </div>
-        ))}
-        {days.map((day) => {
-          const inMonth = day.getMonth() === monthCursor.getMonth();
-          const dayBookings = bookingsByDay.get(day.toDateString()) ?? [];
-          const isToday = isSameDay(day, today);
-          const isSelected = isSameDay(day, selectedDate);
-          return (
-            <button
-              key={day.toISOString()}
-              type="button"
-              onClick={() => setSelectedDate(day)}
-              className={`flex flex-col items-center gap-1 rounded-md py-1.5 text-sm ${
-                isSelected
-                  ? 'bg-primary text-foreground'
-                  : inMonth
-                    ? 'hover:bg-background-secondary'
-                    : 'text-foreground-secondary hover:bg-background-secondary opacity-40'
-              } ${isToday && !isSelected ? 'ring-primary ring-1' : ''}`}
-            >
-              <span className="tabular-nums">{day.getDate()}</span>
-              <span
-                className={`h-1 w-1 rounded-full ${
-                  dayBookings.length > 0
-                    ? isSelected
-                      ? 'bg-background'
-                      : 'bg-primary'
-                    : 'bg-transparent'
-                }`}
-              />
-            </button>
-          );
-        })}
-      </div>
 
-      <div className="border-border mt-4 flex flex-col gap-3 border-t pt-3">
-        <div className="text-sm font-semibold">
+          {loading ? (
+            <PageLoading label="Loading…" />
+          ) : selectedBookings.length === 0 ? (
+            <p className="text-foreground-secondary text-sm">
+              No slots booked yet.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-1.5">
+              {selectedBookings.map((b) => (
+                <li
+                  key={b.id}
+                  className="border-border flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm"
+                >
+                  {b.showType === 'TALK' ? (
+                    <MessageCircleIcon
+                      size={14}
+                      aria-hidden
+                      className="text-foreground-secondary shrink-0"
+                    />
+                  ) : (
+                    <MicIcon
+                      size={14}
+                      aria-hidden
+                      className="text-foreground-secondary shrink-0"
+                    />
+                  )}
+                  <span className="text-foreground-secondary shrink-0 tabular-nums">
+                    {formatTimeRange(b.startAt, b.endAt)}
+                  </span>
+                  <Link
+                    to="/radio/show/$channelSlug"
+                    params={{ channelSlug: b.channelSlug }}
+                    onClick={onClose}
+                    className="min-w-0 flex-1 truncate font-medium hover:underline"
+                  >
+                    {b.showTitle ?? b.note ?? b.displayName}
+                    {b.episodeNumber != null
+                      ? ` · Episode ${b.episodeNumber}`
+                      : ''}
+                    {b.isMine ? ' (you)' : ''}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {!user ? (
+            <p className="text-foreground-secondary text-sm">
+              <Link
+                to="/login"
+                onClick={onClose}
+                className="text-foreground underline-offset-2 hover:underline"
+              >
+                Sign in
+              </Link>{' '}
+              to book a slot.
+            </p>
+          ) : isPastDay ? (
+            <p className="text-foreground-secondary text-sm">
+              Pick a day from today onward to book.
+            </p>
+          ) : (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setBookingFormOpen(true)}
+            >
+              <CalendarPlusIcon size={15} aria-hidden className="mr-1.5" />
+              Book a slot
+            </Button>
+          )}
+
+          {msg && (
+            <p className="text-sm" role="status">
+              {msg}
+            </p>
+          )}
+        </div>
+
+        <Dialog.Actions>
+          <Dialog.Close>Close</Dialog.Close>
+        </Dialog.Actions>
+      </Dialog.Root>
+
+      <Dialog.Root
+        isOpen={bookingFormOpen}
+        onClose={() => setBookingFormOpen(false)}
+        className="max-w-3xl"
+      >
+        <Dialog.Title>Book a Tahti Radio slot</Dialog.Title>
+        <Dialog.Description>
+          Add the show details for your{' '}
           {selectedDate.toLocaleDateString([], {
             weekday: 'long',
             month: 'long',
             day: 'numeric',
-          })}
-        </div>
-
-        {loading ? (
-          <PageLoading label="Loading…" />
-        ) : selectedBookings.length === 0 ? (
-          <p className="text-foreground-secondary text-sm">
-            No slots booked yet.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-1.5">
-            {selectedBookings.map((b) => (
-              <li
-                key={b.id}
-                className="border-border flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm"
-              >
-                {b.showType === 'TALK' ? (
-                  <MessageCircleIcon
-                    size={14}
-                    aria-hidden
-                    className="text-foreground-secondary shrink-0"
-                  />
-                ) : (
-                  <MicIcon
-                    size={14}
-                    aria-hidden
-                    className="text-foreground-secondary shrink-0"
-                  />
-                )}
-                <span className="text-foreground-secondary shrink-0 tabular-nums">
-                  {formatTimeRange(b.startAt, b.endAt)}
-                </span>
-                <Link
-                  to="/radio/show/$channelSlug"
-                  params={{ channelSlug: b.channelSlug }}
-                  onClick={onClose}
-                  className="min-w-0 flex-1 truncate font-medium hover:underline"
-                >
-                  {b.showTitle ?? b.note ?? b.displayName}
-                  {b.episodeNumber != null
-                    ? ` · Episode ${b.episodeNumber}`
-                    : ''}
-                  {b.isMine ? ' (you)' : ''}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {!user ? (
-          <p className="text-foreground-secondary text-sm">
-            <Link
-              to="/login"
-              onClick={onClose}
-              className="text-foreground underline-offset-2 hover:underline"
-            >
-              Sign in
-            </Link>{' '}
-            to book a slot.
-          </p>
-        ) : isPastDay ? (
-          <p className="text-foreground-secondary text-sm">
-            Pick a day from today onward to book.
-          </p>
-        ) : (
-          <div className="bg-background-secondary flex flex-col gap-3 rounded-lg p-3">
-            <div className="flex flex-wrap items-end gap-3">
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Start
-                </span>
-                <input
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="border-border bg-background rounded-md border px-3 py-2"
-                />
-              </label>
-            </div>
-            <BroadcastDetailsFields
-              values={
-                {
-                  title: note,
-                  description: showDescription,
-                  coverUrl: showCoverUrl,
-                  mode: newShowMode,
-                  showType,
-                  durationHours,
-                } satisfies BroadcastDetailsValues
-              }
-              shows={shows}
-              selectedShowId={selectedShowId}
-              episodeNumber={
-                shows.find((show) => show.id === selectedShowId)
-                  ?.nextEpisodeNumber ?? 1
-              }
-              onShowChange={selectShow}
-              onChange={(values) => {
-                setNote(values.title);
-                setShowDescription(values.description);
-                setShowCoverUrl(values.coverUrl);
-                setNewShowMode(values.mode);
-                setShowType(values.showType);
-                setDurationHours(values.durationHours);
-              }}
+          })}{' '}
+          broadcast.
+        </Dialog.Description>
+        <div className="mt-4 flex flex-col gap-3">
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-foreground-secondary text-xs uppercase">
+              Start
+            </span>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="border-border bg-background rounded-md border px-3 py-2"
             />
-            <Button size="sm" disabled={busy} onClick={() => void book()}>
-              {busy ? 'Booking…' : `Book ${durationHours}h slot`}
-            </Button>
-          </div>
-        )}
-
+          </label>
+          <BroadcastDetailsFields
+            values={
+              {
+                title: note,
+                description: showDescription,
+                coverUrl: showCoverUrl,
+                mode: newShowMode,
+                showType,
+                durationHours,
+              } satisfies BroadcastDetailsValues
+            }
+            shows={shows}
+            selectedShowId={selectedShowId}
+            episodeNumber={
+              shows.find((show) => show.id === selectedShowId)
+                ?.nextEpisodeNumber ?? 1
+            }
+            onShowChange={selectShow}
+            onChange={(values) => {
+              setNote(values.title);
+              setShowDescription(values.description);
+              setShowCoverUrl(values.coverUrl);
+              setNewShowMode(values.mode);
+              setShowType(values.showType);
+              setDurationHours(values.durationHours);
+            }}
+          />
+        </div>
         {msg && (
-          <p className="text-sm" role="status">
+          <p className="mt-3 text-sm" role="status">
             {msg}
           </p>
         )}
-      </div>
-
-      <Dialog.Actions>
-        <Dialog.Close>Close</Dialog.Close>
-      </Dialog.Actions>
-    </Dialog.Root>
+        <Dialog.Actions>
+          <Dialog.Close>Cancel</Dialog.Close>
+          <Button size="sm" disabled={busy} onClick={() => void book()}>
+            {busy ? 'Booking…' : `Book ${durationHours}h slot`}
+          </Button>
+        </Dialog.Actions>
+      </Dialog.Root>
+    </>
   );
 }

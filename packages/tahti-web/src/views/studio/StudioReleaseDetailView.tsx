@@ -102,14 +102,6 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
               subtitle={`${release.state} — /r/${release.smartLinkSlug}`}
               action={
                 <div className="flex flex-wrap justify-end gap-2">
-                  <MusicBrainzSubmissionAssistant
-                    mode="release"
-                    title={release.title}
-                    artistName={user?.displayName ?? ''}
-                    releaseDate={release.releaseDate}
-                    barcode={release.upc}
-                    tracks={release.tracks}
-                  />
                   <SaveButton saving={saving} onClick={() => void save()} />
                 </div>
               }
@@ -277,6 +269,30 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                           </div>
                         );
                       })()}
+                    </StudioPanel>
+                  ),
+                },
+                {
+                  id: 'export',
+                  label: (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Share2Icon size={15} aria-hidden />
+                      Export
+                    </span>
+                  ),
+                  content: (
+                    <StudioPanel
+                      title="Export release"
+                      description="Prepare this release for MusicBrainz and manage its distribution metadata."
+                    >
+                      <MusicBrainzSubmissionAssistant
+                        mode="release"
+                        title={release.title}
+                        artistName={user?.displayName ?? ''}
+                        releaseDate={release.releaseDate}
+                        barcode={release.upc}
+                        tracks={release.tracks}
+                      />
                     </StudioPanel>
                   ),
                 },

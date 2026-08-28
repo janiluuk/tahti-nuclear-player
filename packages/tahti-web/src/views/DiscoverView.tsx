@@ -4,11 +4,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, FilterChips, Popover } from '@nuclearplayer/ui';
 
 import {
+  fetchArtistOfTheWeek,
   fetchLatestTracks,
   fetchLovedTracks,
   fetchNewToYou,
   fetchTopTracks,
 } from '../api/discover';
+import type { DiscoverArtistOfWeek } from '../api/discover';
 import type { DiscoverTrackItem } from '../api/types';
 import { WidgetCard } from '../components/discover/WidgetCard';
 import { PageFrame, PageHeader } from '../components/PageHeader';
@@ -37,12 +39,14 @@ const WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
   'latest-tracks': 'Latest tracks',
   'most-played': 'Most played',
   loved: 'Loved by the community',
+  'artist-of-the-week': 'Random artist of the week',
 };
 
 type WidgetData = {
   loading: boolean;
   items: DiscoverTrackItem[];
   subtitle?: string;
+  artist?: DiscoverArtistOfWeek;
 };
 
 export function DiscoverView() {
@@ -72,6 +76,10 @@ export function DiscoverView() {
 
       const load = async (): Promise<WidgetData> => {
         switch (id) {
+          case 'artist-of-the-week': {
+            const { data: artist } = await fetchArtistOfTheWeek();
+            return { loading: false, items: [], artist: artist ?? undefined };
+          }
           case 'this-week-most-played': {
             const { data: items } = await fetchTopTracks(
               'week',
@@ -169,6 +177,7 @@ export function DiscoverView() {
               subtitle={widgetData?.subtitle}
               loading={widgetData?.loading ?? true}
               items={widgetData?.items ?? []}
+              artist={widgetData?.artist}
               showRank={
                 id === 'this-week-most-played' ||
                 id === 'this-week-least-played' ||

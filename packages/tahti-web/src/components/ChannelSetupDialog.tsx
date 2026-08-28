@@ -1,5 +1,5 @@
 import { PlusIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button, Dialog } from '@nuclearplayer/ui';
@@ -7,6 +7,8 @@ import { Button, Dialog } from '@nuclearplayer/ui';
 import { provisionChannel } from '../api/channel-provision';
 import { useAuthStore } from '../stores/authStore';
 import { useChannelSetupModalStore } from '../stores/channelSetupModalStore';
+import { ChannelControlsWidget } from './ChannelControlsWidget';
+import { ChannelDesigner } from './ChannelDesigner';
 
 export function ChannelSetupDialog() {
   const isOpen = useChannelSetupModalStore((state) => state.isOpen);
@@ -15,12 +17,7 @@ export function ChannelSetupDialog() {
   const refresh = useAuthStore((state) => state.refresh);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (user?.channel && isOpen) {
-      close();
-    }
-  }, [close, isOpen, user?.channel]);
+  const [designStep, setDesignStep] = useState(false);
 
   const createChannel = async () => {
     setBusy(true);
@@ -33,12 +30,60 @@ export function ChannelSetupDialog() {
     }
     await refresh();
     setBusy(false);
-    close();
+    setDesignStep(true);
     toast.success('Channel created.');
   };
 
-  if (user?.channel) {
+  if (user?.channel && !designStep) {
     return null;
+  }
+
+  if (designStep && user?.channel) {
+    return (
+      <Dialog.Root
+        isOpen={isOpen}
+        onClose={() => {
+          setDesignStep(false);
+          close();
+        }}
+        className="max-w-4xl"
+      >
+        <Dialog.Title>Design your channel</Dialog.Title>
+        <Dialog.Description>
+          Choose the look for your new channel. You can fine-tune it later from
+          the public channel page.
+        </Dialog.Description>
+        <div className="mt-4 max-h-[65vh] overflow-auto">
+          <ChannelControlsWidget
+            sections={[
+              {
+                id: 'channel-design',
+                title: 'Channel appearance',
+                children: (
+                  <ChannelDesigner
+                    displayName={user.displayName}
+                    username={user.username}
+                    channelSlug={user.channel.slug}
+                    avatarUrl={user.avatarUrl}
+                    livePreview={false}
+                  />
+                ),
+              },
+            ]}
+          />
+        </div>
+        <Dialog.Actions>
+          <Button
+            onClick={() => {
+              setDesignStep(false);
+              close();
+            }}
+          >
+            Finish setup
+          </Button>
+        </Dialog.Actions>
+      </Dialog.Root>
+    );
   }
 
   return (

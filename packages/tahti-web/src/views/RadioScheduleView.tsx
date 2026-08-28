@@ -229,7 +229,7 @@ export function RadioScheduleView() {
             className={cn(
               'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
               station === 'radio'
-                ? 'bg-primary text-foreground'
+                ? 'bg-primary text-primary-foreground'
                 : 'text-foreground-secondary hover:text-foreground',
             )}
           >
@@ -245,7 +245,7 @@ export function RadioScheduleView() {
               className={cn(
                 'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
                 station === 'mine'
-                  ? 'bg-primary text-foreground'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-foreground-secondary hover:text-foreground',
               )}
             >
@@ -418,7 +418,7 @@ export function RadioScheduleView() {
                 className={cn(
                   'rounded-md px-2.5 py-1 text-xs font-semibold uppercase',
                   showType === type
-                    ? 'bg-primary text-foreground'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-foreground-secondary hover:text-foreground',
                 )}
               >

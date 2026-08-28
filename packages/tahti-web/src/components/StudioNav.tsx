@@ -1,6 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
 import {
-  ClockIcon,
   FileAudioIcon,
   FolderOpenIcon,
   HeartIcon,
@@ -84,13 +83,13 @@ const SUBMENUS = {
       icon: <ListMusicIcon size={16} />,
     },
     {
-      to: '/studio/collections',
-      label: 'Collections',
-      icon: <ListMusicIcon size={16} />,
+      to: '/library/smartlinks',
+      label: 'Smartlinks',
+      icon: <Link2Icon size={16} />,
     },
     {
-      to: '/studio/playlists',
-      label: 'Playlists',
+      to: '/studio/collections',
+      label: 'Collections',
       icon: <ListMusicIcon size={16} />,
     },
     {
@@ -105,11 +104,6 @@ const SUBMENUS = {
       icon: <SlidersHorizontalIcon size={16} />,
     },
     { to: '/studio/stash', label: 'Stash', icon: <FolderOpenIcon size={16} /> },
-    {
-      to: '/library/history',
-      label: 'History',
-      icon: <ClockIcon size={16} />,
-    },
   ],
   '/studio/go-live': [
     {
@@ -153,6 +147,11 @@ const SUBMENUS = {
       icon: <RadioTowerIcon size={16} />,
     },
     {
+      to: '/studio/channel?tab=selects',
+      label: 'Tahti Selects',
+      icon: <ListMusicIcon size={16} />,
+    },
+    {
       to: '/studio/moderation',
       label: 'Moderation',
       icon: <SettingsIcon size={16} />,
@@ -180,8 +179,8 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/library',
     '/studio/archive',
     '/studio/releases',
+    '/library/smartlinks',
     '/studio/collections',
-    '/studio/playlists',
     '/studio/recordings',
     '/studio/upload',
     '/studio/editor',
@@ -222,7 +221,6 @@ const isSubmenuActive = (current: string | undefined, to: string) =>
       : current === to || current?.startsWith(`${to}/`) === true) ||
   (to === '/studio/releases' && current === '/library/releases') ||
   (to === '/studio/collections' && current === '/library/collections') ||
-  (to === '/studio/playlists' && current === '/library/playlists') ||
   (to === '/studio/recordings' && current === '/library/recordings') ||
   (to === '/library/history' && current === '/library/history');
 
@@ -261,7 +259,7 @@ function StudioNavigation({ current }: { current?: string }) {
               type="button"
               role="tab"
               aria-selected={active}
-              className={`rounded-md px-3 py-1.5 text-sm font-semibold whitespace-nowrap ${
+              className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
@@ -271,6 +269,7 @@ function StudioNavigation({ current }: { current?: string }) {
                 void navigate({ to: item.to });
               }}
             >
+              <span className="shrink-0">{item.icon}</span>
               {item.label}
             </button>
           );

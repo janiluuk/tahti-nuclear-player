@@ -53,7 +53,7 @@ exports[`PlayerWorkspace > (Snapshot) both sidebars collapsed 1`] = `
       />
     </div>
     <main
-      class="bg-background-secondary overflow-auto"
+      class="bg-background-secondary min-w-0 overflow-auto"
       data-testid="player-workspace-main"
     />
     <div
@@ -163,7 +163,7 @@ exports[`PlayerWorkspace > (Snapshot) both sidebars expanded 1`] = `
       />
     </div>
     <main
-      class="bg-background-secondary overflow-auto"
+      class="bg-background-secondary min-w-0 overflow-auto"
       data-testid="player-workspace-main"
     />
     <div

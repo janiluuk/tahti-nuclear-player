@@ -70,10 +70,16 @@ export function ListenView() {
         return;
       }
       setItems(dir.data.items);
+      const liveSlugs = new Set(
+        channels.data.live.map((channel) => channel.slug),
+      );
       setOnAir(
-        [...channels.data.live, ...channels.data.replaying].filter(
-          (channel) => channel.slug !== TAHTI_RADIO_SLUG,
-        ),
+        [...channels.data.live, ...channels.data.replaying]
+          .filter((channel) => channel.slug !== TAHTI_RADIO_SLUG)
+          .map((channel) => ({
+            ...channel,
+            state: liveSlugs.has(channel.slug) ? 'LIVE' : 'REPLAY',
+          })),
       );
       setRadio(station?.data ?? null);
       setLoading(false);

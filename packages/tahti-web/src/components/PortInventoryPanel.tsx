@@ -11,7 +11,7 @@ import {
 function statusClass(status: PortStatus): string {
   switch (status) {
     case 'done':
-      return 'bg-primary text-foreground';
+      return 'bg-primary text-primary-foreground';
     case 'partial':
       return 'border-border text-foreground border';
     case 'missing':

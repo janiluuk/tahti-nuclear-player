@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { AudioLinesIcon, FolderOpenIcon, PlusIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
@@ -27,6 +27,42 @@ export function StudioEditorListView() {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryType, setLibraryType] = useState('ALL');
+  const [libraryQuery, setLibraryQuery] = useState('');
+
+  const libraryTypes = useMemo(() => {
+    const types = new Set(
+      archive
+        .map((item) => item.contentType?.trim().toUpperCase())
+        .filter(Boolean),
+    );
+    return ['ALL', ...Array.from(types).sort()];
+  }, [archive]);
+
+  const filteredLibrary = useMemo(() => {
+    const query = libraryQuery.trim().toLowerCase();
+    return archive.filter((item) => {
+      const matchesType =
+        libraryType === 'ALL' ||
+        item.contentType?.toUpperCase() === libraryType;
+      const matchesQuery =
+        !query ||
+        [item.title, item.artistName, item.genre, item.contentType]
+          .filter(Boolean)
+          .some((value) => value?.toLowerCase().includes(query));
+      return matchesType && matchesQuery;
+    });
+  }, [archive, libraryQuery, libraryType]);
+
+  const formatLibraryType = (type: string) =>
+    type === 'ALL'
+      ? 'All'
+      : type
+          .toLowerCase()
+          .split(/[_-]/)
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
 
   const reload = () => {
     void Promise.all([fetchEditorProjects(), fetchStudioArchive()]).then(
@@ -77,18 +113,20 @@ export function StudioEditorListView() {
           title="Audio editor"
           subtitle="Trim and process archive tracks. Sessions keep a linked archive when you seed one."
           action={
-            <Button
-              size="sm"
-              onClick={() => {
-                setMessage(null);
-                setCreateOpen(true);
-              }}
-              aria-label="New session"
-              title="New session"
-            >
-              <PlusIcon size={16} aria-hidden className="mr-1.5" />
-              New
-            </Button>
+            projects.length > 0 ? (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setMessage(null);
+                  setCreateOpen(true);
+                }}
+                aria-label="New session"
+                title="New session"
+              >
+                <PlusIcon size={16} aria-hidden className="mr-1.5" />
+                New session
+              </Button>
+            ) : undefined
           }
         />
 
@@ -208,37 +246,104 @@ export function StudioEditorListView() {
         </StudioPanel>
 
         <StudioPanel
-          title="Open archive in pro editor"
-          description="Jump straight into trim and render for a library track."
+          title="Open from library"
+          description="Choose a library item to open in the pro editor."
         >
-          {archive.length === 0 ? (
-            <p className="text-foreground-secondary text-sm">
-              Upload a track in Library first.
-            </p>
-          ) : (
-            <ul className="flex flex-wrap gap-2">
-              {archive.slice(0, 8).map((a) => (
-                <li key={a.id}>
-                  <Link to="/studio/archive/$id/editor" params={{ id: a.id }}>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      aria-label={`Edit ${a.title}`}
-                      title={a.title}
-                    >
-                      <AudioLinesIcon
-                        size={14}
-                        aria-hidden
-                        className="mr-1.5"
-                      />
-                      <span className="max-w-[10rem] truncate">{a.title}</span>
-                    </Button>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              setLibraryType('ALL');
+              setLibraryQuery('');
+              setLibraryOpen(true);
+            }}
+          >
+            <FolderOpenIcon size={16} aria-hidden className="mr-1.5" />
+            Open from library
+          </Button>
         </StudioPanel>
+
+        <Dialog.Root
+          isOpen={libraryOpen}
+          onClose={() => setLibraryOpen(false)}
+          className="max-w-4xl"
+        >
+          <Dialog.Title>Open from library</Dialog.Title>
+          <Dialog.Description>
+            Browse your library by content type, then open an item in the pro
+            editor.
+          </Dialog.Description>
+          <div className="mt-4 grid min-h-[22rem] gap-4 md:grid-cols-[12rem_1fr]">
+            <nav
+              className="border-border flex gap-1 overflow-x-auto border-b pb-2 md:flex-col md:overflow-visible md:border-r md:border-b-0 md:pr-3 md:pb-0"
+              aria-label="Library content types"
+            >
+              {libraryTypes.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`shrink-0 rounded-md px-3 py-2 text-left text-sm ${
+                    libraryType === type
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
+                  }`}
+                  aria-pressed={libraryType === type}
+                  onClick={() => setLibraryType(type)}
+                >
+                  {formatLibraryType(type)}
+                </button>
+              ))}
+            </nav>
+            <div className="flex min-w-0 flex-col gap-3">
+              <Input
+                value={libraryQuery}
+                onChange={(event) => setLibraryQuery(event.target.value)}
+                placeholder="Search library…"
+                aria-label="Search library"
+              />
+              {filteredLibrary.length === 0 ? (
+                <p className="text-foreground-secondary py-8 text-center text-sm">
+                  {archive.length === 0
+                    ? 'Upload content in Library first.'
+                    : 'No library items match this selection.'}
+                </p>
+              ) : (
+                <ul className="border-border divide-border max-h-[20rem] divide-y overflow-y-auto rounded-md border">
+                  {filteredLibrary.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex items-center gap-3 px-3 py-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {item.title}
+                        </p>
+                        <p className="text-foreground-secondary truncate text-xs">
+                          {item.artistName || 'Unknown artist'}
+                          {item.genre ? ` · ${item.genre}` : ''}
+                        </p>
+                      </div>
+                      <Link
+                        to="/studio/archive/$id/editor"
+                        params={{ id: item.id }}
+                        onClick={() => setLibraryOpen(false)}
+                      >
+                        <Button size="sm">
+                          <AudioLinesIcon
+                            size={14}
+                            aria-hidden
+                            className="mr-1.5"
+                          />
+                          Open
+                        </Button>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </Dialog.Root>
       </div>
     </StudioGate>
   );
