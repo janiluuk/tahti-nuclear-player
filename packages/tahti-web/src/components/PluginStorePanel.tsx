@@ -20,7 +20,6 @@ import {
   Tabs,
 } from '@nuclearplayer/ui';
 
-import { submitRadioStationSuggestion } from '../api/admin';
 import {
   createRtmpTarget,
   deleteRtmpTarget,
@@ -1359,25 +1358,29 @@ function RadioCategory() {
             e.preventDefault();
             setSuggestBusy(true);
             setSuggestMsg(null);
-            void submitRadioStationSuggestion({
-              name: suggestName.trim(),
-              logoUrl: suggestLogoUrl.trim(),
-              language: suggestLanguage.trim(),
-              bitrateKbps: suggestBitrate.trim(),
-              streamUrl: suggestStreamUrl.trim(),
-            }).then((r) => {
-              setSuggestBusy(false);
-              if (!r.ok) {
-                setSuggestMsg(r.error);
-                return;
-              }
-              setSuggestMsg('Thanks — sent to the Tahti team for review.');
-              setSuggestName('');
-              setSuggestLogoUrl('');
-              setSuggestLanguage('');
-              setSuggestBitrate('');
-              setSuggestStreamUrl('');
-            });
+            void import('../api/admin')
+              .then(({ submitRadioStationSuggestion }) =>
+                submitRadioStationSuggestion({
+                  name: suggestName.trim(),
+                  logoUrl: suggestLogoUrl.trim(),
+                  language: suggestLanguage.trim(),
+                  bitrateKbps: suggestBitrate.trim(),
+                  streamUrl: suggestStreamUrl.trim(),
+                }),
+              )
+              .then((r) => {
+                setSuggestBusy(false);
+                if (!r.ok) {
+                  setSuggestMsg(r.error);
+                  return;
+                }
+                setSuggestMsg('Thanks — sent to the Tahti team for review.');
+                setSuggestName('');
+                setSuggestLogoUrl('');
+                setSuggestLanguage('');
+                setSuggestBitrate('');
+                setSuggestStreamUrl('');
+              });
           }}
         >
           <div className="grid gap-3 sm:grid-cols-2">

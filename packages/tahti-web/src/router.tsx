@@ -42,14 +42,12 @@ import { LegalView } from './views/LegalView';
 import { ListenView } from './views/ListenView';
 import { LoginView } from './views/LoginView';
 import { MessagesView } from './views/MessagesView';
-import { MoreView } from './views/MoreView';
 import { OnboardingView } from './views/OnboardingView';
 import { PrivacyView } from './views/PrivacyView';
 import { RadioScheduleView } from './views/RadioScheduleView';
 import { RadioShowView } from './views/RadioShowView';
 import { RadioView } from './views/RadioView';
 import { ResetPasswordView } from './views/ResetPasswordView';
-import { SettingsView } from './views/settings/SettingsView';
 import { SetupPasswordView } from './views/SetupPasswordView';
 import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
@@ -122,6 +120,14 @@ const StudioShowDetailView = lazyRouteComponent(
 const StudioEpisodeReviewView = lazyRouteComponent(
   () => import('./views/studio/StudioShowDetailView'),
   'StudioEpisodeReviewView',
+);
+const MoreView = lazyRouteComponent(
+  () => import('./views/MoreView'),
+  'MoreView',
+);
+const SettingsView = lazyRouteComponent(
+  () => import('./views/settings/SettingsView'),
+  'SettingsView',
 );
 const AdminLogsView = lazyRouteComponent(
   () => import('./views/admin/AdminLogsView'),

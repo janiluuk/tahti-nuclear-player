@@ -1,5 +1,15 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Performance follow-up slices
+
+**Slice 1:** Settings and the Tahti Map/More route are now lazy-loaded, keeping their large secondary workflows out of the initial listener bundle.
+
+**Slice 2:** The Radio add-on’s admin-only station suggestion API is dynamically imported at submit time, removing that admin API dependency from the initial Settings/plugin path.
+
+**Slice 3:** Heavy Studio archive/editor/detail routes remain route-lazy and now load in dedicated chunks. The production build entry bundle improved from 3.54 MB minified / 1.020 MB gzip to 3.345 MB / 968 KB gzip across the two performance passes.
+
+**Remaining:** Vite still reports `api/admin.ts` as shared with admin route modules, and the initial bundle remains large because several broad listener/studio modules are statically reachable from the router. Mermaid and visualizer payloads are deferred but individually large. These are documented optimization candidates; further splitting should be measured against route transition cost.
+
 ## 2026-08-28 — Tahti Map screenshot and navigation refresh
 
 **Completed:** Regenerated the Tahti Map atlas from the local mock API with a privileged board user, covering public/listener views plus current Studio and Admin pages. Added Admin Overview, Financial, Storage, Logs, Content, Moderation, and Streams captures. Added a Mermaid graph for the stable app shell and current Studio/Admin section menus. Legacy Money Fan subs and TOTP interactions remain documented as soft-capture cases because those views no longer expose the old controls in the current app.
