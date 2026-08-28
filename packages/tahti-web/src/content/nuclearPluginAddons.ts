@@ -5,6 +5,7 @@ export type NuclearPluginField = {
   secret?: boolean;
   kind?: 'text' | 'password' | 'url' | 'textarea' | 'select';
   options?: Array<{ value: string; label: string }>;
+  description?: string;
 };
 
 export type NuclearPluginApiCounterpart = {
@@ -318,13 +319,52 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     category: 'Playlists',
     description: 'Sync YouTube Music liked songs into local playlists.',
     status: 'planned',
-    statusLabel: 'API contract needed',
-    fields: [],
-    note: 'Tahti has local playlists but no YouTube Music account, consent, or synchronization contract.',
+    statusLabel: 'Configuration available',
+    fields: [
+      {
+        id: 'ytCookie',
+        label: 'YouTube Music cookie',
+        placeholder: 'Paste the cookie request header from music.youtube.com',
+        kind: 'textarea',
+        secret: true,
+        description:
+          'In music.youtube.com Developer Tools, copy the cookie header from a /browse request. Keep this value private.',
+      },
+      {
+        id: 'ytAuth',
+        label: 'YouTube Music authorization',
+        placeholder: 'Paste the authorization request header',
+        kind: 'textarea',
+        secret: true,
+        description:
+          'Copy the authorization header from the same /browse request. It normally starts with SAPISIDHASH.',
+      },
+      {
+        id: 'playlistName',
+        label: 'Destination playlist name',
+        placeholder: 'YouTube Liked Songs',
+        description:
+          'The local playlist name used for the imported liked songs.',
+      },
+      {
+        id: 'syncInterval',
+        label: 'Sync frequency',
+        placeholder: 'Choose a frequency',
+        kind: 'select',
+        options: [
+          { value: 'manual', label: 'Manual only' },
+          { value: 'daily', label: 'Once a day' },
+          { value: 'weekly', label: 'Once a week' },
+        ],
+        description:
+          'Automatic sync will become available when the Tahti API sync contract is enabled.',
+      },
+    ],
+    note: 'Configuration is ported from the Nuclear plugin. Sync remains pending until Tahti provides a server-side YouTube Music credential, consent, playlist mutation, and scheduling contract.',
     apiCounterpart: {
       status: 'missing',
       routes: [],
-      note: 'OAuth, playlist mutation, scheduling, and conflict behavior must be designed first.',
+      note: 'The upstream plugin uses private YouTube Music request headers and Nuclear local-playlist APIs. Tahti still needs a secure server-side sync endpoint before enabling this action.',
     },
   },
 ];

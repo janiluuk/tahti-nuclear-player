@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Ported the YouTube Music Liked Songs parser and added secure configuration guidance for cookie, authorization, destination playlist, and sync frequency in Add-ons.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Plugins", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Source integrations now expose typed OAuth, search, and tool adapter groups with registry coverage for complete provider routing.",
     "type": "improvement",
     "contributors": ["jani"],

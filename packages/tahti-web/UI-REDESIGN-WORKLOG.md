@@ -4,6 +4,12 @@
 
 **Batch 1:** Split source integrations into typed OAuth, search, and tool/upload adapter groups. The registry now exposes those groups and tests enforce that every source belongs to exactly one group while retaining its capability metadata.
 
+## 2026-08-28 — YouTube Liked Songs plugin port
+
+**Batch 2:** Ported the upstream YouTube Music Liked Songs response parser into `src/plugins/youtube-liked-songs`, with tests for nested renderer extraction, artists, artwork, and invalid rows. The Nuclear add-on configuration now includes private cookie and authorization fields, destination playlist name, and sync frequency with inline guidance.
+
+**Boundary:** The upstream plugin depends on Nuclear’s private local playlist API. Tahti does not yet expose a secure server-side YouTube Music OAuth/credential and playlist-sync contract, so the add-on is configurable but remains explicitly partial rather than offering an unsafe browser-only sync.
+
 ## 2026-08-28 — 3×3 source and Storybook compliance slices
 
 **Batch 1:** Added typed source capabilities for connection, search, import, and playback; converted the import-source plugin contract to a structural type; and added registry coverage requiring every provider to declare all capabilities.

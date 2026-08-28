@@ -163,6 +163,11 @@ export function NuclearPluginAddonsCategory() {
                           value={value}
                           onChange={(event) => onChange(event.target.value)}
                         />
+                        {field.description && (
+                          <span className="text-foreground-secondary text-xs">
+                            {field.description}
+                          </span>
+                        )}
                       </label>
                     );
                   }
@@ -196,6 +201,7 @@ export function NuclearPluginAddonsCategory() {
                       placeholder={field.placeholder}
                       value={value}
                       onChange={(event) => onChange(event.target.value)}
+                      description={field.description}
                     />
                   );
                 })
