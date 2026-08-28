@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { Settings2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge, Button, Dialog } from '@nuclearplayer/ui';
@@ -11,6 +12,7 @@ import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
+import { AdminVendorsContent } from './AdminVendorsView';
 
 function euros(cents: number): string {
   return `€${(cents / 100).toLocaleString('fi-FI', { minimumFractionDigits: 0 })}`;
@@ -29,6 +31,9 @@ export function AdminDashboardView() {
   const [selectedAction, setSelectedAction] = useState<
     AdminDashboard['actionRows'][number] | null
   >(null);
+  const [overviewTab, setOverviewTab] = useState<'overview' | 'vendors'>(
+    'overview',
+  );
 
   useEffect(() => {
     void fetchAdminDashboard().then((res) => {
@@ -54,7 +59,35 @@ export function AdminDashboardView() {
           subtitle="Operations dashboard — members, live streams, and system health."
         />
 
-        {loading || !data ? (
+        <div
+          className="border-border flex flex-wrap gap-2 border-b pb-3"
+          role="tablist"
+          aria-label="Admin overview sections"
+        >
+          <Button
+            type="button"
+            role="tab"
+            aria-selected={overviewTab === 'overview'}
+            variant={overviewTab === 'overview' ? 'default' : 'text'}
+            onClick={() => setOverviewTab('overview')}
+          >
+            Overview
+          </Button>
+          <Button
+            type="button"
+            role="tab"
+            aria-selected={overviewTab === 'vendors'}
+            variant={overviewTab === 'vendors' ? 'default' : 'text'}
+            onClick={() => setOverviewTab('vendors')}
+          >
+            <Settings2 size={16} aria-hidden />
+            Vendors
+          </Button>
+        </div>
+
+        {overviewTab === 'vendors' ? (
+          <AdminVendorsContent />
+        ) : loading || !data ? (
           <StudioPanel>
             <PageLoading label="Loading dashboard…" />
           </StudioPanel>

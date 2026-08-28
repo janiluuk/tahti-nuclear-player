@@ -28,10 +28,12 @@ import { ChannelAnnouncementsPanel } from '../../components/ChannelAnnouncements
 import { ChannelControlsWidget } from '../../components/ChannelControlsWidget';
 import { ChannelRadioPlaylistPanel } from '../../components/ChannelRadioPlaylistPanel';
 import { PageLoading } from '../../components/PageStates';
+import { PinnedAnnouncementsPanel } from '../../components/PinnedAnnouncementsPanel';
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioRadioSubmissionPanel } from '../../components/StudioRadioSubmissionPanel';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
 import { SelectsTab } from '../admin/moderation/tabs/SelectsTab';
@@ -46,7 +48,13 @@ type Tab =
   | 'selects'
   | 'profile'
   | 'domain';
-type RadioTab = 'stream' | 'rotation' | 'announcements' | 'settings';
+type RadioTab =
+  | 'stream'
+  | 'rotation'
+  | 'announcements'
+  | 'pinned'
+  | 'tahti-radio'
+  | 'settings';
 
 const RADIO_STATS_RANGES: StatsPlaysRange[] = ['1', '7', '30'];
 
@@ -300,6 +308,8 @@ export function StudioChannelView() {
                   ['stream', 'Stream'],
                   ['rotation', '24/7'],
                   ['announcements', 'Announcements'],
+                  ['pinned', 'Pinned'],
+                  ['tahti-radio', 'Tahti Radio'],
                   ['settings', 'Settings'],
                 ] as const
               ).map(([id, label]) => (
@@ -341,6 +351,12 @@ export function StudioChannelView() {
               <ChannelRadioPlaylistPanel />
             ) : radioTab === 'announcements' ? (
               <ChannelAnnouncementsPanel />
+            ) : radioTab === 'pinned' ? (
+              channel?.slug ? (
+                <PinnedAnnouncementsPanel slug={channel.slug} />
+              ) : null
+            ) : radioTab === 'tahti-radio' ? (
+              <StudioRadioSubmissionPanel />
             ) : (
               <BroadcastPanel section="radio" />
             )}

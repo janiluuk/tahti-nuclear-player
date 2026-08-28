@@ -144,6 +144,11 @@ export type PublicRadioShowEpisode = {
   title?: string | null;
   description?: string | null;
   coverUrl?: string | null;
+  recording?: {
+    archiveItemId: string;
+    title: string;
+    channelItemUrl: string;
+  } | null;
 };
 
 export type PublicRadioShow = {
@@ -1098,6 +1103,13 @@ export async function fetchPublicRadioShow(
         title: episode?.title,
         description: episode?.description,
         coverUrl: episode?.coverUrl,
+        recording: episode?.archiveItemId
+          ? {
+              archiveItemId: episode.archiveItemId,
+              title: episode.title,
+              channelItemUrl: `/channel/${booking.channelSlug}#archive-item-${episode.archiveItemId}`,
+            }
+          : null,
       };
     };
     const upcoming = matchingBookings

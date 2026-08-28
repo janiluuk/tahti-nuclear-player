@@ -3328,6 +3328,190 @@ export async function fetchAdminIntegrationStatus(): Promise<{
   }
 }
 
+// ── Disco-widgets ──────────────────────────────────────────────────────────
+
+export type AdminDiscoWidgetScope = 'LISTENER' | 'ARTIST' | 'ADMIN';
+export type AdminDiscoWidgetStatus =
+  | 'DRAFT'
+  | 'PENDING'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'DISABLED';
+
+export type AdminDiscoWidget = {
+  id: string;
+  slug: string;
+  scope: AdminDiscoWidgetScope;
+  status: AdminDiscoWidgetStatus;
+  name: string;
+  description: string;
+  authorName: string;
+  categories: string[];
+  iconUrl: string | null;
+  currentVersion: string;
+  bundleSizeBytes: number;
+  moderationNote: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const MOCK_DISCO_WIDGETS: AdminDiscoWidget[] = [
+  {
+    id: 'widget-random-artist',
+    slug: 'random-artist-week',
+    scope: 'LISTENER',
+    status: 'APPROVED',
+    name: 'Random artist of the week',
+    description: 'Highlights one artist from the community each week.',
+    authorName: 'Tahti',
+    categories: ['social', 'new-releases'],
+    iconUrl: null,
+    currentVersion: '1.0.0',
+    bundleSizeBytes: 18400,
+    moderationNote: null,
+    createdAt: '2026-08-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
+  },
+  {
+    id: 'widget-channel-stats',
+    slug: 'channel-stats',
+    scope: 'ARTIST',
+    status: 'APPROVED',
+    name: 'Channel stats',
+    description: 'Shows the artist channel’s current listener statistics.',
+    authorName: 'Tahti',
+    categories: ['stats'],
+    iconUrl: null,
+    currentVersion: '1.2.0',
+    bundleSizeBytes: 22100,
+    moderationNote: null,
+    createdAt: '2026-07-15T00:00:00.000Z',
+    updatedAt: '2026-07-15T00:00:00.000Z',
+  },
+];
+
+let mockDiscoWidgets = [...MOCK_DISCO_WIDGETS];
+
+export async function fetchAdminDiscoWidgets(
+  scope?: AdminDiscoWidgetScope,
+  status?: AdminDiscoWidgetStatus,
+): Promise<{ data: AdminDiscoWidget[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    return {
+      data: mockDiscoWidgets.filter(
+        (widget) =>
+          (!scope || widget.scope === scope) &&
+          (!status || widget.status === status),
+      ),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const query = new URLSearchParams();
+    if (scope) {
+      query.set('scope', scope);
+    }
+    if (status) {
+      query.set('status', status);
+    }
+    const suffix = query.size > 0 ? `?${query.toString()}` : '';
+    const data = await getJson<{ widgets: AdminDiscoWidget[] }>(
+      `/api/admin/disco-widgets${suffix}`,
+    );
+    return { data: data.widgets, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export type AdminDiscoWidgetPatch = {
+  name: string;
+  description: string;
+  authorName: string;
+  categories: string[];
+  iconUrl?: string;
+};
+
+export async function registerAdminDiscoWidget(
+  input: AdminDiscoWidgetPatch & {
+    slug: string;
+    scope: AdminDiscoWidgetScope;
+  },
+): Promise<
+  { ok: true; data: AdminDiscoWidget } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const widget: AdminDiscoWidget = {
+      id: `widget-${Date.now()}`,
+      ...input,
+      iconUrl: input.iconUrl || null,
+      status: 'DRAFT',
+      currentVersion: '0.0.0',
+      bundleSizeBytes: 0,
+      moderationNote: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    mockDiscoWidgets = [widget, ...mockDiscoWidgets];
+    return { ok: true, data: widget };
+  }
+  try {
+    const data = await sendJson<AdminDiscoWidget>(
+      '/api/admin/disco-widgets',
+      'POST',
+      input,
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Registration failed',
+    };
+  }
+}
+
+export async function patchAdminDiscoWidget(
+  id: string,
+  patch: AdminDiscoWidgetPatch,
+): Promise<
+  { ok: true; data: AdminDiscoWidget } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const existing = mockDiscoWidgets.find((widget) => widget.id === id);
+    if (!existing) {
+      return { ok: false, error: 'Widget not found' };
+    }
+    const updated = { ...existing, ...patch, iconUrl: patch.iconUrl || null };
+    mockDiscoWidgets = mockDiscoWidgets.map((widget) =>
+      widget.id === id ? updated : widget,
+    );
+    return { ok: true, data: updated };
+  }
+  try {
+    const data = await sendJson<AdminDiscoWidget>(
+      `/api/admin/disco-widgets/${encodeURIComponent(id)}`,
+      'PATCH',
+      patch,
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Update failed',
+    };
+  }
+}
+
+export async function deleteAdminDiscoWidget(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    mockDiscoWidgets = mockDiscoWidgets.filter((widget) => widget.id !== id);
+    return { ok: true };
+  }
+  return mutate(`/api/admin/disco-widgets/${encodeURIComponent(id)}`, 'DELETE');
+}
+
 // ── Status ──────────────────────────────────────────────────────────────────
 
 export type AdminStatusCheck = {

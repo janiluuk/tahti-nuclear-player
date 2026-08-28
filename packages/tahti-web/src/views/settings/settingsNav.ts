@@ -3,15 +3,19 @@ import {
   BlocksIcon,
   Paintbrush,
   Palette,
+  Radio,
   Sparkles,
   User,
   UserCircle2,
+  Users,
 } from 'lucide-react';
 
 export type SettingsSectionId =
   | 'account'
   | 'artist'
   | 'channel'
+  | 'broadcast'
+  | 'audience'
   | 'themes'
   | 'plugin-store'
   | 'whats-new';
@@ -41,6 +45,18 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     label: 'Channel & design',
     description: 'Look, discovery, username',
     Icon: Paintbrush,
+  },
+  {
+    id: 'broadcast',
+    label: 'Broadcast',
+    description: 'Radio, green room, moderators, multistream',
+    Icon: Radio,
+  },
+  {
+    id: 'audience',
+    label: 'Audience',
+    description: 'Fan tiers, subscriptions, grants',
+    Icon: Users,
   },
   {
     id: 'themes',

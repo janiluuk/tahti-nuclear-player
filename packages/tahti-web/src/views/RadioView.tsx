@@ -304,19 +304,9 @@ export function RadioView() {
                         24/7 rotation
                       </div>
                     )}
-                    {nowPlaying?.artistUsername ? (
-                      <Link
-                        to="/u/$username"
-                        params={{ username: nowPlaying.artistUsername }}
-                        className="text-foreground-secondary block truncate text-sm underline-offset-2 hover:underline"
-                      >
-                        {nowPlaying.artistName}
-                      </Link>
-                    ) : (
-                      <div className="text-foreground-secondary truncate text-sm">
-                        {nowPlaying?.artistName ?? 'Tahti Radio'}
-                      </div>
-                    )}
+                    <div className="text-foreground-secondary truncate text-sm">
+                      {nowPlaying?.artistName ?? 'Tahti Radio'}
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-start gap-3">

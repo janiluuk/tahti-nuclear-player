@@ -109,7 +109,7 @@ function VendorTable({
   );
 }
 
-export function AdminVendorsView() {
+export function AdminVendorsContent() {
   const [integrations, setIntegrations] = useState<AdminIntegrationStatus[]>(
     [],
   );
@@ -119,41 +119,49 @@ export function AdminVendorsView() {
   }, []);
 
   return (
+    <div className="flex flex-col gap-6">
+      <StudioPageHeader
+        title="Vendors & DPA tracking"
+        subtitle="Association-owned accounts. Credentials live in the board vault, never here."
+      />
+
+      {integrations.length > 0 && (
+        <StudioPanel title="Distribution status">
+          <ul className="flex flex-col gap-2">
+            {integrations.map((row) => (
+              <li key={row.name} className="flex items-center gap-3 text-sm">
+                <Badge variant="pill" color={row.live ? 'green' : 'orange'}>
+                  {row.live ? 'Live' : 'Stub'}
+                </Badge>
+                <div>
+                  <div className="font-medium">{row.name}</div>
+                  <div className="text-foreground-secondary text-xs">
+                    {row.detail}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </StudioPanel>
+      )}
+
+      <StudioPanel title="Critical vendors">
+        <VendorTable vendors={CRITICAL_VENDORS} />
+      </StudioPanel>
+
+      <StudioPanel title="Integrations">
+        <VendorTable vendors={INTEGRATION_VENDORS} />
+      </StudioPanel>
+    </div>
+  );
+}
+
+export function AdminVendorsView() {
+  return (
     <AdminGate>
       <div className="admin-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
         <AdminNav current="/admin/vendors" />
-        <StudioPageHeader
-          title="Vendors & DPA tracking"
-          subtitle="Association-owned accounts. Credentials live in the board vault, never here."
-        />
-
-        {integrations.length > 0 && (
-          <StudioPanel title="Distribution status">
-            <ul className="flex flex-col gap-2">
-              {integrations.map((row) => (
-                <li key={row.name} className="flex items-center gap-3 text-sm">
-                  <Badge variant="pill" color={row.live ? 'green' : 'orange'}>
-                    {row.live ? 'Live' : 'Stub'}
-                  </Badge>
-                  <div>
-                    <div className="font-medium">{row.name}</div>
-                    <div className="text-foreground-secondary text-xs">
-                      {row.detail}
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </StudioPanel>
-        )}
-
-        <StudioPanel title="Critical vendors">
-          <VendorTable vendors={CRITICAL_VENDORS} />
-        </StudioPanel>
-
-        <StudioPanel title="Integrations">
-          <VendorTable vendors={INTEGRATION_VENDORS} />
-        </StudioPanel>
+        <AdminVendorsContent />
       </div>
     </AdminGate>
   );

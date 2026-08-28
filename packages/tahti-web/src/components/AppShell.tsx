@@ -9,7 +9,7 @@ import {
   SettingsIcon,
   ShieldIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   PlayerShell,
@@ -119,6 +119,7 @@ export function AppShell() {
     leftWidth,
     rightWidth,
     toggleLeft,
+    setLeftCollapsed,
     toggleRight,
     setLeftWidth,
     setRightWidth,
@@ -143,6 +144,9 @@ export function AppShell() {
 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileQueueOpen, setMobileQueueOpen] = useState(false);
+  const previousEditorSidebarState = useRef<boolean | null>(null);
+  const isAudioEditorRoute =
+    /^\/studio\/(?:archive\/[^/]+\/editor|editor\/[^/]+)$/.test(pathname);
 
   useEffect(() => {
     void refresh();
@@ -151,6 +155,23 @@ export function AppShell() {
   useEffect(() => {
     syncDocumentMetadata(pathname);
   }, [pathname]);
+
+  useEffect(() => {
+    if (isAudioEditorRoute) {
+      if (previousEditorSidebarState.current === null) {
+        previousEditorSidebarState.current = leftCollapsed;
+        if (!leftCollapsed) {
+          setLeftCollapsed(true);
+        }
+      }
+      return;
+    }
+
+    if (previousEditorSidebarState.current !== null) {
+      setLeftCollapsed(previousEditorSidebarState.current);
+      previousEditorSidebarState.current = null;
+    }
+  }, [isAudioEditorRoute, leftCollapsed, setLeftCollapsed]);
 
   useEffect(() => {
     const currentItem = playerQueue.find((item) => item.id === currentTrackId);

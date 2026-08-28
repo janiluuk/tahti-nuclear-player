@@ -465,7 +465,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     source: 'router.tsx',
     title: 'Site map — Nuclear tahti-web',
     blurb:
-      'Current beta routes, production aliases, playback surfaces, and artist/admin workspaces. The review-only map is gated from production builds.',
+      'Current beta routes, persistent top-bar actions, playback surfaces, and artist/admin workspaces. Use the diagram zoom controls for dense route groups.',
     mermaid: `flowchart TB
   Entry["app.tahti.live"]:::pub --> Listen["Listen · / · /listen"]:::pub
   Listen --> Radio["Radio · /radio"]:::pub
@@ -477,15 +477,15 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Profile --> Sub["Fan subscription · /u/:user/subscribe"]:::auth
   Profile --> Coll["Collections · /u/:user/c/:slug"]:::pub
   Profile --> Smart["Smart links · /r/:slug"]:::pub
-  Listen --> Library["Library · favorites · history · messages"]:::auth
-  Listen --> Settings["Settings · account · artist · money · connections"]:::auth
+  Listen --> Library["Library · sounds · releases · collections · history"]:::auth
+  Listen --> Settings["Settings · account · artist · security"]:::auth
   Settings --> Sources["Sources · imports and exports"]:::auth
-  Listen --> Studio["Studio · /dashboard/* → /studio/*"]:::studio
-  Studio --> GoLive["Go Live · rotation · controls · bitrate"]:::studio
-  Studio --> Music["Music · metadata · artwork · playlists · export"]:::studio
-  Studio --> Programme["24/7 programme · schedule · shows"]:::studio
-  Studio --> Publish["Releases · collections · updates · distribution"]:::studio
-  Studio --> Business["Stats · revenue · stash · moderation"]:::studio
+  Listen --> Studio["Studio · overview · library · perform · manage"]:::studio
+  Studio --> GoLive["Perform · Go live · schedule · shows · events"]:::studio
+  Studio --> Music["Library · sounds · releases · collections · upload · editor"]:::studio
+  Studio --> Programme["Manage · radio · channel · moderation · governance"]:::studio
+  Studio --> Publish["Studio · posts · distribution · audience · stats"]:::studio
+  Studio --> Business["Top bar · upload · messages · notifications · chat"]:::studio
   Listen --> Public["Venues · transparency · help · legal · embeds"]:::pub
   Listen --> Admin["Board admin · /admin/*"]:::board
   Admin -.-> Legacy["Next admin remains production canonical"]:::board

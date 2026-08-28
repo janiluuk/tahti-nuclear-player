@@ -4,6 +4,8 @@ import {
   Cast,
   Compass,
   CreditCardIcon,
+  Database,
+  Download,
   Gift,
   Globe,
   Image as ImageIcon,
@@ -18,6 +20,7 @@ import {
   Shield,
   SunMoon,
   Tag,
+  Trash2,
   User,
   UserCircle2,
   Users,
@@ -34,6 +37,7 @@ import {
   SaveButton,
   Select,
   Tabs,
+  Textarea,
   Toggle,
   type SelectOption,
 } from '@nuclearplayer/ui';
@@ -72,6 +76,7 @@ import {
 import {
   fetchMembership,
   fetchMySubscriptions,
+  requestAccountDeletion,
   startMembershipCheckout,
 } from '../../api/client';
 import {
@@ -90,10 +95,12 @@ import {
 import {
   fetchMeProfile,
   fetchProgramme,
+  fetchStorageUsage,
   patchMeProfile,
   patchProgramme,
   type ProfileFields,
   type ProgrammeView,
+  type StorageUsage,
 } from '../../api/studio-extras';
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { ApiTokensPanel } from '../../components/ApiTokensPanel';
@@ -105,6 +112,7 @@ import { GenrePicker } from '../../components/GenrePicker';
 import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SidebarBuildInfo } from '../../components/SidebarBuildInfo';
+import { SocialLinkIcon } from '../../components/SocialLinkIcon';
 import { ThemeEditor } from '../../components/ThemeEditor';
 import { hasAccountRole } from '../../lib/accountRoles';
 import { COUNTRIES, flagEmoji } from '../../lib/countries';
@@ -174,6 +182,12 @@ export function SettingsSectionBody({
       break;
     case 'channel':
       content = <ChannelPanel />;
+      break;
+    case 'broadcast':
+      content = <BroadcastPanel />;
+      break;
+    case 'audience':
+      content = <MoneyPanel />;
       break;
     case 'themes':
       content = <ThemesPanel />;
@@ -386,6 +400,11 @@ function AccountPanel() {
           ),
         },
         {
+          id: 'storage',
+          label: tabLabel(Database, 'Storage'),
+          content: <AccountStoragePanel />,
+        },
+        {
           id: 'notifications',
           label: tabLabel(Bell, 'Notifications & visibility'),
           content: <NotificationsVisibilityPanel />,
@@ -428,8 +447,193 @@ function AccountPanel() {
             </div>
           ),
         },
+        {
+          id: 'privacy',
+          label: tabLabel(Shield, 'Privacy & data'),
+          content: <PrivacyDataPanel username={user.username} />,
+        },
       ]}
     />
+  );
+}
+
+function formatStorageBytes(bytes: number | null): string {
+  if (bytes == null || !Number.isFinite(bytes)) {
+    return '—';
+  }
+  if (bytes >= 1024 ** 3) {
+    return `${(bytes / 1024 ** 3).toFixed(1)} GB`;
+  }
+  if (bytes >= 1024 ** 2) {
+    return `${(bytes / 1024 ** 2).toFixed(0)} MB`;
+  }
+  return `${Math.round(bytes / 1024)} KB`;
+}
+
+function AccountStoragePanel() {
+  const [storage, setStorage] = useState<StorageUsage | null>(null);
+
+  useEffect(() => {
+    void fetchStorageUsage().then((result) => setStorage(result.data));
+  }, []);
+
+  if (!storage) {
+    return <SettingsHint>Loading storage usage…</SettingsHint>;
+  }
+
+  const usedPercent = storage.quotaBytes
+    ? Math.min(100, (storage.usedBytes / storage.quotaBytes) * 100)
+    : 0;
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex items-start gap-3">
+        <div className="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg">
+          <Database size={19} aria-hidden />
+        </div>
+        <div>
+          <h2 className="font-semibold">Your storage</h2>
+          <p className="text-foreground-secondary mt-1 text-sm">
+            Audio, images, releases, and other files saved to your account.
+          </p>
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SettingsInfo
+          label="Used"
+          value={formatStorageBytes(storage.usedBytes)}
+        />
+        <SettingsInfo
+          label="Quota"
+          value={
+            storage.unlimited
+              ? 'Unlimited'
+              : formatStorageBytes(storage.quotaBytes)
+          }
+        />
+      </div>
+      {!storage.unlimited && storage.quotaBytes ? (
+        <div className="flex flex-col gap-2">
+          <div className="bg-background-secondary h-2 overflow-hidden rounded-full">
+            <div
+              className="bg-primary h-full rounded-full transition-[width]"
+              style={{ width: `${usedPercent}%` }}
+            />
+          </div>
+          <p className="text-foreground-secondary text-xs">
+            {Math.round(usedPercent)}% of your available storage is in use.
+          </p>
+        </div>
+      ) : null}
+      <SettingsHint>
+        Membership accounts receive expanded storage according to the current
+        Tahti storage policy.
+      </SettingsHint>
+    </div>
+  );
+}
+
+function PrivacyDataPanel({ username }: { username: string }) {
+  const [reason, setReason] = useState('');
+  const [message, setMessage] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  const submitDeletionRequest = () => {
+    if (!reason.trim()) {
+      return;
+    }
+    setPending(true);
+    setMessage(null);
+    void requestAccountDeletion(reason.trim()).then((result) => {
+      setPending(false);
+      if (!result.ok) {
+        setMessage(result.error);
+        return;
+      }
+      setReason('');
+      setMessage(
+        `Deletion request submitted (ticket ${result.ticketId}). The Tahti team will follow up by email.`,
+      );
+    });
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="font-semibold">Your data</h2>
+        <p className="text-foreground-secondary mt-1 text-sm">
+          Download a copy of your account data or request deletion under GDPR.
+          Deletion requests are reviewed manually.
+        </p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <a
+          href="/tahti-api/api/me/data-export.json"
+          className="border-border hover:border-primary flex items-center gap-3 rounded-lg border p-3 transition-colors"
+        >
+          <Download size={17} aria-hidden />
+          <span>
+            <span className="block text-sm font-semibold">Data export</span>
+            <span className="text-foreground-secondary block text-xs">
+              Full account JSON download
+            </span>
+          </span>
+        </a>
+        <a
+          href="/tahti-api/api/me/press-kit.json"
+          className="border-border hover:border-primary flex items-center gap-3 rounded-lg border p-3 transition-colors"
+        >
+          <Download size={17} aria-hidden />
+          <span>
+            <span className="block text-sm font-semibold">Press kit</span>
+            <span className="text-foreground-secondary block text-xs">
+              Your artist metadata as JSON
+            </span>
+          </span>
+        </a>
+      </div>
+      <div className="border-accent-red/40 bg-accent-red/5 flex flex-col gap-3 rounded-lg border p-4">
+        <div className="flex items-center gap-2">
+          <Trash2 size={17} className="text-accent-red" aria-hidden />
+          <h2 className="font-semibold">Request account deletion</h2>
+        </div>
+        <p className="text-foreground-secondary text-sm">
+          This starts a manual review. Your uploads and account data are removed
+          according to the retention periods in the privacy policy.
+        </p>
+        <Textarea
+          value={reason}
+          rows={3}
+          maxLength={2000}
+          placeholder="Tell us briefly why you want to delete the account."
+          aria-label="Reason for deletion request"
+          onChange={(event) => setReason(event.target.value)}
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="text-accent-red"
+            disabled={pending || !reason.trim()}
+            onClick={submitDeletionRequest}
+          >
+            <Trash2 size={15} aria-hidden className="mr-1.5" />
+            {pending ? 'Submitting…' : 'Submit request'}
+          </Button>
+          {message ? (
+            <p className="text-foreground-secondary text-xs" role="status">
+              {message}
+            </p>
+          ) : null}
+        </div>
+      </div>
+      <Link
+        to="/privacy"
+        className="text-foreground-secondary text-xs hover:underline"
+      >
+        Read the full privacy policy for @{username}
+      </Link>
+    </div>
   );
 }
 
@@ -733,31 +937,51 @@ function ArtistPanel() {
           ),
         },
         {
-          id: 'social',
-          label: tabLabel(Share2, 'Social links'),
+          id: 'connections',
+          label: tabLabel(Share2, 'Connections'),
           content: !social ? (
             <SettingsHint>Loading…</SettingsHint>
           ) : (
             <div className="flex flex-col gap-6">
-              {(
-                [
-                  ['website', 'Website'],
-                  ['instagram', 'Instagram'],
-                  ['bandcamp', 'Bandcamp'],
-                  ['soundcloud', 'SoundCloud'],
-                  ['youtube', 'YouTube'],
-                  ['discord', 'Discord'],
-                ] as const
-              ).map(([key, label]) => (
-                <Input
-                  key={key}
-                  label={label}
-                  value={social[key]}
-                  onChange={(e) =>
-                    setSocial({ ...social, [key]: e.target.value })
-                  }
-                />
-              ))}
+              <SettingsHint>
+                Add the places listeners can find you. These links appear as
+                branded buttons on your public artist profile.
+              </SettingsHint>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {(
+                  [
+                    ['website', 'Website'],
+                    ['instagram', 'Instagram'],
+                    ['bandcamp', 'Bandcamp'],
+                    ['soundcloud', 'SoundCloud'],
+                    ['youtube', 'YouTube'],
+                    ['hearthisAt', 'hearthis.at'],
+                    ['mixcloud', 'Mixcloud'],
+                    ['twitch', 'Twitch'],
+                    ['kick', 'Kick'],
+                    ['spotify', 'Spotify'],
+                    ['discord', 'Discord'],
+                    ['tiktok', 'TikTok'],
+                    ['twitter', 'X / Twitter'],
+                    ['facebook', 'Facebook'],
+                  ] as const
+                ).map(([key, label]) => (
+                  <label key={key} className="flex min-w-0 flex-col gap-1.5">
+                    <span className="text-foreground flex items-center gap-2 text-sm font-semibold">
+                      <SocialLinkIcon label={label} url={social[key]} />
+                      {label}
+                    </span>
+                    <Input
+                      aria-label={label}
+                      value={social[key]}
+                      placeholder={`https://…/${label.toLowerCase()}`}
+                      onChange={(e) =>
+                        setSocial({ ...social, [key]: e.target.value })
+                      }
+                    />
+                  </label>
+                ))}
+              </div>
               <div className="flex justify-end">
                 <SaveButton
                   label="Save social links"
@@ -765,10 +989,28 @@ function ArtistPanel() {
                     if (!social) {
                       return;
                     }
-                    void patchSocialConnections(social).then((r) => {
-                      setSocialMsg(r.ok ? 'Connections saved.' : r.error);
-                      if (r.ok) {
-                        setSocial(r.data);
+                    const { showConnections, ...connectionValues } = social;
+                    void Promise.all([
+                      patchSocialConnections(connectionValues),
+                      patchMeProfile({
+                        socialLinks: {
+                          ...connectionValues,
+                          showConnections: String(showConnections),
+                        },
+                      }),
+                    ]).then(([connectionsResult, profileResult]) => {
+                      const error = !connectionsResult.ok
+                        ? connectionsResult.error
+                        : !profileResult.ok
+                          ? profileResult.error
+                          : null;
+                      setSocialMsg(error ?? 'Connections saved.');
+                      if (!error && connectionsResult.ok) {
+                        setSocial({
+                          ...connectionsResult.data,
+                          showConnections,
+                        });
+                        toast.success('Connections saved.');
                       }
                     });
                   }}
@@ -1586,51 +1828,87 @@ function NotificationsPanel() {
     void fetchNotificationPrefs().then((r) => setPrefs(r.data));
   }, []);
 
-  const set = (key: keyof NotificationPrefs, value: boolean) => {
+  const set = async (key: keyof NotificationPrefs, value: boolean) => {
     if (!prefs) {
       return;
     }
+    const previous = prefs[key];
     const next = { ...prefs, [key]: value };
     setPrefs(next);
-    void patchNotificationPrefs({ [key]: value });
+    const result = await patchNotificationPrefs({ [key]: value });
+    if (!result.ok) {
+      setPrefs({ ...next, [key]: previous });
+      toast.error(result.error);
+      return;
+    }
+    setPrefs(result.data);
+    toast.success('Notification preference saved.');
   };
 
   if (!prefs) {
     return <SettingsHint>Loading…</SettingsHint>;
   }
 
+  const toggle = (key: keyof NotificationPrefs, value: boolean) => {
+    void set(key, value);
+  };
+
   return (
-    <div className="flex flex-col gap-6">
-      <SettingsToggle
-        label="Email: new fan subscriber"
-        value={prefs.emailFanSub}
-        onChange={(v) => set('emailFanSub', v)}
-      />
-      <SettingsToggle
-        label="Email: comments"
-        value={prefs.emailComment}
-        onChange={(v) => set('emailComment', v)}
-      />
-      <SettingsToggle
-        label="Email: mentions"
-        value={prefs.emailMention}
-        onChange={(v) => set('emailMention', v)}
-      />
-      <SettingsToggle
-        label="Email: broadcast reminders"
-        value={prefs.emailBroadcastReminder}
-        onChange={(v) => set('emailBroadcastReminder', v)}
-      />
-      <SettingsToggle
-        label="Push: when you go live (followers)"
-        value={prefs.pushLiveStart}
-        onChange={(v) => set('pushLiveStart', v)}
-      />
-      <SettingsToggle
-        label="Weekly digest"
-        value={prefs.digestWeekly}
-        onChange={(v) => set('digestWeekly', v)}
-      />
+    <div className="flex flex-col gap-4">
+      <div className="border-border bg-background-secondary/30 rounded-xl border p-4">
+        <h3 className="font-display text-base font-bold">Money moves</h3>
+        <p className="text-foreground-secondary mt-1 text-sm">
+          When fan subscriptions arrive or payouts complete.
+        </p>
+        <div className="mt-4 flex flex-col gap-3">
+          <SettingsToggle
+            label="Email me"
+            value={prefs.notifyMoneyMovesEmail}
+            onChange={(value) => toggle('notifyMoneyMovesEmail', value)}
+          />
+          <SettingsToggle
+            label="In-app"
+            value={prefs.notifyMoneyMovesInApp}
+            onChange={(value) => toggle('notifyMoneyMovesInApp', value)}
+          />
+        </div>
+        <p className="border-border bg-background mt-4 rounded-lg border px-3 py-2 text-xs">
+          Tahti · @aurora_fi subscribed (€5/mo)
+        </p>
+      </div>
+      <div className="border-border bg-background-secondary/30 rounded-xl border p-4">
+        <h3 className="font-display text-base font-bold">Listener actions</h3>
+        <p className="text-foreground-secondary mt-1 text-sm">
+          A daily email digest of new chat messages, comments, and broadcast
+          feedback.
+        </p>
+        <div className="mt-4">
+          <SettingsToggle
+            label="Email digest, daily"
+            value={prefs.notifyListenerActivityEmail}
+            onChange={(value) => toggle('notifyListenerActivityEmail', value)}
+          />
+        </div>
+        <p className="border-border bg-background mt-4 rounded-lg border px-3 py-2 text-xs">
+          Tahti · 3 new chat messages, 1 new comment on Drift EP
+        </p>
+      </div>
+      <div className="border-border bg-background-secondary/30 rounded-xl border p-4">
+        <h3 className="font-display text-base font-bold">Weekly recap</h3>
+        <p className="text-foreground-secondary mt-1 text-sm">
+          A Sunday summary of your activity and audience.
+        </p>
+        <div className="mt-4">
+          <SettingsToggle
+            label="Email me"
+            value={prefs.notifyWeeklyRecapEmail}
+            onChange={(value) => toggle('notifyWeeklyRecapEmail', value)}
+          />
+        </div>
+        <p className="border-border bg-background mt-4 rounded-lg border px-3 py-2 text-xs">
+          Tahti · 1,247 plays · 89 downloads · €115 this week
+        </p>
+      </div>
     </div>
   );
 }
@@ -1662,6 +1940,30 @@ function NotificationsVisibilityPanel() {
       setSavingKey(null);
       if (!result.ok) {
         setProfile({ ...profile, [key]: previous });
+        toast.error(result.error);
+        return;
+      }
+      setProfile(result.data);
+      toast.success('Visibility setting saved.');
+    });
+  };
+
+  const updateConnectionsVisibility = (value: boolean) => {
+    if (!profile) {
+      return;
+    }
+    const previous = profile.socialLinks;
+    setProfile({
+      ...profile,
+      socialLinks: { ...(previous ?? {}), showConnections: String(value) },
+    });
+    setSavingKey('chatEnabled');
+    void patchMeProfile({
+      socialLinks: { ...(previous ?? {}), showConnections: String(value) },
+    }).then((result) => {
+      setSavingKey(null);
+      if (!result.ok) {
+        setProfile({ ...profile, socialLinks: previous });
         toast.error(result.error);
         return;
       }
@@ -1708,6 +2010,11 @@ function NotificationsVisibilityPanel() {
             label="Enable live chat on my channel"
             value={profile.chatEnabled}
             onChange={(value) => updateVisibility('chatEnabled', value)}
+          />
+          <SettingsToggle
+            label="Show my connections on my artist profile"
+            value={profile.socialLinks?.showConnections !== 'false'}
+            onChange={updateConnectionsVisibility}
           />
         </div>
       )}

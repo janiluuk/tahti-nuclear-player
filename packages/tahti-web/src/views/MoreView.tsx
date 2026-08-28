@@ -225,9 +225,9 @@ const FEATURES: FeatureRow[] = [
   {
     feature: 'Platform status',
     tahti: '/status',
-    nuclear: '/status',
+    nuclear: '/admin/status',
     status: 'live',
-    notes: 'GET /api/v1/status',
+    notes: 'Merged into Admin → Status with service, queue, and cron data',
   },
   {
     feature: 'About / legal',
@@ -419,9 +419,17 @@ const QUICK_LINKS: Array<{
   { to: '/help', label: 'Help' },
   { to: '/venues', label: 'Venues' },
   { to: '/transparency', label: 'Transparency' },
-  { to: '/status', label: 'Status' },
   { to: '/chat', label: 'Chat' },
 ];
+
+const TOP_BAR_GUIDE = [
+  ['Upload', 'Open the upload dialog without leaving the current view.'],
+  ['Messages', 'Open chat-style direct messages and keep the icon active.'],
+  ['Notifications', 'Review unseen notifications from the right-side panel.'],
+  ['Go live', 'Open the full-page broadcast control surface.'],
+  ['Schedule', 'Book or edit a broadcast in the compact schedule modal.'],
+  ['Chat', 'Open the current channel conversation in the right rail.'],
+] as const;
 
 function FeatureCompareCard({ row }: { row: FeatureRow }) {
   const parity = featureParity(row);
@@ -670,6 +678,25 @@ export function MoreView() {
           </Link>
         ))}
       </nav>
+
+      <StudioPanel
+        title="Top bar actions"
+        description="Persistent actions remain available while moving through listener, Studio, and Admin views."
+      >
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {TOP_BAR_GUIDE.map(([label, description]) => (
+            <li
+              key={label}
+              className="border-border bg-background-secondary/30 rounded-lg border p-3"
+            >
+              <p className="text-sm font-medium">{label}</p>
+              <p className="text-foreground-secondary mt-1 text-xs">
+                {description}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </StudioPanel>
 
       <ScreenAtlas />
 

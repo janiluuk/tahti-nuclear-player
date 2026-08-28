@@ -171,10 +171,18 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
               <li
                 key={item.id}
                 draggable={!busy}
-                onDragStart={() => setDraggedId(item.id)}
+                onDragStart={(event) => {
+                  event.dataTransfer.effectAllowed = 'move';
+                  event.dataTransfer.setData('text/plain', item.id);
+                  setDraggedId(item.id);
+                }}
                 onDragEnd={() => setDraggedId(null)}
-                onDragOver={(event) => event.preventDefault()}
-                onDrop={() => {
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = 'move';
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
                   if (!draggedId || draggedId === item.id) {
                     return;
                   }

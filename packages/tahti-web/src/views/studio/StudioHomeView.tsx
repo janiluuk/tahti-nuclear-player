@@ -16,8 +16,9 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, type FC, type ReactNode } from 'react';
 
-import { CardGrid } from '@nuclearplayer/ui';
+import { Button, CardGrid } from '@nuclearplayer/ui';
 
+import { fetchShowSchedule, type ScheduledShow } from '../../api/shows';
 import {
   fetchStudioArchive,
   fetchStudioCollections,
@@ -167,6 +168,7 @@ export function StudioHomeView() {
     releases: 0,
   });
   const [stats, setStats] = useState<StatsSummary>(EMPTY_STATS);
+  const [upcomingShows, setUpcomingShows] = useState<ScheduledShow[]>([]);
 
   useEffect(() => {
     if (!user?.channel) {
@@ -177,13 +179,23 @@ export function StudioHomeView() {
       fetchStudioCollections(),
       fetchStudioReleases(),
       fetchStatsSummary(),
-    ]).then(([archive, collections, releases, summary]) => {
+      fetchShowSchedule(),
+    ]).then(([archive, collections, releases, summary, showSchedule]) => {
       setCounts({
         archive: archive.data.length,
         collections: collections.data.length,
         releases: releases.data.releases.length,
       });
       setStats(summary.data);
+      setUpcomingShows(
+        showSchedule.data.scheduledShows
+          .filter((show) => new Date(show.startAt).getTime() > Date.now())
+          .sort(
+            (left, right) =>
+              new Date(left.startAt).getTime() -
+              new Date(right.startAt).getTime(),
+          ),
+      );
     });
   }, [user?.channel]);
 
@@ -290,6 +302,45 @@ export function StudioHomeView() {
                 />
               </div>
             </Group>
+            {upcomingShows.length > 0 ? (
+              <Group title="Upcoming shows">
+                <ul className="border-border divide-border divide-y rounded-xl border">
+                  {upcomingShows.map((show) => (
+                    <li
+                      key={show.id}
+                      className="flex flex-wrap items-center gap-3 px-4 py-3"
+                    >
+                      <span className="bg-accent-blue/15 text-accent-blue flex size-10 shrink-0 items-center justify-center rounded-lg">
+                        <CalendarIcon size={20} aria-hidden />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-bold">
+                          {show.title}
+                          {show.episodeNumber != null
+                            ? ` · Episode ${show.episodeNumber}`
+                            : ''}
+                        </p>
+                        <p className="text-foreground-secondary text-xs">
+                          {new Date(show.startAt).toLocaleString([], {
+                            dateStyle: 'medium',
+                            timeStyle: 'short',
+                          })}
+                          {show.venue ? ` · ${show.venue}` : ''}
+                        </p>
+                      </div>
+                      <Link
+                        to="/studio/shows/$id"
+                        params={{ id: show.seriesId }}
+                      >
+                        <Button size="sm" variant="secondary">
+                          View &amp; edit
+                        </Button>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </Group>
+            ) : null}
             <Group title="Music">
               <CardGrid>
                 <StudioActionTile

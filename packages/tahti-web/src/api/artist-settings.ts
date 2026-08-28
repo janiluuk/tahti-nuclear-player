@@ -43,12 +43,10 @@ async function requestJson<T>(
 }
 
 export type NotificationPrefs = {
-  emailFanSub: boolean;
-  emailComment: boolean;
-  emailMention: boolean;
-  emailBroadcastReminder: boolean;
-  pushLiveStart: boolean;
-  digestWeekly: boolean;
+  notifyMoneyMovesEmail: boolean;
+  notifyMoneyMovesInApp: boolean;
+  notifyListenerActivityEmail: boolean;
+  notifyWeeklyRecapEmail: boolean;
 };
 
 export type DiscoveryPrefs = {
@@ -99,6 +97,15 @@ export type SocialConnections = {
   soundcloud: string;
   youtube: string;
   discord: string;
+  mixcloud: string;
+  hearthisAt: string;
+  twitch: string;
+  kick: string;
+  spotify: string;
+  tiktok: string;
+  twitter: string;
+  facebook: string;
+  showConnections: boolean;
 };
 
 export type ChannelMember = {
@@ -124,12 +131,10 @@ export type PressKitMeta = {
 };
 
 let mockNotifications: NotificationPrefs = {
-  emailFanSub: true,
-  emailComment: true,
-  emailMention: true,
-  emailBroadcastReminder: true,
-  pushLiveStart: false,
-  digestWeekly: true,
+  notifyMoneyMovesEmail: true,
+  notifyMoneyMovesInApp: true,
+  notifyListenerActivityEmail: true,
+  notifyWeeklyRecapEmail: true,
 };
 
 let mockDiscovery: DiscoveryPrefs = {
@@ -158,6 +163,15 @@ let mockSocial: SocialConnections = {
   soundcloud: '',
   youtube: '',
   discord: '',
+  mixcloud: '',
+  hearthisAt: '',
+  twitch: '',
+  kick: '',
+  spotify: '',
+  tiktok: '',
+  twitter: '',
+  facebook: '',
+  showConnections: true,
 };
 
 const mockMembers: ChannelMember[] = [
@@ -225,12 +239,10 @@ export async function fetchNotificationPrefs(): Promise<{
     }
     return {
       data: {
-        emailFanSub: false,
-        emailComment: false,
-        emailMention: false,
-        emailBroadcastReminder: false,
-        pushLiveStart: false,
-        digestWeekly: false,
+        notifyMoneyMovesEmail: false,
+        notifyMoneyMovesInApp: false,
+        notifyListenerActivityEmail: false,
+        notifyWeeklyRecapEmail: false,
       },
       meta: apiErrorMeta(err),
     };
@@ -488,6 +500,15 @@ export async function fetchSocialConnections(): Promise<{
         soundcloud: '',
         youtube: '',
         discord: '',
+        mixcloud: '',
+        hearthisAt: '',
+        twitch: '',
+        kick: '',
+        spotify: '',
+        tiktok: '',
+        twitter: '',
+        facebook: '',
+        showConnections: true,
       },
       meta: apiErrorMeta(err),
     };

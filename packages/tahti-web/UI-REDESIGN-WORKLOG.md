@@ -1,5 +1,73 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Beta feature-port and UI audit consolidation
+
+**Completed:** Consolidated the latest beta work from the sibling Tahti application and the Storybook/Nuclear UI audit. Studio and Admin navigation now expose the ported artist/admin surfaces through stable section sidebars and top-level tabs, including governance, vendors, Disco Widgets, announcements, pinned announcements, Radio, Tahti Radio submissions, moderation, logs, and account/settings parity. The audit screenshots and navigation notes remain part of this worklog so each view can be reviewed against the shared layout.
+
+**Completed:** Added the Studio Radio workflow for announcements, pinned announcements, five-track Tahti Radio submissions, submission status, and channel opt-in. Added Clips as a library content type for uploaded audio and radio announcements. The Sounds archive now follows the sibling archive listing, suppresses HEARTHIS provider labels, supports original-file downloads where enabled, and opens track statistics in a large modal.
+
+**Completed:** Unified HEARTHIS playback with the shared player when a provider stream is available, including shared pause/stop behavior. Rotation editing now has a five-track capacity guard with clear replacement feedback and drag-and-drop ordering in the channel and stream-manager editors. Notification preferences were merged with the sibling notification model and grouped into clearer settings cards.
+
+**Completed:** Added the compact channel video-URL reveal control and retained the existing URL fallback for channel media configuration. The latest beta deployment completed successfully with build and SPA/API smoke checks.
+
+**Pending:** Backdrop file uploads and the slideshow media-picker storage workflow still require the corresponding backend upload/storage endpoints; the current editor keeps its URL-based fallback until those APIs are available.
+
+## 2026-08-28 — Studio governance section
+
+**Completed:** Ported artist governance into Studio as a dedicated Governance submenu page. It reuses the member-gated motions, voting, discussion, and feature-request experience with the stable Studio navigation shell.
+
+## 2026-08-28 — Settings tab parity audit
+
+**Completed:** Verified all sibling Connections services are available in Artist settings and exposed the previously hidden Broadcast and Audience settings as top-level tabs. Their existing Radio, Green room, Moderators, Multistream, Fan tiers, Fan subs, Grants, and Your subs tabs are now reachable directly from Settings.
+
+## 2026-08-28 — Account storage and privacy tabs
+
+**Completed:** Ported the missing artist-panel Account features into separate settings tabs: storage usage with quota progress, account data and press-kit exports, GDPR privacy guidance, and a manual account-deletion request flow.
+
+## 2026-08-28 — Help center refresh
+
+**Completed:** Reworked the Help center into a Storybook-aligned guide hub with clear Start here, Broadcasting, Account and support, and Build with Tahti sections. Added an essentials summary, direct About Tahti link, and a link to the public help center.
+
+## 2026-08-28 — Playlist action and fullscreen player parity
+
+**Completed:** Integrated the playlist picker into the fullscreen player alongside the compact player action, and adjusted live/station artwork to display artist and station logos contained within the viewport instead of cropping them.
+
+## 2026-08-28 — Admin Disco Widgets catalog
+
+**Completed:** Ported the Disco Widgets admin catalog with listener, artist, and admin type filters, cover art, widget registration and editing in a modal, editable categories/parameters metadata, and confirmed deletion.
+
+## 2026-08-28 — Admin overview vendors tab
+
+**Completed:** Ported the sibling Tahti Vendors & DPA tracking view into a new Vendors tab under Admin → Overview. Distribution status, critical vendors, integration vendors, and DPA indicators share the same reusable content as the standalone Vendors route.
+
+## 2026-08-28 — Artist live shows and recordings
+
+**Completed:** Artist profiles now show a Live shows section when the artist has upcoming radio bookings or past shows. Upcoming broadcasts and past recordings are separated, with show details and published recording links where available.
+
+## 2026-08-28 — Merged artist channel profile
+
+**Completed:** Merged the sibling Tahti artist-channel behavior into the Nuclear artist profile: the Three.js visual stage now receives persisted visualizer settings, the owner channel editor remains available, and public library tabs are shown only for meaningful content. Existing track info modals, detail navigation, and fullscreen playback behavior were preserved.
+
+## 2026-08-28 — Subscription and station profile links
+
+**Completed:** Fan subscription is now shown only on eligible artist profiles, only when the artist has subscriptions enabled and tiers configured, as an icon action in the profile header. Removed artist-profile links from Tahti Radio and its show view.
+
+## 2026-08-28 — Artist connections and profile links
+
+**Completed:** Reworked the Artist settings Social links tab into Connections with streaming destinations and profile links from the sibling Tahti app, including hearthis.at, Mixcloud, Twitch, Kick, Spotify, TikTok, X, and Facebook. Added consistent service marks to the editor and public artist profile, plus a Notifications & visibility toggle to hide all connections publicly.
+
+## 2026-08-28 — Upcoming shows on Studio dashboard
+
+**Completed:** The artist dashboard now loads upcoming scheduled shows, displays them only when present, and provides a direct View & edit action to the show details page for each booking.
+
+## 2026-08-28 — Platform status moved to Admin
+
+**Completed:** Consolidated the map’s platform status data into Admin → Status, including version, uptime, timestamp, and any additional health checks alongside the existing service, queue-health, and cron-job data. Removed the standalone Status quick link from the Tahti map.
+
+## 2026-08-28 — Audio editor sidebar focus
+
+**Completed:** Opening a track or project editor now collapses the persistent left app sidebar to give the editor the full working width. The user’s previous sidebar state is restored when leaving the editor.
+
 ## 2026-08-28 — Audio clips content type
 
 **Completed:** Added the Audio clip content type to archive editing and announcement uploads. Clip editing keeps the shared title, description, visibility, comments, downloads, audio, and visual controls while hiding musical metadata, rotation, playlist, and MusicBrainz controls.
@@ -1160,6 +1228,30 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 ### 2026-08-28 — Library smartlinks
 
 **Completed:** Added Library → Smartlinks based on the tahti artist panel. Releases now have a dedicated view showing artwork, state, track count, DSP targets, smartlink views, public-page links, and release management actions.
+
+### 2026-08-28 — Archive stats modal and compact video URL control
+
+**Completed:** Added an in-place stats modal to Music → Sounds with the existing track insights view, and replaced the always-visible video URL field with a compact link icon that reveals it on demand. Archive downloads and hearthis embed suppression remain part of the Sounds parity work.
+
+### 2026-08-28 — Sounds archive parity
+
+**Completed:** Aligned Studio → Music → Sounds with the Tahti Discography archive behavior, removed hearthis.at embed rows from the archive listing, and added an original-file download action when the item is downloadable. Downloads use the authenticated archive endpoint and the browser’s local file save flow.
+
+### 2026-08-28 — Notifications settings parity
+
+**Completed:** Ported the Tahti notification preferences into Settings → Account → Notifications & visibility. Money-movement email and in-app notifications, daily listener-activity digest, and weekly recap are now grouped in clear cards with previews and optimistic saves with rollback on API errors.
+
+### 2026-08-28 — Channel rotation capacity and drag ordering
+
+**Completed:** Enforced the five-track limit consistently in both channel rotation editors, added an explicit full-rotation message, and strengthened the drag-and-drop data transfer/drop handling for stable reordering.
+
+### 2026-08-28 — Shared hearthis.at playback
+
+**Completed:** hearthis.at tracks now resolve into the shared Tahti player when a provider stream is available, so the global play/pause and stop lifecycle controls them. The official hearthis embed remains available as a fallback when no stream can be resolved.
+
+### 2026-08-28 — Radio announcements and Tahti Radio submissions
+
+**Completed:** Ported the artist radio controls into Studio → Channel → Radio. Audio station announcements remain manageable as Clips, pinned chat announcements have their own editor with the three-item limit, and Tahti Radio now has a five-track submission dialog with optional notes, opt-in control, and pending/approved/rejected result status.
 
 ### 2026-08-28 — Studio stats tabs
 

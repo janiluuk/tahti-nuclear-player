@@ -124,6 +124,13 @@ const PRIMARY = [
     description: 'Third-party vendor and service accounts.',
   },
   {
+    to: '/admin/disco-widgets',
+    label: 'Disco widgets',
+    icon: <SettingsIcon size={16} aria-hidden />,
+    description:
+      'Register and manage available listener, artist, and admin add-ons.',
+  },
+  {
     to: '/admin/status',
     label: 'Status',
     icon: <ActivityIcon size={16} aria-hidden />,
@@ -195,6 +202,7 @@ const ADMIN_SECTIONS = [
         '/admin/files',
         '/admin/financial',
         '/admin/vendors',
+        '/admin/disco-widgets',
         '/admin/i18n',
         '/admin/tahti-selects',
       ].includes(item.to),

@@ -1,6 +1,153 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Consolidated the Tahti artist/admin feature ports: Radio announcements and submissions, Clips, Sounds archive parity, HEARTHIS shared playback, bounded drag-and-drop rotations, notification settings, and track statistics in a modal.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Music → Sounds now opens track statistics in a large modal, and the channel video URL field is revealed from a compact icon when needed.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Music", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Updated Music → Sounds to match the Tahti archive listing, removed hearthis.at embeds from the archive view, and added downloadable original-file actions.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Music", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Ported the Tahti notification preferences into Settings, including money movement, listener activity, and weekly recap controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Settings", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Channel rotation editors now consistently enforce the five-track capacity and support stable drag-and-drop ordering with clear full-rotation feedback.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Hearthis.at tracks now use the shared Tahti player controls when a provider stream is available, including global pause and stop behavior.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Playback", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added Studio Radio announcements, pinned channel announcements, and Tahti Radio submissions with a five-track picker, review status, and channel opt-in control.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added a dedicated Studio Governance section with member-gated motions, voting, discussion, and feature-request access using the shared governance experience.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Completed Settings parity with the Tahti artist panel: Connections services are verified, and Broadcast and Audience are now available as top-level settings tabs with their existing nested controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Settings", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added separate Account tabs for storage usage and privacy & data, including quota progress, data and press-kit exports, and GDPR account deletion requests.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Settings", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Refreshed the Help center with clearer essential guidance, grouped listener and artist guides, broadcasting help, support resources, and a direct About Tahti link.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Help", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added the Add to playlist action to the fullscreen player and improved fullscreen live artwork so artist and station logos fit without cropping.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Player", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Added an Admin Disco Widgets catalog with listener, artist, and admin filters, modal registration and editing, cover images, categories, and confirmed deletion.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin Overview now includes a Vendors tab with distribution status, critical vendors, integration vendors, and DPA tracking from the Tahti admin panel.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist profiles now show upcoming Tahti Radio broadcasts and past recordings in a dedicated Live shows section, with links to show details and published recordings.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist profiles now use content-aware public library tabs with persisted Three.js visual settings while preserving track modals, detail views, fullscreen playback, and owner channel editing.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Fan subscriptions now appear only as an icon action on eligible artist profiles; Tahti Radio no longer links station programming to artist profiles.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Profiles", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist Connections now supports streaming destinations and profile links with service marks, public profile buttons, and a visibility toggle under Notifications & visibility.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Artist Studio now lists upcoming scheduled shows when available, with direct View & edit actions for each show.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Platform status is now consolidated under Admin → Status with version, uptime, timestamp, and merged health checks alongside existing operational data.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Audio track and project editors now temporarily collapse the left app sidebar and restore the user’s previous state on exit.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Added Audio clip as a library content type. Clip editing keeps shared metadata and media controls while hiding music-specific fields, and radio announcement uploads are tagged as audio clips.",
     "type": "improvement",
     "contributors": ["jani"],

@@ -732,6 +732,12 @@ export function mockProfile(username: string): PublicProfile {
       freeSubscriptionsEnabled: getMockFreeSubscriptionsEnabled(
         channel.user.username,
       ),
+      socialLinks: {
+        website: 'https://tahti.live',
+        soundcloud: 'https://soundcloud.com/demo-artist',
+        spotify: 'https://open.spotify.com/artist/demo',
+        showConnections: 'true',
+      },
     },
     channel: { slug: channel.slug, state: channel.state, artistKind: 'SINGLE' },
     releases,

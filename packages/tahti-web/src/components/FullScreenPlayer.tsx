@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { formatArtistNames } from '@nuclearplayer/model';
 import { Button, cn, PlayerBar } from '@nuclearplayer/ui';
 
+import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { useDominantColor } from '../lib/useDominantColor';
 import { useLayoutStore } from '../stores/layoutStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
+import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { ChannelVisualizer } from './ChannelVisualizer';
 
 const ANIMATION_MS = 280;
@@ -81,6 +83,7 @@ export function FullScreenPlayer() {
   const artist =
     playable?.artist ??
     (current ? formatArtistNames(current.track.artists) : '');
+  const archiveItemId = archiveItemIdFromPlayableId(playable?.id ?? currentId);
   const isPlaying = status === 'playing' || status === 'loading';
   const seekProgress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
@@ -130,9 +133,21 @@ export function FullScreenPlayer() {
       </div>
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-8 overflow-y-auto px-6 pb-10">
-        <div className="border-border bg-background-secondary aspect-square w-64 shrink-0 overflow-hidden rounded-xl border shadow-2xl sm:w-80 md:w-96">
+        <div
+          className={cn(
+            'border-border bg-background-secondary flex aspect-square w-64 shrink-0 items-center justify-center overflow-hidden rounded-xl border shadow-2xl sm:w-80 md:w-96',
+            isLive && 'p-6 sm:p-8',
+          )}
+        >
           {coverUrl ? (
-            <img src={coverUrl} alt="" className="size-full object-cover" />
+            <img
+              src={coverUrl}
+              alt={isLive ? `${artist} logo` : ''}
+              className={cn(
+                'size-full',
+                isLive ? 'object-contain' : 'object-cover',
+              )}
+            />
           ) : null}
         </div>
 
@@ -143,6 +158,16 @@ export function FullScreenPlayer() {
           {artist && (
             <p className="text-foreground-secondary mt-1 text-lg">{artist}</p>
           )}
+          {archiveItemId && playable ? (
+            <div className="mt-3 flex justify-center">
+              <AddToPlaylistButton
+                archiveItemId={archiveItemId}
+                trackTitle={title}
+                variant="secondary"
+                iconOnly={false}
+              />
+            </div>
+          ) : null}
         </div>
 
         <div className="flex w-full max-w-md flex-col items-center gap-2">

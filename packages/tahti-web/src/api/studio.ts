@@ -184,6 +184,31 @@ export async function fetchStudioArchiveItem(id: string): Promise<{
   }
 }
 
+export async function fetchStudioArchiveDownload(id: string): Promise<
+  | {
+      ok: true;
+      url: string;
+      filename?: string;
+    }
+  | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return { ok: true, url: DEMO_MP3, filename: 'tahti-sound.mp3' };
+  }
+  try {
+    const { data } = await requestJson<{ url: string; filename?: string }>(
+      `/api/me/archive/${encodeURIComponent(id)}/download`,
+    );
+    return { ok: true, ...data };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error ? error.message : 'Download is not available',
+    };
+  }
+}
+
 export async function patchStudioArchiveItem(
   id: string,
   patch: StudioArchivePatch,
@@ -242,6 +267,8 @@ export type RadioSubmission = {
   archiveItem: { id: string; title: string };
 };
 
+export type MetaStreamPreference = { metaStreamOptOut: boolean };
+
 /** Own recent Tahti Radio submissions, newest first -- used to show
  * per-track status ("Pending review" / "In rotation" / rejection note)
  * without a dedicated per-track lookup endpoint. */
@@ -267,19 +294,76 @@ export async function fetchMyRadioSubmissions(): Promise<{
 export async function submitTrackToRadioRotation(
   archiveItemId: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  return submitTracksToRadioRotation([archiveItemId]);
+}
+
+export async function submitTracksToRadioRotation(
+  archiveItemIds: string[],
+  note?: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
     return { ok: true };
   }
   try {
     await requestJson('/api/me/radio-submissions', {
       method: 'POST',
-      body: JSON.stringify({ archiveItemIds: [archiveItemId] }),
+      body: JSON.stringify({ archiveItemIds, note: note?.trim() || undefined }),
     });
     return { ok: true };
   } catch (err) {
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Submission failed',
+    };
+  }
+}
+
+export async function fetchMetaStreamPreference(): Promise<{
+  data: MetaStreamPreference;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: { metaStreamOptOut: false },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<MetaStreamPreference>(
+      '/api/me/channel/meta-stream',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (error) {
+    return { data: { metaStreamOptOut: false }, meta: failMeta(error) };
+  }
+}
+
+export async function patchMetaStreamPreference(optOut: boolean): Promise<
+  | {
+      ok: true;
+      data: MetaStreamPreference;
+    }
+  | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return { ok: true, data: { metaStreamOptOut: optOut } };
+  }
+  try {
+    const { data } = await requestJson<MetaStreamPreference>(
+      '/api/me/channel/meta-stream',
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ optOut }),
+      },
+    );
+    return { ok: true, data };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Could not update Tahti Radio preference',
     };
   }
 }

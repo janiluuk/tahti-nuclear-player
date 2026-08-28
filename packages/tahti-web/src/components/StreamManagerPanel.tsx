@@ -47,6 +47,7 @@ import {
 } from '../api/studio';
 import {
   fetchProgramme,
+  MAX_RADIO_PLAYLIST_ITEMS,
   patchProgramme,
   type ProgrammeItem,
   type ProgrammeView,
@@ -383,6 +384,12 @@ export function StreamManagerPanel({
 
   const saveEditableRotation = async (nextRotation: ProgrammeItem[]) => {
     if (!programme) {
+      return;
+    }
+    if (nextRotation.length > MAX_RADIO_PLAYLIST_ITEMS) {
+      setRotationMsg(
+        `Your channel rotation is full. It can contain up to ${MAX_RADIO_PLAYLIST_ITEMS} tracks.`,
+      );
       return;
     }
     setRotationBusy(true);

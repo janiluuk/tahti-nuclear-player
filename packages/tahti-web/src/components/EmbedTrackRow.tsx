@@ -1,12 +1,15 @@
 import { PlayIcon } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
+import { fetchHearthisTrackById, playableFromHearthis } from '../api/sources';
 import {
   EMBED_PROVIDER_HEIGHT,
   EMBED_PROVIDER_LABEL,
   embedSrcFor,
   type EmbedProvider,
 } from '../lib/embedSrc';
+import { usePlayerStore } from '../stores/playerStore';
 
 type Props = {
   title: string;
@@ -23,17 +26,48 @@ type Props = {
  * never sees a listener's IP just from browsing the collection page.
  */
 export function EmbedTrackRow({ title, provider, embedUri }: Props) {
-  const [playing, setPlaying] = useState(false);
+  const [embedOpen, setEmbedOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const src = embedSrcFor(provider, embedUri);
   const label = EMBED_PROVIDER_LABEL[provider];
+  const currentId = usePlayerStore((state) => state.currentId);
+  const status = usePlayerStore((state) => state.status);
+  const play = usePlayerStore((state) => state.play);
+  const setStatus = usePlayerStore((state) => state.setStatus);
+  const playerId = `hearthis:${embedUri}`;
+  const isCurrent = currentId === playerId;
+  const isPlaying = isCurrent && (status === 'playing' || status === 'loading');
 
   if (!src) {
     return null;
   }
 
+  const start = async () => {
+    if (provider !== 'HEARTHIS') {
+      setEmbedOpen(true);
+      return;
+    }
+    if (isCurrent) {
+      setStatus(isPlaying ? 'paused' : 'playing');
+      return;
+    }
+    setLoading(true);
+    const track = await fetchHearthisTrackById(embedUri);
+    setLoading(false);
+    if (track?.streamUrl) {
+      setEmbedOpen(false);
+      play(playableFromHearthis({ ...track, title }));
+      return;
+    }
+    setEmbedOpen(true);
+    if (!track) {
+      toast.error('Could not load the hearthis.at track.');
+    }
+  };
+
   return (
     <li className="border-border overflow-hidden rounded-lg border">
-      {playing ? (
+      {embedOpen ? (
         <iframe
           title={title}
           src={src}
@@ -47,8 +81,9 @@ export function EmbedTrackRow({ title, provider, embedUri }: Props) {
         <button
           type="button"
           className="hover:bg-background-secondary flex w-full items-center gap-3 px-3 py-2 text-left transition-colors"
-          onClick={() => setPlaying(true)}
-          aria-label={`Play ${title} on ${label}`}
+          onClick={() => void start()}
+          disabled={loading}
+          aria-label={`${isPlaying ? 'Pause' : 'Play'} ${title} on ${label}`}
         >
           <span className="bg-primary/15 text-primary flex size-10 shrink-0 items-center justify-center rounded-md">
             <PlayIcon size={16} className="fill-current" aria-hidden />
@@ -56,7 +91,11 @@ export function EmbedTrackRow({ title, provider, embedUri }: Props) {
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium">{title}</span>
             <span className="text-foreground-secondary block truncate text-xs">
-              Listen on {label}
+              {loading
+                ? 'Loading…'
+                : isPlaying
+                  ? 'Playing in Tahti player'
+                  : `Listen on ${label}`}
             </span>
           </span>
           <span className="text-foreground-secondary shrink-0 font-mono text-[10px] tracking-wide uppercase">

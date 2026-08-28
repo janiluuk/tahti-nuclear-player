@@ -65,6 +65,7 @@ import { StudioEditorProjectView } from './views/studio/StudioEditorProjectView'
 import { StudioEventCreateView } from './views/studio/StudioEventCreateView';
 import { StudioEventsView } from './views/studio/StudioEventsView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
+import { StudioGovernanceView } from './views/studio/StudioGovernanceView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
 import { StudioModerationView } from './views/studio/StudioModerationView';
 import { StudioPlaylistEditorView } from './views/studio/StudioPlaylistsView';
@@ -184,6 +185,10 @@ const AdminUsersView = lazyRouteComponent(
 const AdminVendorsView = lazyRouteComponent(
   () => import('./views/admin/AdminVendorsView'),
   'AdminVendorsView',
+);
+const AdminDiscoWidgetsView = lazyRouteComponent(
+  () => import('./views/admin/AdminDiscoWidgetsView'),
+  'AdminDiscoWidgetsView',
 );
 
 const rootRoute = createRootRoute({
@@ -477,6 +482,12 @@ const adminVendorsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/vendors',
   component: AdminVendorsView,
+});
+
+const adminDiscoWidgetsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/disco-widgets',
+  component: AdminDiscoWidgetsView,
 });
 
 const adminStatusRoute = createRoute({
@@ -987,6 +998,12 @@ const studioStatsRoute = createRoute({
   component: StudioStatsView,
 });
 
+const studioGovernanceRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/governance',
+  component: StudioGovernanceView,
+});
+
 const studioStatsDetailRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/stats/detail',
@@ -1295,6 +1312,7 @@ const routeTree = rootRoute.addChildren([
     adminAgmRoute,
     adminMissedShowsRoute,
     adminVendorsRoute,
+    adminDiscoWidgetsRoute,
     adminStatusRoute,
     adminI18nRoute,
     libraryRoute,
@@ -1368,6 +1386,7 @@ const routeTree = rootRoute.addChildren([
     studioStashRoute,
     studioScheduleRoute,
     studioStatsRoute,
+    studioGovernanceRoute,
     studioStatsDetailRoute,
     studioChannelRoute,
     studioBrandingRoute,

@@ -245,6 +245,105 @@ const shots = [
   { path: '/admin/status', out: 'admin-status-current-v1.png', auth: true },
   { path: '/admin/i18n', out: 'admin-i18n-current-v1.png', auth: true },
   { path: '/more', out: 'map-more-v1.png', auth: true },
+  // Current navigation audit: every visible Studio and Admin submenu.
+  { path: '/library/history', out: 'audit-listener-history.png', auth: true },
+  {
+    path: '/library/favorites',
+    out: 'audit-listener-favorites.png',
+    auth: true,
+  },
+  { path: '/library/releases', out: 'audit-library-releases.png', auth: true },
+  {
+    path: '/library/collections',
+    out: 'audit-library-collections.png',
+    auth: true,
+  },
+  {
+    path: '/library/recordings',
+    out: 'audit-library-recordings.png',
+    auth: true,
+  },
+  {
+    path: '/library/smartlinks',
+    out: 'audit-library-smartlinks.png',
+    auth: true,
+  },
+  {
+    path: '/studio/recordings',
+    out: 'audit-studio-recordings.png',
+    auth: true,
+  },
+  { path: '/studio/editor', out: 'audit-studio-editor.png', auth: true },
+  { path: '/studio/events', out: 'audit-studio-events.png', auth: true },
+  { path: '/studio/venues', out: 'audit-studio-venues.png', auth: true },
+  { path: '/studio/shows', out: 'audit-studio-shows.png', auth: true },
+  {
+    path: '/studio/distribution',
+    out: 'audit-studio-distribution.png',
+    auth: true,
+  },
+  {
+    path: '/studio/moderation',
+    out: 'audit-studio-moderation.png',
+    auth: true,
+  },
+  {
+    path: '/studio/channel?tab=radio',
+    out: 'audit-studio-channel-radio.png',
+    auth: true,
+  },
+  {
+    path: '/studio/channel?tab=green-room',
+    out: 'audit-studio-channel-green-room.png',
+    auth: true,
+  },
+  {
+    path: '/studio/channel?tab=multicast',
+    out: 'audit-studio-channel-multicast.png',
+    auth: true,
+  },
+  {
+    path: '/studio/channel?tab=selects',
+    out: 'audit-studio-channel-selects.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/support',
+    out: 'audit-admin-moderation-support.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/beta',
+    out: 'audit-admin-moderation-beta.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/radio-submissions',
+    out: 'audit-admin-moderation-radio.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/selects',
+    out: 'audit-admin-moderation-selects.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/content-reports',
+    out: 'audit-admin-moderation-reports.png',
+    auth: true,
+  },
+  {
+    path: '/admin/moderation/feature-requests',
+    out: 'audit-admin-moderation-features.png',
+    auth: true,
+  },
+  {
+    path: '/admin/missed-shows',
+    out: 'audit-admin-missed-shows.png',
+    auth: true,
+  },
+  { path: '/admin/files', out: 'audit-admin-files.png', auth: true },
+  { path: '/admin/tahti-selects', out: 'audit-admin-selects.png', auth: true },
 ];
 
 const selectedShots = process.env.ATLAS_SHOT

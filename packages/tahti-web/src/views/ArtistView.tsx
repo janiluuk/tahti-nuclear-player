@@ -1,5 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useEffect, useMemo, useState } from 'react';
+import { CalendarDays, MessageCircle, Mic, UsersRound } from 'lucide-react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import {
   Button,
@@ -20,6 +21,11 @@ import {
   fetchChannelDiscoWidgets,
   type DiscoWidgetRenderItem,
 } from '../api/disco-widgets';
+import {
+  fetchPublicRadioShow,
+  type PublicRadioShow,
+  type PublicRadioShowEpisode,
+} from '../api/shows';
 import { patchMeProfile } from '../api/studio-extras';
 import type {
   PublicChannel,
@@ -45,6 +51,7 @@ import {
   releasePlayables,
   ReleaseTracklistDialog,
 } from '../components/ReleaseTracklistDialog';
+import { SocialLinkIcon, socialLinkLabel } from '../components/SocialLinkIcon';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { TrackEditDialog } from '../components/TrackEditDialog';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
@@ -64,6 +71,81 @@ const GLOW_COLORS = [
   'var(--color-accent-yellow)',
   'var(--color-accent-blue)',
 ];
+
+function showDateLabel(episode: PublicRadioShowEpisode): string {
+  const start = new Date(episode.startAt);
+  const end = new Date(episode.endAt);
+  return `${start.toLocaleDateString([], {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  })} · ${start.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}–${end.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`;
+}
+
+function ShowEpisodeList({
+  title,
+  episodes,
+  icon,
+  channelSlug,
+}: {
+  title: string;
+  episodes: PublicRadioShowEpisode[];
+  icon: ReactNode;
+  channelSlug?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <h3 className="text-foreground text-sm font-semibold">{title}</h3>
+      <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
+        {episodes.map((episode) => (
+          <li key={episode.id} className="flex items-start gap-3 p-3">
+            <span className="text-foreground-secondary mt-0.5 shrink-0">
+              {icon}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium">
+                {episode.title ?? episode.note ?? 'Tahti Radio show'}
+              </div>
+              <div className="text-foreground-secondary text-xs">
+                {showDateLabel(episode)}
+              </div>
+              {episode.description ? (
+                <p className="text-foreground-secondary mt-1 text-xs">
+                  {episode.description}
+                </p>
+              ) : null}
+              <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                {channelSlug ? (
+                  <Link
+                    to="/radio/show/$channelSlug"
+                    params={{ channelSlug }}
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    Show details
+                  </Link>
+                ) : null}
+                {episode.recording ? (
+                  <a
+                    href={episode.recording.channelItemUrl}
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    Listen to recording
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function releaseToPlayable(
   release: PublicProfile['releases'][number],
@@ -130,11 +212,16 @@ export function ArtistView({ username }: { username: string }) {
   } | null>(null);
   const [channelVisual, setChannelVisual] = useState<Pick<
     PublicChannel,
-    'visualPreset' | 'colorScheme' | 'colorSchemeJson' | 'hlsUrl'
+    | 'visualPreset'
+    | 'visualSettingsJson'
+    | 'colorScheme'
+    | 'colorSchemeJson'
+    | 'hlsUrl'
   > | null>(null);
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
+  const [liveShows, setLiveShows] = useState<PublicRadioShow | null>(null);
 
   const navigate = useNavigate();
   const play = usePlayerStore((s) => s.play);
@@ -217,6 +304,7 @@ export function ArtistView({ username }: { username: string }) {
         }
         setChannelVisual({
           visualPreset: res.data.visualPreset,
+          visualSettingsJson: res.data.visualSettingsJson,
           colorScheme: res.data.colorScheme,
           colorSchemeJson: res.data.colorSchemeJson,
           hlsUrl: res.data.hlsUrl,
@@ -224,6 +312,23 @@ export function ArtistView({ username }: { username: string }) {
         setDiscoWidgets(widgets.data);
       },
     );
+    return () => {
+      cancelled = true;
+    };
+  }, [profile?.channel?.slug]);
+
+  useEffect(() => {
+    const slug = profile?.channel?.slug;
+    if (!slug) {
+      setLiveShows(null);
+      return;
+    }
+    let cancelled = false;
+    void fetchPublicRadioShow(slug).then((result) => {
+      if (!cancelled) {
+        setLiveShows(result.data);
+      }
+    });
     return () => {
       cancelled = true;
     };
@@ -254,6 +359,24 @@ export function ArtistView({ username }: { username: string }) {
       setTab('music');
     }
   }, [tab, hasGallery]);
+
+  useEffect(() => {
+    if (!profile) {
+      return;
+    }
+    const availableTabs: Tab[] = [
+      ...(profile.tracks.length > 0 ? (['music'] as const) : []),
+      ...(profile.releases.length > 0 ? (['releases'] as const) : []),
+      ...(profile.collections.some((collection) => collection.itemCount > 0)
+        ? (['collections'] as const)
+        : []),
+      ...(hasGallery ? (['gallery'] as const) : []),
+      ...(isOwner ? (['design'] as const) : []),
+    ];
+    if (!availableTabs.includes(tab)) {
+      setTab(availableTabs[0] ?? 'music');
+    }
+  }, [hasGallery, isOwner, profile, tab]);
 
   const { pinnedPlayables, pinnedTiles, catalogPlayables, releaseTiles } =
     useMemo(() => {
@@ -322,6 +445,10 @@ export function ArtistView({ username }: { username: string }) {
   }
 
   const { artist, channel, releases, collections, fanTiers } = profile;
+  const profileConnections = Object.entries(artist.socialLinks ?? {}).filter(
+    ([key, url]) =>
+      Boolean(url) && key !== 'genres' && key !== 'showConnections',
+  );
 
   const currentQueueItem = queue.find((q) => q.id === currentId);
   const currentPlayable = currentQueueItem
@@ -331,9 +458,15 @@ export function ArtistView({ username }: { username: string }) {
     currentPlayable?.artist === artist.displayName ? currentPlayable : null;
 
   const tabs: Array<{ id: Tab; label: string }> = [
-    { id: 'music', label: 'Music' },
-    { id: 'releases', label: 'Releases' },
-    { id: 'collections', label: 'Collections' },
+    ...(profile.tracks.length > 0
+      ? [{ id: 'music' as const, label: 'Music' }]
+      : []),
+    ...(releases.length > 0
+      ? [{ id: 'releases' as const, label: 'Releases' }]
+      : []),
+    ...(collections.some((collection) => collection.itemCount > 0)
+      ? [{ id: 'collections' as const, label: 'Collections' }]
+      : []),
     ...(hasGallery ? [{ id: 'gallery' as const, label: 'Gallery' }] : []),
     ...(isOwner ? [{ id: 'design' as const, label: 'Design' }] : []),
   ];
@@ -356,6 +489,7 @@ export function ArtistView({ username }: { username: string }) {
                 preset={channelVisual?.visualPreset}
                 colorScheme={channelVisual?.colorScheme}
                 colorSchemeJson={channelVisual?.colorSchemeJson}
+                visualSettingsJson={channelVisual?.visualSettingsJson}
                 artworkUrl={nowPlayingHere?.coverUrl ?? artist.avatarUrl}
               />
             ) : null}
@@ -415,12 +549,21 @@ export function ArtistView({ username }: { username: string }) {
             {artist.pronouns ? `${artist.pronouns} · ` : ''}
             {channel ? 'Artist channel' : 'Artist profile'}
           </span>
-          {fanTiers.length > 0 ? (
+          {!isOwner &&
+          artist.freeSubscriptionsEnabled !== false &&
+          fanTiers.length > 0 ? (
             <Link
               to="/subscribe/$username"
               params={{ username: artist.username }}
             >
-              <Button size="sm">Subscribe</Button>
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                title={`Subscribe to ${artist.displayName}`}
+                aria-label={`Subscribe to ${artist.displayName}`}
+              >
+                <UsersRound size={16} aria-hidden />
+              </Button>
             </Link>
           ) : null}
           {channel && channelVisual?.hlsUrl ? (
@@ -431,6 +574,34 @@ export function ArtistView({ username }: { username: string }) {
             </Link>
           ) : null}
         </div>
+        {artist.socialLinks?.showConnections !== 'false' &&
+        profileConnections.length > 0 ? (
+          <div
+            className="flex flex-wrap items-center gap-2"
+            aria-label="Connections"
+          >
+            <span className="text-foreground-secondary mr-1 text-xs font-semibold tracking-wide uppercase">
+              Find me
+            </span>
+            {profileConnections.map(([key, url]) => {
+              const label = socialLinkLabel(key, url);
+              return (
+                <a
+                  key={`${key}-${url}`}
+                  href={url}
+                  rel="noopener noreferrer"
+                  target={url.startsWith('mailto:') ? undefined : '_blank'}
+                  className="border-border bg-background hover:border-primary/60 inline-flex items-center gap-2 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
+                  title={label}
+                  aria-label={label}
+                >
+                  <SocialLinkIcon label={key} url={url} />
+                  <span className="hidden sm:inline">{label}</span>
+                </a>
+              );
+            })}
+          </div>
+        ) : null}
         {artist.bio ? (
           <p className="text-foreground max-w-3xl text-sm whitespace-pre-wrap">
             {artist.bio}
@@ -559,6 +730,43 @@ export function ArtistView({ username }: { username: string }) {
         </div>
       </section>
 
+      {liveShows &&
+      (liveShows.upcomingEpisodes.length > 0 ||
+        liveShows.pastEpisodes.length > 0) ? (
+        <section className="border-border bg-background-secondary/50 flex flex-col gap-4 rounded-2xl border p-4 sm:p-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <CalendarDays size={18} aria-hidden />
+              <h2 className="font-display text-lg font-bold tracking-tight">
+                Live shows
+              </h2>
+            </div>
+            <p className="text-foreground-secondary mt-1 text-sm">
+              Upcoming broadcasts and recordings from this artist on Tahti
+              Radio.
+            </p>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-2">
+            {liveShows.upcomingEpisodes.length > 0 ? (
+              <ShowEpisodeList
+                title="Upcoming"
+                episodes={liveShows.upcomingEpisodes}
+                icon={<Mic size={16} aria-hidden />}
+                channelSlug={channel?.slug}
+              />
+            ) : null}
+            {liveShows.pastEpisodes.length > 0 ? (
+              <ShowEpisodeList
+                title="Past recordings"
+                episodes={liveShows.pastEpisodes}
+                icon={<MessageCircle size={16} aria-hidden />}
+                channelSlug={channel?.slug}
+              />
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
       {fanTiers.length > 0 && (
         <p className="text-foreground-secondary text-xs">
           Fan tiers:{' '}
@@ -610,6 +818,7 @@ export function ArtistView({ username }: { username: string }) {
               preset={channelVisual?.visualPreset}
               colorScheme={channelVisual?.colorScheme}
               colorSchemeJson={channelVisual?.colorSchemeJson}
+              visualSettingsJson={channelVisual?.visualSettingsJson}
               artworkUrl={nowPlayingHere?.coverUrl ?? artist.avatarUrl}
             />
             {nowPlayingHere ? (

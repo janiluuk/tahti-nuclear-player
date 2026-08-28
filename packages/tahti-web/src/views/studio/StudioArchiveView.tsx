@@ -1,7 +1,9 @@
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import {
   AudioLinesIcon,
+  BarChart3Icon,
   ChevronDownIcon,
+  DownloadIcon,
   FilterIcon,
   FolderIcon,
   MoreHorizontalIcon,
@@ -13,12 +15,13 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, Dialog } from '@nuclearplayer/ui';
 
 import {
   deleteStudioArchiveItem,
   fetchEditorSource,
   fetchStudioArchive,
+  fetchStudioArchiveDownload,
   patchStudioArchiveItem,
 } from '../../api/studio';
 import type { StudioArchiveItem } from '../../api/studio-types';
@@ -30,6 +33,7 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { TrackEditDialog } from '../../components/TrackEditDialog';
+import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
 import {
   EMBED_PROVIDER_HEIGHT,
   EMBED_PROVIDER_LABEL,
@@ -47,6 +51,7 @@ import { usePlayerStore } from '../../stores/playerStore';
 
 const FOLDERS = [
   { id: 'archive' as const, label: 'Sounds', icon: AudioLinesIcon },
+  { id: 'clips' as const, label: 'Clips', icon: AudioLinesIcon },
   { id: 'files' as const, label: 'Move to stash', icon: FolderIcon },
 ];
 
@@ -95,7 +100,12 @@ function formatUploadDate(value: string | undefined): string | null {
 export function StudioArchiveView() {
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { folder?: string };
-  const folder = search.folder === 'files' ? 'files' : 'archive';
+  const folder =
+    search.folder === 'files'
+      ? 'files'
+      : search.folder === 'clips'
+        ? 'clips'
+        : 'archive';
   const [items, setItems] = useState<StudioArchiveItem[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -110,6 +120,7 @@ export function StudioArchiveView() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pinMessage, setPinMessage] = useState<string | null>(null);
   const [embedOpenId, setEmbedOpenId] = useState<string | null>(null);
+  const [statsItem, setStatsItem] = useState<StudioArchiveItem | null>(null);
   const play = usePlayerStore((s) => s.play);
 
   const reload = () => {
@@ -138,6 +149,15 @@ export function StudioArchiveView() {
             i.status.toLowerCase().includes(q),
         );
     const filteredItems = base.filter((item) => {
+      if (item.embedProvider === 'HEARTHIS') {
+        return false;
+      }
+      if (folder === 'clips' && item.contentType !== 'AUDIOCLIPS') {
+        return false;
+      }
+      if (folder === 'archive' && item.contentType === 'AUDIOCLIPS') {
+        return false;
+      }
       const provider = item.embedProvider ?? 'NATIVE';
       if (embedFilter !== 'ALL' && provider !== embedFilter) {
         return false;
@@ -172,6 +192,7 @@ export function StudioArchiveView() {
     sortField,
     uploadedFrom,
     uploadedTo,
+    folder,
   ]);
 
   const pinnedCount = countPinnedTracks(items);
@@ -188,6 +209,23 @@ export function StudioArchiveView() {
       protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
     });
     setBusyId(null);
+  };
+
+  const downloadItem = async (item: StudioArchiveItem) => {
+    setBusyId(item.id);
+    const result = await fetchStudioArchiveDownload(item.id);
+    setBusyId(null);
+    if (!result.ok) {
+      setPinMessage(result.error);
+      return;
+    }
+    const link = document.createElement('a');
+    link.href = result.url;
+    link.download = result.filename ?? `${item.title}.audio`;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   };
 
   const togglePin = async (item: StudioArchiveItem) => {
@@ -423,6 +461,18 @@ export function StudioArchiveView() {
                       >
                         <PlayIcon size={16} aria-hidden />
                       </Button>
+                      {item.downloadsEnabled ? (
+                        <Button
+                          size="icon-sm"
+                          variant="text"
+                          disabled={busyId === item.id}
+                          onClick={() => void downloadItem(item)}
+                          aria-label={`Download ${item.title}`}
+                          title="Download original"
+                        >
+                          <DownloadIcon size={16} aria-hidden />
+                        </Button>
+                      ) : null}
                       <Button
                         size="icon-sm"
                         variant="secondary"
@@ -431,6 +481,15 @@ export function StudioArchiveView() {
                         onClick={() => setEditingId(item.id)}
                       >
                         <PencilIcon size={16} aria-hidden />
+                      </Button>
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        onClick={() => setStatsItem(item)}
+                        aria-label={`Show stats for ${item.title}`}
+                        title="Stats"
+                      >
+                        <BarChart3Icon size={16} aria-hidden />
                       </Button>
                       <AddToPlaylistButton
                         archiveItemId={item.id}
@@ -538,6 +597,22 @@ export function StudioArchiveView() {
           }
         />
       </div>
+      <Dialog.Root
+        isOpen={Boolean(statsItem)}
+        onClose={() => setStatsItem(null)}
+        className="max-w-3xl"
+      >
+        <Dialog.Title>{statsItem?.title ?? 'Track stats'}</Dialog.Title>
+        <Dialog.Description>
+          Plays, downloads, and listener geography for this sound.
+        </Dialog.Description>
+        {statsItem ? (
+          <TrackInsightsPanel kind="archive" id={statsItem.id} />
+        ) : null}
+        <Dialog.Actions>
+          <Dialog.Close>Close</Dialog.Close>
+        </Dialog.Actions>
+      </Dialog.Root>
     </StudioGate>
   );
 }

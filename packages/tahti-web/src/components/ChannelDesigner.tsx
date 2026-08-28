@@ -5,6 +5,7 @@ import {
   Droplets,
   Flashlight,
   Grid3x3,
+  LinkIcon,
   Loader2Icon,
   SaveIcon,
   Slash,
@@ -21,6 +22,7 @@ import { toast } from 'sonner';
 import {
   Button,
   FilePicker,
+  Input,
   PluginItem,
   Slider,
   Tabs,
@@ -176,6 +178,7 @@ export function ChannelDesigner({
   const [pendingVideoPreviewUrl, setPendingVideoPreviewUrl] = useState<
     string | null
   >(null);
+  const [videoUrlOpen, setVideoUrlOpen] = useState(false);
   const [slideshowPreset, setSlideshowPreset] = useState('FADE');
   const [slideshowInterval, setSlideshowInterval] = useState(8);
   const [slideshowTransition, setSlideshowTransition] = useState(600);
@@ -625,14 +628,38 @@ export function ChannelDesigner({
                         </div>
                         {visual.headerStyle === 'VIDEO_LOOP' && (
                           <div className="flex flex-col gap-3">
-                            <div>
-                              <Eyebrow>Short video backdrop</Eyebrow>
-                              <p className="text-foreground-secondary mt-1 text-xs">
-                                Upload an MP4 or WebM up to 10 MB. It will loop
-                                muted behind your channel header and is stored
-                                in your private R2 storage.
-                              </p>
+                            <div className="flex items-center justify-between gap-2">
+                              <div>
+                                <Eyebrow>Short video backdrop</Eyebrow>
+                                <p className="text-foreground-secondary mt-1 text-xs">
+                                  Upload an MP4 or WebM up to 10 MB. It will
+                                  loop muted behind your channel header and is
+                                  stored in your private R2 storage.
+                                </p>
+                              </div>
+                              <Button
+                                size="icon-sm"
+                                variant="text"
+                                aria-label="Show video URL field"
+                                title="Use a video URL"
+                                aria-pressed={videoUrlOpen}
+                                onClick={() => setVideoUrlOpen((open) => !open)}
+                              >
+                                <LinkIcon size={15} aria-hidden />
+                              </Button>
                             </div>
+                            {videoUrlOpen ? (
+                              <Input
+                                label="Video URL"
+                                value={videoBackgroundUrl}
+                                placeholder="https://cdn.example/video.mp4"
+                                onChange={(event) => {
+                                  setVideoBackgroundUrl(event.target.value);
+                                  setPendingVideoFile(null);
+                                  setDirty(true);
+                                }}
+                              />
+                            ) : null}
                             <FilePicker
                               accept="video/mp4,video/webm"
                               disabled={busy}

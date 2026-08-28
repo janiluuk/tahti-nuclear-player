@@ -519,19 +519,6 @@ export function ChannelView({ slug }: { slug: string }) {
             </p>
           </section>
         );
-      case 'subscribe':
-        return (
-          <Link
-            to="/subscribe/$username"
-            params={{ username: channel.user.username }}
-            className="border-border hover:border-primary/50 block rounded-lg border px-4 py-3 transition-colors"
-          >
-            <div className="text-sm font-bold">Subscribe</div>
-            <div className="text-foreground-secondary text-xs">
-              Support {channel.user.displayName} with a fan membership.
-            </div>
-          </Link>
-        );
       default:
         return null;
     }

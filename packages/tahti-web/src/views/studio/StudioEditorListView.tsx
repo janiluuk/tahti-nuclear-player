@@ -35,7 +35,7 @@ export function StudioEditorListView() {
     const types = new Set(
       archive
         .map((item) => item.contentType?.trim().toUpperCase())
-        .filter(Boolean),
+        .filter((type): type is string => Boolean(type)),
     );
     return ['ALL', ...Array.from(types).sort()];
   }, [archive]);

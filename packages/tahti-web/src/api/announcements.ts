@@ -20,6 +20,12 @@ export type AnnouncementClip = {
   contentType: 'AUDIOCLIPS';
 };
 
+export type PinnedAnnouncement = {
+  id: string;
+  body: string;
+  createdAt: string;
+};
+
 const mockClips: AnnouncementClip[] = [
   {
     id: 'announcement-demo',
@@ -31,6 +37,8 @@ const mockClips: AnnouncementClip[] = [
     contentType: 'AUDIOCLIPS',
   },
 ];
+
+const mockPinnedAnnouncements: PinnedAnnouncement[] = [];
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBase()}${path}`, {
@@ -49,6 +57,82 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
     return undefined as T;
   }
   return (await response.json()) as T;
+}
+
+export async function fetchPinnedAnnouncements(
+  slug: string,
+): Promise<PinnedAnnouncement[]> {
+  if (forceMock()) {
+    return [...mockPinnedAnnouncements];
+  }
+  try {
+    return await requestJson<PinnedAnnouncement[]>(
+      `/api/chat/${encodeURIComponent(slug)}/announcements`,
+    );
+  } catch {
+    return [];
+  }
+}
+
+export async function postPinnedAnnouncement(
+  body: string,
+): Promise<
+  { ok: true; announcement: PinnedAnnouncement } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const announcement = {
+      id: `announcement-${Date.now()}`,
+      body,
+      createdAt: new Date().toISOString(),
+    };
+    mockPinnedAnnouncements.unshift(announcement);
+    mockPinnedAnnouncements.splice(3);
+    return { ok: true, announcement };
+  }
+  try {
+    const announcement = await requestJson<PinnedAnnouncement>(
+      '/api/me/chat/announcements',
+      {
+        method: 'POST',
+        body: JSON.stringify({ body }),
+      },
+    );
+    return { ok: true, announcement };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Could not publish announcement',
+    };
+  }
+}
+
+export async function deletePinnedAnnouncement(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const index = mockPinnedAnnouncements.findIndex((item) => item.id === id);
+    if (index >= 0) {
+      mockPinnedAnnouncements.splice(index, 1);
+    }
+    return { ok: true };
+  }
+  try {
+    await requestJson(`/api/me/chat/announcements/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    return { ok: true };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Could not delete announcement',
+    };
+  }
 }
 
 export async function fetchAnnouncementClips(): Promise<{

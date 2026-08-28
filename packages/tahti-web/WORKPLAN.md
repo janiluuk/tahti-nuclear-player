@@ -2,6 +2,7 @@
 
 ## Shipped
 
+- [x] **Beta feature-port consolidation** — Radio announcements/pinned announcements, Tahti Radio submissions, Clips, archive/Sounds parity, HEARTHIS shared playback, rotation drag-and-drop/capacity handling, notification parity, track statistics modal, and the latest admin/studio audit documentation ([UI-REDESIGN-WORKLOG.md](UI-REDESIGN-WORKLOG.md))
 - [x] Sparse sidebar + Studio/Sources/Library/Channel tabs
 - [x] Sources **CardGrid** big service icon tiles + detail pane
 - [x] **Settings** Nuclear-style (Themes under Settings; Account demoted)

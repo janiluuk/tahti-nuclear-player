@@ -209,6 +209,12 @@ export const ChannelRadioPlaylistPanel: FC = () => {
     if (!programme) {
       return;
     }
+    if (nextRotation.length > MAX_RADIO_PLAYLIST_ITEMS) {
+      toast.error(
+        `Your channel rotation is full. It can contain up to ${MAX_RADIO_PLAYLIST_ITEMS} tracks.`,
+      );
+      return;
+    }
     setBusy(true);
     const positions = new Map(
       nextRotation.map((item, index) => [item.id, index]),

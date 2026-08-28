@@ -1711,6 +1711,26 @@ export async function startMembershipCheckout(opts?: {
   }
 }
 
+export async function requestAccountDeletion(
+  reason: string,
+): Promise<{ ok: true; ticketId: string } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true, ticketId: 'mock-deletion-001' };
+  }
+  try {
+    const { data } = await requestJson<{ ticketId: string }>(
+      '/api/me/account/deletion-request',
+      { method: 'POST', body: JSON.stringify({ reason }) },
+    );
+    return { ok: true, ticketId: data.ticketId };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Deletion request failed',
+    };
+  }
+}
+
 export async function fetchMySubscriptions(): Promise<{
   data: FanSubscriptionRow[];
   meta: FetchMeta;

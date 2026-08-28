@@ -131,13 +131,6 @@ export const RadioShowView = ({ channelSlug }: { channelSlug: string }) => {
                 </Button>
               </Link>
             ) : null}
-            <Link
-              to="/u/$username"
-              params={{ username: show.artist.username }}
-              className="text-foreground-secondary text-sm underline-offset-2 hover:underline"
-            >
-              Artist profile
-            </Link>
           </div>
         }
       />

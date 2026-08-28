@@ -49,6 +49,7 @@ export type PublicChannel = {
   /** When false, channel chat is off — right rail chat unavailable. */
   chatEnabled?: boolean;
   visualPreset?: string | null;
+  visualSettingsJson?: string | null;
   /** Channel page header banner treatment — GRADIENT/SOLID/VIDEO_LOOP. */
   headerStyle?: string | null;
   /** VIDEO_LOOP's clip — reused from the backend's Gallery & backdrop field. */
@@ -164,6 +165,7 @@ export type PublicProfileArtist = {
   followerCount?: number | null;
   followingCount?: number | null;
   freeSubscriptionsEnabled?: boolean;
+  socialLinks?: Record<string, string> | null;
 };
 
 export type PublicProfileTrack = {

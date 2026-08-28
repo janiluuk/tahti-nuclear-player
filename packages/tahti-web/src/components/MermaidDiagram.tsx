@@ -13,6 +13,7 @@ export function MermaidDiagram({ chart, className }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
@@ -27,6 +28,12 @@ export function MermaidDiagram({ chart, className }: Props) {
           securityLevel: 'strict',
           theme: 'dark',
           fontFamily: 'inherit',
+          flowchart: {
+            nodeSpacing: 60,
+            rankSpacing: 80,
+            padding: 20,
+            htmlLabels: true,
+          },
         });
         const id = `mmd-${reactId}-${Math.random().toString(36).slice(2, 8)}`;
         const { svg } = await mermaid.render(id, chart);
@@ -72,6 +79,35 @@ export function MermaidDiagram({ chart, className }: Props) {
 
   return (
     <div className={className}>
+      <div
+        className="mb-2 flex items-center justify-end gap-1"
+        aria-label="Diagram zoom controls"
+      >
+        <button
+          type="button"
+          className="border-border text-foreground-secondary hover:text-foreground rounded border px-2 py-1 text-xs"
+          onClick={() => setZoom((current) => Math.max(0.6, current - 0.2))}
+          aria-label="Zoom out diagram"
+        >
+          −
+        </button>
+        <button
+          type="button"
+          className="border-border text-foreground-secondary hover:text-foreground rounded border px-2 py-1 text-xs tabular-nums"
+          onClick={() => setZoom(1)}
+          aria-label="Reset diagram zoom"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+        <button
+          type="button"
+          className="border-border text-foreground-secondary hover:text-foreground rounded border px-2 py-1 text-xs"
+          onClick={() => setZoom((current) => Math.min(2, current + 0.2))}
+          aria-label="Zoom in diagram"
+        >
+          +
+        </button>
+      </div>
       {!ready && !error && (
         <p className="text-foreground-secondary text-sm">Rendering diagram…</p>
       )}
@@ -82,7 +118,16 @@ export function MermaidDiagram({ chart, className }: Props) {
           {chart}
         </pre>
       )}
-      <div ref={hostRef} className="mermaid-host max-h-[75vh] overflow-auto" />
+      <div className="mermaid-host max-h-[75vh] overflow-auto">
+        <div
+          ref={hostRef}
+          style={{
+            transform: `scale(${zoom})`,
+            transformOrigin: 'top left',
+            width: `${100 / zoom}%`,
+          }}
+        />
+      </div>
     </div>
   );
 }

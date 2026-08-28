@@ -21,6 +21,7 @@ type LayoutState = {
   chatAutoOpenedFor: string | null;
 
   toggleLeft: () => void;
+  setLeftCollapsed: (collapsed: boolean) => void;
   toggleRight: () => void;
   setLeftWidth: (n: number) => void;
   setRightWidth: (n: number) => void;
@@ -54,6 +55,7 @@ export const useLayoutStore = create<LayoutState>()(
       chatAutoOpenedFor: null,
 
       toggleLeft: () => set((s) => ({ leftCollapsed: !s.leftCollapsed })),
+      setLeftCollapsed: (leftCollapsed) => set({ leftCollapsed }),
       toggleRight: () => set((s) => ({ rightCollapsed: !s.rightCollapsed })),
       setLeftWidth: (leftWidth) => set({ leftWidth }),
       setRightWidth: (rightWidth) => set({ rightWidth }),

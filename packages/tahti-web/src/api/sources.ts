@@ -653,6 +653,13 @@ export async function searchHearthisTracks(q: string): Promise<{
   }
 }
 
+export async function fetchHearthisTrackById(
+  id: string,
+): Promise<HearthisTrack | null> {
+  const result = await searchHearthisTracks(id);
+  return result.data.find((track) => track.id === id) ?? result.data[0] ?? null;
+}
+
 export function playableFromHearthis(t: HearthisTrack): TahtiPlayable {
   return {
     id: `hearthis:${t.id}`,

@@ -3,6 +3,7 @@ import {
   FileAudioIcon,
   FolderOpenIcon,
   HeartIcon,
+  LandmarkIcon,
   LayoutGridIcon,
   LibraryIcon,
   Link2Icon,
@@ -54,6 +55,11 @@ const SUBMENUS = {
   '/studio': [
     { to: '/studio', label: 'Overview', icon: <LayoutGridIcon size={16} /> },
     { to: '/studio/stats', label: 'Stats', icon: <TrendingUpIcon size={16} /> },
+    {
+      to: '/studio/governance',
+      label: 'Governance',
+      icon: <LandmarkIcon size={16} />,
+    },
     {
       to: '/studio/updates',
       label: 'Posts',
@@ -171,6 +177,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
   '/studio': [
     '/studio',
     '/studio/stats',
+    '/studio/governance',
     '/studio/updates',
     '/studio/distribution',
     '/studio/revenue',
