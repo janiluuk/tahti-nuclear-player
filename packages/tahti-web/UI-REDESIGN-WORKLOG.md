@@ -1538,3 +1538,11 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Slice 3:** Added an accessible refresh action and explicit API-load feedback to the shared stream manager. The dashboard disclosure now only controls finance, queue, and audit details.
 
 **Status:** implemented; tahti-web type-check, lint, tests, and diff checks pass. Changes are ready to commit and deploy.
+
+## 2026-08-28 — Next 3×3 Studio Storybook sweep
+
+**Batch 1:** Added rendered stories for Studio archive detail, Collections, and Releases.
+
+**Batch 2:** Added rendered stories for Studio Revenue, Distribution, and Manage → Channel.
+
+**Batch 3:** Added rendered stories for Studio Branding, Moderation, and Events, each with its product destination in Storybook docs. Refreshed the static sitemap with the current `/listen` and `/whats-new` public aliases.

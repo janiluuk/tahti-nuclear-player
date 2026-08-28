@@ -2,6 +2,15 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AdminContentView } from '@tahti-web/views/admin/AdminContentView';
 import { AdminMissedShowsView } from '@tahti-web/views/admin/AdminMissedShowsView';
 import { AdminSelectsView } from '@tahti-web/views/admin/AdminSelectsView';
+import { StudioArchiveItemView } from '@tahti-web/views/studio/StudioArchiveItemView';
+import { StudioBrandingView } from '@tahti-web/views/studio/StudioBrandingView';
+import { StudioChannelView } from '@tahti-web/views/studio/StudioChannelView';
+import { StudioCollectionsView } from '@tahti-web/views/studio/StudioCollectionsView';
+import { StudioDistributionView } from '@tahti-web/views/studio/StudioDistributionView';
+import { StudioEventsView } from '@tahti-web/views/studio/StudioEventsView';
+import { StudioModerationView } from '@tahti-web/views/studio/StudioModerationView';
+import { StudioReleasesView } from '@tahti-web/views/studio/StudioReleasesView';
+import { StudioRevenueView } from '@tahti-web/views/studio/StudioRevenueView';
 import { StudioScheduleView } from '@tahti-web/views/studio/StudioScheduleView';
 import { StudioStatsView } from '@tahti-web/views/studio/StudioStatsView';
 import { StudioUploadView } from '@tahti-web/views/studio/StudioUploadView';
@@ -73,4 +82,85 @@ export const StudioUpload: Story = {
   },
   decorators: [withTahtiRouter('/studio/upload'), withMockAuth()],
   render: () => <StudioUploadView />,
+};
+
+export const StudioArchiveItem: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Lives on Studio → Music → Sounds → track editor.',
+      },
+    },
+  },
+  decorators: [withTahtiRouter('/studio/archive/track-northern-signals')],
+  render: () => <StudioArchiveItemView id="track-northern-signals" />,
+};
+
+export const StudioCollections: Story = {
+  parameters: {
+    docs: { description: { story: 'Lives on Studio → Music → Collections.' } },
+  },
+  decorators: [withTahtiRouter('/studio/collections')],
+  render: () => <StudioCollectionsView />,
+};
+
+export const StudioReleases: Story = {
+  parameters: {
+    docs: { description: { story: 'Lives on Studio → Music → Releases.' } },
+  },
+  decorators: [withTahtiRouter('/studio/releases')],
+  render: () => <StudioReleasesView />,
+};
+
+export const StudioRevenue: Story = {
+  parameters: {
+    docs: { description: { story: 'Lives on Studio → Revenue.' } },
+  },
+  decorators: [withTahtiRouter('/studio/revenue')],
+  render: () => <StudioRevenueView />,
+};
+
+export const StudioDistribution: Story = {
+  parameters: {
+    docs: { description: { story: 'Lives on Studio → Distribution.' } },
+  },
+  decorators: [withTahtiRouter('/studio/distribution')],
+  render: () => <StudioDistributionView />,
+};
+
+export const StudioChannel: Story = {
+  parameters: {
+    docs: { description: { story: 'Lives on Studio → Manage → Channel.' } },
+  },
+  decorators: [withTahtiRouter('/studio/channel')],
+  render: () => <StudioChannelView />,
+};
+
+export const StudioBranding: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Lives on Settings → Artist → Branding and Studio → Manage → Branding.',
+      },
+    },
+  },
+  decorators: [withTahtiRouter('/studio/branding')],
+  render: () => <StudioBrandingView />,
+};
+
+export const StudioModeration: Story = {
+  parameters: {
+    docs: { description: { story: 'Lives on Studio → Manage → Moderation.' } },
+  },
+  decorators: [withTahtiRouter('/studio/moderation')],
+  render: () => <StudioModerationView />,
+};
+
+export const StudioEvents: Story = {
+  parameters: {
+    docs: { description: { story: 'Lives on Studio → Events.' } },
+  },
+  decorators: [withTahtiRouter('/studio/events')],
+  render: () => <StudioEventsView />,
 };

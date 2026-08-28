@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://app.tahti.live/</loc></url>
+  <url><loc>https://app.tahti.live/listen</loc></url>
   <url><loc>https://app.tahti.live/discover</loc></url>
   <url><loc>https://app.tahti.live/radio</loc></url>
   <url><loc>https://app.tahti.live/schedule</loc></url>
@@ -10,6 +11,7 @@
   <url><loc>https://app.tahti.live/transparency</loc></url>
   <url><loc>https://app.tahti.live/transparency/methodology</loc></url>
   <url><loc>https://app.tahti.live/help</loc></url>
+  <url><loc>https://app.tahti.live/whats-new</loc></url>
   <url><loc>https://app.tahti.live/join</loc></url>
   <url><loc>https://app.tahti.live/apply</loc></url>
   <url><loc>https://app.tahti.live/governance</loc></url>
