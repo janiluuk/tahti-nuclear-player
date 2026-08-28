@@ -1,6 +1,48 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Updated the web app branding to match Tahti: the shared amber-bar wordmark and the sibling site's favicon set are now used across the app shell and browser install surfaces.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Branding", "color": "orange" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "The Listen page radio control now reflects playback state, showing Pause while Tahti Radio is playing and allowing paused playback to resume.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Listen now contains Feed and History tabs; the separate History item has been removed from the main navigation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Renamed the listener dashboard heading to Discover.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discover", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin stream management is now more compact: streams show thumbnails and total duration, rows are striped, actions use icon buttons, and the list starts collapsed.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
+    "description": "Admin Vendors now shows launch-readiness status and concrete blockers for every critical service and integration.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Tahti Map is now a dedicated navigation tab with an updated beta sitemap and listener, artist, and governing-person Mermaid journeys.",
     "type": "improvement",
     "contributors": ["jani"],

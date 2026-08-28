@@ -1,7 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import {
   GaugeIcon,
-  HistoryIcon,
   LayoutDashboardIcon,
   LibraryIcon,
   ListMusicIcon,
@@ -24,7 +23,7 @@ const NAV = [
     to: '/',
     label: 'Listen',
     icon: GaugeIcon,
-    match: (p: string) => p === '/',
+    match: (p: string) => p === '/' || p.startsWith('/listen'),
     boardOnly: false,
   },
   {
@@ -47,13 +46,6 @@ const NAV = [
     label: 'Studio',
     icon: LayoutDashboardIcon,
     match: (p: string) => p.startsWith('/studio'),
-    boardOnly: false,
-  },
-  {
-    to: '/library/history',
-    label: 'History',
-    icon: HistoryIcon,
-    match: (p: string) => p.startsWith('/library/history'),
     boardOnly: false,
   },
   {

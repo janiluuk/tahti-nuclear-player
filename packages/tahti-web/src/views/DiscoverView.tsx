@@ -174,7 +174,7 @@ export function DiscoverView() {
   return (
     <PageFrame>
       <PageHeader
-        title="Your dashboard"
+        title="Discover"
         subtitle="Pick the widgets you want to see, and filter by genre or type."
         meta={<Eyebrow>Discover</Eyebrow>}
       />

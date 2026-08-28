@@ -1724,6 +1724,8 @@ export type AdminLiveStreamRow = {
   slug: string;
   artistName: string;
   username: string;
+  thumbnailUrl?: string | null;
+  avatarUrl?: string | null;
   elapsedSec: number;
   goneLiveAt: string | null;
   hlsUrl: string | null;

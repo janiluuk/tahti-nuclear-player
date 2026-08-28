@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 
 import { cn } from '../lib/cn';
 
-/** Compact Tahti mark: star + wordmark for the app chrome. */
+/** Tahti wordmark shared with the sibling Tahti website. */
 export function TahtiLogo({
   className,
   markOnly = false,
@@ -13,25 +13,14 @@ export function TahtiLogo({
   return (
     <span
       className={cn(
-        'font-display inline-flex items-center gap-1.5 tracking-tight',
+        'font-display inline-flex items-center gap-2 tracking-[0.25em]',
         className,
       )}
     >
-      <svg
-        viewBox="0 0 24 24"
-        width="18"
-        height="18"
-        aria-hidden
-        className="text-primary shrink-0"
-      >
-        <path
-          fill="currentColor"
-          d="M12 1.8l2.7 6.6 7.1.6-5.4 4.6 1.7 6.9L12 16.8l-6.1 3.7 1.7-6.9L2.2 9l7.1-.6L12 1.8z"
-        />
-      </svg>
+      <span aria-hidden className="bg-accent-orange h-5 w-0.75 shrink-0" />
       {!markOnly && (
-        <span className="text-base leading-none font-extrabold tracking-[0.18em] uppercase">
-          Tahti
+        <span className="text-base leading-none font-bold uppercase">
+          TAHTI
         </span>
       )}
     </span>

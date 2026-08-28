@@ -1,5 +1,25 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Tahti shared branding
+
+**Completed:** Replaced the app-shell star mark with the sibling Tahti website's amber-bar `TAHTI` wordmark. The web app now serves the matching SVG, ICO, 16px, 32px, and Apple touch favicon assets from `../tahti`.
+
+## 2026-08-28 — Listen playback control state
+
+**Completed:** The Tahti Radio play control on Listen now follows the shared player state. It switches to Pause while the station is loading or playing, switches back to Play when paused, and resumes the current station without unnecessarily fetching it again.
+
+## 2026-08-28 — Listen Feed and History tabs
+
+**Completed:** Moved the personal Feed and listening History into the Listen page as dedicated tabs. The main sidebar no longer carries a separate History entry, and the old `/library/history` and `/history` URLs redirect to `/listen/history` for compatibility. Feed and History retain their existing playback, statistics, listening-history, and clear-history behavior.
+
+## 2026-08-28 — Compact Admin stream manager
+
+**Completed:** Admin stream rows now show channel thumbnails when supplied by the API, with an initials fallback, total stream duration, listener metrics, zebra striping, and all row actions as consistent accessible icon buttons. The active-stream list is collapsed by default and can be expanded from the panel header.
+
+## 2026-08-28 — Vendor launch-readiness register
+
+**Completed:** Admin → Vendors now records the live-readiness state of every critical and integration vendor. Each entry identifies whether it is live, needs verification, or blocks launch, with the concrete credentials, contract, callback/webhook, DPA, approval, or operational-test dependency. The page summarizes unresolved launch blockers and lets API-reported integration status override the static register when a live check is available.
+
 ## 2026-08-28 — Tahti Map navigation and sitemap refresh
 
 **Completed:** Renamed the board-only More entry to its own Tahti map tab in desktop and mobile navigation. Removed the map page’s top row of shortcuts to unrelated application pages, keeping only in-page map section navigation. Added current route-based Mermaid diagrams for the beta sitemap, listener journey, and artist/governing-person journeys in the Flow gallery.

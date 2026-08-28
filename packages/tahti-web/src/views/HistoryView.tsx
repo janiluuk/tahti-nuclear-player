@@ -16,16 +16,29 @@ const RECENTLY_PLAYED_PREVIEW = 5;
  * Tahti's lighter localStorage `history` (a play-event timestamp, deduped
  * to one row per track) — see src/lib/historyStats.ts for how listening
  * time is approximated from that. */
-export function HistoryView() {
+export function HistoryView({ embedded = false }: { embedded?: boolean }) {
   const history = useLibraryStore((s) => s.history);
   const clearHistory = useLibraryStore((s) => s.clearHistory);
   const recentHistory = history.slice(0, RECENTLY_PLAYED_PREVIEW);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <PageHeader
-        title="History"
-        actions={
+      {!embedded ? (
+        <PageHeader
+          title="History"
+          actions={
+            <Button
+              variant="text"
+              size="sm"
+              disabled={history.length === 0}
+              onClick={clearHistory}
+            >
+              Clear all
+            </Button>
+          }
+        />
+      ) : (
+        <div className="flex justify-end">
           <Button
             variant="text"
             size="sm"
@@ -34,8 +47,8 @@ export function HistoryView() {
           >
             Clear all
           </Button>
-        }
-      />
+        </div>
+      )}
       <Tabs
         className="flex flex-1 flex-col overflow-hidden"
         panelsClassName="flex-1 overflow-hidden"

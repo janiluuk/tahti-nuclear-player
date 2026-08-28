@@ -212,6 +212,18 @@ const listenRoute = createRoute({
   component: ListenView,
 });
 
+const listenFeedRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/listen/feed',
+  component: () => <ListenView tab="feed" />,
+});
+
+const listenHistoryRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/listen/history',
+  component: () => <ListenView tab="history" />,
+});
+
 const radioRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/radio',
@@ -554,7 +566,9 @@ const libraryFavoritesRoute = createRoute({
 const libraryHistoryRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/history',
-  component: () => <LibraryView tab="history" />,
+  beforeLoad: () => {
+    throw redirect({ to: '/listen/history' });
+  },
 });
 
 const librarySmartLinksRoute = createRoute({
@@ -604,7 +618,7 @@ const historyRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/history',
   beforeLoad: () => {
-    throw redirect({ to: '/library/history' });
+    throw redirect({ to: '/listen/history' });
   },
 });
 
@@ -1303,6 +1317,8 @@ const dashboardSplatAliasRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   appLayoutRoute.addChildren([
     listenRoute,
+    listenFeedRoute,
+    listenHistoryRoute,
     listenAliasRoute,
     radioRoute,
     radioShowRoute,

@@ -1,5 +1,11 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { PlayIcon, RadioIcon } from 'lucide-react';
+import {
+  HistoryIcon,
+  ListMusicIcon,
+  PauseIcon,
+  PlayIcon,
+  RadioIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -40,8 +46,11 @@ import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { FeedView } from './FeedView';
+import { HistoryView } from './HistoryView';
 
-export function ListenView() {
+export type ListenTab = 'listen' | 'feed' | 'history';
+
+export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
   const navigate = useNavigate();
   const [items, setItems] = useState<ChannelDirectoryItem[]>([]);
   const [onAir, setOnAir] = useState<OnAirChannel[]>([]);
@@ -52,6 +61,9 @@ export function ListenView() {
   const [activeOnly, setActiveOnly] = useState(false);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
   const play = usePlayerStore((s) => s.play);
+  const currentId = usePlayerStore((s) => s.currentId);
+  const playbackStatus = usePlayerStore((s) => s.status);
+  const setPlaybackStatus = usePlayerStore((s) => s.setStatus);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const favoriteChannels = useLibraryStore((s) => s.favoriteChannels);
@@ -196,6 +208,24 @@ export function ListenView() {
   const radioLogo =
     radio?.user.avatarUrl ?? radio?.nowPlaying?.artworkUrl ?? null;
   const radioName = radio?.user.displayName ?? 'Tahti Radio';
+  const radioPlayableId = `radio:${TAHTI_RADIO_SLUG}`;
+  const radioIsCurrent = currentId === radioPlayableId;
+  const radioIsPlaying =
+    radioIsCurrent &&
+    (playbackStatus === 'playing' || playbackStatus === 'loading');
+
+  const toggleRadioPlayback = () => {
+    if (radioIsCurrent) {
+      setPlaybackStatus(radioIsPlaying ? 'paused' : 'playing');
+      return;
+    }
+
+    void fetchRadioStation().then(({ playable }) => {
+      if (playable) {
+        play(playable);
+      }
+    });
+  };
 
   return (
     <PageFrame>
@@ -225,197 +255,236 @@ export function ListenView() {
         }
       />
 
-      <DiscoWidgetsSection widgets={discoWidgets} />
+      <nav
+        aria-label="Listen sections"
+        className="border-border flex w-full gap-1 overflow-x-auto border-b"
+        role="tablist"
+      >
+        {(
+          [
+            ['listen', 'Listen', ListMusicIcon, '/'],
+            ['feed', 'Feed', ListMusicIcon, '/listen/feed'],
+            ['history', 'History', HistoryIcon, '/listen/history'],
+          ] as const
+        ).map(([id, label, Icon, to]) => (
+          <Link
+            key={id}
+            to={to}
+            role="tab"
+            aria-selected={tab === id}
+            className={`inline-flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
+              tab === id
+                ? 'border-primary text-foreground'
+                : 'text-foreground-secondary hover:text-foreground border-transparent'
+            }`}
+          >
+            <Icon size={14} aria-hidden />
+            {label}
+          </Link>
+        ))}
+      </nav>
 
-      <ListenerWidgetsSection />
+      {tab === 'feed' ? <FeedView embedded /> : null}
+      {tab === 'history' ? <HistoryView embedded /> : null}
 
-      {signedIn ? <FeedView embedded /> : null}
+      {tab === 'listen' ? (
+        <>
+          <DiscoWidgetsSection widgets={discoWidgets} />
 
-      {radio ? (
-        <Box
-          variant="secondary"
-          className="flex flex-wrap items-center justify-between gap-3"
-        >
-          <div className="flex min-w-0 items-start gap-3">
-            <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-bold tracking-tight">
-              {radioLogo ? (
-                <img
-                  src={radioLogo}
-                  alt=""
-                  className="size-full object-cover"
-                />
-              ) : (
-                <RadioIcon size={20} className="text-foreground-secondary" />
-              )}
-            </div>
-            <div className="min-w-0">
-              <div className="text-sm font-bold tracking-tight">
-                {radioName}
+          <ListenerWidgetsSection />
+
+          {radio ? (
+            <Box
+              variant="secondary"
+              className="flex flex-wrap items-center justify-between gap-3"
+            >
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-bold tracking-tight">
+                  {radioLogo ? (
+                    <img
+                      src={radioLogo}
+                      alt=""
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <RadioIcon
+                      size={20}
+                      className="text-foreground-secondary"
+                    />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold tracking-tight">
+                    {radioName}
+                  </div>
+                  <p className="text-foreground-secondary text-xs">
+                    {radio.hlsUrl
+                      ? (radio.nowPlaying?.title ?? '24/7 community stream')
+                      : 'Temporarily offline'}
+                    {radio.nowPlaying?.artistName
+                      ? ` · ${radio.nowPlaying.artistName}`
+                      : ''}
+                  </p>
+                </div>
               </div>
-              <p className="text-foreground-secondary text-xs">
-                {radio.hlsUrl
-                  ? (radio.nowPlaying?.title ?? '24/7 community stream')
-                  : 'Temporarily offline'}
-                {radio.nowPlaying?.artistName
-                  ? ` · ${radio.nowPlaying.artistName}`
-                  : ''}
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              size="icon-sm"
-              disabled={!radio.hlsUrl}
-              title="Play Radio"
-              aria-label="Play Radio"
-              onClick={() => {
-                void fetchRadioStation().then(({ playable }) => {
-                  if (playable) {
-                    play(playable);
-                  }
-                });
-              }}
-            >
-              <PlayIcon size={16} className="fill-current" />
-            </Button>
-            <Link to="/radio">
-              <Button size="sm" variant="secondary">
-                Open radio
-              </Button>
-            </Link>
-          </div>
-        </Box>
-      ) : null}
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  size="icon-sm"
+                  disabled={!radio.hlsUrl}
+                  title={radioIsPlaying ? 'Pause Radio' : 'Play Radio'}
+                  aria-label={radioIsPlaying ? 'Pause Radio' : 'Play Radio'}
+                  aria-pressed={radioIsPlaying}
+                  onClick={toggleRadioPlayback}
+                >
+                  {radioIsPlaying ? (
+                    <PauseIcon size={16} className="fill-current" />
+                  ) : (
+                    <PlayIcon size={16} className="fill-current" />
+                  )}
+                </Button>
+                <Link to="/radio">
+                  <Button size="sm" variant="secondary">
+                    Open radio
+                  </Button>
+                </Link>
+              </div>
+            </Box>
+          ) : null}
 
-      {onAir.length > 0 ? (
-        <SectionShell title="On air">
-          <CardGrid>
-            {onAir.map((channel) => (
-              <Card
-                key={channel.slug}
-                title={
-                  <Link
-                    to="/channel/$slug"
-                    params={{ slug: channel.slug }}
-                    className="hover:underline"
-                  >
-                    {channel.user.displayName}
-                  </Link>
-                }
-                subtitle={
-                  <span className="font-semibold">
-                    {channel.state === 'LIVE' ? 'Live now' : 'Replay'}
-                  </span>
-                }
-                src={
-                  channel.user.avatarUrl ?? placeholderArtworkUrl(channel.slug)
-                }
-                onPlay={() => void playNow(channel.slug)}
-                onClick={() => {
-                  void navigate({
-                    to: '/channel/$slug',
-                    params: { slug: channel.slug },
-                  });
-                }}
-              />
-            ))}
-          </CardGrid>
-        </SectionShell>
-      ) : null}
-
-      <SectionShell title={signedIn ? 'Discover artists' : 'Artists'}>
-        <div className="flex flex-col gap-4">
-          <Input
-            label="Search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Artist name, username, genre…"
-            className="max-w-md"
-          />
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              aria-pressed={activeOnly}
-              onClick={() => setActiveOnly((prev) => !prev)}
-              className={`inline-flex cursor-pointer items-center justify-center rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
-                activeOnly
-                  ? 'bg-foreground text-background border-foreground'
-                  : 'border-border text-foreground hover:bg-foreground/10 bg-transparent'
-              }`}
-            >
-              Active now ({items.filter(isDirectoryArtistActive).length})
-            </button>
-            {genres.length > 0 && (
-              <FilterChips
-                items={chipItems}
-                selected={genre}
-                onChange={setGenre}
-              />
-            )}
-          </div>
-
-          <p className="text-foreground-secondary text-xs">
-            Showing {filtered.length} of {items.length} artists
-          </p>
-
-          {loading ? (
-            <PageLoading label="Loading artists…" />
-          ) : filtered.length === 0 ? (
-            <PageEmpty
-              title="No artists match"
-              description={`${query ? `“${query}”` : 'Try another filter'}${genre !== 'all' ? ` in ${genre}` : ''}.`}
-            />
-          ) : (
-            <CardGrid>
-              {filtered.map((ch) => {
-                const favorited =
-                  signedIn && favoriteChannels.some((c) => c.slug === ch.slug);
-                return (
+          {onAir.length > 0 ? (
+            <SectionShell title="On air">
+              <CardGrid>
+                {onAir.map((channel) => (
                   <Card
-                    key={ch.slug}
+                    key={channel.slug}
                     title={
                       <Link
-                        to="/u/$username"
-                        params={{ username: ch.username }}
+                        to="/channel/$slug"
+                        params={{ slug: channel.slug }}
                         className="hover:underline"
                       >
-                        {ch.displayName}
+                        {channel.user.displayName}
                       </Link>
                     }
                     subtitle={
-                      <span className="font-mono">
-                        {isDirectoryArtistActive(ch) ? 'Active · ' : ''}
-                        {ch.genres.slice(0, 2).join(', ') || `@${ch.username}`}
+                      <span className="font-semibold">
+                        {channel.state === 'LIVE' ? 'Live now' : 'Replay'}
                       </span>
                     }
-                    src={ch.avatarUrl ?? placeholderArtworkUrl(ch.username)}
-                    onPlay={() => void playArtist(ch.username)}
-                    onQueue={() => void queueArtist(ch.username)}
-                    onFavorite={
-                      signedIn
-                        ? () =>
-                            toggleFavoriteChannel({
-                              slug: ch.slug,
-                              displayName: ch.displayName,
-                              avatarUrl: ch.avatarUrl,
-                            })
-                        : undefined
+                    src={
+                      channel.user.avatarUrl ??
+                      placeholderArtworkUrl(channel.slug)
                     }
-                    favorited={favorited}
+                    onPlay={() => void playNow(channel.slug)}
                     onClick={() => {
                       void navigate({
-                        to: '/u/$username',
-                        params: { username: ch.username },
+                        to: '/channel/$slug',
+                        params: { slug: channel.slug },
                       });
                     }}
                   />
-                );
-              })}
-            </CardGrid>
-          )}
-        </div>
-      </SectionShell>
+                ))}
+              </CardGrid>
+            </SectionShell>
+          ) : null}
+
+          <SectionShell title={signedIn ? 'Discover artists' : 'Artists'}>
+            <div className="flex flex-col gap-4">
+              <Input
+                label="Search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Artist name, username, genre…"
+                className="max-w-md"
+              />
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  aria-pressed={activeOnly}
+                  onClick={() => setActiveOnly((prev) => !prev)}
+                  className={`inline-flex cursor-pointer items-center justify-center rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
+                    activeOnly
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-border text-foreground hover:bg-foreground/10 bg-transparent'
+                  }`}
+                >
+                  Active now ({items.filter(isDirectoryArtistActive).length})
+                </button>
+                {genres.length > 0 && (
+                  <FilterChips
+                    items={chipItems}
+                    selected={genre}
+                    onChange={setGenre}
+                  />
+                )}
+              </div>
+
+              <p className="text-foreground-secondary text-xs">
+                Showing {filtered.length} of {items.length} artists
+              </p>
+
+              {loading ? (
+                <PageLoading label="Loading artists…" />
+              ) : filtered.length === 0 ? (
+                <PageEmpty
+                  title="No artists match"
+                  description={`${query ? `“${query}”` : 'Try another filter'}${genre !== 'all' ? ` in ${genre}` : ''}.`}
+                />
+              ) : (
+                <CardGrid>
+                  {filtered.map((ch) => {
+                    const favorited =
+                      signedIn &&
+                      favoriteChannels.some((c) => c.slug === ch.slug);
+                    return (
+                      <Card
+                        key={ch.slug}
+                        title={
+                          <Link
+                            to="/u/$username"
+                            params={{ username: ch.username }}
+                            className="hover:underline"
+                          >
+                            {ch.displayName}
+                          </Link>
+                        }
+                        subtitle={
+                          <span className="font-mono">
+                            {isDirectoryArtistActive(ch) ? 'Active · ' : ''}
+                            {ch.genres.slice(0, 2).join(', ') ||
+                              `@${ch.username}`}
+                          </span>
+                        }
+                        src={ch.avatarUrl ?? placeholderArtworkUrl(ch.username)}
+                        onPlay={() => void playArtist(ch.username)}
+                        onQueue={() => void queueArtist(ch.username)}
+                        onFavorite={
+                          signedIn
+                            ? () =>
+                                toggleFavoriteChannel({
+                                  slug: ch.slug,
+                                  displayName: ch.displayName,
+                                  avatarUrl: ch.avatarUrl,
+                                })
+                            : undefined
+                        }
+                        favorited={favorited}
+                        onClick={() => {
+                          void navigate({
+                            to: '/u/$username',
+                            params: { username: ch.username },
+                          });
+                        }}
+                      />
+                    );
+                  })}
+                </CardGrid>
+              )}
+            </div>
+          </SectionShell>
+        </>
+      ) : null}
     </PageFrame>
   );
 }

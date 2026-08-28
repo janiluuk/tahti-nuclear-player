@@ -1,5 +1,8 @@
 import {
+  ChevronDownIcon,
+  ChevronUpIcon,
   ExternalLinkIcon,
+  EyeIcon,
   PauseIcon,
   PlayIcon,
   PowerIcon,
@@ -56,6 +59,7 @@ export function AdminStreamManagerPanel({
   const [detailsStream, setDetailsStream] = useState<AdminLiveStreamRow | null>(
     null,
   );
+  const [streamsOpen, setStreamsOpen] = useState(false);
 
   const reload = useCallback(() => {
     setRefreshing(true);
@@ -110,7 +114,7 @@ export function AdminStreamManagerPanel({
     });
   };
 
-  const content = loading ? (
+  const streamList = loading ? (
     <PageLoading label="Loading streams…" />
   ) : streams.length === 0 ? (
     <p className="text-foreground-secondary py-4 text-center text-sm">
@@ -119,14 +123,28 @@ export function AdminStreamManagerPanel({
   ) : (
     <ul className="divide-border divide-y">
       {streams.map((stream) => (
-        <li key={stream.slug} className="py-3 first:pt-0 last:pb-0">
+        <li
+          key={stream.slug}
+          className="odd:bg-background-secondary/35 px-3 py-3 first:pt-0 last:pb-0 even:bg-transparent"
+        >
           {(() => {
             const stats = streamStats[stream.slug];
             return (
               <>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <div className="text-sm font-medium">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="bg-background border-border flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border text-sm font-bold">
+                    {(stream.thumbnailUrl ?? stream.avatarUrl) ? (
+                      <img
+                        src={stream.thumbnailUrl ?? stream.avatarUrl ?? ''}
+                        alt=""
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      stream.artistName.slice(0, 2).toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">
                       {stream.artistName}
                       {stream.isRotation && (
                         <span className="text-foreground-secondary font-normal">
@@ -135,12 +153,11 @@ export function AdminStreamManagerPanel({
                         </span>
                       )}
                     </div>
-                    <div className="text-foreground-secondary text-xs">
-                      /c/{stream.slug} · live{' '}
-                      {formatDuration(stream.elapsedSec)}
-                      {stream.goneLiveAt
-                        ? ` since ${new Date(stream.goneLiveAt).toLocaleTimeString()}`
-                        : ''}
+                    <div className="text-foreground-secondary truncate text-xs">
+                      /c/{stream.slug} · total duration{' '}
+                      {formatDuration(
+                        stats?.liveDurationSec ?? stream.elapsedSec,
+                      )}
                     </div>
                     {stats ? (
                       <div className="text-foreground-secondary mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
@@ -148,98 +165,94 @@ export function AdminStreamManagerPanel({
                           {stats.listeners.toLocaleString()} listeners
                         </span>
                         <span>{stats.listenerPeak.toLocaleString()} peak</span>
-                        {stats.liveDurationSec != null ? (
-                          <span>
-                            {formatDuration(stats.liveDurationSec)} tracked
-                          </span>
-                        ) : null}
                       </div>
                     ) : null}
                   </div>
-                  <div className="flex items-center gap-3">
-                    {stream.hlsUrl && (
-                      <a
-                        href={stream.hlsUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-foreground-secondary inline-flex items-center gap-1 text-xs underline-offset-2 hover:underline"
-                      >
-                        <ExternalLinkIcon size={13} aria-hidden />
-                        Listen
+                  <div className="ml-auto flex shrink-0 items-center gap-1">
+                    {stream.hlsUrl ? (
+                      <a href={stream.hlsUrl} target="_blank" rel="noreferrer">
+                        <Button
+                          size="icon-sm"
+                          variant="text"
+                          aria-label={`Listen to ${stream.artistName}`}
+                          title="Listen"
+                        >
+                          <ExternalLinkIcon size={14} aria-hidden />
+                        </Button>
                       </a>
-                    )}
+                    ) : null}
                     <Button
-                      size="sm"
+                      size="icon-sm"
                       variant="text"
+                      aria-label={`Show details for ${stream.artistName}`}
+                      title="Details"
                       onClick={() => setDetailsStream(stream)}
                     >
-                      Details
+                      <EyeIcon size={14} aria-hidden />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Restart ${stream.artistName}`}
+                      title="Restart stream"
+                      disabled={busySlug === stream.slug}
+                      onClick={() =>
+                        run(
+                          stream.slug,
+                          restartStream,
+                          `Restart audio for ${stream.slug}? The channel stays live; listeners may briefly reconnect.`,
+                        )
+                      }
+                    >
+                      <RotateCwIcon size={14} aria-hidden />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Skip ${stream.artistName}`}
+                      title="Skip current item"
+                      disabled={busySlug === stream.slug}
+                      onClick={() => run(stream.slug, skipStreamTrack)}
+                    >
+                      <SkipForwardIcon size={14} aria-hidden />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Pause ${stream.artistName}`}
+                      title="Pause stream"
+                      disabled={busySlug === stream.slug}
+                      onClick={() => run(stream.slug, pauseStream)}
+                    >
+                      <PauseIcon size={14} aria-hidden />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Resume ${stream.artistName}`}
+                      title="Resume stream"
+                      disabled={busySlug === stream.slug}
+                      onClick={() => run(stream.slug, resumeStream)}
+                    >
+                      <PlayIcon size={14} aria-hidden />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      aria-label={`Take ${stream.artistName} offline`}
+                      title="Force offline"
+                      disabled={busySlug === stream.slug}
+                      onClick={() =>
+                        run(
+                          stream.slug,
+                          forceStreamOffline,
+                          `Force ${stream.slug} offline? This ends the broadcast immediately.`,
+                        )
+                      }
+                    >
+                      <PowerIcon size={14} aria-hidden />
                     </Button>
                   </div>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    aria-label={`Restart ${stream.artistName}`}
-                    title="Restart stream"
-                    disabled={busySlug === stream.slug}
-                    onClick={() =>
-                      run(
-                        stream.slug,
-                        restartStream,
-                        `Restart audio for ${stream.slug}? The channel stays live; listeners may briefly reconnect.`,
-                      )
-                    }
-                  >
-                    <RotateCwIcon size={14} aria-hidden />
-                  </Button>
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    aria-label={`Skip ${stream.artistName}`}
-                    title="Skip current item"
-                    disabled={busySlug === stream.slug}
-                    onClick={() => run(stream.slug, skipStreamTrack)}
-                  >
-                    <SkipForwardIcon size={14} aria-hidden />
-                  </Button>
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    aria-label={`Pause ${stream.artistName}`}
-                    title="Pause stream"
-                    disabled={busySlug === stream.slug}
-                    onClick={() => run(stream.slug, pauseStream)}
-                  >
-                    <PauseIcon size={14} aria-hidden />
-                  </Button>
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    aria-label={`Resume ${stream.artistName}`}
-                    title="Resume stream"
-                    disabled={busySlug === stream.slug}
-                    onClick={() => run(stream.slug, resumeStream)}
-                  >
-                    <PlayIcon size={14} aria-hidden />
-                  </Button>
-                  <Button
-                    size="icon-sm"
-                    variant="text"
-                    aria-label={`Take ${stream.artistName} offline`}
-                    title="Force offline"
-                    disabled={busySlug === stream.slug}
-                    onClick={() =>
-                      run(
-                        stream.slug,
-                        forceStreamOffline,
-                        `Force ${stream.slug} offline? This ends the broadcast immediately.`,
-                      )
-                    }
-                  >
-                    <PowerIcon size={14} aria-hidden />
-                  </Button>
                 </div>
               </>
             );
@@ -256,21 +269,40 @@ export function AdminStreamManagerPanel({
           title={`Live streams (${streams.length})`}
           description="Monitor active channels and control their live audio."
           action={
-            <Button
-              type="button"
-              size="icon-sm"
-              variant="text"
-              aria-label="Refresh live streams"
-              title="Refresh live streams"
-              disabled={refreshing}
-              onClick={reload}
-            >
-              <RefreshCw
-                size={16}
-                aria-hidden
-                className={refreshing ? 'animate-spin' : ''}
-              />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="text"
+                aria-label={
+                  streamsOpen ? 'Collapse live streams' : 'Expand live streams'
+                }
+                aria-expanded={streamsOpen}
+                title={streamsOpen ? 'Collapse streams' : 'Expand streams'}
+                onClick={() => setStreamsOpen((open) => !open)}
+              >
+                {streamsOpen ? (
+                  <ChevronUpIcon size={16} aria-hidden />
+                ) : (
+                  <ChevronDownIcon size={16} aria-hidden />
+                )}
+              </Button>
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="text"
+                aria-label="Refresh live streams"
+                title="Refresh live streams"
+                disabled={refreshing}
+                onClick={reload}
+              >
+                <RefreshCw
+                  size={16}
+                  aria-hidden
+                  className={refreshing ? 'animate-spin' : ''}
+                />
+              </Button>
+            </div>
           }
         >
           {message && (
@@ -278,7 +310,14 @@ export function AdminStreamManagerPanel({
               {message}
             </p>
           )}
-          {content}
+          {streamsOpen ? (
+            streamList
+          ) : (
+            <p className="text-foreground-secondary text-sm">
+              Stream list collapsed. Expand to inspect and control active
+              streams.
+            </p>
+          )}
         </StudioPanel>
       ) : (
         <>
@@ -287,7 +326,14 @@ export function AdminStreamManagerPanel({
               {message}
             </p>
           )}
-          {content}
+          {streamsOpen ? (
+            streamList
+          ) : (
+            <p className="text-foreground-secondary text-sm">
+              Stream list collapsed. Expand to inspect and control active
+              streams.
+            </p>
+          )}
         </>
       )}
       <Dialog.Root
