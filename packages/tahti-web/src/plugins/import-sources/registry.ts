@@ -4,7 +4,12 @@ import {
   SOURCE_DEFS,
   type IntegrationId,
 } from '../../api/sources';
-import type { ImportSourcePlugin } from './types';
+import type {
+  ImportSourcePlugin,
+  OAuthSourceAdapter,
+  SearchSourceAdapter,
+  ToolSourceAdapter,
+} from './types';
 
 export const importSourcePlugins: ImportSourcePlugin[] = SOURCE_DEFS.map(
   (def) => ({
@@ -12,6 +17,20 @@ export const importSourcePlugins: ImportSourcePlugin[] = SOURCE_DEFS.map(
     oauthUrl: def.oauthStartPath ? oauthStartUrl(def.oauthStartPath) : null,
     checkStatus: () => fetchConnectionStatus(def.id),
   }),
+);
+
+export const oauthSourceAdapters = importSourcePlugins.filter(
+  (plugin): plugin is OAuthSourceAdapter =>
+    plugin.kind === 'oauth' && plugin.oauthUrl !== null,
+);
+
+export const searchSourceAdapters = importSourcePlugins.filter(
+  (plugin): plugin is SearchSourceAdapter => plugin.kind === 'search',
+);
+
+export const toolSourceAdapters = importSourcePlugins.filter(
+  (plugin): plugin is ToolSourceAdapter =>
+    plugin.kind === 'tool' || plugin.kind === 'upload',
 );
 
 export function importSourcePlugin(

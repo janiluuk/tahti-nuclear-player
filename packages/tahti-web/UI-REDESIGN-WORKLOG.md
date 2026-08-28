@@ -1,5 +1,9 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-28 — Source adapter contract slices
+
+**Batch 1:** Split source integrations into typed OAuth, search, and tool/upload adapter groups. The registry now exposes those groups and tests enforce that every source belongs to exactly one group while retaining its capability metadata.
+
 ## 2026-08-28 — 3×3 source and Storybook compliance slices
 
 **Batch 1:** Added typed source capabilities for connection, search, import, and playback; converted the import-source plugin contract to a structural type; and added registry coverage requiring every provider to declare all capabilities.

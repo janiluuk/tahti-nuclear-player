@@ -19,3 +19,20 @@ export type ImportSourcePlugin = SourceDef & {
   /** Live connection/configuration state for this source. */
   checkStatus(): Promise<{ data: ConnectionStatus; meta: FetchMeta }>;
 };
+
+export type SourceAdapterBase = ImportSourcePlugin & {
+  kind: SourceDef['kind'];
+};
+
+export type OAuthSourceAdapter = SourceAdapterBase & {
+  kind: 'oauth';
+  oauthUrl: string;
+};
+
+export type SearchSourceAdapter = SourceAdapterBase & {
+  kind: 'search';
+};
+
+export type ToolSourceAdapter = SourceAdapterBase & {
+  kind: 'tool' | 'upload';
+};

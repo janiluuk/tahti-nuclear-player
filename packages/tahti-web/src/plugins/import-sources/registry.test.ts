@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { importSourcePlugin, importSourcePlugins } from './registry';
+import {
+  importSourcePlugin,
+  importSourcePlugins,
+  oauthSourceAdapters,
+  searchSourceAdapters,
+  toolSourceAdapters,
+} from './registry';
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -44,6 +50,19 @@ describe('importSourcePlugins', () => {
   it('importSourcePlugin looks up a source by id', () => {
     expect(importSourcePlugin('soundcloud')?.name).toBe('SoundCloud');
     expect(importSourcePlugin('bogus-id' as never)).toBeUndefined();
+  });
+
+  it('partitions every source into exactly one runtime adapter group', () => {
+    const groupedIds = [
+      ...oauthSourceAdapters,
+      ...searchSourceAdapters,
+      ...toolSourceAdapters,
+    ].map((plugin) => plugin.id);
+
+    expect(new Set(groupedIds).size).toBe(importSourcePlugins.length);
+    expect(groupedIds).toEqual(
+      expect.arrayContaining(importSourcePlugins.map((plugin) => plugin.id)),
+    );
   });
 
   it('checkStatus() delegates to this source’s own connection-status endpoint', async () => {

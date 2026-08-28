@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-28T00:00",
+    "description": "Source integrations now expose typed OAuth, search, and tool adapter groups with registry coverage for complete provider routing.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Integrations", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-28T00:00",
     "description": "Added explicit source capabilities for connect, search, import, and playback, plus stable Studio/Admin Storybook navigation states and Nuclear-styled source forms.",
     "type": "improvement",
     "contributors": ["jani"],
