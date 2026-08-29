@@ -332,45 +332,37 @@ export function StudioHomeView() {
                 ? `${timeOfDayGreeting(new Date().getHours())}, ${user.displayName || user.username}`
                 : 'Studio'
             }
-            subtitle={user ? 'Studio' : undefined}
+            action={
+              user ? (
+                <div
+                  aria-label="Account status"
+                  className="flex flex-wrap items-center justify-end gap-2"
+                >
+                  <Badge variant="pill" color="purple">
+                    {accountRoleLabel(getAccountRole(user))}
+                  </Badge>
+                  <Badge
+                    variant="pill"
+                    color={user.isMember ? 'green' : 'secondary'}
+                  >
+                    {user.isMember ? 'Member' : 'Community account'}
+                  </Badge>
+                </div>
+              ) : undefined
+            }
           />
-          <div>
-            {user ? (
-              <div
-                aria-label="Account status"
-                className="flex flex-wrap items-center gap-2"
+          {!channel ? (
+            <p className="text-foreground-secondary text-sm">
+              <button
+                type="button"
+                onClick={openChannelSetup}
+                className="text-foreground underline-offset-2 hover:underline"
               >
-                <Badge variant="pill" color="purple">
-                  {accountRoleLabel(getAccountRole(user))}
-                </Badge>
-                <Badge
-                  variant="pill"
-                  color={user.isMember ? 'green' : 'secondary'}
-                >
-                  {user.isMember ? 'Member' : 'Community account'}
-                </Badge>
-              </div>
-            ) : null}
-            {channel ? (
-              <p className="text-foreground-secondary mt-1 text-sm">
-                <span className="text-foreground font-medium">
-                  {user.displayName || channel.slug}
-                </span>
-                <span className="opacity-60"> /{channel.slug}</span>
-              </p>
-            ) : (
-              <p className="text-foreground-secondary mt-1 text-sm">
-                <button
-                  type="button"
-                  onClick={openChannelSetup}
-                  className="text-foreground underline-offset-2 hover:underline"
-                >
-                  Create your channel
-                </button>{' '}
-                to unlock Music and Go Live.
-              </p>
-            )}
-          </div>
+                Create your channel
+              </button>{' '}
+              to unlock Music and Go Live.
+            </p>
+          ) : null}
         </div>
 
         {!channel ? null : (

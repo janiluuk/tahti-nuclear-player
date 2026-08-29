@@ -1,5 +1,9 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-29 — Channel page in-page tabs
+
+**Completed:** Removed the Channel and 24/7 radio tabs from `/studio/channel`. Channel design is the page itself; Radio remains a Manage sidebar destination.
+
 ## 2026-08-29 — Perform Info tab and show visibility
 
 **Completed:** Moved the broadcast Info form out of Go Live into a Perform submenu tab (`/studio/info`). Go Live now opens on the live panel. Show visibility sits on the Info form instead of under More options, and the Go Live live-audience block was removed.

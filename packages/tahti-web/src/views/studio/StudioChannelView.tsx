@@ -1,5 +1,4 @@
 import { useSearch } from '@tanstack/react-router';
-import { ImageIcon, RadioIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
@@ -138,37 +137,6 @@ export function StudioChannelView() {
               : 'Design your channel, background media, visualizer, and header.'
           }
         />
-        {tab !== 'radio' && (
-          <nav
-            className="flex flex-wrap gap-2"
-            role="tablist"
-            aria-label="Channel sections"
-          >
-            {(
-              [
-                { id: 'design' as const, label: 'Channel', icon: ImageIcon },
-                { id: 'radio' as const, label: '24/7 radio', icon: RadioIcon },
-              ] as const
-            ).map((t) => (
-              <Button
-                key={t.id}
-                type="button"
-                variant="text"
-                role="tab"
-                aria-selected={tab === t.id}
-                onClick={() => setTab(t.id)}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-                  tab === t.id
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'border-border text-foreground-secondary hover:text-foreground border'
-                }`}
-              >
-                <t.icon size={14} aria-hidden />
-                {t.label}
-              </Button>
-            ))}
-          </nav>
-        )}
 
         {tab === 'setup' && !channel && (
           <StudioPanel title="Channel setup">
