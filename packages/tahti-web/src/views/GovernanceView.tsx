@@ -34,6 +34,7 @@ function stateBadge(state: string): {
 
 export function GovernanceView() {
   const user = useAuthStore((s) => s.user);
+  const closeSettings = useSettingsModalStore((s) => s.close);
   const [motions, setMotions] = useState<GovernanceMotion[]>([]);
   const [requests, setRequests] = useState<FeatureRequest[]>([]);
   const [forbidden, setForbidden] = useState(false);
@@ -88,6 +89,7 @@ export function GovernanceView() {
         meta={
           <Link
             to="/governance/feature-requests"
+            onClick={closeSettings}
             className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
           >
             Feature requests →
@@ -166,6 +168,7 @@ export function GovernanceView() {
             </p>
             <Link
               to="/governance"
+              onClick={closeSettings}
               className="text-foreground-secondary mt-3 text-xs hover:underline"
             >
               View all motions →
@@ -202,6 +205,7 @@ export function GovernanceView() {
             )}
             <Link
               to="/governance/feature-requests"
+              onClick={closeSettings}
               className="text-foreground-secondary mt-3 text-xs hover:underline"
             >
               View all topics →

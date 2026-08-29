@@ -800,11 +800,41 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                   </p>
                 ) : (
                   <>
-                    <p className="text-foreground-secondary text-xs">
-                      Play/Queue below use placeholder demo audio, not this
-                      track&apos;s real audio — use Import to bring the actual
-                      file into your archive.
-                    </p>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-foreground-secondary text-xs">
+                        Import tracks into your archive to make them available
+                        in Studio and on your channel.
+                      </p>
+                      <Button
+                        size="sm"
+                        disabled={busy}
+                        onClick={() => {
+                          setBusy(true);
+                          void importSoundcloudTracks(
+                            scTracks.map((track) => ({
+                              trackId: track.id,
+                              title: track.title,
+                            })),
+                          ).then((r) => {
+                            setBusy(false);
+                            setNote(
+                              r.ok
+                                ? `Queued all ${r.count} SoundCloud tracks. Check Studio → Music.`
+                                : r.error,
+                            );
+                          });
+                        }}
+                      >
+                        <DownloadIcon
+                          size={16}
+                          aria-hidden
+                          className="mr-1.5"
+                        />
+                        {busy
+                          ? 'Importing…'
+                          : `Import all (${scTracks.length})`}
+                      </Button>
+                    </div>
                     <ul className="flex flex-col gap-2">
                       {scTracks.map((t) => (
                         <li

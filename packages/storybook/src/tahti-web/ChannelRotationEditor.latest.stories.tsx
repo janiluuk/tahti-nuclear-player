@@ -30,7 +30,7 @@ const meta: Meta<typeof ChannelRotationEditor> = {
     docs: {
       description: {
         component:
-          'Five-item rotation editor with reordering and library groups. Lives on Studio → Manage → Radio and channel radio management.',
+          'Artist 24/7 rotation editor with reordering and library groups. Lives on Studio → Manage → Radio and channel radio management.',
       },
     },
   },

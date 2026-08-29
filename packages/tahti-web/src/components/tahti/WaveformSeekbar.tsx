@@ -58,6 +58,8 @@ export function WaveformSeekbar({
   peaks,
   bars = BAR_COUNT,
   onSeek,
+  playedColor,
+  unplayedColor,
   className,
 }: {
   trackId: string;
@@ -68,6 +70,8 @@ export function WaveformSeekbar({
   peaks?: number[] | null;
   bars?: number;
   onSeek?: (fraction: number) => void;
+  playedColor?: string;
+  unplayedColor?: string;
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -110,9 +114,20 @@ export function WaveformSeekbar({
           key={i}
           className={cn(
             'flex-1 origin-bottom rounded-full transition-colors',
-            i < filledCount ? 'bg-primary' : 'bg-foreground-secondary/25',
+            i < filledCount
+              ? !playedColor && 'bg-primary'
+              : !unplayedColor && 'bg-foreground-secondary/25',
           )}
-          style={{ height: `${h}%` }}
+          style={{
+            height: `${h}%`,
+            ...(i < filledCount
+              ? playedColor
+                ? { backgroundColor: playedColor }
+                : {}
+              : unplayedColor
+                ? { backgroundColor: unplayedColor }
+                : {}),
+          }}
         />
       ))}
     </div>

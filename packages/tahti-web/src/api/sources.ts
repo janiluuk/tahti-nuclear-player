@@ -9,6 +9,7 @@ import type { TahtiPlayable } from './types';
 
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
 const HEARTHIS_IMPORT_BATCH_SIZE = 5;
+const SOUNDCLOUD_IMPORT_BATCH_SIZE = 20;
 
 const OAUTH_IDS = new Set<MockOauthId>([
   'bandcamp',
@@ -383,11 +384,20 @@ export async function importSoundcloudTracks(
     return { ok: true, count: tracks.length };
   }
   try {
-    await requestJson('/api/me/soundcloud/import', {
-      method: 'POST',
-      body: JSON.stringify({ tracks }),
-    });
-    return { ok: true, count: tracks.length };
+    let importedCount = 0;
+    for (
+      let start = 0;
+      start < tracks.length;
+      start += SOUNDCLOUD_IMPORT_BATCH_SIZE
+    ) {
+      const batch = tracks.slice(start, start + SOUNDCLOUD_IMPORT_BATCH_SIZE);
+      await requestJson('/api/me/soundcloud/import', {
+        method: 'POST',
+        body: JSON.stringify({ tracks: batch }),
+      });
+      importedCount += batch.length;
+    }
+    return { ok: true, count: importedCount };
   } catch (err) {
     return {
       ok: false,

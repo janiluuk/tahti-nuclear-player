@@ -1297,26 +1297,6 @@ function ChannelPanel() {
                   }}
                 />
               </label>
-              <SettingsToggle
-                label="Show favourites"
-                description="Your favourited tracks and channels are visible on your public profile."
-                value={discovery.showFavorites}
-                onChange={(v) => {
-                  const next = { ...discovery, showFavorites: v };
-                  setDiscovery(next);
-                  void patchDiscoveryPrefs({ showFavorites: v });
-                }}
-              />
-              <SettingsToggle
-                label="Announce releases"
-                description="Followers get a notification (and optional email) when you publish a release."
-                value={discovery.announceReleases}
-                onChange={(v) => {
-                  const next = { ...discovery, announceReleases: v };
-                  setDiscovery(next);
-                  void patchDiscoveryPrefs({ announceReleases: v });
-                }}
-              />
               {channelProfile && (
                 <SettingsToggle
                   label="Enable live chat on my channel"
@@ -1649,6 +1629,34 @@ export function BroadcastPanel({
             Mirror shows to Twitch, YouTube, etc. Paste each platform’s stream
             key.
           </SettingsHint>
+          <MulticastDestinationForm
+            provider={newProvider}
+            label={newLabel}
+            streamKey={newKey}
+            rtmpUrl={newRtmpUrl}
+            onProviderChange={setNewProvider}
+            onLabelChange={setNewLabel}
+            onStreamKeyChange={setNewKey}
+            onRtmpUrlChange={setNewRtmpUrl}
+            onSubmit={() => {
+              void createRtmpTarget({
+                provider: newProvider,
+                streamKey: newKey.trim(),
+                label: newLabel.trim() || undefined,
+                rtmpUrl: newRtmpUrl.trim() || undefined,
+              }).then((r) => {
+                if (!r.ok) {
+                  setMsg(r.error);
+                } else {
+                  setNewKey('');
+                  setNewLabel('');
+                  setNewRtmpUrl('');
+                  reloadTargets();
+                }
+              });
+            }}
+          />
+          {msg && <SettingsHint>{msg}</SettingsHint>}
           <div className="flex flex-col gap-3">
             {multicastProviders.map((provider) => {
               const destination = targets.find(
@@ -1705,34 +1713,6 @@ export function BroadcastPanel({
               );
             })}
           </div>
-          <MulticastDestinationForm
-            provider={newProvider}
-            label={newLabel}
-            streamKey={newKey}
-            rtmpUrl={newRtmpUrl}
-            onProviderChange={setNewProvider}
-            onLabelChange={setNewLabel}
-            onStreamKeyChange={setNewKey}
-            onRtmpUrlChange={setNewRtmpUrl}
-            onSubmit={() => {
-              void createRtmpTarget({
-                provider: newProvider,
-                streamKey: newKey.trim(),
-                label: newLabel.trim() || undefined,
-                rtmpUrl: newRtmpUrl.trim() || undefined,
-              }).then((r) => {
-                if (!r.ok) {
-                  setMsg(r.error);
-                } else {
-                  setNewKey('');
-                  setNewLabel('');
-                  setNewRtmpUrl('');
-                  reloadTargets();
-                }
-              });
-            }}
-          />
-          {msg && <SettingsHint>{msg}</SettingsHint>}
         </div>
       ),
     },
@@ -2035,10 +2015,17 @@ function NotificationsPanel() {
 
 function NotificationsVisibilityPanel() {
   const [profile, setProfile] = useState<ProfileFields | null>(null);
+  const [discovery, setDiscovery] = useState<DiscoveryPrefs | null>(null);
   const [savingKey, setSavingKey] = useState<keyof ProfileFields | null>(null);
+  const [savingDiscovery, setSavingDiscovery] = useState(false);
 
   useEffect(() => {
-    void fetchMeProfile().then((result) => setProfile(result.data));
+    void Promise.all([fetchMeProfile(), fetchDiscoveryPrefs()]).then(
+      ([profileResult, discoveryResult]) => {
+        setProfile(profileResult.data);
+        setDiscovery(discoveryResult.data);
+      },
+    );
   }, []);
 
   const updateVisibility = (
@@ -2091,6 +2078,27 @@ function NotificationsVisibilityPanel() {
     });
   };
 
+  const updateDiscovery = (
+    key: keyof Pick<DiscoveryPrefs, 'showFavorites' | 'announceReleases'>,
+    value: boolean,
+  ) => {
+    if (!discovery) {
+      return;
+    }
+    setDiscovery({ ...discovery, [key]: value });
+    setSavingDiscovery(true);
+    void patchDiscoveryPrefs({ [key]: value }).then((result) => {
+      setSavingDiscovery(false);
+      if (!result.ok) {
+        setDiscovery(discovery);
+        toast.error(result.error);
+        return;
+      }
+      setDiscovery(result.data);
+      toast.success('Notification setting saved.');
+    });
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -2101,7 +2109,7 @@ function NotificationsVisibilityPanel() {
           Choose what appears publicly on your profile and channel.
         </p>
       </div>
-      {!profile ? (
+      {!profile || !discovery ? (
         <SettingsHint>Loading…</SettingsHint>
       ) : (
         <div className="flex flex-col gap-5">
@@ -2130,6 +2138,12 @@ function NotificationsVisibilityPanel() {
             value={profile.socialLinks?.showConnections !== 'false'}
             onChange={updateConnectionsVisibility}
           />
+          <SettingsToggle
+            label="Show favourites"
+            description="Your favourited tracks and channels are visible on your public profile."
+            value={discovery.showFavorites}
+            onChange={(value) => updateDiscovery('showFavorites', value)}
+          />
         </div>
       )}
       <div className="border-border border-t pt-5">
@@ -2140,8 +2154,16 @@ function NotificationsVisibilityPanel() {
           Choose which activity reaches you by email or in the app.
         </p>
         <NotificationsPanel />
+        {discovery ? (
+          <SettingsToggle
+            label="Announce releases"
+            description="Followers get a notification (and optional email) when you publish a release."
+            value={discovery.announceReleases}
+            onChange={(value) => updateDiscovery('announceReleases', value)}
+          />
+        ) : null}
       </div>
-      {savingKey ? (
+      {savingKey || savingDiscovery ? (
         <p className="text-foreground-secondary text-xs" role="status">
           Saving visibility…
         </p>

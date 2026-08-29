@@ -88,7 +88,7 @@ export const PluginStoreItem: FC<PluginStoreItemProps> = ({
 
       <div className="shrink-0">
         {isInstalling ? (
-          <Button disabled className="w-28">
+          <Button disabled className="w-28 disabled:opacity-100">
             <Loader size="sm" />
             <span className="ml-2">{installing}</span>
           </Button>

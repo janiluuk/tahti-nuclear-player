@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { importHearthisTracks, type HearthisTrack } from './sources';
+import {
+  importHearthisTracks,
+  importSoundcloudTracks,
+  type HearthisTrack,
+} from './sources';
 
 const track: HearthisTrack = {
   id: 'hearthis-track',
@@ -52,5 +56,36 @@ describe('importHearthisTracks', () => {
         method: 'POST',
       }),
     );
+  });
+});
+
+describe('importSoundcloudTracks', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('batches catalogs to stay within the API request limit', async () => {
+    const fetchMock = vi.fn().mockImplementation(
+      () =>
+        new Response(JSON.stringify({ imports: [] }), {
+          status: 202,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const tracks = Array.from({ length: 21 }, (_, index) => ({
+      trackId: `soundcloud-${index}`,
+      title: `Track ${index}`,
+    }));
+
+    const result = await importSoundcloudTracks(tracks);
+
+    expect(result).toEqual({ ok: true, count: 21 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetchMock.mock.calls[0]![1].body).tracks).toHaveLength(
+      20,
+    );
+    expect(JSON.parse(fetchMock.mock.calls[1]![1].body).tracks).toHaveLength(1);
   });
 });

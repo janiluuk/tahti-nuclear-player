@@ -55,7 +55,7 @@ export function ChannelLayersMenu({
   });
 
   return (
-    <aside className="border-border bg-background flex h-full min-h-0 w-full flex-col border-l sm:w-72">
+    <aside className="border-border bg-background flex h-full min-h-0 w-full flex-col border-l sm:w-72 lg:sticky lg:top-4 lg:h-[calc(100vh-7rem)] lg:self-start">
       <div className="border-border flex gap-1 border-b p-2">
         {(
           [

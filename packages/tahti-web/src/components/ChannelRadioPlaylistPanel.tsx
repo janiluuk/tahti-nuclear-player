@@ -23,7 +23,6 @@ import {
 import {
   applyPlaylistToProgramme,
   fetchProgramme,
-  MAX_RADIO_PLAYLIST_ITEMS,
   patchProgramme,
   type ProgrammeItem,
   type ProgrammeView,
@@ -210,9 +209,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
       return;
     }
     applyProgramme(result.data);
-    toast.success(
-      `Using “${data.name}” with ${Math.min(archiveItemIds.length, MAX_RADIO_PLAYLIST_ITEMS)} tracks.`,
-    );
+    toast.success(`Using “${data.name}” with ${archiveItemIds.length} tracks.`);
   };
 
   const saveRotation = async (
@@ -220,12 +217,6 @@ export const ChannelRadioPlaylistPanel: FC = () => {
     nextMode: 'shuffle' | 'ordered' = fallbackMode,
   ) => {
     if (!programme) {
-      return;
-    }
-    if (nextRotation.length > MAX_RADIO_PLAYLIST_ITEMS) {
-      toast.error(
-        `Your channel rotation is full. It can contain up to ${MAX_RADIO_PLAYLIST_ITEMS} tracks.`,
-      );
       return;
     }
     setBusy(true);
@@ -299,13 +290,13 @@ export const ChannelRadioPlaylistPanel: FC = () => {
     );
     const next =
       mode === 'overwrite'
-        ? uniqueItems.slice(0, MAX_RADIO_PLAYLIST_ITEMS)
+        ? uniqueItems
         : [
             ...rotation,
             ...uniqueItems.filter(
               (item) => !rotation.some((active) => active.id === item.id),
             ),
-          ].slice(0, MAX_RADIO_PLAYLIST_ITEMS);
+          ];
     setPendingAdd(null);
     await saveRotation(next);
   };
@@ -492,7 +483,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
               <span>
                 Auto-add uploads
                 <span className="text-foreground-secondary block text-xs">
-                  Until the {MAX_RADIO_PLAYLIST_ITEMS}-track limit
+                  Add new ready uploads to the rotation automatically
                 </span>
               </span>
               <Toggle
@@ -560,10 +551,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
             : ''}
         </Dialog.Description>
         <div className="border-border bg-background-secondary/40 rounded-lg border p-3 text-sm">
-          <p>
-            Append keeps the current rotation and adds new tracks until the{' '}
-            {MAX_RADIO_PLAYLIST_ITEMS}-track limit.
-          </p>
+          <p>Append keeps the current rotation and adds the selected tracks.</p>
           <p className="mt-2">
             Overwrite replaces the active rotation with this selection.
           </p>

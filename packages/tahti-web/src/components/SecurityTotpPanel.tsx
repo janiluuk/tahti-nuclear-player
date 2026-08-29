@@ -5,6 +5,7 @@ import {
   ShieldOffIcon,
   XIcon,
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input, SectionShell } from '@nuclearplayer/ui';
@@ -106,8 +107,20 @@ export function SecurityTotpPanel() {
         {setup && (
           <div className="flex flex-col gap-3">
             <p className="text-foreground-secondary text-xs">
-              Add this secret in your authenticator app, then enter a 6-digit
-              code.
+              Scan this QR code with your authenticator app, then enter the
+              6-digit code it generates.
+            </p>
+            <div className="flex w-fit rounded-lg bg-white p-3">
+              <QRCodeSVG
+                value={setup.otpauthUri}
+                size={192}
+                level="M"
+                includeMargin
+                aria-label="Authenticator setup QR code"
+              />
+            </div>
+            <p className="text-foreground-secondary text-xs">
+              If you cannot scan it, enter this setup key manually:
             </p>
             <code className="border-border bg-background rounded border px-2 py-1 text-xs break-all">
               {formatSecret(setup.secret)}

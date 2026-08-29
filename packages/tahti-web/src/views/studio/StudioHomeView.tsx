@@ -18,6 +18,10 @@ import { useEffect, useState, type FC, type ReactNode } from 'react';
 
 import { Badge, Button, CardGrid } from '@nuclearplayer/ui';
 
+import {
+  fetchRecentBroadcasts,
+  type RecentBroadcast,
+} from '../../api/broadcast';
 import { fetchFeatureRequests, fetchGovernanceMotions } from '../../api/client';
 import { fetchShowSchedule, type ScheduledShow } from '../../api/shows';
 import {
@@ -38,24 +42,78 @@ import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
 
 type Counts = { archive: number; collections: number; releases: number };
 
+function formatBroadcastDate(iso: string): string {
+  return new Date(iso).toLocaleString([], {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function formatBroadcastDuration(seconds: number | undefined): string {
+  if (!seconds) {
+    return '';
+  }
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+}
+
+function RecentBroadcastRow({ broadcast }: { broadcast: RecentBroadcast }) {
+  const title =
+    broadcast.title ||
+    broadcast.archiveItemTitle ||
+    `Broadcast ${formatBroadcastDate(broadcast.startedAt)}`;
+  const published = broadcast.archiveItemStatus === 'READY';
+
+  return (
+    <li className="border-border flex flex-wrap items-center gap-3 border-b px-4 py-3 last:border-b-0">
+      <span className="bg-accent-red/15 text-accent-red flex size-9 shrink-0 items-center justify-center rounded-lg text-sm">
+        ●
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-bold">{title}</p>
+        <p className="text-foreground-secondary truncate text-xs">
+          {formatBroadcastDate(broadcast.startedAt)}
+          {broadcast.durationSec
+            ? ` · ${formatBroadcastDuration(broadcast.durationSec)}`
+            : ''}
+          {broadcast.source
+            ? ` · ${broadcast.source.toLowerCase().replace('_', ' ')}`
+            : ''}
+        </p>
+      </div>
+      <span
+        className={`text-xs font-medium ${
+          published ? 'text-accent-green' : 'text-foreground-secondary'
+        }`}
+      >
+        {published ? 'Published' : 'Recorded'}
+      </span>
+      <Link
+        to={
+          broadcast.archiveItemId ? '/studio/archive/$id' : '/studio/recordings'
+        }
+        params={
+          broadcast.archiveItemId ? { id: broadcast.archiveItemId } : undefined
+        }
+      >
+        <Button size="sm" variant="secondary">
+          {broadcast.archiveItemId ? 'Open' : 'Publish'}
+        </Button>
+      </Link>
+    </li>
+  );
+}
+
 const EMPTY_STATS: StatsSummary = {
   playsToday: 0,
   playsTotal: 0,
   downloadsToday: 0,
   downloadsTotal: 0,
   followerCount: 0,
-};
-
-const channelStatusColor = (
-  state: string | undefined,
-): 'green' | 'cyan' | 'secondary' => {
-  if (state === 'LIVE') {
-    return 'green';
-  }
-  if (state === 'PREVIEW') {
-    return 'cyan';
-  }
-  return 'secondary';
 };
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
@@ -185,6 +243,9 @@ export function StudioHomeView() {
   });
   const [stats, setStats] = useState<StatsSummary>(EMPTY_STATS);
   const [upcomingShows, setUpcomingShows] = useState<ScheduledShow[]>([]);
+  const [recentBroadcasts, setRecentBroadcasts] = useState<RecentBroadcast[]>(
+    [],
+  );
   const [governanceMotions, setGovernanceMotions] = useState<
     GovernanceMotion[]
   >([]);
@@ -202,23 +263,27 @@ export function StudioHomeView() {
       fetchStudioReleases(),
       fetchStatsSummary(),
       fetchShowSchedule(),
-    ]).then(([archive, collections, releases, summary, showSchedule]) => {
-      setCounts({
-        archive: archive.data.length,
-        collections: collections.data.length,
-        releases: releases.data.releases.length,
-      });
-      setStats(summary.data);
-      setUpcomingShows(
-        showSchedule.data.scheduledShows
-          .filter((show) => new Date(show.startAt).getTime() > Date.now())
-          .sort(
-            (left, right) =>
-              new Date(left.startAt).getTime() -
-              new Date(right.startAt).getTime(),
-          ),
-      );
-    });
+      fetchRecentBroadcasts(5),
+    ]).then(
+      ([archive, collections, releases, summary, showSchedule, broadcasts]) => {
+        setCounts({
+          archive: archive.data.length,
+          collections: collections.data.length,
+          releases: releases.data.releases.length,
+        });
+        setStats(summary.data);
+        setUpcomingShows(
+          showSchedule.data.scheduledShows
+            .filter((show) => new Date(show.startAt).getTime() > Date.now())
+            .sort(
+              (left, right) =>
+                new Date(left.startAt).getTime() -
+                new Date(right.startAt).getTime(),
+            ),
+        );
+        setRecentBroadcasts(broadcasts.data);
+      },
+    );
     void Promise.all([fetchGovernanceMotions(), fetchFeatureRequests()]).then(
       ([motionsResult, requestsResult]) => {
         setGovernanceMotions(motionsResult.data);
@@ -260,15 +325,6 @@ export function StudioHomeView() {
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-8">
         <StudioNav current="/studio" />
 
-        <div className="flex justify-end">
-          <Link
-            to="/help"
-            className="text-foreground-secondary hover:text-foreground text-xs underline-offset-2 hover:underline"
-          >
-            Help center →
-          </Link>
-        </div>
-
         <div className="flex flex-col gap-4">
           <StudioPageHeader
             title={
@@ -293,14 +349,6 @@ export function StudioHomeView() {
                 >
                   {user.isMember ? 'Member' : 'Community account'}
                 </Badge>
-                <Badge
-                  variant="pill"
-                  color={channelStatusColor(channel?.state)}
-                >
-                  {channel
-                    ? `Channel ${channel.state.toLowerCase()}`
-                    : 'No channel'}
-                </Badge>
               </div>
             ) : null}
             {channel ? (
@@ -309,9 +357,6 @@ export function StudioHomeView() {
                   {user.displayName || channel.slug}
                 </span>
                 <span className="opacity-60"> /{channel.slug}</span>
-                <span className="ml-2 text-xs tracking-wide uppercase opacity-70">
-                  {channel.state}
-                </span>
               </p>
             ) : (
               <p className="text-foreground-secondary mt-1 text-sm">
@@ -377,6 +422,37 @@ export function StudioHomeView() {
                   color="var(--accent-blue)"
                 />
               </div>
+            </Group>
+            <Group title="Recent broadcasts">
+              {recentBroadcasts.length === 0 ? (
+                <div className="border-border rounded-xl border px-4 py-4">
+                  <p className="text-foreground-secondary text-sm">
+                    No broadcasts yet.
+                  </p>
+                  <p className="text-foreground-secondary mt-1 text-xs">
+                    Completed recordings will appear here.
+                  </p>
+                </div>
+              ) : (
+                <div className="border-border overflow-hidden rounded-xl border">
+                  <ul>
+                    {recentBroadcasts.slice(0, 3).map((broadcast) => (
+                      <RecentBroadcastRow
+                        key={broadcast.id}
+                        broadcast={broadcast}
+                      />
+                    ))}
+                  </ul>
+                  <div className="border-border border-t px-4 py-3">
+                    <Link
+                      to="/studio/recordings"
+                      className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+                    >
+                      View all recordings →
+                    </Link>
+                  </div>
+                </div>
+              )}
             </Group>
             {upcomingShows.length > 0 ? (
               <Group title="Upcoming shows">

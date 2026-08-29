@@ -32,6 +32,7 @@ const STATUS_BADGE: Record<
 
 export function FeatureRequestsView() {
   const user = useAuthStore((s) => s.user);
+  const closeSettings = useSettingsModalStore((s) => s.close);
   const [requests, setRequests] = useState<FeatureRequest[]>([]);
   const [forbidden, setForbidden] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -82,6 +83,7 @@ export function FeatureRequestsView() {
         back={
           <Link
             to="/governance"
+            onClick={closeSettings}
             className="text-foreground-secondary text-xs hover:underline"
           >
             ← Governance

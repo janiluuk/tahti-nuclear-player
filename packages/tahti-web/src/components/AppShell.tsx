@@ -2,6 +2,7 @@ import { useNavigate, useRouterState } from '@tanstack/react-router';
 import {
   CompassIcon,
   GaugeIcon,
+  HelpCircleIcon,
   LayoutDashboardIcon,
   MapIcon,
   RadioIcon,
@@ -311,7 +312,7 @@ export function AppShell() {
       <AudioEngine />
 
       {isMobile ? (
-        <div className="bg-background-secondary relative flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="tahti-ambient-surface bg-background-secondary relative flex min-h-0 flex-1 flex-col overflow-hidden">
           <div
             className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
           >
@@ -328,7 +329,10 @@ export function AppShell() {
         </div>
       ) : isArtistPage ? (
         <div
-          className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
+          className={cn(
+            'tahti-ambient-surface min-h-0 flex-1 overflow-auto',
+            MAIN_CONTENT_PADDING,
+          )}
         >
           <RouteContent>
             <RouteTransition
@@ -338,7 +342,7 @@ export function AppShell() {
           </RouteContent>
         </div>
       ) : (
-        <PlayerWorkspace>
+        <PlayerWorkspace className="tahti-ambient-surface">
           <PlayerWorkspace.LeftSidebar
             width={leftWidth}
             isCollapsed={leftCollapsed}
@@ -396,6 +400,13 @@ export function AppShell() {
                   )}
                 </div>
                 <div className="mt-auto flex flex-col gap-1 p-1">
+                  <div data-tour-id="nav-help">
+                    <SidebarNavigationItem
+                      to="/help"
+                      icon={<HelpCircleIcon size={16} />}
+                      label="Help center"
+                    />
+                  </div>
                   <div data-tour-id="nav-settings">
                     <SidebarNavigationItem
                       icon={<SettingsIcon size={16} />}
@@ -413,7 +424,10 @@ export function AppShell() {
             breathing room from the pane edge while content scrolls.
           */}
           <PlayerWorkspace.Main
-            className={cn('min-h-0 overflow-hidden', MAIN_CONTENT_PADDING)}
+            className={cn(
+              'tahti-ambient-surface min-h-0 overflow-hidden',
+              MAIN_CONTENT_PADDING,
+            )}
           >
             <div className="h-full overflow-auto">
               <RouteContent>
@@ -464,6 +478,11 @@ export function AppShell() {
         >
           <SidebarNavItems compact={false} />
           <SidebarNavigation isCompact={false}>
+            <SidebarNavigationItem
+              to="/help"
+              icon={<HelpCircleIcon size={16} />}
+              label="Help center"
+            />
             <SidebarNavigationItem
               icon={<SettingsIcon size={16} />}
               label="Settings"

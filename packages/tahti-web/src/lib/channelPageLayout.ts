@@ -32,8 +32,8 @@ export const CHANNEL_PAGE_ITEM_META: Record<
     hint: 'Play, queue, favorite',
   },
   archive: {
-    label: 'Archive',
-    hint: 'Past sets table',
+    label: 'Tracks',
+    hint: 'Published channel tracks',
   },
   chat: {
     label: 'Chat',

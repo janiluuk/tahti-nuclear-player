@@ -41,9 +41,9 @@ const FanStat: FC<{
   <div
     role="group"
     aria-label={`${label}: ${value}`}
-    className="border-border bg-background flex min-w-0 flex-col gap-2 rounded-lg border p-3"
+    className="border-border bg-background flex max-w-full min-w-0 flex-col gap-2 overflow-hidden rounded-lg border p-3"
   >
-    <span className="text-foreground-secondary flex items-center gap-2 text-[11px] font-semibold tracking-wide uppercase">
+    <span className="text-foreground-secondary flex min-w-0 items-center gap-2 text-[11px] font-semibold tracking-wide break-words uppercase">
       <Icon size={14} aria-hidden className="text-primary" />
       {label}
     </span>
@@ -59,9 +59,9 @@ export const FanSubscriptionStats: FC<FanSubscriptionStatsProps> = ({
 }) => (
   <section
     aria-label="Fan subscription summary"
-    className="flex flex-col gap-4"
+    className="flex max-w-full min-w-0 flex-col gap-4"
   >
-    <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+    <div className="grid min-w-0 grid-cols-2 gap-2 lg:grid-cols-[repeat(4,minmax(0,1fr))]">
       <FanStat
         label="Active subscribers"
         value={stats.activeSubscribers.toLocaleString()}

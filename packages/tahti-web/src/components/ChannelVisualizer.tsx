@@ -15,6 +15,7 @@ type Props = {
   colorScheme?: VisualColorScheme | null;
   colorSchemeJson?: string | null;
   visualSettingsJson?: string | null;
+  settings?: ThreeVisualizerProps['settings'];
   className?: string;
   artworkUrl?: string | null;
   audioReactive?: boolean;
@@ -95,6 +96,7 @@ export const ChannelVisualizer = ({
   colorScheme,
   colorSchemeJson,
   visualSettingsJson,
+  settings: settingsOverride,
   className,
   artworkUrl,
   audioReactive = true,
@@ -137,7 +139,7 @@ export const ChannelVisualizer = ({
         className={className}
         preset={mode}
         scheme={scheme}
-        settings={settings}
+        settings={settingsOverride ?? settings}
         artworkUrl={artworkUrl}
         audioReactive={audioReactive}
       />

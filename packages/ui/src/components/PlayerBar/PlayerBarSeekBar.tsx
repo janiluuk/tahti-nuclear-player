@@ -43,7 +43,7 @@ export const PlayerBarSeekBar: FC<PlayerSeekBarProps> = ({
         aria-valuetext={`${formatTimeSeconds(elapsedSeconds)} elapsed, ${formatTimeSeconds(Math.abs(remainingSeconds))} remaining`}
         tabIndex={isInteractive ? 0 : -1}
         className={cn(
-          'relative h-4 w-full',
+          'relative h-5 w-full',
           'focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
           {
             'pointer-events-none cursor-not-allowed': isLoading,
@@ -64,7 +64,7 @@ export const PlayerBarSeekBar: FC<PlayerSeekBarProps> = ({
         </div>
         <div
           className={cn(
-            'border-border bg-background-secondary absolute inset-0 border-t-(length:--border-width)',
+            'border-border bg-background-secondary absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full border-(length:--border-width)',
             {
               'overflow-hidden': isLoading,
             },

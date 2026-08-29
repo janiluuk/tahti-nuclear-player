@@ -49,14 +49,6 @@ export function AdminDashboardView() {
         <StudioPageHeader
           title="Admin"
           subtitle="Operations dashboard — members, live streams, and system health."
-          action={
-            <Link
-              to="/help"
-              className="text-foreground-secondary hover:text-foreground text-xs underline-offset-2 hover:underline"
-            >
-              Help center →
-            </Link>
-          }
         />
 
         <div

@@ -18,8 +18,8 @@ export const PlayerBarNowPlaying: FC<PlayerBarNowPlayingProps> = ({
   className = '',
   action,
 }) => (
-  <div className={cn('flex min-w-0 items-center gap-3', className)}>
-    <div className="border-border bg-background-secondary size-12 shrink-0 overflow-hidden rounded-md border-(length:--border-width)">
+  <div className={cn('flex min-w-0 items-center gap-3.5', className)}>
+    <div className="border-border bg-background-secondary size-12 shrink-0 overflow-hidden rounded-lg border-(length:--border-width) shadow-sm ring-1 ring-white/5">
       {coverUrl ? (
         <img
           src={coverUrl}
@@ -38,7 +38,7 @@ export const PlayerBarNowPlaying: FC<PlayerBarNowPlayingProps> = ({
     </div>
     <div className="min-w-0 flex-1">
       <div
-        className="text-foreground truncate text-sm font-bold"
+        className="text-foreground truncate text-sm font-semibold tracking-tight"
         data-testid="now-playing-title"
       >
         {title}

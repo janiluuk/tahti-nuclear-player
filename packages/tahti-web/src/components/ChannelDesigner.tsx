@@ -1,5 +1,7 @@
 import {
   CheckIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   ImageIcon,
   LinkIcon,
   Loader2Icon,
@@ -20,7 +22,6 @@ import {
   PluginItem,
   Slider,
   Tabs,
-  Toggle,
 } from '@nuclearplayer/ui';
 
 import {
@@ -133,8 +134,6 @@ export function ChannelDesigner({
   const [slideshowAutoplay, setSlideshowAutoplay] = useState(true);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [lastVisualizerPreset, setLastVisualizerPreset] =
-    useState<VisualPreset>('AURORA');
   const [previewPreset, setPreviewPreset] = useState<VisualPreset>('AURORA');
   const [configurationPreset, setConfigurationPreset] =
     useState<VisualPreset | null>(null);
@@ -152,10 +151,11 @@ export function ChannelDesigner({
           isVisualPreset(visualResult.data.visualPreset) &&
           visualResult.data.visualPreset !== 'MINIMAL'
         ) {
-          setLastVisualizerPreset(visualResult.data.visualPreset);
           setPreviewPreset(visualResult.data.visualPreset);
         } else {
           setPreviewPreset('AURORA');
+          setVisual({ ...visualResult.data, visualPreset: 'AURORA' });
+          setDirty(true);
         }
         setGalleryMode(galleryResult.data.galleryMode);
         setGalleryImages(galleryResult.data.slideshowImages.join('\n'));
@@ -389,8 +389,6 @@ export function ChannelDesigner({
     return <PageLoading label="Loading designer…" />;
   }
 
-  const visualizerEnabled = visual.visualPreset !== 'MINIMAL';
-
   // VIDEO_LOOP without a playable clip isn't a state worth saving — the
   // header would just render empty on the real channel page.
   const videoLoopNeedsUrl =
@@ -403,17 +401,25 @@ export function ChannelDesigner({
   const showGalleryBackdrop =
     galleryImageList.length > 0 && galleryMode !== 'NONE' && !showHeaderVideo;
 
-  const setVisualizerEnabled = (enabled: boolean) => {
-    if (
-      !enabled &&
-      isVisualPreset(visual.visualPreset) &&
-      visual.visualPreset !== 'MINIMAL'
-    ) {
-      setLastVisualizerPreset(visual.visualPreset);
+  const availableVisualizers = VISUAL_PRESETS.filter(
+    (preset) => preset !== 'MINIMAL',
+  );
+  const activeVisualizer: Exclude<VisualPreset, 'MINIMAL'> =
+    isVisualPreset(previewPreset) && previewPreset !== 'MINIMAL'
+      ? previewPreset
+      : 'AURORA';
+
+  const changeVisualizer = (direction: -1 | 1) => {
+    const activeIndex = availableVisualizers.indexOf(activeVisualizer);
+    const nextIndex =
+      (activeIndex + direction + availableVisualizers.length) %
+      availableVisualizers.length;
+    const nextPreset = availableVisualizers[nextIndex];
+    if (!nextPreset) {
+      return;
     }
-    applyLocal({
-      visualPreset: enabled ? lastVisualizerPreset : 'MINIMAL',
-    });
+    setPreviewPreset(nextPreset);
+    applyLocal({ visualPreset: nextPreset });
   };
 
   // Shared by the docked-in-preview overlay (below, next to the live
@@ -477,71 +483,60 @@ export function ChannelDesigner({
                     ),
                     content: (
                       <section className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3">
-                          <Toggle
-                            checked={visualizerEnabled}
-                            onChange={setVisualizerEnabled}
-                            aria-label="Use visualizer"
-                          />
-                          <span className="text-sm font-semibold">
-                            Use visualizer
-                          </span>
-                        </div>
-                        {visualizerEnabled && (
-                          <div className="flex flex-col gap-2">
-                            {VISUAL_PRESETS.filter(
-                              (preset) => preset !== 'MINIMAL',
-                            ).map((preset) => {
-                              const meta = visualizerMetadata(preset);
-                              const active = visual.visualPreset === preset;
-                              return (
-                                <PluginItem
-                                  key={preset}
-                                  icon={<meta.Icon size={22} aria-hidden />}
-                                  name={preset.replace(/_/g, ' ')}
-                                  author={active ? 'In use' : 'Visualizer'}
-                                  description={meta.description}
-                                  labels={{ by: '' }}
-                                  className={
-                                    active
-                                      ? 'ring-primary bg-primary/10 ring-2 ring-inset'
-                                      : undefined
-                                  }
-                                  rightAccessory={
-                                    <div className="flex items-center gap-1">
-                                      <Button
-                                        size="icon-sm"
-                                        variant="text"
-                                        aria-label={`Configure ${meta.description}`}
-                                        title={`Configure ${preset.replace(/_/g, ' ')}`}
-                                        onClick={() => {
-                                          setPreviewPreset(preset);
-                                          setConfigurationPreset(preset);
-                                        }}
-                                      >
-                                        <SettingsIcon size={15} aria-hidden />
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant={
-                                          active ? undefined : 'secondary'
-                                        }
-                                        disabled={active}
-                                        onClick={() => {
-                                          setLastVisualizerPreset(preset);
-                                          setPreviewPreset(preset);
-                                          applyLocal({ visualPreset: preset });
-                                        }}
-                                      >
-                                        {active ? 'In use' : 'Use'}
-                                      </Button>
-                                    </div>
-                                  }
-                                />
-                              );
-                            })}
-                          </div>
-                        )}
+                        {(() => {
+                          const meta = visualizerMetadata(activeVisualizer);
+                          return (
+                            <PluginItem
+                              icon={<meta.Icon size={22} aria-hidden />}
+                              name={activeVisualizer.replace(/_/g, ' ')}
+                              author="Visualizer"
+                              description={meta.description}
+                              labels={{ by: '' }}
+                              className="ring-primary bg-primary/10 ring-2 ring-inset"
+                              rightAccessory={
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    size="icon-sm"
+                                    variant="text"
+                                    onClick={() => changeVisualizer(-1)}
+                                    aria-label="Previous visualizer"
+                                    title="Previous visualizer"
+                                  >
+                                    <ChevronLeftIcon size={16} aria-hidden />
+                                  </Button>
+                                  <Button
+                                    size="icon-sm"
+                                    variant="text"
+                                    onClick={() => changeVisualizer(1)}
+                                    aria-label="Next visualizer"
+                                    title="Next visualizer"
+                                  >
+                                    <ChevronRightIcon size={16} aria-hidden />
+                                  </Button>
+                                  <Button
+                                    size="icon-sm"
+                                    variant="text"
+                                    aria-label={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
+                                    title={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
+                                    onClick={() =>
+                                      setConfigurationPreset(activeVisualizer)
+                                    }
+                                  >
+                                    <SettingsIcon size={15} aria-hidden />
+                                  </Button>
+                                  <Button
+                                    size="icon-sm"
+                                    disabled
+                                    aria-label="Visualizer active"
+                                    title="Visualizer active"
+                                  >
+                                    <CheckIcon size={15} aria-hidden />
+                                  </Button>
+                                </div>
+                              }
+                            />
+                          );
+                        })()}
                         {/* When there's a live preview to dock into (see the preview
                     block in the main return), tuning shows there instead of
                     repeated here. lookOnly and livePreview=false have no
@@ -601,11 +596,11 @@ export function ChannelDesigner({
                         <div className="grid gap-3 sm:grid-cols-2">
                           {(
                             [
-                              ['accent', 'Accent'] as const,
+                              ['accent', 'Accent / waveform played'] as const,
                               ['highlight', 'Highlight'] as const,
                               ['bg', 'Background'] as const,
                               ['text', 'Foreground'] as const,
-                              ['muted', 'Muted'] as const,
+                              ['muted', 'Muted / waveform unplayed'] as const,
                             ] as const
                           ).map(([key, label]) => (
                             <label
@@ -668,6 +663,33 @@ export function ChannelDesigner({
                             );
                           })}
                         </div>
+                        {visual.headerStyle === 'SOLID' && (
+                          <label className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm">
+                            <input
+                              type="color"
+                              value={scheme.bg ?? DEFAULT_COLOR_SCHEME.bg}
+                              onChange={(event) =>
+                                applyLocal(
+                                  {},
+                                  {
+                                    ...scheme,
+                                    bg: event.target.value,
+                                  },
+                                )
+                              }
+                              className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
+                              aria-label="Solid header color"
+                            />
+                            <span className="min-w-0">
+                              <span className="block text-sm font-semibold">
+                                Solid header color
+                              </span>
+                              <code className="text-foreground-secondary text-xs">
+                                {scheme.bg ?? DEFAULT_COLOR_SCHEME.bg}
+                              </code>
+                            </span>
+                          </label>
+                        )}
                         {visual.headerStyle === 'VIDEO_LOOP' && (
                           <div className="flex flex-col gap-3">
                             <div className="flex items-center justify-between gap-2">

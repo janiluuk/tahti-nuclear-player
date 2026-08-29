@@ -17,7 +17,6 @@ import {
   TrophyIcon,
   UsersIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
@@ -250,19 +249,7 @@ export function AdminNav({
   const routeSection = ADMIN_SECTIONS.find((section) =>
     section.items.some((item) => isActive(current, item.to)),
   );
-  const [selectedSection, setSelectedSection] = useState(
-    routeSection?.id ?? ADMIN_SECTIONS[0].id,
-  );
-
-  useEffect(() => {
-    if (routeSection) {
-      setSelectedSection(routeSection.id);
-    }
-  }, [routeSection]);
-
-  const section =
-    ADMIN_SECTIONS.find((item) => item.id === selectedSection) ??
-    ADMIN_SECTIONS[0];
+  const section = routeSection ?? ADMIN_SECTIONS[0];
 
   const tabs = (
     <div
@@ -272,7 +259,7 @@ export function AdminNav({
       data-admin-section-tabs
     >
       {ADMIN_SECTIONS.map((item) => {
-        const active = item.id === selectedSection;
+        const active = item.id === section.id;
         return (
           <button
             key={item.id}
@@ -285,7 +272,6 @@ export function AdminNav({
                 : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
             }`}
             onClick={() => {
-              setSelectedSection(item.id);
               const firstPage = item.items[0];
               if (firstPage) {
                 void navigate({ to: firstPage.to });

@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import {
   ActivityIcon,
   ChevronDownIcon,
@@ -44,7 +43,6 @@ import {
 } from '../api/studio';
 import {
   fetchProgramme,
-  MAX_RADIO_PLAYLIST_ITEMS,
   patchProgramme,
   type ProgrammeItem,
   type ProgrammeView,
@@ -298,6 +296,13 @@ export function StreamManagerPanel({
       : channelState === 'LIVE'
         ? 'Live output'
         : 'Offline';
+  const playerState = signalConnected
+    ? 'Live'
+    : rotationPlaying
+      ? 'Playing'
+      : rotation
+        ? 'Paused'
+        : 'Stopped';
   const durationSec = rotation?.item?.durationSec ?? null;
   const elapsedSinceObserved = rotation
     ? Math.floor((now - rotation.observedAt) / SECOND_MS)
@@ -378,7 +383,7 @@ export function StreamManagerPanel({
       .map((item) => item.archiveItemId)
       .filter((id): id is string => Boolean(id));
     let added = 0;
-    let full = false;
+    let failed = 0;
     for (const archiveItemId of archiveItemIds) {
       const result = await patchStudioArchiveItem(archiveItemId, {
         isFallback: true,
@@ -386,14 +391,13 @@ export function StreamManagerPanel({
       if (result.ok) {
         added++;
       } else {
-        full = true;
-        break;
+        failed++;
       }
     }
     setRotationBusy(false);
     setRotationMsg(
-      full
-        ? `Added ${added} track${added === 1 ? '' : 's'} — rotation is full, so the rest were skipped.`
+      failed > 0
+        ? `Added ${added} track${added === 1 ? '' : 's'} — ${failed} could not be added.`
         : added === 0
           ? 'Nothing to add — that playlist has no tracks.'
           : `Added ${added} track${added === 1 ? '' : 's'} to the rotation.`,
@@ -402,12 +406,6 @@ export function StreamManagerPanel({
 
   const saveEditableRotation = async (nextRotation: ProgrammeItem[]) => {
     if (!programme) {
-      return;
-    }
-    if (nextRotation.length > MAX_RADIO_PLAYLIST_ITEMS) {
-      setRotationMsg(
-        `Your channel rotation is full. It can contain up to ${MAX_RADIO_PLAYLIST_ITEMS} tracks.`,
-      );
       return;
     }
     setRotationBusy(true);
@@ -455,44 +453,32 @@ export function StreamManagerPanel({
   };
 
   return (
-    <section className="border-primary bg-primary/10 flex flex-col gap-2 rounded-xl border p-3 shadow-sm">
+    <section className="border-border bg-background-secondary/40 flex flex-col gap-4 rounded-xl border p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="order-1 min-w-0 flex-1">
-          <div className="font-display flex items-center gap-2 text-lg font-bold">
+          <div className="font-display flex items-center gap-2 text-lg font-bold tracking-tight">
             {rotationPlaying ? (
               <ListMusicIcon size={18} className="text-primary" aria-hidden />
             ) : (
               <RadioIcon size={18} className="text-primary" aria-hidden />
             )}
-            {rotationPlaying ? 'Rotation is playing' : 'Stream manager'}
+            Stream playlist manager
           </div>
-          {rotationPlaying && rotation ? (
-            <div className="mt-1 min-w-0">
-              <p className="truncate text-base font-semibold">
-                {rotation.title}
-              </p>
-              <p className="text-foreground-secondary truncate text-sm">
-                {rotation.artistName}
-                {remainingSec != null
-                  ? ` · up to ${formatRemaining(remainingSec)} left`
-                  : ''}
-              </p>
-              {adjacentRotationItems && (
-                <p className="text-foreground-secondary mt-0.5 truncate text-xs">
-                  ← {adjacentRotationItems.previous.title} · next:{' '}
-                  {adjacentRotationItems.next.title} →
-                </p>
-              )}
-            </div>
-          ) : (
-            <Link
-              to="/channel/$slug"
-              params={{ slug }}
-              className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold tracking-wide uppercase ${
+                playerState === 'Live' || playerState === 'Playing'
+                  ? 'bg-accent-green/15 text-accent-green'
+                  : 'bg-background-secondary text-foreground-secondary'
+              }`}
+              role="status"
+              aria-label={`Player state: ${playerState}`}
             >
-              View public channel →
-            </Link>
-          )}
+              <span className="size-1.5 rounded-full bg-current" aria-hidden />
+              {playerState}
+            </span>
+            <span className="text-foreground-secondary">{outputLabel}</span>
+          </div>
         </div>
         {canControl && !signalConnected && rotationPlaying && (
           <div
@@ -576,6 +562,36 @@ export function StreamManagerPanel({
             </Button>
           )}
         </div>
+      </div>
+
+      <div className="border-border bg-background/40 flex min-w-0 items-center justify-between gap-4 rounded-lg border px-4 py-3">
+        <div className="min-w-0">
+          <p className="text-foreground-secondary text-[10px] font-semibold tracking-wide uppercase">
+            Current track
+          </p>
+          {rotation ? (
+            <>
+              <p className="mt-1 truncate text-sm font-semibold">
+                {rotation.title}
+              </p>
+              <p className="text-foreground-secondary truncate text-xs">
+                {rotation.artistName}
+                {remainingSec != null
+                  ? ` · ${formatRemaining(remainingSec)} remaining`
+                  : ''}
+              </p>
+            </>
+          ) : (
+            <p className="text-foreground-secondary mt-1 text-sm">
+              No track playing
+            </p>
+          )}
+        </div>
+        {rotation && adjacentRotationItems ? (
+          <p className="text-foreground-secondary hidden max-w-64 truncate text-right text-xs sm:block">
+            Next: {adjacentRotationItems.next.title}
+          </p>
+        ) : null}
       </div>
 
       {(!rotationPlaying || rotationExpanded) && (

@@ -19,7 +19,6 @@ import {
 
 import {
   fetchMyRadioSubmissions,
-  fetchStudioArchive,
   fetchStudioArchiveItem,
   patchStudioArchiveItem,
   submitTrackToRadioRotation,
@@ -110,11 +109,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const [radioSubmission, setRadioSubmission] =
     useState<RadioSubmission | null>(null);
   const [submittingToRadio, setSubmittingToRadio] = useState(false);
-  const [rotationReplacement, setRotationReplacement] = useState<{
-    id: string;
-    title: string;
-  } | null>(null);
-
   const isDjMix =
     form.contentType === 'DJ_MIX' || form.contentType === 'DJ_SET';
   const isAudioClip = form.contentType === 'AUDIOCLIPS';
@@ -222,31 +216,13 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     setNote('Cover art uploaded.');
   };
 
-  const save = async (confirmedRotationReplacement = false) => {
+  const save = async () => {
     if (!archiveItemId || !item || !form.title?.trim()) {
       return;
     }
     setSaving(true);
     setError(null);
     setNote(null);
-    if (form.isFallback && !item.isFallback && !confirmedRotationReplacement) {
-      const archive = await fetchStudioArchive();
-      const rotation = archive.data
-        .filter((candidate) => candidate.isFallback && candidate.id !== item.id)
-        .sort(
-          (left, right) =>
-            new Date(left.createdAt ?? 0).getTime() -
-            new Date(right.createdAt ?? 0).getTime(),
-        );
-      if (rotation.length >= 5 && rotation[0]) {
-        setSaving(false);
-        setRotationReplacement({
-          id: rotation[0].id,
-          title: rotation[0].title,
-        });
-        return;
-      }
-    }
     const { license, ...metadata } = form;
     const result = await patchStudioArchiveItem(archiveItemId, {
       ...metadata,
@@ -256,9 +232,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       genre: form.genre?.trim() || null,
       isPublic: form.visibility === 'PUBLIC',
       releaseDate: form.releaseDate || null,
-      ...(rotationReplacement
-        ? { replaceFallbackItemId: rotationReplacement.id }
-        : {}),
     });
     setSaving(false);
     if (!result.ok) {
@@ -292,7 +265,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       },
     }));
     setNote('Track details saved.');
-    setRotationReplacement(null);
     onSaved?.(result.data);
   };
 
@@ -817,32 +789,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
               onClick={() => void save()}
             />
           ) : null}
-        </Dialog.Actions>
-      </Dialog.Root>
-
-      <Dialog.Root
-        isOpen={Boolean(rotationReplacement)}
-        onClose={() => {
-          setRotationReplacement(null);
-          setSaving(false);
-        }}
-      >
-        <Dialog.Title>Replace the oldest rotation track?</Dialog.Title>
-        <Dialog.Description>
-          Your channel rotation is full. Adding “{item?.title}” will remove “
-          {rotationReplacement?.title}”, the oldest track currently in the
-          rotation.
-        </Dialog.Description>
-        <Dialog.Actions>
-          <Dialog.Close>Cancel</Dialog.Close>
-          <Button
-            onClick={() => {
-              void save(true);
-            }}
-            disabled={saving}
-          >
-            {saving ? 'Replacing…' : 'Replace and add'}
-          </Button>
         </Dialog.Actions>
       </Dialog.Root>
 

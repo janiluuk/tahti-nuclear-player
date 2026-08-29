@@ -63,7 +63,7 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
   showDiscovery,
   className = '',
 }) => (
-  <div className={cn('flex items-center justify-center gap-2', className)}>
+  <div className={cn('flex items-center justify-center gap-1.5', className)}>
     <Tooltip
       content={isShuffleActive ? labels?.shuffleOn : labels?.shuffleOff}
       side="top"
@@ -71,6 +71,7 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
       <Button
         size="icon"
         variant={isShuffleActive ? 'default' : 'text'}
+        className="rounded-full"
         onClick={onShuffleToggle}
         aria-label={isShuffleActive ? labels?.shuffleOn : labels?.shuffleOff}
         aria-pressed={isShuffleActive}
@@ -82,6 +83,7 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
     <Button
       size="icon"
       variant="text"
+      className="rounded-full"
       onClick={onPrevious}
       aria-label="Previous"
     >
@@ -91,7 +93,7 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
       size="icon"
       onClick={onPlayPause}
       className={cn(
-        'active:bg-accent-green active:text-black',
+        'active:bg-accent-green size-10 rounded-full shadow-md active:text-black',
         isPlaying && 'bg-accent-green text-black',
       )}
       aria-label={isPlaying ? 'Pause' : 'Play'}
@@ -103,6 +105,7 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
     <Button
       size="icon"
       variant="text"
+      className="rounded-full"
       onClick={onNext}
       aria-label="Next"
       data-testid="player-next-button"
@@ -113,6 +116,7 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
       <Button
         size="icon"
         variant={repeatMode !== 'off' ? 'default' : 'text'}
+        className="rounded-full"
         onClick={onRepeatToggle}
         aria-label={labels?.[REPEAT_LABEL_KEY[repeatMode]]}
         aria-pressed={repeatMode !== 'off'}
@@ -130,6 +134,7 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
         <Button
           size="icon"
           variant={isDiscoveryActive ? 'default' : 'text'}
+          className="rounded-full"
           onClick={onDiscoveryToggle}
           aria-label={
             isDiscoveryActive ? labels?.discoveryOn : labels?.discoveryOff

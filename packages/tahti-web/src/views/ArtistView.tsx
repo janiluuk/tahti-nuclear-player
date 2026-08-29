@@ -25,7 +25,6 @@ import {
   fetchPublicPressKitImages,
   type PublicPressKitImage,
 } from '../api/artist-settings';
-import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import { fetchChannel, fetchProfile } from '../api/client';
 import {
   fetchChannelDiscoWidgets,
@@ -50,7 +49,6 @@ import {
 } from '../components/ArtistGalleryPanel';
 import { ChannelControlsWidget } from '../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../components/ChannelDesigner';
-import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { GlowMediaTile } from '../components/GlowMediaTile';
 import { ImageLightbox } from '../components/ImageLightbox';
@@ -62,7 +60,6 @@ import {
   releasePlayables,
   ReleaseTracklistDialog,
 } from '../components/ReleaseTracklistDialog';
-import { SocialLinkIcon, socialLinkLabel } from '../components/SocialLinkIcon';
 import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { TrackEditDialog } from '../components/TrackEditDialog';
@@ -181,6 +178,97 @@ function releaseToPlayable(
     channelSlug,
     releaseDate: release.releaseDate ?? null,
   };
+}
+
+type ArtistProfileEmbed = {
+  label: string;
+  url: string;
+  height: number;
+};
+
+function artistProfileEmbed(url: string): ArtistProfileEmbed | null {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+
+  const host = parsed.hostname.replace(/^www\./, '').toLowerCase();
+  const path = parsed.pathname.replace(/\/$/, '');
+  const encodedUrl = encodeURIComponent(url);
+
+  if (
+    host === 'soundcloud.com' &&
+    path.split('/').filter(Boolean).length === 1
+  ) {
+    const params = new URLSearchParams({
+      url,
+      color: '%23ff5500',
+      auto_play: 'false',
+      show_user: 'true',
+      show_reposts: 'false',
+      visual: 'false',
+    });
+    return {
+      label: 'SoundCloud',
+      url: `https://w.soundcloud.com/player/?${params.toString()}`,
+      height: 166,
+    };
+  }
+
+  if (host === 'mixcloud.com' && path.split('/').filter(Boolean).length >= 1) {
+    return {
+      label: 'Mixcloud',
+      url: `https://player-widget.mixcloud.com/widget/iframe/?feed=${encodedUrl}&hide_cover=0&light=0`,
+      height: 180,
+    };
+  }
+
+  if (host === 'open.spotify.com') {
+    const [kind, id] = path.split('/').filter(Boolean);
+    if (kind && id && ['artist', 'show', 'playlist'].includes(kind)) {
+      return {
+        label: 'Spotify',
+        url: `https://open.spotify.com/embed/${kind}/${encodeURIComponent(id)}`,
+        height: kind === 'artist' ? 352 : 152,
+      };
+    }
+  }
+
+  if (host === 'twitch.tv' && path.split('/').filter(Boolean).length === 1) {
+    const channelName = path.slice(1);
+    const parent = encodeURIComponent(window.location.hostname);
+    return {
+      label: 'Twitch',
+      url: `https://player.twitch.tv/?channel=${encodeURIComponent(channelName)}&parent=${parent}&autoplay=false`,
+      height: 360,
+    };
+  }
+
+  if (host === 'kick.com' && path.split('/').filter(Boolean).length === 1) {
+    return {
+      label: 'Kick',
+      url: `https://player.kick.com/${encodeURIComponent(path.slice(1))}`,
+      height: 360,
+    };
+  }
+
+  if (
+    (host === 'youtube.com' || host === 'youtu.be') &&
+    (/^\/channel\/[\w-]+$/i.test(path) || /^\/@[\w-]+$/i.test(path))
+  ) {
+    const channelId = path.split('/').filter(Boolean).at(-1);
+    return channelId
+      ? {
+          label: 'YouTube',
+          url: `https://www.youtube-nocookie.com/embed?listType=user_uploads&list=${encodeURIComponent(channelId)}`,
+          height: 220,
+        }
+      : null;
+  }
+
+  return null;
 }
 
 type Tab = 'music' | 'releases' | 'collections' | 'gallery' | 'design';
@@ -470,6 +558,9 @@ export function ArtistView({ username }: { username: string }) {
     ([key, url]) =>
       Boolean(url) && key !== 'genres' && key !== 'showConnections',
   );
+  const profileEmbeds = profileConnections
+    .map(([, url]) => artistProfileEmbed(url))
+    .filter((embed): embed is ArtistProfileEmbed => Boolean(embed));
 
   const currentQueueItem = queue.find((q) => q.id === currentId);
   const currentPlayable = currentQueueItem
@@ -526,18 +617,6 @@ export function ArtistView({ username }: { username: string }) {
       <section className="border-border bg-background-secondary/70 flex flex-col gap-5 rounded-2xl border p-4 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-start gap-4">
           <div className="relative size-20 shrink-0 sm:size-24">
-            {channel && tab !== 'music' ? (
-              <ChannelVisualizer
-                className="absolute -inset-2 rounded-2xl"
-                preset={resolvePublicVisualizerPreset(
-                  channelVisual?.visualPreset,
-                )}
-                colorScheme={channelVisual?.colorScheme}
-                colorSchemeJson={channelVisual?.colorSchemeJson}
-                visualSettingsJson={channelVisual?.visualSettingsJson}
-                artworkUrl={nowPlayingHere?.coverUrl ?? artist.avatarUrl}
-              />
-            ) : null}
             {artist.avatarUrl ? (
               <button
                 type="button"
@@ -567,18 +646,20 @@ export function ArtistView({ username }: { username: string }) {
               subtitle={`@${artist.username}`}
               actions={
                 <>
-                  {channel ? (
+                  {channel &&
+                  (channel.state === 'PREVIEW' || channel.state === 'LIVE') ? (
                     <Link
                       to="/u/$username/green-room"
                       params={{ username: artist.username }}
                     >
                       <Button
-                        size="icon-sm"
+                        size="sm"
                         variant="secondary"
                         aria-label="Open green room"
                         title="Green room"
                       >
                         <Mic size={16} aria-hidden />
+                        <span>Green room</span>
                       </Button>
                     </Link>
                   ) : null}
@@ -643,29 +724,27 @@ export function ArtistView({ username }: { username: string }) {
           ) : null}
         </div>
         {artist.socialLinks?.showConnections !== 'false' &&
-        profileConnections.length > 0 ? (
-          <div
-            className="flex flex-wrap items-center gap-2"
-            aria-label="Connections"
-          >
-            <span className="text-foreground-secondary mr-1 text-xs font-semibold tracking-wide uppercase">
-              Find me
-            </span>
-            {profileConnections.map(([key, url]) => {
-              const label = socialLinkLabel(key, url);
+        profileEmbeds.length > 0 ? (
+          <div className="grid gap-3 lg:grid-cols-2" aria-label="Artist embeds">
+            {profileEmbeds.map((embed) => {
               return (
-                <a
-                  key={`${key}-${url}`}
-                  href={url}
-                  rel="noopener noreferrer"
-                  target={url.startsWith('mailto:') ? undefined : '_blank'}
-                  className="border-border bg-background hover:border-primary/60 inline-flex items-center gap-2 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
-                  title={label}
-                  aria-label={label}
+                <div
+                  key={`${embed.label}-${embed.url}`}
+                  className="border-border bg-background/40 overflow-hidden rounded-xl border"
                 >
-                  <SocialLinkIcon label={key} url={url} />
-                  <span className="hidden sm:inline">{label}</span>
-                </a>
+                  <div className="text-foreground-secondary px-3 py-2 text-xs font-semibold tracking-wide uppercase">
+                    {embed.label}
+                  </div>
+                  <iframe
+                    title={`${embed.label} profile`}
+                    src={embed.url}
+                    width="100%"
+                    height={embed.height}
+                    className="block w-full border-0"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"
+                  />
+                </div>
               );
             })}
           </div>
@@ -925,15 +1004,16 @@ export function ArtistView({ username }: { username: string }) {
       {tab === 'music' && (
         <section className="flex flex-col gap-8">
           <div className="border-border bg-background-input relative min-h-[20rem] w-full overflow-hidden rounded-lg border sm:min-h-[28rem]">
-            <ChannelVisualizer
-              className="absolute inset-0 h-full w-full"
-              preset={resolvePublicVisualizerPreset(
-                channelVisual?.visualPreset,
-              )}
-              colorScheme={channelVisual?.colorScheme}
-              colorSchemeJson={channelVisual?.colorSchemeJson}
-              visualSettingsJson={channelVisual?.visualSettingsJson}
-              artworkUrl={nowPlayingHere?.coverUrl ?? artist.avatarUrl}
+            {nowPlayingHere?.coverUrl ? (
+              <img
+                src={nowPlayingHere.coverUrl}
+                alt=""
+                className="absolute inset-0 size-full object-cover opacity-35"
+              />
+            ) : null}
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10"
+              aria-hidden
             />
             {nowPlayingHere ? (
               <span className="absolute top-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.16em] text-white uppercase backdrop-blur-sm">

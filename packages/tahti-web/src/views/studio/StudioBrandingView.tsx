@@ -10,7 +10,14 @@ import {
 import { FC, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, SaveButton, Toggle } from '@nuclearplayer/ui';
+import {
+  Button,
+  Dialog,
+  FilePicker,
+  Input,
+  SaveButton,
+  Toggle,
+} from '@nuclearplayer/ui';
 
 import {
   deletePressKitImage,
@@ -53,7 +60,6 @@ export const StudioBrandingPanel: FC<{
   const user = useAuthStore((state) => state.user);
   const refreshAuth = useAuthStore((state) => state.refresh);
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<StudioBrandingSection>(section ?? 'branding');
   const [profile, setProfile] = useState<ProfileFields | null>(null);
   const [images, setImages] = useState<PressKitImageItem[]>([]);
@@ -61,6 +67,11 @@ export const StudioBrandingPanel: FC<{
   const [galleryPublic, setGalleryPublic] = useState(false);
   const [uploadMode, setUploadMode] = useState<UploadMode>('append');
   const [includeUploads, setIncludeUploads] = useState(true);
+  const [galleryUploadOpen, setGalleryUploadOpen] = useState(false);
+  const [selectedGalleryFiles, setSelectedGalleryFiles] = useState<File[]>([]);
+  const [draggedPressKitImageId, setDraggedPressKitImageId] = useState<
+    string | null
+  >(null);
   const [busy, setBusy] = useState(false);
   const [avatarViewerOpen, setAvatarViewerOpen] = useState(false);
 
@@ -113,8 +124,11 @@ export const StudioBrandingPanel: FC<{
     );
   };
 
-  const uploadGallery = async (files: FileList | null) => {
-    if (!files?.length) {
+  const uploadGallery = async (
+    files: readonly File[],
+    includeInZip = includeUploads,
+  ) => {
+    if (files.length === 0) {
       return;
     }
     if (
@@ -124,21 +138,18 @@ export const StudioBrandingPanel: FC<{
         `Replace all ${images.length} existing gallery images with this upload?`,
       )
     ) {
-      if (galleryInputRef.current) {
-        galleryInputRef.current.value = '';
-      }
       return;
     }
     setBusy(true);
     if (uploadMode === 'replace') {
       await Promise.all(images.map((image) => deletePressKitImage(image.id)));
     }
-    const uploaded = await uploadPressKitImages(files);
+    const uploaded = await uploadPressKitImages(Array.from(files));
     let nextImages = [
       ...(uploadMode === 'replace' ? [] : images),
       ...uploaded.images,
     ];
-    if (!includeUploads) {
+    if (!includeInZip) {
       await Promise.all(
         uploaded.images.map((image) =>
           updatePressKitImage(image.id, { includeInZip: false }),
@@ -153,9 +164,8 @@ export const StudioBrandingPanel: FC<{
     await setPressKitGalleryPublic(galleryPublic);
     setImages(nextImages);
     setBusy(false);
-    if (galleryInputRef.current) {
-      galleryInputRef.current.value = '';
-    }
+    setSelectedGalleryFiles([]);
+    setGalleryUploadOpen(false);
     if (uploaded.errors.length > 0) {
       toast.error(uploaded.errors.join('; '));
     } else {
@@ -163,6 +173,26 @@ export const StudioBrandingPanel: FC<{
         `${uploaded.images.length} image${uploaded.images.length === 1 ? '' : 's'} added.`,
       );
     }
+  };
+
+  const reorderPressKitImages = async (fromId: string, toId: string) => {
+    if (fromId === toId) {
+      return;
+    }
+    const fromIndex = images.findIndex((image) => image.id === fromId);
+    const toIndex = images.findIndex((image) => image.id === toId);
+    if (fromIndex === -1 || toIndex === -1) {
+      return;
+    }
+    const nextImages = [...images];
+    const [movedImage] = nextImages.splice(fromIndex, 1);
+    nextImages.splice(toIndex, 0, movedImage);
+    setImages(nextImages);
+    await Promise.all(
+      nextImages.map((image, position) =>
+        updatePressKitImage(image.id, { position }),
+      ),
+    );
   };
 
   const togglePressKitImage = async (image: PressKitImageItem) => {
@@ -383,82 +413,19 @@ export const StudioBrandingPanel: FC<{
       {tab === 'gallery' ? (
         <>
           <StudioPanel
-            title="Gallery upload"
-            description="Add to the current gallery or replace it in one deliberate upload."
-          >
-            <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
-              <div className="flex flex-col gap-4">
-                <div
-                  className="border-border grid grid-cols-2 rounded-md border p-1"
-                  role="group"
-                  aria-label="Gallery upload mode"
-                >
-                  {(
-                    [
-                      ['append', 'Append'],
-                      ['replace', 'Replace'],
-                    ] as const
-                  ).map(([mode, label]) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      className={`rounded px-3 py-2 text-xs font-semibold uppercase ${
-                        uploadMode === mode
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-foreground-secondary'
-                      }`}
-                      aria-pressed={uploadMode === mode}
-                      onClick={() => setUploadMode(mode)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <label className="flex items-center justify-between gap-4 text-sm">
-                  <span>
-                    Public gallery
-                    <span className="text-foreground-secondary block text-xs">
-                      Listed on your artist profile
-                    </span>
-                  </span>
-                  <Toggle
-                    checked={galleryPublic}
-                    onChange={(checked) => void setVisibility(checked)}
-                    aria-label="Public gallery"
-                  />
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={includeUploads}
-                    onChange={(event) =>
-                      setIncludeUploads(event.target.checked)
-                    }
-                  />
-                  Include uploaded images in press kit
-                </label>
-              </div>
-              <Button
-                disabled={busy}
-                onClick={() => galleryInputRef.current?.click()}
-              >
-                <ImagePlusIcon size={16} aria-hidden className="mr-1.5" />
-                {busy ? 'Uploading…' : 'Choose images'}
-              </Button>
-              <input
-                ref={galleryInputRef}
-                type="file"
-                accept={ACCEPTED_IMAGES}
-                multiple
-                className="sr-only"
-                aria-label="Gallery images"
-                onChange={(event) => void uploadGallery(event.target.files)}
-              />
-            </div>
-          </StudioPanel>
-          <StudioPanel
-            title="Profile gallery"
+            title="Gallery"
             description={`${images.length} images in gallery · ${galleryPublic ? 'public' : 'private'}`}
+            action={
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label="Upload more gallery images"
+                title="Upload more gallery images"
+                onClick={() => setGalleryUploadOpen(true)}
+              >
+                <ImagePlusIcon size={16} aria-hidden />
+              </Button>
+            }
           >
             <ArtistGalleryPanel
               images={images}
@@ -466,6 +433,94 @@ export const StudioBrandingPanel: FC<{
               onChange={(next) => setImages(next as PressKitImageItem[])}
             />
           </StudioPanel>
+          <Dialog.Root
+            isOpen={galleryUploadOpen}
+            onClose={() => {
+              if (!busy) {
+                setGalleryUploadOpen(false);
+                setSelectedGalleryFiles([]);
+              }
+            }}
+            className="max-w-lg"
+          >
+            <Dialog.Title>Upload gallery images</Dialog.Title>
+            <Dialog.Description>
+              Add images with drag and drop, or browse your device.
+            </Dialog.Description>
+            <div className="flex flex-col gap-4">
+              <div
+                className="border-border grid grid-cols-2 rounded-md border p-1"
+                role="group"
+                aria-label="Gallery upload mode"
+              >
+                {(
+                  [
+                    ['append', 'Append'],
+                    ['replace', 'Replace'],
+                  ] as const
+                ).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    className={`rounded px-3 py-2 text-xs font-semibold uppercase ${
+                      uploadMode === mode
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-foreground-secondary'
+                    }`}
+                    aria-pressed={uploadMode === mode}
+                    onClick={() => setUploadMode(mode)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <FilePicker
+                accept={ACCEPTED_IMAGES}
+                multiple
+                disabled={busy}
+                selectedFiles={selectedGalleryFiles}
+                labels={{
+                  title: 'Drop gallery images here',
+                  description: 'JPEG, PNG, or WebP',
+                  browse: 'Choose images',
+                  selected: 'Ready to upload',
+                }}
+                onFiles={(files) => {
+                  setSelectedGalleryFiles(Array.from(files));
+                  void uploadGallery(files);
+                }}
+              />
+              <label className="flex items-center justify-between gap-4 text-sm">
+                <span>
+                  Public gallery
+                  <span className="text-foreground-secondary block text-xs">
+                    Listed on your artist profile
+                  </span>
+                </span>
+                <Toggle
+                  checked={galleryPublic}
+                  onChange={(checked) => void setVisibility(checked)}
+                  aria-label="Public gallery"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={includeUploads}
+                  onChange={(event) => setIncludeUploads(event.target.checked)}
+                />
+                Include uploaded images in press kit
+              </label>
+            </div>
+            <Dialog.Actions>
+              <Button
+                disabled={busy}
+                onClick={() => setGalleryUploadOpen(false)}
+              >
+                Done
+              </Button>
+            </Dialog.Actions>
+          </Dialog.Root>
         </>
       ) : null}
 
@@ -521,6 +576,32 @@ export const StudioBrandingPanel: FC<{
             </div>
           </StudioPanel>
           <StudioPanel
+            title="Photos"
+            description="Drop in high-resolution promotional photos. Drag to reorder them; the first included photo leads the preview and download."
+          >
+            <FilePicker
+              accept={ACCEPTED_IMAGES}
+              multiple
+              disabled={busy}
+              labels={{
+                title: 'Drop press-kit photos here',
+                description: 'JPEG, PNG, or WebP · up to 30 photos',
+                browse: 'Choose photos',
+                selected: 'Ready to upload',
+              }}
+              onFiles={(files) => {
+                setSelectedGalleryFiles(Array.from(files));
+                void uploadGallery(files, true);
+              }}
+            />
+            {images.length === 0 ? (
+              <p className="text-foreground-secondary mt-3 text-sm">
+                Your press kit is empty. Add a bio and at least one photo to
+                enable the download.
+              </p>
+            ) : null}
+          </StudioPanel>
+          <StudioPanel
             title="Press kit images"
             description={`${pressImages.length} of ${MAX_PRESS_KIT_SELECTED_IMAGES} press kit images · selecting another automatically drops the oldest selection`}
           >
@@ -533,6 +614,20 @@ export const StudioBrandingPanel: FC<{
                 {images.map((image) => (
                   <li
                     key={image.id}
+                    draggable
+                    onDragStart={() => setDraggedPressKitImageId(image.id)}
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      if (draggedPressKitImageId) {
+                        void reorderPressKitImages(
+                          draggedPressKitImageId,
+                          image.id,
+                        );
+                      }
+                      setDraggedPressKitImageId(null);
+                    }}
+                    onDragEnd={() => setDraggedPressKitImageId(null)}
                     className="border-border bg-background-secondary overflow-hidden rounded-lg border"
                   >
                     <img

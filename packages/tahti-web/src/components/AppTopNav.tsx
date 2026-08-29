@@ -123,7 +123,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   }, [pathname]);
 
   return (
-    <header className="border-border bg-background sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-2 overflow-hidden border-b px-2 sm:px-3 md:px-6">
+    <header className="border-border bg-background sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-2 border-b px-2 sm:px-3 md:px-6">
       <div className="flex min-w-0 items-center gap-2">
         {showMenuButton ? (
           <button

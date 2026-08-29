@@ -17,6 +17,8 @@
 
   /* Interactive — amber, the single bold accent */
   --primary: oklch(0.8131 0.165 75.04);
+  --secondary: oklch(0.32 0.07 183.63);
+  --secondary-foreground: oklch(0.94 0.02 183.63);
   /* ink on amber, per the pitch's own rule — 11.48:1, see Phase 6 */
   --primary-foreground: oklch(0 0 0);
 

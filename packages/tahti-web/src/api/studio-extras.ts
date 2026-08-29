@@ -294,9 +294,6 @@ export async function patchProgramme(
   }
 }
 
-/** Cap matches prod MAX_FALLBACK_ITEMS — keep 24/7 playlist picks tractable. */
-export const MAX_RADIO_PLAYLIST_ITEMS = 5;
-
 /** Apply a playlist's archive tracks as the channel 24/7 rotation. */
 export async function applyPlaylistToProgramme(
   archiveItemIds: string[],
@@ -307,7 +304,7 @@ export async function applyPlaylistToProgramme(
     announcementsEnabled?: boolean;
   },
 ): Promise<{ ok: true; data: ProgrammeView } | { ok: false; error: string }> {
-  const ids = archiveItemIds.filter(Boolean).slice(0, MAX_RADIO_PLAYLIST_ITEMS);
+  const ids = archiveItemIds.filter(Boolean);
   if (ids.length === 0) {
     return { ok: false, error: 'Playlist has no archive tracks to rotate' };
   }

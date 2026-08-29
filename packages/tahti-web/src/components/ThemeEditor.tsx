@@ -15,6 +15,8 @@ const CORE_VARS: VarField[] = [
   { key: 'foreground-secondary', label: 'Text (secondary)' },
   { key: 'primary', label: 'Primary' },
   { key: 'primary-foreground', label: 'Text on primary' },
+  { key: 'secondary', label: 'Secondary' },
+  { key: 'secondary-foreground', label: 'Text on secondary' },
   { key: 'border', label: 'Border' },
 ];
 

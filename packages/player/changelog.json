@@ -1,5 +1,47 @@
 [
   {
+    "date": "2026-08-29T00:00",
+    "description": "Fixed the Audience overview statistics cards overflowing the Studio content area on wide screens.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Layout", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Broadcast multistream settings now place the form for adding a new destination above the configured destinations.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Broadcast", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Two-factor authentication setup now shows a scannable authenticator QR code with a manual setup-key fallback.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Account", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Ported the full press-kit workflow into Artist Branding: direct photo uploads, drag reordering, per-photo titles and ZIP inclusion, plus an empty-kit state and promoter preview.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artist", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Governance links opened from Account now close the settings panel so the destination page is visible, and artist gallery uploads use a compact drag-and-drop dialog.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Account", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Artist-owned 24/7 channels can now contain unlimited rotation tracks; the five-track cap remains reserved for Tahti Radio and Tahti Selects.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Broadcast", "color": "cyan" }]
+  },
+  {
     "date": "2026-08-28T00:00",
     "description": "Top-level navigation now keeps the app shell mounted and shows a lightweight content-only loading state while changing views.",
     "type": "improvement",

@@ -9,10 +9,7 @@ import { FC, useState } from 'react';
 
 import { Button, Select } from '@nuclearplayer/ui';
 
-import {
-  MAX_RADIO_PLAYLIST_ITEMS,
-  type ProgrammeItem,
-} from '../api/studio-extras';
+import type { ProgrammeItem } from '../api/studio-extras';
 
 const SECONDS_PER_MINUTE = 60;
 
@@ -72,15 +69,13 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
       <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold">
-            Active rotation · {items.length}/{MAX_RADIO_PLAYLIST_ITEMS}
+            Active rotation · {items.length}
           </h3>
           <p className="text-foreground-secondary text-xs">
             Reordering switches playback to In order.
           </p>
         </div>
-        {onAdd &&
-        availableItems.length > 0 &&
-        items.length < MAX_RADIO_PLAYLIST_ITEMS ? (
+        {onAdd && availableItems.length > 0 ? (
           <div className="flex items-center gap-2 text-xs">
             <Select
               label="Quick add"

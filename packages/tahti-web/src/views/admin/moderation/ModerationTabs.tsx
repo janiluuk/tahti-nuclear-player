@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Tabs } from '@nuclearplayer/ui';
 
 export type ModerationTabItem = {
   id: string;
@@ -20,29 +20,31 @@ export const ModerationTabs = ({
   items,
   onChange,
   ariaLabel,
-}: ModerationTabsProps) => (
-  <nav className="flex flex-wrap gap-2" role="tablist" aria-label={ariaLabel}>
-    {items.map((item) => {
-      const Icon = item.icon;
-      const selected = activeId === item.id;
-      return (
-        <Button
-          key={item.id}
-          type="button"
-          variant="text"
-          role="tab"
-          aria-selected={selected}
-          onClick={() => onChange(item.id)}
-          className={`h-8 rounded-md px-2.5 text-xs font-semibold tracking-wide uppercase ${
-            selected
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'border-border text-foreground-secondary hover:text-foreground border'
-          }`}
-        >
-          <Icon size={14} aria-hidden />
-          {item.label}
-        </Button>
-      );
-    })}
-  </nav>
-);
+}: ModerationTabsProps) => {
+  const selectedIndex = Math.max(
+    0,
+    items.findIndex((item) => item.id === activeId),
+  );
+
+  return (
+    <Tabs.Root
+      selectedIndex={selectedIndex}
+      onChange={(index) => onChange(items[index].id)}
+      className="w-full"
+      listClassName="flex flex-wrap gap-2"
+      tabClassName="h-8 rounded-md border border-border px-2.5 text-xs font-semibold tracking-wide uppercase"
+    >
+      <Tabs.List aria-label={ariaLabel}>
+        {items.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Tabs.Tab key={item.id}>
+              <Icon size={14} aria-hidden />
+              {item.label}
+            </Tabs.Tab>
+          );
+        })}
+      </Tabs.List>
+    </Tabs.Root>
+  );
+};

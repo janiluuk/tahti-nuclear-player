@@ -35,12 +35,12 @@ import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelShareButton } from '../components/ChannelShareButton';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
-import { EmbedButton } from '../components/EmbedButton';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
+import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import {
   addItemType,
   CHANNEL_PAGE_ITEM_META,
@@ -61,6 +61,8 @@ import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
+
+const CHANNEL_RADIO_VIZ_SETTINGS = { speed: 1.15, intensity: 1.8 };
 
 export function ChannelView({ slug }: { slug: string }) {
   const navigate = useNavigate();
@@ -88,6 +90,9 @@ export function ChannelView({ slug }: { slug: string }) {
   const play = usePlayerStore((s) => s.play);
   const currentId = usePlayerStore((s) => s.currentId);
   const playbackStatus = usePlayerStore((s) => s.status);
+  const currentTime = usePlayerStore((s) => s.currentTime);
+  const duration = usePlayerStore((s) => s.duration);
+  const seekTo = usePlayerStore((s) => s.seekTo);
   const setPlaybackStatus = usePlayerStore((s) => s.setStatus);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const favorited = useLibraryStore((s) =>
@@ -119,6 +124,11 @@ export function ChannelView({ slug }: { slug: string }) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setChatContext({
+      slug,
+      enabled: true,
+      autoOpen: !editing,
+    });
     void Promise.all([
       fetchChannel(slug),
       fetchChannelArchive(slug),
@@ -324,15 +334,27 @@ export function ChannelView({ slug }: { slug: string }) {
                 />
               )
             ) : (
-              <ChannelVisualizer
-                className="absolute inset-0 h-full w-full"
-                preset={resolvePublicVisualizerPreset(channel.visualPreset)}
-                colorScheme={channel.colorScheme}
-                colorSchemeJson={channel.colorSchemeJson}
-                artworkUrl={
-                  channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl
-                }
-              />
+              <>
+                {(channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl) ? (
+                  <div
+                    className="absolute inset-0 bg-cover bg-center opacity-60"
+                    style={{
+                      backgroundImage: `url(${channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl})`,
+                    }}
+                    aria-hidden
+                  />
+                ) : null}
+                <ChannelVisualizer
+                  className="absolute inset-0 h-full w-full opacity-95 [filter:saturate(1.3)]"
+                  preset="REACTIVE_GRID"
+                  colorScheme={channel.colorScheme}
+                  colorSchemeJson={channel.colorSchemeJson}
+                  settings={CHANNEL_RADIO_VIZ_SETTINGS}
+                  artworkUrl={
+                    channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl
+                  }
+                />
+              </>
             )}
             {!live && !channel.nowPlaying ? (
               <div className="absolute inset-0 z-[1] flex items-center justify-center">
@@ -345,7 +367,7 @@ export function ChannelView({ slug }: { slug: string }) {
               </div>
             ) : (
               <div
-                className={`absolute inset-x-0 bottom-0 z-[1] p-4 ${
+                className={`absolute inset-x-0 bottom-0 z-[1] p-4 pr-24 sm:p-6 sm:pr-40 ${
                   subtle
                     ? 'bg-gradient-to-t from-black/80 via-black/35 to-transparent'
                     : 'bg-gradient-to-t from-black/70 to-transparent'
@@ -353,25 +375,55 @@ export function ChannelView({ slug }: { slug: string }) {
               >
                 {channel.nowPlaying ? (
                   <>
-                    <div
-                      className={`tracking-wide text-white/70 uppercase ${
-                        subtle ? 'text-[9px] font-medium' : 'text-[10px]'
-                      }`}
-                    >
-                      Now playing
+                    <div className="flex items-end gap-3 sm:gap-4">
+                      <div className="hidden size-16 shrink-0 overflow-hidden rounded-lg bg-white/10 shadow-lg ring-1 ring-white/15 sm:block sm:size-20">
+                        {channel.nowPlaying.artworkUrl ? (
+                          <img
+                            src={channel.nowPlaying.artworkUrl}
+                            alt=""
+                            className="size-full object-cover"
+                          />
+                        ) : null}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div
+                          className={`w-fit rounded-md bg-black/45 px-2.5 py-1 tracking-wide text-white/75 uppercase backdrop-blur-sm ${
+                            subtle ? 'text-[9px] font-medium' : 'text-[10px]'
+                          }`}
+                        >
+                          Now playing
+                        </div>
+                        <div
+                          className={`mt-2 truncate rounded-md bg-black/45 px-2.5 py-1 text-white backdrop-blur-sm ${
+                            subtle
+                              ? 'text-2xl font-semibold tracking-tight sm:text-4xl'
+                              : 'text-3xl font-extrabold tracking-tight sm:text-5xl'
+                          }`}
+                        >
+                          {channel.nowPlaying.title}
+                        </div>
+                        <div className="mt-1 w-fit max-w-full truncate rounded-md bg-black/45 px-2.5 py-1 text-lg font-medium text-white/85 backdrop-blur-sm sm:text-2xl">
+                          {channel.nowPlaying.artistName}
+                        </div>
+                      </div>
                     </div>
-                    <div
-                      className={`mt-1 text-white ${
-                        subtle
-                          ? 'text-2xl font-semibold tracking-tight sm:text-4xl'
-                          : 'text-3xl font-extrabold tracking-tight sm:text-5xl'
-                      }`}
-                    >
-                      {channel.nowPlaying.title}
-                    </div>
-                    <div className="mt-1 text-lg font-medium text-white/85 sm:text-2xl">
-                      {channel.nowPlaying.artistName}
-                    </div>
+                    <WaveformSeekbar
+                      trackId={`channel:${slug}`}
+                      progress={
+                        channelIsCurrent && duration > 0
+                          ? currentTime / duration
+                          : 0
+                      }
+                      bars={72}
+                      className="mt-3 h-10 max-w-2xl"
+                      playedColor={channel.colorScheme?.accent}
+                      unplayedColor={channel.colorScheme?.muted}
+                      onSeek={
+                        channelIsCurrent && duration > 0
+                          ? (fraction) => seekTo(fraction * duration)
+                          : undefined
+                      }
+                    />
                   </>
                 ) : (
                   <p className="text-sm text-white/80">
@@ -450,7 +502,9 @@ export function ChannelView({ slug }: { slug: string }) {
       case 'archive':
         return (
           <section className="flex flex-col gap-6">
-            <h2 className="text-xl font-bold tracking-tight">Archive</h2>
+            {!editing && (
+              <h2 className="text-xl font-bold tracking-tight">Tracks</h2>
+            )}
             {pinnedPlayables.length > 0 && (
               <div className="flex flex-col gap-3">
                 <Eyebrow>Pinned</Eyebrow>
@@ -466,8 +520,8 @@ export function ChannelView({ slug }: { slug: string }) {
                 items={catalogPlayables}
                 emptyMessage={
                   pinnedPlayables.length > 0
-                    ? 'No other public archive items.'
-                    : 'No public archive items for this channel yet.'
+                    ? 'No other public tracks.'
+                    : 'No public tracks for this channel yet.'
                 }
               />
             </div>
@@ -631,11 +685,11 @@ export function ChannelView({ slug }: { slug: string }) {
                   </span>
                 </Button>
               )}
-              {!editing && <EmbedButton target={{ kind: 'channel', slug }} />}
               {!editing && (
                 <ChannelShareButton
                   channelSlug={slug}
                   displayName={channel.user.displayName}
+                  iconOnly={false}
                 />
               )}
             </>
@@ -722,7 +776,10 @@ export function ChannelView({ slug }: { slug: string }) {
         updateLayout(setItemVisible(layout, id, !row.visible));
       }}
       onRemove={(id) => {
-        updateLayout(setItemVisible(layout, id, false));
+        updateLayout(layout.filter((item) => item.id !== id));
+        if (selectedId === id) {
+          setSelectedId(null);
+        }
       }}
       onAdd={(type: ChannelPageItemType) => {
         updateLayout(addItemType(layout, type));

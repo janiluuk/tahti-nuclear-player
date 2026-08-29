@@ -223,19 +223,33 @@ function ThemesCategory() {
     })),
   ];
 
+  const themeCard = (theme: (typeof all)[number]) => (
+    <PluginStoreItem
+      key={theme.id}
+      name={theme.name}
+      author={theme.author}
+      description={theme.id === themeId ? 'Currently applied' : 'Available'}
+      isInstalled={theme.id === themeId}
+      onInstall={() => setTheme(theme.id)}
+      labels={{ install: 'Apply', installed: 'Active' }}
+    />
+  );
+
   return (
     <div className="flex flex-col gap-2">
-      {all.map((t) => (
-        <PluginStoreItem
-          key={t.id}
-          name={t.name}
-          author={t.author}
-          description={t.id === themeId ? 'Currently applied' : 'Available'}
-          isInstalled={t.id === themeId}
-          onInstall={() => setTheme(t.id)}
-          labels={{ install: 'Apply', installed: 'Active' }}
-        />
-      ))}
+      {all.map((theme) =>
+        theme.id === 'nuclear:tahti-dark' ? (
+          <ConfigurableCard
+            key={theme.id}
+            title={theme.name}
+            header={themeCard(theme)}
+          >
+            <ThemeVisualizationSettings />
+          </ConfigurableCard>
+        ) : (
+          themeCard(theme)
+        ),
+      )}
       <p className="text-foreground-secondary text-xs">
         Full theme editor (colors, custom JSON import) is in{' '}
         <button
@@ -247,7 +261,6 @@ function ThemesCategory() {
         </button>
         .
       </p>
-      <ThemeVisualizationSettings />
     </div>
   );
 }
@@ -963,7 +976,17 @@ function OAuthServiceCard({
             </Link>
           )}
           {action.integrationId === 'soundcloud' && (
-            <div className="border-border flex flex-col gap-2 border-t pt-3">
+            <div className="border-border flex flex-col gap-3 border-t pt-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Link to="/sources/$id" params={{ id: 'soundcloud' }}>
+                  <Button size="sm" variant="secondary">
+                    Import SoundCloud tracks
+                  </Button>
+                </Link>
+                <p className="text-foreground-secondary text-xs">
+                  Import individual tracks or your entire catalog.
+                </p>
+              </div>
               <Input
                 label="SoundCloud profile URL"
                 value={profileDraft}

@@ -125,7 +125,13 @@ export function SourceServiceIcon({ id, size = 'tile' }: Props): ReactNode {
       style={{ background: cfg.bg, color: cfg.fg }}
       aria-hidden
     >
-      {cfg.brand ? (
+      {id === 'hearthis' ? (
+        <img
+          src="/assets/hearthis-logo.svg"
+          alt=""
+          className="h-[68%] w-[84%] brightness-0 invert"
+        />
+      ) : cfg.brand ? (
         <BrandMark kind={cfg.brand} />
       ) : cfg.Icon ? (
         <cfg.Icon

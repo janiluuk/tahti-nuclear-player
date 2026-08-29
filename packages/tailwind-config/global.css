@@ -23,6 +23,8 @@
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
 
   --color-border: var(--border);
   --color-border-input: var(--border-input);
@@ -88,6 +90,8 @@
      assumed; overridden per-theme below and in packages/themes where a
      variant's own --primary needs the other extreme to pass. */
   --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.95 0.02 342);
+  --secondary-foreground: oklch(0.2 0.04 342);
 
   /* Borders & Outlines */
   --border: oklch(0% 0 0);
@@ -175,6 +179,8 @@
 
   --primary: oklch(0.5 0.1 5);
   --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.32 0.06 5);
+  --secondary-foreground: oklch(0.95 0.01 5);
 
   --border: oklch(0.48 0.04 5);
   --border-input: var(--border);
