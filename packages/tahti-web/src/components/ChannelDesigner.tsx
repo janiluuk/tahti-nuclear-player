@@ -3,12 +3,14 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ImageIcon,
+  ImagesIcon,
   LinkIcon,
   Loader2Icon,
   PaletteIcon,
   PlaySquareIcon,
   SaveIcon,
   SettingsIcon,
+  Trash2Icon,
   TypeIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -57,8 +59,10 @@ import { ChannelVisualizer } from './ChannelVisualizer';
 import { PageLoading } from './PageStates';
 import { Eyebrow } from './tahti/Eyebrow';
 
-const TAB_IDS = ['visualizer', 'color-scheme', 'header'] as const;
+const TAB_IDS = ['visualizer', 'color-scheme', 'header', 'slideshow'] as const;
 type TabId = (typeof TAB_IDS)[number];
+
+const PREVIEW_VISUALIZER_HEIGHT_CLASS = 'h-44 sm:h-64';
 
 const GALLERY_MODES: Array<{ id: ChannelGalleryMode; label: string }> = [
   { id: 'NONE', label: 'None' },
@@ -276,7 +280,7 @@ export function ChannelDesigner({
       setGalleryMode('STATIC_SLIDESHOW');
       setDirty(true);
       toast.success(
-        `${uploadedUrls.length} image${uploadedUrls.length === 1 ? '' : 's'} added to background media.`,
+        `${uploadedUrls.length} image${uploadedUrls.length === 1 ? '' : 's'} added to the slideshow.`,
       );
     }
     const errors = uploads.flatMap((result) =>
@@ -285,6 +289,17 @@ export function ChannelDesigner({
     if (errors.length > 0) {
       toast.error(errors.join('; '));
     }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    const nextImages = galleryImageList.filter(
+      (_, imageIndex) => imageIndex !== index,
+    );
+    setGalleryImages(nextImages.join('\n'));
+    if (nextImages.length === 0) {
+      setGalleryMode('NONE');
+    }
+    setDirty(true);
   };
 
   const setPresetSetting = (
@@ -422,10 +437,9 @@ export function ChannelDesigner({
     applyLocal({ visualPreset: nextPreset });
   };
 
-  // Shared by the docked-in-preview overlay (below, next to the live
-  // preview) and the lookOnly fallback (inline, in this tab's own content —
-  // lookOnly has no local live preview to dock into, since the real one
-  // lives in the hero block elsewhere on the page in that flow).
+  // Shared by the live preview card (under the visualizer) and the lookOnly
+  // fallback (inline in this tab — lookOnly has no local preview, since the
+  // real one lives in the hero block elsewhere on that page).
   const tuningSliders = (preset: string) => (
     <>
       {(['speed', 'intensity'] as const).map((key) => {
@@ -537,10 +551,10 @@ export function ChannelDesigner({
                             />
                           );
                         })()}
-                        {/* When there's a live preview to dock into (see the preview
-                    block in the main return), tuning shows there instead of
-                    repeated here. lookOnly and livePreview=false have no
-                    local preview to dock into, so they keep sliders inline. */}
+                        {/* When there's a live preview, tuning sits under that
+                    visualizer in the same preset card. lookOnly and
+                    livePreview=false have no local preview, so they keep
+                    sliders inline under the preset picker. */}
                         {!hasLivePreview && dockTuning && (
                           <div className="border-border flex flex-col gap-4 rounded-lg border p-3">
                             <Eyebrow>
@@ -790,195 +804,212 @@ export function ChannelDesigner({
                       </section>
                     ),
                   },
-                ]}
-              />
-            ),
-          },
-          {
-            id: 'background-media',
-            title: 'Background media',
-            description:
-              'Add artist images and choose how they appear behind your channel.',
-            children: (
-              <div className="flex flex-col gap-4">
-                <FilePicker
-                  accept="image/jpeg,image/png,image/webp"
-                  multiple
-                  disabled={busy}
-                  selectedFiles={galleryFiles}
-                  icon={<ImageIcon size={20} aria-hidden />}
-                  labels={{
-                    title: 'Drop background images here',
-                    description: 'JPEG, PNG, or WebP · up to 10 images',
-                    browse: 'Browse images',
-                  }}
-                  onFiles={selectGalleryFiles}
-                />
-                {galleryImageList.length > 0 ? (
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <Eyebrow>
-                        {galleryImageList.length === 1
-                          ? 'Single image preview'
-                          : `Slideshow preview · ${galleryImageList.length} images`}
-                      </Eyebrow>
-                      <span className="text-foreground-secondary text-xs">
-                        {galleryPreviewIndex + 1} / {galleryImageList.length}
+                  {
+                    id: 'slideshow',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <ImagesIcon size={14} aria-hidden /> Slideshow
                       </span>
-                    </div>
-                    <div className="border-border bg-background relative h-36 overflow-hidden rounded-lg border">
-                      <img
-                        key={galleryImageList[galleryPreviewIndex]}
-                        src={galleryImageList[galleryPreviewIndex]}
-                        alt=""
-                        className="h-full w-full object-cover transition-all duration-700"
-                      />
-                      <div className="bg-background/80 text-foreground-secondary absolute inset-x-0 bottom-0 px-3 py-2 text-xs backdrop-blur-sm">
-                        {galleryImageList.length === 1
-                          ? 'Preview of the image used behind the artist channel.'
-                          : `Automatic ${slideshowPreset.toLowerCase()} slideshow preview.`}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-5 gap-2">
-                      {galleryImageList.map((image, index) => (
-                        <button
-                          key={`${image}-${index}`}
-                          type="button"
-                          className={`border-border h-12 overflow-hidden rounded-md border ${index === galleryPreviewIndex ? 'border-primary ring-primary ring-2' : ''}`}
-                          aria-label={`Preview background image ${index + 1}`}
-                          aria-pressed={index === galleryPreviewIndex}
-                          onClick={() => setGalleryPreviewIndex(index)}
-                        >
-                          <img
-                            src={image}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                    Gallery style
-                  </span>
-                  <select
-                    value={galleryMode}
-                    onChange={(event) => {
-                      setGalleryMode(event.target.value as ChannelGalleryMode);
-                      setDirty(true);
-                    }}
-                    className="border-border bg-background text-foreground rounded-md border px-3 py-2"
-                  >
-                    {GALLERY_MODES.map((mode) => (
-                      <option key={mode.id} value={mode.id}>
-                        {mode.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <p className="text-foreground-secondary text-xs">
-                  Video backdrops are managed in Header → Video loop. Uploaded
-                  images use your artist media storage and can also be reused in
-                  your public gallery.
-                </p>
-                {galleryImageList.length === 1 ? (
-                  <div className="border-border flex flex-col gap-2 rounded-lg border p-3">
-                    <Eyebrow>Single image effect</Eyebrow>
-                    <p className="text-foreground-secondary text-xs">
-                      Try an effect designed for one persistent artist backdrop.
-                    </p>
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      {GALLERY_MODES.filter(
-                        (mode) => mode.id !== 'STATIC_SLIDESHOW',
-                      ).map((mode) => {
-                        const active = galleryMode === mode.id;
-                        return (
-                          <button
-                            key={mode.id}
-                            type="button"
-                            aria-pressed={active}
-                            onClick={() => {
-                              setGalleryMode(mode.id);
+                    ),
+                    content: (
+                      <section className="flex flex-col gap-4">
+                        <FilePicker
+                          accept="image/jpeg,image/png,image/webp"
+                          multiple
+                          disabled={busy}
+                          selectedFiles={galleryFiles}
+                          icon={<ImageIcon size={20} aria-hidden />}
+                          labels={{
+                            title: 'Drop slideshow images here',
+                            description: 'JPEG, PNG, or WebP · up to 10 images',
+                            browse: 'Browse images',
+                          }}
+                          onFiles={selectGalleryFiles}
+                        />
+                        {galleryImageList.length > 0 ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <Eyebrow>
+                                {galleryImageList.length === 1
+                                  ? 'Single image preview'
+                                  : `Slideshow · ${galleryImageList.length} images`}
+                              </Eyebrow>
+                              <span className="text-foreground-secondary text-xs">
+                                {galleryPreviewIndex + 1} /{' '}
+                                {galleryImageList.length}
+                              </span>
+                            </div>
+                            <div className="border-border bg-background relative h-36 overflow-hidden rounded-lg border">
+                              <img
+                                key={galleryImageList[galleryPreviewIndex]}
+                                src={galleryImageList[galleryPreviewIndex]}
+                                alt=""
+                                className="h-full w-full object-cover transition-all duration-700"
+                              />
+                              <div className="bg-background/80 text-foreground-secondary absolute inset-x-0 bottom-0 px-3 py-2 text-xs backdrop-blur-sm">
+                                {galleryImageList.length === 1
+                                  ? 'Preview of the image used behind the artist channel.'
+                                  : `Automatic ${slideshowPreset.toLowerCase()} slideshow preview.`}
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+                              {galleryImageList.map((image, index) => (
+                                <div
+                                  key={`${image}-${index}`}
+                                  className="relative"
+                                >
+                                  <button
+                                    type="button"
+                                    className={`border-border h-16 w-full overflow-hidden rounded-md border ${index === galleryPreviewIndex ? 'border-primary ring-primary ring-2' : ''}`}
+                                    aria-label={`Preview slideshow image ${index + 1}`}
+                                    aria-pressed={index === galleryPreviewIndex}
+                                    onClick={() =>
+                                      setGalleryPreviewIndex(index)
+                                    }
+                                  >
+                                    <img
+                                      src={image}
+                                      alt=""
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </button>
+                                  <Button
+                                    size="icon-sm"
+                                    variant="secondary"
+                                    className="absolute top-1 right-1"
+                                    aria-label={`Remove slideshow image ${index + 1}`}
+                                    title="Remove image"
+                                    onClick={() => removeGalleryImage(index)}
+                                  >
+                                    <Trash2Icon size={14} aria-hidden />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-foreground-secondary text-xs">
+                            Upload images to build the slideshow behind your
+                            channel.
+                          </p>
+                        )}
+                        <label className="flex flex-col gap-1 text-sm">
+                          <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                            Gallery style
+                          </span>
+                          <select
+                            value={galleryMode}
+                            onChange={(event) => {
+                              setGalleryMode(
+                                event.target.value as ChannelGalleryMode,
+                              );
                               setDirty(true);
                             }}
-                            className={`border-border rounded-md border px-3 py-2 text-left text-xs font-semibold ${active ? 'border-primary bg-primary/10' : 'hover:border-primary/50'}`}
+                            className="border-border bg-background text-foreground rounded-md border px-3 py-2"
                           >
-                            {mode.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ),
-          },
-          {
-            id: 'slideshow-transitions',
-            title:
-              galleryImageList.length > 1
-                ? 'Slideshow effects'
-                : 'Slideshow effects · add more images',
-            description:
-              'Choose how multiple background images change on your channel.',
-            defaultOpen: false,
-            children: (
-              <div className="flex flex-col gap-4">
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                    Transition
-                  </span>
-                  <select
-                    value={slideshowPreset}
-                    onChange={(event) => {
-                      setSlideshowPreset(event.target.value);
-                      setDirty(true);
-                    }}
-                    className="border-border bg-background text-foreground rounded-md border px-3 py-2"
-                  >
-                    {SLIDESHOW_PRESETS.map(([id, label]) => (
-                      <option key={id} value={id}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <Slider
-                  label={`Interval: ${slideshowInterval}s`}
-                  min={5}
-                  max={30}
-                  step={1}
-                  value={slideshowInterval}
-                  onValueChange={(value) => {
-                    setSlideshowInterval(value);
-                    setDirty(true);
-                  }}
-                />
-                <Slider
-                  label={`Transition speed: ${slideshowTransition}ms`}
-                  min={300}
-                  max={1500}
-                  step={100}
-                  value={slideshowTransition}
-                  onValueChange={(value) => {
-                    setSlideshowTransition(value);
-                    setDirty(true);
-                  }}
-                />
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={slideshowAutoplay}
-                    onChange={(event) => {
-                      setSlideshowAutoplay(event.target.checked);
-                      setDirty(true);
-                    }}
-                  />
-                  Automatically advance slides
-                </label>
-              </div>
+                            {GALLERY_MODES.map((mode) => (
+                              <option key={mode.id} value={mode.id}>
+                                {mode.label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <p className="text-foreground-secondary text-xs">
+                          Video backdrops are managed in Header → Video loop.
+                          Uploaded images use your artist media storage and can
+                          also be reused in your public gallery.
+                        </p>
+                        {galleryImageList.length === 1 ? (
+                          <div className="border-border flex flex-col gap-2 rounded-lg border p-3">
+                            <Eyebrow>Single image effect</Eyebrow>
+                            <p className="text-foreground-secondary text-xs">
+                              Try an effect designed for one persistent artist
+                              backdrop.
+                            </p>
+                            <div className="grid gap-2 sm:grid-cols-2">
+                              {GALLERY_MODES.filter(
+                                (mode) => mode.id !== 'STATIC_SLIDESHOW',
+                              ).map((mode) => {
+                                const active = galleryMode === mode.id;
+                                return (
+                                  <button
+                                    key={mode.id}
+                                    type="button"
+                                    aria-pressed={active}
+                                    onClick={() => {
+                                      setGalleryMode(mode.id);
+                                      setDirty(true);
+                                    }}
+                                    className={`border-border rounded-md border px-3 py-2 text-left text-xs font-semibold ${active ? 'border-primary bg-primary/10' : 'hover:border-primary/50'}`}
+                                  >
+                                    {mode.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : null}
+                        {galleryImageList.length > 1 ? (
+                          <div className="flex flex-col gap-4">
+                            <label className="flex flex-col gap-1 text-sm">
+                              <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                                Transition
+                              </span>
+                              <select
+                                value={slideshowPreset}
+                                onChange={(event) => {
+                                  setSlideshowPreset(event.target.value);
+                                  setDirty(true);
+                                }}
+                                className="border-border bg-background text-foreground rounded-md border px-3 py-2"
+                              >
+                                {SLIDESHOW_PRESETS.map(([id, label]) => (
+                                  <option key={id} value={id}>
+                                    {label}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <Slider
+                              label={`Interval: ${slideshowInterval}s`}
+                              min={5}
+                              max={30}
+                              step={1}
+                              value={slideshowInterval}
+                              onValueChange={(value) => {
+                                setSlideshowInterval(value);
+                                setDirty(true);
+                              }}
+                            />
+                            <Slider
+                              label={`Transition speed: ${slideshowTransition}ms`}
+                              min={300}
+                              max={1500}
+                              step={100}
+                              value={slideshowTransition}
+                              onValueChange={(value) => {
+                                setSlideshowTransition(value);
+                                setDirty(true);
+                              }}
+                            />
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={slideshowAutoplay}
+                                onChange={(event) => {
+                                  setSlideshowAutoplay(event.target.checked);
+                                  setDirty(true);
+                                }}
+                              />
+                              Automatically advance slides
+                            </label>
+                          </div>
+                        ) : null}
+                      </section>
+                    ),
+                  },
+                ]}
+              />
             ),
           },
         ]}
@@ -1099,29 +1130,34 @@ export function ChannelDesigner({
             {visual.visualPreset.replace(/_/g, ' ')}
           </span>
         </div>
-        <div className="relative mt-4 h-28 overflow-hidden rounded-lg sm:h-36">
-          {hasLivePreview && previewPreset !== 'MINIMAL' ? (
-            <ChannelVisualizer
-              className="absolute inset-0 h-full w-full"
-              preset={previewPreset}
-              colorScheme={scheme}
-              visualSettingsJson={JSON.stringify(visualSettings)}
-              artworkUrl={avatarUrl}
-            />
-          ) : (
-            <div
-              className="absolute inset-0"
-              style={{ background: previewStyle.bg }}
-            />
-          )}
-          {/* Tuning docks inside the live preview it actually affects,
-              instead of a separate box under the preset list below. */}
-          {hasLivePreview && dockTuning && (
-            <div className="border-border bg-background/90 absolute inset-x-2 bottom-2 flex flex-col gap-3 rounded-lg border p-3 shadow-lg backdrop-blur-sm">
+        <div className="relative mt-4 flex flex-col overflow-hidden rounded-lg">
+          <div
+            className={`relative overflow-hidden ${PREVIEW_VISUALIZER_HEIGHT_CLASS}`}
+          >
+            {hasLivePreview && previewPreset !== 'MINIMAL' ? (
+              <ChannelVisualizer
+                className="absolute inset-0 h-full w-full"
+                preset={previewPreset}
+                colorScheme={scheme}
+                visualSettingsJson={JSON.stringify(visualSettings)}
+                artworkUrl={avatarUrl}
+              />
+            ) : (
+              <div
+                className="absolute inset-0"
+                style={{ background: previewStyle.bg }}
+              />
+            )}
+          </div>
+          {hasLivePreview && dockTuning ? (
+            <div className="border-border bg-background/90 relative flex flex-col gap-3 border-t p-3 backdrop-blur-sm">
               <Eyebrow>Tune {previewPreset.replace(/_/g, ' ')}</Eyebrow>
               {tuningSliders(previewPreset)}
             </div>
-          )}
+          ) : null}
+          <div className="bg-background relative border-t border-white/10 p-3">
+            {controls}
+          </div>
         </div>
       </div>
 
@@ -1143,8 +1179,6 @@ export function ChannelDesigner({
           </div>
         </Dialog.Root>
       ) : null}
-
-      {controls}
     </div>
   );
 }

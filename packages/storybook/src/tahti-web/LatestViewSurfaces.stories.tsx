@@ -96,6 +96,19 @@ export const StudioArchiveItem: Story = {
   render: () => <StudioArchiveItemView id="track-northern-signals" />,
 };
 
+export const StudioArchiveItemFixedWidth: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The Library track detail surface keeps a fixed readable width at every desktop viewport size.',
+      },
+    },
+  },
+  decorators: [withTahtiRouter('/studio/archive/track-northern-signals')],
+  render: () => <StudioArchiveItemView id="track-northern-signals" />,
+};
+
 export const StudioCollections: Story = {
   parameters: {
     docs: { description: { story: 'Lives on Studio → Music → Collections.' } },

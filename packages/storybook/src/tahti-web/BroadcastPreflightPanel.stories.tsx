@@ -11,11 +11,11 @@ const meta: Meta<typeof BroadcastPreflightPanel> = {
     docs: {
       description: {
         component:
-          'Broadcast readiness and show metadata panel. Lives on Studio → Go Live.',
+          'Broadcast show metadata form. Lives on Studio → Perform → Info.',
       },
     },
   },
-  decorators: [withTahtiRouter('/studio/go-live'), withMockAuth()],
+  decorators: [withTahtiRouter('/studio/info'), withMockAuth()],
 };
 
 export default meta;

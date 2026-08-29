@@ -289,12 +289,11 @@ export function resolveVisualPresetSettings(
   };
 }
 
-/** Governs whether the speed/intensity tuning sliders should be docked
- * inside the live visualizer preview: only while the Visualizer tab is the
- * one showing, the visualizer is switched on, and the current preset is a
- * real (non-MINIMAL) preset that actually has tunable settings. Shared by
- * ChannelDesigner's docked-in-preview overlay and its lookOnly inline
- * fallback so both agree on exactly one rule. */
+/** Governs whether the speed/intensity tuning sliders should sit under
+ * the live visualizer in the same preset card: only while the Visualizer
+ * tab is showing, the visualizer is on, and the current preset is a real
+ * (non-MINIMAL) preset with tunable settings. Shared by ChannelDesigner's
+ * preview card and its lookOnly inline fallback so both agree. */
 export function shouldDockVisualizerTuning(params: {
   preset: string;
   visualizerEnabled: boolean;

@@ -21,7 +21,8 @@ import { StudioRecordingsView } from './studio/StudioRecordingsView';
 import { StudioReleasesView } from './studio/StudioReleasesView';
 
 type Tab =
-  | 'discography'
+  | 'library'
+  | 'sounds'
   | 'collections'
   | 'releases'
   | 'recordings'
@@ -31,7 +32,8 @@ type Tab =
   | 'media';
 
 const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
-  discography: '/library',
+  library: '/library',
+  sounds: '/library/sounds',
   releases: '/library/releases',
   collections: '/library/collections',
   recordings: '/library/recordings',
@@ -41,9 +43,9 @@ const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
   media: '/library/media',
 };
 
-export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
+export function LibraryView({ tab = 'library' }: { tab?: Tab }) {
   const overviewTab =
-    tab === 'discography' ||
+    tab === 'sounds' ||
     tab === 'collections' ||
     tab === 'recordings' ||
     tab === 'media'
@@ -56,10 +58,21 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
         <StudioNav current={LIBRARY_ROUTE_BY_TAB[tab]} />
       ) : null}
       <div className="min-w-0 flex-1">
+        {tab === 'library' ? (
+          <>
+            <StudioPageHeader
+              title="Overview"
+              subtitle="Your catalog at a glance."
+            />
+            <div className="mt-6">
+              <LibraryStats />
+            </div>
+          </>
+        ) : null}
         {overviewTab ? (
           <>
             <StudioPageHeader
-              title="Library"
+              title="Sounds"
               subtitle="Your sounds, collections, and recordings."
             />
             <nav
@@ -69,7 +82,7 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
             >
               {(
                 [
-                  ['discography', 'All sounds', '/library'],
+                  ['sounds', 'Sounds', '/library/sounds'],
                   ['collections', 'Collections', '/library/collections'],
                   ['recordings', 'Recordings', '/library/recordings'],
                   ['media', 'Media', '/library/media'],
@@ -90,9 +103,8 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
                 </Link>
               ))}
             </nav>
-            {tab === 'discography' && (
-              <div className="mt-6 flex flex-col gap-6">
-                <LibraryStats />
+            {tab === 'sounds' && (
+              <div className="mt-6">
                 <MyDiscographyView />
               </div>
             )}
@@ -117,7 +129,6 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
         {tab === 'favorites' && <FavoritesView />}
         {tab === 'history' && <HistoryView />}
         {tab === 'smartlinks' && <LibrarySmartLinksView />}
-        {tab === 'media' && <LibraryMediaView />}
       </div>
     </div>
   );

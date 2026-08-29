@@ -3,7 +3,9 @@ import {
   FolderOpenIcon,
   HeartIcon,
   ImageIcon,
+  InfoIcon,
   LandmarkIcon,
+  LayersIcon,
   LayoutGridIcon,
   LibraryIcon,
   Link2Icon,
@@ -76,7 +78,17 @@ const SUBMENUS = {
     },
   ],
   '/library': [
-    { to: '/library', label: 'Library', icon: <LibraryIcon size={16} /> },
+    { to: '/library', label: 'Overview', icon: <LibraryIcon size={16} /> },
+    {
+      to: '/library/sounds',
+      label: 'Sounds',
+      icon: <ListMusicIcon size={16} />,
+    },
+    {
+      to: '/library/collections',
+      label: 'Collections',
+      icon: <LayersIcon size={16} />,
+    },
     {
       to: '/studio/releases',
       label: 'Releases',
@@ -96,6 +108,11 @@ const SUBMENUS = {
       to: '/studio/go-live',
       label: 'Go live',
       icon: <RadioTowerIcon size={16} />,
+    },
+    {
+      to: '/studio/info',
+      label: 'Info',
+      icon: <InfoIcon size={16} />,
     },
     {
       to: '/studio/schedule',
@@ -166,6 +183,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/archive',
     '/studio/releases',
     '/library/collections',
+    '/studio/collections',
     '/library/recordings',
     '/library/smartlinks',
     '/library/upload',
@@ -174,6 +192,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
   ],
   '/studio/go-live': [
     '/studio/go-live',
+    '/studio/info',
     '/studio/schedule',
     '/studio/events',
     '/studio/shows',
@@ -207,7 +226,11 @@ const isSubmenuActive = (current: string | undefined, to: string) =>
       ? current === to
       : current === to || current?.startsWith(`${to}/`) === true) ||
   (to === '/studio/releases' && current === '/library/releases') ||
-  (to === '/studio/collections' && current === '/library/collections') ||
+  (to === '/library/sounds' && current?.startsWith('/studio/archive')) ||
+  (to === '/library/collections' &&
+    (current === '/studio/collections' ||
+      current?.startsWith('/studio/collections/') === true ||
+      current?.startsWith('/studio/playlists/') === true)) ||
   (to === '/studio/recordings' && current === '/library/recordings') ||
   (to === '/library/history' && current === '/library/history');
 

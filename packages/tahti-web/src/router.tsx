@@ -49,6 +49,7 @@ import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
 import { SourcesView } from './views/SourcesView';
 import { StudioArchiveView } from './views/studio/StudioArchiveView';
+import { StudioBroadcastInfoView } from './views/studio/StudioBroadcastInfoView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
@@ -592,7 +593,13 @@ const LibraryView = lazyRouteComponent(
 const libraryRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library',
-  component: () => <LibraryView tab="discography" />,
+  component: () => <LibraryView tab="library" />,
+});
+
+const librarySoundsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/library/sounds',
+  component: () => <LibraryView tab="sounds" />,
 });
 
 const libraryReleasesRoute = createRoute({
@@ -984,6 +991,12 @@ const studioGoLiveRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/go-live',
   component: StudioGoLiveView,
+});
+
+const studioBroadcastInfoRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/info',
+  component: StudioBroadcastInfoView,
 });
 
 const studioArchiveRoute = createRoute({
@@ -1421,6 +1434,7 @@ const routeTree = rootRoute.addChildren([
     adminStatusRoute,
     adminI18nRoute,
     libraryRoute,
+    librarySoundsRoute,
     libraryReleasesRoute,
     libraryCollectionsRoute,
     libraryRecordingsRoute,
@@ -1478,6 +1492,7 @@ const routeTree = rootRoute.addChildren([
     studioRoute,
     studioSetupChannelRoute,
     studioGoLiveRoute,
+    studioBroadcastInfoRoute,
     studioArchiveRoute,
     studioRecordingsRoute,
     studioArchiveItemRoute,

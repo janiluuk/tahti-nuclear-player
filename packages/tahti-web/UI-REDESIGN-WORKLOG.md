@@ -1,5 +1,29 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-29 — Perform Info tab and show visibility
+
+**Completed:** Moved the broadcast Info form out of Go Live into a Perform submenu tab (`/studio/info`). Go Live now opens on the live panel. Show visibility sits on the Info form instead of under More options, and the Go Live live-audience block was removed.
+
+**Validation:** Browser check of Go Live and Info, plus lint of the touched files.
+
+## 2026-08-29 — Channel editor preset and controls
+
+**Completed:** In the artist channel editor, speed/intensity and the look controls now sit below the visualizer inside the same preset card. The visualizer strip is taller and no longer covered by an overlay.
+
+**Validation:** Type-check and lint of ChannelDesigner.
+
+## 2026-08-29 — Player bar expand control
+
+**Completed:** Full-screen expand now sits on the right edge of the player bar, with the queue length as a badge on that icon. The hide/minimize control was removed so the bar stays available.
+
+**Validation:** Type-check and lint of the player bar component.
+
+## 2026-08-29 — Library left nav Overview and Collections
+
+**Completed:** Renamed the first Library submenu item from Library to Overview so it matches the catalog snapshot page. Added Collections as a dedicated left-nav destination (`/library/collections`), with Studio collection and playlist editor routes still highlighting that item.
+
+**Validation:** Tahti web type-check, lint, and diff checks.
+
 ## 2026-08-29 — Image upload UX sweep
 
 Replaced image URL text fields with the shared drag-and-drop upload widget across

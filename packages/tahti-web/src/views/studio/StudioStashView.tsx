@@ -58,7 +58,7 @@ export function StudioStashView() {
             aria-selected={tab === 'files'}
             onClick={() => setTab('files')}
           >
-            Files
+            Move to stash
           </Button>
         </div>
         {tab === 'files' ? (

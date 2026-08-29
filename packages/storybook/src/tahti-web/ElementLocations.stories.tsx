@@ -56,7 +56,7 @@ const locations: ElementLocation[] = [
   {
     element: 'BroadcastPreflightPanel',
     kind: 'Component',
-    pages: 'Studio → Go Live',
+    pages: 'Studio → Perform → Info',
   },
   {
     element: 'StreamManagerPanel',

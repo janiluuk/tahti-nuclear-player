@@ -37,7 +37,6 @@ import {
   type SignalStatus,
   type StreamSettings,
 } from '../../api/broadcast';
-import { BroadcastPreflightPanel } from '../../components/BroadcastPreflightPanel';
 import { ChannelShareButton } from '../../components/ChannelShareButton';
 import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
@@ -131,9 +130,6 @@ export function StudioGoLiveView() {
   const [showAddDestination, setShowAddDestination] = useState(false);
   const [recordEnabled, setRecordEnabled] = useState(true);
   const [recordBusy, setRecordBusy] = useState(false);
-  const [liveVisibility, setLiveVisibility] = useState<
-    'PUBLIC' | 'PRIVATE' | 'FAN_ONLY'
-  >('PUBLIC');
 
   const slug = user?.channel?.slug ?? '';
   const displayName = user?.displayName ?? slug;
@@ -173,7 +169,6 @@ export function StudioGoLiveView() {
     setUsage(usageResult.data);
     setTargets(targetResult.data);
     setRecordEnabled(preflightResult.data?.autoArchive ?? true);
-    setLiveVisibility(preflightResult.data?.visibility ?? 'PUBLIC');
     if (
       !settingsResult.data &&
       settingsResult.meta.source === 'api' &&
@@ -350,8 +345,6 @@ export function StudioGoLiveView() {
           />
         )}
 
-        <BroadcastPreflightPanel />
-
         <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(17rem,2fr)]">
           <div className="flex min-w-0 flex-col gap-5">
             <StudioPanel
@@ -527,47 +520,6 @@ export function StudioGoLiveView() {
                 <FolderOpenIcon size={14} aria-hidden />
                 Edit and release saved recordings
               </Link>
-            </StudioPanel>
-
-            <StudioPanel title="Live audience">
-              <div
-                className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
-                role="radiogroup"
-                aria-label="Live audience"
-              >
-                {(
-                  [
-                    ['PUBLIC', 'Public'],
-                    ['PRIVATE', 'Private'],
-                    ['FAN_ONLY', 'Fans only'],
-                  ] as const
-                ).map(([value, label]) => (
-                  <Button
-                    key={value}
-                    type="button"
-                    size="sm"
-                    variant="text"
-                    role="radio"
-                    aria-checked={liveVisibility === value}
-                    onClick={() => {
-                      setLiveVisibility(value);
-                      void patchBroadcastPreflight({ visibility: value });
-                    }}
-                    className={
-                      liveVisibility === value
-                        ? 'bg-primary text-primary-foreground rounded-md'
-                        : 'text-foreground-secondary rounded-md'
-                    }
-                  >
-                    {label}
-                  </Button>
-                ))}
-              </div>
-              {usage?.blocked ? (
-                <p className="text-accent-red mt-2 text-xs">
-                  Weekly live limit reached.
-                </p>
-              ) : null}
             </StudioPanel>
 
             <StudioPanel

@@ -1,6 +1,83 @@
 [
   {
     "date": "2026-08-29T00:00",
+    "description": "Moved broadcast show details to a Perform Info tab, with visibility on the main form, so Go Live opens on the live panel.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Artist channel editor now keeps look controls under the visualizer preset in one taller preview card, instead of overlaying them on the animation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Moved the player full-screen control to the right edge of the bar, shows the queue count on that icon, and removed the hide-player button.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Player", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Library’s left navigation now starts with Overview and includes a dedicated Collections item.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Library now keeps its overview statistics separate while Sounds owns the Sounds, Collections, Recordings, and Media tabs; duplicate Media rendering was removed.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Library track detail pages now use a consistent readable width and have a dedicated fixed-width Storybook reference story.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Renamed the Stash Files tab to Move to stash for clearer action-oriented navigation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Library now has a dedicated Sounds tab for the sound catalog and overview, with a direct /library/sounds route.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Archive track detail pages now keep Library selected and expose Tracks as the active Library submenu destination.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Added Transparency as a tab alongside Governance and feature requests in the More navigation section.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Added Governance to the More navigation tree with direct links to motions and feature requests.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Navigation", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
     "description": "Fixed the Audience overview statistics cards overflowing the Studio content area on wide screens.",
     "type": "fix",
     "contributors": ["jani"],

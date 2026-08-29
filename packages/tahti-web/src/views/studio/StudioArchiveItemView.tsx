@@ -373,8 +373,8 @@ export function StudioArchiveItemView({ id }: { id: string }) {
 
   return (
     <StudioGate>
-      <div className="studio-page-layout mx-auto flex max-w-4xl flex-col gap-6">
-        <StudioNav current="/studio/archive" />
+      <div className="studio-page-layout studio-page-layout--fixed-width mx-auto flex max-w-4xl flex-col gap-6">
+        <StudioNav current={`/studio/archive/${id}`} />
         <Link
           to="/studio/archive"
           className="text-foreground-secondary text-xs hover:underline"

@@ -1,9 +1,4 @@
-import {
-  ChevronDownIcon,
-  ChevronsDownIcon,
-  ChevronsUpIcon,
-  Maximize2Icon,
-} from 'lucide-react';
+import { ChevronsDownIcon, ChevronsUpIcon, Maximize2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { formatArtistNames } from '@nuclearplayer/model';
@@ -38,7 +33,6 @@ export function ConnectedPlayerBar() {
   const cycleRepeat = usePlayerStore((s) => s.cycleRepeat);
   const seekTo = usePlayerStore((s) => s.seekTo);
   const toggleMute = usePlayerStore((s) => s.toggleMute);
-  const hidePlayerBar = usePlayerStore((s) => s.hidePlayerBar);
   const queueOpen = useLayoutStore((s) => s.bottomQueueOpen);
   const setBottomQueueOpen = useLayoutStore((s) => s.setBottomQueueOpen);
   const setFullScreenPlayerOpen = useLayoutStore(
@@ -204,18 +198,6 @@ export function ConnectedPlayerBar() {
         }
         right={
           <div className="flex items-center gap-2">
-            {playable && (
-              <Button
-                size="icon-sm"
-                variant="text"
-                onClick={() => setFullScreenPlayerOpen(true)}
-                title="Full screen"
-                aria-label="Full screen"
-                data-testid="expand-full-screen-player"
-              >
-                <Maximize2Icon size={16} />
-              </Button>
-            )}
             <Button
               size="icon-sm"
               variant={queueOpen ? 'secondary' : 'text'}
@@ -233,30 +215,38 @@ export function ConnectedPlayerBar() {
                 <ChevronsUpIcon size={16} />
               )}
             </Button>
-            {!queueOpen && queue.length > 0 && (
-              <span className="text-foreground-secondary text-xs tabular-nums">
-                {queue.length}
-              </span>
-            )}
             <PlayerBar.Volume
               value={muted ? 0 : Math.round(volume * 100)}
               onValueChange={(v) => setVolume(v / 100)}
               muted={muted}
               onMuteToggle={toggleMute}
             />
-            <Button
-              size="icon-sm"
-              variant="text"
-              onClick={() => {
-                setBottomQueueOpen(false);
-                hidePlayerBar();
-              }}
-              title="Hide player"
-              aria-label="Hide player"
-              data-testid="hide-player-bar"
-            >
-              <ChevronDownIcon size={16} />
-            </Button>
+            <div className="relative">
+              <Button
+                size="icon-sm"
+                variant="text"
+                disabled={!playable}
+                onClick={() => setFullScreenPlayerOpen(true)}
+                title={
+                  queue.length > 0
+                    ? `Full screen · ${queue.length} in queue`
+                    : 'Full screen'
+                }
+                aria-label={
+                  queue.length > 0
+                    ? `Full screen, ${queue.length} in queue`
+                    : 'Full screen'
+                }
+                data-testid="expand-full-screen-player"
+              >
+                <Maximize2Icon size={16} />
+              </Button>
+              {queue.length > 0 ? (
+                <span className="bg-primary text-primary-foreground pointer-events-none absolute -top-0.5 -right-0.5 min-w-4 rounded-full px-1 text-center text-[9px] font-bold tabular-nums">
+                  {queue.length}
+                </span>
+              ) : null}
+            </div>
           </div>
         }
       />

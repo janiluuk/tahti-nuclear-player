@@ -1,3 +1,11 @@
+import { Link } from '@tanstack/react-router';
+import {
+  BarChart3Icon,
+  LandmarkIcon,
+  LightbulbIcon,
+  VoteIcon,
+} from 'lucide-react';
+
 import { Badge, Button } from '@nuclearplayer/ui';
 
 import { FlowGallery } from '../components/FlowGallery';
@@ -640,6 +648,12 @@ export function MoreView() {
           >
             Comments
           </a>
+          <a
+            href="#governance"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Governance
+          </a>
         </nav>
       </div>
 
@@ -661,6 +675,70 @@ export function MoreView() {
           ))}
         </ul>
       </StudioPanel>
+
+      <section id="governance" className="scroll-mt-4">
+        <StudioPanel
+          title="Governance"
+          description="Take part in cooperative decisions, review open motions, and suggest what Tahti builds next."
+        >
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Link
+              to="/governance"
+              className="border-border bg-background-secondary/30 hover:border-primary flex items-start gap-3 rounded-lg border p-3 transition-colors"
+            >
+              <VoteIcon size={20} aria-hidden className="text-primary mt-0.5" />
+              <span>
+                <span className="block text-sm font-semibold">
+                  Open governance
+                </span>
+                <span className="text-foreground-secondary mt-1 block text-xs">
+                  Read motions, vote YES / NO / ABSTAIN, and join discussions.
+                </span>
+              </span>
+            </Link>
+            <Link
+              to="/governance/feature-requests"
+              className="border-border bg-background-secondary/30 hover:border-primary flex items-start gap-3 rounded-lg border p-3 transition-colors"
+            >
+              <LightbulbIcon
+                size={20}
+                aria-hidden
+                className="text-primary mt-0.5"
+              />
+              <span>
+                <span className="block text-sm font-semibold">
+                  Feature requests
+                </span>
+                <span className="text-foreground-secondary mt-1 block text-xs">
+                  Propose and vote on ideas for the next Tahti releases.
+                </span>
+              </span>
+            </Link>
+            <Link
+              to="/transparency"
+              className="border-border bg-background-secondary/30 hover:border-primary flex items-start gap-3 rounded-lg border p-3 transition-colors"
+            >
+              <BarChart3Icon
+                size={20}
+                aria-hidden
+                className="text-primary mt-0.5"
+              />
+              <span>
+                <span className="block text-sm font-semibold">
+                  Transparency
+                </span>
+                <span className="text-foreground-secondary mt-1 block text-xs">
+                  See cooperative grants, annual totals, and the public ledger.
+                </span>
+              </span>
+            </Link>
+          </div>
+          <p className="text-foreground-secondary mt-3 flex items-center gap-2 text-xs">
+            <LandmarkIcon size={14} aria-hidden />
+            Governance participation requires a cooperative membership account.
+          </p>
+        </StudioPanel>
+      </section>
 
       <ScreenAtlas />
 
