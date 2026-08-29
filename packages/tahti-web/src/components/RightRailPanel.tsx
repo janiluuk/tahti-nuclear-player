@@ -50,7 +50,7 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
         >
           <Bell size={18} />
           {notifications.length > 0 ? (
-            <span className="bg-accent-red text-foreground absolute -top-1 -right-1 min-w-3 rounded-full px-1 text-center text-[9px] leading-3">
+            <span className="bg-accent-red text-accent-foreground absolute -top-1 -right-1 min-w-3 rounded-full px-1 text-center text-[9px] leading-3">
               {notifications.length}
             </span>
           ) : null}
@@ -80,7 +80,7 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
           <Bell size={13} />
           Notifications
           {notifications.length > 0 ? (
-            <span className="bg-accent-red text-foreground ml-0.5 rounded-full px-1.5 text-[9px]">
+            <span className="bg-accent-red text-accent-foreground ml-0.5 rounded-full px-1.5 text-[9px]">
               {notifications.length}
             </span>
           ) : null}

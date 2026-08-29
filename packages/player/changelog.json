@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-29T00:00",
+    "description": "Tahti theme now uses ink text on light cyan, green, yellow, and coral fills so labels stay readable.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Theme", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
     "description": "Removed the Channel and 24/7 radio tabs from the channel design page; Radio stays in the Manage sidebar.",
     "type": "improvement",
     "contributors": ["jani"],

@@ -83,7 +83,7 @@ export const QueueItemExpanded: FC<QueueItemProps> = ({
           <div
             data-testid="queue-item-error"
             className={cn(
-              'bg-accent-red text-foreground border-border mt-1 inline-flex max-w-full items-center gap-1 rounded-sm border px-1 py-0.5 text-xs',
+              'bg-accent-red text-accent-foreground border-border mt-1 inline-flex max-w-full items-center gap-1 rounded-sm border px-1 py-0.5 text-xs',
               classes?.error,
             )}
           >

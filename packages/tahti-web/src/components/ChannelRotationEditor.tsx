@@ -1,10 +1,4 @@
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ListMusicIcon,
-  PlayIcon,
-  Trash2Icon,
-} from 'lucide-react';
+import { ListMusicIcon, PlayIcon, Trash2Icon } from 'lucide-react';
 import { FC, useState } from 'react';
 
 import { Button, Select } from '@nuclearplayer/ui';
@@ -50,19 +44,6 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
   onAddGroup,
 }) => {
   const [draggedId, setDraggedId] = useState<string | null>(null);
-  const moveItem = (index: number, direction: -1 | 1) => {
-    const target = index + direction;
-    if (target < 0 || target >= items.length) {
-      return;
-    }
-    const next = [...items];
-    const [moved] = next.splice(index, 1);
-    if (!moved) {
-      return;
-    }
-    next.splice(target, 0, moved);
-    onReorder(next);
-  };
 
   return (
     <div className="border-border border-t px-4 py-4 sm:px-5">
@@ -215,26 +196,6 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
                       <PlayIcon size={14} aria-hidden />
                     </Button>
                   ) : null}
-                  <Button
-                    size="icon-sm"
-                    variant="text"
-                    disabled={busy || index === 0}
-                    onClick={() => moveItem(index, -1)}
-                    aria-label={`Move ${item.title} up`}
-                    title="Move up"
-                  >
-                    <ArrowUpIcon size={14} aria-hidden />
-                  </Button>
-                  <Button
-                    size="icon-sm"
-                    variant="text"
-                    disabled={busy || index === items.length - 1}
-                    onClick={() => moveItem(index, 1)}
-                    aria-label={`Move ${item.title} down`}
-                    title="Move down"
-                  >
-                    <ArrowDownIcon size={14} aria-hidden />
-                  </Button>
                   <Button
                     size="icon-sm"
                     variant="text"

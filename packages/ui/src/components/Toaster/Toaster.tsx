@@ -41,12 +41,12 @@ const ToasterImpl: FC<ToasterProps> = ({
           loading:
             '[&[data-sonner-toast]_[data-icon]]:flex [&[data-sonner-toast]_[data-icon]]:size-4 [&[data-sonner-toast]_[data-icon]]:relative [&[data-sonner-toast]_[data-icon]]:justify-start [&[data-sonner-toast]_[data-icon]]:items-center [&[data-sonner-toast]_[data-icon]]:flex-shrink-0',
           success:
-            '!bg-accent-green !text-foreground !border-(length:--border-width) !border-border',
+            '!bg-accent-green !text-accent-foreground !border-(length:--border-width) !border-border',
           error:
-            '!bg-accent-red !text-foreground !border-(length:--border-width) !border-border',
+            '!bg-accent-red !text-accent-foreground !border-(length:--border-width) !border-border',
           warning:
-            '!bg-accent-orange !text-foreground !border-(length:--border-width) !border-border',
-          info: '!bg-accent-cyan !text-foreground !border-(length:--border-width) !border-border',
+            '!bg-accent-orange !text-accent-foreground !border-(length:--border-width) !border-border',
+          info: '!bg-accent-cyan !text-accent-foreground !border-(length:--border-width) !border-border',
         },
       }}
     />

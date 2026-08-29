@@ -71,7 +71,7 @@ export const NuclearJamQueue: FC<NuclearJamQueueProps> = ({
           variant="pill"
           color="yellow"
           data-testid="jam-queue-count"
-          className="dark:bg-accent-green dark:border-background dark:text-white"
+          className="dark:bg-accent-green dark:border-background dark:text-accent-foreground"
         >
           {items.length}
         </Badge>

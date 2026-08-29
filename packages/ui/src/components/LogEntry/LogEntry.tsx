@@ -26,10 +26,10 @@ const levelBadgeVariants = cva(
   {
     variants: {
       level: {
-        error: 'bg-accent-red text-foreground',
-        warn: 'bg-accent-yellow text-foreground',
-        info: 'bg-accent-cyan text-foreground',
-        debug: 'bg-accent-purple text-foreground',
+        error: 'bg-accent-red text-accent-foreground',
+        warn: 'bg-accent-yellow text-accent-foreground',
+        info: 'bg-accent-cyan text-accent-foreground',
+        debug: 'bg-accent-purple text-accent-foreground',
         trace: 'bg-foreground/50 text-background',
       },
     },
@@ -54,7 +54,7 @@ const sourceChipVariants = cva(
     variants: {
       type: {
         core: 'bg-foreground/10 text-foreground',
-        plugin: 'bg-accent-orange/50 text-foreground',
+        plugin: 'bg-accent-orange/50 text-accent-foreground',
       },
     },
   },

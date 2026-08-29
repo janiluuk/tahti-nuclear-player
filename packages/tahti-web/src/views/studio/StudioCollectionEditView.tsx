@@ -1,9 +1,5 @@
 import { Link } from '@tanstack/react-router';
 import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  EyeIcon,
-  ListMusicIcon,
   Maximize2Icon,
   Minimize2Icon,
   PauseIcon,
@@ -129,12 +125,15 @@ function TrackRow({
   isExpanded,
   isCurrent,
   isPlaying,
+  isDragging,
+  reorderable,
   currentTime,
   onToggleExpand,
   onPlay,
   onSeek,
-  onMoveUp,
-  onMoveDown,
+  onDragStart,
+  onDragEnd,
+  onDrop,
   onRemove,
   genre,
 }: {
@@ -143,12 +142,15 @@ function TrackRow({
   isExpanded: boolean;
   isCurrent: boolean;
   isPlaying: boolean;
+  isDragging: boolean;
+  reorderable: boolean;
   currentTime: number;
   onToggleExpand: () => void;
   onPlay: () => void;
   onSeek: (sec: number) => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
+  onDragStart: () => void;
+  onDragEnd: () => void;
+  onDrop: () => void;
   onRemove: () => void;
   genre?: string | null;
 }) {
@@ -161,8 +163,25 @@ function TrackRow({
 
   return (
     <li
+      draggable={reorderable}
+      onDragStart={(event) => {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', item.id);
+        onDragStart();
+      }}
+      onDragEnd={onDragEnd}
+      onDragOver={(event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        onDrop();
+      }}
       className={`${idx % 2 === 1 ? 'bg-background-secondary/40' : ''} ${
         isCurrent ? 'bg-accent-green/10' : ''
+      } ${reorderable ? 'cursor-grab active:cursor-grabbing' : ''} ${
+        isDragging ? 'opacity-50' : ''
       }`}
     >
       <div className="flex flex-wrap items-center gap-2 px-2 py-2 text-sm">
@@ -246,24 +265,6 @@ function TrackRow({
         <Button
           size="icon-sm"
           variant="text"
-          aria-label="Move up"
-          title="Move up"
-          onClick={onMoveUp}
-        >
-          <ChevronUpIcon size={16} aria-hidden />
-        </Button>
-        <Button
-          size="icon-sm"
-          variant="text"
-          aria-label="Move down"
-          title="Move down"
-          onClick={onMoveDown}
-        >
-          <ChevronDownIcon size={16} aria-hidden />
-        </Button>
-        <Button
-          size="icon-sm"
-          variant="text"
           aria-label="Remove track"
           title="Remove"
           onClick={onRemove}
@@ -329,10 +330,8 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [trackQuery, setTrackQuery] = useState('');
   const [archiveQuery, setArchiveQuery] = useState('');
-  const [collectionTab, setCollectionTab] = useState<'tracks' | 'visibility'>(
-    'tracks',
-  );
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
 
   const play = usePlayerStore((s) => s.play);
   const currentId = usePlayerStore((s) => s.currentId);
@@ -425,15 +424,21 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
     void playArchiveItem(item.archiveItem.id, item.archiveItem.title);
   };
 
-  const move = async (index: number, dir: -1 | 1) => {
-    const next = [...items];
-    const j = index + dir;
-    if (j < 0 || j >= next.length) {
+  const reorderByDrop = async (fromId: string, toId: string) => {
+    if (fromId === toId) {
       return;
     }
-    const tmp = next[index]!;
-    next[index] = next[j]!;
-    next[j] = tmp;
+    const fromIndex = items.findIndex((candidate) => candidate.id === fromId);
+    const toIndex = items.findIndex((candidate) => candidate.id === toId);
+    if (fromIndex < 0 || toIndex < 0) {
+      return;
+    }
+    const next = [...items];
+    const [moved] = next.splice(fromIndex, 1);
+    if (!moved) {
+      return;
+    }
+    next.splice(toIndex, 0, moved);
     setCol((c) => (c ? { ...c, items: next } : c));
     const result = await reorderStudioCollectionItems(
       slug,
@@ -443,6 +448,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
       toast.success('Tracklist reordered.');
     } else {
       toast.error(result.error);
+      reload();
     }
   };
 
@@ -555,75 +561,6 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
               </div>
             </div>
 
-            <nav
-              className="border-border flex w-fit flex-wrap gap-1 rounded-lg border p-1"
-              role="tablist"
-              aria-label="Collection editor sections"
-            >
-              <Button
-                size="sm"
-                variant="text"
-                role="tab"
-                aria-selected={collectionTab === 'tracks'}
-                onClick={() => setCollectionTab('tracks')}
-                className={
-                  collectionTab === 'tracks'
-                    ? 'bg-primary text-primary-foreground rounded-md'
-                    : 'text-foreground-secondary rounded-md'
-                }
-              >
-                <ListMusicIcon size={15} aria-hidden />
-                Tracks
-              </Button>
-              <Button
-                size="sm"
-                variant="text"
-                role="tab"
-                aria-selected={collectionTab === 'visibility'}
-                onClick={() => setCollectionTab('visibility')}
-                className={
-                  collectionTab === 'visibility'
-                    ? 'bg-primary text-primary-foreground rounded-md'
-                    : 'text-foreground-secondary rounded-md'
-                }
-              >
-                <EyeIcon size={15} aria-hidden />
-                Visibility
-              </Button>
-            </nav>
-
-            {collectionTab === 'visibility' && (
-              <StudioPanel
-                title="Visibility"
-                description="Choose who can find this collection."
-              >
-                <div className="flex flex-col gap-3">
-                  <label className="flex flex-col gap-1 text-sm">
-                    <span className="text-foreground-secondary text-xs uppercase">
-                      Visibility
-                    </span>
-                    <select
-                      aria-label="Visibility"
-                      value={visibility}
-                      onChange={(event) =>
-                        setVisibility(event.target.value as typeof visibility)
-                      }
-                      className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                    >
-                      <option value="PUBLIC">Public</option>
-                      <option value="UNLISTED">
-                        Unlisted — direct link only
-                      </option>
-                      <option value="PRIVATE">Private — only you</option>
-                    </select>
-                  </label>
-                  <p className="text-foreground-secondary text-sm">
-                    Save the collection to apply visibility changes.
-                  </p>
-                </div>
-              </StudioPanel>
-            )}
-
             <StudioPanel
               title="Details"
               action={
@@ -706,169 +643,204 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
               )}
             </StudioPanel>
 
-            {collectionTab === 'tracks' && (
-              <StudioPanel
-                title={isAlbumLike ? 'Tracklist' : 'Items'}
-                description={`${items.length} track${items.length === 1 ? '' : 's'}`}
-              >
-                <div className="mb-3 flex flex-col gap-3">
-                  <Input
-                    value={trackQuery}
-                    onChange={(e) => setTrackQuery(e.target.value)}
-                    placeholder="Search tracks…"
-                    className="max-w-xs"
-                    aria-label="Search tracks"
-                  />
+            <StudioPanel
+              title="Visibility"
+              description="Choose who can find this collection."
+            >
+              <div className="flex flex-col gap-3">
+                <label className="flex flex-col gap-1 text-sm">
+                  <span className="text-foreground-secondary text-xs uppercase">
+                    Visibility
+                  </span>
+                  <select
+                    aria-label="Visibility"
+                    value={visibility}
+                    onChange={(event) =>
+                      setVisibility(event.target.value as typeof visibility)
+                    }
+                    className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                  >
+                    <option value="PUBLIC">Public</option>
+                    <option value="UNLISTED">
+                      Unlisted — direct link only
+                    </option>
+                    <option value="PRIVATE">Private — only you</option>
+                  </select>
+                </label>
+                <p className="text-foreground-secondary text-sm">
+                  Save the collection to apply visibility changes.
+                </p>
+              </div>
+            </StudioPanel>
 
-                  {nowPlayingItem?.archiveItem && (
-                    <div className="border-border bg-background-input flex items-center gap-3 rounded-lg border px-3 py-2">
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        aria-label={isPlaying ? 'Pause' : 'Play'}
-                        onClick={() =>
-                          setStatus(isPlaying ? 'paused' : 'playing')
+            <StudioPanel
+              title={isAlbumLike ? 'Tracklist' : 'Items'}
+              description={`${items.length} track${items.length === 1 ? '' : 's'}`}
+            >
+              <div className="mb-3 flex flex-col gap-3">
+                <Input
+                  value={trackQuery}
+                  onChange={(e) => setTrackQuery(e.target.value)}
+                  placeholder="Search tracks…"
+                  className="max-w-xs"
+                  aria-label="Search tracks"
+                />
+
+                {nowPlayingItem?.archiveItem && (
+                  <div className="border-border bg-background-input flex items-center gap-3 rounded-lg border px-3 py-2">
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      aria-label={isPlaying ? 'Pause' : 'Play'}
+                      onClick={() =>
+                        setStatus(isPlaying ? 'paused' : 'playing')
+                      }
+                    >
+                      {isPlaying ? (
+                        <PauseIcon size={16} aria-hidden />
+                      ) : (
+                        <PlayIcon size={16} aria-hidden />
+                      )}
+                    </Button>
+                    <span className="truncate text-sm font-medium">
+                      {nowPlayingItem.archiveItem.title}
+                    </span>
+                    <div
+                      className="border-border bg-background relative h-1.5 flex-1 cursor-pointer overflow-hidden rounded-full border"
+                      onClick={(e) => {
+                        if (duration <= 0) {
+                          return;
                         }
-                      >
-                        {isPlaying ? (
-                          <PauseIcon size={16} aria-hidden />
-                        ) : (
-                          <PlayIcon size={16} aria-hidden />
-                        )}
-                      </Button>
-                      <span className="truncate text-sm font-medium">
-                        {nowPlayingItem.archiveItem.title}
-                      </span>
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const frac = (e.clientX - rect.left) / rect.width;
+                        seekTo(Math.max(0, Math.min(1, frac)) * duration);
+                      }}
+                    >
                       <div
-                        className="border-border bg-background relative h-1.5 flex-1 cursor-pointer overflow-hidden rounded-full border"
-                        onClick={(e) => {
-                          if (duration <= 0) {
-                            return;
-                          }
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          const frac = (e.clientX - rect.left) / rect.width;
-                          seekTo(Math.max(0, Math.min(1, frac)) * duration);
-                        }}
-                      >
-                        <div
-                          className="bg-accent-green absolute inset-y-0 left-0"
-                          style={{
-                            width: `${duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0}%`,
-                          }}
-                        />
-                      </div>
-                      <span className="text-foreground-secondary shrink-0 text-xs tabular-nums">
-                        {formatDuration(currentTime)} /{' '}
-                        {formatDuration(duration)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <ul className="divide-border divide-y">
-                  {items.length === 0 && (
-                    <li className="text-foreground-secondary py-3 text-sm">
-                      No tracks yet — add archive items below.
-                    </li>
-                  )}
-                  {items.length > 0 && filteredItems.length === 0 && (
-                    <li className="text-foreground-secondary py-3 text-sm">
-                      No tracks match “{trackQuery}”.
-                    </li>
-                  )}
-                  {filteredItems.map((item) => {
-                    const idx = items.indexOf(item);
-                    const isCurrent = Boolean(
-                      item.archiveItem &&
-                      currentId === `archive:${item.archiveItem.id}`,
-                    );
-                    return (
-                      <TrackRow
-                        key={item.id}
-                        item={item}
-                        idx={idx}
-                        isExpanded={expandedItemId === item.id}
-                        isCurrent={isCurrent}
-                        isPlaying={isCurrent && isPlaying}
-                        currentTime={currentTime}
-                        onToggleExpand={() =>
-                          setExpandedItemId((cur) =>
-                            cur === item.id ? null : item.id,
-                          )
-                        }
-                        onPlay={() => togglePlayItem(item)}
-                        onSeek={(sec) => {
-                          if (isCurrent) {
-                            seekTo(sec);
-                          } else if (item.archiveItem) {
-                            void playArchiveItem(
-                              item.archiveItem.id,
-                              item.archiveItem.title,
-                            );
-                          }
-                        }}
-                        onMoveUp={() => void move(idx, -1)}
-                        onMoveDown={() => void move(idx, 1)}
-                        genre={
-                          item.archiveItem?.genre ??
-                          archive.find(
-                            (archiveItem) =>
-                              archiveItem.id === item.archiveItem?.id,
-                          )?.genre
-                        }
-                        onRemove={() => {
-                          void removeStudioCollectionItem(slug, item.id).then(
-                            () => reload(),
-                          );
+                        className="bg-accent-green absolute inset-y-0 left-0"
+                        style={{
+                          width: `${duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0}%`,
                         }}
                       />
-                    );
-                  })}
-                </ul>
+                    </div>
+                    <span className="text-foreground-secondary shrink-0 text-xs tabular-nums">
+                      {formatDuration(currentTime)} / {formatDuration(duration)}
+                    </span>
+                  </div>
+                )}
+              </div>
 
-                <div className="border-border mt-4 flex flex-col gap-2 border-t pt-4 sm:flex-row">
-                  <Input
-                    value={archiveQuery}
-                    onChange={(event) => setArchiveQuery(event.target.value)}
-                    placeholder="Search your library…"
-                    aria-label="Search library"
-                    className="min-w-0 flex-1"
-                  />
-                  <select
-                    value={addId}
-                    onChange={(e) => setAddId(e.target.value)}
-                    aria-label={`Add a track to this ${isAlbumLike ? 'album' : 'collection'}`}
-                    className="border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 text-sm"
-                  >
-                    <option value="">Add a track…</option>
-                    {filteredArchive.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.title}
-                      </option>
-                    ))}
-                  </select>
-                  <Button
-                    size="icon"
-                    disabled={!addId}
-                    aria-label={`Add to ${isAlbumLike ? 'album' : 'collection'}`}
-                    title={`Add to ${isAlbumLike ? 'album' : 'collection'}`}
-                    onClick={() => {
-                      void addStudioCollectionItem(slug, addId).then((r) => {
-                        if (r.ok) {
-                          toast.success('Track added.');
-                          setAddId('');
-                          reload();
-                        } else {
-                          toast.error(r.error);
+              <ul className="divide-border divide-y">
+                {items.length === 0 && (
+                  <li className="text-foreground-secondary py-3 text-sm">
+                    No tracks yet — add archive items below.
+                  </li>
+                )}
+                {items.length > 0 && filteredItems.length === 0 && (
+                  <li className="text-foreground-secondary py-3 text-sm">
+                    No tracks match “{trackQuery}”.
+                  </li>
+                )}
+                {filteredItems.map((item) => {
+                  const idx = items.indexOf(item);
+                  const isCurrent = Boolean(
+                    item.archiveItem &&
+                    currentId === `archive:${item.archiveItem.id}`,
+                  );
+                  return (
+                    <TrackRow
+                      key={item.id}
+                      item={item}
+                      idx={idx}
+                      isExpanded={expandedItemId === item.id}
+                      isCurrent={isCurrent}
+                      isPlaying={isCurrent && isPlaying}
+                      currentTime={currentTime}
+                      onToggleExpand={() =>
+                        setExpandedItemId((cur) =>
+                          cur === item.id ? null : item.id,
+                        )
+                      }
+                      onPlay={() => togglePlayItem(item)}
+                      onSeek={(sec) => {
+                        if (isCurrent) {
+                          seekTo(sec);
+                        } else if (item.archiveItem) {
+                          void playArchiveItem(
+                            item.archiveItem.id,
+                            item.archiveItem.title,
+                          );
                         }
-                      });
-                    }}
-                  >
-                    <PlusIcon size={16} aria-hidden />
-                  </Button>
-                </div>
-              </StudioPanel>
-            )}
+                      }}
+                      isDragging={draggedId === item.id}
+                      reorderable={!trackQuery.trim()}
+                      onDragStart={() => setDraggedId(item.id)}
+                      onDragEnd={() => setDraggedId(null)}
+                      onDrop={() => {
+                        if (draggedId) {
+                          void reorderByDrop(draggedId, item.id);
+                        }
+                        setDraggedId(null);
+                      }}
+                      genre={
+                        item.archiveItem?.genre ??
+                        archive.find(
+                          (archiveItem) =>
+                            archiveItem.id === item.archiveItem?.id,
+                        )?.genre
+                      }
+                      onRemove={() => {
+                        void removeStudioCollectionItem(slug, item.id).then(
+                          () => reload(),
+                        );
+                      }}
+                    />
+                  );
+                })}
+              </ul>
+
+              <div className="border-border mt-4 flex flex-col gap-2 border-t pt-4 sm:flex-row">
+                <Input
+                  value={archiveQuery}
+                  onChange={(event) => setArchiveQuery(event.target.value)}
+                  placeholder="Search your library…"
+                  aria-label="Search library"
+                  className="min-w-0 flex-1"
+                />
+                <select
+                  value={addId}
+                  onChange={(e) => setAddId(e.target.value)}
+                  aria-label={`Add a track to this ${isAlbumLike ? 'album' : 'collection'}`}
+                  className="border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 text-sm"
+                >
+                  <option value="">Add a track…</option>
+                  {filteredArchive.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.title}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  size="icon"
+                  disabled={!addId}
+                  aria-label={`Add to ${isAlbumLike ? 'album' : 'collection'}`}
+                  title={`Add to ${isAlbumLike ? 'album' : 'collection'}`}
+                  onClick={() => {
+                    void addStudioCollectionItem(slug, addId).then((r) => {
+                      if (r.ok) {
+                        toast.success('Track added.');
+                        setAddId('');
+                        reload();
+                      } else {
+                        toast.error(r.error);
+                      }
+                    });
+                  }}
+                >
+                  <PlusIcon size={16} aria-hidden />
+                </Button>
+              </div>
+            </StudioPanel>
           </>
         )}
       </div>

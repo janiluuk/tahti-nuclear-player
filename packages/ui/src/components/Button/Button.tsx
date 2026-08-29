@@ -31,7 +31,7 @@ const buttonVariants = cva(
         flexible: 'h-auto',
       },
       intent: {
-        danger: 'bg-accent-red',
+        danger: 'bg-accent-red text-accent-foreground',
       },
     },
     defaultVariants: {

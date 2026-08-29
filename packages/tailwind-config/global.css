@@ -37,6 +37,7 @@
   --color-accent-orange: var(--accent-orange);
   --color-accent-cyan: var(--accent-cyan);
   --color-accent-red: var(--accent-red);
+  --color-accent-foreground: var(--accent-foreground);
 
   --color-shadow: var(--shadow-color);
 
@@ -106,6 +107,8 @@
   --accent-orange: oklch(0.88 0.085 65);
   --accent-cyan: oklch(0.88 0.09 200);
   --accent-red: oklch(0.7327 0.2428 18);
+  /* Ink on light accent fills (pills, toasts, level chips). */
+  --accent-foreground: oklch(0 0 0);
 
   /* Borders */
   --border-width: 2px;
@@ -192,6 +195,7 @@
   --accent-orange: oklch(0.75 0.12 65);
   --accent-cyan: oklch(0.75 0.11 200);
   --accent-red: oklch(0.68 0.14 18);
+  --accent-foreground: oklch(0 0 0);
 
   --border-width: 1px;
 

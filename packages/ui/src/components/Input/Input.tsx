@@ -125,7 +125,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             )}
             {...rest}
           />
-          <div className="bg-primary border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm">
+          <div className="bg-primary text-primary-foreground border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm">
             {endAddon}
           </div>
         </div>

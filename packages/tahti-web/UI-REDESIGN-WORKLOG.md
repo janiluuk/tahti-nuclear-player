@@ -1,5 +1,11 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-29 — Tahti theme accent contrast
+
+**Completed:** Light cyan, green, yellow, orange, and coral fills no longer use page-white text. Added `--accent-foreground` (ink on Tahti) and applied it to pills, toasts, log chips, danger buttons, and remaining solid accent surfaces.
+
+**Validation:** Badge/Toaster/LogEntry token updates plus a Tahti-theme CSS fallback for leftover `text-foreground` on solid accent fills.
+
 ## 2026-08-29 — Channel page in-page tabs
 
 **Completed:** Removed the Channel and 24/7 radio tabs from `/studio/channel`. Channel design is the page itself; Radio remains a Manage sidebar destination.
