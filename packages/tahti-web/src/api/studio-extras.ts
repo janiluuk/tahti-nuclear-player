@@ -75,6 +75,11 @@ export type ProgrammeItem = {
   durationSec: number | null;
   isFallback: boolean;
   fallbackOrder: number | null;
+  /** Set for EMBED_ONLY items (hearthis.at, Mixcloud, Spotify, Bandcamp) —
+   * Tahti holds no audio file for these, only a provider widget, so they
+   * cannot play unattended in a 24/7 rotation and should never be offered
+   * as rotation candidates. */
+  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | 'BANDCAMP' | null;
 };
 
 export type ProgrammeView = {

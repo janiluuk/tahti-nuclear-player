@@ -78,15 +78,20 @@ export const ChannelRadioPlaylistPanel: FC = () => {
       ([programmeResult, collectionResult, archiveResult, releaseResult]) => {
         applyProgramme(programmeResult.data);
         setLibraryItems(
-          archiveResult.data.map((item) => ({
-            id: item.id,
-            title: item.title,
-            status: item.status,
-            contentType: item.contentType ?? null,
-            durationSec: item.durationSec ?? null,
-            isFallback: Boolean(item.isFallback),
-            fallbackOrder: null,
-          })),
+          archiveResult.data
+            // EMBED_ONLY items have no Tahti-hosted audio, so they can't
+            // play unattended in the 24/7 fallback rotation — keep them
+            // out of the rotation candidate pool entirely.
+            .filter((item) => !item.embedProvider)
+            .map((item) => ({
+              id: item.id,
+              title: item.title,
+              status: item.status,
+              contentType: item.contentType ?? null,
+              durationSec: item.durationSec ?? null,
+              isFallback: Boolean(item.isFallback),
+              fallbackOrder: null,
+            })),
         );
         setReleases(releaseResult.data.releases);
         const nextPlaylists = collectionResult.data.filter(isPlaylist);

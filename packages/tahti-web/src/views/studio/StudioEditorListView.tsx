@@ -70,7 +70,10 @@ export function StudioEditorListView() {
     void Promise.all([fetchEditorProjects(), fetchStudioArchive()]).then(
       ([p, a]) => {
         setProjects(p.data);
-        setArchive(a.data);
+        // EMBED_ONLY items (hearthis.at, Mixcloud, Spotify, Bandcamp) have
+        // no Tahti-hosted audio file, so there's nothing for the Pro
+        // Editor to open or trim — keep them out of "Open from library".
+        setArchive(a.data.filter((item) => !item.embedProvider));
         setLoading(false);
       },
     );

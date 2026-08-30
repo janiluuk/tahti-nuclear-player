@@ -1,5 +1,17 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-30 — Three embed-playback follow-up slices
+
+Checked the codebase directly (not the worklog prose) for the 2026-08-26 design-system compliance audit's remaining items first — `text-red-400`/`bg-green-500`-style raw Tailwind palette colors and bare `<p>Loading…</p>` markup, its two most mechanically-checkable categories — and found zero remaining instances outside already-legitimate exceptions (`ChannelDesigner`/`ChannelVisualizer` brand colors, Settings' `SettingsHint` component). That audit's punch list is exhausted; these three slices instead close out gaps found while finishing today's Bandcamp/Spotify embed-playback work.
+
+**Slice 1 — EMBED_ONLY tracks can no longer be added to 24/7 rotation:** `ChannelRadioPlaylistPanel.tsx`'s rotation library list came straight from `fetchStudioArchive()` with no `embedProvider` filter, so a Bandcamp/Spotify/hearthis.at/Mixcloud track could be added to the automated fallback rotation, where it would never play — a 24/7 rotation has no listener to click a provider widget. `ProgrammeItem` (`api/studio-extras.ts`) gained an `embedProvider` field, and the panel now filters embed-only items out of the rotation candidate pool before building any of its library groups.
+
+**Slice 2 — EMBED_ONLY tracks no longer open in the Pro Editor's "Open from library":** same root gap in `StudioEditorListView.tsx` — the audio editor has nothing to trim for a track Tahti doesn't host a file for, so embed-only archive items are now filtered out of that picker too.
+
+**Slice 3 — Favoriting an embed-only track from its own page no longer creates a dead Favorites entry:** `TrackDetailView.tsx`'s `playableFromDetail` never set the shared player's `embed` field, so a favorited hearthis.at track (the one provider the shared bottom bar/fullscreen player can actually replay) silently failed to play from Favorites/History. It now sets `embed: { provider: 'hearthis', embedUri }` for hearthis tracks specifically, matching the pattern used everywhere else `TahtiPlayable.embed` is read. Mixcloud/Spotify/Bandcamp have no shared-player-wide widget anywhere in the app (they only ever play through a local inline iframe, e.g. this page's own widget or `EmbedTrackRow`), so favoriting one of those from the track page is now disabled with an explanatory tooltip rather than silently saving something that can never play again.
+
+**Validation:** Type-check, lint, and the full vitest run (227/227) pass for all three slices.
+
 ## 2026-08-30 — Weekly "What's New" grouping and changelog-quality note
 
 **Completed:** The in-app What's New tab (`packages/player`) listed every `changelog.json` entry one row per entry, so a week with several shipped changes read as several separate timeline rows. Added `groupChangelogByWeek` (new `WhatsNew/groupChangelogByWeek.ts`) to collapse entries into one row per ISO week: same-week entries merge into a single row whose type badge picks the most notable type present (feature > fix > improvement > plugin > docs > chore), whose tags/contributors are deduped across the week, and whose description lists each merged item as its own line. `TimelineEntry` and `WhatsNew` now render/paginate over these weekly rows instead of raw entries.

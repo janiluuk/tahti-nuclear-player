@@ -1,6 +1,20 @@
 [
   {
     "date": "2026-08-30T00:00",
+    "description": "Favoriting a hearthis.at track from its own page now actually plays back later from Favorites, instead of silently doing nothing.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Tracks that only play through a provider widget (Spotify, Bandcamp, hearthis.at, Mixcloud) can no longer be added to the 24/7 rotation or opened in the audio editor, where they'd never actually play.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
     "description": "What's New now shows one entry per week, so a busy week of updates reads as a single summary instead of a wall of near-identical rows.",
     "type": "improvement",
     "contributors": ["jani"],

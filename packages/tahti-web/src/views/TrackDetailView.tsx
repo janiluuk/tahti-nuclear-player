@@ -69,6 +69,14 @@ function playableFromDetail(
     coverUrl: detail.bannerUrl ?? undefined,
     streamUrl: detail.audioUrl ?? '',
     protocol: detail.audioUrl?.includes('.m3u8') ? 'hls' : 'https',
+    // Only hearthis.at has a shared-player-wide embed widget (the bottom
+    // bar and fullscreen player special-case `embed.provider: 'hearthis'`);
+    // Mixcloud/Spotify/Bandcamp only ever play through this page's own
+    // inline widget below, same as everywhere else those three appear.
+    embed:
+      detail.embedProvider === 'HEARTHIS' && detail.embedUri
+        ? { provider: 'hearthis', embedUri: detail.embedUri }
+        : undefined,
     channelSlug: detail.channelSlug,
     durationSec: detail.durationSec ?? undefined,
   };
@@ -206,6 +214,12 @@ export function TrackDetailView({ id }: { id: string }) {
   const embedSrc =
     embedProvider && embedUri ? embedSrcFor(embedProvider, embedUri) : null;
   const embedLabel = embedProvider ? EMBED_PROVIDER_LABEL[embedProvider] : null;
+  // Only hearthis.at tracks stay playable once favorited (see
+  // `playableFromDetail`'s `embed` field) — Mixcloud/Spotify/Bandcamp have
+  // no shared-player-wide widget, so favoriting one would save a dead
+  // entry that silently does nothing from Favorites/History.
+  const favoritingUnsupported =
+    Boolean(embedSrc) && embedProvider !== 'HEARTHIS';
   const clock = formatDuration(elapsed) || '0:00';
   const cover = playable.coverUrl ?? placeholderArtworkUrl(playable.id);
   const visualScheme = channel?.colorScheme
@@ -555,8 +569,21 @@ export function TrackDetailView({ id }: { id: string }) {
               <Button
                 size="icon-sm"
                 variant="secondary"
-                aria-label={favorited ? 'Remove from favorites' : 'Favorite'}
-                title={favorited ? 'Remove from favorites' : 'Favorite'}
+                disabled={!favorited && favoritingUnsupported}
+                aria-label={
+                  favorited
+                    ? 'Remove from favorites'
+                    : favoritingUnsupported
+                      ? `Favoriting isn't supported yet for ${embedLabel} tracks`
+                      : 'Favorite'
+                }
+                title={
+                  favorited
+                    ? 'Remove from favorites'
+                    : favoritingUnsupported
+                      ? `Favoriting isn't supported yet for ${embedLabel} tracks`
+                      : 'Favorite'
+                }
                 onClick={() => toggleFavoriteTrack(playable)}
               >
                 <HeartIcon
