@@ -106,6 +106,10 @@ const StudioProEditorView = lazyRouteComponent(
   () => import('./views/studio/StudioProEditorView'),
   'StudioProEditorView',
 );
+const StudioMasteringView = lazyRouteComponent(
+  () => import('./views/studio/StudioMasteringView'),
+  'StudioMasteringView',
+);
 const StudioShowDetailView = lazyRouteComponent(
   () => import('./views/studio/StudioShowDetailView'),
   'StudioShowDetailView',
@@ -1029,6 +1033,15 @@ const studioArchiveEditorRoute = createRoute({
   },
 });
 
+const studioMasteringRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/mastering/$id',
+  component: function StudioMasteringRoute() {
+    const { id } = studioMasteringRoute.useParams();
+    return <StudioMasteringView archiveItemId={id} />;
+  },
+});
+
 const studioReleasesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/releases',
@@ -1497,6 +1510,7 @@ const routeTree = rootRoute.addChildren([
     studioRecordingsRoute,
     studioArchiveItemRoute,
     studioArchiveEditorRoute,
+    studioMasteringRoute,
     studioReleasesRoute,
     studioReleaseDetailRoute,
     studioCollectionsRoute,

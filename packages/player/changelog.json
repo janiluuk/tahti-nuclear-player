@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-08-30T00:00",
+    "description": "Studio tracks can now be mastered to match a reference track's loudness and tone, right in the browser — upload a reference from the track or audio editor and get a downloadable, matched WAV back.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
     "description": "Favoriting a hearthis.at track from its own page now actually plays back later from Favorites, instead of silently doing nothing.",
     "type": "fix",
     "contributors": ["jani"],

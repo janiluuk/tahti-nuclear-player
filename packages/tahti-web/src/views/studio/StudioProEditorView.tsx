@@ -629,6 +629,13 @@ export function StudioProEditorView({
           >
             Projects
           </Link>
+          <Link
+            to="/studio/mastering/$id"
+            params={{ id: archiveItemId }}
+            className="text-foreground-secondary hover:underline"
+          >
+            Mastering
+          </Link>
         </div>
 
         <StudioPageHeader

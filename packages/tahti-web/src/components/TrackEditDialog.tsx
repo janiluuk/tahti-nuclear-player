@@ -582,6 +582,15 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         Open audio editor →
                       </Link>
                     )}
+                    {!item.embedUri && (
+                      <Link
+                        to="/studio/mastering/$id"
+                        params={{ id: item.id }}
+                        className="text-primary text-sm hover:underline"
+                      >
+                        Match to a reference track →
+                      </Link>
+                    )}
                   </div>
                 ),
               },

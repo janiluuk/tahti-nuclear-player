@@ -9,6 +9,7 @@ import {
   PinOffIcon,
   PlayIcon,
   RadioTowerIcon,
+  SlidersHorizontalIcon,
   TagsIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -700,6 +701,29 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                                 className="mr-1.5"
                               />
                               Open audio editor
+                            </Button>
+                          </Link>
+                          <Link
+                            to="/studio/mastering/$id"
+                            params={{ id }}
+                            aria-label="Match to a reference track"
+                            onClick={(event) => {
+                              if (notReady || hasError) {
+                                event.preventDefault();
+                              }
+                            }}
+                          >
+                            <Button
+                              size="sm"
+                              variant="text"
+                              disabled={notReady || hasError}
+                            >
+                              <SlidersHorizontalIcon
+                                size={16}
+                                aria-hidden
+                                className="mr-1.5"
+                              />
+                              Match to reference
                             </Button>
                           </Link>
                           {isCurrent && playerDuration > 0 ? (

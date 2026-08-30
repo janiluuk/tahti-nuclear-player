@@ -188,6 +188,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/library/smartlinks',
     '/library/upload',
     '/studio/editor',
+    '/studio/mastering',
     '/studio/stash',
   ],
   '/studio/go-live': [
