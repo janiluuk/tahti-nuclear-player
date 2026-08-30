@@ -1,8 +1,10 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
-## 2026-08-30 — Planned: nine queued requests, not yet implemented
+## 2026-08-30 — Planned: ten queued requests, not yet implemented
 
 Logged for a future session, in the order requested — none of these are built yet.
+
+**[P2] Admin: drop the Vendors left-nav item, keep it only on the dashboard:** `AdminNav.tsx:127-132` has a standalone "Vendors" submenu entry (`/admin/vendors` → `AdminVendorsView.tsx`) alongside the Vendors tab already on the Overview dashboard (`AdminDashboardView.tsx`, per "2026-08-28 — Admin overview vendors tab" above, which shares the same content component). Remove the left-nav submenu entry entirely; Vendors should only be reachable as a dashboard tab, not also as its own nav-level page. Check whether `/admin/vendors` should redirect into the dashboard's Vendors tab or just be removed as a route, and whether anything else links directly to `/admin/vendors` before dropping it.
 
 **Player bar: swap queue/full-screen button positions, move the count badge:** In `ConnectedPlayerBar.tsx`'s right-hand control cluster (`:200-250`), today's order is queue-toggle button → volume → full-screen button, with the queue-count badge (`queue.length > 0`, `:244-248`) sitting on the full-screen button. Swap the two buttons so the full-screen button comes first and the queue-toggle button sits at the right (outer) corner — clicking the right corner should open the queue strip, not full screen. Move the count badge from the full-screen button onto the queue-toggle button. Only show that badge when the count is greater than 1 (today's `queue.length > 0` condition shows it even for a single queued item). Note this partially reverses "2026-08-27 — Player bar expand control" further up this file, which put full-screen + the badge on the right edge deliberately — that's fine, this is a newer explicit request, just flagging the earlier decision for context rather than losing the history.
 
