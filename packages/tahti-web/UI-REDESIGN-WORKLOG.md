@@ -1,8 +1,10 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
-## 2026-08-30 — Planned: eight queued requests, not yet implemented
+## 2026-08-30 — Planned: nine queued requests, not yet implemented
 
 Logged for a future session, in the order requested — none of these are built yet.
+
+**Player bar: swap queue/full-screen button positions, move the count badge:** In `ConnectedPlayerBar.tsx`'s right-hand control cluster (`:200-250`), today's order is queue-toggle button → volume → full-screen button, with the queue-count badge (`queue.length > 0`, `:244-248`) sitting on the full-screen button. Swap the two buttons so the full-screen button comes first and the queue-toggle button sits at the right (outer) corner — clicking the right corner should open the queue strip, not full screen. Move the count badge from the full-screen button onto the queue-toggle button. Only show that badge when the count is greater than 1 (today's `queue.length > 0` condition shows it even for a single queued item). Note this partially reverses "2026-08-27 — Player bar expand control" further up this file, which put full-screen + the badge on the right edge deliberately — that's fine, this is a newer explicit request, just flagging the earlier decision for context rather than losing the history.
 
 **Admin → Logs: R2 and encoding entries (start/finish, what, total time):** Admin → Logs (`AdminLogsView.tsx`) is a raw Loki-backed log tail — `fetchAdminLogs()`/`AdminLogEntry` (`api/admin.ts:4130-4208`) just displays whatever `{timestampMs, service, line}` rows the real `/api/admin/logs` endpoint returns; the mock's example line (`[transcode] archive item 8f2c… done in 4.2s`, `api/admin.ts:4156`) shows the *shape* wanted but isn't backed by anything real. Getting genuine R2-operation and encoding-lifecycle entries here is **not a tahti-web change** — it means the actual R2 client and transcode/encoding worker (in `../tahti/apps/api` and/or `../tahti/apps/worker`) need to emit structured log lines for: an R2 operation (upload/delete/etc., which object); an encoding job starting (what's being encoded — track/archive item — and its target format); and an encoding job finishing (same identifying info, plus total elapsed time). Once those services actually emit that, this repo's existing log viewer displays it with no changes needed. Start on the backend side, not here.
 
