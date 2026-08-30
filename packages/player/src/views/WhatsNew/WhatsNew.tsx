@@ -5,9 +5,12 @@ import { ViewShell } from '@nuclearplayer/ui';
 
 import changelog from '../../../changelog.json';
 import type { ChangelogEntry } from '../../types/changelog';
+import { groupChangelogByWeek } from './groupChangelogByWeek';
 import { TimelineEntry } from './TimelineEntry';
 
-const entries = changelog as ChangelogEntry[];
+// One row per week: several changes shipped the same week collapse into
+// a single timeline entry instead of repeating the week over and over.
+const weeklyEntries = groupChangelogByWeek(changelog as ChangelogEntry[]);
 
 const INITIAL_COUNT = 3;
 
@@ -15,8 +18,10 @@ export const WhatsNew = () => {
   const { t } = useTranslation('changelog');
   const [showAll, setShowAll] = useState(false);
 
-  const visibleEntries = showAll ? entries : entries.slice(0, INITIAL_COUNT);
-  const hiddenCount = entries.length - INITIAL_COUNT;
+  const visibleEntries = showAll
+    ? weeklyEntries
+    : weeklyEntries.slice(0, INITIAL_COUNT);
+  const hiddenCount = weeklyEntries.length - INITIAL_COUNT;
 
   return (
     <ViewShell title={t('title')}>

@@ -150,7 +150,7 @@ export const SOURCE_DEFS: SourceDef[] = [
       connect: true,
       search: false,
       import: true,
-      playback: false,
+      playback: true,
     },
   },
   {

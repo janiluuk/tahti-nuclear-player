@@ -35,9 +35,9 @@ export type StudioArchiveItem = {
   bannerUrl?: string | null;
   backdropUrl?: string | null;
   /** Set for EMBED_ONLY items imported by reference (hearthis.at, Mixcloud,
-   * Spotify) — Tahti holds no audio file, so playback only works through
-   * the provider's own widget, not the normal editor-source stream. */
-  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | null;
+   * Spotify, Bandcamp) — Tahti holds no audio file, so playback only works
+   * through the provider's own widget, not the normal editor-source stream. */
+  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | 'BANDCAMP' | null;
   embedUri?: string | null;
   /** [0..255] amplitude buckets for the real waveform — null/absent when not yet decoded. */
   peaks?: number[] | null;
@@ -139,7 +139,7 @@ export type StudioCollectionItem = {
     genre?: string | null;
     /** Set for EMBED_ONLY items — Tahti holds only the reference, so the
      * provider's widget is the only way to play them. */
-    embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | null;
+    embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | 'BANDCAMP' | null;
     embedUri?: string | null;
   } | null;
   release?: {

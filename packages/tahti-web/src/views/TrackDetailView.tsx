@@ -1,39 +1,61 @@
 import { Link } from '@tanstack/react-router';
 import {
-  ArrowUpRightIcon,
+  ActivityIcon,
+  DownloadIcon,
   HeartIcon,
-  ListPlusIcon,
+  Maximize2Icon,
+  MessageCircleIcon,
   PauseIcon,
   PlayIcon,
+  PlusIcon,
+  Repeat2Icon,
+  Share2Icon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@nuclearplayer/ui';
 
 import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {
   fetchChannel,
+  fetchProfile,
+  fetchPublicArchiveDownload,
   fetchTrackComments,
   fetchTrackDetail,
   postTrackComment,
 } from '../api/client';
 import type {
   PublicChannel,
+  PublicProfile,
   PublicTrackDetail,
   TahtiPlayable,
   TrackComment,
 } from '../api/types';
+import { AddToPlaylistPanel } from '../components/AddToPlaylistPanel';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
+import { cn } from '../lib/cn';
+import {
+  EMBED_PROVIDER_HEIGHT,
+  EMBED_PROVIDER_LABEL,
+  embedSrcFor,
+} from '../lib/embedSrc';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
-import { formatDuration, providerLabel } from '../lib/playableToTrack';
+import { formatDuration } from '../lib/playableToTrack';
+import { parsePublicTracklist } from '../lib/publicTracklist';
+import { formatTimedCommentBody, parseTimedComment } from '../lib/timedComment';
 import { useDominantColor } from '../lib/useDominantColor';
 import { useAuthStore } from '../stores/authStore';
+import { useLayoutStore } from '../stores/layoutStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { useTrackDetailStore } from '../stores/trackDetailStore';
+
+const WAVEFORM_BARS = 180;
+const PLAYED_WAVE_COLOR = '#6CFF6B';
+const UNPLAYED_WAVE_COLOR = 'rgba(255,255,255,0.78)';
 
 function playableFromDetail(
   id: string,
@@ -52,6 +74,20 @@ function playableFromDetail(
   };
 }
 
+function formatReleasedOn(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `on ${day}.${month}.${date.getFullYear()}`;
+}
+
+function cueLabel(artist: string | null, title: string): string {
+  return artist ? `${artist} - ${title}` : title;
+}
+
 export function TrackDetailView({ id }: { id: string }) {
   const user = useAuthStore((s) => s.user);
   const playableId = `archive:${id}`;
@@ -64,12 +100,15 @@ export function TrackDetailView({ id }: { id: string }) {
 
   const [detail, setDetail] = useState<PublicTrackDetail | null>(null);
   const [channel, setChannel] = useState<PublicChannel | null>(null);
+  const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [comments, setComments] = useState<TrackComment[]>([]);
   const [commentsEnabled, setCommentsEnabled] = useState(true);
   const [commentBody, setCommentBody] = useState('');
   const [commentBusy, setCommentBusy] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [playlistOpen, setPlaylistOpen] = useState(false);
+  const [downloadBusy, setDownloadBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -81,6 +120,9 @@ export function TrackDetailView({ id }: { id: string }) {
         if (data) {
           void fetchChannel(data.channelSlug).then((result) =>
             setChannel(result.data),
+          );
+          void fetchProfile(data.channel.username).then((result) =>
+            setProfile(result.data),
           );
         }
       }
@@ -104,30 +146,35 @@ export function TrackDetailView({ id }: { id: string }) {
   }, [id]);
 
   const play = usePlayerStore((s) => s.play);
-  const enqueue = usePlayerStore((s) => s.enqueue);
   const setStatus = usePlayerStore((s) => s.setStatus);
   const seekTo = usePlayerStore((s) => s.seekTo);
   const currentId = usePlayerStore((s) => s.currentId);
   const status = usePlayerStore((s) => s.status);
   const currentTime = usePlayerStore((s) => s.currentTime);
   const duration = usePlayerStore((s) => s.duration);
-  const queue = usePlayerStore((s) => s.queue);
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
+  const setFullScreenPlayerOpen = useLayoutStore(
+    (s) => s.setFullScreenPlayerOpen,
+  );
 
   const playable = detail ? playableFromDetail(id, detail) : fastPath;
   const rgb = useDominantColor(playable?.coverUrl);
+  const tracklist = useMemo(
+    () => parsePublicTracklist(detail?.tracklist),
+    [detail?.tracklist],
+  );
 
   if (!playable) {
     if (loading) {
       return (
-        <PageFrame maxWidth="lg">
+        <div className="flex min-h-full items-center justify-center">
           <PageLoading label="Loading track…" />
-        </PageFrame>
+        </div>
       );
     }
     return (
-      <PageFrame maxWidth="lg">
+      <div className="mx-auto flex max-w-lg flex-col py-10">
         <PageEmpty
           title="Track unavailable"
           description="This track doesn't exist, isn't public, or was removed."
@@ -139,25 +186,28 @@ export function TrackDetailView({ id }: { id: string }) {
             </Link>
           }
         />
-      </PageFrame>
+      </div>
     );
   }
 
   const isCurrent = currentId === playableId;
   const isPlaying = isCurrent && (status === 'playing' || status === 'loading');
-  const progress = isCurrent && duration > 0 ? currentTime / duration : 0;
+  const totalDuration = duration || playable.durationSec || 0;
+  const elapsed = isCurrent ? currentTime : 0;
+  const progress = isCurrent && totalDuration > 0 ? elapsed / totalDuration : 0;
   const favorited = favoriteTracks.some((t) => t.id === playable.id);
-  const queued = queue.some((q) => q.id === playable.id);
-  const provider = providerLabel(playable.sourceProvider);
   const canPlay = Boolean(playable.streamUrl);
-  const hasBackgroundOverride = Boolean(channel?.colorScheme?.background);
-  const bgStyle = hasBackgroundOverride
-    ? { backgroundColor: channel?.colorScheme?.background }
-    : rgb
-      ? {
-          backgroundImage: `radial-gradient(circle at 50% 0%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.28), transparent 70%)`,
-        }
-      : undefined;
+  // EMBED_ONLY tracks (hearthis.at, Mixcloud, Spotify, Bandcamp) have no
+  // Tahti-hosted audio — the provider's own widget is the only way to
+  // play them, so the transport/waveform controls above are replaced by
+  // that widget instead of staying disabled.
+  const embedProvider = detail?.embedProvider ?? null;
+  const embedUri = detail?.embedUri ?? null;
+  const embedSrc =
+    embedProvider && embedUri ? embedSrcFor(embedProvider, embedUri) : null;
+  const embedLabel = embedProvider ? EMBED_PROVIDER_LABEL[embedProvider] : null;
+  const clock = formatDuration(elapsed) || '0:00';
+  const cover = playable.coverUrl ?? placeholderArtworkUrl(playable.id);
   const visualScheme = channel?.colorScheme
     ? {
         accent: channel.colorScheme.accent,
@@ -167,6 +217,60 @@ export function TrackDetailView({ id }: { id: string }) {
         muted: channel.colorScheme.muted,
       }
     : undefined;
+  const ambient = rgb
+    ? `radial-gradient(circle at 20% 10%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.55), transparent 55%), radial-gradient(circle at 80% 0%, rgba(${rgb[2]}, ${rgb[0]}, ${rgb[1]}, 0.35), transparent 50%)`
+    : undefined;
+  const commentMarkers = comments.flatMap((comment) => {
+    const parsed = parseTimedComment(comment.body);
+    if (parsed.seconds == null || totalDuration <= 0) {
+      return [];
+    }
+    return [{ fraction: parsed.seconds / totalDuration }];
+  });
+  const activeCueId = tracklist.reduce<string | null>((current, cue) => {
+    if (cue.startSec == null || cue.startSec > elapsed) {
+      return current;
+    }
+    return cue.id;
+  }, null);
+  const artistLive = channel?.state === 'LIVE';
+  const relatedTracks = (profile?.tracks ?? [])
+    .filter((track) => track.id !== id)
+    .slice(0, 6);
+  const relatedCollections = (profile?.collections ?? []).slice(0, 4);
+
+  const togglePlayback = () => {
+    if (!canPlay) {
+      return;
+    }
+    if (isCurrent) {
+      setStatus(isPlaying ? 'paused' : 'playing');
+      return;
+    }
+    play(playable);
+  };
+
+  const seekFraction = (fraction: number) => {
+    if (!canPlay) {
+      return;
+    }
+    if (!isCurrent) {
+      play(playable);
+    }
+    if (totalDuration > 0) {
+      seekTo(fraction * totalDuration);
+    }
+  };
+
+  const jumpTo = (seconds: number) => {
+    if (!canPlay) {
+      return;
+    }
+    if (!isCurrent) {
+      play(playable);
+    }
+    seekTo(seconds);
+  };
 
   const submitComment = async () => {
     const body = commentBody.trim();
@@ -175,7 +279,11 @@ export function TrackDetailView({ id }: { id: string }) {
     }
     setCommentBusy(true);
     setCommentError(null);
-    const result = await postTrackComment(id, body);
+    // Embed-only tracks play in the provider's own widget, so Tahti never
+    // observes a real playback position for them — stamping "[0:00]" on
+    // every comment would be misleading, so those go in untimed.
+    const stamped = embedSrc ? body : formatTimedCommentBody(clock, body);
+    const result = await postTrackComment(id, stamped);
     setCommentBusy(false);
     if (!result.ok) {
       setCommentError(result.error);
@@ -185,231 +293,485 @@ export function TrackDetailView({ id }: { id: string }) {
     setCommentBody('');
   };
 
+  const shareTrack = async () => {
+    const url = `${window.location.origin}/t/${id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Track link copied');
+    } catch {
+      toast.error('Could not copy link');
+    }
+  };
+
+  const downloadTrack = async () => {
+    if (!detail) {
+      return;
+    }
+    setDownloadBusy(true);
+    const result = await fetchPublicArchiveDownload(detail.channelSlug, id);
+    setDownloadBusy(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    const link = document.createElement('a');
+    link.href = result.url;
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
   return (
-    <div className="relative min-h-full overflow-hidden" style={bgStyle}>
-      <div className="pointer-events-none absolute inset-0 opacity-70">
-        <ChannelVisualizer
-          preset={resolvePublicVisualizerPreset(channel?.visualPreset)}
-          colorScheme={visualScheme}
-          colorSchemeJson={channel?.colorSchemeJson}
-          artworkUrl={playable.coverUrl}
-          className="size-full"
+    <div
+      className="-mx-6 -mt-6 min-h-full md:-mx-8 md:-mt-8"
+      data-testid="track-listen-page"
+    >
+      <section className="relative overflow-hidden px-6 pt-8 pb-6 md:px-10">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={ambient ? { backgroundImage: ambient } : undefined}
+          aria-hidden
         />
-      </div>
-      <PageFrame maxWidth="lg" className="relative z-10 py-8">
-        <div className="flex flex-col gap-8">
-          <div className="border-border bg-background/70 flex flex-col items-center gap-6 rounded-2xl border p-6 shadow-2xl backdrop-blur-md sm:p-8">
-            <div className="border-border bg-background-secondary aspect-square w-full max-w-md shrink-0 overflow-hidden rounded-xl border shadow-2xl">
-              <img
-                src={playable.coverUrl ?? placeholderArtworkUrl(playable.id)}
-                alt=""
-                className="size-full object-cover"
-              />
-            </div>
-            <div className="flex w-full min-w-0 flex-col items-center gap-1 text-center">
-              <PageHeader
-                title={playable.title}
-                subtitle={
-                  <>
-                    <span>
-                      {detail?.channel.username ? (
-                        <Link
-                          to="/u/$username"
-                          params={{ username: detail.channel.username }}
-                          className="hover:text-foreground underline-offset-2 hover:underline"
-                        >
-                          {playable.artist}
-                        </Link>
-                      ) : (
-                        playable.artist
-                      )}
-                      {provider ? ` · ${provider}` : ''}
-                      {detail?.genre ? ` · ${detail.genre}` : ''}
-                      {playable.durationSec
-                        ? ` · ${formatDuration(playable.durationSec)}`
-                        : ''}
-                    </span>
-                    {detail?.channel.bio ? (
-                      <span className="mt-1 block max-w-md">
-                        {detail.channel.bio}
-                      </span>
-                    ) : null}
-                    {detail?.description ? (
-                      <span className="mt-1 block max-w-md">
-                        {detail.description}
-                      </span>
-                    ) : null}
-                  </>
-                }
-              />
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-                <Button
-                  disabled={!canPlay}
-                  onClick={() => {
-                    if (isCurrent) {
-                      setStatus(isPlaying ? 'paused' : 'playing');
-                    } else {
-                      play(playable);
-                    }
-                  }}
-                >
-                  {isPlaying ? (
-                    <PauseIcon size={16} aria-hidden className="mr-1.5" />
-                  ) : (
-                    <PlayIcon size={16} aria-hidden className="mr-1.5" />
-                  )}
-                  {isPlaying ? 'Pause' : 'Play'}
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  disabled={queued || !canPlay}
-                  aria-label={queued ? 'In queue' : 'Add to queue'}
-                  title={queued ? 'In queue' : 'Add to queue'}
-                  onClick={() => enqueue(playable)}
-                >
-                  <ListPlusIcon size={16} aria-hidden />
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  aria-label={favorited ? 'Remove from favorites' : 'Favorite'}
-                  title={favorited ? 'Remove from favorites' : 'Favorite'}
-                  onClick={() => toggleFavoriteTrack(playable)}
-                >
-                  <HeartIcon
-                    size={16}
-                    aria-hidden
-                    className={
-                      favorited ? 'text-accent-red fill-current' : undefined
-                    }
-                  />
-                </Button>
-                {playable.channelSlug && (
-                  <Link
-                    to="/channel/$slug"
-                    params={{ slug: playable.channelSlug }}
+        <img
+          src={cover}
+          alt=""
+          className="pointer-events-none absolute inset-0 size-full object-cover opacity-40 blur-3xl saturate-150"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-black/45" />
+        <div className="pointer-events-none absolute inset-0 opacity-40">
+          <ChannelVisualizer
+            preset={resolvePublicVisualizerPreset(channel?.visualPreset)}
+            colorScheme={visualScheme}
+            colorSchemeJson={channel?.colorSchemeJson}
+            artworkUrl={playable.coverUrl}
+            className="size-full"
+          />
+        </div>
+
+        <div className="relative z-10 flex flex-col gap-5 text-white">
+          <div className="flex items-start gap-6">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-4">
+                {embedSrc ? (
+                  <span className="border-border/40 flex size-14 shrink-0 items-center justify-center rounded-full border bg-white/10">
+                    <PlayIcon
+                      size={22}
+                      fill="currentColor"
+                      className="ml-0.5 text-white/70"
+                      aria-hidden
+                    />
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={!canPlay}
+                    onClick={togglePlayback}
+                    aria-label={isPlaying ? 'Pause' : 'Play'}
+                    className="flex size-14 shrink-0 items-center justify-center rounded-full bg-white text-black shadow-xl disabled:opacity-40"
                   >
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label="Open channel"
-                      title="Open channel"
-                    >
-                      <ArrowUpRightIcon size={16} aria-hidden />
-                    </Button>
-                  </Link>
+                    {isPlaying ? (
+                      <PauseIcon size={22} fill="currentColor" aria-hidden />
+                    ) : (
+                      <PlayIcon
+                        size={22}
+                        fill="currentColor"
+                        className="ml-0.5"
+                        aria-hidden
+                      />
+                    )}
+                  </button>
+                )}
+                <h1 className="font-display min-w-0 text-2xl font-semibold tracking-tight sm:text-3xl">
+                  {playable.title}
+                </h1>
+                {embedSrc ? (
+                  <span className="shrink-0 text-xs tracking-wide text-white/55">
+                    via {embedLabel}
+                  </span>
+                ) : playable.streamUrl ? (
+                  <span className="shrink-0 text-xs tracking-wide text-white/55">
+                    lossless
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="mt-6">
+                {embedSrc ? (
+                  <div className="overflow-hidden rounded-lg">
+                    <iframe
+                      title={`${playable.title} — ${embedLabel} player`}
+                      src={embedSrc}
+                      width="100%"
+                      height={
+                        embedProvider
+                          ? EMBED_PROVIDER_HEIGHT[embedProvider]
+                          : 152
+                      }
+                      style={{ border: 0, display: 'block' }}
+                      allow="autoplay; encrypted-media"
+                      loading="lazy"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-1 flex justify-end text-xs text-white/70 tabular-nums">
+                      {clock} / {formatDuration(totalDuration) || '0:00'}
+                    </div>
+                    <WaveformSeekbar
+                      trackId={playable.id}
+                      progress={progress}
+                      peaks={detail?.peaks}
+                      bars={WAVEFORM_BARS}
+                      markers={commentMarkers}
+                      className="h-28"
+                      playedColor={PLAYED_WAVE_COLOR}
+                      unplayedColor={UNPLAYED_WAVE_COLOR}
+                      onSeek={seekFraction}
+                    />
+                  </>
                 )}
               </div>
             </div>
+
+            <div className="hidden w-56 shrink-0 overflow-hidden rounded-md shadow-2xl sm:block lg:w-72">
+              <img
+                src={cover}
+                alt=""
+                className="aspect-video w-full object-cover"
+              />
+            </div>
           </div>
 
-          <div className="border-border bg-background/70 rounded-2xl border p-5 shadow-xl backdrop-blur-md">
-            <WaveformSeekbar
-              trackId={playable.id}
-              progress={progress}
-              peaks={detail?.peaks}
-              className="h-28"
-              onSeek={(fraction) => {
-                if (!canPlay) {
-                  return;
-                }
-                if (!isCurrent) {
-                  play(playable);
-                  return;
-                }
-                if (duration > 0) {
-                  seekTo(fraction * duration);
-                }
+          <div className="flex flex-wrap items-center gap-3">
+            <form
+              className="flex min-w-[16rem] flex-1 items-center gap-3 rounded-md bg-black/55 px-3 py-2 backdrop-blur-md"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void submitComment();
               }}
-            />
-            <div className="text-foreground-secondary mt-2 flex justify-between text-xs tabular-nums">
-              <span>{isCurrent ? formatDuration(currentTime) : '0:00'}</span>
-              <span>
-                {formatDuration(duration || playable.durationSec || 0)}
-              </span>
-            </div>
-          </div>
-          <section
-            className="border-border bg-background/80 rounded-2xl border p-5 shadow-xl backdrop-blur-md"
-            aria-labelledby="track-comments-heading"
-          >
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2
-                id="track-comments-heading"
-                className="font-heading text-lg font-bold"
-              >
-                Comments
-              </h2>
-              <span className="text-foreground-secondary text-xs">
-                {comments.length}{' '}
-                {comments.length === 1 ? 'comment' : 'comments'}
-              </span>
-            </div>
-            {comments.length > 0 ? (
-              <ul className="border-border divide-border mb-5 divide-y border-y">
-                {comments.map((comment) => (
-                  <li key={comment.id} className="py-3">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-sm font-semibold">
-                        {comment.authorDisplayName}
-                      </span>
-                      <time
-                        className="text-foreground-secondary text-xs"
-                        dateTime={comment.createdAt}
-                      >
-                        {new Date(comment.createdAt).toLocaleDateString()}
-                      </time>
-                    </div>
-                    <p className="text-foreground-secondary mt-1 text-sm">
-                      {comment.body}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-foreground-secondary mb-5 text-sm">
-                No comments yet.
-              </p>
-            )}
-            {!commentsEnabled ? (
-              <p className="text-foreground-secondary text-sm">
-                Comments are off for this track.
-              </p>
-            ) : user ? (
-              <div className="flex flex-col gap-2">
-                <textarea
+            >
+              <img
+                src={
+                  user?.avatarUrl ??
+                  placeholderArtworkUrl(user?.id ?? 'listener')
+                }
+                alt=""
+                className="size-7 shrink-0 rounded-full object-cover"
+              />
+              {commentsEnabled && user ? (
+                <input
                   value={commentBody}
                   onChange={(event) => setCommentBody(event.target.value)}
-                  placeholder="Add a comment…"
+                  placeholder={
+                    embedSrc ? 'Write a comment' : `Write a comment at ${clock}`
+                  }
                   maxLength={2000}
-                  rows={3}
                   disabled={commentBusy}
-                  className="border-border bg-background text-foreground placeholder:text-foreground-secondary focus:border-primary resize-y rounded-md border px-3 py-2 text-sm outline-none"
+                  aria-label={
+                    embedSrc ? 'Write a comment' : 'Write a timed comment'
+                  }
+                  className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/45"
                 />
-                <div className="flex items-center justify-between gap-3">
-                  {commentError ? (
-                    <p className="text-accent-red text-xs">{commentError}</p>
-                  ) : (
-                    <span />
-                  )}
-                  <Button
-                    size="sm"
-                    disabled={commentBusy || !commentBody.trim()}
-                    onClick={() => void submitComment()}
-                  >
-                    {commentBusy ? 'Posting…' : 'Post comment'}
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <p className="text-foreground-secondary text-sm">
-                Log in to comment.
-              </p>
-            )}
-          </section>
+              ) : (
+                <Link
+                  to="/login"
+                  className="min-w-0 flex-1 text-sm text-white/55"
+                >
+                  {!commentsEnabled
+                    ? 'Comments are off for this track'
+                    : embedSrc
+                      ? 'Log in to write a comment'
+                      : `Log in to write a comment at ${clock}`}
+                </Link>
+              )}
+            </form>
+            <div className="flex items-center gap-3 text-xs text-white/70">
+              {detail?.releasedAt ? (
+                <span>{formatReleasedOn(detail.releasedAt)}</span>
+              ) : null}
+              <span className="inline-flex items-center gap-1">
+                <MessageCircleIcon size={13} aria-hidden />
+                {detail?.commentCount ?? comments.length}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Repeat2Icon size={13} aria-hidden />
+                {detail?.downloadCount ?? 0}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <HeartIcon size={13} aria-hidden />
+                {favorited ? 1 : 0}
+              </span>
+              <ActivityIcon size={13} aria-hidden className="opacity-70" />
+            </div>
+          </div>
+          {commentError ? (
+            <p className="text-accent-red text-xs">{commentError}</p>
+          ) : null}
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label="Expand player"
+                title="Expand player"
+                disabled={Boolean(embedSrc)}
+                onClick={() => {
+                  if (!isCurrent && canPlay) {
+                    play(playable);
+                  }
+                  setFullScreenPlayerOpen(true);
+                }}
+              >
+                <Maximize2Icon size={15} aria-hidden />
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => void shareTrack()}
+              >
+                <Share2Icon size={14} aria-hidden className="mr-1.5" />
+                Share
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setPlaylistOpen(true)}
+                disabled={!user}
+              >
+                <PlusIcon size={14} aria-hidden className="mr-1.5" />
+                Add
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={downloadBusy || !detail || Boolean(embedSrc)}
+                onClick={() => void downloadTrack()}
+              >
+                <DownloadIcon size={14} aria-hidden className="mr-1.5" />
+                Download
+              </Button>
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label={favorited ? 'Remove from favorites' : 'Favorite'}
+                title={favorited ? 'Remove from favorites' : 'Favorite'}
+                onClick={() => toggleFavoriteTrack(playable)}
+              >
+                <HeartIcon
+                  size={15}
+                  aria-hidden
+                  className={
+                    favorited ? 'fill-accent-red text-accent-red' : undefined
+                  }
+                />
+              </Button>
+            </div>
+            {detail ? (
+              <Link
+                to="/u/$username"
+                params={{ username: detail.channel.username }}
+                className="flex items-center gap-2 rounded-full bg-black/35 py-1 pr-3 pl-1"
+              >
+                <span className="relative">
+                  <img
+                    src={
+                      detail.channel.avatarUrl ??
+                      placeholderArtworkUrl(detail.channel.username)
+                    }
+                    alt=""
+                    className="size-8 rounded-full object-cover"
+                  />
+                  {artistLive ? (
+                    <span className="bg-accent-red absolute right-0 bottom-0 size-2.5 rounded-full ring-2 ring-black" />
+                  ) : null}
+                </span>
+                <span className="text-sm font-medium">
+                  {detail.channel.displayName}
+                </span>
+              </Link>
+            ) : null}
+          </div>
         </div>
-      </PageFrame>
+      </section>
+
+      <section className="bg-background px-6 py-8 md:px-10">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
+          <div className="min-w-0">
+            {detail?.description ? (
+              <div className="mb-6 text-sm leading-relaxed whitespace-pre-wrap">
+                {detail.description}
+              </div>
+            ) : null}
+            {tracklist.length > 0 ? (
+              <ol className="flex flex-col gap-1.5 text-sm">
+                {tracklist.map((cue) => (
+                  <li key={cue.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (cue.startSec != null) {
+                          jumpTo(cue.startSec);
+                        }
+                      }}
+                      className={cn(
+                        'hover:text-primary w-full text-left',
+                        cue.id === activeCueId && 'text-primary font-medium',
+                      )}
+                    >
+                      {cue.startSec != null ? (
+                        <span className="text-foreground-secondary mr-2 tabular-nums">
+                          {formatDuration(cue.startSec)}
+                        </span>
+                      ) : null}
+                      {cueLabel(cue.artist, cue.title)}
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
+
+            <div className="mt-10">
+              <h2 className="mb-4 text-sm font-semibold tracking-wide uppercase">
+                Comments
+              </h2>
+              {comments.length === 0 ? (
+                <p className="text-foreground-secondary text-sm">
+                  No comments yet.
+                </p>
+              ) : (
+                <ul className="flex flex-col gap-4">
+                  {comments.map((comment) => {
+                    const parsed = parseTimedComment(comment.body);
+                    const cueSeconds = parsed.seconds;
+                    return (
+                      <li key={comment.id} className="flex gap-3">
+                        <img
+                          src={
+                            comment.authorAvatarUrl ??
+                            placeholderArtworkUrl(comment.authorUsername)
+                          }
+                          alt=""
+                          className="size-8 shrink-0 rounded-full object-cover"
+                        />
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-baseline gap-2">
+                            <span className="text-sm font-semibold">
+                              {comment.authorDisplayName}
+                            </span>
+                            {parsed.timestamp && cueSeconds != null ? (
+                              <button
+                                type="button"
+                                className="text-primary text-xs tabular-nums"
+                                onClick={() => jumpTo(cueSeconds)}
+                              >
+                                {parsed.timestamp}
+                              </button>
+                            ) : null}
+                            <time
+                              className="text-foreground-secondary text-xs"
+                              dateTime={comment.createdAt}
+                            >
+                              {new Date(comment.createdAt).toLocaleDateString()}
+                            </time>
+                          </div>
+                          <p className="mt-1 text-sm">{parsed.text}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <aside className="flex min-w-0 flex-col gap-6">
+            {relatedCollections.length > 0 ? (
+              <div>
+                <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
+                  Collections
+                </h2>
+                <ul className="flex flex-col gap-3">
+                  {relatedCollections.map((collection) => (
+                    <li key={collection.slug}>
+                      <Link
+                        to="/u/$username/c/$slug"
+                        params={{
+                          username: detail?.channel.username ?? '',
+                          slug: collection.slug,
+                        }}
+                        className="hover:bg-background-secondary flex items-center gap-3 rounded-lg p-1"
+                      >
+                        <img
+                          src={
+                            collection.coverUrl ??
+                            placeholderArtworkUrl(collection.slug)
+                          }
+                          alt=""
+                          className="size-14 shrink-0 rounded object-cover"
+                        />
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-medium">
+                            {collection.name}
+                          </span>
+                          <span className="text-foreground-secondary block text-xs">
+                            {collection.itemCount}{' '}
+                            {collection.itemCount === 1 ? 'track' : 'tracks'}
+                          </span>
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {relatedTracks.length > 0 ? (
+              <div>
+                <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
+                  More from {playable.artist}
+                </h2>
+                <ul className="flex flex-col gap-3">
+                  {relatedTracks.map((track) => (
+                    <li key={track.id}>
+                      <Link
+                        to="/t/$id"
+                        params={{ id: track.id }}
+                        className="hover:bg-background-secondary flex items-center gap-3 rounded-lg p-1"
+                      >
+                        <img
+                          src={
+                            track.bannerUrl ?? placeholderArtworkUrl(track.id)
+                          }
+                          alt=""
+                          className="size-14 shrink-0 rounded object-cover"
+                        />
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-medium">
+                            {track.title}
+                          </span>
+                          {track.durationSec ? (
+                            <span className="text-foreground-secondary text-xs tabular-nums">
+                              {formatDuration(track.durationSec)}
+                            </span>
+                          ) : null}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </aside>
+        </div>
+      </section>
+
+      <AddToPlaylistPanel
+        isOpen={playlistOpen}
+        archiveItemId={id}
+        trackTitle={playable.title}
+        onClose={() => setPlaylistOpen(false)}
+      />
     </div>
   );
 }

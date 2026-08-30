@@ -1,3 +1,4 @@
+import { listenerFingerprint } from '../lib/listenerFingerprint';
 import {
   archiveItemToPlayable,
   channelToPlayable,
@@ -16,6 +17,7 @@ import {
   mockRadioRecentlyPlayed,
   mockSearch,
   mockSmartLink,
+  mockTrackComments,
   mockTrackDetail,
   mockTransparencyGrants,
   mockTransparencyLedger,
@@ -311,7 +313,10 @@ export async function fetchTrackComments(id: string): Promise<{
 }> {
   if (forceMock()) {
     return {
-      data: { comments: [], commentsEnabled: true },
+      data: {
+        comments: mockTrackComments(id),
+        commentsEnabled: true,
+      },
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
@@ -324,8 +329,8 @@ export async function fetchTrackComments(id: string): Promise<{
   } catch (err) {
     return withMockFallback(
       err,
-      () => ({ comments: [], commentsEnabled: true }),
-      () => ({ comments: [], commentsEnabled: true }),
+      () => ({ comments: mockTrackComments(id), commentsEnabled: true }),
+      () => ({ comments: mockTrackComments(id), commentsEnabled: true }),
     );
   }
 }
@@ -357,6 +362,30 @@ export async function postTrackComment(
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Could not post comment',
+    };
+  }
+}
+
+export async function fetchPublicArchiveDownload(
+  channelSlug: string,
+  itemId: string,
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true, url: DEMO_MP3 };
+  }
+  try {
+    const fp = encodeURIComponent(listenerFingerprint());
+    const { data } = await requestJson<{ url?: string }>(
+      `/api/v1/c/${encodeURIComponent(channelSlug)}/archive/${encodeURIComponent(itemId)}/download?fp=${fp}`,
+    );
+    if (!data.url) {
+      return { ok: false, error: 'Download unavailable' };
+    }
+    return { ok: true, url: data.url };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Download unavailable',
     };
   }
 }

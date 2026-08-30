@@ -4,7 +4,8 @@ import { FC } from 'react';
 import { useTranslation } from '@nuclearplayer/i18n';
 import { Badge, cn } from '@nuclearplayer/ui';
 
-import type { ChangelogEntry, ChangelogEntryType } from '../../types/changelog';
+import type { ChangelogEntryType } from '../../types/changelog';
+import type { WeeklyChangelogEntry } from './groupChangelogByWeek';
 import { TimelineNode } from './TimelineNode';
 
 const TYPE_COLORS: Record<ChangelogEntryType, string> = {
@@ -17,7 +18,7 @@ const TYPE_COLORS: Record<ChangelogEntryType, string> = {
 };
 
 type TimelineEntryProps = {
-  entry: ChangelogEntry;
+  entry: WeeklyChangelogEntry;
   isFirst: boolean;
   isLast: boolean;
 };
@@ -71,7 +72,18 @@ export const TimelineEntry: FC<TimelineEntryProps> = ({
           )}
         </div>
         <div className="border-border bg-background-secondary shadow-shadow flex-1 rounded-md border-(length:--border-width) p-4">
-          <span data-testid="changelog-description">{entry.description}</span>
+          <div
+            data-testid="changelog-description"
+            className="flex flex-col gap-1"
+          >
+            {entry.descriptions.map((description) => (
+              <span key={description}>
+                {entry.descriptions.length > 1
+                  ? `• ${description}`
+                  : description}
+              </span>
+            ))}
+          </div>
         </div>
         <div className="flex items-center justify-between px-1">
           <span data-testid="changelog-date" className="text-xs">

@@ -1,7 +1,7 @@
 /** Providers whose tracks are referenced, never re-hosted: the backend
  * stores only an embedUri and marks the archive item EMBED_ONLY, so the
  * audio and artwork have to come from the provider's own widget. */
-export type EmbedProvider = 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY';
+export type EmbedProvider = 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | 'BANDCAMP';
 
 /** Mirrors hearthisEmbedSrc in the main tahti repo (packages/shared).
  * waveform/cover stay on: the widget hides its play control until that
@@ -34,6 +34,16 @@ export function spotifyEmbedSrc(uri: string): string {
   return `https://open.spotify.com/embed/${path}`;
 }
 
+/** Bandcamp has no public REST embed lookup — the widget is addressed by
+ * the numeric track/album id Bandcamp itself assigns, formatted as
+ * `track=<id>` or `album=<id>`. The import contract is expected to hand
+ * back `embedUri` already in that shape; a bare numeric id is treated as
+ * a track id. */
+export function bandcampEmbedSrc(uri: string): string {
+  const spec = uri.includes('=') ? uri : `track=${uri}`;
+  return `https://bandcamp.com/EmbeddedPlayer/${spec}/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/transparent=true/`;
+}
+
 export function embedSrcFor(
   provider: EmbedProvider,
   uri: string,
@@ -45,6 +55,8 @@ export function embedSrcFor(
       return mixcloudEmbedSrc(uri);
     case 'SPOTIFY':
       return spotifyEmbedSrc(uri);
+    case 'BANDCAMP':
+      return bandcampEmbedSrc(uri);
     default:
       return null;
   }
@@ -54,6 +66,7 @@ export const EMBED_PROVIDER_LABEL: Record<EmbedProvider, string> = {
   HEARTHIS: 'hearthis.at',
   MIXCLOUD: 'Mixcloud',
   SPOTIFY: 'Spotify',
+  BANDCAMP: 'Bandcamp',
 };
 
 /** Widget heights differ enough that one value looks broken on the others. */
@@ -61,4 +74,5 @@ export const EMBED_PROVIDER_HEIGHT: Record<EmbedProvider, number> = {
   HEARTHIS: 150,
   MIXCLOUD: 120,
   SPOTIFY: 152,
+  BANDCAMP: 120,
 };

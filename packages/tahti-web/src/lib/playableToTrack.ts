@@ -62,9 +62,14 @@ export function formatDuration(sec?: number | null): string {
   if (sec == null || !Number.isFinite(sec)) {
     return '';
   }
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
+  const total = Math.max(0, Math.floor(sec));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
 export function providerLabel(provider?: string | null): string | null {

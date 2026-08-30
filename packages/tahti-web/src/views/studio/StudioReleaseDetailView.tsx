@@ -405,7 +405,7 @@ function ReleaseTrackRow({
   const play = usePlayerStore((state) => state.play);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const [embed, setEmbed] = useState<{
-    provider: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY';
+    provider: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | 'BANDCAMP';
     uri: string;
   } | null>(null);
 

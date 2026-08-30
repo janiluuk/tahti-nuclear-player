@@ -30,10 +30,17 @@ describe("What's New view", () => {
 
   it('displays changelog entries with descriptions', async () => {
     await WhatsNewWrapper.mount();
+    expect(WhatsNewWrapper.entry(1).description).toHaveTextContent(
+      'Improved plugin loading performance',
+    );
+  });
+
+  it('combines same-week entries into a single row', async () => {
+    await WhatsNewWrapper.mount();
     expect(WhatsNewWrapper.entry(0).description).toHaveTextContent(
       'Support importing legacy format playlists',
     );
-    expect(WhatsNewWrapper.entry(1).description).toHaveTextContent(
+    expect(WhatsNewWrapper.entry(0).description).toHaveTextContent(
       'Fixed audio stuttering on track transition',
     );
   });
@@ -43,11 +50,11 @@ describe("What's New view", () => {
     expect(WhatsNewWrapper.entry(0).date).toHaveTextContent('Mar 1, 2026');
   });
 
-  it('shows type badges on each entry', async () => {
+  it('shows type badges on each entry, preferring the most notable type in a merged week', async () => {
     await WhatsNewWrapper.mount();
     expect(WhatsNewWrapper.entry(0).typeBadge).toHaveTextContent('Feature');
-    expect(WhatsNewWrapper.entry(1).typeBadge).toHaveTextContent('Fix');
-    expect(WhatsNewWrapper.entry(2).typeBadge).toHaveTextContent('Improvement');
+    expect(WhatsNewWrapper.entry(1).typeBadge).toHaveTextContent('Improvement');
+    expect(WhatsNewWrapper.entry(2).typeBadge).toHaveTextContent('Feature');
   });
 
   it('shows a single contributor with @ prefix', async () => {
@@ -60,18 +67,18 @@ describe("What's New view", () => {
 
   it('shows multiple contributors', async () => {
     await WhatsNewWrapper.mount();
-    expect(WhatsNewWrapper.entry(2).contributors).toHaveLength(2);
-    expect(WhatsNewWrapper.entry(2).contributors[0]).toHaveTextContent(
+    expect(WhatsNewWrapper.entry(1).contributors).toHaveLength(2);
+    expect(WhatsNewWrapper.entry(1).contributors[0]).toHaveTextContent(
       '@someDev',
     );
-    expect(WhatsNewWrapper.entry(2).contributors[1]).toHaveTextContent(
+    expect(WhatsNewWrapper.entry(1).contributors[1]).toHaveTextContent(
       '@nukeop',
     );
   });
 
   it('does not render contributors when not provided', async () => {
     await WhatsNewWrapper.mount();
-    expect(WhatsNewWrapper.entry(1).contributors).toHaveLength(0);
+    expect(WhatsNewWrapper.entry(2).contributors).toHaveLength(0);
   });
 
   it('shows tags when present', async () => {
@@ -88,7 +95,7 @@ describe("What's New view", () => {
   it('shows see more button when there are more entries', async () => {
     await WhatsNewWrapper.mount();
     expect(WhatsNewWrapper.seeMoreButton.element).toHaveTextContent(
-      'See more (2 older)',
+      'See more (1 older)',
     );
   });
 
@@ -96,12 +103,9 @@ describe("What's New view", () => {
     await WhatsNewWrapper.mount();
     await WhatsNewWrapper.seeMoreButton.click();
 
-    expect(WhatsNewWrapper.entries).toHaveLength(5);
+    expect(WhatsNewWrapper.entries).toHaveLength(4);
     expect(WhatsNewWrapper.entry(3).description).toHaveTextContent(
-      'MCP server for controlling Nuclear from AI agents',
-    );
-    expect(WhatsNewWrapper.entry(4).description).toHaveTextContent(
-      'Updated documentation',
+      'Reduced startup time by lazy-loading plugins',
     );
   });
 });

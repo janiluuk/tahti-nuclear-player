@@ -126,6 +126,10 @@ export type PublicTrackDetail = {
   };
   durationSec: number | null;
   audioUrl: string | null;
+  /** Set for items Tahti references but never hosts (EMBED_ONLY) — the
+   * provider's widget is the only way to play them. */
+  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | 'BANDCAMP' | null;
+  embedUri?: string | null;
   bannerUrl: string | null;
   genre: string | null;
   subGenres: string[];
@@ -133,6 +137,7 @@ export type PublicTrackDetail = {
   mixVersion: string | null;
   description: string | null;
   commentary: string | null;
+  tracklist?: unknown;
   license: string;
   releasedAt: string;
   effectiveBpm: number | null;
@@ -246,7 +251,7 @@ export type CollectionArchiveItem = {
   channel?: { slug: string } | null;
   /** Set for items Tahti references but never hosts (EMBED_ONLY) — the
    * provider's widget supplies the audio and artwork. */
-  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | null;
+  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | 'BANDCAMP' | null;
   embedUri?: string | null;
 };
 

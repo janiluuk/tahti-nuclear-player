@@ -1,5 +1,39 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-30 — Weekly "What's New" grouping and changelog-quality note
+
+**Completed:** The in-app What's New tab (`packages/player`) listed every `changelog.json` entry one row per entry, so a week with several shipped changes read as several separate timeline rows. Added `groupChangelogByWeek` (new `WhatsNew/groupChangelogByWeek.ts`) to collapse entries into one row per ISO week: same-week entries merge into a single row whose type badge picks the most notable type present (feature > fix > improvement > plugin > docs > chore), whose tags/contributors are deduped across the week, and whose description lists each merged item as its own line. `TimelineEntry` and `WhatsNew` now render/paginate over these weekly rows instead of raw entries.
+
+**Completed:** Added a note to the root `AGENTS.md` Changelog section: every `changelog.json` entry's description must explain how a change makes things better for the person using it, in plain language, not what changed at the implementation level — the worklog and commit message are where the technical detail belongs.
+
+**Validation:** Added `groupChangelogByWeek.test.ts` (5 tests) and rewrote `WhatsNew.test.tsx`'s fixture/assertions for the new grouped output (13 tests, all passing). Full player vitest run has 17 pre-existing, unrelated `Themes.test.tsx` snapshot failures (stale `text-foreground`/`text-primary-foreground` token snapshot) — confirmed pre-existing on master via `git stash` before this change, not caused by it. Type-check and lint pass on the changed files.
+
+## 2026-08-30 — Untimed comments on embed-only tracks
+
+**Completed:** The listener track page's comment composer always stamped `[0:00]` on new comments for EMBED_ONLY tracks (hearthis.at, Mixcloud, Spotify, Bandcamp), because Tahti never puts an embed track into the shared player and so never observes a real playback position for it — every comment looked timed but was silently wrong. Comments on those tracks now post untimed (no `[m:ss]` prefix, which `parseTimedComment` already treats as a plain comment), and the composer placeholder/aria-label drop the misleading "at 0:00" for embed tracks specifically.
+
+**Validation:** Tahti web type-check and lint pass. Full vitest run: 227 passed. Could not do a live browser check of `/t/:id` for the new Spotify/Bandcamp mock rows (`*-archive-4`/`*-archive-5`) — no Chrome extension connection was available this session; this needs a manual/browser pass before shipping.
+
+## 2026-08-30 — Bandcamp embed playback and add-on help detail
+
+**Completed:** Bandcamp joins hearthis.at, Mixcloud, and Spotify as a fourth `EmbedProvider`: `embedSrc.ts` gained `bandcampEmbedSrc`, and the Studio archive filter, collection views, and release track rows all pick it up through the existing generic `EmbedProvider`-keyed plumbing. `sourceCapabilities('bandcamp').playback` is now `true`. The listener track page (`/t/:id`) previously assumed every track had a Tahti-hosted `audioUrl` and left EMBED_ONLY tracks with a permanently disabled play button and a blank waveform; it now renders the provider's own widget in that slot (with a "via {Provider}" label) for hearthis.at, Mixcloud, Spotify, or Bandcamp tracks, and disables Download/Expand player for them since there is no Tahti-hosted file to serve.
+
+**Completed:** Extended the Help → Add-ons and plugins catalog with a `description` field ("what it does") alongside the existing `help` field ("how to use it") on every entry, and added a matching "What it does" column to the rendered table. Updated the Bandcamp and Spotify catalog copy to describe the in-app playback path now that it exists, and reworded the article's "Ready plugins" intro to state which providers are reference-only (audio comes from the provider's widget, including on a track's own page) rather than implying playback never works for a partial-state add-on.
+
+**Validation:** Added `embedSrc.test.ts` (dispatcher coverage for all four providers, `bandcampEmbedSrc`/`spotifyEmbedSrc` URI parsing) and extended `pluginHelpCatalog.test.ts` for the new `description` field. Full vitest run: 227 passed. Tahti web type-check and lint pass on the changed files.
+
+## 2026-08-30 — Help Center add-on catalog
+
+**Completed:** Added Help → Add-ons and plugins with a table of every usable Settings → Add-ons integration (name, category, state, how to use it). Planned Nuclear registry entries stay out of the table until they have a Tahti contract.
+
+**Validation:** Catalog unit tests plus Help Center article wiring.
+
+## 2026-08-29 — Listener track page
+
+**Completed:** Rebuilt `/t/:id` for listeners in the hearthis-style layout: blurred artwork hero, circular play, dense waveform with played/unplayed colors, timed comment bar, share/add/download, artist chip, description + cue tracklist, and related collections/tracks.
+
+**Validation:** Unit tests for tracklist parsing, timed comments, and hour-long clocks; tahti-web type-check and lint.
+
 ## 2026-08-29 — Tahti theme accent contrast
 
 **Completed:** Light cyan, green, yellow, orange, and coral fills no longer use page-white text. Added `--accent-foreground` (ink on Tahti) and applied it to pills, toasts, log chips, danger buttons, and remaining solid accent surfaces.

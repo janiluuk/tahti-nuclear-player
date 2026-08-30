@@ -8,6 +8,7 @@ import {
   HeadphonesIcon,
   LifeBuoyIcon,
   ListIcon,
+  PlugIcon,
   RadioTowerIcon,
   SearchIcon,
   ShieldCheckIcon,
@@ -67,6 +68,14 @@ const GUIDE_GROUPS: Array<{
     slugs: ['tier-limits', 'keyboard-shortcuts', 'support'],
   },
   {
+    id: 'add-ons',
+    title: 'Add-ons',
+    description:
+      'Themes, imports, live mirrors, audio tools, and page widgets.',
+    icon: PlugIcon,
+    slugs: ['add-ons', 'disco-widgets'],
+  },
+  {
     id: 'build-with-tahti',
     title: 'Build with Tahti',
     description: 'Learn how to make a Disco-widget for the platform.',
@@ -103,6 +112,9 @@ function articleMatches(article: HelpArticle, query: string): boolean {
     ...article.sections.flatMap((section) => [
       section.heading,
       ...section.body,
+      ...(section.table
+        ? [...section.table.columns, ...section.table.rows.flat()]
+        : []),
     ]),
   ]
     .join(' ')
@@ -446,11 +458,51 @@ export function HelpArticleView({ slug }: { slug: string }) {
                     <h2 className="font-display text-xl font-bold tracking-tight">
                       {section.heading}
                     </h2>
-                    <ul className="text-foreground-secondary mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed">
-                      {section.body.map((line) => (
-                        <li key={line}>{line}</li>
-                      ))}
-                    </ul>
+                    {section.body.length > 0 ? (
+                      <ul className="text-foreground-secondary mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed">
+                        {section.body.map((line) => (
+                          <li key={line}>{line}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {section.table ? (
+                      <div className="mt-4 overflow-x-auto">
+                        <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
+                          <caption className="sr-only">
+                            {section.heading}
+                          </caption>
+                          <thead>
+                            <tr className="border-border border-b">
+                              {section.table.columns.map((column) => (
+                                <th
+                                  key={column}
+                                  className="text-foreground px-2 py-2 font-semibold"
+                                >
+                                  {column}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {section.table.rows.map((row) => (
+                              <tr
+                                key={row.join('|')}
+                                className="border-border border-b last:border-b-0"
+                              >
+                                {row.map((cell, cellIndex) => (
+                                  <td
+                                    key={`${row[0]}-${cellIndex}`}
+                                    className="text-foreground-secondary px-2 py-2 align-top leading-relaxed"
+                                  >
+                                    {cell}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </section>

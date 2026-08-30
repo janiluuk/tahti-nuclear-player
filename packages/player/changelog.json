@@ -1,5 +1,47 @@
 [
   {
+    "date": "2026-08-30T00:00",
+    "description": "What's New now shows one entry per week, so a busy week of updates reads as a single summary instead of a wall of near-identical rows.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Comments on tracks that only play through a provider widget (Spotify, Bandcamp, hearthis.at, Mixcloud) no longer get a misleading [0:00] timestamp.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Bandcamp tracks now play in-app through the Bandcamp widget, and a track's own page plays Spotify/Bandcamp/hearthis.at/Mixcloud tracks the same way.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Playback", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Help Center add-on entries now explain what each one does, not just how to turn it on.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Add-ons", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Help Center now lists every ready add-on with its category, state, and how to turn it on.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Help", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-29T00:00",
+    "description": "Listener track pages now use a full-width waveform hero with timed comments, tracklist cues, and related collections.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
     "date": "2026-08-29T00:00",
     "description": "Tahti theme now uses ink text on light cyan, green, yellow, and coral fills so labels stay readable.",
     "type": "fix",

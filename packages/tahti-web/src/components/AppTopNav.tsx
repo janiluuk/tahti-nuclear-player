@@ -16,6 +16,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 import { fetchConversations, type ConversationSummary } from '../api/messages';
+import { useOwnBroadcastPresence } from '../hooks/useOwnBroadcastPresence';
 import { cn } from '../lib/cn';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
@@ -56,7 +57,12 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const popupRef = useRef<HTMLDivElement>(null);
 
   const hasChannel = Boolean(user?.channel?.slug);
-  const isLive = user?.channel?.state === 'LIVE';
+  const broadcast = useOwnBroadcastPresence({
+    enabled: Boolean(user && hasChannel),
+    channelState: user?.channel?.state,
+    refreshWhen: broadcastOpen,
+  });
+  const isLive = broadcast.kind === 'live';
   const displayName = user?.displayName?.trim() || user?.username || '';
   const initial = displayName ? displayName.charAt(0).toUpperCase() : '?';
 
@@ -191,11 +197,13 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                         'size-2 rounded-full',
                         isLive
                           ? 'bg-accent-green'
-                          : 'bg-foreground-secondary/40',
+                          : broadcast.kind === 'rotation'
+                            ? 'bg-accent-cyan'
+                            : 'bg-foreground-secondary/40',
                       )}
                       aria-hidden
                     />
-                    {isLive ? 'Live now' : 'Broadcast offline'}
+                    {broadcast.label}
                   </div>
                   <Link
                     to="/studio/go-live"

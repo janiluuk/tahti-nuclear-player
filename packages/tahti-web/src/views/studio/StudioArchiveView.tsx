@@ -67,6 +67,7 @@ const EMBED_FILTERS: Array<{ id: EmbedFilter; label: string }> = [
   { id: 'HEARTHIS', label: 'hearthis.at' },
   { id: 'MIXCLOUD', label: 'Mixcloud' },
   { id: 'SPOTIFY', label: 'Spotify' },
+  { id: 'BANDCAMP', label: 'Bandcamp' },
 ];
 
 const SORT_FIELDS: Array<{ id: SortField; label: string }> = [

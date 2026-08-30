@@ -57,6 +57,7 @@ export function WaveformSeekbar({
   progress,
   peaks,
   bars = BAR_COUNT,
+  markers,
   onSeek,
   playedColor,
   unplayedColor,
@@ -69,6 +70,7 @@ export function WaveformSeekbar({
    * to the synthetic per-track bars. */
   peaks?: number[] | null;
   bars?: number;
+  markers?: Array<{ fraction: number }>;
   onSeek?: (fraction: number) => void;
   playedColor?: string;
   unplayedColor?: string;
@@ -102,31 +104,38 @@ export function WaveformSeekbar({
       aria-valuemin={onSeek ? 0 : undefined}
       aria-valuemax={onSeek ? 100 : undefined}
       aria-valuenow={onSeek ? Math.round(clamped * 100) : undefined}
-      className={cn(
-        'flex h-20 items-end gap-[2px]',
-        onSeek && 'cursor-pointer',
-        className,
-      )}
+      className={cn('relative', onSeek && 'cursor-pointer', className)}
       onClick={onSeek ? (e) => seekAt(e.clientX) : undefined}
     >
-      {heights.map((h, i) => (
+      <div className="flex h-full items-end gap-px">
+        {heights.map((h, i) => (
+          <span
+            key={i}
+            className={cn(
+              'flex-1 origin-bottom rounded-sm transition-colors',
+              i < filledCount
+                ? !playedColor && 'bg-primary'
+                : !unplayedColor && 'bg-foreground-secondary/25',
+            )}
+            style={{
+              height: `${h}%`,
+              ...(i < filledCount
+                ? playedColor
+                  ? { backgroundColor: playedColor }
+                  : {}
+                : unplayedColor
+                  ? { backgroundColor: unplayedColor }
+                  : {}),
+            }}
+          />
+        ))}
+      </div>
+      {markers?.map((marker, index) => (
         <span
-          key={i}
-          className={cn(
-            'flex-1 origin-bottom rounded-full transition-colors',
-            i < filledCount
-              ? !playedColor && 'bg-primary'
-              : !unplayedColor && 'bg-foreground-secondary/25',
-          )}
+          key={`marker-${index}`}
+          className="bg-accent-yellow pointer-events-none absolute top-0 size-1.5 -translate-x-1/2 rounded-full shadow"
           style={{
-            height: `${h}%`,
-            ...(i < filledCount
-              ? playedColor
-                ? { backgroundColor: playedColor }
-                : {}
-              : unplayedColor
-                ? { backgroundColor: unplayedColor }
-                : {}),
+            left: `${Math.min(100, Math.max(0, marker.fraction)) * 100}%`,
           }}
         />
       ))}

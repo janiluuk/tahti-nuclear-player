@@ -49,6 +49,7 @@ import {
   type MulticastProviderId,
 } from '../../plugins/multicast';
 import { useAuthStore } from '../../stores/authStore';
+import { useBroadcastPresenceStore } from '../../stores/broadcastPresenceStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
 type Ingest = 'obs' | 'icecast' | 'traktor';
@@ -199,6 +200,9 @@ export function StudioGoLiveView() {
       const { data } = await fetchSignalStatus();
       if (!cancelled) {
         setSignal(data);
+        useBroadcastPresenceStore
+          .getState()
+          .setSignalConnected(Boolean(data.connected));
       }
       if (!isMock) {
         await refresh();

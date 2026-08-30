@@ -18,6 +18,7 @@ import type {
   SearchResponse,
   SmartLinkView,
   TahtiPlayable,
+  TrackComment,
   TransparencyGrantReport,
   TransparencyLedgerEntry,
   TransparencyYtd,
@@ -582,6 +583,57 @@ function mockPeaks(id: string, buckets = 100): number[] {
   });
 }
 
+const MOCK_SET_TRACKLIST = [
+  {
+    id: 'cue-1',
+    title: 'Head In The Clouds (Original Mix)',
+    artist: 'Ben Buitendijk',
+    startSec: 0,
+  },
+  {
+    id: 'cue-2',
+    title: 'Inner Place',
+    artist: 'Gigi Masin',
+    startSec: 412,
+  },
+  {
+    id: 'cue-3',
+    title: 'Replay',
+    artist: 'Rhythm & Sound',
+    startSec: 890,
+  },
+  {
+    id: 'cue-4',
+    title: 'Afterhours',
+    artist: 'Uncle Yaniho',
+    startSec: 1480,
+  },
+];
+
+export function mockTrackComments(id: string): TrackComment[] {
+  if (!id.endsWith('-archive-1')) {
+    return [];
+  }
+  return [
+    {
+      id: `${id}-c1`,
+      body: '[11:01] That filter sweep',
+      authorUsername: 'listener',
+      authorDisplayName: 'Listener',
+      authorAvatarUrl: null,
+      createdAt: '2026-01-14T21:01:00.000Z',
+    },
+    {
+      id: `${id}-c2`,
+      body: 'Thanks for joining!',
+      authorUsername: 'yaniho',
+      authorDisplayName: 'Yaniho',
+      authorAvatarUrl: null,
+      createdAt: '2026-01-14T21:12:00.000Z',
+    },
+  ];
+}
+
 /** GET /api/tracks/:id mock — reconstructs the item from its channel's
  * archive list, since mock ids encode the owning slug (`${slug}-archive-N`). */
 export function mockTrackDetail(id: string): PublicTrackDetail | null {
@@ -594,6 +646,11 @@ export function mockTrackDetail(id: string): PublicTrackDetail | null {
     return null;
   }
   const channel = mockChannel(slug);
+  const isSet = id.endsWith('-archive-1');
+  // EMBED_ONLY demo rows: Tahti stores just the reference, so the
+  // provider's own widget supplies the audio on the public track page.
+  const isSpotifyEmbed = id.endsWith('-archive-4');
+  const isBandcampEmbed = id.endsWith('-archive-5');
   return {
     id: item.id,
     title: item.title,
@@ -605,22 +662,34 @@ export function mockTrackDetail(id: string): PublicTrackDetail | null {
       avatarUrl: channel.user.avatarUrl,
       bio: channel.user.bio,
     },
-    durationSec: item.durationSec ?? null,
-    audioUrl: item.audioUrl ?? null,
+    durationSec: isSet ? 5249 : (item.durationSec ?? null),
+    audioUrl:
+      isSpotifyEmbed || isBandcampEmbed ? null : (item.audioUrl ?? null),
+    embedProvider: isSpotifyEmbed
+      ? 'SPOTIFY'
+      : isBandcampEmbed
+        ? 'BANDCAMP'
+        : null,
+    embedUri: isSpotifyEmbed
+      ? '4cOdK2wGLETKBW3PvgPWqT'
+      : isBandcampEmbed
+        ? 'track=2263268826'
+        : null,
     bannerUrl: item.bannerUrl ?? null,
     genre: item.genre ?? null,
     subGenres: [],
-    contentType: 'STUDIO',
+    contentType: isSet ? 'DJ_MIX' : 'STUDIO',
     mixVersion: null,
-    description: null,
+    description: isSet ? 'Thanks for joining!\n\nTraxx:' : null,
     commentary: null,
+    tracklist: isSet ? MOCK_SET_TRACKLIST : null,
     license: 'ALL_RIGHTS_RESERVED',
     releasedAt: item.createdAt ?? new Date(0).toISOString(),
     effectiveBpm: null,
     effectiveKey: null,
-    peaks: mockPeaks(item.id),
-    commentCount: 0,
-    downloadCount: 0,
+    peaks: mockPeaks(item.id, isSet ? 220 : 100),
+    commentCount: isSet ? 3 : 0,
+    downloadCount: isSet ? 13 : 0,
   };
 }
 

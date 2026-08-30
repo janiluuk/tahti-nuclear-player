@@ -335,9 +335,9 @@ Assume TanStack Router routes regenerate on dev - don't regenerate manually.
 
 ## Changelog
 
-`packages/player/changelog.json` is the source of truth for the in-app "What's New" tab and auto-generated GitHub release notes.
+`packages/player/changelog.json` is the source of truth for the in-app "What's New" tab and auto-generated GitHub release notes. The "What's New" tab groups entries by week and shows one row per week (same-week entries are merged into one row), so every entry should also be readable as one line within that combined row.
 
-When building a user-facing feature, fix, or improvement, add an entry to the top of the array according to the format you find there.
+When building a user-facing feature, fix, or improvement, add an entry to the top of the array according to the format you find there. **Every entry's `description` must explain how the change makes things better for the person using it, in plain language — not what changed at the implementation level.** Write it for the reader of the "What's New" tab, not for a reviewer of the diff: say what they can now do, or what stopped being broken, not which component/file/API changed. "Bandcamp tracks now play in-app" is right; "Added BANDCAMP to the EmbedProvider union and wired embedSrcFor" is wrong — that belongs in the worklog entry and commit message, not the changelog.
 
 ## Releasing
 

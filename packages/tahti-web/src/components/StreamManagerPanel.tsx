@@ -50,6 +50,7 @@ import {
 import type { StudioCollection } from '../api/studio-types';
 import { uploadUserMediaFile } from '../api/user-media';
 import { multicastProviderLabel } from '../plugins/multicast';
+import { useBroadcastPresenceStore } from '../stores/broadcastPresenceStore';
 import { ChannelRotationEditor } from './ChannelRotationEditor';
 
 const STATS_POLL_MS = 5000;
@@ -194,6 +195,9 @@ export function StreamManagerPanel({
       ]);
       if (!cancelled) {
         setSignal(signalResult.data);
+        useBroadcastPresenceStore
+          .getState()
+          .setSignalConnected(Boolean(signalResult.data.connected));
         setStats(statsResult.data);
         setSignalError(
           signalResult.meta.source === 'api' &&

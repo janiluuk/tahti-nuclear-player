@@ -1,14 +1,21 @@
+import { PLUGIN_HELP_TABLE } from './pluginHelpCatalog';
+
+export type HelpTable = {
+  columns: string[];
+  rows: string[][];
+};
+
 export type HelpArticle = {
   slug: string;
   title: string;
   description: string;
   /** Production deep-link on tahti.live — omit for POC-only articles with no prod equivalent. */
   productionPath?: string;
-  sections: Array<{ heading: string; body: string[] }>;
+  sections: Array<{ heading: string; body: string[]; table?: HelpTable }>;
 };
 
 export const HELP_HUB_INTRO =
-  'Guides for listening, broadcasting, account tiers, and getting in touch.';
+  'Guides for listening, broadcasting, add-ons, account tiers, and getting in touch.';
 
 export const HELP_ARTICLES: HelpArticle[] = [
   {
@@ -24,7 +31,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
           'Browse who’s on air from Listen, or open a channel at /channel/$slug.',
           'When an artist is offline, their channel still plays archive items.',
           'Tahti Radio (/radio) is a fair-rotation stream across the community.',
-          'Signed-in listeners can install Disco-widgets on Listen from Settings → Widgets.',
+          'Signed-in listeners can install Disco-widgets on Listen from Settings → Add-ons → Discovery.',
         ],
       },
       {
@@ -219,6 +226,36 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
   },
   {
+    slug: 'add-ons',
+    title: 'Add-ons and plugins',
+    description:
+      'What is ready today in Settings → Add-ons, and how to turn each one on.',
+    sections: [
+      {
+        heading: 'Where add-ons live',
+        body: [
+          'Open Settings → Add-ons. Categories match the table below: Themes, Visualizers, Import, Multicast, Fingerprinting, Audio plugins, Radio, Embed, Discovery, Channel, and Playback.',
+          'Only integrations you can use now are listed. Planned Nuclear registry items such as Last.fm scrobbling, OmniSource, KHInsider, and NetEase stay out of this guide until they have a Tahti contract.',
+        ],
+      },
+      {
+        heading: 'Ready plugins',
+        body: [
+          'State Ready means the path works end to end, including in-app playback where the row says so. Importer ready or Search ready means the connect/search half works, but the remaining piece — usually a server-side import contract — is still pending; check the “How to use it” column for the exact limit.',
+          'hearthis.at, Mixcloud, Spotify, and Bandcamp tracks are referenced rather than hosted: Tahti keeps only a link, and that provider’s own widget supplies the audio when you press play on one of their tracks, including on a track’s own page.',
+        ],
+        table: PLUGIN_HELP_TABLE,
+      },
+      {
+        heading: 'If something is missing',
+        body: [
+          'Export destinations such as Spotify or Apple Music are release-delivery links in Studio → Distribution, not installable plugins yet.',
+          'YouTube liked-songs sync and Last.fm scrobbling can be configured in Nuclear plugins, but they do not run until a server-side contract exists.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'disco-widgets',
     title: 'Contribute a Disco-widget',
     description:
@@ -243,7 +280,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         heading: '3. What happens next',
         body: [
           'A maintainer reviews the code. Once merged, an admin builds the widget, publishes it through the Disco-widgets admin panel, and approves it. After that it is live in its store, credited to you.',
-          'Install listener widgets from Settings → Widgets. Artists install channel widgets in the same panel; they render on /channel/$slug and /u/$username.',
+          'Install listener widgets from Settings → Add-ons → Discovery. Artists install channel widgets from Settings → Add-ons → Channel; they render on /channel/$slug and /u/$username.',
         ],
       },
     ],
