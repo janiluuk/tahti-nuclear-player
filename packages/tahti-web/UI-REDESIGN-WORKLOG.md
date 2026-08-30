@@ -1,8 +1,10 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
-## 2026-08-30 — Planned: seven queued requests, not yet implemented
+## 2026-08-30 — Planned: eight queued requests, not yet implemented
 
 Logged for a future session, in the order requested — none of these are built yet.
+
+**Admin → Logs: R2 and encoding entries (start/finish, what, total time):** Admin → Logs (`AdminLogsView.tsx`) is a raw Loki-backed log tail — `fetchAdminLogs()`/`AdminLogEntry` (`api/admin.ts:4130-4208`) just displays whatever `{timestampMs, service, line}` rows the real `/api/admin/logs` endpoint returns; the mock's example line (`[transcode] archive item 8f2c… done in 4.2s`, `api/admin.ts:4156`) shows the *shape* wanted but isn't backed by anything real. Getting genuine R2-operation and encoding-lifecycle entries here is **not a tahti-web change** — it means the actual R2 client and transcode/encoding worker (in `../tahti/apps/api` and/or `../tahti/apps/worker`) need to emit structured log lines for: an R2 operation (upload/delete/etc., which object); an encoding job starting (what's being encoded — track/archive item — and its target format); and an encoding job finishing (same identifying info, plus total elapsed time). Once those services actually emit that, this repo's existing log viewer displays it with no changes needed. Start on the backend side, not here.
 
 **Bug report — Admin → Storage total used shows 0B despite real uploads:** reported live against production data, not the mock fixtures — a real user ("yaniho") has many uploaded tracks but Admin → Storage's total-used figure reads 0B. `AdminStorageView.tsx`'s real-data path (`fetchAdminStorage()` in `api/admin.ts:2547`) is a thin client fetch with no aggregation logic of its own — `usedBytes`/`totalUsedBytes` come directly from the sibling API response. This is very likely a backend storage-aggregation bug (per-user or per-file usage not being summed/reported correctly, or a units/field-name mismatch between what the API returns and what's expected), not something fixable in this repo alone — needs investigating in `../tahti/apps/api`'s storage-usage endpoint first, per this repo's own AGENTS.md boundary (HTTP/backend contracts live there, not here). Confirm the real API response shape for a user with known uploads before assuming where the bytes are getting lost.
 
