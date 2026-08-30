@@ -1,8 +1,10 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
-## 2026-08-30 — Planned: six queued requests, not yet implemented
+## 2026-08-30 — Planned: seven queued requests, not yet implemented
 
 Logged for a future session, in the order requested — none of these are built yet.
+
+**Bug report — Admin → Storage total used shows 0B despite real uploads:** reported live against production data, not the mock fixtures — a real user ("yaniho") has many uploaded tracks but Admin → Storage's total-used figure reads 0B. `AdminStorageView.tsx`'s real-data path (`fetchAdminStorage()` in `api/admin.ts:2547`) is a thin client fetch with no aggregation logic of its own — `usedBytes`/`totalUsedBytes` come directly from the sibling API response. This is very likely a backend storage-aggregation bug (per-user or per-file usage not being summed/reported correctly, or a units/field-name mismatch between what the API returns and what's expected), not something fixable in this repo alone — needs investigating in `../tahti/apps/api`'s storage-usage endpoint first, per this repo's own AGENTS.md boundary (HTTP/backend contracts live there, not here). Confirm the real API response shape for a user with known uploads before assuming where the bytes are getting lost.
 
 **Admin → Storage → Files: detail modal, sortable list, linked user editor:**
 - Clicking a file in `AdminStorageView.tsx`'s files list should open a modal with its full info: filename, revisions, total size, length (duration), storage location (local vs. R2), and whatever else is already tracked per file server-side. Today that list (around `AdminStorageView.tsx:380-500`) just renders a row with `artistName`/`username` — no per-file detail view exists yet.
