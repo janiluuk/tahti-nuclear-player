@@ -16,6 +16,8 @@ type CardProps = {
   /** Centered play overlay on the cover. */
   onPlay?: () => void;
   playLabel?: string;
+  pauseLabel?: string;
+  isPlaying?: boolean;
   playDisabled?: boolean;
   /** Queue overlay on the cover. */
   onQueue?: () => void;
@@ -39,6 +41,8 @@ export const Card: FC<CardProps> = ({
   imageReveal = true,
   onPlay,
   playLabel,
+  pauseLabel,
+  isPlaying,
   playDisabled,
   onQueue,
   queueLabel,
@@ -86,6 +90,8 @@ export const Card: FC<CardProps> = ({
             imageReveal={imageReveal}
             onPlay={onPlay}
             playLabel={playLabel}
+            pauseLabel={pauseLabel}
+            isPlaying={isPlaying}
             playDisabled={playDisabled}
             onQueue={onQueue}
             queueLabel={queueLabel}

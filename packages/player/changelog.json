@@ -1,5 +1,33 @@
 [
   {
+    "date": "2026-08-31T00:00",
+    "description": "The front page now shows a \"Continue listening\" card for the last thing you played, and marks which on-air channel you're currently listening to.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Radio station previews in Settings → Add-ons now show a play button instead of a settings icon, and it sits with the station's other controls.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Add-ons", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Your feed's track thumbnails now show play and queue buttons directly on the artwork, matching the rest of the app.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Queueing a whole album or artist's tracks now asks for confirmation first, so one click can't silently dump a full discography into your queue.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Playback", "color": "blue" }]
+  },
+  {
     "date": "2026-08-30T00:00",
     "description": "Perform → Go Live now has an Info tab built in, so setting your show name and details no longer means leaving the Go Live page.",
     "type": "improvement",

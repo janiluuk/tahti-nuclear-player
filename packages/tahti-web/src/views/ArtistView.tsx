@@ -56,6 +56,7 @@ import { NewsletterSubscribeToggle } from '../components/NewsletterSubscribeTogg
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { QueueConfirmDialog } from '../components/QueueConfirmDialog';
 import {
   releasePlayables,
   ReleaseTracklistDialog,
@@ -309,6 +310,10 @@ export function ArtistView({ username }: { username: string }) {
   const [savingFullBio, setSavingFullBio] = useState(false);
   const [albumPrompt, setAlbumPrompt] = useState<{
     release: PublicProfileRelease;
+    playables: TahtiPlayable[];
+  } | null>(null);
+  const [queueConfirm, setQueueConfirm] = useState<{
+    title: string;
     playables: TahtiPlayable[];
   } | null>(null);
   const [channelVisual, setChannelVisual] = useState<Pick<
@@ -1218,7 +1223,13 @@ export function ArtistView({ username }: { username: string }) {
                       }
                       onQueue={
                         releasePlayablesList.length > 0
-                          ? () => queueAlbum(releasePlayablesList)
+                          ? () =>
+                              releasePlayablesList.length > 1
+                                ? setQueueConfirm({
+                                    title: release.title,
+                                    playables: releasePlayablesList,
+                                  })
+                                : queueAlbum(releasePlayablesList)
                           : undefined
                       }
                       onFavorite={
@@ -1436,6 +1447,19 @@ export function ArtistView({ username }: { username: string }) {
           </>
         )}
       </Dialog.Root>
+
+      <QueueConfirmDialog
+        isOpen={Boolean(queueConfirm)}
+        count={queueConfirm?.playables.length ?? 0}
+        sourceLabel={queueConfirm?.title ?? ''}
+        onCancel={() => setQueueConfirm(null)}
+        onConfirm={() => {
+          if (queueConfirm) {
+            queueAlbum(queueConfirm.playables);
+          }
+          setQueueConfirm(null);
+        }}
+      />
     </div>
   );
 }

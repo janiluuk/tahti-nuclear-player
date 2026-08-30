@@ -3,6 +3,8 @@ import {
   Cast,
   CheckSquareIcon,
   Eye,
+  PauseIcon,
+  PlayIcon,
   SearchIcon,
   SettingsIcon,
   XIcon,
@@ -1348,6 +1350,9 @@ function AudioPluginsCategory() {
 
 function RadioCategory() {
   const play = usePlayerStore((s) => s.play);
+  const currentId = usePlayerStore((s) => s.currentId);
+  const playbackStatus = usePlayerStore((s) => s.status);
+  const setPlaybackStatus = usePlayerStore((s) => s.setStatus);
   const enabledStationIds = useListenerWidgetsStore((s) => s.enabledStationIds);
   const toggleStation = useListenerWidgetsStore((s) => s.toggleStation);
   const stationOverrides = useListenerWidgetsStore((s) => s.stationOverrides);
@@ -1467,6 +1472,11 @@ function RadioCategory() {
           };
           const enabled = enabledStationIds.includes(station.id);
           const sourceConfigured = Boolean(station.streamUrl);
+          const stationPlayableId = `radio-widget:${station.id}`;
+          const stationIsCurrent = currentId === stationPlayableId;
+          const stationIsPlaying =
+            stationIsCurrent &&
+            (playbackStatus === 'playing' || playbackStatus === 'loading');
           return (
             <PluginItem
               key={station.id}
@@ -1486,6 +1496,38 @@ function RadioCategory() {
               rightAccessory={
                 <div className="flex gap-1">
                   <Button
+                    size="icon-sm"
+                    variant={stationIsPlaying ? undefined : 'secondary'}
+                    disabled={!sourceConfigured}
+                    title={stationIsPlaying ? 'Pause' : 'Preview'}
+                    aria-label={
+                      stationIsPlaying
+                        ? `Pause ${station.name}`
+                        : `Preview ${station.name}`
+                    }
+                    aria-pressed={stationIsPlaying}
+                    onClick={() => {
+                      if (stationIsCurrent) {
+                        setPlaybackStatus(
+                          stationIsPlaying ? 'paused' : 'playing',
+                        );
+                        return;
+                      }
+                      play(
+                        radioStationPlayable({
+                          ...station,
+                          streamUrl: station.streamUrl!,
+                        }),
+                      );
+                    }}
+                  >
+                    {stationIsPlaying ? (
+                      <PauseIcon size={14} aria-hidden />
+                    ) : (
+                      <PlayIcon size={14} aria-hidden />
+                    )}
+                  </Button>
+                  <Button
                     size="sm"
                     variant={enabled ? undefined : 'secondary'}
                     onClick={() => toggleStation(station.id)}
@@ -1502,15 +1544,7 @@ function RadioCategory() {
                 </div>
               }
               onViewDetails={
-                station.streamUrl
-                  ? () =>
-                      play(
-                        radioStationPlayable({
-                          ...station,
-                          streamUrl: station.streamUrl!,
-                        }),
-                      )
-                  : () => setEditingStation(station)
+                sourceConfigured ? undefined : () => setEditingStation(station)
               }
               labels={{ by: 'language' }}
             />

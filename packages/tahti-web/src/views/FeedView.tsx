@@ -1,14 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, SectionShell } from '@nuclearplayer/ui';
+import { Button, MediaArtwork, SectionShell } from '@nuclearplayer/ui';
 
 import { fetchArtistPlayables, fetchFeed } from '../api/client';
 import type { FeedItem, TahtiPlayable } from '../api/types';
-import {
-  MediaIconActions,
-  playQueueFavoriteActions,
-} from '../components/MediaIconActions';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { TrackInfoDialog, type TrackInfo } from '../components/TrackInfoDialog';
@@ -221,6 +217,41 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
                       : (feedPlayables[item.id] ?? null);
                     return (
                       <div className="mt-2 flex items-center gap-3">
+                        <MediaArtwork
+                          size="thumb"
+                          className="rounded-md"
+                          src={item.bannerUrl}
+                          alt={item.title}
+                          placeholder={
+                            <span className="text-[10px] font-bold">
+                              {item.title.slice(0, 2).toUpperCase()}
+                            </span>
+                          }
+                          onArtworkClick={() =>
+                            setInfoTrack({
+                              title: item.title,
+                              artistName: item.artist.displayName,
+                              artistUsername: item.artist.username,
+                              artworkUrl: item.bannerUrl,
+                              meta: formatFeedDate(item.date),
+                              playable,
+                            })
+                          }
+                          onPlay={playable ? () => play(playable) : undefined}
+                          playDisabled={!playable}
+                          playLabel={`Play ${item.title}`}
+                          onQueue={
+                            playable ? () => enqueue(playable) : undefined
+                          }
+                          queueDisabled={!playable}
+                          queueLabel={`Queue ${item.title}`}
+                          queueActive={Boolean(
+                            playable &&
+                            queue.some(
+                              (queueItem) => queueItem.id === playable.id,
+                            ),
+                          )}
+                        />
                         <button
                           type="button"
                           onClick={() =>
@@ -233,39 +264,10 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
                               playable,
                             })
                           }
-                          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                          className="min-w-0 flex-1 truncate text-left text-sm font-medium underline-offset-2 hover:underline"
                         >
-                          <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-                            {item.bannerUrl ? (
-                              <img
-                                src={item.bannerUrl}
-                                alt=""
-                                className="size-full object-cover"
-                              />
-                            ) : (
-                              item.title.slice(0, 2).toUpperCase()
-                            )}
-                          </div>
-                          <span className="truncate text-sm font-medium underline-offset-2 hover:underline">
-                            {item.title}
-                          </span>
+                          {item.title}
                         </button>
-                        <MediaIconActions
-                          actions={playQueueFavoriteActions({
-                            onPlay: () => playable && play(playable),
-                            onQueue: () => playable && enqueue(playable),
-                            playDisabled: !playable,
-                            queueDisabled: !playable,
-                            playLabel: `Play ${item.title}`,
-                            queueLabel: `Queue ${item.title}`,
-                            queued: Boolean(
-                              playable &&
-                              queue.some(
-                                (queueItem) => queueItem.id === playable.id,
-                              ),
-                            ),
-                          })}
-                        />
                       </div>
                     );
                   })()}
