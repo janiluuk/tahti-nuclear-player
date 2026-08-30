@@ -1,6 +1,48 @@
 [
   {
     "date": "2026-08-31T00:00",
+    "description": "Clicking your own radio schedule slot now opens an edit dialog instead of instantly deleting it — cancelling now needs a confirmation step too.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Fixed hearthis.at tracks imported into your library sometimes not playing at all from Library or artist pages.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Playback", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Themes with their own visual settings now show a configure icon that opens a modal with a live preview, instead of an always-visible form on the main Themes page.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Settings", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Radio station cover images in Settings → Add-ons can now be uploaded directly instead of only pasted as a URL.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Add-ons", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Fixed a flashing orange loading stripe appearing at the top of the screen while navigating Studio.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Release artwork in Studio now uploads via a hover button on the cover, instead of a permanently-visible upload form.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
     "description": "The front page now shows a \"Continue listening\" card for the last thing you played, and marks which on-air channel you're currently listening to.",
     "type": "feature",
     "contributors": ["jani"],

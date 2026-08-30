@@ -3,7 +3,7 @@ import { useAmbientStore } from '../stores/ambientStore';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { isThemeVisualizationEnabled } from './ThemeVisualizationSettings';
 
-const AMBIENT_SCHEME = {
+export const AMBIENT_SCHEME = {
   accent: '#22D3EE',
   highlight: '#A78BFA',
   bg: '#0A0E1A',

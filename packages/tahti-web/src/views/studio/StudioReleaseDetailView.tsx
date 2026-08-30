@@ -11,6 +11,7 @@ import {
   SearchIcon,
   Share2Icon,
   Trash2Icon,
+  UploadCloudIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -87,6 +88,7 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
   const [bandcamp, setBandcamp] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [artworkPreview, setArtworkPreview] = useState<string | null>(null);
+  const [artworkPickerOpen, setArtworkPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -178,7 +180,7 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                   content: (
                     <>
                       <StudioPanel title="Artwork">
-                        <div className="flex flex-wrap items-start gap-4">
+                        <div className="group relative inline-flex">
                           {artworkPreview ? (
                             <img
                               src={artworkPreview}
@@ -190,8 +192,26 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                               No art
                             </div>
                           )}
+                          <button
+                            type="button"
+                            onClick={() => setArtworkPickerOpen(true)}
+                            aria-label="Change release artwork"
+                            title="Change release artwork"
+                            className="bg-background/80 text-foreground absolute inset-0 flex items-center justify-center rounded-lg opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                          >
+                            <UploadCloudIcon size={22} aria-hidden />
+                          </button>
+                        </div>
+                      </StudioPanel>
+
+                      <Dialog.Root
+                        isOpen={artworkPickerOpen}
+                        onClose={() => setArtworkPickerOpen(false)}
+                        className="max-w-lg"
+                      >
+                        <Dialog.Title>Release artwork</Dialog.Title>
+                        <div className="mt-4">
                           <FilePicker
-                            className="min-w-0 flex-1"
                             labels={{
                               title: 'Release artwork',
                               description: 'JPEG, PNG, or WebP',
@@ -210,11 +230,12 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                                   setArtworkPreview(r.artworkUrl);
                                   setMessage('Artwork uploaded.');
                                 }
+                                setArtworkPickerOpen(false);
                               });
                             }}
                           />
                         </div>
-                      </StudioPanel>
+                      </Dialog.Root>
 
                       <StudioPanel title="Details">
                         <div className="flex flex-col gap-3">

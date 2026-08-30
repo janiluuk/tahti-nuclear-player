@@ -115,7 +115,7 @@ function RouteContent({ children }: { children: React.ReactNode }) {
       <div className="h-full">{children}</div>
       {isPending ? (
         <div
-          className="bg-primary pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 animate-pulse"
+          className="bg-primary pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 opacity-70"
           aria-live="polite"
           aria-label="Loading page content"
         />

@@ -1037,6 +1037,29 @@ export function archiveItemToPlayable(
   channelSlug?: string,
 ): TahtiPlayable | null {
   if (!item.audioUrl) {
+    // EMBED_ONLY items (never hosted here) have no audioUrl at all — only
+    // hearthis.at has a shared-player-wide embed widget (the bottom bar
+    // special-cases `embed.provider: 'hearthis'`, see playableFromHearthis/
+    // TrackDetailView's playableFromDetail); Mixcloud/Spotify/Bandcamp only
+    // ever play through a page's own inline widget, which this generic
+    // channel-listing table doesn't have, so those still fall through to
+    // "not playable here" below.
+    if (item.embedProvider === 'HEARTHIS' && item.embedUri) {
+      return {
+        id: `archive:${item.id}`,
+        kind: 'archive',
+        title: item.title,
+        artist: item.artistName ?? channelSlug ?? 'Unknown',
+        coverUrl: item.bannerUrl ?? undefined,
+        streamUrl: '',
+        protocol: 'https',
+        channelSlug,
+        sourceProvider: item.sourceProvider ?? 'tahti',
+        durationSec: item.durationSec,
+        releaseDate: item.createdAt ?? null,
+        embed: { provider: 'hearthis', embedUri: item.embedUri },
+      };
+    }
     return null;
   }
   const isHls = item.audioUrl.includes('.m3u8');

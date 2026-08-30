@@ -108,6 +108,11 @@ export type ArchiveItem = {
   sourceProvider?: string | null;
   /** Present when API serializes Stage pins (profile always; channel items may omit). */
   pinnedAt?: string | null;
+  /** Set for items Tahti references but never hosts (EMBED_ONLY) — the API
+   * already returns these (see routes/channels/items.ts), this type just
+   * hadn't declared them. */
+  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | 'BANDCAMP' | null;
+  embedUri?: string | null;
 };
 
 /** GET /api/tracks/:id — full detail for a standalone track page, reached

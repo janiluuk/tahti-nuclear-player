@@ -3,6 +3,7 @@ import {
   Cast,
   CheckSquareIcon,
   Eye,
+  LinkIcon,
   PauseIcon,
   PlayIcon,
   SearchIcon,
@@ -10,10 +11,12 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import {
   Button,
   Dialog,
+  FilePicker,
   Input,
   PluginItem,
   PluginStoreItem,
@@ -54,6 +57,7 @@ import {
 } from '../api/sources';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
 import type { SpotifyArtistProfile } from '../api/studio-types';
+import { uploadUserMediaFile } from '../api/user-media';
 import {
   LISTENER_WIDGET_TYPES,
   soundcloudProfileUrl,
@@ -1360,6 +1364,13 @@ function RadioCategory() {
   const [editingStation, setEditingStation] = useState<RadioStation | null>(
     null,
   );
+  const [logoUrlDraft, setLogoUrlDraft] = useState('');
+  const [logoUrlManualOpen, setLogoUrlManualOpen] = useState(false);
+  const [logoUploading, setLogoUploading] = useState(false);
+  useEffect(() => {
+    setLogoUrlDraft(editingStation?.logoUrl ?? '');
+    setLogoUrlManualOpen(false);
+  }, [editingStation]);
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [suggestName, setSuggestName] = useState('');
   const [suggestLogoUrl, setSuggestLogoUrl] = useState('');
@@ -1606,11 +1617,61 @@ function RadioCategory() {
                 label="Codec"
                 defaultValue={editingStation.codec}
               />
-              <Input
-                name="logoUrl"
-                label="Cover image URL"
-                defaultValue={editingStation.logoUrl}
-              />
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium">Cover image</span>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    aria-label="Use an image URL instead"
+                    title="Use an image URL instead"
+                    aria-pressed={logoUrlManualOpen}
+                    onClick={() => setLogoUrlManualOpen((open) => !open)}
+                  >
+                    <LinkIcon size={15} aria-hidden />
+                  </Button>
+                </div>
+                {logoUrlManualOpen ? (
+                  <Input
+                    label="Cover image URL"
+                    value={logoUrlDraft}
+                    onChange={(event) => setLogoUrlDraft(event.target.value)}
+                  />
+                ) : (
+                  <FilePicker
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={logoUploading}
+                    labels={{
+                      title: 'Station cover image',
+                      description: 'JPEG, PNG, or WebP',
+                      browse: 'Choose image',
+                    }}
+                    onFiles={(files) => {
+                      const file = files[0];
+                      if (!file) {
+                        return;
+                      }
+                      setLogoUploading(true);
+                      void uploadUserMediaFile(file).then((result) => {
+                        setLogoUploading(false);
+                        if (!result.ok) {
+                          toast.error(result.error);
+                          return;
+                        }
+                        setLogoUrlDraft(result.data.url);
+                      });
+                    }}
+                  />
+                )}
+                <input type="hidden" name="logoUrl" value={logoUrlDraft} />
+                {logoUrlDraft && (
+                  <img
+                    src={logoUrlDraft}
+                    alt=""
+                    className="border-border mt-1 size-16 rounded-md border object-cover"
+                  />
+                )}
+              </div>
               <Input
                 name="streamUrl"
                 label="Programming source / stream URL"

@@ -7,13 +7,14 @@ import {
 } from 'lucide-react';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
   cancelShowBooking,
   createShowBooking,
   fetchShowBookings,
   SHOW_SLOT_MAX_HOURS,
+  updateShowBooking,
   type ShowType,
   type StudioShowBooking,
 } from '../api/shows';
@@ -63,6 +64,11 @@ export function RadioScheduleView() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] =
+    useState<StudioShowBooking | null>(null);
+  const [cancelConfirming, setCancelConfirming] = useState(false);
+  const [editNote, setEditNote] = useState('');
+  const [editShowType, setEditShowType] = useState<ShowType>('LIVE_SET');
 
   const days = useMemo(() => weekDays(weekStart), [weekStart]);
 
@@ -119,6 +125,31 @@ export function RadioScheduleView() {
       }
       setBookings((prev) => prev.filter((b) => b.id !== id));
       setMessage('Booking cancelled.');
+      setSelectedBooking(null);
+      setCancelConfirming(false);
+    });
+  }
+
+  function saveBookingEdits() {
+    if (!selectedBooking) {
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    void updateShowBooking(selectedBooking.id, {
+      note: editNote.trim() || null,
+      showType: editShowType,
+    }).then((res) => {
+      setBusy(false);
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setBookings((prev) =>
+        prev.map((b) => (b.id === res.data.id ? res.data : b)),
+      );
+      setSelectedBooking(res.data);
+      setMessage('Booking updated.');
     });
   }
 
@@ -126,7 +157,9 @@ export function RadioScheduleView() {
     const existing = bookingAt(day, hour);
     if (existing) {
       if (existing.isMine) {
-        cancelBooking(existing.id);
+        setSelectedBooking(existing);
+        setEditNote(existing.note ?? '');
+        setEditShowType(existing.showType);
       }
       return;
     }
@@ -337,7 +370,7 @@ export function RadioScheduleView() {
                     aria-label={
                       booking
                         ? `${bookingTitle(booking)} by ${booking.displayName}${
-                            booking.isMine ? ' — click to cancel' : ''
+                            booking.isMine ? ' — click to view' : ''
                           }`
                         : `${day.toLocaleDateString(undefined, {
                             weekday: 'long',
@@ -482,7 +515,7 @@ export function RadioScheduleView() {
       ) : (
         <p className="text-foreground-secondary text-sm">
           Click an open hour above to start a booking — click one of your own
-          slots to cancel it.
+          slots to view or cancel it.
         </p>
       )}
 
@@ -500,13 +533,131 @@ export function RadioScheduleView() {
       <div className="text-foreground-secondary flex flex-wrap gap-x-4 gap-y-1 text-xs">
         <span className="inline-flex items-center gap-1.5">
           <i className="bg-primary/20 inline-block size-2.5 rounded-sm" />
-          Your bookings (click to cancel)
+          Your bookings (click to view)
         </span>
         <span className="inline-flex items-center gap-1.5">
           <i className="bg-background-secondary inline-block size-2.5 rounded-sm" />
           Booked by others
         </span>
       </div>
+
+      <Dialog.Root
+        isOpen={Boolean(selectedBooking)}
+        onClose={() => {
+          if (!busy) {
+            setSelectedBooking(null);
+            setCancelConfirming(false);
+          }
+        }}
+      >
+        {selectedBooking &&
+          (cancelConfirming ? (
+            <>
+              <Dialog.Title>Cancel this booking?</Dialog.Title>
+              <Dialog.Description>
+                This removes your{' '}
+                {formatHour(new Date(selectedBooking.startAt).getHours())} slot
+                on{' '}
+                {new Date(selectedBooking.startAt).toLocaleDateString(
+                  undefined,
+                  { weekday: 'long', month: 'long', day: 'numeric' },
+                )}
+                . This can't be undone.
+              </Dialog.Description>
+              <Dialog.Actions>
+                <Button
+                  variant="secondary"
+                  disabled={busy}
+                  onClick={() => setCancelConfirming(false)}
+                >
+                  Keep booking
+                </Button>
+                <Button
+                  intent="danger"
+                  disabled={busy}
+                  onClick={() => cancelBooking(selectedBooking.id)}
+                >
+                  {busy ? 'Cancelling…' : 'Cancel booking'}
+                </Button>
+              </Dialog.Actions>
+            </>
+          ) : (
+            <>
+              <Dialog.Title>{bookingTitle(selectedBooking)}</Dialog.Title>
+              <Dialog.Description>
+                {new Date(selectedBooking.startAt).toLocaleDateString(
+                  undefined,
+                  { weekday: 'long', month: 'long', day: 'numeric' },
+                )}
+                , {formatHour(new Date(selectedBooking.startAt).getHours())}–
+                {formatHour(new Date(selectedBooking.endAt).getHours())}
+              </Dialog.Description>
+              <div className="flex flex-col gap-3">
+                {selectedBooking.showTitle && (
+                  <p className="text-sm">
+                    <span className="text-foreground-secondary">Show: </span>
+                    {selectedBooking.showTitle}
+                    {selectedBooking.episodeNumber != null
+                      ? ` — Episode #${selectedBooking.episodeNumber}`
+                      : ''}
+                  </p>
+                )}
+                <div
+                  className="border-border flex w-fit gap-1 rounded-lg border p-1"
+                  role="radiogroup"
+                  aria-label="Show type"
+                >
+                  {(
+                    [
+                      ['LIVE_SET', 'Live set'],
+                      ['TALK', 'Talk'],
+                    ] as const
+                  ).map(([type, label]) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setEditShowType(type)}
+                      aria-pressed={editShowType === type}
+                      disabled={busy}
+                      className={cn(
+                        'rounded-md px-2.5 py-1 text-xs font-semibold uppercase',
+                        editShowType === type
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-foreground-secondary hover:text-foreground',
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <Input
+                  value={editNote}
+                  onChange={(e) => setEditNote(e.target.value)}
+                  disabled={busy}
+                  placeholder={
+                    editShowType === 'TALK'
+                      ? 'Note — topic or guests'
+                      : "Note — what you're playing"
+                  }
+                />
+              </div>
+              <Dialog.Actions>
+                <Dialog.Close>Close</Dialog.Close>
+                <Button
+                  intent="danger"
+                  variant="secondary"
+                  disabled={busy}
+                  onClick={() => setCancelConfirming(true)}
+                >
+                  Cancel booking
+                </Button>
+                <Button disabled={busy} onClick={saveBookingEdits}>
+                  {busy ? 'Saving…' : 'Save changes'}
+                </Button>
+              </Dialog.Actions>
+            </>
+          ))}
+      </Dialog.Root>
     </PageFrame>
   );
 }

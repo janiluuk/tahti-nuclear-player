@@ -18,6 +18,7 @@ import {
   Paintbrush,
   Pencil,
   Radio as RadioIcon,
+  Settings2 as Settings2Icon,
   Share2,
   Shield,
   SunMoon,
@@ -34,6 +35,7 @@ import { toast } from 'sonner';
 
 import {
   Button,
+  Dialog,
   Input,
   PluginItem,
   SaveButton,
@@ -105,10 +107,12 @@ import {
   type StorageUsage,
 } from '../../api/studio-extras';
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
+import { AMBIENT_SCHEME } from '../../components/AmbientBackground';
 import { ApiTokensPanel } from '../../components/ApiTokensPanel';
 import { ArtistImagePurposePicker } from '../../components/ArtistImagePurposePicker';
 import { ChannelControlsWidget } from '../../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
+import { ChannelVisualizer } from '../../components/ChannelVisualizer';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
@@ -2202,6 +2206,12 @@ function ThemesPanel() {
   } = useThemeStore();
   const [themeJson, setThemeJson] = useState('');
   const [importMsg, setImportMsg] = useState<string | null>(null);
+  const [configuringThemeId, setConfiguringThemeId] = useState<string | null>(
+    null,
+  );
+  const ambientPreset = useAmbientStore((s) => s.preset);
+  const ambientSpeed = useAmbientStore((s) => s.speed);
+  const ambientIntensity = useAmbientStore((s) => s.intensity);
 
   const customEntries = Object.entries(customThemes);
 
@@ -2229,7 +2239,6 @@ function ThemesPanel() {
           Choose a palette and the light, dark, or time-of-day appearance that
           suits you.
         </SettingsHint>
-        <ThemeVisualizationSettings />
         <div className="flex items-center gap-3">
           {THEME_MODE_OPTIONS.map((mode) => (
             <Button
@@ -2260,31 +2269,45 @@ function ThemesPanel() {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {themes.map((theme) => {
                     const active = theme.id === themeId;
+                    const configurable = isThemeVisualizationEnabled(theme.id);
                     return (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => setTheme(theme.id)}
-                        className={
-                          active
-                            ? 'border-border bg-primary rounded-lg border p-4 text-left'
-                            : 'border-border bg-background hover:bg-background-secondary rounded-lg border p-4 text-left'
-                        }
-                      >
-                        <div className="mb-3 flex gap-2">
-                          {theme.palette.map((color) => (
-                            <span
-                              key={color}
-                              className="border-border size-8 rounded-md border"
-                              style={{ background: color }}
-                            />
-                          ))}
-                        </div>
-                        <div className="font-bold">{theme.name}</div>
-                        <div className="text-foreground-secondary text-xs">
-                          {theme.id}
-                        </div>
-                      </button>
+                      <div key={theme.id} className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setTheme(theme.id)}
+                          className={
+                            active
+                              ? 'border-border bg-primary w-full rounded-lg border p-4 text-left'
+                              : 'border-border bg-background hover:bg-background-secondary w-full rounded-lg border p-4 text-left'
+                          }
+                        >
+                          <div className="mb-3 flex gap-2">
+                            {theme.palette.map((color) => (
+                              <span
+                                key={color}
+                                className="border-border size-8 rounded-md border"
+                                style={{ background: color }}
+                              />
+                            ))}
+                          </div>
+                          <div className="font-bold">{theme.name}</div>
+                          <div className="text-foreground-secondary text-xs">
+                            {theme.id}
+                          </div>
+                        </button>
+                        {configurable && (
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            className="absolute top-3 right-3"
+                            aria-label={`Configure ${theme.name}`}
+                            title={`Configure ${theme.name}`}
+                            onClick={() => setConfiguringThemeId(theme.id)}
+                          >
+                            <Settings2Icon size={14} aria-hidden />
+                          </Button>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
@@ -2430,6 +2453,28 @@ function ThemesPanel() {
           },
         ]}
       />
+
+      <Dialog.Root
+        isOpen={configuringThemeId !== null}
+        onClose={() => setConfiguringThemeId(null)}
+        className="max-w-lg"
+      >
+        <Dialog.Title>Configure theme</Dialog.Title>
+        <div className="mt-4 flex flex-col gap-4">
+          <div className="border-border h-40 overflow-hidden rounded-lg border">
+            <ChannelVisualizer
+              className="h-full w-full"
+              preset={ambientPreset}
+              colorScheme={AMBIENT_SCHEME}
+              visualSettingsJson={`{"${ambientPreset}":{"speed":${ambientSpeed},"intensity":${ambientIntensity}}}`}
+            />
+          </div>
+          <ThemeVisualizationSettings />
+        </div>
+        <Dialog.Actions>
+          <Dialog.Close>Done</Dialog.Close>
+        </Dialog.Actions>
+      </Dialog.Root>
     </div>
   );
 }

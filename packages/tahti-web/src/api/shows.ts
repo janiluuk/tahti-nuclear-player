@@ -1191,6 +1191,47 @@ export async function createShowBooking(input: {
   }
 }
 
+export async function updateShowBooking(
+  id: string,
+  patch: { note?: string | null; showType?: ShowType },
+): Promise<
+  { ok: true; data: StudioShowBooking } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    let updated: StudioShowBooking | undefined;
+    mockBookings = mockBookings.map((b) => {
+      if (b.id !== id) {
+        return b;
+      }
+      updated = {
+        ...b,
+        ...(patch.note !== undefined ? { note: patch.note } : {}),
+        ...(patch.showType !== undefined ? { showType: patch.showType } : {}),
+      };
+      return updated;
+    });
+    if (!updated) {
+      return { ok: false, error: 'Booking not found' };
+    }
+    return { ok: true, data: updated };
+  }
+  try {
+    const { data } = await requestJson<StudioShowBooking>(
+      `/api/me/radio-slot-bookings/${encodeURIComponent(id)}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(patch),
+      },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Update failed',
+    };
+  }
+}
+
 export async function cancelShowBooking(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
