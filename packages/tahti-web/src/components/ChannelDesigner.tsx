@@ -437,9 +437,8 @@ export function ChannelDesigner({
     applyLocal({ visualPreset: nextPreset });
   };
 
-  // Shared by the live preview card (under the visualizer) and the lookOnly
-  // fallback (inline in this tab — lookOnly has no local preview, since the
-  // real one lives in the hero block elsewhere on that page).
+  // Shared by the preset-picker card (always) and the per-preset
+  // "Configure" dialog opened from the picker's gear icon.
   const tuningSliders = (preset: string) => (
     <>
       {(['speed', 'intensity'] as const).map((key) => {
@@ -551,11 +550,11 @@ export function ChannelDesigner({
                             />
                           );
                         })()}
-                        {/* When there's a live preview, tuning sits under that
-                    visualizer in the same preset card. lookOnly and
-                    livePreview=false have no local preview, so they keep
-                    sliders inline under the preset picker. */}
-                        {!hasLivePreview && dockTuning && (
+                        {/* Tuning always sits directly under the preset
+                    picker, in this same card — never in the separate
+                    preview card above, so switching/tuning a preset and
+                    confirming it via Save all happen in one place. */}
+                        {dockTuning && (
                           <div className="border-border flex flex-col gap-4 rounded-lg border p-3">
                             <Eyebrow>
                               Tune {visual.visualPreset.replace(/_/g, ' ')}
@@ -1149,12 +1148,6 @@ export function ChannelDesigner({
               />
             )}
           </div>
-          {hasLivePreview && dockTuning ? (
-            <div className="border-border bg-background/90 relative flex flex-col gap-3 border-t p-3 backdrop-blur-sm">
-              <Eyebrow>Tune {previewPreset.replace(/_/g, ' ')}</Eyebrow>
-              {tuningSliders(previewPreset)}
-            </div>
-          ) : null}
           <div className="bg-background relative border-t border-white/10 p-3">
             {controls}
           </div>

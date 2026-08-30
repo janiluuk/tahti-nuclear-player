@@ -238,10 +238,6 @@ const AdminUsersView = lazyRouteComponent(
   () => import('./views/admin/AdminUsersView'),
   'AdminUsersView',
 );
-const AdminVendorsView = lazyRouteComponent(
-  () => import('./views/admin/AdminVendorsView'),
-  'AdminVendorsView',
-);
 const AdminVenuesView = lazyRouteComponent(
   () => import('./views/admin/AdminVenuesView'),
   'AdminVenuesView',
@@ -559,7 +555,12 @@ const adminMissedShowsRoute = createRoute({
 const adminVendorsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/vendors',
-  component: AdminVendorsView,
+  // Vendors is now only a tab on the Admin dashboard, not its own nav item
+  // (see AdminNav.tsx) — kept as a redirect so old links/bookmarks still land
+  // somewhere sensible.
+  beforeLoad: () => {
+    throw redirect({ to: '/admin', search: { tab: 'vendors' } });
+  },
 });
 
 const adminVenuesRoute = createRoute({

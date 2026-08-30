@@ -1,6 +1,34 @@
 [
   {
     "date": "2026-08-30T00:00",
+    "description": "Settings → Channel & Design's visualizer preview now actually shows the visualizer when nothing else is using it, instead of always staying blank.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Settings", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Removed duplicate Bandcamp and SoundCloud entries from Settings → Add-ons → Nuclear plugins.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Add-ons", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Channel Designer's visualizer tuning controls now always sit right below the preset picker, instead of sometimes appearing in a separate panel.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Admin's Vendors page is now reachable only as a tab on the Admin dashboard, removing the redundant standalone entry from the left-hand menu.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
     "description": "Fixed Admin storage always showing 0B total used, even for accounts with real uploads.",
     "type": "fix",
     "contributors": ["jani"],

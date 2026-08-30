@@ -118,7 +118,10 @@ import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SocialLinkIcon } from '../../components/SocialLinkIcon';
 import { ThemeEditor } from '../../components/ThemeEditor';
-import { ThemeVisualizationSettings } from '../../components/ThemeVisualizationSettings';
+import {
+  isThemeVisualizationEnabled,
+  ThemeVisualizationSettings,
+} from '../../components/ThemeVisualizationSettings';
 import { COUNTRIES, flagEmoji } from '../../lib/countries';
 import {
   formatGenreTags,
@@ -132,6 +135,7 @@ import {
   type MulticastProviderId,
 } from '../../plugins/multicast';
 import { useThemeStore } from '../../plugins/themes';
+import { useAmbientStore } from '../../stores/ambientStore';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelShareStore } from '../../stores/channelShareStore';
@@ -1162,6 +1166,14 @@ function ChannelPanel() {
   const user = useAuthStore((s) => s.user);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const channel = user?.channel;
+  // AmbientBackground (mounted globally in AppShell) can already be running
+  // its own ChannelVisualizer WebGL context behind this modal — only skip
+  // the designer's live preview when that's actually true (see 7a8060d7),
+  // not unconditionally, or the preview never works for anyone.
+  const ambientEnabled = useAmbientStore((s) => s.enabled);
+  const themeId = useThemeStore((s) => s.themeId);
+  const ambientVisualizerActive =
+    ambientEnabled && isThemeVisualizationEnabled(themeId);
   const [discovery, setDiscovery] = useState<DiscoveryPrefs | null>(null);
   const [channelProfile, setChannelProfile] = useState<ProfileFields | null>(
     null,
@@ -1220,11 +1232,7 @@ function ChannelPanel() {
                         username={user.username}
                         channelSlug={channel?.slug}
                         avatarUrl={user.avatarUrl}
-                        // This modal is a global overlay that can stay open over the
-                        // owner's own live channel page (which may already be
-                        // running a live ChannelVisualizer) — skip the extra WebGL
-                        // context here rather than risk two at once (see 7a8060d7).
-                        livePreview={false}
+                        livePreview={!ambientVisualizerActive}
                         compact
                       />
                     ),

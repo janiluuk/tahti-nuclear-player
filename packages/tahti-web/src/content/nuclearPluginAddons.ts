@@ -105,12 +105,12 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     },
   },
   {
-    id: 'bandcamp-dashboard',
-    name: 'Bandcamp dashboard',
+    id: 'bandcamp',
+    name: 'Bandcamp',
     category: 'Artist tools',
     description:
-      'Connect Bandcamp and manage the artist-side catalog connection.',
-    status: 'partial',
+      'Connect Bandcamp and import your own releases into the Tahti archive.',
+    status: 'available',
     statusLabel: 'Importer available',
     fields: [
       {
@@ -119,18 +119,19 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
         placeholder: 'your Bandcamp name',
       },
     ],
-    note: 'Use the Bandcamp importer to browse and bring releases into Tahti. The API-side catalog import endpoint remains pending.',
+    note: 'The connected Bandcamp source already supports OAuth connect and server-side catalog import into the archive.',
     apiCounterpart: {
-      status: 'partial',
-      routes: ['/api/me/bandcamp/oauth/start', '/api/me/integrations'],
-      note: 'OAuth and connection state exist; the catalog import endpoint remains pending.',
+      status: 'implemented',
+      routes: ['/api/me/bandcamp/oauth/start', '/api/v1/imports/bandcamp/add'],
+      note: 'Connection state and import workflow are available through the existing source API.',
     },
   },
   {
-    id: 'soundcloud-dashboard',
-    name: 'SoundCloud dashboard',
+    id: 'soundcloud',
+    name: 'SoundCloud',
     category: 'Artist tools',
-    description: 'Connect SoundCloud and manage downloadable catalog imports.',
+    description:
+      'Connect SoundCloud and import your own downloadable tracks into the Tahti archive.',
     status: 'available',
     statusLabel: 'Importer available',
     fields: [
@@ -143,7 +144,7 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     note: 'The connected SoundCloud source already supports catalog browsing and server-side import jobs.',
     apiCounterpart: {
       status: 'implemented',
-      routes: ['/api/me/soundcloud/oauth/start', '/api/me/integrations'],
+      routes: ['/api/me/soundcloud/oauth/start', '/api/me/soundcloud/import'],
       note: 'Connection state and import workflow are available through the existing source API.',
     },
   },
@@ -191,36 +192,6 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
       status: 'partial',
       routes: ['/api/v1/imports/spotify/search', '/api/v1/imports/spotify/add'],
       note: 'Search and embed import are implemented; provider streaming and full metadata browsing are not.',
-    },
-  },
-  {
-    id: 'bandcamp',
-    name: 'Bandcamp provider',
-    category: 'Streaming',
-    description: 'Browse and play music from Bandcamp.',
-    status: 'partial',
-    statusLabel: 'Importer available',
-    fields: [],
-    note: 'Bandcamp OAuth and release importing are available in Sources. A Nuclear-style provider search and stream resolver is not exposed by the Tahti API.',
-    apiCounterpart: {
-      status: 'partial',
-      routes: ['/api/me/bandcamp/oauth/start', '/api/v1/imports/bandcamp/add'],
-      note: 'Connection and import exist; provider playback is not exposed.',
-    },
-  },
-  {
-    id: 'soundcloud',
-    name: 'SoundCloud provider',
-    category: 'Streaming',
-    description: 'Browse and play music from SoundCloud.',
-    status: 'partial',
-    statusLabel: 'Importer available',
-    fields: [],
-    note: 'SoundCloud OAuth, catalogue browsing, and server-side imports are available in Sources. The Nuclear provider search/resolution contract is not exposed.',
-    apiCounterpart: {
-      status: 'partial',
-      routes: ['/api/me/soundcloud/oauth/start', '/api/me/soundcloud/import'],
-      note: 'Connection and import exist; generic provider playback is not exposed.',
     },
   },
   {

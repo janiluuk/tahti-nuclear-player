@@ -125,12 +125,6 @@ const PRIMARY = [
     description: 'Review scheduled shows that passed without a broadcast.',
   },
   {
-    to: '/admin/vendors',
-    label: 'Vendors',
-    icon: <SettingsIcon size={16} aria-hidden />,
-    description: 'Third-party vendor and service accounts.',
-  },
-  {
     to: '/admin/disco-widgets',
     label: 'Disco widgets',
     icon: <SettingsIcon size={16} aria-hidden />,
@@ -165,7 +159,6 @@ const ADMIN_SECTIONS = [
       '/admin',
       '/admin/financial',
       '/admin/storage',
-      '/admin/vendors',
       '/admin/logs',
       '/admin/status',
     ].map((to) => PRIMARY.find((item) => item.to === to)!),

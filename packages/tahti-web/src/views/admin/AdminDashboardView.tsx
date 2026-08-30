@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useSearch } from '@tanstack/react-router';
 import { Settings2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -31,8 +31,9 @@ export function AdminDashboardView() {
   const [selectedAction, setSelectedAction] = useState<
     AdminDashboard['actionRows'][number] | null
   >(null);
+  const search = useSearch({ strict: false }) as { tab?: string };
   const [overviewTab, setOverviewTab] = useState<'overview' | 'vendors'>(
-    'overview',
+    search.tab === 'vendors' ? 'vendors' : 'overview',
   );
 
   useEffect(() => {

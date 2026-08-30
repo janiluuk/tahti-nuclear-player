@@ -1,13 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { AdminVendorsView } from '@tahti-web/views/admin/AdminVendorsView';
+import { AdminVendorsContent } from '@tahti-web/views/admin/AdminVendorsView';
 
 import { withMockAuth, withTahtiRouter } from './_lib/decorators';
 
-const meta: Meta<typeof AdminVendorsView> = {
+// Vendors is now only a tab on the Admin dashboard (AdminDashboardView),
+// not its own nav-level page — /admin/vendors redirects to
+// /admin?tab=vendors. This story renders the tab's content directly.
+const meta: Meta<typeof AdminVendorsContent> = {
   title: 'Tahti/Admin/AdminVendorsView',
-  component: AdminVendorsView,
+  component: AdminVendorsContent,
   parameters: { layout: 'fullscreen' },
-  decorators: [withTahtiRouter('/admin/vendors'), withMockAuth()],
+  decorators: [withTahtiRouter('/admin'), withMockAuth()],
 };
 
 export default meta;
@@ -15,8 +18,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => (
-    <div className="p-6">
-      <AdminVendorsView />
+    <div className="admin-page-layout mx-auto flex max-w-4xl flex-col gap-6 p-6">
+      <AdminVendorsContent />
     </div>
   ),
 };
