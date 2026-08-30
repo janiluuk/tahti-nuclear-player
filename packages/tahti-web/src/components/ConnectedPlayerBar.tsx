@@ -200,20 +200,14 @@ export function ConnectedPlayerBar() {
           <div className="flex items-center gap-2">
             <Button
               size="icon-sm"
-              variant={queueOpen ? 'secondary' : 'text'}
-              onClick={() => setBottomQueueOpen(!queueOpen)}
-              title={queueOpen ? 'Collapse queue' : 'Expand queue'}
-              aria-label={queueOpen ? 'Collapse queue' : 'Expand queue'}
-              aria-pressed={queueOpen}
-              data-testid={
-                queueOpen ? 'close-bottom-queue' : 'open-bottom-queue'
-              }
+              variant="text"
+              disabled={!playable}
+              onClick={() => setFullScreenPlayerOpen(true)}
+              title="Full screen"
+              aria-label="Full screen"
+              data-testid="expand-full-screen-player"
             >
-              {queueOpen ? (
-                <ChevronsDownIcon size={16} />
-              ) : (
-                <ChevronsUpIcon size={16} />
-              )}
+              <Maximize2Icon size={16} />
             </Button>
             <PlayerBar.Volume
               value={muted ? 0 : Math.round(volume * 100)}
@@ -224,24 +218,34 @@ export function ConnectedPlayerBar() {
             <div className="relative">
               <Button
                 size="icon-sm"
-                variant="text"
-                disabled={!playable}
-                onClick={() => setFullScreenPlayerOpen(true)}
+                variant={queueOpen ? 'secondary' : 'text'}
+                onClick={() => setBottomQueueOpen(!queueOpen)}
                 title={
-                  queue.length > 0
-                    ? `Full screen · ${queue.length} in queue`
-                    : 'Full screen'
+                  queueOpen
+                    ? 'Collapse queue'
+                    : queue.length > 1
+                      ? `Expand queue · ${queue.length} in queue`
+                      : 'Expand queue'
                 }
                 aria-label={
-                  queue.length > 0
-                    ? `Full screen, ${queue.length} in queue`
-                    : 'Full screen'
+                  queueOpen
+                    ? 'Collapse queue'
+                    : queue.length > 1
+                      ? `Expand queue, ${queue.length} in queue`
+                      : 'Expand queue'
                 }
-                data-testid="expand-full-screen-player"
+                aria-pressed={queueOpen}
+                data-testid={
+                  queueOpen ? 'close-bottom-queue' : 'open-bottom-queue'
+                }
               >
-                <Maximize2Icon size={16} />
+                {queueOpen ? (
+                  <ChevronsDownIcon size={16} />
+                ) : (
+                  <ChevronsUpIcon size={16} />
+                )}
               </Button>
-              {queue.length > 0 ? (
+              {queue.length > 1 ? (
                 <span className="bg-primary text-primary-foreground pointer-events-none absolute -top-0.5 -right-0.5 min-w-4 rounded-full px-1 text-center text-[9px] font-bold tabular-nums">
                   {queue.length}
                 </span>

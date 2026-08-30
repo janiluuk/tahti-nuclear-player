@@ -1,6 +1,34 @@
 [
   {
     "date": "2026-08-30T00:00",
+    "description": "Fixed Admin storage always showing 0B total used, even for accounts with real uploads.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Admin file listings now show file size and type at a glance, can be sorted, and open a full detail view — including a direct link to edit the uploader's account.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "Saving a track now shows a confirmation toast instead of a message tucked away in the form.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
+    "description": "The player bar's queue button moved to the outer corner, and its badge now only shows once you actually have more than one track queued.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Playback", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-30T00:00",
     "description": "Studio tracks can now be mastered to match a reference track's loudness and tone, right in the browser — upload a reference from the track or audio editor and get a downloadable, matched WAV back.",
     "type": "feature",
     "contributors": ["jani"],

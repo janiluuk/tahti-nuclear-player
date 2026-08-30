@@ -2689,6 +2689,14 @@ export type AdminFileRow = {
   username: string;
   displayName: string;
   audioUrl: string | null;
+  /** Count of ArchiveItemVersion rows — real, always populated by
+   * /api/admin/files (../tahti/apps/api/src/routes/admin/files.ts). */
+  revisionCount: number;
+  /** ArchiveItem has no per-item R2-mirror field in the schema yet (unlike
+   * ReleaseTrack/ReleaseTrackVersion, which do) — genuinely not tracked, not
+   * just unwired here. Stays optional/undefined against the real API until
+   * that schema + worker support exists; mock data fills it in for the UI. */
+  storageLocation?: 'local' | 'r2' | null;
 };
 
 function mockAdminFiles(): AdminFileRow[] {
@@ -2708,6 +2716,8 @@ function mockAdminFiles(): AdminFileRow[] {
       username: 'dj-moonlight',
       displayName: 'DJ Moonlight',
       audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      revisionCount: 3,
+      storageLocation: 'r2',
     },
     {
       id: 'file-2',
@@ -2724,6 +2734,8 @@ function mockAdminFiles(): AdminFileRow[] {
       username: 'midnight-cartography',
       displayName: 'Midnight Cartography',
       audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+      revisionCount: 1,
+      storageLocation: 'r2',
     },
     {
       id: 'file-3',
@@ -2740,6 +2752,8 @@ function mockAdminFiles(): AdminFileRow[] {
       username: 'kaiku-collective',
       displayName: 'Kaiku Collective',
       audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+      revisionCount: 5,
+      storageLocation: 'local',
     },
     {
       id: 'file-4',
@@ -2756,6 +2770,8 @@ function mockAdminFiles(): AdminFileRow[] {
       username: 'northern-lights',
       displayName: 'Northern Lights',
       audioUrl: null,
+      revisionCount: 1,
+      storageLocation: 'local',
     },
   ];
 }

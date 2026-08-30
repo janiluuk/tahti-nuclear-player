@@ -6,6 +6,7 @@ import {
   TagsIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import {
   Button,
@@ -104,8 +105,11 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const [saving, setSaving] = useState(false);
   const [artworkBusy, setArtworkBusy] = useState(false);
   const [playlistOpen, setPlaylistOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [note, setNote] = useState<string | null>(null);
+  // Only the initial load failure stays inline — it can leave the dialog
+  // with nothing else to show. Save/upload/submit results go to a toast
+  // instead of a message left sitting in the form (see save(), uploadArtwork(),
+  // and the radio-submission handler below).
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [radioSubmission, setRadioSubmission] =
     useState<RadioSubmission | null>(null);
   const [submittingToRadio, setSubmittingToRadio] = useState(false);
@@ -140,8 +144,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     }
     let cancelled = false;
     setLoading(true);
-    setError(null);
-    setNote(null);
+    setLoadError(null);
     setTab('basics');
     void fetchStudioArchiveItem(archiveItemId)
       .then((res) => {
@@ -178,7 +181,9 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Track load failed');
+          setLoadError(
+            err instanceof Error ? err.message : 'Track load failed',
+          );
         }
       })
       .finally(() => {
@@ -204,16 +209,14 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       return;
     }
     setArtworkBusy(true);
-    setError(null);
-    setNote(null);
     const result = await uploadArchiveBanner(archiveItemId, file);
     setArtworkBusy(false);
     if (!result.ok) {
-      setError(result.error);
+      toast.error(result.error);
       return;
     }
     updateArtwork(result.url);
-    setNote('Cover art uploaded.');
+    toast.success('Cover art uploaded.');
   };
 
   const save = async () => {
@@ -221,8 +224,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       return;
     }
     setSaving(true);
-    setError(null);
-    setNote(null);
     const { license, ...metadata } = form;
     const result = await patchStudioArchiveItem(archiveItemId, {
       ...metadata,
@@ -235,7 +236,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     });
     setSaving(false);
     if (!result.ok) {
-      setError(result.error);
+      toast.error(result.error);
       return;
     }
     setItem(result.data);
@@ -264,7 +265,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
         preset: 'cards',
       },
     }));
-    setNote('Track details saved.');
+    toast.success('Track details saved.');
     onSaved?.(result.data);
   };
 
@@ -477,7 +478,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                               void submitTrackToRadioRotation(archiveItemId)
                                 .then((result) => {
                                   if (result.ok) {
-                                    setNote(
+                                    toast.success(
                                       'Submitted to Tahti Radio for review.',
                                     );
                                     setRadioSubmission({
@@ -491,7 +492,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                                       },
                                     });
                                   } else {
-                                    setError(result.error);
+                                    toast.error(result.error);
                                   }
                                 })
                                 .finally(() => setSubmittingToRadio(false));
@@ -777,14 +778,9 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
           />
         ) : null}
 
-        {error && (
+        {loadError && (
           <p className="text-accent-red mt-3 text-sm" role="alert">
-            {error}
-          </p>
-        )}
-        {note && (
-          <p className="text-foreground-secondary mt-3 text-sm" role="status">
-            {note}
+            {loadError}
           </p>
         )}
 

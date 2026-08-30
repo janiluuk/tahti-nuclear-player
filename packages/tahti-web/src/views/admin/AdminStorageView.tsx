@@ -1,5 +1,6 @@
 import { Link, useSearch } from '@tanstack/react-router';
 import {
+  ArrowDownAZIcon,
   CloudIcon,
   ExternalLinkIcon,
   HardDriveIcon,
@@ -12,7 +13,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Badge, Button, Input, SaveButton, Tabs } from '@nuclearplayer/ui';
+import {
+  Badge,
+  Button,
+  Dialog,
+  Input,
+  SaveButton,
+  Tabs,
+} from '@nuclearplayer/ui';
 
 import {
   deleteAdminFile,
@@ -27,8 +35,10 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
+import { AdminUserEditPanel } from '../../components/AdminUserEditPanel';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { formatDuration } from '../../lib/playableToTrack';
 import {
   bytesToMb,
   formatBytes,
@@ -38,6 +48,141 @@ import {
   usagePercent,
 } from '../../lib/storageFormat';
 import { usePlayerStore } from '../../stores/playerStore';
+
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  TRACK: 'Track',
+  LIVE_SET: 'Live set',
+  STASH: 'Stash',
+  AUDIOCLIPS: 'Clip',
+};
+
+function contentTypeLabel(contentType: string): string {
+  return CONTENT_TYPE_LABELS[contentType.toUpperCase()] ?? contentType;
+}
+
+const STORAGE_LOCATION_LABELS: Record<'local' | 'r2', string> = {
+  local: 'Local disk',
+  r2: 'Object storage (R2)',
+};
+
+type FileSortKey = 'name' | 'type' | 'size' | 'length';
+
+const SORT_OPTIONS: Array<{ id: FileSortKey; label: string }> = [
+  { id: 'name', label: 'Name' },
+  { id: 'type', label: 'Type' },
+  { id: 'size', label: 'Size' },
+  { id: 'length', label: 'Length' },
+];
+
+function sortFiles(files: AdminFileRow[], sortBy: FileSortKey): AdminFileRow[] {
+  const sorted = [...files];
+  switch (sortBy) {
+    case 'type':
+      sorted.sort((a, b) =>
+        contentTypeLabel(a.contentType).localeCompare(
+          contentTypeLabel(b.contentType),
+        ),
+      );
+      break;
+    case 'size':
+      sorted.sort((a, b) => (b.sizeBytes ?? 0) - (a.sizeBytes ?? 0));
+      break;
+    case 'length':
+      sorted.sort((a, b) => (b.durationSec ?? 0) - (a.durationSec ?? 0));
+      break;
+    case 'name':
+    default:
+      sorted.sort((a, b) => a.title.localeCompare(b.title));
+      break;
+  }
+  return sorted;
+}
+
+function FileDetailDialog({
+  file,
+  onClose,
+}: {
+  file: AdminFileRow;
+  onClose: () => void;
+}) {
+  return (
+    <Dialog.Root isOpen onClose={onClose} className="max-w-lg">
+      <Dialog.Title>{file.title}</Dialog.Title>
+      <Dialog.Description>
+        Full file record — everything currently tracked for this upload.
+      </Dialog.Description>
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">
+            Filename
+          </dt>
+          <dd className="font-medium break-all">{file.title}</dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">Type</dt>
+          <dd>{contentTypeLabel(file.contentType)}</dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">
+            Uploader
+          </dt>
+          <dd>
+            {file.displayName} · @{file.username}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">
+            Uploaded
+          </dt>
+          <dd>{formatFileDate(file.createdAt)}</dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">
+            Total size
+          </dt>
+          <dd>{formatBytes(file.sizeBytes)}</dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">
+            Length
+          </dt>
+          <dd>
+            {file.durationSec != null ? formatDuration(file.durationSec) : '—'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">
+            Revisions
+          </dt>
+          <dd>{file.revisionCount}</dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">
+            Storage location
+          </dt>
+          <dd>
+            {file.storageLocation
+              ? STORAGE_LOCATION_LABELS[file.storageLocation]
+              : 'Not tracked yet'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">
+            Visibility
+          </dt>
+          <dd>{file.isPublic ? 'Public' : 'Private'}</dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">Genre</dt>
+          <dd>{file.genre ?? '—'}</dd>
+        </div>
+      </dl>
+      <Dialog.Actions>
+        <Dialog.Close>Close</Dialog.Close>
+      </Dialog.Actions>
+    </Dialog.Root>
+  );
+}
 
 function QuotaEditor({
   userId,
@@ -360,6 +505,9 @@ function FilesBrowserTab() {
   const [loading, setLoading] = useState(true);
   const [groupByUser, setGroupByUser] = useState(false);
   const [pendingPlayId, setPendingPlayId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<FileSortKey>('name');
+  const [detailFile, setDetailFile] = useState<AdminFileRow | null>(null);
+  const [userEditId, setUserEditId] = useState<string | null>(null);
 
   const reload = (q?: string) => {
     setLoading(true);
@@ -375,6 +523,7 @@ function FilesBrowserTab() {
   }, [query]);
 
   const groups = useMemo(() => groupFilesByUser(files), [files]);
+  const sortedFiles = useMemo(() => sortFiles(files, sortBy), [files, sortBy]);
 
   const handlePlay = async (file: AdminFileRow) => {
     if (pendingPlayId) {
@@ -432,6 +581,24 @@ function FilesBrowserTab() {
           <UsersIcon size={14} aria-hidden className="mr-1.5" />
           Group by user
         </Button>
+        {!groupByUser ? (
+          <label className="text-foreground-secondary flex items-center gap-1.5 text-xs">
+            <ArrowDownAZIcon size={14} aria-hidden />
+            Sort by
+            <select
+              aria-label="Sort files by"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as FileSortKey)}
+              className="border-border bg-background text-foreground rounded-md border px-2 py-1.5 text-xs"
+            >
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
       </div>
 
       {groupByUser ? (
@@ -484,16 +651,28 @@ function FilesBrowserTab() {
             </p>
           ) : (
             <ul className="divide-border divide-y">
-              {files.map((f) => (
+              {sortedFiles.map((f) => (
                 <li
                   key={f.id}
                   className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="font-medium">{f.title}</div>
+                    <div className="font-medium">
+                      {f.title}{' '}
+                      <span className="text-foreground-secondary font-normal">
+                        · {formatBytes(f.sizeBytes)} ·{' '}
+                        {contentTypeLabel(f.contentType)}
+                      </span>
+                    </div>
                     <div className="text-foreground-secondary text-xs">
-                      {f.artistName} · @{f.username} ·{' '}
-                      {formatBytes(f.sizeBytes)} · {formatFileDate(f.createdAt)}
+                      <button
+                        type="button"
+                        className="hover:text-foreground underline-offset-2 hover:underline"
+                        onClick={() => setUserEditId(f.userId)}
+                      >
+                        {f.artistName}
+                      </button>{' '}
+                      · @{f.username} · {formatFileDate(f.createdAt)}
                       {f.genre ? ` · ${f.genre}` : ''}
                     </div>
                   </div>
@@ -513,6 +692,15 @@ function FilesBrowserTab() {
                       onClick={() => void handlePlay(f)}
                     >
                       <PlayIcon size={16} aria-hidden />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      aria-label={`View details for ${f.title}`}
+                      title="View details"
+                      onClick={() => setDetailFile(f)}
+                    >
+                      <SearchIcon size={15} aria-hidden />
                     </Button>
                     <Link
                       to="/admin/storage/$userId"
@@ -551,6 +739,27 @@ function FilesBrowserTab() {
           )}
         </StudioPanel>
       )}
+
+      {detailFile ? (
+        <FileDetailDialog
+          file={detailFile}
+          onClose={() => setDetailFile(null)}
+        />
+      ) : null}
+
+      {userEditId ? (
+        <Dialog.Root
+          isOpen
+          onClose={() => setUserEditId(null)}
+          className="max-w-3xl"
+        >
+          <Dialog.Title>Edit uploader</Dialog.Title>
+          <AdminUserEditPanel userId={userEditId} />
+          <Dialog.Actions>
+            <Dialog.Close>Close</Dialog.Close>
+          </Dialog.Actions>
+        </Dialog.Root>
+      ) : null}
     </div>
   );
 }
