@@ -889,6 +889,8 @@ function ArtistPanel() {
                 </p>
               </div>
               <ArtistImagePurposePicker
+                avatarUrl={profile.avatarUrl}
+                displayName={profile.displayName}
                 onProfileUploaded={(avatarUrl) => {
                   setProfile({ ...profile, avatarUrl });
                   void refreshAuth();

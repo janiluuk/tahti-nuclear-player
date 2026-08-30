@@ -32,7 +32,8 @@ import {
   fetchChannelVisual,
   fillColorScheme,
   HEADER_STYLES,
-  isValidHeaderVideoUrl,
+  isHeaderImageUrl,
+  isValidHeaderBackdropUrl,
   isVisualPreset,
   MAX_HEADER_VIDEO_BYTES,
   parseColorScheme,
@@ -63,6 +64,15 @@ const TAB_IDS = ['visualizer', 'color-scheme', 'header', 'slideshow'] as const;
 type TabId = (typeof TAB_IDS)[number];
 
 const PREVIEW_VISUALIZER_HEIGHT_CLASS = 'h-44 sm:h-64';
+
+const HEADER_MEDIA_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+];
 
 const GALLERY_MODES: Array<{ id: ChannelGalleryMode; label: string }> = [
   { id: 'NONE', label: 'None' },
@@ -227,11 +237,11 @@ export function ChannelDesigner({
       return;
     }
     if (file.size > MAX_HEADER_VIDEO_BYTES) {
-      toast.error('Video must be 10 MB or smaller.');
+      toast.error('File must be 10 MB or smaller.');
       return;
     }
-    if (!['video/mp4', 'video/webm'].includes(file.type)) {
-      toast.error('Use an MP4 or WebM video.');
+    if (!HEADER_MEDIA_TYPES.includes(file.type)) {
+      toast.error('Use an MP4/WebM video or a JPEG/PNG/WebP/GIF image.');
       return;
     }
     if (pendingVideoPreviewUrl) {
@@ -404,15 +414,16 @@ export function ChannelDesigner({
     return <PageLoading label="Loading designer…" />;
   }
 
-  // VIDEO_LOOP without a playable clip isn't a state worth saving — the
-  // header would just render empty on the real channel page.
+  // VIDEO_LOOP without a playable clip or image isn't a state worth saving —
+  // the header would just render empty on the real channel page.
   const videoLoopNeedsUrl =
     visual.headerStyle === 'VIDEO_LOOP' &&
     !pendingVideoFile &&
-    !isValidHeaderVideoUrl(videoBackgroundUrl);
+    !isValidHeaderBackdropUrl(videoBackgroundUrl);
   const showHeaderVideo =
     visual.headerStyle === 'VIDEO_LOOP' &&
-    isValidHeaderVideoUrl(visual.videoBackgroundUrl);
+    isValidHeaderBackdropUrl(visual.videoBackgroundUrl);
+  const headerBackdropIsImage = isHeaderImageUrl(visual.videoBackgroundUrl);
   const showGalleryBackdrop =
     galleryImageList.length > 0 && galleryMode !== 'NONE' && !showHeaderVideo;
 
@@ -671,7 +682,9 @@ export function ChannelDesigner({
                                     : 'border-border bg-background hover:bg-background-secondary text-foreground-secondary hover:text-foreground'
                                 }`}
                               >
-                                {headerStyle.replace(/_/g, ' ')}
+                                {headerStyle === 'VIDEO_LOOP'
+                                  ? 'VIDEO / IMAGE'
+                                  : headerStyle.replace(/_/g, ' ')}
                               </button>
                             );
                           })}
@@ -703,103 +716,129 @@ export function ChannelDesigner({
                             </span>
                           </label>
                         )}
-                        {visual.headerStyle === 'VIDEO_LOOP' && (
-                          <div className="flex flex-col gap-3">
-                            <div className="flex items-center justify-between gap-2">
-                              <div>
-                                <Eyebrow>Short video backdrop</Eyebrow>
-                                <p className="text-foreground-secondary mt-1 text-xs">
-                                  Upload an MP4 or WebM up to 10 MB. It will
-                                  loop muted behind your channel header and is
-                                  stored in your private R2 storage.
-                                </p>
-                              </div>
-                              <Button
-                                size="icon-sm"
-                                variant="text"
-                                aria-label="Show video URL field"
-                                title="Use a video URL"
-                                aria-pressed={videoUrlOpen}
-                                onClick={() => setVideoUrlOpen((open) => !open)}
-                              >
-                                <LinkIcon size={15} aria-hidden />
-                              </Button>
-                            </div>
-                            {videoUrlOpen ? (
-                              <Input
-                                label="YouTube or video URL"
-                                value={videoBackgroundUrl}
-                                placeholder="https://youtube.com/watch?v=…"
-                                onChange={(event) => {
-                                  setVideoBackgroundUrl(event.target.value);
-                                  setPendingVideoFile(null);
-                                  setDirty(true);
-                                }}
-                              />
-                            ) : null}
-                            <FilePicker
-                              accept="video/mp4,video/webm"
-                              disabled={busy}
-                              selectedFiles={
-                                pendingVideoFile ? [pendingVideoFile] : []
-                              }
-                              labels={{
-                                title: 'Choose a short video',
-                                description: 'MP4 or WebM · maximum 10 MB',
-                                browse: 'Browse videos',
-                              }}
-                              onFiles={selectVideoFile}
-                            />
-                            {(pendingVideoPreviewUrl || videoBackgroundUrl) && (
-                              <div className="border-border bg-background relative overflow-hidden rounded-lg border">
-                                {youtubeEmbedUrl(videoBackgroundUrl) &&
-                                !pendingVideoPreviewUrl ? (
-                                  <iframe
-                                    title="YouTube backdrop preview"
-                                    src={
-                                      youtubeEmbedUrl(videoBackgroundUrl) ??
-                                      undefined
+                        {visual.headerStyle === 'VIDEO_LOOP' &&
+                          (() => {
+                            const previewIsImage = pendingVideoFile
+                              ? pendingVideoFile.type.startsWith('image/')
+                              : isHeaderImageUrl(videoBackgroundUrl);
+                            return (
+                              <div className="flex flex-col gap-3">
+                                <div className="flex items-center justify-between gap-2">
+                                  <div>
+                                    <Eyebrow>Video or image backdrop</Eyebrow>
+                                    <p className="text-foreground-secondary mt-1 text-xs">
+                                      Upload an MP4/WebM video or a
+                                      JPEG/PNG/WebP/GIF image, up to 10 MB. A
+                                      video loops muted; an image is shown
+                                      static — either sits behind your channel
+                                      header and is stored in your private R2
+                                      storage.
+                                    </p>
+                                  </div>
+                                  <Button
+                                    size="icon-sm"
+                                    variant="text"
+                                    aria-label="Show URL field"
+                                    title="Use a video or image URL"
+                                    aria-pressed={videoUrlOpen}
+                                    onClick={() =>
+                                      setVideoUrlOpen((open) => !open)
                                     }
-                                    className="pointer-events-none aspect-video max-h-64 w-full"
-                                    allow="autoplay; encrypted-media"
-                                  />
-                                ) : (
-                                  <video
-                                    key={
-                                      pendingVideoPreviewUrl ??
-                                      videoBackgroundUrl
-                                    }
-                                    src={
-                                      pendingVideoPreviewUrl ??
-                                      videoBackgroundUrl
-                                    }
-                                    muted
-                                    loop
-                                    autoPlay
-                                    playsInline
-                                    controls
-                                    className="aspect-video max-h-64 w-full object-cover"
-                                  />
-                                )}
-                                <div className="bg-background/85 text-foreground-secondary absolute inset-x-0 bottom-0 px-3 py-2 text-xs backdrop-blur-sm">
-                                  {pendingVideoFile
-                                    ? 'Preview — save your channel design to approve and upload it.'
-                                    : 'Current uploaded backdrop'}
+                                  >
+                                    <LinkIcon size={15} aria-hidden />
+                                  </Button>
                                 </div>
+                                {videoUrlOpen ? (
+                                  <Input
+                                    label="YouTube, video, or image URL"
+                                    value={videoBackgroundUrl}
+                                    placeholder="https://youtube.com/watch?v=… or https://…/backdrop.jpg"
+                                    onChange={(event) => {
+                                      setVideoBackgroundUrl(event.target.value);
+                                      setPendingVideoFile(null);
+                                      setDirty(true);
+                                    }}
+                                  />
+                                ) : null}
+                                <FilePicker
+                                  accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
+                                  disabled={busy}
+                                  selectedFiles={
+                                    pendingVideoFile ? [pendingVideoFile] : []
+                                  }
+                                  labels={{
+                                    title: 'Choose a video or image',
+                                    description:
+                                      'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
+                                    browse: 'Browse files',
+                                  }}
+                                  onFiles={selectVideoFile}
+                                />
+                                {(pendingVideoPreviewUrl ||
+                                  videoBackgroundUrl) && (
+                                  <div className="border-border bg-background relative overflow-hidden rounded-lg border">
+                                    {youtubeEmbedUrl(videoBackgroundUrl) &&
+                                    !pendingVideoPreviewUrl ? (
+                                      <iframe
+                                        title="YouTube backdrop preview"
+                                        src={
+                                          youtubeEmbedUrl(videoBackgroundUrl) ??
+                                          undefined
+                                        }
+                                        className="pointer-events-none aspect-video max-h-64 w-full"
+                                        allow="autoplay; encrypted-media"
+                                      />
+                                    ) : previewIsImage ? (
+                                      <img
+                                        key={
+                                          pendingVideoPreviewUrl ??
+                                          videoBackgroundUrl
+                                        }
+                                        src={
+                                          pendingVideoPreviewUrl ??
+                                          videoBackgroundUrl
+                                        }
+                                        alt=""
+                                        className="aspect-video max-h-64 w-full object-cover"
+                                      />
+                                    ) : (
+                                      <video
+                                        key={
+                                          pendingVideoPreviewUrl ??
+                                          videoBackgroundUrl
+                                        }
+                                        src={
+                                          pendingVideoPreviewUrl ??
+                                          videoBackgroundUrl
+                                        }
+                                        muted
+                                        loop
+                                        autoPlay
+                                        playsInline
+                                        controls
+                                        className="aspect-video max-h-64 w-full object-cover"
+                                      />
+                                    )}
+                                    <div className="bg-background/85 text-foreground-secondary absolute inset-x-0 bottom-0 px-3 py-2 text-xs backdrop-blur-sm">
+                                      {pendingVideoFile
+                                        ? 'Preview — save your channel design to approve and upload it.'
+                                        : 'Current uploaded backdrop'}
+                                    </div>
+                                  </div>
+                                )}
+                                {(pendingVideoFile || videoBackgroundUrl) && (
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className="self-start"
+                                    onClick={clearVideo}
+                                  >
+                                    Remove backdrop
+                                  </Button>
+                                )}
                               </div>
-                            )}
-                            {(pendingVideoFile || videoBackgroundUrl) && (
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                className="self-start"
-                                onClick={clearVideo}
-                              >
-                                Remove video backdrop
-                              </Button>
-                            )}
-                          </div>
-                        )}
+                            );
+                          })()}
                       </section>
                     ),
                   },
@@ -1070,7 +1109,14 @@ export function ChannelDesigner({
           color: previewStyle.fg,
         }}
       >
-        {showHeaderVideo && (
+        {showHeaderVideo && headerBackdropIsImage && (
+          <img
+            className="absolute inset-0 h-full w-full object-cover"
+            src={visual.videoBackgroundUrl ?? undefined}
+            alt=""
+          />
+        )}
+        {showHeaderVideo && !headerBackdropIsImage && (
           <video
             className="absolute inset-0 h-full w-full object-cover"
             src={visual.videoBackgroundUrl ?? undefined}

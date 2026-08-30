@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useSearch } from '@tanstack/react-router';
 import {
   ActivityIcon,
   CheckCircle2Icon,
@@ -37,6 +37,7 @@ import {
   type SignalStatus,
   type StreamSettings,
 } from '../../api/broadcast';
+import { BroadcastPreflightPanel } from '../../components/BroadcastPreflightPanel';
 import { ChannelShareButton } from '../../components/ChannelShareButton';
 import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
@@ -131,6 +132,10 @@ export function StudioGoLiveView() {
   const [showAddDestination, setShowAddDestination] = useState(false);
   const [recordEnabled, setRecordEnabled] = useState(true);
   const [recordBusy, setRecordBusy] = useState(false);
+  const search = useSearch({ strict: false }) as { tab?: string };
+  const [tab, setTab] = useState<'golive' | 'info'>(
+    search.tab === 'info' ? 'info' : 'golive',
+  );
 
   const slug = user?.channel?.slug ?? '';
   const displayName = user?.displayName ?? slug;
@@ -325,7 +330,34 @@ export function StudioGoLiveView() {
           }
         />
 
-        {message && (
+        <div
+          className="border-border flex flex-wrap gap-2 border-b pb-3"
+          role="tablist"
+          aria-label="Go Live sections"
+        >
+          <Button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'golive'}
+            variant={tab === 'golive' ? 'default' : 'text'}
+            onClick={() => setTab('golive')}
+          >
+            Go live
+          </Button>
+          <Button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'info'}
+            variant={tab === 'info' ? 'default' : 'text'}
+            onClick={() => setTab('info')}
+          >
+            Info
+          </Button>
+        </div>
+
+        {tab === 'info' && <BroadcastPreflightPanel />}
+
+        {tab === 'golive' && message && (
           <p
             className={`rounded-lg border px-3 py-2 text-sm ${
               /fail|error|could not|503|401|403/i.test(message)
@@ -338,7 +370,7 @@ export function StudioGoLiveView() {
           </p>
         )}
 
-        {settings && slug && (
+        {tab === 'golive' && settings && slug && (
           <StreamManagerPanel
             slug={slug}
             channelState={channelState}
@@ -349,265 +381,267 @@ export function StudioGoLiveView() {
           />
         )}
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(17rem,2fr)]">
-          <div className="flex min-w-0 flex-col gap-5">
-            <StudioPanel
-              title={
-                isBroadcastLive
-                  ? 'Your broadcast is on air'
-                  : rotationPlaying
-                    ? 'Ready to take over the rotation'
-                    : signalOk
-                      ? 'Signal ready'
-                      : 'Start your encoder'
-              }
-              description={
-                signalOk
-                  ? `${signal?.codec ?? 'Audio'}${signal?.bitrateKbps != null ? ` · ${signal.bitrateKbps} kbps` : ''}`
-                  : 'Start streaming in OBS, Traktor, Mixxx, or another Icecast-compatible app.'
-              }
-              action={
-                !isBroadcastLive ? (
-                  <Button
-                    disabled={busy || !signalOk || usage?.blocked}
-                    onClick={() => void onGoLive()}
-                  >
-                    <RadioIcon size={16} aria-hidden className="mr-1.5" />
-                    {busy
-                      ? 'Going live…'
-                      : rotationPlaying
-                        ? 'Take over rotation'
-                        : 'Go Live'}
-                  </Button>
-                ) : undefined
-              }
-            >
-              <div className="border-border bg-background/40 flex flex-wrap items-center gap-3 rounded-lg border p-3">
-                {signalOk ? (
-                  <CheckCircle2Icon
-                    size={18}
-                    className="text-primary"
-                    aria-hidden
-                  />
-                ) : (
-                  <ActivityIcon
-                    size={18}
-                    className="text-foreground-secondary"
-                    aria-hidden
-                  />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">
-                    {signalOk
-                      ? 'Encoder signal detected'
-                      : 'Waiting for signal'}
-                  </p>
-                  <p className="text-foreground-secondary text-xs">
-                    {signalOk
-                      ? 'Preview with the stream controls above, then publish when ready.'
-                      : 'This dashboard checks your signal every four seconds.'}
-                  </p>
+        {tab === 'golive' && (
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(17rem,2fr)]">
+            <div className="flex min-w-0 flex-col gap-5">
+              <StudioPanel
+                title={
+                  isBroadcastLive
+                    ? 'Your broadcast is on air'
+                    : rotationPlaying
+                      ? 'Ready to take over the rotation'
+                      : signalOk
+                        ? 'Signal ready'
+                        : 'Start your encoder'
+                }
+                description={
+                  signalOk
+                    ? `${signal?.codec ?? 'Audio'}${signal?.bitrateKbps != null ? ` · ${signal.bitrateKbps} kbps` : ''}`
+                    : 'Start streaming in OBS, Traktor, Mixxx, or another Icecast-compatible app.'
+                }
+                action={
+                  !isBroadcastLive ? (
+                    <Button
+                      disabled={busy || !signalOk || usage?.blocked}
+                      onClick={() => void onGoLive()}
+                    >
+                      <RadioIcon size={16} aria-hidden className="mr-1.5" />
+                      {busy
+                        ? 'Going live…'
+                        : rotationPlaying
+                          ? 'Take over rotation'
+                          : 'Go Live'}
+                    </Button>
+                  ) : undefined
+                }
+              >
+                <div className="border-border bg-background/40 flex flex-wrap items-center gap-3 rounded-lg border p-3">
+                  {signalOk ? (
+                    <CheckCircle2Icon
+                      size={18}
+                      className="text-primary"
+                      aria-hidden
+                    />
+                  ) : (
+                    <ActivityIcon
+                      size={18}
+                      className="text-foreground-secondary"
+                      aria-hidden
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">
+                      {signalOk
+                        ? 'Encoder signal detected'
+                        : 'Waiting for signal'}
+                    </p>
+                    <p className="text-foreground-secondary text-xs">
+                      {signalOk
+                        ? 'Preview with the stream controls above, then publish when ready.'
+                        : 'This dashboard checks your signal every four seconds.'}
+                    </p>
+                  </div>
+                  {isMock && !signalOk && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => {
+                        mockSimulateSignal(true);
+                        setChannelState('PREVIEW');
+                        void fetchSignalStatus().then((result) =>
+                          setSignal(result.data),
+                        );
+                      }}
+                    >
+                      Test connection
+                    </Button>
+                  )}
                 </div>
-                {isMock && !signalOk && (
+              </StudioPanel>
+
+              <StudioPanel
+                title="Connect broadcasting software"
+                description="Choose your app, then copy the matching credentials."
+              >
+                <div className="mb-4 flex flex-wrap gap-2">
                   <Button
                     size="sm"
-                    variant="secondary"
-                    onClick={() => {
-                      mockSimulateSignal(true);
-                      setChannelState('PREVIEW');
-                      void fetchSignalStatus().then((result) =>
-                        setSignal(result.data),
-                      );
-                    }}
+                    variant={ingest === 'obs' ? 'default' : 'secondary'}
+                    onClick={() => setIngest('obs')}
                   >
-                    Test connection
+                    <VideoIcon size={14} aria-hidden className="mr-1.5" />
+                    OBS
                   </Button>
-                )}
-              </div>
-            </StudioPanel>
-
-            <StudioPanel
-              title="Connect broadcasting software"
-              description="Choose your app, then copy the matching credentials."
-            >
-              <div className="mb-4 flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  variant={ingest === 'obs' ? 'default' : 'secondary'}
-                  onClick={() => setIngest('obs')}
-                >
-                  <VideoIcon size={14} aria-hidden className="mr-1.5" />
-                  OBS
-                </Button>
-                <Button
-                  size="sm"
-                  variant={ingest === 'traktor' ? 'default' : 'secondary'}
-                  onClick={() => setIngest('traktor')}
-                >
-                  <HeadphonesIcon size={14} aria-hidden className="mr-1.5" />
-                  Traktor
-                </Button>
-                <Button
-                  size="sm"
-                  variant={ingest === 'icecast' ? 'default' : 'secondary'}
-                  onClick={() => setIngest('icecast')}
-                >
-                  <RadioIcon size={14} aria-hidden className="mr-1.5" />
-                  Icecast
-                </Button>
-              </div>
-              {renderCredentials()}
-              <div className="text-foreground-secondary mt-4 flex items-start gap-2 text-xs">
-                <Settings2Icon
-                  size={14}
-                  className="mt-0.5 shrink-0"
-                  aria-hidden
-                />
-                {ingest === 'obs'
-                  ? 'In OBS, open Settings → Stream → Custom, paste both values, then choose Start Streaming.'
-                  : 'Paste these values into the broadcasting section of your audio app, then enable its On Air control.'}
-              </div>
-            </StudioPanel>
-          </div>
-
-          <div className="flex min-w-0 flex-col gap-5">
-            <StudioPanel
-              title="Recording"
-              description="Save this and future broadcasts to your recordings archive."
-            >
-              <button
-                type="button"
-                role="switch"
-                aria-checked={recordEnabled}
-                aria-label="Record broadcast"
-                disabled={recordBusy}
-                onClick={() => void toggleRecording()}
-                className="border-border bg-background hover:bg-background-secondary flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors disabled:opacity-60"
-              >
-                <CircleDotIcon
-                  size={20}
-                  aria-hidden
-                  className={
-                    recordEnabled
-                      ? 'fill-accent-red text-accent-red'
-                      : 'text-foreground-secondary'
-                  }
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold">
-                    Record broadcast
-                  </span>
-                  <span className="text-foreground-secondary block text-xs">
-                    {recordEnabled
-                      ? 'On · saved when the broadcast ends'
-                      : 'Off · this broadcast will not be saved'}
-                  </span>
-                </span>
-                <span
-                  aria-hidden
-                  className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-                    recordEnabled ? 'bg-primary' : 'bg-background-secondary'
-                  }`}
-                >
-                  <span
-                    className={`bg-foreground absolute top-1 size-4 rounded-full transition-transform ${
-                      recordEnabled ? 'translate-x-6' : 'translate-x-1'
-                    }`}
+                  <Button
+                    size="sm"
+                    variant={ingest === 'traktor' ? 'default' : 'secondary'}
+                    onClick={() => setIngest('traktor')}
+                  >
+                    <HeadphonesIcon size={14} aria-hidden className="mr-1.5" />
+                    Traktor
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={ingest === 'icecast' ? 'default' : 'secondary'}
+                    onClick={() => setIngest('icecast')}
+                  >
+                    <RadioIcon size={14} aria-hidden className="mr-1.5" />
+                    Icecast
+                  </Button>
+                </div>
+                {renderCredentials()}
+                <div className="text-foreground-secondary mt-4 flex items-start gap-2 text-xs">
+                  <Settings2Icon
+                    size={14}
+                    className="mt-0.5 shrink-0"
+                    aria-hidden
                   />
-                </span>
-              </button>
-              <Link
-                to="/studio/recordings"
-                aria-label="Open recordings"
-                className="text-foreground-secondary mt-3 inline-flex items-center gap-1.5 text-xs underline-offset-2 hover:underline"
-              >
-                <FolderOpenIcon size={14} aria-hidden />
-                Edit and release saved recordings
-              </Link>
-            </StudioPanel>
+                  {ingest === 'obs'
+                    ? 'In OBS, open Settings → Stream → Custom, paste both values, then choose Start Streaming.'
+                    : 'Paste these values into the broadcasting section of your audio app, then enable its On Air control.'}
+                </div>
+              </StudioPanel>
+            </div>
 
-            <StudioPanel
-              title="Multistream"
-              description="Mirror your broadcast to other platforms."
-              action={
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  onClick={() => setShowAddDestination(true)}
-                  aria-label="Add destination"
-                  title="Add destination"
+            <div className="flex min-w-0 flex-col gap-5">
+              <StudioPanel
+                title="Recording"
+                description="Save this and future broadcasts to your recordings archive."
+              >
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={recordEnabled}
+                  aria-label="Record broadcast"
+                  disabled={recordBusy}
+                  onClick={() => void toggleRecording()}
+                  className="border-border bg-background hover:bg-background-secondary flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors disabled:opacity-60"
                 >
-                  <PlusIcon size={16} />
-                </Button>
-              }
-            >
-              {targets.length === 0 ? (
-                <p className="text-foreground-secondary text-sm">
-                  No destinations configured.
-                </p>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {targets.map((target) => (
-                    <li
-                      key={target.id}
-                      className="border-border rounded-lg border px-3 py-2"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium">
-                            {target.label ||
-                              multicastProviderLabel(target.provider)}
-                          </p>
-                          <p className="text-foreground-secondary text-xs">
-                            {target.enabled ? 'Enabled' : 'Disabled'} · …
-                            {target.keyLast4 ?? '????'}
-                          </p>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => {
-                              void patchRtmpTarget(target.id, {
-                                enabled: !target.enabled,
-                              }).then(() => reload());
-                            }}
-                          >
-                            {target.enabled ? 'Disable' : 'Enable'}
-                          </Button>
-                          <Button
-                            size="icon-sm"
-                            variant="text"
-                            onClick={() => {
-                              void deleteRtmpTarget(target.id).then(() =>
-                                reload(),
-                              );
-                            }}
-                            aria-label={`Remove ${target.label || target.provider}`}
-                            title="Remove destination"
-                          >
-                            <Trash2Icon size={14} aria-hidden />
-                          </Button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </StudioPanel>
+                  <CircleDotIcon
+                    size={20}
+                    aria-hidden
+                    className={
+                      recordEnabled
+                        ? 'fill-accent-red text-accent-red'
+                        : 'text-foreground-secondary'
+                    }
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold">
+                      Record broadcast
+                    </span>
+                    <span className="text-foreground-secondary block text-xs">
+                      {recordEnabled
+                        ? 'On · saved when the broadcast ends'
+                        : 'Off · this broadcast will not be saved'}
+                    </span>
+                  </span>
+                  <span
+                    aria-hidden
+                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                      recordEnabled ? 'bg-primary' : 'bg-background-secondary'
+                    }`}
+                  >
+                    <span
+                      className={`bg-foreground absolute top-1 size-4 rounded-full transition-transform ${
+                        recordEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </span>
+                </button>
+                <Link
+                  to="/studio/recordings"
+                  aria-label="Open recordings"
+                  className="text-foreground-secondary mt-3 inline-flex items-center gap-1.5 text-xs underline-offset-2 hover:underline"
+                >
+                  <FolderOpenIcon size={14} aria-hidden />
+                  Edit and release saved recordings
+                </Link>
+              </StudioPanel>
 
-            <p className="text-foreground-secondary text-xs">
-              After a show, manage recordings in{' '}
-              <Link
-                to="/studio/recordings"
-                className="underline-offset-2 hover:underline"
+              <StudioPanel
+                title="Multistream"
+                description="Mirror your broadcast to other platforms."
+                action={
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    onClick={() => setShowAddDestination(true)}
+                    aria-label="Add destination"
+                    title="Add destination"
+                  >
+                    <PlusIcon size={16} />
+                  </Button>
+                }
               >
-                Recordings
-              </Link>
-              .
-            </p>
+                {targets.length === 0 ? (
+                  <p className="text-foreground-secondary text-sm">
+                    No destinations configured.
+                  </p>
+                ) : (
+                  <ul className="flex flex-col gap-2">
+                    {targets.map((target) => (
+                      <li
+                        key={target.id}
+                        className="border-border rounded-lg border px-3 py-2"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">
+                              {target.label ||
+                                multicastProviderLabel(target.provider)}
+                            </p>
+                            <p className="text-foreground-secondary text-xs">
+                              {target.enabled ? 'Enabled' : 'Disabled'} · …
+                              {target.keyLast4 ?? '????'}
+                            </p>
+                          </div>
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => {
+                                void patchRtmpTarget(target.id, {
+                                  enabled: !target.enabled,
+                                }).then(() => reload());
+                              }}
+                            >
+                              {target.enabled ? 'Disable' : 'Enable'}
+                            </Button>
+                            <Button
+                              size="icon-sm"
+                              variant="text"
+                              onClick={() => {
+                                void deleteRtmpTarget(target.id).then(() =>
+                                  reload(),
+                                );
+                              }}
+                              aria-label={`Remove ${target.label || target.provider}`}
+                              title="Remove destination"
+                            >
+                              <Trash2Icon size={14} aria-hidden />
+                            </Button>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </StudioPanel>
+
+              <p className="text-foreground-secondary text-xs">
+                After a show, manage recordings in{' '}
+                <Link
+                  to="/studio/recordings"
+                  className="underline-offset-2 hover:underline"
+                >
+                  Recordings
+                </Link>
+                .
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         <Dialog.Root
           isOpen={showAddDestination}

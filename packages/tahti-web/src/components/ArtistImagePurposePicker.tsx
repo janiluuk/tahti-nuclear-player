@@ -20,6 +20,8 @@ type PendingImage = {
 };
 
 type Props = {
+  avatarUrl?: string | null;
+  displayName: string;
   onProfileUploaded: (url: string) => void;
   onGalleryUploaded?: (image: PressKitImageItem) => void;
 };
@@ -53,10 +55,13 @@ function purposeDescription(purpose: ImagePurpose): string {
 }
 
 export const ArtistImagePurposePicker: FC<Props> = ({
+  avatarUrl,
+  displayName,
   onProfileUploaded,
   onGalleryUploaded,
 }) => {
   const [pending, setPending] = useState<PendingImage[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -142,33 +147,56 @@ export const ArtistImagePurposePicker: FC<Props> = ({
 
   return (
     <>
-      <div className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-xl border border-dashed p-4">
-        <div className="flex items-start gap-3">
-          <UploadCloudIcon
-            className="text-primary mt-0.5"
-            size={20}
-            aria-hidden
-          />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold">Add profile images</p>
-            <p className="text-foreground-secondary mt-1 text-xs">
-              Drop one or more images here. You’ll choose what each image is for
-              before anything is uploaded.
-            </p>
-          </div>
+      <div className="group relative inline-flex">
+        <div className="border-border bg-background-secondary flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 text-xl font-bold">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            displayName.slice(0, 1).toUpperCase()
+          )}
         </div>
-        <FilePicker
-          labels={{
-            title: 'Artist images',
-            description: 'JPEG, PNG, or WebP',
-            browse: 'Choose images',
-          }}
-          accept={ACCEPTED_IMAGES}
-          multiple
-          selectedFiles={pending.map((image) => image.file)}
-          onFiles={(files) => addFiles(Array.from(files))}
-        />
+        <button
+          type="button"
+          onClick={() => setPickerOpen(true)}
+          aria-label="Change profile image"
+          title="Change profile image"
+          className="bg-background/80 text-foreground absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+        >
+          <UploadCloudIcon size={20} aria-hidden />
+        </button>
       </div>
+
+      <Dialog.Root
+        isOpen={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        className="max-w-lg"
+      >
+        <Dialog.Title>Add profile images</Dialog.Title>
+        <Dialog.Description>
+          Drop one or more images here. You’ll choose what each image is for
+          before anything is uploaded.
+        </Dialog.Description>
+        <div className="mt-4">
+          <FilePicker
+            labels={{
+              title: 'Artist images',
+              description: 'JPEG, PNG, or WebP',
+              browse: 'Choose images',
+            }}
+            accept={ACCEPTED_IMAGES}
+            multiple
+            selectedFiles={pending.map((image) => image.file)}
+            onFiles={(files) => {
+              addFiles(Array.from(files));
+              setPickerOpen(false);
+            }}
+          />
+        </div>
+      </Dialog.Root>
 
       <Dialog.Root
         isOpen={pending.length > 0}

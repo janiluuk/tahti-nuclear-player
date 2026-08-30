@@ -49,7 +49,6 @@ import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
 import { SourcesView } from './views/SourcesView';
 import { StudioArchiveView } from './views/studio/StudioArchiveView';
-import { StudioBroadcastInfoView } from './views/studio/StudioBroadcastInfoView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
@@ -1001,7 +1000,9 @@ const studioGoLiveRoute = createRoute({
 const studioBroadcastInfoRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/info',
-  component: StudioBroadcastInfoView,
+  beforeLoad: () => {
+    throw redirect({ to: '/studio/go-live', search: { tab: 'info' } });
+  },
 });
 
 const studioArchiveRoute = createRoute({
