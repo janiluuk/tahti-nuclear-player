@@ -18,14 +18,12 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Dialog, FilePicker, Input, Select } from '@nuclearplayer/ui';
+import { Button, Dialog, Select } from '@nuclearplayer/ui';
 
 import {
   fetchChannelManageStats,
   fetchRtmpTargets,
   fetchSignalStatus,
-  fetchStreamOverlay,
-  patchStreamOverlay,
   pauseChannelRotation,
   postEndBroadcast,
   previousChannelRotation,
@@ -48,10 +46,10 @@ import {
   type ProgrammeView,
 } from '../api/studio-extras';
 import type { StudioCollection } from '../api/studio-types';
-import { uploadUserMediaFile } from '../api/user-media';
 import { multicastProviderLabel } from '../plugins/multicast';
 import { useBroadcastPresenceStore } from '../stores/broadcastPresenceStore';
 import { ChannelRotationEditor } from './ChannelRotationEditor';
+import { StreamOverlayEditor } from './StreamOverlayEditor';
 
 const STATS_POLL_MS = 5000;
 const STREAM_POLL_MS = 15000;
@@ -139,48 +137,7 @@ export function StreamManagerPanel({
   // station — most visits just want to see what's playing and skip/pause
   // it, not the full stats grid and playlist-add form.
   const [rotationExpanded, setRotationExpanded] = useState(false);
-  const [overlay, setOverlay] = useState({
-    streamOverlayTitle: '',
-    streamOverlaySubtitle: '',
-    streamOverlayCoverUrl: '',
-  });
-  const [overlaySaving, setOverlaySaving] = useState(false);
-  const [overlayCoverFile, setOverlayCoverFile] = useState<File | null>(null);
-  const [overlayCoverUploading, setOverlayCoverUploading] = useState(false);
-  const [overlayError, setOverlayError] = useState<string | null>(null);
   const canControl = !readOnly;
-
-  useEffect(() => {
-    if (activeTab !== 'overlay') {
-      return;
-    }
-    setOverlayError(null);
-    void fetchStreamOverlay().then((result) => {
-      setOverlay({
-        streamOverlayTitle: result.data.streamOverlayTitle ?? '',
-        streamOverlaySubtitle: result.data.streamOverlaySubtitle ?? '',
-        streamOverlayCoverUrl: result.data.streamOverlayCoverUrl ?? '',
-      });
-      setOverlayCoverFile(null);
-    });
-  }, [activeTab]);
-
-  const saveOverlay = () => {
-    setOverlaySaving(true);
-    setOverlayError(null);
-    void patchStreamOverlay({
-      streamOverlayTitle: overlay.streamOverlayTitle.trim(),
-      streamOverlaySubtitle: overlay.streamOverlaySubtitle.trim(),
-      streamOverlayCoverUrl: overlay.streamOverlayCoverUrl.trim(),
-    }).then((result) => {
-      setOverlaySaving(false);
-      if (!result.ok) {
-        setOverlayError(result.error);
-        return;
-      }
-      setActiveTab('rotation');
-    });
-  };
 
   useEffect(() => {
     void fetchStudioCollections().then((r) => setCollections(r.data));
@@ -888,74 +845,7 @@ export function StreamManagerPanel({
           <div>
             <h3 className="font-display text-base font-bold">Stream overlay</h3>
           </div>
-          {overlayError && (
-            <p className="text-accent-red text-sm" role="alert">
-              {overlayError}
-            </p>
-          )}
-          <Input
-            label="Overlay title"
-            placeholder="Your display name"
-            maxLength={80}
-            value={overlay.streamOverlayTitle}
-            onChange={(event) =>
-              setOverlay({
-                ...overlay,
-                streamOverlayTitle: event.target.value,
-              })
-            }
-          />
-          <Input
-            label="Overlay subtitle"
-            placeholder="e.g. Every Friday, 8pm CET"
-            maxLength={120}
-            value={overlay.streamOverlaySubtitle}
-            onChange={(event) =>
-              setOverlay({
-                ...overlay,
-                streamOverlaySubtitle: event.target.value,
-              })
-            }
-          />
-          <FilePicker
-            labels={{
-              title: 'Overlay cover image',
-              description: 'JPEG, PNG, or WebP',
-              browse: overlayCoverFile
-                ? 'Choose another image'
-                : 'Choose image',
-            }}
-            accept="image/jpeg,image/png,image/webp"
-            selectedFiles={overlayCoverFile ? [overlayCoverFile] : []}
-            disabled={overlayCoverUploading}
-            onFiles={(files) => {
-              const file = files[0];
-              if (!file) {
-                return;
-              }
-              setOverlayCoverFile(file);
-              setOverlayCoverUploading(true);
-              setOverlayError(null);
-              void uploadUserMediaFile(file).then((result) => {
-                setOverlayCoverUploading(false);
-                if (!result.ok) {
-                  setOverlayError(result.error);
-                  return;
-                }
-                setOverlay((current) => ({
-                  ...current,
-                  streamOverlayCoverUrl: result.data.url,
-                }));
-              });
-            }}
-          />
-          <Button
-            disabled={overlaySaving || overlayCoverUploading}
-            onClick={saveOverlay}
-            className="self-start"
-          >
-            {overlaySaving ? 'Saving…' : 'Save overlay'}
-          </Button>
+          <StreamOverlayEditor onSaved={() => setActiveTab('rotation')} />
         </div>
       )}
 

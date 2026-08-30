@@ -37,12 +37,10 @@ import {
   Button,
   Dialog,
   Input,
-  PluginItem,
   SaveButton,
   Select,
   Tabs,
   Textarea,
-  Toggle,
   type SelectOption,
 } from '@nuclearplayer/ui';
 
@@ -64,13 +62,6 @@ import {
   type NotificationPrefs,
   type SocialConnections,
 } from '../../api/artist-settings';
-import {
-  createRtmpTarget,
-  deleteRtmpTarget,
-  fetchRtmpTargets,
-  patchRtmpTarget,
-  type RtmpTarget,
-} from '../../api/broadcast';
 import {
   checkSlugAvailable,
   setCustomDomain,
@@ -117,7 +108,7 @@ import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { MentionTextarea } from '../../components/MentionTextarea';
-import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
+import { MulticastSection } from '../../components/MulticastSection';
 import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SocialLinkIcon } from '../../components/SocialLinkIcon';
@@ -134,10 +125,6 @@ import {
   parseGenreTags,
 } from '../../lib/genres';
 import { membershipStatusLabel } from '../../lib/membershipStatus';
-import {
-  multicastProviders,
-  type MulticastProviderId,
-} from '../../plugins/multicast';
 import { useThemeStore } from '../../plugins/themes';
 import { useAmbientStore } from '../../stores/ambientStore';
 import { useAuthModalStore } from '../../stores/authModalStore';
@@ -1445,16 +1432,6 @@ export function BroadcastPanel({
   const [programme, setProgramme] = useState<ProgrammeView | null>(null);
   const [green, setGreen] = useState<GreenRoomPrefs | null>(null);
   const [mods, setMods] = useState<ModeratorRow[]>([]);
-  const [targets, setTargets] = useState<RtmpTarget[]>([]);
-  const [newProvider, setNewProvider] = useState<MulticastProviderId>('TWITCH');
-  const [newKey, setNewKey] = useState('');
-  const [newLabel, setNewLabel] = useState('');
-  const [newRtmpUrl, setNewRtmpUrl] = useState('');
-  const [msg, setMsg] = useState<string | null>(null);
-
-  const reloadTargets = () => {
-    void fetchRtmpTargets().then((r) => setTargets(r.data));
-  };
 
   useEffect(() => {
     void Promise.all([
@@ -1466,7 +1443,6 @@ export function BroadcastPanel({
       setGreen(g.data);
       setMods(m.data);
     });
-    reloadTargets();
   }, []);
 
   const items = [
@@ -1637,98 +1613,7 @@ export function BroadcastPanel({
     {
       id: 'multistream',
       label: tabLabel(Cast, 'Multistream'),
-      content: (
-        <div className="flex flex-col gap-4">
-          <SettingsHint>
-            Mirror shows to Twitch, YouTube, etc. Paste each platform’s stream
-            key.
-          </SettingsHint>
-          <MulticastDestinationForm
-            provider={newProvider}
-            label={newLabel}
-            streamKey={newKey}
-            rtmpUrl={newRtmpUrl}
-            onProviderChange={setNewProvider}
-            onLabelChange={setNewLabel}
-            onStreamKeyChange={setNewKey}
-            onRtmpUrlChange={setNewRtmpUrl}
-            onSubmit={() => {
-              void createRtmpTarget({
-                provider: newProvider,
-                streamKey: newKey.trim(),
-                label: newLabel.trim() || undefined,
-                rtmpUrl: newRtmpUrl.trim() || undefined,
-              }).then((r) => {
-                if (!r.ok) {
-                  setMsg(r.error);
-                } else {
-                  setNewKey('');
-                  setNewLabel('');
-                  setNewRtmpUrl('');
-                  reloadTargets();
-                }
-              });
-            }}
-          />
-          {msg && <SettingsHint>{msg}</SettingsHint>}
-          <div className="flex flex-col gap-3">
-            {multicastProviders.map((provider) => {
-              const destination = targets.find(
-                (target) => target.provider === provider.id,
-              );
-              if (!destination) {
-                return (
-                  <PluginItem
-                    key={provider.id}
-                    icon={<Cast size={22} aria-hidden />}
-                    name={provider.label}
-                    author="Multicast"
-                    description="Not configured — add the provider credentials to enable it."
-                    disabled
-                    warning
-                    warningText="Configure this destination before activating it."
-                    rightAccessory={
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setNewProvider(provider.id)}
-                      >
-                        Configure
-                      </Button>
-                    }
-                    labels={{ by: 'via' }}
-                  />
-                );
-              }
-              return (
-                <PluginItem
-                  key={destination.id}
-                  icon={<Cast size={22} aria-hidden />}
-                  name={destination.label || provider.label}
-                  author={provider.label}
-                  description={`${destination.rtmpUrl} · key ···${destination.keyLast4 ?? 'hidden'}`}
-                  disabled={!destination.enabled}
-                  labels={{ by: 'via' }}
-                  rightAccessory={
-                    <Toggle
-                      checked={destination.enabled}
-                      onChange={(checked) => {
-                        void patchRtmpTarget(destination.id, {
-                          enabled: checked,
-                        }).then(reloadTargets);
-                      }}
-                      aria-label={`Toggle ${destination.label || provider.label}`}
-                    />
-                  }
-                  onRemove={() => {
-                    void deleteRtmpTarget(destination.id).then(reloadTargets);
-                  }}
-                />
-              );
-            })}
-          </div>
-        </div>
-      ),
+      content: <MulticastSection />,
     },
   ];
 

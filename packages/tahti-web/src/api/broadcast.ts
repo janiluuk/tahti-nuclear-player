@@ -547,6 +547,29 @@ export async function deleteRtmpTarget(
   }
 }
 
+export async function testRtmpTarget(
+  id: string,
+): Promise<
+  | { ok: true; reachable: boolean; error?: string }
+  | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return { ok: true, reachable: true };
+  }
+  try {
+    const { data } = await requestJson<{ ok: boolean; error?: string }>(
+      `/api/me/rtmp-targets/${encodeURIComponent(id)}/test`,
+      { method: 'POST' },
+    );
+    return { ok: true, reachable: data.ok, error: data.error };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Test failed',
+    };
+  }
+}
+
 export type StreamOverlay = {
   streamOverlayTitle: string | null;
   streamOverlaySubtitle: string | null;
