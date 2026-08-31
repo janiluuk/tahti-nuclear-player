@@ -2923,3 +2923,21 @@ Switched WORKPLAN items -- the native-control sweep is now exhausted (every rema
 Left several similar bordered `<section>`/`<div>` wrappers alone: `PortInventoryPanel`, `StreamManagerPanel`, and `ChannelAnnouncementsPanel` all use `<section>` as their whole panel's root container (not an inner content box) -- swapping to `Box` (a `<div>`) would lose that sectioning semantics for no visual gain. `MulticastSection`'s provider tile is a horizontal-scroll-snap carousel item with its own layout needs, not a standard panel.
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.9`.
+
+## 2026-08-31 — Backlog round 15: five slices closed; bump to 0.0.10
+
+Back to the Nuclear `Button` audit (WORKPLAN "collection actions" and "Radio actions").
+
+**Slice 1:** `StudioCollectionsView`'s `StyleChip` toggle button.
+
+**Slice 2:** `StudioCollectionEditView`'s cover/backdrop upload tiles (large image-hover-overlay buttons, `group`/`group-hover` CSS preserved) and its own `STYLE_OPTIONS` toggle chips -- same `StyleChip` shape as slice 1, duplicated locally in this file rather than shared. Screenshot-verified in the browser: hover overlay shows the upload icon and label correctly, chip toggles render with the right active/inactive borders.
+
+**Slice 3:** `RadioScheduleView`'s "Set up a channel" inline text-link action (opens the channel setup dialog).
+
+**Slice 4:** `StudioReleaseDetailView`'s artwork upload hover-overlay button (same shape as slice 2's cover/backdrop tiles).
+
+**Slice 5:** `StudioReleasesView`'s `TypeChip` toggle button -- a third independent copy of the same chip pattern as slices 1 and 2's `StyleChip` (three near-identical implementations of the same toggle-chip component now exist across `StudioCollectionsView`, `StudioCollectionEditView`, and `StudioReleasesView` -- worth extracting to one shared component in a future slice rather than a fourth copy-paste).
+
+Left `StudioReleaseDetailView`'s library-track-picker row buttons alone (row-selection in a scrollable list, the same legitimate exception category as `ChannelLayersMenu`'s drag-handle/row-select buttons from earlier rounds).
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.10`.

@@ -193,15 +193,17 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                               No art
                             </div>
                           )}
-                          <button
+                          <Button
                             type="button"
+                            variant="text"
+                            size="flexible"
                             onClick={() => setArtworkPickerOpen(true)}
                             aria-label="Change release artwork"
                             title="Change release artwork"
-                            className="bg-background/80 text-foreground absolute inset-0 flex items-center justify-center rounded-lg opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                            className="bg-background/80 text-foreground absolute inset-0 flex items-center justify-center rounded-lg p-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                           >
                             <UploadCloudIcon size={22} aria-hidden />
-                          </button>
+                          </Button>
                         </div>
                       </StudioPanel>
 

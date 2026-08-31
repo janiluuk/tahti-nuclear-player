@@ -609,13 +609,15 @@ export function RadioScheduleView() {
         </p>
       ) : !ownChannelSlug ? (
         <p className="text-foreground-secondary text-sm">
-          <button
+          <Button
             type="button"
+            variant="text"
+            size="flexible"
             onClick={openChannelSetup}
-            className="text-foreground underline-offset-2 hover:underline"
+            className="text-foreground p-0 underline-offset-2 hover:underline"
           >
             Set up a channel
-          </button>{' '}
+          </Button>{' '}
           to book a slot on Tahti Radio.
         </p>
       ) : (

@@ -298,9 +298,11 @@ function TypeChip({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
-      className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs ${
+      variant="text"
+      size="flexible"
+      className={`gap-1.5 rounded-md border px-2.5 py-1.5 text-xs ${
         selected
           ? 'border-primary bg-primary/15 text-primary'
           : 'border-border text-foreground-secondary'
@@ -311,6 +313,6 @@ function TypeChip({
     >
       {icon}
       <span>{label}</span>
-    </button>
+    </Button>
   );
 }

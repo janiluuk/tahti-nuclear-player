@@ -583,10 +583,12 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                     ['backdrop', backdropUrl, 'Backdrop'],
                   ] as const
                 ).map(([target, imageUrl, emptyLabel]) => (
-                  <button
+                  <Button
                     key={target}
                     type="button"
-                    className={`group border-border bg-background relative h-44 overflow-hidden rounded-xl border text-left shadow-sm ${target === 'cover' ? 'aspect-square sm:w-44' : 'min-w-0 sm:w-72'}`}
+                    variant="text"
+                    size="flexible"
+                    className={`group border-border bg-background relative block h-44 overflow-hidden rounded-xl border p-0 text-left shadow-sm ${target === 'cover' ? 'aspect-square sm:w-44' : 'min-w-0 sm:w-72'}`}
                     onClick={() => setUploadTarget(target)}
                     aria-label={`Upload ${emptyLabel.toLowerCase()}`}
                   >
@@ -605,7 +607,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       <UploadCloudIcon size={24} aria-hidden />
                       <span className="sr-only">Upload {emptyLabel}</span>
                     </span>
-                  </button>
+                  </Button>
                 ))}
               </div>
               <div className="min-w-0 flex-1">
@@ -672,9 +674,12 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {STYLE_OPTIONS.map((s) => (
-                        <button
+                        <Button
                           key={s}
                           type="button"
+                          variant="text"
+                          size="flexible"
+                          aria-pressed={style === s}
                           className={`rounded-md border px-3 py-1 text-xs ${
                             style === s
                               ? 'border-primary bg-primary/15 text-primary'
@@ -683,7 +688,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                           onClick={() => setStyle(s)}
                         >
                           {s.replace(/_/g, ' ')}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </label>
