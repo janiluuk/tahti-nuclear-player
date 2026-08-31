@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-09-01T00:00",
+    "description": "Discover artist banners now carry Tahti Live’s vibrant cyan-and-violet glow, making the artist row feel more alive at a glance.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discovery", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
     "description": "Discover now puts all recommended artists in a prominent banner row, with quick filtering and a one-click way to clear the filter.",
     "type": "improvement",
     "contributors": ["jani"],

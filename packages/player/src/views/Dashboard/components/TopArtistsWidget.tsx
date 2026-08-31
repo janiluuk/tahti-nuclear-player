@@ -114,34 +114,38 @@ export const TopArtistsWidget: FC = () => {
         ) : (
           filteredResults?.flatMap((result) =>
             result.items.map((artist) => (
-              <button
+              <div
                 key={`${result.providerId}-${artist.source.id}`}
-                data-testid="card"
-                type="button"
-                className="border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y relative h-44 w-80 flex-shrink-0 overflow-hidden rounded-md border-(length:--border-width) text-left transition-all hover:shadow-none"
-                onClick={() =>
-                  navigateToEntity(
-                    { name: artist.name, sourceId: artist.source.id },
-                    result as AttributedResult<ArtistRef>,
-                    'artist',
-                  )
-                }
+                className="dashboard-artist-banner-glow relative h-44 w-80 flex-shrink-0"
               >
-                <MediaArtwork
-                  size="fill"
-                  src={pickArtwork(artist.artwork, 'cover', 600)?.url}
-                  alt={artist.name}
-                  className="absolute inset-0 size-full"
-                />
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-linear-to-t from-black/90 via-black/50 to-transparent px-4 pt-12 pb-3">
-                  <span className="text-lg font-bold text-white">
-                    {artist.name}
-                  </span>
-                  <Badge variant="pill" color="purple">
-                    {result.providerName}
-                  </Badge>
-                </div>
-              </button>
+                <button
+                  data-testid="card"
+                  type="button"
+                  className="border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y relative size-full overflow-hidden rounded-md border-(length:--border-width) text-left transition-all hover:shadow-none"
+                  onClick={() =>
+                    navigateToEntity(
+                      { name: artist.name, sourceId: artist.source.id },
+                      result as AttributedResult<ArtistRef>,
+                      'artist',
+                    )
+                  }
+                >
+                  <MediaArtwork
+                    size="fill"
+                    src={pickArtwork(artist.artwork, 'cover', 600)?.url}
+                    alt={artist.name}
+                    className="absolute inset-0 size-full"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-linear-to-t from-black/90 via-black/50 to-transparent px-4 pt-12 pb-3">
+                    <span className="text-lg font-bold text-white">
+                      {artist.name}
+                    </span>
+                    <Badge variant="pill" color="purple">
+                      {result.providerName}
+                    </Badge>
+                  </div>
+                </button>
+              </div>
             )),
           )
         )}
