@@ -1,11 +1,3 @@
-import { Link } from '@tanstack/react-router';
-import {
-  BarChart3Icon,
-  LandmarkIcon,
-  LightbulbIcon,
-  VoteIcon,
-} from 'lucide-react';
-
 import { Badge, Button } from '@nuclearplayer/ui';
 
 import { FlowGallery } from '../components/FlowGallery';
@@ -407,15 +399,6 @@ function statusClass(status: Status): string {
   }
 }
 
-const TOP_BAR_GUIDE = [
-  ['Upload', 'Open the upload dialog without leaving the current view.'],
-  ['Messages', 'Open chat-style direct messages and keep the icon active.'],
-  ['Notifications', 'Review unseen notifications from the right-side panel.'],
-  ['Go live', 'Open the full-page broadcast control surface.'],
-  ['Schedule', 'Book or edit a broadcast in the compact schedule modal.'],
-  ['Chat', 'Open the current channel conversation in the right rail.'],
-] as const;
-
 function FeatureCompareCard({ row }: { row: FeatureRow }) {
   const parity = featureParity(row);
   const tahtiAbsent = isAbsentSurface(row.tahti);
@@ -648,97 +631,8 @@ export function MoreView() {
           >
             Comments
           </a>
-          <a
-            href="#governance"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Governance
-          </a>
         </nav>
       </div>
-
-      <StudioPanel
-        title="Top bar actions"
-        description="Persistent actions remain available while moving through listener, Studio, and Admin views."
-      >
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {TOP_BAR_GUIDE.map(([label, description]) => (
-            <li
-              key={label}
-              className="border-border bg-background-secondary/30 rounded-lg border p-3"
-            >
-              <p className="text-sm font-medium">{label}</p>
-              <p className="text-foreground-secondary mt-1 text-xs">
-                {description}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </StudioPanel>
-
-      <section id="governance" className="scroll-mt-4">
-        <StudioPanel
-          title="Governance"
-          description="Take part in cooperative decisions, review open motions, and suggest what Tahti builds next."
-        >
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Link
-              to="/governance"
-              className="border-border bg-background-secondary/30 hover:border-primary flex items-start gap-3 rounded-lg border p-3 transition-colors"
-            >
-              <VoteIcon size={20} aria-hidden className="text-primary mt-0.5" />
-              <span>
-                <span className="block text-sm font-semibold">
-                  Open governance
-                </span>
-                <span className="text-foreground-secondary mt-1 block text-xs">
-                  Read motions, vote YES / NO / ABSTAIN, and join discussions.
-                </span>
-              </span>
-            </Link>
-            <Link
-              to="/governance/feature-requests"
-              className="border-border bg-background-secondary/30 hover:border-primary flex items-start gap-3 rounded-lg border p-3 transition-colors"
-            >
-              <LightbulbIcon
-                size={20}
-                aria-hidden
-                className="text-primary mt-0.5"
-              />
-              <span>
-                <span className="block text-sm font-semibold">
-                  Feature requests
-                </span>
-                <span className="text-foreground-secondary mt-1 block text-xs">
-                  Propose and vote on ideas for the next Tahti releases.
-                </span>
-              </span>
-            </Link>
-            <Link
-              to="/transparency"
-              className="border-border bg-background-secondary/30 hover:border-primary flex items-start gap-3 rounded-lg border p-3 transition-colors"
-            >
-              <BarChart3Icon
-                size={20}
-                aria-hidden
-                className="text-primary mt-0.5"
-              />
-              <span>
-                <span className="block text-sm font-semibold">
-                  Transparency
-                </span>
-                <span className="text-foreground-secondary mt-1 block text-xs">
-                  See cooperative grants, annual totals, and the public ledger.
-                </span>
-              </span>
-            </Link>
-          </div>
-          <p className="text-foreground-secondary mt-3 flex items-center gap-2 text-xs">
-            <LandmarkIcon size={14} aria-hidden />
-            Governance participation requires a cooperative membership account.
-          </p>
-        </StudioPanel>
-      </section>
 
       <ScreenAtlas />
 
