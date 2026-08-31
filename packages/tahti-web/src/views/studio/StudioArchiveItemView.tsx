@@ -58,14 +58,12 @@ import { StudioPageHeader } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
+import { autoTrimCuts } from '../../lib/autoTrimCuts';
 import { capitalizeGenre, PRESET_GENRES } from '../../lib/genres';
 import { isPinned } from '../../lib/pinnedTracks';
 import { useMasteringFeatureStore } from '../../plugins/mastering/store';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
-
-const SILENCE_THRESHOLD = 0.06;
-const MIN_TRIM_SEC = 0.5;
 
 const CONTENT_TYPES = [
   ['STUDIO', 'Studio track'],
@@ -77,33 +75,6 @@ const CONTENT_TYPES = [
   ['RADIO_SHOW', 'Radio show'],
   ['AUDIOCLIPS', 'Audio clip'],
 ] as const;
-
-/** Finds leading/trailing near-silent regions from downsampled peaks and
- * returns cut regions to remove them — a client-side heuristic, not true
- * silence detection, since only bucketed peaks (not raw audio) are available. */
-function autoTrimCuts(peaks: number[], durationSec: number): EditList['cuts'] {
-  if (peaks.length === 0 || durationSec <= 0) {
-    return [];
-  }
-  let lead = 0;
-  while (lead < peaks.length && peaks[lead]! < SILENCE_THRESHOLD) {
-    lead++;
-  }
-  let trail = peaks.length - 1;
-  while (trail >= 0 && peaks[trail]! < SILENCE_THRESHOLD) {
-    trail--;
-  }
-  const cuts: EditList['cuts'] = [];
-  const leadSec = (lead / peaks.length) * durationSec;
-  const trailSec = ((trail + 1) / peaks.length) * durationSec;
-  if (leadSec >= MIN_TRIM_SEC) {
-    cuts.push({ start: 0, end: leadSec });
-  }
-  if (durationSec - trailSec >= MIN_TRIM_SEC) {
-    cuts.push({ start: trailSec, end: durationSec });
-  }
-  return cuts;
-}
 
 export function StudioArchiveItemView({ id }: { id: string }) {
   const navigate = useNavigate();

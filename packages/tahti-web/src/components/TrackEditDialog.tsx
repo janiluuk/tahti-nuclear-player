@@ -3,9 +3,13 @@ import {
   ArrowUpFromLineIcon,
   AudioLinesIcon,
   DownloadIcon,
-  ImageIcon,
+  GaugeIcon,
   ListMusicIcon,
+  PauseIcon,
+  PlayIcon,
+  ScissorsIcon,
   TagsIcon,
+  Wand2Icon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -14,7 +18,6 @@ import {
   Button,
   CreatableCombobox,
   Dialog,
-  FilePicker,
   Input,
   SaveButton,
   Select,
@@ -22,47 +25,63 @@ import {
   Toggle,
 } from '@nuclearplayer/ui';
 
+import {
+  activateArchiveVersion,
+  fetchArchiveVersions,
+  type ArchiveVersion,
+} from '../api/archive-versions';
 import { parseCredits } from '../api/distribution';
 import { fetchHearthisTrackById } from '../api/sources';
 import {
+  fetchEditorDraft,
+  fetchEditorSource,
   fetchMyRadioSubmissions,
   fetchStudioArchiveItem,
   patchStudioArchiveItem,
+  renderEditorDraft,
   submitTrackToRadioRotation,
   uploadArchiveBanner,
   type RadioSubmission,
 } from '../api/studio';
 import type {
+  EditList,
   StudioArchiveItem,
   StudioArchivePatch,
   TracklistEntry,
   TracklistOverlaySettings,
 } from '../api/studio-types';
+import { createDefaultEditList } from '../api/studio-types';
+import { autoTrimCuts } from '../lib/autoTrimCuts';
 import { capitalizeGenre, PRESET_GENRES } from '../lib/genres';
 import { useMasteringFeatureStore } from '../plugins/mastering/store';
+import { usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
 import {
   AudienceVisibilitySection,
   type TrackVisibility,
 } from './AudienceVisibilitySection';
-import { ImageUploadField } from './ImageUploadField';
+import { BackdropUploadButton } from './BackdropUploadButton';
 import { MentionTextarea } from './MentionTextarea';
 import { MusicBrainzSubmissionAssistant } from './MusicBrainzSubmissionAssistant';
 import { PageLoading } from './PageStates';
+import { RoundImageUploadButton } from './RoundImageUploadButton';
 import { SubgenreTagInput } from './SubgenreTagInput';
+import { WaveformSeekbar } from './tahti/WaveformSeekbar';
 import { TrackCreditsEditor } from './TrackCreditsEditor';
 import { TrackExportConnections } from './TrackExportConnections';
 import { TrackExportPanel } from './TrackExportPanel';
 import { TracklistEditor } from './TracklistEditor';
 
-type Tab =
-  | 'basics'
-  | 'tracklist'
-  | 'audio'
-  | 'visuals'
-  | 'sharing'
-  | 'export'
-  | 'advanced';
+function formatTime(sec: number): string {
+  if (!Number.isFinite(sec)) {
+    return '0:00';
+  }
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+type Tab = 'basics' | 'tracklist' | 'audio' | 'sharing' | 'export' | 'advanced';
 
 type Props = {
   archiveItemId: string | null;
@@ -102,7 +121,6 @@ const TAB_ORDER: Tab[] = [
   'basics',
   'tracklist',
   'audio',
-  'visuals',
   'sharing',
   'export',
   'advanced',
@@ -110,23 +128,35 @@ const TAB_ORDER: Tab[] = [
 
 export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const masteringEnabled = useMasteringFeatureStore((state) => state.enabled);
+  const play = usePlayerStore((state) => state.play);
+  const setPlayerStatus = usePlayerStore((state) => state.setStatus);
+  const seekTo = usePlayerStore((state) => state.seekTo);
+  const currentId = usePlayerStore((state) => state.currentId);
+  const playerStatus = usePlayerStore((state) => state.status);
+  const currentTime = usePlayerStore((state) => state.currentTime);
+  const playerDuration = usePlayerStore((state) => state.duration);
   const isOpen = Boolean(archiveItemId);
   const [tab, setTab] = useState<Tab>('basics');
   const [item, setItem] = useState<StudioArchiveItem | null>(null);
   const [form, setForm] = useState<StudioArchivePatch>({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [artworkBusy, setArtworkBusy] = useState(false);
   const [playlistOpen, setPlaylistOpen] = useState(false);
   // Only the initial load failure stays inline — it can leave the dialog
   // with nothing else to show. Save/upload/submit results go to a toast
-  // instead of a message left sitting in the form (see save(), uploadArtwork(),
-  // and the radio-submission handler below).
+  // instead of a message left sitting in the form (see save() and the
+  // radio-submission handler below).
   const [loadError, setLoadError] = useState<string | null>(null);
   const [radioSubmission, setRadioSubmission] =
     useState<RadioSubmission | null>(null);
   const [submittingToRadio, setSubmittingToRadio] = useState(false);
   const [downloadingEmbed, setDownloadingEmbed] = useState(false);
+  const [editList, setEditList] = useState<EditList | null>(null);
+  const [peaks, setPeaks] = useState<number[]>([]);
+  const [versions, setVersions] = useState<ArchiveVersion[]>([]);
+  const [versionBusy, setVersionBusy] = useState<string | null>(null);
+  const [quickBusy, setQuickBusy] = useState<'normalize' | 'trim' | null>(null);
+  const [playBusy, setPlayBusy] = useState(false);
   const isDjMix =
     form.contentType === 'DJ_MIX' || form.contentType === 'DJ_SET';
   const isAudioClip = form.contentType === 'AUDIOCLIPS';
@@ -186,7 +216,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
           selectsOptIn: res.data.selectsOptIn ?? false,
           topListsEligible: res.data.topListsEligible ?? true,
           bannerUrl: res.data.bannerUrl ?? '',
-          backdropUrl: res.data.backdropUrl ?? '',
+          backgroundUrl: res.data.backgroundUrl ?? '',
           tracklist: res.data.tracklist ?? [],
           fanTierIds: res.data.fanTierIds ?? [],
           tracklistOverlay: res.data.tracklistOverlay ?? {
@@ -212,27 +242,45 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     };
   }, [archiveItemId]);
 
+  const reloadVersions = () => {
+    if (!archiveItemId) {
+      return;
+    }
+    void fetchArchiveVersions(archiveItemId).then((r) => setVersions(r.data));
+  };
+
+  useEffect(() => {
+    if (!archiveItemId) {
+      setEditList(null);
+      setPeaks([]);
+      setVersions([]);
+      return;
+    }
+    let cancelled = false;
+    void fetchEditorDraft(archiveItemId).then((res) => {
+      if (cancelled) {
+        return;
+      }
+      setEditList(res.data.editList);
+      const level = res.data.editorPeaks?.levels?.[0];
+      setPeaks(level && level.length > 0 ? level : []);
+    });
+    void fetchArchiveVersions(archiveItemId).then((r) => {
+      if (!cancelled) {
+        setVersions(r.data);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [archiveItemId]);
+
   const updateArtwork = (url: string) => {
     setForm((current) => ({ ...current, bannerUrl: url }));
     setItem((current) => (current ? { ...current, bannerUrl: url } : current));
     if (item) {
       onSaved?.({ ...item, bannerUrl: url });
     }
-  };
-
-  const uploadArtwork = async (file: File) => {
-    if (!archiveItemId) {
-      return;
-    }
-    setArtworkBusy(true);
-    const result = await uploadArchiveBanner(archiveItemId, file);
-    setArtworkBusy(false);
-    if (!result.ok) {
-      toast.error(result.error);
-      return;
-    }
-    updateArtwork(result.url);
-    toast.success('Cover art uploaded.');
   };
 
   const downloadHearthisEmbed = async () => {
@@ -258,6 +306,99 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     document.body.appendChild(link);
     link.click();
     link.remove();
+  };
+
+  const isCurrentPlayable = currentId === `archive:${archiveItemId}`;
+  const isPlaying =
+    isCurrentPlayable &&
+    (playerStatus === 'playing' || playerStatus === 'loading');
+
+  const startPlayback = async (startAt?: number) => {
+    if (!item || !archiveItemId) {
+      return;
+    }
+    const playableId = `archive:${archiveItemId}`;
+    if (currentId === playableId) {
+      if (startAt !== undefined) {
+        seekTo(startAt);
+      }
+      setPlayerStatus('playing');
+      return;
+    }
+    setPlayBusy(true);
+    const { data } = await fetchEditorSource(archiveItemId);
+    setPlayBusy(false);
+    play({
+      id: playableId,
+      kind: 'archive',
+      title: item.title,
+      artist: item.artistName || '',
+      coverUrl: item.bannerUrl ?? undefined,
+      streamUrl: data.url,
+      protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
+    });
+    if (startAt !== undefined) {
+      seekTo(startAt);
+    }
+  };
+
+  const runQuickEdit = async (
+    kind: 'normalize' | 'trim',
+    next: EditList,
+    label: string,
+  ) => {
+    if (!archiveItemId) {
+      return;
+    }
+    setQuickBusy(kind);
+    const result = await renderEditorDraft(archiveItemId, next, label);
+    setQuickBusy(null);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    setEditList(next);
+    toast.success('Queued as a new version — activate it below when ready.');
+    reloadVersions();
+  };
+
+  const onNormalize = () => {
+    const base = editList ?? createDefaultEditList(item?.durationSec ?? 180);
+    void runQuickEdit(
+      'normalize',
+      { ...base, loudnorm: { ...base.loudnorm, enabled: true } },
+      'Quick normalize',
+    );
+  };
+
+  const onAutoTrim = () => {
+    const base = editList ?? createDefaultEditList(item?.durationSec ?? 180);
+    const cuts = autoTrimCuts(peaks, base.sourceDuration);
+    if (cuts.length === 0) {
+      toast.info('No leading/trailing silence detected.');
+      return;
+    }
+    void runQuickEdit(
+      'trim',
+      { ...base, cuts: [...base.cuts, ...cuts] },
+      'Quick auto-trim',
+    );
+  };
+
+  const onActivateVersion = (versionId: string) => {
+    if (!archiveItemId) {
+      return;
+    }
+    setVersionBusy(versionId);
+    void activateArchiveVersion(archiveItemId, versionId).then((result) => {
+      setVersionBusy(null);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setVersions(result.data);
+      toast.success('Switched to that version.');
+    });
   };
 
   const save = async () => {
@@ -316,7 +457,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       isFallback: result.data.isFallback ?? false,
       commentsEnabled: result.data.commentsEnabled ?? true,
       bannerUrl: result.data.bannerUrl ?? '',
-      backdropUrl: result.data.backdropUrl ?? '',
+      backgroundUrl: result.data.backgroundUrl ?? '',
       tracklist: result.data.tracklist ?? [],
       fanTierIds: result.data.fanTierIds ?? current.fanTierIds ?? [],
       tracklistOverlay: result.data.tracklistOverlay ?? {
@@ -354,6 +495,32 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                 ),
                 content: (
                   <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <BackdropUploadButton
+                        label="Backdrop"
+                        value={form.backgroundUrl}
+                        onChange={(backgroundUrl) =>
+                          setForm({ ...form, backgroundUrl })
+                        }
+                      />
+                      <div className="-mt-10 ml-3 flex">
+                        <RoundImageUploadButton
+                          label="Cover art"
+                          value={form.bannerUrl}
+                          sizeClassName="h-20 w-20"
+                          className="ring-background ring-4"
+                          upload={(file) =>
+                            uploadArchiveBanner(archiveItemId!, file).then(
+                              (r) =>
+                                r.ok
+                                  ? { ok: true as const, data: { url: r.url } }
+                                  : r,
+                            )
+                          }
+                          onChange={updateArtwork}
+                        />
+                      </div>
+                    </div>
                     <Input
                       label="Title"
                       value={form.title ?? ''}
@@ -420,35 +587,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         label,
                       }))}
                     />
-                    <div className="sm:col-span-2">
-                      <Select
-                        label="License (optional)"
-                        value={form.license ?? ''}
-                        onValueChange={(value) =>
-                          setForm({ ...form, license: value })
-                        }
-                        options={LICENSES.map(([value, label]) => ({
-                          id: value,
-                          label,
-                        }))}
-                      />
-                    </div>
-                    <AudienceVisibilitySection
-                      visibility={
-                        (form.visibility ?? 'PUBLIC') as TrackVisibility
-                      }
-                      onVisibilityChange={(visibility) =>
-                        setForm({
-                          ...form,
-                          visibility,
-                          isPublic: visibility === 'PUBLIC',
-                        })
-                      }
-                      tierIds={form.fanTierIds ?? []}
-                      onTierIdsChange={(fanTierIds) =>
-                        setForm({ ...form, fanTierIds })
-                      }
-                    />
                     <div className="border-border bg-background-secondary/30 flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
                       <span className="font-medium">Allow downloads</span>
                       <Toggle
@@ -487,9 +625,277 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         }
                       />
                     </div>
+                  </div>
+                ),
+              },
+              ...(isDjMix
+                ? [
+                    {
+                      id: 'tracklist' as const,
+                      label: (
+                        <span className="inline-flex items-center gap-1.5">
+                          <ListMusicIcon size={15} aria-hidden />
+                          Tracklist
+                        </span>
+                      ),
+                      content: (
+                        <TracklistEditor
+                          durationSec={item.durationSec ?? 0}
+                          peaks={item.peaks ?? []}
+                          value={
+                            (form.tracklist as TracklistEntry[] | undefined) ??
+                            []
+                          }
+                          overlay={
+                            (form.tracklistOverlay as
+                              | TracklistOverlaySettings
+                              | undefined) ?? {
+                              enabled: false,
+                              preset: 'cards',
+                            }
+                          }
+                          onChange={(tracklist) =>
+                            setForm({ ...form, tracklist })
+                          }
+                          onOverlayChange={(tracklistOverlay) =>
+                            setForm({ ...form, tracklistOverlay })
+                          }
+                        />
+                      ),
+                    },
+                  ]
+                : []),
+              {
+                id: 'audio',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <AudioLinesIcon size={15} aria-hidden />
+                    Audio
+                  </span>
+                ),
+                content: (
+                  <div className="flex flex-col gap-4">
+                    <div className="border-border bg-background-secondary/40 rounded-xl border p-4">
+                      <p className="font-medium">Audio source</p>
+                      <p className="text-foreground-secondary mt-1 text-sm">
+                        {item.embedUri
+                          ? 'This track is embedded from its original source.'
+                          : 'This track is stored as Tahti audio.'}
+                      </p>
+                      <p className="text-foreground-secondary mt-3 text-xs">
+                        {item.durationSec != null
+                          ? `${Math.round(item.durationSec / 60)} min · ${item.status}`
+                          : 'Source details are available after processing.'}
+                      </p>
+                    </div>
 
+                    {!item.embedUri && (
+                      <>
+                        <div className="flex flex-col gap-2">
+                          <WaveformSeekbar
+                            trackId={item.id}
+                            peaks={peaks}
+                            progress={
+                              isCurrentPlayable && playerDuration > 0
+                                ? currentTime / playerDuration
+                                : 0
+                            }
+                            className="h-16"
+                            onSeek={(fraction) =>
+                              void startPlayback(
+                                fraction *
+                                  (editList?.sourceDuration ??
+                                    item.durationSec ??
+                                    0),
+                              )
+                            }
+                          />
+                          <div className="text-foreground-secondary flex justify-between text-xs tabular-nums">
+                            <span>
+                              {isCurrentPlayable
+                                ? formatTime(currentTime)
+                                : '0:00'}
+                            </span>
+                            <span>
+                              {formatTime(
+                                editList?.sourceDuration ??
+                                  item.durationSec ??
+                                  0,
+                              )}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Button
+                            size="icon-sm"
+                            disabled={playBusy}
+                            onClick={() =>
+                              void (isPlaying
+                                ? setPlayerStatus('paused')
+                                : startPlayback())
+                            }
+                            aria-label={isPlaying ? 'Pause' : 'Play'}
+                            title={isPlaying ? 'Pause' : 'Play'}
+                          >
+                            {isPlaying ? (
+                              <PauseIcon size={16} aria-hidden />
+                            ) : (
+                              <PlayIcon size={16} aria-hidden />
+                            )}
+                          </Button>
+                          <span
+                            className="bg-border mx-1 h-6 w-px"
+                            aria-hidden
+                          />
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            disabled={quickBusy !== null}
+                            onClick={onNormalize}
+                            aria-label="Normalize audio"
+                            title={
+                              quickBusy === 'normalize'
+                                ? 'Normalizing…'
+                                : 'Normalize audio'
+                            }
+                          >
+                            <GaugeIcon size={16} aria-hidden />
+                          </Button>
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            disabled={quickBusy !== null}
+                            onClick={onAutoTrim}
+                            aria-label="Trim silence"
+                            title={
+                              quickBusy === 'trim'
+                                ? 'Trimming silence…'
+                                : 'Trim silence'
+                            }
+                          >
+                            <ScissorsIcon size={16} aria-hidden />
+                          </Button>
+                          <span
+                            className="bg-border mx-1 h-6 w-px"
+                            aria-hidden
+                          />
+                          <Link
+                            to="/studio/archive/$id/editor"
+                            params={{ id: item.id }}
+                          >
+                            <Button
+                              size="icon-sm"
+                              variant="text"
+                              aria-label="Open full audio editor"
+                              title="Open full audio editor"
+                            >
+                              <AudioLinesIcon size={16} aria-hidden />
+                            </Button>
+                          </Link>
+                          {masteringEnabled && (
+                            <Link
+                              to="/studio/mastering/$id"
+                              params={{ id: item.id }}
+                            >
+                              <Button
+                                size="icon-sm"
+                                variant="text"
+                                aria-label="Match to a reference track"
+                                title="Match to a reference track"
+                              >
+                                <Wand2Icon size={16} aria-hidden />
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+
+                        {versions.length > 1 && (
+                          <div className="flex flex-col gap-2">
+                            <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                              Revisions
+                            </p>
+                            <ul className="flex flex-col gap-1.5">
+                              {versions
+                                .slice()
+                                .reverse()
+                                .map((v) => (
+                                  <li
+                                    key={v.id}
+                                    className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
+                                  >
+                                    <div>
+                                      <div className="font-medium">
+                                        v{v.versionNumber} — {v.versionLabel}
+                                        {v.isActive && (
+                                          <span className="text-primary ml-2 text-xs uppercase">
+                                            Active
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-foreground-secondary text-xs">
+                                        {v.status}
+                                        {v.durationSec
+                                          ? ` · ${formatTime(v.durationSec)}`
+                                          : ''}
+                                        {' · '}
+                                        {new Date(v.createdAt).toLocaleString()}
+                                      </div>
+                                    </div>
+                                    {!v.isActive && v.status === 'READY' && (
+                                      <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        disabled={versionBusy === v.id}
+                                        onClick={() => onActivateVersion(v.id)}
+                                      >
+                                        {versionBusy === v.id
+                                          ? 'Switching…'
+                                          : 'Use this version'}
+                                      </Button>
+                                    )}
+                                  </li>
+                                ))}
+                            </ul>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                id: 'sharing',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <TagsIcon size={15} aria-hidden />
+                    Sharing
+                  </span>
+                ),
+                content: (
+                  <div className="flex flex-col gap-4">
+                    <p className="text-foreground-secondary text-sm">
+                      Choose where this track can appear and whether it can be
+                      selected for shared programming.
+                    </p>
+                    <AudienceVisibilitySection
+                      visibility={
+                        (form.visibility ?? 'PUBLIC') as TrackVisibility
+                      }
+                      onVisibilityChange={(visibility) =>
+                        setForm({
+                          ...form,
+                          visibility,
+                          isPublic: visibility === 'PUBLIC',
+                        })
+                      }
+                      tierIds={form.fanTierIds ?? []}
+                      onTierIdsChange={(fanTierIds) =>
+                        setForm({ ...form, fanTierIds })
+                      }
+                    />
                     {!isAudioClip ? (
-                      <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3 sm:col-span-2">
+                      <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3">
                         <div className="flex items-start justify-between gap-3 text-sm">
                           <span>
                             <span className="block font-medium">
@@ -575,161 +981,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         </div>
                       </div>
                     ) : null}
-                  </div>
-                ),
-              },
-              ...(isDjMix
-                ? [
-                    {
-                      id: 'tracklist' as const,
-                      label: (
-                        <span className="inline-flex items-center gap-1.5">
-                          <ListMusicIcon size={15} aria-hidden />
-                          Tracklist
-                        </span>
-                      ),
-                      content: (
-                        <TracklistEditor
-                          durationSec={item.durationSec ?? 0}
-                          peaks={item.peaks ?? []}
-                          value={
-                            (form.tracklist as TracklistEntry[] | undefined) ??
-                            []
-                          }
-                          overlay={
-                            (form.tracklistOverlay as
-                              | TracklistOverlaySettings
-                              | undefined) ?? {
-                              enabled: false,
-                              preset: 'cards',
-                            }
-                          }
-                          onChange={(tracklist) =>
-                            setForm({ ...form, tracklist })
-                          }
-                          onOverlayChange={(tracklistOverlay) =>
-                            setForm({ ...form, tracklistOverlay })
-                          }
-                        />
-                      ),
-                    },
-                  ]
-                : []),
-              {
-                id: 'audio',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <AudioLinesIcon size={15} aria-hidden />
-                    Audio
-                  </span>
-                ),
-                content: (
-                  <div className="flex flex-col gap-4">
-                    <div className="border-border bg-background-secondary/40 rounded-xl border p-4">
-                      <p className="font-medium">Audio source</p>
-                      <p className="text-foreground-secondary mt-1 text-sm">
-                        {item.embedUri
-                          ? 'This track is embedded from its original source.'
-                          : 'This track is stored as Tahti audio.'}
-                      </p>
-                      <p className="text-foreground-secondary mt-3 text-xs">
-                        {item.durationSec != null
-                          ? `${Math.round(item.durationSec / 60)} min · ${item.status}`
-                          : 'Source details are available after processing.'}
-                      </p>
-                    </div>
-                    {!item.embedUri && (
-                      <Link
-                        to="/studio/archive/$id/editor"
-                        params={{ id: item.id }}
-                        className="text-primary text-sm hover:underline"
-                      >
-                        Open audio editor →
-                      </Link>
-                    )}
-                    {!item.embedUri && masteringEnabled && (
-                      <Link
-                        to="/studio/mastering/$id"
-                        params={{ id: item.id }}
-                        className="text-primary text-sm hover:underline"
-                      >
-                        Match to a reference track →
-                      </Link>
-                    )}
-                  </div>
-                ),
-              },
-              {
-                id: 'visuals',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <ImageIcon size={15} aria-hidden />
-                    Cover &amp; visuals
-                  </span>
-                ),
-                content: (
-                  <div className="grid gap-4 sm:grid-cols-[12rem_1fr]">
-                    <div className="border-border bg-background-secondary flex aspect-square items-center justify-center overflow-hidden rounded-xl border">
-                      {form.bannerUrl ? (
-                        <img
-                          src={form.bannerUrl}
-                          alt="Current cover art"
-                          className="size-full object-cover"
-                        />
-                      ) : (
-                        <ImageIcon
-                          size={36}
-                          className="text-foreground-secondary"
-                          aria-label="No cover art"
-                        />
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      <FilePicker
-                        labels={{
-                          title: 'Upload cover art',
-                          description: 'JPEG, PNG, or WebP',
-                          browse: 'Choose image',
-                        }}
-                        accept="image/jpeg,image/png,image/webp"
-                        disabled={artworkBusy}
-                        onFiles={(files) => {
-                          const file = files[0];
-                          if (file) {
-                            void uploadArtwork(file);
-                          }
-                        }}
-                      />
-                      <p className="text-foreground-secondary text-xs">
-                        JPEG, PNG, or WebP. Uploaded images are stored with the
-                        track so the artwork stays available.
-                      </p>
-                      <ImageUploadField
-                        label="Upload backdrop"
-                        description="Wide JPEG, PNG, WebP, or GIF"
-                        value={form.backdropUrl ?? ''}
-                        onChange={(backdropUrl) =>
-                          setForm({ ...form, backdropUrl })
-                        }
-                      />
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                id: 'sharing',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <TagsIcon size={15} aria-hidden />
-                    Sharing
-                  </span>
-                ),
-                content: (
-                  <div className="flex flex-col gap-4">
-                    <p className="text-foreground-secondary text-sm">
-                      Choose where this track can appear and whether it can be
-                      selected for shared programming.
-                    </p>
                     <div className="border-border flex items-start justify-between gap-3 rounded-lg border p-3 text-sm">
                       <span>
                         <span className="block font-medium">
@@ -799,6 +1050,17 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                 ),
                 content: (
                   <div className="flex flex-col gap-4">
+                    <Select
+                      label="License (optional)"
+                      value={form.license ?? ''}
+                      onValueChange={(value) =>
+                        setForm({ ...form, license: value })
+                      }
+                      options={LICENSES.map(([value, label]) => ({
+                        id: value,
+                        label,
+                      }))}
+                    />
                     {!isAudioClip ? (
                       <div className="border-border flex items-center gap-4 rounded-xl border p-4">
                         <ListMusicIcon
@@ -850,7 +1112,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
           <Dialog.Close>Close</Dialog.Close>
           {item ? (
             <SaveButton
-              disabled={artworkBusy || !form.title?.trim()}
+              disabled={!form.title?.trim()}
               saving={saving}
               label="Save changes"
               onClick={() => void save()}

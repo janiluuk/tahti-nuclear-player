@@ -37,7 +37,10 @@ export type StudioArchiveItem = {
   createdAt?: string;
   updatedAt?: string;
   bannerUrl?: string | null;
-  backdropUrl?: string | null;
+  /** Wide backdrop image — real Prisma/API field name is `backgroundUrl`
+   * (ArchiveItem.backgroundUrl); named to match here on purpose so the
+   * request/response bodies round-trip without a translation layer. */
+  backgroundUrl?: string | null;
   /** Set for EMBED_ONLY items imported by reference (hearthis.at, Mixcloud,
    * Spotify, Bandcamp) — Tahti holds no audio file, so playback only works
    * through the provider's own widget, not the normal editor-source stream. */
@@ -83,7 +86,7 @@ export type StudioArchivePatch = {
   releaseDate?: string | null;
   pinned?: boolean;
   bannerUrl?: string | null;
-  backdropUrl?: string | null;
+  backgroundUrl?: string | null;
   replaceFallbackItemId?: string;
   tracklist?: TracklistEntry[] | null;
   tracklistOverlay?: TracklistOverlaySettings | null;

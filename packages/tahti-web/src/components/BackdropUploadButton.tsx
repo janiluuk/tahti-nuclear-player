@@ -16,24 +16,18 @@ type Props = {
   onChange: (url: string) => void;
   /** Used for aria labels, dialog copy, and the success toast. */
   label: string;
-  /** Tailwind size classes for the circle — defaults to a compact form-field size. */
-  sizeClassName?: string;
   className?: string;
-  /** Overrides the default generic media upload — e.g. a track's own
-   * banner-upload endpoint instead of the shared user-media bucket. */
+  /** Overrides the default generic media upload. */
   upload?: (file: File) => Promise<UploadResult>;
 };
 
-/** A single round, clickable image slot — shows the uploaded image (or a
- * placeholder icon when none is set), and opens a small upload modal on
- * click. Replaces the always-visible dropzone box for contexts where only
- * one image is possible (a station/plugin logo, not a multi-purpose
- * gallery), so the field takes up no more room than the thumbnail itself. */
-export function RoundImageUploadButton({
+/** A wide, clickable backdrop slot — same click-to-upload-modal idiom as
+ * RoundImageUploadButton, but a rectangular banner shape with a plain
+ * placeholder when empty instead of a round avatar. */
+export function BackdropUploadButton({
   value,
   onChange,
   label,
-  sizeClassName = 'h-16 w-16',
   className,
   upload = uploadUserMediaFile,
 }: Props) {
@@ -59,31 +53,29 @@ export function RoundImageUploadButton({
 
   return (
     <>
-      <div className={cn('group relative inline-flex', className)}>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label={`Change ${label.toLowerCase()}`}
-          title={`Change ${label.toLowerCase()}`}
-          className={cn(
-            'border-border bg-background-secondary flex items-center justify-center overflow-hidden rounded-full border-2',
-            sizeClassName,
-          )}
-        >
-          {value ? (
-            <img src={value} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <ImageIcon
-              size={20}
-              aria-hidden
-              className="text-foreground-secondary"
-            />
-          )}
-        </button>
-        <div className="bg-background/80 text-foreground pointer-events-none absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100">
-          <UploadCloudIcon size={18} aria-hidden />
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`Change ${label.toLowerCase()}`}
+        title={`Change ${label.toLowerCase()}`}
+        className={cn(
+          'group border-border bg-background-secondary relative flex aspect-[3/1] w-full items-center justify-center overflow-hidden rounded-xl border',
+          className,
+        )}
+      >
+        {value ? (
+          <img src={value} alt="" className="size-full object-cover" />
+        ) : (
+          <ImageIcon
+            size={28}
+            aria-hidden
+            className="text-foreground-secondary"
+          />
+        )}
+        <div className="bg-background/80 text-foreground pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+          <UploadCloudIcon size={22} aria-hidden />
         </div>
-      </div>
+      </button>
 
       <Dialog.Root
         isOpen={open}
@@ -96,13 +88,13 @@ export function RoundImageUploadButton({
       >
         <Dialog.Title>{label}</Dialog.Title>
         <Dialog.Description>
-          JPEG, PNG, or WebP. Uploads immediately once selected.
+          Wide JPEG, PNG, or WebP. Uploads immediately once selected.
         </Dialog.Description>
         <div className="mt-4">
           <FilePicker
             labels={{
               title: label,
-              description: 'JPEG, PNG, or WebP',
+              description: 'Wide JPEG, PNG, or WebP',
               browse: busy ? 'Uploading…' : 'Choose image',
             }}
             accept="image/jpeg,image/png,image/webp"
