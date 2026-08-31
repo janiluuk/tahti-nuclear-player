@@ -21,6 +21,8 @@ import {
   FilePicker,
   Input,
   SaveButton,
+  Select,
+  Textarea,
 } from '@nuclearplayer/ui';
 
 import {
@@ -689,34 +691,30 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                     <span className="text-foreground-secondary text-xs uppercase">
                       Description
                     </span>
-                    <textarea
+                    <Textarea
+                      tone="secondary"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={3}
-                      className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
                     />
                   </label>
                   <section className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-lg border p-3 sm:col-span-2">
-                    <div>
-                      <h3 className="text-sm font-semibold">Visibility</h3>
-                      <p className="text-foreground-secondary mt-1 text-xs">
-                        Choose who can find this collection.
-                      </p>
-                    </div>
-                    <select
-                      aria-label="Visibility"
+                    <Select
+                      label="Visibility"
+                      description="Choose who can find this collection."
                       value={visibility}
-                      onChange={(event) =>
-                        setVisibility(event.target.value as typeof visibility)
+                      onValueChange={(value) =>
+                        setVisibility(value as typeof visibility)
                       }
-                      className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                    >
-                      <option value="PUBLIC">Public</option>
-                      <option value="UNLISTED">
-                        Unlisted — direct link only
-                      </option>
-                      <option value="PRIVATE">Private — only you</option>
-                    </select>
+                      options={[
+                        { id: 'PUBLIC', label: 'Public' },
+                        {
+                          id: 'UNLISTED',
+                          label: 'Unlisted — direct link only',
+                        },
+                        { id: 'PRIVATE', label: 'Private — only you' },
+                      ]}
+                    />
                   </section>
                 </div>
               ) : (

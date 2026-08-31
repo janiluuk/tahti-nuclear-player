@@ -8,7 +8,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Input, SaveButton } from '@nuclearplayer/ui';
+import {
+  Badge,
+  Button,
+  Input,
+  SaveButton,
+  Select,
+  Textarea,
+} from '@nuclearplayer/ui';
 
 import {
   fetchAdminUser,
@@ -372,25 +379,15 @@ export function AdminUserEditPanel({
           description="Edit access, membership, and governance roles."
         >
           <div className="flex flex-col gap-3">
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="text-foreground-secondary text-xs uppercase">
-                Role
-              </span>
-              <select
-                aria-label="Account role"
-                value={editRole}
-                onChange={(event) =>
-                  setEditRole(event.target.value as AccountRole)
-                }
-                className="border-border bg-background rounded-md border px-3 py-2"
-              >
-                {ROLES.map((value) => (
-                  <option key={value} value={value}>
-                    {value.charAt(0) + value.slice(1).toLowerCase()}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Select
+              label="Role"
+              value={editRole}
+              onValueChange={(value) => setEditRole(value as AccountRole)}
+              options={ROLES.map((value) => ({
+                id: value,
+                label: value.charAt(0) + value.slice(1).toLowerCase(),
+              }))}
+            />
             <Input
               label="Member number"
               inputMode="numeric"
@@ -431,13 +428,13 @@ export function AdminUserEditPanel({
               <span className="text-foreground-secondary text-xs uppercase">
                 Suspension reason
               </span>
-              <textarea
+              <Textarea
+                tone="secondary"
                 value={suspendReason}
                 onChange={(event) => setSuspendReason(event.target.value)}
                 rows={4}
                 maxLength={500}
                 placeholder="Required before suspending"
-                className="border-border bg-background rounded-md border px-3 py-2"
               />
             </label>
           ) : null}

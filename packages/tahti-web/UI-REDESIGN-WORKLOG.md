@@ -2857,3 +2857,19 @@ Implemented the top item from the responsive audit above: the desktop three-pane
 **Verified with the same fresh-load-per-width methodology used to find the bug** (`page.setViewportSize` + fresh page load, not a resize of an already-mounted page): main content width at `/studio/archive` went from 144px/196px/276px/400px to **596px/648px/728px/852px** at 768/820/900/1024px respectively -- no more horizontal overflow at any width in the sweep. Screenshot-verified: both sidebars render as their collapsed icon rails, content (search, buttons, track rows) is fully legible and usable, nothing clips.
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.5`.
+
+## 2026-08-31 — Backlog round 11: five slices closed; bump to 0.0.6
+
+Continuing the native-control-to-shared-component sweep, prioritizing clean labeled block-level fields over compact inline ones (a `Select` forces a `w-full flex-col` wrapper with no `aria-label` pass-through, which doesn't fit an inline `flex flex-wrap` row next to a search box without restructuring the layout -- several remaining `<select>`s, e.g. `StudioReleaseDetailView`'s inline content-type filter, `StudioRecordingsView`'s inline sort dropdown, were left alone for this reason, matching the judgment call already made in round 9).
+
+**Slice 1:** `AdminUserEditPanel`'s account Role select and Suspension reason textarea.
+
+**Slice 2:** `ThemeEditor`'s theme-JSON import textarea (kept its monospace styling and `aria-label`).
+
+**Slice 3:** `StudioCollectionEditView`'s Description textarea, plus its Visibility select -- this one also removed a redundant `<h3>Visibility</h3>` heading that duplicated what `Select`'s own `label` prop now renders, moving the "Choose who can find this collection" text into `Select`'s `description` prop (renders below the field instead of above, matching this app's other `Select`-with-description usage). Screenshot-verified in the browser: label, dropdown, and description text all render correctly with no layout regression.
+
+**Slice 4:** `StudioReleaseDetailView`'s release Description textarea (its Content-type filter select was left as the inline exception noted above).
+
+**Slice 5:** `StudioBrandingView`'s press-kit Short bio textarea.
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.6`.

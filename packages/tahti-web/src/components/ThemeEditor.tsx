@@ -6,7 +6,7 @@ import {
   clearAdvancedTheme,
   type AdvancedTheme,
 } from '@nuclearplayer/themes';
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
 
 import { useThemeStore } from '../plugins/themes';
 
@@ -308,14 +308,15 @@ export function ThemeEditor() {
           Paste a version 1 theme. It is validated before being added to your
           library.
         </Dialog.Description>
-        <textarea
+        <Textarea
+          tone="secondary"
           value={importJson}
           onChange={(event) => {
             setImportJson(event.target.value);
             setImportMsg(null);
           }}
           rows={10}
-          className="border-border bg-background text-foreground w-full rounded-md border px-3 py-2 font-mono text-xs"
+          className="font-mono text-xs"
           placeholder={
             '{\n  "version": 1,\n  "name": "My theme",\n  "vars": {}\n}'
           }

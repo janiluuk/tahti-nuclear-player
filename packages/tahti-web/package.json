@@ -1,6 +1,6 @@
 {
   "name": "@nuclearplayer/tahti-web",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "type": "module",
   "description": "POC: Tahti listen experience on Nuclear UI — eventual production web listen client",

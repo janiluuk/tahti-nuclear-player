@@ -16,6 +16,7 @@ import {
   FilePicker,
   Input,
   SaveButton,
+  Textarea,
   Toggle,
 } from '@nuclearplayer/ui';
 
@@ -534,7 +535,8 @@ export const StudioBrandingPanel: FC<{
               <span className="text-foreground-secondary text-xs uppercase">
                 Short bio
               </span>
-              <textarea
+              <Textarea
+                tone="secondary"
                 rows={5}
                 value={pressKit?.bioShort ?? ''}
                 onChange={(event) =>
@@ -544,7 +546,6 @@ export const StudioBrandingPanel: FC<{
                       : current,
                   )
                 }
-                className="border-border bg-background rounded-md border px-3 py-2"
               />
             </label>
             <div className="mt-3 flex flex-wrap justify-end gap-2">

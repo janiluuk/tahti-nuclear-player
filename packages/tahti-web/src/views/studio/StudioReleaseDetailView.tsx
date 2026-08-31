@@ -23,6 +23,7 @@ import {
   Input,
   SaveButton,
   Tabs,
+  Textarea,
 } from '@nuclearplayer/ui';
 
 import {
@@ -243,11 +244,11 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                             <span className="text-foreground-secondary text-xs uppercase">
                               Description
                             </span>
-                            <textarea
+                            <Textarea
+                              tone="secondary"
                               value={description}
                               onChange={(e) => setDescription(e.target.value)}
                               rows={3}
-                              className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
                             />
                           </label>
                         </div>
