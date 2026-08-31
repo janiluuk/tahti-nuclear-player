@@ -127,6 +127,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
+import { usePluginInstallStore } from '../stores/pluginInstallStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
@@ -195,6 +196,76 @@ function ConfigurableCard({
           <Dialog.Close>Done</Dialog.Close>
         </Dialog.Actions>
       </Dialog.Root>
+    </div>
+  );
+}
+
+/** Splits a category's plugin list into "Installed" / "Available" tabs.
+ * Install state comes from usePluginInstallStore, which each card writes
+ * to once it knows its own real status (connected/configured/enabled) —
+ * an id this store has never heard from defaults to "Available", same as
+ * a plugin with no install concept at all (e.g. a plain distribution
+ * deep-link). */
+function InstalledAvailableTabs({
+  ids,
+  renderItem,
+  emptyInstalled = 'Nothing installed yet — check Available below.',
+  emptyAvailable = 'Everything here is installed.',
+}: {
+  ids: string[];
+  renderItem: (id: string) => React.ReactNode;
+  emptyInstalled?: string;
+  emptyAvailable?: string;
+}) {
+  const installedMap = usePluginInstallStore((s) => s.installed);
+  const [tab, setTab] = useState<'installed' | 'available'>('installed');
+  const installedIds = ids.filter((id) => installedMap[id]);
+  const availableIds = ids.filter((id) => !installedMap[id]);
+  const visibleIds = tab === 'installed' ? installedIds : availableIds;
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div
+        className="flex gap-1"
+        role="tablist"
+        aria-label="Installed or available"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'installed'}
+          onClick={() => setTab('installed')}
+          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+            tab === 'installed'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground-secondary hover:bg-background-secondary'
+          }`}
+        >
+          Installed ({installedIds.length})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'available'}
+          onClick={() => setTab('available')}
+          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+            tab === 'available'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground-secondary hover:bg-background-secondary'
+          }`}
+        >
+          Available ({availableIds.length})
+        </button>
+      </div>
+      {visibleIds.length === 0 ? (
+        <p className="text-foreground-secondary text-sm">
+          {tab === 'installed' ? emptyInstalled : emptyAvailable}
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {visibleIds.map((id) => renderItem(id))}
+        </div>
+      )}
     </div>
   );
 }
@@ -765,15 +836,34 @@ function DspUrlPasteCard() {
 function ServiceCategory({ categoryId }: { categoryId: PluginCategoryId }) {
   const plugins = SERVICE_PLUGINS.filter((p) => p.tags.includes(categoryId));
   return (
-    <div className="flex flex-col gap-2">
-      {plugins.map((p) => (
-        <ServiceCard key={p.id} plugin={p} />
-      ))}
-    </div>
+    <InstalledAvailableTabs
+      ids={plugins.map((p) => p.id)}
+      renderItem={(id) => {
+        const plugin = plugins.find((p) => p.id === id)!;
+        return <ServiceCard key={id} plugin={plugin} />;
+      }}
+    />
   );
 }
 
 function ServiceCard({ plugin }: { plugin: ServicePlugin }) {
+  // hearthis/spotify/oauth each track their own real status and write it
+  // to usePluginInstallStore themselves (see those cards) — only the
+  // remaining kinds (deep-link, info) are decided here, once, up front so
+  // this early-return-heavy component never calls the hook conditionally.
+  useEffect(() => {
+    if (
+      plugin.id === 'hearthis' ||
+      plugin.id === 'spotify' ||
+      plugin.action.kind === 'oauth'
+    ) {
+      return;
+    }
+    usePluginInstallStore
+      .getState()
+      .setInstalled(plugin.id, plugin.action.kind === 'info');
+  }, [plugin.id, plugin.action.kind]);
+
   if (plugin.id === 'hearthis') {
     return <HearthisCard plugin={plugin} />;
   }
@@ -834,6 +924,10 @@ function SpotifyCard({ plugin }: { plugin: ServicePlugin }) {
       }
     });
   }, []);
+
+  useEffect(() => {
+    usePluginInstallStore.getState().setInstalled(plugin.id, Boolean(profile));
+  }, [plugin.id, profile]);
 
   const search = async () => {
     if (!query.trim()) {
@@ -1063,6 +1157,12 @@ function OAuthServiceCard({
     );
 
   useEffect(reload, [action.integrationId]);
+
+  useEffect(() => {
+    usePluginInstallStore
+      .getState()
+      .setInstalled(plugin.id, Boolean(status?.connected));
+  }, [plugin.id, status?.connected]);
 
   useEffect(() => {
     if (action.integrationId !== 'bandcamp' || !status?.connected) {
@@ -1378,6 +1478,10 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
       setHandle(r.data.socialLinks?.hearthisAt ?? null);
     });
   }, []);
+
+  useEffect(() => {
+    usePluginInstallStore.getState().setInstalled(plugin.id, Boolean(handle));
+  }, [plugin.id, handle]);
 
   const loadLibrary = () => {
     if (!user) {
@@ -2813,6 +2917,9 @@ function RadioCategory() {
 }
 
 function ListenCategory() {
+  const [installTab, setInstallTab] = useState<'installed' | 'available'>(
+    'installed',
+  );
   const installedTypeIds = useListenerWidgetsStore((s) => s.installedTypeIds);
   const instances = useListenerWidgetsStore((s) => s.instances);
   const installType = useListenerWidgetsStore((s) => s.installType);
@@ -2882,35 +2989,78 @@ function ListenCategory() {
     setInputByType((prev) => ({ ...prev, soundcloud: normalizedProfile }));
   };
 
+  const favoritesInstalled = installedTypeIds.includes('favorites');
+  const installedCount =
+    (favoritesInstalled ? 1 : 0) +
+    LISTENER_WIDGET_TYPES.filter((t) => installedTypeIds.includes(t.id)).length;
+  const availableCount = LISTENER_WIDGET_TYPES.length + 1 - installedCount;
+
   return (
     <div className="flex flex-col gap-3">
-      <ConfigurableCard
-        title="Favorites"
-        header={
-          <PluginStoreItem
-            name="Favorites"
-            author="Tahti"
-            description="Show your favorite channels and tracks as a section on Listen."
-            category="Listen"
-            isInstalled={installedTypeIds.includes('favorites')}
-            onInstall={() => installType('favorites')}
-          />
-        }
+      <div
+        className="flex gap-1"
+        role="tablist"
+        aria-label="Installed or available"
       >
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-foreground-secondary text-sm">
-            Enabled favorites appear on the Listen page.
-          </p>
-          <Button
-            size="sm"
-            variant="text"
-            onClick={() => uninstallType('favorites')}
-          >
-            Uninstall
-          </Button>
-        </div>
-      </ConfigurableCard>
-      {LISTENER_WIDGET_TYPES.map((type) => {
+        <button
+          type="button"
+          role="tab"
+          aria-selected={installTab === 'installed'}
+          onClick={() => setInstallTab('installed')}
+          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+            installTab === 'installed'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground-secondary hover:bg-background-secondary'
+          }`}
+        >
+          Installed ({installedCount})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={installTab === 'available'}
+          onClick={() => setInstallTab('available')}
+          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+            installTab === 'available'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground-secondary hover:bg-background-secondary'
+          }`}
+        >
+          Available ({availableCount})
+        </button>
+      </div>
+      {favoritesInstalled === (installTab === 'installed') && (
+        <ConfigurableCard
+          title="Favorites"
+          header={
+            <PluginStoreItem
+              name="Favorites"
+              author="Tahti"
+              description="Show your favorite channels and tracks as a section on Listen."
+              category="Listen"
+              isInstalled={favoritesInstalled}
+              onInstall={() => installType('favorites')}
+            />
+          }
+        >
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-foreground-secondary text-sm">
+              Enabled favorites appear on the Listen page.
+            </p>
+            <Button
+              size="sm"
+              variant="text"
+              onClick={() => uninstallType('favorites')}
+            >
+              Uninstall
+            </Button>
+          </div>
+        </ConfigurableCard>
+      )}
+      {LISTENER_WIDGET_TYPES.filter(
+        (type) =>
+          installedTypeIds.includes(type.id) === (installTab === 'installed'),
+      ).map((type) => {
         const isInstalled = installedTypeIds.includes(type.id);
         const typeInstances = instances.filter((i) => i.typeId === type.id);
         return (

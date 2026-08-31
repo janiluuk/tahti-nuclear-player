@@ -32,8 +32,15 @@ export function NuclearPluginAddonsCategory() {
   const [editing, setEditing] = useState<NuclearPluginAddon | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState('All');
+  const [installTab, setInstallTab] = useState<'installed' | 'available'>(
+    'installed',
+  );
 
   useEffect(() => setConfig(readConfig()), []);
+
+  const isConfigured = (addon: NuclearPluginAddon) =>
+    addon.status === 'available' ||
+    Object.values(config[addon.id] ?? {}).some((value) => value.trim());
 
   const categories = useMemo(
     () => [
@@ -42,8 +49,13 @@ export function NuclearPluginAddonsCategory() {
     ],
     [],
   );
-  const addons = NUCLEAR_PLUGIN_ADDONS.filter(
+  const categoryFiltered = NUCLEAR_PLUGIN_ADDONS.filter(
     (addon) => filter === 'All' || addon.category === filter,
+  );
+  const installedCount = categoryFiltered.filter(isConfigured).length;
+  const availableCount = categoryFiltered.length - installedCount;
+  const addons = categoryFiltered.filter((addon) =>
+    installTab === 'installed' ? isConfigured(addon) : !isConfigured(addon),
   );
 
   const openEditor = (addon: NuclearPluginAddon) => {
@@ -63,6 +75,38 @@ export function NuclearPluginAddonsCategory() {
 
   return (
     <div className="flex flex-col gap-3">
+      <div
+        className="flex gap-1"
+        role="tablist"
+        aria-label="Installed or available"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={installTab === 'installed'}
+          onClick={() => setInstallTab('installed')}
+          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+            installTab === 'installed'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground-secondary hover:bg-background-secondary'
+          }`}
+        >
+          Installed ({installedCount})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={installTab === 'available'}
+          onClick={() => setInstallTab('available')}
+          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+            installTab === 'available'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground-secondary hover:bg-background-secondary'
+          }`}
+        >
+          Available ({availableCount})
+        </button>
+      </div>
       <div
         className="flex flex-wrap gap-1"
         role="tablist"
@@ -85,6 +129,13 @@ export function NuclearPluginAddonsCategory() {
           </button>
         ))}
       </div>
+      {addons.length === 0 && (
+        <p className="text-foreground-secondary text-sm">
+          {installTab === 'installed'
+            ? 'Nothing configured yet in this category — check Available.'
+            : 'Everything in this category is already configured.'}
+        </p>
+      )}
       {addons.map((addon) => (
         <div key={addon.id} className="flex items-center gap-2">
           <div className="min-w-0 flex-1">
