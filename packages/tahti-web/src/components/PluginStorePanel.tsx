@@ -6,7 +6,6 @@ import {
   Eye,
   FolderDownIcon,
   Link2Icon,
-  LinkIcon,
   PauseIcon,
   PlayIcon,
   Radio as RadioIcon,
@@ -22,7 +21,6 @@ import {
   Button,
   Dialog,
   FavoriteButton,
-  FilePicker,
   Input,
   MediaArtwork,
   PluginItem,
@@ -94,7 +92,6 @@ import type {
   SpotifyArtistProfile,
   StudioCollection,
 } from '../api/studio-types';
-import { uploadUserMediaFile } from '../api/user-media';
 import {
   LISTENER_WIDGET_TYPES,
   soundcloudProfileUrl,
@@ -134,6 +131,7 @@ import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
 import { NuclearPluginAddonsCategory } from './NuclearPluginAddonsCategory';
 import { PageLoading } from './PageStates';
+import { RoundImageUploadButton } from './RoundImageUploadButton';
 import { SourceServiceIcon } from './SourceServiceIcon';
 import { ThemeVisualizationSettings } from './ThemeVisualizationSettings';
 
@@ -2584,11 +2582,8 @@ function RadioCategory() {
     null,
   );
   const [logoUrlDraft, setLogoUrlDraft] = useState('');
-  const [logoUrlManualOpen, setLogoUrlManualOpen] = useState(false);
-  const [logoUploading, setLogoUploading] = useState(false);
   useEffect(() => {
     setLogoUrlDraft(editingStation?.logoUrl ?? '');
-    setLogoUrlManualOpen(false);
   }, [editingStation]);
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [suggestName, setSuggestName] = useState('');
@@ -2605,25 +2600,6 @@ function RadioCategory() {
     enabledStationIds.includes(s.id),
   ).length;
   const stationAvailableCount = RADIO_STATIONS.length - stationInstalledCount;
-
-  const uploadStationLogo = async (file: File) => {
-    setLogoUploading(true);
-    try {
-      const result = await uploadUserMediaFile(file);
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      setLogoUrlDraft(result.data.url);
-      toast.success('Cover image uploaded. Save the station to apply it.');
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Image upload failed',
-      );
-    } finally {
-      setLogoUploading(false);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -2900,51 +2876,16 @@ function RadioCategory() {
                 defaultValue={editingStation.codec}
               />
               <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium">Cover image</span>
-                  <Button
-                    size="icon-sm"
-                    variant="text"
-                    aria-label="Use an image URL instead"
-                    title="Use an image URL instead"
-                    aria-pressed={logoUrlManualOpen}
-                    onClick={() => setLogoUrlManualOpen((open) => !open)}
-                  >
-                    <LinkIcon size={15} aria-hidden />
-                  </Button>
-                </div>
-                {logoUrlManualOpen ? (
-                  <Input
-                    label="Cover image URL"
-                    value={logoUrlDraft}
-                    onChange={(event) => setLogoUrlDraft(event.target.value)}
-                  />
-                ) : (
-                  <FilePicker
-                    accept="image/jpeg,image/png,image/webp"
-                    disabled={logoUploading}
-                    labels={{
-                      title: 'Station cover image',
-                      description: 'JPEG, PNG, or WebP',
-                      browse: 'Choose image',
-                    }}
-                    onFiles={(files) => {
-                      const file = files[0];
-                      if (!file) {
-                        return;
-                      }
-                      void uploadStationLogo(file);
-                    }}
-                  />
-                )}
+                <span className="text-sm font-medium">Cover image</span>
+                <RoundImageUploadButton
+                  label="Station cover image"
+                  value={logoUrlDraft}
+                  onChange={(logoUrl) => {
+                    setLogoUrlDraft(logoUrl);
+                    updateStation(editingStation.id, { logoUrl });
+                  }}
+                />
                 <input type="hidden" name="logoUrl" value={logoUrlDraft} />
-                {logoUrlDraft && (
-                  <img
-                    src={logoUrlDraft}
-                    alt=""
-                    className="border-border mt-1 size-16 rounded-md border object-cover"
-                  />
-                )}
               </div>
               <Input
                 name="streamUrl"

@@ -21,8 +21,8 @@ import {
 import { fetchRadioStation } from '../../api/client';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
-import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
+import { RoundImageUploadButton } from '../../components/RoundImageUploadButton';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { TahtiRotationPlaylistEditor } from '../../components/TahtiRotationPlaylistEditor';
 import { usePlayerStore } from '../../stores/playerStore';
@@ -272,12 +272,16 @@ function InternetRadioPresetsPanel() {
               setDraft({ ...draft, programmingUrl: event.target.value })
             }
           />
-          <ImageUploadField
-            label="Station logo"
-            description="JPEG, PNG, WebP, or GIF"
-            value={draft.iconUrl ?? ''}
-            onChange={(iconUrl) => setDraft({ ...draft, iconUrl })}
-          />
+          <div className="flex items-center gap-3">
+            <RoundImageUploadButton
+              label="Station logo"
+              value={draft.iconUrl}
+              onChange={(iconUrl) => setDraft({ ...draft, iconUrl })}
+            />
+            <span className="text-foreground-secondary text-xs">
+              Station logo — JPEG, PNG, or WebP.
+            </span>
+          </div>
           {error ? (
             <p className="text-accent-red text-sm" role="alert">
               {error}
