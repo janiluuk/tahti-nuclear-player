@@ -4,23 +4,14 @@ import {
   Instagram,
   Music2Icon,
   PlusIcon,
-  PowerIcon,
   RadioTowerIcon,
-  SettingsIcon,
   Twitch,
   Youtube,
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardGrid,
-  Dialog,
-  Input,
-} from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
   createRtmpTarget,
@@ -92,11 +83,13 @@ type EditingState = {
 
 function DestinationDialog({
   state,
+  existingTargets,
   onClose,
   onSaved,
   onDeleted,
 }: {
   state: EditingState;
+  existingTargets: RtmpTarget[];
   onClose: () => void;
   onSaved: (target: RtmpTarget) => void;
   onDeleted: () => void;
@@ -199,25 +192,32 @@ function DestinationDialog({
       </Dialog.Description>
       <div className="mt-4 flex flex-col gap-3">
         {!providerId ? (
-          <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
-            {multicastProviders.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => {
-                  setProviderId(option.id);
-                  setLabel(option.label);
-                }}
-                className="border-border bg-background-secondary hover:border-primary flex w-32 shrink-0 snap-start flex-col items-center gap-2 rounded-xl border p-3 text-center transition-colors"
-              >
-                <div className="size-14 shrink-0">
-                  <ProviderTile providerId={option.id} size={26} />
-                </div>
-                <span className="text-foreground text-sm font-semibold">
-                  {option.label}
-                </span>
-              </button>
-            ))}
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {multicastProviders
+              .filter(
+                (option) =>
+                  !existingTargets.some(
+                    (target) => target.provider === option.id && target.enabled,
+                  ),
+              )
+              .map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => {
+                    setProviderId(option.id);
+                    setLabel(option.label);
+                  }}
+                  className="border-border bg-background-secondary hover:border-primary flex flex-col items-center gap-1.5 rounded-lg border p-2 text-center transition-colors"
+                >
+                  <div className="size-9 shrink-0">
+                    <ProviderTile providerId={option.id} size={16} />
+                  </div>
+                  <span className="text-foreground truncate text-xs font-medium">
+                    {option.label}
+                  </span>
+                </button>
+              ))}
           </div>
         ) : (
           <>
@@ -392,106 +392,65 @@ function DestinationsGrid() {
           Loading destinations…
         </p>
       ) : (
-        <CardGrid className="grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]">
-          {multicastProviders.map((provider) => {
-            const target = targets.find(
-              (candidate) => candidate.provider === provider.id,
-            );
-            const active = target?.enabled ?? false;
-            return (
-              <div key={provider.id} className="relative">
-                <Card
-                  title={provider.label}
-                  subtitle={
-                    target
-                      ? `${target.label || provider.label} · ${active ? 'enabled' : 'disabled'}`
-                      : 'Not configured · Add destination'
-                  }
-                  className={`text-foreground !bg-background-secondary w-full max-w-none border ${
-                    !target
-                      ? 'border-border/70 border-dashed'
-                      : !active
-                        ? 'border-border/50 opacity-70'
-                        : 'border-border'
-                  }`}
-                  image={
-                    <ProviderTile
-                      providerId={provider.id}
-                      size={40}
-                      dimmed={Boolean(target) && !active}
-                    />
-                  }
+        <div className="border-border rounded-xl border p-3">
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
+            {multicastProviders.map((provider) => {
+              const target = targets.find(
+                (candidate) => candidate.provider === provider.id,
+              );
+              const active = target?.enabled ?? false;
+              return (
+                <button
+                  key={provider.id}
+                  type="button"
                   onClick={() =>
                     setEditing({
                       providerId: provider.id,
                       target: target ?? null,
                     })
                   }
-                />
-                <div className="pointer-events-none absolute top-2 right-2 z-10 flex flex-col items-end gap-1">
-                  <Badge
-                    variant="pill"
-                    color={
-                      target ? (active ? 'green' : 'secondary') : 'secondary'
-                    }
-                  >
-                    {target
-                      ? active
-                        ? 'Enabled'
-                        : 'Disabled'
-                      : 'Not configured'}
-                  </Badge>
-                  <div className="pointer-events-auto flex gap-1">
+                  title={
+                    target
+                      ? `${target.label || provider.label} · ${active ? 'enabled' : 'disabled'}`
+                      : `${provider.label} · not configured`
+                  }
+                  className={`border-border hover:border-primary/60 relative flex flex-col items-center gap-1.5 rounded-lg border p-2 text-center transition-colors ${
+                    !target
+                      ? 'border-dashed opacity-70'
+                      : !active
+                        ? 'opacity-70'
+                        : ''
+                  }`}
+                >
+                  <div className="relative size-9 shrink-0">
+                    <ProviderTile
+                      providerId={provider.id}
+                      size={16}
+                      dimmed={Boolean(target) && !active}
+                    />
                     {target ? (
-                      <Button
-                        size="icon-sm"
-                        variant="secondary"
-                        aria-label={
-                          active
-                            ? `Disable ${provider.label}`
-                            : `Enable ${provider.label}`
-                        }
-                        title={active ? 'Disable' : 'Enable'}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          void patchRtmpTarget(target.id, {
-                            enabled: !active,
-                          }).then((result) => {
-                            if (result.ok) {
-                              reload();
-                            }
-                          });
-                        }}
-                      >
-                        <PowerIcon size={14} aria-hidden />
-                      </Button>
+                      <span
+                        className={`border-background absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 ${
+                          active ? 'bg-accent-green' : 'bg-foreground-secondary'
+                        }`}
+                        aria-hidden
+                      />
                     ) : null}
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Configure ${provider.label}`}
-                      title="Configure"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setEditing({
-                          providerId: provider.id,
-                          target: target ?? null,
-                        });
-                      }}
-                    >
-                      <SettingsIcon size={14} aria-hidden />
-                    </Button>
                   </div>
-                </div>
-              </div>
-            );
-          })}
-        </CardGrid>
+                  <span className="text-foreground w-full truncate text-[11px] font-medium">
+                    {provider.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {editing && (
         <DestinationDialog
           state={editing}
+          existingTargets={targets}
           onClose={() => setEditing(null)}
           onSaved={reload}
           onDeleted={() => {
