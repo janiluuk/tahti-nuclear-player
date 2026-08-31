@@ -25,6 +25,7 @@ import {
   Select,
   Slider,
   Tabs,
+  Tooltip,
 } from '@nuclearplayer/ui';
 
 import {
@@ -104,6 +105,51 @@ const SLIDESHOW_PRESETS = [
   ['LIQUID_DISTORTION', 'Liquid distortion'],
 ] as const;
 
+const COLOR_SCHEME_FIELDS = [
+  ['accent', 'Accent / waveform played'],
+  ['highlight', 'Highlight'],
+  ['bg', 'Background'],
+  ['text', 'Foreground'],
+  ['muted', 'Muted / waveform unplayed'],
+] as const;
+
+/** The 5 raw color pickers shared by the header's color-scheme editor and
+ * the player's independent gradient (when enabled) — kept separate from the
+ * header's brand-accent swatches, which are a header-only concept. */
+function ColorSchemeFields({
+  scheme,
+  onChange,
+}: {
+  scheme: ColorScheme;
+  onChange: (next: ColorScheme) => void;
+}) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {COLOR_SCHEME_FIELDS.map(([key, label]) => (
+        <label
+          key={key}
+          className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm"
+        >
+          <input
+            type="color"
+            value={scheme[key] ?? DEFAULT_COLOR_SCHEME[key]}
+            onChange={(event) =>
+              onChange({ ...scheme, [key]: event.target.value })
+            }
+            className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
+          />
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold">{label}</span>
+            <code className="text-foreground-secondary text-xs">
+              {scheme[key]}
+            </code>
+          </span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
 type Props = {
   displayName: string;
   username: string;
@@ -143,6 +189,7 @@ export function ChannelDesigner({
 }: Props) {
   const [visual, setVisual] = useState<ChannelVisual | null>(null);
   const [scheme, setScheme] = useState<ColorScheme>({});
+  const [playerScheme, setPlayerScheme] = useState<ColorScheme>({});
   const [visualSettings, setVisualSettings] = useState<VisualSettingsMap>({});
   const [galleryMode, setGalleryMode] = useState<ChannelGalleryMode>('NONE');
   const [galleryImages, setGalleryImages] = useState('');
@@ -223,6 +270,9 @@ export function ChannelDesigner({
           ),
         );
         setScheme(parseColorScheme(visualResult.data.colorSchemeJson));
+        setPlayerScheme(
+          parseColorScheme(visualResult.data.playerColorSchemeJson),
+        );
         setVisualSettings(
           parseVisualSettingsMap(visualResult.data.visualSettingsJson),
         );
@@ -475,6 +525,10 @@ export function ChannelDesigner({
       slideshowAutoplay,
       nowPlayingOverlayStyle: visual.nowPlayingOverlayStyle ?? undefined,
       nowPlayingOverlaySettingsJson: JSON.stringify(overlaySettings),
+      usePlayerGradient: visual.usePlayerGradient ?? false,
+      playerColorSchemeJson: visual.usePlayerGradient
+        ? JSON.stringify(fillColorScheme(playerScheme))
+        : null,
     });
     if (!result.ok) {
       setBusy(false);
@@ -487,6 +541,7 @@ export function ChannelDesigner({
     // an otherwise successful backdrop save look like it failed.
     setVisual(result.data);
     setScheme(parseColorScheme(result.data.colorSchemeJson));
+    setPlayerScheme(parseColorScheme(result.data.playerColorSchemeJson));
     setVisualSettings(parseVisualSettingsMap(result.data.visualSettingsJson));
     setSlideshowPreset(result.data.slideshowPreset ?? slideshowPreset);
     setSlideshowInterval(
@@ -637,38 +692,52 @@ export function ChannelDesigner({
           ))}
         </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {(
-          [
-            ['accent', 'Accent / waveform played'] as const,
-            ['highlight', 'Highlight'] as const,
-            ['bg', 'Background'] as const,
-            ['text', 'Foreground'] as const,
-            ['muted', 'Muted / waveform unplayed'] as const,
-          ] as const
-        ).map(([key, label]) => (
-          <label
-            key={key}
-            className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm"
-          >
-            <input
-              type="color"
-              value={scheme[key] ?? DEFAULT_COLOR_SCHEME[key]}
-              onChange={(event) => {
-                const next = { ...scheme, [key]: event.target.value };
-                applyLocal({}, next);
-              }}
-              className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
-            />
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold">{label}</span>
-              <code className="text-foreground-secondary text-xs">
-                {scheme[key]}
-              </code>
-            </span>
-          </label>
-        ))}
-      </div>
+      <ColorSchemeFields
+        scheme={scheme}
+        onChange={(next) => applyLocal({}, next)}
+      />
+    </section>
+  );
+
+  const playerGradientControls = (
+    <section className="flex flex-col gap-4">
+      <label className="border-border bg-background-secondary/40 flex items-start gap-3 rounded-lg border p-3 text-sm">
+        <input
+          type="checkbox"
+          className="mt-0.5"
+          checked={visual.usePlayerGradient ?? false}
+          onChange={(event) => {
+            const usePlayerGradient = event.target.checked;
+            if (usePlayerGradient && !visual.playerColorSchemeJson) {
+              setPlayerScheme(scheme);
+            }
+            applyLocal({ usePlayerGradient });
+          }}
+        />
+        <span>
+          <span className="block font-semibold">
+            Use a separate gradient for the player
+          </span>
+          <span className="text-foreground-secondary block text-xs">
+            Off by default — the player reuses the gradient set above for the
+            channel header.
+          </span>
+        </span>
+      </label>
+      {visual.usePlayerGradient ? (
+        <ColorSchemeFields
+          scheme={playerScheme}
+          onChange={(next) => {
+            setPlayerScheme(next);
+            setDirty(true);
+          }}
+        />
+      ) : (
+        <p className="text-foreground-secondary text-xs">
+          The player currently matches the channel header's gradient, set in
+          Backdrop design.
+        </p>
+      )}
     </section>
   );
 
@@ -1170,7 +1239,7 @@ export function ChannelDesigner({
                     {
                       id: 'gradient',
                       label: 'Gradient',
-                      content: colorSchemeControls,
+                      content: playerGradientControls,
                     },
                     {
                       id: 'video-image',
@@ -1978,7 +2047,7 @@ export function ChannelDesigner({
   }
 
   return (
-    <div className={`flex flex-col gap-4 ${compact ? '' : 'max-w-7xl'}`}>
+    <div className={`flex flex-col gap-4 ${compact ? '' : 'w-full'}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-display text-xl font-bold tracking-tight">
           Channel Designer
@@ -2010,6 +2079,30 @@ export function ChannelDesigner({
           aria-label="Channel page preview"
           className="border-border bg-background min-w-0 overflow-hidden rounded-xl border shadow-lg"
         >
+          <div className="border-border bg-background-secondary/40 flex items-center gap-1.5 border-b px-4 py-2.5">
+            <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+              Live page preview
+            </span>
+            <Tooltip
+              side="bottom"
+              content={
+                <p className="max-w-64 text-xs leading-relaxed">
+                  This mirrors the public channel structure. Visitors see your
+                  profile header, channel navigation, live stage, tracks, and
+                  artist information in this order. Layout blocks are edited
+                  from the channel page editor.
+                </p>
+              }
+            >
+              <span
+                tabIndex={0}
+                aria-label="About this preview"
+                className="text-foreground-secondary hover:text-foreground inline-flex size-4 cursor-help items-center justify-center rounded-full border border-current"
+              >
+                <span className="text-[10px] leading-none font-bold">?</span>
+              </span>
+            </Tooltip>
+          </div>
           <div
             role="button"
             tabIndex={0}
@@ -2135,20 +2228,29 @@ export function ChannelDesigner({
                 }
               }}
               className="relative min-h-64 cursor-pointer overflow-hidden rounded-xl border border-white/10 transition-shadow outline-none hover:ring-2 hover:ring-white/40 focus-visible:ring-2 focus-visible:ring-white/70"
-              style={{ background: previewStyle.bg, color: previewStyle.fg }}
+              style={{
+                background: visual.usePlayerGradient
+                  ? (playerScheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
+                  : previewStyle.bg,
+                color: previewStyle.fg,
+              }}
             >
               {hasLivePreview && visualizerEnabled ? (
                 <ChannelVisualizer
                   className="absolute inset-0 size-full"
                   preset={previewPreset}
-                  colorScheme={scheme}
+                  colorScheme={visual.usePlayerGradient ? playerScheme : scheme}
                   visualSettingsJson={JSON.stringify(visualSettings)}
                   artworkUrl={avatarUrl}
                 />
               ) : (
                 <div
                   className="absolute inset-0"
-                  style={{ background: previewStyle.bg }}
+                  style={{
+                    background: visual.usePlayerGradient
+                      ? (playerScheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
+                      : previewStyle.bg,
+                  }}
                 />
               )}
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 pt-16">

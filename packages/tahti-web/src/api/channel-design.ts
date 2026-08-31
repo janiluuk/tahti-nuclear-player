@@ -291,6 +291,13 @@ export type ChannelVisual = {
    * not yet persist against the live backend). */
   nowPlayingOverlayStyle?: string | null;
   nowPlayingOverlaySettingsJson?: string | null;
+  /** Off by default — the player stage reuses the header's color scheme
+   * above. When on, `playerColorSchemeJson` colors the player/visualizer
+   * independently. Client-only for now, same caveat as the now-playing
+   * overlay fields above: it round-trips under VITE_FORCE_MOCK but has no
+   * matching column on the real API yet. */
+  usePlayerGradient?: boolean;
+  playerColorSchemeJson?: string | null;
 };
 
 /** Per-preset speed/intensity/scale (clamped 0.25–2, scale 0.5–2) plus an
@@ -377,6 +384,8 @@ let mockVisual: ChannelVisual = {
   slideshowAutoplay: true,
   nowPlayingOverlayStyle: 'classic',
   nowPlayingOverlaySettingsJson: null,
+  usePlayerGradient: false,
+  playerColorSchemeJson: null,
 };
 
 /** Read-only peek at the mock design state — used by mockChannel() (in
@@ -392,6 +401,16 @@ export function getMockNowPlayingOverlaySettingsJson():
   | null
   | undefined {
   return mockVisual.nowPlayingOverlaySettingsJson;
+}
+
+/** Same "wired to the artist's saved Channel Designer pick under
+ * VITE_FORCE_MOCK" pattern as the now-playing getters above. */
+export function getMockUsePlayerGradient(): boolean | undefined {
+  return mockVisual.usePlayerGradient;
+}
+
+export function getMockPlayerColorSchemeJson(): string | null | undefined {
+  return mockVisual.playerColorSchemeJson;
 }
 
 export function parseColorScheme(json: string | null | undefined): ColorScheme {
@@ -435,6 +454,8 @@ export async function fetchChannelVisual(): Promise<{
         slideshowAutoplay: true,
         nowPlayingOverlayStyle: 'classic',
         nowPlayingOverlaySettingsJson: null,
+        usePlayerGradient: false,
+        playerColorSchemeJson: null,
       },
       meta: apiErrorMeta(err),
     };
@@ -454,6 +475,8 @@ export async function patchChannelVisual(patch: {
   slideshowAutoplay?: boolean;
   nowPlayingOverlayStyle?: string;
   nowPlayingOverlaySettingsJson?: string | null;
+  usePlayerGradient?: boolean;
+  playerColorSchemeJson?: string | null;
 }): Promise<{ ok: true; data: ChannelVisual } | { ok: false; error: string }> {
   if (forceMock()) {
     mockVisual = {
@@ -487,6 +510,12 @@ export async function patchChannelVisual(patch: {
         : {}),
       ...(patch.nowPlayingOverlaySettingsJson !== undefined
         ? { nowPlayingOverlaySettingsJson: patch.nowPlayingOverlaySettingsJson }
+        : {}),
+      ...(patch.usePlayerGradient !== undefined
+        ? { usePlayerGradient: patch.usePlayerGradient }
+        : {}),
+      ...(patch.playerColorSchemeJson !== undefined
+        ? { playerColorSchemeJson: patch.playerColorSchemeJson }
         : {}),
       ...(patch.colorScheme !== undefined
         ? {
