@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-09-01T00:00",
+    "description": "Discover now puts all recommended artists in a prominent banner row, with quick filtering and a one-click way to clear the filter.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discovery", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
     "description": "Discover widgets now move smoothly with side arrows, and selecting a track opens an inline waveform player for quick listening and seeking.",
     "type": "improvement",
     "contributors": ["jani"],

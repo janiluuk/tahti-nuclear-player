@@ -8,12 +8,14 @@ import { Loader, ViewShell } from '@nuclearplayer/ui';
 import { useProviders } from '../../hooks/useProviders';
 import { useStartupStore } from '../../stores/startupStore';
 import { DashboardEmptyState } from './components/DashboardEmptyState';
+import { TopArtistsWidget } from './components/TopArtistsWidget';
 import { DASHBOARD_WIDGETS, DashboardWidgetEntry } from './dashboardWidgets';
 
 const DashboardContent: FC<{
   isStartingUp: boolean;
+  hasTopArtists: boolean;
   activeWidgets: DashboardWidgetEntry[];
-}> = ({ isStartingUp, activeWidgets }) => {
+}> = ({ isStartingUp, hasTopArtists, activeWidgets }) => {
   if (isStartingUp) {
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -22,13 +24,18 @@ const DashboardContent: FC<{
     );
   }
 
-  if (isEmpty(activeWidgets)) {
+  if (!hasTopArtists && isEmpty(activeWidgets)) {
     return <DashboardEmptyState />;
   }
 
-  return activeWidgets.map(({ capability, component: Widget }) => (
-    <Widget key={capability} />
-  ));
+  return (
+    <>
+      {hasTopArtists && <TopArtistsWidget />}
+      {activeWidgets.map(({ capability, component: Widget }) => (
+        <Widget key={capability} />
+      ))}
+    </>
+  );
 };
 
 export const Dashboard: FC = () => {
@@ -45,11 +52,15 @@ export const Dashboard: FC = () => {
       capabilities.has(widget.capability),
     );
   }, [providers]);
+  const hasTopArtists = providers.some((provider) =>
+    provider.capabilities.includes('topArtists'),
+  );
 
   return (
     <ViewShell data-testid="dashboard-view" title={t('title')}>
       <DashboardContent
         isStartingUp={isStartingUp}
+        hasTopArtists={hasTopArtists}
         activeWidgets={activeWidgets}
       />
     </ViewShell>
