@@ -3,7 +3,6 @@ import {
   ActivityIcon,
   DownloadIcon,
   HeartIcon,
-  Maximize2Icon,
   MessageCircleIcon,
   PauseIcon,
   PlayIcon,
@@ -48,7 +47,6 @@ import { parsePublicTracklist } from '../lib/publicTracklist';
 import { formatTimedCommentBody, parseTimedComment } from '../lib/timedComment';
 import { useDominantColor } from '../lib/useDominantColor';
 import { useAuthStore } from '../stores/authStore';
-import { useLayoutStore } from '../stores/layoutStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { useTrackDetailStore } from '../stores/trackDetailStore';
@@ -162,9 +160,6 @@ export function TrackDetailView({ id }: { id: string }) {
   const duration = usePlayerStore((s) => s.duration);
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
-  const setFullScreenPlayerOpen = useLayoutStore(
-    (s) => s.setFullScreenPlayerOpen,
-  );
 
   const playable = detail ? playableFromDetail(id, detail) : fastPath;
   const rgb = useDominantColor(playable?.coverUrl);
@@ -525,21 +520,6 @@ export function TrackDetailView({ id }: { id: string }) {
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                aria-label="Expand player"
-                title="Expand player"
-                disabled={Boolean(embedSrc)}
-                onClick={() => {
-                  if (!isCurrent && canPlay) {
-                    play(playable);
-                  }
-                  setFullScreenPlayerOpen(true);
-                }}
-              >
-                <Maximize2Icon size={15} aria-hidden />
-              </Button>
               <Button
                 size="sm"
                 variant="secondary"

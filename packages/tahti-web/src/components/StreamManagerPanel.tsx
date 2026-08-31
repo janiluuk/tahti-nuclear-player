@@ -11,7 +11,6 @@ import {
   SkipForwardIcon,
   SquareIcon,
   TimerIcon,
-  TrendingUpIcon,
   UsersIcon,
   WifiIcon,
   WifiOffIcon,
@@ -539,8 +538,8 @@ export function StreamManagerPanel({
               </p>
               <p className="text-foreground-secondary truncate text-xs">
                 {rotation.artistName}
-                {remainingSec != null
-                  ? ` · ${formatRemaining(remainingSec)} remaining`
+                {durationSec != null
+                  ? ` · ${formatRemaining(Math.min(elapsedSinceObserved, durationSec))} / ${formatRemaining(durationSec)}`
                   : ''}
               </p>
             </>
@@ -578,7 +577,7 @@ export function StreamManagerPanel({
               onClick={() => setActiveTab(id)}
               className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
                 activeTab === id
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-accent-orange text-accent-foreground'
                   : 'text-foreground-secondary hover:text-foreground'
               }`}
             >
@@ -632,32 +631,32 @@ export function StreamManagerPanel({
             value={
               bitrate != null
                 ? `${bitrate} kbps`
-                : liveActive
-                  ? 'Detecting…'
-                  : '—'
+                : rotationPlaying
+                  ? 'N/A — rotation'
+                  : liveActive
+                    ? 'Detecting…'
+                    : '—'
             }
           />
           <StatCell
-            icon={
-              rotationPlaying ? (
-                <Clock3Icon size={14} aria-hidden />
-              ) : (
-                <UsersIcon size={14} aria-hidden />
-              )
-            }
-            label={rotationPlaying ? 'Time left' : 'Listeners'}
+            icon={<Clock3Icon size={14} aria-hidden />}
+            label="Time left"
             value={
               rotationPlaying
                 ? remainingSec != null
                   ? `≤ ${formatRemaining(remainingSec)}`
                   : 'Unknown'
-                : (listeners ?? '—')
+                : '—'
             }
           />
           <StatCell
-            icon={<TrendingUpIcon size={14} aria-hidden />}
-            label="Peak listeners"
-            value={stats?.listenerPeak ?? '—'}
+            icon={<UsersIcon size={14} aria-hidden />}
+            label="Listeners"
+            value={
+              listeners == null && stats?.listenerPeak == null
+                ? '—'
+                : `${listeners ?? 0} / ${stats?.listenerPeak ?? 0}`
+            }
           />
           <StatCell
             icon={<TimerIcon size={14} aria-hidden />}

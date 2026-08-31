@@ -1,5 +1,27 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-31 — Backlog round 6: five slices closed
+
+Session also shared this working tree with concurrent activity mid-rewriting
+`PluginStorePanel.tsx` and `router.tsx` (both left with real, pre-existing
+type errors from that in-progress work) — left both untouched rather than
+risk clobbering it; verified every slice below via `tsc` with just those two
+files' errors filtered out, confirming this round introduces nothing new.
+
+**Slice 1 — Stream playlist manager: current-track duration, combined listener count, non-broken bitrate:** `StreamManagerPanel.tsx`'s "Current track" box now shows elapsed/total (`"3:12 / 5:41"`) instead of remaining-only. The "Time left" vs "Listeners" slot-swap is gone — "Time left" is always its own stat (shows `—` outside rotation), and the former separate "Peak listeners" cell is now "Listeners" showing `current / peak` combined, visible regardless of rotation state. "Bitrate" no longer shows a permanently-stuck "Detecting…" during rotation playback (there's no encoder signal to ever measure) — it now reads "N/A — rotation" instead, matching the existing "Signal: Rotation" precedent.
+
+**Slice 2 — Track detail: removed the redundant "Expand player" button:** `TrackDetailView.tsx` had its own full-screen-expand icon button; the persistent player bar (`ConnectedPlayerBar.tsx`) already has one. Removed the button and its now-unused `setFullScreenPlayerOpen`/`useLayoutStore` wiring.
+
+**Slice 3 — Feed: release items are playable too:** Previously only track-kind feed items got the artwork/play/queue treatment; release items were plain thumbnails since `FeedItem`'s release payload carries no track data. Feed now resolves each release item's real tracklist via `fetchProfile(username)` (matching `ArtistView.tsx`'s existing `releasePlayables` pattern), deduped per artist, and gives release cards the same `MediaArtwork` play/queue overlay — play starts the first track and enqueues the rest, queue enqueues the whole release in order.
+
+**Slice 4 — Go Live Info panel: Episode number only shows for a series:** `BroadcastPreflightPanel.tsx`'s Episode number field appeared for every broadcast, one-off or not. It's now conditional on `preflight.plannedLiveShow?.seriesId`, with "Show name" and "Show type" reflowed into their own rows so hiding it doesn't squeeze "Show type" into a narrow leftover grid column.
+
+**Slice 5 — Waveform comment markers are now a real icon:** `WaveformSeekbar.tsx`'s comment markers were plain 6px yellow dots; swapped for a small filled `MessageCircleIcon`, matching the icon already used for comments elsewhere in `TrackDetailView.tsx`.
+
+**Not done this round (need a live render or a real backend field, flagged rather than guessed):** "Live for" using a real server-tracked start time instead of a client-side timer (needs a `goneLiveAt`-equivalent for rotation-mode channels — no such field exists yet); the Tahti theme hover/dropdown contrast bugs and the Channel Designer visualizer "fill the whole banner" report both need visual confirmation of the actual affected component before touching anything, per their own backlog notes; Listen page "Add widget" button was skipped this round specifically because it requires editing `PluginStorePanel.tsx`, which is mid-rewrite by concurrent activity right now.
+
+**Validation:** tahti-web type-check (scoped to exclude the two concurrently-broken files, confirmed pre-existing via `git diff --stat`), lint, and the full vitest suite (296/296) pass.
+
 ## 2026-08-31 — Fixed missing `/api/me/media` backend contract, audited for more
 
 **Fixed:** `uploadUserMediaFile` (`api/user-media.ts`, the shared upload helper behind

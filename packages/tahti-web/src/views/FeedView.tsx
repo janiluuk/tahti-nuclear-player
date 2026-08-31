@@ -3,10 +3,15 @@ import { useEffect, useState } from 'react';
 
 import { Button, MediaArtwork, SectionShell } from '@nuclearplayer/ui';
 
-import { fetchArtistPlayables, fetchFeed } from '../api/client';
-import type { FeedItem, TahtiPlayable } from '../api/types';
+import { fetchArtistPlayables, fetchFeed, fetchProfile } from '../api/client';
+import type {
+  FeedItem,
+  PublicProfileRelease,
+  TahtiPlayable,
+} from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { releasePlayables } from '../components/ReleaseTracklistDialog';
 import { TrackInfoDialog, type TrackInfo } from '../components/TrackInfoDialog';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
@@ -79,6 +84,9 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
   const [feedPlayables, setFeedPlayables] = useState<
     Record<string, TahtiPlayable>
   >({});
+  const [releaseFeedPlayables, setReleaseFeedPlayables] = useState<
+    Record<string, TahtiPlayable[]>
+  >({});
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const queue = usePlayerStore((s) => s.queue);
@@ -114,6 +122,46 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
               (entry): entry is readonly [string, TahtiPlayable] =>
                 entry !== null,
             ),
+          ),
+        );
+      });
+
+      const releases = res.data.items.filter(
+        (item): item is Extract<FeedItem, { kind: 'release' }> =>
+          item.kind === 'release',
+      );
+      const usernames = [
+        ...new Set(releases.map((item) => item.artist.username)),
+      ];
+      void Promise.all(
+        usernames.map((username) =>
+          fetchProfile(username)
+            .then(
+              (result) =>
+                [username, result.data.releases] as [
+                  string,
+                  PublicProfileRelease[],
+                ],
+            )
+            .catch(() => [username, []] as [string, PublicProfileRelease[]]),
+        ),
+      ).then((profiles) => {
+        const releasesByUsername = new Map(profiles);
+        setReleaseFeedPlayables(
+          Object.fromEntries(
+            releases.flatMap((item) => {
+              const artistReleases =
+                releasesByUsername.get(item.artist.username) ?? [];
+              const release = artistReleases.find((r) => r.id === item.id);
+              if (!release) {
+                return [];
+              }
+              const playables = releasePlayables(
+                release,
+                item.artist.displayName,
+              );
+              return playables.length > 0 ? [[item.id, playables]] : [];
+            }),
           ),
         );
       });
@@ -269,49 +317,58 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
                   })()}
 
                 {item.kind === 'release' &&
-                  (item.smartLinkSlug ? (
-                    <Link
-                      to="/r/$slug"
-                      params={{ slug: item.smartLinkSlug }}
-                      className="mt-2 flex items-center gap-3"
-                    >
-                      <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-                        {item.artworkUrl ? (
-                          <img
-                            src={item.artworkUrl}
-                            alt=""
-                            className="size-full object-cover"
-                          />
-                        ) : (
-                          item.title.slice(0, 2).toUpperCase()
-                        )}
+                  (() => {
+                    const playables = releaseFeedPlayables[item.id] ?? [];
+                    const [first, ...rest] = playables;
+                    const navigateTo = item.smartLinkSlug
+                      ? {
+                          to: '/r/$slug' as const,
+                          params: { slug: item.smartLinkSlug },
+                        }
+                      : {
+                          to: '/u/$username' as const,
+                          params: { username: item.artist.username },
+                        };
+                    return (
+                      <div className="mt-2 flex items-center gap-3">
+                        <MediaArtwork
+                          size="thumb"
+                          className="rounded-md"
+                          src={item.artworkUrl}
+                          alt={item.title}
+                          placeholder={
+                            <span className="text-[10px] font-bold">
+                              {item.title.slice(0, 2).toUpperCase()}
+                            </span>
+                          }
+                          onPlay={
+                            first
+                              ? () => play(first, { enqueueRest: rest })
+                              : undefined
+                          }
+                          playDisabled={!first}
+                          playLabel={`Play ${item.title}`}
+                          onQueue={
+                            first
+                              ? () => {
+                                  enqueue(first);
+                                  rest.forEach((p) => enqueue(p));
+                                }
+                              : undefined
+                          }
+                          queueDisabled={!first}
+                          queueLabel={`Queue ${item.title}`}
+                        />
+                        <Link
+                          to={navigateTo.to}
+                          params={navigateTo.params}
+                          className="min-w-0 flex-1 truncate text-sm font-medium underline-offset-2 hover:underline"
+                        >
+                          {item.title}
+                        </Link>
                       </div>
-                      <span className="text-sm font-medium underline-offset-2 hover:underline">
-                        {item.title}
-                      </span>
-                    </Link>
-                  ) : (
-                    <div className="mt-2 flex items-center gap-3">
-                      <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-                        {item.artworkUrl ? (
-                          <img
-                            src={item.artworkUrl}
-                            alt=""
-                            className="size-full object-cover"
-                          />
-                        ) : (
-                          item.title.slice(0, 2).toUpperCase()
-                        )}
-                      </div>
-                      <Link
-                        to="/u/$username"
-                        params={{ username: item.artist.username }}
-                        className="text-sm font-medium underline-offset-2 hover:underline"
-                      >
-                        {item.title}
-                      </Link>
-                    </div>
-                  ))}
+                    );
+                  })()}
               </div>
             </li>
           ))}

@@ -1,3 +1,4 @@
+import { MessageCircleIcon } from 'lucide-react';
 import { useRef } from 'react';
 
 import { cn } from '../../lib/cn';
@@ -133,11 +134,13 @@ export function WaveformSeekbar({
       {markers?.map((marker, index) => (
         <span
           key={`marker-${index}`}
-          className="bg-accent-yellow pointer-events-none absolute top-0 size-1.5 -translate-x-1/2 rounded-full shadow"
+          className="text-accent-yellow pointer-events-none absolute top-0 -translate-x-1/2 -translate-y-1/4 drop-shadow"
           style={{
             left: `${Math.min(100, Math.max(0, marker.fraction)) * 100}%`,
           }}
-        />
+        >
+          <MessageCircleIcon size={12} className="fill-current" aria-hidden />
+        </span>
       ))}
     </div>
   );

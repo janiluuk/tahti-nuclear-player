@@ -94,7 +94,13 @@ export function BroadcastPreflightPanel() {
   return (
     <div className="border-border bg-background-secondary/30 rounded-xl border p-4">
       <div className="flex flex-col gap-4">
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
+        <div
+          className={`grid gap-3 ${
+            preflight.plannedLiveShow?.seriesId
+              ? 'sm:grid-cols-[minmax(0,1fr)_8rem]'
+              : 'sm:grid-cols-1'
+          }`}
+        >
           <label className="flex flex-col gap-1 text-sm">
             Show name
             <input
@@ -105,29 +111,34 @@ export function BroadcastPreflightPanel() {
               className="border-border bg-background h-10 rounded-md border px-3 text-sm"
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm">
-            Episode number
-            <input
-              type="number"
-              min={1}
-              value={episodeNumberInput}
-              disabled={Boolean(preflight.plannedLiveShow)}
-              onChange={(event) => {
-                const nextNumber = event.target.value;
-                setEpisodeNumberInput(nextNumber);
-                const parsedNumber = Number(nextNumber);
-                if (!Number.isInteger(parsedNumber) || parsedNumber < 1) {
-                  return;
-                }
-                const baseTitle = title.replace(/\s+#\d+$/, '').trim();
-                if (baseTitle) {
-                  setTitle(`${baseTitle} #${parsedNumber}`);
-                }
-              }}
-              onBlur={() => title.trim() && update({ title: title.trim() })}
-              className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-            />
-          </label>
+          {preflight.plannedLiveShow?.seriesId && (
+            <label className="flex flex-col gap-1 text-sm">
+              Episode number
+              <input
+                type="number"
+                min={1}
+                value={episodeNumberInput}
+                disabled={Boolean(preflight.plannedLiveShow)}
+                onChange={(event) => {
+                  const nextNumber = event.target.value;
+                  setEpisodeNumberInput(nextNumber);
+                  const parsedNumber = Number(nextNumber);
+                  if (!Number.isInteger(parsedNumber) || parsedNumber < 1) {
+                    return;
+                  }
+                  const baseTitle = title.replace(/\s+#\d+$/, '').trim();
+                  if (baseTitle) {
+                    setTitle(`${baseTitle} #${parsedNumber}`);
+                  }
+                }}
+                onBlur={() => title.trim() && update({ title: title.trim() })}
+                className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+              />
+            </label>
+          )}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
           <div className="flex flex-col gap-1 text-sm">
             Show type
             <div
