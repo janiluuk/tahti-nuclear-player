@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -12,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Button, FilterChips, Popover, Select } from '@nuclearplayer/ui';
 
-import { fetchTrackDetail } from '../api/client';
+import { fetchDirectory, fetchTrackDetail } from '../api/client';
 import {
   fetchArtistOfTheWeek,
   fetchLatestTracks,
@@ -22,7 +23,12 @@ import {
   fetchTopTracks,
 } from '../api/discover';
 import type { DiscoverArtistOfWeek } from '../api/discover';
-import type { DiscoverTrackItem, TahtiPlayable } from '../api/types';
+import {
+  isDirectoryArtistActive,
+  type ChannelDirectoryItem,
+  type DiscoverTrackItem,
+  type TahtiPlayable,
+} from '../api/types';
 import { WidgetCard } from '../components/discover/WidgetCard';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -55,6 +61,12 @@ const WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
   'artist-of-the-week': 'Random artist of the week',
   'random-artist': 'Random artist pick',
 };
+
+const TOP_LIST_WIDGET_IDS = new Set<DiscoverWidgetId>([
+  'this-week-most-played',
+  'this-week-least-played',
+  'most-played',
+]);
 
 type WidgetData = {
   loading: boolean;
@@ -94,11 +106,55 @@ export function DiscoverView() {
   const [selectedTrack, setSelectedTrack] = useState<DiscoverSelection | null>(
     null,
   );
+  const [artists, setArtists] = useState<ChannelDirectoryItem[]>([]);
+  const [artistsLoading, setArtistsLoading] = useState(true);
 
   const filters = useMemo(
     () => ({ genres: genreFilter, contentTypes: contentTypeFilter }),
     [genreFilter, contentTypeFilter],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    setArtistsLoading(true);
+    void fetchDirectory().then((result) => {
+      if (!cancelled) {
+        setArtists(
+          result.data.items.filter((artist) => artist.slug !== 'tahti-radio'),
+        );
+        setArtistsLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [contentTypeFilter, genreFilter, randomArtistRotationDays, unheardOnly]);
+
+  const filteredArtists = useMemo(() => {
+    if (genreFilter.length === 0) {
+      return artists;
+    }
+    const selectedGenres = new Set(
+      genreFilter.map((genre) => genre.toLowerCase()),
+    );
+    return artists.filter((artist) =>
+      artist.genres.some((genre) => selectedGenres.has(genre.toLowerCase())),
+    );
+  }, [artists, genreFilter]);
+
+  const carouselWidgets = useMemo(
+    () => enabledWidgets.filter((id) => !TOP_LIST_WIDGET_IDS.has(id)),
+    [enabledWidgets],
+  );
+
+  const topListWidgets = useMemo(
+    () => enabledWidgets.filter((id) => TOP_LIST_WIDGET_IDS.has(id)),
+    [enabledWidgets],
+  );
+
+  const carouselPageCount =
+    carouselWidgets.length +
+    (filteredArtists.length > 0 || artistsLoading ? 1 : 0);
 
   useEffect(() => {
     if (!unheardOnly) {
@@ -216,9 +272,9 @@ export function DiscoverView() {
 
   useEffect(() => {
     setWidgetIndex((current) =>
-      Math.min(current, Math.max(0, enabledWidgets.length - 1)),
+      Math.min(current, Math.max(0, carouselPageCount - 1)),
     );
-  }, [enabledWidgets.length]);
+  }, [carouselPageCount]);
 
   const selectTrack = async (item: DiscoverTrackItem) => {
     const detail = item.audioUrl
@@ -258,7 +314,10 @@ export function DiscoverView() {
       />
 
       <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-2">
+        <div
+          data-testid="discover-filters"
+          className="flex flex-wrap items-center gap-2"
+        >
           <Button
             size="sm"
             variant="secondary"
@@ -317,7 +376,9 @@ export function DiscoverView() {
         ) : null}
       </div>
 
-      {enabledWidgets.length > 0 && (
+      {(filteredArtists.length > 0 ||
+        artistsLoading ||
+        carouselWidgets.length > 0) && (
         <div className="relative px-10 sm:px-12">
           <button
             type="button"
@@ -335,7 +396,15 @@ export function DiscoverView() {
               className="flex transition-transform duration-500 ease-out motion-reduce:transition-none"
               style={{ transform: `translateX(-${widgetIndex * 100}%)` }}
             >
-              {enabledWidgets.map((id, index) => {
+              {(filteredArtists.length > 0 || artistsLoading) && (
+                <div className="min-w-full">
+                  <ArtistCarousel
+                    artists={filteredArtists}
+                    loading={artistsLoading}
+                  />
+                </div>
+              )}
+              {carouselWidgets.map((id, index) => {
                 const widgetData = data[id];
                 return (
                   <div key={id} className="min-w-full">
@@ -357,7 +426,7 @@ export function DiscoverView() {
                           : 'Nothing here yet.'
                       }
                       canMoveUp={index > 0}
-                      canMoveDown={index < enabledWidgets.length - 1}
+                      canMoveDown={index < carouselWidgets.length - 1}
                       onMove={moveWidget}
                       onRemove={removeWidget}
                       onSelectTrack={(track) => void selectTrack(track)}
@@ -390,17 +459,43 @@ export function DiscoverView() {
             className="border-border bg-background text-foreground hover:border-primary absolute top-1/2 right-0 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-30"
             onClick={() =>
               setWidgetIndex((current) =>
-                Math.min(enabledWidgets.length - 1, current + 1),
+                Math.min(carouselPageCount - 1, current + 1),
               )
             }
-            disabled={widgetIndex === enabledWidgets.length - 1}
+            disabled={widgetIndex === carouselPageCount - 1}
             aria-label="Next discovery widget"
           >
             <ChevronRightIcon size={18} aria-hidden />
           </button>
           <p className="text-foreground-secondary mt-2 text-center text-xs tabular-nums">
-            {widgetIndex + 1} / {enabledWidgets.length}
+            {widgetIndex + 1} / {carouselPageCount}
           </p>
+        </div>
+      )}
+
+      {topListWidgets.length > 0 && (
+        <div className="flex flex-col gap-4">
+          {topListWidgets.map((id) => {
+            const widgetData = data[id];
+            return (
+              <WidgetCard
+                key={id}
+                id={id}
+                title={WIDGET_LABELS[id]}
+                subtitle={widgetData?.subtitle}
+                loading={widgetData?.loading ?? true}
+                items={widgetData?.items ?? []}
+                artist={widgetData?.artist}
+                showRank
+                emptyMessage="Nothing here yet."
+                canMoveUp={false}
+                canMoveDown={false}
+                onMove={moveWidget}
+                onRemove={removeWidget}
+                onSelectTrack={(track) => void selectTrack(track)}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -435,6 +530,79 @@ export function DiscoverView() {
         </div>
       )}
     </PageFrame>
+  );
+}
+
+function ArtistCarousel({
+  artists,
+  loading,
+}: {
+  artists: ChannelDirectoryItem[];
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <section className="border-border bg-background-secondary flex min-h-[280px] items-center justify-center rounded-md border p-4">
+        <p className="text-foreground-secondary text-sm">Loading artists…</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="flex flex-col gap-3" aria-label="Discover artists">
+      <div className="flex items-baseline justify-between gap-3">
+        <div>
+          <h2 className="font-display text-xl font-bold">Discover artists</h2>
+          <p className="text-foreground-secondary mt-1 text-sm">
+            Artists from the Listen directory, filtered for your picks.
+          </p>
+        </div>
+        <span className="text-foreground-secondary text-xs tabular-nums">
+          {artists.length} artists
+        </span>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {artists.map((artist) => (
+          <Link
+            key={artist.slug}
+            to="/u/$username"
+            params={{ username: artist.username }}
+            className="group border-border bg-background-secondary shadow-shadow relative h-48 overflow-hidden rounded-xl border transition-transform hover:-translate-y-1"
+          >
+            {artist.avatarUrl ? (
+              <img
+                src={artist.avatarUrl}
+                alt=""
+                className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <div className="bg-primary text-primary-foreground absolute inset-0 flex items-center justify-center text-6xl font-bold">
+                {artist.displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/40 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-4">
+              <div className="min-w-0 text-white">
+                <h3 className="truncate text-lg font-bold">
+                  {artist.displayName}
+                </h3>
+                <p className="truncate text-xs text-white/75">
+                  @{artist.username}
+                  {artist.genres.length > 0
+                    ? ` · ${artist.genres.slice(0, 2).join(', ')}`
+                    : ''}
+                </p>
+              </div>
+              {isDirectoryArtistActive(artist) ? (
+                <span className="bg-accent-cyan text-accent-foreground shrink-0 rounded-full px-2 py-1 text-[10px] font-bold tracking-wide uppercase">
+                  Live
+                </span>
+              ) : null}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 

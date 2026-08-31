@@ -1,11 +1,16 @@
 import { auroraPreset } from './presets/aurora';
+import { backdropAreaPreset } from './presets/backdropArea';
 import { backdropBoxPreset } from './presets/backdropBox';
 import { cloudscapePreset } from './presets/cloudscape';
+import { colorInstancesPreset } from './presets/colorInstances';
+import { fatLinesPreset } from './presets/fatLines';
 import { iesSpotlightPreset } from './presets/iesSpotlight';
+import { interactivePointsPreset } from './presets/interactivePoints';
 import { lensFlaresPreset } from './presets/lensFlares';
 import { lineTanglePreset } from './presets/lineTangle';
 import { particleFieldPreset } from './presets/particleField';
 import { reactiveGridPreset } from './presets/reactiveGrid';
+import { videoKinectPreset } from './presets/videoKinect';
 import { waterRipplePreset } from './presets/waterRipple';
 import { waveformBarsPreset } from './presets/waveformBars';
 import type { VisualizerPreset } from './types';
@@ -28,6 +33,11 @@ export const visualizerPresets: VisualizerPreset[] = [
   backdropBoxPreset,
   lensFlaresPreset,
   iesSpotlightPreset,
+  interactivePointsPreset,
+  fatLinesPreset,
+  videoKinectPreset,
+  backdropAreaPreset,
+  colorInstancesPreset,
 ];
 
 const presetById = new Map(visualizerPresets.map((p) => [p.id, p]));

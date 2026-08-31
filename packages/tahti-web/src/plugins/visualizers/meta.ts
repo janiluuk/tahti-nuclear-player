@@ -1,15 +1,20 @@
 import {
   AudioLines,
+  CircleDot,
   Cloud,
   Droplets,
   Flashlight,
   Grid3x3,
+  Grip,
+  Layers,
+  ScanEye,
   Slash,
   Sparkles,
   Spline,
   Square,
   Sun,
   Waves,
+  Waypoints,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -59,6 +64,26 @@ export const VISUALIZER_METADATA: Record<VisualPreset, VisualizerMetadata> = {
   IES_SPOTLIGHT: {
     description: 'Spotlight-style beam sweep.',
     Icon: Flashlight,
+  },
+  INTERACTIVE_POINTS: {
+    description: 'A point grid that ripples outward with the beat.',
+    Icon: Grip,
+  },
+  FAT_LINES: {
+    description: 'Thick ribbon lines that bounce with the beat.',
+    Icon: Waypoints,
+  },
+  VIDEO_KINECT: {
+    description: 'A depth-cloud scan of the channel artwork.',
+    Icon: ScanEye,
+  },
+  BACKDROP_AREA: {
+    description: 'A glowing backdrop with camera kicks on the beat.',
+    Icon: Layers,
+  },
+  COLOR_INSTANCES: {
+    description: 'Instanced particles on flowing paths, tuned to your palette.',
+    Icon: CircleDot,
   },
 };
 
