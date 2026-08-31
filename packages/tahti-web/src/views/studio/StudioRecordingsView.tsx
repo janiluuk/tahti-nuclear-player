@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CheckIcon, RadioIcon, SearchIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, Select } from '@nuclearplayer/ui';
 
 import {
   fetchRecentBroadcasts,
@@ -147,16 +147,17 @@ export function StudioRecordingsView({
             aria-label="Search recordings"
             endAddon={<SearchIcon size={16} aria-hidden />}
           />
-          <select
+          <Select
+            label="Sort recordings"
             value={sort}
-            onChange={(event) => setSort(event.target.value as typeof sort)}
-            aria-label="Sort recordings"
-            className="border-border bg-background h-10 rounded-md border px-3 text-sm sm:w-44"
-          >
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
-            <option value="title">Title A–Z</option>
-          </select>
+            onValueChange={(value) => setSort(value as typeof sort)}
+            options={[
+              { id: 'newest', label: 'Newest first' },
+              { id: 'oldest', label: 'Oldest first' },
+              { id: 'title', label: 'Title A–Z' },
+            ]}
+            className="sm:w-44"
+          />
         </div>
         {loading ? (
           <PageLoading label="Loading…" />

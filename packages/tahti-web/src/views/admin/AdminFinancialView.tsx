@@ -1,7 +1,7 @@
 import { PlusIcon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, Select } from '@nuclearplayer/ui';
 
 import {
   createLedgerEntry,
@@ -119,17 +119,16 @@ export function AdminFinancialView() {
                   {showForm && (
                     <div className="border-border mb-4 flex flex-col gap-2 border-b pb-4">
                       <div className="flex flex-wrap gap-2">
-                        <select
+                        <Select
+                          label="Category"
                           value={category}
-                          onChange={(e) => setCategory(e.target.value)}
-                          className="border-border bg-background rounded-md border px-2 py-1.5 text-xs"
-                        >
-                          {LEDGER_CATEGORIES.map((c) => (
-                            <option key={c} value={c}>
-                              {categoryLabel(c)}
-                            </option>
-                          ))}
-                        </select>
+                          onValueChange={setCategory}
+                          options={LEDGER_CATEGORIES.map((ledgerCategory) => ({
+                            id: ledgerCategory,
+                            label: categoryLabel(ledgerCategory),
+                          }))}
+                          className="min-w-52"
+                        />
                         <Input
                           placeholder="Amount (€, negative for cost)"
                           value={amount}

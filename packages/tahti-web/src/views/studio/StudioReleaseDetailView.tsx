@@ -22,6 +22,7 @@ import {
   FilePicker,
   Input,
   SaveButton,
+  Select,
   Tabs,
   Textarea,
 } from '@nuclearplayer/ui';
@@ -767,25 +768,19 @@ function ReleaseSmartLinksPanel({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <label className="text-foreground-secondary flex flex-col gap-1 text-xs uppercase">
-            <span>Type</span>
-            <select
-              value={contentType}
-              onChange={(event) => setContentType(event.target.value)}
-              className="border-border bg-background text-foreground h-10 rounded-md border px-2 text-sm normal-case"
-            >
-              <option value="ALL">All content</option>
-              {[
+          <Select
+            label="Type"
+            value={contentType}
+            onValueChange={setContentType}
+            options={[
+              { id: 'ALL', label: 'All content' },
+              ...[
                 ...new Set(
                   archive.map((item) => item.contentType).filter(Boolean),
                 ),
-              ].map((type) => (
-                <option key={type} value={type ?? ''}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </label>
+              ].map((type) => ({ id: type ?? '', label: type ?? '' })),
+            ]}
+          />
           <SearchIcon
             size={16}
             className="text-foreground-secondary mt-7"
