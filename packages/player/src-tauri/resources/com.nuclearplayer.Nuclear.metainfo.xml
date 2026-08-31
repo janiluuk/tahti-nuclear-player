@@ -84,6 +84,126 @@
   </requires>
 
   <releases>
+    <release version="1.47.4" date="2026-09-01">
+      <description>
+        <ul>
+          <li>Discover now puts all recommended artists in a prominent banner row, with quick filtering and a one-click way to clear the filter.</li>
+          <li>Discover widgets now move smoothly with side arrows, and selecting a track opens an inline waveform player for quick listening and seeking.</li>
+          <li>All Discover page widgets, including Random artist, are now available from Add-ons → Discovery and can be added with one click.</li>
+          <li>The export list now focuses on the supported destinations, making it easier to choose where to send your releases.</li>
+          <li>New releases now start with a polished particle background by default, with settings to choose a visualizer, randomize it, or turn it off.</li>
+          <li>Release pages now keep the title and artist visible over the artwork, offer one clear embed action, and make playing tracks easy to spot.</li>
+          <li>Go Live now puts a compact show-info confirmation directly above the encoder controls, with a clear save confirmation and quick avatar upload.</li>
+          <li>The Import add-on list now shows only working import sources, with duplicate inactive Nuclear Store entries removed.</li>
+          <li>EP collections now keep their correct content type when you open them in the editor instead of being mislabeled as albums.</li>
+          <li>Collection pages now open with their backdrop and a subtle cover-art ambience, while collections without artwork receive a polished default cover. Visibility is shown clearly as a header badge.</li>
+          <li>Library Recordings now keeps Collections selected in navigation, uses the correct page heading, and offers the same search-and-sort browsing experience as Sounds.</li>
+          <li>Broadcast multistream settings now show only multicast providers, with every setup and connection change contained in a focused dialog.</li>
+          <li>Source connections and imports now live under Settings → Broadcast → Multistream, keeping Library focused on your actual content.</li>
+          <li>HearThis embed tracks can now be downloaded from the track editor when downloads are enabled, and collection content uses the same clear listing style as Sounds.</li>
+          <li>Library Sounds is cleaner without a repeated heading or upload button, and Recordings now uses the same easy-to-scan listing style.</li>
+          <li>Track quick edits are now grouped in one menu, while rotation and private-stash actions live with playlist tools where they are easier to find.</li>
+          <li>Track rows now reserve filled button backgrounds for active playback and pinned states, keeping inactive actions lighter and easier to scan.</li>
+          <li>Admin moderation filters now have more breathing room, and Support search stays in a clear responsive toolbar for faster queue triage.</li>
+          <li>Admin Overview is less crowded: Vendors and the Tahti map now have their own menu entries, with the map showing the correct Admin navigation.</li>
+          <li>Saving channel look changes no longer gets blocked by a separate slideshow error, and the live channel now reflects the selected backdrop style and visualizer.</li>
+          <li>The full-screen editor’s Look panel now opens directly into Backdrop design and Player design, without an extra Channel appearance layer.</li>
+          <li>Player design now has clear Gradient, Video / Image, and Visualizer tabs, while backdrop panels use shorter labels and less repeated text.</li>
+          <li>Full-screen Channel Editor now gives the right-side menu more room and opens the relevant Look controls automatically when you select the channel header or live stage.</li>
+          <li>Clicking a visualizer icon now opens a full preset picker with animated previews, descriptions, and a clear way to apply your choice.</li>
+          <li>Channel Designer now keeps Save layout and Open my channel alongside its heading, leaving more room for the actual design controls and preview.</li>
+          <li>Settings and other dialogs now open without the brief flicker before their dark-themed content appears.</li>
+          <li>Channel Designer now keeps the Save layout action at the top, directly above the link to open your channel.</li>
+          <li>Channel Designer now starts with Artist backdrop banner controls, followed by Player design, matching the order you use to shape the channel.</li>
+          <li>Artist backdrop settings are now shown in one straightforward section, without separate Color scheme or Header tabs to navigate between.</li>
+          <li>Channel Designer now treats Slideshow as a fourth Header mode, with its settings shown directly below the Header choices.</li>
+          <li>Channel Designer now presents Gradient as one focused Header workspace, without an empty Color scheme tab competing with the main controls.</li>
+          <li>Visualizer cards now show only the useful preset details, removing the redundant Visualizer label that crowded the controls.</li>
+          <li>Disabled visualizers are now clearly grayed out in Channel Designer, while the Enable control stays available to turn them back on.</li>
+          <li>Header design now keeps Gradient colors and Slideshow settings together, making backdrop configuration easier to understand and manage.</li>
+          <li>Gradient header colors are now edited directly inside Header, keeping the complete gradient design in one place.</li>
+          <li>Opening Settings and other dialogs no longer briefly flashes the light theme when you are using Tahti dark mode.</li>
+          <li>Channel Designer now lets you turn visualizations off and back on, with the wider visualization controls placed on the right beside the live page preview.</li>
+          <li>Channel Designer now keeps editing controls in collapsible side panels, shows a realistic artist page preview, and provides a direct link to your channel.</li>
+          <li>Studio Governance now keeps motions and community topics together as clear tabs, so every governance page is easy to find in one place. Upload source widgets also provide one dialog for connection and enablement, while Local upload no longer appears as a duplicate source.</li>
+          <li>Multicast now uses a focused Add source flow: choose a provider thumbnail, configure it, and test the connection in one dialog.</li>
+          <li>Multicast now makes active destinations stand out clearly, while disabled and unconfigured services use a muted outline treatment.</li>
+          <li>Sources are now clearly grouped into enabled and configured integrations versus disabled or unfinished ones, with muted rows and explicit Enable buttons.</li>
+          <li>Tahti Radio and Tahti Selects now show separate rotations in Admin, while the obsolete Manage menu has been removed.</li>
+          <li>Missed shows is no longer duplicated in Admin Community because it is already available under Moderation.</li>
+          <li>Tahti Selects now has one clear home in Admin → Content, alongside Radio, without a duplicate Studio navigation entry.</li>
+          <li>Channel and Radio are now grouped under Perform, making live setup and broadcasting controls easier to find together.</li>
+          <li>Studio Governance now keeps motions and feature requests together as clear page tabs, with no unrelated map link in the section.</li>
+          <li>Channel moderation is now organized under Settings → Channel &amp; design, keeping channel setup and moderation controls together.</li>
+          <li>Library navigation is now simpler: Collections contains Recordings, Media, and Stash as tabs, while Sources has inline configuration, connection, and opt-in enable controls.</li>
+          <li>Sound editing now puts the artwork, title, playback state, and waveform seekbar together in one clear banner, with compact editing actions underneath.</li>
+          <li>Admin → Content now gives Tahti Selects its own tab under Radio, with a searchable multi-select picker for building the editorial rotation.</li>
+          <li>Green Room is no longer duplicated in Manage because it is already available in Settings.</li>
+          <li>The Tahti map is now organized under Admin → Overview instead of taking up a separate place in the main navigation.</li>
+          <li>Fixed a navigation error that could stop the app from rendering when opening a Studio tab with URL parameters.</li>
+          <li>Multicast now lives under Perform with Go Live and Schedule, and its page is clearly titled Multicast with the correct active navigation state.</li>
+          <li>Studio pages no longer reserve a blank side column for navigation; the content now starts directly beside the main sidebar and uses the available width.</li>
+          <li>Perform's Go Live, Schedule, Events, and Shows links now sit across the top of the content, giving the pages their full width instead of leaving a side column.</li>
+          <li>Studio navigation now highlights exactly one destination at a time, so Studio no longer stays lit when you are in Library, Perform, or Manage.</li>
+          <li>Studio, Library, Perform, and Manage are now separate main-menu destinations, so moving between them no longer feels like drilling into Studio.</li>
+          <li>Studio navigation is now easier to scan: Studio, Library, Perform, and Manage live together in the main menu, while each area's pages sit in a compact bar above the content.</li>
+          <li>Go Live now reminds you to add a show name before taking over the rotation, with a direct link to the right Info tab.</li>
+          <li>The radio schedule now opens on your own upcoming shows, with a compact two-week overview and shareable station filters.</li>
+          <li>Tahti's dark theme now keeps active navigation readable when hovered, and dropdown menus use a calm dark surface instead of a wall of amber.</li>
+          <li>Clicking your own radio schedule slot now opens an edit dialog instead of instantly deleting it — cancelling now needs a confirmation step too.</li>
+          <li>Fixed hearthis.at tracks imported into your library sometimes not playing at all from Library or artist pages.</li>
+          <li>Themes with their own visual settings now show a configure icon that opens a modal with a live preview, instead of an always-visible form on the main Themes page.</li>
+          <li>Radio station cover images in Settings → Add-ons can now be uploaded directly instead of only pasted as a URL.</li>
+          <li>Fixed a flashing orange loading stripe appearing at the top of the screen while navigating Studio.</li>
+          <li>Release artwork in Studio now uploads via a hover button on the cover, instead of a permanently-visible upload form.</li>
+          <li>The front page now shows a "Continue listening" card for the last thing you played, and marks which on-air channel you're currently listening to.</li>
+          <li>Radio station previews in Settings → Add-ons now show a play button instead of a settings icon, and it sits with the station's other controls.</li>
+          <li>Your feed's track thumbnails now show play and queue buttons directly on the artwork, matching the rest of the app.</li>
+          <li>Queueing a whole album or artist's tracks now asks for confirmation first, so one click can't silently dump a full discography into your queue.</li>
+          <li>Perform → Go Live now has an Info tab built in, so setting your show name and details no longer means leaving the Go Live page.</li>
+          <li>Admin → Logs now shows real entries for storage uploads/deletes and track encoding jobs, including how long each one took.</li>
+          <li>Fixed several Studio and Admin pages (Branding, Playlists, Venues, and a couple of others) not highlighting any navigation tab as active.</li>
+          <li>Channel Designer's backdrop can now be set to an uploaded image, not just a video loop or gradient.</li>
+          <li>Settings → Artist's profile image picker is now a compact circle with an upload button that appears on hover, instead of a large always-visible drop zone.</li>
+          <li>Settings → Channel &amp; Design's visualizer preview now actually shows the visualizer when nothing else is using it, instead of always staying blank.</li>
+          <li>Removed duplicate Bandcamp and SoundCloud entries from Settings → Add-ons → Nuclear plugins.</li>
+          <li>Channel Designer's visualizer tuning controls now always sit right below the preset picker, instead of sometimes appearing in a separate panel.</li>
+          <li>Admin's Vendors page is now reachable only as a tab on the Admin dashboard, removing the redundant standalone entry from the left-hand menu.</li>
+          <li>Fixed Admin storage always showing 0B total used, even for accounts with real uploads.</li>
+          <li>Admin file listings now show file size and type at a glance, can be sorted, and open a full detail view — including a direct link to edit the uploader's account.</li>
+          <li>Saving a track now shows a confirmation toast instead of a message tucked away in the form.</li>
+          <li>The player bar's queue button moved to the outer corner, and its badge now only shows once you actually have more than one track queued.</li>
+          <li>Studio tracks can now be mastered to match a reference track's loudness and tone, right in the browser — upload a reference from the track or audio editor and get a downloadable, matched WAV back.</li>
+          <li>Favoriting a hearthis.at track from its own page now actually plays back later from Favorites, instead of silently doing nothing.</li>
+          <li>Tracks that only play through a provider widget (Spotify, Bandcamp, hearthis.at, Mixcloud) can no longer be added to the 24/7 rotation or opened in the audio editor, where they'd never actually play.</li>
+          <li>What's New now shows one entry per week, so a busy week of updates reads as a single summary instead of a wall of near-identical rows.</li>
+          <li>Comments on tracks that only play through a provider widget (Spotify, Bandcamp, hearthis.at, Mixcloud) no longer get a misleading [0:00] timestamp.</li>
+          <li>Bandcamp tracks now play in-app through the Bandcamp widget, and a track's own page plays Spotify/Bandcamp/hearthis.at/Mixcloud tracks the same way.</li>
+          <li>Help Center add-on entries now explain what each one does, not just how to turn it on.</li>
+          <li>Help Center now lists every ready add-on with its category, state, and how to turn it on.</li>
+          <li>Listener track pages now use a full-width waveform hero with timed comments, tracklist cues, and related collections.</li>
+          <li>Tahti theme now uses ink text on light cyan, green, yellow, and coral fills so labels stay readable.</li>
+          <li>Removed the Channel and 24/7 radio tabs from the channel design page; Radio stays in the Manage sidebar.</li>
+          <li>Moved broadcast show details to a Perform Info tab, with visibility on the main form, so Go Live opens on the live panel.</li>
+          <li>Artist channel editor now keeps look controls under the visualizer preset in one taller preview card, instead of overlaying them on the animation.</li>
+          <li>Moved the player full-screen control to the right edge of the bar, shows the queue count on that icon, and removed the hide-player button.</li>
+          <li>Library’s left navigation now starts with Overview and includes a dedicated Collections item.</li>
+          <li>Library now keeps its overview statistics separate while Sounds owns the Sounds, Collections, Recordings, and Media tabs; duplicate Media rendering was removed.</li>
+          <li>Library track detail pages now use a consistent readable width and have a dedicated fixed-width Storybook reference story.</li>
+          <li>Renamed the Stash Files tab to Move to stash for clearer action-oriented navigation.</li>
+          <li>Library now has a dedicated Sounds tab for the sound catalog and overview, with a direct /library/sounds route.</li>
+          <li>Archive track detail pages now keep Library selected and expose Tracks as the active Library submenu destination.</li>
+          <li>Added Transparency as a tab alongside Governance and feature requests in the More navigation section.</li>
+          <li>Added Governance to the More navigation tree with direct links to motions and feature requests.</li>
+          <li>Fixed the Audience overview statistics cards overflowing the Studio content area on wide screens.</li>
+          <li>Broadcast multistream settings now place the form for adding a new destination above the configured destinations.</li>
+          <li>Two-factor authentication setup now shows a scannable authenticator QR code with a manual setup-key fallback.</li>
+          <li>Ported the full press-kit workflow into Artist Branding: direct photo uploads, drag reordering, per-photo titles and ZIP inclusion, plus an empty-kit state and promoter preview.</li>
+          <li>Governance links opened from Account now close the settings panel so the destination page is visible, and artist gallery uploads use a compact drag-and-drop dialog.</li>
+          <li>Artist-owned 24/7 channels can now contain unlimited rotation tracks; the five-track cap remains reserved for Tahti Radio and Tahti Selects.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.46.2" date="2026-08-10">
       <description>
         <ul>
