@@ -274,7 +274,7 @@ function ShowRow({
 }) {
   return (
     <li className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
-      <div className="border-border bg-background-secondary flex h-12 w-12 items-center justify-center overflow-hidden rounded border">
+      <div className="border-border bg-background-secondary flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
         {show.coverUrl ? (
           <img
             src={show.coverUrl}
@@ -282,7 +282,7 @@ function ShowRow({
             className="h-full w-full object-cover"
           />
         ) : (
-          <RadioIcon size={20} className="opacity-40" aria-hidden />
+          <RadioIcon size={28} className="opacity-40" aria-hidden />
         )}
       </div>
       <div className="min-w-0 flex-1">

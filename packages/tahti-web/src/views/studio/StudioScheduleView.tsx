@@ -763,7 +763,7 @@ export function StudioScheduleView() {
                         <img
                           src={show.artworkUrl}
                           alt=""
-                          className="size-10 rounded-md object-cover"
+                          className="size-16 shrink-0 rounded-lg object-cover"
                         />
                       ) : null}
                       <div className="min-w-0">
