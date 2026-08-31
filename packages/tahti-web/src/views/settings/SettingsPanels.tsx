@@ -30,7 +30,7 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
 import {
@@ -109,6 +109,7 @@ import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { MentionTextarea } from '../../components/MentionTextarea';
 import { MulticastSection } from '../../components/MulticastSection';
+import { PageLoading } from '../../components/PageStates';
 import { PluginStorePanel } from '../../components/PluginStorePanel';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { SocialLinkIcon } from '../../components/SocialLinkIcon';
@@ -131,12 +132,17 @@ import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelShareStore } from '../../stores/channelShareStore';
 import { useSettingsModalStore } from '../../stores/settingsModalStore';
-import { GovernanceView } from '../GovernanceView';
 import { StudioBrandingPanel } from '../studio/StudioBrandingView';
 import { StudioModerationView } from '../studio/StudioModerationView';
 import { WhatsNewPanel } from '../WhatsNewView';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
 import { SETTINGS_NAV, type SettingsSectionId } from './settingsNav';
+
+const GovernanceView = lazy(() =>
+  import('../GovernanceView').then((module) => ({
+    default: module.GovernanceView,
+  })),
+);
 
 const PRONOUN_OPTIONS: SelectOption[] = [
   { id: 'she/her', label: 'she/her' },
@@ -452,7 +458,11 @@ function AccountPanel() {
         {
           id: 'governance',
           label: tabLabel(Landmark, 'Governance'),
-          content: <GovernanceView />,
+          content: (
+            <Suspense fallback={<PageLoading label="Loading governance…" />}>
+              <GovernanceView />
+            </Suspense>
+          ),
         },
         {
           id: 'storage',

@@ -48,3 +48,33 @@ export const AllStates: Story = {
     );
   },
 };
+
+export const RetryAfterUploadError: Story = {
+  render: () => {
+    const [selectedFiles, setSelectedFiles] = useState<readonly File[]>([]);
+    const [message, setMessage] = useState('');
+
+    return (
+      <div className="flex max-w-xl flex-col gap-3">
+        <FilePicker
+          labels={{
+            title: 'Cover artwork',
+            description: 'The same file can be selected again after an error.',
+            browse: 'Choose image',
+          }}
+          accept="image/*"
+          selectedFiles={selectedFiles}
+          onFiles={(files) => {
+            setSelectedFiles(files);
+            setMessage(
+              files[0] ? `Selected ${files[0].name}` : 'No file selected',
+            );
+          }}
+        />
+        <p className="text-foreground-secondary text-xs" role="status">
+          {message || 'Select an image to verify the retryable input behavior.'}
+        </p>
+      </div>
+    );
+  },
+};

@@ -8,6 +8,7 @@ import { StudioChannelView } from '@tahti-web/views/studio/StudioChannelView';
 import { StudioCollectionsView } from '@tahti-web/views/studio/StudioCollectionsView';
 import { StudioDistributionView } from '@tahti-web/views/studio/StudioDistributionView';
 import { StudioEventsView } from '@tahti-web/views/studio/StudioEventsView';
+import { StudioGovernanceView } from '@tahti-web/views/studio/StudioGovernanceView';
 import { StudioModerationView } from '@tahti-web/views/studio/StudioModerationView';
 import { StudioReleasesView } from '@tahti-web/views/studio/StudioReleasesView';
 import { StudioRevenueView } from '@tahti-web/views/studio/StudioRevenueView';
@@ -74,6 +75,14 @@ export const StudioStats: Story = {
   },
   decorators: [withTahtiRouter('/studio/stats'), withMockAuth()],
   render: () => <StudioStatsView />,
+};
+
+export const StudioGovernance: Story = {
+  parameters: {
+    docs: { description: { story: 'Lives on Studio → Governance.' } },
+  },
+  decorators: [withTahtiRouter('/studio/governance'), withMockAuth()],
+  render: () => <StudioGovernanceView />,
 };
 
 export const StudioUpload: Story = {

@@ -1,6 +1,7 @@
 {
   "surface": "beta.tahti.live",
   "capturedAt": "2026-08-31",
+  "generatedBy": "scripts/capture-map-screens.mjs",
   "images": [
     {
       "file": "about.png",
