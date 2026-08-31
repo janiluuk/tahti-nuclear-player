@@ -18,6 +18,7 @@ import {
   FilePicker,
   Input,
   SaveButton,
+  Textarea,
 } from '@nuclearplayer/ui';
 
 import {
@@ -104,11 +105,11 @@ function EpisodeEditorRow({
           <span className="text-foreground-secondary text-xs uppercase">
             Description
           </span>
-          <textarea
+          <Textarea
+            tone="secondary"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             rows={3}
-            className="border-border bg-background rounded-md border px-3 py-2"
           />
         </label>
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -455,11 +456,11 @@ export function StudioShowDetailView({ id }: { id: string }) {
                       <span className="text-foreground-secondary text-xs uppercase">
                         Description
                       </span>
-                      <textarea
+                      <Textarea
+                        tone="secondary"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={3}
-                        className="border-border bg-background rounded-md border px-3 py-2"
                       />
                     </label>
                     <ShowImagePicker
@@ -892,11 +893,11 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
               <span className="text-foreground-secondary text-xs uppercase">
                 Description
               </span>
-              <textarea
+              <Textarea
+                tone="secondary"
                 value={publicDescription}
                 onChange={(event) => setPublicDescription(event.target.value)}
                 rows={4}
-                className="border-border bg-background rounded-md border px-3 py-2"
               />
             </label>
             <div className="flex justify-end">

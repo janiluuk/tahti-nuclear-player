@@ -3,7 +3,14 @@ import { ImagePlusIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, Select, Tabs, Toggle } from '@nuclearplayer/ui';
+import {
+  Button,
+  Input,
+  Select,
+  Tabs,
+  Textarea,
+  Toggle,
+} from '@nuclearplayer/ui';
 
 import {
   fetchDiscoveryPrefs,
@@ -336,12 +343,12 @@ export function OnboardingView() {
                         <span className="text-foreground-secondary text-xs uppercase">
                           Bio
                         </span>
-                        <textarea
+                        <Textarea
+                          tone="secondary"
                           value={bio}
                           onChange={(e) => setBio(e.target.value)}
                           rows={9}
                           placeholder="Tell listeners what you do…"
-                          className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 text-sm outline-none"
                         />
                       </label>
                     </div>

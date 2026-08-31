@@ -2813,3 +2813,19 @@ Updated the handful of remaining `/sources` references that were either live nav
 **Also:** added an explicit versioning rule to `AGENTS.md` (§ Agent workflow, step 6) -- `packages/tahti-web/package.json`'s `version` had been sitting at `0.0.1` through eight rounds of shipped work, making it useless as a build signal. Bumped to `0.0.2` for this round; future commits that ship a user-visible change here should bump it too (one bump per commit, not per slice).
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean.
+
+## 2026-08-31 — Backlog round 10: five slices closed; bump to 0.0.3
+
+Continuing the native-`<textarea>`-to-shared-`Textarea` sweep (WORKPLAN "replace hand-styled native controls") across five more description/summary/bio fields, all the same pattern closed in rounds 7-9:
+
+**Slice 1:** `OnboardingView`'s profile Bio field.
+
+**Slice 2:** `FanTiersEditor`'s fan-tier Description field.
+
+**Slice 3:** `AdminNewsView`'s Summary field, both copies (compose dialog and inline edit).
+
+**Slice 4:** `StudioShowsView`'s show Description field.
+
+**Slice 5:** `StudioShowDetailView`'s three independent Description fields (episode edit, show edit dialog, and the public-facing episode description form).
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.3` per the round-9 versioning rule.

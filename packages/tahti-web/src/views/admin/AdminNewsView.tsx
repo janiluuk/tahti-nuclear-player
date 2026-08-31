@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input, SaveButton } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, SaveButton, Textarea } from '@nuclearplayer/ui';
 
 import {
   createNewsPost,
@@ -130,11 +130,11 @@ export function AdminNewsView() {
                             <span className="text-foreground-secondary text-xs uppercase">
                               Summary
                             </span>
-                            <textarea
+                            <Textarea
+                              tone="secondary"
                               value={editSummary}
                               onChange={(e) => setEditSummary(e.target.value)}
                               rows={3}
-                              className="border-border bg-background rounded-md border px-3 py-2"
                             />
                           </label>
                           <ImageUploadField
@@ -313,11 +313,11 @@ export function AdminNewsView() {
                   <span className="text-foreground-secondary text-xs uppercase">
                     Short summary
                   </span>
-                  <textarea
+                  <Textarea
+                    tone="secondary"
                     value={summary}
                     onChange={(e) => setSummary(e.target.value)}
                     rows={3}
-                    className="border-border bg-background rounded-md border px-3 py-2"
                   />
                 </label>
                 <ImageUploadField

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
 
 import {
   createFanTier,
@@ -203,11 +203,11 @@ export function FanTiersEditor() {
               <span className="text-foreground-secondary text-xs uppercase">
                 Description
               </span>
-              <textarea
+              <Textarea
+                tone="secondary"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
-                className="border-border bg-background rounded-md border px-3 py-2 outline-none"
               />
             </label>
             <div className="flex flex-wrap gap-2">

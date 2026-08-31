@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { MicIcon, PlusIcon, RadioIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
 
 import {
   createShowSeries,
@@ -137,11 +137,11 @@ export function StudioShowsView() {
                 <span className="text-foreground-secondary text-xs uppercase">
                   Description
                 </span>
-                <textarea
+                <Textarea
+                  tone="secondary"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                  className="border-border bg-background rounded-md border px-3 py-2"
                   placeholder="Copied to every new episode"
                 />
               </label>
