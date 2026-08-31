@@ -746,32 +746,6 @@ export function ArtistView({ username }: { username: string }) {
             </Link>
           ) : null}
         </div>
-        {artist.socialLinks?.showConnections !== 'false' &&
-        profileEmbeds.length > 0 ? (
-          <div className="grid gap-3 lg:grid-cols-2" aria-label="Artist embeds">
-            {profileEmbeds.map((embed) => {
-              return (
-                <div
-                  key={`${embed.label}-${embed.url}`}
-                  className="border-border bg-background/40 overflow-hidden rounded-xl border"
-                >
-                  <div className="text-foreground-secondary px-3 py-2 text-xs font-semibold tracking-wide uppercase">
-                    {embed.label}
-                  </div>
-                  <iframe
-                    title={`${embed.label} profile`}
-                    src={embed.url}
-                    width="100%"
-                    height={embed.height}
-                    className="block w-full border-0"
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    loading="lazy"
-                  />
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
         {artist.bio ? (
           <p className="text-foreground max-w-3xl text-sm whitespace-pre-wrap">
             {artist.bio}
@@ -1428,6 +1402,34 @@ export function ArtistView({ username }: { username: string }) {
           />
         </div>
       )}
+
+      {artist.socialLinks?.showConnections !== 'false' &&
+      profileEmbeds.length > 0 ? (
+        <section className="flex flex-col gap-3">
+          <Eyebrow>Elsewhere</Eyebrow>
+          <div className="grid gap-3 lg:grid-cols-2" aria-label="Artist embeds">
+            {profileEmbeds.map((embed) => (
+              <div
+                key={`${embed.label}-${embed.url}`}
+                className="border-border bg-background/40 overflow-hidden rounded-xl border"
+              >
+                <div className="text-foreground-secondary px-3 py-2 text-xs font-semibold tracking-wide uppercase">
+                  {embed.label}
+                </div>
+                <iframe
+                  title={`${embed.label} profile`}
+                  src={embed.url}
+                  width="100%"
+                  height={embed.height}
+                  className="block w-full border-0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <ReleaseTracklistDialog
         isOpen={Boolean(tracklistRelease)}
