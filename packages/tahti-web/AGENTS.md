@@ -37,6 +37,12 @@ in both when a task spans the boundary.
 4. `https://api.tahti.live/api` — the live, deployed public API reference (Scalar UI over
    `openapi.public.json`, served by `tahti/apps/api/src/routes/public-api-docs.ts`); only covers the
    public-facing surface, not internal/authenticated-only routes.
+5. [`docs/API-REFERENCE.md`](docs/API-REFERENCE.md) — this package's own written notes on which
+   contract areas the client actually uses and the permission boundaries to check before adding a
+   view; not a replacement for (1)-(3), a map onto them. It carries a `pnpm check:api-docs`
+   (`scripts/check-api-docs.mjs`)-enforced SHA-256 marker over `tahti/openapi.json`'s path set — run
+   that script (needs `../tahti` checked out alongside this repo) after either repo's routes change
+   to confirm the two haven't drifted; update the marker deliberately, don't silence the check.
 
 If a feature you're porting has no route in (1) and no DTO in (2), it does not have a real
 contract yet — do not invent one client-side (no fabricated response shapes, no silently-mocked

@@ -50,24 +50,17 @@ import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
 import { StudioEditorProjectView } from './views/studio/StudioEditorProjectView';
-import { StudioEventCreateView } from './views/studio/StudioEventCreateView';
 import { StudioEventsView } from './views/studio/StudioEventsView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
-import { StudioGovernanceView } from './views/studio/StudioGovernanceView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
 import { StudioPlaylistEditorView } from './views/studio/StudioPlaylistsView';
-import { StudioRecordingsView } from './views/studio/StudioRecordingsView';
 import { StudioReleaseDetailView } from './views/studio/StudioReleaseDetailView';
 import { StudioReleasesView } from './views/studio/StudioReleasesView';
-import { StudioRevenueView } from './views/studio/StudioRevenueView';
 import { StudioScheduleView } from './views/studio/StudioScheduleView';
 import { StudioSetupChannelRedirect } from './views/studio/StudioSetupChannelRedirect';
 import { StudioShowsView } from './views/studio/StudioShowsView';
-import { StudioStashView } from './views/studio/StudioStashView';
 import { StudioStatsDetailView } from './views/studio/StudioStatsDetailView';
 import { StudioStatsView } from './views/studio/StudioStatsView';
-import { StudioTrackInsightsView } from './views/studio/StudioTrackInsightsView';
-import { StudioUpdatesView } from './views/studio/StudioUpdatesView';
 import { StudioUploadView } from './views/studio/StudioUploadView';
 import { SubscribeView } from './views/SubscribeView';
 import { TermsView } from './views/TermsView';
@@ -248,6 +241,34 @@ const AdminVenuesView = lazyRouteComponent(
 const AdminDiscoWidgetsView = lazyRouteComponent(
   () => import('./views/admin/AdminDiscoWidgetsView'),
   'AdminDiscoWidgetsView',
+);
+const StudioEventCreateView = lazyRouteComponent(
+  () => import('./views/studio/StudioEventCreateView'),
+  'StudioEventCreateView',
+);
+const StudioGovernanceView = lazyRouteComponent(
+  () => import('./views/studio/StudioGovernanceView'),
+  'StudioGovernanceView',
+);
+const StudioRecordingsView = lazyRouteComponent(
+  () => import('./views/studio/StudioRecordingsView'),
+  'StudioRecordingsView',
+);
+const StudioRevenueView = lazyRouteComponent(
+  () => import('./views/studio/StudioRevenueView'),
+  'StudioRevenueView',
+);
+const StudioStashView = lazyRouteComponent(
+  () => import('./views/studio/StudioStashView'),
+  'StudioStashView',
+);
+const StudioTrackInsightsView = lazyRouteComponent(
+  () => import('./views/studio/StudioTrackInsightsView'),
+  'StudioTrackInsightsView',
+);
+const StudioUpdatesView = lazyRouteComponent(
+  () => import('./views/studio/StudioUpdatesView'),
+  'StudioUpdatesView',
 );
 
 const rootRoute = createRootRoute({

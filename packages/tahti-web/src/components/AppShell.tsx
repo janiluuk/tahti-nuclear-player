@@ -131,20 +131,25 @@ function RouteContent({ children }: { children: React.ReactNode }) {
 
 export function AppShell() {
   const isMobile = useIsMobile();
-  const {
-    leftCollapsed,
-    rightCollapsed,
-    leftWidth,
-    rightWidth,
-    toggleLeft,
-    setLeftCollapsed,
-    toggleRight,
-    setLeftWidth,
-    setRightWidth,
-    setRightCollapsed,
-    fullScreenPlayerOpen,
-    setFullScreenPlayerOpen,
-  } = useLayoutStore();
+  // Scoped selectors, not the whole store: layoutStore also carries chat
+  // context and (during a sidebar resize drag) leftWidth/rightWidth update
+  // on every mousemove -- a single unselected useLayoutStore() call would
+  // re-render this entire shell, including the routed content tree, on
+  // every one of those ticks.
+  const leftCollapsed = useLayoutStore((s) => s.leftCollapsed);
+  const rightCollapsed = useLayoutStore((s) => s.rightCollapsed);
+  const leftWidth = useLayoutStore((s) => s.leftWidth);
+  const rightWidth = useLayoutStore((s) => s.rightWidth);
+  const toggleLeft = useLayoutStore((s) => s.toggleLeft);
+  const setLeftCollapsed = useLayoutStore((s) => s.setLeftCollapsed);
+  const toggleRight = useLayoutStore((s) => s.toggleRight);
+  const setLeftWidth = useLayoutStore((s) => s.setLeftWidth);
+  const setRightWidth = useLayoutStore((s) => s.setRightWidth);
+  const setRightCollapsed = useLayoutStore((s) => s.setRightCollapsed);
+  const fullScreenPlayerOpen = useLayoutStore((s) => s.fullScreenPlayerOpen);
+  const setFullScreenPlayerOpen = useLayoutStore(
+    (s) => s.setFullScreenPlayerOpen,
+  );
   const refresh = useAuthStore((s) => s.refresh);
   const isBoard = useAuthStore((state) => hasAccountRole(state.user, 'BOARD'));
   const userId = useAuthStore((s) => s.user?.id);
@@ -154,9 +159,9 @@ export function AppShell() {
   const navigationLocation = useRouterState({
     select: (state) => state.location.pathname + state.location.searchStr,
   });
-  const stableNavigationRoute = /^\/(studio|admin|library)(\/|$)/.test(
-    pathname,
-  );
+  // High-frequency in-section navigation: gets a cheap fade instead of the
+  // full slide transition so clicking around doesn't feel delayed.
+  const fastNavigationRoute = /^\/(studio|admin|library)(\/|$)/.test(pathname);
   const currentTrackId = usePlayerStore((state) => state.currentId);
   const playerQueue = usePlayerStore((state) => state.queue);
   const playerStatus = usePlayerStore((state) => state.status);
@@ -330,7 +335,7 @@ export function AppShell() {
             <RouteContent>
               <RouteTransition
                 key={userId ?? 'anonymous'}
-                disableAnimation={stableNavigationRoute}
+                fast={fastNavigationRoute}
               />
             </RouteContent>
           </div>
@@ -348,7 +353,7 @@ export function AppShell() {
           <RouteContent>
             <RouteTransition
               key={userId ?? 'anonymous'}
-              disableAnimation={stableNavigationRoute}
+              fast={fastNavigationRoute}
             />
           </RouteContent>
         </div>
@@ -443,7 +448,7 @@ export function AppShell() {
               <RouteContent>
                 <RouteTransition
                   key={userId ?? 'anonymous'}
-                  disableAnimation={stableNavigationRoute}
+                  fast={fastNavigationRoute}
                 />
               </RouteContent>
             </div>

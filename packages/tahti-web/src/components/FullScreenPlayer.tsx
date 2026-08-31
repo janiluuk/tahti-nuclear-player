@@ -11,6 +11,7 @@ import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { HearthisEmbedSurface } from './HearthisEmbedSurface';
+import { ConnectedSeekBar } from './PlayerSeekBar';
 
 const ANIMATION_MS = 280;
 
@@ -28,8 +29,6 @@ export function FullScreenPlayer() {
   const status = usePlayerStore((s) => s.status);
   const volume = usePlayerStore((s) => s.volume);
   const muted = usePlayerStore((s) => s.muted);
-  const currentTime = usePlayerStore((s) => s.currentTime);
-  const duration = usePlayerStore((s) => s.duration);
   const isLive = usePlayerStore((s) => s.isLive);
   const shuffle = usePlayerStore((s) => s.shuffle);
   const repeatMode = usePlayerStore((s) => s.repeatMode);
@@ -39,7 +38,6 @@ export function FullScreenPlayer() {
   const previous = usePlayerStore((s) => s.previous);
   const toggleShuffle = usePlayerStore((s) => s.toggleShuffle);
   const cycleRepeat = usePlayerStore((s) => s.cycleRepeat);
-  const seekTo = usePlayerStore((s) => s.seekTo);
 
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -86,7 +84,6 @@ export function FullScreenPlayer() {
     (current ? formatArtistNames(current.track.artists) : '');
   const archiveItemId = archiveItemIdFromPlayableId(playable?.id ?? currentId);
   const isPlaying = status === 'playing' || status === 'loading';
-  const seekProgress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const hearthisEmbed = playable?.embed;
 
   const rgb = useDominantColor(coverUrl);
@@ -217,18 +214,7 @@ export function FullScreenPlayer() {
             </div>
           ) : (
             <div className="w-full">
-              <PlayerBar.SeekBar
-                progress={seekProgress}
-                elapsedSeconds={currentTime}
-                remainingSeconds={Math.max(0, duration - currentTime)}
-                isLoading={status === 'loading'}
-                onSeek={(percent) => {
-                  if (duration <= 0) {
-                    return;
-                  }
-                  seekTo((percent / 100) * duration);
-                }}
-              />
+              <ConnectedSeekBar />
             </div>
           )}
           <PlayerBar.Volume

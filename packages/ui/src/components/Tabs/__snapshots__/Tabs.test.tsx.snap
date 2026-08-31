@@ -63,396 +63,402 @@ exports[`Tabs > (Snapshot) renders correctly 1`] = `
         tabindex="0"
       >
         <div
-          class="relative h-full w-full"
+          animate="[object Object]"
+          class="h-full"
+          transition="[object Object]"
         >
           <div
-            class="scrollbar-hide flex h-full w-full flex-col overflow-auto"
-            style="scrollbar-width: none;"
+            class="relative h-full w-full"
           >
             <div
-              class="text-foreground"
+              class="scrollbar-hide flex h-full w-full flex-col overflow-auto"
+              style="scrollbar-width: none;"
             >
               <div
-                class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 pr-2 pb-4"
-                role="grid"
+                class="text-foreground"
               >
                 <div
-                  class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
-                  data-testid="card"
+                  class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 pr-2 pb-4"
+                  role="grid"
                 >
                   <div
-                    class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
+                    class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
+                    data-testid="card"
                   >
                     <div
-                      class="group overflow-hidden absolute inset-0 size-full"
-                      data-testid="media-artwork"
+                      class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
                     >
                       <div
-                        class="overflow-hidden absolute inset-0"
+                        class="group overflow-hidden absolute inset-0 size-full"
+                        data-testid="media-artwork"
                       >
-                        <img
-                          alt="Frank Zappa"
-                          class="h-full w-full object-cover"
-                          decoding="async"
-                          loading="lazy"
-                          src="https://picsum.photos/seed/Frank Zappa/300"
-                        />
                         <div
-                          class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                          class="overflow-hidden absolute inset-0"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="lucide lucide-cassette-tape opacity-20"
-                            fill="none"
-                            height="96"
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="0.5"
-                            viewBox="0 0 24 24"
-                            width="96"
-                            xmlns="http://www.w3.org/2000/svg"
+                          <img
+                            alt="Frank Zappa"
+                            class="h-full w-full object-cover"
+                            decoding="async"
+                            loading="lazy"
+                            src="https://picsum.photos/seed/Frank Zappa/300"
+                          />
+                          <div
+                            class="pointer-events-none absolute inset-0 flex items-center justify-center"
                           >
-                            <rect
-                              height="16"
-                              rx="2"
-                              width="20"
-                              x="2"
-                              y="4"
-                            />
-                            <circle
-                              cx="8"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="M8 12h8"
-                            />
-                            <circle
-                              cx="16"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
-                            />
-                          </svg>
+                            <svg
+                              aria-hidden="true"
+                              class="lucide lucide-cassette-tape opacity-20"
+                              fill="none"
+                              height="96"
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="0.5"
+                              viewBox="0 0 24 24"
+                              width="96"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                height="16"
+                                rx="2"
+                                width="20"
+                                x="2"
+                                y="4"
+                              />
+                              <circle
+                                cx="8"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="M8 12h8"
+                              />
+                              <circle
+                                cx="16"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
+                              />
+                            </svg>
+                          </div>
                         </div>
+                      </div>
+                    </div>
+                    <div
+                      class="min-w-0"
+                    >
+                      <div
+                        class="text-primary-foreground truncate text-sm font-bold"
+                        data-testid="card-title"
+                      >
+                        Frank Zappa
                       </div>
                     </div>
                   </div>
                   <div
-                    class="min-w-0"
+                    class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
+                    data-testid="card"
                   >
                     <div
-                      class="text-primary-foreground truncate text-sm font-bold"
-                      data-testid="card-title"
-                    >
-                      Frank Zappa
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
-                  data-testid="card"
-                >
-                  <div
-                    class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
-                  >
-                    <div
-                      class="group overflow-hidden absolute inset-0 size-full"
-                      data-testid="media-artwork"
+                      class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
                     >
                       <div
-                        class="overflow-hidden absolute inset-0"
+                        class="group overflow-hidden absolute inset-0 size-full"
+                        data-testid="media-artwork"
                       >
-                        <img
-                          alt="Ozzy Osbourne"
-                          class="h-full w-full object-cover"
-                          decoding="async"
-                          loading="lazy"
-                          src="https://picsum.photos/seed/Ozzy Osbourne/300"
-                        />
                         <div
-                          class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                          class="overflow-hidden absolute inset-0"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="lucide lucide-cassette-tape opacity-20"
-                            fill="none"
-                            height="96"
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="0.5"
-                            viewBox="0 0 24 24"
-                            width="96"
-                            xmlns="http://www.w3.org/2000/svg"
+                          <img
+                            alt="Ozzy Osbourne"
+                            class="h-full w-full object-cover"
+                            decoding="async"
+                            loading="lazy"
+                            src="https://picsum.photos/seed/Ozzy Osbourne/300"
+                          />
+                          <div
+                            class="pointer-events-none absolute inset-0 flex items-center justify-center"
                           >
-                            <rect
-                              height="16"
-                              rx="2"
-                              width="20"
-                              x="2"
-                              y="4"
-                            />
-                            <circle
-                              cx="8"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="M8 12h8"
-                            />
-                            <circle
-                              cx="16"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
-                            />
-                          </svg>
+                            <svg
+                              aria-hidden="true"
+                              class="lucide lucide-cassette-tape opacity-20"
+                              fill="none"
+                              height="96"
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="0.5"
+                              viewBox="0 0 24 24"
+                              width="96"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                height="16"
+                                rx="2"
+                                width="20"
+                                x="2"
+                                y="4"
+                              />
+                              <circle
+                                cx="8"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="M8 12h8"
+                              />
+                              <circle
+                                cx="16"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
+                              />
+                            </svg>
+                          </div>
                         </div>
+                      </div>
+                    </div>
+                    <div
+                      class="min-w-0"
+                    >
+                      <div
+                        class="text-primary-foreground truncate text-sm font-bold"
+                        data-testid="card-title"
+                      >
+                        Ozzy Osbourne
                       </div>
                     </div>
                   </div>
                   <div
-                    class="min-w-0"
+                    class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
+                    data-testid="card"
                   >
                     <div
-                      class="text-primary-foreground truncate text-sm font-bold"
-                      data-testid="card-title"
-                    >
-                      Ozzy Osbourne
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
-                  data-testid="card"
-                >
-                  <div
-                    class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
-                  >
-                    <div
-                      class="group overflow-hidden absolute inset-0 size-full"
-                      data-testid="media-artwork"
+                      class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
                     >
                       <div
-                        class="overflow-hidden absolute inset-0"
+                        class="group overflow-hidden absolute inset-0 size-full"
+                        data-testid="media-artwork"
                       >
-                        <img
-                          alt="David Bowie"
-                          class="h-full w-full object-cover"
-                          decoding="async"
-                          loading="lazy"
-                          src="https://picsum.photos/seed/David Bowie/300"
-                        />
                         <div
-                          class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                          class="overflow-hidden absolute inset-0"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="lucide lucide-cassette-tape opacity-20"
-                            fill="none"
-                            height="96"
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="0.5"
-                            viewBox="0 0 24 24"
-                            width="96"
-                            xmlns="http://www.w3.org/2000/svg"
+                          <img
+                            alt="David Bowie"
+                            class="h-full w-full object-cover"
+                            decoding="async"
+                            loading="lazy"
+                            src="https://picsum.photos/seed/David Bowie/300"
+                          />
+                          <div
+                            class="pointer-events-none absolute inset-0 flex items-center justify-center"
                           >
-                            <rect
-                              height="16"
-                              rx="2"
-                              width="20"
-                              x="2"
-                              y="4"
-                            />
-                            <circle
-                              cx="8"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="M8 12h8"
-                            />
-                            <circle
-                              cx="16"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
-                            />
-                          </svg>
+                            <svg
+                              aria-hidden="true"
+                              class="lucide lucide-cassette-tape opacity-20"
+                              fill="none"
+                              height="96"
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="0.5"
+                              viewBox="0 0 24 24"
+                              width="96"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                height="16"
+                                rx="2"
+                                width="20"
+                                x="2"
+                                y="4"
+                              />
+                              <circle
+                                cx="8"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="M8 12h8"
+                              />
+                              <circle
+                                cx="16"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
+                              />
+                            </svg>
+                          </div>
                         </div>
+                      </div>
+                    </div>
+                    <div
+                      class="min-w-0"
+                    >
+                      <div
+                        class="text-primary-foreground truncate text-sm font-bold"
+                        data-testid="card-title"
+                      >
+                        David Bowie
                       </div>
                     </div>
                   </div>
                   <div
-                    class="min-w-0"
+                    class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
+                    data-testid="card"
                   >
                     <div
-                      class="text-primary-foreground truncate text-sm font-bold"
-                      data-testid="card-title"
-                    >
-                      David Bowie
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
-                  data-testid="card"
-                >
-                  <div
-                    class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
-                  >
-                    <div
-                      class="group overflow-hidden absolute inset-0 size-full"
-                      data-testid="media-artwork"
+                      class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
                     >
                       <div
-                        class="overflow-hidden absolute inset-0"
+                        class="group overflow-hidden absolute inset-0 size-full"
+                        data-testid="media-artwork"
                       >
-                        <img
-                          alt="Kurt Cobain"
-                          class="h-full w-full object-cover"
-                          decoding="async"
-                          loading="lazy"
-                          src="https://picsum.photos/seed/Kurt Cobain/300"
-                        />
                         <div
-                          class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                          class="overflow-hidden absolute inset-0"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="lucide lucide-cassette-tape opacity-20"
-                            fill="none"
-                            height="96"
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="0.5"
-                            viewBox="0 0 24 24"
-                            width="96"
-                            xmlns="http://www.w3.org/2000/svg"
+                          <img
+                            alt="Kurt Cobain"
+                            class="h-full w-full object-cover"
+                            decoding="async"
+                            loading="lazy"
+                            src="https://picsum.photos/seed/Kurt Cobain/300"
+                          />
+                          <div
+                            class="pointer-events-none absolute inset-0 flex items-center justify-center"
                           >
-                            <rect
-                              height="16"
-                              rx="2"
-                              width="20"
-                              x="2"
-                              y="4"
-                            />
-                            <circle
-                              cx="8"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="M8 12h8"
-                            />
-                            <circle
-                              cx="16"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
-                            />
-                          </svg>
+                            <svg
+                              aria-hidden="true"
+                              class="lucide lucide-cassette-tape opacity-20"
+                              fill="none"
+                              height="96"
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="0.5"
+                              viewBox="0 0 24 24"
+                              width="96"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                height="16"
+                                rx="2"
+                                width="20"
+                                x="2"
+                                y="4"
+                              />
+                              <circle
+                                cx="8"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="M8 12h8"
+                              />
+                              <circle
+                                cx="16"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
+                              />
+                            </svg>
+                          </div>
                         </div>
+                      </div>
+                    </div>
+                    <div
+                      class="min-w-0"
+                    >
+                      <div
+                        class="text-primary-foreground truncate text-sm font-bold"
+                        data-testid="card-title"
+                      >
+                        Kurt Cobain
                       </div>
                     </div>
                   </div>
                   <div
-                    class="min-w-0"
+                    class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
+                    data-testid="card"
                   >
                     <div
-                      class="text-primary-foreground truncate text-sm font-bold"
-                      data-testid="card-title"
-                    >
-                      Kurt Cobain
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="text-primary-foreground bg-primary border-border shadow-shadow flex w-46 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
-                  data-testid="card"
-                >
-                  <div
-                    class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
-                  >
-                    <div
-                      class="group overflow-hidden absolute inset-0 size-full"
-                      data-testid="media-artwork"
+                      class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
                     >
                       <div
-                        class="overflow-hidden absolute inset-0"
+                        class="group overflow-hidden absolute inset-0 size-full"
+                        data-testid="media-artwork"
                       >
-                        <img
-                          alt="John Lennon"
-                          class="h-full w-full object-cover"
-                          decoding="async"
-                          loading="lazy"
-                          src="https://picsum.photos/seed/John Lennon/300"
-                        />
                         <div
-                          class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                          class="overflow-hidden absolute inset-0"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="lucide lucide-cassette-tape opacity-20"
-                            fill="none"
-                            height="96"
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="0.5"
-                            viewBox="0 0 24 24"
-                            width="96"
-                            xmlns="http://www.w3.org/2000/svg"
+                          <img
+                            alt="John Lennon"
+                            class="h-full w-full object-cover"
+                            decoding="async"
+                            loading="lazy"
+                            src="https://picsum.photos/seed/John Lennon/300"
+                          />
+                          <div
+                            class="pointer-events-none absolute inset-0 flex items-center justify-center"
                           >
-                            <rect
-                              height="16"
-                              rx="2"
-                              width="20"
-                              x="2"
-                              y="4"
-                            />
-                            <circle
-                              cx="8"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="M8 12h8"
-                            />
-                            <circle
-                              cx="16"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
-                            />
-                          </svg>
+                            <svg
+                              aria-hidden="true"
+                              class="lucide lucide-cassette-tape opacity-20"
+                              fill="none"
+                              height="96"
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="0.5"
+                              viewBox="0 0 24 24"
+                              width="96"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                height="16"
+                                rx="2"
+                                width="20"
+                                x="2"
+                                y="4"
+                              />
+                              <circle
+                                cx="8"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="M8 12h8"
+                              />
+                              <circle
+                                cx="16"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
+                              />
+                            </svg>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div
-                    class="min-w-0"
-                  >
                     <div
-                      class="text-primary-foreground truncate text-sm font-bold"
-                      data-testid="card-title"
+                      class="min-w-0"
                     >
-                      John Lennon
+                      <div
+                        class="text-primary-foreground truncate text-sm font-bold"
+                        data-testid="card-title"
+                      >
+                        John Lennon
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -533,14 +539,20 @@ exports[`Tabs > (Snapshot) renders in composition mode 1`] = `
         tabindex="0"
       >
         <div
-          class="relative h-full w-full"
+          animate="[object Object]"
+          class="h-full"
+          transition="[object Object]"
         >
           <div
-            class="scrollbar-hide flex h-full w-full flex-col overflow-auto"
-            style="scrollbar-width: none;"
+            class="relative h-full w-full"
           >
-            <div>
-              First panel content
+            <div
+              class="scrollbar-hide flex h-full w-full flex-col overflow-auto"
+              style="scrollbar-width: none;"
+            >
+              <div>
+                First panel content
+              </div>
             </div>
           </div>
         </div>
@@ -638,19 +650,25 @@ exports[`Tabs > (Snapshot) switches tabs 1`] = `
         tabindex="0"
       >
         <div
-          class="relative h-full w-full"
+          animate="[object Object]"
+          class="h-full"
+          transition="[object Object]"
         >
           <div
-            class="scrollbar-hide flex h-full w-full flex-col overflow-auto"
-            style="scrollbar-width: none;"
+            class="relative h-full w-full"
           >
             <div
-              class="text-foreground"
+              class="scrollbar-hide flex h-full w-full flex-col overflow-auto"
+              style="scrollbar-width: none;"
             >
               <div
-                class="border-border flex h-full w-full rounded-md border-(length:--border-width) p-4 bg-primary text-primary-foreground shadow-shadow"
+                class="text-foreground"
               >
-                Section in a box.
+                <div
+                  class="border-border flex h-full w-full rounded-md border-(length:--border-width) p-4 bg-primary text-primary-foreground shadow-shadow"
+                >
+                  Section in a box.
+                </div>
               </div>
             </div>
           </div>

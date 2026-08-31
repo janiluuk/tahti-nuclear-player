@@ -10,6 +10,7 @@ import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { BottomQueueStrip } from './BottomQueueStrip';
 import { HearthisEmbedSurface } from './HearthisEmbedSurface';
+import { ConnectedSeekBar } from './PlayerSeekBar';
 
 const QUEUE_ANIMATION_MS = 200;
 
@@ -19,8 +20,6 @@ export function ConnectedPlayerBar() {
   const status = usePlayerStore((s) => s.status);
   const volume = usePlayerStore((s) => s.volume);
   const muted = usePlayerStore((s) => s.muted);
-  const currentTime = usePlayerStore((s) => s.currentTime);
-  const duration = usePlayerStore((s) => s.duration);
   const isLive = usePlayerStore((s) => s.isLive);
   const shuffle = usePlayerStore((s) => s.shuffle);
   const repeatMode = usePlayerStore((s) => s.repeatMode);
@@ -31,7 +30,6 @@ export function ConnectedPlayerBar() {
   const previous = usePlayerStore((s) => s.previous);
   const toggleShuffle = usePlayerStore((s) => s.toggleShuffle);
   const cycleRepeat = usePlayerStore((s) => s.cycleRepeat);
-  const seekTo = usePlayerStore((s) => s.seekTo);
   const toggleMute = usePlayerStore((s) => s.toggleMute);
   const queueOpen = useLayoutStore((s) => s.bottomQueueOpen);
   const setBottomQueueOpen = useLayoutStore((s) => s.setBottomQueueOpen);
@@ -58,7 +56,6 @@ export function ConnectedPlayerBar() {
   const current = queue.find((q) => q.id === currentId);
   const playable = current ? playableFromQueueItem(current) : null;
   const isPlaying = status === 'playing' || status === 'loading';
-  const seekProgress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const hearthisEmbed = playable?.embed;
 
   if (!playerBarVisible) {
@@ -129,19 +126,7 @@ export function ConnectedPlayerBar() {
           Live
         </div>
       ) : (
-        <PlayerBar.SeekBar
-          className="px-4"
-          progress={seekProgress}
-          elapsedSeconds={currentTime}
-          remainingSeconds={Math.max(0, duration - currentTime)}
-          isLoading={status === 'loading'}
-          onSeek={(percent) => {
-            if (duration <= 0) {
-              return;
-            }
-            seekTo((percent / 100) * duration);
-          }}
-        />
+        <ConnectedSeekBar className="px-4" />
       )}
       {hearthisEmbed ? (
         <div className="bg-background-secondary px-4 py-2">
