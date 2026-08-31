@@ -16,6 +16,7 @@ type VisualizerScheme = {
 type VisualizerSettings = {
   speed: number;
   intensity: number;
+  scale: number;
 };
 
 export type ThreeVisualizerProps = {
@@ -110,6 +111,11 @@ export const ThreeVisualizer: FC<ThreeVisualizerProps> = ({
       scheme,
       artworkUrl,
     );
+    // Uniformly grows/shrinks the whole scene around the origin — generic
+    // across every preset (none of them render a viewport-fitted quad, so
+    // this never clips or misaligns), rather than a per-preset "scale"
+    // parameter each preset's build() would need to implement itself.
+    scene.scale.setScalar(settings.scale);
     const frequencyData = new Uint8Array(
       new ArrayBuffer(analyser?.frequencyBinCount ?? 128),
     );

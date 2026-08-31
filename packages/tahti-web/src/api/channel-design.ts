@@ -286,14 +286,22 @@ export type ChannelVisual = {
   slideshowAutoplay?: boolean;
 };
 
-/** Per-preset speed/intensity, both clamped 0.25–2 (matches the backend's
- * VisualPresetSettingsSchema in packages/shared). */
-export type VisualPresetSettings = { speed: number; intensity: number };
+/** Per-preset speed/intensity/scale (clamped 0.25–2, scale 0.5–2) plus an
+ * audio-reactivity toggle — matches the backend's VisualPresetSettingsSchema
+ * in packages/shared. */
+export type VisualPresetSettings = {
+  speed: number;
+  intensity: number;
+  scale: number;
+  audioReactive: boolean;
+};
 export type VisualSettingsMap = Record<string, Partial<VisualPresetSettings>>;
 
 export const DEFAULT_VISUAL_PRESET_SETTINGS: VisualPresetSettings = {
   speed: 1,
   intensity: 1,
+  scale: 1,
+  audioReactive: true,
 };
 
 export function parseVisualSettingsMap(
@@ -320,6 +328,9 @@ export function resolveVisualPresetSettings(
   return {
     speed: entry?.speed ?? DEFAULT_VISUAL_PRESET_SETTINGS.speed,
     intensity: entry?.intensity ?? DEFAULT_VISUAL_PRESET_SETTINGS.intensity,
+    scale: entry?.scale ?? DEFAULT_VISUAL_PRESET_SETTINGS.scale,
+    audioReactive:
+      entry?.audioReactive ?? DEFAULT_VISUAL_PRESET_SETTINGS.audioReactive,
   };
 }
 

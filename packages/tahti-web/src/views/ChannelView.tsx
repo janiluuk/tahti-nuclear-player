@@ -62,7 +62,7 @@ import { useLayoutStore } from '../stores/layoutStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
-const CHANNEL_RADIO_VIZ_SETTINGS = { speed: 1.15, intensity: 1.8 };
+const CHANNEL_RADIO_VIZ_SETTINGS = { speed: 1.15, intensity: 1.8, scale: 1 };
 
 export function ChannelView({ slug }: { slug: string }) {
   const navigate = useNavigate();

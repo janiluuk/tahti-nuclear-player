@@ -1,13 +1,17 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
   Cast,
+  CheckCircle2Icon,
   CheckSquareIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
   DownloadIcon,
   Eye,
   FolderDownIcon,
   Link2Icon,
   PauseIcon,
   PlayIcon,
+  PlusCircleIcon,
   Radio as RadioIcon,
   SearchIcon,
   SettingsIcon,
@@ -18,6 +22,7 @@ import { toast } from 'sonner';
 
 import {
   Badge,
+  Box,
   Button,
   Dialog,
   FavoriteButton,
@@ -44,6 +49,7 @@ import {
   patchChannelVisual,
   resolveVisualPresetSettings,
   VISUAL_PRESETS,
+  type VisualPresetSettings,
   type VisualSettingsMap,
 } from '../api/channel-design';
 import {
@@ -58,7 +64,9 @@ import {
   readIcyStreamTitle,
   resolveStreamUrl,
   searchStationsByName,
+  testRadioStream,
   type RadioStation as PublicRadioStation,
+  type RadioStreamTestResult,
 } from '../api/radio-sources';
 import {
   disconnectIntegration,
@@ -415,7 +423,6 @@ function VisualizersCategory() {
   const [configurationPreset, setConfigurationPreset] = useState<string | null>(
     null,
   );
-  const [audioReactive, setAudioReactive] = useState(true);
 
   useEffect(() => {
     void fetchChannelVisual().then((r) => {
@@ -435,15 +442,16 @@ function VisualizersCategory() {
     });
   };
 
-  const saveTuning = (
-    id: string,
-    next: { speed: number; intensity: number },
-  ) => {
+  const saveTuning = (id: string, next: VisualPresetSettings) => {
     const nextMap = { ...settingsMap, [id]: next };
     setSettingsMap(nextMap);
     void patchChannelVisual({ visualSettings: nextMap });
   };
 
+  const previewSettings = resolveVisualPresetSettings(
+    settingsMap,
+    previewPreset,
+  );
   const configurationSettings = configurationPreset
     ? resolveVisualPresetSettings(settingsMap, configurationPreset)
     : null;
@@ -460,7 +468,6 @@ function VisualizersCategory() {
             <ChannelVisualizer
               preset={previewPreset}
               visualSettingsJson={JSON.stringify(settingsMap)}
-              audioReactive={audioReactive}
               className="h-full w-full"
             />
           )}
@@ -480,8 +487,13 @@ function VisualizersCategory() {
           <label className="border-border text-foreground-secondary flex items-center gap-2 border-t px-4 py-3 text-xs">
             <input
               type="checkbox"
-              checked={audioReactive}
-              onChange={(event) => setAudioReactive(event.target.checked)}
+              checked={previewSettings.audioReactive}
+              onChange={(event) =>
+                saveTuning(previewPreset, {
+                  ...previewSettings,
+                  audioReactive: event.target.checked,
+                })
+              }
             />
             <span>
               Audio reactivity
@@ -613,6 +625,49 @@ function VisualizersCategory() {
                 Controls how strongly the scene responds to audio levels.
               </p>
             </div>
+            <div>
+              <Slider
+                label="Scale"
+                min={0.5}
+                max={2}
+                step={0.05}
+                value={configurationSettings.scale}
+                showValue
+                onValueChange={(value) =>
+                  saveTuning(configurationPreset, {
+                    ...configurationSettings,
+                    scale: value,
+                  })
+                }
+              >
+                <Slider.Surface>
+                  <Slider.Track />
+                  <Slider.RangeInput />
+                </Slider.Surface>
+              </Slider>
+              <p className="text-foreground-secondary mt-1 text-xs">
+                Grows or shrinks the whole scene.
+              </p>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={configurationSettings.audioReactive}
+                onChange={(event) =>
+                  saveTuning(configurationPreset, {
+                    ...configurationSettings,
+                    audioReactive: event.target.checked,
+                  })
+                }
+              />
+              <span>
+                Audio reactivity
+                <span className="text-foreground-secondary ml-1 text-xs">
+                  (respond to the playing track, instead of a gentle idle
+                  animation)
+                </span>
+              </span>
+            </label>
             <Button
               size="sm"
               variant="text"
@@ -2402,15 +2457,27 @@ function PersonalRadioStreamCard() {
     <ConfigurableCard
       title="Personal radio stream"
       dialogClassName="max-w-2xl"
-      header={(open) => (
-        <PluginStoreItem
-          name="Personal radio stream"
-          author="Tool"
-          description="Paste an M3U/M3U8 playlist or a direct stream URL, or search the public Radio Browser directory — plays via the main player, separate from the curated stations below."
-          isInstalled={station !== null}
-          onInstall={open}
-          labels={{ install: 'Configure', installed: 'Configured' }}
-        />
+      header={() => (
+        <Box
+          variant="tertiary"
+          className="flex-row items-center justify-between gap-4"
+        >
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <h3 className="text-foreground inline-flex flex-row items-baseline gap-2 text-lg leading-tight font-bold select-none">
+              Personal radio stream
+              {station !== null && (
+                <Badge variant="pill" color="green">
+                  Configured
+                </Badge>
+              )}
+            </h3>
+            <p className="text-foreground-secondary line-clamp-2 text-sm">
+              Paste an M3U/M3U8 playlist or a direct stream URL, or search the
+              public Radio Browser directory — plays via the main player,
+              separate from the curated stations below.
+            </p>
+          </div>
+        </Box>
       )}
     >
       <div className="flex flex-col gap-3">
@@ -2582,9 +2649,19 @@ function RadioCategory() {
     null,
   );
   const [logoUrlDraft, setLogoUrlDraft] = useState('');
+  const [streamUrlDraft, setStreamUrlDraft] = useState('');
+  const [streamTestBusy, setStreamTestBusy] = useState(false);
+  const [streamTestResult, setStreamTestResult] =
+    useState<RadioStreamTestResult | null>(null);
   useEffect(() => {
     setLogoUrlDraft(editingStation?.logoUrl ?? '');
+    setStreamUrlDraft(editingStation?.streamUrl ?? '');
+    setStreamTestBusy(false);
+    setStreamTestResult(null);
   }, [editingStation]);
+  const [expandedStationIds, setExpandedStationIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [suggestName, setSuggestName] = useState('');
   const [suggestLogoUrl, setSuggestLogoUrl] = useState('');
@@ -2745,6 +2822,7 @@ function RadioCategory() {
           const stationIsPlaying =
             stationIsCurrent &&
             (playbackStatus === 'playing' || playbackStatus === 'loading');
+          const stationExpanded = expandedStationIds.has(station.id);
           return (
             <PluginItem
               key={station.id}
@@ -2755,66 +2833,116 @@ function RadioCategory() {
                   className="size-full object-cover"
                 />
               }
-              name={station.name}
+              name={
+                enabled ? (
+                  <>
+                    {station.name}
+                    <Badge variant="pill" color="green" className="ml-2">
+                      Enabled
+                    </Badge>
+                  </>
+                ) : (
+                  station.name
+                )
+              }
               author={station.language}
               description={`${station.genre} · ${station.bitrateKbps}kbps ${station.codec} · ${sourceConfigured ? 'Source configured' : 'Add a stream source in Configure'}`}
               warning={!sourceConfigured}
-              warningText="This station needs a stream source before it can be played."
+              warningText={
+                sourceConfigured
+                  ? undefined
+                  : 'This station needs a stream source before it can be played.'
+              }
               disabled={!enabled && sourceConfigured}
               rightAccessory={
-                <div className="flex gap-1">
-                  <Button
-                    type="button"
-                    size="icon-sm"
-                    variant={stationIsPlaying ? undefined : 'secondary'}
-                    disabled={!sourceConfigured}
-                    title={stationIsPlaying ? 'Pause' : 'Preview'}
-                    aria-label={
-                      stationIsPlaying
-                        ? `Pause ${station.name}`
-                        : `Preview ${station.name}`
-                    }
-                    aria-pressed={stationIsPlaying}
-                    onClick={() => {
-                      if (stationIsCurrent) {
-                        setPlaybackStatus(
-                          stationIsPlaying ? 'paused' : 'playing',
-                        );
-                        return;
-                      }
-                      play(
-                        radioStationPlayable({
-                          ...station,
-                          streamUrl: station.streamUrl!,
-                        }),
-                      );
-                    }}
-                  >
-                    {stationIsPlaying ? (
-                      <PauseIcon size={14} aria-hidden />
-                    ) : (
-                      <PlayIcon size={14} aria-hidden />
+                <div className="flex flex-col items-end gap-1">
+                  <div className="flex gap-1">
+                    <Button
+                      type="button"
+                      size="icon-sm"
+                      variant={enabled ? undefined : 'secondary'}
+                      title={enabled ? 'Disable' : 'Enable'}
+                      aria-label={`${enabled ? 'Disable' : 'Enable'} ${station.name}`}
+                      aria-pressed={enabled}
+                      onClick={() => toggleStation(station.id)}
+                    >
+                      {enabled ? (
+                        <CheckCircle2Icon size={14} aria-hidden />
+                      ) : (
+                        <PlusCircleIcon size={14} aria-hidden />
+                      )}
+                    </Button>
+                    {sourceConfigured && (
+                      <Button
+                        type="button"
+                        size="icon-sm"
+                        variant="secondary"
+                        title={
+                          stationExpanded ? 'Hide controls' : 'Show controls'
+                        }
+                        aria-label={
+                          stationExpanded
+                            ? `Hide controls for ${station.name}`
+                            : `Show controls for ${station.name}`
+                        }
+                        aria-expanded={stationExpanded}
+                        onClick={() =>
+                          setExpandedStationIds((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(station.id)) {
+                              next.delete(station.id);
+                            } else {
+                              next.add(station.id);
+                            }
+                            return next;
+                          })
+                        }
+                      >
+                        {stationExpanded ? (
+                          <ChevronUpIcon size={14} aria-hidden />
+                        ) : (
+                          <ChevronDownIcon size={14} aria-hidden />
+                        )}
+                      </Button>
                     )}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={enabled ? undefined : 'secondary'}
-                    onClick={() => toggleStation(station.id)}
-                  >
-                    {enabled ? 'Enabled' : 'Enable'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() => setEditingStation(station)}
-                  >
-                    Configure
-                  </Button>
+                  </div>
+                  {sourceConfigured && stationExpanded && (
+                    <Button
+                      type="button"
+                      size="icon-sm"
+                      variant={stationIsPlaying ? undefined : 'secondary'}
+                      title={stationIsPlaying ? 'Pause' : 'Preview'}
+                      aria-label={
+                        stationIsPlaying
+                          ? `Pause ${station.name}`
+                          : `Preview ${station.name}`
+                      }
+                      aria-pressed={stationIsPlaying}
+                      onClick={() => {
+                        if (stationIsCurrent) {
+                          setPlaybackStatus(
+                            stationIsPlaying ? 'paused' : 'playing',
+                          );
+                          return;
+                        }
+                        play(
+                          radioStationPlayable({
+                            ...station,
+                            streamUrl: station.streamUrl!,
+                          }),
+                        );
+                      }}
+                    >
+                      {stationIsPlaying ? (
+                        <PauseIcon size={14} aria-hidden />
+                      ) : (
+                        <PlayIcon size={14} aria-hidden />
+                      )}
+                    </Button>
+                  )}
                 </div>
               }
-              onViewDetails={
-                sourceConfigured ? undefined : () => setEditingStation(station)
-              }
+              onViewDetails={() => setEditingStation(station)}
               labels={{ by: 'language' }}
             />
           );
@@ -2838,7 +2966,7 @@ function RadioCategory() {
                 bitrateKbps: Number(form.get('bitrateKbps') ?? 0),
                 codec: String(form.get('codec') ?? '').trim(),
                 logoUrl: String(form.get('logoUrl') ?? '').trim(),
-                streamUrl: String(form.get('streamUrl') ?? '').trim() || null,
+                streamUrl: streamUrlDraft.trim() || null,
                 detailUrl: String(form.get('detailUrl') ?? '').trim(),
               });
               setEditingStation(null);
@@ -2887,12 +3015,45 @@ function RadioCategory() {
                 />
                 <input type="hidden" name="logoUrl" value={logoUrlDraft} />
               </div>
-              <Input
-                name="streamUrl"
-                label="Programming source / stream URL"
-                defaultValue={editingStation.streamUrl ?? ''}
-                className="sm:col-span-2"
-              />
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <Input
+                  name="streamUrl"
+                  label="Programming source / stream URL"
+                  value={streamUrlDraft}
+                  onChange={(e) => {
+                    setStreamUrlDraft(e.target.value);
+                    setStreamTestResult(null);
+                  }}
+                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    disabled={!streamUrlDraft.trim() || streamTestBusy}
+                    onClick={() => {
+                      setStreamTestBusy(true);
+                      setStreamTestResult(null);
+                      void testRadioStream(streamUrlDraft.trim()).then(
+                        (result) => {
+                          setStreamTestBusy(false);
+                          setStreamTestResult(result);
+                        },
+                      );
+                    }}
+                  >
+                    {streamTestBusy ? 'Testing…' : 'Test stream'}
+                  </Button>
+                  {streamTestResult && (
+                    <p
+                      className={`text-xs ${streamTestResult.ok ? 'text-accent-green' : 'text-foreground-secondary'}`}
+                    >
+                      {streamTestResult.ok ? '✓ ' : ''}
+                      {streamTestResult.message}
+                    </p>
+                  )}
+                </div>
+              </div>
               <Input
                 name="detailUrl"
                 label="Station details URL"

@@ -38,6 +38,8 @@ const DEFAULT_SCHEME: Required<VisualColorScheme> = {
 const DEFAULT_SETTINGS = {
   speed: 1,
   intensity: 1,
+  scale: 1,
+  audioReactive: true,
 };
 
 function parseJson<T>(json: string | null | undefined): Partial<T> {
@@ -68,18 +70,33 @@ function parseScheme(
   };
 }
 
+type StoredPresetSettings = {
+  speed?: number;
+  intensity?: number;
+  scale?: number;
+  audioReactive?: boolean;
+};
+
 function parseSettings(
   json: string | null | undefined,
   preset: string,
 ): ThreeVisualizerProps['settings'] {
-  const parsed =
-    parseJson<Record<string, { speed?: number; intensity?: number }>>(json);
+  const parsed = parseJson<Record<string, StoredPresetSettings>>(json);
   const settings = parsed[preset];
 
   return {
     speed: settings?.speed ?? DEFAULT_SETTINGS.speed,
     intensity: settings?.intensity ?? DEFAULT_SETTINGS.intensity,
+    scale: settings?.scale ?? DEFAULT_SETTINGS.scale,
   };
+}
+
+function parseStoredAudioReactive(
+  json: string | null | undefined,
+  preset: string,
+): boolean {
+  const parsed = parseJson<Record<string, StoredPresetSettings>>(json);
+  return parsed[preset]?.audioReactive ?? DEFAULT_SETTINGS.audioReactive;
 }
 
 function supportsWebGL(): boolean {
@@ -99,7 +116,7 @@ export const ChannelVisualizer = ({
   settings: settingsOverride,
   className,
   artworkUrl,
-  audioReactive = true,
+  audioReactive,
 }: Props) => {
   const [canAnimate, setCanAnimate] = useState(false);
   const mode = (preset ?? 'AURORA').toUpperCase();
@@ -111,6 +128,12 @@ export const ChannelVisualizer = ({
     () => parseSettings(visualSettingsJson, mode),
     [mode, visualSettingsJson],
   );
+  // A caller passing `audioReactive` explicitly (the global ambient
+  // background's own on/off switch, unrelated to any one preset's saved
+  // settings) always wins; otherwise fall back to this preset's own
+  // persisted toggle, defaulting on.
+  const resolvedAudioReactive =
+    audioReactive ?? parseStoredAudioReactive(visualSettingsJson, mode);
 
   useEffect(() => {
     const reducedMotion = window.matchMedia(
@@ -141,7 +164,7 @@ export const ChannelVisualizer = ({
         scheme={scheme}
         settings={settingsOverride ?? settings}
         artworkUrl={artworkUrl}
-        audioReactive={audioReactive}
+        audioReactive={resolvedAudioReactive}
       />
     </Suspense>
   );
