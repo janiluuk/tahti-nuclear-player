@@ -68,6 +68,21 @@ pnpm test -u
 - Small, focused changes over large dumps
 - Never commit unless explicitly asked
 
+## Import plugin configuration
+
+Import-provider features belong in this sibling Nuclear repository rather than
+the Tahti core repository. Every import plugin must expose configuration from
+its Configure action in a modal: enter provider keys/settings, test the
+connection, then save and enable only after the test succeeds. Do not create a
+parallel configuration surface in Tahti core or silently enable an unverified
+provider.
+
+Open design questions to settle before extending the plugin API: whether
+Configure is a first-class SDK lifecycle hook or a host-rendered settings
+modal; the connection-test request/response and error contract; and whether
+Save + Enable is atomic or separate. Keep the decision documented here and in
+Tahti’s `AGENTS.md`.
+
 ### TypeScript
 
 - Use `type` not `interface` (except when merging is required)
