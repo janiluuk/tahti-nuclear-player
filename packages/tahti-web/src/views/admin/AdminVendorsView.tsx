@@ -7,7 +7,7 @@ import {
   type AdminIntegrationStatus,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
-import { AdminNav } from '../../components/AdminNav';
+import { AdminPageLayout } from '../../components/AdminNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 const CRITICAL_VENDORS = [
@@ -261,9 +261,12 @@ export function AdminVendorsContent() {
 export function AdminVendorsView() {
   return (
     <AdminGate>
-      <div className="admin-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/vendors" />
-        <AdminVendorsContent />
+      <div className="admin-page-layout px-1 py-2">
+        <AdminPageLayout current="/admin/vendors">
+          <div className="flex max-w-5xl flex-col gap-6">
+            <AdminVendorsContent />
+          </div>
+        </AdminPageLayout>
       </div>
     </AdminGate>
   );

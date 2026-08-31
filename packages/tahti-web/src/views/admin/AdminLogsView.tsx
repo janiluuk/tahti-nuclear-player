@@ -10,7 +10,7 @@ import {
   type AdminLogEntry,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
-import { AdminNav } from '../../components/AdminNav';
+import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { AdminActivityView } from './AdminActivityView';
@@ -145,43 +145,46 @@ export function AdminLogsView() {
 
   return (
     <AdminGate>
-      <div className="admin-page-layout mx-auto flex max-w-6xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/logs" />
-        <StudioPageHeader
-          title="Logs"
-          subtitle="Review platform activity and live container output in separate tabs."
-        />
-        <Tabs
-          items={[
-            {
-              id: 'activity',
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  <ActivityIcon size={14} aria-hidden /> Audit events
-                </span>
-              ),
-              content: <AdminActivityView embedded />,
-            },
-            {
-              id: 'containers',
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  <ContainerIcon size={14} aria-hidden /> Container logs
-                </span>
-              ),
-              content: containerLogs,
-            },
-            {
-              id: 'recent-audit',
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  <HistoryIcon size={14} aria-hidden /> Recent audit
-                </span>
-              ),
-              content: <RecentAuditEntries />,
-            },
-          ]}
-        />
+      <div className="admin-page-layout px-1 py-2">
+        <AdminPageLayout current="/admin/logs">
+          <div className="flex max-w-6xl flex-col gap-6">
+            <StudioPageHeader
+              title="Logs"
+              subtitle="Review platform activity and live container output in separate tabs."
+            />
+            <Tabs
+              items={[
+                {
+                  id: 'activity',
+                  label: (
+                    <span className="inline-flex items-center gap-1.5">
+                      <ActivityIcon size={14} aria-hidden /> Audit events
+                    </span>
+                  ),
+                  content: <AdminActivityView embedded />,
+                },
+                {
+                  id: 'containers',
+                  label: (
+                    <span className="inline-flex items-center gap-1.5">
+                      <ContainerIcon size={14} aria-hidden /> Container logs
+                    </span>
+                  ),
+                  content: containerLogs,
+                },
+                {
+                  id: 'recent-audit',
+                  label: (
+                    <span className="inline-flex items-center gap-1.5">
+                      <HistoryIcon size={14} aria-hidden /> Recent audit
+                    </span>
+                  ),
+                  content: <RecentAuditEntries />,
+                },
+              ]}
+            />
+          </div>
+        </AdminPageLayout>
       </div>
     </AdminGate>
   );

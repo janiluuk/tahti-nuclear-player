@@ -337,14 +337,16 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'Read bio + socials',
           'Switch profile section tabs (Catalog / Latest releases / Pinned)',
           'Follow the artist',
+          'Play the featured track (hero player, with audio visualizer while playing)',
         ],
         goesTo: [
-          { label: 'Open the live channel', to: '/channel/$slug' },
+          { label: 'View channel (header text link)', to: '/channel/$slug' },
           { label: 'Open Subscribe', to: '/subscribe/$username' },
           { label: 'Open a collection', to: '/u/$username/c/$slug' },
           { label: 'Open a release smart link', to: '/r/$slug' },
           {
-            label: 'Open the green room (member perk)',
+            label:
+              'Open the green room, only shown on an upcoming show within its pre-live window',
             to: '/u/$username/green-room',
           },
         ],
@@ -1727,7 +1729,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         id: 'edge-map-itself',
         title: 'This map page',
         viewName: 'More / map',
-        caption: 'POC-only atlas for comparing Tahti vs Nuclear flows.',
+        caption:
+          'POC-only atlas for comparing Tahti vs Nuclear flows — now also mounted under Admin as its own gated page, alongside the original public /more route. The former "Top bar actions" and "Governance" sections were removed as redundant (governance already has its own page and admin section).',
         parity: 'nuclear-only',
         actions: [
           'Browse the Tahti ↔ Nuclear screenshot atlas',
@@ -1735,22 +1738,11 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'Leave a note on any case',
           'Export notes as CSV',
           'Apply review state (dev only)',
+          'Jump to an in-page section (Anonymous / Auth / Listener / Artist / Edge / Flows / Design / Features / Comments)',
         ],
-        goesTo: [
-          { label: 'Open Governance', to: '/governance' },
-          { label: 'Open Help', to: '/help' },
-          { label: 'Open Messages', to: '/messages' },
-          { label: 'Open Settings', to: '/settings' },
-          { label: 'Open Sources', to: '/sources' },
-          { label: 'Open Status', to: '/status' },
-          { label: 'Open Studio Go Live', to: '/studio/go-live' },
-          { label: 'Open Studio Revenue', to: '/studio/revenue' },
-          { label: 'Open Studio Schedule', to: '/studio/schedule' },
-          { label: 'Open Studio Stats', to: '/studio/stats' },
-          { label: 'Open Studio Updates', to: '/studio/updates' },
-          { label: 'Open Transparency', to: '/transparency' },
-          { label: 'Open Venues', to: '/venues' },
-        ],
+        // No outbound `goesTo` links after removing the Top bar actions and
+        // Governance sections (2026-08-31) — this page is now a pure,
+        // self-contained atlas with only in-page anchor navigation.
         old: {
           route: '(prod has no /more atlas)',
           caption: 'No prod equivalent',
@@ -1758,7 +1750,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/more.png',
-          route: '/more',
+          route: '/more, /admin/map',
           caption: 'Nuclear Tahti map',
         },
       },

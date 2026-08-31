@@ -13,7 +13,7 @@ import {
   type AdminDiscoWidgetScope,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
-import { AdminNav } from '../../components/AdminNav';
+import { AdminPageLayout } from '../../components/AdminNav';
 import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader } from '../../components/StudioPanel';
@@ -271,154 +271,163 @@ export function AdminDiscoWidgetsView() {
 
   return (
     <AdminGate>
-      <div className="admin-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/disco-widgets" />
-        <StudioPageHeader
-          title="Disco-widgets"
-          subtitle="Register, review, and manage every add-on available to listeners, artists, and admins."
-          action={
-            <Button
-              type="button"
-              size="icon-sm"
-              title="Register a new widget"
-              aria-label="Register a new widget"
-              onClick={openNew}
+      <div className="admin-page-layout px-1 py-2">
+        <AdminPageLayout current="/admin/disco-widgets">
+          <div className="flex max-w-5xl flex-col gap-6">
+            <StudioPageHeader
+              title="Disco-widgets"
+              subtitle="Register, review, and manage every add-on available to listeners, artists, and admins."
+              action={
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  title="Register a new widget"
+                  aria-label="Register a new widget"
+                  onClick={openNew}
+                >
+                  <Plus size={18} aria-hidden />
+                </Button>
+              }
+            />
+
+            <div
+              className="border-border flex flex-wrap gap-2 border-b pb-3"
+              role="tablist"
+              aria-label="Widget types"
             >
-              <Plus size={18} aria-hidden />
-            </Button>
-          }
-        />
+              {(['ALL', ...SCOPES.map((item) => item.id)] as const).map(
+                (item) => {
+                  const label =
+                    item === 'ALL'
+                      ? 'All add-ons'
+                      : SCOPES.find((entry) => entry.id === item)?.label;
+                  return (
+                    <Button
+                      key={item}
+                      type="button"
+                      role="tab"
+                      aria-selected={scope === item}
+                      variant={scope === item ? 'default' : 'text'}
+                      onClick={() => setScope(item)}
+                    >
+                      {label}
+                    </Button>
+                  );
+                },
+              )}
+            </div>
 
-        <div
-          className="border-border flex flex-wrap gap-2 border-b pb-3"
-          role="tablist"
-          aria-label="Widget types"
-        >
-          {(['ALL', ...SCOPES.map((item) => item.id)] as const).map((item) => {
-            const label =
-              item === 'ALL'
-                ? 'All add-ons'
-                : SCOPES.find((entry) => entry.id === item)?.label;
-            return (
-              <Button
-                key={item}
-                type="button"
-                role="tab"
-                aria-selected={scope === item}
-                variant={scope === item ? 'default' : 'text'}
-                onClick={() => setScope(item)}
-              >
-                {label}
-              </Button>
-            );
-          })}
-        </div>
+            {error && !editorOpen ? (
+              <p className="text-accent-red text-sm" role="alert">
+                {error}
+              </p>
+            ) : null}
+            {loading ? (
+              <PageLoading label="Loading widget catalog…" />
+            ) : visibleWidgets.length === 0 ? (
+              <p className="text-foreground-secondary text-sm">
+                No widgets registered for this type yet.
+              </p>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {visibleWidgets.map((widget) => (
+                  <article
+                    key={widget.id}
+                    className="border-border bg-background-secondary/40 flex gap-4 rounded-xl border p-4"
+                  >
+                    <div className="border-border bg-background flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
+                      {widget.iconUrl ? (
+                        <img
+                          src={widget.iconUrl}
+                          alt=""
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-foreground-secondary text-lg font-bold">
+                          {widget.name.slice(0, 2).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="font-semibold">{widget.name}</h2>
+                        <Badge
+                          variant="pill"
+                          color={statusColor(widget.status)}
+                        >
+                          {widget.status}
+                        </Badge>
+                      </div>
+                      <p className="text-foreground-secondary mt-1 text-xs">
+                        {widget.scope} · v{widget.currentVersion} ·{' '}
+                        {widget.slug}
+                      </p>
+                      <p className="text-foreground-secondary mt-2 text-sm">
+                        {widget.description}
+                      </p>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {widget.categories.map((category) => (
+                          <Badge key={category} variant="pill" color="blue">
+                            {category}
+                          </Badge>
+                        ))}
+                        <span className="text-foreground-secondary text-xs">
+                          by {widget.authorName}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-start gap-1">
+                      <Button
+                        type="button"
+                        size="icon-sm"
+                        variant="text"
+                        title={`Edit ${widget.name}`}
+                        aria-label={`Edit ${widget.name}`}
+                        onClick={() => openEdit(widget)}
+                      >
+                        <Pencil size={16} aria-hidden />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon-sm"
+                        variant="text"
+                        title={`Delete ${widget.name}`}
+                        aria-label={`Delete ${widget.name}`}
+                        onClick={() => remove(widget)}
+                      >
+                        <Trash2 size={16} aria-hidden />
+                      </Button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
 
-        {error && !editorOpen ? (
-          <p className="text-accent-red text-sm" role="alert">
-            {error}
-          </p>
-        ) : null}
-        {loading ? (
-          <PageLoading label="Loading widget catalog…" />
-        ) : visibleWidgets.length === 0 ? (
-          <p className="text-foreground-secondary text-sm">
-            No widgets registered for this type yet.
-          </p>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {visibleWidgets.map((widget) => (
-              <article
-                key={widget.id}
-                className="border-border bg-background-secondary/40 flex gap-4 rounded-xl border p-4"
-              >
-                <div className="border-border bg-background flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
-                  {widget.iconUrl ? (
-                    <img
-                      src={widget.iconUrl}
-                      alt=""
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-foreground-secondary text-lg font-bold">
-                      {widget.name.slice(0, 2).toUpperCase()}
-                    </span>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-semibold">{widget.name}</h2>
-                    <Badge variant="pill" color={statusColor(widget.status)}>
-                      {widget.status}
-                    </Badge>
-                  </div>
-                  <p className="text-foreground-secondary mt-1 text-xs">
-                    {widget.scope} · v{widget.currentVersion} · {widget.slug}
-                  </p>
-                  <p className="text-foreground-secondary mt-2 text-sm">
-                    {widget.description}
-                  </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {widget.categories.map((category) => (
-                      <Badge key={category} variant="pill" color="blue">
-                        {category}
-                      </Badge>
-                    ))}
-                    <span className="text-foreground-secondary text-xs">
-                      by {widget.authorName}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-start gap-1">
-                  <Button
-                    type="button"
-                    size="icon-sm"
-                    variant="text"
-                    title={`Edit ${widget.name}`}
-                    aria-label={`Edit ${widget.name}`}
-                    onClick={() => openEdit(widget)}
-                  >
-                    <Pencil size={16} aria-hidden />
-                  </Button>
-                  <Button
-                    type="button"
-                    size="icon-sm"
-                    variant="text"
-                    title={`Delete ${widget.name}`}
-                    aria-label={`Delete ${widget.name}`}
-                    onClick={() => remove(widget)}
-                  >
-                    <Trash2 size={16} aria-hidden />
-                  </Button>
-                </div>
-              </article>
-            ))}
+            <Dialog.Root
+              isOpen={editorOpen}
+              onClose={() => setEditorOpen(false)}
+              className="max-w-2xl"
+            >
+              <Dialog.Title>
+                {editingWidget
+                  ? `Edit ${editingWidget.name}`
+                  : 'Register a new widget'}
+              </Dialog.Title>
+              <Dialog.Description>
+                Set the widget identity, store type, cover image, and filter
+                parameters.
+              </Dialog.Description>
+              <WidgetEditor
+                draft={draft}
+                editing={editingWidget !== null}
+                pending={pending}
+                error={error}
+                onChange={setDraft}
+                onSave={save}
+              />
+            </Dialog.Root>
           </div>
-        )}
-
-        <Dialog.Root
-          isOpen={editorOpen}
-          onClose={() => setEditorOpen(false)}
-          className="max-w-2xl"
-        >
-          <Dialog.Title>
-            {editingWidget
-              ? `Edit ${editingWidget.name}`
-              : 'Register a new widget'}
-          </Dialog.Title>
-          <Dialog.Description>
-            Set the widget identity, store type, cover image, and filter
-            parameters.
-          </Dialog.Description>
-          <WidgetEditor
-            draft={draft}
-            editing={editingWidget !== null}
-            pending={pending}
-            error={error}
-            onChange={setDraft}
-            onSave={save}
-          />
-        </Dialog.Root>
+        </AdminPageLayout>
       </div>
     </AdminGate>
   );

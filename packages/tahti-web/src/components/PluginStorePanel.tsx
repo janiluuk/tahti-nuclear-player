@@ -94,6 +94,7 @@ import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
 import { NuclearPluginAddonsCategory } from './NuclearPluginAddonsCategory';
 import { PageLoading } from './PageStates';
+import { SourceServiceIcon } from './SourceServiceIcon';
 import { ThemeVisualizationSettings } from './ThemeVisualizationSettings';
 
 function visualizerDescription(id: string): string {
@@ -645,7 +646,14 @@ function ServiceCard({ plugin }: { plugin: ServicePlugin }) {
   );
 
   if (plugin.action.kind === 'deep-link') {
-    return <Link to={plugin.action.to}>{header}</Link>;
+    return (
+      <Link
+        to={plugin.action.to}
+        onClick={() => useSettingsModalStore.getState().close()}
+      >
+        {header}
+      </Link>
+    );
   }
   return header;
 }
@@ -975,7 +983,11 @@ function OAuthServiceCard({
             {busy ? 'Disconnecting…' : 'Disconnect'}
           </Button>
           {action.integrationId === 'bandcamp' && (
-            <Link to="/sources/$id" params={{ id: 'bandcamp' }}>
+            <Link
+              to="/sources/$id"
+              params={{ id: 'bandcamp' }}
+              onClick={() => useSettingsModalStore.getState().close()}
+            >
               <Button size="sm" variant="secondary">
                 Open discography importer
               </Button>
@@ -984,7 +996,11 @@ function OAuthServiceCard({
           {action.integrationId === 'soundcloud' && (
             <div className="border-border flex flex-col gap-3 border-t pt-3">
               <div className="flex flex-wrap items-center gap-2">
-                <Link to="/sources/$id" params={{ id: 'soundcloud' }}>
+                <Link
+                  to="/sources/$id"
+                  params={{ id: 'soundcloud' }}
+                  onClick={() => useSettingsModalStore.getState().close()}
+                >
                   <Button size="sm" variant="secondary">
                     Import SoundCloud tracks
                   </Button>
@@ -1076,8 +1092,12 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
     <ConfigurableCard
       title={plugin.name}
       header={
-        <Link to={HEARTHIS_SOURCES_PATH}>
+        <Link
+          to={HEARTHIS_SOURCES_PATH}
+          onClick={() => useSettingsModalStore.getState().close()}
+        >
           <PluginStoreItem
+            icon={<SourceServiceIcon id="hearthis" />}
             name={plugin.name}
             author={plugin.author}
             description={plugin.description}

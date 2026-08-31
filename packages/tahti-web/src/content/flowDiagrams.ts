@@ -34,20 +34,20 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Login --> Messages["/messages"]
   Login --> Governance["/governance"]
   Login --> Studio["/studio"]
-  Studio --> Perform["Go Live · Schedule · Shows"]
+  Studio --> Perform["Go Live · Schedule · Shows · Channel · Radio · Multicast"]
   Studio --> Music["Sounds · Collections · Releases · Upload"]
-  Studio --> Grow["Stats · Audience · Updates"]
-  Studio --> Manage["Channel · Radio · Sources · Moderation"]
+  Studio --> Grow["Stats · Governance · Audience · Updates"]
   Login --> Settings["/settings"]
+  Settings --> SettingsSources["Broadcast sources (multicast)"]
   Board["Board role"] --> Admin["/admin"]
-  Admin --> AdminSections["Overview · Content · Moderation · Logs · Status"]
+  Admin --> AdminSections["Overview · Content · Moderation · Logs · Status · Tahti map"]
   classDef public fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;
   classDef session fill:#ecfdf5,stroke:#10b981,color:#065f46;
   classDef artist fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;
   classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
   class Home,Public,Radio,Discover,Channel,Artist,Collection,Subscribe,Help,About public;
   class Login,Library,History,Collections,Messages,Governance session;
-  class Studio,Perform,Music,Grow,Manage,Settings artist;
+  class Studio,Perform,Music,Grow,Settings,SettingsSources artist;
   class Board,Admin,AdminSections board;
 `,
   },
@@ -86,16 +86,15 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
 
   subgraph studio["Studio sections"]
     Studio --> StudioOverview["Studio: Overview · Stats · Governance · Posts · Distribution · Audience"]
-    Studio --> Perform["Perform: Go Live · Schedule · Events · Venues · Shows"]
+    Studio --> Perform["Perform: Go Live · Schedule · Events · Shows · Channel · Radio · Multicast"]
     Studio --> Library["Library: Library · Releases · Media · Upload · Editor · Stash"]
-    Studio --> Manage["Manage: Channel · Sources · Radio · Green room · Multicast · Selects · Moderation"]
   end
 
   subgraph admin["Admin sections"]
-    Admin --> AdminOverview["Overview: Dashboard · Financial · Storage · Vendors · Logs · Status"]
-    Admin --> AdminCommunity["Community: Moderation · Users · Governance · Grants · AGM · Missed shows"]
-    Admin --> AdminContent["Content: Content · Radio · News · Top lists · Announcements"]
-    Admin --> AdminManage["Manage: Streams · Widgets · Languages · Selects"]
+    Admin --> AdminOverview["Overview: Dashboard · Financial · Storage · Vendors · Logs · Status · Tahti map"]
+    Admin --> AdminCommunity["Community: Moderation · Users · Governance · Grants · AGM"]
+    Admin --> AdminContent["Content: Content · Radio · Tahti Selects · News · Top lists · Announcements"]
+    Admin --> AdminManage["Manage: Streams · Venues · Add-ons (disco widgets) · Languages"]
   end
 
   Studio -.-> Content["Only the page content changes"]
@@ -104,7 +103,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   classDef studioNode fill:#f3e8ff,stroke:#9333ea,color:#4c1d95;
   classDef adminNode fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
   class Shell,Content shell;
-  class Studio,StudioOverview,Perform,Library,Manage studioNode;
+  class Studio,StudioOverview,Perform,Library studioNode;
   class Admin,AdminOverview,AdminCommunity,AdminContent,AdminManage adminNode;
 `,
   },
@@ -118,12 +117,10 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     mermaid: `flowchart TB
   Login["/login"] --> Role{Role}
   Role -->|Artist| Studio["/studio"]
-  Studio --> Perform["Perform: Go Live · Schedule · Shows"]
+  Studio --> Perform["Perform: Go Live · Schedule · Shows · Channel · Radio"]
   Studio --> Library["Library: Sounds · Upload · Collections"]
-  Studio --> Grow["Grow: Stats · Audience · Posts"]
-  Studio --> Manage["Manage: Channel · Radio · Sources"]
-  Manage --> Moderation["Moderation and moderators"]
-  Studio --> Settings["Settings: artist and account"]
+  Studio --> Grow["Grow: Stats · Governance · Audience · Posts"]
+  Studio --> Settings["Settings: artist and account · broadcast sources"]
   Role -->|Board| Admin["/admin"]
   Admin --> Overview["Overview: needs action and streams"]
   Admin --> Content["Content: catalog and top lists"]
@@ -587,7 +584,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     source: 'router.tsx',
     title: 'Site map — Nuclear tahti-web',
     blurb:
-      'Current beta routes, persistent top-bar actions, playback surfaces, and artist/admin workspaces. Use the diagram zoom controls for dense route groups.',
+      'Current beta routes, playback surfaces, and artist/admin workspaces. Use the diagram zoom controls for dense route groups.',
     mermaid: `flowchart TB
   Entry["app.tahti.live"]:::pub --> Listen["Listen · / · /listen"]:::pub
   Listen --> Radio["Radio · /radio"]:::pub
@@ -602,16 +599,14 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Listen --> Library["Library · sounds · releases · collections · history"]:::auth
   Listen --> Settings["Settings · account · artist · security"]:::auth
   Settings --> Sources["Sources · imports and exports"]:::auth
-  Listen --> Studio["Studio · overview · library · perform · manage"]:::studio
-  Studio --> GoLive["Perform · Go live · schedule · shows · events"]:::studio
+  Listen --> Studio["Studio · overview · library · perform"]:::studio
+  Studio --> GoLive["Perform · Go live · schedule · shows · events · channel · radio · multicast"]:::studio
   Studio --> Music["Library · sounds · releases · collections · upload · editor"]:::studio
-  Studio --> Programme["Manage · radio · channel · moderation · governance"]:::studio
-  Studio --> Publish["Studio · posts · distribution · audience · stats"]:::studio
-  Studio --> Business["Top bar · upload · messages · notifications · chat"]:::studio
+  Studio --> Publish["Studio · governance · posts · distribution · audience · stats"]:::studio
   Listen --> Public["Venues · transparency · help · legal · embeds"]:::pub
   Listen --> Admin["Board admin · /admin/*"]:::board
   Admin -.-> Legacy["Next admin remains production canonical"]:::board
-  Admin --> Map["Beta review map · /more"]:::review
+  Admin --> Map["Tahti map · /admin/map (also /more)"]:::review
   Map --> Shots["Annotated Tahti ↔ Nuclear screenshots"]:::review
   Map --> Flows["Mermaid journeys and route map"]:::review
 

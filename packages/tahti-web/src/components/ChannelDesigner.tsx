@@ -41,6 +41,7 @@ import {
   patchChannelVisual,
   resolveVisualPresetSettings,
   shouldDockVisualizerTuning,
+  uploadChannelHeaderVideo,
   VISUAL_PRESETS,
   youtubeEmbedUrl,
   type ChannelVisual,
@@ -360,14 +361,14 @@ export function ChannelDesigner({
     setBusy(true);
     let savedVideoUrl = videoBackgroundUrl.trim() || null;
     if (pendingVideoFile) {
-      const upload = await uploadUserMediaFile(pendingVideoFile);
+      const upload = await uploadChannelHeaderVideo(pendingVideoFile);
       if (!upload.ok) {
         setBusy(false);
         toast.error(upload.error);
         return;
       }
-      savedVideoUrl = upload.data.url;
-      setVideoBackgroundUrl(upload.data.url);
+      savedVideoUrl = upload.videoBackgroundUrl;
+      setVideoBackgroundUrl(upload.videoBackgroundUrl);
       if (pendingVideoPreviewUrl) {
         URL.revokeObjectURL(pendingVideoPreviewUrl);
       }

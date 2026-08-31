@@ -1,5 +1,5 @@
 import { Check, Download } from 'lucide-react';
-import { ComponentProps, FC } from 'react';
+import { ComponentProps, FC, ReactNode } from 'react';
 
 import { cn } from '../../utils';
 import { Badge } from '../Badge';
@@ -8,6 +8,7 @@ import { Button } from '../Button';
 import { Loader } from '../Loader';
 
 type PluginStoreItemProps = Omit<ComponentProps<'div'>, 'children'> & {
+  icon?: ReactNode;
   name: string;
   description: string;
   author: string;
@@ -27,6 +28,7 @@ type PluginStoreItemProps = Omit<ComponentProps<'div'>, 'children'> & {
 };
 
 export const PluginStoreItem: FC<PluginStoreItemProps> = ({
+  icon,
   name,
   description,
   author,
@@ -54,6 +56,14 @@ export const PluginStoreItem: FC<PluginStoreItemProps> = ({
       className={cn('flex-row items-center justify-between gap-4', className)}
       {...props}
     >
+      {icon && (
+        <Box
+          variant="tertiary"
+          className="h-12 w-12 shrink-0 items-center justify-center overflow-hidden p-0"
+        >
+          {icon}
+        </Box>
+      )}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-center gap-2">
           <h3 className="text-foreground inline-flex flex-row items-baseline gap-2 text-lg leading-tight font-bold select-none">

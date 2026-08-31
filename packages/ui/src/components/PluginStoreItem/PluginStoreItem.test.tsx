@@ -141,4 +141,14 @@ describe('PluginStoreItem', () => {
 
     expect(getByTestId('plugin-store-item')).toHaveClass('custom-class');
   });
+
+  it('renders an icon when provided, and omits the slot when absent', () => {
+    const { getByText, queryByText, rerender } = render(
+      <PluginStoreItem {...defaultProps} icon={<span>ICON</span>} />,
+    );
+    expect(getByText('ICON')).toBeInTheDocument();
+
+    rerender(<PluginStoreItem {...defaultProps} />);
+    expect(queryByText('ICON')).not.toBeInTheDocument();
+  });
 });

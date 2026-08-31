@@ -5,7 +5,7 @@ import { Button, Input } from '@nuclearplayer/ui';
 
 import { fetchAdminAgmMotions, type AdminMotion } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
-import { AdminNav } from '../../components/AdminNav';
+import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
@@ -138,94 +138,97 @@ export function AdminAgmView() {
 
   return (
     <AdminGate>
-      <div className="admin-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/agm" />
-        <StudioPageHeader
-          title="Annual General Meeting"
-          subtitle="AGM planning tools — agenda, motions, member notice, and minutes."
-        />
+      <div className="admin-page-layout px-1 py-2">
+        <AdminPageLayout current="/admin/agm">
+          <div className="flex max-w-4xl flex-col gap-6">
+            <StudioPageHeader
+              title="Annual General Meeting"
+              subtitle="AGM planning tools — agenda, motions, member notice, and minutes."
+            />
 
-        <AgendaBuilder />
+            <AgendaBuilder />
 
-        <StudioPanel title="Motions & proposals">
-          {loading ? (
-            <PageLoading label="Loading motions…" />
-          ) : motions.length === 0 ? (
-            <p className="text-foreground-secondary py-4 text-center text-sm">
-              No open or draft motions.
-            </p>
-          ) : (
-            <ul className="divide-border divide-y">
-              {motions.map((m) => (
-                <li
-                  key={m.id}
-                  className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium">{m.title}</div>
-                    <div className="text-foreground-secondary text-xs">
-                      {m.advisory ? 'Advisory' : 'Binding'} ·{' '}
-                      {motionStateLabel(m.state)} · {m.totalVotes} votes
-                    </div>
-                  </div>
-                  <div className="text-foreground-secondary text-xs">
-                    Opens {new Date(m.openAt).toLocaleDateString('fi-FI')} ·
-                    Closes {new Date(m.closeAt).toLocaleDateString('fi-FI')}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          <p className="text-foreground-secondary mt-3 text-xs">
-            All AGM decisions are advisory until bylaws authorise asynchronous
-            binding votes. Formal binding resolutions are recorded as board
-            resolutions.
-          </p>
-        </StudioPanel>
+            <StudioPanel title="Motions & proposals">
+              {loading ? (
+                <PageLoading label="Loading motions…" />
+              ) : motions.length === 0 ? (
+                <p className="text-foreground-secondary py-4 text-center text-sm">
+                  No open or draft motions.
+                </p>
+              ) : (
+                <ul className="divide-border divide-y">
+                  {motions.map((m) => (
+                    <li
+                      key={m.id}
+                      className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium">{m.title}</div>
+                        <div className="text-foreground-secondary text-xs">
+                          {m.advisory ? 'Advisory' : 'Binding'} ·{' '}
+                          {motionStateLabel(m.state)} · {m.totalVotes} votes
+                        </div>
+                      </div>
+                      <div className="text-foreground-secondary text-xs">
+                        Opens {new Date(m.openAt).toLocaleDateString('fi-FI')} ·
+                        Closes {new Date(m.closeAt).toLocaleDateString('fi-FI')}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="text-foreground-secondary mt-3 text-xs">
+                All AGM decisions are advisory until bylaws authorise
+                asynchronous binding votes. Formal binding resolutions are
+                recorded as board resolutions.
+              </p>
+            </StudioPanel>
 
-        <details className="border-border bg-background-secondary/40 rounded-xl border p-5 shadow-sm sm:p-6">
-          <summary className="cursor-pointer text-sm font-medium">
-            Member notification requirements
-          </summary>
-          <div className="mt-3 flex flex-col gap-3 text-sm">
-            <p className="text-foreground-secondary text-xs">
-              Finnish association law (yhdistyslaki 24 §) requires written
-              notice to all members at least seven days before the AGM. The
-              notice must state the date, venue, and agenda.
-            </p>
-            <ul className="text-foreground-secondary list-disc space-y-1 pl-5 text-xs">
-              <li>Date, time, and venue (physical or remote link)</li>
-              <li>Agenda (use the builder above)</li>
-              <li>Any proposed bylaw changes in full</li>
-              <li>Deadline for member motions</li>
-              <li>Instructions for remote participation</li>
-            </ul>
+            <details className="border-border bg-background-secondary/40 rounded-xl border p-5 shadow-sm sm:p-6">
+              <summary className="cursor-pointer text-sm font-medium">
+                Member notification requirements
+              </summary>
+              <div className="mt-3 flex flex-col gap-3 text-sm">
+                <p className="text-foreground-secondary text-xs">
+                  Finnish association law (yhdistyslaki 24 §) requires written
+                  notice to all members at least seven days before the AGM. The
+                  notice must state the date, venue, and agenda.
+                </p>
+                <ul className="text-foreground-secondary list-disc space-y-1 pl-5 text-xs">
+                  <li>Date, time, and venue (physical or remote link)</li>
+                  <li>Agenda (use the builder above)</li>
+                  <li>Any proposed bylaw changes in full</li>
+                  <li>Deadline for member motions</li>
+                  <li>Instructions for remote participation</li>
+                </ul>
+              </div>
+            </details>
+
+            <StudioPanel title="Minutes & records">
+              <p className="text-foreground-secondary text-sm">
+                Keep the meeting record connected to the board&apos;s formal
+                records and member register.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a href="/tahti-api/api/admin/members/export.csv">
+                  <Button size="sm" variant="secondary">
+                    Export member register
+                  </Button>
+                </a>
+                <a href="/admin/logs">
+                  <Button size="sm" variant="secondary">
+                    Open audit log
+                  </Button>
+                </a>
+                <a href="/admin/governance">
+                  <Button size="sm" variant="secondary">
+                    Governance tools
+                  </Button>
+                </a>
+              </div>
+            </StudioPanel>
           </div>
-        </details>
-
-        <StudioPanel title="Minutes & records">
-          <p className="text-foreground-secondary text-sm">
-            Keep the meeting record connected to the board&apos;s formal records
-            and member register.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <a href="/tahti-api/api/admin/members/export.csv">
-              <Button size="sm" variant="secondary">
-                Export member register
-              </Button>
-            </a>
-            <a href="/admin/logs">
-              <Button size="sm" variant="secondary">
-                Open audit log
-              </Button>
-            </a>
-            <a href="/admin/governance">
-              <Button size="sm" variant="secondary">
-                Governance tools
-              </Button>
-            </a>
-          </div>
-        </StudioPanel>
+        </AdminPageLayout>
       </div>
     </AdminGate>
   );

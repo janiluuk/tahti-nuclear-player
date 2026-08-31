@@ -16,7 +16,7 @@ import {
   type AdminMissedShowStatus,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
-import { AdminNav } from '../../components/AdminNav';
+import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { ModerationTabs } from './moderation/ModerationTabs';
@@ -178,13 +178,16 @@ export function AdminMissedShowsPanel() {
 export function AdminMissedShowsView() {
   return (
     <AdminGate>
-      <div className="admin-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/missed-shows" />
-        <StudioPageHeader
-          title="Missed shows"
-          subtitle="Review scheduled broadcasts that passed their start time without a live signal."
-        />
-        <AdminMissedShowsPanel />
+      <div className="admin-page-layout px-1 py-2">
+        <AdminPageLayout current="/admin/missed-shows">
+          <div className="flex max-w-5xl flex-col gap-6">
+            <StudioPageHeader
+              title="Missed shows"
+              subtitle="Review scheduled broadcasts that passed their start time without a live signal."
+            />
+            <AdminMissedShowsPanel />
+          </div>
+        </AdminPageLayout>
       </div>
     </AdminGate>
   );

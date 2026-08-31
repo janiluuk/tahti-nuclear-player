@@ -8,7 +8,7 @@ import {
   type AdminActivityEntry,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
-import { AdminNav } from '../../components/AdminNav';
+import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
@@ -207,13 +207,16 @@ export function AdminActivityView({
 
   return (
     <AdminGate>
-      <div className="admin-page-layout mx-auto flex max-w-6xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/logs" />
-        <StudioPageHeader
-          title="Activity"
-          subtitle="Real system events — logins, uploads, releases, likes, follows, and new fan subscriptions. Auto-refreshes every 15s."
-        />
-        {content}
+      <div className="admin-page-layout px-1 py-2">
+        <AdminPageLayout current="/admin/logs">
+          <div className="flex max-w-6xl flex-col gap-6">
+            <StudioPageHeader
+              title="Activity"
+              subtitle="Real system events — logins, uploads, releases, likes, follows, and new fan subscriptions. Auto-refreshes every 15s."
+            />
+            {content}
+          </div>
+        </AdminPageLayout>
       </div>
     </AdminGate>
   );

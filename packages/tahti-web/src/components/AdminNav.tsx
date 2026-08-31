@@ -19,6 +19,7 @@ import {
   TrophyIcon,
   UsersIcon,
 } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
@@ -249,16 +250,10 @@ function isActive(current: string | undefined, to: string) {
   return to === '/admin' ? current === to : matchesSectionRoute(current, [to]);
 }
 
-/** Grows page-by-page alongside the admin port — see UI-REDESIGN-WORKLOG.md. */
-export function AdminNav({
-  current,
-  splitLayout = true,
-  moderationPendingCount,
-}: {
-  current?: string;
-  splitLayout?: boolean;
-  moderationPendingCount?: number;
-}) {
+function useAdminNavParts(
+  current: string | undefined,
+  moderationPendingCount: number | undefined,
+) {
   const navigate = useNavigate();
   const routeSection = ADMIN_SECTIONS.find((section) =>
     section.items.some((item) => isActive(current, item.to)),
@@ -317,6 +312,21 @@ export function AdminNav({
     </div>
   );
 
+  return { tabs, menu };
+}
+
+/** Grows page-by-page alongside the admin port — see UI-REDESIGN-WORKLOG.md. */
+export function AdminNav({
+  current,
+  splitLayout = true,
+  moderationPendingCount,
+}: {
+  current?: string;
+  splitLayout?: boolean;
+  moderationPendingCount?: number;
+}) {
+  const { tabs, menu } = useAdminNavParts(current, moderationPendingCount);
+
   return splitLayout ? (
     <>
       {tabs}
@@ -326,6 +336,32 @@ export function AdminNav({
     <div className="flex flex-col gap-3">
       {tabs}
       {menu}
+    </div>
+  );
+}
+
+/** Standard admin page shell: section tabs across the top, the section's
+ * page list docked to the hard left as a true sidebar column, and page
+ * content filling the remaining width beside it — instead of every admin
+ * view stacking AdminNav above its own content in one centered column. */
+export function AdminPageLayout({
+  current,
+  moderationPendingCount,
+  children,
+}: {
+  current?: string;
+  moderationPendingCount?: number;
+  children: ReactNode;
+}) {
+  const { tabs, menu } = useAdminNavParts(current, moderationPendingCount);
+
+  return (
+    <div className="flex flex-col gap-4">
+      {tabs}
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        {menu}
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
     </div>
   );
 }

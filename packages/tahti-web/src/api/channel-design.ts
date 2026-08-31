@@ -138,16 +138,28 @@ export function isValidHeaderBackdropUrl(
 
 export const MAX_HEADER_VIDEO_BYTES = 10 * 1024 * 1024;
 
+const HEADER_BACKDROP_UPLOAD_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+];
+
 export async function uploadChannelHeaderVideo(
   file: File,
 ): Promise<
   { ok: true; videoBackgroundUrl: string } | { ok: false; error: string }
 > {
   if (file.size > MAX_HEADER_VIDEO_BYTES) {
-    return { ok: false, error: 'Video must be 10 MB or smaller.' };
+    return { ok: false, error: 'File must be 10 MB or smaller.' };
   }
-  if (!['video/mp4', 'video/webm'].includes(file.type)) {
-    return { ok: false, error: 'Use an MP4 or WebM video.' };
+  if (!HEADER_BACKDROP_UPLOAD_TYPES.includes(file.type)) {
+    return {
+      ok: false,
+      error: 'Use an MP4/WebM video or a JPEG/PNG/WebP/GIF image.',
+    };
   }
   if (forceMock()) {
     return { ok: true, videoBackgroundUrl: URL.createObjectURL(file) };

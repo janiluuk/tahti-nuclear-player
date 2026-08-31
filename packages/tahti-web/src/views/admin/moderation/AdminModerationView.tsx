@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 
 import { fetchAdminDashboard } from '../../../api/admin';
 import { AdminGate } from '../../../components/AdminGate';
-import { AdminNav } from '../../../components/AdminNav';
+import { AdminPageLayout } from '../../../components/AdminNav';
 import { StudioPageHeader } from '../../../components/StudioPanel';
 import { AdminMissedShowsPanel } from '../AdminMissedShowsView';
 import {
@@ -86,31 +86,33 @@ export function AdminModerationView({ tab }: { tab?: AdminModerationTabId }) {
 
   return (
     <AdminGate>
-      <div className="admin-moderation-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
-        <AdminNav
+      <div className="admin-moderation-layout px-1 py-2">
+        <AdminPageLayout
           current="/admin/moderation"
-          splitLayout
           moderationPendingCount={pendingCount}
-        />
-        <StudioPageHeader
-          title="Moderation"
-          subtitle="Review queues the board triages day to day — support, beta access, radio, curation, reports, and roadmap."
-        />
-        <ModerationTabs
-          activeId={
-            ADMIN_MODERATION_TABS[selectedIndex < 0 ? 0 : selectedIndex].id
-          }
-          items={MODERATION_TAB_ITEMS}
-          ariaLabel="Moderation queues"
-          onChange={(nextId) => {
-            void navigate({
-              to: '/admin/moderation/$tab',
-              params: { tab: nextId as AdminModerationTabId },
-              replace: true,
-            });
-          }}
-        />
-        {tabContent(active)}
+        >
+          <div className="flex max-w-5xl flex-col gap-6">
+            <StudioPageHeader
+              title="Moderation"
+              subtitle="Review queues the board triages day to day — support, beta access, radio, curation, reports, and roadmap."
+            />
+            <ModerationTabs
+              activeId={
+                ADMIN_MODERATION_TABS[selectedIndex < 0 ? 0 : selectedIndex].id
+              }
+              items={MODERATION_TAB_ITEMS}
+              ariaLabel="Moderation queues"
+              onChange={(nextId) => {
+                void navigate({
+                  to: '/admin/moderation/$tab',
+                  params: { tab: nextId as AdminModerationTabId },
+                  replace: true,
+                });
+              }}
+            />
+            {tabContent(active)}
+          </div>
+        </AdminPageLayout>
       </div>
     </AdminGate>
   );

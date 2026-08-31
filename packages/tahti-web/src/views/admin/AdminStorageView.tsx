@@ -34,7 +34,7 @@ import {
   type AdminStorageUserRow,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
-import { AdminNav } from '../../components/AdminNav';
+import { AdminPageLayout } from '../../components/AdminNav';
 import { AdminUserEditPanel } from '../../components/AdminUserEditPanel';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -772,39 +772,42 @@ export function AdminStorageView() {
 
   return (
     <AdminGate>
-      <div className="admin-page-layout mx-auto flex max-w-6xl flex-col gap-6 px-1 py-2">
-        <AdminNav current="/admin/storage" />
-        <StudioPageHeader
-          title="Storage"
-          subtitle="Disk and object storage space, per-user quotas, and every uploaded file across the platform."
-        />
+      <div className="admin-page-layout px-1 py-2">
+        <AdminPageLayout current="/admin/storage">
+          <div className="flex max-w-6xl flex-col gap-6">
+            <StudioPageHeader
+              title="Storage"
+              subtitle="Disk and object storage space, per-user quotas, and every uploaded file across the platform."
+            />
 
-        <Tabs
-          selectedIndex={tab === 'storage' ? 0 : 1}
-          onChange={(index) => setTab(index === 0 ? 'storage' : 'files')}
-          listClassName="border-border border-b pb-3"
-          panelClassName="pt-2"
-          items={[
-            {
-              id: 'storage',
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  <HardDriveIcon size={14} aria-hidden /> Storage
-                </span>
-              ),
-              content: <StorageOverviewTab />,
-            },
-            {
-              id: 'files',
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  <CloudIcon size={14} aria-hidden /> Files
-                </span>
-              ),
-              content: <FilesBrowserTab />,
-            },
-          ]}
-        />
+            <Tabs
+              selectedIndex={tab === 'storage' ? 0 : 1}
+              onChange={(index) => setTab(index === 0 ? 'storage' : 'files')}
+              listClassName="border-border border-b pb-3"
+              panelClassName="pt-2"
+              items={[
+                {
+                  id: 'storage',
+                  label: (
+                    <span className="inline-flex items-center gap-1.5">
+                      <HardDriveIcon size={14} aria-hidden /> Storage
+                    </span>
+                  ),
+                  content: <StorageOverviewTab />,
+                },
+                {
+                  id: 'files',
+                  label: (
+                    <span className="inline-flex items-center gap-1.5">
+                      <CloudIcon size={14} aria-hidden /> Files
+                    </span>
+                  ),
+                  content: <FilesBrowserTab />,
+                },
+              ]}
+            />
+          </div>
+        </AdminPageLayout>
       </div>
     </AdminGate>
   );
