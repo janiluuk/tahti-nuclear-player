@@ -18,10 +18,18 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
   const toggleRight = useLayoutStore((s) => s.toggleRight);
 
   useEffect(() => {
+    let cancelled = false;
+
     void fetchNotifications().then((result) => {
-      setNotifications(result.data.filter((item) => !item.readAt));
+      if (!cancelled) {
+        setNotifications(result.data.filter((item) => !item.readAt));
+      }
     });
-  }, [isCollapsed, tab]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (isCollapsed) {
     return (

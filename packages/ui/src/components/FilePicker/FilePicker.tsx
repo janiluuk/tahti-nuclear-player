@@ -45,6 +45,7 @@ export const FilePicker: FC<FilePickerProps> = ({
   const inputId = id ?? `file-picker-${generatedId}`;
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     onFiles?.(Array.from(event.target.files ?? []));
+    event.currentTarget.value = '';
   };
 
   return (

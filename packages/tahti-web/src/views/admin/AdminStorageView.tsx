@@ -19,6 +19,7 @@ import {
   Dialog,
   Input,
   SaveButton,
+  Select,
   Tabs,
 } from '@nuclearplayer/ui';
 
@@ -582,22 +583,18 @@ function FilesBrowserTab() {
           Group by user
         </Button>
         {!groupByUser ? (
-          <label className="text-foreground-secondary flex items-center gap-1.5 text-xs">
+          <div className="flex items-center gap-1.5">
             <ArrowDownAZIcon size={14} aria-hidden />
-            Sort by
-            <select
-              aria-label="Sort files by"
+            <Select
+              label="Sort files by"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as FileSortKey)}
-              className="border-border bg-background text-foreground rounded-md border px-2 py-1.5 text-xs"
-            >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              onValueChange={(value) => setSortBy(value as FileSortKey)}
+              options={SORT_OPTIONS.map((option) => ({
+                id: option.id,
+                label: option.label,
+              }))}
+            />
+          </div>
         ) : null}
       </div>
 

@@ -1,7 +1,7 @@
 import { SearchIcon, UserRoundIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Input } from '@nuclearplayer/ui';
+import { Input, Select } from '@nuclearplayer/ui';
 
 import { fetchAdminUsers, type AdminUserRow } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
@@ -66,30 +66,27 @@ export const AdminUsersView = () => {
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <select
-                    aria-label="Filter by role"
+                  <Select
+                    label="Filter by role"
                     value={role}
-                    onChange={(event) => setRole(event.target.value)}
-                    className="border-border bg-background rounded-md border px-2 py-2 text-sm"
-                  >
-                    {ROLES.map((value) => (
-                      <option key={value} value={value}>
-                        {value
-                          ? value.charAt(0) + value.slice(1).toLowerCase()
-                          : 'All roles'}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    aria-label="Filter by membership"
+                    onValueChange={setRole}
+                    options={ROLES.map((value) => ({
+                      id: value,
+                      label: value
+                        ? value.charAt(0) + value.slice(1).toLowerCase()
+                        : 'All roles',
+                    }))}
+                  />
+                  <Select
+                    label="Filter by membership"
                     value={isMember}
-                    onChange={(event) => setIsMember(event.target.value)}
-                    className="border-border bg-background rounded-md border px-2 py-2 text-sm"
-                  >
-                    <option value="">All accounts</option>
-                    <option value="true">Members</option>
-                    <option value="false">Non-members</option>
-                  </select>
+                    onValueChange={setIsMember}
+                    options={[
+                      { id: '', label: 'All accounts' },
+                      { id: 'true', label: 'Members' },
+                      { id: 'false', label: 'Non-members' },
+                    ]}
+                  />
                 </div>
 
                 <div className="min-h-0 flex-1 overflow-y-auto">

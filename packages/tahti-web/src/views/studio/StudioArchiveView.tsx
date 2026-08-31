@@ -16,7 +16,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog } from '@nuclearplayer/ui';
+import { Button, Dialog, Select } from '@nuclearplayer/ui';
 
 import {
   fetchHearthisTrackById,
@@ -341,38 +341,28 @@ export function StudioArchiveView() {
             </div>
             {filtersOpen && (
               <div className="border-border mb-4 flex flex-wrap items-end gap-3 border-b pb-4">
-                <label className="flex min-w-40 flex-col gap-1 text-xs">
-                  Source
-                  <select
-                    value={embedFilter}
-                    onChange={(event) =>
-                      setEmbedFilter(event.target.value as EmbedFilter)
-                    }
-                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
-                  >
-                    {EMBED_FILTERS.map((filterOption) => (
-                      <option key={filterOption.id} value={filterOption.id}>
-                        {filterOption.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex min-w-40 flex-col gap-1 text-xs">
-                  Sort by
-                  <select
-                    value={sortField}
-                    onChange={(event) =>
-                      setSortField(event.target.value as SortField)
-                    }
-                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
-                  >
-                    {SORT_FIELDS.map((sortOption) => (
-                      <option key={sortOption.id} value={sortOption.id}>
-                        {sortOption.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <Select
+                  label="Source"
+                  value={embedFilter}
+                  onValueChange={(value) =>
+                    setEmbedFilter(value as EmbedFilter)
+                  }
+                  options={EMBED_FILTERS.map((filterOption) => ({
+                    id: filterOption.id,
+                    label: filterOption.label,
+                  }))}
+                  className="min-w-40"
+                />
+                <Select
+                  label="Sort by"
+                  value={sortField}
+                  onValueChange={(value) => setSortField(value as SortField)}
+                  options={SORT_FIELDS.map((sortOption) => ({
+                    id: sortOption.id,
+                    label: sortOption.label,
+                  }))}
+                  className="min-w-40"
+                />
                 <Button
                   size="sm"
                   variant="secondary"

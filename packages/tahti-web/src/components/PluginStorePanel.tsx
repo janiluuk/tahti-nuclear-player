@@ -2606,6 +2606,25 @@ function RadioCategory() {
   ).length;
   const stationAvailableCount = RADIO_STATIONS.length - stationInstalledCount;
 
+  const uploadStationLogo = async (file: File) => {
+    setLogoUploading(true);
+    try {
+      const result = await uploadUserMediaFile(file);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setLogoUrlDraft(result.data.url);
+      toast.success('Cover image uploaded. Save the station to apply it.');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Image upload failed',
+      );
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3">
       <PersonalRadioStreamCard />
@@ -2769,6 +2788,7 @@ function RadioCategory() {
               rightAccessory={
                 <div className="flex gap-1">
                   <Button
+                    type="button"
                     size="icon-sm"
                     variant={stationIsPlaying ? undefined : 'secondary'}
                     disabled={!sourceConfigured}
@@ -2913,15 +2933,7 @@ function RadioCategory() {
                       if (!file) {
                         return;
                       }
-                      setLogoUploading(true);
-                      void uploadUserMediaFile(file).then((result) => {
-                        setLogoUploading(false);
-                        if (!result.ok) {
-                          toast.error(result.error);
-                          return;
-                        }
-                        setLogoUrlDraft(result.data.url);
-                      });
+                      void uploadStationLogo(file);
                     }}
                   />
                 )}
