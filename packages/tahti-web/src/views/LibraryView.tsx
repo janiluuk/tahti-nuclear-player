@@ -13,6 +13,7 @@ import { StudioNav } from '../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../components/StudioPanel';
 import { FavoritesView } from './FavoritesView';
 import { HistoryView } from './HistoryView';
+import { LibraryEmbedsView } from './LibraryEmbedsView';
 import { LibraryMediaView } from './LibraryMediaView';
 import { LibrarySmartLinksView } from './LibrarySmartLinksView';
 import { MyCollectionsView } from './MyCollectionsView';
@@ -32,7 +33,12 @@ type Tab =
   | 'smartlinks'
   | 'media';
 
-type CollectionTab = 'collections' | 'recordings' | 'media' | 'stash';
+type CollectionTab =
+  | 'collections'
+  | 'recordings'
+  | 'media'
+  | 'stash'
+  | 'embeds';
 
 const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
   library: '/library',
@@ -64,7 +70,8 @@ export function LibraryView({
     activeCollectionTab === 'collections' ||
     activeCollectionTab === 'recordings' ||
     activeCollectionTab === 'media' ||
-    activeCollectionTab === 'stash'
+    activeCollectionTab === 'stash' ||
+    activeCollectionTab === 'embeds'
       ? activeCollectionTab
       : null;
 
@@ -93,9 +100,11 @@ export function LibraryView({
                   ? 'Sounds'
                   : overviewTab === 'recordings'
                     ? 'Recordings'
-                    : 'Collections'
+                    : overviewTab === 'embeds'
+                      ? 'Embeds'
+                      : 'Collections'
               }
-              subtitle="Your sounds, collections, recordings, and media."
+              subtitle="Your sounds, collections, recordings, media, and imported embeds."
             />
             <nav
               aria-label="Library sections"
@@ -113,6 +122,7 @@ export function LibraryView({
                   ],
                   ['media', 'Media', '/library/collections?tab=media'],
                   ['stash', 'Stash', '/library/collections?tab=stash'],
+                  ['embeds', 'Embeds', '/library/collections?tab=embeds'],
                 ] as const
               ).map(([id, label, to]) => (
                 <Link
@@ -153,6 +163,11 @@ export function LibraryView({
             {overviewTab === 'stash' && (
               <div className="mt-6">
                 <StudioStashView embedded />
+              </div>
+            )}
+            {overviewTab === 'embeds' && (
+              <div className="mt-6">
+                <LibraryEmbedsView />
               </div>
             )}
           </>

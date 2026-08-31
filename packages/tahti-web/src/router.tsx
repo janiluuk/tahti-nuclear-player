@@ -653,11 +653,14 @@ const libraryCollectionsRoute = createRoute({
   path: '/library/collections',
   validateSearch: (
     search: Record<string, unknown>,
-  ): { tab?: 'collections' | 'recordings' | 'media' | 'stash' } => ({
+  ): {
+    tab?: 'collections' | 'recordings' | 'media' | 'stash' | 'embeds';
+  } => ({
     tab:
       search.tab === 'recordings' ||
       search.tab === 'media' ||
-      search.tab === 'stash'
+      search.tab === 'stash' ||
+      search.tab === 'embeds'
         ? search.tab
         : undefined,
   }),
