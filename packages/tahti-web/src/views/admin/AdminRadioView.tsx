@@ -1,24 +1,303 @@
-import { PauseIcon, PlayIcon, RadioTowerIcon } from 'lucide-react';
+import { PauseIcon, PlayIcon, PlusIcon, RadioTowerIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button } from '@nuclearplayer/ui';
+import { Badge, Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
 
 import {
+  createAdminInternetRadioPreset,
+  deleteAdminInternetRadioPreset,
+  fetchAdminInternetRadioPresets,
   fetchAdminRadio,
   fetchAdminRadioRotation,
+  patchAdminInternetRadioPreset,
   radioMoveToFront,
   radioOptOut,
   radioRemoveOptOut,
+  type AdminInternetRadioPreset,
+  type AdminInternetRadioPresetInput,
   type AdminRadioData,
   type AdminSelectsItem,
 } from '../../api/admin';
 import { fetchRadioStation } from '../../api/client';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
+import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { TahtiRotationPlaylistEditor } from '../../components/TahtiRotationPlaylistEditor';
 import { usePlayerStore } from '../../stores/playerStore';
+
+const EMPTY_PRESET_DRAFT: AdminInternetRadioPresetInput = {
+  name: '',
+  genre: '',
+  description: '',
+  iconUrl: '',
+  programmingUrl: '',
+  streamUrl: '',
+};
+
+function draftFromPreset(
+  preset: AdminInternetRadioPreset,
+): AdminInternetRadioPresetInput {
+  return {
+    name: preset.name,
+    genre: preset.genre ?? '',
+    description: preset.description ?? '',
+    iconUrl: preset.iconUrl ?? '',
+    programmingUrl: preset.programmingUrl ?? '',
+    streamUrl: preset.streamUrl ?? '',
+  };
+}
+
+function InternetRadioPresetsPanel() {
+  const [presets, setPresets] = useState<AdminInternetRadioPreset[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] =
+    useState<AdminInternetRadioPresetInput>(EMPTY_PRESET_DRAFT);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const reload = () => {
+    setLoading(true);
+    void fetchAdminInternetRadioPresets().then((result) => {
+      setPresets(result.data);
+      setLoading(false);
+    });
+  };
+
+  useEffect(reload, []);
+
+  const openNew = () => {
+    setEditingId(null);
+    setDraft(EMPTY_PRESET_DRAFT);
+    setError(null);
+    setEditorOpen(true);
+  };
+
+  const openEdit = (preset: AdminInternetRadioPreset) => {
+    setEditingId(preset.id);
+    setDraft(draftFromPreset(preset));
+    setError(null);
+    setEditorOpen(true);
+  };
+
+  const save = () => {
+    if (!draft.name.trim()) {
+      return;
+    }
+    setPending(true);
+    setError(null);
+    const input: AdminInternetRadioPresetInput = {
+      name: draft.name.trim(),
+      genre: draft.genre?.trim() || undefined,
+      description: draft.description?.trim() || undefined,
+      iconUrl: draft.iconUrl?.trim() || undefined,
+      programmingUrl: draft.programmingUrl?.trim() || undefined,
+      streamUrl: draft.streamUrl?.trim() || undefined,
+    };
+    const request = editingId
+      ? patchAdminInternetRadioPreset(editingId, input)
+      : createAdminInternetRadioPreset(input);
+    void request.then((result) => {
+      setPending(false);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setEditorOpen(false);
+      reload();
+    });
+  };
+
+  const toggleEnabled = (preset: AdminInternetRadioPreset) => {
+    void patchAdminInternetRadioPreset(preset.id, {
+      enabled: !preset.enabled,
+    }).then((result) => {
+      if (result.ok) {
+        reload();
+      }
+    });
+  };
+
+  return (
+    <StudioPanel
+      title={`Internet radio — Listen page defaults (${presets.length})`}
+      description="Stations toggled on here appear in the radio feed on the Listen page for every visitor, signed in or not — not just listeners who add it to their own library."
+      action={
+        <Button size="sm" onClick={openNew}>
+          <PlusIcon size={15} aria-hidden className="mr-1.5" />
+          Add station
+        </Button>
+      }
+    >
+      {loading ? (
+        <PageLoading label="Loading stations…" />
+      ) : presets.length === 0 ? (
+        <p className="text-foreground-secondary py-4 text-center text-sm">
+          No internet radio stations yet — add one to offer it as a default.
+        </p>
+      ) : (
+        <ul className="divide-border divide-y">
+          {presets.map((preset) => (
+            <li
+              key={preset.id}
+              className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
+            >
+              <div className="bg-background-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg text-xs font-bold">
+                {preset.iconUrl ? (
+                  <img
+                    src={preset.iconUrl}
+                    alt=""
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  preset.name.slice(0, 2).toUpperCase()
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="truncate font-medium">{preset.name}</span>
+                  <Badge
+                    variant="pill"
+                    color={preset.enabled ? 'green' : undefined}
+                  >
+                    {preset.enabled ? 'Enabled for everyone' : 'Off'}
+                  </Badge>
+                </div>
+                <div className="text-foreground-secondary truncate text-xs">
+                  {preset.genre ?? 'No genre'} ·{' '}
+                  {preset.streamUrl
+                    ? 'Stream URL set'
+                    : 'No stream URL — won’t be playable'}
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <Button
+                  size="sm"
+                  variant={preset.enabled ? 'secondary' : 'default'}
+                  onClick={() => toggleEnabled(preset)}
+                >
+                  {preset.enabled ? 'Disable' : 'Enable for everyone'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="text"
+                  onClick={() => openEdit(preset)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="text"
+                  onClick={() => {
+                    void deleteAdminInternetRadioPreset(preset.id).then(
+                      (result) => {
+                        if (result.ok) {
+                          reload();
+                        }
+                      },
+                    );
+                  }}
+                >
+                  Remove
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <Dialog.Root
+        isOpen={editorOpen}
+        onClose={() => {
+          if (!pending) {
+            setEditorOpen(false);
+          }
+        }}
+        className="max-w-lg"
+      >
+        <Dialog.Title>
+          {editingId ? 'Edit station' : 'Add internet radio station'}
+        </Dialog.Title>
+        <Dialog.Description>
+          Shown as a default in the Listen page radio feed once enabled.
+        </Dialog.Description>
+        <div className="flex flex-col gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label="Name"
+              value={draft.name}
+              placeholder="Radio Helsinki"
+              onChange={(event) =>
+                setDraft({ ...draft, name: event.target.value })
+              }
+            />
+            <Input
+              label="Genre"
+              value={draft.genre ?? ''}
+              placeholder="World"
+              onChange={(event) =>
+                setDraft({ ...draft, genre: event.target.value })
+              }
+            />
+          </div>
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="text-foreground font-semibold">Description</span>
+            <Textarea
+              value={draft.description ?? ''}
+              rows={2}
+              placeholder="What listeners should expect from this station."
+              onChange={(event) =>
+                setDraft({ ...draft, description: event.target.value })
+              }
+            />
+          </label>
+          <Input
+            label="Stream URL"
+            value={draft.streamUrl ?? ''}
+            placeholder="https://stream.example.com/live.mp3"
+            description="Direct, playable HTTPS stream URL."
+            onChange={(event) =>
+              setDraft({ ...draft, streamUrl: event.target.value })
+            }
+          />
+          <Input
+            label="Programming URL (optional)"
+            value={draft.programmingUrl ?? ''}
+            placeholder="https://example.com/now-playing"
+            description="“What's on now” endpoint, if the station exposes one — display-only."
+            onChange={(event) =>
+              setDraft({ ...draft, programmingUrl: event.target.value })
+            }
+          />
+          <ImageUploadField
+            label="Station logo"
+            description="JPEG, PNG, WebP, or GIF"
+            value={draft.iconUrl ?? ''}
+            onChange={(iconUrl) => setDraft({ ...draft, iconUrl })}
+          />
+          {error ? (
+            <p className="text-accent-red text-sm" role="alert">
+              {error}
+            </p>
+          ) : null}
+        </div>
+        <Dialog.Actions>
+          <Dialog.Close>Cancel</Dialog.Close>
+          <Button
+            type="button"
+            disabled={pending || !draft.name.trim()}
+            onClick={save}
+          >
+            {pending ? 'Saving…' : editingId ? 'Save changes' : 'Add station'}
+          </Button>
+        </Dialog.Actions>
+      </Dialog.Root>
+    </StudioPanel>
+  );
+}
 
 function fmt(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
@@ -316,6 +595,8 @@ export function AdminRadioView() {
                 </StudioPanel>
               </>
             )}
+
+            <InternetRadioPresetsPanel />
           </div>
         </AdminPageLayout>
       </div>

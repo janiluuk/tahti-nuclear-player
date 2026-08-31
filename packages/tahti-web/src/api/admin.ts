@@ -1,5 +1,11 @@
 import { getAccountRole } from '../lib/accountRoles';
 import type { FetchMeta } from './client';
+import {
+  createMockInternetRadioPreset,
+  deleteMockInternetRadioPreset,
+  listMockInternetRadioPresets,
+  patchMockInternetRadioPreset,
+} from './internetRadioPresetsMockStore';
 import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 import type { AccountRole } from './types';
 
@@ -1147,6 +1153,121 @@ export function radioRemoveOptOut(channelId: string) {
   }
   return mutate(
     `/api/admin/radio/${encodeURIComponent(channelId)}/opt-out`,
+    'DELETE',
+  );
+}
+
+// ── Internet radio presets (Listen page defaults) ───────────────────────────
+
+export type AdminInternetRadioPreset = {
+  id: string;
+  name: string;
+  genre: string | null;
+  description: string | null;
+  iconUrl: string | null;
+  programmingUrl: string | null;
+  streamUrl: string | null;
+  enabled: boolean;
+};
+
+export type AdminInternetRadioPresetInput = {
+  name: string;
+  genre?: string;
+  description?: string;
+  iconUrl?: string;
+  programmingUrl?: string;
+  streamUrl?: string;
+  enabled?: boolean;
+};
+
+export async function fetchAdminInternetRadioPresets(): Promise<{
+  data: AdminInternetRadioPreset[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: listMockInternetRadioPresets(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{ presets: AdminInternetRadioPreset[] }>(
+      '/api/admin/internet-radio-presets',
+    );
+    return { data: data.presets, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function createAdminInternetRadioPreset(
+  input: AdminInternetRadioPresetInput,
+): Promise<
+  { ok: true; data: AdminInternetRadioPreset } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const preset = createMockInternetRadioPreset({
+      genre: null,
+      description: null,
+      iconUrl: null,
+      programmingUrl: null,
+      streamUrl: null,
+      ...input,
+    });
+    return { ok: true, data: preset };
+  }
+  try {
+    const data = await sendJson<AdminInternetRadioPreset>(
+      '/api/admin/internet-radio-presets',
+      'POST',
+      input,
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Create failed',
+    };
+  }
+}
+
+export async function patchAdminInternetRadioPreset(
+  id: string,
+  patch: Partial<AdminInternetRadioPresetInput>,
+): Promise<
+  { ok: true; data: AdminInternetRadioPreset } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const updated = patchMockInternetRadioPreset(id, patch);
+    if (!updated) {
+      return { ok: false, error: 'Preset not found' };
+    }
+    return { ok: true, data: updated };
+  }
+  try {
+    const data = await sendJson<AdminInternetRadioPreset>(
+      `/api/admin/internet-radio-presets/${encodeURIComponent(id)}`,
+      'PATCH',
+      patch,
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Update failed',
+    };
+  }
+}
+
+export async function deleteAdminInternetRadioPreset(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    deleteMockInternetRadioPreset(id);
+    return { ok: true };
+  }
+  return mutate(
+    `/api/admin/internet-radio-presets/${encodeURIComponent(id)}`,
     'DELETE',
   );
 }

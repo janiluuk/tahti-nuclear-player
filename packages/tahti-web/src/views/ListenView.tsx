@@ -24,9 +24,11 @@ import {
   fetchArtistPlayables,
   fetchChannel,
   fetchDirectory,
+  fetchEnabledInternetRadioPresets,
   fetchOnAirChannels,
   fetchRadioStation,
   TAHTI_RADIO_SLUG,
+  type EnabledInternetRadioPreset,
 } from '../api/client';
 import {
   fetchDiscoverDiscoWidgets,
@@ -65,6 +67,9 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
   const [genre, setGenre] = useState('all');
   const [activeOnly, setActiveOnly] = useState(false);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
+  const [radioPresets, setRadioPresets] = useState<
+    EnabledInternetRadioPreset[]
+  >([]);
   const [queueConfirm, setQueueConfirm] = useState<{
     displayName: string;
     playables: TahtiPlayable[];
@@ -87,7 +92,8 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
       fetchDirectory(),
       fetchOnAirChannels(),
       fetchRadioStation().catch(() => null),
-    ]).then(([dir, channels, station]) => {
+      fetchEnabledInternetRadioPresets(),
+    ]).then(([dir, channels, station, presets]) => {
       if (cancelled) {
         return;
       }
@@ -104,6 +110,7 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
           })),
       );
       setRadio(station?.data ?? null);
+      setRadioPresets(presets.data);
       setLoading(false);
     });
     return () => {
@@ -396,6 +403,52 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
                     }
                     onPlay={() => play(lastPlayed.playable)}
                   />
+                </CardGrid>
+              </SectionShell>
+            ) : null}
+
+            {radioPresets.length > 0 ? (
+              <SectionShell title="Radio">
+                <CardGrid>
+                  {radioPresets.map((preset) => {
+                    const playableId = `radio-preset:${preset.id}`;
+                    const isCurrent = currentId === playableId;
+                    const isPlaying =
+                      isCurrent &&
+                      (playbackStatus === 'playing' ||
+                        playbackStatus === 'loading');
+                    return (
+                      <Card
+                        key={preset.id}
+                        title={preset.name}
+                        subtitle={preset.genre ?? 'Internet radio'}
+                        src={
+                          preset.iconUrl ?? placeholderArtworkUrl(playableId)
+                        }
+                        isPlaying={isPlaying}
+                        playDisabled={!preset.streamUrl}
+                        onPlay={() => {
+                          if (!preset.streamUrl) {
+                            return;
+                          }
+                          if (isCurrent) {
+                            setPlaybackStatus(isPlaying ? 'paused' : 'playing');
+                            return;
+                          }
+                          play({
+                            id: playableId,
+                            kind: 'radio',
+                            title: preset.name,
+                            artist: preset.genre ?? 'Internet radio',
+                            coverUrl: preset.iconUrl ?? undefined,
+                            streamUrl: preset.streamUrl,
+                            protocol: 'https',
+                            sourceProvider: 'internet-radio',
+                          });
+                        }}
+                      />
+                    );
+                  })}
                 </CardGrid>
               </SectionShell>
             ) : null}

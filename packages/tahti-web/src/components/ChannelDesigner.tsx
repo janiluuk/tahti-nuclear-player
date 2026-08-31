@@ -160,6 +160,23 @@ export function ChannelDesigner({
   const [activeTab, setActiveTab] = useState<TabId>('visualizer');
   const [playerDesignTab, setPlayerDesignTab] =
     useState<PlayerDesignTab>('visualizer');
+  const [highlightSection, setHighlightSection] = useState<
+    'header' | 'visualizer' | null
+  >(null);
+
+  const focusPreviewSection = (
+    tab: 'header' | 'visualizer',
+    elementId: string,
+  ) => {
+    setActiveTab(tab);
+    setHighlightSection(tab);
+    document
+      .getElementById(elementId)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => {
+      setHighlightSection((current) => (current === tab ? null : current));
+    }, 1600);
+  };
 
   useEffect(() => {
     void Promise.all([fetchChannelVisual(), fetchChannelGallery()]).then(
@@ -989,7 +1006,12 @@ export function ChannelDesigner({
 
   const controls = (
     <div className="flex flex-col gap-3">
-      <div className="order-2">
+      <div
+        id="channel-designer-section-player"
+        className={`order-2 rounded-xl transition-shadow ${
+          highlightSection === 'visualizer' ? 'ring-primary ring-2' : ''
+        }`}
+      >
         <ChannelControlsWidget
           sections={[
             {
@@ -1076,7 +1098,12 @@ export function ChannelDesigner({
           ]}
         />
       </div>
-      <div className="order-1">
+      <div
+        id="channel-designer-section-header"
+        className={`order-1 rounded-xl transition-shadow ${
+          highlightSection === 'header' ? 'ring-primary ring-2' : ''
+        }`}
+      >
         <ChannelControlsWidget
           sections={[
             {
@@ -1793,7 +1820,23 @@ export function ChannelDesigner({
           className="border-border bg-background min-w-0 overflow-hidden rounded-xl border shadow-lg"
         >
           <div
-            className="relative min-h-52 overflow-hidden p-5 sm:p-7"
+            role="button"
+            tabIndex={0}
+            aria-label="Edit backdrop design"
+            title="Edit backdrop design"
+            onClick={() =>
+              focusPreviewSection('header', 'channel-designer-section-header')
+            }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                focusPreviewSection(
+                  'header',
+                  'channel-designer-section-header',
+                );
+              }
+            }}
+            className="relative min-h-52 cursor-pointer overflow-hidden p-5 transition-shadow outline-none hover:ring-2 hover:ring-white/40 focus-visible:ring-2 focus-visible:ring-white/70 sm:p-7"
             style={{
               background: showHeaderVideo
                 ? previewStyle.bg
@@ -1881,7 +1924,26 @@ export function ChannelDesigner({
 
           <div className="flex flex-col gap-5 p-4 sm:p-6">
             <section
-              className="relative min-h-64 overflow-hidden rounded-xl border border-white/10"
+              role="button"
+              tabIndex={0}
+              aria-label="Edit player design"
+              title="Edit player design"
+              onClick={() =>
+                focusPreviewSection(
+                  'visualizer',
+                  'channel-designer-section-player',
+                )
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  focusPreviewSection(
+                    'visualizer',
+                    'channel-designer-section-player',
+                  );
+                }
+              }}
+              className="relative min-h-64 cursor-pointer overflow-hidden rounded-xl border border-white/10 transition-shadow outline-none hover:ring-2 hover:ring-white/40 focus-visible:ring-2 focus-visible:ring-white/70"
               style={{ background: previewStyle.bg, color: previewStyle.fg }}
             >
               {hasLivePreview && visualizerEnabled ? (

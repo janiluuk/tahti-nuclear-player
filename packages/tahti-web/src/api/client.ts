@@ -1,4 +1,5 @@
 import { listenerFingerprint } from '../lib/listenerFingerprint';
+import { listEnabledMockInternetRadioPresets } from './internetRadioPresetsMockStore';
 import {
   archiveItemToPlayable,
   channelToPlayable,
@@ -438,6 +439,41 @@ export async function fetchRadio(): Promise<{
       meta: apiErrorMeta(err),
       playable: null,
     };
+  }
+}
+
+/** Board-curated internet radio station, shown in the Listen page radio feed
+ * for every visitor (no auth) once an admin marks it enabled. */
+export type EnabledInternetRadioPreset = {
+  id: string;
+  name: string;
+  genre: string | null;
+  description: string | null;
+  iconUrl: string | null;
+  streamUrl: string | null;
+};
+
+function mockEnabledInternetRadioPresets(): EnabledInternetRadioPreset[] {
+  return listEnabledMockInternetRadioPresets();
+}
+
+export async function fetchEnabledInternetRadioPresets(): Promise<{
+  data: EnabledInternetRadioPreset[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockEnabledInternetRadioPresets(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{ presets: EnabledInternetRadioPreset[] }>(
+      '/api/v1/internet-radio/presets/enabled',
+    );
+    return { data: data.presets, meta: { source: 'api' } };
+  } catch (err) {
+    return withMockFallback(err, mockEnabledInternetRadioPresets, () => []);
   }
 }
 

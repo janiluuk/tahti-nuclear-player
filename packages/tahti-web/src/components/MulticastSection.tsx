@@ -46,6 +46,45 @@ const PROVIDER_ICON: Record<MulticastProviderId, LucideIcon> = {
   CUSTOM: Cast,
 };
 
+/** Each service's own brand color, applied to its icon tile regardless of
+ * theme — a fixed identity mark, not something a theme should recolor. */
+const PROVIDER_COLOR: Record<MulticastProviderId, { bg: string; fg: string }> =
+  {
+    YOUTUBE: { bg: '#FF0000', fg: '#FFFFFF' },
+    TWITCH: { bg: '#9146FF', fg: '#FFFFFF' },
+    FACEBOOK: { bg: '#1877F2', fg: '#FFFFFF' },
+    INSTAGRAM: { bg: '#C13584', fg: '#FFFFFF' },
+    TIKTOK: { bg: '#000000', fg: '#FFFFFF' },
+    MIXCLOUD_LIVE: { bg: '#52D869', fg: '#0B1220' },
+    KICK: { bg: '#53FC18', fg: '#0B1220' },
+    CUSTOM: { bg: '#475569', fg: '#FFFFFF' },
+  };
+
+function ProviderTile({
+  providerId,
+  size,
+  dimmed = false,
+}: {
+  providerId: MulticastProviderId;
+  size: number;
+  dimmed?: boolean;
+}) {
+  const Icon = PROVIDER_ICON[providerId];
+  const color = PROVIDER_COLOR[providerId];
+  return (
+    <div
+      className="flex h-full w-full items-center justify-center rounded-md"
+      style={{
+        background: color.bg,
+        color: color.fg,
+        opacity: dimmed ? 0.5 : 1,
+      }}
+    >
+      <Icon size={size} aria-hidden />
+    </div>
+  );
+}
+
 type EditingState = {
   providerId: MulticastProviderId | null;
   target: RtmpTarget | null;
@@ -139,7 +178,11 @@ function DestinationDialog({
   };
 
   return (
-    <Dialog.Root isOpen onClose={onClose} className="max-w-lg">
+    <Dialog.Root
+      isOpen
+      onClose={onClose}
+      className={providerId ? 'max-w-lg' : 'max-w-4xl'}
+    >
       <Dialog.Title>
         {savedTarget
           ? `Configure ${provider?.label}`
@@ -156,27 +199,26 @@ function DestinationDialog({
       </Dialog.Description>
       <div className="mt-4 flex flex-col gap-3">
         {!providerId ? (
-          <CardGrid className="grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
-            {multicastProviders.map((option) => {
-              const Icon = PROVIDER_ICON[option.id];
-              return (
-                <Card
-                  key={option.id}
-                  title={option.label}
-                  subtitle="Select to configure"
-                  image={
-                    <div className="flex h-full w-full items-center justify-center">
-                      <Icon size={34} aria-hidden />
-                    </div>
-                  }
-                  onClick={() => {
-                    setProviderId(option.id);
-                    setLabel(option.label);
-                  }}
-                />
-              );
-            })}
-          </CardGrid>
+          <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
+            {multicastProviders.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => {
+                  setProviderId(option.id);
+                  setLabel(option.label);
+                }}
+                className="border-border bg-background-secondary hover:border-primary flex w-32 shrink-0 snap-start flex-col items-center gap-2 rounded-xl border p-3 text-center transition-colors"
+              >
+                <div className="size-14 shrink-0">
+                  <ProviderTile providerId={option.id} size={26} />
+                </div>
+                <span className="text-foreground text-sm font-semibold">
+                  {option.label}
+                </span>
+              </button>
+            ))}
+          </div>
         ) : (
           <>
             {!savedTarget && (
@@ -356,7 +398,6 @@ function DestinationsGrid() {
               (candidate) => candidate.provider === provider.id,
             );
             const active = target?.enabled ?? false;
-            const Icon = PROVIDER_ICON[provider.id];
             return (
               <div key={provider.id} className="relative">
                 <Card
@@ -366,15 +407,19 @@ function DestinationsGrid() {
                       ? `${target.label || provider.label} · ${active ? 'enabled' : 'disabled'}`
                       : 'Not configured · Add destination'
                   }
-                  className={`w-full max-w-none ${!target ? 'border-dashed opacity-75' : !active ? 'border-border/70 bg-transparent opacity-60 grayscale' : ''}`}
+                  className={`text-foreground !bg-background-secondary w-full max-w-none border ${
+                    !target
+                      ? 'border-border/70 border-dashed'
+                      : !active
+                        ? 'border-border/50 opacity-70'
+                        : 'border-border'
+                  }`}
                   image={
-                    <div className="flex h-full w-full items-center justify-center">
-                      <Icon
-                        size={40}
-                        aria-hidden
-                        className={!active ? 'opacity-60' : undefined}
-                      />
-                    </div>
+                    <ProviderTile
+                      providerId={provider.id}
+                      size={40}
+                      dimmed={Boolean(target) && !active}
+                    />
                   }
                   onClick={() =>
                     setEditing({
