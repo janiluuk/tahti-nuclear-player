@@ -2598,6 +2598,13 @@ function RadioCategory() {
   const [suggestStreamUrl, setSuggestStreamUrl] = useState('');
   const [suggestBusy, setSuggestBusy] = useState(false);
   const [suggestMsg, setSuggestMsg] = useState<string | null>(null);
+  const [installTab, setInstallTab] = useState<'installed' | 'available'>(
+    'installed',
+  );
+  const stationInstalledCount = RADIO_STATIONS.filter((s) =>
+    enabledStationIds.includes(s.id),
+  ).length;
+  const stationAvailableCount = RADIO_STATIONS.length - stationInstalledCount;
 
   return (
     <div className="flex flex-col gap-3">
@@ -2695,8 +2702,43 @@ function RadioCategory() {
         </form>
       )}
 
+      <div
+        className="flex gap-1"
+        role="tablist"
+        aria-label="Installed or available"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={installTab === 'installed'}
+          onClick={() => setInstallTab('installed')}
+          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+            installTab === 'installed'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground-secondary hover:bg-background-secondary'
+          }`}
+        >
+          Installed ({stationInstalledCount})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={installTab === 'available'}
+          onClick={() => setInstallTab('available')}
+          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+            installTab === 'available'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-foreground-secondary hover:bg-background-secondary'
+          }`}
+        >
+          Available ({stationAvailableCount})
+        </button>
+      </div>
       <div className="flex flex-col gap-2">
-        {RADIO_STATIONS.map((baseStation) => {
+        {RADIO_STATIONS.filter(
+          (s) =>
+            enabledStationIds.includes(s.id) === (installTab === 'installed'),
+        ).map((baseStation) => {
           const station = {
             ...baseStation,
             ...stationOverrides[baseStation.id],

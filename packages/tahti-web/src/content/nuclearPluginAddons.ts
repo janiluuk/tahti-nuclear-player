@@ -100,6 +100,11 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
       routes: ['/api/v1/channels/:slug/disco-widgets'],
       note: 'Embedded playback is supported; provider search is not a Tahti API operation.',
     },
+    realFeature: {
+      kind: 'plugin-category',
+      category: 'listen',
+      label: 'Open the real YouTube listener widget in Listen',
+    },
   },
   {
     id: 'bandcamp',
