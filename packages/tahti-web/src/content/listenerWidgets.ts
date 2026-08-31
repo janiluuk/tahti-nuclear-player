@@ -1,8 +1,9 @@
 /** Listener widgets — pluggable, app-store-style embeds that play content
  * from an external platform inline on the Listen page, using that
  * platform's own official embedded player (SoundCloud's Widget API,
- * Spotify's playlist embed, YouTube's IFrame Player API, and hearthis.at's
- * iframe widget). This is deliberately not a port of
+ * Spotify's playlist embed, YouTube's IFrame Player API, hearthis.at's
+ * iframe widget, and Bandcamp's EmbeddedPlayer). This is deliberately not a
+ * port of
  * Nuclear desktop's StreamProvider plugin system (search/resolve/stream
  * through a sandboxed plugin host) — a browser can't proxy audio out of
  * SoundCloud/YouTube without violating their ToS, so "playing" their
@@ -14,7 +15,8 @@ export type ListenerWidgetTypeId =
   | 'soundcloud'
   | 'spotify'
   | 'youtube'
-  | 'hearthis';
+  | 'hearthis'
+  | 'bandcamp';
 
 export type ListenerWidgetType = {
   id: ListenerWidgetTypeId;
@@ -46,6 +48,26 @@ function soundcloudEmbedUrl(input: string): string | null {
     visual: 'false',
   });
   return `https://w.soundcloud.com/player/?${params.toString()}`;
+}
+
+// Unlike SoundCloud/YouTube/Spotify, Bandcamp's embed iframe can't be
+// derived from a plain track/album page URL — it needs the numeric
+// track/album id Bandcamp's own "Share/Embed" panel encodes into the
+// generated `bandcamp.com/EmbeddedPlayer/...` link. Same shape as
+// hearthisEmbedUrl below: accept the platform's own embed-ready URL rather
+// than pretending to resolve one client-side.
+function bandcampEmbedUrl(input: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(input.trim());
+  } catch {
+    return null;
+  }
+  const host = url.hostname.replace(/^www\./, '').toLowerCase();
+  if (host !== 'bandcamp.com' || !url.pathname.startsWith('/EmbeddedPlayer/')) {
+    return null;
+  }
+  return url.toString();
 }
 
 export function soundcloudProfileUrl(input: string): string | null {
@@ -177,10 +199,11 @@ export const LISTENER_WIDGET_TYPES: ListenerWidgetType[] = [
     name: 'SoundCloud',
     author: 'SoundCloud',
     description:
-      "Play a SoundCloud track, set, or playlist inline using SoundCloud's own embedded player.",
+      "Play a SoundCloud track, set, playlist, or an artist's public profile (their recent public tracks) inline using SoundCloud's own embedded player.",
     category: 'Streaming',
     placeholder: 'https://soundcloud.com/artist/track',
-    helpText: 'Paste a SoundCloud track, set, or playlist URL.',
+    helpText:
+      'Paste a SoundCloud track, set, or playlist URL — or an artist profile URL for a rolling feed of their public tracks.',
     embedHeight: 166,
     toEmbedUrl: soundcloudEmbedUrl,
   },
@@ -220,6 +243,19 @@ export const LISTENER_WIDGET_TYPES: ListenerWidgetType[] = [
       'Paste a hearthis.at embed URL or numeric track ID. Track pages without an embed ID are not supported yet.',
     embedHeight: 150,
     toEmbedUrl: hearthisEmbedUrl,
+  },
+  {
+    id: 'bandcamp',
+    name: 'Bandcamp',
+    author: 'Bandcamp',
+    description:
+      "Play a Bandcamp track or album inline using Bandcamp's own embedded player.",
+    category: 'Streaming',
+    placeholder: 'https://bandcamp.com/EmbeddedPlayer/album=…',
+    helpText:
+      "On the Bandcamp track/album page, use Share / Embed → paste the generated bandcamp.com/EmbeddedPlayer/… link here (a plain bandcamp.com page URL doesn't carry the id Bandcamp's embed needs).",
+    embedHeight: 120,
+    toEmbedUrl: bandcampEmbedUrl,
   },
 ];
 

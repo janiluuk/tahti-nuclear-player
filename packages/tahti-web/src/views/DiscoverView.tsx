@@ -1,13 +1,14 @@
 import { ChevronDownIcon, PlusIcon, SlidersHorizontalIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, FilterChips, Popover } from '@nuclearplayer/ui';
+import { Button, FilterChips, Popover, Select } from '@nuclearplayer/ui';
 
 import {
   fetchArtistOfTheWeek,
   fetchLatestTracks,
   fetchLovedTracks,
   fetchNewToYou,
+  fetchRandomArtist,
   fetchTopTracks,
 } from '../api/discover';
 import type { DiscoverArtistOfWeek } from '../api/discover';
@@ -40,6 +41,7 @@ const WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
   'most-played': 'Most played',
   loved: 'Loved by the community',
   'artist-of-the-week': 'Random artist of the week',
+  'random-artist': 'Random artist pick',
 };
 
 type WidgetData = {
@@ -60,6 +62,12 @@ export function DiscoverView() {
   const setGenreFilter = useDiscoverStore((s) => s.setGenreFilter);
   const setContentTypeFilter = useDiscoverStore((s) => s.setContentTypeFilter);
   const setUnheardOnly = useDiscoverStore((s) => s.setUnheardOnly);
+  const randomArtistRotationDays = useDiscoverStore(
+    (s) => s.randomArtistRotationDays,
+  );
+  const setRandomArtistRotationDays = useDiscoverStore(
+    (s) => s.setRandomArtistRotationDays,
+  );
   const [data, setData] = useState<Record<string, WidgetData>>({});
   const [unheardIds, setUnheardIds] = useState<Set<string> | null>(null);
   const [genresOpen, setGenresOpen] = useState(false);
@@ -100,6 +108,12 @@ export function DiscoverView() {
         switch (id) {
           case 'artist-of-the-week': {
             const { data: artist } = await fetchArtistOfTheWeek();
+            return { loading: false, items: [], artist: artist ?? undefined };
+          }
+          case 'random-artist': {
+            const { data: artist } = await fetchRandomArtist(
+              randomArtistRotationDays,
+            );
             return { loading: false, items: [], artist: artist ?? undefined };
           }
           case 'this-week-most-played': {
@@ -166,7 +180,13 @@ export function DiscoverView() {
     return () => {
       cancelled = true;
     };
-  }, [enabledWidgets, filters, unheardIds, unheardOnly]);
+  }, [
+    enabledWidgets,
+    filters,
+    unheardIds,
+    unheardOnly,
+    randomArtistRotationDays,
+  ]);
 
   const availableToAdd = ALL_WIDGET_IDS.filter(
     (id) => !enabledWidgets.includes(id),
@@ -266,6 +286,24 @@ export function DiscoverView() {
               canMoveDown={index < enabledWidgets.length - 1}
               onMove={moveWidget}
               onRemove={removeWidget}
+              settings={
+                id === 'random-artist' ? (
+                  <Select
+                    label="Keep the same pick for"
+                    value={String(randomArtistRotationDays)}
+                    onValueChange={(value) =>
+                      setRandomArtistRotationDays(Number(value))
+                    }
+                    options={[
+                      { id: '1', label: '1 day' },
+                      { id: '3', label: '3 days' },
+                      { id: '7', label: '7 days' },
+                      { id: '14', label: '14 days' },
+                      { id: '30', label: '30 days' },
+                    ]}
+                  />
+                ) : undefined
+              }
             />
           );
         })}

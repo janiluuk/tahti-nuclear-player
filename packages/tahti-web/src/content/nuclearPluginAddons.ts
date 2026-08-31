@@ -62,40 +62,6 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     },
   },
   {
-    id: 'lastfm',
-    name: 'Last.fm',
-    category: 'Scrobbling',
-    description:
-      'Scrobble tracks and update Now Playing on your Last.fm profile.',
-    status: 'planned',
-    statusLabel: 'Configuration saved',
-    fields: [
-      {
-        id: 'username',
-        label: 'Last.fm username',
-        placeholder: 'your username',
-      },
-      {
-        id: 'apiKey',
-        label: 'API key',
-        placeholder: 'Last.fm API key',
-        secret: true,
-      },
-      {
-        id: 'sharedSecret',
-        label: 'Shared secret',
-        placeholder: 'Last.fm shared secret',
-        secret: true,
-      },
-    ],
-    note: 'Scrobbling requires a server-side integration and consent-aware playback event contract.',
-    apiCounterpart: {
-      status: 'missing',
-      routes: ['/api/me/notification-preferences'],
-      note: 'The preference route exists, but playback scrobbling and consent events do not.',
-    },
-  },
-  {
     id: 'youtube',
     name: 'YouTube',
     category: 'Streaming',
@@ -239,21 +205,6 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     },
   },
   {
-    id: 'khinsider',
-    name: 'KHInsider',
-    category: 'Metadata',
-    description: 'Browse and play video game soundtracks from KHInsider.',
-    status: 'planned',
-    statusLabel: 'Not targeted for Tahti',
-    fields: [],
-    note: 'This audience-specific catalogue is not currently part of Tahti’s radio and artist workflow.',
-    apiCounterpart: {
-      status: 'missing',
-      routes: [],
-      note: 'No Tahti catalogue, rights, or streaming contract exists for KHInsider.',
-    },
-  },
-  {
     id: 'omnisource',
     name: 'OmniSource',
     category: 'Streaming',
@@ -368,22 +319,6 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
       status: 'missing',
       routes: [],
       note: 'Add a public, rate-limited discovery contract before implementing the dashboard.',
-    },
-  },
-  {
-    id: 'netease',
-    name: 'NetEase Cloud Music',
-    category: 'Metadata',
-    description:
-      'Search, browse, and stream music from NetEase Cloud Music using yt-dlp.',
-    status: 'planned',
-    statusLabel: 'Not targeted for Tahti',
-    fields: [],
-    note: 'Tahti does not currently expose a server-side yt-dlp provider contract for third-party catalogue playback.',
-    apiCounterpart: {
-      status: 'missing',
-      routes: [],
-      note: 'A rights-aware resolver and provider permission model are required.',
     },
   },
 ];

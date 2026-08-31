@@ -41,6 +41,32 @@ describe('SoundCloud profile URL', () => {
   });
 });
 
+describe('Bandcamp listener embed', () => {
+  const bandcamp = listenerWidgetType('bandcamp');
+
+  it('accepts the official EmbeddedPlayer URL', () => {
+    expect(
+      bandcamp?.toEmbedUrl(
+        'https://bandcamp.com/EmbeddedPlayer/album=1234567890/size=large/tracklist=false/',
+      ),
+    ).toBe(
+      'https://bandcamp.com/EmbeddedPlayer/album=1234567890/size=large/tracklist=false/',
+    );
+  });
+
+  it('rejects a plain Bandcamp page URL — no derivable numeric id', () => {
+    expect(
+      bandcamp?.toEmbedUrl('https://artist.bandcamp.com/album/some-album'),
+    ).toBeNull();
+  });
+
+  it('rejects unrelated URLs', () => {
+    expect(
+      bandcamp?.toEmbedUrl('https://example.com/EmbeddedPlayer/'),
+    ).toBeNull();
+  });
+});
+
 describe('Spotify playlist listener embed', () => {
   const spotify = listenerWidgetType('spotify');
 

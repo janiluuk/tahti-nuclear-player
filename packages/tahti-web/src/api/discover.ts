@@ -79,6 +79,42 @@ export async function fetchArtistOfTheWeek(): Promise<{
   }
 }
 
+/** Generalized fetchArtistOfTheWeek: stable for `rotationDays` days at a
+ * time (default 1 — a new pick daily) instead of hardcoded to a week, so
+ * the widget settings can offer "every N days" without re-randomizing on
+ * every reload within the same window. */
+export async function fetchRandomArtist(rotationDays = 1): Promise<{
+  data: DiscoverArtistOfWeek | null;
+  meta: FetchMeta;
+}> {
+  try {
+    const directory = await fetchDirectory();
+    const artists = directory.data.items.filter(
+      (artist) => artist.slug !== 'tahti-radio',
+    );
+    if (artists.length === 0) {
+      return { data: null, meta: directory.meta };
+    }
+
+    const windowMs = Math.max(1, rotationDays) * 24 * 60 * 60 * 1000;
+    const windowIndex = Math.floor(Date.now() / windowMs);
+    const selected = artists[windowIndex % artists.length]!;
+    const profile = await fetchProfile(selected.username);
+    return {
+      data: {
+        username: profile.data.artist.username,
+        displayName: profile.data.artist.displayName,
+        bio: profile.data.artist.bio,
+        avatarUrl: profile.data.artist.avatarUrl ?? selected.avatarUrl,
+        channelSlug: selected.slug,
+      },
+      meta: profile.meta,
+    };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
 function filterQuery(filters: DiscoverFilters): string {
   const params = new URLSearchParams();
   // The backend only accepts a single genre per request; the multi-select

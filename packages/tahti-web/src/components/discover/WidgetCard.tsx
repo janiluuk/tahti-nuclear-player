@@ -1,6 +1,12 @@
 import { Link } from '@tanstack/react-router';
-import { ChevronDownIcon, ChevronUpIcon, InboxIcon, XIcon } from 'lucide-react';
-import type { ReactNode } from 'react';
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  InboxIcon,
+  SettingsIcon,
+  XIcon,
+} from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 
 import { Button, EmptyState, Loader } from '@nuclearplayer/ui';
 
@@ -24,6 +30,7 @@ export function WidgetCard({
   canMoveDown,
   onMove,
   onRemove,
+  settings,
 }: {
   id: DiscoverWidgetId;
   title: string;
@@ -37,7 +44,12 @@ export function WidgetCard({
   canMoveDown: boolean;
   onMove: (id: DiscoverWidgetId, direction: 'up' | 'down') => void;
   onRemove: (id: DiscoverWidgetId) => void;
+  /** Optional per-widget configuration, toggled open by the gear button
+   * (e.g. the random-artist widget's rotation-length picker). */
+  settings?: ReactNode;
 }) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   return (
     <section className="border-border bg-background-secondary flex min-h-[280px] flex-col gap-3 rounded-md border-(length:--border-width) p-4">
       <header className="flex items-start justify-between gap-2">
@@ -50,6 +62,18 @@ export function WidgetCard({
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
+          {settings && (
+            <Button
+              size="icon-sm"
+              variant="text"
+              aria-pressed={settingsOpen}
+              onClick={() => setSettingsOpen((v) => !v)}
+              title={settingsOpen ? 'Hide settings' : 'Configure'}
+              aria-label={settingsOpen ? 'Hide settings' : 'Configure widget'}
+            >
+              <SettingsIcon size={14} />
+            </Button>
+          )}
           <Button
             size="icon-sm"
             variant="text"
@@ -82,6 +106,12 @@ export function WidgetCard({
           </Button>
         </div>
       </header>
+
+      {settings && settingsOpen && (
+        <div className="border-border bg-background/60 rounded border border-dashed p-2">
+          {settings}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex flex-1 items-center justify-center">

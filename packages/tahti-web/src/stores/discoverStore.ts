@@ -8,7 +8,8 @@ export type DiscoverWidgetId =
   | 'latest-tracks'
   | 'most-played'
   | 'loved'
-  | 'artist-of-the-week';
+  | 'artist-of-the-week'
+  | 'random-artist';
 
 export const ALL_WIDGET_IDS: DiscoverWidgetId[] = [
   'this-week-most-played',
@@ -18,6 +19,7 @@ export const ALL_WIDGET_IDS: DiscoverWidgetId[] = [
   'most-played',
   'loved',
   'artist-of-the-week',
+  'random-artist',
 ];
 
 export const DEFAULT_WIDGETS: DiscoverWidgetId[] = [
@@ -31,12 +33,16 @@ type DiscoverState = {
   genreFilter: string[];
   contentTypeFilter: string[];
   unheardOnly: boolean;
+  /** How many days the random-artist widget keeps the same pick before
+   * rotating to a new one. */
+  randomArtistRotationDays: number;
   addWidget: (id: DiscoverWidgetId) => void;
   removeWidget: (id: DiscoverWidgetId) => void;
   moveWidget: (id: DiscoverWidgetId, direction: 'up' | 'down') => void;
   setGenreFilter: (genres: string[]) => void;
   setContentTypeFilter: (types: string[]) => void;
   setUnheardOnly: (enabled: boolean) => void;
+  setRandomArtistRotationDays: (days: number) => void;
 };
 
 export const useDiscoverStore = create<DiscoverState>()(
@@ -46,6 +52,7 @@ export const useDiscoverStore = create<DiscoverState>()(
       genreFilter: [],
       contentTypeFilter: [],
       unheardOnly: false,
+      randomArtistRotationDays: 1,
 
       addWidget: (id) =>
         set((s) =>
@@ -77,6 +84,8 @@ export const useDiscoverStore = create<DiscoverState>()(
       setGenreFilter: (genres) => set({ genreFilter: genres }),
       setContentTypeFilter: (types) => set({ contentTypeFilter: types }),
       setUnheardOnly: (enabled) => set({ unheardOnly: enabled }),
+      setRandomArtistRotationDays: (days) =>
+        set({ randomArtistRotationDays: days }),
     }),
     { name: 'tahti-web:discover' },
   ),

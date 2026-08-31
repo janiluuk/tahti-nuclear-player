@@ -101,7 +101,7 @@ export const PLUGIN_CATEGORIES: PluginCategory[] = [
     id: 'listen',
     label: 'Listen',
     description:
-      'SoundCloud, Spotify, YouTube, and hearthis.at listener widgets on your Listen page, played via their own platform.',
+      'SoundCloud, Spotify, YouTube, hearthis.at, and Bandcamp listener widgets on your Listen page, played via their own platform.',
     icon: HeadphonesIcon,
   },
   {
