@@ -898,7 +898,10 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
               "On success, navigates straight to the new track's detail page (as of this session — previously stayed on this form)",
             to: '/studio/archive/$id',
           },
-          { label: 'Open Sources for cloud imports instead', to: '/sources' },
+          {
+            label: 'Open Add-ons → Import for cloud imports instead',
+            to: '/settings/plugin-store?category=import',
+          },
         ],
         old: {
           image: '/map/studio/upload.png',
@@ -1123,20 +1126,17 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
       },
       {
         id: 'artist-sources',
-        title: 'Sources OAuth / import',
-        viewName: 'Sources',
-        caption: 'Bandcamp, SoundCloud, Drive, Mixcloud, URL tiles.',
+        title: 'Import add-ons',
+        viewName: 'Settings → Add-ons → Import',
+        caption:
+          'Bandcamp, SoundCloud, Google Drive, Mixcloud, hearthis.at — each configures inline (Connect/Configure gear), no separate page.',
         actions: [
-          'Connect Bandcamp / SoundCloud / Google Drive / Mixcloud / hearthis.at / a direct URL',
+          'Connect Bandcamp / SoundCloud / Google Drive / Mixcloud',
           'Enter a hearthis.at username to browse its library',
           'Pick an import destination playlist',
-          'Play a source track before importing',
+          'Preview a source track before importing',
         ],
         goesTo: [
-          {
-            label: "Open a connected source's detail pane",
-            to: '/sources/$id',
-          },
           {
             label: 'Land in Music/Archive once an import completes',
             to: '/studio/archive/$id',
@@ -1153,8 +1153,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/sources.png',
-          route: '/sources',
-          caption: 'Nuclear sources tiles',
+          route: '/settings/plugin-store?category=import',
+          caption: 'Add-ons → Import tiles',
         },
       },
       {

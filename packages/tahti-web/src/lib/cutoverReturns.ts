@@ -24,7 +24,10 @@ export function resolveDashboardCallbackRedirect(
 ): string | null {
   const mixcloud = stringValue(search, 'mixcloud');
   if (mixcloud) {
-    return appendSearchParams('/sources/mixcloud', { status: mixcloud });
+    return appendSearchParams('/settings/plugin-store', {
+      status: mixcloud,
+      category: 'import',
+    });
   }
 
   const fanConnect = stringValue(search, 'fanConnect');

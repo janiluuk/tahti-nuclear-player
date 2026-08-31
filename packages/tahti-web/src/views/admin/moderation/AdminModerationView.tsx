@@ -65,7 +65,7 @@ const MODERATION_TAB_ITEMS: ModerationTabItem[] = ADMIN_MODERATION_TABS.map(
  * moderationNav.ts. These used to be six standalone `/admin/*` routes; they
  * now redirect into `/admin/moderation/$tab` (router.tsx), which is the
  * canonical, addressable URL for each tab — same convention as
- * `/settings/$section` (SettingsView) and `/sources/$id` (SourcesView).
+ * `/settings/$section` (SettingsView).
  * Headless UI's Tabs unmount inactive panels by default, so switching tabs
  * here re-fetches that queue rather than loading all six up front. */
 export function AdminModerationView({ tab }: { tab?: AdminModerationTabId }) {

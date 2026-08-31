@@ -52,17 +52,17 @@ export const EXPORT_TARGETS: ExportTarget[] = [
   {
     id: 'bandcamp',
     label: 'Bandcamp',
-    note: 'Manage the connected account under Sources.',
+    note: 'Manage the connected account under Add-ons → Import.',
     color: 'var(--accent-cyan)',
-    to: '/sources/bandcamp',
+    to: '/settings/plugin-store?category=import',
     supportsTracks: false,
   },
   {
     id: 'soundcloud',
     label: 'SoundCloud',
-    note: 'Manage the connected account under Sources.',
+    note: 'Manage the connected account under Add-ons → Import.',
     color: 'var(--accent-orange)',
-    to: '/sources/soundcloud',
+    to: '/settings/plugin-store?category=import',
     supportsTracks: false,
   },
   {
@@ -70,7 +70,7 @@ export const EXPORT_TARGETS: ExportTarget[] = [
     label: 'Mixcloud',
     note: 'Export individual mixes from Track info.',
     color: 'var(--accent-purple)',
-    to: '/sources/mixcloud',
+    to: '/settings/plugin-store?category=import',
     supportsTracks: true,
   },
   {
@@ -78,7 +78,7 @@ export const EXPORT_TARGETS: ExportTarget[] = [
     label: 'hearthis.at',
     note: 'No push API — cross-post manually using your connected username.',
     color: 'var(--accent-yellow)',
-    to: '/sources/hearthis',
+    to: '/settings/plugin-store?category=import',
     supportsTracks: false,
   },
 ];

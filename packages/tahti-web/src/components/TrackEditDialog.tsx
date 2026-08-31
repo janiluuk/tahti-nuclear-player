@@ -35,6 +35,7 @@ import type {
   TracklistOverlaySettings,
 } from '../api/studio-types';
 import { capitalizeGenre, PRESET_GENRES } from '../lib/genres';
+import { useMasteringFeatureStore } from '../plugins/mastering/store';
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
 import {
   AudienceVisibilitySection,
@@ -99,6 +100,7 @@ const TAB_ORDER: Tab[] = [
 ];
 
 export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
+  const masteringEnabled = useMasteringFeatureStore((state) => state.enabled);
   const isOpen = Boolean(archiveItemId);
   const [tab, setTab] = useState<Tab>('basics');
   const [item, setItem] = useState<StudioArchiveItem | null>(null);
@@ -629,7 +631,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         Open audio editor →
                       </Link>
                     )}
-                    {!item.embedUri && (
+                    {!item.embedUri && masteringEnabled && (
                       <Link
                         to="/studio/mastering/$id"
                         params={{ id: item.id }}

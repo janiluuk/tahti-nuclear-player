@@ -151,7 +151,6 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/mastering',
     '/studio/stash',
     '/studio/playlists',
-    '/sources',
   ],
   '/studio/go-live': [
     '/studio/go-live',

@@ -1,11 +1,15 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
   Cast,
   CheckSquareIcon,
+  DownloadIcon,
   Eye,
+  FolderDownIcon,
+  Link2Icon,
   LinkIcon,
   PauseIcon,
   PlayIcon,
+  Radio as RadioIcon,
   SearchIcon,
   SettingsIcon,
   XIcon,
@@ -14,10 +18,13 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
+  Badge,
   Button,
   Dialog,
+  FavoriteButton,
   FilePicker,
   Input,
+  MediaArtwork,
   PluginItem,
   PluginStoreItem,
   Select,
@@ -47,16 +54,46 @@ import {
   unlinkSpotifyArtistProfile,
 } from '../api/distribution';
 import {
+  COMMON_STATIONS,
+  lookupStationByUrl,
+  playableFromRadioStation,
+  readIcyStreamTitle,
+  resolveStreamUrl,
+  searchStationsByName,
+  type RadioStation as PublicRadioStation,
+} from '../api/radio-sources';
+import {
   disconnectIntegration,
+  fetchBandcampAlbums,
   fetchConnectionStatus,
+  fetchHearthisCollectionTracks,
+  fetchHearthisLibrary,
+  fetchSoundcloudTracks,
+  importBandcampAlbum,
+  importHearthisTracks,
+  importSoundcloudTracks,
   importSpotifyTracks,
   oauthStartUrl,
+  playableFromHearthis,
+  searchHearthisTracks,
   searchSpotifyTracks,
+  type BandcampAlbum,
+  type HearthisLibrary,
+  type HearthisTrack,
   type IntegrationId,
+  type SoundcloudTrack,
   type SpotifySearchTrack,
 } from '../api/sources';
+import {
+  createStudioCollection,
+  fetchStudioCollections,
+  patchStudioCollection,
+} from '../api/studio';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
-import type { SpotifyArtistProfile } from '../api/studio-types';
+import type {
+  SpotifyArtistProfile,
+  StudioCollection,
+} from '../api/studio-types';
 import { uploadUserMediaFile } from '../api/user-media';
 import {
   LISTENER_WIDGET_TYPES,
@@ -78,6 +115,7 @@ import {
 } from '../plugins/audio-fx';
 import { EXPORT_TARGETS } from '../plugins/export';
 import { importSourcePlugins } from '../plugins/import-sources';
+import { useMasteringFeatureStore } from '../plugins/mastering/store';
 import {
   multicastProviderLabel,
   multicastProviders,
@@ -86,6 +124,7 @@ import {
 import { useThemeStore } from '../plugins/themes';
 import { visualizerMetadata } from '../plugins/visualizers';
 import { useAuthStore } from '../stores/authStore';
+import { useLibraryStore } from '../stores/libraryStore';
 import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
@@ -106,25 +145,32 @@ const IMPORT_SOURCE_KINDS = new Set(['oauth', 'search', 'tool']);
 /** Fold-out shell shared by every configurable plugin card: a gear toggle
  * next to the card that reveals an inline settings form below it (tabs
  * inside `children` when there's enough to configure to warrant them —
- * see VisualizersCategory). Not every plugin gets a gear: deep-link-only
- * entries (most Export/Import targets) have nothing to configure here —
- * their real settings UI is one click away at `action.to`. */
+ * see VisualizersCategory). Every plugin gets one — nothing in this store
+ * navigates away to configure itself. `header` can be a render prop when
+ * the card's own primary button should also open the same panel as the
+ * gear (e.g. a "Configure" button rather than an unrelated action). */
 function ConfigurableCard({
   header,
   children,
   title,
   defaultOpen = false,
+  dialogClassName = 'max-w-lg',
 }: {
-  header: React.ReactNode;
+  header: React.ReactNode | ((open: () => void) => React.ReactNode);
   children: React.ReactNode;
   title: string;
   defaultOpen?: boolean;
+  /** Override the Dialog's width for plugins with more to configure than a
+   * small popup can comfortably hold (e.g. HearthisCard's library browser). */
+  dialogClassName?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className="min-w-0 flex-1">{header}</div>
+        <div className="min-w-0 flex-1">
+          {typeof header === 'function' ? header(() => setOpen(true)) : header}
+        </div>
         <Button
           size="icon-sm"
           variant="secondary"
@@ -138,7 +184,7 @@ function ConfigurableCard({
       <Dialog.Root
         isOpen={open}
         onClose={() => setOpen(false)}
-        className="max-w-lg"
+        className={dialogClassName}
       >
         <Dialog.Title>Configure {title}</Dialog.Title>
         <Dialog.Description>
@@ -156,16 +202,27 @@ function ConfigurableCard({
 /** Unified browser across the app's plugin-shaped subsystems — see
  * PLUGIN-STORE-PLAN.md for what actually turning each one into a real,
  * removable plugin would take. This view is the navigation/config layer
- * over the *existing* implementations, not a new plugin runtime: themes
- * apply in place, visualizer/hearthis/embed/MusicBrainz configure in dialogs
- * (real API calls, not stubs), everything else opens its real settings
- * surface, which still owns the actual editing UI.
+ * over the *existing* implementations, not a new plugin runtime: every
+ * plugin configures inline, in its own gear-toggled dialog (real API
+ * calls, not stubs) — nothing here navigates away to configure itself.
  *
  * Import/Export/Fingerprinting share one tagged registry (`SERVICE_PLUGINS`
  * below) so shared services can stay a single entry without duplicating
  * their configuration UI. */
 export function PluginStorePanel() {
+  const isOpen = useSettingsModalStore((s) => s.isOpen);
+  const pluginCategory = useSettingsModalStore((s) => s.pluginCategory);
   const [category, setCategory] = useState<PluginCategoryId>('themes');
+
+  // The modal (and this panel) stays mounted across close/open cycles, so
+  // sync on every open in case the caller requested a specific sub-tab
+  // (e.g. an OAuth callback redirect landing on Import — see
+  // AddToMusicActions, router.tsx's sourcesRoute redirect).
+  useEffect(() => {
+    if (isOpen && pluginCategory) {
+      setCategory(pluginCategory);
+    }
+  }, [isOpen, pluginCategory]);
 
   return (
     <Tabs
@@ -199,6 +256,7 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
       </p>
       {categoryId === 'themes' && <ThemesCategory />}
       {categoryId === 'visualizers' && <VisualizersCategory />}
+      {categoryId === 'export' && <DspUrlPasteCard />}
       {(categoryId === 'export' ||
         categoryId === 'import' ||
         categoryId === 'fingerprinting') && (
@@ -207,7 +265,7 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
       {categoryId === 'multicast' && <MulticastCategory />}
       {categoryId === 'audio-plugins' && <AudioPluginsCategory />}
       {categoryId === 'radio' && <RadioCategory />}
-      {categoryId === 'embed' && <EmbedCategory />}
+      {categoryId === 'listen' && <ListenCategory />}
       {categoryId === 'discovery' && <DiscoveryCategory />}
       {categoryId === 'channel' && <ChannelCategory />}
       {categoryId === 'nuclear-plugins' && <NuclearPluginAddonsCategory />}
@@ -525,8 +583,8 @@ type ServiceAction =
       kind: 'oauth';
       integrationId: IntegrationId;
       oauthPath: string;
-      instructionsHref: string;
-      instructionsLabel: string;
+      instructionsHref?: string;
+      instructionsLabel?: string;
     }
   | { kind: 'info' };
 
@@ -545,6 +603,26 @@ type ServicePlugin = {
 // albums in from" list. They remain fully reachable from the Sources page.
 const NON_IMPORT_TOOL_IDS = new Set<IntegrationId>(['url', 'radio']);
 
+// Real "log in with the provider" links for the sources that have one —
+// shown under the OAuth card's "Not connected yet" state. Google Drive
+// omits one since almost every visitor already has a Google account.
+const OAUTH_SOURCE_INSTRUCTIONS: Partial<
+  Record<IntegrationId, { instructionsHref: string; instructionsLabel: string }>
+> = {
+  bandcamp: {
+    instructionsHref: 'https://bandcamp.com/login',
+    instructionsLabel: 'Log into Bandcamp',
+  },
+  soundcloud: {
+    instructionsHref: 'https://soundcloud.com',
+    instructionsLabel: 'Log into SoundCloud',
+  },
+  mixcloud: {
+    instructionsHref: 'https://www.mixcloud.com',
+    instructionsLabel: 'Log into Mixcloud',
+  },
+};
+
 const IMPORT_SERVICE_PLUGINS: ServicePlugin[] = importSourcePlugins
   .filter(
     (s) =>
@@ -558,11 +636,31 @@ const IMPORT_SERVICE_PLUGINS: ServicePlugin[] = importSourcePlugins
     author: s.kind === 'oauth' ? 'Connect' : 'Tool',
     description: s.description,
     tags: ['import'],
-    action: { kind: 'deep-link', to: s.studioDeepLink ?? `/sources/${s.id}` },
+    // Every oauth-kind source configures inline (connect status, and for
+    // Bandcamp/SoundCloud a real album/track picker) via OAuthServiceCard —
+    // never a deep-link to the old per-source Sources page.
+    action:
+      s.kind === 'oauth'
+        ? {
+            kind: 'oauth' as const,
+            integrationId: s.id,
+            oauthPath: s.oauthStartPath ?? '',
+            ...OAUTH_SOURCE_INSTRUCTIONS[s.id],
+          }
+        : {
+            kind: 'deep-link' as const,
+            to: s.studioDeepLink ?? `/sources/${s.id}`,
+          },
   }));
 
+// Bandcamp/SoundCloud/Mixcloud's export entries were just a "manage the
+// connection under Sources" pointer to the same account already fully
+// configurable from the Import card above — drop the duplicate rather than
+// re-point it at the retired Sources deep-link. (hearthis has never shown
+// here — it has its own Import-tagged plugin below.)
 const EXPORT_SERVICE_PLUGINS: ServicePlugin[] = EXPORT_TARGETS.filter(
-  (target) => target.id !== 'hearthis',
+  (target) =>
+    !['hearthis', 'bandcamp', 'soundcloud', 'mixcloud'].includes(target.id),
 ).map((t) => ({
   id: `export-${t.id}`,
   name: t.label,
@@ -580,7 +678,9 @@ const HEARTHIS_PLUGIN: ServicePlugin = {
   description:
     "Search hearthis.at's public catalogue to import tracks and sets.",
   tags: ['import'],
-  action: { kind: 'deep-link', to: '/sources/hearthis' },
+  // HearthisCard configures inline (ConfigurableCard) and ignores this
+  // action entirely — see ServiceCard's id === 'hearthis' branch.
+  action: { kind: 'info' },
 };
 
 const MUSICBRAINZ_PLUGIN: ServicePlugin = {
@@ -616,6 +716,51 @@ const SERVICE_PLUGINS: ServicePlugin[] = [
   MUSICBRAINZ_PLUGIN,
   ACOUSTID_PLUGIN,
 ];
+
+/** Paste a DSP URL (Spotify/Bandcamp/etc.) to seed a smart-link target on a
+ * release — not a track/album import, so it doesn't belong in the Import
+ * list above. Ported from the retired Sources page's `url` tab; the
+ * "Open releases editor" action closes Add-ons first since it's a real
+ * navigation to a different page. */
+function DspUrlPasteCard() {
+  const [urlPaste, setUrlPaste] = useState('');
+
+  return (
+    <ConfigurableCard
+      title="URL / DSP paste"
+      header={(open) => (
+        <PluginStoreItem
+          name="URL / DSP paste"
+          author="Tool"
+          description="Paste Spotify/Bandcamp/etc. URLs to seed smart-link targets on a release."
+          isInstalled={false}
+          onInstall={open}
+          labels={{ install: 'Configure' }}
+        />
+      )}
+    >
+      <p className="text-foreground-secondary text-sm">
+        Paste a DSP URL to open Studio releases (smart-link targets).
+      </p>
+      <Input
+        className="w-full"
+        size="sm"
+        value={urlPaste}
+        onChange={(e) => setUrlPaste(e.target.value)}
+        placeholder="https://open.spotify.com/track/…"
+      />
+      <Link
+        to="/studio/releases"
+        onClick={() => useSettingsModalStore.getState().close()}
+      >
+        <Button size="sm">
+          <Link2Icon size={16} aria-hidden className="mr-1.5" />
+          Open releases editor
+        </Button>
+      </Link>
+    </ConfigurableCard>
+  );
+}
 
 function ServiceCategory({ categoryId }: { categoryId: PluginCategoryId }) {
   const plugins = SERVICE_PLUGINS.filter((p) => p.tags.includes(categoryId));
@@ -905,6 +1050,12 @@ function OAuthServiceCard({
   const [profileUrl, setProfileUrl] = useState('');
   const [profileDraft, setProfileDraft] = useState('');
   const [profileMsg, setProfileMsg] = useState<string | null>(null);
+  const [bandcampAlbums, setBandcampAlbums] = useState<BandcampAlbum[]>([]);
+  const [bandcampBusy, setBandcampBusy] = useState(false);
+  const [bandcampMessage, setBandcampMessage] = useState<string | null>(null);
+  const [scTracks, setScTracks] = useState<SoundcloudTrack[]>([]);
+  const [scBusy, setScBusy] = useState(false);
+  const [scMessage, setScMessage] = useState<string | null>(null);
 
   const reload = () =>
     void fetchConnectionStatus(action.integrationId).then((r) =>
@@ -912,6 +1063,26 @@ function OAuthServiceCard({
     );
 
   useEffect(reload, [action.integrationId]);
+
+  useEffect(() => {
+    if (action.integrationId !== 'bandcamp' || !status?.connected) {
+      return;
+    }
+    setBandcampBusy(true);
+    setBandcampMessage(null);
+    void fetchBandcampAlbums().then((result) => {
+      setBandcampAlbums(result.data);
+      setBandcampMessage(result.message ?? null);
+      setBandcampBusy(false);
+    });
+  }, [action.integrationId, status?.connected]);
+
+  useEffect(() => {
+    if (action.integrationId !== 'soundcloud' || !status?.connected) {
+      return;
+    }
+    void fetchSoundcloudTracks().then((r) => setScTracks(r.data));
+  }, [action.integrationId, status?.connected]);
 
   useEffect(() => {
     if (action.integrationId !== 'soundcloud') {
@@ -994,32 +1165,140 @@ function OAuthServiceCard({
             {busy ? 'Disconnecting…' : 'Disconnect'}
           </Button>
           {action.integrationId === 'bandcamp' && (
-            <Link
-              to="/sources/$id"
-              params={{ id: 'bandcamp' }}
-              onClick={() => useSettingsModalStore.getState().close()}
-            >
-              <Button size="sm" variant="secondary">
-                Open discography importer
-              </Button>
-            </Link>
+            <div className="border-border flex flex-col gap-3 border-t pt-3">
+              <p className="text-sm font-medium">Your Bandcamp discography</p>
+              {bandcampBusy ? (
+                <p className="text-foreground-secondary text-sm">
+                  Loading your releases…
+                </p>
+              ) : bandcampAlbums.length === 0 ? (
+                <p className="text-foreground-secondary text-sm">
+                  {bandcampMessage ?? 'No Bandcamp releases were found.'}
+                </p>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {bandcampAlbums.map((album) => (
+                    <li
+                      key={album.id}
+                      className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
+                    >
+                      <div className="bg-background-secondary size-10 shrink-0 overflow-hidden rounded-md">
+                        {album.coverUrl ? (
+                          <img
+                            src={album.coverUrl}
+                            alt=""
+                            className="size-full object-cover"
+                          />
+                        ) : null}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">
+                          {album.title}
+                        </div>
+                        <div className="text-foreground-secondary text-xs">
+                          {album.type ?? 'Release'}
+                          {album.trackCount != null
+                            ? ` · ${album.trackCount} tracks`
+                            : ''}
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setBandcampMessage(null);
+                          void importBandcampAlbum(album).then((result) => {
+                            setBandcampMessage(
+                              result.ok
+                                ? `Imported ${result.count} item${result.count === 1 ? '' : 's'}.`
+                                : result.error,
+                            );
+                          });
+                        }}
+                      >
+                        Import
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {bandcampMessage && bandcampAlbums.length > 0 ? (
+                <p className="text-foreground-secondary text-xs" role="status">
+                  {bandcampMessage}
+                </p>
+              ) : null}
+            </div>
           )}
           {action.integrationId === 'soundcloud' && (
             <div className="border-border flex flex-col gap-3 border-t pt-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  to="/sources/$id"
-                  params={{ id: 'soundcloud' }}
-                  onClick={() => useSettingsModalStore.getState().close()}
-                >
-                  <Button size="sm" variant="secondary">
-                    Import SoundCloud tracks
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm font-medium">Your SoundCloud tracks</p>
+                {scTracks.length > 0 && (
+                  <Button
+                    size="sm"
+                    disabled={scBusy}
+                    onClick={() => {
+                      setScBusy(true);
+                      void importSoundcloudTracks(
+                        scTracks.map((track) => ({
+                          trackId: track.id,
+                          title: track.title,
+                        })),
+                      ).then((r) => {
+                        setScBusy(false);
+                        setScMessage(
+                          r.ok
+                            ? `Queued all ${r.count} SoundCloud tracks. Check Studio → Music.`
+                            : r.error,
+                        );
+                      });
+                    }}
+                  >
+                    {scBusy ? 'Importing…' : `Import all (${scTracks.length})`}
                   </Button>
-                </Link>
-                <p className="text-foreground-secondary text-xs">
-                  Import individual tracks or your entire catalog.
-                </p>
+                )}
               </div>
+              {scTracks.length === 0 ? (
+                <p className="text-foreground-secondary text-sm">
+                  No tracks returned.
+                </p>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {scTracks.map((track) => (
+                    <li
+                      key={track.id}
+                      className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
+                    >
+                      <span className="min-w-0 flex-1 truncate text-sm">
+                        {track.title}
+                      </span>
+                      <Button
+                        size="sm"
+                        disabled={scBusy}
+                        onClick={() => {
+                          setScBusy(true);
+                          void importSoundcloudTracks([
+                            { trackId: track.id, title: track.title },
+                          ]).then((r) => {
+                            setScBusy(false);
+                            setScMessage(
+                              r.ok
+                                ? `Queued import (${r.count}). Check Studio → Music.`
+                                : r.error,
+                            );
+                          });
+                        }}
+                      >
+                        Import
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {scMessage && (
+                <p className="text-foreground-secondary text-xs" role="status">
+                  {scMessage}
+                </p>
+              )}
               <Input
                 label="SoundCloud profile URL"
                 value={profileDraft}
@@ -1048,33 +1327,98 @@ function OAuthServiceCard({
           <p className="text-foreground-secondary text-sm">
             Not connected yet.
           </p>
-          <a
-            href={action.instructionsHref}
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm underline underline-offset-2"
-          >
-            {action.instructionsLabel} →
-          </a>
+          {action.instructionsHref && action.instructionsLabel && (
+            <a
+              href={action.instructionsHref}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm underline underline-offset-2"
+            >
+              {action.instructionsLabel} →
+            </a>
+          )}
         </>
       )}
     </ConfigurableCard>
   );
 }
 
-const HEARTHIS_SOURCES_PATH: string = '/sources/hearthis';
+const HEARTHIS_IMPORTS_STORAGE_KEY = 'tahti-web-hearthis-imports';
+const NEW_PLAYLIST_DESTINATION = '__new_playlist__';
 
 function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
+  const user = useAuthStore((s) => s.user);
+  const navigate = useNavigate();
+  const play = usePlayerStore((s) => s.play);
+  const enqueue = usePlayerStore((s) => s.enqueue);
+
   const [handle, setHandle] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const [library, setLibrary] = useState<HearthisLibrary | null>(null);
+  const [libraryBusy, setLibraryBusy] = useState(false);
+  const [tab, setTab] = useState<'tracks' | 'sets' | 'collections' | 'search'>(
+    'tracks',
+  );
+  const [q, setQ] = useState('');
+  const [hits, setHits] = useState<HearthisTrack[]>([]);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [importedIds, setImportedIds] = useState<Set<string>>(new Set());
+  const [destinationCollections, setDestinationCollections] = useState<
+    StudioCollection[]
+  >([]);
+  const [destinationId, setDestinationId] = useState('');
+  const [newDestinationName, setNewDestinationName] = useState('');
 
   useEffect(() => {
     void fetchMeProfile().then((r) => {
       setHandle(r.data.socialLinks?.hearthisAt ?? null);
     });
   }, []);
+
+  const loadLibrary = () => {
+    if (!user) {
+      return;
+    }
+    setLibraryBusy(true);
+    void Promise.all([fetchHearthisLibrary(), fetchStudioCollections()]).then(
+      ([libraryResult, collectionResult]) => {
+        setLibraryBusy(false);
+        setLibrary(libraryResult.data);
+        setDestinationCollections(collectionResult.data);
+        setDestinationId(
+          (current) =>
+            current || (collectionResult.data.find((c) => c.id)?.id ?? ''),
+        );
+      },
+    );
+  };
+
+  useEffect(loadLibrary, [user]);
+
+  useEffect(() => {
+    if (!user || typeof localStorage === 'undefined') {
+      return;
+    }
+    try {
+      const stored = JSON.parse(
+        localStorage.getItem(`${HEARTHIS_IMPORTS_STORAGE_KEY}:${user.id}`) ??
+          '[]',
+      ) as unknown;
+      setImportedIds(
+        new Set(
+          Array.isArray(stored)
+            ? stored.filter((id): id is string => typeof id === 'string')
+            : [],
+        ),
+      );
+    } catch {
+      setImportedIds(new Set());
+    }
+  }, [user]);
 
   const save = () => {
     const value = draft.trim().replace(/^@/, '');
@@ -1095,47 +1439,523 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
         setHandle(value);
         setDraft('');
         setMsg('Saved.');
+        loadLibrary();
       }),
     );
+  };
+
+  const visibleTracks =
+    tab === 'tracks'
+      ? (library?.tracks ?? [])
+      : tab === 'sets'
+        ? (library?.sets ?? [])
+        : tab === 'search'
+          ? hits
+          : [];
+  const playlistDestinations = destinationCollections.filter(
+    (c) => !c.style || c.style === 'PLAYLIST',
+  );
+
+  const toggleSelected = (id: string) => {
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const resolveDestinationId = async (): Promise<string | null> => {
+    if (destinationId !== NEW_PLAYLIST_DESTINATION) {
+      return destinationId || null;
+    }
+    const name = newDestinationName.trim();
+    if (!name) {
+      setMsg('Give the new playlist a name first.');
+      return null;
+    }
+    const created = await createStudioCollection({
+      name,
+      style: 'PLAYLIST',
+      isPublic: false,
+    });
+    if (!created.ok || !created.data.id) {
+      setMsg(created.ok ? 'Created playlist has no import ID.' : created.error);
+      return null;
+    }
+    setDestinationCollections((current) => [created.data, ...current]);
+    setDestinationId(created.data.id);
+    setNewDestinationName('');
+    toast.success(`Created playlist “${created.data.name}”.`);
+    return created.data.id;
+  };
+
+  const persistImportedIds = (nextImportedIds: Set<string>) => {
+    if (user && typeof localStorage !== 'undefined') {
+      localStorage.setItem(
+        `${HEARTHIS_IMPORTS_STORAGE_KEY}:${user.id}`,
+        JSON.stringify([...nextImportedIds]),
+      );
+    }
+  };
+
+  const importTracksToDestination = async (tracks: HearthisTrack[]) => {
+    const resolvedDestinationId = await resolveDestinationId();
+    if (!resolvedDestinationId) {
+      setMsg((current) => current ?? 'Choose or create a playlist first.');
+      return;
+    }
+    const pendingTracks = tracks.filter((track) => !importedIds.has(track.id));
+    if (pendingTracks.length === 0) {
+      setMsg(
+        'Already imported — each hearthis.at item can only be imported once.',
+      );
+      toast.info('These hearthis.at tracks are already in your library.');
+      return;
+    }
+    setBusy(true);
+    const notificationId = toast.loading(
+      `Import started for ${pendingTracks.length} item${pendingTracks.length === 1 ? '' : 's'}…`,
+    );
+    const result = await importHearthisTracks(
+      resolvedDestinationId,
+      pendingTracks,
+    );
+    setBusy(false);
+    setSelected(new Set());
+    const nextImportedIds = new Set(importedIds);
+    result.items.forEach((item) => nextImportedIds.add(item.trackId));
+    setImportedIds(nextImportedIds);
+    persistImportedIds(nextImportedIds);
+    const completionMessage =
+      result.failed > 0
+        ? `Imported ${result.imported}; ${result.failed} could not be imported.`
+        : result.artworkFailed > 0
+          ? `Imported ${result.imported} item${result.imported === 1 ? '' : 's'}; ${result.artworkFailed} cover${result.artworkFailed === 1 ? '' : 's'} could not be stored.`
+          : `Import completed — ${result.imported} item${result.imported === 1 ? '' : 's'} added to the playlist.`;
+    setMsg(completionMessage);
+    const firstItem = result.items[0];
+    if (firstItem) {
+      toast.success(completionMessage, {
+        id: notificationId,
+        action: {
+          label: result.items.length === 1 ? 'Open track' : 'Open first track',
+          onClick: () =>
+            void navigate({
+              to: '/studio/archive/$id',
+              params: { id: firstItem.archiveItemId },
+            }),
+        },
+      });
+    } else {
+      toast.error(completionMessage, { id: notificationId });
+    }
+  };
+
+  const importTracksAsCollection = async (
+    name: string,
+    description: string,
+    tracks: HearthisTrack[],
+    coverUrl?: string | null,
+  ) => {
+    const pendingTracks = tracks.filter((track) => !importedIds.has(track.id));
+    if (pendingTracks.length === 0) {
+      setMsg('Already imported — no duplicate collection was created.');
+      toast.info('These hearthis.at items are already in your library.');
+      return;
+    }
+    setBusy(true);
+    const notificationId = toast.loading(`Import started for “${name}”…`);
+    const created = await createStudioCollection({
+      name,
+      description,
+      style: 'PLAYLIST',
+      isPublic: true,
+    });
+    if (!created.ok || !created.data.id) {
+      setBusy(false);
+      setMsg(
+        created.ok ? 'Created collection has no import ID.' : created.error,
+      );
+      toast.error('Could not create the destination collection.', {
+        id: notificationId,
+      });
+      return;
+    }
+    const result = await importHearthisTracks(created.data.id, pendingTracks);
+    if (coverUrl) {
+      await patchStudioCollection(created.data.slug, { coverUrl });
+    }
+    setBusy(false);
+    const nextImportedIds = new Set(importedIds);
+    result.items.forEach((item) => nextImportedIds.add(item.trackId));
+    setImportedIds(nextImportedIds);
+    persistImportedIds(nextImportedIds);
+    const completionMessage =
+      result.failed > 0
+        ? `Created “${name}” with ${result.imported} items; ${result.failed} failed.`
+        : result.artworkFailed > 0
+          ? `Created “${name}” with ${result.imported} items; ${result.artworkFailed} cover${result.artworkFailed === 1 ? '' : 's'} could not be stored.`
+          : `Import completed — created “${name}” with ${result.imported} item${result.imported === 1 ? '' : 's'}.`;
+    setMsg(completionMessage);
+    toast.success(completionMessage, {
+      id: notificationId,
+      action: {
+        label: 'Open collection',
+        onClick: () =>
+          void navigate({
+            to: '/studio/collections/$slug',
+            params: { slug: created.data.slug },
+          }),
+      },
+    });
+    const collectionsResult = await fetchStudioCollections();
+    setDestinationCollections(collectionsResult.data);
+  };
+
+  const importCollection = async (
+    collection: NonNullable<HearthisLibrary>['collections'][number],
+  ) => {
+    setBusy(true);
+    try {
+      const tracks = await fetchHearthisCollectionTracks(collection.permalink);
+      await importTracksAsCollection(
+        collection.title,
+        collection.description,
+        tracks,
+        collection.coverUrl,
+      );
+    } catch (error) {
+      setBusy(false);
+      setMsg(
+        error instanceof Error ? error.message : 'Collection import failed.',
+      );
+    }
+  };
+
+  const importSelection = async () => {
+    if (tab === 'collections') {
+      const collections = (library?.collections ?? []).filter((c) =>
+        selected.has(c.id),
+      );
+      for (const collection of collections) {
+        await importCollection(collection);
+      }
+      setSelected(new Set());
+      return;
+    }
+    const tracks = visibleTracks.filter((track) => selected.has(track.id));
+    await importTracksToDestination(tracks);
   };
 
   return (
     <ConfigurableCard
       title={plugin.name}
-      header={
-        <Link
-          to={HEARTHIS_SOURCES_PATH}
-          onClick={() => useSettingsModalStore.getState().close()}
-        >
-          <PluginStoreItem
-            icon={<SourceServiceIcon id="hearthis" />}
-            name={plugin.name}
-            author={plugin.author}
-            description={plugin.description}
-            isInstalled={Boolean(handle)}
-            onInstall={() => {}}
-            labels={{ install: 'Open', installed: 'Configured' }}
-          />
-        </Link>
-      }
+      dialogClassName="max-w-3xl"
+      header={(open) => (
+        <PluginStoreItem
+          icon={<SourceServiceIcon id="hearthis" />}
+          name={plugin.name}
+          author={plugin.author}
+          description={plugin.description}
+          isInstalled={Boolean(handle)}
+          onInstall={open}
+          labels={{ install: 'Configure', installed: 'Configured' }}
+        />
+      )}
     >
-      <p className="text-foreground-secondary text-sm">
-        {handle
-          ? `Current handle: @${handle}`
-          : 'Add your hearthis.at username to import your tracks and sets.'}
-      </p>
-      <div className="flex flex-wrap items-end gap-2">
+      <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-2 rounded-lg border p-3">
+        {handle ? (
+          <span className="text-sm">
+            Connected as <span className="font-medium">@{handle}</span>
+          </span>
+        ) : (
+          <span className="text-foreground-secondary text-sm">
+            Add your hearthis.at username to load your library.
+          </span>
+        )}
         <Input
-          label="hearthis.at username"
+          className="min-w-[10rem] flex-1"
+          size="sm"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder={handle ?? 'yourhandle'}
+          placeholder={handle ? 'Change username…' : 'hearthis.at username'}
+          aria-label="hearthis.at username"
         />
         <Button size="sm" disabled={saving || !draft.trim()} onClick={save}>
-          {saving ? 'Saving…' : 'Save'}
+          {saving ? 'Saving…' : handle ? 'Update' : 'Connect'}
         </Button>
       </div>
-      {msg && <p className="text-foreground-secondary text-xs">{msg}</p>}
+      {msg && (
+        <p className="text-foreground-secondary text-xs" role="status">
+          {msg}
+        </p>
+      )}
+
+      {handle && (
+        <>
+          <nav
+            className="flex flex-wrap gap-2"
+            aria-label="hearthis.at library"
+          >
+            {(
+              [
+                ['tracks', 'Tracks', library?.tracks.length ?? 0],
+                ['sets', 'DJ sets', library?.sets.length ?? 0],
+                [
+                  'collections',
+                  'Collections',
+                  library?.collections.length ?? 0,
+                ],
+                ['search', 'Search', hits.length],
+              ] as const
+            ).map(([id, label, count]) => (
+              <Button
+                key={id}
+                size="sm"
+                variant={tab === id ? 'default' : 'secondary'}
+                onClick={() => {
+                  setTab(id);
+                  setSelected(new Set());
+                }}
+              >
+                {id === 'collections' ? (
+                  <FolderDownIcon size={14} className="mr-1.5" aria-hidden />
+                ) : id === 'search' ? (
+                  <SearchIcon size={14} className="mr-1.5" aria-hidden />
+                ) : (
+                  <CheckSquareIcon size={14} className="mr-1.5" aria-hidden />
+                )}
+                {label} ({count})
+              </Button>
+            ))}
+          </nav>
+
+          {tab === 'search' && (
+            <div className="flex flex-wrap gap-2">
+              <Input
+                className="min-w-[200px] flex-1"
+                size="sm"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search hearthis.at"
+              />
+              <Button
+                size="sm"
+                disabled={!q.trim() || libraryBusy}
+                onClick={() => {
+                  setLibraryBusy(true);
+                  void searchHearthisTracks(q.trim()).then((result) => {
+                    setLibraryBusy(false);
+                    setHits(result.data);
+                  });
+                }}
+              >
+                <SearchIcon size={16} aria-hidden className="mr-1.5" />
+                {libraryBusy ? 'Searching…' : 'Search'}
+              </Button>
+            </div>
+          )}
+
+          {tab !== 'collections' && (
+            <div className="border-border bg-background-secondary/40 flex flex-wrap items-center gap-2 rounded-lg border p-3">
+              <Select
+                className="min-w-48 flex-1"
+                options={[
+                  { id: '', label: 'Choose destination playlist' },
+                  { id: NEW_PLAYLIST_DESTINATION, label: 'New playlist…' },
+                  ...playlistDestinations.map((c) => ({
+                    id: c.id ?? c.slug,
+                    label: c.name,
+                  })),
+                ]}
+                value={destinationId}
+                onValueChange={setDestinationId}
+              />
+              {destinationId === NEW_PLAYLIST_DESTINATION ? (
+                <Input
+                  size="sm"
+                  value={newDestinationName}
+                  onChange={(e) => setNewDestinationName(e.target.value)}
+                  aria-label="New playlist name"
+                  placeholder="Playlist name"
+                  className="min-w-48 flex-1"
+                />
+              ) : null}
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={visibleTracks.length === 0}
+                onClick={() =>
+                  setSelected(
+                    new Set(
+                      visibleTracks
+                        .filter((track) => !importedIds.has(track.id))
+                        .map((track) => track.id),
+                    ),
+                  )
+                }
+              >
+                <CheckSquareIcon size={15} className="mr-1.5" aria-hidden />
+                Select all
+              </Button>
+              <Button
+                size="sm"
+                disabled={
+                  busy ||
+                  !destinationId ||
+                  (destinationId === NEW_PLAYLIST_DESTINATION &&
+                    !newDestinationName.trim()) ||
+                  selected.size === 0
+                }
+                onClick={() => void importSelection()}
+              >
+                <DownloadIcon size={15} className="mr-1.5" aria-hidden />
+                Import selected ({selected.size})
+              </Button>
+            </div>
+          )}
+
+          {tab === 'collections' ? (
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {(library?.collections ?? []).map((collection) => (
+                <li
+                  key={collection.id}
+                  className="border-border flex items-center gap-3 rounded-lg border p-3"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.has(collection.id)}
+                    onChange={() => toggleSelected(collection.id)}
+                    aria-label={`Select ${collection.title}`}
+                  />
+                  <MediaArtwork
+                    size="sm"
+                    src={collection.coverUrl}
+                    alt={collection.title}
+                    imageReveal={false}
+                    className="border-border shrink-0 rounded border"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {collection.title}
+                    </p>
+                    <p className="text-foreground-secondary text-xs">
+                      {collection.trackCount} items
+                    </p>
+                  </div>
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() => void importCollection(collection)}
+                    aria-label={`Import ${collection.title} as collection`}
+                    title="Import as collection"
+                  >
+                    <FolderDownIcon size={15} />
+                  </Button>
+                </li>
+              ))}
+              {(library?.collections.length ?? 0) > 0 && (
+                <li className="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() =>
+                      setSelected(
+                        new Set(library?.collections.map((c) => c.id)),
+                      )
+                    }
+                  >
+                    <CheckSquareIcon size={15} className="mr-1.5" aria-hidden />
+                    Select all
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={busy || selected.size === 0}
+                    onClick={() => void importSelection()}
+                  >
+                    <FolderDownIcon size={15} className="mr-1.5" aria-hidden />
+                    Import selected ({selected.size})
+                  </Button>
+                </li>
+              )}
+            </ul>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {visibleTracks.map((track) => (
+                <li
+                  key={track.id}
+                  className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.has(track.id)}
+                    disabled={importedIds.has(track.id)}
+                    onChange={() => toggleSelected(track.id)}
+                    aria-label={`Select ${track.title}`}
+                  />
+                  <MediaArtwork
+                    size="sm"
+                    src={track.coverUrl}
+                    alt={track.title}
+                    imageReveal={false}
+                    onPlay={() => play(playableFromHearthis(track))}
+                    playLabel="Preview"
+                    onQueue={() => enqueue(playableFromHearthis(track))}
+                    queueLabel="Queue"
+                    className="border-border shrink-0 rounded border"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">
+                      {track.title}
+                    </div>
+                    <div className="text-foreground-secondary truncate text-xs">
+                      {track.username}
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={
+                      busy ||
+                      !destinationId ||
+                      (destinationId === NEW_PLAYLIST_DESTINATION &&
+                        !newDestinationName.trim()) ||
+                      importedIds.has(track.id)
+                    }
+                    onClick={() => void importTracksToDestination([track])}
+                  >
+                    <DownloadIcon size={15} className="mr-1.5" aria-hidden />
+                    {importedIds.has(track.id) ? 'Imported' : 'Import'}
+                  </Button>
+                  <a
+                    href={track.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-foreground-secondary shrink-0 text-xs underline-offset-2 hover:underline"
+                  >
+                    hearthis.at ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {!libraryBusy &&
+            tab !== 'search' &&
+            tab !== 'collections' &&
+            visibleTracks.length === 0 && (
+              <p className="text-foreground-secondary text-sm">
+                No {tab} found for this profile.
+              </p>
+            )}
+        </>
+      )}
+
       <p className="text-foreground-secondary text-xs">
         A hearthis.at Premium account is required to export your own tracks
         there — importing from hearthis.at works on any account.
@@ -1333,43 +2153,85 @@ function MulticastCategory() {
   );
 }
 
+function AudioPluginToggleRow({
+  name,
+  author,
+  description,
+  enabled,
+  onToggle,
+}: {
+  name: string;
+  author: string;
+  description: string;
+  enabled: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3">
+      <div className="min-w-0 flex-1">
+        <PluginStoreItem
+          name={name}
+          author={author}
+          description={description}
+          onInstall={onToggle}
+          labels={{ install: enabled ? 'Activated' : 'Activate' }}
+          isInstalled={enabled}
+        />
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={enabled}
+        aria-label={`${enabled ? 'Deactivate' : 'Activate'} ${name}`}
+        onClick={onToggle}
+        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border-2 transition-colors ${enabled ? 'border-primary bg-primary' : 'border-border bg-background'}`}
+      >
+        <span
+          className={`size-4 rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`}
+        />
+      </button>
+    </div>
+  );
+}
+
 function AudioPluginsCategory() {
   const enabledPluginIds = useAudioFxStore((state) => state.enabledPluginIds);
   const togglePlugin = useAudioFxStore((state) => state.togglePlugin);
+  const masteringEnabled = useMasteringFeatureStore((state) => state.enabled);
+  const setMasteringEnabled = useMasteringFeatureStore(
+    (state) => state.setEnabled,
+  );
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Not the same "Mastering" as the Pro Editor's own EQ/Comp/Limiter/
+       * Filter chain panel below (also confusingly labeled "Mastering"
+       * there) — this is the client-side reference-track matching tool,
+       * see plugins/mastering/README.md. */}
+      <AudioPluginToggleRow
+        name="Mastering (reference matching)"
+        author="Client-side · always available"
+        description="Match a track's loudness and tonal balance toward a reference track — the 'Master' / 'Match to a reference track' entry points on Sounds and the track editor."
+        enabled={masteringEnabled}
+        onToggle={() => setMasteringEnabled(!masteringEnabled)}
+      />
+      <p className="text-foreground-secondary text-xs">
+        Enabled by default. Turning this off hides the mastering entry points;
+        it doesn't touch any saved mastering output.
+      </p>
+      <div className="border-border my-1 border-t" />
       {ALL_PLUGIN_IDS.map((id) => {
         const meta = AUDIO_FX_PLUGINS[id];
         const enabled = enabledPluginIds.includes(id);
         return (
-          <div
+          <AudioPluginToggleRow
             key={id}
-            className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3"
-          >
-            <div className="min-w-0 flex-1">
-              <PluginStoreItem
-                name={meta.label}
-                author="Pro Editor"
-                description={meta.description}
-                onInstall={() => togglePlugin(id)}
-                labels={{ install: enabled ? 'Activated' : 'Activate' }}
-                isInstalled={enabled}
-              />
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={enabled}
-              aria-label={`${enabled ? 'Deactivate' : 'Activate'} ${meta.label}`}
-              onClick={() => togglePlugin(id)}
-              className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border-2 transition-colors ${enabled ? 'border-primary bg-primary' : 'border-border bg-background'}`}
-            >
-              <span
-                className={`size-4 rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`}
-              />
-            </button>
-          </div>
+            name={meta.label}
+            author="Pro Editor"
+            description={meta.description}
+            enabled={enabled}
+            onToggle={() => togglePlugin(id)}
+          />
         );
       })}
       <p className="text-foreground-secondary text-xs">
@@ -1382,6 +2244,228 @@ function AudioPluginsCategory() {
 // ── Radio / Embed / Discovery / Channel: per-page listener & artist
 // widgets, each configured here rather than in a separate settings
 // section — see the file-level doc comment on PluginCategoryId. ───────────
+
+/** "Bring your own stream" — distinct from the curated station directory
+ * below it (an admin-approved list for the main player bar): this pastes
+ * one personal M3U/direct-stream URL, or searches the public Radio Browser
+ * directory, and plays/queues/favorites the result. Ported from the
+ * retired Sources page's `radio` tab. */
+function PersonalRadioStreamCard() {
+  const play = usePlayerStore((s) => s.play);
+  const enqueue = usePlayerStore((s) => s.enqueue);
+  const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
+  const isFavoriteTrack = useLibraryStore((s) => s.isFavoriteTrack);
+
+  const [url, setUrl] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [station, setStation] = useState<PublicRadioStation | null>(null);
+  const [nowPlaying, setNowPlaying] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<PublicRadioStation[]>([]);
+
+  const openStation = (next: PublicRadioStation) => {
+    setStation(next);
+    setNowPlaying(null);
+    setNote(null);
+    void readIcyStreamTitle(next.streamUrl).then(setNowPlaying);
+  };
+
+  const resolveUrl = () => {
+    const input = url.trim();
+    if (!input) {
+      return;
+    }
+    setBusy(true);
+    setNote(null);
+    void resolveStreamUrl(input).then(async ({ streamUrl, title }) => {
+      const found = await lookupStationByUrl(streamUrl);
+      setBusy(false);
+      const next: PublicRadioStation = found ?? {
+        id: streamUrl,
+        name: title || streamUrl,
+        streamUrl,
+        source: 'unknown',
+      };
+      if (!found) {
+        setNote(
+          'Not in the public station directory — playing the stream directly with the name from the playlist, if any.',
+        );
+      }
+      openStation(next);
+    });
+  };
+
+  return (
+    <ConfigurableCard
+      title="Personal radio stream"
+      dialogClassName="max-w-2xl"
+      header={(open) => (
+        <PluginStoreItem
+          name="Personal radio stream"
+          author="Tool"
+          description="Paste an M3U/M3U8 playlist or a direct stream URL, or search the public Radio Browser directory — plays via the main player, separate from the curated stations below."
+          isInstalled={station !== null}
+          onInstall={open}
+          labels={{ install: 'Configure', installed: 'Configured' }}
+        />
+      )}
+    >
+      <div className="flex flex-col gap-3">
+        <p className="text-foreground-secondary text-sm">
+          Station metadata is looked up in the public Radio Browser directory;
+          live "now playing" is read from the stream's ICY metadata when the
+          server allows it.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Input
+            className="min-w-[240px] flex-1"
+            size="sm"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.com/stream.m3u8"
+          />
+          <Button size="sm" disabled={!url.trim() || busy} onClick={resolveUrl}>
+            <RadioIcon size={16} aria-hidden className="mr-1.5" />
+            {busy ? 'Resolving…' : 'Resolve'}
+          </Button>
+        </div>
+        {note && <p className="text-foreground-secondary text-xs">{note}</p>}
+      </div>
+
+      {station && (
+        <div className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-3">
+          <MediaArtwork
+            size="sm"
+            src={station.favicon}
+            alt={station.name}
+            imageReveal={false}
+            onPlay={() => play(playableFromRadioStation(station, nowPlaying))}
+            playLabel="Play"
+            onQueue={() =>
+              enqueue(playableFromRadioStation(station, nowPlaying))
+            }
+            queueLabel="Queue"
+            onFavorite={() =>
+              toggleFavoriteTrack(playableFromRadioStation(station, nowPlaying))
+            }
+            favorited={isFavoriteTrack(`radio:${station.id}`)}
+            className="border-border shrink-0 rounded border"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-medium">{station.name}</div>
+            <div className="text-foreground-secondary truncate text-xs">
+              {nowPlaying
+                ? `Now playing: ${nowPlaying}`
+                : nowPlaying === null
+                  ? 'Live "now playing" unavailable for this stream'
+                  : '…'}
+            </div>
+            {station.tags && station.tags.length > 0 && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {station.tags.slice(0, 4).map((tag) => (
+                  <Badge key={tag} variant="pill" color="secondary">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-2">
+        <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+          Search the public directory
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          <Input
+            className="min-w-[200px] flex-1"
+            size="sm"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Station name"
+          />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              void searchStationsByName(query.trim()).then(setResults);
+            }}
+          >
+            <SearchIcon size={16} aria-hidden className="mr-1.5" />
+            Search
+          </Button>
+        </div>
+        {results.length > 0 && (
+          <ul className="flex flex-col gap-1.5">
+            {results.map((s) => (
+              <li
+                key={s.id}
+                className="border-border hover:bg-background-secondary flex items-center gap-1 rounded-md border pr-1"
+              >
+                <button
+                  type="button"
+                  className="flex min-w-0 flex-1 items-center justify-between px-3 py-2 text-left text-sm"
+                  onClick={() => openStation(s)}
+                >
+                  <span className="truncate">{s.name}</span>
+                  <span className="text-foreground-secondary ml-2 shrink-0 text-xs">
+                    {s.codec}
+                    {s.bitrateKbps ? ` ${s.bitrateKbps}kbps` : ''}
+                  </span>
+                </button>
+                <FavoriteButton
+                  size="sm"
+                  isFavorite={isFavoriteTrack(`radio:${s.id}`)}
+                  onToggle={() =>
+                    toggleFavoriteTrack(playableFromRadioStation(s))
+                  }
+                  ariaLabelAdd={`Add ${s.name} to library`}
+                  ariaLabelRemove={`Remove ${s.name} from library`}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+          Common stations
+        </h3>
+        <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+          {COMMON_STATIONS.map((s) => (
+            <li
+              key={s.id}
+              className="border-border hover:bg-background-secondary flex items-center gap-1 rounded-md border pr-1"
+            >
+              <button
+                type="button"
+                className="flex min-w-0 flex-1 items-center justify-between px-3 py-2 text-left text-sm"
+                onClick={() => openStation(s)}
+              >
+                <span className="truncate">{s.name}</span>
+                <span className="text-foreground-secondary ml-2 shrink-0 text-xs">
+                  {s.tags?.[0]}
+                </span>
+              </button>
+              <FavoriteButton
+                size="sm"
+                isFavorite={isFavoriteTrack(`radio:${s.id}`)}
+                onToggle={() =>
+                  toggleFavoriteTrack(playableFromRadioStation(s))
+                }
+                ariaLabelAdd={`Add ${s.name} to library`}
+                ariaLabelRemove={`Remove ${s.name} from library`}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </ConfigurableCard>
+  );
+}
 
 function RadioCategory() {
   const play = usePlayerStore((s) => s.play);
@@ -1413,6 +2497,7 @@ function RadioCategory() {
 
   return (
     <div className="flex flex-col gap-3">
+      <PersonalRadioStreamCard />
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
           size="sm"
@@ -1727,7 +2812,7 @@ function RadioCategory() {
   );
 }
 
-function EmbedCategory() {
+function ListenCategory() {
   const installedTypeIds = useListenerWidgetsStore((s) => s.installedTypeIds);
   const instances = useListenerWidgetsStore((s) => s.instances);
   const installType = useListenerWidgetsStore((s) => s.installType);

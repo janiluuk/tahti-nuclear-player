@@ -7,8 +7,6 @@ import {
   redirect,
 } from '@tanstack/react-router';
 
-import type { IntegrationId } from './api/sources';
-import { SOURCE_DEFS } from './api/sources';
 import { AppShell } from './components/AppShell';
 import { StudioGate } from './components/StudioGate';
 import { diagnosticsEnabled } from './lib/buildPolicy';
@@ -47,7 +45,6 @@ import { ResetPasswordView } from './views/ResetPasswordView';
 import { SetupPasswordView } from './views/SetupPasswordView';
 import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
-import { SourcesView } from './views/SourcesView';
 import { StudioArchiveView } from './views/studio/StudioArchiveView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
@@ -720,23 +717,31 @@ const historyRoute = createRoute({
   },
 });
 
+// Retired per-source connect/manage page — every source now configures
+// inline in Settings → Add-ons → Import (PluginStorePanel's OAuthServiceCard
+// and HearthisCard). These two routes stay only as redirects, since a real
+// OAuth provider callback (or an old bookmark/email link) can still land on
+// them; preserve `?status=` the same way SettingsView does for the
+// mixcloud callback (see cutoverReturns.ts).
+function redirectToImportAddOns(): never {
+  const status = new URLSearchParams(window.location.search).get('status');
+  throw redirect({
+    to: '/settings/$section',
+    params: { section: 'plugin-store' },
+    search: { category: 'import', ...(status ? { status } : {}) },
+  });
+}
+
 const sourcesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/sources',
-  component: () => <SourcesView />,
+  beforeLoad: redirectToImportAddOns,
 });
 
 const sourcesTabRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/sources/$id',
-  validateSearch: (search: Record<string, unknown>): { status?: string } => ({
-    status: typeof search.status === 'string' ? search.status : undefined,
-  }),
-  component: function SourcesTabRoute() {
-    const { id } = sourcesTabRoute.useParams();
-    const known = SOURCE_DEFS.some((d) => d.id === id);
-    return <SourcesView tabId={known ? (id as IntegrationId) : undefined} />;
-  },
+  beforeLoad: redirectToImportAddOns,
 });
 
 const venuesRoute = createRoute({

@@ -2,9 +2,9 @@ import {
   ArrowDownToLineIcon,
   ArrowUpFromLineIcon,
   CastIcon,
-  CodeIcon,
   CompassIcon,
   FingerprintIcon,
+  HeadphonesIcon,
   PaletteIcon,
   PlugIcon,
   RadioIcon,
@@ -20,11 +20,12 @@ import {
  * behind a real plugin interface would take) — this registry is the
  * store's navigation layer, not a new plugin runtime.
  *
- * `radio`/`embed`/`discovery`/`channel` are per-page listener/artist
- * widgets (internet radio, SoundCloud/YouTube embeds, and sandboxed
- * disco-widgets for the Listen page and for channel/artist pages) —
- * each main page's customizable widgets get configured here rather than
- * in a separate settings section, same as every other add-on. */
+ * `radio`/`listen`/`discovery`/`channel` are per-page listener/artist
+ * widgets (internet radio, SoundCloud/Spotify/YouTube/hearthis.at listener
+ * widgets, and sandboxed disco-widgets for the Listen page and for
+ * channel/artist pages) — each main page's customizable widgets get
+ * configured here rather than in a separate settings section, same as
+ * every other add-on. */
 export type PluginCategoryId =
   | 'themes'
   | 'visualizers'
@@ -34,7 +35,7 @@ export type PluginCategoryId =
   | 'fingerprinting'
   | 'audio-plugins'
   | 'radio'
-  | 'embed'
+  | 'listen'
   | 'discovery'
   | 'channel'
   | 'nuclear-plugins';
@@ -97,11 +98,11 @@ export const PLUGIN_CATEGORIES: PluginCategory[] = [
     icon: RadioIcon,
   },
   {
-    id: 'embed',
-    label: 'Embed',
+    id: 'listen',
+    label: 'Listen',
     description:
-      'SoundCloud, YouTube, and hearthis.at embeds on your Listen page, played via their own platform.',
-    icon: CodeIcon,
+      'SoundCloud, Spotify, YouTube, and hearthis.at listener widgets on your Listen page, played via their own platform.',
+    icon: HeadphonesIcon,
   },
   {
     id: 'discovery',

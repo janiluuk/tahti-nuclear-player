@@ -56,7 +56,7 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
   {
     id: 'sources-oauth',
     surface: 'Sources OAuth polish',
-    route: '/sources',
+    route: '/settings/plugin-store?category=import',
     status: 'done',
     detail:
       'Live provider start URLs and all production callback return shapes land on the matching in-client source with visible result messaging.',
@@ -158,7 +158,7 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
   {
     id: 'preview-demo',
     surface: 'Spotify / SoundCloud stream URLs',
-    route: '/sources',
+    route: '/settings/plugin-store?category=import',
     status: 'partial',
     detail:
       'Always DEMO_MP3, live or mock — neither API exposes a real per-track preview here. Play/Queue rows now say so explicitly instead of implying real audio.',

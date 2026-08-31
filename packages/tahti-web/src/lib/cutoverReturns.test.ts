@@ -7,7 +7,10 @@ import {
 
 describe('resolveDashboardCallbackRedirect', () => {
   it.each([
-    [{ mixcloud: 'connected' }, '/sources/mixcloud?status=connected'],
+    [
+      { mixcloud: 'connected' },
+      '/settings/plugin-store?status=connected&category=import',
+    ],
     [{ fanConnect: 'return' }, '/studio/revenue?fanConnect=return'],
     [{ fansubs: 'portal' }, '/settings/money?fansubs=portal'],
     [{ membership: 'success' }, '/settings/account?membership=success'],

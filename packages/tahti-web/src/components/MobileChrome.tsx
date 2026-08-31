@@ -52,10 +52,7 @@ const NAV = [
     to: '/more',
     label: 'Tahti map',
     icon: MapIcon,
-    match: (p: string) =>
-      p.startsWith('/more') ||
-      p.startsWith('/settings') ||
-      p.startsWith('/sources'),
+    match: (p: string) => p.startsWith('/more') || p.startsWith('/settings'),
     boardOnly: true,
   },
 ] as const;

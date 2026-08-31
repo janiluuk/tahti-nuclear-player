@@ -1,9 +1,9 @@
-import { Link } from '@tanstack/react-router';
 import { BlocksIcon, UploadIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
+import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { UploadTrackDialog } from './UploadTrackDialog';
 
 type Props = {
@@ -13,7 +13,8 @@ type Props = {
   onUploaded?: () => void;
 };
 
-/** Upload + Sources — entry points for adding tracks to the Music archive. */
+/** Upload + Import — entry points for adding tracks to the Music archive.
+ * "Import" opens Settings → Add-ons → Import (see PluginStorePanel). */
 export function AddToMusicActions({
   size = 'sm',
   align = 'start',
@@ -35,12 +36,17 @@ export function AddToMusicActions({
           <UploadIcon size={16} aria-hidden className="mr-1.5" />
           Upload
         </Button>
-        <Link to="/sources">
-          <Button size={size} variant="secondary" title="Sources">
-            <BlocksIcon size={16} aria-hidden className="mr-1.5" />
-            Sources
-          </Button>
-        </Link>
+        <Button
+          size={size}
+          variant="secondary"
+          title="Import"
+          onClick={() =>
+            useSettingsModalStore.getState().open('plugin-store', 'import')
+          }
+        >
+          <BlocksIcon size={16} aria-hidden className="mr-1.5" />
+          Import
+        </Button>
       </div>
       <UploadTrackDialog
         isOpen={uploadOpen}

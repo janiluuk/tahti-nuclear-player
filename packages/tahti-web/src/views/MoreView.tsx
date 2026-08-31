@@ -110,9 +110,10 @@ const FEATURES: FeatureRow[] = [
   {
     feature: 'Sources',
     tahti: 'dashboard import / OAuth',
-    nuclear: '/sources, /sources/$id',
+    nuclear: '/settings/plugin-store?category=import',
     status: 'live',
-    notes: 'CardGrid service tiles + status chips; click → detail',
+    notes:
+      'Configures inline in Settings → Add-ons → Import (no separate page); /sources and /sources/$id redirect here',
   },
   {
     feature: 'Go Live',

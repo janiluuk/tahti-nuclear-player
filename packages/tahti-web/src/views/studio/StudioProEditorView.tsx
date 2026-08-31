@@ -51,6 +51,7 @@ import {
   removePluginFromChain,
   reorderPluginChain,
 } from '../../plugins/audio-fx/chain';
+import { useMasteringFeatureStore } from '../../plugins/mastering/store';
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec)) {
@@ -130,6 +131,7 @@ export function StudioProEditorView({
 }: {
   archiveItemId: string;
 }) {
+  const masteringEnabled = useMasteringFeatureStore((state) => state.enabled);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const [title, setTitle] = useState('');
@@ -629,13 +631,15 @@ export function StudioProEditorView({
           >
             Projects
           </Link>
-          <Link
-            to="/studio/mastering/$id"
-            params={{ id: archiveItemId }}
-            className="text-foreground-secondary hover:underline"
-          >
-            Mastering
-          </Link>
+          {masteringEnabled && (
+            <Link
+              to="/studio/mastering/$id"
+              params={{ id: archiveItemId }}
+              className="text-foreground-secondary hover:underline"
+            >
+              Mastering
+            </Link>
+          )}
         </div>
 
         <StudioPageHeader

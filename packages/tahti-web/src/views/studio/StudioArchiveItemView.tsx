@@ -58,6 +58,7 @@ import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
 import { capitalizeGenre, PRESET_GENRES } from '../../lib/genres';
 import { isPinned } from '../../lib/pinnedTracks';
+import { useMasteringFeatureStore } from '../../plugins/mastering/store';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
@@ -105,6 +106,7 @@ function autoTrimCuts(peaks: number[], durationSec: number): EditList['cuts'] {
 export function StudioArchiveItemView({ id }: { id: string }) {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const masteringEnabled = useMasteringFeatureStore((state) => state.enabled);
   const currentId = usePlayerStore((state) => state.currentId);
   const playerStatus = usePlayerStore((state) => state.status);
   const currentTime = usePlayerStore((state) => state.currentTime);
@@ -540,17 +542,19 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                           ? 'Trimming silence…'
                           : 'Trim silence'}
                       </Popover.Item>
-                      <Popover.Item
-                        onClick={() =>
-                          void navigate({
-                            to: '/studio/mastering/$id',
-                            params: { id },
-                          })
-                        }
-                        icon={<SparklesIcon size={16} aria-hidden />}
-                      >
-                        Master
-                      </Popover.Item>
+                      {masteringEnabled && (
+                        <Popover.Item
+                          onClick={() =>
+                            void navigate({
+                              to: '/studio/mastering/$id',
+                              params: { id },
+                            })
+                          }
+                          icon={<SparklesIcon size={16} aria-hidden />}
+                        >
+                          Master
+                        </Popover.Item>
+                      )}
                     </Popover.Section>
                   </Popover.Menu>
                 </Popover>
