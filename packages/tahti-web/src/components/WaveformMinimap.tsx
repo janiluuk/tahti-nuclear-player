@@ -74,7 +74,7 @@ export function WaveformMinimap({ peaks, viewStart, viewEnd, onSeek }: Props) {
     <canvas
       ref={canvasRef}
       aria-label="Waveform overview — click to seek"
-      className="border-border bg-background-secondary h-7 w-full cursor-pointer rounded-md border"
+      className="border-border bg-background h-7 w-full cursor-pointer rounded-md border"
       onClick={(e) => {
         const canvas = canvasRef.current;
         if (!canvas) {

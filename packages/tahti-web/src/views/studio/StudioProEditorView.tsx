@@ -2,14 +2,22 @@ import { Link } from '@tanstack/react-router';
 import {
   ChevronDownIcon,
   ChevronRightIcon,
+  CropIcon,
   GripVerticalIcon,
+  MapPinIcon,
+  Maximize2Icon,
   PauseIcon,
   PlayIcon,
   PlusIcon,
   ScissorsIcon,
+  Trash2Icon,
   UploadIcon,
+  Volume2Icon,
+  VolumeXIcon,
   Wand2Icon,
   XIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -553,6 +561,30 @@ export function StudioProEditorView({
     setMessage('Trimmed leading/trailing silence.');
   };
 
+  const MIN_ZOOM_SPAN = 0.005;
+
+  /** Zooms the waveform view around its current center — the toolbar
+   * button equivalent of WaveformCanvas's wheel-zoom-to-cursor, which
+   * has no cursor position to anchor to. `factor` > 1 zooms out (wider
+   * span), < 1 zooms in. */
+  const zoomBy = (factor: number) => {
+    const span = Math.max(MIN_ZOOM_SPAN, viewEnd - viewStart);
+    const center = viewStart + span / 2;
+    const nextSpan = Math.min(1, Math.max(MIN_ZOOM_SPAN, span * factor));
+    let start = center - nextSpan / 2;
+    let end = start + nextSpan;
+    if (start < 0) {
+      end -= start;
+      start = 0;
+    }
+    if (end > 1) {
+      start -= end - 1;
+      end = 1;
+    }
+    setViewStart(Math.max(0, start));
+    setViewEnd(Math.min(1, end));
+  };
+
   const save = async () => {
     if (!editList) {
       return;
@@ -658,25 +690,178 @@ export function StudioProEditorView({
           </StudioPanel>
         ) : (
           <>
-            <StudioPanel>
-              <WaveformCanvas
-                peaks={peaks}
-                durationSec={duration}
-                currentTime={currentTime}
-                cuts={editList.cuts}
-                selection={selection}
-                viewStart={viewStart}
-                viewEnd={viewEnd}
-                onViewChange={(start, end) => {
-                  setViewStart(start);
-                  setViewEnd(end);
-                }}
-                onSeek={seek}
-                onSelectRange={(start, end) => setSelection({ start, end })}
-              />
+            <StudioPanel className="!p-0">
+              <div
+                role="toolbar"
+                aria-label="Editor tools"
+                className="border-border bg-background-secondary flex flex-wrap items-center gap-1 rounded-t-xl border-b px-3 py-2"
+              >
+                <div
+                  className="flex items-center gap-1"
+                  role="group"
+                  aria-label="Transport"
+                >
+                  <Button size="sm" onClick={togglePlay}>
+                    {playing ? (
+                      <PauseIcon size={16} aria-hidden className="mr-1.5" />
+                    ) : (
+                      <PlayIcon size={16} aria-hidden className="mr-1.5" />
+                    )}
+                    {playing ? 'Pause' : 'Play'}
+                  </Button>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    disabled={!selection}
+                    onClick={previewSelection}
+                    aria-label="Preview selection"
+                    title="Preview selection — plays just the selection, through the enabled EQ/Compressor/Limiter"
+                  >
+                    <Volume2Icon size={16} aria-hidden />
+                  </Button>
+                </div>
 
-              <div className="mt-2 flex items-center gap-2">
-                <div className="min-w-0 flex-1">
+                <div className="bg-border mx-1 h-6 w-px" aria-hidden />
+
+                <div
+                  className="flex items-center gap-1"
+                  role="group"
+                  aria-label="Cut and trim"
+                >
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    disabled={!selection}
+                    onClick={addCutFromSelection}
+                    aria-label="Cut selection"
+                    title="Cut selection"
+                  >
+                    <ScissorsIcon size={16} aria-hidden />
+                  </Button>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    disabled={!selection}
+                    onClick={trimToSelection}
+                    aria-label="Trim to selection"
+                    title="Trim to selection"
+                  >
+                    <CropIcon size={16} aria-hidden />
+                  </Button>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    onClick={trimSilence}
+                    aria-label="Trim leading/trailing silence"
+                    title="Trim leading/trailing silence"
+                  >
+                    <VolumeXIcon size={16} aria-hidden />
+                  </Button>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    disabled={editList.cuts.length === 0}
+                    onClick={clearCuts}
+                    aria-label="Clear cuts"
+                    title="Clear cuts"
+                  >
+                    <Trash2Icon size={16} aria-hidden />
+                  </Button>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    disabled={!selection}
+                    onClick={() => setSelection(null)}
+                    aria-label="Clear selection"
+                    title="Clear selection"
+                  >
+                    <XIcon size={16} aria-hidden />
+                  </Button>
+                </div>
+
+                <div className="bg-border mx-1 h-6 w-px" aria-hidden />
+
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  onClick={() =>
+                    setMarkers((m) => [...m, currentTime].sort((a, b) => a - b))
+                  }
+                  aria-label="Add marker at playhead"
+                  title="Add marker at playhead"
+                >
+                  <MapPinIcon size={16} aria-hidden />
+                </Button>
+
+                <div className="bg-border mx-1 h-6 w-px" aria-hidden />
+
+                <div
+                  className="flex items-center gap-1"
+                  role="group"
+                  aria-label="Zoom"
+                >
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    onClick={() => zoomBy(1.25)}
+                    aria-label="Zoom out"
+                    title="Zoom out"
+                  >
+                    <ZoomOutIcon size={16} aria-hidden />
+                  </Button>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    onClick={() => zoomBy(0.8)}
+                    aria-label="Zoom in"
+                    title="Zoom in"
+                  >
+                    <ZoomInIcon size={16} aria-hidden />
+                  </Button>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    disabled={viewStart === 0 && viewEnd === 1}
+                    onClick={() => {
+                      setViewStart(0);
+                      setViewEnd(1);
+                    }}
+                    aria-label="Reset zoom"
+                    title="Reset zoom"
+                  >
+                    <Maximize2Icon size={16} aria-hidden />
+                  </Button>
+                </div>
+
+                <div className="flex-1" />
+
+                <div className="text-foreground-secondary hidden items-center gap-3 text-xs sm:flex">
+                  <span>
+                    {formatTime(currentTime)} / {formatTime(duration)}
+                  </span>
+                  <span>Kept: {formatTime(keptDuration)}</span>
+                  <span>{editList.cuts.length} cut(s)</span>
+                </div>
+              </div>
+
+              <div className="p-5 sm:p-6">
+                <WaveformCanvas
+                  peaks={peaks}
+                  durationSec={duration}
+                  currentTime={currentTime}
+                  cuts={editList.cuts}
+                  selection={selection}
+                  viewStart={viewStart}
+                  viewEnd={viewEnd}
+                  onViewChange={(start, end) => {
+                    setViewStart(start);
+                    setViewEnd(end);
+                  }}
+                  onSeek={seek}
+                  onSelectRange={(start, end) => setSelection({ start, end })}
+                />
+
+                <div className="mt-2">
                   <WaveformMinimap
                     peaks={peaks}
                     viewStart={viewStart}
@@ -684,117 +869,44 @@ export function StudioProEditorView({
                     onSeek={(frac) => seek(frac * duration)}
                   />
                 </div>
-                {(viewStart > 0 || viewEnd < 1) && (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => {
-                      setViewStart(0);
-                      setViewEnd(1);
-                    }}
-                  >
-                    Reset zoom
-                  </Button>
-                )}
-              </div>
 
-              <div className="text-foreground-secondary mt-3 flex flex-wrap items-center gap-3 text-xs">
-                <span>
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
-                <span>Kept after cuts: {formatTime(keptDuration)}</span>
-                <span>{editList.cuts.length} cut(s)</span>
-                {selection && (
+                <div className="text-foreground-secondary mt-3 flex flex-wrap items-center gap-3 text-xs sm:hidden">
                   <span>
+                    {formatTime(currentTime)} / {formatTime(duration)}
+                  </span>
+                  <span>Kept after cuts: {formatTime(keptDuration)}</span>
+                  <span>{editList.cuts.length} cut(s)</span>
+                </div>
+                {selection && (
+                  <div className="text-foreground-secondary mt-1 text-xs">
                     Selection {formatTime(selection.start)}–
                     {formatTime(selection.end)}
-                  </span>
+                  </div>
+                )}
+
+                {markers.length > 0 && (
+                  <div className="text-foreground-secondary mt-3 flex flex-wrap items-center gap-2 text-xs">
+                    Markers:{' '}
+                    {markers.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        className="border-border rounded border px-1.5 py-0.5 hover:underline"
+                        onClick={() => seek(m)}
+                      >
+                        {formatTime(m)}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className="underline"
+                      onClick={() => setMarkers([])}
+                    >
+                      clear
+                    </button>
+                  </div>
                 )}
               </div>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button size="sm" onClick={togglePlay}>
-                  {playing ? (
-                    <PauseIcon size={16} aria-hidden className="mr-1.5" />
-                  ) : (
-                    <PlayIcon size={16} aria-hidden className="mr-1.5" />
-                  )}
-                  {playing ? 'Pause' : 'Play'}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={!selection}
-                  onClick={previewSelection}
-                  title="Play just the selection, through the enabled EQ/Compressor/Limiter"
-                >
-                  <PlayIcon size={16} aria-hidden className="mr-1.5" />
-                  {previewingSelection ? 'Previewing…' : 'Preview selection'}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={!selection}
-                  onClick={addCutFromSelection}
-                >
-                  Cut selection
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={!selection}
-                  onClick={trimToSelection}
-                >
-                  Trim to selection
-                </Button>
-                <Button
-                  size="sm"
-                  variant="text"
-                  disabled={editList.cuts.length === 0}
-                  onClick={clearCuts}
-                >
-                  Clear cuts
-                </Button>
-                <Button
-                  size="sm"
-                  variant="text"
-                  onClick={() => setSelection(null)}
-                >
-                  Clear selection
-                </Button>
-                <Button
-                  size="sm"
-                  variant="text"
-                  onClick={() =>
-                    setMarkers((m) => [...m, currentTime].sort((a, b) => a - b))
-                  }
-                >
-                  Add marker
-                </Button>
-              </div>
-
-              {markers.length > 0 && (
-                <div className="text-foreground-secondary mt-3 flex flex-wrap items-center gap-2 text-xs">
-                  Markers:{' '}
-                  {markers.map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      className="border-border rounded border px-1.5 py-0.5 hover:underline"
-                      onClick={() => seek(m)}
-                    >
-                      {formatTime(m)}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    className="underline"
-                    onClick={() => setMarkers([])}
-                  >
-                    clear
-                  </button>
-                </div>
-              )}
             </StudioPanel>
 
             <StudioPanel
@@ -838,10 +950,6 @@ export function StudioProEditorView({
                       {editList.loudnorm.enabled
                         ? `Normalizing (${editList.loudnorm.targetLufs} LUFS)`
                         : 'Normalize'}
-                    </Button>
-                    <Button size="sm" variant="secondary" onClick={trimSilence}>
-                      <ScissorsIcon size={14} aria-hidden className="mr-1.5" />
-                      Trim silence
                     </Button>
                   </div>
 

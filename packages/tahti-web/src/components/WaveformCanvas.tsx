@@ -78,7 +78,7 @@ export function WaveformCanvas({
       const barColor = themeColor(
         canvas,
         '--color-accent-cyan',
-        'rgba(120, 220, 200, 0.75)',
+        'rgba(120, 220, 200, 1)',
       );
       const selColor = themeColor(
         canvas,
@@ -187,7 +187,7 @@ export function WaveformCanvas({
   return (
     <canvas
       ref={canvasRef}
-      className="border-border bg-background-secondary h-56 w-full cursor-crosshair touch-none rounded-md border"
+      className="border-border bg-background h-56 w-full cursor-crosshair touch-none rounded-md border-2"
       onMouseDown={(e) => {
         const sec = secFromEvent(e.clientX);
         dragRef.current = { startX: e.clientX, startSec: sec };
