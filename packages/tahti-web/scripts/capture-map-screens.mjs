@@ -249,7 +249,7 @@ async function setLocalStorage(p, signedIn = true) {
             'tahti-web-layout',
             JSON.stringify({
               state: {
-                leftCollapsed: false,
+                leftCollapsed: true,
                 rightCollapsed,
                 leftWidth: 220,
                 rightWidth: 340,
@@ -299,6 +299,18 @@ async function ensureChatClosed() {
   });
 }
 
+async function waitForContent() {
+  await page.locator('main').waitFor({ state: 'visible', timeout: 5000 });
+  await page.waitForFunction(
+    () => {
+      const text = document.body.innerText.trim();
+      return text.length > 120 && !/^Loading(?:…|\.\.\.)?$/m.test(text);
+    },
+    undefined,
+    { timeout: 8000 },
+  );
+}
+
 function tabFilePart(label) {
   return label
     .toLowerCase()
@@ -326,6 +338,7 @@ async function captureAllTabs(out) {
     await tab.click().catch(() => {});
     await page.waitForTimeout(350);
     await ensureChatClosed();
+    await waitForContent();
     await page.screenshot({
       path: join(outRoot, `${basename(out, '.png')}--${key}.png`),
       fullPage: false,
@@ -365,6 +378,7 @@ for (const s of shotsToCapture) {
       await page.getByRole('heading', { name: /notifications/i }).waitFor();
     }
     await page.waitForTimeout(s.wait ?? 300);
+    await waitForContent();
     // Hide cookie/noise if any; capture main viewport
     await page.screenshot({ path: out, fullPage: false });
     await captureAllTabs(out);
@@ -376,6 +390,7 @@ for (const s of shotsToCapture) {
       await setLocalStorage(page, s.auth !== false);
       await page.goto(url, { waitUntil: 'commit', timeout: 5000 });
       await page.waitForTimeout(500);
+      await waitForContent();
       await page.screenshot({ path: out, fullPage: false });
       console.log('ok-soft', s.id);
     } catch (e2) {

@@ -14,6 +14,7 @@ type Props = {
   title: string;
   provider: EmbedProvider;
   embedUri: string;
+  className?: string;
 };
 
 /**
@@ -24,7 +25,7 @@ type Props = {
  * The iframe only mounts after the listener clicks play, so the provider
  * never sees a listener's IP just from browsing the collection page.
  */
-export function EmbedTrackRow({ title, provider, embedUri }: Props) {
+export function EmbedTrackRow({ title, provider, embedUri, className }: Props) {
   const [embedOpen, setEmbedOpen] = useState(false);
   const src = embedSrcFor(provider, embedUri);
   const label = EMBED_PROVIDER_LABEL[provider];
@@ -62,7 +63,9 @@ export function EmbedTrackRow({ title, provider, embedUri }: Props) {
   };
 
   return (
-    <li className="border-border overflow-hidden rounded-lg border">
+    <li
+      className={`border-border overflow-hidden rounded-lg border ${className ?? ''}`}
+    >
       {embedOpen ? (
         <iframe
           title={title}

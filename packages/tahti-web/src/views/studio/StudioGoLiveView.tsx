@@ -1,4 +1,4 @@
-import { Link, useSearch } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import {
   ActivityIcon,
   CheckCircle2Icon,
@@ -38,9 +38,13 @@ import {
   type SignalStatus,
   type StreamSettings,
 } from '../../api/broadcast';
-import { BroadcastPreflightPanel } from '../../components/BroadcastPreflightPanel';
+import {
+  BroadcastPreflightPanel,
+  ShowInfoConfirmed,
+} from '../../components/BroadcastPreflightPanel';
 import { ChannelShareButton } from '../../components/ChannelShareButton';
 import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
+import { ObsPresetButton } from '../../components/ObsPresetButton';
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -134,10 +138,7 @@ export function StudioGoLiveView() {
   const [recordEnabled, setRecordEnabled] = useState(true);
   const [recordBusy, setRecordBusy] = useState(false);
   const [preflight, setPreflight] = useState<BroadcastPreflight | null>(null);
-  const search = useSearch({ strict: false }) as { tab?: string };
-  const [tab, setTab] = useState<'golive' | 'info'>(
-    search.tab === 'info' ? 'info' : 'golive',
-  );
+  const [showInfoConfirmed, setShowInfoConfirmed] = useState(false);
 
   const slug = user?.channel?.slug ?? '';
   const displayName = user?.displayName ?? slug;
@@ -333,34 +334,7 @@ export function StudioGoLiveView() {
           }
         />
 
-        <div
-          className="border-border flex flex-wrap gap-2 border-b pb-3"
-          role="tablist"
-          aria-label="Go Live sections"
-        >
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'golive'}
-            variant={tab === 'golive' ? 'default' : 'text'}
-            onClick={() => setTab('golive')}
-          >
-            Go live
-          </Button>
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'info'}
-            variant={tab === 'info' ? 'default' : 'text'}
-            onClick={() => setTab('info')}
-          >
-            Info
-          </Button>
-        </div>
-
-        {tab === 'info' && <BroadcastPreflightPanel />}
-
-        {tab === 'golive' && message && (
+        {message && (
           <p
             className={`rounded-lg border px-3 py-2 text-sm ${
               /fail|error|could not|503|401|403/i.test(message)
@@ -373,7 +347,7 @@ export function StudioGoLiveView() {
           </p>
         )}
 
-        {tab === 'golive' && settings && slug && (
+        {settings && slug && (
           <StreamManagerPanel
             slug={slug}
             channelState={channelState}
@@ -384,7 +358,23 @@ export function StudioGoLiveView() {
           />
         )}
 
-        {tab === 'golive' && (
+        <>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-foreground-secondary text-xs font-semibold tracking-[0.16em] uppercase">
+                Before you start
+              </p>
+              {showInfoConfirmed && <ShowInfoConfirmed />}
+            </div>
+          </div>
+          <BroadcastPreflightPanel
+            onSaved={() => {
+              setShowInfoConfirmed(true);
+              void reload();
+            }}
+            onDirty={() => setShowInfoConfirmed(false)}
+          />
+
           <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(17rem,2fr)]">
             <div className="flex min-w-0 flex-col gap-5">
               <StudioPanel
@@ -423,13 +413,9 @@ export function StudioGoLiveView() {
                     <span className="text-foreground-secondary">
                       Add your show name and details before going live.
                     </span>
-                    <Link
-                      to="/studio/go-live"
-                      search={{ tab: 'info' }}
-                      className="text-foreground font-semibold underline-offset-2 hover:underline"
-                    >
-                      Open Info
-                    </Link>
+                    <span className="text-foreground font-semibold">
+                      Confirm show info above
+                    </span>
                   </div>
                 ) : null}
                 <div className="border-border bg-background/40 flex flex-wrap items-center gap-3 rounded-lg border p-3">
@@ -507,6 +493,25 @@ export function StudioGoLiveView() {
                   </Button>
                 </div>
                 {renderCredentials()}
+                {ingest === 'obs' && settings && slug ? (
+                  <div className="border-border bg-background-secondary/40 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold">
+                        Ready-made OBS setup
+                      </p>
+                      <p className="text-foreground-secondary mt-1 text-xs">
+                        Download a preset containing this channel&apos;s scene
+                        and current stream credentials.
+                      </p>
+                    </div>
+                    <ObsPresetButton
+                      channelName={displayName}
+                      channelSlug={slug}
+                      server={settings.rtmp.server}
+                      streamKey={settings.rtmp.streamKey}
+                    />
+                  </div>
+                ) : null}
                 <div className="text-foreground-secondary mt-4 flex items-start gap-2 text-xs">
                   <Settings2Icon
                     size={14}
@@ -645,20 +650,9 @@ export function StudioGoLiveView() {
                   </ul>
                 )}
               </StudioPanel>
-
-              <p className="text-foreground-secondary text-xs">
-                After a show, manage recordings in{' '}
-                <Link
-                  to="/studio/recordings"
-                  className="underline-offset-2 hover:underline"
-                >
-                  Recordings
-                </Link>
-                .
-              </p>
             </div>
           </div>
-        )}
+        </>
 
         <Dialog.Root
           isOpen={showAddDestination}

@@ -14,6 +14,40 @@ export type NowPlayingOverlayPreset = {
   description: string;
 };
 
+export type NowPlayingOverlaySettings = {
+  textScale: number;
+  offsetX: number;
+  offsetY: number;
+  opacity: number;
+};
+
+export const DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS: NowPlayingOverlaySettings = {
+  textScale: 1,
+  offsetX: 0,
+  offsetY: 0,
+  opacity: 1,
+};
+
+export function parseNowPlayingOverlaySettings(
+  json: string | null | undefined,
+): NowPlayingOverlaySettings {
+  if (!json) {
+    return { ...DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS };
+  }
+  try {
+    const parsed = JSON.parse(json) as Partial<NowPlayingOverlaySettings>;
+    return {
+      textScale:
+        parsed.textScale ?? DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS.textScale,
+      offsetX: parsed.offsetX ?? DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS.offsetX,
+      offsetY: parsed.offsetY ?? DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS.offsetY,
+      opacity: parsed.opacity ?? DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS.opacity,
+    };
+  } catch {
+    return { ...DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS };
+  }
+}
+
 export const NOW_PLAYING_OVERLAY_PRESETS: NowPlayingOverlayPreset[] = [
   {
     id: 'classic',

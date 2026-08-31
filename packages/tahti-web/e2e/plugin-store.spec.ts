@@ -151,6 +151,26 @@ test('Radio visualizer renders through the registry with no console errors', asy
   expect(errors).toEqual([]);
 });
 
+test('Plugin store explains categories, previews themes, and labels audio-reactive visuals', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/settings/plugin-store');
+
+  await expect(page.getByLabel('Theme color preview').first()).toBeVisible();
+  await page.getByRole('button', { name: 'About Themes' }).click();
+  await expect(page.getByRole('note')).toContainText('Themes');
+
+  await page.getByRole('tab', { name: /Visualizers/ }).click();
+  await page.getByRole('button', { name: 'Configure Aurora' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('checkbox', { name: /Audio reactivity/ }).check();
+  await dialog.getByRole('button', { name: 'Done' }).click();
+  await expect(
+    page.getByText('Audio reactive', { exact: true }).first(),
+  ).toBeVisible();
+});
+
 test('Studio release fingerprinting: check and re-fingerprint a track through the AcoustID plugin', async ({
   page,
 }) => {

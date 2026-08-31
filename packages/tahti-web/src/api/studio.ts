@@ -647,6 +647,34 @@ export async function patchStudioRelease(
   }
 }
 
+export async function patchStudioReleaseVisual(
+  id: string,
+  visualPreset: string,
+): Promise<
+  | { ok: true; data: Pick<StudioRelease, 'visualPreset'> }
+  | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return { ok: true, data: { visualPreset } };
+  }
+  try {
+    const { data } = await requestJson<Pick<StudioRelease, 'visualPreset'>>(
+      `/api/me/releases/${encodeURIComponent(id)}/visual`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ visualPreset }),
+      },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error:
+        err instanceof Error ? err.message : 'Visual settings update failed',
+    };
+  }
+}
+
 export async function addStudioReleaseTrack(
   releaseId: string,
   track: { title: string; archiveItemId?: string; durationSec?: number | null },

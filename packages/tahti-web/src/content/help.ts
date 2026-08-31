@@ -250,7 +250,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         heading: 'If something is missing',
         body: [
           'Export destinations such as Spotify or Apple Music are release-delivery links in Studio → Distribution, not installable plugins yet.',
-          'YouTube liked-songs sync and Last.fm scrobbling can be configured in Nuclear plugins, but they do not run until a server-side contract exists.',
+          'Import sources are managed from Add-ons → Import. Only sources with a working Tahti runtime are shown there.',
         ],
       },
     ],

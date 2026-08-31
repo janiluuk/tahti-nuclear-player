@@ -8,6 +8,7 @@ import {
   DownloadIcon,
   Eye,
   FolderDownIcon,
+  InfoIcon,
   Link2Icon,
   PauseIcon,
   PlayIcon,
@@ -129,6 +130,11 @@ import {
 import { useThemeStore } from '../plugins/themes';
 import { visualizerMetadata } from '../plugins/visualizers';
 import { useAuthStore } from '../stores/authStore';
+import {
+  ALL_WIDGET_IDS,
+  useDiscoverStore,
+  type DiscoverWidgetId,
+} from '../stores/discoverStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -137,7 +143,6 @@ import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
-import { NuclearPluginAddonsCategory } from './NuclearPluginAddonsCategory';
 import { PageLoading } from './PageStates';
 import { RoundImageUploadButton } from './RoundImageUploadButton';
 import { SourceServiceIcon } from './SourceServiceIcon';
@@ -197,7 +202,7 @@ function ConfigurableCard({
         <Dialog.Description>
           Changes are saved for this add-on.
         </Dialog.Description>
-        <div className="flex flex-col gap-3">{children}</div>
+        <div className="mt-4 flex flex-col gap-4">{children}</div>
         <Dialog.Actions>
           <Dialog.Close>Done</Dialog.Close>
         </Dialog.Actions>
@@ -325,12 +330,42 @@ export function PluginStorePanel() {
 
 function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
   const category = PLUGIN_CATEGORIES.find((c) => c.id === categoryId)!;
+  const [showInfo, setShowInfo] = useState(false);
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-foreground-secondary text-sm">
-        {category.description}
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-foreground-secondary text-sm">
+          {category.description}
+        </p>
+        <Button
+          size="icon-sm"
+          variant="secondary"
+          aria-label={`About ${category.label}`}
+          title={`About ${category.label}`}
+          aria-expanded={showInfo}
+          onClick={() => setShowInfo((value) => !value)}
+        >
+          <InfoIcon size={16} aria-hidden />
+        </Button>
+      </div>
+      {showInfo ? (
+        <Box
+          variant="tertiary"
+          role="note"
+          className="border-primary/40 bg-primary/10 flex-row items-start gap-2 py-3"
+        >
+          <InfoIcon
+            className="text-primary mt-0.5 shrink-0"
+            size={16}
+            aria-hidden
+          />
+          <p className="text-foreground text-sm">
+            <span className="font-semibold">{category.label}</span>{' '}
+            {category.description}
+          </p>
+        </Box>
+      ) : null}
       {categoryId === 'themes' && <ThemesCategory />}
       {categoryId === 'visualizers' && <VisualizersCategory />}
       {categoryId === 'export' && <DspUrlPasteCard />}
@@ -345,7 +380,6 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
       {categoryId === 'listen' && <ListenCategory />}
       {categoryId === 'discovery' && <DiscoveryCategory />}
       {categoryId === 'channel' && <ChannelCategory />}
-      {categoryId === 'nuclear-plugins' && <NuclearPluginAddonsCategory />}
     </div>
   );
 }
@@ -357,11 +391,17 @@ function ThemesCategory() {
   const setTheme = useThemeStore((s) => s.setTheme);
 
   const all = [
-    ...themes.map((t) => ({ id: t.id, name: t.name, author: 'Tahti' })),
+    ...themes.map((t) => ({
+      id: t.id,
+      name: t.name,
+      author: 'Tahti',
+      palette: t.palette,
+    })),
     ...Object.entries(customThemes).map(([id, t]) => ({
       id,
       name: t.name ?? 'Custom theme',
       author: 'Imported',
+      palette: t.palette,
     })),
   ];
 
@@ -370,6 +410,7 @@ function ThemesCategory() {
       key={theme.id}
       name={theme.name}
       author={theme.author}
+      icon={<ThemePalettePreview palette={theme.palette} />}
       description={theme.id === themeId ? 'Currently applied' : 'Available'}
       isInstalled={theme.id === themeId}
       onInstall={() => setTheme(theme.id)}
@@ -403,6 +444,32 @@ function ThemesCategory() {
         </button>
         .
       </p>
+    </div>
+  );
+}
+
+function ThemePalettePreview({ palette }: { palette?: readonly string[] }) {
+  const colors = palette?.length
+    ? palette
+    : [
+        'var(--primary)',
+        'var(--background)',
+        'var(--accent-purple)',
+        'var(--foreground)',
+      ];
+
+  return (
+    <div
+      className="grid h-full w-full grid-cols-2 grid-rows-2"
+      aria-label="Theme color preview"
+    >
+      {colors.slice(0, 4).map((color, index) => (
+        <span
+          key={`${color}-${index}`}
+          className="min-h-0 min-w-0"
+          style={{ backgroundColor: color }}
+        />
+      ))}
     </div>
   );
 }
@@ -526,9 +593,16 @@ function VisualizersCategory() {
                   <Icon size={18} aria-hidden />
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium">
-                    {presetLabel(id)}
-                    {active ? ' · active' : ''}
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    <span className="truncate text-sm font-medium">
+                      {presetLabel(id)}
+                      {active ? ' · active' : ''}
+                    </span>
+                    {settingsMap[id]?.audioReactive ? (
+                      <Badge variant="pill" color="blue">
+                        Audio reactive
+                      </Badge>
+                    ) : null}
                   </span>
                   <span className="text-foreground-secondary block text-xs">
                     {metadata.description}
@@ -1125,14 +1199,14 @@ function SpotifyCard({ plugin }: { plugin: ServicePlugin }) {
           Search the linked artist or another Spotify query, select the items
           you want, and add them as provider embeds.
         </Dialog.Description>
-        <div className="flex gap-2 py-3">
+        <div className="flex items-end gap-3 py-4">
           <Input
+            className="min-w-0 flex-1"
             label="Search Spotify"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
           <Button
-            className="mt-6"
             size="sm"
             onClick={() => void search()}
             disabled={busy || !query.trim()}
@@ -1140,7 +1214,7 @@ function SpotifyCard({ plugin }: { plugin: ServicePlugin }) {
             <SearchIcon size={15} aria-hidden /> Search
           </Button>
         </div>
-        <div className="flex max-h-72 flex-col gap-2 overflow-y-auto">
+        <div className="border-border flex max-h-72 flex-col gap-2 overflow-y-auto rounded-md border p-2">
           {tracks.map((track) => (
             <label
               key={track.id}
@@ -3391,7 +3465,72 @@ function DiscoveryCategory() {
     );
   }
 
-  return <DiscoWidgetManagerPanel scope="LISTENER" />;
+  return (
+    <div className="flex flex-col gap-6">
+      <DiscoverWidgetPlugins />
+      <DiscoWidgetManagerPanel scope="LISTENER" />
+    </div>
+  );
+}
+
+const DISCOVER_WIDGET_DETAILS: Record<DiscoverWidgetId, string> = {
+  'this-week-most-played':
+    'See the tracks getting the most attention across Tahti this week.',
+  'this-week-least-played':
+    'Find overlooked tracks from this week and give them a listen.',
+  'new-to-you':
+    'Get recommendations from artists and tracks you have not heard yet.',
+  'latest-tracks': 'Browse the newest tracks published by Tahti artists.',
+  'most-played':
+    'Explore the most-played tracks across the full Tahti catalog.',
+  loved: 'Discover tracks that the Tahti community is saving and enjoying.',
+  'artist-of-the-week': 'Meet a featured artist that changes each week.',
+  'random-artist':
+    'Get a fresh artist pick on a schedule you choose on Discover.',
+};
+
+const DISCOVER_WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
+  'this-week-most-played': 'This week: most played',
+  'this-week-least-played': 'This week: least played',
+  'new-to-you': 'New to you',
+  'latest-tracks': 'Latest tracks',
+  'most-played': 'Most played',
+  loved: 'Loved by the community',
+  'artist-of-the-week': 'Artist of the week',
+  'random-artist': 'Random artist',
+};
+
+function DiscoverWidgetPlugins() {
+  const enabledWidgets = useDiscoverStore((state) => state.enabledWidgets);
+  const addWidget = useDiscoverStore((state) => state.addWidget);
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h3 className="text-sm font-semibold tracking-wide uppercase">
+          Discover page widgets
+        </h3>
+        <p className="text-foreground-secondary mt-1 text-xs">
+          Add these built-in discovery panels to your Discover page. Arrange
+          them and tune their filters from Discover.
+        </p>
+      </div>
+      <div className="flex flex-col gap-3">
+        {ALL_WIDGET_IDS.map((id) => (
+          <PluginStoreItem
+            key={id}
+            name={DISCOVER_WIDGET_LABELS[id]}
+            author="Tahti"
+            description={DISCOVER_WIDGET_DETAILS[id]}
+            category="Discover"
+            isInstalled={enabledWidgets.includes(id)}
+            onInstall={() => addWidget(id)}
+            labels={{ installed: 'Added' }}
+          />
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function ChannelCategory() {

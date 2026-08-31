@@ -339,7 +339,7 @@ export function ParityBadges({ parity }: { parity: MapParity }) {
         </Badge>
       ) : (
         <Badge variant="pill" color="cyan">
-          Nuclear only
+          beta.tahti.live only
         </Badge>
       )}
     </span>
@@ -353,7 +353,7 @@ function ShotPane({
   action,
   absent,
 }: {
-  label: 'Tahti' | 'Nuclear';
+  label: 'Tahti' | 'beta.tahti.live';
   shot: MapShot;
   viewName: string;
   action: string;
@@ -396,7 +396,7 @@ function ShotPane({
         {absent ? (
           <div className="text-foreground-secondary flex h-full min-h-[14rem] w-full flex-col items-center justify-center gap-3 px-6 text-center text-sm sm:min-h-[18rem] lg:min-h-[22rem]">
             <Badge variant="pill" color={label === 'Tahti' ? 'cyan' : 'orange'}>
-              {label === 'Tahti' ? 'Nuclear only' : 'Tahti only'}
+              {label === 'Tahti' ? 'beta.tahti.live only' : 'Tahti only'}
             </Badge>
             <span className="text-base font-medium">
               No equivalent on {label}
@@ -406,8 +406,8 @@ function ShotPane({
         ) : pending ? (
           <div className="text-foreground-secondary flex h-full min-h-[14rem] w-full flex-col items-center justify-center gap-2 px-6 text-center text-sm sm:min-h-[18rem] lg:min-h-[22rem]">
             <span className="text-base font-medium">
-              {label === 'Nuclear'
-                ? 'Nuclear shot pending'
+              {label === 'beta.tahti.live'
+                ? 'beta.tahti.live shot pending'
                 : 'Tahti shot pending'}
             </span>
             <span className="text-xs opacity-80">{viewName}</span>
@@ -520,7 +520,7 @@ function ReviewCaseCard({ c }: { c: MapCase }) {
               </div>
               <div className="border-border min-w-0 flex-1 border-t sm:border-t-0">
                 <ShotPane
-                  label="Nuclear"
+                  label="beta.tahti.live"
                   shot={c.new}
                   viewName={c.viewName}
                   action={c.action ?? c.caption}
@@ -535,7 +535,7 @@ function ReviewCaseCard({ c }: { c: MapCase }) {
                 href={openHref}
                 className="text-primary border-border border-t px-5 py-3 text-sm font-medium underline-offset-2 hover:underline"
               >
-                Open Nuclear in beta →
+                Open beta.tahti.live →
               </a>
             ) : null}
           </>

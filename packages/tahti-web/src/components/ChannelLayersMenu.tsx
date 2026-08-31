@@ -99,7 +99,11 @@ export function ChannelLayersMenu({
         ))}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-2">
+      <div
+        className={`min-h-0 flex-1 p-2 ${
+          panel === 'presets' ? 'overflow-visible' : 'overflow-y-auto'
+        }`}
+      >
         {panel === 'presets' && (
           <div className="flex flex-col gap-2">
             <p className="text-foreground-secondary text-xs">

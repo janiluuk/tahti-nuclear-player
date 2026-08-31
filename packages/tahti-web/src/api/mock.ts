@@ -1,4 +1,7 @@
-import { getMockNowPlayingOverlayStyle } from './channel-design';
+import {
+  getMockNowPlayingOverlaySettingsJson,
+  getMockNowPlayingOverlayStyle,
+} from './channel-design';
 import { getMockFreeSubscriptionsEnabled } from './mock-profile-preferences';
 import type {
   Announcement,
@@ -461,6 +464,7 @@ export function mockChannel(slug: string): PublicChannel {
     // preset selector is demonstrable end-to-end without touching every
     // other (pre-existing, unrelated) hardcoded field here.
     nowPlayingOverlayStyle: getMockNowPlayingOverlayStyle(),
+    nowPlayingOverlaySettingsJson: getMockNowPlayingOverlaySettingsJson(),
     user: {
       username: slug,
       displayName: isRadio ? 'Tahti Radio' : content.displayName,

@@ -12,19 +12,42 @@ export type ChannelControlSection = {
 type Props = {
   sections: ChannelControlSection[];
   className?: string;
+  /** Controlled single-open-section (accordion) mode: only the section whose
+   * id matches `openId` is open, and opening one closes the rest. Pass
+   * alongside `onOpenChange`; when omitted, each section toggles
+   * independently via native `<details>` behavior, seeded by `defaultOpen`. */
+  openId?: string | null;
+  onOpenChange?: (id: string | null) => void;
 };
 
 /** Shared collapsible shell for artist channel controls.
  * Keep the controls themselves in their domain components; this widget owns
  * the consistent section chrome used by Studio, Settings, and public editing.
  */
-export function ChannelControlsWidget({ sections, className = '' }: Props) {
+export function ChannelControlsWidget({
+  sections,
+  className = '',
+  openId,
+  onOpenChange,
+}: Props) {
+  const controlled = onOpenChange !== undefined;
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
       {sections.map((section) => (
         <details
           key={section.id}
-          open={section.defaultOpen ?? true}
+          open={
+            controlled ? section.id === openId : (section.defaultOpen ?? true)
+          }
+          onToggle={
+            controlled
+              ? (event) => {
+                  const isOpen = (event.currentTarget as HTMLDetailsElement)
+                    .open;
+                  onOpenChange(isOpen ? section.id : null);
+                }
+              : undefined
+          }
           className="border-border bg-background-secondary/40 group rounded-xl border shadow-sm"
         >
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">

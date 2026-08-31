@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
 
-import type { NowPlayingOverlayPresetId } from '../content/nowPlayingOverlayPresets';
+import type {
+  NowPlayingOverlayPresetId,
+  NowPlayingOverlaySettings,
+} from '../content/nowPlayingOverlayPresets';
 
 type Props = {
   presetId: NowPlayingOverlayPresetId;
@@ -13,6 +16,7 @@ type Props = {
   seekbar?: ReactNode;
   /** Smaller text/art for the Channel Designer's preset picker cards. */
   compact?: boolean;
+  settings?: NowPlayingOverlaySettings;
 };
 
 /** One of four ways to present the currently playing title/artist over a
@@ -27,14 +31,25 @@ export function NowPlayingOverlay({
   artworkUrl,
   seekbar,
   compact = false,
+  settings,
 }: Props) {
+  const overlayStyle = settings
+    ? {
+        transform: `translate(${settings.offsetX}px, ${settings.offsetY}px) scale(${settings.textScale})`,
+        transformOrigin: 'center bottom',
+        opacity: settings.opacity,
+      }
+    : undefined;
   const cover = artworkUrl ? (
     <img src={artworkUrl} alt="" className="size-full object-cover" />
   ) : null;
 
   if (presetId === 'centered') {
     return (
-      <div className="flex flex-col items-center gap-1 text-center">
+      <div
+        className="flex flex-col items-center gap-1 text-center"
+        style={overlayStyle}
+      >
         <div className="w-fit rounded-md bg-black/45 px-3 py-1 text-[10px] tracking-wide text-white/75 uppercase backdrop-blur-sm">
           Now playing
         </div>
@@ -59,7 +74,7 @@ export function NowPlayingOverlay({
 
   if (presetId === 'minimal') {
     return (
-      <div className="flex flex-col items-start gap-2">
+      <div className="flex flex-col items-start gap-2" style={overlayStyle}>
         <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-black/45 py-1.5 pr-3 pl-1.5 backdrop-blur-sm">
           <div
             className={`shrink-0 overflow-hidden rounded-full bg-white/10 ${
@@ -89,7 +104,7 @@ export function NowPlayingOverlay({
 
   if (presetId === 'edge') {
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1" style={overlayStyle}>
         <div className="flex items-end justify-between gap-4">
           <div
             className={`min-w-0 truncate font-extrabold tracking-tight text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.8)] ${
@@ -129,7 +144,7 @@ export function NowPlayingOverlay({
 
   // 'classic' — the original layout: cover thumbnail, stacked title/artist.
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1" style={overlayStyle}>
       <div className={`flex items-end gap-3 ${compact ? '' : 'sm:gap-4'}`}>
         <div
           className={`hidden shrink-0 overflow-hidden rounded-lg bg-white/10 shadow-lg ring-1 ring-white/15 sm:block ${

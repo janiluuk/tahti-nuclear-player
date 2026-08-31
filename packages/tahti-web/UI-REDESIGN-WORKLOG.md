@@ -1,5 +1,67 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-31 — Import plugins use the runtime-backed registry
+
+**Completed:** The Settings → Add-ons → Import tab is now the single import-plugin surface. It uses the runtime-backed Tahti import-source registry, and the separate local-only Nuclear plugin catalog, category, and Storybook entry have been removed so inactive duplicate items cannot be mistaken for working integrations.
+
+## 2026-08-31 — Release visualizer defaults
+
+**Completed:** Added Artist settings → Releases controls for the default new-release background: Particle Field by default, a specific visualizer, random selection, or off. New releases save that choice through the existing release visual API, and public smart-link pages now render the saved visualizer as a soft ambient background.
+
+## 2026-08-31 — Release overview compact playback layout
+
+**Completed:** Release overview now keeps the title and artist at the top of the artwork, uses one embed action in the hero corner, adds a hover play control that starts the first track, and highlights the currently playing track. The condensed hero reduces vertical scrolling while retaining artwork editing.
+
+## 2026-08-31 — Go Live show-info confirmation
+
+**Completed:** Go Live now places a compact, professional “Confirm show info” card directly above the encoder controls. It saves the complete show form with a success toast, shows a green confirmation state, includes the existing avatar upload flow, shortens the type/visibility controls, and removes the redundant Info tab while preserving the old `/studio/info` URL as a redirect.
+
+## 2026-08-31 — Continued worklog: radio logos and reference surfaces
+
+**In progress:** Radio station logo sourcing is now queued as a production-data
+task. The current beta catalog still points at third-party station-directory
+image URLs, so replacing those logos requires confirming each station's
+official brand asset and its redistribution/cache permissions before changing
+production data.
+
+**Completed in the preceding pass:** Governance is lazy-loaded from Settings,
+the right rail avoids repeated notification requests, radio cover uploads have
+reliable success/error cleanup, same-file upload retries work, Storybook covers
+the retry state and Studio Governance, and the beta sitemap identifies its
+capture script.
+
+**Validation:** tahti-web and Storybook type-check, production build, focused
+lint, and focused FilePicker tests pass. The full UI suite retains unrelated
+pre-existing snapshot failures.
+
+## 2026-08-31 — Performance and upload reliability pass
+
+**Completed:** Governance opened from Settings now loads on demand instead of
+being included in the initial application path. The right rail no longer
+refetches notifications on every collapse, expand, or tab switch. Radio station
+cover uploads now show success and failure feedback, always release their busy
+state, and the image-mode toggle no longer submits the edit form accidentally.
+The shared file picker clears its native selection after each change so a user
+can retry the same file after an upload error.
+
+**References:** Added Storybook coverage for retryable image uploads and the
+Studio Governance surface. Updated the beta sitemap metadata to identify its
+capture script.
+
+**Validation:** tahti-web and Storybook type-check, tahti-web production build,
+focused lint, and focused FilePicker tests pass. The full UI suite still has
+pre-existing snapshot failures in unrelated components.
+
+## 2026-08-31 — Next three shared-select slices
+
+**Slice 1 — Release track filtering:** The Add tracks from library dialog now uses the shared Select for content type filtering.
+
+**Slice 2 — Studio recordings sorting:** Recording order selection now uses the shared Select while preserving newest, oldest, and title sorting.
+
+**Slice 3 — Admin ledger entry:** Financial ledger category selection now uses the shared Select, keeping the compact entry form consistent with the rest of Admin.
+
+**Validation:** tahti-web type-check and Prettier pass clean.
+
 ## 2026-08-31 — Next three product slices
 
 **Slice 1 — Track detail backdrops:** Track detail pages now use the backdrop image chosen in Studio when one exists, while tracks without one retain the cover-art ambience and visualizer treatment.

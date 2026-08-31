@@ -21,6 +21,7 @@ import {
   Settings2 as Settings2Icon,
   Share2,
   Shield,
+  Sparkles,
   SunMoon,
   Tag,
   Trash2,
@@ -126,6 +127,12 @@ import {
   parseGenreTags,
 } from '../../lib/genres';
 import { membershipStatusLabel } from '../../lib/membershipStatus';
+import {
+  readReleaseVisualizerPreference,
+  releaseVisualizerPresets,
+  saveReleaseVisualizerPreference,
+  type ReleaseVisualizerMode,
+} from '../../lib/releaseVisualizer';
 import { useThemeStore } from '../../plugins/themes';
 import { useAmbientStore } from '../../stores/ambientStore';
 import { useAuthModalStore } from '../../stores/authModalStore';
@@ -1151,6 +1158,11 @@ function ArtistPanel() {
           content: <StudioBrandingPanel section="branding" />,
         },
         {
+          id: 'release-visuals',
+          label: tabLabel(Sparkles, 'Releases'),
+          content: <ReleaseVisualDefaultsPanel />,
+        },
+        {
           id: 'gallery',
           label: tabLabel(ImageIcon, 'Gallery'),
           content: <StudioBrandingPanel section="gallery" />,
@@ -1159,6 +1171,62 @@ function ArtistPanel() {
         (item) => item.id !== 'people' || profile?.artistKind === 'COLLECTIVE',
       )}
     />
+  );
+}
+
+export function ReleaseVisualDefaultsPanel() {
+  const [preference, setPreference] = useState(() =>
+    readReleaseVisualizerPreference(),
+  );
+
+  const update = (patch: Partial<typeof preference>) => {
+    const next = { ...preference, ...patch };
+    setPreference(next);
+    saveReleaseVisualizerPreference(next);
+    toast.success('Release visualizer default saved.');
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <SettingsHint>
+        Choose the animated background used when you create a new release. You
+        can still change an individual release later from its visual settings.
+      </SettingsHint>
+      <Select
+        label="New release background"
+        value={preference.mode}
+        onValueChange={(value) =>
+          update({ mode: value as ReleaseVisualizerMode })
+        }
+        options={[
+          { id: 'specific', label: 'Use a specific visualizer' },
+          { id: 'random', label: 'Choose a random visualizer' },
+          { id: 'off', label: 'Off' },
+        ]}
+      />
+      {preference.mode === 'specific' && (
+        <Select
+          label="Visualizer"
+          value={preference.preset}
+          onValueChange={(value) =>
+            update({
+              preset: value as typeof preference.preset,
+            })
+          }
+          options={releaseVisualizerPresets().map((preset) => ({
+            id: preset,
+            label: preset
+              .replace(/_/g, ' ')
+              .toLowerCase()
+              .replace(/^\w/, (letter) => letter.toUpperCase()),
+          }))}
+        />
+      )}
+      <p className="text-foreground-secondary text-xs">
+        Particle field is selected by default: a soft, audio-reactive cloud that
+        keeps cover art readable.
+      </p>
+    </div>
   );
 }
 

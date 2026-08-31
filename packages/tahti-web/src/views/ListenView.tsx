@@ -609,6 +609,13 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
                         className={`transition-transform ${filtersExpanded ? 'rotate-180' : ''}`}
                       />
                     </button>
+                    {genres.length > 0 && (
+                      <FilterChips
+                        items={chipItems}
+                        selected={genre}
+                        onChange={setGenre}
+                      />
+                    )}
                   </div>
 
                   {filtersExpanded && (
@@ -623,18 +630,6 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
                           onChange={setArtistType}
                         />
                       </div>
-                      {genres.length > 0 && (
-                        <div>
-                          <p className="text-foreground-secondary mb-1.5 text-xs font-semibold tracking-wide uppercase">
-                            Genre
-                          </p>
-                          <FilterChips
-                            items={chipItems}
-                            selected={genre}
-                            onChange={setGenre}
-                          />
-                        </div>
-                      )}
                     </div>
                   )}
 

@@ -83,6 +83,37 @@ modal; the connection-test request/response and error contract; and whether
 Save + Enable is atomic or separate. Keep the decision documented here and in
 Tahti’s `AGENTS.md`.
 
+## Tahti governance handoff
+
+The governance API and official-record foundation live in the sibling
+`../tahti` repository. Before adding governance UI here, inspect the sibling
+API routes, shared DTOs, OpenAPI output, and `docs/governance-worklog.md`.
+Implement the player-side journeys against real contracts only: member motion
+submission, discussion, advisory voting, feature requests, public closed-motion
+history, yearly transparency reports, meetings, and published documents.
+
+Keep advisory consultation visibly separate from binding association votes. Do
+not claim that the player performs an official AGM ballot until the sibling API
+has bylaws-backed eligibility, quorum, ballot, minutes, and result-certificate
+contracts.
+
+Use the player’s existing `PageHeader`, `StudioPanel`, `Badge`, `Button`, `Tabs`,
+`Dialog`, and loading/empty/error components. Add user-visible strings through
+i18n, add an integration journey test, and record the work in the player
+worklog/changelog. Do not invent response shapes or silently mock governance
+endpoints.
+
+## Plugin registry separation guardrail
+
+Start separating the plugin registry conceptually, but do not break or migrate
+the current runtime registry yet. First inventory all callers, the persisted
+`plugins.json` format, bootstrap ordering, and enable/update/removal semantics.
+Then define a compatibility interface and contract tests around the existing
+implementation. Keep the current registry as the runtime source of truth until
+the adapter, rollback plan, and ownership split between player core, plugin SDK,
+and import-provider plugins are accepted. Do not change registry keys, storage
+location, discovery semantics, or bootstrap order during preparation.
+
 ### TypeScript
 
 - Use `type` not `interface` (except when merging is required)

@@ -27,9 +27,11 @@ function toPlayable(item: DiscoverTrackItem) {
 export function WidgetTrackRow({
   item,
   rank,
+  onSelect,
 }: {
   item: DiscoverTrackItem;
   rank?: number;
+  onSelect?: (item: DiscoverTrackItem) => void;
 }) {
   const play = usePlayerStore((s) => s.play);
   const [loading, setLoading] = useState(false);
@@ -102,6 +104,14 @@ export function WidgetTrackRow({
     <Link
       to="/channel/$slug"
       params={{ slug: item.channelSlug }}
+      onClick={
+        onSelect
+          ? (event) => {
+              event.preventDefault();
+              onSelect(item);
+            }
+          : undefined
+      }
       className="hover:bg-background flex items-center gap-3 rounded px-1.5 py-1.5 transition-colors"
     >
       {rank !== undefined && (

@@ -1,5 +1,54 @@
 [
   {
+    "date": "2026-09-01T00:00",
+    "description": "Discover widgets now move smoothly with side arrows, and selecting a track opens an inline waveform player for quick listening and seeking.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discovery", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "All Discover page widgets, including Random artist, are now available from Add-ons → Discovery and can be added with one click.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discovery", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "The export list now focuses on the supported destinations, making it easier to choose where to send your releases.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Distribution", "color": "blue" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "New releases now start with a polished particle background by default, with settings to choose a visualizer, randomize it, or turn it off.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Releases", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Release pages now keep the title and artist visible over the artwork, offer one clear embed action, and make playing tracks easy to spot.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Releases", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Go Live now puts a compact show-info confirmation directly above the encoder controls, with a clear save confirmation and quick avatar upload.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Go Live", "color": "green" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "The Import add-on list now shows only working import sources, with duplicate inactive Nuclear Store entries removed.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Add-ons", "color": "cyan" }]
+  },
+  {
     "date": "2026-08-31T00:00",
     "description": "EP collections now keep their correct content type when you open them in the editor instead of being mislabeled as albums.",
     "type": "fix",

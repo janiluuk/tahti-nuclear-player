@@ -144,16 +144,6 @@ Every image is a full-page route capture. The narration describes the job the vi
 - **Fingerprinting** — audio fingerprint matching for catalog metadata: AcoustID.
 - **Audio plugins** — the Pro Editor's DSP chain: EQ, Compressor, Limiter, Filter.
 
-### Nuclear plugin registry
-
-A browsable, ported copy of the [Nuclear desktop plugin registry](https://cdn.jsdelivr.net/gh/NuclearPlayer/plugin-registry@master/plugins.json), documenting each plugin's real Tahti-side availability (available/partial/planned) rather than enabling unverified behavior:
-
-- **Metadata** — Discogs, Bandcamp, MusicBrainz, Spotify.
-- **Streaming** — YouTube, SoundCloud, OmniSource.
-- **Dashboard** — Deezer, ListenBrainz, Bandcamp and SoundCloud dashboards (charts/editorial picks — all pending an API contract).
-- **Playlists** — YouTube Liked Songs Sync.
-- **Other** — YouTube Playlists import, MediaSession (OS media-control integration, already active).
-
 ## Running locally
 
 ```bash

@@ -437,7 +437,7 @@ function FeatureCompareCard({ row }: { row: FeatureRow }) {
             </span>
             {tahtiAbsent ? (
               <Badge variant="pill" color="cyan">
-                Nuclear only
+                beta.tahti.live only
               </Badge>
             ) : null}
           </div>

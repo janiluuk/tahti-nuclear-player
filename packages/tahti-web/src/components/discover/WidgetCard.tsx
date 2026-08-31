@@ -30,6 +30,7 @@ export function WidgetCard({
   canMoveDown,
   onMove,
   onRemove,
+  onSelectTrack,
   settings,
 }: {
   id: DiscoverWidgetId;
@@ -44,6 +45,7 @@ export function WidgetCard({
   canMoveDown: boolean;
   onMove: (id: DiscoverWidgetId, direction: 'up' | 'down') => void;
   onRemove: (id: DiscoverWidgetId) => void;
+  onSelectTrack?: (item: DiscoverTrackItem) => void;
   /** Optional per-widget configuration, toggled open by the gear button
    * (e.g. the random-artist widget's rotation-length picker). */
   settings?: ReactNode;
@@ -155,6 +157,7 @@ export function WidgetCard({
               key={item.id}
               item={item}
               rank={showRank ? index + 1 : undefined}
+              onSelect={onSelectTrack}
             />
           ))}
         </div>

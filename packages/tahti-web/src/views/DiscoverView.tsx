@@ -1,8 +1,18 @@
-import { ChevronDownIcon, PlusIcon, SlidersHorizontalIcon } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PauseIcon,
+  PlayIcon,
+  PlusIcon,
+  SlidersHorizontalIcon,
+  XIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, FilterChips, Popover, Select } from '@nuclearplayer/ui';
 
+import { fetchTrackDetail } from '../api/client';
 import {
   fetchArtistOfTheWeek,
   fetchLatestTracks,
@@ -12,16 +22,18 @@ import {
   fetchTopTracks,
 } from '../api/discover';
 import type { DiscoverArtistOfWeek } from '../api/discover';
-import type { DiscoverTrackItem } from '../api/types';
+import type { DiscoverTrackItem, TahtiPlayable } from '../api/types';
 import { WidgetCard } from '../components/discover/WidgetCard';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { Eyebrow } from '../components/tahti/Eyebrow';
+import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { PRESET_GENRES } from '../lib/genres';
 import {
   ALL_WIDGET_IDS,
   useDiscoverStore,
   type DiscoverWidgetId,
 } from '../stores/discoverStore';
+import { usePlayerStore } from '../stores/playerStore';
 
 const CONTENT_TYPE_OPTIONS = [
   { id: 'LIVE', label: 'Live' },
@@ -51,6 +63,11 @@ type WidgetData = {
   artist?: DiscoverArtistOfWeek;
 };
 
+type DiscoverSelection = {
+  item: DiscoverTrackItem;
+  playable: TahtiPlayable;
+};
+
 export function DiscoverView() {
   const enabledWidgets = useDiscoverStore((s) => s.enabledWidgets);
   const genreFilter = useDiscoverStore((s) => s.genreFilter);
@@ -68,10 +85,15 @@ export function DiscoverView() {
   const setRandomArtistRotationDays = useDiscoverStore(
     (s) => s.setRandomArtistRotationDays,
   );
+  const play = usePlayerStore((state) => state.play);
   const [data, setData] = useState<Record<string, WidgetData>>({});
   const [unheardIds, setUnheardIds] = useState<Set<string> | null>(null);
   const [genresOpen, setGenresOpen] = useState(false);
   const [contentTypesOpen, setContentTypesOpen] = useState(false);
+  const [widgetIndex, setWidgetIndex] = useState(0);
+  const [selectedTrack, setSelectedTrack] = useState<DiscoverSelection | null>(
+    null,
+  );
 
   const filters = useMemo(
     () => ({ genres: genreFilter, contentTypes: contentTypeFilter }),
@@ -192,6 +214,41 @@ export function DiscoverView() {
     (id) => !enabledWidgets.includes(id),
   );
 
+  useEffect(() => {
+    setWidgetIndex((current) =>
+      Math.min(current, Math.max(0, enabledWidgets.length - 1)),
+    );
+  }, [enabledWidgets.length]);
+
+  const selectTrack = async (item: DiscoverTrackItem) => {
+    const detail = item.audioUrl
+      ? {
+          title: item.title,
+          artistName: item.artist,
+          channelSlug: item.channelSlug,
+          audioUrl: item.audioUrl,
+          bannerUrl: item.coverUrl,
+          durationSec: null,
+        }
+      : (await fetchTrackDetail(item.id.replace(/^archive:/, ''))).data;
+    if (!detail?.audioUrl) {
+      return;
+    }
+    const playable: TahtiPlayable = {
+      id: item.id,
+      kind: 'archive',
+      title: detail.title,
+      artist: detail.artistName,
+      coverUrl: detail.bannerUrl ?? undefined,
+      streamUrl: detail.audioUrl,
+      protocol: detail.audioUrl.includes('.m3u8') ? 'hls' : 'https',
+      channelSlug: detail.channelSlug,
+      durationSec: detail.durationSec ?? undefined,
+    };
+    setSelectedTrack({ item, playable });
+    play(playable);
+  };
+
   return (
     <PageFrame>
       <PageHeader
@@ -260,78 +317,194 @@ export function DiscoverView() {
         ) : null}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {enabledWidgets.map((id, index) => {
-          const widgetData = data[id];
-          return (
-            <WidgetCard
-              key={id}
-              id={id}
-              title={WIDGET_LABELS[id]}
-              subtitle={widgetData?.subtitle}
-              loading={widgetData?.loading ?? true}
-              items={widgetData?.items ?? []}
-              artist={widgetData?.artist}
-              showRank={
-                id === 'this-week-most-played' ||
-                id === 'this-week-least-played' ||
-                id === 'most-played'
-              }
-              emptyMessage={
-                id === 'loved'
-                  ? 'No community-loved tracks yet.'
-                  : 'Nothing here yet.'
-              }
-              canMoveUp={index > 0}
-              canMoveDown={index < enabledWidgets.length - 1}
-              onMove={moveWidget}
-              onRemove={removeWidget}
-              settings={
-                id === 'random-artist' ? (
-                  <Select
-                    label="Keep the same pick for"
-                    value={String(randomArtistRotationDays)}
-                    onValueChange={(value) =>
-                      setRandomArtistRotationDays(Number(value))
-                    }
-                    options={[
-                      { id: '1', label: '1 day' },
-                      { id: '3', label: '3 days' },
-                      { id: '7', label: '7 days' },
-                      { id: '14', label: '14 days' },
-                      { id: '30', label: '30 days' },
-                    ]}
-                  />
-                ) : undefined
-              }
-            />
-          );
-        })}
-
-        {availableToAdd.length > 0 && (
-          <div className="border-border flex min-h-[280px] items-center justify-center rounded-md border-(length:--border-width) border-dashed">
-            <Popover
-              className="relative"
-              anchor="bottom start"
-              trigger={
-                <Button variant="secondary">
-                  <PlusIcon size={16} className="mr-1.5" aria-hidden />
-                  Add a widget
-                </Button>
-              }
-              panelClassName="w-56"
+      {enabledWidgets.length > 0 && (
+        <div className="relative px-10 sm:px-12">
+          <button
+            type="button"
+            className="border-border bg-background text-foreground hover:border-primary absolute top-1/2 left-0 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-30"
+            onClick={() =>
+              setWidgetIndex((current) => Math.max(0, current - 1))
+            }
+            disabled={widgetIndex === 0}
+            aria-label="Previous discovery widget"
+          >
+            <ChevronLeftIcon size={18} aria-hidden />
+          </button>
+          <div className="overflow-hidden rounded-md">
+            <div
+              className="flex transition-transform duration-500 ease-out motion-reduce:transition-none"
+              style={{ transform: `translateX(-${widgetIndex * 100}%)` }}
             >
-              <Popover.Menu>
-                {availableToAdd.map((id) => (
-                  <Popover.Item key={id} onClick={() => addWidget(id)}>
-                    {WIDGET_LABELS[id]}
-                  </Popover.Item>
-                ))}
-              </Popover.Menu>
-            </Popover>
+              {enabledWidgets.map((id, index) => {
+                const widgetData = data[id];
+                return (
+                  <div key={id} className="min-w-full">
+                    <WidgetCard
+                      id={id}
+                      title={WIDGET_LABELS[id]}
+                      subtitle={widgetData?.subtitle}
+                      loading={widgetData?.loading ?? true}
+                      items={widgetData?.items ?? []}
+                      artist={widgetData?.artist}
+                      showRank={
+                        id === 'this-week-most-played' ||
+                        id === 'this-week-least-played' ||
+                        id === 'most-played'
+                      }
+                      emptyMessage={
+                        id === 'loved'
+                          ? 'No community-loved tracks yet.'
+                          : 'Nothing here yet.'
+                      }
+                      canMoveUp={index > 0}
+                      canMoveDown={index < enabledWidgets.length - 1}
+                      onMove={moveWidget}
+                      onRemove={removeWidget}
+                      onSelectTrack={(track) => void selectTrack(track)}
+                      settings={
+                        id === 'random-artist' ? (
+                          <Select
+                            label="Keep the same pick for"
+                            value={String(randomArtistRotationDays)}
+                            onValueChange={(value) =>
+                              setRandomArtistRotationDays(Number(value))
+                            }
+                            options={[
+                              { id: '1', label: '1 day' },
+                              { id: '3', label: '3 days' },
+                              { id: '7', label: '7 days' },
+                              { id: '14', label: '14 days' },
+                              { id: '30', label: '30 days' },
+                            ]}
+                          />
+                        ) : undefined
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        )}
-      </div>
+          <button
+            type="button"
+            className="border-border bg-background text-foreground hover:border-primary absolute top-1/2 right-0 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-30"
+            onClick={() =>
+              setWidgetIndex((current) =>
+                Math.min(enabledWidgets.length - 1, current + 1),
+              )
+            }
+            disabled={widgetIndex === enabledWidgets.length - 1}
+            aria-label="Next discovery widget"
+          >
+            <ChevronRightIcon size={18} aria-hidden />
+          </button>
+          <p className="text-foreground-secondary mt-2 text-center text-xs tabular-nums">
+            {widgetIndex + 1} / {enabledWidgets.length}
+          </p>
+        </div>
+      )}
+
+      {selectedTrack && (
+        <DiscoverWaveformPlayer
+          selection={selectedTrack}
+          onClose={() => setSelectedTrack(null)}
+        />
+      )}
+
+      {availableToAdd.length > 0 && (
+        <div className="border-border flex min-h-[280px] items-center justify-center rounded-md border-(length:--border-width) border-dashed">
+          <Popover
+            className="relative"
+            anchor="bottom start"
+            trigger={
+              <Button variant="secondary">
+                <PlusIcon size={16} className="mr-1.5" aria-hidden />
+                Add a widget
+              </Button>
+            }
+            panelClassName="w-56"
+          >
+            <Popover.Menu>
+              {availableToAdd.map((id) => (
+                <Popover.Item key={id} onClick={() => addWidget(id)}>
+                  {WIDGET_LABELS[id]}
+                </Popover.Item>
+              ))}
+            </Popover.Menu>
+          </Popover>
+        </div>
+      )}
     </PageFrame>
+  );
+}
+
+function DiscoverWaveformPlayer({
+  selection,
+  onClose,
+}: {
+  selection: DiscoverSelection;
+  onClose: () => void;
+}) {
+  const currentId = usePlayerStore((state) => state.currentId);
+  const status = usePlayerStore((state) => state.status);
+  const currentTime = usePlayerStore((state) => state.currentTime);
+  const duration = usePlayerStore((state) => state.duration);
+  const play = usePlayerStore((state) => state.play);
+  const setStatus = usePlayerStore((state) => state.setStatus);
+  const seekTo = usePlayerStore((state) => state.seekTo);
+  const isCurrent = currentId === selection.playable.id;
+  const isPlaying = isCurrent && (status === 'playing' || status === 'loading');
+  const progress = isCurrent && duration > 0 ? currentTime / duration : 0;
+
+  return (
+    <section
+      className="border-border bg-background-secondary rounded-md border p-4 shadow-sm"
+      aria-label="Waveform player"
+    >
+      <div className="flex items-start gap-3">
+        <button
+          type="button"
+          className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-full transition-transform hover:scale-105"
+          onClick={() => {
+            if (isCurrent) {
+              setStatus(isPlaying ? 'paused' : 'playing');
+            } else {
+              play(selection.playable);
+            }
+          }}
+          aria-label={
+            isPlaying ? 'Pause selected track' : 'Play selected track'
+          }
+        >
+          {isPlaying ? <PauseIcon size={17} /> : <PlayIcon size={17} />}
+        </button>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold">
+            {selection.playable.title}
+          </p>
+          <p className="text-foreground-secondary truncate text-xs">
+            {selection.playable.artist}
+          </p>
+          <WaveformSeekbar
+            trackId={selection.playable.id}
+            progress={progress}
+            className="mt-3 h-9 w-full"
+            onSeek={
+              isCurrent && duration > 0
+                ? (fraction) => seekTo(fraction * duration)
+                : undefined
+            }
+          />
+        </div>
+        <button
+          type="button"
+          className="text-foreground-secondary hover:text-foreground shrink-0 rounded p-1 transition-colors"
+          onClick={onClose}
+          aria-label="Close waveform player"
+        >
+          <XIcon size={16} />
+        </button>
+      </div>
+    </section>
   );
 }

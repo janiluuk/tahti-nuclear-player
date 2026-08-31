@@ -73,6 +73,7 @@ export type PublicChannel = {
   /** Now-playing title/artist overlay layout — see
    * content/nowPlayingOverlayPresets.ts. Defaults to 'classic' when unset. */
   nowPlayingOverlayStyle?: string | null;
+  nowPlayingOverlaySettingsJson?: string | null;
   user: {
     username: string;
     displayName: string;
@@ -90,6 +91,7 @@ export type RadioNowPlaying = {
     hlsUrl?: string | null;
     title?: string | null;
     artworkUrl?: string | null;
+    visualPreset?: string | null;
   };
 };
 
@@ -312,6 +314,7 @@ export type SmartLinkView = {
     title: string;
     type?: string;
     artworkUrl?: string | null;
+    visualPreset?: string | null;
     releaseDate?: string | null;
     genre?: string | null;
     description?: string | null;

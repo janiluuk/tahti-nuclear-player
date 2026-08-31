@@ -87,11 +87,11 @@ export const READY_PLUGIN_HELP: PluginHelpEntry[] = [
   {
     name: 'Spotify search',
     category: 'Import',
-    state: 'partial',
-    stateLabel: 'Search ready',
+    state: 'ready',
+    stateLabel: 'Ready',
     description:
-      'Searches Spotify’s public catalogue and adds results into mixed-source collections; the Spotify widget plays the real track in-app.',
-    help: 'Search public Spotify tracks from Sources and add them as embeds in mixed-source collections. Configure the artist profile in Settings → Add-ons.',
+      'Searches Spotify’s public catalogue, loads your linked artist catalogue or another artist URL, and adds tracks into mixed-source collections; the Spotify widget plays the real track in-app.',
+    help: 'Open a collection and choose Add from Spotify. Search the public catalogue, load your linked artist, or paste another artist URL, then add tracks as Spotify embeds.',
   },
   {
     name: 'hearthis.at search',

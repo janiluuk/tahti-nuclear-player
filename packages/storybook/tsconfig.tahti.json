@@ -5,7 +5,6 @@
   },
   "include": [
     "src/tahti-web/SectionNavigation.stories.tsx",
-    "src/tahti-web/NuclearPluginAddonsCategory.stories.tsx",
     "../tahti-web/src/vite-env.d.ts"
   ]
 }

@@ -119,6 +119,8 @@ export type StudioRelease = {
   releaseDate: string;
   description?: string | null;
   artworkUrl?: string | null;
+  visualPreset?: string | null;
+  colorSchemeJson?: string | null;
   smartLinkSlug: string;
   smartLinkViewCount?: number;
   smartLinkTargets?: Record<string, string> | null;

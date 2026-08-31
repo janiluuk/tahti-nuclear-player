@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import {
+  Code2Icon,
   ExternalLinkIcon,
   FilterIcon,
   FingerprintIcon,
@@ -11,9 +12,9 @@ import {
   SearchIcon,
   Share2Icon,
   Trash2Icon,
-  UploadCloudIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import {
   Button,
@@ -84,6 +85,9 @@ const SMART_LINK_TARGETS = [
 
 export function StudioReleaseDetailView({ id }: { id: string }) {
   const user = useAuthStore((state) => state.user);
+  const currentId = usePlayerStore((state) => state.currentId);
+  const playbackStatus = usePlayerStore((state) => state.status);
+  const play = usePlayerStore((state) => state.play);
   const [release, setRelease] = useState<StudioRelease | null>(null);
   const [description, setDescription] = useState('');
   const [spotify, setSpotify] = useState('');
@@ -122,6 +126,27 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
     }
     setRelease(result.data);
     setMessage('Saved.');
+  };
+
+  const playFirstTrack = async () => {
+    const firstTrack = release?.tracks?.[0];
+    if (!firstTrack?.archiveItemId) {
+      toast.info('The first track is not playable yet.');
+      return;
+    }
+    const source = await fetchEditorSource(firstTrack.archiveItemId);
+    if (!source.data.url) {
+      toast.info('The first track is still being prepared.');
+      return;
+    }
+    play({
+      id: `archive:${firstTrack.archiveItemId}`,
+      kind: 'archive',
+      title: firstTrack.title,
+      artist: user?.displayName ?? 'You',
+      streamUrl: source.data.url,
+      protocol: source.data.url.includes('.m3u8') ? 'hls' : 'https',
+    });
   };
 
   const updateTrackFingerprint = (
@@ -181,32 +206,61 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                   ),
                   content: (
                     <>
-                      <StudioPanel title="Artwork">
-                        <div className="group relative inline-flex">
-                          {artworkPreview ? (
-                            <img
-                              src={artworkPreview}
-                              alt=""
-                              className="border-border h-28 w-28 rounded-lg border object-cover shadow-sm"
-                            />
-                          ) : (
-                            <div className="border-border bg-background text-foreground-secondary flex h-28 w-28 items-center justify-center rounded-lg border text-xs">
-                              No art
-                            </div>
-                          )}
-                          <Button
-                            type="button"
-                            variant="text"
-                            size="flexible"
-                            onClick={() => setArtworkPickerOpen(true)}
-                            aria-label="Change release artwork"
-                            title="Change release artwork"
-                            className="bg-background/80 text-foreground absolute inset-0 flex items-center justify-center rounded-lg p-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                      <div className="group border-border bg-background-secondary relative isolate min-h-64 overflow-hidden rounded-xl border shadow-sm sm:min-h-72">
+                        {artworkPreview ? (
+                          <img
+                            src={artworkPreview}
+                            alt=""
+                            className="absolute inset-0 size-full object-cover"
+                          />
+                        ) : (
+                          <div className="bg-background text-foreground-secondary absolute inset-0 flex items-center justify-center text-sm">
+                            No artwork
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/25 to-black/70" />
+                        <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4 text-white">
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold tracking-[0.16em] text-white/70 uppercase">
+                              {release.type} · {release.state}
+                            </p>
+                            <h2 className="mt-1 truncate text-2xl leading-tight font-bold sm:text-3xl">
+                              {release.title}
+                            </h2>
+                            <p className="mt-1 truncate text-sm text-white/80">
+                              {user?.displayName ?? 'Tahti artist'}
+                            </p>
+                          </div>
+                          <Link
+                            to="/r/$slug"
+                            params={{ slug: release.smartLinkSlug }}
+                            className="flex size-9 shrink-0 items-center justify-center rounded-md border border-white/30 bg-black/30 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+                            aria-label="Open release embed"
+                            title="Open release embed"
                           >
-                            <UploadCloudIcon size={22} aria-hidden />
-                          </Button>
+                            <Code2Icon size={17} aria-hidden />
+                          </Link>
                         </div>
-                      </StudioPanel>
+                        <button
+                          type="button"
+                          onClick={() => void playFirstTrack()}
+                          disabled={!release.tracks?.length}
+                          className="bg-primary text-primary-foreground focus-visible:outline-primary absolute right-4 bottom-4 flex size-12 items-center justify-center rounded-full opacity-0 shadow-lg transition-opacity group-hover:opacity-100 hover:scale-105 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none"
+                          aria-label={`Play ${release.title}`}
+                          title={`Play ${release.title}`}
+                        >
+                          <PlayIcon size={20} fill="currentColor" aria-hidden />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setArtworkPickerOpen(true)}
+                          aria-label="Change release artwork"
+                          title="Change release artwork"
+                          className="absolute bottom-4 left-4 rounded-md border border-white/30 bg-black/30 px-2.5 py-1.5 text-xs text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:bg-white/20 focus-visible:opacity-100"
+                        >
+                          Change artwork
+                        </button>
+                      </div>
 
                       <Dialog.Root
                         isOpen={artworkPickerOpen}
@@ -265,6 +319,11 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                                 key={t.id}
                                 track={t}
                                 shopUrl={release.smartLinkTargets?.bandcamp}
+                                isPlaying={
+                                  currentId === `archive:${t.archiveItemId}` &&
+                                  (playbackStatus === 'playing' ||
+                                    playbackStatus === 'loading')
+                                }
                               />
                             ))}
                           </ol>
@@ -291,29 +350,6 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                         >
                           Publish
                         </Button>
-                        <Link
-                          to="/r/$slug"
-                          params={{ slug: release.smartLinkSlug }}
-                        >
-                          <Button
-                            size="icon-sm"
-                            variant="text"
-                            aria-label="Open smart link"
-                            title="Open smart link"
-                          >
-                            <ExternalLinkIcon size={16} aria-hidden />
-                          </Button>
-                        </Link>
-                        <Link to="/studio/distribution">
-                          <Button
-                            size="icon-sm"
-                            variant="text"
-                            aria-label="Distribution"
-                            title="Distribution"
-                          >
-                            <Share2Icon size={16} aria-hidden />
-                          </Button>
-                        </Link>
                       </div>
                     </>
                   ),
@@ -423,9 +459,11 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
 function ReleaseTrackRow({
   track,
   shopUrl,
+  isPlaying = false,
 }: {
   track: NonNullable<StudioRelease['tracks']>[number];
   shopUrl?: string;
+  isPlaying?: boolean;
 }) {
   const play = usePlayerStore((state) => state.play);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
@@ -459,12 +497,16 @@ function ReleaseTrackRow({
         title={track.title}
         provider={embed.provider}
         embedUri={embed.uri}
+        className={isPlaying ? 'border-primary bg-primary/10' : ''}
       />
     );
   }
 
   return (
-    <li className="flex flex-wrap items-center gap-2">
+    <li
+      className={`flex flex-wrap items-center gap-2 rounded-md border px-2 py-1.5 transition-colors ${isPlaying ? 'border-primary bg-primary/10 text-primary' : 'border-transparent'}`}
+      aria-current={isPlaying ? 'true' : undefined}
+    >
       <span className="min-w-0 flex-1 truncate">{track.title}</span>
       {sourceUrl ? (
         <Button

@@ -45,7 +45,10 @@ import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { listenerWidgetType } from '../content/listenerWidgets';
-import { resolveNowPlayingOverlayPreset } from '../content/nowPlayingOverlayPresets';
+import {
+  parseNowPlayingOverlaySettings,
+  resolveNowPlayingOverlayPreset,
+} from '../content/nowPlayingOverlayPresets';
 import {
   addItemType,
   CHANNEL_PAGE_ITEM_META,
@@ -448,6 +451,9 @@ export function ChannelView({ slug }: { slug: string }) {
                     title={channel.nowPlaying.title}
                     artist={channel.nowPlaying.artistName}
                     artworkUrl={channel.nowPlaying.artworkUrl}
+                    settings={parseNowPlayingOverlaySettings(
+                      channel.nowPlayingOverlaySettingsJson,
+                    )}
                     seekbar={
                       <WaveformSeekbar
                         trackId={`channel:${slug}`}
@@ -1045,7 +1051,7 @@ export function ChannelView({ slug }: { slug: string }) {
         <div
           className={`${
             mobileMenuOpen ? 'flex' : 'hidden'
-          } max-h-[40vh] shrink-0 overflow-hidden lg:flex lg:max-h-none lg:self-stretch`}
+          } max-h-[40vh] shrink-0 overflow-visible lg:flex lg:max-h-none lg:self-stretch`}
         >
           {layersMenu}
         </div>

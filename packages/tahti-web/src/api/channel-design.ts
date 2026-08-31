@@ -290,6 +290,7 @@ export type ChannelVisual = {
    * unknown keys, so this round-trips fully under VITE_FORCE_MOCK but does
    * not yet persist against the live backend). */
   nowPlayingOverlayStyle?: string | null;
+  nowPlayingOverlaySettingsJson?: string | null;
 };
 
 /** Per-preset speed/intensity/scale (clamped 0.25–2, scale 0.5–2) plus an
@@ -375,6 +376,7 @@ let mockVisual: ChannelVisual = {
   slideshowTransitionMs: 600,
   slideshowAutoplay: true,
   nowPlayingOverlayStyle: 'classic',
+  nowPlayingOverlaySettingsJson: null,
 };
 
 /** Read-only peek at the mock design state — used by mockChannel() (in
@@ -383,6 +385,13 @@ let mockVisual: ChannelVisual = {
  * once a real Channel.nowPlayingOverlayStyle column exists. */
 export function getMockNowPlayingOverlayStyle(): string | null | undefined {
   return mockVisual.nowPlayingOverlayStyle;
+}
+
+export function getMockNowPlayingOverlaySettingsJson():
+  | string
+  | null
+  | undefined {
+  return mockVisual.nowPlayingOverlaySettingsJson;
 }
 
 export function parseColorScheme(json: string | null | undefined): ColorScheme {
@@ -425,6 +434,7 @@ export async function fetchChannelVisual(): Promise<{
         slideshowTransitionMs: 600,
         slideshowAutoplay: true,
         nowPlayingOverlayStyle: 'classic',
+        nowPlayingOverlaySettingsJson: null,
       },
       meta: apiErrorMeta(err),
     };
@@ -443,6 +453,7 @@ export async function patchChannelVisual(patch: {
   slideshowTransitionMs?: number;
   slideshowAutoplay?: boolean;
   nowPlayingOverlayStyle?: string;
+  nowPlayingOverlaySettingsJson?: string | null;
 }): Promise<{ ok: true; data: ChannelVisual } | { ok: false; error: string }> {
   if (forceMock()) {
     mockVisual = {
@@ -473,6 +484,9 @@ export async function patchChannelVisual(patch: {
         : {}),
       ...(patch.nowPlayingOverlayStyle !== undefined
         ? { nowPlayingOverlayStyle: patch.nowPlayingOverlayStyle }
+        : {}),
+      ...(patch.nowPlayingOverlaySettingsJson !== undefined
+        ? { nowPlayingOverlaySettingsJson: patch.nowPlayingOverlaySettingsJson }
         : {}),
       ...(patch.colorScheme !== undefined
         ? {

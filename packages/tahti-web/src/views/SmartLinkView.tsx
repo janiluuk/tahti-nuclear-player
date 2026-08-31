@@ -13,6 +13,7 @@ import type {
   SmartLinkView as SmartLinkData,
   TahtiPlayable,
 } from '../api/types';
+import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { EmbedButton } from '../components/EmbedButton';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
@@ -132,9 +133,17 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
   const metadata = [releaseYear, genre, data.release.type]
     .filter(Boolean)
     .join(' · ');
+  const visualPreset = data.release.visualPreset ?? 'PARTICLE_FIELD';
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-6 pb-10">
+    <div className="relative isolate mx-auto flex w-full max-w-xl flex-col gap-6 pb-10">
+      {visualPreset !== 'MINIMAL' && (
+        <ChannelVisualizer
+          preset={visualPreset}
+          artworkUrl={data.release.artworkUrl ?? data.artist.avatarUrl}
+          className="pointer-events-none fixed inset-0 -z-10 opacity-45"
+        />
+      )}
       <Link
         to="/u/$username"
         params={{ username: data.artist.username }}

@@ -20,13 +20,19 @@ export function FavoritesView() {
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const radioFavorites = favoriteTracks.filter(
+    (track) => track.kind === 'radio',
+  );
+  const audioFavorites = favoriteTracks.filter(
+    (track) => track.kind === 'archive' || Boolean(track.embed),
+  );
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title="Favorites" />
 
       <SectionShell title="Channels">
-        {favoriteChannels.length === 0 ? (
+        {favoriteChannels.length === 0 && radioFavorites.length === 0 ? (
           <PageEmpty
             title="No favorite channels"
             description="Heart one from Listen or a channel page."
@@ -73,14 +79,37 @@ export function FavoritesView() {
                 />
               </div>
             ))}
+            {radioFavorites.map((radio) => (
+              <div key={radio.id} className="flex flex-col gap-2">
+                <Link to="/radio">
+                  <Card
+                    title={radio.artist || radio.title}
+                    subtitle="Internet radio"
+                    src={radio.coverUrl ?? placeholderArtworkUrl(radio.id)}
+                  />
+                </Link>
+                <MediaIconActions
+                  className="px-1"
+                  actions={playQueueFavoriteActions({
+                    onPlay: () => play(radio),
+                    onQueue: () => enqueue(radio),
+                    onFavorite: () =>
+                      useLibraryStore.getState().toggleFavoriteTrack(radio),
+                    favorited: true,
+                    queueLabel: 'Queue station',
+                  })}
+                />
+              </div>
+            ))}
           </CardGrid>
         )}
       </SectionShell>
 
       <SectionShell title="Tracks">
         <PlayableTrackTable
-          items={favoriteTracks}
+          items={audioFavorites}
           emptyMessage="No favorite tracks yet. Heart rows in Archive / Collections."
+          playAll={false}
         />
       </SectionShell>
     </div>

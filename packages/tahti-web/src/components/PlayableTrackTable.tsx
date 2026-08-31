@@ -18,6 +18,7 @@ import { TrackInfoDialog, type TrackInfo } from './TrackInfoDialog';
 type Props = {
   items: TahtiPlayable[];
   emptyMessage?: string;
+  playAll?: boolean;
   artistUsername?: string;
   /** Present only when the caller has already decided the viewer can
    * edit these tracks (e.g. their own catalog) -- omit entirely to keep
@@ -28,6 +29,7 @@ type Props = {
 export function PlayableTrackTable({
   items,
   emptyMessage = 'No tracks yet.',
+  playAll = true,
   artistUsername,
   onEdit,
 }: Props) {
@@ -80,7 +82,7 @@ export function PlayableTrackTable({
             filterable: true,
             sortable: true,
             favorites: true,
-            playAll: true,
+            playAll,
             addAllToQueue: true,
             reorderable: false,
             contextMenu: true,

@@ -6,7 +6,6 @@ import {
   FingerprintIcon,
   HeadphonesIcon,
   PaletteIcon,
-  PlugIcon,
   RadioIcon,
   SlidersHorizontalIcon,
   SparklesIcon,
@@ -37,8 +36,7 @@ export type PluginCategoryId =
   | 'radio'
   | 'listen'
   | 'discovery'
-  | 'channel'
-  | 'nuclear-plugins';
+  | 'channel';
 
 export type PluginCategory = {
   id: PluginCategoryId;
@@ -117,13 +115,6 @@ export const PLUGIN_CATEGORIES: PluginCategory[] = [
     description:
       'Widgets on your public channel and artist page. Listeners see these when they visit you.',
     icon: TvIcon,
-  },
-  {
-    id: 'nuclear-plugins',
-    label: 'Nuclear plugins',
-    description:
-      'Additional Nuclear registry integrations, with their available configuration and API status.',
-    icon: PlugIcon,
   },
 ];
 

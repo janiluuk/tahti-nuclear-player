@@ -57,8 +57,11 @@ import {
 } from '../api/channel-gallery';
 import { uploadUserMediaFile } from '../api/user-media';
 import {
+  DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS,
   NOW_PLAYING_OVERLAY_PRESETS,
+  parseNowPlayingOverlaySettings,
   resolveNowPlayingOverlayPreset,
+  type NowPlayingOverlaySettings,
 } from '../content/nowPlayingOverlayPresets';
 import { visualizerMetadata } from '../plugins/visualizers';
 import { ChannelControlsWidget } from './ChannelControlsWidget';
@@ -162,12 +165,15 @@ export function ChannelDesigner({
   const [dirty, setDirty] = useState(false);
   const [previewPreset, setPreviewPreset] = useState<VisualPreset>('AURORA');
   const [showVisualizerSettings, setShowVisualizerSettings] = useState(false);
+  const [overlaySettings, setOverlaySettings] =
+    useState<NowPlayingOverlaySettings>(DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS);
+  const [overlayConfigOpen, setOverlayConfigOpen] = useState(false);
   const [visualizerPickerOpen, setVisualizerPickerOpen] = useState(false);
   const [visualizerPickerPreset, setVisualizerPickerPreset] =
     useState<Exclude<VisualPreset, 'MINIMAL'>>('AURORA');
   const [activeTab, setActiveTab] = useState<TabId>('visualizer');
   const [playerDesignTab, setPlayerDesignTab] =
-    useState<PlayerDesignTab>('visualizer');
+    useState<PlayerDesignTab>('gradient');
   const [highlightSection, setHighlightSection] = useState<
     'header' | 'visualizer' | null
   >(null);
@@ -211,6 +217,11 @@ export function ChannelDesigner({
     void Promise.all([fetchChannelVisual(), fetchChannelGallery()]).then(
       ([visualResult, galleryResult]) => {
         setVisual(visualResult.data);
+        setOverlaySettings(
+          parseNowPlayingOverlaySettings(
+            visualResult.data.nowPlayingOverlaySettingsJson,
+          ),
+        );
         setScheme(parseColorScheme(visualResult.data.colorSchemeJson));
         setVisualSettings(
           parseVisualSettingsMap(visualResult.data.visualSettingsJson),
@@ -319,6 +330,12 @@ export function ChannelDesigner({
     setDirty(true);
   };
 
+  const removeBackdrop = () => {
+    clearVideo();
+    setGalleryImages('');
+    setGalleryMode('NONE');
+  };
+
   const selectGalleryFiles = async (files: readonly File[]) => {
     const imageFiles = files.filter((file) =>
       ['image/jpeg', 'image/png', 'image/webp'].includes(file.type),
@@ -398,6 +415,16 @@ export function ChannelDesigner({
     setDirty(true);
   };
 
+  const setOverlaySetting = <
+    SettingKey extends keyof NowPlayingOverlaySettings,
+  >(
+    key: SettingKey,
+    value: NowPlayingOverlaySettings[SettingKey],
+  ) => {
+    setOverlaySettings((current) => ({ ...current, [key]: value }));
+    setDirty(true);
+  };
+
   const save = async () => {
     if (!visual) {
       return;
@@ -447,6 +474,7 @@ export function ChannelDesigner({
       slideshowTransitionMs: slideshowTransition,
       slideshowAutoplay,
       nowPlayingOverlayStyle: visual.nowPlayingOverlayStyle ?? undefined,
+      nowPlayingOverlaySettingsJson: JSON.stringify(overlaySettings),
     });
     if (!result.ok) {
       setBusy(false);
@@ -515,6 +543,10 @@ export function ChannelDesigner({
       : 'AURORA';
   const visualizerEnabled = visual.visualPreset !== 'MINIMAL';
   const slideshowHeaderSelected = galleryMode !== 'NONE';
+  const hasBackdrop =
+    pendingVideoFile !== null ||
+    videoBackgroundUrl.trim().length > 0 ||
+    galleryImageList.length > 0;
 
   const changeVisualizer = (direction: -1 | 1) => {
     const activeIndex = availableVisualizers.indexOf(activeVisualizer);
@@ -925,44 +957,67 @@ export function ChannelDesigner({
 
   const headerControls = (
     <section className="flex flex-col gap-4">
-      <Eyebrow>Header style</Eyebrow>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {HEADER_DESIGN_OPTIONS.map((headerStyle) => {
-          const active =
-            headerStyle === 'SLIDESHOW'
-              ? slideshowHeaderSelected
-              : !slideshowHeaderSelected && visual.headerStyle === headerStyle;
-          return (
-            <button
-              key={headerStyle}
-              type="button"
-              aria-pressed={active}
-              onClick={() => {
-                if (headerStyle === 'SLIDESHOW') {
-                  setGalleryMode((mode) =>
-                    mode === 'NONE' ? 'STATIC_SLIDESHOW' : mode,
-                  );
-                  applyLocal({ headerStyle: 'GRADIENT' });
-                } else {
-                  setGalleryMode('NONE');
-                  applyLocal({ headerStyle });
-                }
-              }}
-              className={`rounded-lg border p-4 text-left text-sm font-semibold tracking-wide uppercase transition-colors ${
-                active
-                  ? 'border-primary bg-primary/10 ring-primary ring-1'
-                  : 'border-border bg-background hover:bg-background-secondary text-foreground-secondary hover:text-foreground'
-              }`}
-            >
-              {headerStyle === 'SLIDESHOW'
-                ? 'SLIDESHOW'
-                : headerStyle === 'VIDEO_LOOP'
-                  ? 'VIDEO / IMAGE'
-                  : headerStyle.replace(/_/g, ' ')}
-            </button>
-          );
-        })}
+      <div className="flex items-center justify-between gap-3">
+        <Eyebrow>Header style</Eyebrow>
+        {hasBackdrop ? (
+          <Button
+            size="icon-sm"
+            variant="text"
+            aria-label="Remove backdrop"
+            title="Remove backdrop"
+            onClick={removeBackdrop}
+          >
+            <Trash2Icon size={15} aria-hidden />
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              setGalleryMode('NONE');
+              applyLocal({ headerStyle: 'VIDEO_LOOP' });
+            }}
+          >
+            Add backdrop
+          </Button>
+        )}
       </div>
+      <Tabs
+        selectedIndex={
+          slideshowHeaderSelected
+            ? HEADER_DESIGN_OPTIONS.length - 1
+            : Math.max(
+                HEADER_DESIGN_OPTIONS.indexOf(
+                  visual.headerStyle as (typeof HEADER_DESIGN_OPTIONS)[number],
+                ),
+                0,
+              )
+        }
+        onChange={(index) => {
+          const headerStyle = HEADER_DESIGN_OPTIONS[index];
+          if (headerStyle === 'SLIDESHOW') {
+            setGalleryMode((mode) =>
+              mode === 'NONE' ? 'STATIC_SLIDESHOW' : mode,
+            );
+            applyLocal({ headerStyle: 'GRADIENT' });
+          } else if (headerStyle) {
+            setGalleryMode('NONE');
+            applyLocal({ headerStyle });
+          }
+        }}
+        listClassName="flex-wrap border-border border-b"
+        panelClassName="hidden"
+        items={HEADER_DESIGN_OPTIONS.map((headerStyle) => ({
+          id: headerStyle,
+          label:
+            headerStyle === 'SLIDESHOW'
+              ? 'Slideshow'
+              : headerStyle === 'VIDEO_LOOP'
+                ? 'Video / image'
+                : headerStyle.replace(/_/g, ' '),
+          content: null,
+        }))}
+      />
       {visual.headerStyle === 'GRADIENT' && !slideshowHeaderSelected ? (
         <div className="border-border border-t pt-4">
           <Eyebrow>Gradient colors</Eyebrow>
@@ -1032,9 +1087,7 @@ export function ChannelDesigner({
                   className="pointer-events-none aspect-video w-full"
                   allow="autoplay; encrypted-media"
                 />
-              ) : isHeaderImageUrl(
-                  pendingVideoPreviewUrl ?? videoBackgroundUrl,
-                ) ? (
+              ) : headerBackdropIsImage ? (
                 <img
                   src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
                   alt=""
@@ -1112,13 +1165,6 @@ export function ChannelDesigner({
                           ? 'video-image'
                           : 'visualizer';
                     setPlayerDesignTab(nextTab);
-                    if (nextTab === 'gradient') {
-                      setGalleryMode('NONE');
-                      applyLocal({ headerStyle: 'GRADIENT' });
-                    } else if (nextTab === 'video-image') {
-                      setGalleryMode('NONE');
-                      applyLocal({ headerStyle: 'VIDEO_LOOP' });
-                    }
                   }}
                   items={[
                     {
@@ -1838,64 +1884,80 @@ export function ChannelDesigner({
               description:
                 'How the title and artist are presented over whatever this channel is playing — live or an archive track.',
               children: (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {NOW_PLAYING_OVERLAY_PRESETS.map((preset) => {
-                    const active =
-                      resolveNowPlayingOverlayPreset(
-                        visual.nowPlayingOverlayStyle,
-                      ) === preset.id;
-                    return (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        aria-pressed={active}
-                        onClick={() =>
-                          applyLocal({ nowPlayingOverlayStyle: preset.id })
-                        }
-                        className={`flex flex-col gap-2 rounded-lg border p-2 text-left transition-colors ${
-                          active
-                            ? 'border-primary bg-primary/10 ring-primary ring-1'
-                            : 'border-border bg-background hover:bg-background-secondary'
-                        }`}
-                      >
-                        <div
-                          className="relative flex aspect-video items-end overflow-hidden rounded-md bg-cover bg-center p-2"
-                          style={{
-                            backgroundColor: '#0B1220',
-                            backgroundImage: avatarUrl
-                              ? `url(${avatarUrl})`
-                              : undefined,
-                          }}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-foreground-secondary text-xs">
+                      Choose a layout, then fine-tune its scale and position.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setOverlayConfigOpen(true)}
+                    >
+                      <SettingsIcon size={14} aria-hidden />
+                      Configure text
+                    </Button>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {NOW_PLAYING_OVERLAY_PRESETS.map((preset) => {
+                      const active =
+                        resolveNowPlayingOverlayPreset(
+                          visual.nowPlayingOverlayStyle,
+                        ) === preset.id;
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() =>
+                            applyLocal({ nowPlayingOverlayStyle: preset.id })
+                          }
+                          className={`flex flex-col gap-2 rounded-lg border p-2 text-left transition-colors ${
+                            active
+                              ? 'border-primary bg-primary/10 ring-primary ring-1'
+                              : 'border-border bg-background hover:bg-background-secondary'
+                          }`}
                         >
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
-                          <div className="relative w-full">
-                            <NowPlayingOverlay
-                              presetId={preset.id}
-                              title="Sample Track"
-                              artist={displayName}
-                              artworkUrl={avatarUrl}
-                              compact
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5 text-sm font-semibold">
-                            {preset.name}
-                            {active && (
-                              <CheckIcon
-                                size={14}
-                                className="text-primary"
-                                aria-hidden
+                          <div
+                            className="relative flex aspect-video items-end overflow-hidden rounded-md bg-cover bg-center p-2"
+                            style={{
+                              backgroundColor: '#0B1220',
+                              backgroundImage: avatarUrl
+                                ? `url(${avatarUrl})`
+                                : undefined,
+                            }}
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
+                            <div className="relative w-full">
+                              <NowPlayingOverlay
+                                presetId={preset.id}
+                                title="Sample Track"
+                                artist={displayName}
+                                artworkUrl={avatarUrl}
+                                compact
+                                settings={overlaySettings}
                               />
-                            )}
+                            </div>
                           </div>
-                          <p className="text-foreground-secondary text-xs">
-                            {preset.description}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
+                          <div>
+                            <div className="flex items-center gap-1.5 text-sm font-semibold">
+                              {preset.name}
+                              {active && (
+                                <CheckIcon
+                                  size={14}
+                                  className="text-primary"
+                                  aria-hidden
+                                />
+                              )}
+                            </div>
+                            <p className="text-foreground-secondary text-xs">
+                              {preset.description}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               ),
             },
@@ -2156,6 +2218,54 @@ export function ChannelDesigner({
         </aside>
       </div>
 
+      {overlayConfigOpen ? (
+        <Dialog.Root
+          isOpen
+          onClose={() => setOverlayConfigOpen(false)}
+          className="max-w-lg"
+        >
+          <Dialog.Title>Configure text overlay</Dialog.Title>
+          <Dialog.Description>
+            Fine-tune the now-playing title and artist overlay used on your
+            channel.
+          </Dialog.Description>
+          <div className="flex flex-col gap-4">
+            <Slider
+              label={`Text size: ${Math.round(overlaySettings.textScale * 100)}%`}
+              min={0.6}
+              max={1.6}
+              step={0.05}
+              value={overlaySettings.textScale}
+              onValueChange={(value) => setOverlaySetting('textScale', value)}
+            />
+            <Slider
+              label={`Horizontal position: ${overlaySettings.offsetX}px`}
+              min={-120}
+              max={120}
+              step={4}
+              value={overlaySettings.offsetX}
+              onValueChange={(value) => setOverlaySetting('offsetX', value)}
+            />
+            <Slider
+              label={`Vertical position: ${overlaySettings.offsetY}px`}
+              min={-120}
+              max={120}
+              step={4}
+              value={overlaySettings.offsetY}
+              onValueChange={(value) => setOverlaySetting('offsetY', value)}
+            />
+            <Slider
+              label={`Opacity: ${Math.round(overlaySettings.opacity * 100)}%`}
+              min={0.2}
+              max={1}
+              step={0.05}
+              value={overlaySettings.opacity}
+              onValueChange={(value) => setOverlaySetting('opacity', value)}
+            />
+          </div>
+        </Dialog.Root>
+      ) : null}
+
       {visualizerPickerOpen ? (
         <Dialog.Root
           isOpen
@@ -2167,35 +2277,8 @@ export function ChannelDesigner({
             Preview each animated stage and choose the one that fits your
             channel.
           </Dialog.Description>
-          <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)]">
-            <div
-              className="border-border bg-background relative min-h-56 overflow-hidden rounded-xl border"
-              aria-label={`${visualizerPickerPreset.replace(/_/g, ' ')} preview`}
-            >
-              {livePreview ? (
-                <ChannelVisualizer
-                  className="absolute inset-0 size-full"
-                  preset={visualizerPickerPreset}
-                  colorScheme={scheme}
-                  visualSettingsJson={JSON.stringify(visualSettings)}
-                  artworkUrl={avatarUrl}
-                />
-              ) : (
-                <div
-                  className="absolute inset-0"
-                  style={{ background: previewStyle.gradient }}
-                />
-              )}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-4 pt-16 text-white">
-                <div className="text-xs font-semibold tracking-wide uppercase">
-                  Live preview
-                </div>
-                <div className="mt-1 text-lg font-bold">
-                  {visualizerPickerPreset.replace(/_/g, ' ')}
-                </div>
-              </div>
-            </div>
-            <div className="flex max-h-80 flex-col gap-2 overflow-y-auto">
+          <div className="mt-2 grid gap-4 lg:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)]">
+            <div className="grid content-start gap-2 sm:grid-cols-2 lg:grid-cols-1">
               {availableVisualizers.map((preset) => {
                 const meta = visualizerMetadata(preset);
                 const selected = visualizerPickerPreset === preset;
@@ -2247,6 +2330,33 @@ export function ChannelDesigner({
                   </button>
                 );
               })}
+            </div>
+            <div
+              className="border-border bg-background relative min-h-56 overflow-hidden rounded-xl border"
+              aria-label={`${visualizerPickerPreset.replace(/_/g, ' ')} preview`}
+            >
+              {livePreview ? (
+                <ChannelVisualizer
+                  className="absolute inset-0 size-full"
+                  preset={visualizerPickerPreset}
+                  colorScheme={scheme}
+                  visualSettingsJson={JSON.stringify(visualSettings)}
+                  artworkUrl={avatarUrl}
+                />
+              ) : (
+                <div
+                  className="absolute inset-0"
+                  style={{ background: previewStyle.gradient }}
+                />
+              )}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-4 pt-16 text-white">
+                <div className="text-xs font-semibold tracking-wide uppercase">
+                  Live preview
+                </div>
+                <div className="mt-1 text-lg font-bold">
+                  {visualizerPickerPreset.replace(/_/g, ' ')}
+                </div>
+              </div>
             </div>
           </div>
           <Dialog.Actions>

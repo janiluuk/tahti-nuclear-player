@@ -53,6 +53,8 @@ import {
   StudioNav,
 } from './StudioNav';
 
+const LOADING_BAR_DELAY_MS = 1000;
+
 function SidebarNavItems({ compact }: { compact: boolean }) {
   const isBoard = useAuthStore((state) => hasAccountRole(state.user, 'BOARD'));
   const pathname = useRouterState({
@@ -114,11 +116,25 @@ function RouteContent({ children }: { children: React.ReactNode }) {
   const isPending = useRouterState({
     select: (state) => state.status === 'pending',
   });
+  const [showLoadingBar, setShowLoadingBar] = useState(false);
+
+  useEffect(() => {
+    if (!isPending) {
+      setShowLoadingBar(false);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(
+      () => setShowLoadingBar(true),
+      LOADING_BAR_DELAY_MS,
+    );
+    return () => window.clearTimeout(timeoutId);
+  }, [isPending]);
 
   return (
     <div className="relative h-full min-h-0">
       <div className="h-full">{children}</div>
-      {isPending ? (
+      {showLoadingBar ? (
         <div
           className="bg-primary pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 opacity-70"
           aria-live="polite"

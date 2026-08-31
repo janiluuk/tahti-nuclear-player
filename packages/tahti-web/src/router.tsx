@@ -1061,7 +1061,7 @@ const studioBroadcastInfoRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/info',
   beforeLoad: () => {
-    throw redirect({ to: '/studio/go-live', search: { tab: 'info' } });
+    throw redirect({ to: '/studio/go-live' });
   },
 });
 

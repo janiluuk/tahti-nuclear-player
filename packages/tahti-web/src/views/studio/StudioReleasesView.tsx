@@ -14,13 +14,18 @@ import { toast } from 'sonner';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
-import { createStudioRelease, fetchStudioReleases } from '../../api/studio';
+import {
+  createStudioRelease,
+  fetchStudioReleases,
+  patchStudioReleaseVisual,
+} from '../../api/studio';
 import type { StudioRelease } from '../../api/studio-types';
 import { PageLoading } from '../../components/PageStates';
 import { SourceServiceIcon } from '../../components/SourceServiceIcon';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { resolveNewReleaseVisualizer } from '../../lib/releaseVisualizer';
 
 const RELEASE_TYPES = [
   {
@@ -85,6 +90,13 @@ export function StudioReleasesView({
     if (!r.ok) {
       setMsg(r.error);
       return;
+    }
+    const visualResult = await patchStudioReleaseVisual(
+      r.data.id,
+      resolveNewReleaseVisualizer(),
+    );
+    if (!visualResult.ok) {
+      toast.error('Release created, but its visualizer could not be saved.');
     }
     setMsg(`Created ${r.data.title}.`);
     closeCreate();

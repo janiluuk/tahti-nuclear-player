@@ -12,7 +12,7 @@ import {
 } from '../api/sources';
 
 // Export targets that actually have a connect/disconnect lifecycle to test
-// and enable — the rest of EXPORT_TARGETS (Spotify, Apple Music, Tidal,
+// and enable — the rest of EXPORT_TARGETS (Spotify, Apple Music,
 // Deezer, Amazon Music, YouTube Music) deliver through Revelator release
 // submission, with no per-account connection to configure here, and
 // hearthis.at has no push API at all (cross-post is manual). Keeping this
