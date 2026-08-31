@@ -207,6 +207,63 @@ export async function searchStationsByName(
   }
 }
 
+export type RadioStreamTestResult = {
+  ok: boolean;
+  status?: number;
+  message: string;
+};
+
+/**
+ * Best-effort reachability check for a stream URL, run from the browser —
+ * there's no server-side test route for arbitrary radio streams (unlike
+ * multistream RTMP targets, which the Tahti API tests server-side). A
+ * failed fetch here is genuinely ambiguous: it can mean the stream is
+ * actually down, or just that its server doesn't set CORS headers on the
+ * audio endpoint (common for Icecast/Shoutcast) — the browser reports both
+ * as the same opaque network error. `ok: true` is a real, positive signal;
+ * `ok: false` is reported honestly as "couldn't verify," not "confirmed
+ * down."
+ */
+export async function testRadioStream(
+  streamUrl: string,
+  timeoutMs = 6000,
+): Promise<RadioStreamTestResult> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(streamUrl, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+    if (res.ok) {
+      return {
+        ok: true,
+        status: res.status,
+        message: `Stream responded (HTTP ${res.status}).`,
+      };
+    }
+    return {
+      ok: false,
+      status: res.status,
+      message: `Stream returned HTTP ${res.status}.`,
+    };
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') {
+      return {
+        ok: false,
+        message: `No response within ${Math.round(timeoutMs / 1000)}s.`,
+      };
+    }
+    return {
+      ok: false,
+      message:
+        "Couldn't reach this stream from your browser — it may be offline, or its server may not allow cross-origin requests (this doesn't always mean the stream is actually down).",
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 /**
  * Best-effort read of the live ICY "StreamTitle" (what's currently playing)
  * directly from the stream's interleaved metadata. Many Icecast/Shoutcast

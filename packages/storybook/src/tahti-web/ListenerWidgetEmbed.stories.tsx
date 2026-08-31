@@ -24,6 +24,19 @@ export const SoundCloud: Story = {
   },
 };
 
+export const SoundCloudProfile: Story = {
+  args: {
+    instance: {
+      id: 'widget-1b',
+      typeId: 'soundcloud',
+      input: 'https://soundcloud.com/northern-lights',
+      label: 'Northern Lights — public tracks',
+      addedAt: new Date().toISOString(),
+    },
+    onRemove: () => {},
+  },
+};
+
 export const YouTube: Story = {
   args: {
     instance: {
@@ -31,6 +44,33 @@ export const YouTube: Story = {
       typeId: 'youtube',
       input: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       label: 'Tundra Static — Live session',
+      addedAt: new Date().toISOString(),
+    },
+    onRemove: () => {},
+  },
+};
+
+export const YouTubePlaylist: Story = {
+  args: {
+    instance: {
+      id: 'widget-2b',
+      typeId: 'youtube',
+      input: 'https://www.youtube.com/playlist?list=PLexampleplaylist',
+      label: 'Tundra Static — session recordings',
+      addedAt: new Date().toISOString(),
+    },
+    onRemove: () => {},
+  },
+};
+
+export const Bandcamp: Story = {
+  args: {
+    instance: {
+      id: 'widget-4',
+      typeId: 'bandcamp',
+      input:
+        'https://bandcamp.com/EmbeddedPlayer/album=1234567890/size=large/bgcol=333333/linkcol=ffffff/',
+      label: 'Kasari — Downtempo EP',
       addedAt: new Date().toISOString(),
     },
     onRemove: () => {},

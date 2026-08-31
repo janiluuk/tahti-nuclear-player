@@ -15,7 +15,7 @@ import { Box } from '../Box';
 import { Button } from '../Button';
 
 type PluginItemProps = {
-  name: string;
+  name: ReactNode;
   author?: string;
   description: string;
   version?: string;
@@ -142,7 +142,7 @@ export const PluginItem: FC<PluginItemProps> = ({
           <div className="bg-stripes-diagonal absolute right-0 bottom-0 left-0 h-1" />
         )}
       </div>
-      {(warning || warningText) && !isLoading && (
+      {warning && warningText && !isLoading && (
         <Box
           shadow="none"
           variant="tertiary"

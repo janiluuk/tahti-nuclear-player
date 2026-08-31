@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { WidgetCard } from '@tahti-web/components/discover/WidgetCard';
 
+import { Select } from '@nuclearplayer/ui';
+
 import { withTahtiRouter } from './_lib/decorators';
 
 const meta: Meta<typeof WidgetCard> = {
@@ -92,5 +94,38 @@ export const Empty: Story = {
     emptyMessage: 'Love a track to see it here.',
     canMoveUp: true,
     canMoveDown: true,
+  },
+};
+
+export const RandomArtistWithSettings: Story = {
+  args: {
+    id: 'random-artist',
+    title: 'Random artist pick',
+    loading: false,
+    items: [],
+    artist: {
+      username: 'kasari',
+      displayName: 'Kasari',
+      bio: 'Downtempo electronica from Helsinki, live most Fridays.',
+      avatarUrl: null,
+      channelSlug: 'kasari',
+    },
+    emptyMessage: 'No artist picked yet.',
+    canMoveUp: true,
+    canMoveDown: true,
+    settings: (
+      <Select
+        label="Keep the same pick for"
+        value="7"
+        onValueChange={() => {}}
+        options={[
+          { id: '1', label: '1 day' },
+          { id: '3', label: '3 days' },
+          { id: '7', label: '7 days' },
+          { id: '14', label: '14 days' },
+          { id: '30', label: '30 days' },
+        ]}
+      />
+    ),
   },
 };

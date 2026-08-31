@@ -41,3 +41,11 @@ export const Spotify: Story = {
     embedUri: 'spotify:track:4uLU6hMCjMI75M1A2tKUQC',
   },
 };
+
+export const Bandcamp: Story = {
+  args: {
+    title: 'Downtempo EP',
+    provider: 'BANDCAMP',
+    embedUri: 'album=1234567890',
+  },
+};
