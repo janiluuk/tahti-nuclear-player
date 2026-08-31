@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { Select } from '@nuclearplayer/ui';
+
 import {
   fetchBroadcastPreflight,
   patchBroadcastPreflight,
@@ -197,28 +199,20 @@ export function BroadcastPreflightPanel() {
         </div>
 
         {series.length > 0 && (
-          <label className="flex flex-col gap-1 text-sm">
-            Series episode
-            <select
-              value={preflight.plannedLiveShow?.seriesId ?? ''}
-              disabled={Boolean(preflight.plannedLiveShow)}
-              onChange={(event) =>
-                event.target.value && update({ seriesId: event.target.value })
-              }
-              className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-            >
-              <option value="">One-off broadcast</option>
-              {series.map((show) => (
-                <option key={show.id} value={show.id}>
-                  {show.title} — next #{show.nextEpisodeNumber}
-                </option>
-              ))}
-            </select>
-            <span className="text-foreground-secondary text-xs">
-              Selecting a series fills its next episode number and saved show
-              details.
-            </span>
-          </label>
+          <Select
+            label="Series episode"
+            description="Selecting a series fills its next episode number and saved show details."
+            value={preflight.plannedLiveShow?.seriesId ?? ''}
+            disabled={Boolean(preflight.plannedLiveShow)}
+            onValueChange={(value) => value && update({ seriesId: value })}
+            options={[
+              { id: '', label: 'One-off broadcast' },
+              ...series.map((show) => ({
+                id: show.id,
+                label: `${show.title} — next #${show.nextEpisodeNumber}`,
+              })),
+            ]}
+          />
         )}
 
         {episodeNumber !== null && (

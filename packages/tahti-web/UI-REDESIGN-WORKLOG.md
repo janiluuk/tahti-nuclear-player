@@ -2873,3 +2873,19 @@ Continuing the native-control-to-shared-component sweep, prioritizing clean labe
 **Slice 5:** `StudioBrandingView`'s press-kit Short bio textarea.
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.6`.
+
+## 2026-08-31 — Backlog round 12: five slices closed; bump to 0.0.7
+
+Continuing the native-control sweep, same block-level-vs-inline judgment call as round 11 (skipped `StudioScheduleView`'s inline Minutes-duration select next to a Button, same reasoning as before).
+
+**Slice 1:** `BroadcastDetailsFields`'s Show description textarea.
+
+**Slice 2:** `BroadcastPreflightPanel`'s Series episode select -- had no `@nuclearplayer/ui` import in the file at all yet; also moved its helper text into `Select`'s own `description` prop instead of a separate `<span>`.
+
+**Slice 3:** `StudioArchiveItemView`'s Content type select and Description textarea (its Basics-tab grid form, same shape as `TrackEditDialog` from round 9). Screenshot-verified in the browser: both fields render correctly in the two-column grid alongside Title/Release date/Genre.
+
+**Slice 4:** `StudioScheduleView`'s show Visibility select (Public/Fans only).
+
+**Slice 5:** `StudioPlaylistsView`'s "Add from Library" and "Add release" selects -- both had a redundant standalone `<label>` element sitting above the native `<select>` that's now redundant with `Select`'s own `label` prop; removed both.
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.7`.

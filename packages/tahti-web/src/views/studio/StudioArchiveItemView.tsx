@@ -23,7 +23,9 @@ import {
   CreatableCombobox,
   Input,
   Popover,
+  Select,
   Tabs,
+  Textarea,
 } from '@nuclearplayer/ui';
 
 import {
@@ -628,34 +630,27 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                           value={title}
                           onChange={(event) => setTitle(event.target.value)}
                         />
-                        <label className="flex flex-col gap-1 text-sm">
-                          Content type
-                          <select
-                            value={contentType}
-                            onChange={(event) =>
-                              setContentType(event.target.value)
-                            }
-                            className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                          >
-                            {CONTENT_TYPES.map(([value, label]) => (
-                              <option key={value} value={value}>
-                                {label}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
+                        <Select
+                          label="Content type"
+                          value={contentType}
+                          onValueChange={setContentType}
+                          options={CONTENT_TYPES.map(([value, label]) => ({
+                            id: value,
+                            label,
+                          }))}
+                        />
                         <div className="sm:col-span-2">
                           <label className="flex flex-col gap-1 text-sm">
                             <span className="text-foreground-secondary text-xs uppercase">
                               Description
                             </span>
-                            <textarea
+                            <Textarea
+                              tone="secondary"
                               value={description}
                               onChange={(event) =>
                                 setDescription(event.target.value)
                               }
                               rows={4}
-                              className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
                             />
                           </label>
                         </div>

@@ -1,6 +1,6 @@
 import { MessageCircleIcon, MicIcon } from 'lucide-react';
 
-import { Button, Input, Select } from '@nuclearplayer/ui';
+import { Button, Input, Select, Textarea } from '@nuclearplayer/ui';
 
 import type { ShowType, StudioShowSeries } from '../api/shows';
 import { ShowImagePicker } from './ShowImagePicker';
@@ -136,13 +136,13 @@ export function BroadcastDetailsFields({
         <span className="text-foreground-secondary text-xs uppercase">
           Show description
         </span>
-        <textarea
+        <Textarea
+          tone="secondary"
           value={values.description}
           onChange={(event) =>
             onChange({ ...values, description: event.target.value })
           }
           rows={2}
-          className="border-border bg-background rounded-md border px-3 py-2"
           placeholder="What listeners can expect"
         />
       </label>

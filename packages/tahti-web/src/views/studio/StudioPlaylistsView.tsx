@@ -15,6 +15,7 @@ import {
   EmptyState,
   Input,
   SaveButton,
+  Select,
   TrackTable,
 } from '@nuclearplayer/ui';
 
@@ -536,21 +537,15 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
 
               <div className="border-border mt-4 grid gap-3 border-t pt-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <label className="text-foreground-secondary text-xs uppercase">
-                    Add from Library
-                  </label>
-                  <select
+                  <Select
+                    label="Add from Library"
                     value={addArchiveId}
-                    onChange={(e) => setAddArchiveId(e.target.value)}
-                    className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                  >
-                    <option value="">Select track…</option>
-                    {archive.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.title}
-                      </option>
-                    ))}
-                  </select>
+                    onValueChange={setAddArchiveId}
+                    options={[
+                      { id: '', label: 'Select track…' },
+                      ...archive.map((a) => ({ id: a.id, label: a.title })),
+                    ]}
+                  />
                   <Button
                     size="sm"
                     disabled={!addArchiveId}
@@ -570,21 +565,15 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                   </Button>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-foreground-secondary text-xs uppercase">
-                    Add release
-                  </label>
-                  <select
+                  <Select
+                    label="Add release"
                     value={addReleaseId}
-                    onChange={(e) => setAddReleaseId(e.target.value)}
-                    className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                  >
-                    <option value="">Select release…</option>
-                    {releases.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.title}
-                      </option>
-                    ))}
-                  </select>
+                    onValueChange={setAddReleaseId}
+                    options={[
+                      { id: '', label: 'Select release…' },
+                      ...releases.map((r) => ({ id: r.id, label: r.title })),
+                    ]}
+                  />
                   <Button
                     size="sm"
                     disabled={!addReleaseId}

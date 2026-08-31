@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input, SaveButton } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, SaveButton, Select } from '@nuclearplayer/ui';
 
 import {
   cancelScheduledShow,
@@ -911,23 +911,17 @@ export function StudioScheduleView() {
                 onChange={(event) => setShowTagline(event.target.value)}
                 placeholder="Optional subtitle"
               />
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Visibility
-                </span>
-                <select
-                  value={showVisibility}
-                  onChange={(event) =>
-                    setShowVisibility(
-                      event.target.value as 'PUBLIC' | 'FAN_ONLY',
-                    )
-                  }
-                  className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                >
-                  <option value="PUBLIC">Public</option>
-                  <option value="FAN_ONLY">Fans only</option>
-                </select>
-              </label>
+              <Select
+                label="Visibility"
+                value={showVisibility}
+                onValueChange={(value) =>
+                  setShowVisibility(value as 'PUBLIC' | 'FAN_ONLY')
+                }
+                options={[
+                  { id: 'PUBLIC', label: 'Public' },
+                  { id: 'FAN_ONLY', label: 'Fans only' },
+                ]}
+              />
               <label className="text-foreground-secondary flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
