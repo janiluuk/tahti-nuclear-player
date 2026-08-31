@@ -4,6 +4,7 @@ import {
   ListMusicIcon,
   PauseIcon,
   PlayIcon,
+  PlusIcon,
   RadioIcon,
   RadioTowerIcon,
 } from 'lucide-react';
@@ -52,6 +53,7 @@ import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
+import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { FeedView } from './FeedView';
 import { HistoryView } from './HistoryView';
 
@@ -84,6 +86,7 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
   const lastPlayed = useLibraryStore((s) => s.history[0] ?? null);
   const user = useAuthStore((s) => s.user);
   const signedIn = Boolean(user);
+  const openSettings = useSettingsModalStore((s) => s.open);
 
   useEffect(() => {
     let cancelled = false;
@@ -313,6 +316,19 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
         {tab === 'listen' ? (
           <>
             <DiscoWidgetsSection widgets={discoWidgets} />
+
+            {signedIn && (
+              <div className="flex justify-end">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => openSettings('plugin-store', 'listen')}
+                >
+                  <PlusIcon size={14} aria-hidden />
+                  Add widget
+                </Button>
+              </div>
+            )}
 
             <ListenerWidgetsSection />
 

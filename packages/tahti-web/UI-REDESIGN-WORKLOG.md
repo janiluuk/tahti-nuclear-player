@@ -2941,3 +2941,11 @@ Back to the Nuclear `Button` audit (WORKPLAN "collection actions" and "Radio act
 Left `StudioReleaseDetailView`'s library-track-picker row buttons alone (row-selection in a scrollable list, the same legitimate exception category as `ChannelLayersMenu`'s drag-handle/row-select buttons from earlier rounds).
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.10`.
+
+## 2026-08-31 — Backlog round 16: Listen page "Add widget" entry point
+
+Closes the one item explicitly deferred in round 6 ("Listen page: 'Add widget' button linking into the addon store" — skipped back then because a concurrent session was mid-rewriting `PluginStorePanel.tsx`/`router.tsx`; re-confirmed via grep that it was still genuinely unimplemented, and that the concurrent rewrite has since landed and compiles clean).
+
+**Slice:** `ListenView.tsx` — added a signed-in-only "Add widget" `Button` (`PlusIcon`) above `ListenerWidgetsSection`, calling `useSettingsModalStore`'s `open('plugin-store', 'listen')`. This reuses the deep-link mechanism (`pluginCategory`) a concurrent session had already built into `settingsModalStore.ts`/`PluginStorePanel.tsx` — no new plumbing needed there. Necessary because `ListenerWidgetsSection` intentionally renders `null` until the listener has at least one widget/station/favorites enabled, so there was previously no discovery path into the addon store from the Listen page for a new user with nothing enabled yet; the existing "Manage widgets" link inside that section only appears after something is already on.
+
+**Validation:** `tsc --noEmit`, `eslint --fix` + `--max-warnings=0`, and `vitest run` (52 files, 299 tests) on `tahti-web` pass clean.
