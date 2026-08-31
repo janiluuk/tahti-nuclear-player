@@ -24,6 +24,9 @@ test('Studio Pro Editor plugin chain: add, configure, and remove a plugin', asyn
   await signIn(page);
   await page.goto('/studio/archive/arch-mock-1/editor');
 
+  // Mastering (which hosts the plugin chain) is collapsed by default.
+  await page.getByRole('button', { name: 'Expand mastering' }).click();
+
   await page.getByRole('button', { name: 'Add plugin' }).click();
   const picker = page.getByRole('dialog');
   await expect(picker).toContainText('EQ');

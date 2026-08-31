@@ -20,6 +20,7 @@ import {
   ZoomOutIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import {
   Button,
@@ -166,11 +167,12 @@ export function StudioProEditorView({
   >(null);
   const [loading, setLoading] = useState(true);
   const [stems, setStems] = useState<StemJob[]>([]);
+  const [activeStemSet, setActiveStemSet] = useState<StemSet>('TWO_STEM');
   const [markers, setMarkers] = useState<number[]>([]);
   const [viewStart, setViewStart] = useState(0);
   const [viewEnd, setViewEnd] = useState(1);
   const [previewingSelection, setPreviewingSelection] = useState(false);
-  const [masteringCollapsed, setMasteringCollapsed] = useState(false);
+  const [masteringCollapsed, setMasteringCollapsed] = useState(true);
   const [pluginPickerOpen, setPluginPickerOpen] = useState(false);
   const [renderPromptOpen, setRenderPromptOpen] = useState(false);
   const selectionRef = useRef(selection);
@@ -232,7 +234,21 @@ export function StudioProEditorView({
       return;
     }
     const timer = setInterval(() => {
-      void fetchArchiveStems(archiveItemId).then((r) => setStems(r.data));
+      void fetchArchiveStems(archiveItemId).then((r) => {
+        for (const next of r.data) {
+          const prev = stems.find((s) => s.stemSet === next.stemSet);
+          const wasProcessing =
+            prev?.status === 'PENDING' || prev?.status === 'PROCESSING';
+          const label =
+            STEM_SET_LABELS[next.stemSet as StemSet] ?? next.stemSet;
+          if (wasProcessing && next.status === 'READY') {
+            toast.success(`${label} split ready.`);
+          } else if (wasProcessing && next.status === 'ERROR') {
+            toast.error(next.errorMessage || `${label} split failed.`);
+          }
+        }
+        setStems(r.data);
+      });
     }, 4000);
     return () => clearInterval(timer);
   }, [archiveItemId, stems]);
@@ -909,6 +925,154 @@ export function StudioProEditorView({
               </div>
             </StudioPanel>
 
+            <div className="grid gap-4 md:grid-cols-2">
+              <StudioPanel title="Stems">
+                <div className="mb-4 flex flex-col gap-2">
+                  <div
+                    className="border-border inline-flex w-fit gap-1 rounded-lg border p-1"
+                    role="tablist"
+                    aria-label="Stem split type"
+                  >
+                    {(['TWO_STEM', 'FOUR_STEM'] as const).map((stemSet) => (
+                      <button
+                        key={stemSet}
+                        type="button"
+                        role="tab"
+                        aria-selected={activeStemSet === stemSet}
+                        onClick={() => setActiveStemSet(stemSet)}
+                        className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                          activeStemSet === stemSet
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-foreground-secondary hover:text-foreground'
+                        }`}
+                      >
+                        {STEM_SET_LABELS[stemSet]}
+                      </button>
+                    ))}
+                  </div>
+
+                  {(() => {
+                    const existing = stems.find(
+                      (s) => s.stemSet === activeStemSet,
+                    );
+                    const busyStem =
+                      existing?.status === 'PENDING' ||
+                      existing?.status === 'PROCESSING';
+                    return (
+                      <div className="flex flex-col gap-1.5">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={busyStem}
+                          className="self-start"
+                          onClick={() => {
+                            toast.info(
+                              `Splitting into ${STEM_SET_LABELS[activeStemSet].toLowerCase()}…`,
+                            );
+                            void requestArchiveStems(
+                              archiveItemId,
+                              activeStemSet,
+                            ).then((r) => {
+                              if (!r.ok) {
+                                toast.error(r.error);
+                              } else {
+                                void fetchArchiveStems(archiveItemId).then(
+                                  (s) => setStems(s.data),
+                                );
+                              }
+                            });
+                          }}
+                        >
+                          {busyStem
+                            ? 'Splitting…'
+                            : `Split ${STEM_SET_LABELS[activeStemSet].toLowerCase()}`}
+                        </Button>
+                        {busyStem && (
+                          <div
+                            className="bg-background-secondary relative h-1.5 w-48 overflow-hidden rounded-full"
+                            role="progressbar"
+                            aria-label={`Splitting into ${STEM_SET_LABELS[activeStemSet]}`}
+                          >
+                            <div className="bg-primary absolute inset-0 w-1/3 animate-pulse rounded-full" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {stems.length === 0 ? (
+                  <p className="text-foreground-secondary text-sm">
+                    No stem jobs yet — request a split above. Splits are cached
+                    for 7 days, then cleared automatically.
+                  </p>
+                ) : (
+                  <ul className="divide-border divide-y">
+                    {stems.map((job) => (
+                      <li
+                        key={job.stemSet}
+                        className="py-2.5 text-sm first:pt-0 last:pb-0"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">
+                            {STEM_SET_LABELS[job.stemSet as StemSet] ??
+                              job.stemSet}
+                          </span>
+                          <span className="text-foreground-secondary font-mono text-xs uppercase">
+                            {job.status}
+                          </span>
+                        </div>
+                        {job.status === 'ERROR' && job.errorMessage && (
+                          <p className="text-accent-red mt-1 text-xs">
+                            {job.errorMessage}
+                          </p>
+                        )}
+                        {job.files && job.files.length > 0 && (
+                          <div className="mt-2">
+                            <StemPlayer files={job.files} />
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </StudioPanel>
+
+              <StudioPanel title="Export">
+                <div className="flex flex-col gap-3">
+                  <Input
+                    label="Version label"
+                    value={versionLabel}
+                    onChange={(e) => setVersionLabel(e.target.value)}
+                  />
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={busy}
+                      onClick={() => setRenderPromptOpen(true)}
+                    >
+                      <UploadIcon size={16} aria-hidden className="mr-1.5" />
+                      Render version
+                    </Button>
+                    <SaveButton
+                      saving={busy}
+                      label="Save draft"
+                      onClick={() => void save()}
+                    />
+                  </div>
+                  {message && (
+                    <p
+                      className="text-foreground-secondary text-sm"
+                      role="status"
+                    >
+                      {message}
+                    </p>
+                  )}
+                </div>
+              </StudioPanel>
+            </div>
+
             <StudioPanel
               title="Mastering"
               description={
@@ -971,7 +1135,7 @@ export function StudioProEditorView({
                     />
                   </label>
 
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-row items-start gap-3 overflow-x-auto pb-2">
                     {visiblePluginChain.length === 0 ? (
                       <p className="text-foreground-secondary text-sm">
                         No plugins in the chain yet.
@@ -994,7 +1158,7 @@ export function StudioProEditorView({
                               }
                               dragPluginRef.current = null;
                             }}
-                            className="border-border bg-background-secondary/40 rounded-lg border p-3"
+                            className="border-border bg-background-secondary/40 w-80 shrink-0 rounded-lg border p-3"
                           >
                             <div className="mb-3 flex items-center gap-2">
                               <span
@@ -1238,7 +1402,7 @@ export function StudioProEditorView({
                         size="sm"
                         variant="secondary"
                         onClick={() => setPluginPickerOpen(true)}
-                        className="self-start"
+                        className="shrink-0 self-start"
                       >
                         <PlusIcon size={14} aria-hidden className="mr-1.5" />
                         Add plugin
@@ -1271,121 +1435,6 @@ export function StudioProEditorView({
                 <Dialog.Close>Close</Dialog.Close>
               </Dialog.Actions>
             </Dialog.Root>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <StudioPanel
-                title="Stems"
-                action={
-                  <div className="flex gap-2">
-                    {(['TWO_STEM', 'FOUR_STEM'] as const).map((stemSet) => {
-                      const existing = stems.find((s) => s.stemSet === stemSet);
-                      const busyStem =
-                        existing?.status === 'PENDING' ||
-                        existing?.status === 'PROCESSING';
-                      return (
-                        <Button
-                          key={stemSet}
-                          size="sm"
-                          variant="secondary"
-                          disabled={busyStem}
-                          title={STEM_SET_LABELS[stemSet]}
-                          onClick={() => {
-                            void requestArchiveStems(
-                              archiveItemId,
-                              stemSet,
-                            ).then((r) => {
-                              if (!r.ok) {
-                                setMessage(r.error);
-                              } else {
-                                void fetchArchiveStems(archiveItemId).then(
-                                  (s) => setStems(s.data),
-                                );
-                              }
-                            });
-                          }}
-                        >
-                          {busyStem
-                            ? 'Splitting…'
-                            : stemSet === 'TWO_STEM'
-                              ? 'Split 2 stems'
-                              : 'Split 4 stems'}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                }
-              >
-                {stems.length === 0 ? (
-                  <p className="text-foreground-secondary text-sm">
-                    No stem jobs yet — request a split above. Splits are cached
-                    for 7 days, then cleared automatically.
-                  </p>
-                ) : (
-                  <ul className="divide-border divide-y">
-                    {stems.map((job) => (
-                      <li
-                        key={job.stemSet}
-                        className="py-2.5 text-sm first:pt-0 last:pb-0"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">
-                            {STEM_SET_LABELS[job.stemSet as StemSet] ??
-                              job.stemSet}
-                          </span>
-                          <span className="text-foreground-secondary font-mono text-xs uppercase">
-                            {job.status}
-                          </span>
-                        </div>
-                        {job.status === 'ERROR' && job.errorMessage && (
-                          <p className="text-accent-red mt-1 text-xs">
-                            {job.errorMessage}
-                          </p>
-                        )}
-                        {job.files && job.files.length > 0 && (
-                          <div className="mt-2">
-                            <StemPlayer files={job.files} />
-                          </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </StudioPanel>
-
-              <StudioPanel title="Export">
-                <div className="flex flex-col gap-3">
-                  <Input
-                    label="Version label"
-                    value={versionLabel}
-                    onChange={(e) => setVersionLabel(e.target.value)}
-                  />
-                  <div className="flex flex-wrap justify-end gap-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      disabled={busy}
-                      onClick={() => setRenderPromptOpen(true)}
-                    >
-                      <UploadIcon size={16} aria-hidden className="mr-1.5" />
-                      Render version
-                    </Button>
-                    <SaveButton
-                      saving={busy}
-                      label="Save draft"
-                      onClick={() => void save()}
-                    />
-                  </div>
-                  {message && (
-                    <p
-                      className="text-foreground-secondary text-sm"
-                      role="status"
-                    >
-                      {message}
-                    </p>
-                  )}
-                </div>
-              </StudioPanel>
-            </div>
           </>
         )}
 
