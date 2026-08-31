@@ -22,6 +22,7 @@ import {
   Toggle,
 } from '@nuclearplayer/ui';
 
+import { parseCredits } from '../api/distribution';
 import { fetchHearthisTrackById } from '../api/sources';
 import {
   fetchMyRadioSubmissions,
@@ -49,6 +50,7 @@ import { MentionTextarea } from './MentionTextarea';
 import { MusicBrainzSubmissionAssistant } from './MusicBrainzSubmissionAssistant';
 import { PageLoading } from './PageStates';
 import { SubgenreTagInput } from './SubgenreTagInput';
+import { TrackCreditsEditor } from './TrackCreditsEditor';
 import { TrackExportConnections } from './TrackExportConnections';
 import { TrackExportPanel } from './TrackExportPanel';
 import { TracklistEditor } from './TracklistEditor';
@@ -170,6 +172,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
           artistName: res.data.artistName ?? '',
           genre: res.data.genre ? capitalizeGenre(res.data.genre) : '',
           subGenres: res.data.subGenres ?? [],
+          credits: parseCredits(res.data.credits ?? []),
           contentType: res.data.contentType ?? 'STUDIO',
           license: res.data.license ?? '',
           isPublic: res.data.isPublic ?? true,
@@ -263,11 +266,27 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     }
     setSaving(true);
     const { license, ...metadata } = form;
+    const trimmedCredits = (form.credits ?? [])
+      .map((credit) => {
+        const handle = credit.artistUsername
+          ?.trim()
+          .replace(/^@/, '')
+          .toLowerCase();
+        return {
+          role: credit.role,
+          name: credit.name.trim(),
+          ...(handle && /^[a-z0-9_-]{2,32}$/.test(handle)
+            ? { artistUsername: handle }
+            : {}),
+        };
+      })
+      .filter((credit) => credit.name.length > 0);
     const result = await patchStudioArchiveItem(archiveItemId, {
       ...metadata,
       ...(license ? { license } : {}),
       title: form.title.trim(),
       artistName: form.artistName?.trim() || null,
+      credits: trimmedCredits,
       genre: form.genre?.trim() || null,
       isPublic: form.visibility === 'PUBLIC',
       releaseDate: form.releaseDate || null,
@@ -285,6 +304,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       artistName: result.data.artistName ?? '',
       genre: result.data.genre ?? '',
       subGenres: result.data.subGenres ?? [],
+      credits: parseCredits(result.data.credits ?? []),
       contentType: result.data.contentType ?? current.contentType,
       license: result.data.license ?? '',
       isPublic: result.data.isPublic ?? true,
@@ -809,6 +829,10 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         releaseDate={item.releaseDate}
                       />
                     ) : null}
+                    <TrackCreditsEditor
+                      value={form.credits ?? []}
+                      onChange={(credits) => setForm({ ...form, credits })}
+                    />
                   </div>
                 ),
               },

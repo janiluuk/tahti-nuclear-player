@@ -17,6 +17,9 @@ export type StudioArchiveItem = {
   artistName?: string | null;
   genre?: string | null;
   subGenres?: string[];
+  /** Role-based credits when this track differs from the channel's
+   * Members/Credits roster — same role vocabulary as release credits. */
+  credits?: ReleaseCredit[] | null;
   contentType?: string | null;
   license?: string | null;
   isPublic?: boolean;
@@ -66,6 +69,7 @@ export type StudioArchivePatch = {
   artistName?: string | null;
   genre?: string | null;
   subGenres?: string[];
+  credits?: ReleaseCredit[] | null;
   contentType?: string;
   license?: string;
   isPublic?: boolean;
