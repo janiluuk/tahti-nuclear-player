@@ -36,7 +36,7 @@ exports[`CardsRow > (Snapshot) renders correctly with items 1`] = `
             value=""
           />
           <div
-            class="bg-primary border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm"
+            class="bg-primary text-primary-foreground border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm"
           >
             <button
               class="text-foreground cursor-pointer"

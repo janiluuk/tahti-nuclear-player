@@ -225,7 +225,7 @@ exports[`QueueItem > (Snapshot) renders error state 1`] = `
       Queen
     </div>
     <div
-      class="bg-accent-red text-foreground border-border mt-1 inline-flex max-w-full items-center gap-1 rounded-sm border px-1 py-0.5 text-xs"
+      class="bg-accent-red text-accent-foreground border-border mt-1 inline-flex max-w-full items-center gap-1 rounded-sm border px-1 py-0.5 text-xs"
       data-testid="queue-item-error"
     >
       <svg

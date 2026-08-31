@@ -260,7 +260,7 @@ exports[`PluginItem > (Snapshot) renders with all props 1`] = `
               data-testid="plugin-version"
             >
               <span
-                class="border-border inline-flex items-center justify-center border-(length:--border-width) whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold bg-accent-purple text-foreground"
+                class="border-border inline-flex items-center justify-center border-(length:--border-width) whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold bg-accent-purple text-accent-foreground"
               >
                 200ms
               </span>

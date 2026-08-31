@@ -27,7 +27,7 @@ exports[`LogViewer > (Snapshot) renders empty state 1`] = `
             value=""
           />
           <div
-            class="bg-primary border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm"
+            class="bg-primary text-primary-foreground border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm"
           >
             <svg
               aria-hidden="true"
@@ -257,7 +257,7 @@ exports[`LogViewer > (Snapshot) renders with logs 1`] = `
             value=""
           />
           <div
-            class="bg-primary border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm"
+            class="bg-primary text-primary-foreground border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm"
           >
             <svg
               aria-hidden="true"
@@ -540,7 +540,7 @@ exports[`LogViewer > (Snapshot) renders with logs 1`] = `
             10:00:00.000
           </span>
           <button
-            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-red text-foreground cursor-pointer hover:opacity-80"
+            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-red text-accent-foreground cursor-pointer hover:opacity-80"
             data-testid="log-level"
             type="button"
           >
@@ -620,7 +620,7 @@ exports[`LogViewer > (Snapshot) renders with logs 1`] = `
             10:00:01.000
           </span>
           <button
-            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-yellow text-foreground cursor-pointer hover:opacity-80"
+            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-yellow text-accent-foreground cursor-pointer hover:opacity-80"
             data-testid="log-level"
             type="button"
           >
@@ -700,7 +700,7 @@ exports[`LogViewer > (Snapshot) renders with logs 1`] = `
             10:00:02.000
           </span>
           <button
-            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-cyan text-foreground cursor-pointer hover:opacity-80"
+            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-cyan text-accent-foreground cursor-pointer hover:opacity-80"
             data-testid="log-level"
             type="button"
           >
@@ -780,7 +780,7 @@ exports[`LogViewer > (Snapshot) renders with logs 1`] = `
             10:00:03.000
           </span>
           <button
-            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-purple text-foreground cursor-pointer hover:opacity-80"
+            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-purple text-accent-foreground cursor-pointer hover:opacity-80"
             data-testid="log-level"
             type="button"
           >
@@ -940,14 +940,14 @@ exports[`LogViewer > (Snapshot) renders with logs 1`] = `
             10:00:05.000
           </span>
           <button
-            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-cyan text-foreground cursor-pointer hover:opacity-80"
+            class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-cyan text-accent-foreground cursor-pointer hover:opacity-80"
             data-testid="log-level"
             type="button"
           >
             INFO
           </button>
           <button
-            class="inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium bg-accent-orange/50 text-foreground cursor-pointer hover:opacity-80"
+            class="inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium bg-accent-orange/50 text-accent-foreground cursor-pointer hover:opacity-80"
             data-testid="log-scope"
             type="button"
           >

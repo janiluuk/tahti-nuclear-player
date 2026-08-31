@@ -18,7 +18,7 @@ exports[`LogEntry > (Snapshot) renders core log entry 1`] = `
     12:30:45.123
   </span>
   <button
-    class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-cyan text-foreground cursor-pointer hover:opacity-80"
+    class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-cyan text-accent-foreground cursor-pointer hover:opacity-80"
     data-testid="log-level"
     type="button"
   >
@@ -95,14 +95,14 @@ exports[`LogEntry > (Snapshot) renders plugin log entry 1`] = `
     12:30:45.123
   </span>
   <button
-    class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-cyan text-foreground cursor-pointer hover:opacity-80"
+    class="inline-flex w-14 items-center justify-center rounded px-1.5 py-0.5 text-xs font-bold uppercase bg-accent-cyan text-accent-foreground cursor-pointer hover:opacity-80"
     data-testid="log-level"
     type="button"
   >
     INFO
   </button>
   <button
-    class="inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium bg-accent-orange/50 text-foreground cursor-pointer hover:opacity-80"
+    class="inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium bg-accent-orange/50 text-accent-foreground cursor-pointer hover:opacity-80"
     data-testid="log-scope"
     type="button"
   >
