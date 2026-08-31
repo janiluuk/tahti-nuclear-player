@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, Select, Textarea } from '@nuclearplayer/ui';
 
 import { submitSupportTicket, type SupportTicketCategory } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
@@ -65,22 +65,15 @@ export function SupportContactForm() {
           required
         />
       )}
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-foreground-secondary text-xs uppercase">
-          Category
-        </span>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value as SupportTicketCategory)}
-          className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Select
+        label="Category"
+        options={CATEGORIES.map((option) => ({
+          id: option.value,
+          label: option.label,
+        }))}
+        value={category}
+        onValueChange={(value) => setCategory(value as SupportTicketCategory)}
+      />
       <Input
         label="Subject"
         value={subject}
@@ -92,8 +85,9 @@ export function SupportContactForm() {
         <span className="text-foreground-secondary text-xs uppercase">
           Message
         </span>
-        <textarea
-          className="border-border bg-background min-h-[8rem] rounded-md border px-3 py-2 text-sm"
+        <Textarea
+          tone="secondary"
+          className="min-h-[8rem]"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required

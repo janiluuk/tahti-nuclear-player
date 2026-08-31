@@ -646,9 +646,11 @@ export function ArtistView({ username }: { username: string }) {
           <div className="flex flex-wrap items-start gap-4">
             <div className="relative size-20 shrink-0 sm:size-24">
               {artist.avatarUrl ? (
-                <button
+                <Button
                   type="button"
-                  className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24"
+                  variant="text"
+                  size="flexible"
+                  className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border p-0 shadow-md sm:size-24"
                   aria-label={`View ${artist.displayName} profile picture`}
                   onClick={() => setAvatarOpen(true)}
                 >
@@ -657,7 +659,7 @@ export function ArtistView({ username }: { username: string }) {
                     alt=""
                     className="size-full object-cover"
                   />
-                </button>
+                </Button>
               ) : (
                 <div className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24">
                   <img
@@ -1126,16 +1128,18 @@ export function ArtistView({ username }: { username: string }) {
               className="flex items-center justify-center gap-5"
               aria-label="Track engagement"
             >
-              <button
+              <Button
                 type="button"
-                className="text-foreground-secondary hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
+                variant="text"
+                size="xs"
+                className="text-foreground-secondary hover:text-foreground gap-1.5 px-1.5 text-sm"
                 aria-label={`Like ${featuredPlayable.title}`}
               >
                 <HeartIcon size={18} aria-hidden />
                 <span className="tabular-nums">
                   {featuredTrack?.likeCount ?? 0}
                 </span>
-              </button>
+              </Button>
               <Link
                 to="/t/$id"
                 params={{ id: featuredPlayable.id.replace(/^archive:/, '') }}
@@ -1147,16 +1151,18 @@ export function ArtistView({ username }: { username: string }) {
                   {featuredTrack?.commentCount ?? 0}
                 </span>
               </Link>
-              <button
+              <Button
                 type="button"
-                className="text-foreground-secondary hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
+                variant="text"
+                size="xs"
+                className="text-foreground-secondary hover:text-foreground gap-1.5 px-1.5 text-sm"
                 aria-label={`Repost ${featuredPlayable.title}`}
               >
                 <Repeat2Icon size={18} aria-hidden />
                 <span className="tabular-nums">
                   {featuredTrack?.repostCount ?? 0}
                 </span>
-              </button>
+              </Button>
             </div>
           ) : null}
 

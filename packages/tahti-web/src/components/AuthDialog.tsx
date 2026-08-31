@@ -76,7 +76,11 @@ export const AuthDialog: FC = () => {
     confirmPassword.length > 0 && password !== confirmPassword;
 
   return (
-    <Dialog.Root isOpen={isOpen} onClose={handleClose}>
+    <Dialog.Root
+      isOpen={isOpen}
+      onClose={handleClose}
+      className={mode === 'join' ? 'max-w-2xl' : undefined}
+    >
       <Dialog.Title>
         <span className="inline-flex items-center gap-2">
           {titleIcon}
@@ -165,7 +169,7 @@ export const AuthDialog: FC = () => {
           </Dialog.Actions>
         </form>
       ) : (
-        <div className="mt-4 flex max-h-[60vh] flex-col gap-3 overflow-y-auto">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
             label="Email"
             value={email}
@@ -178,7 +182,7 @@ export const AuthDialog: FC = () => {
             onChange={(e) => setUsername(e.target.value.toLowerCase())}
             description="lowercase letters, numbers, - and _"
           />
-          <div className="flex gap-2">
+          <div className="flex gap-2 sm:col-span-2">
             {(
               [
                 ['SINGLE', 'Solo artist'],
@@ -224,11 +228,17 @@ export const AuthDialog: FC = () => {
             autoComplete="new-password"
           />
           {passwordsDoNotMatch ? (
-            <p className="text-accent-red text-sm">Passwords do not match.</p>
+            <p className="text-accent-red text-sm sm:col-span-2">
+              Passwords do not match.
+            </p>
           ) : null}
-          {error ? <p className="text-accent-red text-sm">{error}</p> : null}
+          {error ? (
+            <p className="text-accent-red text-sm sm:col-span-2">{error}</p>
+          ) : null}
           {message ? (
-            <p className="text-foreground-secondary text-sm">{message}</p>
+            <p className="text-foreground-secondary text-sm sm:col-span-2">
+              {message}
+            </p>
           ) : null}
           <Dialog.Actions>
             <Button variant="text" size="sm" onClick={() => setMode('login')}>

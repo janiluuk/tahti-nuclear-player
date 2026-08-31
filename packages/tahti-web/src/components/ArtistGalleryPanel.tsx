@@ -228,9 +228,11 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
               } ${dragId === img.id ? 'opacity-50' : ''}`}
             >
               <div className="relative">
-                <button
+                <Button
                   type="button"
-                  className="block w-full"
+                  variant="text"
+                  size="flexible"
+                  className="block w-full rounded-none p-0"
                   onClick={() => setLightbox(index)}
                   aria-label={img.title ?? 'View photo'}
                 >
@@ -240,7 +242,7 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
                     className="aspect-square w-full object-cover"
                     loading="lazy"
                   />
-                </button>
+                </Button>
                 {isOwner ? (
                   <>
                     <Button

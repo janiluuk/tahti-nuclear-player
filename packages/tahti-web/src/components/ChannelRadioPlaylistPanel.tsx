@@ -362,7 +362,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
             onClick={() => setActiveTab(id)}
             className={
               activeTab === id
-                ? 'bg-primary text-primary-foreground rounded-t-md'
+                ? 'bg-accent-orange text-accent-foreground rounded-t-md'
                 : 'text-foreground-secondary rounded-t-md'
             }
           >

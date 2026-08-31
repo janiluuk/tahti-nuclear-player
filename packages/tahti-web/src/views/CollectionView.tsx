@@ -132,7 +132,7 @@ export function CollectionView({
   const isOwner = Boolean(me && me.username === collection.user.username);
   const coverUrl =
     collection.coverUrl ?? placeholderArtworkUrl(collection.slug);
-  const backdropUrl = collection.backdropUrl ?? coverUrl;
+  const backdropUrl = collection.backdropUrl;
 
   const playAll = () => {
     const [head, ...rest] = playables;
@@ -166,11 +166,15 @@ export function CollectionView({
           name/description beside it, primary actions under the title. */}
       <div
         className="border-border bg-primary shadow-shadow relative isolate flex flex-col gap-6 overflow-hidden rounded-md border-(length:--border-width) p-6 md:flex-row"
-        style={{
-          backgroundImage: `linear-gradient(110deg, color-mix(in srgb, var(--color-primary) 94%, transparent), color-mix(in srgb, var(--color-primary) 72%, transparent)), url(${backdropUrl})`,
-          backgroundPosition: 'center',
-          backgroundSize: 'cover',
-        }}
+        style={
+          backdropUrl
+            ? {
+                backgroundImage: `linear-gradient(110deg, color-mix(in srgb, var(--color-primary) 94%, transparent), color-mix(in srgb, var(--color-primary) 72%, transparent)), url(${backdropUrl})`,
+                backgroundPosition: 'center',
+                backgroundSize: 'cover',
+              }
+            : undefined
+        }
       >
         <div className="bg-primary/35 pointer-events-none absolute inset-0 -z-10 backdrop-blur-2xl" />
         {isOwner && (

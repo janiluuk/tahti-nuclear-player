@@ -214,10 +214,9 @@ const AUTH_STATE = {
   version: 0,
 };
 
-/** Right rail (chat/queue) is collapsed on every shot except one, so the
- * chat feature is demonstrated exactly once rather than showing
- * "Chat unavailable" on every single capture. */
-const CHAT_DEMO_SHOT_ID = 'channel';
+/** Keep the right rail closed in the map: these are page/surface references,
+ * not chat screenshots. This also prevents a page mount from reopening chat
+ * and obscuring the content being documented. */
 
 async function setLocalStorage(p, signedIn = true) {
   await p.evaluate(
@@ -273,6 +272,49 @@ async function ensurePage() {
   }
 }
 
+async function ensureChatClosed() {
+  await page.evaluate(() => {
+    const raw = localStorage.getItem('tahti-web-layout');
+    const parsed = raw ? JSON.parse(raw) : { state: {}, version: 3 };
+    parsed.state.rightCollapsed = true;
+    localStorage.setItem('tahti-web-layout', JSON.stringify(parsed));
+  });
+}
+
+function tabFilePart(label) {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 48);
+}
+
+async function captureAllTabs(out) {
+  const tabSelectors = [
+    '[role="tab"]:visible',
+    '[data-testid^="settings-tab-"]:visible',
+  ];
+  const tabs = page.locator(tabSelectors.join(', '));
+  const count = await tabs.count();
+  const seen = new Set();
+  for (let index = 0; index < count; index += 1) {
+    const tab = tabs.nth(index);
+    const label = (await tab.innerText().catch(() => 'tab')).trim();
+    const key = `${index}-${tabFilePart(label) || 'tab'}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    await tab.click().catch(() => {});
+    await page.waitForTimeout(350);
+    await ensureChatClosed();
+    await page.screenshot({
+      path: join(outRoot, `${out.replace(/\.png$/, '')}--${key}.png`),
+      fullPage: false,
+    });
+  }
+}
+
 for (const s of selectedShots) {
   await ensurePage();
   const url = `${BASE}${s.path}`;
@@ -281,15 +323,12 @@ for (const s of selectedShots) {
     await setLocalStorage(page, s.auth !== false);
     // Re-apply layout state per shot (some pages reset chatSlug/rightCollapsed
     // on mount) -- keep chat open only for the one demo shot.
-    await page.evaluate(
-      (rightCollapsed) => {
-        const raw = localStorage.getItem('tahti-web-layout');
-        const parsed = raw ? JSON.parse(raw) : { state: {}, version: 3 };
-        parsed.state.rightCollapsed = rightCollapsed;
-        localStorage.setItem('tahti-web-layout', JSON.stringify(parsed));
-      },
-      s.id === CHAT_DEMO_SHOT_ID ? false : true,
-    );
+    await page.evaluate((rightCollapsed) => {
+      const raw = localStorage.getItem('tahti-web-layout');
+      const parsed = raw ? JSON.parse(raw) : { state: {}, version: 3 };
+      parsed.state.rightCollapsed = rightCollapsed;
+      localStorage.setItem('tahti-web-layout', JSON.stringify(parsed));
+    }, true);
     await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
     if (s.id === 'login-totp') {
       await page.getByLabel('Email').fill('demo+totp@tahti.live');
@@ -310,6 +349,7 @@ for (const s of selectedShots) {
     await page.waitForTimeout(s.wait ?? 900);
     // Hide cookie/noise if any; capture main viewport
     await page.screenshot({ path: out, fullPage: false });
+    await captureAllTabs(out);
     console.log('ok', s.id, s.path);
   } catch (err) {
     console.error('fail', s.id, err.message);

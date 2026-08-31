@@ -9,20 +9,41 @@ about the Tahti product work specifically.
 
 `tahti-web` has **no backend of its own**. It is the frontend half of Tahti; the other half —
 Fastify API routes, Prisma schema, shared Zod DTOs (`@tahti/shared`), and the production Next.js
-client it is replacing — lives in a sibling checkout, **`tahti-org`**, one level up from this
-repo's parent workspace directory (i.e. `../tahti-org` relative to `tahti-nuclear-player`'s
-parent). The two repos are developed together but versioned separately:
+client it is replacing — lives in a sibling checkout, **`tahti`**, i.e. `../../../tahti` relative to
+this file (both repos sit side by side under the same parent workspace directory, e.g.
+`/home/jani/workspace/tahti` next to `/home/jani/workspace/tahti-nuclear`). The two repos are
+developed together but versioned separately, each with their own git history — check `git status`
+in both when a task spans the boundary.
 
 - Anything that touches HTTP contracts, new endpoints, DB schema, or the OG/sitemap/metadata
-  server-side pieces happens in `tahti-org/apps/api` (`src/routes/`, response DTOs in
+  server-side pieces happens in `tahti/apps/api` (`src/routes/`, response DTOs in
   `packages/shared/src/dto/api-responses.ts`, registered in `src/server.ts`).
 - Anything that touches the listen/studio UI, routing, client-side data fetching, or the nginx
   edge config for this SPA happens here, in `packages/tahti-web`.
-- Before assuming a feature needs new backend work, check `tahti-org/apps/api` for an existing
+- Before assuming a feature needs new backend work, check `tahti/apps/api` for an existing
   integration first (e.g. Stripe, Sources OAuth, ACRCloud/AcoustID fingerprinting, the sitemap and
   `/api/og/*` proxy endpoints) — a lot of surface area already exists there.
 
-Public API reference: `https://api.tahti.live/api`.
+**Where to find the actual API contract before building against it (in priority order):**
+
+1. `tahti/apps/api/src/routes/**` — the real Fastify route handlers; the source of truth for what
+   an endpoint accepts/returns today. `rg` for the resource name here before assuming a shape.
+2. `tahti/packages/shared/src/dto/api-responses.ts` (and sibling DTO files in
+   `tahti/packages/shared/src/dto/`) — the typed Zod request/response contracts both `apps/api`
+   and `apps/web` import; this is what a new `tahti-web` API client function should match.
+3. `tahti/openapi.json` (full, internal) and `tahti/openapi.public.json` (public subset) — generated
+   OpenAPI specs checked into the repo root; useful for a quick shape lookup without reading route
+   code, but the route/DTO source wins if they've drifted.
+4. `https://api.tahti.live/api` — the live, deployed public API reference (Scalar UI over
+   `openapi.public.json`, served by `tahti/apps/api/src/routes/public-api-docs.ts`); only covers the
+   public-facing surface, not internal/authenticated-only routes.
+
+If a feature you're porting has no route in (1) and no DTO in (2), it does not have a real
+contract yet — do not invent one client-side (no fabricated response shapes, no silently-mocked
+endpoints presented as live). Either use the existing mock path (`api/mode.ts`'s `forceMock()`
+pattern, see `MOCKS.md`) and say so in the worklog entry, or flag that the sibling API needs the
+route added first — see `docs/PLUGIN-INTEGRATIONS.md` for the standing per-plugin
+API-counterpart checklist this project already tracks that gap with.
 
 ## What this is: a cutover, not a prototype
 
@@ -45,7 +66,7 @@ Most P0 blockers are closed: route compatibility (`/c` ↔ `/channel`, `/dashboa
 subscribe paths), API/Stripe/OAuth return-URL aliases, POC-surface gating for prod builds, real
 legal page text (terms/privacy/AGPL), the vital-journey Playwright suite, and the SEO/OG minimum —
 including real (not slug-guessed) metadata sync once each view's data loads, and a bot-facing
-`/api/og/{channel,profile,release}` proxy in `tahti-org` for non-JS-executing link-preview crawlers
+`/api/og/{channel,profile,release}` proxy in `tahti` for non-JS-executing link-preview crawlers
 (wired via an nginx user-agent `map` in `deploy/nginx.conf`).
 
 Still open: the production same-origin API proxy switch-over (the SPA's nginx contract is ready;

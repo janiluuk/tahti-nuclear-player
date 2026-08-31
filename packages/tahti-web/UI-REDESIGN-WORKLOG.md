@@ -2749,3 +2749,19 @@ Deleted `SourcesView.tsx` and its two routes are now thin redirects (`/sources`,
 Updated the handful of remaining `/sources` references that were either live navigation targets (`portInventory.ts`'s clickable POC-route links, `mapScreens.ts`'s screenshot-capture `route:` fields, `AddToMusicActions`) or would have 404'd the map-screenshot capture script; left the large cosmetic `flowDiagrams.ts` mermaid diagrams (architecture documentation text, not live links) for a follow-up pass.
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` all pass clean. Verified end to end in the browser: `/sources/bandcamp?status=connected` and bare `/sources` both redirect to Add-ons → Import with a "Connected." toast; hearthis.at's Configure dialog connects and renders its Tracks/DJ sets/Collections tabs with live counts.
+
+## 2026-08-31 — Backlog round 7: five slices closed
+
+**Slice 1 — Artist action buttons audited against Nuclear `Button`:** `ArtistGalleryPanel`'s photo-lightbox trigger and `ArtistView`'s avatar viewer, like, and repost controls were raw `<button>` elements with hand-rolled hover/transition classes; all four now render through the shared `Button` (`variant="text"`, sized `flexible`/`xs`) so they pick up consistent focus, disabled, and hover states. This is a partial pass on the WORKPLAN "audit custom actions against Nuclear `Button`" item — channel layer actions, collection actions, and Radio actions are still open.
+
+**Slice 2 — Support form uses shared `Select`/`Textarea`:** `SupportContactForm`'s category picker and message field were a hand-styled native `<select>`/`<textarea>`; both now use `@nuclearplayer/ui`'s `Select` and `Textarea`, matching the rest of the medium-priority native-control-replacement backlog item.
+
+**Slice 3 — Collection backdrop no longer fakes a photo from the cover:** `CollectionView` was falling back to the collection's square cover art as the wide backdrop image whenever no real backdrop was set, producing a stretched, blurred cover behind every collection that never uploaded one. It now renders the plain card background in that case instead of a fabricated backdrop.
+
+**Slice 4 — Join dialog widened for its longer form:** `AuthDialog`'s join mode was cramped into the same narrow single-column dialog as login, forcing email/username/role/password/confirm and any error text into a scrolling single column. Join mode now opens at `max-w-2xl` with a two-column field grid (role picker and status text spanning both columns); login mode is unaffected.
+
+**Slice 5 — Theme accent semantics: amber signals action, not default surface:** `tahti-dark`'s `--primary` was the same bold amber as `--accent-orange`, so every default-styled interactive surface (filled buttons, cards, active tabs) rendered amber regardless of whether it meant anything. `--primary` is now a calm neutral surface color; amber (`--accent-orange`) is reserved for surfaces that should draw the eye — `SaveButton` now forces `bg-accent-orange`/`text-accent-foreground` regardless of the underlying `Button` variant, and `ChannelRadioPlaylistPanel`'s active tab follows the same rule. This is scoped to those two call sites deliberately; the ~30 other `bg-primary`-as-active-indicator usages across the app (Studio nav, admin tabs, radio schedule, etc.) keep their old amber-primary look for now and are a follow-up sweep, not a regression.
+
+**Also fixed:** `capture-map-screens.mjs`'s new per-tab capture pass (`captureAllTabs`) called an `ensureChatClosed()` helper that was never defined, so any shot with visible tabs would throw at runtime; added the missing helper (re-collapses the right rail via the same `tahti-web-layout` localStorage write used elsewhere in the script) rather than removing the feature.
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean; `tsc --noEmit` and `eslint` on `@nuclearplayer/ui` pass clean.

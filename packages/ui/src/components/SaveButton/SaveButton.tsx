@@ -29,10 +29,16 @@ export const SaveButton: FC<SaveButtonProps> = ({
   savingLabel = 'Saving…',
   size = 'sm',
   disabled,
+  className,
   ...props
 }) => {
   return (
-    <Button size={size} disabled={disabled || saving} {...props}>
+    <Button
+      size={size}
+      disabled={disabled || saving}
+      className={`!bg-accent-orange !text-accent-foreground ${className ?? ''}`}
+      {...props}
+    >
       <SaveIcon size={14} aria-hidden className="mr-1.5" />
       {saving ? savingLabel : label}
     </Button>
