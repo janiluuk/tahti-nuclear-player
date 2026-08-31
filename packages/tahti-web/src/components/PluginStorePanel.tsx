@@ -2123,14 +2123,166 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
 
 // ── Multicast / Audio plugins ───────────────────────────────────────────────
 
-function MulticastCategory() {
-  const [targets, setTargets] = useState<RtmpTarget[] | null>(null);
-  const [provider, setProvider] = useState<MulticastProviderId>('TWITCH');
-  const [streamKey, setStreamKey] = useState('');
+type MulticastConfiguring = {
+  provider: MulticastProviderId;
+  existing: RtmpTarget | null;
+};
+
+function MulticastConfigureDialog({
+  configuring,
+  onClose,
+  onSaved,
+}: {
+  configuring: MulticastConfiguring;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const { provider, existing } = configuring;
+  const isCustom = provider === 'CUSTOM';
+  const [label, setLabel] = useState(existing?.label ?? '');
   const [address, setAddress] = useState('');
   const [port, setPort] = useState('1935');
-  const [label, setLabel] = useState('');
-  const [message, setMessage] = useState<string | null>(null);
+  const [streamKey, setStreamKey] = useState('');
+  const [enabled, setEnabled] = useState(existing?.enabled ?? true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const save = () => {
+    setError(null);
+    if (existing) {
+      // The API only lets an existing target's label/enabled state change
+      // -- its stream key and RTMP address are fixed at creation, so there
+      // is nothing else here to resend.
+      setSaving(true);
+      void patchRtmpTarget(existing.id, {
+        label: label.trim() || undefined,
+        enabled,
+      }).then((result) => {
+        setSaving(false);
+        if (!result.ok) {
+          setError(result.error);
+          return;
+        }
+        onSaved();
+      });
+      return;
+    }
+    if (!streamKey.trim() || (isCustom && !address.trim())) {
+      setError(
+        isCustom
+          ? 'RTMP address and stream key are required.'
+          : 'Stream key is required.',
+      );
+      return;
+    }
+    const rtmpUrl = isCustom
+      ? `${address.trim().replace(/\/$/, '')}:${port.trim() || '1935'}`
+      : undefined;
+    setSaving(true);
+    void createRtmpTarget({
+      provider,
+      streamKey: streamKey.trim(),
+      label: label.trim() || undefined,
+      rtmpUrl,
+      enabled,
+    }).then((result) => {
+      setSaving(false);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      onSaved();
+    });
+  };
+
+  return (
+    <Dialog.Root
+      isOpen
+      onClose={() => !saving && onClose()}
+      className="max-w-lg"
+    >
+      <Dialog.Title>Configure {multicastProviderLabel(provider)}</Dialog.Title>
+      <Dialog.Description>
+        {existing
+          ? 'Update the destination label and whether it mirrors your live stream.'
+          : 'Enter the credential this platform uses for live streaming. Custom RTMP also needs its server address and port.'}
+      </Dialog.Description>
+      <div className="mt-4 flex flex-col gap-3">
+        <Input
+          label="Label (optional)"
+          value={label}
+          onChange={(event) => setLabel(event.target.value)}
+          placeholder={multicastProviderLabel(provider)}
+        />
+        {existing ? (
+          <p className="text-foreground-secondary text-xs">
+            {existing.rtmpUrl}
+            {existing.keyLast4 ? ` · key ···${existing.keyLast4}` : ''}
+          </p>
+        ) : (
+          <>
+            {isCustom ? (
+              <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
+                <Input
+                  label="RTMP address"
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
+                  placeholder="rtmp://stream.example.com/live"
+                />
+                <Input
+                  label="Port"
+                  value={port}
+                  onChange={(event) => setPort(event.target.value)}
+                  placeholder="1935"
+                  inputMode="numeric"
+                />
+              </div>
+            ) : (
+              <p className="text-foreground-secondary text-xs">
+                Ingest server:{' '}
+                {multicastProviders.find((item) => item.id === provider)
+                  ?.rtmpUrlHint ?? 'the platform chooses the ingest server'}
+              </p>
+            )}
+            <Input
+              label={isCustom ? 'Stream key' : 'Stream key / API key'}
+              value={streamKey}
+              onChange={(event) => setStreamKey(event.target.value)}
+              placeholder={
+                isCustom ? 'Paste stream key' : 'Paste platform credential'
+              }
+            />
+          </>
+        )}
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={(event) => setEnabled(event.target.checked)}
+          />
+          <span>Enabled — mirror the live stream here</span>
+        </label>
+        {error ? (
+          <p className="text-accent-red text-sm" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </div>
+      <Dialog.Actions>
+        <Dialog.Close>Cancel</Dialog.Close>
+        <Button onClick={save} disabled={saving}>
+          {saving ? 'Saving…' : 'Save'}
+        </Button>
+      </Dialog.Actions>
+    </Dialog.Root>
+  );
+}
+
+function MulticastCategory() {
+  const [targets, setTargets] = useState<RtmpTarget[] | null>(null);
+  const [configuring, setConfiguring] = useState<MulticastConfiguring | null>(
+    null,
+  );
 
   const reload = () => {
     void fetchRtmpTargets().then((r) => setTargets(r.data));
@@ -2140,172 +2292,73 @@ function MulticastCategory() {
     void fetchRtmpTargets().then((r) => setTargets(r.data));
   }, []);
 
-  const isCustom = provider === 'CUSTOM';
-  const addDestination = () => {
-    if (!streamKey.trim() || (isCustom && !address.trim())) {
-      return;
-    }
-    const rtmpUrl = isCustom
-      ? `${address.trim().replace(/\/$/, '')}:${port.trim() || '1935'}`
-      : undefined;
-    void createRtmpTarget({
-      provider,
-      streamKey: streamKey.trim(),
-      label: label.trim() || undefined,
-      rtmpUrl,
-    }).then((result) => {
-      if (!result.ok) {
-        setMessage(result.error);
-        return;
-      }
-      setStreamKey('');
-      setAddress('');
-      setLabel('');
-      setMessage(`${multicastProviderLabel(provider)} destination added.`);
-      reload();
-    });
-  };
-
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-2">
-        <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-          Stream destinations
-        </h3>
-        {multicastProviders.map((destination) => {
-          const configured = targets?.some(
-            (target) => target.provider === destination.id,
-          );
-          return (
-            <PluginStoreItem
-              key={destination.id}
-              name={destination.label}
-              author="Multicast"
-              description={
-                destination.rtmpUrlHint
-                  ? `Mirror your live stream via ${destination.rtmpUrlHint}.`
-                  : 'Mirror your live stream to a custom RTMP server.'
-              }
-              isInstalled={configured}
-              onInstall={() => {
-                setProvider(destination.id);
-                setMessage(`${destination.label} selected below.`);
-              }}
-              labels={{
-                install: 'Configure',
-                installed: 'Configured',
-              }}
-            />
-          );
-        })}
-      </div>
-
       <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-        Configured destinations
+        Stream destinations
       </h3>
       {targets == null ? (
         <PageLoading label="Loading multistream destinations…" />
-      ) : targets.length === 0 ? (
-        <p className="text-foreground-secondary text-sm">
-          No multistream destinations configured yet.
-        </p>
       ) : (
         <ul className="flex flex-col gap-2">
-          {targets.map((t) => (
-            <PluginItem
-              key={t.id}
-              icon={<Cast size={22} aria-hidden />}
-              name={t.label || t.provider}
-              author={multicastProviderLabel(t.provider)}
-              description={`${t.enabled ? 'Enabled' : 'Disabled'} · ${t.rtmpUrl}${t.keyLast4 ? ` · key ···${t.keyLast4}` : ''}`}
-              disabled={!t.enabled}
-              rightAccessory={
-                <Button
-                  size="sm"
-                  variant="text"
-                  onClick={() =>
-                    void patchRtmpTarget(t.id, {
-                      enabled: !t.enabled,
-                    }).then(reload)
-                  }
-                >
-                  {t.enabled ? 'Disable' : 'Enable'}
-                </Button>
-              }
-              onRemove={() => void deleteRtmpTarget(t.id).then(reload)}
-            />
-          ))}
+          {multicastProviders.map((destination) => {
+            const target = targets.find((t) => t.provider === destination.id);
+            return (
+              <PluginItem
+                key={destination.id}
+                icon={<Cast size={22} aria-hidden />}
+                name={destination.label}
+                author="Multicast"
+                description={
+                  target
+                    ? `${target.rtmpUrl}${target.keyLast4 ? ` · key ···${target.keyLast4}` : ''}`
+                    : destination.rtmpUrlHint
+                      ? `Mirror your live stream via ${destination.rtmpUrlHint}.`
+                      : 'Mirror your live stream to a custom RTMP server.'
+                }
+                rightAccessory={
+                  <Badge
+                    variant="pill"
+                    color={target?.enabled ? 'green' : undefined}
+                    className="flex items-center gap-1"
+                  >
+                    <span
+                      className={`size-1.5 rounded-full ${target?.enabled ? 'bg-accent-green' : 'bg-foreground-secondary'}`}
+                      aria-hidden
+                    />
+                    {target
+                      ? target.enabled
+                        ? 'Enabled'
+                        : 'Disabled'
+                      : 'Not configured'}
+                  </Badge>
+                }
+                onViewDetails={() =>
+                  setConfiguring({
+                    provider: destination.id,
+                    existing: target ?? null,
+                  })
+                }
+                onRemove={
+                  target
+                    ? () => void deleteRtmpTarget(target.id).then(reload)
+                    : undefined
+                }
+              />
+            );
+          })}
         </ul>
       )}
-      <div className="border-border flex flex-col gap-3 rounded-lg border p-3">
-        <div>
-          <h3 className="font-semibold">Add destination</h3>
-          <p className="text-foreground-secondary text-xs">
-            Choose a platform and enter the credential it uses for live
-            streaming. Custom RTMP also needs its server address and port.
-          </p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Select
-            label="Platform"
-            value={provider}
-            onValueChange={(value) => setProvider(value as MulticastProviderId)}
-            options={multicastProviders.map((item) => ({
-              id: item.id,
-              label: item.label,
-            }))}
-          />
-          <Input
-            label="Label (optional)"
-            value={label}
-            onChange={(event) => setLabel(event.target.value)}
-            placeholder={multicastProviderLabel(provider)}
-          />
-        </div>
-        {isCustom ? (
-          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
-            <Input
-              label="RTMP address"
-              value={address}
-              onChange={(event) => setAddress(event.target.value)}
-              placeholder="rtmp://stream.example.com/live"
-            />
-            <Input
-              label="Port"
-              value={port}
-              onChange={(event) => setPort(event.target.value)}
-              placeholder="1935"
-              inputMode="numeric"
-            />
-          </div>
-        ) : (
-          <p className="text-foreground-secondary text-xs">
-            Ingest server:{' '}
-            {multicastProviders.find((item) => item.id === provider)
-              ?.rtmpUrlHint ?? 'the platform chooses the ingest server'}
-          </p>
-        )}
-        <div className="flex flex-wrap items-end gap-3">
-          <Input
-            label={isCustom ? 'Stream key' : 'Stream key / API key'}
-            value={streamKey}
-            onChange={(event) => setStreamKey(event.target.value)}
-            placeholder={
-              isCustom ? 'Paste stream key' : 'Paste platform credential'
-            }
-          />
-          <Button
-            size="sm"
-            disabled={!streamKey.trim() || (isCustom && !address.trim())}
-            onClick={addDestination}
-          >
-            Add destination
-          </Button>
-        </div>
-        {message && (
-          <p className="text-foreground-secondary text-xs">{message}</p>
-        )}
-      </div>
+      {configuring ? (
+        <MulticastConfigureDialog
+          configuring={configuring}
+          onClose={() => setConfiguring(null)}
+          onSaved={() => {
+            setConfiguring(null);
+            reload();
+          }}
+        />
+      ) : null}
     </div>
   );
 }
