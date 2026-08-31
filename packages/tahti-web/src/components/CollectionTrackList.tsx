@@ -7,12 +7,16 @@ import type { TahtiPlayable } from '../api/types';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { formatDuration } from '../lib/playableToTrack';
+import { useDominantColor } from '../lib/useDominantColor';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { WaveformSeekbar } from './tahti/WaveformSeekbar';
 
-function TrackRow({ item, index }: { item: TahtiPlayable; index: number }) {
+const PLAYED_WAVE_COLOR = '#6CFF6B';
+const UNPLAYED_WAVE_COLOR = 'rgba(255,255,255,0.78)';
+
+function TrackRow({ item }: { item: TahtiPlayable }) {
   const play = usePlayerStore((s) => s.play);
   const setStatus = usePlayerStore((s) => s.setStatus);
   const seekTo = usePlayerStore((s) => s.seekTo);
@@ -31,6 +35,11 @@ function TrackRow({ item, index }: { item: TahtiPlayable; index: number }) {
   const elapsed = isCurrent ? currentTime : 0;
   const progress = isCurrent && totalDuration > 0 ? elapsed / totalDuration : 0;
   const archiveItemId = archiveItemIdFromPlayableId(item.id);
+  const cover = item.coverUrl ?? placeholderArtworkUrl(item.id);
+  const rgb = useDominantColor(item.coverUrl);
+  const ambient = rgb
+    ? `radial-gradient(circle at 15% 0%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.5), transparent 60%)`
+    : undefined;
 
   const togglePlayback = () => {
     if (isCurrent) {
@@ -63,25 +72,28 @@ function TrackRow({ item, index }: { item: TahtiPlayable; index: number }) {
   );
 
   return (
-    <li
-      className={
-        index % 2 === 0
-          ? 'bg-background-secondary/40 rounded-lg p-3'
-          : 'rounded-lg p-3'
-      }
-    >
-      <div className="flex items-start gap-3">
+    <li className="relative overflow-hidden rounded-lg p-3">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={ambient ? { backgroundImage: ambient } : undefined}
+        aria-hidden
+      />
+      <img
+        src={cover}
+        alt=""
+        className="pointer-events-none absolute inset-0 size-full object-cover opacity-30 blur-2xl saturate-150"
+        aria-hidden
+      />
+      <div className="bg-background/70 pointer-events-none absolute inset-0" />
+
+      <div className="relative flex items-start gap-3">
         <button
           type="button"
           onClick={togglePlayback}
           aria-label={isPlaying ? 'Pause' : 'Play'}
-          className="group border-border bg-background-secondary relative size-16 shrink-0 overflow-hidden rounded-md border sm:size-20"
+          className="group border-border bg-background-secondary relative size-16 shrink-0 overflow-hidden rounded-md border shadow-md sm:size-20"
         >
-          <img
-            src={item.coverUrl ?? placeholderArtworkUrl(item.id)}
-            alt=""
-            className="size-full object-cover"
-          />
+          <img src={cover} alt="" className="size-full object-cover" />
           <span className="bg-background/40 absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
             {isPlaying ? (
               <PauseIcon size={22} fill="currentColor" className="text-white" />
@@ -106,6 +118,8 @@ function TrackRow({ item, index }: { item: TahtiPlayable; index: number }) {
             trackId={item.id}
             progress={progress}
             className="mt-2 h-10 sm:h-12"
+            playedColor={PLAYED_WAVE_COLOR}
+            unplayedColor={UNPLAYED_WAVE_COLOR}
             onSeek={seekFraction}
           />
           <div className="mt-1.5 flex items-center gap-1">
@@ -147,8 +161,8 @@ export function CollectionTrackList({ items }: { items: TahtiPlayable[] }) {
   }
   return (
     <ul className="flex flex-col gap-1">
-      {items.map((item, index) => (
-        <TrackRow key={item.id} item={item} index={index} />
+      {items.map((item) => (
+        <TrackRow key={item.id} item={item} />
       ))}
     </ul>
   );
