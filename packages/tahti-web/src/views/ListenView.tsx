@@ -358,6 +358,22 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
 
         {tab === 'listen' ? (
           <>
+            {lastPlayed ? (
+              <SectionShell title="Continue listening">
+                <CardGrid>
+                  <Card
+                    title={lastPlayed.playable.title}
+                    subtitle={lastPlayed.playable.artist}
+                    src={
+                      lastPlayed.playable.coverUrl ??
+                      placeholderArtworkUrl(lastPlayed.playable.id)
+                    }
+                    onPlay={() => play(lastPlayed.playable)}
+                  />
+                </CardGrid>
+              </SectionShell>
+            ) : null}
+
             <DiscoWidgetsSection widgets={discoWidgets} />
 
             {signedIn && (
@@ -448,22 +464,6 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
                   </Link>
                 </div>
               </Box>
-            ) : null}
-
-            {lastPlayed ? (
-              <SectionShell title="Continue listening">
-                <CardGrid>
-                  <Card
-                    title={lastPlayed.playable.title}
-                    subtitle={lastPlayed.playable.artist}
-                    src={
-                      lastPlayed.playable.coverUrl ??
-                      placeholderArtworkUrl(lastPlayed.playable.id)
-                    }
-                    onPlay={() => play(lastPlayed.playable)}
-                  />
-                </CardGrid>
-              </SectionShell>
             ) : null}
 
             {radioPresets.length > 0 ? (
