@@ -19,7 +19,7 @@ import {
   Toaster,
 } from '@nuclearplayer/ui';
 
-import { useIsMobile } from '../hooks/useIsMobile';
+import { useIsCompactDesktop, useIsMobile } from '../hooks/useIsMobile';
 import { MAIN_CONTENT_PADDING } from '../layout/contentPadding';
 import { hasAccountRole } from '../lib/accountRoles';
 import { diagnosticsEnabled } from '../lib/buildPolicy';
@@ -131,6 +131,7 @@ function RouteContent({ children }: { children: React.ReactNode }) {
 
 export function AppShell() {
   const isMobile = useIsMobile();
+  const isCompactDesktop = useIsCompactDesktop();
   // Scoped selectors, not the whole store: layoutStore also carries chat
   // context and (during a sidebar resize drag) leftWidth/rightWidth update
   // on every mousemove -- a single unselected useLayoutStore() call would
@@ -243,6 +244,20 @@ export function AppShell() {
     }
     setRightCollapsed(true);
   }, [isMobile, setRightCollapsed]);
+
+  // Between the mobile cutoff and ~1100px, the three-pane shell's default
+  // fixed sidebar widths (220px left + 340px right) leave too little room
+  // for main content -- as little as 144px at 768px, a common tablet-portrait
+  // width. Collapse both sidebars there, same one-directional pattern as the
+  // mobile right-rail collapse above: force collapsed on entry, never force
+  // an expand, so a manual toggle at a wider viewport is still respected.
+  useEffect(() => {
+    if (!isCompactDesktop) {
+      return;
+    }
+    setLeftCollapsed(true);
+    setRightCollapsed(true);
+  }, [isCompactDesktop, setLeftCollapsed, setRightCollapsed]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

@@ -2849,3 +2849,11 @@ Ran `e2e/layout-stability.spec.ts` (the existing Playwright suite covering Studi
 - No overflow, missing-menu, or broken-interaction issues found in: top nav search/icons, left sidebar (desktop, all widths tested), mobile hamburger drawer (opens/closes correctly, closes on Escape, contains expected links), Admin nav, Settings → Add-ons category tabs on mobile, or the Studio pill-nav's own wrapping behavior once it actually has room (768px+ crush aside, the `flex-wrap` pill layout itself degrades gracefully).
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.4`.
+
+## 2026-08-31 — Fixed the tablet shell-crush finding; bump to 0.0.5
+
+Implemented the top item from the responsive audit above: the desktop three-pane shell now auto-collapses both sidebars in the ~768-1099px band, the same one-directional pattern already used to collapse the right rail below the mobile cutoff (force collapsed on entry, never force an expand back, so a manual toggle at a wider viewport is still respected). New `useIsCompactDesktop()` hook (`hooks/useIsMobile.ts`, `(min-width: 768px) and (max-width: 1099px)`) drives a second `AppShell` effect alongside the existing mobile one.
+
+**Verified with the same fresh-load-per-width methodology used to find the bug** (`page.setViewportSize` + fresh page load, not a resize of an already-mounted page): main content width at `/studio/archive` went from 144px/196px/276px/400px to **596px/648px/728px/852px** at 768/820/900/1024px respectively -- no more horizontal overflow at any width in the sweep. Screenshot-verified: both sidebars render as their collapsed icon rails, content (search, buttons, track rows) is fully legible and usable, nothing clips.
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.5`.
