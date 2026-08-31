@@ -458,9 +458,9 @@ function FeatureCompareCard({ row }: { row: FeatureRow }) {
         >
           <div className="flex items-center justify-between gap-2">
             <span className="text-[10px] font-semibold tracking-wide uppercase">
-              Nuclear
+              beta.tahti.live
               <span className="text-foreground-secondary ml-1 font-normal normal-case">
-                this client
+                beta.tahti.live
               </span>
             </span>
             {nuclearAbsent ? (
@@ -559,9 +559,9 @@ export function MoreView() {
         subtitle={
           <>
             Three surfaces, one API: canonical{' '}
-            <code className="text-foreground">apps/web</code>, this Nuclear
-            client (<code className="text-foreground">beta.tahti.live</code>),
-            and public docs at{' '}
+            <code className="text-foreground">apps/web</code>,
+            <code className="text-foreground">beta.tahti.live</code>, and public
+            docs at{' '}
             <a
               href="https://api.tahti.live/api"
               target="_blank"
@@ -681,8 +681,9 @@ export function MoreView() {
             Feature matrix
           </h2>
           <p className="text-foreground-secondary mt-1 max-w-3xl text-sm">
-            Same inventory as before — each row is Tahti | Nuclear side by side.
-            Rows that exist on only one surface show a parity-gap badge.
+            Same inventory as before — each row is Tahti | beta.tahti.live side
+            by side. Rows that exist on only one surface show a parity-gap
+            badge.
           </p>
           <p className="text-foreground-secondary mt-1 text-xs tracking-wide uppercase">
             {FEATURES.length} features · {gapCount} parity gap

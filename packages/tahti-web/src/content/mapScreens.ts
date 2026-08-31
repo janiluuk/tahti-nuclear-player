@@ -1,8 +1,8 @@
 /** Screenshot atlas + concrete flow cases for the Tahti map (`/more`).
  *
  * Old = production Tahti chrome (`public/map/{listen,studio,auth,settings}/`)
- * New = Nuclear beta (`public/map/nuclear/`). Missing new shots show
- * "Nuclear shot pending" rather than inventing pixels.
+ * New = beta.tahti.live (`public/map/nuclear/`). Missing new shots show
+ * "beta.tahti.live shot pending" rather than inventing pixels.
  */
 
 export type MapShot = {

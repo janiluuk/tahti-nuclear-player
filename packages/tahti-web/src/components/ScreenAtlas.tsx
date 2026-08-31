@@ -360,6 +360,11 @@ function ShotPane({
   absent: boolean;
 }) {
   const pending = !absent && !shot.image;
+  const screenshotUrl = shot.image
+    ? shot.image.startsWith('http')
+      ? shot.image
+      : `https://beta.tahti.live${shot.image}`
+    : null;
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       <div className="border-border flex items-center justify-between gap-2 border-b px-4 py-2.5">
@@ -371,7 +376,7 @@ function ShotPane({
             </span>
           ) : (
             <span className="text-foreground-secondary ml-1.5 font-normal normal-case">
-              this client
+              beta.tahti.live
             </span>
           )}
         </span>
@@ -416,6 +421,19 @@ function ShotPane({
           />
         )}
       </div>
+      {screenshotUrl ? (
+        <div className="text-foreground-secondary flex flex-wrap items-center gap-x-2 gap-y-1 border-b px-4 py-2 text-[11px]">
+          <span>Screenshot captured 2026-08-31</span>
+          <a
+            href={screenshotUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-primary font-mono break-all underline-offset-2 hover:underline"
+          >
+            {screenshotUrl}
+          </a>
+        </div>
+      ) : null}
       <p className="text-foreground-secondary px-4 py-3 text-sm leading-snug">
         {shot.caption}
       </p>
@@ -557,15 +575,18 @@ export function ScreenAtlas() {
           Each case is a two-column comparison:{' '}
           <strong className="text-foreground font-semibold">Tahti</strong>{' '}
           (production) beside{' '}
-          <strong className="text-foreground font-semibold">Nuclear</strong>{' '}
-          (this beta). Missing captures show &ldquo;shot pending&rdquo;; views
-          that exist on only one surface are flagged as a parity gap. Submit
-          notes on each card — they persist in this browser; export submitted
-          comments as CSV (kind, ids, pack, commentary, timestamp).
+          <strong className="text-foreground font-semibold">
+            beta.tahti.live
+          </strong>{' '}
+          (beta). Missing captures show &ldquo;shot pending&rdquo;; views that
+          exist on only one surface are flagged as a parity gap. Submit notes on
+          each card — they persist in this browser; export submitted comments as
+          CSV (kind, ids, pack, commentary, timestamp).
         </p>
         <p className="text-foreground-secondary mt-1 text-xs tracking-wide uppercase">
           {MAP_CASE_GROUPS.length} flows · {total} cases · {gaps} parity gap
-          {gaps === 1 ? '' : 's'} · Tahti | Nuclear columns
+          {gaps === 1 ? '' : 's'} · Tahti | beta.tahti.live columns ·
+          screenshots captured 2026-08-31
         </p>
       </div>
 

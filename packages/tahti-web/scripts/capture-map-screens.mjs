@@ -1,5 +1,5 @@
-import { mkdirSync } from 'fs';
-import { dirname, join } from 'path';
+import { mkdirSync, readdirSync, writeFileSync } from 'fs';
+import { basename, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from '@playwright/test';
 
@@ -186,10 +186,21 @@ const requestedShotIds = new Set(
 const selectedShots = requestedShotIds.size
   ? shots.filter((shot) => requestedShotIds.has(shot.id))
   : shots;
+const startShotId = process.env.MAP_SHOT_START;
+const startIndex = startShotId
+  ? Math.max(
+      0,
+      shots.findIndex((shot) => shot.id === startShotId),
+    )
+  : 0;
+const shotsToCapture = requestedShotIds.size
+  ? selectedShots
+  : shots.slice(startIndex);
 
 let browser = await chromium.launch({
   headless: true,
   executablePath: process.env.CHROMIUM_PATH || undefined,
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
 });
 let page = await browser.newPage({
   viewport: { width: 1280, height: 800 },
@@ -219,39 +230,47 @@ const AUTH_STATE = {
  * and obscuring the content being documented. */
 
 async function setLocalStorage(p, signedIn = true) {
-  await p.evaluate(
-    ({ auth, rightCollapsed, signedIn: shouldSignIn }) => {
-      if (shouldSignIn) {
-        localStorage.setItem('tahti-web-auth', JSON.stringify(auth));
-      } else {
-        localStorage.removeItem('tahti-web-auth');
-      }
-      // Mark this mock user as already onboarded -- otherwise every
-      // authenticated shot gets hijacked by a redirect to /onboarding.
-      localStorage.setItem(`tahti-web-onboarded:${auth.state.user.id}`, '1');
-      localStorage.setItem(
-        'tahti-web-layout',
-        JSON.stringify({
-          state: {
-            leftCollapsed: false,
-            rightCollapsed,
-            leftWidth: 220,
-            rightWidth: 340,
-            bottomQueueOpen: false,
-          },
-          version: 3,
-        }),
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await p.evaluate(
+        ({ auth, rightCollapsed, signedIn: shouldSignIn }) => {
+          if (shouldSignIn) {
+            localStorage.setItem('tahti-web-auth', JSON.stringify(auth));
+          } else {
+            localStorage.removeItem('tahti-web-auth');
+          }
+          // Mark this mock user as already onboarded -- otherwise every
+          // authenticated shot gets hijacked by a redirect to /onboarding.
+          localStorage.setItem(
+            `tahti-web-onboarded:${auth.state.user.id}`,
+            '1',
+          );
+          localStorage.setItem(
+            'tahti-web-layout',
+            JSON.stringify({
+              state: {
+                leftCollapsed: false,
+                rightCollapsed,
+                leftWidth: 220,
+                rightWidth: 340,
+                bottomQueueOpen: false,
+              },
+              version: 3,
+            }),
+          );
+        },
+        { auth: AUTH_STATE, rightCollapsed: true, signedIn },
       );
-    },
-    { auth: AUTH_STATE, rightCollapsed: true, signedIn },
-  );
+      return;
+    } catch (error) {
+      if (attempt === 2) throw error;
+      await p.waitForTimeout(300);
+    }
+  }
 }
 
-// Prime localStorage from an actual page on BASE before the shot loop
-// (can't set localStorage before a document has loaded that origin).
-await page
-  .goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  .catch(() => {});
+await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 });
+await page.waitForTimeout(500);
 await setLocalStorage(page);
 
 async function ensurePage() {
@@ -259,6 +278,7 @@ async function ensurePage() {
     browser = await chromium.launch({
       headless: true,
       executablePath: process.env.CHROMIUM_PATH || undefined,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
   }
   if (page.isClosed()) {
@@ -266,9 +286,7 @@ async function ensurePage() {
       viewport: { width: 1280, height: 800 },
       deviceScaleFactor: 1,
     });
-    await page
-      .goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 })
-      .catch(() => {});
+    await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 });
   }
 }
 
@@ -309,13 +327,13 @@ async function captureAllTabs(out) {
     await page.waitForTimeout(350);
     await ensureChatClosed();
     await page.screenshot({
-      path: join(outRoot, `${out.replace(/\.png$/, '')}--${key}.png`),
+      path: join(outRoot, `${basename(out, '.png')}--${key}.png`),
       fullPage: false,
     });
   }
 }
 
-for (const s of selectedShots) {
+for (const s of shotsToCapture) {
   await ensurePage();
   const url = `${BASE}${s.path}`;
   const out = join(outRoot, `${s.id}.png`);
@@ -329,12 +347,12 @@ for (const s of selectedShots) {
       parsed.state.rightCollapsed = rightCollapsed;
       localStorage.setItem('tahti-web-layout', JSON.stringify(parsed));
     }, true);
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
+    await page.goto(url, { waitUntil: 'commit', timeout: 5000 });
     if (s.id === 'login-totp') {
       await page.getByLabel('Email').fill('demo+totp@tahti.live');
       await page.getByLabel('Password').fill('totp-demo');
       await page.getByRole('button', { name: 'Sign in' }).click();
-      await page.getByLabel('Authentication code').waitFor();
+      await page.getByLabel('Authentication code').waitFor({ timeout: 3000 });
     }
     if (s.id === 'money-fan-subs') {
       await page.getByRole('tab', { name: 'Fan subs' }).click();
@@ -346,7 +364,7 @@ for (const s of selectedShots) {
       await page.getByRole('tab', { name: 'Notifications' }).click();
       await page.getByRole('heading', { name: /notifications/i }).waitFor();
     }
-    await page.waitForTimeout(s.wait ?? 900);
+    await page.waitForTimeout(s.wait ?? 300);
     // Hide cookie/noise if any; capture main viewport
     await page.screenshot({ path: out, fullPage: false });
     await captureAllTabs(out);
@@ -356,7 +374,7 @@ for (const s of selectedShots) {
     await ensurePage();
     try {
       await setLocalStorage(page, s.auth !== false);
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
+      await page.goto(url, { waitUntil: 'commit', timeout: 5000 });
       await page.waitForTimeout(500);
       await page.screenshot({ path: out, fullPage: false });
       console.log('ok-soft', s.id);
@@ -368,4 +386,22 @@ for (const s of selectedShots) {
 }
 
 await browser.close();
+const imageFiles = readdirSync(outRoot)
+  .filter((fileName) => fileName.endsWith('.png'))
+  .sort();
+writeFileSync(
+  join(outRoot, 'sitemap.json'),
+  `${JSON.stringify(
+    {
+      surface: 'beta.tahti.live',
+      capturedAt: '2026-08-31',
+      images: imageFiles.map((fileName) => ({
+        file: fileName,
+        url: `https://beta.tahti.live/map/nuclear/${fileName}`,
+      })),
+    },
+    null,
+    2,
+  )}\n`,
+);
 console.log('done', outRoot);
