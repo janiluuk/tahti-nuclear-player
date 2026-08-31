@@ -2685,3 +2685,9 @@ HearThis tracks now remain embed-only, matching the sibling Tahti API contract. 
 ## 2026-08-28 — Content-only route loading
 
 Top-level navigation now keeps the app shell, top bar, and workspace mounted while routes change. A lightweight loading overlay is scoped to the routed content viewport across desktop, mobile, and public artist layouts, reducing the impression of a full-page reload while lazy route content is resolving.
+
+## 2026-08-31 — Channel Designer widget audit
+
+**Completed:** Audited all eight `ChannelPageItemType` blocks (`hero`, `actions`, `archive`, `chat`, `about`, `links`, `textOverlay`, `subscribe`) end to end: addable/toggleable/reorderable in `ChannelLayersMenu`, and rendered on the public channel page. `ChannelView`'s `renderBlock` switch was missing a `case 'subscribe'`, so the Subscribe CTA block (`CHANNEL_PAGE_ITEM_META.subscribe`, "Fan membership pitch") fell through to `default: return null` — it could be added and made visible in the designer but rendered nothing on the live page. Added the missing case: a Support/Subscribe card linking to `/subscribe/$username`, hidden for the channel owner and shown as an editing-mode placeholder otherwise, matching the pattern already used for the `actions` and `links` blocks.
+
+**Validation:** `tsc --noEmit` and `eslint` on `tahti-web` pass clean with no new errors.

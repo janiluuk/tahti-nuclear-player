@@ -614,6 +614,32 @@ export function ChannelView({ slug }: { slug: string }) {
             </p>
           </section>
         );
+      case 'subscribe':
+        return editing ? (
+          <div className="border-border text-foreground-secondary rounded-lg border border-dashed px-4 py-3 text-sm">
+            Fan membership pitch — links out to the subscribe page for @
+            {channel.user.username}.
+          </div>
+        ) : isOwner ? null : (
+          <section className="border-border rounded-lg border px-4 py-3">
+            <h2 className="text-sm font-bold tracking-tight">
+              Support {channel.user.displayName}
+            </h2>
+            <p className="text-foreground-secondary mt-1 text-xs">
+              Become a fan member for perks and to help keep the channel
+              running.
+            </p>
+            <Link
+              to="/subscribe/$username"
+              params={{ username: channel.user.username }}
+              className="mt-3 inline-block"
+            >
+              <Button size="sm" variant="secondary">
+                Subscribe
+              </Button>
+            </Link>
+          </section>
+        );
       default:
         return null;
     }
