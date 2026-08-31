@@ -66,6 +66,11 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             to="/"
             icon={<GaugeIcon size={16} />}
             label="Listen"
+            isSelected={
+              pathname === '/' ||
+              pathname.startsWith('/feed') ||
+              pathname.startsWith('/history')
+            }
           />
         </div>
         <div data-tour-id="nav-radio">

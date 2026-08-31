@@ -1,5 +1,33 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-31 — Fixed missing `/api/me/media` backend contract, audited for more
+
+**Fixed:** `uploadUserMediaFile` (`api/user-media.ts`, the shared upload helper behind
+`ImageUploadField` — used by radio widget cover art, channel backdrops, and the
+stream overlay editor) called `POST /api/me/media/prepare` / `/complete`, neither of
+which existed anywhere in the sibling `../tahti` backend — every image upload through
+this shared component 404'd. Added both routes (`../tahti/apps/api/src/routes/me/media.ts`,
+registered in `server.ts`), reusing the existing generic `ImageUploadPrepareSchema`
+(`@tahti/shared`, already shared by the archive-banner and collection-cover routes) plus
+two new schemas (`UserMediaCompleteSchema`, `UserMediaFileSchema`) since this endpoint has
+no owning DB record to read metadata back from — the client resends filename/contentType/
+sizeBytes on complete and the server just echoes them back with a resolved URL. No new
+Prisma model: nothing actually calls `fetchUserMedia`/`deleteUserMedia` today (checked
+every `ImageUploadField` call site), so only prepare/complete needed a real backend.
+Also fixed a real client/server field-name mismatch found along the way: the frontend
+sent/expected `objectKey`, every other prepare/complete pair in this codebase uses
+`uploadKey` — renamed the frontend to match. **Validation:** new `media.test.ts` (4
+tests) plus the existing `avatar.test.ts` (11) pass against a real disposable Postgres;
+shared/api/web type-check and lint clean.
+
+**Audit — same class of bug found in several more places (frontend calls a route with
+zero backend implementation), not fixed this round, logged for the next session:**
+- `POST /api/me/channel/video-background/prepare` + `/complete` (`api/channel-design.ts`) — same missing-pair pattern as the media bug just fixed, same likely fix shape.
+- `POST /api/v1/imports/bandcamp/add` (`api/sources.ts`) — genuinely missing; a **prior worklog entry (2026-08-30, "Backlog round 2") claimed this was verified as a real wired route, but that check only looked at this frontend repo's own client code, not the actual backend** — there is no `routes/imports/bandcamp.ts` at all, unlike the sibling `imports/hearthis.ts`/`imports/spotify.ts`/`imports/mixcloud-embed.ts`, each of which has a complete `search`/`me-tracks`/`by-username`/`add` route family. `GET /api/me/bandcamp/albums` does exist, but is explicitly commented as "stub until Bandcamp API v1" in `routes/me/bandcamp.ts:119`.
+- `GET/POST /api/admin/radio-station-suggestions*` (`api/admin.ts:1370-1393`) — the entire `AdminRadioStationSuggestionsView` review pipeline (round "Listener widgets" entry, 2026-08-30-ish) has no backend at all; zero matches for `StationSuggestion` anywhere in `../tahti`.
+- `GET/PATCH /api/me/connections` (`api/artist-settings.ts:488,529`), `GET/PATCH /api/me/discovery` (`api/artist-settings.ts:289,317`), `GET /api/admin/governance/overview` (`api/admin.ts:3212`), `GET/POST/import /api/admin/i18n/languages*` (`api/admin.ts:3885-3966`), `GET /api/admin/stats/content` (`api/admin.ts:276`), `PATCH /api/admin/announcements/system-enabled` (`api/admin.ts:2442`) — all missing.
+- Method: extracted every static `'/api/...'` literal from `tahti-web/src/api/*.ts` (148 found) and diffed against every route string registered under `../tahti/apps/api/src/routes/**` (787 candidate literals, superset including comments). 15 flagged; 6 were false positives (real routes registered with a `:param`/prefix the crude string match missed — `/api/channels/:slug`, `/api/me/press-kit/*`, `/api/me/green-room/*`, etc.) or benign truncated matches. This only catches *fully static* frontend paths — anything built from a template literal with interpolation wasn't checked, so this is a floor on the real count, not a ceiling.
+
 ## 2026-08-31 — Live bug-bash: admin stream manager, green room placement, follower toggles, player live indicator, hero player fixes
 
 **Completed, found via live testing this session:**

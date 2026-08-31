@@ -71,21 +71,22 @@ export async function uploadUserMediaFile(
     return { ok: true, data };
   }
   try {
+    const contentType = ['image/jpeg', 'image/png', 'image/webp'].includes(
+      file.type,
+    )
+      ? file.type
+      : 'image/png';
     const prepared = await requestJson<{
-      objectKey: string;
+      uploadKey: string;
       uploadUrl: string;
     }>('/api/me/media/prepare', {
       method: 'POST',
-      body: JSON.stringify({
-        filename: file.name,
-        contentType: file.type || 'application/octet-stream',
-        sizeBytes: file.size,
-      }),
+      body: JSON.stringify({ filename: file.name, contentType }),
     });
     const upload = await fetch(prepared.uploadUrl, {
       method: 'PUT',
       body: file,
-      headers: { 'Content-Type': file.type || 'application/octet-stream' },
+      headers: { 'Content-Type': contentType },
     });
     if (!upload.ok) {
       throw new Error(`Upload failed (${upload.status})`);
@@ -93,9 +94,9 @@ export async function uploadUserMediaFile(
     const data = await requestJson<UserMediaFile>('/api/me/media/complete', {
       method: 'POST',
       body: JSON.stringify({
-        objectKey: prepared.objectKey,
+        uploadKey: prepared.uploadKey,
         filename: file.name,
-        contentType: file.type || 'application/octet-stream',
+        contentType,
         sizeBytes: file.size,
       }),
     });
