@@ -1,0 +1,7 @@
+services:
+  tahti-storybook-web:
+    image: tahti-storybook-web:local
+    container_name: tahti-storybook-web
+    restart: unless-stopped
+    ports:
+      - '15181:80'

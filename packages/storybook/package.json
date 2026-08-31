@@ -9,7 +9,8 @@
     "build": "storybook build",
     "preview": "storybook preview",
     "type-check": "tsc -p tsconfig.tahti.json --noEmit",
-    "clean": "rm -rf storybook-static .turbo node_modules/.cache"
+    "clean": "rm -rf storybook-static .turbo node_modules/.cache",
+    "deploy:vimage": "./deploy/deploy-vimage.sh"
   },
   "dependencies": {
     "@fontsource/bricolage-grotesque": "^5.2.8",
