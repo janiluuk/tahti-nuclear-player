@@ -156,6 +156,7 @@ const PRONOUN_OPTIONS: SelectOption[] = [
 const ARTIST_ROLE_OPTIONS = [
   ['producer', 'Producer'],
   ['dj', 'DJ'],
+  ['band', 'Band'],
   ['live-performer', 'Live performer'],
   ['instrumentalist', 'Instrumentalist'],
   ['singer', 'Singer / vocalist'],

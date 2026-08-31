@@ -1,5 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
+  ChevronDownIcon,
   HistoryIcon,
   ListMusicIcon,
   PauseIcon,
@@ -7,6 +8,7 @@ import {
   PlusIcon,
   RadioIcon,
   RadioTowerIcon,
+  SlidersHorizontalIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -59,6 +61,16 @@ import { HistoryView } from './HistoryView';
 
 export type ListenTab = 'listen' | 'feed' | 'history';
 
+// 'dj'/'producer'/'band' match the artist's self-selected roles
+// (ARTIST_ROLE_OPTIONS in views/settings/SettingsPanels.tsx); 'radio-host'
+// is computed instead — see ChannelDirectoryItem.hasActiveShows.
+const ARTIST_TYPE_OPTIONS = [
+  { id: 'dj', label: 'DJ' },
+  { id: 'producer', label: 'Producer' },
+  { id: 'band', label: 'Band' },
+  { id: 'radio-host', label: 'Radio host' },
+] as const;
+
 export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
   const navigate = useNavigate();
   const [items, setItems] = useState<ChannelDirectoryItem[]>([]);
@@ -67,7 +79,9 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [genre, setGenre] = useState('all');
+  const [artistType, setArtistType] = useState('all');
   const [activeOnly, setActiveOnly] = useState(false);
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
   const [radioPresets, setRadioPresets] = useState<
     EnabledInternetRadioPreset[]
@@ -176,6 +190,16 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
         ) {
           return false;
         }
+        if (artistType === 'radio-host' && !ch.hasActiveShows) {
+          return false;
+        }
+        if (
+          artistType !== 'all' &&
+          artistType !== 'radio-host' &&
+          !(ch.artistRoles ?? []).includes(artistType)
+        ) {
+          return false;
+        }
         if (!q) {
           return true;
         }
@@ -193,7 +217,7 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
         }
         return a.displayName.localeCompare(b.displayName);
       });
-  }, [items, query, genre, activeOnly]);
+  }, [items, query, genre, artistType, activeOnly]);
 
   const playNow = async (slug: string) => {
     const { playable } = await fetchChannel(slug);
@@ -229,6 +253,25 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
     ],
     [genres, items.length],
   );
+
+  const artistTypeChipItems = useMemo(
+    () => [
+      { id: 'all', label: `All types` },
+      ...ARTIST_TYPE_OPTIONS.map((option) => ({
+        id: option.id,
+        label: `${option.label} (${
+          option.id === 'radio-host'
+            ? items.filter((ch) => ch.hasActiveShows).length
+            : items.filter((ch) => (ch.artistRoles ?? []).includes(option.id))
+                .length
+        })`,
+      })),
+    ],
+    [items],
+  );
+
+  const activeFilterCount =
+    (genre !== 'all' ? 1 : 0) + (artistType !== 'all' ? 1 : 0);
 
   const radioLogo =
     radio?.user.avatarUrl ?? radio?.nowPlaying?.artworkUrl ?? null;
@@ -529,39 +572,76 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
 
             <SectionShell title={signedIn ? 'Discover artists' : 'Artists'}>
               <div className="flex flex-col gap-4">
-                <Input
-                  label="Search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Artist name, username, genre…"
-                  className="max-w-md"
-                />
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    aria-pressed={activeOnly}
-                    onClick={() => setActiveOnly((prev) => !prev)}
-                    className={`inline-flex cursor-pointer items-center justify-center rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
-                      activeOnly
-                        ? 'bg-foreground text-background border-foreground'
-                        : 'border-border text-foreground hover:bg-foreground/10 bg-transparent'
-                    }`}
-                  >
-                    Active now ({items.filter(isDirectoryArtistActive).length})
-                  </button>
-                  {genres.length > 0 && (
-                    <FilterChips
-                      items={chipItems}
-                      selected={genre}
-                      onChange={setGenre}
+                <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3 sm:p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Input
+                      label="Search"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Artist name, username, genre…"
+                      className="min-w-48 flex-1"
                     />
-                  )}
-                </div>
+                    <button
+                      type="button"
+                      aria-pressed={activeOnly}
+                      onClick={() => setActiveOnly((prev) => !prev)}
+                      className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
+                        activeOnly
+                          ? 'bg-foreground text-background border-foreground'
+                          : 'border-border text-foreground hover:bg-foreground/10 bg-transparent'
+                      }`}
+                    >
+                      Active now ({items.filter(isDirectoryArtistActive).length}
+                      )
+                    </button>
+                    <button
+                      type="button"
+                      aria-expanded={filtersExpanded}
+                      onClick={() => setFiltersExpanded((prev) => !prev)}
+                      className="border-border text-foreground-secondary hover:text-foreground inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium transition-colors"
+                    >
+                      <SlidersHorizontalIcon size={14} aria-hidden />
+                      Filters
+                      {activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+                      <ChevronDownIcon
+                        size={14}
+                        aria-hidden
+                        className={`transition-transform ${filtersExpanded ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                  </div>
 
-                <p className="text-foreground-secondary text-xs">
-                  Showing {filtered.length} of {items.length} artists
-                </p>
+                  {filtersExpanded && (
+                    <div className="border-border flex flex-col gap-3 border-t pt-3">
+                      <div>
+                        <p className="text-foreground-secondary mb-1.5 text-xs font-semibold tracking-wide uppercase">
+                          Artist type
+                        </p>
+                        <FilterChips
+                          items={artistTypeChipItems}
+                          selected={artistType}
+                          onChange={setArtistType}
+                        />
+                      </div>
+                      {genres.length > 0 && (
+                        <div>
+                          <p className="text-foreground-secondary mb-1.5 text-xs font-semibold tracking-wide uppercase">
+                            Genre
+                          </p>
+                          <FilterChips
+                            items={chipItems}
+                            selected={genre}
+                            onChange={setGenre}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <p className="text-foreground-secondary text-xs">
+                    Showing {filtered.length} of {items.length} artists
+                  </p>
+                </div>
 
                 {loading ? (
                   <PageLoading label="Loading artists…" />

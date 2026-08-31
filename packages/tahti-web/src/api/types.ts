@@ -8,6 +8,12 @@ export type ChannelDirectoryItem = {
   isActive?: boolean;
   /** Older alias; prefer `isActive`. */
   live?: boolean;
+  /** Self-selected artist roles (dj/producer/band/etc) — see
+   * ARTIST_ROLE_OPTIONS in views/settings/SettingsPanels.tsx. */
+  artistRoles?: string[];
+  /** True while the channel is live right now — the directory's "radio
+   * host" filter is defined as having an active running show. */
+  hasActiveShows?: boolean;
 };
 
 export function isDirectoryArtistActive(item: ChannelDirectoryItem): boolean {
@@ -64,6 +70,9 @@ export type PublicChannel = {
     foreground?: string;
     muted?: string;
   } | null;
+  /** Now-playing title/artist overlay layout — see
+   * content/nowPlayingOverlayPresets.ts. Defaults to 'classic' when unset. */
+  nowPlayingOverlayStyle?: string | null;
   user: {
     username: string;
     displayName: string;

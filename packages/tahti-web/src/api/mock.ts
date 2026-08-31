@@ -1,3 +1,4 @@
+import { getMockNowPlayingOverlayStyle } from './channel-design';
 import { getMockFreeSubscriptionsEnabled } from './mock-profile-preferences';
 import type {
   Announcement,
@@ -335,6 +336,18 @@ const STATION_CONTENT: Record<string, StationContent> = {
   },
 };
 
+// Deterministic demo roles so the directory's DJ/Producer/Band filter chips
+// have something to actually filter in mock mode.
+const MOCK_ARTIST_ROLES: Record<string, string[]> = {
+  'northern-lights': ['producer'],
+  'midnight-cartography': ['dj'],
+  'tundra-static': ['band'],
+  'saimaa-sessions': ['producer', 'dj'],
+  'kaiku-collective': ['band'],
+  'valo-radio': ['dj'],
+  'dj-moonlight': ['dj'],
+};
+
 const MOCK_DIRECTORY: ChannelDirectoryResponse = {
   items: Object.entries(STATION_CONTENT).map(([slug, s]) => ({
     slug,
@@ -343,6 +356,8 @@ const MOCK_DIRECTORY: ChannelDirectoryResponse = {
     avatarUrl: s.avatarUrl ?? null,
     genres: s.genres,
     isActive: LIVE_SLUGS.has(slug),
+    artistRoles: MOCK_ARTIST_ROLES[slug] ?? [],
+    hasActiveShows: LIVE_SLUGS.has(slug),
   })),
   // tahti-radio is featured via fetchRadioStation on Listen — not listed here.
 };
@@ -440,6 +455,12 @@ export function mockChannel(slug: string): PublicChannel {
       foreground: '#F8FAFC',
       muted: '#64748B',
     },
+    // The rest of this mock is a per-slug fabrication, disconnected from
+    // channel-design.ts's own mock state — nowPlayingOverlayStyle is the one
+    // field wired to the artist's actual saved Channel Designer pick, so the
+    // preset selector is demonstrable end-to-end without touching every
+    // other (pre-existing, unrelated) hardcoded field here.
+    nowPlayingOverlayStyle: getMockNowPlayingOverlayStyle(),
     user: {
       username: slug,
       displayName: isRadio ? 'Tahti Radio' : content.displayName,
