@@ -539,8 +539,19 @@ type ServicePlugin = {
   action: ServiceAction;
 };
 
+// 'url' and 'radio' are paste-a-link tools (capabilities.import: false —
+// they seed a smart-link target / play a stream, not pull tracks into the
+// archive), so they don't belong in this "services you can pull tracks and
+// albums in from" list. They remain fully reachable from the Sources page.
+const NON_IMPORT_TOOL_IDS = new Set<IntegrationId>(['url', 'radio']);
+
 const IMPORT_SERVICE_PLUGINS: ServicePlugin[] = importSourcePlugins
-  .filter((s) => IMPORT_SOURCE_KINDS.has(s.kind) && s.id !== 'hearthis')
+  .filter(
+    (s) =>
+      IMPORT_SOURCE_KINDS.has(s.kind) &&
+      s.id !== 'hearthis' &&
+      !NON_IMPORT_TOOL_IDS.has(s.id),
+  )
   .map((s) => ({
     id: s.id,
     name: s.name,

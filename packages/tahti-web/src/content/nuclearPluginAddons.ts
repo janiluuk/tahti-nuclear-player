@@ -1,3 +1,15 @@
+/**
+ * Ported from the live Nuclear plugin registry
+ * (https://cdn.jsdelivr.net/gh/NuclearPlayer/plugin-registry@master/plugins.json).
+ * `category` mirrors that registry's own `category` field (its taxonomy is
+ * `metadata | streaming | lyrics | scrobbling | dashboard | playlists |
+ * discovery | other`) so the tab list in NuclearPluginAddonsCategory, which
+ * derives its tabs from whatever categories are actually present here,
+ * never shows a category with zero entries. Re-run this port whenever the
+ * upstream registry changes; keep `status`/`fields`/`note`/`apiCounterpart`
+ * as the Tahti-side judgment call, not something the registry defines.
+ */
+
 export type NuclearPluginField = {
   id: string;
   label: string;
@@ -29,9 +41,9 @@ export type NuclearPluginAddon = {
 export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
   {
     id: 'discogs',
-    name: 'Discogs metadata',
+    name: 'Discogs',
     category: 'Metadata',
-    description: 'Look up release and artist metadata from Discogs.',
+    description: 'Fetch artist and album metadata from Discogs.',
     status: 'partial',
     statusLabel: 'Metadata tools available',
     fields: [
@@ -51,9 +63,10 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
   },
   {
     id: 'lastfm',
-    name: 'Last.fm scrobbler',
+    name: 'Last.fm',
     category: 'Scrobbling',
-    description: 'Scrobble played tracks and connect your Last.fm profile.',
+    description:
+      'Scrobble tracks and update Now Playing on your Last.fm profile.',
     status: 'planned',
     statusLabel: 'Configuration saved',
     fields: [
@@ -84,9 +97,10 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
   },
   {
     id: 'youtube',
-    name: 'YouTube streaming and playlists',
+    name: 'YouTube',
     category: 'Streaming',
-    description: 'Search YouTube and resolve videos or playlists for playback.',
+    description:
+      'A streaming provider that plays audio from YouTube using yt-dlp.',
     status: 'partial',
     statusLabel: 'Embeds available',
     fields: [
@@ -107,9 +121,8 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
   {
     id: 'bandcamp',
     name: 'Bandcamp',
-    category: 'Artist tools',
-    description:
-      'Connect Bandcamp and import your own releases into the Tahti archive.',
+    category: 'Metadata',
+    description: 'Browse and play music from Bandcamp.',
     status: 'available',
     statusLabel: 'Importer available',
     fields: [
@@ -129,9 +142,8 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
   {
     id: 'soundcloud',
     name: 'SoundCloud',
-    category: 'Artist tools',
-    description:
-      'Connect SoundCloud and import your own downloadable tracks into the Tahti archive.',
+    category: 'Streaming',
+    description: 'Browse and play music from SoundCloud.',
     status: 'available',
     statusLabel: 'Importer available',
     fields: [
@@ -149,41 +161,10 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     },
   },
   {
-    id: 'omnisource',
-    name: 'OmniSource',
-    category: 'Streaming',
-    description:
-      'A provider aggregation layer for source discovery and playback.',
-    status: 'planned',
-    statusLabel: 'Configuration saved',
-    fields: [],
-    note: 'No Tahti-compatible OmniSource API contract is currently available. This entry documents the plugin without enabling unverified playback.',
-    apiCounterpart: {
-      status: 'missing',
-      routes: [],
-      note: 'Do not expose playback until a provider contract and permission model exist.',
-    },
-  },
-  {
-    id: 'musicbrainz',
-    name: 'MusicBrainz metadata',
-    category: 'Metadata',
-    description: 'Search MusicBrainz artist and release metadata.',
-    status: 'partial',
-    statusLabel: 'Fingerprinting available',
-    fields: [],
-    note: 'AcoustID fingerprint matching is available in Studio. A general Nuclear-style MusicBrainz search provider is not exposed by the Tahti API.',
-    apiCounterpart: {
-      status: 'partial',
-      routes: ['/api/me/archive/:id/fingerprint'],
-      note: 'Fingerprint matching exists; standalone artist and album provider search remains unimplemented.',
-    },
-  },
-  {
     id: 'spotify',
-    name: 'Spotify metadata',
+    name: 'Spotify',
     category: 'Metadata',
-    description: 'Search Spotify tracks and connect artist metadata.',
+    description: 'Fetch artist, album, and track metadata from Spotify.',
     status: 'partial',
     statusLabel: 'Search/import available',
     fields: [],
@@ -195,9 +176,57 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     },
   },
   {
+    id: 'deezer-dashboard',
+    name: 'Deezer Dashboard',
+    category: 'Dashboard',
+    description:
+      'Charts, trending artists, editorial playlists, and new releases from Deezer.',
+    status: 'planned',
+    statusLabel: 'API contract needed',
+    fields: [],
+    note: 'No Tahti dashboard-widget or provider route currently exposes Deezer catalogue data.',
+    apiCounterpart: {
+      status: 'missing',
+      routes: [],
+      note: 'Add a public, rate-limited discovery contract before implementing the dashboard.',
+    },
+  },
+  {
+    id: 'musicbrainz',
+    name: 'MusicBrainz',
+    category: 'Metadata',
+    description:
+      'Search, artist pages, and album details from MusicBrainz with Wikipedia bios and Cover Art Archive artwork.',
+    status: 'partial',
+    statusLabel: 'Fingerprinting available',
+    fields: [],
+    note: 'AcoustID fingerprint matching is available in Studio. A general Nuclear-style MusicBrainz search provider is not exposed by the Tahti API.',
+    apiCounterpart: {
+      status: 'partial',
+      routes: ['/api/me/archive/:id/fingerprint'],
+      note: 'Fingerprint matching exists; standalone artist and album provider search remains unimplemented.',
+    },
+  },
+  {
+    id: 'listenbrainz-dashboard',
+    name: 'ListenBrainz Dashboard',
+    category: 'Dashboard',
+    description:
+      'Charts, trending artists, top albums, and new releases from ListenBrainz.',
+    status: 'planned',
+    statusLabel: 'API contract needed',
+    fields: [],
+    note: 'The Tahti API has no ListenBrainz discovery route or widget contract yet.',
+    apiCounterpart: {
+      status: 'missing',
+      routes: [],
+      note: 'A discovery endpoint and account/privacy model are required.',
+    },
+  },
+  {
     id: 'youtube-playlists',
-    name: 'YouTube playlists',
-    category: 'Playlists',
+    name: 'YouTube Playlists',
+    category: 'Other',
     description: 'Import YouTube playlists by URL.',
     status: 'planned',
     statusLabel: 'API contract needed',
@@ -210,40 +239,10 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     },
   },
   {
-    id: 'deezer-dashboard',
-    name: 'Deezer dashboard',
-    category: 'Discovery',
-    description: 'Browse Deezer charts, playlists, and new releases.',
-    status: 'planned',
-    statusLabel: 'API contract needed',
-    fields: [],
-    note: 'No Tahti dashboard-widget or provider route currently exposes Deezer catalogue data.',
-    apiCounterpart: {
-      status: 'missing',
-      routes: [],
-      note: 'Add a public, rate-limited discovery contract before implementing the dashboard.',
-    },
-  },
-  {
-    id: 'listenbrainz-dashboard',
-    name: 'ListenBrainz dashboard',
-    category: 'Discovery',
-    description: 'Browse ListenBrainz charts and new releases.',
-    status: 'planned',
-    statusLabel: 'API contract needed',
-    fields: [],
-    note: 'The Tahti API has no ListenBrainz discovery route or widget contract yet.',
-    apiCounterpart: {
-      status: 'missing',
-      routes: [],
-      note: 'A discovery endpoint and account/privacy model are required.',
-    },
-  },
-  {
     id: 'khinsider',
     name: 'KHInsider',
     category: 'Metadata',
-    description: 'Browse and play video-game soundtracks from KHInsider.',
+    description: 'Browse and play video game soundtracks from KHInsider.',
     status: 'planned',
     statusLabel: 'Not targeted for Tahti',
     fields: [],
@@ -255,24 +254,41 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     },
   },
   {
-    id: 'netease',
-    name: 'NetEase Cloud Music',
+    id: 'omnisource',
+    name: 'OmniSource',
     category: 'Streaming',
-    description: 'Search and stream NetEase Cloud Music through yt-dlp.',
+    description:
+      'Multi-source streaming and metadata: fans out searches to YouTube, SoundCloud, Bandcamp, and MusicBrainz in parallel with automatic scoring.',
     status: 'planned',
-    statusLabel: 'Not targeted for Tahti',
+    statusLabel: 'Configuration saved',
     fields: [],
-    note: 'Tahti does not currently expose a server-side yt-dlp provider contract for third-party catalogue playback.',
+    note: 'No Tahti-compatible OmniSource API contract is currently available. This entry documents the plugin without enabling unverified playback.',
     apiCounterpart: {
       status: 'missing',
       routes: [],
-      note: 'A rights-aware resolver and provider permission model are required.',
+      note: 'Do not expose playback until a provider contract and permission model exist.',
+    },
+  },
+  {
+    id: 'bandcamp-dashboard',
+    name: 'Bandcamp Dashboard',
+    category: 'Dashboard',
+    description:
+      "Browse Bandcamp's Album of the Day, New & Notable releases, and Bandcamp Weekly radio shows.",
+    status: 'planned',
+    statusLabel: 'API contract needed',
+    fields: [],
+    note: "No Tahti dashboard-widget or provider route currently exposes Bandcamp's editorial picks.",
+    apiCounterpart: {
+      status: 'missing',
+      routes: [],
+      note: 'Add a public discovery contract before implementing the dashboard.',
     },
   },
   {
     id: 'media-session',
     name: 'MediaSession',
-    category: 'Playback',
+    category: 'Other',
     description: 'Expose playback to OS media controls and headsets.',
     status: 'available',
     statusLabel: 'Ported in AudioEngine',
@@ -285,65 +301,8 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
     },
   },
   {
-    id: 'multicast-destinations',
-    name: 'Multicast destinations',
-    category: 'Streaming',
-    description: 'Configure destinations that mirror your live broadcast.',
-    status: 'available',
-    statusLabel: 'RTMP configuration available',
-    fields: [
-      {
-        id: 'provider',
-        label: 'Destination provider',
-        placeholder: 'Choose a provider',
-        kind: 'select',
-        options: [
-          { value: 'YOUTUBE', label: 'YouTube' },
-          { value: 'TWITCH', label: 'Twitch' },
-          { value: 'FACEBOOK', label: 'Facebook' },
-          { value: 'KICK', label: 'Kick' },
-          { value: 'TIKTOK', label: 'TikTok' },
-          { value: 'MIXCLOUD_LIVE', label: 'Mixcloud Live' },
-          { value: 'INSTAGRAM', label: 'Instagram' },
-          { value: 'CUSTOM', label: 'Custom RTMP' },
-        ],
-        description:
-          'Choose the service receiving the mirrored broadcast. Provider-specific ingest details are validated in the Multicast add-on.',
-      },
-      {
-        id: 'label',
-        label: 'Destination label',
-        placeholder: 'Main live stream',
-        description: 'A private label to identify this destination in Go Live.',
-      },
-      {
-        id: 'streamKey',
-        label: 'Stream key',
-        placeholder: 'Paste the provider stream key',
-        kind: 'password',
-        secret: true,
-        description:
-          'Stored only in the configured destination. Never share this key publicly.',
-      },
-      {
-        id: 'rtmpUrl',
-        label: 'Custom RTMP address',
-        placeholder: 'rtmps://…',
-        kind: 'url',
-        description:
-          'Only needed for Custom RTMP; fixed-provider ingest addresses are supplied automatically.',
-      },
-    ],
-    note: 'The shared Multicast add-on already supports provider selection, credentials, activation, and deactivation. This Nuclear catalog entry exposes the same configuration vocabulary for plugin discovery.',
-    apiCounterpart: {
-      status: 'implemented',
-      routes: ['/api/me/rtmp-targets'],
-      note: 'Configured targets are stored and managed by the existing RTMP target API and shared MulticastDestinationForm.',
-    },
-  },
-  {
     id: 'youtube-liked-songs-sync',
-    name: 'YouTube liked songs sync',
+    name: 'YouTube Liked Songs Sync',
     category: 'Playlists',
     description: 'Sync YouTube Music liked songs into local playlists.',
     status: 'planned',
@@ -393,6 +352,38 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
       status: 'missing',
       routes: [],
       note: 'The upstream plugin uses private YouTube Music request headers and Nuclear local-playlist APIs. Tahti still needs a secure server-side sync endpoint before enabling this action.',
+    },
+  },
+  {
+    id: 'soundcloud-dashboard',
+    name: 'SoundCloud Dashboard',
+    category: 'Dashboard',
+    description:
+      'Charts and editorial picks from SoundCloud, or your own likes, follows, listening history and personalised recommendations.',
+    status: 'planned',
+    statusLabel: 'API contract needed',
+    fields: [],
+    note: 'No Tahti dashboard-widget or provider route currently exposes SoundCloud charts, editorial picks, or personalized recommendations.',
+    apiCounterpart: {
+      status: 'missing',
+      routes: [],
+      note: 'Add a public, rate-limited discovery contract before implementing the dashboard.',
+    },
+  },
+  {
+    id: 'netease',
+    name: 'NetEase Cloud Music',
+    category: 'Metadata',
+    description:
+      'Search, browse, and stream music from NetEase Cloud Music using yt-dlp.',
+    status: 'planned',
+    statusLabel: 'Not targeted for Tahti',
+    fields: [],
+    note: 'Tahti does not currently expose a server-side yt-dlp provider contract for third-party catalogue playback.',
+    apiCounterpart: {
+      status: 'missing',
+      routes: [],
+      note: 'A rights-aware resolver and provider permission model are required.',
     },
   },
 ];

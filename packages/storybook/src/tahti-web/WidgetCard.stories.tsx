@@ -1,0 +1,96 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { WidgetCard } from '@tahti-web/components/discover/WidgetCard';
+
+import { withTahtiRouter } from './_lib/decorators';
+
+const meta: Meta<typeof WidgetCard> = {
+  title: 'Tahti/Discover/WidgetCard',
+  component: WidgetCard,
+  parameters: { layout: 'padded' },
+  tags: ['autodocs'],
+  decorators: [withTahtiRouter('/discover')],
+  args: {
+    onMove: () => {},
+    onRemove: () => {},
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+const tracks = [
+  {
+    id: 'archive:track-1',
+    title: 'Tundra Static',
+    artist: 'Northern Lights',
+    channelSlug: 'northern-lights',
+    coverUrl: null,
+    audioUrl: 'https://example.com/demo.mp3',
+    listens: 4213,
+  },
+  {
+    id: 'archive:track-2',
+    title: 'Aurora Drift',
+    artist: 'Kasari',
+    channelSlug: 'kasari',
+    coverUrl: null,
+    audioUrl: 'https://example.com/demo.mp3',
+    listens: 1892,
+  },
+];
+
+export const RankedList: Story = {
+  args: {
+    id: 'this-week-most-played',
+    title: 'Most played this week',
+    loading: false,
+    items: tracks,
+    showRank: true,
+    emptyMessage: 'No plays yet this week.',
+    canMoveUp: false,
+    canMoveDown: true,
+  },
+};
+
+export const ArtistOfTheWeek: Story = {
+  args: {
+    id: 'artist-of-the-week',
+    title: 'Artist of the week',
+    loading: false,
+    items: [],
+    artist: {
+      username: 'northern-lights',
+      displayName: 'Northern Lights',
+      bio: 'Ambient / downtempo, streaming most weeknights.',
+      avatarUrl: null,
+      channelSlug: 'northern-lights',
+    },
+    emptyMessage: 'No artist picked yet.',
+    canMoveUp: true,
+    canMoveDown: false,
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    id: 'latest-tracks',
+    title: 'Latest tracks',
+    loading: true,
+    items: [],
+    emptyMessage: 'No tracks yet.',
+    canMoveUp: true,
+    canMoveDown: true,
+  },
+};
+
+export const Empty: Story = {
+  args: {
+    id: 'loved',
+    title: 'Loved',
+    loading: false,
+    items: [],
+    emptyMessage: 'Love a track to see it here.',
+    canMoveUp: true,
+    canMoveDown: true,
+  },
+};

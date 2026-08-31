@@ -147,7 +147,26 @@ const locations: ElementLocation[] = [
   {
     element: 'DiscoWidgetManagerPanel',
     kind: 'Component',
-    pages: 'Studio → Manage → Channel, Admin → Disco widgets',
+    pages:
+      'Settings → Add-ons (listener scope), Studio → Manage → Channel (artist scope)',
+  },
+  {
+    element: 'AdminDiscoWidgetsView',
+    kind: 'View',
+    pages:
+      'Admin → Disco-widgets — registers/edits/deletes the catalog DiscoWidgetManagerPanel installs from',
+  },
+  {
+    element: 'ChannelView',
+    kind: 'View',
+    pages:
+      'Channel — assembles the eight Channel Designer blocks (hero, actions, archive, chat, about, links, textOverlay, subscribe)',
+  },
+  {
+    element: 'WidgetCard / WidgetTrackRow',
+    kind: 'Component',
+    pages:
+      'Discover — one of seven curated content widgets (see DiscoverWidgetId in discoverStore.ts); unrelated to Disco-widgets/DiscoWidgetsSection despite the name',
   },
   { element: 'ListenerWidgetsSection', kind: 'Component', pages: 'Listen' },
   {
