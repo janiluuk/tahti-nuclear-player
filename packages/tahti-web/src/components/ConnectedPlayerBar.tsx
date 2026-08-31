@@ -1,4 +1,4 @@
-import { ChevronsDownIcon, ChevronsUpIcon, Maximize2Icon } from 'lucide-react';
+import { ListMusicIcon, Maximize2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { formatArtistNames } from '@nuclearplayer/model';
@@ -170,7 +170,7 @@ export function ConnectedPlayerBar() {
             {queueMounted ? (
               <div
                 className={cn(
-                  'bg-background-secondary/50 w-full rounded-lg backdrop-blur-sm transition-all duration-200 ease-out',
+                  'w-full transition-all duration-200 ease-out',
                   queueVisible
                     ? 'translate-y-0 opacity-100'
                     : '-translate-y-1 opacity-0',
@@ -207,13 +207,6 @@ export function ConnectedPlayerBar() {
                 size="icon-sm"
                 variant={queueOpen ? 'secondary' : 'text'}
                 onClick={() => setBottomQueueOpen(!queueOpen)}
-                title={
-                  queueOpen
-                    ? 'Collapse queue'
-                    : queue.length > 1
-                      ? `Expand queue · ${queue.length} in queue`
-                      : 'Expand queue'
-                }
                 aria-label={
                   queueOpen
                     ? 'Collapse queue'
@@ -226,11 +219,7 @@ export function ConnectedPlayerBar() {
                   queueOpen ? 'close-bottom-queue' : 'open-bottom-queue'
                 }
               >
-                {queueOpen ? (
-                  <ChevronsDownIcon size={16} />
-                ) : (
-                  <ChevronsUpIcon size={16} />
-                )}
+                <ListMusicIcon size={16} />
               </Button>
               {queue.length > 1 ? (
                 <span className="bg-primary text-primary-foreground pointer-events-none absolute -top-0.5 -right-0.5 min-w-4 rounded-full px-1 text-center text-[9px] font-bold tabular-nums">

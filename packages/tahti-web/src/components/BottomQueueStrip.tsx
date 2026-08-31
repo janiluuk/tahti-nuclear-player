@@ -1,4 +1,4 @@
-import { Trash2Icon, XIcon } from 'lucide-react';
+import { ListMusicIcon, Trash2Icon, XIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { formatArtistNames } from '@nuclearplayer/model';
@@ -81,9 +81,10 @@ export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
       <div className="flex w-full min-w-0 items-center gap-2">
         <div className="flex h-11 min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
           {queue.length === 0 ? (
-            <span className="text-foreground-secondary px-2 text-xs">
-              Queue is empty
-            </span>
+            <div className="text-foreground-secondary flex items-center gap-2 px-2 text-xs">
+              <ListMusicIcon size={16} aria-hidden />
+              <span>Nothing queued — add tracks to line them up here.</span>
+            </div>
           ) : (
             queue.map((item, index) => (
               <QueueChip
