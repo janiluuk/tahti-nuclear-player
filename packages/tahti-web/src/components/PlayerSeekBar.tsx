@@ -35,7 +35,10 @@ export function ConnectedSeekBar({ className }: { className?: string }) {
  * to show — occupies the same slot (so the layout doesn't jump when
  * switching between live and on-demand playback) but renders no track,
  * just a small translucent "Live" badge anchored to the left corner where
- * the seek bar's elapsed-time label would otherwise sit. */
+ * the seek bar's elapsed-time label would otherwise sit. Used by the
+ * full-screen player, which has room to spare; the compact bottom bar uses
+ * PlayerLiveBadge instead, inline, so live playback doesn't reserve a
+ * whole extra row it doesn't need. */
 export function PlayerLiveIndicator({ className }: { className?: string }) {
   return (
     <div className={cn('relative h-6 w-full', className)}>
@@ -47,5 +50,26 @@ export function PlayerLiveIndicator({ className }: { className?: string }) {
         Live
       </div>
     </div>
+  );
+}
+
+/** Compact "rec light" for the bottom player bar's own NowPlaying row —
+ * just the blinking dot plus label, sized to sit inline next to the
+ * title/artist instead of claiming a full-width row above the bar (see
+ * PlayerLiveIndicator, used where that room already exists). */
+export function PlayerLiveBadge({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        'border-accent-red/40 bg-accent-red/10 text-accent-red inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase',
+        className,
+      )}
+    >
+      <span
+        className="bg-accent-red size-1.5 rounded-full motion-safe:animate-pulse"
+        aria-hidden
+      />
+      Live
+    </span>
   );
 }

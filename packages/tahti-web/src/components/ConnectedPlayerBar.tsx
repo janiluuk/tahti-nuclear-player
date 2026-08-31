@@ -10,7 +10,7 @@ import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { BottomQueueStrip } from './BottomQueueStrip';
 import { HearthisEmbedSurface } from './HearthisEmbedSurface';
-import { ConnectedSeekBar, PlayerLiveIndicator } from './PlayerSeekBar';
+import { ConnectedSeekBar, PlayerLiveBadge } from './PlayerSeekBar';
 
 const QUEUE_ANIMATION_MS = 200;
 
@@ -117,11 +117,7 @@ export function ConnectedPlayerBar() {
 
   return (
     <div className="flex w-full flex-col">
-      {isLive ? (
-        <PlayerLiveIndicator className="px-4" />
-      ) : (
-        <ConnectedSeekBar className="px-4" />
-      )}
+      {isLive ? null : <ConnectedSeekBar className="px-4" />}
       {hearthisEmbed ? (
         <div className="bg-background-secondary px-4 py-2">
           <HearthisEmbedSurface
@@ -149,6 +145,7 @@ export function ConnectedPlayerBar() {
                 coverUrl={
                   playable?.coverUrl ?? current?.track.artwork?.items[0]?.url
                 }
+                action={isLive ? <PlayerLiveBadge /> : undefined}
               />
               {archiveItemId && playable && (
                 <AddToPlaylistButton
