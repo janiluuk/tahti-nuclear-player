@@ -79,7 +79,7 @@ export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
       data-testid="bottom-queue"
     >
       <div className="flex w-full min-w-0 items-center gap-2">
-        <div className="flex h-11 min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
+        <div className="flex h-11 min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {queue.length === 0 ? (
             <div className="text-foreground-secondary flex items-center gap-2 px-2 text-xs">
               <ListMusicIcon size={16} aria-hidden />
