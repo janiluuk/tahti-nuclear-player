@@ -229,11 +229,17 @@ export function TrackDetailView({ id }: { id: string }) {
         muted: channel.colorScheme.muted,
       }
     : undefined;
-  // Per-track backdrop image, set in Studio's track editor (Backdrop
-  // field) — falls back to a gradient built from the track's own cover art
-  // (blurred cover + a radial gradient tinted by its dominant color) when
-  // the artist hasn't set one, rather than always requiring an upload.
-  const hasExplicitBackdrop = isHeaderImageUrl(detail?.backgroundUrl);
+  // Per-track backdrop, set in Studio's track editor: a single image, a
+  // gallery slideshow (same STATIC_SLIDESHOW mode + first-frame fidelity
+  // as the public channel page — see ChannelView.tsx), or, when neither is
+  // set, the animated visualizer over a gradient built from the track's
+  // own cover art (blurred cover + a radial gradient tinted by its
+  // dominant color).
+  const showBackdropImage = isHeaderImageUrl(detail?.backgroundUrl);
+  const showBackdropSlideshow =
+    !showBackdropImage &&
+    detail?.galleryMode === 'STATIC_SLIDESHOW' &&
+    Boolean(detail?.slideshowUrls?.[0]);
   const ambient = rgb
     ? `radial-gradient(circle at 20% 10%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.55), transparent 55%), radial-gradient(circle at 80% 0%, rgba(${rgb[2]}, ${rgb[0]}, ${rgb[1]}, 0.35), transparent 50%)`
     : undefined;
@@ -345,9 +351,15 @@ export function TrackDetailView({ id }: { id: string }) {
       data-testid="track-listen-page"
     >
       <section className="relative overflow-hidden px-6 pt-8 pb-6 md:px-10">
-        {hasExplicitBackdrop ? (
+        {showBackdropImage ? (
           <img
             src={detail?.backgroundUrl ?? undefined}
+            alt=""
+            className="pointer-events-none absolute inset-0 size-full object-cover"
+          />
+        ) : showBackdropSlideshow ? (
+          <img
+            src={detail?.slideshowUrls?.[0]}
             alt=""
             className="pointer-events-none absolute inset-0 size-full object-cover"
           />

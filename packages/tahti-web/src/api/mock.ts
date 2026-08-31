@@ -677,9 +677,11 @@ export function mockTrackDetail(id: string): PublicTrackDetail | null {
         : null,
     bannerUrl: item.bannerUrl ?? null,
     // No raster (jpg/png/webp) mock assets exist to demo a real per-track
-    // backdrop image — mock tracks always fall back to the cover-art
-    // gradient, same as any real track that hasn't had one uploaded yet.
+    // backdrop image/slideshow — mock tracks always fall back to the
+    // cover-art gradient, same as any real track that hasn't set one.
     backgroundUrl: null,
+    slideshowUrls: [],
+    galleryMode: 'NONE',
     genre: item.genre ?? null,
     subGenres: [],
     contentType: isSet ? 'DJ_MIX' : 'STUDIO',

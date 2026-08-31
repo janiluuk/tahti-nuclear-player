@@ -142,6 +142,10 @@ export type PublicTrackDetail = {
    * player hero when present; falls back to a gradient built from the
    * cover art otherwise. */
   backgroundUrl?: string | null;
+  /** Gallery images for the track page backdrop when `galleryMode` is
+   * STATIC_SLIDESHOW — same shape as the channel page's own gallery. */
+  slideshowUrls?: string[];
+  galleryMode?: string | null;
   genre: string | null;
   subGenres: string[];
   contentType: string;
