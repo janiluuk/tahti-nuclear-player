@@ -10,7 +10,7 @@ import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { BottomQueueStrip } from './BottomQueueStrip';
 import { HearthisEmbedSurface } from './HearthisEmbedSurface';
-import { ConnectedSeekBar } from './PlayerSeekBar';
+import { ConnectedSeekBar, PlayerLiveIndicator } from './PlayerSeekBar';
 
 const QUEUE_ANIMATION_MS = 200;
 
@@ -118,13 +118,7 @@ export function ConnectedPlayerBar() {
   return (
     <div className="flex w-full flex-col">
       {isLive ? (
-        <div className="text-accent-red flex items-center justify-center gap-1.5 px-4 py-1 text-xs font-semibold tracking-wide uppercase">
-          <span
-            className="bg-accent-red size-2 rounded-full motion-safe:animate-pulse"
-            aria-hidden
-          />
-          Live
-        </div>
+        <PlayerLiveIndicator className="px-4" />
       ) : (
         <ConnectedSeekBar className="px-4" />
       )}

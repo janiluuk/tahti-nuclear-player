@@ -11,7 +11,7 @@ import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { HearthisEmbedSurface } from './HearthisEmbedSurface';
-import { ConnectedSeekBar } from './PlayerSeekBar';
+import { ConnectedSeekBar, PlayerLiveIndicator } from './PlayerSeekBar';
 
 const ANIMATION_MS = 280;
 
@@ -205,13 +205,7 @@ export function FullScreenPlayer() {
               Error
             </div>
           ) : isLive ? (
-            <div className="text-accent-red flex items-center justify-center gap-2 text-sm font-semibold tracking-wide uppercase">
-              <span
-                className="bg-accent-red size-2.5 rounded-full motion-safe:animate-pulse"
-                aria-hidden
-              />
-              Live
-            </div>
+            <PlayerLiveIndicator />
           ) : (
             <div className="w-full">
               <ConnectedSeekBar />
