@@ -138,6 +138,10 @@ export type PublicTrackDetail = {
   embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | 'BANDCAMP' | null;
   embedUri?: string | null;
   bannerUrl: string | null;
+  /** Wide backdrop image set in Studio's track editor — shown behind the
+   * player hero when present; falls back to a gradient built from the
+   * cover art otherwise. */
+  backgroundUrl?: string | null;
   genre: string | null;
   subGenres: string[];
   contentType: string;

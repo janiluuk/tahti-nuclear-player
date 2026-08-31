@@ -15,11 +15,11 @@ import type {
   PublicCollection,
   TahtiPlayable,
 } from '../api/types';
+import { CollectionTrackList } from '../components/CollectionTrackList';
 import { EmbedButton } from '../components/EmbedButton';
 import { EmbedTrackRow } from '../components/EmbedTrackRow';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
-import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import type { EmbedProvider } from '../lib/embedSrc';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
@@ -248,7 +248,7 @@ export function CollectionView({
         </div>
       </div>
 
-      {playables.length > 0 && <PlayableTrackTable items={playables} />}
+      {playables.length > 0 && <CollectionTrackList items={playables} />}
 
       {embedItems.length > 0 && (
         <section className="flex flex-col gap-2">

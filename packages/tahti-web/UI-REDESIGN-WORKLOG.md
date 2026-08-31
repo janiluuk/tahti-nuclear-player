@@ -1,5 +1,15 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-31 — Next three product slices
+
+**Slice 1 — Track detail backdrops:** Track detail pages now use the backdrop image chosen in Studio when one exists, while tracks without one retain the cover-art ambience and visualizer treatment.
+
+**Slice 2 — Collection waveform rows:** Collection tracks now have individual artwork, transport controls, waveform seeking, playlist actions, favorites, and readable duration instead of a dense table-only presentation.
+
+**Slice 3 — Registry hand-offs:** YouTube playlist and SoundCloud dashboard entries now point people to the real Listen widgets that are available today, while unsupported import and dashboard capabilities remain clearly marked as partial instead of appearing falsely active.
+
+**Validation:** tahti-web type-check and formatting pass clean.
+
 ## 2026-08-31 — Backlog round 6: five slices closed
 
 Session also shared this working tree with concurrent activity mid-rewriting
@@ -2949,3 +2959,19 @@ Closes the one item explicitly deferred in round 6 ("Listen page: 'Add widget' b
 **Slice:** `ListenView.tsx` — added a signed-in-only "Add widget" `Button` (`PlusIcon`) above `ListenerWidgetsSection`, calling `useSettingsModalStore`'s `open('plugin-store', 'listen')`. This reuses the deep-link mechanism (`pluginCategory`) a concurrent session had already built into `settingsModalStore.ts`/`PluginStorePanel.tsx` — no new plumbing needed there. Necessary because `ListenerWidgetsSection` intentionally renders `null` until the listener has at least one widget/station/favorites enabled, so there was previously no discovery path into the addon store from the Listen page for a new user with nothing enabled yet; the existing "Manage widgets" link inside that section only appears after something is already on.
 
 **Validation:** `tsc --noEmit`, `eslint --fix` + `--max-warnings=0`, and `vitest run` (52 files, 299 tests) on `tahti-web` pass clean.
+
+## 2026-08-31 — Add-ons: real-feature hand-off for YouTube + Radio installed/available; bump to 0.0.11
+
+Closes the last item of the addon-consistency pass: every `apiCounterpart.status === 'partial'` Nuclear registry entry now points its Configure dialog at the real Tahti feature it duplicates, and every plugin-list category that has a meaningful installed/not-installed distinction now splits into Installed/Available tabs.
+
+**Slice 1:** `nuclearPluginAddons.ts`'s `youtube` entry gained a `realFeature` handing off to the real YouTube listener widget in Listen, matching the `discogs`/`spotify`/`musicbrainz` pattern from the previous round.
+
+**Slice 2:** `PluginStorePanel.tsx`'s `RadioCategory` (curated stations) gained the same Installed/Available tab split already applied to `ServiceCategory`, `NuclearPluginAddonsCategory`, and `ListenCategory`.
+
+**Slice 3:** `youtube-playlists` graduated from `planned`/`missing` to `partial`, with a `realFeature` hand-off to Listen — the YouTube widget's `toEmbedUrl` already resolves `youtube.com/playlist?list=…` and `watch?v=…&list=…` URLs into a real playlist embed; the registry entry was simply stale.
+
+**Slice 4:** `soundcloud-dashboard` graduated from `planned`/`missing` to `partial`, with a `realFeature` hand-off to Listen — the SoundCloud widget's profile-URL support (added earlier this round for artist profile embeds) is a real, honest stand-in for a personal dashboard (rolling feed of public tracks). Its note is explicit that charts/editorial-picks/personalized-recommendations remain unavailable, since SoundCloud doesn't expose those for public embedding — this is not a claim of full dashboard parity.
+
+**Slice 5:** Corrected `bandcamp-dashboard`'s note to explain, now that `soundcloud-dashboard` has a real embed path, why Bandcamp doesn't get the same treatment: it has no public profile/feed widget, only the per-track/per-album `EmbeddedPlayer` already exposed in Listen. Also updated `WORKPLAN.md`'s "Nuclear registry runtime parity" line to record which planned entries are still genuinely backend-blocked (`bandcamp-dashboard`, `deezer-dashboard`, `listenbrainz-dashboard`, `omnisource`, `youtube-liked-songs-sync`) versus the two that were resolved by an existing client-side embed.
+
+**Validation:** `tsc --noEmit`, `eslint --fix`, and `vitest run src --run` (52 files, 299 tests) on `tahti-web` pass clean; live-verified the Radio tab's Installed(0)/Available(8) split and Discogs's real-feature hand-off in the browser. Bumped `packages/tahti-web/package.json` to `0.0.11`.

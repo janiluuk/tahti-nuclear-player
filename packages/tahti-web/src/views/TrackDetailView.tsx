@@ -15,7 +15,10 @@ import { toast } from 'sonner';
 
 import { Button } from '@nuclearplayer/ui';
 
-import { resolvePublicVisualizerPreset } from '../api/channel-design';
+import {
+  isHeaderImageUrl,
+  resolvePublicVisualizerPreset,
+} from '../api/channel-design';
 import {
   fetchChannel,
   fetchProfile,
@@ -226,6 +229,11 @@ export function TrackDetailView({ id }: { id: string }) {
         muted: channel.colorScheme.muted,
       }
     : undefined;
+  // Per-track backdrop image, set in Studio's track editor (Backdrop
+  // field) — falls back to a gradient built from the track's own cover art
+  // (blurred cover + a radial gradient tinted by its dominant color) when
+  // the artist hasn't set one, rather than always requiring an upload.
+  const hasExplicitBackdrop = isHeaderImageUrl(detail?.backgroundUrl);
   const ambient = rgb
     ? `radial-gradient(circle at 20% 10%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.55), transparent 55%), radial-gradient(circle at 80% 0%, rgba(${rgb[2]}, ${rgb[0]}, ${rgb[1]}, 0.35), transparent 50%)`
     : undefined;
@@ -337,26 +345,36 @@ export function TrackDetailView({ id }: { id: string }) {
       data-testid="track-listen-page"
     >
       <section className="relative overflow-hidden px-6 pt-8 pb-6 md:px-10">
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={ambient ? { backgroundImage: ambient } : undefined}
-          aria-hidden
-        />
-        <img
-          src={cover}
-          alt=""
-          className="pointer-events-none absolute inset-0 size-full object-cover opacity-40 blur-3xl saturate-150"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-black/45" />
-        <div className="pointer-events-none absolute inset-0 opacity-40">
-          <ChannelVisualizer
-            preset={resolvePublicVisualizerPreset(channel?.visualPreset)}
-            colorScheme={visualScheme}
-            colorSchemeJson={channel?.colorSchemeJson}
-            artworkUrl={playable.coverUrl}
-            className="size-full"
+        {hasExplicitBackdrop ? (
+          <img
+            src={detail?.backgroundUrl ?? undefined}
+            alt=""
+            className="pointer-events-none absolute inset-0 size-full object-cover"
           />
-        </div>
+        ) : (
+          <>
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={ambient ? { backgroundImage: ambient } : undefined}
+              aria-hidden
+            />
+            <img
+              src={cover}
+              alt=""
+              className="pointer-events-none absolute inset-0 size-full object-cover opacity-40 blur-3xl saturate-150"
+            />
+            <div className="pointer-events-none absolute inset-0 opacity-40">
+              <ChannelVisualizer
+                preset={resolvePublicVisualizerPreset(channel?.visualPreset)}
+                colorScheme={visualScheme}
+                colorSchemeJson={channel?.colorSchemeJson}
+                artworkUrl={playable.coverUrl}
+                className="size-full"
+              />
+            </div>
+          </>
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-black/45" />
 
         <div className="relative z-10 flex flex-col gap-5 text-white">
           <div className="flex items-start gap-6">
