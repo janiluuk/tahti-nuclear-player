@@ -43,14 +43,14 @@ function RecordingRow({
     show.title || show.archiveItemTitle || `Show ${formatDate(show.startedAt)}`;
   const published = show.archiveItemStatus === 'READY';
 
-  return (
-    <li
-      className={`flex items-center gap-3 border-l-4 p-3 transition-colors ${
-        published
-          ? 'border-l-primary bg-primary/10'
-          : `border-l-transparent ${index % 2 === 0 ? 'bg-background-secondary/55' : 'bg-background'}`
-      }`}
-    >
+  const rowClassName = `flex items-center gap-3 border-l-4 p-3 transition-colors ${
+    published
+      ? 'border-l-primary bg-primary/10'
+      : `border-l-transparent ${index % 2 === 0 ? 'bg-background-secondary/55' : 'bg-background'}`
+  }`;
+
+  const details = (
+    <>
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium">{title}</div>
         <div className="text-foreground-secondary truncate text-xs">
@@ -69,18 +69,41 @@ function RecordingRow({
         {published && <CheckIcon size={12} aria-hidden />}
         {published ? 'Published' : 'Recorded'}
       </span>
+    </>
+  );
+
+  // A published show already has a playable ArchiveItem — clicking anywhere
+  // on the row opens its full player/waveform (StudioArchiveItemView), not
+  // just the small "Open" button. An unrecorded/unpublished show has no
+  // ArchiveItem to play yet, so it keeps a plain "Publish" action instead.
+  return (
+    <li>
       {show.archiveItemId ? (
-        <Link to="/studio/archive/$id" params={{ id: show.archiveItemId }}>
-          <Button size="sm" variant="secondary">
+        <Link
+          to="/studio/archive/$id"
+          params={{ id: show.archiveItemId }}
+          className={`${rowClassName} hover:bg-primary/15 focus-visible:ring-primary focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset`}
+        >
+          {details}
+          <Button
+            size="sm"
+            variant="secondary"
+            tabIndex={-1}
+            aria-hidden="true"
+            className="pointer-events-none"
+          >
             Open
           </Button>
         </Link>
       ) : (
-        <Link to="/studio/archive">
-          <Button size="sm" variant="secondary">
-            Publish
-          </Button>
-        </Link>
+        <div className={rowClassName}>
+          {details}
+          <Link to="/studio/archive">
+            <Button size="sm" variant="secondary">
+              Publish
+            </Button>
+          </Link>
+        </div>
       )}
     </li>
   );

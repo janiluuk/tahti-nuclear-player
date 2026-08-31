@@ -1,5 +1,13 @@
-import { Link, useRouterState } from '@tanstack/react-router';
 import {
+  Link,
+  useCanGoBack,
+  useRouter,
+  useRouterState,
+} from '@tanstack/react-router';
+import {
+  BellIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   ExternalLinkIcon,
   LayoutDashboardIcon,
   LogInIcon,
@@ -14,6 +22,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 import { fetchConversations, type ConversationSummary } from '../api/messages';
+import { useCanGoForward } from '../hooks/useCanGoForward';
 import { useOwnBroadcastPresence } from '../hooks/useOwnBroadcastPresence';
 import { cn } from '../lib/cn';
 import { useAuthModalStore } from '../stores/authModalStore';
@@ -38,6 +47,9 @@ const iconBtnClass =
  */
 export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const router = useRouter();
+  const canGoBack = useCanGoBack();
+  const canGoForward = useCanGoForward();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const openAuth = useAuthModalStore((s) => s.open);
@@ -46,6 +58,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [broadcastOpen, setBroadcastOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -83,7 +96,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   }, [open]);
 
   useEffect(() => {
-    if (!broadcastOpen && !messagesOpen) {
+    if (!broadcastOpen && !messagesOpen && !notificationsOpen) {
       return;
     }
     function onPointerDown(event: PointerEvent) {
@@ -93,12 +106,14 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
       ) {
         setBroadcastOpen(false);
         setMessagesOpen(false);
+        setNotificationsOpen(false);
       }
     }
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setBroadcastOpen(false);
         setMessagesOpen(false);
+        setNotificationsOpen(false);
       }
     }
     document.addEventListener('pointerdown', onPointerDown);
@@ -107,7 +122,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
       document.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, [broadcastOpen, messagesOpen]);
+  }, [broadcastOpen, messagesOpen, notificationsOpen]);
 
   useEffect(() => {
     if (!messagesOpen) {
@@ -120,6 +135,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
     setOpen(false);
     setBroadcastOpen(false);
     setMessagesOpen(false);
+    setNotificationsOpen(false);
   }, [pathname]);
 
   return (
@@ -136,6 +152,34 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
           </button>
         ) : null}
         <TahtiLogoLink />
+        <div className="hidden items-center gap-0.5 sm:flex">
+          <button
+            type="button"
+            className={cn(
+              iconBtnClass,
+              'disabled:pointer-events-none disabled:opacity-30',
+            )}
+            disabled={!canGoBack}
+            aria-label="Go back"
+            title="Go back"
+            onClick={() => router.history.back()}
+          >
+            <ChevronLeftIcon size={16} />
+          </button>
+          <button
+            type="button"
+            className={cn(
+              iconBtnClass,
+              'disabled:pointer-events-none disabled:opacity-30',
+            )}
+            disabled={!canGoForward}
+            aria-label="Go forward"
+            title="Go forward"
+            onClick={() => router.history.forward()}
+          >
+            <ChevronRightIcon size={16} />
+          </button>
+        </div>
       </div>
 
       <div className="hidden min-w-0 flex-1 justify-center px-4 sm:flex">
@@ -161,6 +205,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                 onClick={() => {
                   setBroadcastOpen((current) => !current);
                   setMessagesOpen(false);
+                  setNotificationsOpen(false);
                 }}
               >
                 <RadioIcon size={16} />
@@ -215,6 +260,44 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
               type="button"
               className={cn(
                 iconBtnClass,
+                notificationsOpen &&
+                  'border-primary bg-primary/15 text-primary',
+              )}
+              aria-label="Notifications"
+              aria-haspopup="menu"
+              aria-expanded={notificationsOpen}
+              title="Notifications"
+              data-tour-id="topbar-notifications"
+              onClick={() => {
+                setNotificationsOpen((current) => !current);
+                setBroadcastOpen(false);
+                setMessagesOpen(false);
+              }}
+            >
+              <BellIcon size={16} />
+            </button>
+            {notificationsOpen ? (
+              <div
+                className="border-border bg-background absolute top-[calc(100%+6px)] right-0 z-40 w-72 rounded-lg border p-2 shadow-lg"
+                role="menu"
+              >
+                <div className="px-2 py-1">
+                  <span className="text-sm font-semibold">Notifications</span>
+                </div>
+                <p className="text-foreground-secondary px-2 py-3 text-xs">
+                  No notifications yet.
+                </p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {user ? (
+          <div className="relative">
+            <button
+              type="button"
+              className={cn(
+                iconBtnClass,
                 (messagesOpen || pathname.startsWith('/messages')) &&
                   'border-primary bg-primary/15 text-primary',
               )}
@@ -226,6 +309,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
               onClick={() => {
                 setMessagesOpen((current) => !current);
                 setBroadcastOpen(false);
+                setNotificationsOpen(false);
               }}
             >
               <MessageSquareIcon size={16} />
