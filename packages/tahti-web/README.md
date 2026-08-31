@@ -117,6 +117,43 @@ Every image is a full-page route capture. The narration describes the job the vi
 | Localization              | ![Localization](./docs/readme-shots/admin-i18n.png)                    | Maintain translated product content.                             |
 | Tahti Selects             | ![Admin Selects](./docs/readme-shots/admin-selects.png)                | Curate the platform-wide selection.                              |
 
+## Add-ons
+
+`Settings → Add-ons` is one app-store-style browser (`PluginStorePanel.tsx`, see [`PLUGIN-STORE-PLAN.md`](./PLUGIN-STORE-PLAN.md)) over every extension point in the client, grouped here by what each group is *for* rather than where its code lives.
+
+### Appearance
+
+- **Themes** — the app's color palette. Built-in: Default, Aurora, Ember, Lagoon, Moss and Tahti, plus your own imported theme JSON.
+- **Visualizers** — the live animated backdrop behind a channel while it's on air: Aurora, Backdrop Box, Cloudscape, IES Spotlight, Lens Flares, Line Tangle, Minimal, Particle Field, Reactive Grid, Water Ripple, Waveform Bars.
+
+### Listen page
+
+- **Radio** — curated internet radio stations in the main player bar, either enabled for everyone by a board admin or added by you.
+- **Listen** — inline listener widgets played through the provider's own official embedded player: SoundCloud, YouTube, Spotify, hearthis.at, Bandcamp.
+- **Discovery** — sandboxed, admin-curated third-party embeds on the Listen page, visible only to the listener who enables them.
+
+### Channel and broadcast
+
+- **Channel** — sandboxed widgets on your public channel/artist page, visible to anyone who visits.
+- **Multicast** — extra RTMP destinations your live stream mirrors to: YouTube, Twitch, Facebook, Kick, TikTok, Mixcloud Live, Instagram, or a custom RTMP URL.
+
+### Catalog and production
+
+- **Import** — where tracks/albums come from: local upload, Stash (private locker), Bandcamp, SoundCloud, Google Drive, Mixcloud, URL/DSP paste, Spotify search, hearthis.at search, and internet radio stream URLs.
+- **Export** — DSPs your releases can be delivered to via Revelator: Spotify, Apple Music, Tidal, Deezer, Amazon Music, YouTube Music; plus Bandcamp, SoundCloud, Mixcloud and hearthis.at, managed as connected accounts under Import.
+- **Fingerprinting** — audio fingerprint matching for catalog metadata: AcoustID.
+- **Audio plugins** — the Pro Editor's DSP chain: EQ, Compressor, Limiter, Filter.
+
+### Nuclear plugin registry
+
+A browsable, ported copy of the [Nuclear desktop plugin registry](https://cdn.jsdelivr.net/gh/NuclearPlayer/plugin-registry@master/plugins.json), documenting each plugin's real Tahti-side availability (available/partial/planned) rather than enabling unverified behavior:
+
+- **Metadata** — Discogs, Bandcamp, MusicBrainz, Spotify.
+- **Streaming** — YouTube, SoundCloud, OmniSource.
+- **Dashboard** — Deezer, ListenBrainz, Bandcamp and SoundCloud dashboards (charts/editorial picks — all pending an API contract).
+- **Playlists** — YouTube Liked Songs Sync.
+- **Other** — YouTube Playlists import, MediaSession (OS media-control integration, already active).
+
 ## Running locally
 
 ```bash
