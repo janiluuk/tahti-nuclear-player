@@ -246,10 +246,10 @@ function InstalledAvailableTabs({
           role="tab"
           aria-selected={tab === 'installed'}
           onClick={() => setTab('installed')}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
             tab === 'installed'
-              ? 'bg-primary text-primary-foreground'
-              : 'text-foreground-secondary hover:bg-background-secondary'
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'border-border text-foreground hover:bg-background-secondary'
           }`}
         >
           Installed ({installedIds.length})
@@ -259,10 +259,10 @@ function InstalledAvailableTabs({
           role="tab"
           aria-selected={tab === 'available'}
           onClick={() => setTab('available')}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
             tab === 'available'
-              ? 'bg-primary text-primary-foreground'
-              : 'text-foreground-secondary hover:bg-background-secondary'
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'border-border text-foreground hover:bg-background-secondary'
           }`}
         >
           Available ({availableIds.length})
@@ -2911,10 +2911,10 @@ function RadioCategory() {
           role="tab"
           aria-selected={installTab === 'installed'}
           onClick={() => setInstallTab('installed')}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
             installTab === 'installed'
-              ? 'bg-primary text-primary-foreground'
-              : 'text-foreground-secondary hover:bg-background-secondary'
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'border-border text-foreground hover:bg-background-secondary'
           }`}
         >
           Installed ({stationInstalledCount})
@@ -2924,10 +2924,10 @@ function RadioCategory() {
           role="tab"
           aria-selected={installTab === 'available'}
           onClick={() => setInstallTab('available')}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
             installTab === 'available'
-              ? 'bg-primary text-primary-foreground'
-              : 'text-foreground-secondary hover:bg-background-secondary'
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'border-border text-foreground hover:bg-background-secondary'
           }`}
         >
           Available ({stationAvailableCount})
@@ -3290,10 +3290,10 @@ function ListenCategory() {
           role="tab"
           aria-selected={installTab === 'installed'}
           onClick={() => setInstallTab('installed')}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
             installTab === 'installed'
-              ? 'bg-primary text-primary-foreground'
-              : 'text-foreground-secondary hover:bg-background-secondary'
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'border-border text-foreground hover:bg-background-secondary'
           }`}
         >
           Installed ({installedCount})
@@ -3303,10 +3303,10 @@ function ListenCategory() {
           role="tab"
           aria-selected={installTab === 'available'}
           onClick={() => setInstallTab('available')}
-          className={`rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
             installTab === 'available'
-              ? 'bg-primary text-primary-foreground'
-              : 'text-foreground-secondary hover:bg-background-secondary'
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'border-border text-foreground hover:bg-background-secondary'
           }`}
         >
           Available ({availableCount})
