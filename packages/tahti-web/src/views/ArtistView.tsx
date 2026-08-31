@@ -2,6 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import {
   CalendarDays,
   HeartIcon,
+  ListMusicIcon,
   MessageCircle,
   Mic,
   PlayIcon,
@@ -325,6 +326,7 @@ export function ArtistView({ username }: { username: string }) {
   const [galleryLoaded, setGalleryLoaded] = useState(false);
   const [tracklistRelease, setTracklistRelease] =
     useState<PublicProfileRelease | null>(null);
+  const [managerOpen, setManagerOpen] = useState(false);
   const [editingFullBio, setEditingFullBio] = useState(false);
   const [fullBioDraft, setFullBioDraft] = useState('');
   const [savingFullBio, setSavingFullBio] = useState(false);
@@ -891,14 +893,6 @@ export function ArtistView({ username }: { username: string }) {
         </div>
       </section>
 
-      {channel && (isOwner || isAdministrator) ? (
-        <StreamManagerPanel
-          slug={channel.slug}
-          channelState={channel.state}
-          readOnly={!isOwner && !isAdministrator}
-        />
-      ) : null}
-
       {liveShows &&
       (liveShows.upcomingEpisodes.length > 0 ||
         liveShows.pastEpisodes.length > 0) ? (
@@ -1052,6 +1046,21 @@ export function ArtistView({ username }: { username: string }) {
                 />
                 Now playing
               </span>
+            ) : null}
+
+            {channel && (isOwner || isAdministrator) ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                className="absolute top-3 right-3 z-[2]"
+                onClick={() => setManagerOpen(true)}
+                aria-label="Manage stream playlist"
+                title="Manage stream playlist"
+              >
+                <ListMusicIcon size={16} aria-hidden />
+                <span>Manage</span>
+              </Button>
             ) : null}
 
             {featuredPlayable ? (
@@ -1472,6 +1481,24 @@ export function ArtistView({ username }: { username: string }) {
             </Dialog.Actions>
           </>
         )}
+      </Dialog.Root>
+
+      <Dialog.Root
+        isOpen={managerOpen}
+        onClose={() => setManagerOpen(false)}
+        className="max-w-2xl"
+      >
+        {channel ? (
+          <>
+            <Dialog.Title>Manage stream</Dialog.Title>
+            <StreamManagerPanel
+              slug={channel.slug}
+              channelState={channel.state}
+              readOnly={!isOwner && !isAdministrator}
+              defaultExpanded
+            />
+          </>
+        ) : null}
       </Dialog.Root>
 
       <QueueConfirmDialog

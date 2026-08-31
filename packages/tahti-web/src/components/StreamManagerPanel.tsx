@@ -101,6 +101,7 @@ export function StreamManagerPanel({
   onEnded,
   onRotationChange,
   readOnly = false,
+  defaultExpanded = false,
 }: {
   slug: string;
   channelState: string;
@@ -109,6 +110,7 @@ export function StreamManagerPanel({
   onEnded?: () => void;
   onRotationChange?: (playing: boolean) => void;
   readOnly?: boolean;
+  defaultExpanded?: boolean;
 }) {
   const [signal, setSignal] = useState<SignalStatus | null>(null);
   const [stats, setStats] = useState<ChannelManageStats | null>(null);
@@ -136,7 +138,7 @@ export function StreamManagerPanel({
   // Collapsed by default while the fallback rotation is carrying the
   // station — most visits just want to see what's playing and skip/pause
   // it, not the full stats grid and playlist-add form.
-  const [rotationExpanded, setRotationExpanded] = useState(false);
+  const [rotationExpanded, setRotationExpanded] = useState(defaultExpanded);
   const canControl = !readOnly;
 
   useEffect(() => {
