@@ -644,7 +644,7 @@ export function TrackDetailView({ id }: { id: string }) {
             {tracklist.length > 0 ? (
               <ol className="flex flex-col gap-1.5 text-sm">
                 {tracklist.map((cue) => (
-                  <li key={cue.id}>
+                  <li key={cue.id} className="flex flex-wrap items-baseline">
                     <button
                       type="button"
                       onClick={() => {
@@ -653,7 +653,7 @@ export function TrackDetailView({ id }: { id: string }) {
                         }
                       }}
                       className={cn(
-                        'hover:text-primary w-full text-left',
+                        'hover:text-primary text-left',
                         cue.id === activeCueId && 'text-primary font-medium',
                       )}
                     >
@@ -662,8 +662,22 @@ export function TrackDetailView({ id }: { id: string }) {
                           {formatDuration(cue.startSec)}
                         </span>
                       ) : null}
-                      {cueLabel(cue.artist, cue.title)}
+                      {cue.artist && cue.artistUsername
+                        ? cue.title
+                        : cueLabel(cue.artist, cue.title)}
                     </button>
+                    {cue.artist && cue.artistUsername ? (
+                      <>
+                        <span className="mx-1">–</span>
+                        <Link
+                          to="/u/$username"
+                          params={{ username: cue.artistUsername }}
+                          className="text-primary hover:underline"
+                        >
+                          {cue.artist}
+                        </Link>
+                      </>
+                    ) : null}
                   </li>
                 ))}
               </ol>
