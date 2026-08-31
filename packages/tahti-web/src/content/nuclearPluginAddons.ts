@@ -1,3 +1,5 @@
+import type { PluginCategoryId } from './pluginStoreCategories';
+
 /**
  * Ported from the live Nuclear plugin registry
  * (https://cdn.jsdelivr.net/gh/NuclearPlayer/plugin-registry@master/plugins.json).
@@ -26,6 +28,15 @@ export type NuclearPluginApiCounterpart = {
   note: string;
 };
 
+/** Points at a real, already-working feature elsewhere in the app, so the
+ * Configure dialog can hand off to it instead of collecting fields into a
+ * local-only stub that duplicates (and disagrees with) the real thing —
+ * same issue Bandcamp/SoundCloud/hearthis had before they were wired into
+ * OAuthServiceCard/HearthisCard directly. */
+export type NuclearPluginRealFeature =
+  | { kind: 'plugin-category'; category: PluginCategoryId; label: string }
+  | { kind: 'route'; to: string; label: string };
+
 export type NuclearPluginAddon = {
   id: string;
   name: string;
@@ -36,6 +47,7 @@ export type NuclearPluginAddon = {
   fields: NuclearPluginField[];
   note: string;
   apiCounterpart: NuclearPluginApiCounterpart;
+  realFeature?: NuclearPluginRealFeature;
 };
 
 export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
@@ -59,6 +71,11 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
       status: 'partial',
       routes: ['/api/me/releases/import'],
       note: 'Release import exists, but no standalone Discogs provider endpoint is exposed.',
+    },
+    realFeature: {
+      kind: 'route',
+      to: '/studio/distribution',
+      label: 'Open the real Discogs prefill in Studio → Distribution',
     },
   },
   {
@@ -140,6 +157,11 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
       routes: ['/api/v1/imports/spotify/search', '/api/v1/imports/spotify/add'],
       note: 'Search and embed import are implemented; provider streaming and full metadata browsing are not.',
     },
+    realFeature: {
+      kind: 'plugin-category',
+      category: 'import',
+      label: 'Open the real Spotify search + embed import in Import',
+    },
   },
   {
     id: 'deezer-dashboard',
@@ -171,6 +193,11 @@ export const NUCLEAR_PLUGIN_ADDONS: NuclearPluginAddon[] = [
       status: 'partial',
       routes: ['/api/me/archive/:id/fingerprint'],
       note: 'Fingerprint matching exists; standalone artist and album provider search remains unimplemented.',
+    },
+    realFeature: {
+      kind: 'plugin-category',
+      category: 'fingerprinting',
+      label: 'Open the real MusicBrainz connect + AcoustID fingerprinting',
     },
   },
   {

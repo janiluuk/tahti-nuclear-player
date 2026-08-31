@@ -1,4 +1,5 @@
-import { SettingsIcon } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { ArrowRightIcon, SettingsIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -14,6 +15,7 @@ import {
   NUCLEAR_PLUGIN_ADDONS,
   type NuclearPluginAddon,
 } from '../content/nuclearPluginAddons';
+import { useSettingsModalStore } from '../stores/settingsModalStore';
 
 const STORAGE_KEY = 'tahti-nuclear-plugin-addon-settings';
 type ConfigMap = Record<string, Record<string, string>>;
@@ -187,6 +189,37 @@ export function NuclearPluginAddonsCategory() {
                 ? editing.apiCounterpart.routes.join(', ')
                 : 'No Tahti API route yet.'}
             </p>
+            {editing.realFeature &&
+              (editing.realFeature.kind === 'route' ? (
+                <Link
+                  to={editing.realFeature.to}
+                  onClick={() => {
+                    useSettingsModalStore.getState().close();
+                    setEditing(null);
+                  }}
+                  className="border-primary bg-primary/10 text-primary mt-3 flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:underline"
+                >
+                  {editing.realFeature.label}
+                  <ArrowRightIcon size={14} aria-hidden />
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const category = editing.realFeature!;
+                    if (category.kind === 'plugin-category') {
+                      useSettingsModalStore
+                        .getState()
+                        .open('plugin-store', category.category);
+                    }
+                    setEditing(null);
+                  }}
+                  className="border-primary bg-primary/10 text-primary mt-3 flex items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-medium hover:underline"
+                >
+                  {editing.realFeature.label}
+                  <ArrowRightIcon size={14} aria-hidden />
+                </button>
+              ))}
             <div className="mt-4 flex flex-col gap-3">
               {editing.fields.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
