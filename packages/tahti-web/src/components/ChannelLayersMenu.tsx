@@ -96,14 +96,16 @@ export function ChannelLayersMenu({
             {CHANNEL_LAYOUT_PRESETS.map((preset) => {
               const active = activePresetId === preset.id;
               return (
-                <button
+                <Button
                   key={preset.id}
                   type="button"
+                  variant="text"
+                  size="flexible"
                   onClick={() => {
                     onApplyPreset(preset.id);
                     setPanel('layers');
                   }}
-                  className={`border-border rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                  className={`border-border block w-full rounded-lg border px-3 py-2.5 text-left transition-colors ${
                     active
                       ? 'border-primary/70 bg-primary/10'
                       : 'hover:border-primary/40'
@@ -126,7 +128,7 @@ export function ChannelLayersMenu({
                       Applied
                     </p>
                   )}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -159,14 +161,16 @@ export function ChannelLayersMenu({
                     item.visible ? '' : 'opacity-60'
                   }`}
                 >
-                  <button
+                  <Button
                     type="button"
-                    className="text-foreground-secondary hover:text-foreground cursor-grab px-0.5 active:cursor-grabbing"
+                    size="icon-sm"
+                    variant="text"
+                    className="text-foreground-secondary hover:text-foreground w-auto cursor-grab px-0.5 active:cursor-grabbing"
                     aria-label={`Drag ${meta.label}`}
                     title="Drag to reorder"
                   >
                     <GripVerticalIcon size={14} />
-                  </button>
+                  </Button>
                   <button
                     type="button"
                     className="min-w-0 flex-1 text-left"

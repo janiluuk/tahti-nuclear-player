@@ -309,8 +309,10 @@ export function RadioView() {
                   <div className="min-w-0">
                     <Eyebrow tone="green">Live now</Eyebrow>
                     {nowPlaying?.title ? (
-                      <button
+                      <Button
                         type="button"
+                        variant="text"
+                        size="flexible"
                         onClick={() =>
                           setInfoTrack({
                             title: nowPlaying.title,
@@ -320,10 +322,10 @@ export function RadioView() {
                             meta: 'Live now',
                           })
                         }
-                        className="text-foreground block max-w-full truncate text-lg font-bold tracking-tight underline-offset-4 hover:underline"
+                        className="text-foreground block max-w-full truncate p-0 text-lg font-bold tracking-tight underline-offset-4 hover:underline"
                       >
                         {nowPlaying.title}
-                      </button>
+                      </Button>
                     ) : (
                       <div className="text-foreground text-lg font-bold tracking-tight">
                         24/7 rotation
@@ -467,8 +469,10 @@ export function RadioView() {
                                   : 'border-l-transparent'
                               }`}
                             >
-                              <button
+                              <Button
                                 type="button"
+                                variant="text"
+                                size="flexible"
                                 onClick={() =>
                                   setInfoTrack({
                                     title: item.title,
@@ -479,7 +483,7 @@ export function RadioView() {
                                     playable,
                                   })
                                 }
-                                className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                                className="flex min-w-0 flex-1 items-center gap-3 p-0 text-left"
                               >
                                 <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
                                   {item.artworkUrl ? (
@@ -504,7 +508,7 @@ export function RadioView() {
                                     {item.artistName}
                                   </div>
                                 </div>
-                              </button>
+                              </Button>
                               <span className="text-foreground-secondary hidden shrink-0 text-xs sm:inline">
                                 {formatAgo(item.playedAt)}
                               </span>

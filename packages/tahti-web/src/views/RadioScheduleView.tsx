@@ -557,9 +557,11 @@ export function RadioScheduleView() {
                 ['TALK', 'Talk'],
               ] as const
             ).map(([type, label]) => (
-              <button
+              <Button
                 key={type}
                 type="button"
+                variant="text"
+                size="flexible"
                 onClick={() => setShowType(type)}
                 aria-pressed={showType === type}
                 className={cn(
@@ -570,7 +572,7 @@ export function RadioScheduleView() {
                 )}
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
           <Input
@@ -717,9 +719,11 @@ export function RadioScheduleView() {
                       ['TALK', 'Talk'],
                     ] as const
                   ).map(([type, label]) => (
-                    <button
+                    <Button
                       key={type}
                       type="button"
+                      variant="text"
+                      size="flexible"
                       onClick={() => setEditShowType(type)}
                       aria-pressed={editShowType === type}
                       disabled={busy}
@@ -731,7 +735,7 @@ export function RadioScheduleView() {
                       )}
                     >
                       {label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
                 <Input

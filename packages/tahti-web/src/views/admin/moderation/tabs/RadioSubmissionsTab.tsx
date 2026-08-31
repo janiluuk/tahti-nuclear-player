@@ -1,7 +1,7 @@
 import { PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button } from '@nuclearplayer/ui';
+import { Badge, Button, Textarea } from '@nuclearplayer/ui';
 
 import {
   approveRadioSubmission,
@@ -146,7 +146,8 @@ export function RadioSubmissionsTab() {
                   <span className="text-foreground-secondary text-xs uppercase">
                     Rejection note (optional)
                   </span>
-                  <textarea
+                  <Textarea
+                    tone="secondary"
                     value={notes[active.id] ?? ''}
                     onChange={(e) =>
                       setNotes((prev) => ({
@@ -155,7 +156,6 @@ export function RadioSubmissionsTab() {
                       }))
                     }
                     rows={2}
-                    className="border-border bg-background rounded-md border px-3 py-2"
                   />
                 </label>
                 <div className="flex flex-wrap gap-2">

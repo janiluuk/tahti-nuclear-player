@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Input } from '@nuclearplayer/ui';
+import { Badge, Button, Input, Textarea } from '@nuclearplayer/ui';
 
 import {
   createFeatureRequest,
@@ -170,8 +170,9 @@ export function FeatureRequestsView({
             <span className="text-foreground-secondary text-xs uppercase">
               Description
             </span>
-            <textarea
-              className="border-border bg-background min-h-[6rem] rounded-md border px-3 py-2 text-sm"
+            <Textarea
+              tone="secondary"
+              className="min-h-[6rem] text-sm"
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
               required

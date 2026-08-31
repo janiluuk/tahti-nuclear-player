@@ -2,7 +2,7 @@ import { NewspaperIcon, PlusIcon, SendIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
 
 import {
   createArtistPost,
@@ -322,11 +322,11 @@ export function StudioUpdatesView() {
                 <span className="text-foreground-secondary text-xs uppercase">
                   Body
                 </span>
-                <textarea
+                <Textarea
+                  tone="secondary"
                   value={postBody}
                   onChange={(e) => setPostBody(e.target.value)}
                   rows={4}
-                  className="border-border bg-background rounded-md border px-3 py-2"
                   required
                 />
               </label>
@@ -382,11 +382,11 @@ export function StudioUpdatesView() {
                 <span className="text-foreground-secondary text-xs uppercase">
                   Body (markdown)
                 </span>
-                <textarea
+                <Textarea
+                  tone="secondary"
                   value={nlBody}
                   onChange={(e) => setNlBody(e.target.value)}
                   rows={5}
-                  className="border-border bg-background rounded-md border px-3 py-2"
                   required
                 />
               </label>

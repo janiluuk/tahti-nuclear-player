@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, Textarea } from '@nuclearplayer/ui';
 
 import { registerVenue } from '../api/client';
 import { ImageUploadField } from '../components/ImageUploadField';
@@ -148,8 +148,9 @@ export function VenueRegisterView() {
           <span className="text-foreground-secondary text-xs tracking-wide uppercase">
             Description (optional)
           </span>
-          <textarea
-            className="border-border bg-background min-h-[6rem] rounded-md border px-3 py-2 text-sm"
+          <Textarea
+            tone="secondary"
+            className="min-h-[6rem] text-sm"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             maxLength={2000}

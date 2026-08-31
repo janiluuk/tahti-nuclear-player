@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Box, Button, Input } from '@nuclearplayer/ui';
 
 import { fetchResetPasswordInfo } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
@@ -92,9 +92,12 @@ export function ResetPasswordView() {
       </div>
 
       {done ? (
-        <div className="border-border bg-background-secondary flex flex-col gap-3 rounded-xl border p-4">
+        <Box
+          variant="tertiary"
+          className="h-auto w-auto flex-col gap-3 rounded-xl"
+        >
           <p className="text-sm">Signed in — taking you to your dashboard…</p>
-        </div>
+        </Box>
       ) : infoError ? (
         <div className="flex flex-col gap-3">
           <p className="text-accent-red text-sm">{infoError}</p>

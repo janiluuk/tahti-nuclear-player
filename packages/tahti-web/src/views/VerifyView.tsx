@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Box, Button, Input } from '@nuclearplayer/ui';
 
 import { useAuthStore } from '../stores/authStore';
 
@@ -70,12 +70,15 @@ export function VerifyView() {
       </div>
 
       {ok ? (
-        <div className="border-border bg-background-secondary flex flex-col gap-3 rounded-xl border p-4">
+        <Box
+          variant="tertiary"
+          className="h-auto w-auto flex-col gap-3 rounded-xl"
+        >
           <p className="text-sm">{message}</p>
           <Button onClick={() => void navigate({ to: '/login' })}>
             Continue to login
           </Button>
-        </div>
+        </Box>
       ) : (
         <div className="flex flex-col gap-3">
           <Input
