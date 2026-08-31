@@ -41,6 +41,34 @@ function ArtistAvatar({ name, src }: { name: string; src: string | null }) {
   );
 }
 
+function FeedItemHeader({ item }: { item: FeedItem }) {
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <Link to="/u/$username" params={{ username: item.artist.username }}>
+        <ArtistAvatar
+          name={item.artist.displayName}
+          src={item.artist.avatarUrl}
+        />
+      </Link>
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
+        <Link
+          to="/u/$username"
+          params={{ username: item.artist.username }}
+          className="font-medium underline-offset-2 hover:underline"
+        >
+          {item.artist.displayName}
+        </Link>
+        <span className="text-foreground-secondary text-xs">
+          {feedBadge(item)}
+        </span>
+        <span className="text-foreground-secondary text-xs">
+          {formatFeedDate(item.date)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function FeedView({ embedded = false }: { embedded?: boolean }) {
   const user = useAuthStore((s) => s.user);
   const hydrated = useAuthStore((s) => s.hydrated);
@@ -158,32 +186,7 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
               key={`${item.kind}-${item.id}`}
               className="border-border bg-background-secondary flex w-[min(24rem,calc(100vw-3rem))] shrink-0 flex-col gap-3 rounded-lg border p-4"
             >
-              <div className="flex min-w-0 items-center gap-3">
-                <Link
-                  to="/u/$username"
-                  params={{ username: item.artist.username }}
-                >
-                  <ArtistAvatar
-                    name={item.artist.displayName}
-                    src={item.artist.avatarUrl}
-                  />
-                </Link>
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
-                  <Link
-                    to="/u/$username"
-                    params={{ username: item.artist.username }}
-                    className="font-medium underline-offset-2 hover:underline"
-                  >
-                    {item.artist.displayName}
-                  </Link>
-                  <span className="text-foreground-secondary text-xs">
-                    {feedBadge(item)}
-                  </span>
-                  <span className="text-foreground-secondary text-xs">
-                    {formatFeedDate(item.date)}
-                  </span>
-                </div>
-              </div>
+              {item.kind !== 'track' && <FeedItemHeader item={item} />}
 
               <div className="min-w-0 flex-1">
                 {item.kind === 'post' && (
@@ -216,58 +219,51 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
                         }
                       : (feedPlayables[item.id] ?? null);
                     return (
-                      <div className="mt-2 flex items-center gap-3">
-                        <MediaArtwork
-                          size="thumb"
-                          className="rounded-md"
-                          src={item.bannerUrl}
-                          alt={item.title}
-                          placeholder={
-                            <span className="text-[10px] font-bold">
-                              {item.title.slice(0, 2).toUpperCase()}
-                            </span>
-                          }
-                          onArtworkClick={() =>
-                            setInfoTrack({
-                              title: item.title,
-                              artistName: item.artist.displayName,
-                              artistUsername: item.artist.username,
-                              artworkUrl: item.bannerUrl,
-                              meta: formatFeedDate(item.date),
-                              playable,
-                            })
-                          }
-                          onPlay={playable ? () => play(playable) : undefined}
-                          playDisabled={!playable}
-                          playLabel={`Play ${item.title}`}
-                          onQueue={
-                            playable ? () => enqueue(playable) : undefined
-                          }
-                          queueDisabled={!playable}
-                          queueLabel={`Queue ${item.title}`}
-                          queueActive={Boolean(
-                            playable &&
-                            queue.some(
-                              (queueItem) => queueItem.id === playable.id,
-                            ),
-                          )}
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setInfoTrack({
-                              title: item.title,
-                              artistName: item.artist.displayName,
-                              artistUsername: item.artist.username,
-                              artworkUrl: item.bannerUrl,
-                              meta: formatFeedDate(item.date),
-                              playable,
-                            })
-                          }
-                          className="min-w-0 flex-1 truncate text-left text-sm font-medium underline-offset-2 hover:underline"
-                        >
-                          {item.title}
-                        </button>
+                      <div className="flex flex-col gap-3">
+                        <div className="relative aspect-square w-full overflow-hidden rounded-md">
+                          <MediaArtwork
+                            size="fill"
+                            src={item.bannerUrl}
+                            alt={item.title}
+                            placeholder={
+                              <span className="text-lg font-bold">
+                                {item.title.slice(0, 2).toUpperCase()}
+                              </span>
+                            }
+                            onArtworkClick={() =>
+                              setInfoTrack({
+                                title: item.title,
+                                artistName: item.artist.displayName,
+                                artistUsername: item.artist.username,
+                                artworkUrl: item.bannerUrl,
+                                meta: formatFeedDate(item.date),
+                                playable,
+                              })
+                            }
+                            onPlay={playable ? () => play(playable) : undefined}
+                            playDisabled={!playable}
+                            playLabel={`Play ${item.title}`}
+                            onQueue={
+                              playable ? () => enqueue(playable) : undefined
+                            }
+                            queueDisabled={!playable}
+                            queueLabel={`Queue ${item.title}`}
+                            queueActive={Boolean(
+                              playable &&
+                              queue.some(
+                                (queueItem) => queueItem.id === playable.id,
+                              ),
+                            )}
+                          />
+                          <div
+                            className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2 pt-6"
+                            aria-hidden
+                          />
+                          <span className="pointer-events-none absolute right-2 bottom-2 left-2 truncate text-sm font-semibold text-white">
+                            {item.title}
+                          </span>
+                        </div>
+                        <FeedItemHeader item={item} />
                       </div>
                     );
                   })()}
