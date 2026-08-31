@@ -139,6 +139,9 @@ export function ChannelDesigner({
   const [galleryMode, setGalleryMode] = useState<ChannelGalleryMode>('NONE');
   const [galleryImages, setGalleryImages] = useState('');
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [draggedGalleryIndex, setDraggedGalleryIndex] = useState<number | null>(
+    null,
+  );
   const [galleryPreviewIndex, setGalleryPreviewIndex] = useState(0);
   const [videoBackgroundUrl, setVideoBackgroundUrl] = useState('');
   const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
@@ -335,6 +338,18 @@ export function ChannelDesigner({
     if (nextImages.length === 0) {
       setGalleryMode('NONE');
     }
+    setDirty(true);
+  };
+
+  const reorderGalleryImage = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) {
+      return;
+    }
+    const nextImages = [...galleryImageList];
+    const [movedImage] = nextImages.splice(fromIndex, 1);
+    nextImages.splice(toIndex, 0, movedImage);
+    setGalleryImages(nextImages.join('\n'));
+    setGalleryPreviewIndex(toIndex);
     setDirty(true);
   };
 
@@ -617,7 +632,20 @@ export function ChannelDesigner({
           </div>
           <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
             {galleryImageList.map((image, index) => (
-              <div key={`${image}-${index}`} className="relative">
+              <div
+                key={`${image}-${index}`}
+                className="group relative"
+                draggable
+                onDragStart={() => setDraggedGalleryIndex(index)}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={() => {
+                  if (draggedGalleryIndex !== null) {
+                    reorderGalleryImage(draggedGalleryIndex, index);
+                  }
+                  setDraggedGalleryIndex(null);
+                }}
+                onDragEnd={() => setDraggedGalleryIndex(null)}
+              >
                 <button
                   type="button"
                   className={`border-border h-16 w-full overflow-hidden rounded-md border ${index === galleryPreviewIndex ? 'border-primary ring-primary ring-2' : ''}`}
@@ -630,7 +658,7 @@ export function ChannelDesigner({
                 <Button
                   size="icon-sm"
                   variant="secondary"
-                  className="absolute top-1 right-1"
+                  className="absolute top-1 right-1 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                   aria-label={`Remove slideshow image ${index + 1}`}
                   title="Remove image"
                   onClick={() => removeGalleryImage(index)}
@@ -1558,7 +1586,26 @@ export function ChannelDesigner({
                                     {galleryImageList.map((image, index) => (
                                       <div
                                         key={`${image}-${index}`}
-                                        className="relative"
+                                        className="group relative"
+                                        draggable
+                                        onDragStart={() =>
+                                          setDraggedGalleryIndex(index)
+                                        }
+                                        onDragOver={(event) =>
+                                          event.preventDefault()
+                                        }
+                                        onDrop={() => {
+                                          if (draggedGalleryIndex !== null) {
+                                            reorderGalleryImage(
+                                              draggedGalleryIndex,
+                                              index,
+                                            );
+                                          }
+                                          setDraggedGalleryIndex(null);
+                                        }}
+                                        onDragEnd={() =>
+                                          setDraggedGalleryIndex(null)
+                                        }
                                       >
                                         <button
                                           type="button"
@@ -1580,7 +1627,7 @@ export function ChannelDesigner({
                                         <Button
                                           size="icon-sm"
                                           variant="secondary"
-                                          className="absolute top-1 right-1"
+                                          className="absolute top-1 right-1 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                                           aria-label={`Remove slideshow image ${index + 1}`}
                                           title="Remove image"
                                           onClick={() =>
