@@ -2889,3 +2889,19 @@ Continuing the native-control sweep, same block-level-vs-inline judgment call as
 **Slice 5:** `StudioPlaylistsView`'s "Add from Library" and "Add release" selects -- both had a redundant standalone `<label>` element sitting above the native `<select>` that's now redundant with `Select`'s own `label` prop; removed both.
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.7`.
+
+## 2026-08-31 — Backlog round 13: five slices closed; bump to 0.0.8
+
+**Slice 1:** `ChannelDesigner`'s Gallery style and Transition selects -- the component has two structurally identical copies of this gallery/slideshow config block (same `GALLERY_MODES`/`SLIDESHOW_PRESETS` options, different nesting depth), so this closes 4 native `<select>` instances across both copies.
+
+**Slice 2:** `AdminDiscoWidgetsView`'s Add-on type select.
+
+**Slice 3:** `StudioCollectionsView`'s collection Visibility select.
+
+**Slice 4:** `SettingsPanels`'s profile Country select (same empty-string-default-plus-flag-emoji shape as `OnboardingView`'s Country field from round 9).
+
+**Slice 5:** `SettingsPanels`'s theme-JSON import textarea (Themes → Import JSON tab), same shape as `ThemeEditor`'s JSON textarea from round 12.
+
+Skipped, same inline-compact reasoning as rounds 9/11/12: `AdminFinancialView`'s ledger-category select and `AdminStorageView`'s sort-by select (both inline in a `flex flex-wrap` toolbar row with no visible label) and `StudioArchiveView`'s Source/Sort filter selects (`min-w-40` inline filter row).
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.8`.

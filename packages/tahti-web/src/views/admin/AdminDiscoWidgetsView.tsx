@@ -1,7 +1,14 @@
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
+import {
+  Badge,
+  Button,
+  Dialog,
+  Input,
+  Select,
+  Textarea,
+} from '@nuclearplayer/ui';
 
 import {
   deleteAdminDiscoWidget,
@@ -85,25 +92,20 @@ function WidgetEditor({
           onChange={(event) => onChange({ ...draft, slug: event.target.value })}
           description="Lowercase letters, numbers, and hyphens."
         />
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="text-foreground font-semibold">Add-on type</span>
-          <select
-            value={draft.scope}
-            onChange={(event) =>
-              onChange({
-                ...draft,
-                scope: event.target.value as AdminDiscoWidgetScope,
-              })
-            }
-            className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-          >
-            {SCOPES.map((scope) => (
-              <option key={scope.id} value={scope.id}>
-                {scope.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select
+          label="Add-on type"
+          value={draft.scope}
+          onValueChange={(value) =>
+            onChange({
+              ...draft,
+              scope: value as AdminDiscoWidgetScope,
+            })
+          }
+          options={SCOPES.map((scope) => ({
+            id: scope.id,
+            label: scope.label,
+          }))}
+        />
       </div>
       <Input
         label="Name"

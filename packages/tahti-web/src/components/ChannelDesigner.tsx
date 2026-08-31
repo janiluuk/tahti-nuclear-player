@@ -22,6 +22,7 @@ import {
   Input,
   PluginItem,
   SaveButton,
+  Select,
   Slider,
   Tabs,
 } from '@nuclearplayer/ui';
@@ -645,46 +646,29 @@ export function ChannelDesigner({
           Upload images to build the slideshow behind your channel.
         </p>
       )}
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-          Gallery style
-        </span>
-        <select
-          value={galleryMode}
-          onChange={(event) => {
-            setGalleryMode(event.target.value as ChannelGalleryMode);
-            setDirty(true);
-          }}
-          className="border-border bg-background text-foreground rounded-md border px-3 py-2"
-        >
-          {GALLERY_MODES.map((mode) => (
-            <option key={mode.id} value={mode.id}>
-              {mode.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Select
+        label="Gallery style"
+        value={galleryMode}
+        onValueChange={(value) => {
+          setGalleryMode(value as ChannelGalleryMode);
+          setDirty(true);
+        }}
+        options={GALLERY_MODES.map((mode) => ({
+          id: mode.id,
+          label: mode.label,
+        }))}
+      />
       {galleryImageList.length > 1 ? (
         <>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-              Transition
-            </span>
-            <select
-              value={slideshowPreset}
-              onChange={(event) => {
-                setSlideshowPreset(event.target.value);
-                setDirty(true);
-              }}
-              className="border-border bg-background text-foreground rounded-md border px-3 py-2"
-            >
-              {SLIDESHOW_PRESETS.map(([id, label]) => (
-                <option key={id} value={id}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            label="Transition"
+            value={slideshowPreset}
+            onValueChange={(value) => {
+              setSlideshowPreset(value);
+              setDirty(true);
+            }}
+            options={SLIDESHOW_PRESETS.map(([id, label]) => ({ id, label }))}
+          />
           <Slider
             label={`Interval: ${slideshowInterval}s`}
             min={5}
@@ -1615,27 +1599,18 @@ export function ChannelDesigner({
                                   your channel.
                                 </p>
                               )}
-                              <label className="flex flex-col gap-1 text-sm">
-                                <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                                  Gallery style
-                                </span>
-                                <select
-                                  value={galleryMode}
-                                  onChange={(event) => {
-                                    setGalleryMode(
-                                      event.target.value as ChannelGalleryMode,
-                                    );
-                                    setDirty(true);
-                                  }}
-                                  className="border-border bg-background text-foreground rounded-md border px-3 py-2"
-                                >
-                                  {GALLERY_MODES.map((mode) => (
-                                    <option key={mode.id} value={mode.id}>
-                                      {mode.label}
-                                    </option>
-                                  ))}
-                                </select>
-                              </label>
+                              <Select
+                                label="Gallery style"
+                                value={galleryMode}
+                                onValueChange={(value) => {
+                                  setGalleryMode(value as ChannelGalleryMode);
+                                  setDirty(true);
+                                }}
+                                options={GALLERY_MODES.map((mode) => ({
+                                  id: mode.id,
+                                  label: mode.label,
+                                }))}
+                              />
                               <p className="text-foreground-secondary text-xs">
                                 Video backdrops are managed in Header → Video
                                 loop. Uploaded images use your artist media
@@ -1674,25 +1649,17 @@ export function ChannelDesigner({
                               ) : null}
                               {galleryImageList.length > 1 ? (
                                 <div className="flex flex-col gap-4">
-                                  <label className="flex flex-col gap-1 text-sm">
-                                    <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                                      Transition
-                                    </span>
-                                    <select
-                                      value={slideshowPreset}
-                                      onChange={(event) => {
-                                        setSlideshowPreset(event.target.value);
-                                        setDirty(true);
-                                      }}
-                                      className="border-border bg-background text-foreground rounded-md border px-3 py-2"
-                                    >
-                                      {SLIDESHOW_PRESETS.map(([id, label]) => (
-                                        <option key={id} value={id}>
-                                          {label}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </label>
+                                  <Select
+                                    label="Transition"
+                                    value={slideshowPreset}
+                                    onValueChange={(value) => {
+                                      setSlideshowPreset(value);
+                                      setDirty(true);
+                                    }}
+                                    options={SLIDESHOW_PRESETS.map(
+                                      ([id, label]) => ({ id, label }),
+                                    )}
+                                  />
                                   <Slider
                                     label={`Interval: ${slideshowInterval}s`}
                                     min={5}

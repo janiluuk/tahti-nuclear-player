@@ -893,28 +893,23 @@ function ArtistPanel() {
                 }}
               />
               <PronounsField profile={profile} setProfile={setProfile} />
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-foreground text-sm font-semibold">
-                  Country
-                </span>
-                <select
-                  value={profile.countryCode ?? ''}
-                  onChange={(e) =>
-                    setProfile({
-                      ...profile,
-                      countryCode: e.target.value || null,
-                    })
-                  }
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                >
-                  <option value="">Prefer not to say</option>
-                  {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {flagEmoji(c.code)} {c.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <Select
+                label="Country"
+                value={profile.countryCode ?? ''}
+                onValueChange={(value) =>
+                  setProfile({
+                    ...profile,
+                    countryCode: value || null,
+                  })
+                }
+                options={[
+                  { id: '', label: 'Prefer not to say' },
+                  ...COUNTRIES.map((c) => ({
+                    id: c.code,
+                    label: `${flagEmoji(c.code)} ${c.name}`,
+                  })),
+                ]}
+              />
               {profile.countryCode && (
                 <Input
                   label="City / location"
@@ -2303,8 +2298,9 @@ function ThemesPanel() {
                   AdvancedThemeSchema — version, name, and vars / dark CSS
                   variable overrides) to add it without a code change.
                 </SettingsHint>
-                <textarea
-                  className="border-border bg-background text-foreground rounded-md border px-3 py-2 font-mono text-xs"
+                <Textarea
+                  tone="secondary"
+                  className="font-mono text-xs"
                   rows={6}
                   value={themeJson}
                   onChange={(e) => setThemeJson(e.target.value)}

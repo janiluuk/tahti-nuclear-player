@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Select } from '@nuclearplayer/ui';
 
 import {
   createStudioCollection,
@@ -228,28 +228,25 @@ export function StudioCollectionsView() {
                   />
                 </div>
               ) : null}
-              <label className="flex flex-col gap-1 text-sm">
-                Visibility
-                <select
-                  aria-label="Collection visibility"
-                  value={visibility}
-                  onChange={(event) => {
-                    const nextVisibility = event.target.value as
-                      | 'PUBLIC'
-                      | 'UNLISTED'
-                      | 'PRIVATE';
-                    setVisibility(nextVisibility);
-                    if (nextVisibility !== 'PUBLIC') {
-                      setCollaborative(false);
-                    }
-                  }}
-                  className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                >
-                  <option value="PUBLIC">Public</option>
-                  <option value="UNLISTED">Unlisted — direct link only</option>
-                  <option value="PRIVATE">Private — only you</option>
-                </select>
-              </label>
+              <Select
+                label="Visibility"
+                value={visibility}
+                onValueChange={(value) => {
+                  const nextVisibility = value as
+                    | 'PUBLIC'
+                    | 'UNLISTED'
+                    | 'PRIVATE';
+                  setVisibility(nextVisibility);
+                  if (nextVisibility !== 'PUBLIC') {
+                    setCollaborative(false);
+                  }
+                }}
+                options={[
+                  { id: 'PUBLIC', label: 'Public' },
+                  { id: 'UNLISTED', label: 'Unlisted — direct link only' },
+                  { id: 'PRIVATE', label: 'Private — only you' },
+                ]}
+              />
               {style === 'PLAYLIST' ? (
                 <label className="flex items-center gap-2 text-sm">
                   <input
