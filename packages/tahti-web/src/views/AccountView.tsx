@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, Tabs } from '@nuclearplayer/ui';
+import { Box, Button, Tabs } from '@nuclearplayer/ui';
 
 import { fetchMembership, fetchMySubscriptions } from '../api/client';
 import type { FanSubscriptionRow, MembershipStatus } from '../api/types';
@@ -79,7 +79,10 @@ export function AccountView() {
 
       {loading && <PageLoading label="Loading account…" />}
 
-      <div className="border-border bg-background-secondary/40 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
+      <Box
+        variant="tertiary"
+        className="h-auto w-auto flex-wrap items-center justify-between gap-3 rounded-xl"
+      >
         <div>
           <h2 className="font-display font-bold">Membership and security</h2>
           <p className="text-foreground-secondary text-sm">
@@ -104,7 +107,7 @@ export function AccountView() {
             </Button>
           </Link>
         </div>
-      </div>
+      </Box>
 
       <Tabs
         listClassName="border-border border-b pb-3"

@@ -1,6 +1,6 @@
 import { Trash2Icon } from 'lucide-react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Box, Button } from '@nuclearplayer/ui';
 
 import { listenerWidgetType } from '../content/listenerWidgets';
 import type { ListenerWidgetInstance } from '../stores/listenerWidgetsStore';
@@ -20,7 +20,10 @@ export function ListenerWidgetEmbed({
   const embedUrl = type?.toEmbedUrl(instance.input);
 
   return (
-    <div className="border-border bg-background-secondary/40 flex flex-col gap-2 rounded-lg border p-3">
+    <Box
+      variant="tertiary"
+      className="h-auto w-auto flex-col gap-2 rounded-lg p-3"
+    >
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0 truncate text-sm font-medium">
           {instance.label}
@@ -50,6 +53,6 @@ export function ListenerWidgetEmbed({
           {type ? ` ${type.name}` : ''} link again.
         </p>
       )}
-    </div>
+    </Box>
   );
 }

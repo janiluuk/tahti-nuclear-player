@@ -1,7 +1,7 @@
 import { ListMusicIcon, PlayIcon, Trash2Icon } from 'lucide-react';
 import { FC, useState } from 'react';
 
-import { Button, Select } from '@nuclearplayer/ui';
+import { Box, Button, Select } from '@nuclearplayer/ui';
 
 import type { ProgrammeItem } from '../api/studio-extras';
 
@@ -91,9 +91,10 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
           </div>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {libraryGroups.map((group) => (
-              <div
+              <Box
                 key={group.id}
-                className="border-border bg-background-secondary/40 flex items-center justify-between gap-2 rounded-lg border p-3"
+                variant="tertiary"
+                className="h-auto items-center justify-between gap-2 rounded-lg p-3"
               >
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium">
@@ -114,7 +115,7 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
                 >
                   <ListMusicIcon size={14} aria-hidden />
                 </Button>
-              </div>
+              </Box>
             ))}
           </div>
         </div>

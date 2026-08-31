@@ -2905,3 +2905,21 @@ Continuing the native-control sweep, same block-level-vs-inline judgment call as
 Skipped, same inline-compact reasoning as rounds 9/11/12: `AdminFinancialView`'s ledger-category select and `AdminStorageView`'s sort-by select (both inline in a `flex flex-wrap` toolbar row with no visible label) and `StudioArchiveView`'s Source/Sort filter selects (`min-w-40` inline filter row).
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.8`.
+
+## 2026-08-31 — Backlog round 14: five slices closed; bump to 0.0.9
+
+Switched WORKPLAN items -- the native-control sweep is now exhausted (every remaining `<select>`/`<textarea>` is a compact inline dropdown that doesn't fit `Select`'s block layout, matching rounds 9/11/12/13's judgment calls). Moved to "replace repeated bespoke bordered panels with `Box`."
+
+**Slice 1:** `AccountView`'s membership/security summary panel -- note this view is currently unreachable from the router (no route imports `AccountView`), so this is source-hygiene only, not a live UI change; left as-is rather than wiring up routing, which is out of scope for a component-consistency slice.
+
+**Slice 2:** `ListenerWidgetEmbed`'s per-instance wrapper panel.
+
+**Slice 3:** `MusicBrainzSubmissionAssistant`'s prepared-metadata preview box inside its dialog.
+
+**Slice 4:** `ChannelRotationEditor`'s "Add from library" group tiles (a `.map()`-rendered grid of cards -- kept `Box`'s default `w-full` since it needs to fill its CSS Grid cell, unlike the other four slices which override to `w-auto` for their normal block-flow sizing).
+
+**Slice 5:** `FlowGallery`'s Mermaid diagram wrapper panel.
+
+Left several similar bordered `<section>`/`<div>` wrappers alone: `PortInventoryPanel`, `StreamManagerPanel`, and `ChannelAnnouncementsPanel` all use `<section>` as their whole panel's root container (not an inner content box) -- swapping to `Box` (a `<div>`) would lose that sectioning semantics for no visual gain. `MulticastSection`'s provider tile is a horizontal-scroll-snap carousel item with its own layout needs, not a standard panel.
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean. Bumped `packages/tahti-web/package.json` to `0.0.9`.

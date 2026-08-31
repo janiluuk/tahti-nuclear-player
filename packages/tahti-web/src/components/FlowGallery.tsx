@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Box, Button } from '@nuclearplayer/ui';
 
 import {
   FLOW_DIAGRAMS,
@@ -144,9 +144,9 @@ export function FlowGallery() {
                   </Button>
                 </div>
               </div>
-              <div className="border-border bg-background-secondary/40 rounded-lg border p-3">
+              <Box variant="tertiary" className="h-auto rounded-lg p-3">
                 <MermaidDiagram key={selected.id} chart={selected.mermaid} />
-              </div>
+              </Box>
               <MapCommentForm
                 kind="flow"
                 targetId={selected.id}

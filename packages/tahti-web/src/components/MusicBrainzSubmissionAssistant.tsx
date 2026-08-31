@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Button, Dialog } from '@nuclearplayer/ui';
+import { Box, Button, Dialog } from '@nuclearplayer/ui';
 
 type MusicBrainzTrack = {
   title: string;
@@ -64,7 +64,10 @@ export function MusicBrainzSubmissionAssistant({
           Review the prepared metadata here, then finish the edit in
           MusicBrainz. This page stays open in its own tab.
         </Dialog.Description>
-        <div className="border-border bg-background-secondary mt-4 rounded-lg border p-3 text-sm">
+        <Box
+          variant="tertiary"
+          className="mt-4 h-auto w-auto flex-col rounded-lg p-3 text-sm"
+        >
           <div className="font-medium">{title}</div>
           <div className="text-foreground-secondary">
             {artistName || 'Artist credit not set'}
@@ -86,7 +89,7 @@ export function MusicBrainzSubmissionAssistant({
               ))}
             </ol>
           ) : null}
-        </div>
+        </Box>
         <p className="text-foreground-secondary mt-3 text-xs">
           MusicBrainz requires the final release or recording edit in its web
           editor. Beta prepares the metadata and keeps your work in this tab.
