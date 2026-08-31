@@ -259,7 +259,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
           <button
             aria-label="Collapse panel"
             aria-pressed="true"
-            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
+            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-secondary text-secondary-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
             data-headlessui-state=""
             data-testid="sidebar-toggle-left"
             title="Collapse panel"
@@ -306,7 +306,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
               >
                 <div>
                   <div
-                    class="flex w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
+                    class="flex min-h-8 w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
                     data-testid="sidebar-navigation-item"
                   >
                     <div
@@ -346,7 +346,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
               >
                 <div>
                   <div
-                    class="flex w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
+                    class="flex min-h-8 w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
                     data-testid="sidebar-navigation-item"
                   >
                     <div
@@ -390,7 +390,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
               >
                 <div>
                   <div
-                    class="flex w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
+                    class="flex min-h-8 w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
                     data-testid="sidebar-navigation-item"
                   >
                     <div
@@ -437,7 +437,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
               >
                 <div>
                   <div
-                    class="flex w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
+                    class="flex min-h-8 w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
                     data-testid="sidebar-navigation-item"
                   >
                     <div
@@ -479,7 +479,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
               >
                 <div>
                   <div
-                    class="flex w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
+                    class="flex min-h-8 w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
                     data-testid="sidebar-navigation-item"
                   >
                     <div
@@ -528,7 +528,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
               >
                 <div>
                   <div
-                    class="flex w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
+                    class="flex min-h-8 w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
                     data-testid="sidebar-navigation-item"
                   >
                     <div
@@ -571,7 +571,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
               >
                 <div>
                   <div
-                    class="flex w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
+                    class="flex min-h-8 w-full items-center overflow-hidden rounded-md border-(length:--border-width) hover:bg-background-secondary border-transparent"
                     data-testid="sidebar-navigation-item"
                   >
                     <div
@@ -624,7 +624,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
             </div>
             <div>
               <div
-                class="flex w-full items-center overflow-hidden rounded-md border-(length:--border-width) cursor-pointer hover:bg-background-secondary border-transparent"
+                class="flex min-h-8 w-full items-center overflow-hidden rounded-md border-(length:--border-width) cursor-pointer hover:bg-background-secondary border-transparent"
                 data-testid="sidebar-navigation-item"
                 role="button"
               >
@@ -668,7 +668,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
         />
       </div>
       <main
-        class="bg-background-secondary overflow-auto"
+        class="bg-background-secondary min-w-0 overflow-auto"
         data-testid="player-workspace-main"
       >
         <div
@@ -774,7 +774,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
           <button
             aria-label="Collapse panel"
             aria-pressed="true"
-            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
+            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-secondary text-secondary-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
             data-headlessui-state=""
             data-testid="sidebar-toggle-right"
             title="Collapse panel"
@@ -813,7 +813,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
           class="flex flex-1 flex-col overflow-hidden"
         >
           <div
-            class="flex h-full flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150 opacity-100"
+            class="flex h-full min-h-0 flex-col items-center justify-center gap-4 p-8 text-center transition-opacity duration-150 opacity-100"
             data-testid="queue-empty-state"
           >
             <svg
@@ -872,7 +872,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
         aria-valuemin="0"
         aria-valuenow="0"
         aria-valuetext="0:00 elapsed, 0:00 remaining"
-        class="relative h-4 w-full focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none cursor-pointer"
+        class="relative h-6 w-full focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none cursor-pointer"
         data-testid="player-seek-bar"
         role="slider"
         tabindex="0"
@@ -892,7 +892,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
           </span>
         </div>
         <div
-          class="border-border bg-background-secondary absolute inset-0 border-t-(length:--border-width)"
+          class="border-border bg-background-secondary absolute inset-x-0 top-2.5 h-1 overflow-hidden rounded-full border-(length:--border-width)"
         >
           <div
             class="bg-primary h-full transition-none"
@@ -902,19 +902,19 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
       </div>
     </div>
     <footer
-      class="bg-background-secondary border-border flex h-16 items-center border-t-(length:--border-width) px-4"
+      class="bg-background/95 border-border flex h-[4.5rem] items-center border-t-(length:--border-width) shadow-[0_-10px_30px_rgba(0,0,0,0.16)] backdrop-blur-xl px-5"
     >
       <div
-        class="grid w-full grid-cols-[minmax(0,1fr)_minmax(0,2.5fr)_minmax(0,1fr)] items-center gap-4"
+        class="grid w-full grid-cols-[minmax(0,1fr)_minmax(0,2.5fr)_minmax(0,1fr)] items-center gap-5"
       >
         <div
           class="min-w-0"
         >
           <div
-            class="flex min-w-0 items-center gap-3"
+            class="flex min-w-0 items-center gap-3.5"
           >
             <div
-              class="border-border bg-background-secondary size-12 shrink-0 overflow-hidden rounded-md border-(length:--border-width)"
+              class="border-border bg-background-secondary size-12 shrink-0 overflow-hidden rounded-lg border-(length:--border-width) shadow-sm ring-1 ring-white/5"
             >
               <div
                 class="text-foreground-secondary flex size-full items-center justify-center"
@@ -948,7 +948,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
               class="min-w-0 flex-1"
             >
               <div
-                class="text-foreground truncate text-sm font-bold"
+                class="text-foreground truncate text-sm font-semibold tracking-tight"
                 data-testid="now-playing-title"
               >
                 No track playing
@@ -964,13 +964,13 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
           class="flex w-full min-w-0 justify-center"
         >
           <div
-            class="flex items-center justify-center gap-2"
+            class="flex items-center justify-center gap-1.5"
           >
             <div>
               <button
                 aria-label="Shuffle: off"
                 aria-pressed="false"
-                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center"
+                class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center rounded-full"
                 data-headlessui-state=""
                 data-testid="player-shuffle-button"
                 type="button"
@@ -1008,7 +1008,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
             </div>
             <button
               aria-label="Previous"
-              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center"
+              class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center rounded-full"
               data-headlessui-state=""
               type="button"
             >
@@ -1036,7 +1036,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
             <button
               aria-label="Play"
               aria-pressed="false"
-              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center active:bg-accent-green active:text-black"
+              class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center active:bg-accent-green size-10 rounded-full shadow-md active:text-black"
               data-headlessui-state=""
               data-testid="player-play-button"
               type="button"
@@ -1061,7 +1061,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
             </button>
             <button
               aria-label="Next"
-              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center"
+              class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center rounded-full"
               data-headlessui-state=""
               data-testid="player-next-button"
               type="button"
@@ -1091,7 +1091,7 @@ exports[`Search view > (Snapshot) renders the search view 1`] = `
               <button
                 aria-label="Repeat: off"
                 aria-pressed="false"
-                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center"
+                class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-10 justify-center rounded-full"
                 data-headlessui-state=""
                 data-testid="player-repeat-button"
                 type="button"
