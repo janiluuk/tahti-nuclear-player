@@ -1009,6 +1009,12 @@ export async function fetchStudioCollection(slug: string): Promise<{
         id: `mock-collection-${slug}`,
         slug,
         name: slug,
+        style:
+          slug === 'short-signals'
+            ? 'EP'
+            : slug === 'midnight-archive'
+              ? 'ALBUM'
+              : 'PLAYLIST',
         isPublic: true,
         items: mockArchiveStore.map((a, i) => ({
           id: `ci-${a.id}`,

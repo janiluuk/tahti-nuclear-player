@@ -16,7 +16,7 @@ import { Button } from '../Button';
 
 type PluginItemProps = {
   name: string;
-  author: string;
+  author?: string;
   description: string;
   version?: string;
   updateAvailable?: boolean;
@@ -89,10 +89,12 @@ export const PluginItem: FC<PluginItemProps> = ({
           <div className="min-w-0 flex-1">
             <h3 className="text-foreground inline-flex flex-row items-baseline gap-2 text-lg leading-tight font-bold select-none">
               <span data-testid="plugin-name">{name}</span>
-              <p className="text-foreground-secondary text-sm font-normal select-none">
-                <span className="mr-1 opacity-60">{labels.by ?? 'by'}</span>
-                <span data-testid="plugin-author">{author}</span>
-              </p>
+              {author ? (
+                <p className="text-foreground-secondary text-sm font-normal select-none">
+                  <span className="mr-1 opacity-60">{labels.by ?? 'by'}</span>
+                  <span data-testid="plugin-author">{author}</span>
+                </p>
+              ) : null}
             </h3>
             <p
               data-testid="plugin-description"

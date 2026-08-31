@@ -11,7 +11,7 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader } from '../../components/StudioPanel';
 import { TrackEditDialog } from '../../components/TrackEditDialog';
 
-export function StudioStashView() {
+export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
   const [tab, setTab] = useState<'all' | 'files'>('all');
   const [items, setItems] = useState<StudioArchiveItem[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -32,11 +32,13 @@ export function StudioStashView() {
   return (
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
-        <StudioNav current="/studio/stash" />
-        <StudioPageHeader
-          title="Stash"
-          subtitle="Private locker — upload work in progress and grant access only when it is ready."
-        />
+        {!embedded && <StudioNav current="/studio/stash" />}
+        {!embedded && (
+          <StudioPageHeader
+            title="Stash"
+            subtitle="Private locker — upload work in progress and grant access only when it is ready."
+          />
+        )}
         <div
           className="border-border flex gap-1 border-b pb-2"
           role="tablist"

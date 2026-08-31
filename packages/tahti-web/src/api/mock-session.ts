@@ -160,6 +160,7 @@ export function buildMockLoginUser(
   email: string,
   overrides?: Partial<AuthUser>,
 ): AuthUser {
+  const mockAdmin = import.meta.env.VITE_MOCK_ADMIN === '1';
   const username =
     email
       .split('@')[0]
@@ -170,10 +171,12 @@ export function buildMockLoginUser(
     email,
     username,
     displayName: username === 'demo' ? 'Demo Artist' : username,
-    role: 'ARTIST',
+    role: mockAdmin ? 'BOARD' : 'ARTIST',
+    roles: mockAdmin ? ['BOARD', 'ARTIST'] : ['ARTIST'],
     tier: 'ARTIST',
     avatarUrl: null,
     isMember: true,
+    isBoard: mockAdmin,
     channel: {
       slug: username,
       state: 'OFFLINE',

@@ -65,7 +65,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDczRDk0QzBFODNCNDEyNUUKUldSZUVyU0REa3paYzdTaE9IdlErcjNoTmdyMkNLL0d3alFZTHVMcytxQzJ3K1NJRlFWQlVaYk4K",
       "endpoints": [
-        "https://github.com/janiluuk/tahti-electron-compatible-client/releases/latest/download/latest.json"
+        "https://github.com/janiluuk/tahti-player/releases/latest/download/latest.json"
       ]
     }
   }

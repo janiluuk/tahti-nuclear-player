@@ -1,7 +1,15 @@
-import { PauseIcon, PlayIcon, PowerIcon, RadioTowerIcon } from 'lucide-react';
+import {
+  CheckIcon,
+  PauseIcon,
+  PlayIcon,
+  PlusIcon,
+  PowerIcon,
+  RadioTowerIcon,
+  SearchIcon,
+} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
   addToSelectsRotation,
@@ -46,6 +54,9 @@ export function SelectsTab() {
   const [streamBusy, setStreamBusy] = useState(false);
   const [query, setQuery] = useState('');
   const [browse, setBrowse] = useState<AdminSelectsBrowseItem[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [adding, setAdding] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const recoveryAttempted = useRef(false);
   const selectsPlayableId = 'live:tahti-selects';
@@ -92,7 +103,7 @@ export function SelectsTab() {
   }, [items.length, loading, reload, stream.state]);
 
   useEffect(() => {
-    if (!query.trim()) {
+    if (!pickerOpen) {
       setBrowse([]);
       return;
     }
@@ -100,7 +111,7 @@ export function SelectsTab() {
       void searchAdminSelectsBrowse(query).then((res) => setBrowse(res.data));
     }, 250);
     return () => clearTimeout(handle);
-  }, [query]);
+  }, [pickerOpen, query]);
 
   const inRotationIds = new Set(items.map((i) => i.archiveItemId));
 
@@ -243,12 +254,24 @@ export function SelectsTab() {
         </div>
       </StudioPanel>
 
-      <StudioPanel title={`Current rotation (${items.length})`}>
+      <StudioPanel
+        title={`Current rotation (${items.length})`}
+        action={
+          <Button
+            size="icon-sm"
+            aria-label="Add content to rotation"
+            title="Add content to rotation"
+            onClick={() => setPickerOpen(true)}
+          >
+            <PlusIcon size={16} aria-hidden />
+          </Button>
+        }
+      >
         {loading ? (
           <PageLoading label="Loading Selects rotation…" />
         ) : items.length === 0 ? (
           <p className="text-foreground-secondary py-4 text-center text-sm">
-            Nothing in rotation yet — add tracks below.
+            Nothing in rotation yet — use the plus button to add tracks.
           </p>
         ) : (
           <TahtiRotationPlaylistEditor
@@ -292,83 +315,168 @@ export function SelectsTab() {
         )}
       </StudioPanel>
 
-      <StudioPanel title="Add from artist archives">
-        <Input
-          placeholder="Search public archive items by title…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="max-w-sm"
-        />
-        {query.trim() && (
-          <ul className="divide-border mt-3 divide-y">
-            {browse.length === 0 ? (
-              <li className="text-foreground-secondary py-3 text-sm">
-                No public archive items match &ldquo;{query}&rdquo;.
-              </li>
-            ) : (
-              browse.map((item) => {
-                const already = inRotationIds.has(item.id);
-                return (
-                  <li
-                    key={item.id}
-                    className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium">{item.title}</div>
-                      <div className="text-foreground-secondary text-xs">
-                        {item.artistName} · {fmtDuration(item.durationSec)}
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-1">
-                      {item.audioUrl && (
-                        <Button
-                          size="icon-sm"
-                          variant="text"
-                          aria-label={`Preview ${item.title}`}
-                          title="Preview"
+      <Dialog.Root
+        isOpen={pickerOpen}
+        onClose={() => {
+          if (!adding) {
+            setPickerOpen(false);
+            setSelectedIds(new Set());
+          }
+        }}
+        className="max-w-4xl"
+      >
+        <Dialog.Title>Add content to Tahti Selects</Dialog.Title>
+        <Dialog.Description>
+          Browse public, ready archive content. Select one or more tracks, then
+          add them to the end of the rotation.
+        </Dialog.Description>
+        <div className="grid min-h-96 gap-4 md:grid-cols-[12rem_minmax(0,1fr)]">
+          <nav
+            aria-label="Content types"
+            className="border-border flex gap-1 overflow-x-auto border-b pb-2 md:flex-col md:overflow-visible md:border-r md:border-b-0 md:pr-3"
+          >
+            <Button
+              variant="tertiary"
+              className="justify-start"
+              aria-current="page"
+            >
+              <RadioTowerIcon size={15} aria-hidden className="mr-2" />
+              Tracks
+            </Button>
+            {['Releases', 'Collections', 'Playlists'].map((type) => (
+              <Button
+                key={type}
+                variant="text"
+                className="justify-start opacity-50"
+                disabled
+                title="This content type is not available from the Selects API"
+              >
+                {type}
+              </Button>
+            ))}
+          </nav>
+          <div className="flex min-w-0 flex-col gap-3">
+            <Input
+              aria-label="Search content"
+              placeholder="Search tracks by title…"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              endAddon={<SearchIcon size={16} aria-hidden />}
+            />
+            <div className="border-border min-h-0 overflow-auto rounded-md border">
+              {browse.length === 0 ? (
+                <p className="text-foreground-secondary p-4 text-sm">
+                  {query.trim()
+                    ? `No public archive tracks match “${query}”.`
+                    : 'No eligible archive tracks found.'}
+                </p>
+              ) : (
+                <ul
+                  aria-label="Available tracks"
+                  className="divide-border divide-y"
+                >
+                  {browse.map((item, index) => {
+                    const already = inRotationIds.has(item.id);
+                    const selected = selectedIds.has(item.id);
+                    return (
+                      <li
+                        key={item.id}
+                        className={`flex items-center gap-3 px-3 py-2.5 text-sm ${index % 2 === 1 ? 'bg-background-secondary/40' : 'bg-background'}`}
+                      >
+                        <button
+                          type="button"
+                          disabled={already}
+                          aria-label={`${selected ? 'Deselect' : 'Select'} ${item.title}`}
+                          aria-pressed={selected}
                           onClick={() => {
-                            play({
-                              id: `archive:${item.id}`,
-                              kind: 'archive',
-                              title: item.title,
-                              artist: item.artistName,
-                              streamUrl: item.audioUrl!,
-                              protocol: 'https',
-                              channelSlug: item.channelSlug,
-                            });
-                          }}
-                        >
-                          <PlayIcon size={16} aria-hidden />
-                        </Button>
-                      )}
-                      {already ? (
-                        <span className="text-foreground-secondary text-xs">
-                          In rotation
-                        </span>
-                      ) : (
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            void addToSelectsRotation(item).then((r) => {
-                              if (!r.ok) {
-                                setMsg(r.error);
+                            setSelectedIds((current) => {
+                              const next = new Set(current);
+                              if (next.has(item.id)) {
+                                next.delete(item.id);
                               } else {
-                                reload();
+                                next.add(item.id);
                               }
+                              return next;
                             });
                           }}
+                          className={`border-border flex size-5 shrink-0 items-center justify-center rounded border ${selected ? 'bg-primary text-primary-foreground' : 'bg-background'} disabled:opacity-40`}
                         >
-                          Add
-                        </Button>
-                      )}
-                    </div>
-                  </li>
-                );
-              })
-            )}
-          </ul>
-        )}
-      </StudioPanel>
+                          {selected && <CheckIcon size={13} aria-hidden />}
+                        </button>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-medium">
+                            {item.title}
+                          </div>
+                          <div className="text-foreground-secondary truncate text-xs">
+                            {item.artistName} · {fmtDuration(item.durationSec)}{' '}
+                            · {item.license}
+                          </div>
+                        </div>
+                        {item.audioUrl ? (
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label={`Preview ${item.title}`}
+                            onClick={() =>
+                              play({
+                                id: `archive:${item.id}`,
+                                kind: 'archive',
+                                title: item.title,
+                                artist: item.artistName,
+                                streamUrl: item.audioUrl!,
+                                protocol: 'https',
+                                channelSlug: item.channelSlug,
+                              })
+                            }
+                          >
+                            <PlayIcon size={16} aria-hidden />
+                          </Button>
+                        ) : null}
+                        <span className="text-foreground-secondary w-20 text-right text-xs">
+                          {already ? 'In rotation' : selected ? 'Selected' : ''}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+        <Dialog.Actions>
+          <Button
+            className="bg-background-secondary"
+            disabled={adding}
+            onClick={() => setPickerOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            disabled={selectedIds.size === 0 || adding}
+            onClick={() => {
+              const selected = browse.filter((item) =>
+                selectedIds.has(item.id),
+              );
+              setAdding(true);
+              void Promise.all(
+                selected.map((item) => addToSelectsRotation(item)),
+              ).then((results) => {
+                const failed = results.find((result) => !result.ok);
+                setAdding(false);
+                if (failed && !failed.ok) {
+                  setMsg(failed.error);
+                  return;
+                }
+                setPickerOpen(false);
+                setSelectedIds(new Set());
+                void reload();
+              });
+            }}
+          >
+            {adding ? 'Adding…' : `Add ${selectedIds.size || ''} to rotation`}
+          </Button>
+        </Dialog.Actions>
+      </Dialog.Root>
     </div>
   );
 }

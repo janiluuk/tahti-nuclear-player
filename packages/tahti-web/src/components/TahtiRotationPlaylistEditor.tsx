@@ -31,11 +31,12 @@ type TahtiRotationPlaylistEditorProps = {
   onReorder: (items: AdminSelectsItem[]) => void;
   onRemove: (item: AdminSelectsItem) => void;
   onPreview: (item: AdminSelectsItem) => void;
+  readOnly?: boolean;
 };
 
 export const TahtiRotationPlaylistEditor: FC<
   TahtiRotationPlaylistEditorProps
-> = ({ items, onReorder, onRemove, onPreview }) => {
+> = ({ items, onReorder, onRemove, onPreview, readOnly = false }) => {
   const tracks = useMemo(() => items.map(toTrack), [items]);
   const totalSeconds = items.reduce(
     (total, item) => total + (item.durationSec ?? 0),
@@ -59,7 +60,7 @@ export const TahtiRotationPlaylistEditor: FC<
         getItemId={(_track, index) => items[index]?.id ?? String(index)}
         features={{
           header: true,
-          reorderable: true,
+          reorderable: !readOnly,
           filterable: false,
           sortable: false,
         }}
@@ -67,12 +68,15 @@ export const TahtiRotationPlaylistEditor: FC<
           displayPosition: true,
           displayArtist: true,
           displayDuration: true,
-          displayDeleteButton: true,
-          displayQueueControls: true,
+          displayDeleteButton: !readOnly,
+          displayQueueControls: !readOnly,
           displayThumbnail: false,
         }}
         actions={{
           onReorder: (fromIndex, toIndex) => {
+            if (readOnly) {
+              return;
+            }
             const next = [...items];
             const [moved] = next.splice(fromIndex, 1);
             if (!moved) {
@@ -82,6 +86,9 @@ export const TahtiRotationPlaylistEditor: FC<
             onReorder(next);
           },
           onRemove: (_track, index) => {
+            if (readOnly) {
+              return;
+            }
             const item = items[index];
             if (item) {
               onRemove(item);

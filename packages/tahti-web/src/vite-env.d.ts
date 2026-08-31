@@ -4,6 +4,7 @@ interface ImportMetaEnv {
   readonly VITE_TAHTI_API_URL?: string;
   readonly VITE_TAHTI_API_PROXY_TARGET?: string;
   readonly VITE_FORCE_MOCK?: string;
+  readonly VITE_MOCK_ADMIN?: string;
   /** `1` force / `0` forbid silent mock fallback; default = allow in DEV only */
   readonly VITE_ALLOW_MOCK_FALLBACK?: string;
   readonly VITE_ENABLE_DIAGNOSTICS?: string;

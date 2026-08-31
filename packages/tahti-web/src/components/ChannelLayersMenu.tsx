@@ -6,7 +6,7 @@ import {
   PlusIcon,
   Trash2Icon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
@@ -49,13 +49,19 @@ export function ChannelLayersMenu({
     'presets',
   );
 
+  useEffect(() => {
+    if (selectedId === 'hero' || selectedId === 'header') {
+      setPanel('look');
+    }
+  }, [selectedId]);
+
   const hiddenCatalog = CHANNEL_PAGE_ITEM_TYPES.filter((type) => {
     const row = items.find((i) => i.type === type);
     return !row || !row.visible;
   });
 
   return (
-    <aside className="border-border bg-background flex h-full min-h-0 w-full flex-col border-l sm:w-72 lg:sticky lg:top-4 lg:h-[calc(100vh-7rem)] lg:self-start">
+    <aside className="border-border bg-background flex h-full min-h-0 w-full flex-col border-l sm:w-96 lg:sticky lg:top-4 lg:h-[calc(100vh-7rem)] lg:w-[24rem] lg:self-start">
       <div className="border-border flex gap-1 border-b p-2">
         {(
           [

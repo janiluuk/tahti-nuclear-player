@@ -1,7 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import {
-  BookOpenIcon,
-  CalendarIcon,
   ExternalLinkIcon,
   LayoutDashboardIcon,
   LogInIcon,
@@ -22,8 +20,6 @@ import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { GlobalSearch } from './GlobalSearch';
-import { RadioBookingCalendar } from './RadioBookingCalendar';
-import { ScheduleDialog } from './ScheduleDialog';
 import { TahtiLogoLink } from './TahtiLogo';
 import { UploadTrackDialog } from './UploadTrackDialog';
 
@@ -48,8 +44,6 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const openSettings = useSettingsModalStore((s) => s.open);
   const [open, setOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [scheduleOpen, setScheduleOpen] = useState(false);
-  const [bookOpen, setBookOpen] = useState(false);
   const [broadcastOpen, setBroadcastOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
@@ -149,21 +143,6 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
       </div>
 
       <div className="flex shrink-0 items-center gap-1" ref={popupRef}>
-        <button
-          type="button"
-          className={cn(
-            'hidden sm:inline-flex',
-            iconBtnClass,
-            scheduleOpen && 'border-primary bg-primary/15 text-primary',
-          )}
-          aria-label="Schedule"
-          title="Schedule"
-          data-tour-id="topbar-schedule"
-          onClick={() => setScheduleOpen(true)}
-        >
-          <CalendarIcon size={16} />
-        </button>
-
         {user && hasChannel ? (
           <>
             <div className="relative hidden sm:block">
@@ -226,20 +205,6 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
               onClick={() => setUploadOpen(true)}
             >
               <UploadIcon size={16} />
-            </button>
-            <button
-              type="button"
-              className={cn(
-                'hidden sm:inline-flex',
-                iconBtnClass,
-                bookOpen && 'border-primary bg-primary/15 text-primary',
-              )}
-              aria-label="Book show"
-              title="Book show"
-              data-tour-id="topbar-book"
-              onClick={() => setBookOpen(true)}
-            >
-              <BookOpenIcon size={16} />
             </button>
           </>
         ) : null}
@@ -471,19 +436,6 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
       <UploadTrackDialog
         isOpen={uploadOpen}
         onClose={() => setUploadOpen(false)}
-      />
-      <ScheduleDialog
-        isOpen={scheduleOpen}
-        onClose={() => setScheduleOpen(false)}
-        onBook={() => {
-          setScheduleOpen(false);
-          setBookOpen(true);
-        }}
-      />
-      <RadioBookingCalendar
-        isOpen={bookOpen}
-        onClose={() => setBookOpen(false)}
-        scope="mine"
       />
     </header>
   );

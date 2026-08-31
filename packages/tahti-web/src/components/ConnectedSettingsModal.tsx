@@ -16,9 +16,8 @@ import {
 import { SettingsSectionBody } from '../views/settings/SettingsPanels';
 import { SidebarBuildInfo } from './SidebarBuildInfo';
 
-/** Canonical Tahti Nuclear origin (TAHTI.md / README remotes). */
-const GITHUB_REPO_URL =
-  'https://github.com/janiluuk/tahti-electron-compatible-client';
+/** Canonical Tahti Player repository. */
+const GITHUB_REPO_URL = 'https://github.com/janiluuk/tahti-player';
 /** Public Scalar/OpenAPI docs (packages/tahti-web/README.md). */
 const API_DOCS_URL = 'https://api.tahti.live/api';
 const ABOUT_URL = '/about';

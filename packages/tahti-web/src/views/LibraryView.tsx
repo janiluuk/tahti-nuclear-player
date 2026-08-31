@@ -19,6 +19,7 @@ import { MyCollectionsView } from './MyCollectionsView';
 import { MyDiscographyView } from './MyDiscographyView';
 import { StudioRecordingsView } from './studio/StudioRecordingsView';
 import { StudioReleasesView } from './studio/StudioReleasesView';
+import { StudioStashView } from './studio/StudioStashView';
 
 type Tab =
   | 'library'
@@ -30,6 +31,8 @@ type Tab =
   | 'history'
   | 'smartlinks'
   | 'media';
+
+type CollectionTab = 'collections' | 'recordings' | 'media' | 'stash';
 
 const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
   library: '/library',
@@ -43,19 +46,32 @@ const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
   media: '/library/media',
 };
 
-export function LibraryView({ tab = 'library' }: { tab?: Tab }) {
+const libraryNavRoute = (tab: Tab): string =>
+  tab === 'recordings' || tab === 'media'
+    ? '/library/collections'
+    : LIBRARY_ROUTE_BY_TAB[tab];
+
+export function LibraryView({
+  tab = 'library',
+  collectionTab,
+}: {
+  tab?: Tab;
+  collectionTab?: CollectionTab;
+}) {
+  const activeCollectionTab = collectionTab ?? tab;
   const overviewTab =
     tab === 'sounds' ||
-    tab === 'collections' ||
-    tab === 'recordings' ||
-    tab === 'media'
-      ? tab
+    activeCollectionTab === 'collections' ||
+    activeCollectionTab === 'recordings' ||
+    activeCollectionTab === 'media' ||
+    activeCollectionTab === 'stash'
+      ? activeCollectionTab
       : null;
 
   return (
     <div className="studio-page-layout flex w-full flex-col gap-6">
       {tab !== 'history' && tab !== 'favorites' ? (
-        <StudioNav current={LIBRARY_ROUTE_BY_TAB[tab]} />
+        <StudioNav current={libraryNavRoute(tab)} />
       ) : null}
       <div className="min-w-0 flex-1">
         {tab === 'library' ? (
@@ -72,8 +88,14 @@ export function LibraryView({ tab = 'library' }: { tab?: Tab }) {
         {overviewTab ? (
           <>
             <StudioPageHeader
-              title="Sounds"
-              subtitle="Your sounds, collections, and recordings."
+              title={
+                overviewTab === 'sounds'
+                  ? 'Sounds'
+                  : overviewTab === 'recordings'
+                    ? 'Recordings'
+                    : 'Collections'
+              }
+              subtitle="Your sounds, collections, recordings, and media."
             />
             <nav
               aria-label="Library sections"
@@ -84,13 +106,18 @@ export function LibraryView({ tab = 'library' }: { tab?: Tab }) {
                 [
                   ['sounds', 'Sounds', '/library/sounds'],
                   ['collections', 'Collections', '/library/collections'],
-                  ['recordings', 'Recordings', '/library/recordings'],
-                  ['media', 'Media', '/library/media'],
+                  [
+                    'recordings',
+                    'Recordings',
+                    '/library/collections?tab=recordings',
+                  ],
+                  ['media', 'Media', '/library/collections?tab=media'],
+                  ['stash', 'Stash', '/library/collections?tab=stash'],
                 ] as const
               ).map(([id, label, to]) => (
                 <Link
                   key={id}
-                  to={to}
+                  to={to as never}
                   role="tab"
                   aria-selected={overviewTab === id}
                   className={`border-b-2 px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
@@ -108,19 +135,24 @@ export function LibraryView({ tab = 'library' }: { tab?: Tab }) {
                 <MyDiscographyView />
               </div>
             )}
-            {tab === 'collections' && (
+            {overviewTab === 'collections' && (
               <div className="mt-6">
                 <MyCollectionsView embedded />
               </div>
             )}
-            {tab === 'recordings' && (
+            {overviewTab === 'recordings' && (
               <div className="mt-6">
                 <StudioRecordingsView embedded />
               </div>
             )}
-            {tab === 'media' && (
+            {overviewTab === 'media' && (
               <div className="mt-6">
                 <LibraryMediaView />
+              </div>
+            )}
+            {overviewTab === 'stash' && (
+              <div className="mt-6">
+                <StudioStashView embedded />
               </div>
             )}
           </>

@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router';
-import { CheckIcon, RadioIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { CheckIcon, RadioIcon, SearchIcon } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, Input } from '@nuclearplayer/ui';
 
 import {
   fetchRecentBroadcasts,
@@ -32,13 +32,25 @@ function formatDuration(seconds: number | undefined): string {
   return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 }
 
-function RecordingRow({ show }: { show: RecentBroadcast }) {
+function RecordingRow({
+  show,
+  index,
+}: {
+  show: RecentBroadcast;
+  index: number;
+}) {
   const title =
     show.title || show.archiveItemTitle || `Show ${formatDate(show.startedAt)}`;
   const published = show.archiveItemStatus === 'READY';
 
   return (
-    <li className="border-border flex items-center gap-3 rounded-lg border px-3 py-2">
+    <li
+      className={`flex items-center gap-3 border-l-4 p-3 transition-colors ${
+        published
+          ? 'border-l-primary bg-primary/10'
+          : `border-l-transparent ${index % 2 === 0 ? 'bg-background-secondary/55' : 'bg-background'}`
+      }`}
+    >
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium">{title}</div>
         <div className="text-foreground-secondary truncate text-xs">
@@ -81,6 +93,8 @@ export function StudioRecordingsView({
 }) {
   const [shows, setShows] = useState<RecentBroadcast[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<'newest' | 'oldest' | 'title'>('newest');
 
   useEffect(() => {
     void fetchRecentBroadcasts(500).then((res) => {
@@ -89,39 +103,89 @@ export function StudioRecordingsView({
     });
   }, []);
 
+  const visibleShows = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return shows
+      .filter((show) => {
+        if (!needle) {
+          return true;
+        }
+        return [show.title, show.archiveItemTitle, show.source]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase()
+          .includes(needle);
+      })
+      .sort((left, right) => {
+        if (sort === 'title') {
+          return (left.title || left.archiveItemTitle || '').localeCompare(
+            right.title || right.archiveItemTitle || '',
+          );
+        }
+        const leftTime = new Date(left.startedAt).getTime();
+        const rightTime = new Date(right.startedAt).getTime();
+        return sort === 'newest' ? rightTime - leftTime : leftTime - rightTime;
+      });
+  }, [query, shows, sort]);
+
   const content = (
     <div
       className={`${embedded ? 'flex' : 'studio-page-layout'} mx-auto w-full max-w-3xl flex-col gap-6 px-1 py-2`}
     >
       {!embedded ? <StudioNav current="/studio/recordings" /> : null}
-      <StudioPageHeader title="Recordings" />
+      {!embedded ? <StudioPageHeader title="Recordings" /> : null}
 
       <StudioPanel
         title={`Recorded shows (${shows.length})`}
         description="Every completed show recording, newest first."
       >
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search recordings…"
+            aria-label="Search recordings"
+            endAddon={<SearchIcon size={16} aria-hidden />}
+          />
+          <select
+            value={sort}
+            onChange={(event) => setSort(event.target.value as typeof sort)}
+            aria-label="Sort recordings"
+            className="border-border bg-background h-10 rounded-md border px-3 text-sm sm:w-44"
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        </div>
         {loading ? (
           <PageLoading label="Loading…" />
-        ) : shows.length === 0 ? (
+        ) : visibleShows.length === 0 ? (
           <div className="flex flex-col items-start gap-2">
             <p className="text-foreground-secondary text-sm">
-              No recorded shows yet.
+              {shows.length === 0
+                ? 'No recorded shows yet.'
+                : 'No recordings match your search.'}
             </p>
-            <p className="text-foreground-secondary text-xs">
-              Enable recording when you go live and completed shows will appear
-              here.
-            </p>
-            <Link to="/studio/go-live">
-              <Button size="sm" variant="secondary">
-                <RadioIcon size={14} aria-hidden className="mr-1" />
-                Open broadcast studio
-              </Button>
-            </Link>
+            {shows.length === 0 ? (
+              <>
+                <p className="text-foreground-secondary text-xs">
+                  Enable recording when you go live and completed shows will
+                  appear here.
+                </p>
+                <Link to="/studio/go-live">
+                  <Button size="sm" variant="secondary">
+                    <RadioIcon size={14} aria-hidden className="mr-1" />
+                    Open broadcast studio
+                  </Button>
+                </Link>
+              </>
+            ) : null}
           </div>
         ) : (
-          <ul className="flex flex-col gap-2">
-            {shows.map((show) => (
-              <RecordingRow key={show.id} show={show} />
+          <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
+            {visibleShows.map((show, index) => (
+              <RecordingRow key={show.id} show={show} index={index} />
             ))}
           </ul>
         )}

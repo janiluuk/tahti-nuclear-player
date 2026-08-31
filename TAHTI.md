@@ -1,6 +1,7 @@
-# Tahti Nuclear Player — project notes
+# Tahti Player — project notes
 
-Tahti Nuclear Player is built on [nukeop/nuclear](https://github.com/nukeop/nuclear) (AGPL-3.0).
+Tahti Player is built on [nukeop/nuclear](https://github.com/nukeop/nuclear) (AGPL-3.0).
+The canonical repository is [github.com/janiluuk/tahti-player](https://github.com/janiluuk/tahti-player).
 
 It is **not** the upstream Nuclear project. Do not open Nuclear PRs from this tree without cherry-picking onto a clean upstream branch.
 
@@ -12,7 +13,7 @@ It is **not** the upstream Nuclear project. Do not open Nuclear PRs from this tr
 
 | Remote | URL | Role |
 |--------|-----|------|
-| `origin` | `https://github.com/janiluuk/tahti-electron-compatible-client.git` | Tahti Nuclear Player (push here) |
+| `origin` | `https://github.com/janiluuk/tahti-player.git` | Tahti Player (push here) |
 | `upstream` | `https://github.com/nukeop/nuclear.git` | Nuclear upstream (fetch/rebase only) |
 
 Sync upstream later:

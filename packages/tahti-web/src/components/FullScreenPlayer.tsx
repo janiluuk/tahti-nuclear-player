@@ -207,7 +207,15 @@ export function FullScreenPlayer() {
             <div className="text-foreground-secondary text-xs tracking-wide uppercase">
               Error
             </div>
-          ) : !isLive ? (
+          ) : isLive ? (
+            <div className="text-accent-red flex items-center justify-center gap-2 text-sm font-semibold tracking-wide uppercase">
+              <span
+                className="bg-accent-red size-2.5 rounded-full motion-safe:animate-pulse"
+                aria-hidden
+              />
+              Live
+            </div>
+          ) : (
             <div className="w-full">
               <PlayerBar.SeekBar
                 progress={seekProgress}
@@ -222,7 +230,7 @@ export function FullScreenPlayer() {
                 }}
               />
             </div>
-          ) : null}
+          )}
           <PlayerBar.Volume
             value={muted ? 0 : Math.round(volume * 100)}
             onValueChange={(v) => setVolume(v / 100)}

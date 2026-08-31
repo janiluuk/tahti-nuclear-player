@@ -22,6 +22,7 @@ import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import type { EmbedProvider } from '../lib/embedSrc';
+import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -39,7 +40,10 @@ function collectionToPlayables(col: PublicCollection): TahtiPlayable[] {
       kind: 'archive',
       title: archive.title,
       artist: col.user.displayName,
-      coverUrl: archive.bannerUrl ?? col.coverUrl ?? undefined,
+      coverUrl:
+        archive.bannerUrl ??
+        col.coverUrl ??
+        placeholderArtworkUrl(`${col.slug}:${archive.id}`),
       streamUrl: archive.audioUrl,
       protocol: isHls ? 'hls' : 'https',
       channelSlug: archive.channel?.slug,
@@ -76,7 +80,7 @@ export function CollectionView({
           description:
             res.data.description ??
             `Listen to ${res.data.name}, a collection by ${res.data.user.displayName} on Tahti.`,
-          image: res.data.coverUrl ?? undefined,
+          image: res.data.coverUrl ?? placeholderArtworkUrl(res.data.slug),
         });
       }
     });
@@ -126,6 +130,9 @@ export function CollectionView({
   }
 
   const isOwner = Boolean(me && me.username === collection.user.username);
+  const coverUrl =
+    collection.coverUrl ?? placeholderArtworkUrl(collection.slug);
+  const backdropUrl = collection.backdropUrl ?? coverUrl;
 
   const playAll = () => {
     const [head, ...rest] = playables;
@@ -157,7 +164,15 @@ export function CollectionView({
 
       {/* Nuclear desktop player's playlist-detail layout: square artwork +
           name/description beside it, primary actions under the title. */}
-      <div className="border-border bg-primary shadow-shadow relative flex flex-col gap-6 rounded-md border-(length:--border-width) p-6 md:flex-row">
+      <div
+        className="border-border bg-primary shadow-shadow relative isolate flex flex-col gap-6 overflow-hidden rounded-md border-(length:--border-width) p-6 md:flex-row"
+        style={{
+          backgroundImage: `linear-gradient(110deg, color-mix(in srgb, var(--color-primary) 94%, transparent), color-mix(in srgb, var(--color-primary) 72%, transparent)), url(${backdropUrl})`,
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+        }}
+      >
+        <div className="bg-primary/35 pointer-events-none absolute inset-0 -z-10 backdrop-blur-2xl" />
         {isOwner && (
           <Link
             to="/studio/collections/$slug"
@@ -170,12 +185,8 @@ export function CollectionView({
           </Link>
         )}
         <div className="border-border bg-background-secondary shadow-shadow h-60 w-60 shrink-0 overflow-hidden rounded-md border-(length:--border-width)">
-          {collection.coverUrl ? (
-            <img
-              src={collection.coverUrl}
-              alt=""
-              className="size-full object-cover"
-            />
+          {coverUrl ? (
+            <img src={coverUrl} alt="" className="size-full object-cover" />
           ) : (
             <div className="flex size-full items-center justify-center">
               <ListMusicIcon

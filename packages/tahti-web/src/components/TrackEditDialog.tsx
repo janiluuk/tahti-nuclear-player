@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import {
   AudioLinesIcon,
+  DownloadIcon,
   ImageIcon,
   ListMusicIcon,
   TagsIcon,
@@ -18,6 +19,7 @@ import {
   Tabs,
 } from '@nuclearplayer/ui';
 
+import { fetchHearthisTrackById } from '../api/sources';
 import {
   fetchMyRadioSubmissions,
   fetchStudioArchiveItem,
@@ -113,6 +115,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const [radioSubmission, setRadioSubmission] =
     useState<RadioSubmission | null>(null);
   const [submittingToRadio, setSubmittingToRadio] = useState(false);
+  const [downloadingEmbed, setDownloadingEmbed] = useState(false);
   const isDjMix =
     form.contentType === 'DJ_MIX' || form.contentType === 'DJ_SET';
   const isAudioClip = form.contentType === 'AUDIOCLIPS';
@@ -217,6 +220,31 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     }
     updateArtwork(result.url);
     toast.success('Cover art uploaded.');
+  };
+
+  const downloadHearthisEmbed = async () => {
+    if (
+      !item ||
+      item.embedProvider !== 'HEARTHIS' ||
+      !item.embedUri ||
+      !form.downloadsEnabled
+    ) {
+      return;
+    }
+    setDownloadingEmbed(true);
+    const track = await fetchHearthisTrackById(item.embedUri);
+    setDownloadingEmbed(false);
+    if (!track?.streamUrl) {
+      toast.error('This HearThis track is not available for download.');
+      return;
+    }
+    const link = document.createElement('a');
+    link.href = track.streamUrl;
+    link.download = `${item.title || 'hearthis-track'}.audio`;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   };
 
   const save = async () => {
@@ -406,6 +434,24 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                       />
                       Allow downloads
                     </label>
+                    {item.embedProvider === 'HEARTHIS' &&
+                    form.downloadsEnabled ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={downloadingEmbed}
+                        onClick={() => void downloadHearthisEmbed()}
+                      >
+                        <DownloadIcon
+                          size={15}
+                          aria-hidden
+                          className="mr-1.5"
+                        />
+                        {downloadingEmbed
+                          ? 'Preparing download…'
+                          : 'Download from HearThis'}
+                      </Button>
+                    ) : null}
                     <label className="flex items-center gap-2 text-sm">
                       <input
                         type="checkbox"

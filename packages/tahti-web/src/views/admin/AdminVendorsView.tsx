@@ -6,6 +6,8 @@ import {
   fetchAdminIntegrationStatus,
   type AdminIntegrationStatus,
 } from '../../api/admin';
+import { AdminGate } from '../../components/AdminGate';
+import { AdminNav } from '../../components/AdminNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 const CRITICAL_VENDORS = [
@@ -253,5 +255,16 @@ export function AdminVendorsContent() {
         <VendorTable vendors={integrationVendors} />
       </StudioPanel>
     </div>
+  );
+}
+
+export function AdminVendorsView() {
+  return (
+    <AdminGate>
+      <div className="admin-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
+        <AdminNav current="/admin/vendors" />
+        <AdminVendorsContent />
+      </div>
+    </AdminGate>
   );
 }

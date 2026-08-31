@@ -56,7 +56,7 @@ export const SidebarNavigationItem: FC<SidebarNavigationItemProps> = ({
               onClick={onClick}
               data-testid="sidebar-navigation-item"
               className={cn(
-                'flex w-full items-center overflow-hidden rounded-md border-(length:--border-width)',
+                'flex min-h-8 w-full items-center overflow-hidden rounded-md border-(length:--border-width)',
                 {
                   'cursor-pointer': onClick,
                   'bg-primary text-primary-foreground border-border font-bold':

@@ -38,5 +38,5 @@ MCP requires the Tauri process + webview **bridge** to the live player API. A mu
 
 ## Product stance
 
-- **Desktop Nuclear player in `tahti-nuclear`:** MCP **complete / as-is**.
+- **Desktop Tahti Player:** MCP **complete / as-is**.
 - **Web cutover (`tahti-web`):** N/A for Nuclear MCP; optional future *Tahti API* MCP would be a separate package, not a port of this server.

@@ -30,7 +30,6 @@ import {
   type DiscoWidgetRenderItem,
 } from '../api/disco-widgets';
 import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
-import { ChannelControlsWidget } from '../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelShareButton } from '../components/ChannelShareButton';
@@ -198,13 +197,14 @@ export function ChannelView({ slug }: { slug: string }) {
   }
 
   const live = channel.state === 'LIVE' && Boolean(channel.hlsUrl);
-  // VIDEO_LOOP header style plays this artist's clip in place of the
-  // background visualizer — GRADIENT/SOLID have no distinct treatment here
-  // yet (headerStyle otherwise only affects the Studio designer's own
-  // preview), so this only branches for VIDEO_LOOP.
+  // Keep the public page in sync with the header choice made in Studio.
   const showHeaderVideo =
     channel.headerStyle === 'VIDEO_LOOP' &&
     isValidHeaderBackdropUrl(channel.videoBackgroundUrl);
+  const showSolidHeader = channel.headerStyle === 'SOLID';
+  const headerBackground = channel.colorScheme?.background ?? '#0B1220';
+  const headerAccent = channel.colorScheme?.accent ?? '#22D3EE';
+  const headerHighlight = channel.colorScheme?.highlight ?? '#A78BFA';
   const headerBackdropIsImage = isHeaderImageUrl(channel.videoBackgroundUrl);
   const chatOn = channel.chatEnabled !== false;
   const channelIsCurrent =
@@ -341,6 +341,27 @@ export function ChannelView({ slug }: { slug: string }) {
                   aria-hidden="true"
                 />
               )
+            ) : showSolidHeader ? (
+              <div
+                className="absolute inset-0"
+                style={{ backgroundColor: headerBackground }}
+                aria-hidden
+              />
+            ) : channel.headerStyle === 'GRADIENT' ? (
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, ${headerBackground}, ${headerAccent} 55%, ${headerHighlight})`,
+                }}
+                aria-hidden
+              />
+            ) : channel.galleryMode === 'STATIC_SLIDESHOW' &&
+              channel.slideshowImages?.[0] ? (
+              <img
+                className="absolute inset-0 h-full w-full object-cover"
+                src={channel.slideshowImages[0]}
+                alt=""
+              />
             ) : (
               <>
                 {(channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl) ? (
@@ -354,7 +375,7 @@ export function ChannelView({ slug }: { slug: string }) {
                 ) : null}
                 <ChannelVisualizer
                   className="absolute inset-0 h-full w-full opacity-95 [filter:saturate(1.3)]"
-                  preset="REACTIVE_GRID"
+                  preset={resolvePublicVisualizerPreset(channel.visualPreset)}
                   colorScheme={channel.colorScheme}
                   colorSchemeJson={channel.colorSchemeJson}
                   settings={CHANNEL_RADIO_VIZ_SETTINGS}
@@ -648,6 +669,20 @@ export function ChannelView({ slug }: { slug: string }) {
               aria-hidden="true"
             />
           )
+        ) : showSolidHeader ? (
+          <div
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{ backgroundColor: headerBackground }}
+            aria-hidden
+          />
+        ) : channel.headerStyle === 'GRADIENT' ? (
+          <div
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{
+              backgroundImage: `linear-gradient(135deg, ${headerBackground}, ${headerAccent} 55%, ${headerHighlight})`,
+            }}
+            aria-hidden
+          />
         ) : (
           <ChannelVisualizer
             className={`pointer-events-none absolute inset-0 z-0 ${
@@ -663,54 +698,63 @@ export function ChannelView({ slug }: { slug: string }) {
         ))}
 
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <PageHeader
-          title={channel.user.displayName}
-          subtitle={
-            <Link
-              to="/u/$username"
-              params={{ username: channel.user.username }}
-              className="hover:text-foreground underline-offset-2 hover:underline"
-            >
-              @{channel.user.username}
-            </Link>
-          }
-          back={
-            !editing ? (
+        <div
+          onClick={() => {
+            if (editing) {
+              setSelectedId('header');
+            }
+          }}
+          className={editing ? 'cursor-pointer rounded-lg' : undefined}
+        >
+          <PageHeader
+            title={channel.user.displayName}
+            subtitle={
               <Link
-                to="/"
-                className="text-foreground-secondary text-xs hover:underline"
+                to="/u/$username"
+                params={{ username: channel.user.username }}
+                className="hover:text-foreground underline-offset-2 hover:underline"
               >
-                ← Listen
+                @{channel.user.username}
               </Link>
-            ) : undefined
-          }
-          actions={
-            <>
-              {live ? (
-                <OnAirBadge />
-              ) : (
-                <span className="text-foreground-secondary border-border rounded border px-2 py-0.5 font-mono text-xs uppercase">
-                  {channel.state}
-                </span>
-              )}
-              {isOwner && !editing && (
-                <Button size="sm" variant="secondary" onClick={startEdit}>
-                  <span className="inline-flex items-center gap-1.5">
-                    <PencilIcon size={14} />
-                    Edit design
+            }
+            back={
+              !editing ? (
+                <Link
+                  to="/"
+                  className="text-foreground-secondary text-xs hover:underline"
+                >
+                  ← Listen
+                </Link>
+              ) : undefined
+            }
+            actions={
+              <>
+                {live ? (
+                  <OnAirBadge />
+                ) : (
+                  <span className="text-foreground-secondary border-border rounded border px-2 py-0.5 font-mono text-xs uppercase">
+                    {channel.state}
                   </span>
-                </Button>
-              )}
-              {!editing && (
-                <ChannelShareButton
-                  channelSlug={slug}
-                  displayName={channel.user.displayName}
-                  iconOnly={false}
-                />
-              )}
-            </>
-          }
-        />
+                )}
+                {isOwner && !editing && (
+                  <Button size="sm" variant="secondary" onClick={startEdit}>
+                    <span className="inline-flex items-center gap-1.5">
+                      <PencilIcon size={14} />
+                      Edit design
+                    </span>
+                  </Button>
+                )}
+                {!editing && (
+                  <ChannelShareButton
+                    channelSlug={slug}
+                    displayName={channel.user.displayName}
+                    iconOnly={false}
+                  />
+                )}
+              </>
+            }
+          />
+        </div>
 
         {visibleItems.map((item) => {
           if (!editing && !item.visible) {
@@ -805,25 +849,22 @@ export function ChannelView({ slug }: { slug: string }) {
       }}
       onApplyPreset={applyPreset}
       lookSlot={
-        <ChannelControlsWidget
-          sections={[
-            {
-              id: 'channel-design',
-              title: 'Channel appearance',
-              children: (
-                <ChannelDesigner
-                  lookOnly
-                  reloadToken={lookTick}
-                  displayName={channel.user.displayName}
-                  username={channel.user.username}
-                  channelSlug={slug}
-                  avatarUrl={channel.user.avatarUrl}
-                  bio={channel.user.bio}
-                  onSaved={() => setLookTick((n) => n + 1)}
-                />
-              ),
-            },
-          ]}
+        <ChannelDesigner
+          lookOnly
+          reloadToken={lookTick}
+          displayName={channel.user.displayName}
+          username={channel.user.username}
+          channelSlug={slug}
+          avatarUrl={channel.user.avatarUrl}
+          bio={channel.user.bio}
+          lookOpenSection={
+            selectedId === 'hero'
+              ? 'player-design'
+              : selectedId === 'header'
+                ? 'visual-style'
+                : null
+          }
+          onSaved={() => setLookTick((n) => n + 1)}
         />
       }
     />

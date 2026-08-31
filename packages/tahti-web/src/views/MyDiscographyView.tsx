@@ -8,7 +8,6 @@ import {
   PinOffIcon,
   PlayIcon,
   RadioTowerIcon,
-  UploadCloudIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC } from 'react';
 
@@ -20,7 +19,6 @@ import {
   patchStudioArchiveItem,
 } from '../api/studio';
 import type { StudioArchiveItem } from '../api/studio-types';
-import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { TrackEditDialog } from '../components/TrackEditDialog';
@@ -194,23 +192,10 @@ export const MyDiscographyView: FC = () => {
           }
         />
       ) : loading ? (
-        <PageLoading label="Loading all sounds…" />
+        <PageLoading label="Loading sounds…" />
       ) : (
         <>
           <section className="flex flex-col gap-4">
-            <PageHeader
-              title="All sounds"
-              subtitle="Your complete archive, including public, private, and processing audio."
-              meta={
-                <Link to="/library/upload">
-                  <Button size="sm">
-                    <UploadCloudIcon size={16} aria-hidden className="mr-1.5" />
-                    Upload
-                  </Button>
-                </Link>
-              }
-            />
-
             <div className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-xl border p-3">
               <div className="flex flex-wrap gap-2">
                 {FILTERS.map((option) => (
@@ -342,7 +327,7 @@ export const MyDiscographyView: FC = () => {
                     </div>
                     <Button
                       size="icon-sm"
-                      variant="text"
+                      variant={isPinned(item) ? 'secondary' : 'text'}
                       disabled={busyPinId === item.id}
                       aria-label={`${isPinned(item) ? 'Unpin' : 'Pin'} ${item.title}`}
                       title={
@@ -358,7 +343,7 @@ export const MyDiscographyView: FC = () => {
                     </Button>
                     <Button
                       size="icon-sm"
-                      variant={isPlayingItem(item) ? 'default' : undefined}
+                      variant={isPlayingItem(item) ? 'default' : 'text'}
                       disabled={loadingId === item.id}
                       aria-label={
                         isPlayingItem(item)
@@ -376,7 +361,7 @@ export const MyDiscographyView: FC = () => {
                     </Button>
                     <Button
                       size="icon-sm"
-                      variant="secondary"
+                      variant="text"
                       aria-label={`Edit ${item.title}`}
                       title="Edit track"
                       onClick={() => setEditingArchiveId(item.id)}

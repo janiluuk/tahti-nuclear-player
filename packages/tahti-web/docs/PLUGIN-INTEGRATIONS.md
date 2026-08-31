@@ -81,6 +81,7 @@ tests and user-facing coverage for every new configuration flow.
 | Themes | `src/plugins/themes` | App palettes and imported custom themes | Implemented; browser-persisted |
 | Visualizers | `src/plugins/visualizers` | Three.js channel visual scenes | Implemented; ten WebGL presets plus CSS-only Minimal |
 | Audio plugins | `src/plugins/audio-fx` | Pro Editor EQ, compressor, limiter, and filter chain | Registry and preview graph implemented; generic third-party host UI pending |
+| Reference mastering | `src/plugins/mastering` | Browser-only Matchering reference loudness/tonal-balance matching with a final limiter | Implemented; no API mutation — output is local WAV download/preview |
 | Multicast | `src/plugins/multicast` + `api/broadcast.ts` | YouTube, Twitch, Kick, Facebook, TikTok, Mixcloud Live, Instagram, Custom RTMP | Provider registry and API typing implemented; shared add-target form pending |
 | Export | `src/plugins/export` | DSP/export destinations and source deep links | Metadata registry only; provider submit/status API contract pending |
 | Import / Sources | `src/plugins/import-sources` + `api/sources.ts` | OAuth sources, search sources, and link/tool imports | Shared status contract implemented; per-source adapters pending |

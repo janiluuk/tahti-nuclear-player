@@ -24,7 +24,11 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { useAuthStore } from '../../stores/authStore';
 
-export function StudioModerationView() {
+export function StudioModerationView({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const user = useAuthStore((s) => s.user);
   const slug = user?.channel?.slug ?? '';
 
@@ -51,12 +55,20 @@ export function StudioModerationView() {
 
   return (
     <StudioGate>
-      <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
-        <StudioNav current="/studio/moderation" />
-        <StudioPageHeader
-          title="Moderation"
-          subtitle="Delegate chat moderation and manage channel bans."
-        />
+      <div
+        className={
+          embedded
+            ? 'flex flex-col gap-6'
+            : 'studio-page-layout mx-auto flex max-w-3xl flex-col gap-6'
+        }
+      >
+        {!embedded && <StudioNav current="/studio/moderation" />}
+        {!embedded && (
+          <StudioPageHeader
+            title="Moderation"
+            subtitle="Delegate chat moderation and manage channel bans."
+          />
+        )}
 
         {msg && <p className="text-sm">{msg}</p>}
 

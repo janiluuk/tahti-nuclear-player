@@ -133,6 +133,7 @@ import { useChannelShareStore } from '../../stores/channelShareStore';
 import { useSettingsModalStore } from '../../stores/settingsModalStore';
 import { GovernanceView } from '../GovernanceView';
 import { StudioBrandingPanel } from '../studio/StudioBrandingView';
+import { StudioModerationView } from '../studio/StudioModerationView';
 import { WhatsNewPanel } from '../WhatsNewView';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
 import { SETTINGS_NAV, type SettingsSectionId } from './settingsNav';
@@ -1415,6 +1416,11 @@ function ChannelPanel() {
               {note && <SettingsHint>{note}</SettingsHint>}
             </div>
           ),
+        },
+        {
+          id: 'moderation',
+          label: tabLabel(Shield, 'Moderation'),
+          content: <StudioModerationView embedded />,
         },
       ]}
     />

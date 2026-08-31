@@ -1,16 +1,14 @@
-import { PauseIcon, PlayIcon } from 'lucide-react';
+import { PauseIcon, PlayIcon, RadioTowerIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge, Button } from '@nuclearplayer/ui';
 
 import {
   fetchAdminRadio,
-  fetchAdminSelects,
+  fetchAdminRadioRotation,
   radioMoveToFront,
   radioOptOut,
   radioRemoveOptOut,
-  removeFromSelectsRotation,
-  reorderSelectsRotation,
   type AdminRadioData,
   type AdminSelectsItem,
 } from '../../api/admin';
@@ -47,11 +45,11 @@ export function AdminRadioView() {
   const reload = () => {
     void Promise.all([
       fetchAdminRadio(),
-      fetchAdminSelects(),
+      fetchAdminRadioRotation(),
       fetchRadioStation(),
     ]).then(([radioResult, rotationResult, stationResult]) => {
       setData(radioResult.data);
-      setRotation(rotationResult.data.items);
+      setRotation(rotationResult.data);
       setStation(stationResult);
       setLoading(false);
     });
@@ -111,8 +109,16 @@ export function AdminRadioView() {
         ) : (
           <>
             <StudioPanel
-              title="Station monitor"
-              description="The public Tahti Radio output, whether a guest is live or the curated rotation is carrying the station."
+              title={
+                station?.data.hlsUrl && station.data.nowPlaying
+                  ? 'Stream live'
+                  : 'Stream offline'
+              }
+              description={
+                station?.data.hlsUrl && station.data.nowPlaying
+                  ? 'Tahti Radio is broadcasting the member rotation or a live guest channel.'
+                  : 'The Tahti Radio stream is currently unavailable.'
+              }
               action={
                 station?.playable ? (
                   <Button
@@ -134,32 +140,28 @@ export function AdminRadioView() {
                 ) : undefined
               }
             >
-              {station?.data.hlsUrl && station.data.nowPlaying ? (
-                <div className="flex items-center gap-3 text-sm">
-                  <span
-                    className="bg-accent-green size-2 rounded-full"
-                    aria-hidden
-                  />
-                  <div>
-                    <p className="text-accent-green text-xs font-semibold tracking-wide uppercase">
-                      {data.nowPlaying.live
+              <div className="border-border bg-background flex items-center gap-3 rounded-lg border p-3">
+                <div className="bg-background-secondary text-foreground-secondary flex size-10 shrink-0 items-center justify-center rounded-full">
+                  <RadioTowerIcon size={20} aria-hidden />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                    {station?.data.hlsUrl && station.data.nowPlaying
+                      ? data.nowPlaying.live
                         ? 'Live guest on air'
-                        : 'Rotation on air'}
-                    </p>
-                    <p className="font-semibold">
-                      {station.data.nowPlaying.title}
-                    </p>
-                    <p className="text-foreground-secondary">
+                        : 'Rotation on air'
+                      : 'Playback state'}
+                  </p>
+                  <p className="truncate font-semibold">
+                    {station?.data.nowPlaying?.title ?? 'No active track'}
+                  </p>
+                  {station?.data.nowPlaying ? (
+                    <p className="text-foreground-secondary truncate text-sm">
                       {station.data.nowPlaying.artistName}
                     </p>
-                  </div>
+                  ) : null}
                 </div>
-              ) : (
-                <p className="text-foreground-secondary text-sm">
-                  Station output is unavailable. This is truly offline, not
-                  merely between live guests.
-                </p>
-              )}
+              </div>
               <p className="text-foreground-secondary mt-3 text-xs">
                 Member relay:{' '}
                 {data.nowPlaying.live && data.nowPlaying.artistName
@@ -169,7 +171,7 @@ export function AdminRadioView() {
             </StudioPanel>
 
             <StudioPanel
-              title="Tahti Radio rotation"
+              title={`Current rotation (${rotation.length})`}
               description="Drag tracks into the exact order listeners will hear between live shows."
             >
               {rotation.length === 0 ? (
@@ -180,27 +182,9 @@ export function AdminRadioView() {
                 <TahtiRotationPlaylistEditor
                   items={rotation}
                   onPreview={preview}
-                  onReorder={(next) => {
-                    const previous = rotation;
-                    setRotation(next);
-                    void reorderSelectsRotation(
-                      next.map((item) => item.id),
-                    ).then((result) => {
-                      if (!result.ok) {
-                        setRotation(previous);
-                        setMsg(result.error);
-                      }
-                    });
-                  }}
-                  onRemove={(item) => {
-                    void removeFromSelectsRotation(item.id).then((result) => {
-                      if (!result.ok) {
-                        setMsg(result.error);
-                      } else {
-                        reload();
-                      }
-                    });
-                  }}
+                  readOnly
+                  onReorder={() => undefined}
+                  onRemove={() => undefined}
                 />
               )}
             </StudioPanel>

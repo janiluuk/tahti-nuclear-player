@@ -130,11 +130,19 @@ export function StudioChannelView() {
           }
         />
         <StudioPageHeader
-          title={tab === 'radio' ? 'Radio' : 'Channel design'}
+          title={
+            tab === 'radio'
+              ? 'Radio'
+              : tab === 'multicast'
+                ? 'Multicast'
+                : 'Channel design'
+          }
           subtitle={
             tab === 'radio'
               ? 'Manage your stream and 24/7 rotation.'
-              : 'Design your channel, background media, visualizer, and header.'
+              : tab === 'multicast'
+                ? 'Manage the services that mirror your live broadcast.'
+                : 'Design your channel, background media, visualizer, and header.'
           }
         />
 

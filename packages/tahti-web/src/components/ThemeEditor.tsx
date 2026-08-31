@@ -1,7 +1,11 @@
 import { FileJson } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { applyAdvancedTheme, type AdvancedTheme } from '@nuclearplayer/themes';
+import {
+  applyAdvancedTheme,
+  clearAdvancedTheme,
+  type AdvancedTheme,
+} from '@nuclearplayer/themes';
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import { useThemeStore } from '../plugins/themes';
@@ -136,9 +140,7 @@ function hslToHex(hue: number, saturation: number, lightness: number): string {
  * — this edits a set of *overrides*, not a full theme from scratch. */
 export function ThemeEditor() {
   const dark = useThemeStore((s) => s.dark);
-  const themeId = useThemeStore((s) => s.themeId);
   const importCustomTheme = useThemeStore((s) => s.importCustomTheme);
-  const originalThemeId = useRef(themeId);
 
   const [name, setName] = useState('My theme');
   const [lightValues, setLightValues] = useState<Record<string, string>>({});
@@ -161,19 +163,11 @@ export function ThemeEditor() {
     [name, lightValues, darkValues],
   );
 
-  // Live preview every edit. Restore whatever theme was actually active
-  // when this editor unmounts, so navigating away doesn't leave the
-  // preview stuck applied.
   useEffect(() => {
     applyAdvancedTheme(draft);
   }, [draft]);
 
-  useEffect(
-    () => () => {
-      useThemeStore.getState().setTheme(originalThemeId.current);
-    },
-    [],
-  );
+  useEffect(() => clearAdvancedTheme, []);
 
   const save = () => {
     const result = importCustomTheme(draft);

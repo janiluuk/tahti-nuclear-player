@@ -32,6 +32,7 @@ import {
   patchBroadcastPreflight,
   patchRtmpTarget,
   postGoLive,
+  type BroadcastPreflight,
   type BroadcastUsage,
   type RtmpTarget,
   type SignalStatus,
@@ -132,6 +133,7 @@ export function StudioGoLiveView() {
   const [showAddDestination, setShowAddDestination] = useState(false);
   const [recordEnabled, setRecordEnabled] = useState(true);
   const [recordBusy, setRecordBusy] = useState(false);
+  const [preflight, setPreflight] = useState<BroadcastPreflight | null>(null);
   const search = useSearch({ strict: false }) as { tab?: string };
   const [tab, setTab] = useState<'golive' | 'info'>(
     search.tab === 'info' ? 'info' : 'golive',
@@ -174,6 +176,7 @@ export function StudioGoLiveView() {
     setSettings(settingsResult.data);
     setUsage(usageResult.data);
     setTargets(targetResult.data);
+    setPreflight(preflightResult.data);
     setRecordEnabled(preflightResult.data?.autoArchive ?? true);
     if (
       !settingsResult.data &&
@@ -415,6 +418,20 @@ export function StudioGoLiveView() {
                   ) : undefined
                 }
               >
+                {rotationPlaying && !isBroadcastLive && !preflight?.title ? (
+                  <div className="border-border bg-background-secondary flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+                    <span className="text-foreground-secondary">
+                      Add your show name and details before going live.
+                    </span>
+                    <Link
+                      to="/studio/go-live"
+                      search={{ tab: 'info' }}
+                      className="text-foreground font-semibold underline-offset-2 hover:underline"
+                    >
+                      Open Info
+                    </Link>
+                  </div>
+                ) : null}
                 <div className="border-border bg-background/40 flex flex-wrap items-center gap-3 rounded-lg border p-3">
                   {signalOk ? (
                     <CheckCircle2Icon

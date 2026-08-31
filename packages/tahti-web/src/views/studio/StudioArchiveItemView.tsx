@@ -1,15 +1,19 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
   ArchiveIcon,
   AudioLinesIcon,
   BarChart3Icon,
+  GaugeIcon,
   ListMusicIcon,
+  MoreHorizontalIcon,
   PauseIcon,
   PinIcon,
   PinOffIcon,
   PlayIcon,
   RadioTowerIcon,
-  SlidersHorizontalIcon,
+  SaveIcon,
+  ScissorsIcon,
+  SparklesIcon,
   TagsIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -18,7 +22,7 @@ import {
   Button,
   CreatableCombobox,
   Input,
-  SaveButton,
+  Popover,
   Tabs,
 } from '@nuclearplayer/ui';
 
@@ -50,8 +54,8 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
+import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
-import { WaveformCanvas } from '../../components/WaveformCanvas';
 import { capitalizeGenre, PRESET_GENRES } from '../../lib/genres';
 import { isPinned } from '../../lib/pinnedTracks';
 import { useAuthStore } from '../../stores/authStore';
@@ -99,6 +103,7 @@ function autoTrimCuts(peaks: number[], durationSec: number): EditList['cuts'] {
 }
 
 export function StudioArchiveItemView({ id }: { id: string }) {
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const currentId = usePlayerStore((state) => state.currentId);
   const playerStatus = usePlayerStore((state) => state.status);
@@ -386,33 +391,30 @@ export function StudioArchiveItemView({ id }: { id: string }) {
           <PageLoading label="Loading…" />
         ) : (
           <>
-            <header className="border-border bg-background-secondary/30 flex flex-col gap-4 rounded-xl border p-4 sm:flex-row sm:items-center">
-              <div className="border-border bg-background flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+            <header className="border-border bg-background-secondary/30 overflow-hidden rounded-xl border">
+              <div className="relative min-h-72 overflow-hidden">
                 {item.bannerUrl ? (
                   <img
                     src={item.bannerUrl}
                     alt=""
-                    className="size-full object-cover"
+                    className="absolute inset-0 size-full object-cover"
                   />
                 ) : (
-                  <AudioLinesIcon
-                    size={32}
-                    aria-hidden
-                    className="text-foreground-secondary"
-                  />
+                  <div className="bg-background-secondary absolute inset-0 flex items-center justify-center">
+                    <AudioLinesIcon
+                      size={56}
+                      aria-hidden
+                      className="text-foreground-secondary"
+                    />
+                  </div>
                 )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <StudioPageHeader
-                  title={item.title}
-                  subtitle={`Edit title, description, and visibility. ${item.status}, ${visibilityLabel}${pinned ? ', Pinned' : ''}`}
-                />
-              </div>
-              <div className="flex shrink-0 flex-wrap gap-2 sm:max-w-56 sm:justify-end">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
                 <Button
-                  size="sm"
+                  size="icon"
+                  className="absolute top-5 left-5 size-14 rounded-full shadow-xl"
                   disabled={playBusy || notReady || hasError}
-                  aria-label="Play track"
+                  aria-label={isPlaying ? 'Pause track' : 'Play track'}
+                  title={isPlaying ? 'Pause track' : 'Play track'}
                   onClick={() => {
                     if (isPlaying) {
                       setPlayerStatus('paused');
@@ -422,63 +424,147 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                   }}
                 >
                   {isPlaying ? (
-                    <PauseIcon size={16} aria-hidden className="mr-1.5" />
+                    <PauseIcon size={24} aria-hidden />
                   ) : (
-                    <PlayIcon size={16} aria-hidden className="mr-1.5" />
+                    <PlayIcon size={24} aria-hidden />
                   )}
-                  {isPlaying ? 'Pause' : 'Play'}
                 </Button>
-                {!isAudioClip ? (
-                  <Button
-                    size="sm"
-                    variant={item.isFallback ? 'secondary' : 'default'}
-                    disabled={rotationBusy}
-                    aria-label={
-                      item.isFallback
-                        ? 'Remove from rotation'
-                        : 'Add to rotation'
-                    }
-                    onClick={() => void toggleRotation()}
-                  >
-                    <RadioTowerIcon size={16} aria-hidden className="mr-1.5" />
-                    {rotationBusy
-                      ? 'Updating…'
-                      : item.isFallback
-                        ? 'In rotation'
-                        : 'Add to rotation'}
-                  </Button>
-                ) : null}
+                <div className="absolute right-5 bottom-5 left-5 text-white">
+                  <StudioPageHeader
+                    title={item.title}
+                    subtitle={`Edit title, description, and visibility. ${item.status}, ${visibilityLabel}${pinned ? ', Pinned' : ''}`}
+                  />
+                  <div className="mt-5">
+                    <WaveformSeekbar
+                      trackId={id}
+                      peaks={peaks}
+                      progress={
+                        isCurrent && playerDuration > 0
+                          ? currentTime / playerDuration
+                          : 0
+                      }
+                      className="h-14"
+                      playedColor="#ffffff"
+                      unplayedColor="rgba(255,255,255,0.35)"
+                      onSeek={(fraction) =>
+                        void startPlayback(
+                          fraction *
+                            (editList?.sourceDuration ?? item.durationSec ?? 0),
+                        )
+                      }
+                    />
+                    <div className="mt-1 flex justify-between text-xs text-white/70 tabular-nums">
+                      <span>
+                        {isCurrent
+                          ? `${Math.floor(currentTime / 60)}:${String(Math.floor(currentTime % 60)).padStart(2, '0')}`
+                          : '0:00'}
+                      </span>
+                      <span>
+                        {Math.floor(
+                          (editList?.sourceDuration ?? item.durationSec ?? 0) /
+                            60,
+                        )}
+                        :
+                        {String(
+                          Math.floor(
+                            (editList?.sourceDuration ??
+                              item.durationSec ??
+                              0) % 60,
+                          ),
+                        ).padStart(2, '0')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="border-border flex flex-wrap items-center gap-2 border-t p-3">
                 <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={saving || visibility === 'PRIVATE'}
-                  onClick={() => void moveToStash()}
-                  title="Move to private stash"
-                >
-                  <ArchiveIcon size={16} aria-hidden className="mr-1.5" />
-                  Stash
-                </Button>
-                <Button
-                  size="sm"
+                  size="icon-sm"
                   variant="secondary"
                   disabled={pinBusy}
                   onClick={() => void togglePin()}
+                  aria-label={pinned ? 'Unpin from page' : 'Pin to page'}
+                  title={pinned ? 'Unpin from page' : 'Pin to page'}
                 >
                   {pinned ? (
-                    <PinOffIcon size={16} aria-hidden className="mr-1.5" />
+                    <PinOffIcon size={16} aria-hidden />
                   ) : (
-                    <PinIcon size={16} aria-hidden className="mr-1.5" />
+                    <PinIcon size={16} aria-hidden />
                   )}
-                  {pinBusy ? '…' : pinned ? 'Unpin from page' : 'Pin to page'}
                 </Button>
                 {tab === 'details' ? (
-                  <SaveButton
-                    size="sm"
-                    disabled={!title.trim()}
-                    saving={saving}
+                  <Button
+                    size="icon-sm"
+                    disabled={!title.trim() || saving}
                     onClick={() => void save()}
-                  />
+                    aria-label="Save changes"
+                    title="Save changes"
+                  >
+                    <SaveIcon size={16} aria-hidden />
+                  </Button>
                 ) : null}
+                <span className="bg-border mx-1 h-5 w-px" aria-hidden />
+                <Popover
+                  className="relative"
+                  anchor="bottom end"
+                  panelClassName="w-56"
+                  trigger={
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      disabled={notReady || hasError}
+                      aria-label="Quick edits"
+                      title="Quick edits"
+                    >
+                      <MoreHorizontalIcon size={16} aria-hidden />
+                    </Button>
+                  }
+                >
+                  <Popover.Menu>
+                    <Popover.Section label="Quick edits">
+                      <Popover.Item
+                        disabled={quickBusy !== null}
+                        onClick={onNormalize}
+                        icon={<GaugeIcon size={16} aria-hidden />}
+                      >
+                        {quickBusy === 'normalize'
+                          ? 'Normalizing…'
+                          : 'Normalize audio'}
+                      </Popover.Item>
+                      <Popover.Item
+                        disabled={quickBusy !== null}
+                        onClick={onAutoTrim}
+                        icon={<ScissorsIcon size={16} aria-hidden />}
+                      >
+                        {quickBusy === 'trim'
+                          ? 'Trimming silence…'
+                          : 'Trim silence'}
+                      </Popover.Item>
+                      <Popover.Item
+                        onClick={() =>
+                          void navigate({
+                            to: '/studio/mastering/$id',
+                            params: { id },
+                          })
+                        }
+                        icon={<SparklesIcon size={16} aria-hidden />}
+                      >
+                        Master
+                      </Popover.Item>
+                    </Popover.Section>
+                  </Popover.Menu>
+                </Popover>
+                <Link to="/studio/archive/$id/editor" params={{ id }}>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    disabled={notReady || hasError}
+                    aria-label="Open audio editor"
+                    title="Open audio editor"
+                  >
+                    <AudioLinesIcon size={16} aria-hidden />
+                  </Button>
+                </Link>
               </div>
             </header>
 
@@ -638,115 +724,11 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                         </label>
                       </div>
 
-                      <section
-                        className="flex flex-col gap-3"
-                        aria-label="Waveform preview"
-                      >
-                        <h2>
-                          <Eyebrow>Waveform preview</Eyebrow>
-                        </h2>
-                        <WaveformCanvas
-                          peaks={peaks}
-                          durationSec={
-                            editList?.sourceDuration ?? item.durationSec ?? 0
-                          }
-                          currentTime={isCurrent ? currentTime : 0}
-                          cuts={editList?.cuts ?? []}
-                          selection={null}
-                          onSeek={(seconds) => void startPlayback(seconds)}
-                        />
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            disabled={
-                              quickBusy !== null || notReady || hasError
-                            }
-                            onClick={onNormalize}
-                          >
-                            {quickBusy === 'normalize'
-                              ? 'Normalizing…'
-                              : 'Normalize'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            disabled={
-                              quickBusy !== null || notReady || hasError
-                            }
-                            onClick={onAutoTrim}
-                          >
-                            {quickBusy === 'trim'
-                              ? 'Trimming…'
-                              : 'Auto-trim silence'}
-                          </Button>
-                          <Link
-                            to="/studio/archive/$id/editor"
-                            params={{ id }}
-                            aria-label="Open audio editor"
-                            onClick={(event) => {
-                              if (notReady || hasError) {
-                                event.preventDefault();
-                              }
-                            }}
-                          >
-                            <Button
-                              size="sm"
-                              variant="text"
-                              disabled={notReady || hasError}
-                            >
-                              <AudioLinesIcon
-                                size={16}
-                                aria-hidden
-                                className="mr-1.5"
-                              />
-                              Open audio editor
-                            </Button>
-                          </Link>
-                          <Link
-                            to="/studio/mastering/$id"
-                            params={{ id }}
-                            aria-label="Match to a reference track"
-                            onClick={(event) => {
-                              if (notReady || hasError) {
-                                event.preventDefault();
-                              }
-                            }}
-                          >
-                            <Button
-                              size="sm"
-                              variant="text"
-                              disabled={notReady || hasError}
-                            >
-                              <SlidersHorizontalIcon
-                                size={16}
-                                aria-hidden
-                                className="mr-1.5"
-                              />
-                              Match to reference
-                            </Button>
-                          </Link>
-                          {isCurrent && playerDuration > 0 ? (
-                            <span className="text-foreground-secondary ml-auto text-xs tabular-nums">
-                              {Math.floor(currentTime / 60)}:
-                              {String(Math.floor(currentTime % 60)).padStart(
-                                2,
-                                '0',
-                              )}{' '}
-                              / {Math.floor(playerDuration / 60)}:
-                              {String(Math.floor(playerDuration % 60)).padStart(
-                                2,
-                                '0',
-                              )}
-                            </span>
-                          ) : null}
-                        </div>
-                        {quickMsg && (
-                          <p className="text-foreground-secondary text-xs">
-                            {quickMsg}
-                          </p>
-                        )}
-                      </section>
+                      {quickMsg && (
+                        <p className="text-foreground-secondary mt-4 text-xs">
+                          {quickMsg}
+                        </p>
+                      )}
 
                       {versions.length > 0 && (
                         <section className="flex flex-col gap-2">
@@ -830,7 +812,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                           </span>
                         ),
                         content: (
-                          <section className="border-border bg-background-secondary/30 flex flex-col gap-4 rounded-xl border p-5">
+                          <section className="border-border bg-background-secondary/30 flex flex-col gap-5 rounded-xl border p-5">
                             <div className="flex items-start gap-3">
                               <ListMusicIcon
                                 size={28}
@@ -860,6 +842,39 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                               />
                               Choose playlists
                             </Button>
+                            <div className="border-border grid gap-3 border-t pt-4 sm:grid-cols-2">
+                              {!isAudioClip ? (
+                                <Button
+                                  variant={
+                                    item.isFallback ? 'secondary' : 'text'
+                                  }
+                                  disabled={rotationBusy}
+                                  onClick={() => void toggleRotation()}
+                                  aria-pressed={item.isFallback}
+                                >
+                                  <RadioTowerIcon
+                                    size={16}
+                                    aria-hidden
+                                    className="mr-1.5"
+                                  />
+                                  {item.isFallback
+                                    ? 'Remove from rotation'
+                                    : 'Add to rotation'}
+                                </Button>
+                              ) : null}
+                              <Button
+                                variant="text"
+                                disabled={saving || visibility === 'PRIVATE'}
+                                onClick={() => void moveToStash()}
+                              >
+                                <ArchiveIcon
+                                  size={16}
+                                  aria-hidden
+                                  className="mr-1.5"
+                                />
+                                Move to private stash
+                              </Button>
+                            </div>
                           </section>
                         ),
                       },

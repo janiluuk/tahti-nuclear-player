@@ -56,37 +56,9 @@ body,
   }
 
   .studio-page-layout {
-    display: grid;
-    grid-template-columns: 11rem minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    align-items: start;
-    position: relative;
-    row-gap: 0;
-  }
-
-  .studio-page-layout > [data-studio-navigation] {
-    display: contents;
-  }
-
-  .studio-page-layout > [data-studio-navigation] > [data-studio-section-tabs] {
-    grid-column: 2;
-    grid-row: 1;
-    min-width: 0;
-    align-self: start;
-  }
-
-  .studio-page-layout > [data-studio-navigation] > [data-studio-section-menu] {
-    grid-column: 1;
-    grid-row: 2;
-    position: absolute;
-    align-self: start;
-    width: 11rem;
-  }
-
-  .studio-page-layout > :not([data-studio-navigation]) {
-    grid-column: 2;
-    min-width: 0;
-    padding-inline-start: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .admin-moderation-layout,

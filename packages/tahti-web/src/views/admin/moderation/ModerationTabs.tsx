@@ -13,6 +13,7 @@ type ModerationTabsProps = {
   items: ModerationTabItem[];
   onChange: (id: string) => void;
   ariaLabel?: string;
+  className?: string;
 };
 
 export const ModerationTabs = ({
@@ -20,6 +21,7 @@ export const ModerationTabs = ({
   items,
   onChange,
   ariaLabel,
+  className,
 }: ModerationTabsProps) => {
   const selectedIndex = Math.max(
     0,
@@ -30,8 +32,8 @@ export const ModerationTabs = ({
     <Tabs.Root
       selectedIndex={selectedIndex}
       onChange={(index) => onChange(items[index].id)}
-      className="w-full"
-      listClassName="flex flex-wrap gap-2"
+      className={className ?? 'w-full'}
+      listClassName="flex flex-wrap gap-3"
       tabClassName="h-8 rounded-md border border-border px-2.5 text-xs font-semibold tracking-wide uppercase"
     >
       <Tabs.List aria-label={ariaLabel}>

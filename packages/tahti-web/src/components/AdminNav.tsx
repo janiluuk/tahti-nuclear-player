@@ -8,6 +8,7 @@ import {
   GaugeIcon,
   LanguagesIcon,
   LibraryIcon,
+  MapIcon,
   MapPinIcon,
   MegaphoneIcon,
   RadioIcon,
@@ -145,6 +146,19 @@ const PRIMARY = [
     description: 'Platform status page content and incident history.',
   },
   {
+    to: '/admin/vendors',
+    label: 'Vendors',
+    icon: <SettingsIcon size={16} aria-hidden />,
+    description: 'Track vendors, integrations, launch checks, and DPAs.',
+  },
+  {
+    to: '/admin/map',
+    label: 'Tahti map',
+    icon: <MapIcon size={16} aria-hidden />,
+    description:
+      'Compare Tahti surfaces, routes, parity, and navigation flows.',
+  },
+  {
     to: '/admin/i18n',
     label: 'Languages',
     icon: <LanguagesIcon size={16} aria-hidden />,
@@ -152,7 +166,7 @@ const PRIMARY = [
   },
   {
     to: '/admin/tahti-selects',
-    label: 'Selects',
+    label: 'Tahti Selects',
     icon: <RadioIcon size={16} aria-hidden />,
     description: 'Manage the Tahti Selects editorial stream and rotation.',
   },
@@ -168,6 +182,8 @@ const ADMIN_SECTIONS = [
       '/admin/storage',
       '/admin/logs',
       '/admin/status',
+      '/admin/vendors',
+      '/admin/map',
     ].map((to) => PRIMARY.find((item) => item.to === to)!),
   },
   {
@@ -180,7 +196,6 @@ const ADMIN_SECTIONS = [
         '/admin/governance',
         '/admin/grants',
         '/admin/agm',
-        '/admin/missed-shows',
       ].includes(item.to),
     ),
   },
@@ -190,6 +205,7 @@ const ADMIN_SECTIONS = [
     items: PRIMARY.filter((item) =>
       [
         '/admin/radio',
+        '/admin/tahti-selects',
         '/admin/content',
         '/admin/news',
         '/admin/top-lists',
@@ -214,7 +230,6 @@ const ADMIN_SECTIONS = [
         '/admin/venues',
         '/admin/disco-widgets',
         '/admin/i18n',
-        '/admin/tahti-selects',
       ].includes(item.to),
     ),
   },
@@ -267,7 +282,7 @@ export function AdminNav({
             aria-selected={active}
             className={`flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold whitespace-nowrap ${
               active
-                ? 'bg-primary text-primary-foreground'
+                ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
                 : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
             }`}
             onClick={() => {

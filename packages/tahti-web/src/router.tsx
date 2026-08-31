@@ -58,7 +58,6 @@ import { StudioEventsView } from './views/studio/StudioEventsView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
 import { StudioGovernanceView } from './views/studio/StudioGovernanceView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
-import { StudioModerationView } from './views/studio/StudioModerationView';
 import { StudioPlaylistEditorView } from './views/studio/StudioPlaylistsView';
 import { StudioRecordingsView } from './views/studio/StudioRecordingsView';
 import { StudioReleaseDetailView } from './views/studio/StudioReleaseDetailView';
@@ -209,6 +208,14 @@ const AdminStatusView = lazyRouteComponent(
   () => import('./views/admin/AdminStatusView'),
   'AdminStatusView',
 );
+const AdminVendorsView = lazyRouteComponent(
+  () => import('./views/admin/AdminVendorsView'),
+  'AdminVendorsView',
+);
+const AdminMapView = lazyRouteComponent(
+  () => import('./views/admin/AdminMapView'),
+  'AdminMapView',
+);
 const AdminStorageView = lazyRouteComponent(
   () => import('./views/admin/AdminStorageView'),
   'AdminStorageView',
@@ -289,6 +296,16 @@ const discoverRoute = createRoute({
 const scheduleRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/schedule',
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { station?: 'radio' | 'mine' } => ({
+    station:
+      search.station === 'mine'
+        ? 'mine'
+        : search.station === 'radio'
+          ? 'radio'
+          : undefined,
+  }),
   component: RadioScheduleView,
 });
 
@@ -554,12 +571,13 @@ const adminMissedShowsRoute = createRoute({
 const adminVendorsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/vendors',
-  // Vendors is now only a tab on the Admin dashboard, not its own nav item
-  // (see AdminNav.tsx) — kept as a redirect so old links/bookmarks still land
-  // somewhere sensible.
-  beforeLoad: () => {
-    throw redirect({ to: '/admin', search: { tab: 'vendors' } });
-  },
+  component: AdminVendorsView,
+});
+
+const adminMapRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/map',
+  component: AdminMapView,
 });
 
 const adminVenuesRoute = createRoute({
@@ -615,7 +633,20 @@ const libraryReleasesRoute = createRoute({
 const libraryCollectionsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/collections',
-  component: () => <LibraryView tab="collections" />,
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { tab?: 'collections' | 'recordings' | 'media' | 'stash' } => ({
+    tab:
+      search.tab === 'recordings' ||
+      search.tab === 'media' ||
+      search.tab === 'stash'
+        ? search.tab
+        : undefined,
+  }),
+  component: function LibraryCollectionsRoute() {
+    const search = libraryCollectionsRoute.useSearch();
+    return <LibraryView tab="collections" collectionTab={search.tab} />;
+  },
 });
 
 const libraryRecordingsRoute = createRoute({
@@ -1124,7 +1155,16 @@ const studioStatsRoute = createRoute({
 const studioGovernanceRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/governance',
-  component: StudioGovernanceView,
+  validateSearch: (search: Record<string, unknown>): { tab?: 'topics' } => ({
+    tab:
+      search.tab === 'topics' || search.tab === 'feature-requests'
+        ? 'topics'
+        : undefined,
+  }),
+  component: function StudioGovernanceRoute() {
+    const search = studioGovernanceRoute.useSearch();
+    return <StudioGovernanceView tab={search.tab ?? 'motions'} />;
+  },
 });
 
 const studioStatsDetailRoute = createRoute({
@@ -1217,7 +1257,12 @@ const studioDistributionRoute = createRoute({
 const studioModerationRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/moderation',
-  component: StudioModerationView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/settings/$section',
+      params: { section: 'channel' },
+    });
+  },
 });
 
 const studioVenuesRoute = createRoute({
@@ -1444,6 +1489,7 @@ const routeTree = rootRoute.addChildren([
     adminAgmRoute,
     adminMissedShowsRoute,
     adminVendorsRoute,
+    adminMapRoute,
     adminVenuesRoute,
     adminDiscoWidgetsRoute,
     adminStatusRoute,

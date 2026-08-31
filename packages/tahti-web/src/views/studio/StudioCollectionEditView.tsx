@@ -1,17 +1,27 @@
 import { Link } from '@tanstack/react-router';
 import {
+  ListMusicIcon,
   Maximize2Icon,
   Minimize2Icon,
   PauseIcon,
   PencilIcon,
   PlayIcon,
   PlusIcon,
+  SearchIcon,
   Trash2Icon,
+  UploadCloudIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, FilePicker, Input, SaveButton } from '@nuclearplayer/ui';
+import {
+  Badge,
+  Button,
+  Dialog,
+  FilePicker,
+  Input,
+  SaveButton,
+} from '@nuclearplayer/ui';
 
 import {
   addStudioCollectionItem,
@@ -28,7 +38,7 @@ import type {
   StudioCollection,
   StudioCollectionItem,
 } from '../../api/studio-types';
-import { ImageUploadField } from '../../components/ImageUploadField';
+import { uploadUserMediaFile } from '../../api/user-media';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -179,12 +189,12 @@ function TrackRow({
         onDrop();
       }}
       className={`${idx % 2 === 1 ? 'bg-background-secondary/40' : ''} ${
-        isCurrent ? 'bg-accent-green/10' : ''
+        isCurrent ? 'border-l-primary bg-primary/10' : 'border-l-transparent'
       } ${reorderable ? 'cursor-grab active:cursor-grabbing' : ''} ${
         isDragging ? 'opacity-50' : ''
-      }`}
+      } hover:bg-primary/5 border-l-4 transition-colors`}
     >
-      <div className="flex flex-wrap items-center gap-2 px-2 py-2 text-sm">
+      <div className="flex flex-wrap items-center gap-2 p-3 text-sm">
         <span
           className={`min-w-0 flex-1 truncate font-medium ${
             isCurrent ? 'text-accent-green' : ''
@@ -274,7 +284,7 @@ function TrackRow({
       </div>
 
       {isExpanded && isEmbed && (
-        <div className="px-2 pb-3">
+        <div className="px-3 pb-3">
           <iframe
             title={trackTitle(item)}
             src={embedSrcFor(embedProvider!, embedUri!) ?? ''}
@@ -289,7 +299,7 @@ function TrackRow({
       )}
 
       {isExpanded && item.archiveItem && !isEmbed && (
-        <div className="px-2 pb-3">
+        <div className="px-3 pb-3">
           {durationSec > 0 && peaks.length > 0 ? (
             <div className="border-border bg-background h-24 overflow-hidden rounded-lg border">
               <WaveformCanvas
@@ -315,7 +325,8 @@ function TrackRow({
 export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [col, setCol] = useState<StudioCollection | null>(null);
   const [archive, setArchive] = useState<StudioArchiveItem[]>([]);
-  const [addId, setAddId] = useState('');
+  const [addPickerOpen, setAddPickerOpen] = useState(false);
+  const [addBusyId, setAddBusyId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [style, setStyle] = useState('ALBUM');
@@ -326,6 +337,10 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [genres, setGenres] = useState('');
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [backdropUrl, setBackdropUrl] = useState<string | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<'cover' | 'backdrop' | null>(
+    null,
+  );
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [trackQuery, setTrackQuery] = useState('');
@@ -349,7 +364,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
         setArchive(a.data);
         setName(c.data.name);
         setDescription(c.data.description ?? '');
-        setStyle(c.data.style ?? 'ALBUM');
+        setStyle(c.data.style ?? c.data.type ?? 'ALBUM');
         setVisibility(
           c.data.visibility ??
             (c.data.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
@@ -393,6 +408,13 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
         .includes(query),
     );
   }, [archive, archiveQuery]);
+  const existingArchiveIds = useMemo(
+    () => new Set(items.map((item) => item.archiveItem?.id).filter(Boolean)),
+    [items],
+  );
+  const availableArchive = filteredArchive.filter(
+    (archiveItem) => !existingArchiveIds.has(archiveItem.id),
+  );
 
   const nowPlayingItem = items.find(
     (i) => i.archiveItem && currentId === `archive:${i.archiveItem.id}`,
@@ -422,6 +444,18 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
       return;
     }
     void playArchiveItem(item.archiveItem.id, item.archiveItem.title);
+  };
+
+  const addArchiveItem = async (archiveItem: StudioArchiveItem) => {
+    setAddBusyId(archiveItem.id);
+    const result = await addStudioCollectionItem(slug, archiveItem.id);
+    setAddBusyId(null);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success(`${archiveItem.title} added.`);
+    reload();
   };
 
   const reorderByDrop = async (fromId: string, toId: string) => {
@@ -486,6 +520,39 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
     toast.success('Collection details saved.');
   };
 
+  const uploadImage = async (files: readonly File[]) => {
+    const file = files[0];
+    if (!file || !uploadTarget) {
+      return;
+    }
+    setUploadingImage(true);
+    if (uploadTarget === 'cover') {
+      const result = await uploadCollectionCover(slug, file);
+      setUploadingImage(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setCoverUrl(result.coverUrl);
+      setCol((current) =>
+        current ? { ...current, coverUrl: result.coverUrl } : current,
+      );
+      setUploadTarget(null);
+      toast.success('Cover uploaded.');
+      return;
+    }
+
+    const result = await uploadUserMediaFile(file);
+    setUploadingImage(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    setBackdropUrl(result.data.url);
+    setUploadTarget(null);
+    toast.success('Backdrop uploaded. Save details to publish it.');
+  };
+
   return (
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
@@ -503,60 +570,61 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
         ) : (
           <>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-              <div className="border-border bg-background relative h-44 w-44 shrink-0 overflow-hidden rounded-xl border shadow-sm">
-                {coverUrl ? (
-                  <img
-                    src={coverUrl}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="text-foreground-secondary flex h-full items-center justify-center p-4 text-center text-xs">
-                    {isAlbumLike ? 'Album cover' : 'Cover art'}
-                  </div>
-                )}
+              <div className="grid min-w-0 grid-cols-2 gap-3 sm:flex">
+                {(
+                  [
+                    [
+                      'cover',
+                      coverUrl,
+                      isAlbumLike ? 'Album cover' : 'Cover art',
+                    ],
+                    ['backdrop', backdropUrl, 'Backdrop'],
+                  ] as const
+                ).map(([target, imageUrl, emptyLabel]) => (
+                  <button
+                    key={target}
+                    type="button"
+                    className={`group border-border bg-background relative h-44 overflow-hidden rounded-xl border text-left shadow-sm ${target === 'cover' ? 'aspect-square sm:w-44' : 'min-w-0 sm:w-72'}`}
+                    onClick={() => setUploadTarget(target)}
+                    aria-label={`Upload ${emptyLabel.toLowerCase()}`}
+                  >
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-foreground-secondary flex h-full items-center justify-center p-4 text-center text-xs">
+                        {emptyLabel}
+                      </span>
+                    )}
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/0 text-white opacity-0 transition group-hover:bg-black/45 group-hover:opacity-100 group-focus-visible:bg-black/45 group-focus-visible:opacity-100">
+                      <UploadCloudIcon size={24} aria-hidden />
+                      <span className="sr-only">Upload {emptyLabel}</span>
+                    </span>
+                  </button>
+                ))}
               </div>
               <div className="min-w-0 flex-1">
                 <StudioPageHeader
                   title={name || col.name}
-                  subtitle={`/${col.slug}${style ? `, ${style}` : ''}, ${visibility.toLowerCase()}`}
+                  subtitle={`/${col.slug}${style ? `, ${style}` : ''}`}
                   action={
-                    <SaveButton
-                      saving={saving}
-                      onClick={() => void saveMeta()}
-                    />
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="pill"
+                        color={visibility === 'PUBLIC' ? 'green' : 'secondary'}
+                      >
+                        {visibility.charAt(0) +
+                          visibility.slice(1).toLowerCase()}
+                      </Badge>
+                      <SaveButton
+                        saving={saving}
+                        onClick={() => void saveMeta()}
+                      />
+                    </div>
                   }
-                />
-                <FilePicker
-                  className="mt-2"
-                  labels={{
-                    title: 'Cover image',
-                    description: 'JPEG, PNG, or WebP',
-                    browse: 'Choose image',
-                  }}
-                  accept="image/jpeg,image/png,image/webp"
-                  onFiles={(files) => {
-                    const file = files[0];
-                    if (!file) {
-                      return;
-                    }
-                    void uploadCollectionCover(slug, file).then((r) => {
-                      if (!r.ok) {
-                        toast.error(r.error);
-                        return;
-                      }
-                      setCoverUrl(r.coverUrl);
-                      setCol((c) => (c ? { ...c, coverUrl: r.coverUrl } : c));
-                      toast.success('Cover uploaded.');
-                    });
-                  }}
-                />
-                <ImageUploadField
-                  className="mt-2"
-                  label="Upload backdrop"
-                  description="Wide JPEG, PNG, WebP, or GIF"
-                  value={backdropUrl ?? ''}
-                  onChange={setBackdropUrl}
                 />
               </div>
             </div>
@@ -628,6 +696,28 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
                     />
                   </label>
+                  <section className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-lg border p-3 sm:col-span-2">
+                    <div>
+                      <h3 className="text-sm font-semibold">Visibility</h3>
+                      <p className="text-foreground-secondary mt-1 text-xs">
+                        Choose who can find this collection.
+                      </p>
+                    </div>
+                    <select
+                      aria-label="Visibility"
+                      value={visibility}
+                      onChange={(event) =>
+                        setVisibility(event.target.value as typeof visibility)
+                      }
+                      className="border-border bg-background h-10 rounded-md border px-3 text-sm"
+                    >
+                      <option value="PUBLIC">Public</option>
+                      <option value="UNLISTED">
+                        Unlisted — direct link only
+                      </option>
+                      <option value="PRIVATE">Private — only you</option>
+                    </select>
+                  </section>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
@@ -637,40 +727,9 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                   <p className="text-foreground-secondary text-xs">
                     {releaseDate ? `Release ${releaseDate} · ` : ''}
                     {genres.trim() ? `${genres} · ` : ''}
-                    {visibility.charAt(0) + visibility.slice(1).toLowerCase()}
                   </p>
                 </div>
               )}
-            </StudioPanel>
-
-            <StudioPanel
-              title="Visibility"
-              description="Choose who can find this collection."
-            >
-              <div className="flex flex-col gap-3">
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs uppercase">
-                    Visibility
-                  </span>
-                  <select
-                    aria-label="Visibility"
-                    value={visibility}
-                    onChange={(event) =>
-                      setVisibility(event.target.value as typeof visibility)
-                    }
-                    className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                  >
-                    <option value="PUBLIC">Public</option>
-                    <option value="UNLISTED">
-                      Unlisted — direct link only
-                    </option>
-                    <option value="PRIVATE">Private — only you</option>
-                  </select>
-                </label>
-                <p className="text-foreground-secondary text-sm">
-                  Save the collection to apply visibility changes.
-                </p>
-              </div>
             </StudioPanel>
 
             <StudioPanel
@@ -730,7 +789,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                 )}
               </div>
 
-              <ul className="divide-border divide-y">
+              <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
                 {items.length === 0 && (
                   <li className="text-foreground-secondary py-3 text-sm">
                     No tracks yet — add archive items below.
@@ -799,50 +858,168 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                 })}
               </ul>
 
-              <div className="border-border mt-4 flex flex-col gap-2 border-t pt-4 sm:flex-row">
-                <Input
-                  value={archiveQuery}
-                  onChange={(event) => setArchiveQuery(event.target.value)}
-                  placeholder="Search your library…"
-                  aria-label="Search library"
-                  className="min-w-0 flex-1"
-                />
-                <select
-                  value={addId}
-                  onChange={(e) => setAddId(e.target.value)}
-                  aria-label={`Add a track to this ${isAlbumLike ? 'album' : 'collection'}`}
-                  className="border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 text-sm"
-                >
-                  <option value="">Add a track…</option>
-                  {filteredArchive.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.title}
-                    </option>
-                  ))}
-                </select>
+              <div className="border-border mt-4 flex justify-end border-t pt-4">
                 <Button
                   size="icon"
-                  disabled={!addId}
-                  aria-label={`Add to ${isAlbumLike ? 'album' : 'collection'}`}
-                  title={`Add to ${isAlbumLike ? 'album' : 'collection'}`}
-                  onClick={() => {
-                    void addStudioCollectionItem(slug, addId).then((r) => {
-                      if (r.ok) {
-                        toast.success('Track added.');
-                        setAddId('');
-                        reload();
-                      } else {
-                        toast.error(r.error);
-                      }
-                    });
-                  }}
+                  aria-label={`Add content to ${isAlbumLike ? 'album' : 'collection'}`}
+                  title={`Add content to ${isAlbumLike ? 'album' : 'collection'}`}
+                  onClick={() => setAddPickerOpen(true)}
                 >
-                  <PlusIcon size={16} aria-hidden />
+                  <PlusIcon size={18} aria-hidden />
                 </Button>
               </div>
             </StudioPanel>
           </>
         )}
+        <Dialog.Root
+          isOpen={addPickerOpen}
+          onClose={() => setAddPickerOpen(false)}
+          className="max-w-4xl"
+        >
+          <Dialog.Title>
+            Add content to {isAlbumLike ? 'album' : 'collection'}
+          </Dialog.Title>
+          <Dialog.Description>
+            Choose library content to add. Tracks already in this collection are
+            hidden.
+          </Dialog.Description>
+          <div className="mt-4 grid min-h-96 gap-4 md:grid-cols-[10rem_minmax(0,1fr)]">
+            <nav
+              aria-label="Library content types"
+              className="border-border flex gap-1 overflow-x-auto border-b pb-2 md:flex-col md:overflow-visible md:border-r md:border-b-0 md:pr-3"
+            >
+              <Button
+                variant="secondary"
+                className="justify-start whitespace-nowrap"
+                aria-current="page"
+              >
+                <ListMusicIcon size={15} aria-hidden className="mr-2" />
+                Tracks
+              </Button>
+              {['Releases', 'Collections', 'Playlists'].map((type) => (
+                <Button
+                  key={type}
+                  variant="text"
+                  className="justify-start whitespace-nowrap opacity-50"
+                  disabled
+                >
+                  {type}
+                </Button>
+              ))}
+            </nav>
+            <div className="flex min-w-0 flex-col gap-3">
+              <Input
+                value={archiveQuery}
+                onChange={(event) => setArchiveQuery(event.target.value)}
+                placeholder="Search tracks by title, genre, or type…"
+                aria-label="Search library tracks"
+                endAddon={<SearchIcon size={16} aria-hidden />}
+              />
+              <div className="border-border min-h-0 overflow-auto rounded-md border">
+                {availableArchive.length === 0 ? (
+                  <p className="text-foreground-secondary p-4 text-sm">
+                    {archiveQuery.trim()
+                      ? 'No available tracks match your search.'
+                      : 'All library tracks are already in this collection.'}
+                  </p>
+                ) : (
+                  <ul aria-label="Available library tracks">
+                    {availableArchive.map((archiveItem, index) => {
+                      const itemIsPlaying =
+                        currentId === `archive:${archiveItem.id}` && isPlaying;
+                      return (
+                        <li
+                          key={archiveItem.id}
+                          className={`flex items-center gap-3 px-3 py-2.5 text-sm ${index % 2 === 1 ? 'bg-background-secondary/40' : 'bg-background'}`}
+                        >
+                          <Button
+                            size="icon-sm"
+                            variant={itemIsPlaying ? 'secondary' : 'text'}
+                            aria-label={`${itemIsPlaying ? 'Pause' : 'Preview'} ${archiveItem.title}`}
+                            title={itemIsPlaying ? 'Pause' : 'Preview'}
+                            onClick={() => {
+                              if (itemIsPlaying) {
+                                setStatus('paused');
+                              } else {
+                                void playArchiveItem(
+                                  archiveItem.id,
+                                  archiveItem.title,
+                                );
+                              }
+                            }}
+                          >
+                            {itemIsPlaying ? (
+                              <PauseIcon size={15} aria-hidden />
+                            ) : (
+                              <PlayIcon size={15} aria-hidden />
+                            )}
+                          </Button>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium">
+                              {archiveItem.title}
+                            </p>
+                            <p className="text-foreground-secondary truncate text-xs">
+                              {archiveItem.artistName ?? 'Unknown artist'}
+                              {archiveItem.genre
+                                ? ` · ${archiveItem.genre}`
+                                : ''}
+                              {archiveItem.durationSec
+                                ? ` · ${formatDuration(archiveItem.durationSec)}`
+                                : ''}
+                            </p>
+                          </div>
+                          <Button
+                            size="sm"
+                            disabled={addBusyId === archiveItem.id}
+                            onClick={() => void addArchiveItem(archiveItem)}
+                          >
+                            <PlusIcon size={15} aria-hidden className="mr-1" />
+                            {addBusyId === archiveItem.id ? 'Adding…' : 'Add'}
+                          </Button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+          <Dialog.Actions>
+            <Dialog.Close>Done</Dialog.Close>
+          </Dialog.Actions>
+        </Dialog.Root>
+        <Dialog.Root
+          isOpen={uploadTarget !== null}
+          onClose={() => {
+            if (!uploadingImage) {
+              setUploadTarget(null);
+            }
+          }}
+        >
+          <Dialog.Title>
+            Upload {uploadTarget === 'cover' ? 'cover' : 'backdrop'}
+          </Dialog.Title>
+          <Dialog.Description>
+            Choose an image for this collection&apos;s{' '}
+            {uploadTarget === 'cover' ? 'cover art' : 'backdrop'}.
+          </Dialog.Description>
+          <div className="mt-4">
+            <FilePicker
+              labels={{
+                title:
+                  uploadTarget === 'cover' ? 'Cover image' : 'Backdrop image',
+                description: 'JPEG, PNG, WebP, or GIF',
+                browse: uploadingImage ? 'Uploading…' : 'Choose image',
+              }}
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              disabled={uploadingImage}
+              onFiles={(files) => void uploadImage(files)}
+            />
+          </div>
+          <Dialog.Actions>
+            <Dialog.Close>Cancel</Dialog.Close>
+          </Dialog.Actions>
+        </Dialog.Root>
       </div>
     </StudioGate>
   );

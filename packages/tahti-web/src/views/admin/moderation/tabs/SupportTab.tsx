@@ -3,6 +3,7 @@ import {
   CircleDotIcon,
   Clock3Icon,
   ListFilterIcon,
+  SearchIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -82,6 +83,7 @@ export function SupportTab() {
   };
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     const handle = setTimeout(
       () => {
@@ -89,6 +91,9 @@ export function SupportTab() {
           status: filter === 'all' ? undefined : filter,
           q: query.trim() || undefined,
         }).then((result) => {
+          if (cancelled) {
+            return;
+          }
           setTickets(result.data);
           setSelectedId((current) => {
             if (current && result.data.some((t) => t.id === current)) {
@@ -101,7 +106,10 @@ export function SupportTab() {
       },
       query ? 250 : 0,
     );
-    return () => clearTimeout(handle);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
   }, [filter, query]);
 
   useEffect(() => {
@@ -152,7 +160,7 @@ export function SupportTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-lg border p-3 sm:p-4 xl:flex-row xl:items-end xl:justify-between">
         <ModerationTabs
           activeId={filter}
           items={FILTERS.map((item) => ({
@@ -161,15 +169,18 @@ export function SupportTab() {
           }))}
           ariaLabel="Support ticket status"
           onChange={(id) => setFilter(id as AdminSupportStatus | 'all')}
+          className="min-w-0 flex-1"
         />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search subject, message, requester…"
-          size="sm"
-          className="min-w-[16rem] flex-1"
-          aria-label="Search support tickets"
-        />
+        <div className="w-full shrink-0 xl:max-w-sm">
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search subject, message, requester…"
+            size="sm"
+            aria-label="Search support tickets"
+            endAddon={<SearchIcon size={16} aria-hidden />}
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-[20rem_1fr]">

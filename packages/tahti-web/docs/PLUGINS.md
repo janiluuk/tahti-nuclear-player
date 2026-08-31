@@ -13,6 +13,7 @@ of these:
 | `multicast` | RTMP destination registry (YouTube, Twitch, ...) | [README](../src/plugins/multicast/README.md) |
 | `fingerprinting` | AcoustID track-match provider | [README](../src/plugins/fingerprinting/README.md) |
 | `audio-fx` | Pro Editor plugin chain (EQ/Compressor/Limiter/Filter) | [README](../src/plugins/audio-fx/README.md) |
+| `mastering` | Client-side reference mastering (Matchering loudness, tonal balance, and limiter) | [README](../src/plugins/mastering/README.md) |
 | `export` | DSP/export-target metadata registry (partial — no per-target behavior yet) | [README](../src/plugins/export/README.md) |
 | `import-sources` | Import-source connection-status contract (partial — see README) | [README](../src/plugins/import-sources/README.md) |
 | `visualizers` | Channel visualizer WebGL presets | [README](../src/plugins/visualizers/README.md) |

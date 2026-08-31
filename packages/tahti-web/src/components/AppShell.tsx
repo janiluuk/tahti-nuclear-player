@@ -4,7 +4,6 @@ import {
   GaugeIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
-  MapIcon,
   RadioIcon,
   SettingsIcon,
   ShieldIcon,
@@ -48,9 +47,17 @@ import { MobileBottomNav, MobileDrawer } from './MobileChrome';
 import { PageTourSpotlight } from './PageTourSpotlight';
 import { RightRailPanel } from './RightRailPanel';
 import { StickyNotificationBanner } from './StickyNotificationBanner';
+import {
+  getStudioPrimaryRoute,
+  StudioMainNavItems,
+  StudioNav,
+} from './StudioNav';
 
 function SidebarNavItems({ compact }: { compact: boolean }) {
   const isBoard = useAuthStore((state) => hasAccountRole(state.user, 'BOARD'));
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
   return (
     <SidebarNavigation isCompact={compact}>
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-1">
@@ -75,12 +82,14 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             label="Discover"
           />
         </div>
-        <div data-tour-id="nav-studio">
+        <div data-tour-id="nav-studio" className="flex flex-col gap-2">
           <SidebarNavigationItem
             to="/studio"
             icon={<LayoutDashboardIcon size={16} />}
             label="Studio"
+            isSelected={getStudioPrimaryRoute(pathname) === '/studio'}
           />
+          <StudioMainNavItems />
         </div>
         {isBoard && diagnosticsEnabled && (
           <div data-tour-id="nav-admin">
@@ -88,15 +97,6 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
               to="/admin"
               icon={<ShieldIcon size={16} />}
               label="Admin"
-            />
-          </div>
-        )}
-        {isBoard && (
-          <div data-tour-id="nav-map">
-            <SidebarNavigationItem
-              to="/more"
-              icon={<MapIcon size={16} />}
-              label="Tahti map"
             />
           </div>
         )}
@@ -146,6 +146,9 @@ export function AppShell() {
   const openSettings = useSettingsModalStore((s) => s.open);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigationLocation = useRouterState({
+    select: (state) => state.location.pathname + state.location.searchStr,
+  });
   const stableNavigationRoute = /^\/(studio|admin|library)(\/|$)/.test(
     pathname,
   );
@@ -316,6 +319,9 @@ export function AppShell() {
           <div
             className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
           >
+            {getStudioPrimaryRoute(pathname) ? (
+              <StudioNav current={navigationLocation} global />
+            ) : null}
             <RouteContent>
               <RouteTransition
                 key={userId ?? 'anonymous'}
@@ -373,12 +379,17 @@ export function AppShell() {
                       label="Discover"
                     />
                   </div>
-                  <div data-tour-id="nav-studio">
+                  <div
+                    data-tour-id="nav-studio"
+                    className="flex flex-col gap-2"
+                  >
                     <SidebarNavigationItem
                       to="/studio"
                       icon={<LayoutDashboardIcon size={16} />}
                       label="Studio"
+                      isSelected={getStudioPrimaryRoute(pathname) === '/studio'}
                     />
+                    <StudioMainNavItems />
                   </div>
                   {isBoard && diagnosticsEnabled && (
                     <div data-tour-id="nav-admin">
@@ -386,15 +397,6 @@ export function AppShell() {
                         to="/admin"
                         icon={<ShieldIcon size={16} />}
                         label="Admin"
-                      />
-                    </div>
-                  )}
-                  {isBoard && (
-                    <div data-tour-id="nav-map">
-                      <SidebarNavigationItem
-                        to="/more"
-                        icon={<MapIcon size={16} />}
-                        label="Tahti map"
                       />
                     </div>
                   )}
@@ -430,6 +432,9 @@ export function AppShell() {
             )}
           >
             <div className="h-full overflow-auto">
+              {getStudioPrimaryRoute(pathname) ? (
+                <StudioNav current={navigationLocation} global />
+              ) : null}
               <RouteContent>
                 <RouteTransition
                   key={userId ?? 'anonymous'}

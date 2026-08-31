@@ -30,7 +30,11 @@ const STATUS_BADGE: Record<
   DUPLICATE: { color: 'secondary', label: 'Duplicate' },
 };
 
-export function FeatureRequestsView() {
+export function FeatureRequestsView({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const user = useAuthStore((s) => s.user);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [requests, setRequests] = useState<FeatureRequest[]>([]);
@@ -77,26 +81,28 @@ export function FeatureRequestsView() {
 
   return (
     <PageFrame maxWidth="3xl">
-      <PageHeader
-        title="Feature requests"
-        subtitle="Propose and vote on what Tahti builds next. Reviewed quarterly by the board."
-        back={
-          <Link
-            to="/governance"
-            onClick={closeSettings}
-            className="text-foreground-secondary text-xs hover:underline"
-          >
-            ← Governance
-          </Link>
-        }
-        actions={
-          user && !forbidden ? (
-            <Button size="sm" onClick={() => setComposerOpen((v) => !v)}>
-              {composerOpen ? 'Cancel' : 'Propose an idea'}
-            </Button>
-          ) : undefined
-        }
-      />
+      {!embedded && (
+        <PageHeader
+          title="Feature requests"
+          subtitle="Propose and vote on what Tahti builds next. Reviewed quarterly by the board."
+          back={
+            <Link
+              to="/governance"
+              onClick={closeSettings}
+              className="text-foreground-secondary text-xs hover:underline"
+            >
+              ← Governance
+            </Link>
+          }
+          actions={
+            user && !forbidden ? (
+              <Button size="sm" onClick={() => setComposerOpen((v) => !v)}>
+                {composerOpen ? 'Cancel' : 'Propose an idea'}
+              </Button>
+            ) : undefined
+          }
+        />
+      )}
 
       {!user && (
         <div className="border-border flex flex-col gap-3 rounded-lg border p-4">

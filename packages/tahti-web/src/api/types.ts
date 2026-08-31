@@ -54,6 +54,8 @@ export type PublicChannel = {
   headerStyle?: string | null;
   /** VIDEO_LOOP's clip — reused from the backend's Gallery & backdrop field. */
   videoBackgroundUrl?: string | null;
+  galleryMode?: string | null;
+  slideshowImages?: string[];
   colorSchemeJson?: string | null;
   colorScheme?: {
     accent?: string;
@@ -279,6 +281,7 @@ export type PublicCollection = {
   name: string;
   description?: string | null;
   coverUrl?: string | null;
+  backdropUrl?: string | null;
   isPublic: boolean;
   collaborative: boolean;
   user: { username: string; displayName: string };

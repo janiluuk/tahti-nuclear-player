@@ -955,6 +955,77 @@ export type AdminRadioData = {
   optedOut: AdminRadioOptedOut[];
 };
 
+export type AdminRadioRotationItem = {
+  id: string;
+  title: string;
+  artistName: string;
+  durationSec: number | null;
+  archiveItemId: string;
+  audioUrl?: string | null;
+  channelSlug: string;
+  license: string;
+  addedBy: string;
+};
+
+const mockRadioRotation: AdminRadioRotationItem[] = [
+  {
+    id: 'radio-rotation-1',
+    archiveItemId: 'radio-archive-1',
+    title: 'Night Transit',
+    artistName: 'Tahti Radio submissions',
+    durationSec: 288,
+    channelSlug: 'tahti-radio',
+    license: 'CC_BY',
+    addedBy: 'radio-editorial',
+  },
+  {
+    id: 'radio-rotation-2',
+    archiveItemId: 'radio-archive-2',
+    title: 'Signal Bloom',
+    artistName: 'Tahti Radio submissions',
+    durationSec: 346,
+    channelSlug: 'tahti-radio',
+    license: 'CC_BY_SA',
+    addedBy: 'radio-editorial',
+  },
+];
+
+export async function fetchAdminRadioRotation(): Promise<{
+  data: AdminRadioRotationItem[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockRadioRotation,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<
+      Array<{
+        id: string;
+        title: string;
+        artistName: string;
+        durationSec?: number | null;
+        artistUsername?: string | null;
+      }>
+    >('/api/v1/radio/rotation');
+    return {
+      data: data.map((item) => ({
+        ...item,
+        archiveItemId: item.id,
+        durationSec: item.durationSec ?? null,
+        channelSlug: item.artistUsername ?? 'tahti-radio',
+        license: '',
+        addedBy: 'radio-editorial',
+      })),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
 function mockRadioAdmin(): AdminRadioData {
   return {
     nowPlaying: {

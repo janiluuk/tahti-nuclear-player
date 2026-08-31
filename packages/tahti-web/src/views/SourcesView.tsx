@@ -5,27 +5,28 @@ import {
   FolderDownIcon,
   Link2Icon,
   ListPlusIcon,
-  PlayIcon,
   PlugIcon,
   Radio as RadioIcon,
   SearchIcon,
+  Settings2Icon,
+  ToggleLeftIcon,
+  ToggleRightIcon,
   UnplugIcon,
   UploadIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
   Badge,
   Button,
-  Card,
-  CardGrid,
   FavoriteButton,
   Input,
   MediaArtwork,
   Select,
 } from '@nuclearplayer/ui';
 
+import type { MockOauthId } from '../api/mock-session';
 import {
   COMMON_STATIONS,
   lookupStationByUrl,
@@ -43,8 +44,6 @@ import {
   fetchHearthisCollectionTracks,
   fetchHearthisLibrary,
   fetchSoundcloudTracks,
-  fetchStashDownload,
-  fetchStashFiles,
   importBandcampAlbum,
   importHearthisTracks,
   importSoundcloudTracks,
@@ -62,7 +61,6 @@ import {
   type IntegrationId,
   type SoundcloudTrack,
   type SpotifySearchTrack,
-  type StashFile,
 } from '../api/sources';
 import {
   createStudioCollection,
@@ -85,6 +83,7 @@ import { usePlayerStore } from '../stores/playerStore';
 
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
 const HEARTHIS_IMPORTS_STORAGE_KEY = 'tahti-web-hearthis-imports';
+const ENABLED_SOURCES_STORAGE_KEY = 'tahti-web-enabled-sources';
 const NEW_PLAYLIST_DESTINATION = '__new_playlist__';
 
 type TileStatus = {
@@ -113,7 +112,13 @@ function statusChip(
   return { label: 'Not configured', color: 'secondary' };
 }
 
-export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
+export function SourcesView({
+  tabId,
+  embedded = false,
+}: {
+  tabId?: IntegrationId;
+  embedded?: boolean;
+}) {
   const user = useAuthStore((s) => s.user);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
@@ -128,9 +133,11 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   const [tiles, setTiles] = useState<
     Partial<Record<IntegrationId, TileStatus>>
   >({});
+  const [enabledSourceIds, setEnabledSourceIds] = useState<Set<IntegrationId>>(
+    new Set(),
+  );
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
   const [scTracks, setScTracks] = useState<SoundcloudTrack[]>([]);
-  const [stash, setStash] = useState<StashFile[]>([]);
   const [spotifyQ, setSpotifyQ] = useState('');
   const [spotifyHits, setSpotifyHits] = useState<SpotifySearchTrack[]>([]);
   const [hearthisQ, setHearthisQ] = useState('');
@@ -261,13 +268,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   }, [selected, status?.connected]);
 
   useEffect(() => {
-    if (selected !== 'stash') {
-      return;
-    }
-    void fetchStashFiles().then((r) => setStash(r.data));
-  }, [selected]);
-
-  useEffect(() => {
     if (selected !== 'hearthis' || !user) {
       return;
     }
@@ -331,7 +331,78 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     }
   }, [user]);
 
-  const overview = useMemo(() => SOURCE_DEFS, []);
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+    const storageKey = user
+      ? `${ENABLED_SOURCES_STORAGE_KEY}:${user.id}`
+      : ENABLED_SOURCES_STORAGE_KEY;
+    const stored = localStorage.getItem(storageKey);
+    if (!stored) {
+      setEnabledSourceIds(new Set());
+      return;
+    }
+    try {
+      const ids = JSON.parse(stored) as unknown;
+      setEnabledSourceIds(
+        new Set(
+          Array.isArray(ids)
+            ? ids.filter((id): id is IntegrationId =>
+                SOURCE_DEFS.some(
+                  (source) => source.id === id && id !== 'stash',
+                ),
+              )
+            : [],
+        ),
+      );
+    } catch {
+      setEnabledSourceIds(new Set());
+    }
+  }, [user]);
+
+  const overview = useMemo(
+    () =>
+      SOURCE_DEFS.filter(
+        (source) => source.id !== 'stash' && source.id !== 'upload',
+      ),
+    [],
+  );
+
+  const toggleSourceEnabled = (id: IntegrationId) => {
+    setEnabledSourceIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      if (typeof localStorage !== 'undefined') {
+        const storageKey = user
+          ? `${ENABLED_SOURCES_STORAGE_KEY}:${user.id}`
+          : ENABLED_SOURCES_STORAGE_KEY;
+        localStorage.setItem(storageKey, JSON.stringify([...next]));
+      }
+      return next;
+    });
+  };
+
+  const isSourceReady = (source: (typeof SOURCE_DEFS)[number]) => {
+    const sourceStatus = tiles[source.id]?.status;
+    return Boolean(
+      sourceStatus?.configured &&
+      (source.kind !== 'oauth' || sourceStatus.connected),
+    );
+  };
+
+  const groupedOverview = [
+    ...overview.filter(
+      (source) => enabledSourceIds.has(source.id) && isSourceReady(source),
+    ),
+    ...overview.filter(
+      (source) => !enabledSourceIds.has(source.id) || !isSourceReady(source),
+    ),
+  ];
 
   const openRadioStation = (station: RadioStation) => {
     setRadioStation(station);
@@ -584,12 +655,14 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   };
 
   return (
-    <div className="studio-page-layout flex w-full flex-col gap-6">
-      <StudioNav current="/sources" />
+    <div
+      className={`${embedded ? 'flex' : 'studio-page-layout'} flex w-full flex-col gap-6`}
+    >
+      {!embedded ? <StudioNav current="/sources" /> : null}
       <div className="min-w-0 flex-1">
         <PageHeader
           title="Sources"
-          subtitle="Connect and import from services — pick a tile to open its tools."
+          subtitle="Enable only the services you use, then configure and connect them inline."
           meta={
             !user ? (
               <button
@@ -604,35 +677,189 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
         />
 
         {!selected && (
-          <CardGrid
-            data-testid="sources-grid"
-            className="grid-cols-[repeat(auto-fit,minmax(11rem,1fr))]"
-          >
-            {overview.map((d) => {
-              const chip = statusChip(d.kind, tiles[d.id]);
-              return (
-                <div key={d.id} className="relative">
-                  <Card
-                    title={d.name}
-                    subtitle={sourceTileSubtitle(d.id)}
-                    className="w-full max-w-none"
-                    image={<SourceServiceIcon id={d.id} />}
-                    onClick={() => {
-                      void navigate({
-                        to: '/sources/$id',
-                        params: { id: d.id },
-                      });
-                    }}
-                  />
-                  <div className="pointer-events-none absolute top-3 right-3 z-10">
-                    <Badge variant="pill" color={chip.color}>
-                      {chip.label}
-                    </Badge>
-                  </div>
-                </div>
-              );
-            })}
-          </CardGrid>
+          <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <Eyebrow>Available sources</Eyebrow>
+                <p className="text-foreground-secondary mt-1 text-sm">
+                  Enable only the sources you want to use. Configure and connect
+                  them here without leaving the list.
+                </p>
+              </div>
+              <Link
+                to="/settings/$section"
+                params={{ section: 'plugin-store' }}
+              >
+                <Button size="sm" variant="secondary">
+                  <Link2Icon size={15} aria-hidden className="mr-1.5" />
+                  Get more source add-ons
+                </Button>
+              </Link>
+            </div>
+            <ul className="divide-border divide-y" data-testid="sources-list">
+              {groupedOverview.map((source, index) => {
+                const chip = statusChip(source.kind, tiles[source.id]);
+                const enabled = enabledSourceIds.has(source.id);
+                const configured = Boolean(
+                  tiles[source.id]?.status?.configured,
+                );
+                const ready = enabled && isSourceReady(source);
+                const canConnect =
+                  source.kind === 'oauth' && Boolean(source.oauthStartPath);
+                const needsConfiguration =
+                  !configured ||
+                  (canConnect && !tiles[source.id]?.status?.connected);
+                return (
+                  <Fragment key={source.id}>
+                    {(index === 0 ||
+                      (index > 0 &&
+                        ready !==
+                          (enabledSourceIds.has(
+                            groupedOverview[index - 1]!.id,
+                          ) &&
+                            isSourceReady(groupedOverview[index - 1]!)))) && (
+                      <li className="bg-background-secondary/40 px-2 py-2 text-[11px] font-semibold tracking-wide uppercase">
+                        {ready
+                          ? 'Enabled and configured'
+                          : 'Disabled or needs setup'}
+                      </li>
+                    )}
+                    <li
+                      className={`flex flex-wrap items-center gap-3 py-3 first:pt-1 last:pb-1 ${!ready ? 'opacity-60' : ''}`}
+                    >
+                      <div
+                        className={`size-10 shrink-0 ${!ready ? 'grayscale' : ''}`}
+                      >
+                        <SourceServiceIcon id={source.id} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-semibold">{source.name}</span>
+                          <Badge variant="pill" color={chip.color}>
+                            {chip.label}
+                          </Badge>
+                          <span className="text-foreground-secondary text-xs">
+                            {enabled
+                              ? isSourceReady(source)
+                                ? 'Enabled'
+                                : 'Needs setup'
+                              : 'Disabled'}
+                          </span>
+                        </div>
+                        <p className="text-foreground-secondary mt-0.5 truncate text-xs">
+                          {sourceTileSubtitle(source.id)}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1">
+                        {needsConfiguration ? (
+                          <Link to="/sources/$id" params={{ id: source.id }}>
+                            <Button
+                              size="icon-sm"
+                              variant="secondary"
+                              aria-label={`Configure ${source.name}`}
+                              title={`Configure ${source.name}`}
+                            >
+                              <Settings2Icon size={16} aria-hidden />
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            disabled
+                            aria-label={`${source.name} is configured`}
+                            title={`${source.name} is configured`}
+                          >
+                            <Settings2Icon size={16} aria-hidden />
+                          </Button>
+                        )}
+                        {canConnect ? (
+                          forceMock() ? (
+                            <Button
+                              size="icon-sm"
+                              variant="secondary"
+                              disabled={!user}
+                              aria-label={`${tiles[source.id]?.status?.connected ? 'Reconnect' : 'Connect'} ${source.name}`}
+                              title={`${tiles[source.id]?.status?.connected ? 'Reconnect' : 'Connect'} ${source.name}`}
+                              onClick={() => {
+                                void connectIntegrationMock(
+                                  source.id as MockOauthId,
+                                ).then((result) => {
+                                  setNote(
+                                    result.ok
+                                      ? `${source.name} connected.`
+                                      : result.error,
+                                  );
+                                  void fetchConnectionStatus(source.id).then(
+                                    (statusResult) => {
+                                      setTiles((current) => ({
+                                        ...current,
+                                        [source.id]: {
+                                          status: statusResult.data,
+                                        },
+                                      }));
+                                    },
+                                  );
+                                });
+                              }}
+                            >
+                              <PlugIcon size={16} aria-hidden />
+                            </Button>
+                          ) : (
+                            <a href={oauthStartUrl(source.oauthStartPath!)}>
+                              <Button
+                                size="icon-sm"
+                                variant="secondary"
+                                disabled={!user}
+                                aria-label={`Connect ${source.name}`}
+                                title={`Connect ${source.name}`}
+                              >
+                                <PlugIcon size={16} aria-hidden />
+                              </Button>
+                            </a>
+                          )
+                        ) : (
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            disabled
+                            aria-label={`${source.name} does not require a connection`}
+                            title="No connection required"
+                          >
+                            <PlugIcon size={16} aria-hidden />
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant={enabled ? undefined : 'secondary'}
+                          disabled={!isSourceReady(source)}
+                          aria-pressed={enabled}
+                          aria-label={`${enabled ? 'Disable' : 'Enable'} ${source.name}`}
+                          title={`${enabled ? 'Disable' : 'Enable'} ${source.name}`}
+                          onClick={() => toggleSourceEnabled(source.id)}
+                        >
+                          {enabled ? (
+                            <ToggleRightIcon
+                              size={16}
+                              aria-hidden
+                              className="mr-1"
+                            />
+                          ) : (
+                            <ToggleLeftIcon
+                              size={16}
+                              aria-hidden
+                              className="mr-1"
+                            />
+                          )}
+                          {enabled ? 'Disable' : 'Enable'}
+                        </Button>
+                      </div>
+                    </li>
+                  </Fragment>
+                );
+              })}
+            </ul>
+          </section>
         )}
 
         {selected && def && (
@@ -1383,51 +1610,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                       No {hearthisTab} found for this profile.
                     </p>
                   )}
-              </section>
-            )}
-
-            {selected === 'stash' && (
-              <section className="flex flex-col gap-3">
-                <Eyebrow>Files</Eyebrow>
-                {stash.length === 0 ? (
-                  <p className="text-foreground-secondary text-sm">
-                    Stash is empty.
-                  </p>
-                ) : (
-                  <ul className="flex flex-col gap-2">
-                    {stash.map((f) => (
-                      <li
-                        key={f.id}
-                        className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm"
-                      >
-                        <span>{f.filename}</span>
-                        <Button
-                          size="icon-sm"
-                          variant="secondary"
-                          title="Play"
-                          aria-label="Play"
-                          onClick={() => {
-                            void fetchStashDownload(f.id).then((r) => {
-                              if (r.data?.url) {
-                                play({
-                                  id: `stash:${f.id}`,
-                                  kind: 'archive',
-                                  title: f.filename,
-                                  artist: 'Stash',
-                                  streamUrl: r.data.url,
-                                  protocol: 'https',
-                                  sourceProvider: 'stash',
-                                });
-                              }
-                            });
-                          }}
-                        >
-                          <PlayIcon size={16} className="fill-current" />
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </section>
             )}
 

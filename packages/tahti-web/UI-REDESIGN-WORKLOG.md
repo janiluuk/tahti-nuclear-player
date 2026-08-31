@@ -1,5 +1,546 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-08-31 — Preserve collection content types in the editor
+
+**Completed:** Collection editing now reads the API content type when the
+style field is absent, and mock EP collections retain their EP type instead
+of falling back to Album.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Refined collection artwork and visibility header
+
+**Completed:** Public collection headers now use the saved backdrop, fall
+back to a subtle cover-art ambience, and receive deterministic placeholder
+cover art when no cover has been assigned. Collection editor visibility is
+now a single header badge instead of being repeated in the Details content.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Fixed Library Recordings browsing
+
+**Completed:** Recordings now keeps Collections active in the main navigation,
+uses the parent Recordings heading without a duplicate content header, and
+has the same searchable, sortable browser treatment as Sounds.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Focused Broadcast multistream settings
+
+**Completed:** Broadcast → Multistream now lists multicast provider add-ons
+only. Provider setup, connection testing, enable/disable, and removal remain
+inside the configuration dialog, so no setup form renders behind the dialog.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Moved Sources into Broadcast settings
+
+**Completed:** Settings → Broadcast → Multistream now contains the complete
+Sources experience, including source status, configuration, enable/disable
+controls, imports, and add-on discovery. Removed Sources from the Library
+submenu while preserving its direct routes for existing links.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Added HearThis downloads and unified collection listings
+
+**Completed:** HearThis embed tracks now expose a download action in the
+track editor only when downloads are enabled. The collection editor now uses
+the same bordered, zebra-striped listing treatment as Library → Sounds while
+retaining collection-specific playback, reorder, waveform, and remove actions.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Unified Sounds and Recordings listings
+
+**Completed:** Removed the redundant All sounds heading and Upload action from
+the Sounds content area. Recordings now uses the same bordered, zebra-striped
+listing treatment with a left-side state accent, keeping the Library sections
+visually consistent.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Grouped track editor actions
+
+**Completed:** Added a Quick edits dropdown containing Normalize audio, Trim
+silence, and Master with unique icons. Moved Add to rotation and Move to
+private stash into the Playlists tab so the editor header stays focused on
+playback and core track actions.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Clarified track-row action states
+
+**Completed:** Track rows now use filled backgrounds only for active playback
+and pinned actions. Inactive Play and Pin controls, Edit, and Audio editor
+use the same lightweight icon treatment as the other row actions.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Refined admin moderation controls
+
+**Completed:** Added more spacing between moderation tabs and rebuilt the
+Support filter/search toolbar so the search field stays usable beside the
+filters on wide screens and stacks cleanly on smaller screens. Added a search
+icon and a subtle toolbar container for clearer grouping.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Moved Vendors and Tahti map out of Admin Overview
+
+**Completed:** Admin Overview now stays focused on operational summary data.
+Vendors has its own Admin menu item, and Tahti map now has a dedicated Admin
+route immediately after it. The map surface includes the proper Admin gate and
+navigation, while the general `/more` map remains available separately.
+
+**Validation:** tahti-web type-check and focused Admin/router lint pass.
+
+## 2026-08-31 — Fixed channel look saving and live backdrop updates
+
+**Completed:** Visual look changes now apply and refresh the live channel as
+soon as the visual save succeeds. A failing slideshow request no longer masks
+that successful save. Public channels now honor the selected gradient, solid,
+video/image, slideshow, and visualizer backdrop data.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Simplified the full-screen Look panel
+
+**Completed:** Look now contains Channel Designer directly. The redundant
+Channel appearance wrapper was removed, so Backdrop design and Player design
+are the immediate controls in the panel.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Added Player design tabs
+
+**Completed:** Player design now offers Gradient, Video / image, and
+Visualizer tabs with the existing controls synchronized to the channel look.
+Removed section subtexts and the redundant Brand accent label, and renamed
+Artist backdrop banner to Backdrop design.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Improved full-screen Channel Editor Look panel
+
+**Completed:** Widened the right-side editor menu and made Look controls
+collapsed by default. Selecting the channel header opens Artist backdrop
+banner, while selecting Live stage opens Player design. The visualizer picker,
+toggle, and animated previews are available in that Player design section.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Added visualizer preset picker
+
+**Completed:** Clicking the visualizer artwork in Channel Designer now opens a
+dedicated picker with every available visualizer, animated preview, preset
+descriptions, and an explicit Use visualizer action.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Aligned Channel Designer actions with its heading
+
+**Completed:** Save layout and Open my channel now share the same row as the
+Channel Designer heading, so the actions no longer create a separate vertical
+block above the preview.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Removed dialog mount-time flicker
+
+**Completed:** Shared dialogs now render their overlay and panel at full
+opacity/scale on mount, while retaining the close animation. This prevents
+the intermediate transparent/light-looking paint that appeared when Settings
+and other modals opened, including the duplicate lifecycle pass in development
+mode.
+
+**Validation:** Shared Dialog tests pass (7/7), UI type-check and focused lint
+pass. Full UI snapshots include unrelated concurrent changes and were not
+rewritten.
+
+## 2026-08-31 — Moved Channel Designer save action to the top
+
+**Completed:** Channel Designer now places the icon-and-text Save layout
+button above Open my channel, making the primary persistence action visible
+before the editing panels.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Put Artist backdrop controls first
+
+**Completed:** Channel Designer now places Artist backdrop banner above Player
+design, so the page appearance controls are encountered before visualizer
+selection.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Simplified Artist backdrop banner controls
+
+**Completed:** Removed the Color scheme and Header tab navigation from Channel
+Designer. The Header options and their related Gradient, Solid, Video / Image,
+and Slideshow controls now appear directly in the Artist backdrop banner
+section.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Added Slideshow as a Header mode
+
+**Completed:** Channel Designer now offers Slideshow as the fourth Header
+option after Gradient, Solid, and Video / Image. Selecting it activates the
+slideshow backdrop and places its image, style, transition, timing, and
+autoplay settings directly below the Header choices.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Simplified the Gradient Header workspace
+
+**Completed:** Gradient now makes Header the sole backdrop tab. Gradient
+colors and Slideshow remain directly inside Header, while the empty standalone
+Color scheme tab is removed from that state.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Reduced visualizer card clutter
+
+**Completed:** Visualizer entries no longer repeat the generic Visualizer
+label above their descriptions, leaving the preset name, useful description,
+and controls clear and unobstructed.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Clarified disabled visualizer state
+
+**Completed:** Channel Designer now grays out the visualizer preset card and
+disables preset navigation and configuration when visualization is off. The
+Enable button remains active so the visualizer can be restored immediately.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Grouped Slideshow configuration under Header
+
+**Completed:** Slideshow is now configured as its own section inside Header,
+alongside Gradient colors. The standalone Slideshow tab has been removed so
+backdrop, color, and slideshow settings have one clear home.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Grouped Gradient color controls under Header
+
+**Completed:** When Gradient is selected in Channel Designer, its brand and
+color controls now appear directly under Header. The standalone Color scheme
+tab remains available for non-gradient styles, while the gradient view points
+clearly to its new location.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Fixed dark-theme flashes when opening modals
+
+**Completed:** Opening Settings mounted the hidden theme editor, whose cleanup
+reapplied the entire base theme during the modal lifecycle. That caused the
+dark Tahti interface to briefly repaint as the light theme, especially under
+React Strict Mode. Cleanup now removes only the temporary custom-theme preview
+overlay, so Settings and other modal transitions keep the active dark palette.
+
+**Validation:** Focused lint passes. Browser inspection confirms the
+`nuclear:tahti-dark` theme attribute remains stable while opening Settings.
+The full suite currently has one unrelated failure from a concurrent Studio
+navigation change (`pageTour.test.ts`), with 295/296 tests passing.
+
+## 2026-08-31 — Made visualizer controls optional and easier to reach
+
+**Completed:** Channel Designer now has an enabled visualizer toggle that
+switches to a minimal stage when turned off and restores the selected preset
+when turned back on. The appearance controls, including Visualization, now sit
+in a wider right-side panel beside the page preview.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Reworked Channel Designer preview
+
+**Completed:** Channel Designer now puts appearance controls in collapsible
+side panels instead of inside the preview surface. The center shows a realistic
+artist channel structure with profile navigation, live stage, tracks, and About
+content, and the designer includes a direct Open my channel link.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Consolidated governance topics and upload sources
+
+**Completed:** Studio → Governance now presents Motions and Topics as the
+complete in-page tab set, with the legacy feature-requests query continuing to
+open Topics. Library → Sources no longer lists Local upload; unfinished rows
+make Configure the active action, while ready rows expose Enable or Disable.
+Upload now shows the source widgets directly and opens one dialog for each
+source's connection and enablement controls.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Simplified Multicast source setup
+
+**Completed:** Perform → Multicast now shows only configured destinations and
+uses a single plus action to add a source. The modal starts with the same
+provider thumbnail treatment, then continues into configuration, connection
+testing, enablement, and saving without opening a second page or dialog.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Clarified Multicast destination states
+
+**Completed:** Perform → Multicast now visually prioritizes enabled
+destinations. Disabled and unconfigured providers are muted and use an
+outline treatment, while configuration and enable controls remain available.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Clarified source enablement states
+
+**Completed:** Library → Sources now separates “Enabled and configured” from
+“Disabled or needs setup.” Disabled and incomplete integrations are visibly
+muted, while each source has an explicit Enable or Disable button alongside
+its configure and connect actions.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Separated Tahti Radio and Tahti Selects administration
+
+**Completed:** Admin Tahti Radio now loads its own dedicated Radio rotation
+feed instead of reading Tahti Selects content. It keeps the same rotation
+component styling as Selects, in read-only form because the available Radio
+API exposes the editorial feed for review while submission approval remains
+the supported editing workflow. The obsolete Manage main menu was removed,
+and Missed shows was removed from Community because it already lives under
+Moderation.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Removed duplicate Tahti Selects navigation
+
+**Completed:** Removed the remaining Studio/Perform Tahti Selects link. The
+single navigation destination is now Admin → Content → Tahti Selects, placed
+alongside Radio with the matching title.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Channel and Radio moved under Perform
+
+**Completed:** Channel, Radio, Tahti Selects, and Multicast are now grouped
+with Go Live, Schedule, Events, and Shows under the Perform page tabs. The
+route resolver was updated so Channel and Radio correctly activate Perform.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Reworked Studio Governance tabs
+
+**Completed:** Studio Governance now presents Motions and Feature requests as
+page-level tabs within the same Studio section. The feature-request tab keeps
+its existing voting and discussion behavior, and the unrelated Tahti map
+breadcrumb was removed from Governance.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Moderation moved into Channel & design settings
+
+**Completed:** Removed Moderation from the Manage Studio navigation and added
+it as a dedicated tab in Settings → Channel & design. The existing moderator
+and chat-ban controls are reused there, while the old Studio moderation URL
+redirects to the channel settings section for compatibility.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Simplified Library and Sources navigation
+
+**Completed:** Moved Sources under the Upload section and replaced the source
+tile links with a compact list offering configure, connect, and explicit
+enable/disable controls. Source enablement is stored per user and starts
+disabled until selected; the list also links to Settings → Add-ons for more
+source integrations. Stash was removed from the Sources catalog. Media and
+Stash were removed from the Library rail and added as tabs under Collections.
+Recordings now opens the Collections view with the Recordings tab active.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Refined the Library sound editor header
+
+**Completed:** Reworked Library → Sounds → Edit so the artwork becomes a full
+banner with the waveform overlaid as a scrubbable seekbar. Playback is now a
+large circular stateful control in the upper-left of the banner, while
+rotation, stash, pin, save, normalize, trim, editor, and mastering actions
+sit below as compact icon buttons with accessible labels.
+
+**Validation:** tahti-web type-check, focused lint, Prettier, and
+`git diff --check` pass.
+
+## 2026-08-31 — Tahti Selects moved to Admin Content
+
+**Completed:** Moved Tahti Selects into Admin → Content as its own “Tahti
+Selects” tab alongside Radio. The rotation list now has a plus action in its
+header that opens a two-pane picker with content categories, searchable
+striped results, previews, and single- or multi-select adding. The current API
+only exposes eligible public archive tracks, so unsupported categories remain
+visible but unavailable rather than suggesting content that cannot be added.
+Green Room was removed from Manage because it is already present in Settings.
+
+**Validation:** tahti-web type-check, focused lint, and `git diff --check`
+pass.
+
+## 2026-08-31 — Tahti map moved under Admin overview
+
+**Completed:** Removed Tahti map from the global main rail and added it as a
+tab alongside Overview and Vendors on the Admin dashboard. The map remains
+available only in diagnostic/admin builds through its existing route guard.
+
+**Validation:** tahti-web type-check, focused lint, and `git diff --check`
+follow.
+
+## 2026-08-31 — Fixed navigation search-parameter crash
+
+**Completed:** Studio navigation now reads the router's serialized search
+string instead of coercing its structured search object to text. Opening
+Multicast and other query-driven Studio tabs no longer crashes the app with a
+primitive-conversion error.
+
+**Validation:** tahti-web type-check, focused lint, and `git diff --check`
+pass.
+
+## 2026-08-31 — Multicast moved under Perform
+
+**Completed:** Multicast is now listed alongside Go Live, Schedule, Events,
+and Shows in the Perform menu. The route resolver treats the existing
+`/studio/channel?tab=multicast` destination as Perform-owned, and its page
+header now reads “Multicast” with a matching description.
+
+**Validation:** tahti-web type-check, focused lint, and `git diff --check`
+pass.
+
+## 2026-08-31 — Removed the legacy Studio side-column grid
+
+**Completed:** Deleted the old Studio page two-column CSS that explicitly put
+section links into an 11rem side column. Studio pages now use one full-width
+content flow, with the shell-owned section menu above the content and no
+reserved gap beside it.
+
+**Validation:** tahti-web type-check, focused lint, and `git diff --check`
+follow.
+
+## 2026-08-31 — Studio submenu moved into the shell content header
+
+**Completed:** The section page menu is now mounted once by the application
+shell directly above routed content. Page-level Studio navigation instances
+are disabled, removing the narrow side column that was still appearing on
+Go Live, Schedule, Events, and the other Studio pages. The main rail keeps the
+four peer destinations — Studio, Library, Perform, and Manage.
+
+**Validation:** tahti-web type-check, focused navigation lint, and
+`git diff --check` follow.
+
+## 2026-08-31 — Studio main-menu active state
+
+**Completed:** The Studio link no longer uses fuzzy route matching in the main
+rail. It now follows the resolved Studio/Library/Perform/Manage section, so
+only the current peer menu is highlighted.
+
+**Validation:** tahti-web type-check, focused navigation lint, and
+`git diff --check` pass.
+
+## 2026-08-31 — Flattened Studio main navigation hierarchy
+
+**Completed:** Studio, Library, Perform, and Manage are now peer entries in
+the main navigation rather than Library, Perform, and Manage appearing as
+indented children of Studio. Each keeps its own route highlight, while the
+current section's page links remain in the horizontal menu above the content.
+
+**Validation:** tahti-web type-check, focused navigation lint, and
+`git diff --check` pass. The updated local Vite server is running on port
+5195.
+
+## 2026-08-31 — Studio navigation moved into the main shell
+
+**Completed:** The left main navigation now keeps one Studio entry and shows
+Library, Perform, and Manage beneath it while the user is in the Studio area.
+The former four-item Studio section switcher has been removed from each page.
+Its page destinations now render as a compact horizontal menu above the main
+content, giving the content back the width previously occupied by the nested
+side navigation.
+
+**Validation:** tahti-web type-check, focused lint on `AppShell.tsx` and
+`StudioNav.tsx`, and `git diff --check` pass. Live browser verification was
+not available; the main rail and a few narrow content routes should receive
+the next visual pass.
+
+## 2026-08-31 — Go Live missing-info guidance
+
+**Completed:** When an artist has a rotation signal ready but has not entered
+a show name yet, Go Live now points them directly to the Info tab before they
+publish. The prompt stays inside the readiness panel and does not interrupt
+the broadcast flow for artists who already have show details.
+
+**Validation:** tahti-web type-check and changed-file lint follow the existing
+worklog validation pass; full tests remain the next check.
+
+## 2026-08-31 — Radio schedule moved into the Perform flow
+
+**Completed:** The schedule page is now a focused, narrower workspace instead
+of a full-width calendar. Artists with a channel see their own upcoming two
+weeks first, can click a show to edit it, and the station tabs are reflected
+in the URL so the full Tahti Radio calendar remains directly linkable. The
+global top bar no longer duplicates schedule and booking dialogs; the full
+schedule is the single place for those actions.
+
+**Validation:** tahti-web type-check and the changed-file lint pass. Full
+tahti-web tests are the next verification step; live browser verification was
+not available in this session.
+
+## 2026-08-31 — Tahti-dark navigation and dropdown contrast
+
+**Completed:** Shared dropdown menus now use the dark secondary surface with
+foreground text and a restrained focus state, instead of inheriting Tahti's
+amber primary surface. Active Studio and Admin section tabs explicitly retain
+their amber background and black text while hovered, so the selected state
+doesn't lose its contrast or visual identity.
+
+**Validation:** The dedicated shared Select test passes (6/6), tahti-web
+type-check passes, and `git diff --check` is clean. Package-wide lint remains
+blocked by two Prettier errors in the concurrently edited `router.tsx`; the
+changed navigation and Select files lint clean when checked directly. Live
+browser verification remains useful for checking the exact theme rendering.
+
 ## 2026-08-30 — Backlog round 1: five slices closed (plus a real backend fix)
 
 Working through the queued backlog below in batches of 5, per explicit request. This round, in order:
@@ -105,6 +646,13 @@ counted and shipped, same bar as anything written directly in this turn.
 Logged for a future session. Several items from the previous version of this
 list were completed this round — see "Round 5: six slices closed" above;
 this entry now reflects what's actually still open.
+
+**Stream playlist manager: current-track duration, listener count format, stuck bitrate.** All in `StreamManagerPanel.tsx`'s "Stream stats" tab, found while diagnosing the read-only-for-admins bug above:
+- The "Current track" box (`528-556`) shows title, artist, and remaining time (`remainingSec`, from `durationSec - elapsedSinceObserved`) but never the track's total duration (`durationSec`, already computed at `267`) — add it alongside remaining time, e.g. "3:12 / 5:41" or similar, rather than remaining-only.
+- "Peak listeners" (`655-659`, `stats?.listenerPeak`) has no current-listener count next to it — "Listeners" is a separate `StatCell` (`638-654`) that only shows when *not* `rotationPlaying` (its slot switches to "Time left" while a rotation track is playing, `646`). Requested format is combined, e.g. "0 / 4" (current / peak), visible regardless of rotation state — needs reconciling with the existing Time-left/Listeners slot-swap rather than just appending a second number.
+- "Bitrate" (`627-637`) shows "Detecting…" whenever `bitrate` is null and `liveActive` is true, and never resolves for a rotation-only stream (Tahti Selects) because there's no connected encoder `signal`/`stats.audioBitrateKbps` to ever populate it — it's stuck permanently, not actually detecting anything. Needs either a real bitrate source for rotation playback (the fixed output bitrate the rotation encodes at, if known) or a distinct non-"Detecting…" state for the rotation case, the same way "Signal" already has a dedicated `'Rotation'` value (`622-624`) instead of pretending to wait on encoder signal.
+
+**Stream playlist manager: "Live for" resets instead of showing the real broadcast uptime.** `StreamManagerPanel.tsx`'s `liveDurationSec` (`239-243`) prefers `stats?.liveDurationSec` from the server but falls back to a purely local `liveStartedAt` (`132`, `231-237`) that's set to `Date.now()` the moment the component mounts and sees `liveActive`. For Tahti Selects (an always-on rotation channel, not a single per-session broadcast), every time this panel is mounted/reopened the "Live for" stat restarts from zero instead of reflecting how long the station has actually been online — it needs a real server-tracked start timestamp (e.g. `goneLiveAt` already used elsewhere, `AdminStreamManagerPanel.tsx:375-380`) for rotation-mode channels rather than relying on this client-side fallback at all.
 
 **Tahti theme: hover/dropdown contrast bugs, plus a general usability audit.** `packages/themes/src/basic/tahti-dark.css` sets `--accent-orange` to the exact same value as `--primary` (both `oklch(0.8131 0.165 75.04)`, the theme's single bold amber accent, `18-19` / `37`) — any shared component that uses an "accent orange" token for a normally-subtle highlight (e.g. a hover or dropdown-option state) ends up fully saturated in the theme's loudest brand color instead, which is the likely root cause of both reports below. Needs the actual component(s) identified against a live render before fixing, not just this token-collision theory:
 - Hovering an already-active tab turns its text black and the active-state indicator disappears — sounds like a `:hover` rule is overriding the active-tab's own text/background color rather than composing with it.

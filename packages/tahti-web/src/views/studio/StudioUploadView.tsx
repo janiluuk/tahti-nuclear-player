@@ -1,28 +1,216 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
-  CircleDotIcon,
-  CloudIcon,
-  LinkIcon,
   PauseIcon,
   PencilIcon,
   PlayIcon,
+  PlugIcon,
   RadioIcon,
+  ToggleLeftIcon,
+  ToggleRightIcon,
   UploadIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, FilePicker } from '@nuclearplayer/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardGrid,
+  Dialog,
+  FilePicker,
+} from '@nuclearplayer/ui';
 
 import {
   fetchRecentBroadcasts,
   type RecentBroadcast,
 } from '../../api/broadcast';
+import type { MockOauthId } from '../../api/mock-session';
+import {
+  connectIntegrationMock,
+  fetchConnectionStatus,
+  oauthStartUrl,
+  SOURCE_DEFS,
+  type IntegrationId,
+} from '../../api/sources';
 import { fetchEditorSource, uploadArchiveFile } from '../../api/studio';
+import { SourceServiceIcon } from '../../components/SourceServiceIcon';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader } from '../../components/StudioPanel';
 import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
+import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
+
+const ENABLED_SOURCES_STORAGE_KEY = 'tahti-web-enabled-sources';
+const UPLOAD_SOURCES = SOURCE_DEFS.filter(
+  (source) => source.id !== 'upload' && source.id !== 'stash',
+);
+
+function UploadSourceWidgets() {
+  const user = useAuthStore((state) => state.user);
+  const [statuses, setStatuses] = useState<
+    Partial<
+      Record<IntegrationId, Awaited<ReturnType<typeof fetchConnectionStatus>>>
+    >
+  >({});
+  const [enabledIds, setEnabledIds] = useState<Set<IntegrationId>>(new Set());
+  const [selectedId, setSelectedId] = useState<IntegrationId | null>(null);
+
+  useEffect(() => {
+    void Promise.all(
+      UPLOAD_SOURCES.map(
+        async (source) =>
+          [source.id, await fetchConnectionStatus(source.id)] as const,
+      ),
+    ).then((entries) => setStatuses(Object.fromEntries(entries)));
+    const storageKey = user
+      ? `${ENABLED_SOURCES_STORAGE_KEY}:${user.id}`
+      : ENABLED_SOURCES_STORAGE_KEY;
+    const stored =
+      typeof localStorage === 'undefined'
+        ? null
+        : localStorage.getItem(storageKey);
+    if (stored) {
+      try {
+        const ids = JSON.parse(stored) as unknown;
+        setEnabledIds(new Set(Array.isArray(ids) ? ids : []));
+      } catch {
+        setEnabledIds(new Set());
+      }
+    }
+  }, [user]);
+
+  const selected = UPLOAD_SOURCES.find((source) => source.id === selectedId);
+  const selectedStatus = selectedId ? statuses[selectedId]?.data : undefined;
+  const toggleEnabled = (id: IntegrationId) => {
+    setEnabledIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      const storageKey = user
+        ? `${ENABLED_SOURCES_STORAGE_KEY}:${user.id}`
+        : ENABLED_SOURCES_STORAGE_KEY;
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(storageKey, JSON.stringify([...next]));
+      }
+      return next;
+    });
+  };
+
+  return (
+    <section aria-labelledby="source-widgets-title">
+      <h2
+        id="source-widgets-title"
+        className="text-foreground-secondary mb-3 text-xs font-semibold tracking-wide uppercase"
+      >
+        Import sources
+      </h2>
+      <CardGrid className="grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]">
+        {UPLOAD_SOURCES.map((source) => {
+          const status = statuses[source.id]?.data;
+          const enabled = enabledIds.has(source.id);
+          const configured = Boolean(status?.configured);
+          return (
+            <Card
+              key={source.id}
+              title={source.name}
+              subtitle={
+                enabled && configured
+                  ? 'Enabled'
+                  : !configured
+                    ? 'Needs setup'
+                    : 'Disabled'
+              }
+              image={<SourceServiceIcon id={source.id} />}
+              className={
+                !enabled || !configured ? 'opacity-60 grayscale' : undefined
+              }
+              onClick={() => setSelectedId(source.id)}
+            />
+          );
+        })}
+      </CardGrid>
+      {selected && (
+        <Dialog.Root
+          isOpen
+          onClose={() => setSelectedId(null)}
+          className="max-w-lg"
+        >
+          <Dialog.Title>Configure {selected.name}</Dialog.Title>
+          <Dialog.Description>{selected.description}</Dialog.Description>
+          <div className="mt-4 flex flex-col gap-3">
+            <div className="border-border flex items-center justify-between rounded-lg border p-3">
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant="pill"
+                  color={selectedStatus?.configured ? 'green' : 'secondary'}
+                >
+                  {selectedStatus?.configured ? 'Configured' : 'Needs setup'}
+                </Badge>
+                <span className="text-foreground-secondary text-sm">
+                  {enabledIds.has(selected.id) ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+              <Button
+                size="sm"
+                variant={enabledIds.has(selected.id) ? undefined : 'secondary'}
+                disabled={!selectedStatus?.configured}
+                onClick={() => toggleEnabled(selected.id)}
+              >
+                {enabledIds.has(selected.id) ? (
+                  <ToggleRightIcon size={16} aria-hidden className="mr-1.5" />
+                ) : (
+                  <ToggleLeftIcon size={16} aria-hidden className="mr-1.5" />
+                )}
+                {enabledIds.has(selected.id) ? 'Disable' : 'Enable'}
+              </Button>
+            </div>
+            {selected.kind === 'oauth' && selected.oauthStartPath ? (
+              import.meta.env.VITE_FORCE_MOCK === '1' ? (
+                <Button
+                  size="sm"
+                  disabled={!user}
+                  onClick={() => {
+                    void connectIntegrationMock(
+                      selected.id as MockOauthId,
+                    ).then(() => {
+                      void fetchConnectionStatus(selected.id).then((result) =>
+                        setStatuses((current) => ({
+                          ...current,
+                          [selected.id]: result,
+                        })),
+                      );
+                    });
+                  }}
+                >
+                  <PlugIcon size={16} aria-hidden className="mr-1.5" />
+                  {selectedStatus?.connected ? 'Reconnect' : 'Connect'}
+                </Button>
+              ) : (
+                <a href={oauthStartUrl(selected.oauthStartPath)}>
+                  <Button size="sm" disabled={!user}>
+                    <PlugIcon size={16} aria-hidden className="mr-1.5" />
+                    {selectedStatus?.connected ? 'Reconnect' : 'Connect'}
+                  </Button>
+                </a>
+              )
+            ) : (
+              <p className="text-foreground-secondary text-sm">
+                This source is ready without an external connection.
+              </p>
+            )}
+          </div>
+          <Dialog.Actions>
+            <Dialog.Close>Done</Dialog.Close>
+          </Dialog.Actions>
+        </Dialog.Root>
+      )}
+    </section>
+  );
+}
 
 function formatRecordingDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
@@ -171,40 +359,6 @@ export function StudioUploadView() {
     setRecordingLoadingId(null);
   };
 
-  const alternateSources = [
-    {
-      id: 'bandcamp',
-      title: 'Bandcamp',
-      description: 'Import your own releases with FLAC masters',
-      icon: CircleDotIcon,
-    },
-    {
-      id: 'soundcloud',
-      title: 'SoundCloud',
-      description: 'Import downloadable tracks you own',
-      icon: CircleDotIcon,
-    },
-    {
-      id: 'google-drive',
-      title: 'Google Drive',
-      description: 'Pick audio from your cloud storage — no local download',
-      icon: CloudIcon,
-    },
-    {
-      id: 'url',
-      title: 'Paste URL',
-      description: 'Spotify, Apple Music, YouTube — embed-only smart link',
-      icon: LinkIcon,
-    },
-    {
-      id: 'mixcloud',
-      title: 'Rescue from Mixcloud',
-      description:
-        'Re-upload your own backup of a mix — second-best, but better than nothing',
-      icon: RadioIcon,
-    },
-  ] as const;
-
   const submit = async () => {
     if (!file) {
       setMessage('Choose an audio file.');
@@ -306,39 +460,7 @@ export function StudioUploadView() {
           </div>
         </div>
 
-        <section aria-labelledby="other-ways-title">
-          <h2
-            id="other-ways-title"
-            className="text-foreground-secondary mb-3 text-xs font-semibold tracking-wide uppercase"
-          >
-            Other ways to add content
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {alternateSources.map((source) => {
-              const Icon = source.icon;
-              return (
-                <Link
-                  key={source.id}
-                  to="/sources/$id"
-                  params={{ id: source.id }}
-                  className="border-border hover:border-accent-cyan group rounded-lg border p-4 transition-colors"
-                >
-                  <Icon
-                    size={16}
-                    aria-hidden
-                    className="text-foreground-secondary group-hover:text-accent-cyan"
-                  />
-                  <h3 className="text-accent-cyan mt-2 text-sm font-medium">
-                    {source.title}
-                  </h3>
-                  <p className="text-foreground-secondary mt-1 text-xs leading-relaxed">
-                    {source.description}
-                  </p>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+        <UploadSourceWidgets />
 
         <Link
           to="/studio/collections"

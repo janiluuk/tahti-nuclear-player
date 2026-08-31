@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -55,8 +55,13 @@ export function RadioScheduleView() {
   const ownChannelSlug = user?.channel?.slug ?? null;
 
   const [station, setStation] = useState<StationFilter>('radio');
+  const search = useSearch({ strict: false }) as { station?: StationFilter };
+  const navigate = useNavigate({ from: '/schedule' });
   const [weekStart, setWeekStart] = useState(() => startOfLocalDay(new Date()));
   const [bookings, setBookings] = useState<StudioShowBooking[]>([]);
+  const [upcomingBookings, setUpcomingBookings] = useState<StudioShowBooking[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [selection, setSelection] = useState<ScheduleSelection | null>(null);
   const [note, setNote] = useState('');
@@ -69,6 +74,11 @@ export function RadioScheduleView() {
   const [cancelConfirming, setCancelConfirming] = useState(false);
   const [editNote, setEditNote] = useState('');
   const [editShowType, setEditShowType] = useState<ShowType>('LIVE_SET');
+
+  useEffect(() => {
+    const nextStation = search.station ?? (ownChannelSlug ? 'mine' : 'radio');
+    setStation(nextStation === 'mine' && ownChannelSlug ? 'mine' : 'radio');
+  }, [ownChannelSlug, search.station]);
 
   const days = useMemo(() => weekDays(weekStart), [weekStart]);
 
@@ -90,6 +100,43 @@ export function RadioScheduleView() {
       cancelled = true;
     };
   }, [weekStart]);
+
+  useEffect(() => {
+    if (!ownChannelSlug) {
+      setUpcomingBookings([]);
+      return;
+    }
+    const from = new Date();
+    const to = new Date(from.getTime() + 14 * 24 * 60 * 60 * 1000);
+    let cancelled = false;
+    void fetchShowBookings(from.toISOString(), to.toISOString()).then(
+      (result) => {
+        if (cancelled) {
+          return;
+        }
+        setUpcomingBookings(
+          result.data
+            .filter(
+              (booking) =>
+                booking.channelSlug === ownChannelSlug || booking.isMine,
+            )
+            .filter((booking) => new Date(booking.endAt).getTime() > Date.now())
+            .sort((left, right) => left.startAt.localeCompare(right.startAt)),
+        );
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [ownChannelSlug]);
+
+  function changeStation(nextStation: StationFilter) {
+    setStation(nextStation);
+    void navigate({
+      search: (previous) => ({ ...previous, station: nextStation }),
+      replace: true,
+    });
+  }
 
   const visibleBookings = useMemo(
     () => filterBookingsForStation(bookings, station, ownChannelSlug),
@@ -214,7 +261,7 @@ export function RadioScheduleView() {
   }
 
   return (
-    <PageFrame maxWidth="full">
+    <PageFrame maxWidth="5xl">
       <PageHeader
         title="Schedule"
         subtitle="A week at a glance on Tahti Radio — book an open hour to play a live set, or switch to your own channel to see just your slots."
@@ -251,166 +298,223 @@ export function RadioScheduleView() {
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div
-          className="border-border inline-flex gap-1 rounded-lg border p-1"
-          role="tablist"
-          aria-label="Station"
-        >
-          <Button
-            type="button"
-            variant="text"
-            role="tab"
-            aria-selected={station === 'radio'}
-            onClick={() => setStation('radio')}
-            className={cn(
-              'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
-              station === 'radio'
-                ? 'bg-primary text-primary-foreground'
-                : 'text-foreground-secondary hover:text-foreground',
-            )}
-          >
-            Tahti Radio
-          </Button>
-          {ownChannelSlug ? (
-            <Button
-              type="button"
-              variant="text"
-              role="tab"
-              aria-selected={station === 'mine'}
-              onClick={() => setStation('mine')}
-              className={cn(
-                'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
-                station === 'mine'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground-secondary hover:text-foreground',
-              )}
-            >
-              My channel
-            </Button>
-          ) : null}
-        </div>
-
-        <div className="flex items-center justify-between gap-2 sm:justify-end">
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            aria-label="Previous week"
-            disabled={busy}
-            onClick={() => setWeekStart((w) => addDays(w, -7))}
-          >
-            <ChevronLeftIcon size={16} aria-hidden />
-          </Button>
-          <span className="text-sm font-semibold tabular-nums">
-            {weekLabel(days)}
-          </span>
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            aria-label="Next week"
-            disabled={busy}
-            onClick={() => setWeekStart((w) => addDays(w, 7))}
-          >
-            <ChevronRightIcon size={16} aria-hidden />
-          </Button>
-          {weekStart.toDateString() !==
-          startOfLocalDay(new Date()).toDateString() ? (
-            <Button
-              size="sm"
-              variant="text"
-              onClick={() => setWeekStart(startOfLocalDay(new Date()))}
-            >
-              This week
-            </Button>
-          ) : null}
-        </div>
-      </div>
-
-      <div className="border-border overflow-x-auto rounded-xl border">
-        <div className="grid min-w-[46.5rem] grid-cols-[4.5rem_repeat(7,minmax(6rem,1fr))]">
-          <div className="border-border bg-background-secondary/40 border-r border-b" />
-          {days.map((day) => (
-            <div
-              key={day.toISOString()}
-              className="border-border bg-background-secondary/40 flex flex-col items-center border-b px-2 py-2 text-xs"
-            >
-              <span className="font-semibold">
-                {day.toLocaleDateString(undefined, { weekday: 'short' })}
-              </span>
-              <span className="text-foreground-secondary">
-                {day.toLocaleDateString(undefined, {
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </span>
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        {ownChannelSlug ? (
+          <aside className="border-border bg-background-secondary/30 shrink-0 rounded-xl border p-4 lg:w-64">
+            <div className="text-foreground-secondary mb-3 font-mono text-xs tracking-wider uppercase">
+              Your next two weeks
             </div>
-          ))}
-
-          {SCHEDULE_HOURS.map((hour) => (
-            <Fragment key={hour}>
-              <div className="border-border text-foreground-secondary flex items-center justify-end border-r px-2 py-1.5 text-xs tabular-nums">
-                {formatHour(hour)}
-              </div>
-              {days.map((day) => {
-                const cellStart = atHour(day, hour);
-                const isPast = cellStart.getTime() <= Date.now();
-                const booking = bookingAt(day, hour);
-                const isSelected = Boolean(
-                  selection &&
-                  selection.day.toDateString() === day.toDateString() &&
-                  hour >= selection.startHour &&
-                  hour < selection.startHour + selection.hours,
-                );
-                return (
-                  <button
-                    key={`${day.toISOString()}-${hour}`}
-                    type="button"
-                    disabled={loading || (isPast && !booking?.isMine)}
-                    onClick={() => onCellClick(day, hour)}
-                    aria-label={
-                      booking
-                        ? `${bookingTitle(booking)} by ${booking.displayName}${
-                            booking.isMine ? ' — click to view' : ''
-                          }`
-                        : `${day.toLocaleDateString(undefined, {
-                            weekday: 'long',
-                            month: 'long',
-                            day: 'numeric',
-                          })} at ${formatHour(hour)}${
-                            isPast ? ' — unavailable' : ' — available'
-                          }`
-                    }
-                    className={cn(
-                      'border-border h-8 border-r border-b px-1.5 text-left text-[11px] transition-colors',
-                      booking
-                        ? booking.isMine
-                          ? 'bg-primary/20 text-primary hover:bg-primary/30'
-                          : 'bg-background-secondary text-foreground-secondary cursor-default'
-                        : isPast
-                          ? 'bg-background-secondary/20 cursor-not-allowed'
-                          : 'hover:bg-background-secondary',
-                      isSelected && 'ring-primary ring-2 ring-inset',
-                    )}
-                  >
-                    {booking ? (
-                      <span className="flex items-center gap-1 truncate">
-                        {booking.showType === 'TALK' ? (
-                          <MessageCircleIcon
-                            size={11}
-                            aria-hidden
-                            className="shrink-0"
-                          />
-                        ) : (
-                          <MicIcon size={11} aria-hidden className="shrink-0" />
-                        )}
-                        <span className="truncate">{booking.displayName}</span>
+            {upcomingBookings.length === 0 ? (
+              <p className="text-foreground-secondary text-sm">
+                No upcoming shows booked.
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {upcomingBookings.map((booking) => (
+                  <li key={booking.id}>
+                    <button
+                      type="button"
+                      className="hover:bg-background-secondary w-full rounded-md p-2 text-left text-sm transition-colors"
+                      onClick={() => {
+                        setSelectedBooking(booking);
+                        setEditNote(booking.note ?? '');
+                        setEditShowType(booking.showType);
+                      }}
+                    >
+                      <span className="block truncate font-semibold">
+                        {bookingTitle(booking)}
                       </span>
-                    ) : null}
-                  </button>
-                );
-              })}
-            </Fragment>
-          ))}
+                      <span className="text-foreground-secondary block text-xs">
+                        {new Date(booking.startAt).toLocaleDateString(
+                          undefined,
+                          {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric',
+                          },
+                        )}{' '}
+                        {formatHour(new Date(booking.startAt).getHours())}
+                      </span>
+                      <span className="text-foreground-secondary block truncate text-xs">
+                        {booking.channelSlug}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </aside>
+        ) : null}
+
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <div
+              className="border-border inline-flex gap-1 rounded-lg border p-1"
+              role="tablist"
+              aria-label="Station"
+            >
+              <Button
+                type="button"
+                variant="text"
+                role="tab"
+                aria-selected={station === 'radio'}
+                onClick={() => changeStation('radio')}
+                className={cn(
+                  'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
+                  station === 'radio'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground-secondary hover:text-foreground',
+                )}
+              >
+                Tahti Radio
+              </Button>
+              {ownChannelSlug ? (
+                <Button
+                  type="button"
+                  variant="text"
+                  role="tab"
+                  aria-selected={station === 'mine'}
+                  onClick={() => changeStation('mine')}
+                  className={cn(
+                    'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
+                    station === 'mine'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-foreground-secondary hover:text-foreground',
+                  )}
+                >
+                  My channel
+                </Button>
+              ) : null}
+            </div>
+
+            <div className="flex items-center justify-between gap-2 sm:justify-end">
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label="Previous week"
+                disabled={busy}
+                onClick={() => setWeekStart((w) => addDays(w, -7))}
+              >
+                <ChevronLeftIcon size={16} aria-hidden />
+              </Button>
+              <span className="text-sm font-semibold tabular-nums">
+                {weekLabel(days)}
+              </span>
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label="Next week"
+                disabled={busy}
+                onClick={() => setWeekStart((w) => addDays(w, 7))}
+              >
+                <ChevronRightIcon size={16} aria-hidden />
+              </Button>
+              {weekStart.toDateString() !==
+              startOfLocalDay(new Date()).toDateString() ? (
+                <Button
+                  size="sm"
+                  variant="text"
+                  onClick={() => setWeekStart(startOfLocalDay(new Date()))}
+                >
+                  This week
+                </Button>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="border-border overflow-x-auto rounded-xl border">
+            <div className="grid min-w-[46.5rem] grid-cols-[4.5rem_repeat(7,minmax(6rem,1fr))]">
+              <div className="border-border bg-background-secondary/40 border-r border-b" />
+              {days.map((day) => (
+                <div
+                  key={day.toISOString()}
+                  className="border-border bg-background-secondary/40 flex flex-col items-center border-b px-2 py-2 text-xs"
+                >
+                  <span className="font-semibold">
+                    {day.toLocaleDateString(undefined, { weekday: 'short' })}
+                  </span>
+                  <span className="text-foreground-secondary">
+                    {day.toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </div>
+              ))}
+
+              {SCHEDULE_HOURS.map((hour) => (
+                <Fragment key={hour}>
+                  <div className="border-border text-foreground-secondary flex items-center justify-end border-r px-2 py-1.5 text-xs tabular-nums">
+                    {formatHour(hour)}
+                  </div>
+                  {days.map((day) => {
+                    const cellStart = atHour(day, hour);
+                    const isPast = cellStart.getTime() <= Date.now();
+                    const booking = bookingAt(day, hour);
+                    const isSelected = Boolean(
+                      selection &&
+                      selection.day.toDateString() === day.toDateString() &&
+                      hour >= selection.startHour &&
+                      hour < selection.startHour + selection.hours,
+                    );
+                    return (
+                      <button
+                        key={`${day.toISOString()}-${hour}`}
+                        type="button"
+                        disabled={loading || (isPast && !booking?.isMine)}
+                        onClick={() => onCellClick(day, hour)}
+                        aria-label={
+                          booking
+                            ? `${bookingTitle(booking)} by ${booking.displayName}${
+                                booking.isMine ? ' — click to view' : ''
+                              }`
+                            : `${day.toLocaleDateString(undefined, {
+                                weekday: 'long',
+                                month: 'long',
+                                day: 'numeric',
+                              })} at ${formatHour(hour)}${
+                                isPast ? ' — unavailable' : ' — available'
+                              }`
+                        }
+                        className={cn(
+                          'border-border h-8 border-r border-b px-1.5 text-left text-[11px] transition-colors',
+                          booking
+                            ? booking.isMine
+                              ? 'bg-primary/20 text-primary hover:bg-primary/30'
+                              : 'bg-background-secondary text-foreground-secondary cursor-default'
+                            : isPast
+                              ? 'bg-background-secondary/20 cursor-not-allowed'
+                              : 'hover:bg-background-secondary',
+                          isSelected && 'ring-primary ring-2 ring-inset',
+                        )}
+                      >
+                        {booking ? (
+                          <span className="flex items-center gap-1 truncate">
+                            {booking.showType === 'TALK' ? (
+                              <MessageCircleIcon
+                                size={11}
+                                aria-hidden
+                                className="shrink-0"
+                              />
+                            ) : (
+                              <MicIcon
+                                size={11}
+                                aria-hidden
+                                className="shrink-0"
+                              />
+                            )}
+                            <span className="truncate">
+                              {booking.displayName}
+                            </span>
+                          </span>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </Fragment>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

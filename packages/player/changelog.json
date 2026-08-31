@@ -1,6 +1,391 @@
 [
   {
     "date": "2026-08-31T00:00",
+    "description": "EP collections now keep their correct content type when you open them in the editor instead of being mislabeled as albums.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Collection pages now open with their backdrop and a subtle cover-art ambience, while collections without artwork receive a polished default cover. Visibility is shown clearly as a header badge.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Collections", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Library Recordings now keeps Collections selected in navigation, uses the correct page heading, and offers the same search-and-sort browsing experience as Sounds.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Broadcast multistream settings now show only multicast providers, with every setup and connection change contained in a focused dialog.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Settings", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Source connections and imports now live under Settings → Broadcast → Multistream, keeping Library focused on your actual content.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Settings", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "HearThis embed tracks can now be downloaded from the track editor when downloads are enabled, and collection content uses the same clear listing style as Sounds.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Library Sounds is cleaner without a repeated heading or upload button, and Recordings now uses the same easy-to-scan listing style.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Track quick edits are now grouped in one menu, while rotation and private-stash actions live with playlist tools where they are easier to find.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Track rows now reserve filled button backgrounds for active playback and pinned states, keeping inactive actions lighter and easier to scan.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Admin moderation filters now have more breathing room, and Support search stays in a clear responsive toolbar for faster queue triage.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Admin Overview is less crowded: Vendors and the Tahti map now have their own menu entries, with the map showing the correct Admin navigation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Saving channel look changes no longer gets blocked by a separate slideshow error, and the live channel now reflects the selected backdrop style and visualizer.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "The full-screen editor’s Look panel now opens directly into Backdrop design and Player design, without an extra Channel appearance layer.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Player design now has clear Gradient, Video / Image, and Visualizer tabs, while backdrop panels use shorter labels and less repeated text.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Full-screen Channel Editor now gives the right-side menu more room and opens the relevant Look controls automatically when you select the channel header or live stage.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Clicking a visualizer icon now opens a full preset picker with animated previews, descriptions, and a clear way to apply your choice.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Channel Designer now keeps Save layout and Open my channel alongside its heading, leaving more room for the actual design controls and preview.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Settings and other dialogs now open without the brief flicker before their dark-themed content appears.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Channel Designer now keeps the Save layout action at the top, directly above the link to open your channel.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Channel Designer now starts with Artist backdrop banner controls, followed by Player design, matching the order you use to shape the channel.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Artist backdrop settings are now shown in one straightforward section, without separate Color scheme or Header tabs to navigate between.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Channel Designer now treats Slideshow as a fourth Header mode, with its settings shown directly below the Header choices.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Channel Designer now presents Gradient as one focused Header workspace, without an empty Color scheme tab competing with the main controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Visualizer cards now show only the useful preset details, removing the redundant Visualizer label that crowded the controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Disabled visualizers are now clearly grayed out in Channel Designer, while the Enable control stays available to turn them back on.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Header design now keeps Gradient colors and Slideshow settings together, making backdrop configuration easier to understand and manage.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Gradient header colors are now edited directly inside Header, keeping the complete gradient design in one place.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Opening Settings and other dialogs no longer briefly flashes the light theme when you are using Tahti dark mode.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Channel Designer now lets you turn visualizations off and back on, with the wider visualization controls placed on the right beside the live page preview.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Channel Designer now keeps editing controls in collapsible side panels, shows a realistic artist page preview, and provides a direct link to your channel.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Studio Governance now keeps motions and community topics together as clear tabs, so every governance page is easy to find in one place. Upload source widgets also provide one dialog for connection and enablement, while Local upload no longer appears as a duplicate source.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Multicast now uses a focused Add source flow: choose a provider thumbnail, configure it, and test the connection in one dialog.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Perform", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Multicast now makes active destinations stand out clearly, while disabled and unconfigured services use a muted outline treatment.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Perform", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Sources are now clearly grouped into enabled and configured integrations versus disabled or unfinished ones, with muted rows and explicit Enable buttons.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Tahti Radio and Tahti Selects now show separate rotations in Admin, while the obsolete Manage menu has been removed.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Missed shows is no longer duplicated in Admin Community because it is already available under Moderation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Tahti Selects now has one clear home in Admin → Content, alongside Radio, without a duplicate Studio navigation entry.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Channel and Radio are now grouped under Perform, making live setup and broadcasting controls easier to find together.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Studio Governance now keeps motions and feature requests together as clear page tabs, with no unrelated map link in the section.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Channel moderation is now organized under Settings → Channel & design, keeping channel setup and moderation controls together.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Settings", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Library navigation is now simpler: Collections contains Recordings, Media, and Stash as tabs, while Sources has inline configuration, connection, and opt-in enable controls.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Sound editing now puts the artwork, title, playback state, and waveform seekbar together in one clear banner, with compact editing actions underneath.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Admin → Content now gives Tahti Selects its own tab under Radio, with a searchable multi-select picker for building the editorial rotation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Green Room is no longer duplicated in Manage because it is already available in Settings.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "The Tahti map is now organized under Admin → Overview instead of taking up a separate place in the main navigation.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Admin", "color": "purple" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Fixed a navigation error that could stop the app from rendering when opening a Studio tab with URL parameters.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Multicast now lives under Perform with Go Live and Schedule, and its page is clearly titled Multicast with the correct active navigation state.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Studio pages no longer reserve a blank side column for navigation; the content now starts directly beside the main sidebar and uses the available width.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Perform's Go Live, Schedule, Events, and Shows links now sit across the top of the content, giving the pages their full width instead of leaving a side column.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Studio navigation now highlights exactly one destination at a time, so Studio no longer stays lit when you are in Library, Perform, or Manage.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Studio, Library, Perform, and Manage are now separate main-menu destinations, so moving between them no longer feels like drilling into Studio.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Studio navigation is now easier to scan: Studio, Library, Perform, and Manage live together in the main menu, while each area's pages sit in a compact bar above the content.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Go Live now reminds you to add a show name before taking over the rotation, with a direct link to the right Info tab.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "The radio schedule now opens on your own upcoming shows, with a compact two-week overview and shareable station filters.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
+    "description": "Tahti's dark theme now keeps active navigation readable when hovered, and dropdown menus use a calm dark surface instead of a wall of amber.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "UI", "color": "cyan" }]
+  },
+  {
+    "date": "2026-08-31T00:00",
     "description": "Clicking your own radio schedule slot now opens an edit dialog instead of instantly deleting it — cancelling now needs a confirmation step too.",
     "type": "fix",
     "contributors": ["jani"],

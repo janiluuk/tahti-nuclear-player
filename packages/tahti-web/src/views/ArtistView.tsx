@@ -49,6 +49,7 @@ import {
 } from '../components/ArtistGalleryPanel';
 import { ChannelControlsWidget } from '../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../components/ChannelDesigner';
+import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { GlowMediaTile } from '../components/GlowMediaTile';
 import { ImageLightbox } from '../components/ImageLightbox';
@@ -69,6 +70,7 @@ import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { isPinned } from '../lib/pinnedTracks';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { formatDuration } from '../lib/playableToTrack';
+import { isGreenRoomWindow } from '../lib/radioSchedule';
 import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -104,11 +106,13 @@ function ShowEpisodeList({
   episodes,
   icon,
   channelSlug,
+  username,
 }: {
   title: string;
   episodes: PublicRadioShowEpisode[];
   icon: ReactNode;
   channelSlug?: string;
+  username?: string;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -151,6 +155,22 @@ function ShowEpisodeList({
                 ) : null}
               </div>
             </div>
+            {username && isGreenRoomWindow(episode) ? (
+              <Link
+                to="/u/$username/green-room"
+                params={{ username }}
+                className="shrink-0"
+              >
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Open green room"
+                  title="Green room"
+                >
+                  <Mic size={16} aria-hidden />
+                </Button>
+              </Link>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -620,94 +640,88 @@ export function ArtistView({ username }: { username: string }) {
       </Link>
 
       <section className="border-border bg-background-secondary/70 flex flex-col gap-5 rounded-2xl border p-4 shadow-sm sm:p-6">
-        <div className="flex flex-wrap items-start gap-4">
-          <div className="relative size-20 shrink-0 sm:size-24">
-            {artist.avatarUrl ? (
-              <button
-                type="button"
-                className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24"
-                aria-label={`View ${artist.displayName} profile picture`}
-                onClick={() => setAvatarOpen(true)}
-              >
-                <img
-                  src={artist.avatarUrl}
-                  alt=""
-                  className="size-full object-cover"
-                />
-              </button>
-            ) : (
-              <div className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24">
-                <img
-                  src={placeholderArtworkUrl(artist.username)}
-                  alt=""
-                  className="size-full object-cover"
-                />
-              </div>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <PageHeader
-              title={artist.displayName}
-              subtitle={`@${artist.username}`}
-              actions={
-                <>
-                  {channel &&
-                  (channel.state === 'PREVIEW' || channel.state === 'LIVE') ? (
-                    <Link
-                      to="/u/$username/green-room"
-                      params={{ username: artist.username }}
-                    >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="relative size-20 shrink-0 sm:size-24">
+              {artist.avatarUrl ? (
+                <button
+                  type="button"
+                  className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24"
+                  aria-label={`View ${artist.displayName} profile picture`}
+                  onClick={() => setAvatarOpen(true)}
+                >
+                  <img
+                    src={artist.avatarUrl}
+                    alt=""
+                    className="size-full object-cover"
+                  />
+                </button>
+              ) : (
+                <div className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24">
+                  <img
+                    src={placeholderArtworkUrl(artist.username)}
+                    alt=""
+                    className="size-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <PageHeader
+                title={artist.displayName}
+                subtitle={`@${artist.username}`}
+                actions={
+                  <>
+                    {!isOwner &&
+                    artist.freeSubscriptionsEnabled !== false &&
+                    fanTiers.length > 0 ? (
+                      <Link
+                        to="/subscribe/$username"
+                        params={{ username: artist.username }}
+                      >
+                        <Button
+                          size="icon-sm"
+                          variant="secondary"
+                          title={`Subscribe to ${artist.displayName}`}
+                          aria-label={`Subscribe to ${artist.displayName}`}
+                        >
+                          <UsersRound size={16} aria-hidden />
+                        </Button>
+                      </Link>
+                    ) : null}
+                    {isOwner && channel?.slug ? (
+                      <Link
+                        to="/channel/$slug"
+                        params={{ slug: channel.slug }}
+                        search={{ edit: '1' }}
+                      >
+                        <Button size="sm" variant="secondary">
+                          Edit design
+                        </Button>
+                      </Link>
+                    ) : isOwner ? (
                       <Button
                         size="sm"
                         variant="secondary"
-                        aria-label="Open green room"
-                        title="Green room"
+                        onClick={() => setTab('design')}
                       >
-                        <Mic size={16} aria-hidden />
-                        <span>Green room</span>
+                        Edit look
                       </Button>
-                    </Link>
-                  ) : null}
-                  {!isOwner &&
-                  artist.freeSubscriptionsEnabled !== false &&
-                  fanTiers.length > 0 ? (
-                    <Link
-                      to="/subscribe/$username"
-                      params={{ username: artist.username }}
-                    >
-                      <Button
-                        size="icon-sm"
-                        variant="secondary"
-                        title={`Subscribe to ${artist.displayName}`}
-                        aria-label={`Subscribe to ${artist.displayName}`}
-                      >
-                        <UsersRound size={16} aria-hidden />
-                      </Button>
-                    </Link>
-                  ) : null}
-                  {isOwner && channel?.slug ? (
-                    <Link
-                      to="/channel/$slug"
-                      params={{ slug: channel.slug }}
-                      search={{ edit: '1' }}
-                    >
-                      <Button size="sm" variant="secondary">
-                        Edit design
-                      </Button>
-                    </Link>
-                  ) : isOwner ? (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => setTab('design')}
-                    >
-                      Edit look
-                    </Button>
-                  ) : null}
-                </>
-              }
-            />
+                    ) : null}
+                  </>
+                }
+              />
+            </div>
           </div>
+          {channel?.slug ? (
+            <Link
+              to="/channel/$slug"
+              params={{ slug: channel.slug }}
+              className="text-primary shrink-0 text-sm font-medium underline-offset-2 hover:underline"
+            >
+              View channel →
+            </Link>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {artist.pronouns ? (
@@ -838,8 +852,12 @@ export function ArtistView({ username }: { username: string }) {
         ) : null}
         <div className="border-border/70 flex flex-wrap gap-x-7 gap-y-3 border-t pt-4">
           {[
-            ['Followers', artist.followerCount ?? 0],
-            ['Following', artist.followingCount ?? 0],
+            ...(artist.followerCount != null
+              ? [['Followers', artist.followerCount] as const]
+              : []),
+            ...(artist.followingCount != null
+              ? [['Following', artist.followingCount] as const]
+              : []),
             ['Tracks', profile.tracks.length],
             ['Releases', releases.length],
             ['Collections', collections.length],
@@ -877,7 +895,7 @@ export function ArtistView({ username }: { username: string }) {
         <StreamManagerPanel
           slug={channel.slug}
           channelState={channel.state}
-          readOnly={!isOwner}
+          readOnly={!isOwner && !isAdministrator}
         />
       ) : null}
 
@@ -904,6 +922,7 @@ export function ArtistView({ username }: { username: string }) {
                 episodes={liveShows.upcomingEpisodes}
                 icon={<Mic size={16} aria-hidden />}
                 channelSlug={channel?.slug}
+                username={artist.username}
               />
             ) : null}
             {liveShows.pastEpisodes.length > 0 ? (
@@ -1009,7 +1028,12 @@ export function ArtistView({ username }: { username: string }) {
       {tab === 'music' && (
         <section className="flex flex-col gap-8">
           <div className="border-border bg-background-input relative min-h-[20rem] w-full overflow-hidden rounded-lg border sm:min-h-[28rem]">
-            {nowPlayingHere?.coverUrl ? (
+            {featuredIsPlaying ? (
+              <ChannelVisualizer
+                className="absolute inset-0 size-full opacity-60"
+                artworkUrl={nowPlayingHere?.coverUrl}
+              />
+            ) : nowPlayingHere?.coverUrl ? (
               <img
                 src={nowPlayingHere.coverUrl}
                 alt=""
@@ -1031,26 +1055,28 @@ export function ArtistView({ username }: { username: string }) {
             ) : null}
 
             {featuredPlayable ? (
-              <Button
-                type="button"
-                size="icon"
-                className="bg-primary text-primary-foreground absolute top-1/2 left-1/2 z-[2] size-16 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-xl sm:size-20"
-                onClick={playFeatured}
-                aria-label={
-                  featuredIsPlaying
-                    ? 'Pause featured track'
-                    : 'Play featured track'
-                }
-                aria-pressed={featuredIsPlaying}
-              >
-                {featuredIsPlaying ? (
-                  <span className="text-xl font-bold" aria-hidden>
-                    ||
-                  </span>
-                ) : (
-                  <PlayIcon size={28} className="fill-current" aria-hidden />
-                )}
-              </Button>
+              <div className="absolute top-1/2 left-1/2 z-[2] -translate-x-1/2 -translate-y-1/2">
+                <Button
+                  type="button"
+                  size="icon"
+                  className="bg-primary text-primary-foreground size-16 rounded-full shadow-xl sm:size-20"
+                  onClick={playFeatured}
+                  aria-label={
+                    featuredIsPlaying
+                      ? 'Pause featured track'
+                      : 'Play featured track'
+                  }
+                  aria-pressed={featuredIsPlaying}
+                >
+                  {featuredIsPlaying ? (
+                    <span className="text-xl font-bold" aria-hidden>
+                      ||
+                    </span>
+                  ) : (
+                    <PlayIcon size={28} className="fill-current" aria-hidden />
+                  )}
+                </Button>
+              </div>
             ) : null}
 
             <div className="absolute inset-x-0 bottom-0 z-[1] flex items-end gap-3 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-3 sm:gap-4 sm:p-4">

@@ -25,8 +25,8 @@ export const SelectOption: FC<SelectOptionProps> = ({
       {({ focus, selected }) => (
         <div
           className={cn(
-            'text-primary-foreground cursor-pointer p-1',
-            focus && 'outline-border outline-2',
+            'text-foreground cursor-pointer rounded-sm p-1',
+            focus && 'bg-background outline-border outline-2',
             classes?.root,
           )}
           onMouseDown={(e) => e.preventDefault()}

@@ -4,7 +4,9 @@ description: Local API contract guide for the Tahti Nuclear client.
 
 # Tahti API reference
 
-This client uses the API served by the sibling `../tahti` repository. The
+This client is maintained in the
+[Tahti Player repository](https://github.com/janiluuk/tahti-player) and uses
+the API served by the sibling `../tahti` repository. The
 authoritative interactive documentation is available at
 [`https://api.tahti.live/api`](https://api.tahti.live/api), with the machine
 readable contract at [`../tahti/openapi.json`](../../../tahti/openapi.json)
@@ -14,7 +16,7 @@ This page records the contract areas used by the Nuclear client and the
 permission boundaries that must be checked before adding a new view. It is
 not a replacement for the generated OpenAPI document.
 
-<!-- API_PATHS_SHA256: 1ab015de1e7ca39209d8e5f20a4afd29f4e1f6517bf2577069e4159b26731322 -->
+<!-- API_PATHS_SHA256: fd8718d23707db97b7aa85607f92ac531f824addb12bd79e78de4bea858feeeb -->
 
 ## Authentication
 

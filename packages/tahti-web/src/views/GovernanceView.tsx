@@ -14,7 +14,6 @@ import {
 import type { FeatureRequest, GovernanceMotion } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
-import { TahtiMapLink } from '../components/TahtiMapLink';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
@@ -32,7 +31,7 @@ function stateBadge(state: string): {
   return { color: 'orange', label: state };
 }
 
-export function GovernanceView() {
+export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
   const user = useAuthStore((s) => s.user);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [motions, setMotions] = useState<GovernanceMotion[]>([]);
@@ -82,20 +81,21 @@ export function GovernanceView() {
 
   return (
     <PageFrame maxWidth="3xl">
-      <PageHeader
-        title="Governance"
-        subtitle="Cooperative motions — vote YES / NO / ABSTAIN and join the discussion."
-        back={<TahtiMapLink />}
-        meta={
-          <Link
-            to="/governance/feature-requests"
-            onClick={closeSettings}
-            className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
-          >
-            Feature requests →
-          </Link>
-        }
-      />
+      {!embedded && (
+        <PageHeader
+          title="Governance"
+          subtitle="Cooperative motions — vote YES / NO / ABSTAIN and join the discussion."
+          meta={
+            <Link
+              to="/governance/feature-requests"
+              onClick={closeSettings}
+              className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
+            >
+              Feature requests →
+            </Link>
+          }
+        />
+      )}
 
       {!user && (
         <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
