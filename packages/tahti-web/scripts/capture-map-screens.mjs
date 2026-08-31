@@ -263,7 +263,9 @@ async function setLocalStorage(p, signedIn = true) {
       );
       return;
     } catch (error) {
-      if (attempt === 2) throw error;
+      if (attempt === 2) {
+        throw error;
+      }
       await p.waitForTimeout(300);
     }
   }
