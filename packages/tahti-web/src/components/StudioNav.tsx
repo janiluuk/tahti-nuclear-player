@@ -145,6 +145,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/library/collections',
     '/studio/collections',
     '/library/recordings',
+    '/studio/recordings',
     '/library/smartlinks',
     '/library/upload',
     '/studio/editor',

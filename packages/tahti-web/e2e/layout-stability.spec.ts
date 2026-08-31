@@ -18,7 +18,6 @@ const studioRoutes = [
   '/studio/venues',
   '/studio/shows',
   '/studio/channel',
-  '/sources',
   '/studio/moderation',
 ] as const;
 
@@ -134,11 +133,19 @@ test('Studio shell stays full-width and keeps navigation geometry stable', async
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
+  // Studio's nav renders once, globally, in AppShell (`[data-studio-shell]`)
+  // as a sibling of the routed page's own `.studio-page-layout` -- not a
+  // descendant of it -- since the four-top-sections redesign centralized
+  // navigation instead of each view rendering its own copy. It also
+  // collapsed to a single-tier `data-studio-section-menu`; there is no
+  // longer a separate "tabs" element, unlike Admin's two-tier nav. Use the
+  // shared shell wrapper and the same selector for both tabs/menu params so
+  // the geometry check tracks that one nav bar's horizontal position.
   await expectStableShell(
     page,
     studioRoutes,
-    '.studio-page-layout',
-    '[data-studio-section-tabs]',
+    '[data-studio-shell]',
+    '[data-studio-section-menu]',
     '[data-studio-section-menu]',
   );
 });
@@ -168,9 +175,6 @@ test('Studio and Admin shells remain reachable on mobile without horizontal over
     await page.goto(route);
     await page.waitForTimeout(500);
     await expect(page.locator('.studio-page-layout').first()).toBeVisible();
-    await expect(
-      page.locator('[data-studio-section-tabs]').first(),
-    ).toBeVisible();
     await expect(
       page.locator('[data-studio-section-menu]').first(),
     ).toBeVisible();

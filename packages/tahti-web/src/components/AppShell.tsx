@@ -328,6 +328,7 @@ export function AppShell() {
         <div className="tahti-ambient-surface bg-background-secondary relative flex min-h-0 flex-1 flex-col overflow-hidden">
           <div
             className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
+            data-studio-shell
           >
             {getStudioPrimaryRoute(pathname) ? (
               <StudioNav current={navigationLocation} global />
@@ -441,7 +442,7 @@ export function AppShell() {
               MAIN_CONTENT_PADDING,
             )}
           >
-            <div className="h-full overflow-auto">
+            <div className="h-full overflow-auto" data-studio-shell>
               {getStudioPrimaryRoute(pathname) ? (
                 <StudioNav current={navigationLocation} global />
               ) : null}
