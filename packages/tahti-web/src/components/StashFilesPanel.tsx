@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, Select } from '@nuclearplayer/ui';
 
 import {
   createStashShare,
@@ -378,43 +378,29 @@ export const StashFilesPanel = () => {
                         className="border-border bg-background rounded-md border px-3 py-2"
                       />
                     </label>
-                    <label className="flex flex-col gap-1 text-sm">
-                      <span className="text-foreground-secondary text-xs uppercase">
-                        Permission
-                      </span>
-                      <select
-                        value={permission}
-                        onChange={(event) =>
-                          setPermission(
-                            event.target.value as 'READ' | 'DOWNLOAD',
-                          )
-                        }
-                        className="border-border bg-background rounded-md border px-3 py-2"
-                      >
-                        <option value="READ">Read-only</option>
-                        <option value="DOWNLOAD">Download</option>
-                      </select>
-                    </label>
-                    <label className="flex flex-col gap-1 text-sm">
-                      <span className="text-foreground-secondary text-xs uppercase">
-                        Expires
-                      </span>
-                      <select
-                        value={expiryDays}
-                        onChange={(event) =>
-                          setExpiryDays(Number(event.target.value))
-                        }
-                        className="border-border bg-background rounded-md border px-3 py-2"
-                      >
-                        {EXPIRY_OPTIONS.map((days) => (
-                          <option key={days} value={days}>
-                            {days === 0
-                              ? 'Never'
-                              : `${days} day${days === 1 ? '' : 's'}`}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <Select
+                      label="Permission"
+                      value={permission}
+                      onValueChange={(value) =>
+                        setPermission(value as 'READ' | 'DOWNLOAD')
+                      }
+                      options={[
+                        { id: 'READ', label: 'Read-only' },
+                        { id: 'DOWNLOAD', label: 'Download' },
+                      ]}
+                    />
+                    <Select
+                      label="Expires"
+                      value={String(expiryDays)}
+                      onValueChange={(value) => setExpiryDays(Number(value))}
+                      options={EXPIRY_OPTIONS.map((days) => ({
+                        id: String(days),
+                        label:
+                          days === 0
+                            ? 'Never'
+                            : `${days} day${days === 1 ? '' : 's'}`,
+                      }))}
+                    />
                     <div className="flex justify-end sm:col-span-2">
                       <Button
                         size="sm"

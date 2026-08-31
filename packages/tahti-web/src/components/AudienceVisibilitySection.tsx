@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, Select } from '@nuclearplayer/ui';
 
 import { fetchMyFanTiers, type FanTierRow } from '../api/fan-tiers';
 
@@ -27,22 +27,17 @@ export function AudienceVisibilitySection({
 
   return (
     <div className="flex flex-col gap-3">
-      <label className="flex flex-col gap-1 text-sm">
-        Audience
-        <select
-          aria-label="Audience"
-          value={visibility}
-          onChange={(event) =>
-            onVisibilityChange(event.target.value as TrackVisibility)
-          }
-          className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-        >
-          <option value="PUBLIC">Public</option>
-          <option value="UNLISTED">Not listed — direct link only</option>
-          <option value="PRIVATE">Private — only you</option>
-          <option value="STASH">Stash — selected tiers</option>
-        </select>
-      </label>
+      <Select
+        label="Audience"
+        options={[
+          { id: 'PUBLIC', label: 'Public' },
+          { id: 'UNLISTED', label: 'Not listed — direct link only' },
+          { id: 'PRIVATE', label: 'Private — only you' },
+          { id: 'STASH', label: 'Stash — selected tiers' },
+        ]}
+        value={visibility}
+        onValueChange={(value) => onVisibilityChange(value as TrackVisibility)}
+      />
       {visibility === 'STASH' ? (
         <div className="border-border bg-background-secondary rounded-lg border p-3">
           <div className="flex items-center justify-between gap-2">

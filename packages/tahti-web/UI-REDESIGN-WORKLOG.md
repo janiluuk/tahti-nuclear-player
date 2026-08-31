@@ -2797,3 +2797,19 @@ Updated the handful of remaining `/sources` references that were either live nav
 **Slice 5 — Radio actions audited against Nuclear `Button`:** `RadioScheduleView`'s show-type toggle pills (booking form and the edit dialog -- two independent copies of the same `LIVE_SET`/`TALK` segmented control) and `RadioView`'s now-playing title link and rotation-history row link (both open the track info dialog) were raw `<button>`s; all four now render through `Button` (`variant="text" size="flexible"`), preserving their exact existing styling via `className`.
 
 **Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean.
+
+## 2026-08-31 — Backlog round 9: five slices closed
+
+**Slice 1 — `AudienceVisibilitySection`'s Audience field → shared `Select`:** the visibility dropdown (Public/Unlisted/Private/Stash) shared by the track editor and upload flow was a hand-styled native `<select>`; now the shared `Select`.
+
+**Slice 2 — `OnboardingView`'s Country field → shared `Select`:** the country picker (with per-option flag emoji, plus an empty-string "Prefer not to say" default) now renders through `Select`; verified the empty-string option value is a case `Select`'s Headless UI `Listbox` handles correctly as a controlled value.
+
+**Slice 3 — `StashFilesPanel`'s share-link form → shared `Select`:** the Permission (Read-only/Download) and Expires (day-count, including a numeric `expiryDays` state converted to/from string at the boundary) fields were native `<select>`s; both now use `Select`.
+
+**Slice 4 — `TrackEditDialog`'s Content type and License fields → shared `Select`:** both were native `<select>`s inside a `grid sm:grid-cols-2` layout, with License spanning both columns via `sm:col-span-2` on the wrapping `<label>`. `Select`'s public API only forwards `className` to its inner trigger button, not an outer wrapper, so the column-span now lives on a plain wrapping `<div>` instead. Verified live in the browser (mock app, Library → Sounds → Edit → Basics tab): the grid renders with License correctly spanning both columns, the dropdown opens with all `CONTENT_TYPES` options and the current value checked, and selecting a new option (Podcast) updates the trigger's displayed label -- confirming `onValueChange` wiring survived the conversion.
+
+**Slice 5 — one more bespoke bordered success panel → shared `Box`:** `SetupPasswordView` had the same hand-rolled `border-border bg-background-secondary ... rounded-xl border p-4` success panel closed for `VerifyView` and `ResetPasswordView` in round 8; same fix.
+
+**Also:** added an explicit versioning rule to `AGENTS.md` (§ Agent workflow, step 6) -- `packages/tahti-web/package.json`'s `version` had been sitting at `0.0.1` through eight rounds of shipped work, making it useless as a build signal. Bumped to `0.0.2` for this round; future commits that ship a user-visible change here should bump it too (one bump per commit, not per slice).
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest` (296 tests) on `tahti-web` pass clean.

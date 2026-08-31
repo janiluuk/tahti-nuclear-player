@@ -16,6 +16,7 @@ import {
   FilePicker,
   Input,
   SaveButton,
+  Select,
   Tabs,
 } from '@nuclearplayer/ui';
 
@@ -375,38 +376,30 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         </label>
                       </>
                     ) : null}
-                    <label className="flex flex-col gap-1 text-sm">
-                      Content type
-                      <select
-                        value={form.contentType ?? 'STUDIO'}
-                        onChange={(event) =>
-                          setForm({ ...form, contentType: event.target.value })
-                        }
-                        className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                      >
-                        {CONTENT_TYPES.map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-                      License (optional)
-                      <select
+                    <Select
+                      label="Content type"
+                      value={form.contentType ?? 'STUDIO'}
+                      onValueChange={(value) =>
+                        setForm({ ...form, contentType: value })
+                      }
+                      options={CONTENT_TYPES.map(([value, label]) => ({
+                        id: value,
+                        label,
+                      }))}
+                    />
+                    <div className="sm:col-span-2">
+                      <Select
+                        label="License (optional)"
                         value={form.license ?? ''}
-                        onChange={(event) =>
-                          setForm({ ...form, license: event.target.value })
+                        onValueChange={(value) =>
+                          setForm({ ...form, license: value })
                         }
-                        className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                      >
-                        {LICENSES.map(([value, label]) => (
-                          <option key={value || 'none'} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                        options={LICENSES.map(([value, label]) => ({
+                          id: value,
+                          label,
+                        }))}
+                      />
+                    </div>
                     <AudienceVisibilitySection
                       visibility={
                         (form.visibility ?? 'PUBLIC') as TrackVisibility

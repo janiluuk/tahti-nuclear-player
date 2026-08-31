@@ -3,7 +3,7 @@ import { ImagePlusIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, Tabs, Toggle } from '@nuclearplayer/ui';
+import { Button, Input, Select, Tabs, Toggle } from '@nuclearplayer/ui';
 
 import {
   fetchDiscoveryPrefs,
@@ -353,23 +353,18 @@ export function OnboardingView() {
                 label: 'Location & domain',
                 content: (
                   <div className="flex flex-col gap-4">
-                    <label className="flex flex-col gap-1.5 text-sm">
-                      <span className="text-foreground-secondary text-xs uppercase">
-                        Country
-                      </span>
-                      <select
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                      >
-                        <option value="">Prefer not to say</option>
-                        {COUNTRIES.map((c) => (
-                          <option key={c.code} value={c.code}>
-                            {flagEmoji(c.code)} {c.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <Select
+                      label="Country"
+                      value={countryCode}
+                      onValueChange={setCountryCode}
+                      options={[
+                        { id: '', label: 'Prefer not to say' },
+                        ...COUNTRIES.map((c) => ({
+                          id: c.code,
+                          label: `${flagEmoji(c.code)} ${c.name}`,
+                        })),
+                      ]}
+                    />
                     <Input
                       label="City / location"
                       value={defaultLocation}

@@ -222,6 +222,13 @@ Known limitations and handoff notes:
    git diff --check
    ```
 
+6. Bump `packages/tahti-web/package.json`'s `version` (patch, e.g. `0.0.1` → `0.0.2`) in every commit
+   that ships a user-visible change here -- it has been sitting at `0.0.1` despite many shipped
+   rounds, which makes the field useless as a "what build is this" signal. One bump per commit that
+   touches this package, not per individual slice within a round. Skip it only for changes with no
+   user-visible effect (docs-only, worklog-only, CI/config). Use a minor/major bump instead of patch
+   only when the user explicitly calls for one.
+
    Use the existing Playwright/audit scripts when changing navigation or responsive layout. Do not
    claim deployment or production verification unless the deploy script was actually run and its
    result is reported.
