@@ -56,9 +56,14 @@ import {
   type ChannelGalleryMode,
 } from '../api/channel-gallery';
 import { uploadUserMediaFile } from '../api/user-media';
+import {
+  NOW_PLAYING_OVERLAY_PRESETS,
+  resolveNowPlayingOverlayPreset,
+} from '../content/nowPlayingOverlayPresets';
 import { visualizerMetadata } from '../plugins/visualizers';
 import { ChannelControlsWidget } from './ChannelControlsWidget';
 import { ChannelVisualizer } from './ChannelVisualizer';
+import { NowPlayingOverlay } from './NowPlayingOverlay';
 import { PageLoading } from './PageStates';
 import { Eyebrow } from './tahti/Eyebrow';
 
@@ -419,6 +424,7 @@ export function ChannelDesigner({
       slideshowIntervalSeconds: slideshowInterval,
       slideshowTransitionMs: slideshowTransition,
       slideshowAutoplay,
+      nowPlayingOverlayStyle: visual.nowPlayingOverlayStyle ?? undefined,
     });
     if (!result.ok) {
       setBusy(false);
@@ -1763,6 +1769,80 @@ export function ChannelDesigner({
                     />
                   </div>
                 </>
+              ),
+            },
+          ]}
+        />
+      </div>
+      <div id="channel-designer-section-now-playing" className="order-3">
+        <ChannelControlsWidget
+          sections={[
+            {
+              id: 'now-playing',
+              title: 'Now playing overlay',
+              description:
+                'How the title and artist are presented over whatever this channel is playing — live or an archive track.',
+              defaultOpen: lookOpenSection === undefined,
+              children: (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {NOW_PLAYING_OVERLAY_PRESETS.map((preset) => {
+                    const active =
+                      resolveNowPlayingOverlayPreset(
+                        visual.nowPlayingOverlayStyle,
+                      ) === preset.id;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() =>
+                          applyLocal({ nowPlayingOverlayStyle: preset.id })
+                        }
+                        className={`flex flex-col gap-2 rounded-lg border p-2 text-left transition-colors ${
+                          active
+                            ? 'border-primary bg-primary/10 ring-primary ring-1'
+                            : 'border-border bg-background hover:bg-background-secondary'
+                        }`}
+                      >
+                        <div
+                          className="relative flex aspect-video items-end overflow-hidden rounded-md bg-cover bg-center p-2"
+                          style={{
+                            backgroundColor: '#0B1220',
+                            backgroundImage: avatarUrl
+                              ? `url(${avatarUrl})`
+                              : undefined,
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
+                          <div className="relative w-full">
+                            <NowPlayingOverlay
+                              presetId={preset.id}
+                              title="Sample Track"
+                              artist={displayName}
+                              artworkUrl={avatarUrl}
+                              compact
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5 text-sm font-semibold">
+                            {preset.name}
+                            {active && (
+                              <CheckIcon
+                                size={14}
+                                className="text-primary"
+                                aria-hidden
+                              />
+                            )}
+                          </div>
+                          <p className="text-foreground-secondary text-xs">
+                            {preset.description}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               ),
             },
           ]}

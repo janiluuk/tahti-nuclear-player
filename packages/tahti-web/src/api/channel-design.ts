@@ -284,6 +284,12 @@ export type ChannelVisual = {
   slideshowIntervalSeconds?: number;
   slideshowTransitionMs?: number;
   slideshowAutoplay?: boolean;
+  /** Layout preset for the now-playing title/artist overlay — see
+   * content/nowPlayingOverlayPresets.ts. Client-only for now: there's no
+   * matching Channel column on the real API yet (PATCH silently strips
+   * unknown keys, so this round-trips fully under VITE_FORCE_MOCK but does
+   * not yet persist against the live backend). */
+  nowPlayingOverlayStyle?: string | null;
 };
 
 /** Per-preset speed/intensity/scale (clamped 0.25–2, scale 0.5–2) plus an
@@ -368,7 +374,16 @@ let mockVisual: ChannelVisual = {
   slideshowIntervalSeconds: 8,
   slideshowTransitionMs: 600,
   slideshowAutoplay: true,
+  nowPlayingOverlayStyle: 'classic',
 };
+
+/** Read-only peek at the mock design state — used by mockChannel() (in
+ * api/mock.ts) so a channel's PUBLIC page reflects the owner's saved
+ * now-playing overlay choice under VITE_FORCE_MOCK, the same way it would
+ * once a real Channel.nowPlayingOverlayStyle column exists. */
+export function getMockNowPlayingOverlayStyle(): string | null | undefined {
+  return mockVisual.nowPlayingOverlayStyle;
+}
 
 export function parseColorScheme(json: string | null | undefined): ColorScheme {
   if (!json) {
@@ -409,6 +424,7 @@ export async function fetchChannelVisual(): Promise<{
         slideshowIntervalSeconds: 8,
         slideshowTransitionMs: 600,
         slideshowAutoplay: true,
+        nowPlayingOverlayStyle: 'classic',
       },
       meta: apiErrorMeta(err),
     };
@@ -426,6 +442,7 @@ export async function patchChannelVisual(patch: {
   slideshowIntervalSeconds?: number;
   slideshowTransitionMs?: number;
   slideshowAutoplay?: boolean;
+  nowPlayingOverlayStyle?: string;
 }): Promise<{ ok: true; data: ChannelVisual } | { ok: false; error: string }> {
   if (forceMock()) {
     mockVisual = {
@@ -453,6 +470,9 @@ export async function patchChannelVisual(patch: {
         : {}),
       ...(patch.slideshowAutoplay !== undefined
         ? { slideshowAutoplay: patch.slideshowAutoplay }
+        : {}),
+      ...(patch.nowPlayingOverlayStyle !== undefined
+        ? { nowPlayingOverlayStyle: patch.nowPlayingOverlayStyle }
         : {}),
       ...(patch.colorScheme !== undefined
         ? {

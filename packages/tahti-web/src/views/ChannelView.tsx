@@ -35,12 +35,14 @@ import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelShareButton } from '../components/ChannelShareButton';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
+import { NowPlayingOverlay } from '../components/NowPlayingOverlay';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
+import { resolveNowPlayingOverlayPreset } from '../content/nowPlayingOverlayPresets';
 import {
   addItemType,
   CHANNEL_PAGE_ITEM_META,
@@ -403,57 +405,33 @@ export function ChannelView({ slug }: { slug: string }) {
                 }`}
               >
                 {channel.nowPlaying ? (
-                  <>
-                    <div className="flex items-end gap-3 sm:gap-4">
-                      <div className="hidden size-16 shrink-0 overflow-hidden rounded-lg bg-white/10 shadow-lg ring-1 ring-white/15 sm:block sm:size-20">
-                        {channel.nowPlaying.artworkUrl ? (
-                          <img
-                            src={channel.nowPlaying.artworkUrl}
-                            alt=""
-                            className="size-full object-cover"
-                          />
-                        ) : null}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div
-                          className={`w-fit rounded-md bg-black/45 px-2.5 py-1 tracking-wide text-white/75 uppercase backdrop-blur-sm ${
-                            subtle ? 'text-[9px] font-medium' : 'text-[10px]'
-                          }`}
-                        >
-                          Now playing
-                        </div>
-                        <div
-                          className={`mt-2 truncate rounded-md bg-black/45 px-2.5 py-1 text-white backdrop-blur-sm ${
-                            subtle
-                              ? 'text-2xl font-semibold tracking-tight sm:text-4xl'
-                              : 'text-3xl font-extrabold tracking-tight sm:text-5xl'
-                          }`}
-                        >
-                          {channel.nowPlaying.title}
-                        </div>
-                        <div className="mt-1 w-fit max-w-full truncate rounded-md bg-black/45 px-2.5 py-1 text-lg font-medium text-white/85 backdrop-blur-sm sm:text-2xl">
-                          {channel.nowPlaying.artistName}
-                        </div>
-                      </div>
-                    </div>
-                    <WaveformSeekbar
-                      trackId={`channel:${slug}`}
-                      progress={
-                        channelIsCurrent && duration > 0
-                          ? currentTime / duration
-                          : 0
-                      }
-                      bars={72}
-                      className="mt-3 h-10 max-w-2xl"
-                      playedColor={channel.colorScheme?.accent}
-                      unplayedColor={channel.colorScheme?.muted}
-                      onSeek={
-                        channelIsCurrent && duration > 0
-                          ? (fraction) => seekTo(fraction * duration)
-                          : undefined
-                      }
-                    />
-                  </>
+                  <NowPlayingOverlay
+                    presetId={resolveNowPlayingOverlayPreset(
+                      channel.nowPlayingOverlayStyle,
+                    )}
+                    title={channel.nowPlaying.title}
+                    artist={channel.nowPlaying.artistName}
+                    artworkUrl={channel.nowPlaying.artworkUrl}
+                    seekbar={
+                      <WaveformSeekbar
+                        trackId={`channel:${slug}`}
+                        progress={
+                          channelIsCurrent && duration > 0
+                            ? currentTime / duration
+                            : 0
+                        }
+                        bars={72}
+                        className="mt-3 h-10 max-w-2xl"
+                        playedColor={channel.colorScheme?.accent}
+                        unplayedColor={channel.colorScheme?.muted}
+                        onSeek={
+                          channelIsCurrent && duration > 0
+                            ? (fraction) => seekTo(fraction * duration)
+                            : undefined
+                        }
+                      />
+                    }
+                  />
                 ) : (
                   <p className="text-sm text-white/80">
                     Stream is live — hit Play live to drive the visualizer.
