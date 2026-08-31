@@ -14,6 +14,35 @@ body,
     var(--background-secondary) 84%,
     transparent
   );
+  transition:
+    background-color 240ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+:root[data-theme-id='nuclear:tahti-dark']
+  :is(button, a, [role='button'], [role='tab'], summary) {
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    opacity 140ms ease,
+    transform 140ms ease,
+    filter 140ms ease;
+}
+
+:root[data-theme-id='nuclear:tahti-dark']
+  :is(button, a, [role='button']):not(:disabled):hover {
+  filter: brightness(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme-id='nuclear:tahti-dark']
+    :is(button, a, [role='button'], [role='tab'], summary),
+  :root[data-theme-id='nuclear:tahti-dark'] .tahti-ambient-surface {
+    transition-duration: 0.01ms;
+  }
 }
 
 .studio-page-layout,

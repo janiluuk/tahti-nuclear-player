@@ -25,8 +25,16 @@ type Props = {
   activePresetId: ChannelLayoutPresetId | null;
   onSelect: (id: string) => void;
   onToggleVisible: (id: string) => void;
+  onResize: (id: string, width: NonNullable<ChannelPageItem['width']>) => void;
   onRemove: (id: string) => void;
   onAdd: (type: ChannelPageItemType) => void;
+  embedItems?: Array<{
+    id: string;
+    label: string;
+    hint: string;
+    embedInstanceId: string;
+  }>;
+  onAddEmbed?: (embedInstanceId: string) => void;
   onReorder: (fromId: string, toId: string) => void;
   onApplyPreset: (id: ChannelLayoutPresetId) => void;
   lookSlot?: React.ReactNode;
@@ -38,8 +46,11 @@ export function ChannelLayersMenu({
   activePresetId,
   onSelect,
   onToggleVisible,
+  onResize,
   onRemove,
   onAdd,
+  embedItems = [],
+  onAddEmbed,
   onReorder,
   onApplyPreset,
   lookSlot,
@@ -52,6 +63,8 @@ export function ChannelLayersMenu({
   useEffect(() => {
     if (selectedId === 'hero' || selectedId === 'header') {
       setPanel('look');
+    } else if (selectedId) {
+      setPanel('layers');
     }
   }, [selectedId]);
 
@@ -183,6 +196,28 @@ export function ChannelLayersMenu({
                       {meta.hint}
                     </div>
                   </button>
+                  <div className="border-border flex shrink-0 items-center gap-0.5 rounded border p-0.5">
+                    {(['compact', 'wide', 'full'] as const).map((width) => (
+                      <button
+                        key={width}
+                        type="button"
+                        className={`rounded px-1 py-0.5 text-[9px] font-semibold uppercase ${
+                          (item.width ?? 'full') === width
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-foreground-secondary hover:text-foreground'
+                        }`}
+                        aria-label={`${width} width for ${meta.label}`}
+                        aria-pressed={(item.width ?? 'full') === width}
+                        onClick={() => onResize(item.id, width)}
+                      >
+                        {width === 'compact'
+                          ? 'S'
+                          : width === 'wide'
+                            ? 'M'
+                            : 'L'}
+                      </button>
+                    ))}
+                  </div>
                   <Button
                     type="button"
                     size="icon-sm"
@@ -218,7 +253,7 @@ export function ChannelLayersMenu({
             <p className="text-foreground-secondary text-xs">
               Add a hidden block back onto the channel page.
             </p>
-            {hiddenCatalog.length === 0 ? (
+            {hiddenCatalog.length === 0 && embedItems.length === 0 ? (
               <p className="text-foreground-secondary text-xs">
                 Every block type is already on the page.
               </p>
@@ -245,6 +280,29 @@ export function ChannelLayersMenu({
                     </li>
                   );
                 })}
+                {embedItems.map((embed) => (
+                  <li key={embed.id}>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        onAddEmbed?.(embed.embedInstanceId);
+                        setPanel('layers');
+                      }}
+                    >
+                      <span className="flex min-w-0 items-center gap-2 text-left">
+                        <PlusIcon size={14} />
+                        <span className="min-w-0">
+                          <span className="block truncate">{embed.label}</span>
+                          <span className="text-foreground-secondary block truncate text-[10px]">
+                            {embed.hint}
+                          </span>
+                        </span>
+                      </span>
+                    </Button>
+                  </li>
+                ))}
               </ul>
             )}
           </div>

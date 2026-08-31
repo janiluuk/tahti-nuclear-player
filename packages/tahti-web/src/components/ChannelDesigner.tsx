@@ -161,8 +161,7 @@ export function ChannelDesigner({
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [previewPreset, setPreviewPreset] = useState<VisualPreset>('AURORA');
-  const [configurationPreset, setConfigurationPreset] =
-    useState<VisualPreset | null>(null);
+  const [showVisualizerSettings, setShowVisualizerSettings] = useState(false);
   const [visualizerPickerOpen, setVisualizerPickerOpen] = useState(false);
   const [visualizerPickerPreset, setVisualizerPickerPreset] =
     useState<Exclude<VisualPreset, 'MINIMAL'>>('AURORA');
@@ -172,6 +171,26 @@ export function ChannelDesigner({
   const [highlightSection, setHighlightSection] = useState<
     'header' | 'visualizer' | null
   >(null);
+  const [openSectionId, setOpenSectionId] = useState<
+    'player-design' | 'visual-style' | 'now-playing' | null
+  >(lookOpenSection ?? 'visual-style');
+
+  const handleOpenSectionChange = (id: string | null) => {
+    if (
+      id === null ||
+      id === 'player-design' ||
+      id === 'visual-style' ||
+      id === 'now-playing'
+    ) {
+      setOpenSectionId(id);
+    }
+  };
+
+  useEffect(() => {
+    if (lookOpenSection !== undefined) {
+      setOpenSectionId(lookOpenSection);
+    }
+  }, [lookOpenSection]);
 
   const focusPreviewSection = (
     tab: 'header' | 'visualizer',
@@ -179,6 +198,7 @@ export function ChannelDesigner({
   ) => {
     setActiveTab(tab);
     setHighlightSection(tab);
+    setOpenSectionId(tab === 'header' ? 'visual-style' : 'player-design');
     document
       .getElementById(elementId)
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -259,6 +279,9 @@ export function ChannelDesigner({
     nextScheme?: ColorScheme,
   ) => {
     setVisual((v) => (v ? { ...v, ...next } : v));
+    if (next.visualPreset && isVisualPreset(next.visualPreset)) {
+      setPreviewPreset(next.visualPreset);
+    }
     if (nextScheme) {
       setScheme(nextScheme);
     }
@@ -360,17 +383,16 @@ export function ChannelDesigner({
 
   const setPresetSetting = (
     preset: string,
-    key: 'speed' | 'intensity',
-    value: number,
+    key: 'speed' | 'intensity' | 'audioReactive',
+    value: number | boolean,
   ) => {
-    // Round away the 0.05-step float drift (e.g. 1 + 0.05*4 -> 1.2000000000000002)
-    // before it lands in state and gets displayed/persisted.
-    const rounded = Math.round(value * 100) / 100;
+    const nextValue =
+      typeof value === 'number' ? Math.round(value * 100) / 100 : value;
     setVisualSettings((current) => ({
       ...current,
       [preset]: {
         ...resolveVisualPresetSettings(current, preset),
-        [key]: rounded,
+        [key]: nextValue,
       },
     }));
     setDirty(true);
@@ -476,8 +498,11 @@ export function ChannelDesigner({
     !isValidHeaderBackdropUrl(videoBackgroundUrl);
   const showHeaderVideo =
     visual.headerStyle === 'VIDEO_LOOP' &&
-    isValidHeaderBackdropUrl(visual.videoBackgroundUrl);
-  const headerBackdropIsImage = isHeaderImageUrl(visual.videoBackgroundUrl);
+    (pendingVideoFile !== null || isValidHeaderBackdropUrl(videoBackgroundUrl));
+  const previewVideoUrl = pendingVideoPreviewUrl ?? videoBackgroundUrl;
+  const headerBackdropIsImage = pendingVideoFile
+    ? pendingVideoFile.type.startsWith('image/')
+    : isHeaderImageUrl(previewVideoUrl);
   const showGalleryBackdrop =
     galleryImageList.length > 0 && galleryMode !== 'NONE' && !showHeaderVideo;
 
@@ -504,8 +529,6 @@ export function ChannelDesigner({
     applyLocal({ visualPreset: nextPreset });
   };
 
-  // Shared by the preset-picker card (always) and the per-preset
-  // "Configure" dialog opened from the picker's gear icon.
   const tuningSliders = (preset: string) => (
     <>
       {(['speed', 'intensity'] as const).map((key) => {
@@ -523,6 +546,18 @@ export function ChannelDesigner({
           />
         );
       })}
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={
+            resolveVisualPresetSettings(visualSettings, preset).audioReactive
+          }
+          onChange={(event) =>
+            setPresetSetting(preset, 'audioReactive', event.target.checked)
+          }
+        />
+        Audio reactive
+      </label>
     </>
   );
 
@@ -530,11 +565,14 @@ export function ChannelDesigner({
   // gets a real preview to dock tuning into.
   const hasLivePreview = !lookOnly && livePreview;
 
-  const dockTuning = shouldDockVisualizerTuning({
-    preset: previewPreset,
-    visualizerEnabled,
-    activeTab,
-  });
+  const dockTuning =
+    shouldDockVisualizerTuning({
+      preset: previewPreset,
+      visualizerEnabled,
+      activeTab,
+    }) &&
+    showVisualizerSettings &&
+    !visualizerPickerOpen;
 
   const colorSchemeControls = (
     <section className="flex flex-col gap-5">
@@ -741,6 +779,33 @@ export function ChannelDesigner({
     </section>
   );
 
+  const videoUrlInput = videoUrlOpen ? (
+    <Input
+      label="YouTube, video, or image URL"
+      value={videoBackgroundUrl}
+      placeholder="https://youtube.com/watch?v=… or https://…/backdrop.jpg"
+      onChange={(event) => {
+        setVideoBackgroundUrl(event.target.value);
+        setPendingVideoFile(null);
+        setPendingVideoPreviewUrl(null);
+        setDirty(true);
+      }}
+    />
+  ) : null;
+
+  const videoUrlToggle = (
+    <Button
+      size="icon-sm"
+      variant="text"
+      aria-label="Show URL field"
+      title="Use a video or image URL"
+      aria-pressed={videoUrlOpen}
+      onClick={() => setVideoUrlOpen((open) => !open)}
+    >
+      <LinkIcon size={15} aria-hidden />
+    </Button>
+  );
+
   const visualizerItem = {
     id: 'visualizer',
     label: (
@@ -768,8 +833,13 @@ export function ChannelDesigner({
                   <meta.Icon size={22} aria-hidden />
                 </button>
               }
-              name={activeVisualizer.replace(/_/g, ' ')}
+              name={
+                <span className="text-base">
+                  {activeVisualizer.replace(/_/g, ' ')}
+                </span>
+              }
               description={meta.description}
+              descriptionBelow
               className={`ring-primary bg-primary/10 ring-2 ring-inset ${
                 !visualizerEnabled ? 'opacity-50 grayscale' : ''
               }`}
@@ -797,17 +867,20 @@ export function ChannelDesigner({
                   </Button>
                   <Button
                     size="icon-sm"
-                    variant="text"
+                    variant={showVisualizerSettings ? 'default' : 'text'}
                     disabled={!visualizerEnabled}
+                    aria-pressed={showVisualizerSettings}
                     aria-label={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
                     title={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
-                    onClick={() => setConfigurationPreset(activeVisualizer)}
+                    onClick={() =>
+                      setShowVisualizerSettings((isVisible) => !isVisible)
+                    }
                   >
                     <SettingsIcon size={15} aria-hidden />
                   </Button>
                   <Button
                     size="icon-sm"
-                    variant={visualizerEnabled ? 'text' : 'secondary'}
+                    variant={visualizerEnabled ? 'default' : 'secondary'}
                     aria-pressed={visualizerEnabled}
                     aria-label={
                       visualizerEnabled
@@ -932,40 +1005,23 @@ export function ChannelDesigner({
                 Upload an MP4/WebM video or image, up to 10 MB.
               </p>
             </div>
-            <Button
-              size="icon-sm"
-              variant="text"
-              aria-label="Show URL field"
-              title="Use a video or image URL"
-              aria-pressed={videoUrlOpen}
-              onClick={() => setVideoUrlOpen((open) => !open)}
-            >
-              <LinkIcon size={15} aria-hidden />
-            </Button>
           </div>
-          {videoUrlOpen ? (
-            <Input
-              label="YouTube, video, or image URL"
-              value={videoBackgroundUrl}
-              placeholder="https://youtube.com/watch?v=… or https://…/backdrop.jpg"
-              onChange={(event) => {
-                setVideoBackgroundUrl(event.target.value);
-                setPendingVideoFile(null);
-                setDirty(true);
+          <div className="relative">
+            <FilePicker
+              accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
+              disabled={busy}
+              selectedFiles={pendingVideoFile ? [pendingVideoFile] : []}
+              labels={{
+                title: 'Choose a video or image',
+                description:
+                  'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
+                browse: 'Browse files',
               }}
+              onFiles={selectVideoFile}
             />
-          ) : null}
-          <FilePicker
-            accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-            disabled={busy}
-            selectedFiles={pendingVideoFile ? [pendingVideoFile] : []}
-            labels={{
-              title: 'Choose a video or image',
-              description: 'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
-              browse: 'Browse files',
-            }}
-            onFiles={selectVideoFile}
-          />
+            <div className="absolute top-2 right-2">{videoUrlToggle}</div>
+          </div>
+          {videoUrlInput}
           {(pendingVideoPreviewUrl || videoBackgroundUrl) && (
             <div className="border-border bg-background relative overflow-hidden rounded-lg border">
               {youtubeEmbedUrl(videoBackgroundUrl) &&
@@ -1016,8 +1072,8 @@ export function ChannelDesigner({
     <SaveButton
       disabled={!dirty || videoLoopNeedsUrl}
       saving={busy}
-      label="Save layout"
-      savingLabel="Saving layout…"
+      label={lookOnly ? 'Save look' : 'Save layout'}
+      savingLabel={lookOnly ? 'Saving look…' : 'Saving layout…'}
       onClick={() => void save()}
     />
   );
@@ -1031,14 +1087,12 @@ export function ChannelDesigner({
         }`}
       >
         <ChannelControlsWidget
+          openId={openSectionId}
+          onOpenChange={handleOpenSectionChange}
           sections={[
             {
               id: 'player-design',
               title: 'Player design',
-              defaultOpen:
-                lookOpenSection === undefined
-                  ? true
-                  : lookOpenSection === 'player-design',
               children: (
                 <Tabs
                   listClassName="flex-wrap border-border border-b pb-3"
@@ -1081,30 +1135,26 @@ export function ChannelDesigner({
                             Use a looping video or still image behind the
                             channel header.
                           </p>
-                          <Input
-                            label="Video or image URL"
-                            value={videoBackgroundUrl}
-                            placeholder="https://…/backdrop.mp4"
-                            onChange={(event) => {
-                              setVideoBackgroundUrl(event.target.value);
-                              setPendingVideoFile(null);
-                              setDirty(true);
-                            }}
-                          />
-                          <FilePicker
-                            accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-                            disabled={busy}
-                            selectedFiles={
-                              pendingVideoFile ? [pendingVideoFile] : []
-                            }
-                            labels={{
-                              title: 'Choose a video or image',
-                              description:
-                                'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
-                              browse: 'Browse files',
-                            }}
-                            onFiles={selectVideoFile}
-                          />
+                          <div className="relative">
+                            <FilePicker
+                              accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
+                              disabled={busy}
+                              selectedFiles={
+                                pendingVideoFile ? [pendingVideoFile] : []
+                              }
+                              labels={{
+                                title: 'Choose a video or image',
+                                description:
+                                  'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
+                                browse: 'Browse files',
+                              }}
+                              onFiles={selectVideoFile}
+                            />
+                            <div className="absolute top-2 right-2">
+                              {videoUrlToggle}
+                            </div>
+                          </div>
+                          {videoUrlInput}
                         </div>
                       ),
                     },
@@ -1123,14 +1173,12 @@ export function ChannelDesigner({
         }`}
       >
         <ChannelControlsWidget
+          openId={openSectionId}
+          onOpenChange={handleOpenSectionChange}
           sections={[
             {
               id: 'visual-style',
               title: 'Backdrop design',
-              defaultOpen:
-                lookOpenSection === undefined
-                  ? true
-                  : lookOpenSection === 'visual-style',
               children: (
                 <>
                   {headerControls}
@@ -1172,9 +1220,29 @@ export function ChannelDesigner({
                                   visualizerMetadata(activeVisualizer);
                                 return (
                                   <PluginItem
-                                    icon={<meta.Icon size={22} aria-hidden />}
-                                    name={activeVisualizer.replace(/_/g, ' ')}
+                                    icon={
+                                      <button
+                                        type="button"
+                                        className="hover:bg-background-secondary flex size-full items-center justify-center rounded-lg transition-colors"
+                                        aria-label="Choose visualizer"
+                                        title="Choose visualizer"
+                                        onClick={() => {
+                                          setVisualizerPickerPreset(
+                                            activeVisualizer,
+                                          );
+                                          setVisualizerPickerOpen(true);
+                                        }}
+                                      >
+                                        <meta.Icon size={22} aria-hidden />
+                                      </button>
+                                    }
+                                    name={
+                                      <span className="text-base">
+                                        {activeVisualizer.replace(/_/g, ' ')}
+                                      </span>
+                                    }
                                     description={meta.description}
+                                    descriptionBelow
                                     className={`ring-primary bg-primary/10 ring-2 ring-inset ${
                                       !visualizerEnabled
                                         ? 'opacity-50 grayscale'
@@ -1210,13 +1278,18 @@ export function ChannelDesigner({
                                         </Button>
                                         <Button
                                           size="icon-sm"
-                                          variant="text"
+                                          variant={
+                                            showVisualizerSettings
+                                              ? 'default'
+                                              : 'text'
+                                          }
                                           disabled={!visualizerEnabled}
+                                          aria-pressed={showVisualizerSettings}
                                           aria-label={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
                                           title={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
                                           onClick={() =>
-                                            setConfigurationPreset(
-                                              activeVisualizer,
+                                            setShowVisualizerSettings(
+                                              (isVisible) => !isVisible,
                                             )
                                           }
                                         >
@@ -1226,7 +1299,7 @@ export function ChannelDesigner({
                                           size="icon-sm"
                                           variant={
                                             visualizerEnabled
-                                              ? 'text'
+                                              ? 'default'
                                               : 'secondary'
                                           }
                                           aria-pressed={visualizerEnabled}
@@ -1407,7 +1480,7 @@ export function ChannelDesigner({
                                     : isHeaderImageUrl(videoBackgroundUrl);
                                   return (
                                     <div className="flex flex-col gap-3">
-                                      <div className="flex items-center justify-between gap-2">
+                                      <div>
                                         <div>
                                           <Eyebrow>
                                             Video or image backdrop
@@ -1421,49 +1494,29 @@ export function ChannelDesigner({
                                             your private R2 storage.
                                           </p>
                                         </div>
-                                        <Button
-                                          size="icon-sm"
-                                          variant="text"
-                                          aria-label="Show URL field"
-                                          title="Use a video or image URL"
-                                          aria-pressed={videoUrlOpen}
-                                          onClick={() =>
-                                            setVideoUrlOpen((open) => !open)
-                                          }
-                                        >
-                                          <LinkIcon size={15} aria-hidden />
-                                        </Button>
                                       </div>
-                                      {videoUrlOpen ? (
-                                        <Input
-                                          label="YouTube, video, or image URL"
-                                          value={videoBackgroundUrl}
-                                          placeholder="https://youtube.com/watch?v=… or https://…/backdrop.jpg"
-                                          onChange={(event) => {
-                                            setVideoBackgroundUrl(
-                                              event.target.value,
-                                            );
-                                            setPendingVideoFile(null);
-                                            setDirty(true);
+                                      <div className="relative">
+                                        <FilePicker
+                                          accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
+                                          disabled={busy}
+                                          selectedFiles={
+                                            pendingVideoFile
+                                              ? [pendingVideoFile]
+                                              : []
+                                          }
+                                          labels={{
+                                            title: 'Choose a video or image',
+                                            description:
+                                              'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
+                                            browse: 'Browse files',
                                           }}
+                                          onFiles={selectVideoFile}
                                         />
-                                      ) : null}
-                                      <FilePicker
-                                        accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-                                        disabled={busy}
-                                        selectedFiles={
-                                          pendingVideoFile
-                                            ? [pendingVideoFile]
-                                            : []
-                                        }
-                                        labels={{
-                                          title: 'Choose a video or image',
-                                          description:
-                                            'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
-                                          browse: 'Browse files',
-                                        }}
-                                        onFiles={selectVideoFile}
-                                      />
+                                        <div className="absolute top-2 right-2">
+                                          {videoUrlToggle}
+                                        </div>
+                                      </div>
+                                      {videoUrlInput}
                                       {(pendingVideoPreviewUrl ||
                                         videoBackgroundUrl) && (
                                         <div className="border-border bg-background relative overflow-hidden rounded-lg border">
@@ -1776,13 +1829,14 @@ export function ChannelDesigner({
       </div>
       <div id="channel-designer-section-now-playing" className="order-3">
         <ChannelControlsWidget
+          openId={openSectionId}
+          onOpenChange={handleOpenSectionChange}
           sections={[
             {
               id: 'now-playing',
               title: 'Now playing overlay',
               description:
                 'How the title and artist are presented over whatever this channel is playing — live or an archive track.',
-              defaultOpen: lookOpenSection === undefined,
               children: (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {NOW_PLAYING_OVERLAY_PRESETS.map((preset) => {
@@ -1889,26 +1943,7 @@ export function ChannelDesigner({
         </div>
       </div>
 
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(12rem,16rem)_minmax(0,1fr)_minmax(17rem,23rem)]">
-        <aside aria-label="Preview information" className="min-w-0">
-          <ChannelControlsWidget
-            sections={[
-              {
-                id: 'preview-guide',
-                title: 'Live page preview',
-                description: 'This mirrors the public channel structure.',
-                children: (
-                  <p className="text-foreground-secondary text-xs leading-relaxed">
-                    Visitors see your profile header, channel navigation, live
-                    stage, tracks, and artist information in this order. Layout
-                    blocks are edited from the channel page editor.
-                  </p>
-                ),
-              },
-            ]}
-          />
-        </aside>
-
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,23rem)]">
         <main
           aria-label="Channel page preview"
           className="border-border bg-background min-w-0 overflow-hidden rounded-xl border shadow-lg"
@@ -1941,14 +1976,14 @@ export function ChannelDesigner({
             {showHeaderVideo && headerBackdropIsImage && (
               <img
                 className="absolute inset-0 h-full w-full object-cover"
-                src={visual.videoBackgroundUrl ?? undefined}
+                src={previewVideoUrl || undefined}
                 alt=""
               />
             )}
             {showHeaderVideo && !headerBackdropIsImage && (
               <video
                 className="absolute inset-0 h-full w-full object-cover"
-                src={visual.videoBackgroundUrl ?? undefined}
+                src={previewVideoUrl || undefined}
                 autoPlay
                 loop
                 muted
@@ -2121,24 +2156,6 @@ export function ChannelDesigner({
         </aside>
       </div>
 
-      {configurationPreset ? (
-        <Dialog.Root
-          isOpen
-          onClose={() => setConfigurationPreset(null)}
-          className="max-w-lg"
-        >
-          <Dialog.Title>
-            Configure {configurationPreset.replace(/_/g, ' ')} backdrop
-          </Dialog.Title>
-          <Dialog.Description>
-            Adjust the artist channel backdrop while the selected animated
-            preview remains visible behind this dialog.
-          </Dialog.Description>
-          <div className="flex flex-col gap-4">
-            {tuningSliders(configurationPreset)}
-          </div>
-        </Dialog.Root>
-      ) : null}
       {visualizerPickerOpen ? (
         <Dialog.Root
           isOpen
@@ -2194,8 +2211,30 @@ export function ChannelDesigner({
                         : 'hover:border-primary/50'
                     }`}
                   >
-                    <span className="bg-background-secondary flex size-9 shrink-0 items-center justify-center rounded-md">
-                      <meta.Icon size={18} aria-hidden />
+                    <span className="bg-background-secondary relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md">
+                      {livePreview ? (
+                        <span className="absolute inset-0" aria-hidden>
+                          <ChannelVisualizer
+                            preset={preset}
+                            colorScheme={scheme}
+                            visualSettingsJson={JSON.stringify(visualSettings)}
+                            className="size-full"
+                            audioReactive={false}
+                          />
+                        </span>
+                      ) : (
+                        <span
+                          className="absolute inset-0 animate-pulse"
+                          style={{
+                            background: `linear-gradient(135deg, ${scheme.highlight ?? '#A78BFA'}, ${scheme.accent ?? '#22D3EE'}, ${scheme.bg ?? '#0B1220'})`,
+                          }}
+                        />
+                      )}
+                      <meta.Icon
+                        size={16}
+                        className="relative z-[1] text-white drop-shadow"
+                        aria-hidden
+                      />
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold">

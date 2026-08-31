@@ -14,7 +14,7 @@ export function ListenerWidgetEmbed({
   onRemove,
 }: {
   instance: ListenerWidgetInstance;
-  onRemove: () => void;
+  onRemove?: () => void;
 }) {
   const type = listenerWidgetType(instance.typeId);
   const embedUrl = type?.toEmbedUrl(instance.input);
@@ -28,14 +28,16 @@ export function ListenerWidgetEmbed({
         <span className="min-w-0 truncate text-sm font-medium">
           {instance.label}
         </span>
-        <Button
-          size="icon-sm"
-          variant="text"
-          aria-label={`Remove ${instance.label}`}
-          onClick={onRemove}
-        >
-          <Trash2Icon size={14} aria-hidden />
-        </Button>
+        {onRemove ? (
+          <Button
+            size="icon-sm"
+            variant="text"
+            aria-label={`Remove ${instance.label}`}
+            onClick={onRemove}
+          >
+            <Trash2Icon size={14} aria-hidden />
+          </Button>
+        ) : null}
       </div>
       {embedUrl && type ? (
         <iframe

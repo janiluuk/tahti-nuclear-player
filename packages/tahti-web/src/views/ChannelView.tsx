@@ -8,6 +8,7 @@ import {
   PencilIcon,
   PlayIcon,
   WifiOffIcon,
+  XIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -35,6 +36,7 @@ import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelShareButton } from '../components/ChannelShareButton';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
+import { ListenerWidgetEmbed } from '../components/ListenerWidgetEmbed';
 import { NowPlayingOverlay } from '../components/NowPlayingOverlay';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
@@ -42,6 +44,7 @@ import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
+import { listenerWidgetType } from '../content/listenerWidgets';
 import { resolveNowPlayingOverlayPreset } from '../content/nowPlayingOverlayPresets';
 import {
   addItemType,
@@ -52,7 +55,9 @@ import {
   moveItem,
   saveChannelLayoutPresetId,
   saveChannelPageLayout,
+  setItemOffset,
   setItemVisible,
+  setItemWidth,
   type ChannelLayoutPresetId,
   type ChannelPageItem,
   type ChannelPageItemType,
@@ -62,6 +67,7 @@ import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { useLibraryStore } from '../stores/libraryStore';
+import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
 
 const CHANNEL_RADIO_VIZ_SETTINGS = { speed: 1.15, intensity: 1.8, scale: 1 };
@@ -83,11 +89,19 @@ export function ChannelView({ slug }: { slug: string }) {
   const [editing, setEditing] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
+  const [moveDrag, setMoveDrag] = useState<{
+    id: string;
+    startX: number;
+    startY: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
   const [layoutDirty, setLayoutDirty] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(true);
   const [lookTick, setLookTick] = useState(0);
   const [presetNote, setPresetNote] = useState<string | null>(null);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
+  const listenerWidgetInstances = useListenerWidgetsStore((s) => s.instances);
 
   const play = usePlayerStore((s) => s.play);
   const currentId = usePlayerStore((s) => s.currentId);
@@ -110,6 +124,21 @@ export function ChannelView({ slug }: { slug: string }) {
     me && channel && me.username === channel.user.username,
   );
   const subtle = activePresetId === 'subtle';
+  const configuredEmbedItems = listenerWidgetInstances
+    .filter((instance) => Boolean(listenerWidgetType(instance.typeId)))
+    .filter(
+      (instance) =>
+        !layout.some(
+          (item) =>
+            item.type === 'embed' && item.embedInstanceId === instance.id,
+        ),
+    )
+    .map((instance) => ({
+      id: instance.id,
+      label: instance.label,
+      hint: listenerWidgetType(instance.typeId)?.name ?? 'External player',
+      embedInstanceId: instance.id,
+    }));
 
   useEffect(() => {
     setLayout(loadChannelPageLayout(slug));
@@ -251,6 +280,13 @@ export function ChannelView({ slug }: { slug: string }) {
     if (opts?.clearPreset !== false && activePresetId) {
       setActivePresetId(null);
       saveChannelLayoutPresetId(slug, null);
+    }
+  };
+
+  const removeLayoutItem = (id: string) => {
+    updateLayout(layout.filter((item) => item.id !== id));
+    if (selectedId === id) {
+      setSelectedId(null);
     }
   };
 
@@ -618,6 +654,12 @@ export function ChannelView({ slug }: { slug: string }) {
             </Link>
           </section>
         );
+      case 'embed': {
+        const instance = listenerWidgetInstances.find(
+          (candidate) => candidate.id === item.embedInstanceId,
+        );
+        return instance ? <ListenerWidgetEmbed instance={instance} /> : null;
+      }
       default:
         return null;
     }
@@ -794,7 +836,22 @@ export function ChannelView({ slug }: { slug: string }) {
                   setSelectedId(item.id);
                 }
               }}
-              className={`relative ${
+              onPointerMove={(event) => {
+                if (moveDrag?.id !== item.id) {
+                  return;
+                }
+                updateLayout(
+                  setItemOffset(
+                    layout,
+                    item.id,
+                    moveDrag.offsetX + event.clientX - moveDrag.startX,
+                    moveDrag.offsetY + event.clientY - moveDrag.startY,
+                  ),
+                );
+              }}
+              onPointerUp={() => setMoveDrag(null)}
+              onPointerCancel={() => setMoveDrag(null)}
+              className={`group relative ${
                 editing
                   ? `rounded-xl border border-dashed p-2 ${
                       selected
@@ -804,14 +861,73 @@ export function ChannelView({ slug }: { slug: string }) {
                       dragId === item.id ? 'opacity-50' : ''
                     }`
                   : ''
+              } ${
+                item.width === 'compact'
+                  ? 'mx-auto w-[65%] max-w-full'
+                  : item.width === 'wide'
+                    ? 'mx-auto w-[85%] max-w-full'
+                    : 'w-full'
               }`}
+              style={
+                editing &&
+                (item.offsetX !== undefined || item.offsetY !== undefined)
+                  ? {
+                      transform: `translate(${item.offsetX ?? 0}px, ${item.offsetY ?? 0}px)`,
+                      zIndex: selected ? 2 : 1,
+                    }
+                  : undefined
+              }
             >
               {editing && (
-                <div className="text-foreground-secondary mb-2 flex items-center gap-2 text-[10px] tracking-wide uppercase">
-                  <GripVerticalIcon size={12} className="cursor-grab" />
-                  {metaItem.label}
-                  {!item.visible && <span>(hidden)</span>}
-                </div>
+                <>
+                  <div
+                    className="text-foreground-secondary mb-2 flex touch-none items-center gap-2 pr-9 text-[10px] tracking-wide uppercase"
+                    onPointerDown={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      event.currentTarget.setPointerCapture(event.pointerId);
+                      setMoveDrag({
+                        id: item.id,
+                        startX: event.clientX,
+                        startY: event.clientY,
+                        offsetX: item.offsetX ?? 0,
+                        offsetY: item.offsetY ?? 0,
+                      });
+                    }}
+                    onPointerUp={(event) => {
+                      if (
+                        event.currentTarget.hasPointerCapture(event.pointerId)
+                      ) {
+                        event.currentTarget.releasePointerCapture(
+                          event.pointerId,
+                        );
+                      }
+                      setMoveDrag(null);
+                    }}
+                  >
+                    <GripVerticalIcon size={12} className="cursor-grab" />
+                    {metaItem.label}
+                    {!item.visible && <span>(hidden)</span>}
+                    <span className="text-foreground-secondary/70 normal-case">
+                      · drag to place
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="text"
+                    className="text-foreground-secondary hover:text-foreground absolute top-2 right-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                    aria-label={`Remove ${metaItem.label}`}
+                    title={`Remove ${metaItem.label}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      removeLayoutItem(item.id);
+                    }}
+                    onPointerDown={(event) => event.stopPropagation()}
+                  >
+                    <XIcon size={15} aria-hidden />
+                  </Button>
+                </>
               )}
               {renderBlock(item)}
             </div>
@@ -839,14 +955,24 @@ export function ChannelView({ slug }: { slug: string }) {
         }
         updateLayout(setItemVisible(layout, id, !row.visible));
       }}
-      onRemove={(id) => {
-        updateLayout(layout.filter((item) => item.id !== id));
-        if (selectedId === id) {
-          setSelectedId(null);
-        }
+      onResize={(id, width) => {
+        updateLayout(setItemWidth(layout, id, width));
       }}
+      onRemove={removeLayoutItem}
       onAdd={(type: ChannelPageItemType) => {
         updateLayout(addItemType(layout, type));
+      }}
+      embedItems={configuredEmbedItems}
+      onAddEmbed={(embedInstanceId) => {
+        updateLayout([
+          ...layout,
+          {
+            id: `embed-${embedInstanceId}`,
+            type: 'embed',
+            embedInstanceId,
+            visible: true,
+          },
+        ]);
       }}
       onReorder={(fromId, toId) => {
         updateLayout(moveItem(layout, fromId, toId));
@@ -903,7 +1029,7 @@ export function ChannelView({ slug }: { slug: string }) {
           </Button>
           <SaveButton
             disabled={!layoutDirty}
-            label="Save layout"
+            label="Save page layout"
             onClick={saveLayout}
           />
           <Button size="sm" onClick={exitEdit}>

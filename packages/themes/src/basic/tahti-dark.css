@@ -6,24 +6,24 @@
  * pitch has no light variant. */
 :root[data-theme-id='nuclear:tahti-dark'] {
   /* Core Backgrounds — ink / ink-2 / panel */
-  --background: oklch(0.1663 0.0262 269.37);
-  --background-secondary: oklch(0.2264 0.0382 269.84);
-  --background-input: oklch(0.187 0.0356 270.27);
+  --background: oklch(0.1663 0.0402 274.37);
+  --background-secondary: oklch(0.2264 0.0552 275.84);
+  --background-input: oklch(0.187 0.0486 275.27);
 
   /* Text — text / muted */
   --foreground: oklch(0.976 0.007 268.55);
-  --foreground-secondary: oklch(0.7159 0.035 268.54);
+  --foreground-secondary: oklch(0.7359 0.055 275.54);
   --foreground-input: oklch(0.976 0.007 268.55);
 
-  /* Interactive surfaces — calm by default; accent colors signal meaning. */
-  --primary: oklch(0.285 0.042 269.84);
-  --primary-foreground: oklch(0.976 0.007 268.55);
-  --secondary: oklch(0.275 0.052 183.63);
-  --secondary-foreground: oklch(0.91 0.035 183.63);
+  /* Interactive surfaces — amber marks action; teal marks secondary signal. */
+  --primary: oklch(0.68 0.16 55);
+  --primary-foreground: oklch(0.1663 0.0262 269.37);
+  --secondary: oklch(0.39 0.105 183.63);
+  --secondary-foreground: oklch(0.96 0.025 183.63);
 
   /* Borders & focus ring — line / amber */
-  --border: oklch(0.3282 0.0565 270.74);
-  --border-input: oklch(0.3282 0.0565 270.74);
+  --border: oklch(0.3482 0.0705 275.74);
+  --border-input: oklch(0.3482 0.0705 275.74);
   --ring: oklch(0.8131 0.165 75.04);
 
   /* Accents — teal secondary/signal, coral danger, violet data,

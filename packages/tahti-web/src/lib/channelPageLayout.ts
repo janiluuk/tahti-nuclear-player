@@ -15,12 +15,16 @@ export type ChannelPageItemType = (typeof CHANNEL_PAGE_ITEM_TYPES)[number];
 
 export type ChannelPageItem = {
   id: string;
-  type: ChannelPageItemType;
+  type: ChannelPageItemType | 'embed';
   visible: boolean;
+  embedInstanceId?: string;
+  width?: 'full' | 'wide' | 'compact';
+  offsetX?: number;
+  offsetY?: number;
 };
 
 export const CHANNEL_PAGE_ITEM_META: Record<
-  ChannelPageItemType,
+  ChannelPageItem['type'],
   { label: string; hint: string }
 > = {
   hero: {
@@ -54,6 +58,10 @@ export const CHANNEL_PAGE_ITEM_META: Record<
   subscribe: {
     label: 'Subscribe CTA',
     hint: 'Fan membership pitch',
+  },
+  embed: {
+    label: 'External embed',
+    hint: 'Configured streaming player',
   },
 };
 
@@ -282,22 +290,37 @@ export function saveChannelLayoutPresetId(
 
 export function normalizeLayout(items: ChannelPageItem[]): ChannelPageItem[] {
   const seenIds = new Set<string>();
-  const seenTypes = new Set<ChannelPageItemType>();
+  const seenTypes = new Set<ChannelPageItemType | 'embed'>();
   const out: ChannelPageItem[] = [];
   for (const item of items) {
-    if (!CHANNEL_PAGE_ITEM_TYPES.includes(item.type)) {
+    if (
+      (!CHANNEL_PAGE_ITEM_TYPES.includes(item.type as ChannelPageItemType) &&
+        item.type !== 'embed') ||
+      (item.type === 'embed' && !item.embedInstanceId)
+    ) {
       continue;
     }
     const id = item.id || item.type;
-    if (seenIds.has(id) || seenTypes.has(item.type)) {
+    if (seenIds.has(id)) {
+      continue;
+    }
+    if (item.type !== 'embed' && seenTypes.has(item.type)) {
       continue;
     }
     seenIds.add(id);
-    seenTypes.add(item.type);
+    if (item.type !== 'embed') {
+      seenTypes.add(item.type);
+    }
     out.push({
       id,
       type: item.type,
       visible: Boolean(item.visible),
+      ...(item.type === 'embed'
+        ? { embedInstanceId: item.embedInstanceId }
+        : {}),
+      ...(item.width ? { width: item.width } : {}),
+      ...(item.offsetX !== undefined ? { offsetX: item.offsetX } : {}),
+      ...(item.offsetY !== undefined ? { offsetY: item.offsetY } : {}),
     });
   }
   for (const def of defaultChannelPageLayout()) {
@@ -336,6 +359,29 @@ export function setItemVisible(
   visible: boolean,
 ): ChannelPageItem[] {
   return items.map((i) => (i.id === id ? { ...i, visible } : i));
+}
+
+export function setItemWidth(
+  items: ChannelPageItem[],
+  id: string,
+  width: ChannelPageItem['width'],
+): ChannelPageItem[] {
+  return items.map((item) =>
+    item.id === id
+      ? { ...item, ...(width ? { width } : { width: undefined }) }
+      : item,
+  );
+}
+
+export function setItemOffset(
+  items: ChannelPageItem[],
+  id: string,
+  offsetX: number,
+  offsetY: number,
+): ChannelPageItem[] {
+  return items.map((item) =>
+    item.id === id ? { ...item, offsetX, offsetY } : item,
+  );
 }
 
 export function addItemType(

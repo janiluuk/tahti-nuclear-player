@@ -18,6 +18,7 @@ type PluginItemProps = {
   name: ReactNode;
   author?: string;
   description: string;
+  descriptionBelow?: boolean;
   version?: string;
   updateAvailable?: boolean;
   icon?: ReactNode;
@@ -43,6 +44,7 @@ export const PluginItem: FC<PluginItemProps> = ({
   name,
   author,
   description,
+  descriptionBelow = false,
   version,
   updateAvailable = false,
   icon,
@@ -96,12 +98,14 @@ export const PluginItem: FC<PluginItemProps> = ({
                 </p>
               ) : null}
             </h3>
-            <p
-              data-testid="plugin-description"
-              className="text-foreground mt-2 text-sm leading-relaxed select-none"
-            >
-              {description}
-            </p>
+            {!descriptionBelow && (
+              <p
+                data-testid="plugin-description"
+                className="text-foreground mt-2 text-sm leading-relaxed select-none"
+              >
+                {description}
+              </p>
+            )}
           </div>
 
           <div className="flex h-full shrink-0 flex-col items-end justify-between sm:w-auto sm:items-end">
@@ -142,6 +146,14 @@ export const PluginItem: FC<PluginItemProps> = ({
           <div className="bg-stripes-diagonal absolute right-0 bottom-0 left-0 h-1" />
         )}
       </div>
+      {descriptionBelow && (
+        <p
+          data-testid="plugin-description"
+          className="text-foreground w-full text-sm leading-relaxed select-none"
+        >
+          {description}
+        </p>
+      )}
       {warning && warningText && !isLoading && (
         <Box
           shadow="none"
