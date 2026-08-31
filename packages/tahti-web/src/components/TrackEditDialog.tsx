@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import {
+  ArrowUpFromLineIcon,
   AudioLinesIcon,
   DownloadIcon,
   ImageIcon,
@@ -18,6 +19,7 @@ import {
   SaveButton,
   Select,
   Tabs,
+  Toggle,
 } from '@nuclearplayer/ui';
 
 import { fetchHearthisTrackById } from '../api/sources';
@@ -46,6 +48,8 @@ import { ImageUploadField } from './ImageUploadField';
 import { MentionTextarea } from './MentionTextarea';
 import { MusicBrainzSubmissionAssistant } from './MusicBrainzSubmissionAssistant';
 import { PageLoading } from './PageStates';
+import { SubgenreTagInput } from './SubgenreTagInput';
+import { TrackExportConnections } from './TrackExportConnections';
 import { TrackExportPanel } from './TrackExportPanel';
 import { TracklistEditor } from './TracklistEditor';
 
@@ -55,6 +59,7 @@ type Tab =
   | 'audio'
   | 'visuals'
   | 'sharing'
+  | 'export'
   | 'advanced';
 
 type Props = {
@@ -97,6 +102,7 @@ const TAB_ORDER: Tab[] = [
   'audio',
   'visuals',
   'sharing',
+  'export',
   'advanced',
 ];
 
@@ -163,6 +169,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
           description: res.data.description ?? '',
           artistName: res.data.artistName ?? '',
           genre: res.data.genre ? capitalizeGenre(res.data.genre) : '',
+          subGenres: res.data.subGenres ?? [],
           contentType: res.data.contentType ?? 'STUDIO',
           license: res.data.license ?? '',
           isPublic: res.data.isPublic ?? true,
@@ -277,6 +284,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       description: result.data.description ?? '',
       artistName: result.data.artistName ?? '',
       genre: result.data.genre ?? '',
+      subGenres: result.data.subGenres ?? [],
       contentType: result.data.contentType ?? current.contentType,
       license: result.data.license ?? '',
       isPublic: result.data.isPublic ?? true,
@@ -360,20 +368,25 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                           onValueChange={(genre) => setForm({ ...form, genre })}
                           normalize={capitalizeGenre}
                         />
-                        <label className="flex flex-col gap-1 text-sm">
-                          Release date
-                          <input
-                            type="date"
-                            value={form.releaseDate ?? ''}
-                            onChange={(event) =>
-                              setForm({
-                                ...form,
-                                releaseDate: event.target.value,
-                              })
+                        <Input
+                          type="date"
+                          label="Release date"
+                          value={form.releaseDate ?? ''}
+                          onChange={(event) =>
+                            setForm({
+                              ...form,
+                              releaseDate: event.target.value,
+                            })
+                          }
+                        />
+                        <div className="sm:col-span-2">
+                          <SubgenreTagInput
+                            value={form.subGenres ?? []}
+                            onChange={(subGenres) =>
+                              setForm({ ...form, subGenres })
                             }
-                            className="border-border bg-background h-10 rounded-md border px-3 text-sm"
                           />
-                        </label>
+                        </div>
                       </>
                     ) : null}
                     <Select
@@ -416,19 +429,16 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         setForm({ ...form, fanTierIds })
                       }
                     />
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
+                    <div className="border-border bg-background-secondary/30 flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
+                      <span className="font-medium">Allow downloads</span>
+                      <Toggle
+                        label="Allow downloads"
                         checked={form.downloadsEnabled ?? false}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            downloadsEnabled: event.target.checked,
-                          })
+                        onChange={(downloadsEnabled) =>
+                          setForm({ ...form, downloadsEnabled })
                         }
                       />
-                      Allow downloads
-                    </label>
+                    </div>
                     {item.embedProvider === 'HEARTHIS' &&
                     form.downloadsEnabled ? (
                       <Button
@@ -447,34 +457,20 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                           : 'Download from HearThis'}
                       </Button>
                     ) : null}
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
+                    <div className="border-border bg-background-secondary/30 flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
+                      <span className="font-medium">Allow comments</span>
+                      <Toggle
+                        label="Allow comments"
                         checked={form.commentsEnabled ?? true}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            commentsEnabled: event.target.checked,
-                          })
+                        onChange={(commentsEnabled) =>
+                          setForm({ ...form, commentsEnabled })
                         }
                       />
-                      Allow comments
-                    </label>
+                    </div>
 
                     {!isAudioClip ? (
                       <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3 sm:col-span-2">
-                        <label className="flex items-start gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={form.isFallback ?? false}
-                            onChange={(event) =>
-                              setForm({
-                                ...form,
-                                isFallback: event.target.checked,
-                              })
-                            }
-                            className="mt-0.5"
-                          />
+                        <div className="flex items-start justify-between gap-3 text-sm">
                           <span>
                             <span className="block font-medium">
                               Add to my channel&apos;s rotation
@@ -485,7 +481,14 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                               something instead of dead air.
                             </span>
                           </span>
-                        </label>
+                          <Toggle
+                            label="Add to my channel's rotation"
+                            checked={form.isFallback ?? false}
+                            onChange={(isFallback) =>
+                              setForm({ ...form, isFallback })
+                            }
+                          />
+                        </div>
 
                         <div className="border-border/60 flex items-center gap-3 border-t pt-3">
                           <div className="min-w-0 flex-1 text-sm">
@@ -707,18 +710,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                       Choose where this track can appear and whether it can be
                       selected for shared programming.
                     </p>
-                    <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={form.topListsEligible ?? true}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            topListsEligible: event.target.checked,
-                          })
-                        }
-                        className="mt-0.5"
-                      />
+                    <div className="border-border flex items-start justify-between gap-3 rounded-lg border p-3 text-sm">
                       <span>
                         <span className="block font-medium">
                           Allow discovery analytics and top lists
@@ -728,19 +720,15 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                           discovery lists.
                         </span>
                       </span>
-                    </label>
-                    <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={form.selectsOptIn ?? false}
-                        onChange={(event) =>
-                          setForm({
-                            ...form,
-                            selectsOptIn: event.target.checked,
-                          })
+                      <Toggle
+                        label="Allow discovery analytics and top lists"
+                        checked={form.topListsEligible ?? true}
+                        onChange={(topListsEligible) =>
+                          setForm({ ...form, topListsEligible })
                         }
-                        className="mt-0.5"
                       />
+                    </div>
+                    <div className="border-border flex items-start justify-between gap-3 rounded-lg border p-3 text-sm">
                       <span>
                         <span className="block font-medium">
                           Allow Tahti Selects
@@ -750,24 +738,34 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                           Tahti Selects programming.
                         </span>
                       </span>
-                    </label>
-                    <Button
-                      size="sm"
-                      variant={form.isFallback ? 'secondary' : undefined}
-                      className="self-start"
-                      onClick={() =>
-                        setForm({ ...form, isFallback: !form.isFallback })
-                      }
-                    >
-                      {form.isFallback
-                        ? 'Remove from rotation'
-                        : 'Add to rotation'}
-                    </Button>
+                      <Toggle
+                        label="Allow Tahti Selects"
+                        checked={form.selectsOptIn ?? false}
+                        onChange={(selectsOptIn) =>
+                          setForm({ ...form, selectsOptIn })
+                        }
+                      />
+                    </div>
                     <SaveButton
                       saving={saving}
                       disabled={!form.title?.trim()}
                       onClick={() => void save()}
                     />
+                  </div>
+                ),
+              },
+              {
+                id: 'export',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <ArrowUpFromLineIcon size={15} aria-hidden />
+                    Export
+                  </span>
+                ),
+                content: (
+                  <div className="flex flex-col gap-4">
+                    <TrackExportPanel archiveItemId={item.id} />
+                    <TrackExportConnections />
                   </div>
                 ),
               },
@@ -811,7 +809,6 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                         releaseDate={item.releaseDate}
                       />
                     ) : null}
-                    <TrackExportPanel archiveItemId={item.id} />
                   </div>
                 ),
               },

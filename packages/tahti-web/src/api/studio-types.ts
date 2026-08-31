@@ -16,6 +16,7 @@ export type StudioArchiveItem = {
   description?: string | null;
   artistName?: string | null;
   genre?: string | null;
+  subGenres?: string[];
   contentType?: string | null;
   license?: string | null;
   isPublic?: boolean;
@@ -64,6 +65,7 @@ export type StudioArchivePatch = {
   description?: string;
   artistName?: string | null;
   genre?: string | null;
+  subGenres?: string[];
   contentType?: string;
   license?: string;
   isPublic?: boolean;

@@ -41,11 +41,10 @@ export function TrackExportPanel({ archiveItemId }: { archiveItemId: string }) {
   const alreadyExported = status != null;
 
   return (
-    <section className="border-border mt-4 border-t pt-3">
-      <div className="text-foreground-secondary mb-2 flex items-center gap-1.5 text-xs tracking-wide uppercase">
-        <UploadIcon size={13} aria-hidden />
-        Export
-      </div>
+    <section>
+      <h3 className="text-foreground-secondary mb-2 text-xs font-semibold tracking-wide uppercase">
+        Per-track export
+      </h3>
       <div className="border-border flex items-center gap-3 rounded-lg border px-3 py-2">
         <span
           className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-black/80"
