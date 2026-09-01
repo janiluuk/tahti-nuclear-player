@@ -1059,24 +1059,16 @@ export function StudioScheduleView() {
                   : 'No next broadcast selected'}
               </p>
               <div className="flex flex-wrap gap-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <span className="text-foreground-secondary text-xs uppercase">
-                    Minutes
-                  </span>
-                  <select
-                    value={durationMinutes}
-                    onChange={(event) =>
-                      setDurationMinutes(Number(event.target.value))
-                    }
-                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
-                  >
-                    {[0, 15, 30, 45].map((minutes) => (
-                      <option key={minutes} value={minutes}>
-                        {minutes}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <Select
+                  id="episode-duration"
+                  label="Minutes"
+                  value={String(durationMinutes)}
+                  options={[0, 15, 30, 45].map((minutes) => ({
+                    id: String(minutes),
+                    label: String(minutes),
+                  }))}
+                  onValueChange={(value) => setDurationMinutes(Number(value))}
+                />
                 <Button
                   size="sm"
                   variant="secondary"

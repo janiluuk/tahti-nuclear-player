@@ -201,17 +201,12 @@ function VenueCard({
         {bookingFormOpen && (
           <div className="border-border bg-background mt-3 flex flex-col gap-3 rounded-lg border p-3">
             <div className="flex flex-wrap items-end gap-2">
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Start
-                </span>
-                <input
-                  type="datetime-local"
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                  value={startAt}
-                  onChange={(e) => setStartAt(e.target.value)}
-                />
-              </label>
+              <Input
+                type="datetime-local"
+                label="Start"
+                value={startAt}
+                onChange={(event) => setStartAt(event.target.value)}
+              />
               <Input
                 label="Description"
                 value={bookingDesc}

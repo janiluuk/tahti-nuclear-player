@@ -107,17 +107,12 @@ export function StudioEventCreateView() {
                 placeholder="What should people expect — set details, door time, ticketing…"
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="text-foreground-secondary text-xs uppercase">
-                Start
-              </span>
-              <input
-                type="datetime-local"
-                className="border-border bg-background w-full rounded-md border px-3 py-2 text-sm"
-                value={startAt}
-                onChange={(event) => setStartAt(event.target.value)}
-              />
-            </label>
+            <Input
+              type="datetime-local"
+              label="Start"
+              value={startAt}
+              onChange={(event) => setStartAt(event.target.value)}
+            />
             {message && (
               <p className="text-accent-red text-sm" role="alert">
                 {message}
