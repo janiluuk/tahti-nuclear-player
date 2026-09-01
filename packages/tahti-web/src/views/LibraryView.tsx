@@ -9,6 +9,7 @@ import {
   type StatsTopTrack,
   type StorageUsage,
 } from '../api/studio-extras';
+import { FavoritesPanel } from '../components/FavoritesPanel';
 import { StudioNav } from '../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../components/StudioPanel';
 import { FavoritesView } from './FavoritesView';
@@ -80,102 +81,107 @@ export function LibraryView({
       {tab !== 'history' && tab !== 'favorites' ? (
         <StudioNav current={libraryNavRoute(tab)} />
       ) : null}
-      <div className="min-w-0 flex-1">
-        {tab === 'library' ? (
-          <>
-            <StudioPageHeader
-              title="Overview"
-              subtitle="Your catalog at a glance."
-            />
-            <div className="mt-6">
-              <LibraryStats />
-            </div>
-          </>
-        ) : null}
-        {overviewTab ? (
-          <>
-            <StudioPageHeader
-              title={
-                overviewTab === 'sounds'
-                  ? 'Sounds'
-                  : overviewTab === 'recordings'
-                    ? 'Recordings'
-                    : overviewTab === 'embeds'
-                      ? 'Embeds'
-                      : 'Collections'
-              }
-              subtitle="Your sounds, collections, recordings, media, and imported embeds."
-            />
-            <nav
-              aria-label="Library sections"
-              className="border-border mt-4 flex w-full gap-1 overflow-x-auto border-b"
-              role="tablist"
-            >
-              {(
-                [
-                  ['sounds', 'Sounds', '/library/sounds'],
-                  ['collections', 'Collections', '/library/collections'],
+      <div className="flex min-w-0 flex-1 flex-col gap-6 lg:flex-row lg:items-start">
+        <aside className="w-full shrink-0 lg:sticky lg:top-4 lg:w-64">
+          <FavoritesPanel />
+        </aside>
+        <div className="min-w-0 flex-1">
+          {tab === 'library' ? (
+            <>
+              <StudioPageHeader
+                title="Overview"
+                subtitle="Your catalog at a glance."
+              />
+              <div className="mt-6">
+                <LibraryStats />
+              </div>
+            </>
+          ) : null}
+          {overviewTab ? (
+            <>
+              <StudioPageHeader
+                title={
+                  overviewTab === 'sounds'
+                    ? 'Sounds'
+                    : overviewTab === 'recordings'
+                      ? 'Recordings'
+                      : overviewTab === 'embeds'
+                        ? 'Embeds'
+                        : 'Collections'
+                }
+                subtitle="Your sounds, collections, recordings, media, and imported embeds."
+              />
+              <nav
+                aria-label="Library sections"
+                className="border-border mt-4 flex w-full gap-1 overflow-x-auto border-b"
+                role="tablist"
+              >
+                {(
                   [
-                    'recordings',
-                    'Recordings',
-                    '/library/collections?tab=recordings',
-                  ],
-                  ['media', 'Media', '/library/collections?tab=media'],
-                  ['stash', 'Stash', '/library/collections?tab=stash'],
-                  ['embeds', 'Embeds', '/library/collections?tab=embeds'],
-                ] as const
-              ).map(([id, label, to]) => (
-                <Link
-                  key={id}
-                  to={to as never}
-                  role="tab"
-                  aria-selected={overviewTab === id}
-                  className={`border-b-2 px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
-                    overviewTab === id
-                      ? 'border-primary text-foreground'
-                      : 'text-foreground-secondary hover:text-foreground border-transparent'
-                  }`}
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-            {tab === 'sounds' && (
-              <div className="mt-6">
-                <MyDiscographyView />
-              </div>
-            )}
-            {overviewTab === 'collections' && (
-              <div className="mt-6">
-                <MyCollectionsView embedded />
-              </div>
-            )}
-            {overviewTab === 'recordings' && (
-              <div className="mt-6">
-                <StudioRecordingsView embedded />
-              </div>
-            )}
-            {overviewTab === 'media' && (
-              <div className="mt-6">
-                <LibraryMediaView />
-              </div>
-            )}
-            {overviewTab === 'stash' && (
-              <div className="mt-6">
-                <StudioStashView embedded />
-              </div>
-            )}
-            {overviewTab === 'embeds' && (
-              <div className="mt-6">
-                <LibraryEmbedsView />
-              </div>
-            )}
-          </>
-        ) : null}
-        {tab === 'releases' && <StudioReleasesView embedded />}
-        {tab === 'favorites' && <FavoritesView />}
-        {tab === 'history' && <HistoryView />}
-        {tab === 'smartlinks' && <LibrarySmartLinksView />}
+                    ['sounds', 'Sounds', '/library/sounds'],
+                    ['collections', 'Collections', '/library/collections'],
+                    [
+                      'recordings',
+                      'Recordings',
+                      '/library/collections?tab=recordings',
+                    ],
+                    ['media', 'Media', '/library/collections?tab=media'],
+                    ['stash', 'Stash', '/library/collections?tab=stash'],
+                    ['embeds', 'Embeds', '/library/collections?tab=embeds'],
+                  ] as const
+                ).map(([id, label, to]) => (
+                  <Link
+                    key={id}
+                    to={to as never}
+                    role="tab"
+                    aria-selected={overviewTab === id}
+                    className={`border-b-2 px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
+                      overviewTab === id
+                        ? 'border-primary text-foreground'
+                        : 'text-foreground-secondary hover:text-foreground border-transparent'
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+              {tab === 'sounds' && (
+                <div className="mt-6">
+                  <MyDiscographyView />
+                </div>
+              )}
+              {overviewTab === 'collections' && (
+                <div className="mt-6">
+                  <MyCollectionsView embedded />
+                </div>
+              )}
+              {overviewTab === 'recordings' && (
+                <div className="mt-6">
+                  <StudioRecordingsView embedded />
+                </div>
+              )}
+              {overviewTab === 'media' && (
+                <div className="mt-6">
+                  <LibraryMediaView />
+                </div>
+              )}
+              {overviewTab === 'stash' && (
+                <div className="mt-6">
+                  <StudioStashView embedded />
+                </div>
+              )}
+              {overviewTab === 'embeds' && (
+                <div className="mt-6">
+                  <LibraryEmbedsView />
+                </div>
+              )}
+            </>
+          ) : null}
+          {tab === 'releases' && <StudioReleasesView embedded />}
+          {tab === 'favorites' && <FavoritesView />}
+          {tab === 'history' && <HistoryView />}
+          {tab === 'smartlinks' && <LibrarySmartLinksView />}
+        </div>
       </div>
     </div>
   );

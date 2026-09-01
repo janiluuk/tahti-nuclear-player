@@ -5,7 +5,6 @@ import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
-import { TahtiMapLink } from '../components/TahtiMapLink';
 import { countryFlagAndName } from '../lib/countries';
 
 export function VenuesView() {
@@ -88,8 +87,6 @@ export function VenuesView() {
           ))}
         </ul>
       )}
-
-      <TahtiMapLink label="Full feature map →" />
     </PageFrame>
   );
 }

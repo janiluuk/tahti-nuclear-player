@@ -129,3 +129,35 @@ export const RandomArtistWithSettings: Story = {
     ),
   },
 };
+
+export const PublicPlaylists: Story = {
+  args: {
+    id: 'public-playlists',
+    title: 'Public playlists',
+    loading: false,
+    items: [],
+    collections: [
+      {
+        slug: 'night-drive',
+        name: 'Night drive selections',
+        description: 'Warm synths and late-night movement.',
+        coverUrl: null,
+        itemCount: 12,
+        ownerUsername: 'northern-lights',
+        ownerDisplayName: 'Northern Lights',
+      },
+      {
+        slug: 'weekend-radio',
+        name: 'Weekend radio',
+        description: 'A shared collection for slow Saturday mornings.',
+        coverUrl: null,
+        itemCount: 8,
+        ownerUsername: 'kasari',
+        ownerDisplayName: 'Kasari',
+      },
+    ],
+    emptyMessage: 'No public playlists yet.',
+    canMoveUp: false,
+    canMoveDown: true,
+  },
+};

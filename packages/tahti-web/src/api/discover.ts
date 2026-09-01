@@ -6,7 +6,7 @@ import {
   isForceMock,
   type FetchMeta,
 } from './mode';
-import type { DiscoverTrackItem } from './types';
+import type { DiscoverCollection, DiscoverTrackItem } from './types';
 
 const forceMock = isForceMock;
 
@@ -35,6 +35,68 @@ export type DiscoverFilters = {
   genres: string[];
   contentTypes: string[];
 };
+
+export async function fetchPublicCollections(
+  filters: DiscoverFilters,
+): Promise<{
+  data: DiscoverCollection[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: [
+        {
+          slug: 'favorites-vault',
+          name: 'Favorites vault',
+          description: 'Hand-picked highlights from the archive.',
+          coverUrl: null,
+          itemCount: 2,
+          ownerUsername: 'northern-lights',
+          ownerDisplayName: 'Northern Lights',
+        },
+      ],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const directory = await fetchDirectory();
+    const selectedArtists = directory.data.items.filter((artist) => {
+      if (filters.genres.length === 0) {
+        return true;
+      }
+      const genres = new Set(artist.genres.map((genre) => genre.toLowerCase()));
+      return filters.genres.some((genre) => genres.has(genre.toLowerCase()));
+    });
+    const profiles = await Promise.all(
+      selectedArtists
+        .slice(0, 24)
+        .map((artist) => fetchProfile(artist.username)),
+    );
+    const collections = profiles.flatMap((profile) =>
+      profile.data.collections.map((collection) => ({
+        slug: collection.slug,
+        name: collection.name,
+        description: collection.description,
+        coverUrl: collection.coverUrl,
+        itemCount: collection.itemCount,
+        ownerUsername: profile.data.artist.username,
+        ownerDisplayName: profile.data.artist.displayName,
+      })),
+    );
+    return {
+      data: collections.slice(0, 24),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return {
+        data: [],
+        meta: failMeta(err),
+      };
+    }
+    throw err instanceof Error ? err : new Error('Public collections failed');
+  }
+}
 
 export type DiscoverArtistOfWeek = {
   username: string;

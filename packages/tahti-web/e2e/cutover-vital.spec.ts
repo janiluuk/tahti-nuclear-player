@@ -1,10 +1,17 @@
 import { expect, test } from '@playwright/test';
 
-async function signIn(page: import('@playwright/test').Page): Promise<void> {
+async function signIn(
+  page: import('@playwright/test').Page,
+  email = 'artist@tahti.live',
+  password = process.env.TAHTI_E2E_PASSWORD ?? 'demo-password',
+): Promise<void> {
   await page.goto('/login');
-  await page.getByLabel('Email').fill('artist@tahti.live');
-  await page.getByLabel('Password').fill('demo-password');
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(
+    page.getByRole('button', { name: /^Signed in as/ }),
+  ).toBeVisible();
   await page.evaluate(() => {
     const raw = localStorage.getItem('tahti-web-auth');
     const userId = raw ? JSON.parse(raw)?.state?.user?.id : null;
@@ -550,6 +557,82 @@ test('branding workspace manages an avatar, public gallery, press kit, and slide
   await page.keyboard.press('ArrowRight');
   await expect(page.getByText('2 / 11')).toBeVisible();
   await page.keyboard.press('Escape');
+});
+
+test('artist creates a four-image promotion kit and another user can download the same kit from the artist page', async ({
+  browser,
+  page,
+}, testInfo) => {
+  await signIn(page);
+  await page.goto('/studio/branding');
+  await expect(
+    page.getByRole('heading', { name: 'Artist branding' }),
+  ).toBeVisible();
+  await page.getByRole('tab', { name: 'Press kit' }).click();
+
+  const description =
+    'Northern Lights is an electronic artist blending warm club rhythms with slow-moving ambient textures.';
+  await page.locator('textarea').fill(description);
+  await page.getByRole('button', { name: 'Save bio' }).click();
+  await expect(page.getByText('Press kit bio saved.')).toBeVisible();
+
+  const imageNames = [
+    'promo-one.jpg',
+    'promo-two.jpg',
+    'promo-three.jpg',
+    'promo-four.jpg',
+  ];
+  await page.getByLabel('Drop press-kit photos here').setInputFiles(
+    imageNames.map((name) => ({
+      name,
+      mimeType: 'image/jpeg',
+      buffer: Buffer.from(name),
+    })),
+  );
+  await expect(page.getByText('4 of 10 press kit images')).toBeVisible();
+  await page.getByRole('tab', { name: 'Gallery' }).click();
+  await page
+    .getByRole('button', { name: 'Upload more gallery images' })
+    .click();
+  await page.getByRole('switch', { name: 'Public gallery' }).click();
+  await page.screenshot({
+    path: testInfo.outputPath('artist-promotion-kit.png'),
+    fullPage: true,
+  });
+
+  const otherUser = await browser.newPage();
+  await signIn(
+    otherUser,
+    process.env.TAHTI_E2E_LISTENER_EMAIL ?? 'listener@example.com',
+    process.env.TAHTI_E2E_LISTENER_PASSWORD ??
+      process.env.TAHTI_E2E_PASSWORD ??
+      'demo-password',
+  );
+  await otherUser.goto('/u/artist');
+  await otherUser.getByRole('tab', { name: 'Gallery' }).click();
+  await expect(otherUser.getByRole('img')).toHaveCount(4);
+  const downloadLink = otherUser.getByRole('link', {
+    name: 'Download press kit',
+  });
+  const downloadHref = await downloadLink.getAttribute('href');
+  expect(downloadHref).toBeTruthy();
+  const downloadResponse = await otherUser.request.get(downloadHref!);
+  expect(downloadResponse.ok()).toBe(true);
+  expect(downloadResponse.headers()['content-type']).toContain('zip');
+  const zipText = (await downloadResponse.body()).toString('latin1');
+  for (const imageName of imageNames) {
+    expect(zipText).toContain(imageName);
+  }
+
+  const publicImageSources = await otherUser
+    .getByRole('img')
+    .evaluateAll((images) => images.map((image) => image.getAttribute('src')));
+  expect(publicImageSources).toHaveLength(imageNames.length);
+  await otherUser.screenshot({
+    path: testInfo.outputPath('public-promotion-kit.png'),
+    fullPage: true,
+  });
+  await otherUser.close();
 });
 
 test('admin user profile includes identity details and an expandable avatar', async ({

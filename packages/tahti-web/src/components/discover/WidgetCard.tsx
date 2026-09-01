@@ -11,7 +11,7 @@ import { useState, type ReactNode } from 'react';
 import { Button, Dialog, EmptyState, Loader } from '@nuclearplayer/ui';
 
 import type { DiscoverArtistOfWeek } from '../../api/discover';
-import type { DiscoverTrackItem } from '../../api/types';
+import type { DiscoverCollection, DiscoverTrackItem } from '../../api/types';
 import type { DiscoverWidgetId } from '../../stores/discoverStore';
 import { WidgetTrackRow } from './WidgetTrackRow';
 
@@ -23,6 +23,7 @@ export function WidgetCard({
   subtitle,
   loading,
   items,
+  collections = [],
   artist,
   showRank,
   emptyMessage,
@@ -39,6 +40,7 @@ export function WidgetCard({
   subtitle?: ReactNode;
   loading: boolean;
   items: DiscoverTrackItem[];
+  collections?: DiscoverCollection[];
   artist?: DiscoverArtistOfWeek;
   showRank?: boolean;
   emptyMessage: string;
@@ -139,6 +141,40 @@ export function WidgetCard({
           >
             <Button size="sm">Listen to their music</Button>
           </Link>
+        </div>
+      ) : collections.length > 0 ? (
+        <div className="grid gap-2">
+          {collections.slice(0, MAX_ROWS).map((collection) => (
+            <Link
+              key={`${collection.ownerUsername}:${collection.slug}`}
+              to="/u/$username/c/$slug"
+              params={{
+                username: collection.ownerUsername,
+                slug: collection.slug,
+              }}
+              className="border-border bg-background hover:bg-background-tertiary flex items-center gap-3 rounded-md border p-2 transition-colors"
+            >
+              {collection.coverUrl ? (
+                <img
+                  src={collection.coverUrl}
+                  alt=""
+                  className="size-12 shrink-0 rounded object-cover"
+                />
+              ) : (
+                <div className="bg-primary text-primary-foreground flex size-12 shrink-0 items-center justify-center rounded text-xs font-bold">
+                  {collection.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0">
+                <h4 className="truncate text-sm font-semibold">
+                  {collection.name}
+                </h4>
+                <p className="text-foreground-secondary truncate text-xs">
+                  {collection.ownerDisplayName} · {collection.itemCount} tracks
+                </p>
+              </div>
+            </Link>
+          ))}
         </div>
       ) : items.length === 0 ? (
         <EmptyState

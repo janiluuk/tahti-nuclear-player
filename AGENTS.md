@@ -239,6 +239,13 @@ Add new strings to `packages/i18n/src/locales/en_US.json` only. Other locales co
 
 ## Testing
 
+For any menu, route, or navigation active-state change, permanently include a
+Playwright check of all governance contexts: Settings → Account must reach
+member governance, Studio Governance must keep Motions/Topics highlighted for
+their query-string routes, and Admin Governance/AGM must keep the Community
+section and correct submenu item highlighted. Verify the actual navigation
+entry points, not only direct route rendering.
+
 Tests use Vitest + React Testing Library. Globals enabled (`describe`, `it`, `expect`, `vi`).
 
 - Integration tests over unit tests for user-facing behavior. Render real components and assert on DOM content rather than verifying mock calls.

@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 
 import { LegalHubLinks } from './LegalHubLinks';
@@ -30,12 +29,6 @@ export function LegalDocShell({
 }) {
   return (
     <article className="mx-auto flex max-w-3xl flex-col gap-6">
-      <Link
-        to="/more"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Tahti map
-      </Link>
       <PageHeader title={title} subtitle={meta} />
       {children}
       <LegalHubLinks />

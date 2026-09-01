@@ -17,6 +17,7 @@ import {
   fetchLatestTracks,
   fetchLovedTracks,
   fetchNewToYou,
+  fetchPublicCollections,
   fetchRandomArtist,
   fetchTopTracks,
 } from '../api/discover';
@@ -24,6 +25,7 @@ import type { DiscoverArtistOfWeek } from '../api/discover';
 import {
   isDirectoryArtistActive,
   type ChannelDirectoryItem,
+  type DiscoverCollection,
   type DiscoverTrackItem,
   type TahtiPlayable,
 } from '../api/types';
@@ -62,6 +64,7 @@ const WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
   loved: 'Loved by the community',
   'artist-of-the-week': 'Random artist of the week',
   'random-artist': 'Random artist pick',
+  'public-playlists': 'Public playlists',
 };
 
 const TOP_LIST_WIDGET_IDS = new Set<DiscoverWidgetId>([
@@ -73,6 +76,7 @@ const TOP_LIST_WIDGET_IDS = new Set<DiscoverWidgetId>([
 type WidgetData = {
   loading: boolean;
   items: DiscoverTrackItem[];
+  collections?: DiscoverCollection[];
   subtitle?: string;
   artist?: DiscoverArtistOfWeek;
 };
@@ -229,6 +233,10 @@ export function DiscoverView() {
           case 'loved': {
             const { data: items } = await fetchLovedTracks(filters);
             return { loading: false, items };
+          }
+          case 'public-playlists': {
+            const { data: collections } = await fetchPublicCollections(filters);
+            return { loading: false, items: [], collections };
           }
         }
       };
@@ -409,12 +417,15 @@ export function DiscoverView() {
                 subtitle={widgetData?.subtitle}
                 loading={widgetData?.loading ?? true}
                 items={widgetData?.items ?? []}
+                collections={widgetData?.collections}
                 artist={widgetData?.artist}
                 showRank={TOP_LIST_WIDGET_IDS.has(id)}
                 emptyMessage={
                   id === 'loved'
                     ? 'No community-loved tracks yet.'
-                    : 'Nothing here yet.'
+                    : id === 'public-playlists'
+                      ? 'No public playlists match these filters yet.'
+                      : 'Nothing here yet.'
                 }
                 canMoveUp={index > 0}
                 canMoveDown={index < enabledWidgets.length - 1}

@@ -13,7 +13,6 @@ import type {
 } from '../api/types';
 import { PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
-import { TahtiMapLink } from '../components/TahtiMapLink';
 
 function centsLabel(raw: string) {
   const n = Number(raw);
@@ -63,7 +62,6 @@ export function TransparencyView() {
             <code>/api/v1/transparency/*</code>.
           </>
         }
-        back={<TahtiMapLink />}
         meta={
           <Link
             to="/transparency/methodology"

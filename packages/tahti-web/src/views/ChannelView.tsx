@@ -41,6 +41,7 @@ import { NowPlayingOverlay } from '../components/NowPlayingOverlay';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
@@ -49,6 +50,7 @@ import {
   parseNowPlayingOverlaySettings,
   resolveNowPlayingOverlayPreset,
 } from '../content/nowPlayingOverlayPresets';
+import { hasAccountRole } from '../lib/accountRoles';
 import {
   addItemType,
   CHANNEL_PAGE_ITEM_META,
@@ -104,6 +106,9 @@ export function ChannelView({ slug }: { slug: string }) {
   const [lookTick, setLookTick] = useState(0);
   const [presetNote, setPresetNote] = useState<string | null>(null);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
+  const [channelTab, setChannelTab] = useState<'overview' | 'manage'>(
+    'overview',
+  );
   const listenerWidgetInstances = useListenerWidgetsStore((s) => s.instances);
 
   const play = usePlayerStore((s) => s.play);
@@ -126,6 +131,7 @@ export function ChannelView({ slug }: { slug: string }) {
   const isOwner = Boolean(
     me && channel && me.username === channel.user.username,
   );
+  const isAdministrator = hasAccountRole(me, 'BOARD');
   const subtle = activePresetId === 'subtle';
   const configuredEmbedItems = listenerWidgetInstances
     .filter((instance) => Boolean(listenerWidgetType(instance.typeId)))
@@ -958,7 +964,59 @@ export function ChannelView({ slug }: { slug: string }) {
   );
 
   if (!editing) {
-    return pageBody;
+    if (!isOwner && !isAdministrator) {
+      return pageBody;
+    }
+
+    const isLiveChannel = channel.state === 'LIVE';
+    return (
+      <div className="flex min-h-full flex-col gap-3">
+        <div
+          className="border-border flex gap-1 border-b"
+          role="tablist"
+          aria-label="Channel view"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={channelTab === 'overview'}
+            className={`border-b-2 px-3 py-2 text-sm font-semibold ${channelTab === 'overview' ? 'border-primary text-foreground' : 'text-foreground-secondary border-transparent'}`}
+            onClick={() => setChannelTab('overview')}
+          >
+            Overview
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={channelTab === 'manage'}
+            className={`border-b-2 px-3 py-2 text-sm font-semibold ${channelTab === 'manage' ? 'border-primary text-foreground' : 'text-foreground-secondary border-transparent'}`}
+            onClick={() => setChannelTab('manage')}
+          >
+            Manage
+          </button>
+        </div>
+        {channelTab === 'overview' ? (
+          pageBody
+        ) : (
+          <section className="flex flex-col gap-4">
+            <PageHeader
+              title={isLiveChannel ? 'Command center' : 'Stream manager'}
+              subtitle={
+                isLiveChannel
+                  ? 'Monitor and control this live channel.'
+                  : 'Manage the channel replay and its rotation.'
+              }
+            />
+            <StreamManagerPanel
+              slug={channel.slug}
+              channelState={channel.state}
+              readOnly={!isOwner && !isAdministrator}
+              defaultExpanded
+            />
+          </section>
+        )}
+      </div>
+    );
   }
 
   const layersMenu = (

@@ -21,7 +21,6 @@ import { Input } from '@nuclearplayer/ui';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';
 import { SupportContactForm } from '../components/SupportContactForm';
-import { TahtiMapLink } from '../components/TahtiMapLink';
 import {
   getHelpArticle,
   HELP_ARTICLES,
@@ -181,7 +180,6 @@ export function HelpHubView() {
       <PageHeader
         title="Help center"
         subtitle={HELP_HUB_INTRO}
-        back={<TahtiMapLink label="← Tahti map" />}
         actions={
           <Link
             to="/about"

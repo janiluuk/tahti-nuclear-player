@@ -1,5 +1,6 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
+  BookmarkIcon,
   ListMusicIcon,
   ListPlusIcon,
   PencilIcon,
@@ -9,22 +10,29 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
-import { fetchCollection } from '../api/client';
+import {
+  fetchCollection,
+  fetchCollectionSubscription,
+  setCollectionSubscription,
+} from '../api/client';
 import type {
   CollectionArchiveItem,
   PublicCollection,
   TahtiPlayable,
 } from '../api/types';
+import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { EmbedButton } from '../components/EmbedButton';
 import { EmbedTrackRow } from '../components/EmbedTrackRow';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
+import { resolveArtworkVisualizerPreset } from '../lib/artworkVisualizer';
 import type { EmbedProvider } from '../lib/embedSrc';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
+import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
 function collectionToPlayables(col: PublicCollection): TahtiPlayable[] {
@@ -64,6 +72,18 @@ export function CollectionView({
   const me = useAuthStore((s) => s.user);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const isFavorite = useLibraryStore((s) =>
+    s.favoritePlaylists.some((item) => item.slug === slug),
+  );
+  const toggleFavoritePlaylist = useLibraryStore(
+    (s) => s.toggleFavoritePlaylist,
+  );
+  const navigate = useNavigate();
+  const [subscription, setSubscription] = useState<{
+    subscribed: boolean;
+    subscriberCount: number;
+  } | null>(null);
+  const [subscriptionBusy, setSubscriptionBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -82,6 +102,18 @@ export function CollectionView({
             `Listen to ${res.data.name}, a collection by ${res.data.user.displayName} on Tahti.`,
           image: res.data.coverUrl ?? placeholderArtworkUrl(res.data.slug),
         });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchCollectionSubscription(slug).then((result) => {
+      if (!cancelled) {
+        setSubscription(result);
       }
     });
     return () => {
@@ -132,7 +164,12 @@ export function CollectionView({
   const isOwner = Boolean(me && me.username === collection.user.username);
   const coverUrl =
     collection.coverUrl ?? placeholderArtworkUrl(collection.slug);
-  const backdropUrl = collection.backdropUrl;
+  const backdropUrl = collection.backdropUrl ?? collection.videoBackgroundUrl;
+  const hasImageBackdrop = Boolean(
+    backdropUrl ||
+    (collection.galleryMode === 'STATIC_SLIDESHOW' &&
+      collection.slideshowImages?.[0]),
+  );
 
   const playAll = () => {
     const [head, ...rest] = playables;
@@ -144,6 +181,24 @@ export function CollectionView({
   const queueAll = () => {
     for (const item of playables) {
       enqueue(item);
+    }
+  };
+
+  const toggleSubscription = async () => {
+    if (!subscription || subscriptionBusy) {
+      return;
+    }
+    if (!me) {
+      void navigate({ to: '/login' });
+      return;
+    }
+    setSubscriptionBusy(true);
+    try {
+      setSubscription(
+        await setCollectionSubscription(slug, !subscription.subscribed),
+      );
+    } finally {
+      setSubscriptionBusy(false);
     }
   };
 
@@ -164,11 +219,20 @@ export function CollectionView({
 
       <div className="border-border bg-primary shadow-shadow relative isolate flex flex-col gap-6 overflow-hidden rounded-md border-(length:--border-width) p-6 md:flex-row">
         <img
-          src={backdropUrl ?? coverUrl}
+          src={backdropUrl ?? collection.slideshowImages?.[0] ?? coverUrl}
           alt=""
           className="pointer-events-none absolute inset-0 -z-10 size-full scale-110 object-cover opacity-35 blur-3xl"
           aria-hidden
         />
+        {!hasImageBackdrop && (
+          <div className="pointer-events-none absolute inset-0 -z-10 opacity-55">
+            <ChannelVisualizer
+              preset={resolveArtworkVisualizerPreset(collection.slug)}
+              artworkUrl={coverUrl}
+              className="size-full"
+            />
+          </div>
+        )}
         <div className="bg-primary/75 pointer-events-none absolute inset-0 -z-10 backdrop-blur-xl" />
         {isOwner && (
           <Link
@@ -238,6 +302,36 @@ export function CollectionView({
               <ListPlusIcon size={16} aria-hidden />
             </Button>
             <EmbedButton target={{ kind: 'collection', slug }} />
+            <Button
+              variant={isFavorite ? 'default' : 'secondary'}
+              aria-pressed={isFavorite}
+              onClick={() =>
+                toggleFavoritePlaylist({
+                  slug,
+                  name: collection.name,
+                  ownerUsername: collection.user.username,
+                  coverUrl: collection.coverUrl,
+                })
+              }
+            >
+              <BookmarkIcon size={15} aria-hidden className="mr-1.5" />
+              {isFavorite ? 'Favorited' : 'Favorite'}
+            </Button>
+            {!isOwner && collection.isPublic && subscription ? (
+              <Button
+                variant={subscription.subscribed ? 'default' : 'secondary'}
+                onClick={() => void toggleSubscription()}
+                disabled={subscriptionBusy}
+                aria-pressed={subscription.subscribed}
+                title={me ? undefined : 'Sign in to subscribe to this playlist'}
+              >
+                <BookmarkIcon size={15} aria-hidden className="mr-1.5" />
+                {subscription.subscribed ? 'Subscribed' : 'Subscribe'}
+                {subscription.subscriberCount > 0
+                  ? ` (${subscription.subscriberCount})`
+                  : ''}
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>

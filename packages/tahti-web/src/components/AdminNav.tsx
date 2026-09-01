@@ -8,7 +8,6 @@ import {
   GaugeIcon,
   LanguagesIcon,
   LibraryIcon,
-  MapIcon,
   MapPinIcon,
   MegaphoneIcon,
   RadioIcon,
@@ -153,13 +152,6 @@ const PRIMARY = [
     description: 'Track vendors, integrations, launch checks, and DPAs.',
   },
   {
-    to: '/admin/map',
-    label: 'Tahti map',
-    icon: <MapIcon size={16} aria-hidden />,
-    description:
-      'Compare Tahti surfaces, routes, parity, and navigation flows.',
-  },
-  {
     to: '/admin/i18n',
     label: 'Languages',
     icon: <LanguagesIcon size={16} aria-hidden />,
@@ -184,7 +176,6 @@ const ADMIN_SECTIONS = [
       '/admin/logs',
       '/admin/status',
       '/admin/vendors',
-      '/admin/map',
     ].map((to) => PRIMARY.find((item) => item.to === to)!),
   },
   {

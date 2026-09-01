@@ -186,20 +186,24 @@ const isActive = (current: string | undefined, to: string) => {
 export const getStudioPrimaryRoute = (current: string | undefined) =>
   PRIMARY.find((item) => isActive(current, item.to))?.to ?? null;
 
-const isSubmenuActive = (current: string | undefined, to: string) =>
-  (to.includes('?')
-    ? current === to
-    : to === '/library' || to === '/studio'
+const isSubmenuActive = (current: string | undefined, to: string) => {
+  const pathname = current?.split('?')[0];
+  return (
+    (to.includes('?')
       ? current === to
-      : current === to || current?.startsWith(`${to}/`) === true) ||
-  (to === '/studio/releases' && current === '/library/releases') ||
-  (to === '/library/sounds' && current?.startsWith('/studio/archive')) ||
-  (to === '/library/collections' &&
-    (current === '/studio/collections' ||
-      current?.startsWith('/studio/collections/') === true ||
-      current?.startsWith('/studio/playlists/') === true)) ||
-  (to === '/studio/recordings' && current === '/library/recordings') ||
-  (to === '/library/history' && current === '/library/history');
+      : to === '/library' || to === '/studio'
+        ? pathname === to
+        : pathname === to || pathname?.startsWith(`${to}/`) === true) ||
+    (to === '/studio/releases' && pathname === '/library/releases') ||
+    (to === '/library/sounds' && pathname?.startsWith('/studio/archive')) ||
+    (to === '/library/collections' &&
+      (pathname === '/studio/collections' ||
+        pathname?.startsWith('/studio/collections/') === true ||
+        pathname?.startsWith('/studio/playlists/') === true)) ||
+    (to === '/studio/recordings' && pathname === '/library/recordings') ||
+    (to === '/library/history' && pathname === '/library/history')
+  );
+};
 
 export const StudioNav = ({
   current,

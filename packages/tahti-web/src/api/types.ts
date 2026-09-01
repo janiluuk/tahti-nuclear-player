@@ -301,6 +301,10 @@ export type PublicCollection = {
   description?: string | null;
   coverUrl?: string | null;
   backdropUrl?: string | null;
+  videoBackgroundUrl?: string | null;
+  galleryMode?: string | null;
+  slideshowImages?: string[];
+  visualPreset?: string | null;
   isPublic: boolean;
   collaborative: boolean;
   user: { username: string; displayName: string };
@@ -315,6 +319,8 @@ export type SmartLinkView = {
     type?: string;
     artworkUrl?: string | null;
     visualPreset?: string | null;
+    slideshowImages?: string[];
+    galleryMode?: string | null;
     releaseDate?: string | null;
     genre?: string | null;
     description?: string | null;
@@ -709,6 +715,16 @@ export type SearchCollectionResult = {
   slug: string;
   name: string;
   coverUrl: string | null;
+  ownerUsername: string;
+  ownerDisplayName: string;
+};
+
+export type DiscoverCollection = {
+  slug: string;
+  name: string;
+  description: string | null;
+  coverUrl: string | null;
+  itemCount: number;
   ownerUsername: string;
   ownerDisplayName: string;
 };

@@ -15,10 +15,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@nuclearplayer/ui';
 
-import {
-  isHeaderImageUrl,
-  resolvePublicVisualizerPreset,
-} from '../api/channel-design';
+import { isHeaderImageUrl } from '../api/channel-design';
 import {
   fetchChannel,
   fetchProfile,
@@ -38,6 +35,8 @@ import { AddToPlaylistPanel } from '../components/AddToPlaylistPanel';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
+import { TimelineReactionBar } from '../components/TimelineReactionBar';
+import { resolveArtworkVisualizerPreset } from '../lib/artworkVisualizer';
 import { cn } from '../lib/cn';
 import {
   EMBED_PROVIDER_HEIGHT,
@@ -115,6 +114,7 @@ export function TrackDetailView({ id }: { id: string }) {
   const [commentBody, setCommentBody] = useState('');
   const [commentBusy, setCommentBusy] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [commentComposerOpen, setCommentComposerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [playlistOpen, setPlaylistOpen] = useState(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
@@ -295,8 +295,8 @@ export function TrackDetailView({ id }: { id: string }) {
     seekTo(seconds);
   };
 
-  const submitComment = async () => {
-    const body = commentBody.trim();
+  const submitComment = async (bodyOverride?: string) => {
+    const body = (bodyOverride ?? commentBody).trim();
     if (!body || !commentsEnabled || !user) {
       return;
     }
@@ -377,10 +377,10 @@ export function TrackDetailView({ id }: { id: string }) {
             />
             <div className="pointer-events-none absolute inset-0 opacity-40">
               <ChannelVisualizer
-                preset={resolvePublicVisualizerPreset(channel?.visualPreset)}
+                preset={resolveArtworkVisualizerPreset(id)}
                 colorScheme={visualScheme}
                 colorSchemeJson={channel?.colorSchemeJson}
-                artworkUrl={playable.coverUrl}
+                artworkUrl={cover}
                 className="size-full"
               />
             </div>
@@ -468,6 +468,15 @@ export function TrackDetailView({ id }: { id: string }) {
                       unplayedColor={UNPLAYED_WAVE_COLOR}
                       onSeek={seekFraction}
                     />
+                    <TimelineReactionBar
+                      clock={clock}
+                      commentsEnabled={commentsEnabled}
+                      signedIn={Boolean(user)}
+                      busy={commentBusy}
+                      commentOpen={commentComposerOpen}
+                      onReact={(emoticon) => void submitComment(emoticon)}
+                      onComment={() => setCommentComposerOpen((open) => !open)}
+                    />
                   </>
                 )}
               </div>
@@ -483,48 +492,52 @@ export function TrackDetailView({ id }: { id: string }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <form
-              className="flex min-w-[16rem] flex-1 items-center gap-3 rounded-md bg-black/55 px-3 py-2 backdrop-blur-md"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void submitComment();
-              }}
-            >
-              <img
-                src={
-                  user?.avatarUrl ??
-                  placeholderArtworkUrl(user?.id ?? 'listener')
-                }
-                alt=""
-                className="size-7 shrink-0 rounded-full object-cover"
-              />
-              {commentsEnabled && user ? (
-                <input
-                  value={commentBody}
-                  onChange={(event) => setCommentBody(event.target.value)}
-                  placeholder={
-                    embedSrc ? 'Write a comment' : `Write a comment at ${clock}`
+            {commentComposerOpen ? (
+              <form
+                className="flex min-w-[16rem] flex-1 items-center gap-3 rounded-md bg-black/55 px-3 py-2 backdrop-blur-md"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void submitComment();
+                }}
+              >
+                <img
+                  src={
+                    user?.avatarUrl ??
+                    placeholderArtworkUrl(user?.id ?? 'listener')
                   }
-                  maxLength={2000}
-                  disabled={commentBusy}
-                  aria-label={
-                    embedSrc ? 'Write a comment' : 'Write a timed comment'
-                  }
-                  className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/45"
+                  alt=""
+                  className="size-7 shrink-0 rounded-full object-cover"
                 />
-              ) : (
-                <Link
-                  to="/login"
-                  className="min-w-0 flex-1 text-sm text-white/55"
-                >
-                  {!commentsEnabled
-                    ? 'Comments are off for this track'
-                    : embedSrc
-                      ? 'Log in to write a comment'
-                      : `Log in to write a comment at ${clock}`}
-                </Link>
-              )}
-            </form>
+                {commentsEnabled && user ? (
+                  <input
+                    value={commentBody}
+                    onChange={(event) => setCommentBody(event.target.value)}
+                    placeholder={
+                      embedSrc
+                        ? 'Write a comment'
+                        : `Write a comment at ${clock}`
+                    }
+                    maxLength={2000}
+                    disabled={commentBusy}
+                    aria-label={
+                      embedSrc ? 'Write a comment' : 'Write a timed comment'
+                    }
+                    className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/45"
+                  />
+                ) : (
+                  <Link
+                    to="/login"
+                    className="min-w-0 flex-1 text-sm text-white/55"
+                  >
+                    {!commentsEnabled
+                      ? 'Comments are off for this track'
+                      : embedSrc
+                        ? 'Log in to write a comment'
+                        : `Log in to write a comment at ${clock}`}
+                  </Link>
+                )}
+              </form>
+            ) : null}
             <div className="flex items-center gap-3 text-xs text-white/70">
               {detail?.releasedAt ? (
                 <span>{formatReleasedOn(detail.releasedAt)}</span>

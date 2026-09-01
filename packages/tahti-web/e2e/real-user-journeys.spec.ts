@@ -19,6 +19,9 @@ async function signIn(
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill('demo-password');
   await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(
+    page.getByRole('button', { name: /^Signed in as/ }),
+  ).toBeVisible();
   await page.evaluate(() => {
     const raw = localStorage.getItem('tahti-web-auth');
     const userId = raw ? JSON.parse(raw)?.state?.user?.id : null;
@@ -94,6 +97,75 @@ test('governance: a signed-out visitor is prompted to log in, not shown motions'
   await expect(
     page.getByRole('heading', { name: 'Approve 2026 grant formula' }),
   ).toHaveCount(0);
+});
+
+test('governance navigation keeps member, artist, and board entries reachable and highlighted', async ({
+  page,
+}) => {
+  await signIn(page);
+
+  await page.goto('/settings/account');
+  await page.getByRole('link', { name: 'Governance' }).click();
+  await expect(page.getByRole('heading', { name: 'Governance' })).toBeVisible();
+
+  await page.goto('/studio/governance');
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Studio pages' })
+      .getByRole('link', { name: 'Governance' }),
+  ).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('tab', { name: 'Motions' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await page.getByRole('tab', { name: 'Topics' }).click();
+  await expect(page).toHaveURL(/\/studio\/governance\?tab=topics$/);
+  await expect(page.getByRole('tab', { name: 'Topics' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Studio pages' })
+      .getByRole('link', { name: 'Governance' }),
+  ).toHaveAttribute('aria-current', 'page');
+
+  await page.evaluate(() => {
+    const raw = localStorage.getItem('tahti-web-auth');
+    if (!raw) {
+      return;
+    }
+    const auth = JSON.parse(raw);
+    auth.state.user.role = 'BOARD';
+    auth.state.user.isBoard = false;
+    localStorage.setItem('tahti-web-auth', JSON.stringify(auth));
+  });
+  await page.reload();
+  await page.goto('/admin/governance');
+  await expect(page.getByRole('tab', { name: 'Community' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Admin Community' })
+      .getByRole('link', {
+        name: 'Governance',
+      }),
+  ).toHaveAttribute('aria-current', 'page');
+
+  await page.goto('/admin/agm');
+  await expect(page.getByRole('tab', { name: 'Community' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Admin Community' })
+      .getByRole('link', {
+        name: 'AGM',
+      }),
+  ).toHaveAttribute('aria-current', 'page');
 });
 
 test('governance: closed motions show their final decision as a permanent history/decision log', async ({

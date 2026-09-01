@@ -4,7 +4,6 @@ import {
   LayoutDashboardIcon,
   LibraryIcon,
   ListMusicIcon,
-  MapIcon,
   RadioIcon,
   XIcon,
 } from 'lucide-react';
@@ -13,7 +12,6 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { Button } from '@nuclearplayer/ui';
 
 import { hasAccountRole } from '../lib/accountRoles';
-import { diagnosticsEnabled } from '../lib/buildPolicy';
 import { cn } from '../lib/cn';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
@@ -48,13 +46,6 @@ const NAV = [
     match: (p: string) => p.startsWith('/studio'),
     boardOnly: false,
   },
-  {
-    to: '/more',
-    label: 'Tahti map',
-    icon: MapIcon,
-    match: (p: string) => p.startsWith('/more') || p.startsWith('/settings'),
-    boardOnly: true,
-  },
 ] as const;
 
 type MobileBottomNavProps = {
@@ -67,9 +58,7 @@ export function MobileBottomNav({ onOpenQueue }: MobileBottomNavProps) {
   const isBoard = useAuthStore((state) => hasAccountRole(state.user, 'BOARD'));
   const toggleBottomQueue = useLayoutStore((s) => s.toggleBottomQueue);
   const openQueue = onOpenQueue ?? toggleBottomQueue;
-  const items = NAV.filter(
-    (item) => !item.boardOnly || (isBoard && diagnosticsEnabled),
-  );
+  const items = NAV.filter((item) => !item.boardOnly || isBoard);
 
   return (
     <nav

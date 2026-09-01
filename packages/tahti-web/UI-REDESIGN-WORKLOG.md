@@ -1,5 +1,83 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-01 — Round validation cleanup; bump to 0.0.18
+
+**Completed:** Closed out this round's validation: fixed two leftover
+Prettier violations (`TimelineReactionBar.tsx`'s JSX attribute wrapping and
+`ChannelView.tsx`'s import order) that were failing `eslint` even though
+`tsc --noEmit` and the unit suite were already clean. No behavior changes.
+
+**Validation:** `tsc --noEmit`, `eslint` (0 errors), `vitest run` (53 files,
+301 tests), and the Storybook package's `type-check` on `tahti-web` all pass
+clean. Bumped `packages/tahti-web/package.json` to `0.0.18`.
+
+## 2026-09-01 — Favourites panel and navigation sitemap
+
+**Completed:** Added a left-side Favourites panel to Library with Tracks,
+Playlists, Channels, and Artists tabs. Saved items retain their favourite time,
+dates are humanized, and new playlist/artist entries stay marked until opened.
+The route tree was also audited against desktop and mobile navigation in
+`NAVIGATION-SITEMAP.md`; diagnostic Tahti map links were removed from product
+navigation and utility-page breadcrumbs.
+
+**Issue found:** playlists did not previously have a favourite action in the
+client, so the new playlist tab is ready for stored/public playlist entries but
+will remain empty until that action is exposed by the playlist surfaces. The
+existing API does not yet provide a playlist-favourite timestamp feed.
+
+**Validation:** tahti-web type-check and focused lint pass.
+
+## 2026-09-01 — Real beta promotion-kit browser audit
+
+**Completed:** Playwright now defaults to the deployed beta environment instead
+of starting the local mock server. The promotion-kit journey uses separate
+artist and listener sessions, captures artist/public screenshots, and checks
+the real downloadable ZIP contains the same four uploaded filenames.
+
+**Issue found:** the mock browser server kept upload state inside one page's
+JavaScript module, so a second browser context could not represent a real
+listener. The test now requires real beta credentials through
+`TAHTI_E2E_PASSWORD`, with optional listener-specific credentials, and keeps
+the mock fixtures available only for offline component/unit work.
+
+**Verification note:** beta screenshot/download execution is pending because
+this workspace has no `TAHTI_E2E_PASSWORD` or listener credentials, and the
+sandbox Chromium process exits with `SIGTRAP` before opening beta. The test is
+intentionally left pointed at beta so it cannot silently pass against mock data.
+
+## 2026-09-01 — Minimal mobile player chrome
+
+**Completed:** Mobile now keeps an idle player as a compact ready bar with a
+queue-play action and expand control, then removes the persistent player while
+audio is playing so navigation and content have more room. Enabled ambient
+visualizations remain visible in the idle bar.
+
+**Validation:** tahti-web type-check and diff checks pass.
+
+## 2026-09-01 — Like notifications in the top bar
+
+**Completed:** Artists now see unread notifications when listeners love their
+tracks, with the notification opening the relevant channel content.
+
+**Validation:** tahti-web type-check and lint pass.
+
+## 2026-09-01 — Timed timeline reactions
+
+**Completed:** Full-track listeners can now react with emoticons or open a
+comment composer directly below the waveform. Every reaction and comment is
+anchored to the visible `mm:ss` playback position.
+
+**Validation:** tahti-web type-check and lint pass.
+
+## 2026-09-01 — Collaborative public playlists
+
+**Completed:** Artists can make playlists public and collaborative from Studio.
+Listeners can subscribe to public playlists, open their embeddable player, and
+discover public playlists in a configurable Discover widget filtered by artist
+genre.
+
+**Validation:** tahti-web type-check and focused tests pass.
+
 ## 2026-09-01 — Go Live signal check widget
 
 **Completed:** Replaced the compact Go Live signal row with Tahti's richer

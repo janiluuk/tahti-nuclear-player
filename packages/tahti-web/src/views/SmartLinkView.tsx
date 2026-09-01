@@ -19,6 +19,7 @@ import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
+import { resolveArtworkVisualizerPreset } from '../lib/artworkVisualizer';
 import { syncDocumentMetadata } from '../lib/seo';
 import { usePlayerStore } from '../stores/playerStore';
 
@@ -133,14 +134,23 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
   const metadata = [releaseYear, genre, data.release.type]
     .filter(Boolean)
     .join(' · ');
-  const visualPreset = data.release.visualPreset ?? 'PARTICLE_FIELD';
+  const hasImageBackdrop = Boolean(
+    data.release.galleryMode === 'STATIC_SLIDESHOW' &&
+    data.release.slideshowImages?.[0],
+  );
+  const artworkVisualizer =
+    data.release.visualPreset && data.release.visualPreset !== 'MINIMAL'
+      ? data.release.visualPreset
+      : resolveArtworkVisualizerPreset(data.release.id);
 
   return (
     <div className="relative isolate mx-auto flex w-full max-w-xl flex-col gap-6 pb-10">
-      {visualPreset !== 'MINIMAL' && (
+      {!hasImageBackdrop && (
         <ChannelVisualizer
-          preset={visualPreset}
-          artworkUrl={data.release.artworkUrl ?? data.artist.avatarUrl}
+          preset={artworkVisualizer}
+          artworkUrl={
+            data.release.artworkUrl ?? data.artist.avatarUrl ?? undefined
+          }
           className="pointer-events-none fixed inset-0 -z-10 opacity-45"
         />
       )}

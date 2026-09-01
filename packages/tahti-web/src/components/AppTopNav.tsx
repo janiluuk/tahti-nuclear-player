@@ -22,6 +22,13 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 import { fetchConversations, type ConversationSummary } from '../api/messages';
+import {
+  dismissNotification,
+  fetchNotifications,
+  type TahtiNotification,
+} from '../api/notifications';
+import { fetchStudioArchive } from '../api/studio';
+import type { StudioArchiveItem } from '../api/studio-types';
 import { useCanGoForward } from '../hooks/useCanGoForward';
 import { useOwnBroadcastPresence } from '../hooks/useOwnBroadcastPresence';
 import { cn } from '../lib/cn';
@@ -59,7 +66,10 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const [broadcastOpen, setBroadcastOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [processingOpen, setProcessingOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [notifications, setNotifications] = useState<TahtiNotification[]>([]);
+  const [archiveItems, setArchiveItems] = useState<StudioArchiveItem[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
@@ -151,10 +161,46 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   }, [messagesOpen]);
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
+    void fetchNotifications().then((result) => setNotifications(result.data));
+  }, [notificationsOpen, user]);
+
+  useEffect(() => {
+    if (!user) {
+      setArchiveItems([]);
+      return;
+    }
+    let cancelled = false;
+    const loadArchiveStatus = () => {
+      void fetchStudioArchive().then((result) => {
+        if (!cancelled) {
+          setArchiveItems(result.data);
+        }
+      });
+    };
+    loadArchiveStatus();
+    const timer = window.setInterval(loadArchiveStatus, 5000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [user]);
+
+  const unreadNotifications = notifications.filter(
+    (notification) => !notification.readAt,
+  );
+  const processingItems = archiveItems.filter(
+    (item) => item.status === 'PENDING' || item.status === 'PROCESSING',
+  );
+
+  useEffect(() => {
     setOpen(false);
     setBroadcastOpen(false);
     setMessagesOpen(false);
     setNotificationsOpen(false);
+    setProcessingOpen(false);
   }, [pathname]);
 
   return (
@@ -171,6 +217,48 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
           </button>
         ) : null}
         <TahtiLogoLink />
+        {user && processingItems.length > 0 ? (
+          <div className="relative">
+            <button
+              type="button"
+              className="border-accent-blue/50 bg-accent-blue/10 text-accent-blue inline-flex size-7 items-center justify-center rounded-full border"
+              aria-label={`${processingItems.length} track${processingItems.length === 1 ? '' : 's'} processing`}
+              aria-expanded={processingOpen}
+              title="Track processing status"
+              onClick={() => setProcessingOpen((current) => !current)}
+            >
+              <span className="bg-accent-blue size-2 rounded-full motion-safe:animate-pulse" />
+            </button>
+            {processingOpen ? (
+              <div className="border-border bg-background absolute top-[calc(100%+8px)] left-0 z-40 w-72 rounded-lg border p-2 shadow-lg">
+                <p className="text-foreground-secondary px-2 py-1 text-[11px] font-semibold tracking-wide uppercase">
+                  Processing tracks
+                </p>
+                <ul className="flex flex-col gap-1">
+                  {processingItems.map((item) => (
+                    <li key={item.id}>
+                      <Link
+                        to="/studio/archive/$id"
+                        params={{ id: item.id }}
+                        className="hover:bg-background-secondary flex items-center justify-between gap-3 rounded-md px-2 py-2 text-xs"
+                        onClick={() => setProcessingOpen(false)}
+                      >
+                        <span className="min-w-0 truncate">{item.title}</span>
+                        <span className="text-accent-blue shrink-0">
+                          {item.status === 'PENDING' ? 'Queued' : 'Processing'}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-foreground-secondary px-2 pt-2 text-[11px]">
+                  This status updates automatically. You’ll get a notification
+                  when a track is ready.
+                </p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         <div className="hidden items-center gap-0.5 sm:flex">
           <button
             type="button"
@@ -314,6 +402,11 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
               }}
             >
               <BellIcon size={16} />
+              {unreadNotifications.length > 0 ? (
+                <span className="bg-accent-red text-background absolute -top-1 -right-1 min-w-4 rounded-full px-1 text-center text-[9px] font-bold">
+                  {Math.min(9, unreadNotifications.length)}
+                </span>
+              ) : null}
             </button>
             {notificationsOpen ? (
               <div
@@ -323,9 +416,50 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                 <div className="px-2 py-1">
                   <span className="text-sm font-semibold">Notifications</span>
                 </div>
-                <p className="text-foreground-secondary px-2 py-3 text-xs">
-                  No notifications yet.
-                </p>
+                {notifications.length === 0 ? (
+                  <p className="text-foreground-secondary px-2 py-3 text-xs">
+                    No notifications yet.
+                  </p>
+                ) : (
+                  <ul className="flex max-h-80 flex-col gap-1 overflow-y-auto">
+                    {notifications.map((notification) => (
+                      <li
+                        key={notification.id}
+                        className={cn(
+                          'rounded-md px-2 py-2 text-xs',
+                          notification.readAt
+                            ? 'text-foreground-secondary'
+                            : 'bg-primary/10',
+                        )}
+                      >
+                        {notification.url ? (
+                          <a
+                            href={notification.url}
+                            className="block hover:underline"
+                            onClick={() => {
+                              if (!notification.readAt) {
+                                void dismissNotification(notification.id);
+                              }
+                            }}
+                          >
+                            <span className="font-semibold">
+                              {notification.title}
+                            </span>
+                            {notification.body ? (
+                              <span className="mt-0.5 block">
+                                {notification.body}
+                              </span>
+                            ) : null}
+                          </a>
+                        ) : (
+                          <span className="font-semibold">
+                            {notification.title}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ) : null}
           </div>

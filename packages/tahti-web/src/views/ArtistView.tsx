@@ -1,6 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
   CalendarDays,
+  DownloadIcon,
   HeartIcon,
   ListMusicIcon,
   MessageCircle,
@@ -77,6 +78,13 @@ import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
+
+const publicPressKitUrl = (username: string): string => {
+  const base = import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')
+    ? import.meta.env.VITE_TAHTI_API_URL.replace(/\/$/, '')
+    : '/tahti-api';
+  return `${base}/api/v1/u/${encodeURIComponent(username)}/press-kit.zip`;
+};
 
 const GLOW_COLORS = [
   'var(--color-accent-purple)',
@@ -700,6 +708,18 @@ export function ArtistView({ username }: { username: string }) {
                           <UsersRound size={16} aria-hidden />
                         </Button>
                       </Link>
+                    ) : null}
+                    {!isOwner && profile.links.presskit ? (
+                      <a href={publicPressKitUrl(artist.username)} download>
+                        <Button
+                          size="icon-sm"
+                          variant="secondary"
+                          title="Download press kit"
+                          aria-label="Download press kit"
+                        >
+                          <DownloadIcon size={16} aria-hidden />
+                        </Button>
+                      </a>
                     ) : null}
                     {channel?.slug && !isOwner ? (
                       <EmbedButton

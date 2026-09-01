@@ -579,6 +579,43 @@ export async function fetchCollection(slug: string): Promise<{
   }
 }
 
+export async function fetchCollectionSubscription(slug: string): Promise<{
+  subscribed: boolean;
+  subscriberCount: number;
+}> {
+  if (forceMock()) {
+    return { subscribed: false, subscriberCount: 0 };
+  }
+  try {
+    return await getJson<{ subscribed: boolean; subscriberCount: number }>(
+      `/api/v1/collections/${encodeURIComponent(slug)}/subscribe`,
+    );
+  } catch (err) {
+    if (allowMockFallback()) {
+      return { subscribed: false, subscriberCount: 0 };
+    }
+    throw err instanceof Error
+      ? err
+      : new Error('Collection subscription failed');
+  }
+}
+
+export async function setCollectionSubscription(
+  slug: string,
+  subscribed: boolean,
+): Promise<{ subscribed: boolean; subscriberCount: number }> {
+  if (forceMock()) {
+    return { subscribed, subscriberCount: subscribed ? 1 : 0 };
+  }
+  const { data } = await requestJson<{
+    subscribed: boolean;
+    subscriberCount: number;
+  }>(`/api/v1/collections/${encodeURIComponent(slug)}/subscribe`, {
+    method: subscribed ? 'POST' : 'DELETE',
+  });
+  return data;
+}
+
 export async function fetchSmartLink(smartLinkSlug: string): Promise<{
   data: SmartLinkView;
   meta: FetchMeta;

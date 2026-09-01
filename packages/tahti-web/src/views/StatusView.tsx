@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { fetchPlatformStatus } from '../api/client';
 import type { PlatformStatus } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
-import { TahtiMapLink } from '../components/TahtiMapLink';
 
 function stateClass(state: string): string {
   if (state === 'ok' || state === 'healthy') {
@@ -39,7 +38,6 @@ export function StatusView() {
       <PageHeader
         title="Platform status"
         subtitle="Current health of Tahti services."
-        back={<TahtiMapLink />}
       />
 
       {loading && (

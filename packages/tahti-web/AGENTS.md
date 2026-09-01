@@ -97,6 +97,13 @@ public, Studio, and Admin views when they carry distinct permissions or
 workflow; remove redundant duplicate map/matrix entries instead of deleting
 the underlying governance route or API behavior. When changing this boundary,
 update `NAVIGATION-GAPS.md` and `UI-REDESIGN-WORKLOG.md` in the same change.
+Whenever changing a menu, route, or active-state matcher, permanently verify
+all three governance contexts in Playwright: Settings → Account reaches member
+governance, Studio → Governance highlights Motions and Topics correctly for
+their query-string routes, and Admin → Governance/AGM keeps the correct Admin
+section and submenu highlighted. Include this check in the same change's test
+run; a route existing in `router.tsx` alone is not sufficient evidence that it
+is reachable from the intended navigation tree.
 
 ## Design system compliance
 

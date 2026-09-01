@@ -1,6 +1,41 @@
 [
   {
     "date": "2026-09-01T00:00",
+    "description": "Library favourites are now easier to scan with Tracks, Playlists, Channels, and Artists tabs, humanized save dates, and New markers for artists and playlists you have not opened yet.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Library", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "Mobile playback now stays out of the way while listening, with a compact ready bar when nothing is playing.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Mobile", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "Artists now get a notification when someone loves one of their tracks.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Notifications", "color": "blue" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "React to a full track with emoticons or leave a comment at the exact moment you are hearing.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Comments", "color": "yellow" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "Public playlists can now be collaborative, followed, embedded, and discovered with genre filters.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Playlists", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
     "description": "Go Live now gives you a clear signal check with waiting, connected, and listening states, plus live level meters before you go on air.",
     "type": "improvement",
     "contributors": ["jani"],

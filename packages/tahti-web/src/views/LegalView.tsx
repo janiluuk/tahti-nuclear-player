@@ -1,7 +1,6 @@
 import { LegalHubLinks } from '../components/LegalHubLinks';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';
-import { TahtiMapLink } from '../components/TahtiMapLink';
 import { getLegalPage } from '../content/legal';
 
 const PRODUCTION = 'https://tahti.live';
@@ -11,7 +10,6 @@ export function LegalView({ slug }: { slug: string }) {
   if (!page) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col gap-4">
-        <TahtiMapLink />
         <PageEmpty title="Page not found" />
       </div>
     );
@@ -19,7 +17,6 @@ export function LegalView({ slug }: { slug: string }) {
 
   return (
     <article className="mx-auto flex max-w-3xl flex-col gap-6">
-      <TahtiMapLink />
       <PageHeader
         title={page.title}
         subtitle={page.description}

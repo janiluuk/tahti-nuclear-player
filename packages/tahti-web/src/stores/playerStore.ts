@@ -131,7 +131,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   repeatMode: 'off',
   hasPlayed: false,
   lastRadioPlayable: null,
-  playerBarVisible: false,
+  playerBarVisible: true,
   seekTarget: null,
   analyser: null,
 

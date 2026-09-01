@@ -10,6 +10,13 @@ export type FavoriteChannel = {
   avatarUrl?: string | null;
 };
 
+export type FavoritePlaylist = {
+  slug: string;
+  name: string;
+  ownerUsername?: string | null;
+  coverUrl?: string | null;
+};
+
 export type HistoryEntry = {
   playable: TahtiPlayable;
   playedAt: string;
@@ -21,10 +28,18 @@ export type LibraryState = {
   syncNote: string | null;
   favoriteChannels: FavoriteChannel[];
   favoriteTracks: TahtiPlayable[];
+  favoritePlaylists: FavoritePlaylist[];
+  favoriteChannelDates: Record<string, string>;
+  favoriteTrackDates: Record<string, string>;
+  favoritePlaylistDates: Record<string, string>;
+  heardFavoritePlaylists: string[];
+  heardFavoriteArtists: string[];
   history: HistoryEntry[];
   toggleFavoriteChannel: (channel: FavoriteChannel) => void;
   isFavoriteChannel: (slug: string) => boolean;
   toggleFavoriteTrack: (track: TahtiPlayable) => void;
+  toggleFavoritePlaylist: (playlist: FavoritePlaylist) => void;
+  markFavoriteHeard: (kind: 'playlist' | 'artist', id: string) => void;
   isFavoriteTrack: (id: string) => boolean;
   pushHistory: (playable: TahtiPlayable) => void;
   clearHistory: () => void;
@@ -74,6 +89,12 @@ export const useLibraryStore = create<LibraryState>()(
       syncNote: null,
       favoriteChannels: [],
       favoriteTracks: [],
+      favoritePlaylists: [],
+      favoriteChannelDates: {},
+      favoriteTrackDates: {},
+      favoritePlaylistDates: {},
+      heardFavoritePlaylists: [],
+      heardFavoriteArtists: [],
       history: [],
 
       setScopeKey: (key) => set({ scopeKey: key }),
@@ -82,11 +103,20 @@ export const useLibraryStore = create<LibraryState>()(
         const exists = get().favoriteChannels.some(
           (c) => c.slug === channel.slug,
         );
-        set((s) => ({
-          favoriteChannels: exists
-            ? s.favoriteChannels.filter((c) => c.slug !== channel.slug)
-            : [channel, ...s.favoriteChannels],
-        }));
+        set((s) => {
+          const favoriteChannelDates = { ...s.favoriteChannelDates };
+          if (exists) {
+            delete favoriteChannelDates[channel.slug];
+          } else {
+            favoriteChannelDates[channel.slug] = new Date().toISOString();
+          }
+          return {
+            favoriteChannels: exists
+              ? s.favoriteChannels.filter((c) => c.slug !== channel.slug)
+              : [channel, ...s.favoriteChannels],
+            favoriteChannelDates,
+          };
+        });
         // Best-effort server sync via artist follows (username ≈ channel slug).
         if (activeScope !== 'anon') {
           void (exists
@@ -101,11 +131,50 @@ export const useLibraryStore = create<LibraryState>()(
       toggleFavoriteTrack: (track) => {
         set((s) => {
           const exists = s.favoriteTracks.some((t) => t.id === track.id);
+          const favoriteTrackDates = { ...s.favoriteTrackDates };
+          if (exists) {
+            delete favoriteTrackDates[track.id];
+          } else {
+            favoriteTrackDates[track.id] = new Date().toISOString();
+          }
           return {
             favoriteTracks: exists
               ? s.favoriteTracks.filter((t) => t.id !== track.id)
               : [track, ...s.favoriteTracks],
+            favoriteTrackDates,
           };
+        });
+      },
+
+      toggleFavoritePlaylist: (playlist) => {
+        set((s) => {
+          const exists = s.favoritePlaylists.some(
+            (item) => item.slug === playlist.slug,
+          );
+          const favoritePlaylistDates = { ...s.favoritePlaylistDates };
+          if (exists) {
+            delete favoritePlaylistDates[playlist.slug];
+          } else {
+            favoritePlaylistDates[playlist.slug] = new Date().toISOString();
+          }
+          return {
+            favoritePlaylists: exists
+              ? s.favoritePlaylists.filter(
+                  (item) => item.slug !== playlist.slug,
+                )
+              : [playlist, ...s.favoritePlaylists],
+            favoritePlaylistDates,
+          };
+        });
+      },
+
+      markFavoriteHeard: (kind, id) => {
+        set((s) => {
+          const key =
+            kind === 'playlist'
+              ? 'heardFavoritePlaylists'
+              : 'heardFavoriteArtists';
+          return s[key].includes(id) ? s : { [key]: [...s[key], id] };
         });
       },
 
@@ -167,6 +236,12 @@ export const useLibraryStore = create<LibraryState>()(
       partialize: (s) => ({
         favoriteChannels: s.favoriteChannels,
         favoriteTracks: s.favoriteTracks,
+        favoritePlaylists: s.favoritePlaylists,
+        favoriteChannelDates: s.favoriteChannelDates,
+        favoriteTrackDates: s.favoriteTrackDates,
+        favoritePlaylistDates: s.favoritePlaylistDates,
+        heardFavoritePlaylists: s.heardFavoritePlaylists,
+        heardFavoriteArtists: s.heardFavoriteArtists,
         history: s.history,
         scopeKey: s.scopeKey,
       }),
@@ -192,6 +267,12 @@ export async function rehydrateLibraryForUser(userId: string | null) {
     scopeKey: nextScope,
     favoriteChannels: [],
     favoriteTracks: [],
+    favoritePlaylists: [],
+    favoriteChannelDates: {},
+    favoriteTrackDates: {},
+    favoritePlaylistDates: {},
+    heardFavoritePlaylists: [],
+    heardFavoriteArtists: [],
     history: [],
     syncNote: null,
   });

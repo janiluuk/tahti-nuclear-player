@@ -8,7 +8,6 @@ import {
 } from '@tanstack/react-router';
 
 import { AppShell } from './components/AppShell';
-import { StudioGate } from './components/StudioGate';
 import { diagnosticsEnabled } from './lib/buildPolicy';
 import {
   appendSearchParams,
@@ -46,6 +45,7 @@ import { SetupPasswordView } from './views/SetupPasswordView';
 import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
 import { StudioArchiveView } from './views/studio/StudioArchiveView';
+import { StudioBrandingView } from './views/studio/StudioBrandingView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
@@ -1217,11 +1217,7 @@ const studioChannelRoute = createRoute({
 const studioBrandingRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/branding',
-  component: () => (
-    <StudioGate requireChannel={false}>
-      <SettingsView sectionId="artist" />
-    </StudioGate>
-  ),
+  component: StudioBrandingView,
 });
 
 const studioShowsRoute = createRoute({

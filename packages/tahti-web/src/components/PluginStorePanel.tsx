@@ -3487,6 +3487,8 @@ const DISCOVER_WIDGET_DETAILS: Record<DiscoverWidgetId, string> = {
   'artist-of-the-week': 'Meet a featured artist that changes each week.',
   'random-artist':
     'Get a fresh artist pick on a schedule you choose on Discover.',
+  'public-playlists':
+    'Find public playlists to follow, play, and embed from the Discover page.',
 };
 
 const DISCOVER_WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
@@ -3498,6 +3500,7 @@ const DISCOVER_WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
   loved: 'Loved by the community',
   'artist-of-the-week': 'Artist of the week',
   'random-artist': 'Random artist',
+  'public-playlists': 'Public playlists',
 };
 
 function DiscoverWidgetPlugins() {
