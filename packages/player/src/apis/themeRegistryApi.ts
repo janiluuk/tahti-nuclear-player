@@ -7,7 +7,7 @@ import { ApiClient } from './ApiClient';
 
 class ThemeRegistryApi extends ApiClient {
   constructor() {
-    super('https://cdn.jsdelivr.net/gh/janiluuk/tahti-registry@master');
+    super('https://raw.githubusercontent.com/janiluuk/tahti-registry/master');
   }
 
   async getThemes() {

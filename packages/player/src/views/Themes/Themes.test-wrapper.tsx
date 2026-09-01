@@ -19,7 +19,7 @@ import { FetchMock } from '../../test/mocks/fetch';
 import { PluginFsMock } from '../../test/mocks/plugin-fs';
 
 const REGISTRY_BASE_URL =
-  'https://cdn.jsdelivr.net/gh/NuclearPlayer/theme-registry@master';
+  'https://raw.githubusercontent.com/janiluuk/tahti-registry/master';
 
 class ThemeStoreItemWrapper {
   constructor(private element: HTMLElement) {}

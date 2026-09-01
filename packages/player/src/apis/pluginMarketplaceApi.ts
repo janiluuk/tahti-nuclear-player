@@ -61,7 +61,7 @@ const PLUGIN_ASSET_NAME = 'plugin.zip';
 
 class PluginRegistryApi extends ApiClient {
   constructor() {
-    super('https://cdn.jsdelivr.net/gh/janiluuk/tahti-registry@master');
+    super('https://raw.githubusercontent.com/janiluuk/tahti-registry/master');
   }
 
   async getPlugins(): Promise<MarketplacePlugin[]> {
