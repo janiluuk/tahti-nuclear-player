@@ -645,7 +645,7 @@ exports[`App > should render snapshot 1`] = `
         />
       </div>
       <main
-        class="bg-background-secondary min-w-0 overflow-auto"
+        class="bg-background min-w-0 overflow-auto"
         data-testid="player-workspace-main"
       >
         <div

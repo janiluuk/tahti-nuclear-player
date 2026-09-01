@@ -2,7 +2,7 @@
 
 exports[`FavoriteAlbums view > (Snapshot) renders empty state 1`] = `
 <main
-  class="bg-background-secondary min-w-0 overflow-auto"
+  class="bg-background min-w-0 overflow-auto"
   data-testid="player-workspace-main"
 >
   <div
@@ -94,7 +94,7 @@ exports[`FavoriteAlbums view > (Snapshot) renders empty state 1`] = `
 
 exports[`FavoriteAlbums view > (Snapshot) renders with albums 1`] = `
 <main
-  class="bg-background-secondary min-w-0 overflow-auto"
+  class="bg-background min-w-0 overflow-auto"
   data-testid="player-workspace-main"
 >
   <div
