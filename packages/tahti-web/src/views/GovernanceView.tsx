@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Badge, Button, SectionShell } from '@nuclearplayer/ui';
 
 import {
+  createGovernanceMotion,
   fetchFeatureRequests,
   fetchGovernanceMotions,
   fetchMotionComments,
@@ -31,6 +32,14 @@ function stateBadge(state: string): {
   return { color: 'orange', label: state };
 }
 
+function isExpiredMotion(motion: GovernanceMotion): boolean {
+  return (
+    motion.state === 'OPEN' &&
+    Boolean(motion.closeAt) &&
+    new Date(motion.closeAt!).getTime() <= Date.now()
+  );
+}
+
 export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
   const user = useAuthStore((s) => s.user);
   const closeSettings = useSettingsModalStore((s) => s.close);
@@ -43,6 +52,9 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
   const [commentBody, setCommentBody] = useState('');
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const [votingId, setVotingId] = useState<string | null>(null);
+  const [draftTitle, setDraftTitle] = useState('');
+  const [draftDescription, setDraftDescription] = useState('');
+  const [submittingDraft, setSubmittingDraft] = useState(false);
 
   const reload = () => {
     if (!user) {
@@ -214,6 +226,67 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
         </div>
       )}
 
+      {user && !loading && !forbidden && (
+        <SectionShell title="Submit a motion draft">
+          <p className="text-foreground-secondary text-sm">
+            Members can submit advisory proposals for board review. Drafts are
+            not voting ballots until the board opens them.
+          </p>
+          <div className="mt-3 flex flex-col gap-2">
+            <input
+              value={draftTitle}
+              onChange={(event) => setDraftTitle(event.target.value)}
+              placeholder="Motion title"
+              maxLength={200}
+              className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+            />
+            <textarea
+              value={draftDescription}
+              onChange={(event) => setDraftDescription(event.target.value)}
+              placeholder="Explain the proposal"
+              maxLength={10000}
+              rows={4}
+              className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+            />
+            <Button
+              size="sm"
+              className="w-fit"
+              disabled={
+                submittingDraft ||
+                !draftTitle.trim() ||
+                !draftDescription.trim()
+              }
+              onClick={() => {
+                setSubmittingDraft(true);
+                const openAt = new Date().toISOString();
+                const closeAt = new Date(
+                  Date.now() + 14 * 24 * 60 * 60 * 1000,
+                ).toISOString();
+                void createGovernanceMotion({
+                  title: draftTitle.trim(),
+                  description: draftDescription.trim(),
+                  openAt,
+                  closeAt,
+                  advisory: true,
+                }).then((result) => {
+                  setSubmittingDraft(false);
+                  if (!result.ok) {
+                    setActionMsg(result.error);
+                    return;
+                  }
+                  setDraftTitle('');
+                  setDraftDescription('');
+                  setActionMsg('Motion draft submitted for board review.');
+                  reload();
+                });
+              }}
+            >
+              {submittingDraft ? 'Submitting…' : 'Submit draft'}
+            </Button>
+          </div>
+        </SectionShell>
+      )}
+
       {actionMsg && (
         <p className="border-border bg-background-secondary rounded-lg border px-3 py-2 text-sm">
           {actionMsg}
@@ -223,7 +296,10 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
       {user && motions.length > 0 && (
         <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
           {motions.map((m) => {
-            const badge = stateBadge(m.state);
+            const expired = isExpiredMotion(m);
+            const badge = expired
+              ? { color: 'secondary' as const, label: 'Expired' }
+              : stateBadge(m.state);
             return (
               <li key={m.id} className="p-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -263,7 +339,7 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
                   </div>
                 )}
 
-                {m.state === 'OPEN' && !m.youVoted && (
+                {m.state === 'OPEN' && !expired && !m.youVoted && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {(['YES', 'NO', 'ABSTAIN'] as const).map((choice) => (
                       <Button
@@ -325,7 +401,7 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
                         ))}
                       </ul>
                     )}
-                    {m.state !== 'CLOSED' && (
+                    {m.state !== 'CLOSED' && !expired && (
                       <div className="flex flex-wrap gap-2">
                         <input
                           value={commentBody}

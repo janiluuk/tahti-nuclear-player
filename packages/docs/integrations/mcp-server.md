@@ -13,6 +13,8 @@ Nuclear includes a built-in [MCP](https://modelcontextprotocol.io/) server that 
 3. The server starts on `http://127.0.0.1:8800/mcp` (localhost only). If port 8800 is taken, it tries 8801, 8802, and so on up to 8809.
 4. The **MCP Server URL** field below the toggle shows the actual URL. Click the copy button to grab it.
 
+<figure><img src="../.gitbook/assets/mcp-settings.png" alt="The Integrations section of Settings with the Enable MCP Server toggle and the MCP Server URL field showing http://127.0.0.1:8800/mcp" width="450"><figcaption><p>Enabling the MCP server in Settings</p></figcaption></figure>
+
 ## Connect your AI tool
 
 The server URL is `http://127.0.0.1:8800/mcp` using the `Streamable HTTP` transport.

@@ -9,15 +9,23 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { Button } from '@nuclearplayer/ui';
+
 import {
+  createAdminResolution,
   fetchAdminGovernanceActivity,
   fetchAdminGovernanceOverview,
+  fetchAdminResolutions,
+  patchAdminResolution,
   type AdminActivityEntry,
   type AdminGovernanceOverview,
 } from '../../api/admin';
+import type { BoardResolution } from '../../api/types';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+
+type ResolutionOutcome = 'PASSED' | 'FAILED' | 'DEFERRED';
 
 export function AdminGovernanceView() {
   const [overview, setOverview] = useState<AdminGovernanceOverview | null>(
@@ -26,16 +34,27 @@ export function AdminGovernanceView() {
   const [activity, setActivity] = useState<AdminActivityEntry[]>([]);
   const [totalVotes, setTotalVotes] = useState(0);
   const [totalComments, setTotalComments] = useState(0);
+  const [resolutions, setResolutions] = useState<BoardResolution[]>([]);
+  const [resolutionTitle, setResolutionTitle] = useState('');
+  const [resolutionBody, setResolutionBody] = useState('');
+  const [resolutionOutcome, setResolutionOutcome] =
+    useState<ResolutionOutcome>('PASSED');
+  const [resolutionFor, setResolutionFor] = useState('1');
+  const [resolutionAgainst, setResolutionAgainst] = useState('0');
+  const [resolutionAbstain, setResolutionAbstain] = useState('0');
+  const [resolutionBusy, setResolutionBusy] = useState(false);
 
   useEffect(() => {
     void Promise.all([
       fetchAdminGovernanceOverview(),
       fetchAdminGovernanceActivity(),
-    ]).then(([overviewResult, activityResult]) => {
+      fetchAdminResolutions(),
+    ]).then(([overviewResult, activityResult, resolutionsResult]) => {
       setOverview(overviewResult.data);
       setActivity(activityResult.data);
       setTotalVotes(activityResult.totalVotes);
       setTotalComments(activityResult.totalComments);
+      setResolutions(resolutionsResult.data);
     });
   }, []);
 
@@ -223,6 +242,130 @@ export function AdminGovernanceView() {
                   Open full audit log →
                 </Link>
               </p>
+            </StudioPanel>
+
+            <StudioPanel title="Board resolutions">
+              <p className="text-foreground-secondary text-sm">
+                Record formal board decisions here. These are separate from
+                advisory member motions and can be published after approval.
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <input
+                  value={resolutionTitle}
+                  onChange={(event) => setResolutionTitle(event.target.value)}
+                  placeholder="Resolution title"
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                />
+                <select
+                  value={resolutionOutcome}
+                  onChange={(event) =>
+                    setResolutionOutcome(
+                      event.target.value as ResolutionOutcome,
+                    )
+                  }
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                >
+                  <option value="PASSED">Passed</option>
+                  <option value="FAILED">Failed</option>
+                  <option value="DEFERRED">Deferred</option>
+                </select>
+                <textarea
+                  value={resolutionBody}
+                  onChange={(event) => setResolutionBody(event.target.value)}
+                  placeholder="Resolution body"
+                  rows={4}
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm sm:col-span-2"
+                />
+                <input
+                  value={resolutionFor}
+                  onChange={(event) => setResolutionFor(event.target.value)}
+                  inputMode="numeric"
+                  placeholder="Votes for"
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                />
+                <input
+                  value={resolutionAgainst}
+                  onChange={(event) => setResolutionAgainst(event.target.value)}
+                  inputMode="numeric"
+                  placeholder="Votes against"
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                />
+                <input
+                  value={resolutionAbstain}
+                  onChange={(event) => setResolutionAbstain(event.target.value)}
+                  inputMode="numeric"
+                  placeholder="Abstentions"
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                />
+              </div>
+              <Button
+                size="sm"
+                className="mt-3"
+                disabled={
+                  resolutionBusy ||
+                  !resolutionTitle.trim() ||
+                  !resolutionBody.trim()
+                }
+                onClick={() => {
+                  setResolutionBusy(true);
+                  void createAdminResolution({
+                    title: resolutionTitle.trim(),
+                    body: resolutionBody.trim(),
+                    votedAt: new Date().toISOString(),
+                    outcome: resolutionOutcome,
+                    voteFor: Number(resolutionFor) || 0,
+                    voteAgainst: Number(resolutionAgainst) || 0,
+                    voteAbstain: Number(resolutionAbstain) || 0,
+                  }).then((result) => {
+                    setResolutionBusy(false);
+                    if (result.data) {
+                      setResolutions((current) => [result.data!, ...current]);
+                      setResolutionTitle('');
+                      setResolutionBody('');
+                    }
+                  });
+                }}
+              >
+                {resolutionBusy ? 'Saving…' : 'Record resolution'}
+              </Button>
+              <ul className="divide-border mt-4 divide-y">
+                {resolutions.map((resolution) => (
+                  <li
+                    key={resolution.id}
+                    className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"
+                  >
+                    <span>
+                      <span className="font-medium">{resolution.title}</span>
+                      <span className="text-foreground-secondary ml-2 text-xs">
+                        {resolution.outcome}
+                      </span>
+                    </span>
+                    {!resolution.publishedAt && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          void patchAdminResolution(resolution.id, {
+                            publishedAt: new Date().toISOString(),
+                          }).then((result) => {
+                            if (result.data) {
+                              setResolutions((current) =>
+                                current.map((item) =>
+                                  item.id === result.data!.id
+                                    ? result.data!
+                                    : item,
+                                ),
+                              );
+                            }
+                          });
+                        }}
+                      >
+                        Publish
+                      </Button>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </StudioPanel>
 
             <div className="grid gap-3 sm:grid-cols-2">

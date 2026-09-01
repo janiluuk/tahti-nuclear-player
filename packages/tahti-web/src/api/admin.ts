@@ -7,7 +7,12 @@ import {
   patchMockInternetRadioPreset,
 } from './internetRadioPresetsMockStore';
 import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
-import type { AccountRole } from './types';
+import type {
+  AccountRole,
+  BoardResolution,
+  GovernanceDocument,
+  GovernanceMeeting,
+} from './types';
 
 const forceMock = isForceMock;
 
@@ -3629,7 +3634,7 @@ function mockAgmMotions(): AdminMotion[] {
     {
       id: 'motion-1',
       title: 'Adopt updated code of conduct',
-      state: 'OPEN',
+      state: 'CLOSED',
       advisory: true,
       openAt: '2026-08-10T00:00:00.000Z',
       closeAt: '2026-08-24T00:00:00.000Z',
@@ -3665,6 +3670,163 @@ export async function fetchAdminAgmMotions(): Promise<{
     };
   } catch (err) {
     return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function fetchAdminGovernanceMeetings(): Promise<{
+  data: GovernanceMeeting[];
+  meta: FetchMeta;
+}> {
+  try {
+    const data = await getJson<GovernanceMeeting[]>(
+      '/api/admin/governance/meetings',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function createAdminGovernanceMeeting(input: {
+  title: string;
+  type: GovernanceMeeting['type'];
+  scheduledAt?: string;
+  location?: string;
+  remoteUrl?: string;
+  noticeAt?: string;
+  eligibleMemberCount?: number;
+  quorumRequired?: number;
+  agenda?: Array<{ title: string; description?: string }>;
+}): Promise<{ data: GovernanceMeeting | null; meta: FetchMeta }> {
+  try {
+    const data = await sendJson<GovernanceMeeting>(
+      '/api/admin/governance/meetings',
+      'POST',
+      input,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export async function patchAdminGovernanceMeeting(
+  id: string,
+  input: Partial<
+    Pick<
+      GovernanceMeeting,
+      | 'state'
+      | 'scheduledAt'
+      | 'location'
+      | 'remoteUrl'
+      | 'noticeAt'
+      | 'eligibleMemberCount'
+      | 'quorumRequired'
+      | 'minutesKey'
+      | 'minutesApprovedAt'
+    >
+  > & { agenda?: unknown },
+): Promise<{ data: GovernanceMeeting | null; meta: FetchMeta }> {
+  try {
+    const data = await sendJson<GovernanceMeeting>(
+      `/api/admin/governance/meetings/${encodeURIComponent(id)}`,
+      'PATCH',
+      input,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export async function fetchAdminGovernanceDocuments(): Promise<{
+  data: GovernanceDocument[];
+  meta: FetchMeta;
+}> {
+  try {
+    const data = await getJson<GovernanceDocument[]>(
+      '/api/admin/governance/documents',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function createAdminGovernanceDocument(input: {
+  title: string;
+  type: GovernanceDocument['type'];
+  description?: string;
+  storageKey?: string;
+  externalUrl?: string;
+  version?: number;
+  effectiveAt?: string;
+  publishedAt?: string | null;
+  meetingId?: string | null;
+}): Promise<{ data: GovernanceDocument | null; meta: FetchMeta }> {
+  try {
+    const data = await sendJson<GovernanceDocument>(
+      '/api/admin/governance/documents',
+      'POST',
+      input,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export async function fetchAdminResolutions(publishedOnly = false): Promise<{
+  data: BoardResolution[];
+  meta: FetchMeta;
+}> {
+  try {
+    const suffix = publishedOnly ? '?publishedOnly=true' : '';
+    const data = await getJson<BoardResolution[]>(
+      `/api/admin/resolutions${suffix}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function createAdminResolution(input: {
+  title: string;
+  body: string;
+  votedAt: string;
+  outcome: 'PASSED' | 'FAILED' | 'DEFERRED';
+  voteFor: number;
+  voteAgainst: number;
+  voteAbstain: number;
+}): Promise<{ data: BoardResolution | null; meta: FetchMeta }> {
+  try {
+    const data = await sendJson<BoardResolution>(
+      '/api/admin/resolutions',
+      'POST',
+      input,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export async function patchAdminResolution(
+  id: string,
+  input: Partial<
+    Pick<BoardResolution, 'title' | 'body' | 'outcome' | 'publishedAt'>
+  >,
+): Promise<{ data: BoardResolution | null; meta: FetchMeta }> {
+  try {
+    const data = await sendJson<BoardResolution>(
+      `/api/admin/resolutions/${encodeURIComponent(id)}`,
+      'PATCH',
+      input,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
   }
 }
 

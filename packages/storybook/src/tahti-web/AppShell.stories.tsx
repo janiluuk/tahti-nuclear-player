@@ -78,13 +78,23 @@ function withAppShellRouter(user: AuthUser | null, path = '/'): Decorator {
 const meta: Meta<typeof AppShell> = {
   title: 'Tahti/Chrome/AppShell',
   component: AppShell,
-  parameters: { layout: 'fullscreen' },
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'Canonical Tahti white-theme shell reference: use the existing AppShell, SidebarNavigation, TopBar, Button, Input, and BottomBar primitives for new screens.',
+      },
+    },
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
+  name: 'White theme reference',
   decorators: [withAppShellRouter(MOCK_USERS.board)],
 };
 

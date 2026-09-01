@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { Input } from '@nuclearplayer/ui';
+import { Input, Tabs } from '@nuclearplayer/ui';
 
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';
@@ -42,7 +42,26 @@ const GUIDE_GROUPS: Array<{
     title: 'Start here',
     description: 'Find something to listen to or set up your artist profile.',
     icon: HeadphonesIcon,
-    slugs: ['for-listeners', 'for-artists'],
+    slugs: ['getting-around', 'for-listeners', 'player', 'for-artists'],
+  },
+  {
+    id: 'listen-and-share',
+    title: 'Listen and share',
+    description: 'Save music, talk about moments, and share public pages.',
+    icon: HeadphonesIcon,
+    slugs: [
+      'favorites-playlists',
+      'comments-and-timeline',
+      'notifications',
+      'embed-and-share',
+    ],
+  },
+  {
+    id: 'artist-tools',
+    title: 'Artist tools',
+    description: 'Publish music, design your channel, and follow processing.',
+    icon: SparklesIcon,
+    slugs: ['channel-design', 'uploads-and-processing'],
   },
   {
     id: 'broadcasting',
@@ -67,12 +86,19 @@ const GUIDE_GROUPS: Array<{
     slugs: ['tier-limits', 'keyboard-shortcuts', 'support'],
   },
   {
+    id: 'governance-admin',
+    title: 'Governance and admin',
+    description: 'Understand member decisions and platform operations.',
+    icon: ShieldCheckIcon,
+    slugs: ['governance', 'admin-guide'],
+  },
+  {
     id: 'add-ons',
     title: 'Add-ons',
     description:
       'Themes, imports, live mirrors, audio tools, and page widgets.',
     icon: PlugIcon,
-    slugs: ['add-ons', 'disco-widgets'],
+    slugs: ['add-ons', 'desktop-mcp', 'disco-widgets'],
   },
   {
     id: 'build-with-tahti',
@@ -101,6 +127,98 @@ const QUICK_STARTS = [
     description: 'Send the team a question about your account or a problem.',
     slug: 'support',
     icon: LifeBuoyIcon,
+  },
+] as const;
+
+const DOCUMENT_GROUPS = [
+  {
+    id: 'transparency',
+    label: 'Transparency',
+    items: [
+      {
+        title: 'Transparency dashboard',
+        description: 'Current ledger, grants, and public financial totals.',
+        to: '/transparency',
+      },
+      {
+        title: 'Grant reports',
+        description: 'Browse annual grant distribution reports by year.',
+        to: '/transparency',
+      },
+      {
+        title: 'Transparency methodology',
+        description: 'How figures are recorded, reviewed, and published.',
+        to: '/transparency/methodology',
+      },
+    ],
+  },
+  {
+    id: 'governance',
+    label: 'Governance',
+    items: [
+      {
+        title: 'Governance history',
+        description: 'Public results from closed advisory motions.',
+        to: '/governance/history',
+      },
+      {
+        title: 'Member governance',
+        description: 'Member motions, voting, discussion, and proposals.',
+        to: '/governance',
+      },
+      {
+        title: 'Governance guide',
+        description: 'How cooperative decisions and advisory votes work.',
+        to: '/help/governance',
+      },
+    ],
+  },
+  {
+    id: 'legal',
+    label: 'Legal & policies',
+    items: [
+      {
+        title: 'About Tahti',
+        description: 'Mission, cooperative structure, and commitments.',
+        to: '/about',
+      },
+      {
+        title: 'Terms of service',
+        description: 'The rules for using Tahti services.',
+        to: '/terms',
+      },
+      {
+        title: 'Privacy policy',
+        description: 'What data is collected and how it is handled.',
+        to: '/privacy',
+      },
+      {
+        title: 'AGPL source licence',
+        description: 'The licence and source-code obligations for Tahti.',
+        to: '/agpl',
+      },
+    ],
+  },
+  {
+    id: 'operations',
+    label: 'Operations',
+    items: [
+      {
+        title: 'Platform status',
+        description: 'Current service health and incident information.',
+        to: '/status',
+      },
+      {
+        title: 'Support',
+        description: 'Contact support about an account or platform problem.',
+        to: '/help/support',
+      },
+      {
+        title: 'Admin guide',
+        description: 'Operational guidance for board and platform admins.',
+        to: '/help/admin-guide',
+      },
+    ],
   },
 ] as const;
 
@@ -191,7 +309,62 @@ export function HelpHubView() {
         }
       />
 
-      <section className="border-border bg-primary text-primary-foreground min-w-0 rounded-2xl border p-5 shadow-sm sm:p-6">
+      <section
+        data-help-documents
+        aria-labelledby="help-documents-heading"
+        className="border-border bg-background-secondary/30 min-w-0 rounded-2xl border p-4 sm:p-5"
+      >
+        <div className="mb-3">
+          <p className="text-foreground-secondary text-xs font-bold tracking-[0.16em] uppercase">
+            Reference library
+          </p>
+          <h2
+            id="help-documents-heading"
+            className="font-display mt-1 text-xl font-bold tracking-tight"
+          >
+            Documents and public records
+          </h2>
+          <p className="text-foreground-secondary mt-1 text-sm">
+            Find transparency, governance, legal, and service documents from one
+            place.
+          </p>
+        </div>
+        <Tabs
+          items={DOCUMENT_GROUPS.map((group) => ({
+            id: group.id,
+            label: group.label,
+            content: (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {group.items.map((item) => (
+                  <a
+                    key={item.title}
+                    href={item.to}
+                    className="border-border bg-background hover:border-primary group rounded-xl border p-3 transition-colors"
+                  >
+                    <span className="flex items-center justify-between gap-2 text-sm font-semibold">
+                      {item.title}
+                      <ArrowRightIcon
+                        size={15}
+                        aria-hidden
+                        className="text-foreground-secondary transition-transform group-hover:translate-x-0.5"
+                      />
+                    </span>
+                    <span className="text-foreground-secondary mt-1 block text-xs leading-relaxed">
+                      {item.description}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            ),
+          }))}
+          listClassName="overflow-x-auto"
+        />
+      </section>
+
+      <section
+        data-help-hub-panel
+        className="border-border bg-primary text-primary-foreground min-w-0 rounded-2xl border p-5 shadow-sm sm:p-6"
+      >
         <div className="flex items-start gap-3">
           <CircleHelpIcon size={22} className="mt-0.5 shrink-0" aria-hidden />
           <div className="min-w-0">
@@ -211,7 +384,7 @@ export function HelpHubView() {
         </div>
       </section>
 
-      <section aria-labelledby="quick-start-heading">
+      <section data-help-hub-panel aria-labelledby="quick-start-heading">
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
             <p className="text-foreground-secondary text-xs font-bold tracking-[0.16em] uppercase">
@@ -261,6 +434,7 @@ export function HelpHubView() {
       </section>
 
       <section
+        data-help-hub-panel
         aria-labelledby="guide-index-heading"
         className="flex min-w-0 flex-col gap-5"
       >

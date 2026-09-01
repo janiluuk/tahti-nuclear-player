@@ -29,10 +29,10 @@ const BUILT_INS: BasicThemeMeta[] = [
     id: DEFAULT_THEME_ID,
     name: 'Default',
     palette: [
-      'oklch(0.77 0.17 342)',
-      'oklch(0.95 0.02 342)',
-      'oklch(0.42 0.10 342)',
-      'oklch(0.15 0.02 342)',
+      'oklch(0.78 0.15 20)',
+      'oklch(0.917 0.036 7.16)',
+      'oklch(0.48 0.08 5)',
+      'oklch(0.28 0.12 260)',
     ],
   },
   {

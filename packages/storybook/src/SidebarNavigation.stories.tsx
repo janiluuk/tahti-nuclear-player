@@ -64,32 +64,41 @@ export const CompactMode = () => (
   </div>
 );
 
-export const FullNavigationExample = () => (
-  <div className="bg-background-secondary border-border h-[600px] w-64 overflow-auto border-(length:--border-width) p-2">
-    <SidebarNavigation>
-      <SidebarNavigationItem
-        icon={<Home size={16} />}
-        label="Home"
-        isSelected
-      />
-      <SidebarNavigationItem icon={<Search size={16} />} label="Search" />
-      <SidebarNavigationItem
-        icon={<Library size={16} />}
-        label="Your Library"
-      />
-      <SidebarNavigationItem icon={<Heart size={16} />} label="Liked Songs" />
-      <SidebarNavigationItem
-        icon={<Clock size={16} />}
-        label="Recently Played"
-      />
-      <SidebarNavigationItem icon={<Download size={16} />} label="Downloaded" />
-      <SidebarNavigationItem icon={<Star size={16} />} label="Favorites" />
-      <SidebarNavigationItem icon={<Disc3 size={16} />} label="Albums" />
-      <SidebarNavigationItem icon={<Mic2 size={16} />} label="Artists" />
-      <SidebarNavigationItem icon={<Radio size={16} />} label="Radio" />
-      <SidebarNavigationItem icon={<TrendingUp size={16} />} label="Charts" />
-      <SidebarNavigationItem icon={<Folder size={16} />} label="Music Folder" />
-      <SidebarNavigationItem icon={<Settings size={16} />} label="Settings" />
-    </SidebarNavigation>
-  </div>
-);
+export const FullNavigationExample = {
+  name: 'Tahti white theme navigation',
+  render: () => (
+    <div className="bg-background-secondary border-border h-[600px] w-64 overflow-auto border-(length:--border-width) p-2">
+      <SidebarNavigation>
+        <SidebarNavigationItem
+          icon={<Home size={16} />}
+          label="Home"
+          isSelected
+        />
+        <SidebarNavigationItem icon={<Search size={16} />} label="Search" />
+        <SidebarNavigationItem
+          icon={<Library size={16} />}
+          label="Your Library"
+        />
+        <SidebarNavigationItem icon={<Heart size={16} />} label="Liked Songs" />
+        <SidebarNavigationItem
+          icon={<Clock size={16} />}
+          label="Recently Played"
+        />
+        <SidebarNavigationItem
+          icon={<Download size={16} />}
+          label="Downloaded"
+        />
+        <SidebarNavigationItem icon={<Star size={16} />} label="Favorites" />
+        <SidebarNavigationItem icon={<Disc3 size={16} />} label="Albums" />
+        <SidebarNavigationItem icon={<Mic2 size={16} />} label="Artists" />
+        <SidebarNavigationItem icon={<Radio size={16} />} label="Radio" />
+        <SidebarNavigationItem icon={<TrendingUp size={16} />} label="Charts" />
+        <SidebarNavigationItem
+          icon={<Folder size={16} />}
+          label="Music Folder"
+        />
+        <SidebarNavigationItem icon={<Settings size={16} />} label="Settings" />
+      </SidebarNavigation>
+    </div>
+  ),
+};

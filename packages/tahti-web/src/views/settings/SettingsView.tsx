@@ -1,4 +1,3 @@
-import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -10,7 +9,6 @@ import { isSettingsSectionId, type SettingsSectionId } from './settingsNav';
  * pad for OAuth connect callbacks (see cutoverReturns.ts) — `?status=` is
  * surfaced as a toast, then dropped, same as the retired Sources page did. */
 export function SettingsView({ sectionId }: { sectionId?: string }) {
-  const navigate = useNavigate();
   const open = useSettingsModalStore((s) => s.open);
   const section: SettingsSectionId = isSettingsSectionId(sectionId)
     ? sectionId
@@ -28,8 +26,7 @@ export function SettingsView({ sectionId }: { sectionId?: string }) {
     } else if (status) {
       toast.error('Could not connect. Try again.');
     }
-    void navigate({ to: '/', replace: true });
-  }, [navigate, open, section]);
+  }, [open, section]);
 
   return null;
 }

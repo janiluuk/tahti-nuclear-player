@@ -19,6 +19,31 @@ export const HELP_HUB_INTRO =
 
 export const HELP_ARTICLES: HelpArticle[] = [
   {
+    slug: 'getting-around',
+    title: 'Getting around Tahti',
+    description:
+      'A simple map of Listen, Library, Studio, Settings, and the player controls.',
+    sections: [
+      {
+        heading: 'The main areas',
+        body: [
+          'Listen is the starting point for finding music, channels, radio, and public pages. It is available without an account.',
+          'Library contains your history and saved music. Favorites and playlists require you to sign in.',
+          'Studio is for artists: upload audio, prepare releases, schedule shows, go live, and design your channel.',
+          'Settings contains your account, themes, add-ons, playback, and channel preferences.',
+          'The right rail is your queue and chat context when those features are available. The player appears only after a track is loaded.',
+        ],
+      },
+      {
+        heading: 'Signing in',
+        body: [
+          'You can browse and listen anonymously. Sign in before saving favorites, creating playlists, subscribing to artists, chatting, uploading, or using Studio.',
+          'If a private area is opened while signed out, Tahti takes you to Settings → Account so you can sign in and continue.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'for-listeners',
     title: 'Listener guide',
     description:
@@ -51,6 +76,67 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
   },
   {
+    slug: 'player',
+    title: 'Using the player',
+    description:
+      'Play tracks, manage the queue, use visualizations, and understand the player states.',
+    sections: [
+      {
+        heading: 'Play something',
+        body: [
+          'Select a track or choose Play on a channel, release, playlist, or radio station. The current item appears in the player at the bottom of the app.',
+          'When nothing is loaded, the player stays hidden so it does not take space from the page. Load a track to show the controls.',
+          'On mobile, the bottom navigation gives way to the active player while music is playing so the controls remain easy to reach.',
+        ],
+      },
+      {
+        heading: 'Queue and visualizations',
+        body: [
+          'Use the queue control to see what is next, reorder your listening, or clear the queue. Previous and next move through the queue.',
+          'Choose a visualization in Settings → Add-ons → Visualizers, or use the channel visualizer selected by an artist. Visualizations can be turned off when you want a quieter screen.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'favorites-playlists',
+    title: 'Favorites and playlists',
+    description:
+      'Save tracks, artists, channels, and playlists, then keep your own listening lists organized.',
+    sections: [
+      {
+        heading: 'Save and find favorites',
+        body: [
+          'Use the heart or Favorite action on a track, playlist, channel, or artist. Open Library → Favorites to see saved items grouped by type.',
+          'Favorites are ordered from newest to oldest. Artist and playlist entries show a New label until you listen to or open them.',
+        ],
+      },
+      {
+        heading: 'Create a playlist',
+        body: [
+          'Open Library → Playlists and choose Create new. Give the playlist a name, add tracks, and choose whether it is public.',
+          'A public playlist can be discovered, subscribed to, played, and embedded. Private playlists remain visible only to you.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'comments-and-timeline',
+    title: 'Comments and timeline reactions',
+    description:
+      'Leave a comment at the exact moment you are hearing in a full-track view.',
+    sections: [
+      {
+        heading: 'Comment on a moment',
+        body: [
+          'Open a full track view and pause or seek to the moment you want to discuss. The reaction row below the timeline shows emoticons and the comment action.',
+          'Choose an emoticon to react at that timestamp. Choose the comment icon to open the comment field; your comment is prefixed with the current time so others know exactly where to listen.',
+          'You must be signed in to post. Artists can disable comments on an individual track from its Studio settings.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'for-artists',
     title: 'Artist guide',
     description:
@@ -69,6 +155,51 @@ export const HELP_ARTICLES: HelpArticle[] = [
         body: [
           'Copy RTMP or Icecast credentials from the broadcast studio, then stream from OBS, Mixxx, or Traktor.',
           'Upload archive sets and releases from the studio; they appear on your channel and profile.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'channel-design',
+    title: 'Design your channel',
+    description:
+      'Use Channel designer to shape your header, player, background, overlays, and visualizer.',
+    sections: [
+      {
+        heading: 'Choose a look',
+        body: [
+          'Open Studio → Channel and choose Design. The preview shows what listeners see on your public channel and artist page.',
+          'Header design controls the channel header. Player design controls the player separately, including the shared gradient presets and manual colors.',
+          'Visual style controls the animated visualizer and its speed, intensity, scale, and audio-reactive behavior.',
+        ],
+      },
+      {
+        heading: 'Add a backdrop or gallery',
+        body: [
+          'Use a video, still image, or slideshow as a backdrop. Once a backdrop exists, the designer shows the remove action instead of another add action.',
+          'Save layout after changes. A backdrop is optional; if none is set, the selected gradient or visualizer fills the space.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'uploads-and-processing',
+    title: 'Upload and processing',
+    description:
+      'Upload tracks and sets, follow their progress, and find them when processing is complete.',
+    sections: [
+      {
+        heading: 'Upload audio',
+        body: [
+          'Open Studio → Upload (also available from Library → Upload), choose an audio file, and complete the metadata. New uploads without artwork receive an abstract thumbnail automatically.',
+          'Use the archive item page to add artwork, a backdrop, a tracklist, visibility, comments, downloads, and release information.',
+        ],
+      },
+      {
+        heading: 'Follow processing',
+        body: [
+          'While an upload or provider download is processing, the top-left navigation shows a blue processing indicator. Open it to see queued and active items.',
+          'When processing finishes, the indicator clears and a notification links you directly to the track. Processing can take time for long recordings or provider imports.',
         ],
       },
     ],
@@ -165,6 +296,28 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
   },
   {
+    slug: 'embed-and-share',
+    title: 'Share and embed music',
+    description:
+      'Share public tracks, releases, playlists, and artist pages or place them on another site.',
+    sections: [
+      {
+        heading: 'What can be shared',
+        body: [
+          'Public artist pages, channels, tracks, releases, and playlists have share links. Unlisted links work for people who have the link but do not appear in discovery.',
+          'A public playlist can be subscribed to by signed-in listeners. Subscribing keeps it easy to find without copying its tracks into your own playlist.',
+        ],
+      },
+      {
+        heading: 'Embed a public page',
+        body: [
+          'Choose Embed on a public track, release, playlist, or channel, copy the iframe code, and paste it into a site that accepts embeds.',
+          'The page must remain public for the embed to work. Provider-hosted tracks continue to use the provider widget inside the embed.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'tier-limits',
     title: 'Free tier vs membership',
     description:
@@ -251,6 +404,90 @@ export const HELP_ARTICLES: HelpArticle[] = [
         body: [
           'Export destinations such as Spotify or Apple Music are release-delivery links in Studio → Distribution, not installable plugins yet.',
           'Import sources are managed from Add-ons → Import. Only sources with a working Tahti runtime are shown there.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'desktop-mcp',
+    title: 'Desktop app & AI tools (MCP)',
+    description:
+      'Control playback from Claude, Cursor, or another AI tool using the separate Tahti Player desktop app.',
+    sections: [
+      {
+        heading: 'This is a separate app, not this website',
+        body: [
+          'AI-tool control uses the Model Context Protocol (MCP) and only runs inside the Tahti Player desktop app (Tauri), not on this website — a browser tab can’t host the local server an AI tool connects to.',
+          'If you only use tahti.live in a browser, this feature isn’t available to you yet; everything else in this guide still applies to the web app as usual.',
+        ],
+      },
+      {
+        heading: 'Turn it on in the desktop app',
+        body: [
+          'Open the Tahti Player desktop app → Settings → Integrations, then toggle Enable MCP Server on.',
+          'The server starts at http://127.0.0.1:8800/mcp (localhost only, never exposed to the network). If that port is busy it tries the next one up to 8809 — the exact URL is shown in the MCP Server URL field, with a copy button.',
+          'Point your AI tool at that URL using the Streamable HTTP transport. It can then control queue, playback, favorites, playlists, and more — the same things you can do by hand in the app.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'notifications',
+    title: 'Notifications',
+    description:
+      'Keep track of likes, follows, processing results, messages, and other account activity.',
+    sections: [
+      {
+        heading: 'What appears here',
+        body: [
+          'The notification bell shows activity that matters to your account, including likes on your content, new followers, and completed processing jobs.',
+          'Processing notifications link back to the finished track so you can review its metadata and publishing settings.',
+          'The blue light in the top-left navigation is reserved for work still in progress; open it to see the current status.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'governance',
+    title: 'Governance and member decisions',
+    description:
+      'Find discussions, advisory votes, member motions, meetings, and public records.',
+    sections: [
+      {
+        heading: 'Where governance lives',
+        body: [
+          'Listeners open Governance from Settings → Account. Artists use Studio → Governance. Board users use Admin → Governance and Admin → AGM.',
+          'The active subtab always follows the page you opened, so you can use browser back and shared links without losing your place.',
+        ],
+      },
+      {
+        heading: 'Advisory consultation and official votes',
+        body: [
+          'Advisory discussions and votes collect member input. They are clearly separate from binding association decisions.',
+          'Do not treat an advisory result as an official AGM ballot. Official records are published when the association’s eligibility, quorum, ballot, minutes, and result contracts are in place.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'admin-guide',
+    title: 'Admin guide',
+    description:
+      'A map of the tools board and admin users use to operate Tahti safely.',
+    sections: [
+      {
+        heading: 'Admin areas',
+        body: [
+          'Dashboard and Status show platform health. Logs show service activity. Moderation handles support, beta, radio, reports, and feature queues.',
+          'Users, Content, Radio, Streams, Storage, News, Venues, Top lists, and Announcements manage the everyday platform surfaces.',
+          'Governance and AGM hold member records. Disco-widgets manages approved add-ons. Artwork presets manages the abstract defaults used for artwork-free uploads.',
+        ],
+      },
+      {
+        heading: 'Safety and access',
+        body: [
+          'Admin pages require an authorized board or admin account. Changes should be made through the existing form, confirmation, and audit surfaces so they remain reviewable.',
+          'If a tool is not visible, your account may not have the required role or the feature may not yet be enabled in production.',
         ],
       },
     ],

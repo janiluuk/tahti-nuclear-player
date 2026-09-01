@@ -17,6 +17,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 export const WithContent: Story = {
+  name: 'White theme search bar reference',
   args: {
     children: (
       <div className="ml-4 flex items-center gap-4">

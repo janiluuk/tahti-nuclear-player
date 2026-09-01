@@ -1,5 +1,25 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-01 — Expandable stream playlist manager
+
+**Completed:** Kept Go Live’s stream playlist manager compact by default while
+retaining an explicit accessible expand control for rotation details, stats,
+overlay settings, and playlist management.
+
+**Validation:** Stream manager lint, tahti-web type-check, and diff validation
+pass.
+
+## 2026-09-01 — Compact stream playlist manager
+
+**Completed:** Go Live now keeps the stream playlist manager on one compact
+row with the current state and track visible beside centered playback
+controls. Playlist selection is a `+ Playlist` action that opens a preview
+modal, where an artist can add a playlist to the rotation or replace the
+current rotation with it.
+
+**Validation:** Stream manager lint, tahti-web type-check, and diff validation
+pass.
+
 ## 2026-09-01 — Help center coverage audit
 
 **Completed:** Reorganized Help into task-based groups and added guides for

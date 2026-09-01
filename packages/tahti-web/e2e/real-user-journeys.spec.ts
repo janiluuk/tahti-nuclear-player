@@ -92,7 +92,9 @@ test('governance: a signed-out visitor is prompted to log in, not shown motions'
   await page.goto('/governance');
 
   await expect(
-    page.getByText('Sign in with a cooperative membership account to vote.'),
+    page
+      .getByText('Sign in with a cooperative membership account to vote.')
+      .first(),
   ).toBeVisible();
   await expect(
     page.getByRole('heading', { name: 'Approve 2026 grant formula' }),
@@ -244,6 +246,45 @@ test('governance: motion discussion supports reading existing comments and posti
     .filter({ hasText: 'Confirm annual report' });
   await closedMotion.getByRole('button', { name: 'Discussion' }).click();
   await expect(closedMotion.getByPlaceholder('Add a comment…')).toHaveCount(0);
+});
+
+test('governance: a member can submit an advisory motion draft', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/governance');
+
+  await page.getByPlaceholder('Motion title').fill('Improve member notices');
+  await page
+    .getByPlaceholder('Explain the proposal')
+    .fill('Send meeting notices in the member dashboard.');
+  await page.getByRole('button', { name: 'Submit draft' }).click();
+
+  await expect(
+    page.getByText('Motion draft submitted for board review.'),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Improve member notices' }),
+  ).toBeVisible();
+  await expect(page.getByText('DRAFT', { exact: true })).toBeVisible();
+});
+
+test('governance: public history and historical grant reports are reachable', async ({
+  page,
+}) => {
+  await page.goto('/governance/history');
+  await expect(
+    page.getByRole('heading', { name: 'Governance history' }),
+  ).toBeVisible();
+  await expect(page.getByText('Confirm annual report')).toBeVisible();
+
+  await page.goto('/transparency');
+  await expect(page.getByRole('link', { name: /Grants 2025/ })).toBeVisible();
+  await page.getByRole('link', { name: /Grants 2025/ }).click();
+  await expect(page).toHaveURL(/\/transparency\/grants\/2025$/);
+  await expect(
+    page.getByRole('heading', { name: 'Grant report 2025' }),
+  ).toBeVisible();
 });
 
 test('artist stats show real listen minutes and the listener geography map', async ({

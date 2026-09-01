@@ -34,6 +34,7 @@ import { useOwnBroadcastPresence } from '../hooks/useOwnBroadcastPresence';
 import { cn } from '../lib/cn';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
+import { useProcessingJobsStore } from '../stores/processingJobsStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { GlobalSearch } from './GlobalSearch';
 import { TahtiLogoLink } from './TahtiLogo';
@@ -70,6 +71,8 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [notifications, setNotifications] = useState<TahtiNotification[]>([]);
   const [archiveItems, setArchiveItems] = useState<StudioArchiveItem[]>([]);
+  const localProcessingJobs = useProcessingJobsStore((state) => state.jobs);
+  const settleProcessingJobs = useProcessingJobsStore((state) => state.settle);
   const menuRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
@@ -177,6 +180,13 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
       void fetchStudioArchive().then((result) => {
         if (!cancelled) {
           setArchiveItems(result.data);
+          settleProcessingJobs(
+            result.data
+              .filter(
+                (item) => item.status === 'READY' || item.status === 'ERROR',
+              )
+              .map((item) => item.id),
+          );
         }
       });
     };
@@ -191,8 +201,20 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const unreadNotifications = notifications.filter(
     (notification) => !notification.readAt,
   );
-  const processingItems = archiveItems.filter(
-    (item) => item.status === 'PENDING' || item.status === 'PROCESSING',
+  const processingItems = [
+    ...localProcessingJobs,
+    ...archiveItems
+      .filter(
+        (item) => item.status === 'PENDING' || item.status === 'PROCESSING',
+      )
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        status: item.status as 'PENDING' | 'PROCESSING',
+      })),
+  ].filter(
+    (job, index, jobs) =>
+      jobs.findIndex((candidate) => candidate.id === job.id) === index,
   );
 
   useEffect(() => {

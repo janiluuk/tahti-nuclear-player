@@ -32,6 +32,30 @@ node packages/tahti-web/scripts/verify-nuclear-mcp-parity.mjs
 
 Tools (unchanged from upstream): `list_methods`, `method_details`, `describe_type`, `call` over domains Queue, Playback, Metadata, Favorites, Playlists, Dashboard, Providers (+ Settings in plugin-sdk meta).
 
+A screenshot of the Settings → Integrations panel (Enable MCP Server toggle
++ MCP Server URL field) lives at
+`packages/docs/.gitbook/assets/mcp-settings.png`, embedded in
+`packages/docs/integrations/mcp-server.md`.
+
+**Retaking it:** the real desktop build needs a live Tauri backend just to
+get past its own "Connecting to Tahti Player…" bootstrap, so this was
+captured by rendering `App.tsx` directly in a plain browser instead —
+`registerBuiltInCoreSettings()` + `initializeSettingsStore()` +
+`hydrateThemeStore()` + `applyThemeFromSettingsIfAny()`, same calls
+`initPlayerApp.tsx` makes, mounted from a throwaway entry point that skips
+`main.tsx`'s `isTauri` branch. `App.tsx` and its settings tree pull in a
+handful of Tauri modules at import time (`@tauri-apps/plugin-os`,
+`@tauri-apps/plugin-store`, `@tauri-apps/api/window`,
+`@tauri-apps/plugin-log`) — point Vite's `resolve.alias` for just those
+four at the same in-memory/no-op shims `packages/player/src/test/setup.ts`
+already uses for Vitest (`src/test/utils/inMemoryTauriStore.ts` covers
+`plugin-store`; the rest are a couple lines each). None of this is wired
+into the repo — it was a scratch harness, deleted after the screenshot —
+recreate it if the panel changes enough to need a new one. The MCP server
+itself never actually starts this way; `mcp_start` still requires the real
+native Tauri backend, so this only proves the Settings UI renders
+correctly, not that the server works.
+
 ## Why not on beta.tahti.live
 
 MCP requires the Tauri process + webview **bridge** to the live player API. A multi-user CDN SPA cannot host that localhost control plane. Cutover of listen/studio to SPA does **not** remove desktop MCP from this fork.

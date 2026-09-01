@@ -31,6 +31,7 @@ export const WithText: Story = {
 };
 
 export const PlayerControls: Story = {
+  name: 'White theme player reference',
   args: {
     children: (
       <div className="flex w-full items-center justify-between">

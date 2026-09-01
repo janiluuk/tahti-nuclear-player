@@ -1,3 +1,4 @@
+import { useProcessingJobsStore } from '../stores/processingJobsStore';
 import type { FetchMeta } from './client';
 import { DEMO_MP3 } from './mock';
 import {
@@ -797,6 +798,15 @@ export async function importHearthisTracks(
           },
         ]
       : [],
+  );
+  useProcessingJobsStore.getState().start(
+    items.map((item) => ({
+      id: item.archiveItemId,
+      title:
+        tracks.find((track) => track.id === item.trackId)?.title ??
+        'HearThis track',
+      status: 'PENDING' as const,
+    })),
   );
   return {
     imported,

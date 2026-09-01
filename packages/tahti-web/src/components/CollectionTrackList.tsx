@@ -5,7 +5,7 @@ import { Button } from '@nuclearplayer/ui';
 
 import type { TahtiPlayable } from '../api/types';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
-import { placeholderArtworkUrl } from '../lib/placeholderArt';
+import { generatedArtworkUrl } from '../lib/placeholderArt';
 import { formatDuration } from '../lib/playableToTrack';
 import { useDominantColor } from '../lib/useDominantColor';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -35,7 +35,7 @@ function TrackRow({ item }: { item: TahtiPlayable }) {
   const elapsed = isCurrent ? currentTime : 0;
   const progress = isCurrent && totalDuration > 0 ? elapsed / totalDuration : 0;
   const archiveItemId = archiveItemIdFromPlayableId(item.id);
-  const cover = item.coverUrl ?? placeholderArtworkUrl(item.id);
+  const cover = item.coverUrl ?? generatedArtworkUrl(item.id);
   const rgb = useDominantColor(item.coverUrl);
   const ambient = rgb
     ? `radial-gradient(circle at 15% 0%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.5), transparent 60%)`

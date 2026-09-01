@@ -6,6 +6,7 @@ import {
   FileTextIcon,
   FlagIcon,
   GaugeIcon,
+  ImageIcon,
   LanguagesIcon,
   LibraryIcon,
   MapPinIcon,
@@ -103,6 +104,13 @@ const PRIMARY = [
       'Disk/object storage space, quotas, and every uploaded file across the platform.',
   },
   {
+    to: '/admin/artwork-presets',
+    label: 'Artwork presets',
+    icon: <ImageIcon size={16} aria-hidden />,
+    description:
+      'Choose and replace the abstract artwork defaults for uploads.',
+  },
+  {
     to: '/admin/financial',
     label: 'Financial',
     icon: <BanknoteIcon size={16} aria-hidden />,
@@ -173,6 +181,7 @@ const ADMIN_SECTIONS = [
       '/admin',
       '/admin/financial',
       '/admin/storage',
+      '/admin/artwork-presets',
       '/admin/logs',
       '/admin/status',
       '/admin/vendors',

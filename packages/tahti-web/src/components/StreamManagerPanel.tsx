@@ -6,6 +6,7 @@ import {
   ListMusicIcon,
   PauseIcon,
   PlayIcon,
+  PlusIcon,
   RadioIcon,
   SkipBackIcon,
   SkipForwardIcon,
@@ -17,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Dialog, Select } from '@nuclearplayer/ui';
+import { Button, Dialog } from '@nuclearplayer/ui';
 
 import {
   fetchChannelManageStats,
@@ -128,6 +129,10 @@ export function StreamManagerPanel({
   >(null);
   const [collections, setCollections] = useState<StudioCollection[]>([]);
   const [selectedCollectionSlug, setSelectedCollectionSlug] = useState('');
+  const [selectedCollection, setSelectedCollection] =
+    useState<StudioCollection | null>(null);
+  const [playlistDialogOpen, setPlaylistDialogOpen] = useState(false);
+  const [playlistLoading, setPlaylistLoading] = useState(false);
   const [rotationBusy, setRotationBusy] = useState(false);
   const [rotationMsg, setRotationMsg] = useState<string | null>(null);
   const [liveStartedAt, setLiveStartedAt] = useState<number | null>(null);
@@ -274,26 +279,6 @@ export function StreamManagerPanel({
       ? null
       : Math.max(0, durationSec - elapsedSinceObserved);
 
-  // Only meaningful in 'ordered' mode -- in 'shuffle' mode the server picks
-  // the next track at random, so a client-predicted "next" would just be
-  // wrong more often than not.
-  const adjacentRotationItems = useMemo(() => {
-    if (!programme || programme.fallbackMode !== 'ordered' || !rotation?.item) {
-      return null;
-    }
-    const ordered = programme.items
-      .filter((i) => i.isFallback)
-      .sort((a, b) => (a.fallbackOrder ?? 0) - (b.fallbackOrder ?? 0));
-    const currentIndex = ordered.findIndex((i) => i.id === rotation.item?.id);
-    if (currentIndex === -1 || ordered.length < 2) {
-      return null;
-    }
-    return {
-      previous: ordered[(currentIndex - 1 + ordered.length) % ordered.length],
-      next: ordered[(currentIndex + 1) % ordered.length],
-    };
-  }, [programme, rotation]);
-
   const editableRotation = useMemo(
     () =>
       (programme?.items ?? [])
@@ -332,18 +317,40 @@ export function StreamManagerPanel({
     }
   };
 
-  const handleAddCollectionToRotation = async () => {
+  const openPlaylistDialog = () => {
+    setPlaylistDialogOpen(true);
+    if (!selectedCollectionSlug && collections[0]) {
+      setSelectedCollectionSlug(collections[0].slug);
+      void previewCollection(collections[0].slug);
+    }
+  };
+
+  const previewCollection = async (collectionSlug: string) => {
+    setSelectedCollectionSlug(collectionSlug);
+    setPlaylistLoading(true);
+    const { data: collection } = await fetchStudioCollection(collectionSlug);
+    setSelectedCollection(collection);
+    setPlaylistLoading(false);
+  };
+
+  const handleApplyCollectionToRotation = async (replace: boolean) => {
     if (!selectedCollectionSlug) {
       return;
     }
     setRotationBusy(true);
     setRotationMsg(null);
-    const { data: collection } = await fetchStudioCollection(
-      selectedCollectionSlug,
-    );
-    const archiveItemIds = (collection.items ?? [])
+    const collection =
+      selectedCollection?.slug === selectedCollectionSlug
+        ? selectedCollection
+        : (await fetchStudioCollection(selectedCollectionSlug)).data;
+    const archiveItemIds = (collection?.items ?? [])
       .map((item) => item.archiveItemId)
       .filter((id): id is string => Boolean(id));
+    if (replace && programme) {
+      for (const item of editableRotation) {
+        await patchStudioArchiveItem(item.id, { isFallback: false });
+      }
+    }
     let added = 0;
     let failed = 0;
     for (const archiveItemId of archiveItemIds) {
@@ -359,11 +366,12 @@ export function StreamManagerPanel({
     setRotationBusy(false);
     setRotationMsg(
       failed > 0
-        ? `Added ${added} track${added === 1 ? '' : 's'} — ${failed} could not be added.`
+        ? `${replace ? 'Replaced with' : 'Added'} ${added} track${added === 1 ? '' : 's'} — ${failed} could not be added.`
         : added === 0
           ? 'Nothing to add — that playlist has no tracks.'
-          : `Added ${added} track${added === 1 ? '' : 's'} to the rotation.`,
+          : `${replace ? 'Replaced rotation with' : 'Added'} ${added} track${added === 1 ? '' : 's'}${replace ? '' : ' to the rotation'}.`,
     );
+    setPlaylistDialogOpen(false);
   };
 
   const saveEditableRotation = async (nextRotation: ProgrammeItem[]) => {
@@ -416,9 +424,9 @@ export function StreamManagerPanel({
 
   return (
     <section className="border-border bg-background-secondary/40 flex flex-col gap-4 rounded-xl border p-5 shadow-sm sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-2">
+      <div className="flex min-w-0 flex-wrap items-center gap-3">
         <div className="order-1 min-w-0 flex-1">
-          <div className="font-display flex items-center gap-2 text-lg font-bold tracking-tight">
+          <div className="font-display flex items-center gap-2 text-sm font-bold tracking-tight sm:text-base">
             {rotationPlaying ? (
               <ListMusicIcon size={18} className="text-primary" aria-hidden />
             ) : (
@@ -426,7 +434,7 @@ export function StreamManagerPanel({
             )}
             Stream playlist manager
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold tracking-wide uppercase ${
                 playerState === 'Live' || playerState === 'Playing'
@@ -442,9 +450,9 @@ export function StreamManagerPanel({
             <span className="text-foreground-secondary">{outputLabel}</span>
           </div>
         </div>
-        {canControl && !signalConnected && rotationPlaying && (
+        {canControl && !signalConnected && (
           <div
-            className="order-3 flex w-full items-center justify-center gap-2 sm:order-2 sm:w-auto sm:flex-1"
+            className="order-3 flex w-full shrink-0 items-center justify-center gap-2 sm:order-2 sm:w-auto"
             role="group"
             aria-label="Rotation controls"
           >
@@ -463,11 +471,17 @@ export function StreamManagerPanel({
               variant="secondary"
               intent="danger"
               disabled={transportBusy !== null}
-              onClick={() => void handleTransport('pause')}
-              aria-label="Stop rotation"
-              title="Stop rotation"
+              onClick={() =>
+                void handleTransport(rotationPlaying ? 'pause' : 'resume')
+              }
+              aria-label={rotationPlaying ? 'Stop rotation' : 'Start rotation'}
+              title={rotationPlaying ? 'Stop rotation' : 'Start rotation'}
             >
-              <SquareIcon size={14} aria-hidden className="fill-current" />
+              {rotationPlaying ? (
+                <SquareIcon size={14} aria-hidden className="fill-current" />
+              ) : (
+                <PlayIcon size={14} aria-hidden />
+              )}
             </Button>
             <Button
               size="icon-sm"
@@ -481,7 +495,41 @@ export function StreamManagerPanel({
             </Button>
           </div>
         )}
-        <div className="order-2 flex items-center gap-2 sm:order-3">
+        <div className="order-2 min-w-0 flex-1 text-right sm:order-3">
+          <p className="text-foreground-secondary text-[10px] font-semibold tracking-wide uppercase">
+            Current track
+          </p>
+          {rotation ? (
+            <>
+              <p className="mt-0.5 truncate text-sm font-semibold">
+                {rotation.title}
+              </p>
+              <p className="text-foreground-secondary truncate text-xs">
+                {rotation.artistName}
+                {durationSec != null
+                  ? ` · ${formatRemaining(Math.min(elapsedSinceObserved, durationSec))} / ${formatRemaining(durationSec)}`
+                  : ''}
+              </p>
+            </>
+          ) : (
+            <p className="text-foreground-secondary mt-0.5 text-sm">
+              No track playing
+            </p>
+          )}
+        </div>
+        <div className="order-4 flex shrink-0 items-center gap-2">
+          {canControl && collections.length > 0 && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={openPlaylistDialog}
+              aria-label="Choose playlist"
+              title="Choose playlist"
+            >
+              <PlusIcon size={14} aria-hidden />
+              Playlist
+            </Button>
+          )}
           {rotationPlaying && (
             <Button
               size="icon-sm"
@@ -489,6 +537,7 @@ export function StreamManagerPanel({
               onClick={() => setRotationExpanded((v) => !v)}
               aria-label={rotationExpanded ? 'Show less' : 'Show more'}
               title={rotationExpanded ? 'Show less' : 'Show more'}
+              aria-expanded={rotationExpanded}
             >
               {rotationExpanded ? (
                 <ChevronDownIcon size={15} aria-hidden />
@@ -526,35 +575,11 @@ export function StreamManagerPanel({
         </div>
       </div>
 
-      <div className="border-border bg-background/40 flex min-w-0 items-center justify-between gap-4 rounded-lg border px-4 py-3">
-        <div className="min-w-0">
-          <p className="text-foreground-secondary text-[10px] font-semibold tracking-wide uppercase">
-            Current track
-          </p>
-          {rotation ? (
-            <>
-              <p className="mt-1 truncate text-sm font-semibold">
-                {rotation.title}
-              </p>
-              <p className="text-foreground-secondary truncate text-xs">
-                {rotation.artistName}
-                {durationSec != null
-                  ? ` · ${formatRemaining(Math.min(elapsedSinceObserved, durationSec))} / ${formatRemaining(durationSec)}`
-                  : ''}
-              </p>
-            </>
-          ) : (
-            <p className="text-foreground-secondary mt-1 text-sm">
-              No track playing
-            </p>
-          )}
-        </div>
-        {rotation && adjacentRotationItems ? (
-          <p className="text-foreground-secondary hidden max-w-64 truncate text-right text-xs sm:block">
-            Next: {adjacentRotationItems.next.title}
-          </p>
-        ) : null}
-      </div>
+      {rotationMsg && (
+        <p className="text-foreground-secondary text-xs" role="status">
+          {rotationMsg}
+        </p>
+      )}
 
       {(!rotationPlaying || rotationExpanded) && (
         <div
@@ -674,98 +699,24 @@ export function StreamManagerPanel({
 
       {activeTab === 'rotation' && (
         <>
-          {canControl &&
-            (signalConnected ? (
-              // While actually live, the rotation transport controls below do
-              // nothing (the disclaimer they used to carry said as much) -- the
-              // one relevant action here is stopping the live broadcast itself.
-              <div className="flex flex-col gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={ending}
-                  onClick={() => setConfirmEndOpen(true)}
-                  className="self-start"
-                >
-                  <SquareIcon
-                    size={14}
-                    className="mr-1.5 fill-current"
-                    aria-hidden
-                  />
-                  {ending ? 'Ending…' : 'Stop stream'}
-                </Button>
-              </div>
-            ) : (
-              !rotationPlaying && (
-                <div className="flex flex-col gap-2">
-                  {(!rotationPlaying || rotationExpanded) && (
-                    <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
-                      Rotation transport
-                    </p>
-                  )}
-                  <div className="flex flex-wrap items-center justify-center gap-2">
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      disabled={transportBusy !== null}
-                      onClick={() => void handleTransport('previous')}
-                      aria-label="Previous track"
-                      title="Previous track"
-                    >
-                      <SkipBackIcon size={14} />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      intent="danger"
-                      disabled={transportBusy !== null}
-                      onClick={() =>
-                        void handleTransport(
-                          rotationPlaying ? 'pause' : 'resume',
-                        )
-                      }
-                      aria-label={
-                        rotationPlaying ? 'Stop rotation' : 'Start rotation'
-                      }
-                      title={
-                        rotationPlaying ? 'Stop rotation' : 'Start rotation'
-                      }
-                    >
-                      {rotationPlaying ? (
-                        <>
-                          <SquareIcon
-                            size={14}
-                            aria-hidden
-                            className="fill-current"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <PlayIcon size={14} aria-hidden />
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      disabled={transportBusy !== null}
-                      onClick={() => void handleTransport('skip')}
-                      aria-label="Skip track"
-                      title="Skip track"
-                    >
-                      <SkipForwardIcon size={14} />
-                    </Button>
-                  </div>
-                  {(!rotationPlaying || rotationExpanded) && (
-                    <p className="text-foreground-secondary text-xs">
-                      These act on the 24/7 rotation only — a live broadcast
-                      always takes priority.
-                    </p>
-                  )}
-                </div>
-              )
-            ))}
-
+          {canControl && signalConnected && (
+            <div className="flex flex-col gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={ending}
+                onClick={() => setConfirmEndOpen(true)}
+                className="self-start"
+              >
+                <SquareIcon
+                  size={14}
+                  className="mr-1.5 fill-current"
+                  aria-hidden
+                />
+                {ending ? 'Ending…' : 'Stop stream'}
+              </Button>
+            </div>
+          )}
           {canControl &&
             (!rotationPlaying || rotationExpanded) &&
             programme && (
@@ -783,42 +734,6 @@ export function StreamManagerPanel({
                   )
                 }
               />
-            )}
-
-          {canControl &&
-            (!rotationPlaying || rotationExpanded) &&
-            collections.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <p className="text-foreground-secondary text-[10px] tracking-wide uppercase">
-                  Add a playlist to the rotation
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Select
-                    label="Playlist"
-                    value={selectedCollectionSlug}
-                    onValueChange={setSelectedCollectionSlug}
-                    placeholder="Choose a playlist…"
-                    options={collections.map((collection) => ({
-                      id: collection.slug,
-                      label: collection.name,
-                    }))}
-                    className="min-w-52"
-                  />
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    disabled={!selectedCollectionSlug || rotationBusy}
-                    onClick={() => void handleAddCollectionToRotation()}
-                  >
-                    {rotationBusy ? 'Adding…' : 'Add to rotation'}
-                  </Button>
-                </div>
-                {rotationMsg && (
-                  <p className="text-foreground-secondary text-xs">
-                    {rotationMsg}
-                  </p>
-                )}
-              </div>
             )}
 
           {(!rotationPlaying || rotationExpanded) && targets.length > 0 && (
@@ -853,28 +768,114 @@ export function StreamManagerPanel({
       {error && <p className="text-accent-red text-xs">{error}</p>}
 
       {canControl ? (
-        <Dialog.Root
-          isOpen={confirmEndOpen}
-          onClose={() => setConfirmEndOpen(false)}
-        >
-          <Dialog.Title>Stop your live stream?</Dialog.Title>
-          <Dialog.Description>
-            Listeners will hear the 24/7 rotation instead. You can go live again
-            any time.
-          </Dialog.Description>
-          <Dialog.Actions>
-            <Dialog.Close>Cancel</Dialog.Close>
-            <Button
-              disabled={ending}
-              onClick={() => {
-                setConfirmEndOpen(false);
-                void handleEnd();
-              }}
-            >
-              {ending ? 'Ending…' : 'Stop stream'}
-            </Button>
-          </Dialog.Actions>
-        </Dialog.Root>
+        <>
+          <Dialog.Root
+            isOpen={playlistDialogOpen}
+            onClose={() => setPlaylistDialogOpen(false)}
+          >
+            <Dialog.Title>Choose a playlist</Dialog.Title>
+            <Dialog.Description>
+              Preview a playlist, then add it to the rotation or replace the
+              current rotation with it.
+            </Dialog.Description>
+            <div className="grid gap-4 sm:grid-cols-[minmax(10rem,0.8fr)_minmax(0,1.2fr)]">
+              <div className="border-border flex max-h-56 flex-col gap-1 overflow-y-auto rounded-lg border p-1">
+                {collections.map((collection) => (
+                  <button
+                    key={collection.slug}
+                    type="button"
+                    className={`rounded-md px-3 py-2 text-left text-sm ${
+                      selectedCollectionSlug === collection.slug
+                        ? 'bg-primary text-primary-foreground'
+                        : 'hover:bg-background-secondary'
+                    }`}
+                    onClick={() => void previewCollection(collection.slug)}
+                  >
+                    <span className="block truncate font-semibold">
+                      {collection.name}
+                    </span>
+                    <span className="block text-xs opacity-75">
+                      {collection.itemCount ?? collection.items?.length ?? 0}{' '}
+                      tracks
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div className="border-border min-h-32 rounded-lg border p-3">
+                {playlistLoading ? (
+                  <p className="text-foreground-secondary text-sm">
+                    Loading playlist…
+                  </p>
+                ) : selectedCollection ? (
+                  <>
+                    <h3 className="font-semibold">{selectedCollection.name}</h3>
+                    <ul className="text-foreground-secondary mt-2 max-h-40 space-y-1 overflow-y-auto text-xs">
+                      {(selectedCollection.items ?? []).map((item) => (
+                        <li key={item.id} className="truncate">
+                          {item.position + 1}.{' '}
+                          {item.archiveItem?.title ??
+                            item.release?.title ??
+                            'Untitled track'}
+                        </li>
+                      ))}
+                    </ul>
+                    {(selectedCollection.items ?? []).length === 0 && (
+                      <p className="text-foreground-secondary mt-2 text-xs">
+                        This playlist has no tracks.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-foreground-secondary text-sm">
+                    Choose a playlist to preview it.
+                  </p>
+                )}
+              </div>
+            </div>
+            <Dialog.Actions>
+              <Dialog.Close>Cancel</Dialog.Close>
+              <Button
+                variant="secondary"
+                disabled={
+                  !selectedCollectionSlug || playlistLoading || rotationBusy
+                }
+                onClick={() => void handleApplyCollectionToRotation(false)}
+              >
+                {rotationBusy ? 'Adding…' : 'Add to rotation'}
+              </Button>
+              <Button
+                disabled={
+                  !selectedCollectionSlug || playlistLoading || rotationBusy
+                }
+                onClick={() => void handleApplyCollectionToRotation(true)}
+              >
+                Replace rotation
+              </Button>
+            </Dialog.Actions>
+          </Dialog.Root>
+          <Dialog.Root
+            isOpen={confirmEndOpen}
+            onClose={() => setConfirmEndOpen(false)}
+          >
+            <Dialog.Title>Stop your live stream?</Dialog.Title>
+            <Dialog.Description>
+              Listeners will hear the 24/7 rotation instead. You can go live
+              again any time.
+            </Dialog.Description>
+            <Dialog.Actions>
+              <Dialog.Close>Cancel</Dialog.Close>
+              <Button
+                disabled={ending}
+                onClick={() => {
+                  setConfirmEndOpen(false);
+                  void handleEnd();
+                }}
+              >
+                {ending ? 'Ending…' : 'Stop stream'}
+              </Button>
+            </Dialog.Actions>
+          </Dialog.Root>
+        </>
       ) : null}
     </section>
   );

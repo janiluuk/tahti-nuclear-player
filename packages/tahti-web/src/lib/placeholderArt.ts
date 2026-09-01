@@ -51,6 +51,7 @@ function svgForIndex(index: number): string {
 }
 
 const cache = new Map<number, string>();
+export const GENERATED_ARTWORK_COUNT = 16;
 
 function seedToIndex(seed: string): number {
   let hash = 0;
@@ -70,4 +71,28 @@ export function placeholderArtworkUrl(seed: string): string {
     cache.set(index, svg);
   }
   return svg;
+}
+
+export function generatedArtworkUrl(seed: string): string {
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) % 1000;
+  }
+  const preset = (hash % GENERATED_ARTWORK_COUNT) + 1;
+  const fallback = `/artwork-presets/artwork-${String(preset).padStart(2, '0')}.webp`;
+  if (typeof window === 'undefined') {
+    return fallback;
+  }
+  const stored = window.localStorage.getItem('tahti-admin-artwork-presets');
+  if (!stored) {
+    return fallback;
+  }
+  try {
+    const overrides: unknown = JSON.parse(stored);
+    return Array.isArray(overrides) && typeof overrides[preset - 1] === 'string'
+      ? overrides[preset - 1]
+      : fallback;
+  } catch {
+    return fallback;
+  }
 }

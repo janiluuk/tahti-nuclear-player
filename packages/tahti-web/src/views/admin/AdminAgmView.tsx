@@ -3,7 +3,13 @@ import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
 
-import { fetchAdminAgmMotions, type AdminMotion } from '../../api/admin';
+import {
+  fetchAdminAgmMotions,
+  fetchAdminGovernanceDocuments,
+  fetchAdminGovernanceMeetings,
+  type AdminMotion,
+} from '../../api/admin';
+import type { GovernanceDocument, GovernanceMeeting } from '../../api/types';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
@@ -127,11 +133,19 @@ function motionStateLabel(state: AdminMotion['state']): string {
 
 export function AdminAgmView() {
   const [motions, setMotions] = useState<AdminMotion[]>([]);
+  const [meetings, setMeetings] = useState<GovernanceMeeting[]>([]);
+  const [documents, setDocuments] = useState<GovernanceDocument[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    void fetchAdminAgmMotions().then((res) => {
-      setMotions(res.data);
+    void Promise.all([
+      fetchAdminAgmMotions(),
+      fetchAdminGovernanceMeetings(),
+      fetchAdminGovernanceDocuments(),
+    ]).then(([motionsResult, meetingsResult, documentsResult]) => {
+      setMotions(motionsResult.data);
+      setMeetings(meetingsResult.data);
+      setDocuments(documentsResult.data);
       setLoading(false);
     });
   }, []);
@@ -147,6 +161,38 @@ export function AdminAgmView() {
             />
 
             <AgendaBuilder />
+
+            <StudioPanel title="Meeting records">
+              {meetings.length === 0 ? (
+                <p className="text-foreground-secondary text-sm">
+                  No persisted meeting records yet. Create the meeting record
+                  before publishing notice or minutes.
+                </p>
+              ) : (
+                <ul className="divide-border divide-y">
+                  {meetings.map((meeting) => (
+                    <li
+                      key={meeting.id}
+                      className="py-3 text-sm first:pt-0 last:pb-0"
+                    >
+                      <div className="flex flex-wrap justify-between gap-2">
+                        <span className="font-medium">{meeting.title}</span>
+                        <span className="text-foreground-secondary text-xs">
+                          {meeting.state}
+                        </span>
+                      </div>
+                      <p className="text-foreground-secondary mt-1 text-xs">
+                        {meeting.scheduledAt
+                          ? new Date(meeting.scheduledAt).toLocaleString()
+                          : 'Date not scheduled'}{' '}
+                        · {meeting.presentCount}/
+                        {meeting.eligibleMemberCount ?? '—'} present
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </StudioPanel>
 
             <StudioPanel title="Motions & proposals">
               {loading ? (
@@ -225,6 +271,41 @@ export function AdminAgmView() {
                     Governance tools
                   </Button>
                 </a>
+              </div>
+              <div className="border-border mt-4 border-t pt-3">
+                <h3 className="text-sm font-semibold">Published documents</h3>
+                {documents.filter((document) => document.publishedAt).length ===
+                0 ? (
+                  <p className="text-foreground-secondary mt-1 text-xs">
+                    No published governance documents yet.
+                  </p>
+                ) : (
+                  <ul className="mt-2 space-y-1 text-xs">
+                    {documents
+                      .filter((document) => document.publishedAt)
+                      .map((document) => (
+                        <li key={document.id}>
+                          {document.downloadUrl || document.externalUrl ? (
+                            <a
+                              href={
+                                document.downloadUrl ??
+                                document.externalUrl ??
+                                undefined
+                              }
+                              target="_blank"
+                              rel="noreferrer"
+                              className="underline-offset-2 hover:underline"
+                            >
+                              {document.title}
+                            </a>
+                          ) : (
+                            document.title
+                          )}{' '}
+                          · v{document.version}
+                        </li>
+                      ))}
+                  </ul>
+                )}
               </div>
             </StudioPanel>
           </div>

@@ -55,7 +55,23 @@ import {
 
 const LOADING_BAR_DELAY_MS = 1000;
 
+const ANONYMOUS_ALLOWED_ROUTES = [
+  /^\/$/,
+  /^\/listen(?:\/|$)/,
+  /^\/settings(?:\/|$)/,
+  /^\/(login|join|apply|signup|verify|setup-password|forgot-password|reset-password)(?:\/|$)/,
+  /^\/(about|privacy|terms|agpl|help)(?:\/|$)/,
+  /^\/transparency(?:\/|$)/,
+  /^\/governance\/history(?:\/|$)/,
+  /^\/governance(?:\/feature-requests)?$/,
+];
+
+function isAnonymousRouteAllowed(pathname: string) {
+  return ANONYMOUS_ALLOWED_ROUTES.some((route) => route.test(pathname));
+}
+
 function SidebarNavItems({ compact }: { compact: boolean }) {
+  const isLoggedIn = useAuthStore((state) => Boolean(state.user));
   const isBoard = useAuthStore((state) => hasAccountRole(state.user, 'BOARD'));
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
@@ -75,30 +91,34 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             }
           />
         </div>
-        <div data-tour-id="nav-radio">
-          <SidebarNavigationItem
-            to="/radio"
-            icon={<RadioIcon size={16} />}
-            label="Radio"
-          />
-        </div>
-        <div data-tour-id="nav-discover">
-          <SidebarNavigationItem
-            to="/discover"
-            icon={<CompassIcon size={16} />}
-            label="Discover"
-          />
-        </div>
-        <div data-tour-id="nav-studio" className="flex flex-col gap-2">
-          <SidebarNavigationItem
-            to="/studio"
-            icon={<LayoutDashboardIcon size={16} />}
-            label="Studio"
-            isSelected={getStudioPrimaryRoute(pathname) === '/studio'}
-          />
-          <StudioMainNavItems />
-        </div>
-        {isBoard && diagnosticsEnabled && (
+        {isLoggedIn && (
+          <>
+            <div data-tour-id="nav-radio">
+              <SidebarNavigationItem
+                to="/radio"
+                icon={<RadioIcon size={16} />}
+                label="Radio"
+              />
+            </div>
+            <div data-tour-id="nav-discover">
+              <SidebarNavigationItem
+                to="/discover"
+                icon={<CompassIcon size={16} />}
+                label="Discover"
+              />
+            </div>
+            <div data-tour-id="nav-studio" className="flex flex-col gap-2">
+              <SidebarNavigationItem
+                to="/studio"
+                icon={<LayoutDashboardIcon size={16} />}
+                label="Studio"
+                isSelected={getStudioPrimaryRoute(pathname) === '/studio'}
+              />
+              <StudioMainNavItems />
+            </div>
+          </>
+        )}
+        {isLoggedIn && isBoard && diagnosticsEnabled && (
           <div data-tour-id="nav-admin">
             <SidebarNavigationItem
               to="/admin"
@@ -170,6 +190,7 @@ export function AppShell() {
   const refresh = useAuthStore((s) => s.refresh);
   const isBoard = useAuthStore((state) => hasAccountRole(state.user, 'BOARD'));
   const userId = useAuthStore((s) => s.user?.id);
+  const authHydrated = useAuthStore((s) => s.hydrated);
   const openSettings = useSettingsModalStore((s) => s.open);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -190,10 +211,19 @@ export function AppShell() {
   const previousEditorSidebarState = useRef<boolean | null>(null);
   const isAudioEditorRoute =
     /^\/studio\/(?:archive\/[^/]+\/editor|editor\/[^/]+)$/.test(pathname);
+  const anonymousRouteBlocked =
+    authHydrated && !userId && !isAnonymousRouteAllowed(pathname);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    if (!anonymousRouteBlocked) {
+      return;
+    }
+    void navigate({ to: '/settings/$section', params: { section: 'account' } });
+  }, [anonymousRouteBlocked, navigate]);
 
   useEffect(() => {
     syncDocumentMetadata(pathname);
@@ -407,33 +437,39 @@ export function AppShell() {
                       label="Listen"
                     />
                   </div>
-                  <div data-tour-id="nav-radio">
-                    <SidebarNavigationItem
-                      to="/radio"
-                      icon={<RadioIcon size={16} />}
-                      label="Radio"
-                    />
-                  </div>
-                  <div data-tour-id="nav-discover">
-                    <SidebarNavigationItem
-                      to="/discover"
-                      icon={<CompassIcon size={16} />}
-                      label="Discover"
-                    />
-                  </div>
-                  <div
-                    data-tour-id="nav-studio"
-                    className="flex flex-col gap-2"
-                  >
-                    <SidebarNavigationItem
-                      to="/studio"
-                      icon={<LayoutDashboardIcon size={16} />}
-                      label="Studio"
-                      isSelected={getStudioPrimaryRoute(pathname) === '/studio'}
-                    />
-                    <StudioMainNavItems />
-                  </div>
-                  {isBoard && diagnosticsEnabled && (
+                  {userId && (
+                    <>
+                      <div data-tour-id="nav-radio">
+                        <SidebarNavigationItem
+                          to="/radio"
+                          icon={<RadioIcon size={16} />}
+                          label="Radio"
+                        />
+                      </div>
+                      <div data-tour-id="nav-discover">
+                        <SidebarNavigationItem
+                          to="/discover"
+                          icon={<CompassIcon size={16} />}
+                          label="Discover"
+                        />
+                      </div>
+                      <div
+                        data-tour-id="nav-studio"
+                        className="flex flex-col gap-2"
+                      >
+                        <SidebarNavigationItem
+                          to="/studio"
+                          icon={<LayoutDashboardIcon size={16} />}
+                          label="Studio"
+                          isSelected={
+                            getStudioPrimaryRoute(pathname) === '/studio'
+                          }
+                        />
+                        <StudioMainNavItems />
+                      </div>
+                    </>
+                  )}
+                  {userId && isBoard && diagnosticsEnabled && (
                     <div data-tour-id="nav-admin">
                       <SidebarNavigationItem
                         to="/admin"
@@ -444,13 +480,15 @@ export function AppShell() {
                   )}
                 </div>
                 <div className="mt-auto flex flex-col gap-1 p-1">
-                  <div data-tour-id="nav-help">
-                    <SidebarNavigationItem
-                      to="/help"
-                      icon={<HelpCircleIcon size={16} />}
-                      label="Help center"
-                    />
-                  </div>
+                  {userId && (
+                    <div data-tour-id="nav-help">
+                      <SidebarNavigationItem
+                        to="/help"
+                        icon={<HelpCircleIcon size={16} />}
+                        label="Help center"
+                      />
+                    </div>
+                  )}
                   <div data-tour-id="nav-settings">
                     <SidebarNavigationItem
                       icon={<SettingsIcon size={16} />}

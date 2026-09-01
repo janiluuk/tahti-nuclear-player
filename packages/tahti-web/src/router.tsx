@@ -118,6 +118,10 @@ const GovernanceView = lazyRouteComponent(
   () => import('./views/GovernanceView'),
   'GovernanceView',
 );
+const PublicGovernanceHistoryView = lazyRouteComponent(
+  () => import('./views/PublicGovernanceHistoryView'),
+  'PublicGovernanceHistoryView',
+);
 const HelpArticleView = lazyRouteComponent(
   () => import('./views/HelpView'),
   'HelpArticleView',
@@ -141,6 +145,10 @@ const TransparencyMethodologyView = lazyRouteComponent(
 const TransparencyView = lazyRouteComponent(
   () => import('./views/TransparencyView'),
   'TransparencyView',
+);
+const TransparencyGrantYearView = lazyRouteComponent(
+  () => import('./views/TransparencyGrantYearView'),
+  'TransparencyGrantYearView',
 );
 const SettingsView = lazyRouteComponent(
   () => import('./views/settings/SettingsView'),
@@ -213,6 +221,10 @@ const AdminStorageView = lazyRouteComponent(
 const AdminStorageUserView = lazyRouteComponent(
   () => import('./views/admin/AdminStorageUserView'),
   'AdminStorageUserView',
+);
+const AdminArtworkPresetsView = lazyRouteComponent(
+  () => import('./views/admin/AdminArtworkPresetsView'),
+  'AdminArtworkPresetsView',
 );
 const AdminStreamsView = lazyRouteComponent(
   () => import('./views/admin/AdminStreamsView'),
@@ -485,6 +497,12 @@ const adminStorageRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/storage',
   component: AdminStorageView,
+});
+
+const adminArtworkPresetsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/artwork-presets',
+  component: AdminArtworkPresetsView,
 });
 
 const adminStorageUserRoute = createRoute({
@@ -899,6 +917,15 @@ const transparencyMethodologyRoute = createRoute({
   component: TransparencyMethodologyView,
 });
 
+const transparencyGrantYearRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/transparency/grants/$year',
+  component: function TransparencyGrantYearRoute() {
+    const { year } = transparencyGrantYearRoute.useParams();
+    return <TransparencyGrantYearView year={Number(year)} />;
+  },
+});
+
 const helpRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/help',
@@ -995,6 +1022,12 @@ const governanceRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/governance',
   component: GovernanceView,
+});
+
+const publicGovernanceHistoryRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/governance/history',
+  component: PublicGovernanceHistoryView,
 });
 
 const featureRequestsRoute = createRoute({
@@ -1503,6 +1536,7 @@ const routeTree = rootRoute.addChildren([
     adminTopListsRoute,
     adminAnnouncementsRoute,
     adminStorageRoute,
+    adminArtworkPresetsRoute,
     adminStorageUserRoute,
     adminFilesRoute,
     adminContentReportsRoute,
@@ -1552,6 +1586,7 @@ const routeTree = rootRoute.addChildren([
     subscribeRoute,
     greenRoomRoute,
     transparencyRoute,
+    transparencyGrantYearRoute,
     transparencyMethodologyRoute,
     helpRoute,
     helpSlugRoute,
@@ -1567,6 +1602,7 @@ const routeTree = rootRoute.addChildren([
     accountRoute,
     statusRoute,
     governanceRoute,
+    publicGovernanceHistoryRoute,
     featureRequestsRoute,
     aboutRoute,
     whatIsItRoute,

@@ -63,12 +63,20 @@ export function TransparencyView() {
           </>
         }
         meta={
-          <Link
-            to="/transparency/methodology"
-            className="text-foreground-secondary w-fit text-xs underline-offset-2 hover:underline"
-          >
-            How this data is recorded and published →
-          </Link>
+          <>
+            <Link
+              to="/transparency/methodology"
+              className="text-foreground-secondary w-fit text-xs underline-offset-2 hover:underline"
+            >
+              How this data is recorded and published →
+            </Link>
+            <Link
+              to="/governance/history"
+              className="text-foreground-secondary block w-fit text-xs underline-offset-2 hover:underline"
+            >
+              Closed governance decisions →
+            </Link>
+          </>
         }
       />
 
@@ -144,6 +152,21 @@ export function TransparencyView() {
               ))}
             </tbody>
           </table>
+          <div className="flex flex-wrap gap-2 text-xs">
+            {Array.from(
+              { length: 5 },
+              (_, index) => grants.year - index - 1,
+            ).map((year) => (
+              <Link
+                key={year}
+                to="/transparency/grants/$year"
+                params={{ year: String(year) }}
+                className="border-border hover:bg-background-secondary rounded border px-2 py-1"
+              >
+                Grants {year}
+              </Link>
+            ))}
+          </div>
         </section>
       )}
 

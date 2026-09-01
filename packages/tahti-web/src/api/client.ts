@@ -62,12 +62,16 @@ import type {
   FeatureRequest,
   FeedResponse,
   FollowListUser,
+  GovernanceDocument,
+  GovernanceMeeting,
   GovernanceMotion,
+  GovernanceMotionDraft,
   MembershipStatus,
   OnAirChannelResponse,
   PlatformStatus,
   PublicChannel,
   PublicCollection,
+  PublicGovernanceMotion,
   PublicProfile,
   PublicTrackDetail,
   RadioNowPlaying,
@@ -1918,6 +1922,117 @@ export async function fetchGovernanceMotions(): Promise<{
       message.includes('403') ||
       /member/i.test(message);
     return { data: [], meta: apiErrorMeta(err), forbidden };
+  }
+}
+
+export async function createGovernanceMotion(input: {
+  title: string;
+  description: string;
+  openAt: string;
+  closeAt: string;
+  advisory?: boolean;
+}): Promise<
+  { ok: true; data: GovernanceMotionDraft } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const row: GovernanceMotionDraft = {
+      id: `motion-${Date.now()}`,
+      state: 'DRAFT',
+    };
+    mockMotions = [
+      {
+        id: row.id,
+        title: input.title,
+        state: row.state,
+        advisory: true,
+        openAt: input.openAt,
+        closeAt: input.closeAt,
+        proposer: 'You',
+        totalVotes: 0,
+        youVoted: false,
+        commentCount: 0,
+      },
+      ...mockMotions,
+    ];
+    return { ok: true, data: row };
+  }
+  try {
+    const { data } = await requestJson<GovernanceMotionDraft>(
+      '/api/v1/governance/motions',
+      { method: 'POST', body: JSON.stringify(input) },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not submit motion',
+    };
+  }
+}
+
+export async function fetchPublicGovernanceMotions(year?: number): Promise<{
+  data: PublicGovernanceMotion[];
+  meta: FetchMeta;
+}> {
+  const query = year ? `?year=${encodeURIComponent(year)}` : '';
+  if (forceMock()) {
+    return {
+      data: [
+        {
+          id: 'motion-2',
+          title: 'Confirm annual report',
+          description: 'Public mock decision history.',
+          closedAt: '2026-02-15T00:00:00.000Z',
+          proposer: 'Board',
+          voteFor: 10,
+          voteAgainst: 1,
+          voteAbstain: 1,
+        },
+      ],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<PublicGovernanceMotion[]>(
+      `/api/v1/transparency/motions${query}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: apiErrorMeta(err) };
+  }
+}
+
+export async function fetchGovernanceMeetings(): Promise<{
+  data: GovernanceMeeting[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return { data: [], meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
+  }
+  try {
+    const data = await getJson<GovernanceMeeting[]>(
+      '/api/v1/governance/meetings',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: apiErrorMeta(err) };
+  }
+}
+
+export async function fetchGovernanceDocuments(): Promise<{
+  data: GovernanceDocument[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return { data: [], meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
+  }
+  try {
+    const data = await getJson<GovernanceDocument[]>(
+      '/api/v1/governance/documents',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 

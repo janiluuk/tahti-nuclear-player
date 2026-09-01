@@ -74,25 +74,25 @@
 
 :root {
   /* Core Backgrounds */
-  --background: oklch(0.9163 0.0361 7.16);
+  --background: oklch(100% 0 0);
   --background-secondary: oklch(100% 0 0);
-  --background-input: oklch(100% 0 0);
+  --background-input: oklch(0.917 0.036 7.16);
 
   /* Text Colors */
-  --foreground: oklch(0% 0 0);
-  --foreground-secondary: oklch(0.42 0.1 5);
-  --foreground-input: oklch(0% 0 0);
+  --foreground: oklch(0.28 0.12 260);
+  --foreground-secondary: oklch(0.48 0.08 5);
+  --foreground-input: oklch(0.28 0.12 260);
 
   /* Interactive Elements */
-  --primary: oklch(0.8 0.12 4.56);
+  --primary: oklch(0.78 0.15 20);
   /* Text/icon colour for content placed on a --primary fill (e.g. Card's
      title, Button's default variant) -- computed per-theme (culori
      wcagContrast) so every theme/light/dark variant clears 4.5:1, not
      assumed; overridden per-theme below and in packages/themes where a
      variant's own --primary needs the other extreme to pass. */
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.95 0.02 342);
-  --secondary-foreground: oklch(0.2 0.04 342);
+  --primary-foreground: oklch(0.28 0.12 260);
+  --secondary: oklch(0.917 0.036 7.16);
+  --secondary-foreground: oklch(0.28 0.12 260);
 
   /* Borders & Outlines */
   --border: oklch(0% 0 0);

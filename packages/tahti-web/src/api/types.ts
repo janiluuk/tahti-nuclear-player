@@ -595,6 +595,86 @@ export type GovernanceMotion = {
   tally?: { YES: number; NO: number; ABSTAIN: number };
 };
 
+export type GovernanceMotionDraft = {
+  id: string;
+  state: string;
+};
+
+export type PublicGovernanceMotion = {
+  id: string;
+  title: string;
+  description: string;
+  closedAt: string;
+  proposer: string;
+  voteFor: number;
+  voteAgainst: number;
+  voteAbstain: number;
+};
+
+export type GovernanceMeeting = {
+  id: string;
+  title: string;
+  type: 'GENERAL' | 'EXTRAORDINARY_GENERAL' | 'BOARD';
+  state:
+    | 'DRAFT'
+    | 'SCHEDULED'
+    | 'HELD'
+    | 'MINUTES_DRAFT'
+    | 'APPROVED'
+    | 'CANCELLED';
+  scheduledAt: string | null;
+  location: string | null;
+  remoteUrl: string | null;
+  noticeAt: string | null;
+  agenda?: unknown;
+  minutesKey: string | null;
+  minutesApprovedAt: string | null;
+  eligibleMemberCount: number | null;
+  quorumRequired: number | null;
+  attendanceCount: number;
+  presentCount: number;
+  quorumMet: boolean | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GovernanceDocument = {
+  id: string;
+  title: string;
+  type:
+    | 'BYLAWS'
+    | 'POLICY'
+    | 'MEETING_NOTICE'
+    | 'MINUTES'
+    | 'ANNUAL_REPORT'
+    | 'FINANCIAL_STATEMENT'
+    | 'AUDIT_REPORT'
+    | 'OTHER';
+  description: string | null;
+  version: number;
+  effectiveAt: string | null;
+  publishedAt: string | null;
+  meetingId: string | null;
+  downloadUrl: string | null;
+  externalUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type BoardResolution = {
+  id: string;
+  title: string;
+  body: string;
+  votedAt: string;
+  outcome: string;
+  voteFor: number;
+  voteAgainst: number;
+  voteAbstain: number;
+  publishedAt?: string | null;
+  createdAt?: string;
+  createdByDisplayName?: string | null;
+};
+
 export type FeatureRequestStatus =
   | 'OPEN'
   | 'PLANNED'
