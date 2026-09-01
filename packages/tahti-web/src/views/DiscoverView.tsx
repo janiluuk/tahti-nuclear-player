@@ -1,8 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import {
   ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   PauseIcon,
   PlayIcon,
   PlusIcon,
@@ -42,6 +40,8 @@ import {
   type DiscoverWidgetId,
 } from '../stores/discoverStore';
 import { usePlayerStore } from '../stores/playerStore';
+
+const ALL_FILTER_ID = '__all__';
 
 const CONTENT_TYPE_OPTIONS = [
   { id: 'LIVE', label: 'Live' },
@@ -108,7 +108,6 @@ export function DiscoverView() {
   const [unheardIds, setUnheardIds] = useState<Set<string> | null>(null);
   const [genresOpen, setGenresOpen] = useState(false);
   const [contentTypesOpen, setContentTypesOpen] = useState(false);
-  const [widgetIndex, setWidgetIndex] = useState(0);
   const [selectedTrack, setSelectedTrack] = useState<DiscoverSelection | null>(
     null,
   );
@@ -148,18 +147,6 @@ export function DiscoverView() {
       artist.genres.some((genre) => selectedGenres.has(genre.toLowerCase())),
     );
   }, [artists, genreFilter]);
-
-  const carouselWidgets = useMemo(
-    () => enabledWidgets.filter((id) => !TOP_LIST_WIDGET_IDS.has(id)),
-    [enabledWidgets],
-  );
-
-  const topListWidgets = useMemo(
-    () => enabledWidgets.filter((id) => TOP_LIST_WIDGET_IDS.has(id)),
-    [enabledWidgets],
-  );
-
-  const carouselPageCount = carouselWidgets.length;
 
   useEffect(() => {
     if (!unheardOnly) {
@@ -275,12 +262,6 @@ export function DiscoverView() {
     (id) => !enabledWidgets.includes(id),
   );
 
-  useEffect(() => {
-    setWidgetIndex((current) =>
-      Math.min(current, Math.max(0, carouselPageCount - 1)),
-    );
-  }, [carouselPageCount]);
-
   const selectTrack = async (item: DiscoverTrackItem) => {
     const detail = item.audioUrl
       ? {
@@ -387,24 +368,38 @@ export function DiscoverView() {
         {genresOpen ? (
           <FilterChips
             multiple
-            items={PRESET_GENRES.map((g) => ({ id: g, label: g }))}
-            selected={genreFilter}
-            onChange={setGenreFilter}
+            items={[
+              { id: ALL_FILTER_ID, label: 'All' },
+              ...PRESET_GENRES.map((g) => ({ id: g, label: g })),
+            ]}
+            selected={genreFilter.length > 0 ? genreFilter : [ALL_FILTER_ID]}
+            onChange={(selected) =>
+              setGenreFilter(selected.filter((id) => id !== ALL_FILTER_ID))
+            }
           />
         ) : null}
         {contentTypesOpen ? (
           <FilterChips
             multiple
-            items={CONTENT_TYPE_OPTIONS}
-            selected={contentTypeFilter}
-            onChange={setContentTypeFilter}
+            items={[
+              { id: ALL_FILTER_ID, label: 'All' },
+              ...CONTENT_TYPE_OPTIONS,
+            ]}
+            selected={
+              contentTypeFilter.length > 0 ? contentTypeFilter : [ALL_FILTER_ID]
+            }
+            onChange={(selected) =>
+              setContentTypeFilter(
+                selected.filter((id) => id !== ALL_FILTER_ID),
+              )
+            }
           />
         ) : null}
       </div>
 
-      {activeTab === 'discover' && topListWidgets.length > 0 && (
+      {activeTab === 'discover' && enabledWidgets.length > 0 && (
         <div className="grid gap-4 lg:grid-cols-3">
-          {topListWidgets.map((id) => {
+          {enabledWidgets.map((id, index) => {
             const widgetData = data[id];
             return (
               <WidgetCard
@@ -415,105 +410,39 @@ export function DiscoverView() {
                 loading={widgetData?.loading ?? true}
                 items={widgetData?.items ?? []}
                 artist={widgetData?.artist}
-                showRank
-                emptyMessage="Nothing here yet."
-                canMoveUp={false}
-                canMoveDown={false}
+                showRank={TOP_LIST_WIDGET_IDS.has(id)}
+                emptyMessage={
+                  id === 'loved'
+                    ? 'No community-loved tracks yet.'
+                    : 'Nothing here yet.'
+                }
+                canMoveUp={index > 0}
+                canMoveDown={index < enabledWidgets.length - 1}
                 onMove={moveWidget}
                 onRemove={removeWidget}
                 isAdmin={isAdmin}
                 onSelectTrack={(track) => void selectTrack(track)}
+                settings={
+                  id === 'random-artist' ? (
+                    <Select
+                      label="Keep the same pick for"
+                      value={String(randomArtistRotationDays)}
+                      onValueChange={(value) =>
+                        setRandomArtistRotationDays(Number(value))
+                      }
+                      options={[
+                        { id: '1', label: '1 day' },
+                        { id: '3', label: '3 days' },
+                        { id: '7', label: '7 days' },
+                        { id: '14', label: '14 days' },
+                        { id: '30', label: '30 days' },
+                      ]}
+                    />
+                  ) : undefined
+                }
               />
             );
           })}
-        </div>
-      )}
-
-      {activeTab === 'discover' && carouselWidgets.length > 0 && (
-        <div className="relative px-10 sm:px-12">
-          <button
-            type="button"
-            className="border-border bg-background text-foreground hover:border-primary absolute top-1/2 left-0 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-30"
-            onClick={() =>
-              setWidgetIndex((current) => Math.max(0, current - 1))
-            }
-            disabled={widgetIndex === 0}
-            aria-label="Previous discovery widget"
-          >
-            <ChevronLeftIcon size={18} aria-hidden />
-          </button>
-          <div className="overflow-hidden rounded-md">
-            <div
-              className="flex transition-transform duration-500 ease-out motion-reduce:transition-none"
-              style={{ transform: `translateX(-${widgetIndex * 100}%)` }}
-            >
-              {carouselWidgets.map((id, index) => {
-                const widgetData = data[id];
-                return (
-                  <div key={id} className="min-w-full">
-                    <WidgetCard
-                      id={id}
-                      title={WIDGET_LABELS[id]}
-                      subtitle={widgetData?.subtitle}
-                      loading={widgetData?.loading ?? true}
-                      items={widgetData?.items ?? []}
-                      artist={widgetData?.artist}
-                      showRank={
-                        id === 'this-week-most-played' ||
-                        id === 'this-week-least-played' ||
-                        id === 'most-played'
-                      }
-                      emptyMessage={
-                        id === 'loved'
-                          ? 'No community-loved tracks yet.'
-                          : 'Nothing here yet.'
-                      }
-                      canMoveUp={index > 0}
-                      canMoveDown={index < carouselWidgets.length - 1}
-                      onMove={moveWidget}
-                      onRemove={removeWidget}
-                      isAdmin={isAdmin}
-                      onSelectTrack={(track) => void selectTrack(track)}
-                      settings={
-                        id === 'random-artist' ? (
-                          <Select
-                            label="Keep the same pick for"
-                            value={String(randomArtistRotationDays)}
-                            onValueChange={(value) =>
-                              setRandomArtistRotationDays(Number(value))
-                            }
-                            options={[
-                              { id: '1', label: '1 day' },
-                              { id: '3', label: '3 days' },
-                              { id: '7', label: '7 days' },
-                              { id: '14', label: '14 days' },
-                              { id: '30', label: '30 days' },
-                            ]}
-                          />
-                        ) : undefined
-                      }
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <button
-            type="button"
-            className="border-border bg-background text-foreground hover:border-primary absolute top-1/2 right-0 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-30"
-            onClick={() =>
-              setWidgetIndex((current) =>
-                Math.min(carouselPageCount - 1, current + 1),
-              )
-            }
-            disabled={widgetIndex === carouselPageCount - 1}
-            aria-label="Next discovery widget"
-          >
-            <ChevronRightIcon size={18} aria-hidden />
-          </button>
-          <p className="text-foreground-secondary mt-2 text-center text-xs tabular-nums">
-            {widgetIndex + 1} / {carouselPageCount}
-          </p>
         </div>
       )}
 

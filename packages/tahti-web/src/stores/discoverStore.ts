@@ -26,6 +26,7 @@ export const DEFAULT_WIDGETS: DiscoverWidgetId[] = [
   'this-week-most-played',
   'new-to-you',
   'latest-tracks',
+  'random-artist',
 ];
 
 type DiscoverState = {
