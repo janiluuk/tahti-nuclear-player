@@ -52,15 +52,14 @@ out of scope here). Findings below are real, source-grounded gaps in the
 
 ## Checked, turned out fine (recording so this doesn't get re-investigated)
 
-5. **Governance has no top-level sidebar/topnav entry** — true, but it's
-   reachable via the "Governance" button in Settings → Account
-   (`SettingsPanels.tsx:486`), which is the right gate for a
-   membership-only feature. The *only* other in-app entry point is the
-   `/more` atlas link, which is diagnostics-gated
-   (`router.tsx`'s `moreRoute` redirects to `/` when
-   `VITE_ENABLE_DIAGNOSTICS` is off) — so Settings is genuinely the sole
-   production path in. Not a bug, just worth knowing before touching
-   Settings' Account panel.
+5. **Governance has no listener top-level sidebar/topnav entry** — intentional:
+   the public member-gated route is reachable through the "Governance" button
+   in Settings → Account (`SettingsPanels.tsx:486`). Artists also have the
+   dedicated `/studio/governance` item in `StudioNav`, and board members have
+   `/admin/governance` plus `/admin/agm` in `AdminNav`. The `/more` atlas is a
+   diagnostics-only map entry, not a production navigation dependency. Keep
+   these as distinct contexts rather than adding a duplicate global Governance
+   item to the listener rail.
 
 6. **Login + TOTP isn't a distinct route** — the atlas's `auth-totp` case
    lists a route of `/login (TOTP step)`, but the step actually lives

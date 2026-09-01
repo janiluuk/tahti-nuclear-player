@@ -292,16 +292,9 @@ const FEATURES: FeatureRow[] = [
     notes: 'Waveform cut/trim, EQ/comp/limiter, stems request, draft/render',
   },
   {
-    feature: 'Governance vote/comment',
-    tahti: '/governance',
-    nuclear: '/governance',
-    status: 'live',
-    notes: 'YES/NO/ABSTAIN + discussion; mock mutates tally',
-  },
-  {
     feature: 'AGM / board meetings',
     tahti: '/admin/agm',
-    nuclear: '—',
+    nuclear: '/admin/agm',
     status: 'admin',
     notes:
       'Board-only: persisted meeting agenda/notice/schedule, live attendance + quorum, and a linked/publishable document archive (added 2026-09-01)',
@@ -367,10 +360,9 @@ const FEATURES: FeatureRow[] = [
   {
     feature: 'Public feature requests',
     tahti: '/governance/feature-requests',
-    nuclear: '—',
-    status: 'missing',
-    notes:
-      'Board management exists, but the public/member request surface is absent',
+    nuclear: '/governance/feature-requests',
+    status: 'live',
+    notes: 'Member topic board with voting and discussion',
   },
   {
     feature: 'Upload job detail',
