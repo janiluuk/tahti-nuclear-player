@@ -8,6 +8,8 @@ import {
   PauseIcon,
   PlayIcon,
   ScissorsIcon,
+  Settings2Icon,
+  Share2Icon,
   TagsIcon,
   Wand2Icon,
 } from 'lucide-react';
@@ -468,7 +470,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
 
   return (
     <>
-      <Dialog.Root isOpen={isOpen} onClose={onClose} className="max-w-2xl">
+      <Dialog.Root isOpen={isOpen} onClose={onClose} className="max-w-4xl">
         <Dialog.Title>Edit track</Dialog.Title>
         <Dialog.Description>
           {item ? `Manage “${item.title}”` : 'Loading track…'}
@@ -479,6 +481,8 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
         ) : item ? (
           <Tabs
             className="mt-3"
+            listClassName="border-border border-b pb-3"
+            panelClassName="pt-3"
             selectedIndex={visibleTabOrder.indexOf(tab)}
             onChange={(index) => setTab(visibleTabOrder[index]!)}
             items={[
@@ -932,7 +936,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                 id: 'sharing',
                 label: (
                   <span className="inline-flex items-center gap-1.5">
-                    <TagsIcon size={15} aria-hidden />
+                    <Share2Icon size={15} aria-hidden />
                     Sharing
                   </span>
                 ),
@@ -1108,7 +1112,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                 id: 'advanced',
                 label: (
                   <span className="inline-flex items-center gap-1.5">
-                    <TagsIcon size={15} aria-hidden />
+                    <Settings2Icon size={15} aria-hidden />
                     Advanced
                   </span>
                 ),
