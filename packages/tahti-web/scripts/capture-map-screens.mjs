@@ -249,7 +249,7 @@ async function setLocalStorage(p, signedIn = true) {
             'tahti-web-layout',
             JSON.stringify({
               state: {
-                leftCollapsed: true,
+                leftCollapsed: false,
                 rightCollapsed,
                 leftWidth: 220,
                 rightWidth: 340,

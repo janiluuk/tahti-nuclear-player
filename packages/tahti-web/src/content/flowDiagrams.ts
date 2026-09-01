@@ -22,12 +22,14 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Home["/ Listen"] --> Public["Public listening"]
   Public --> Radio["/radio"]
   Public --> Discover["/discover"]
+  Public --> Favorites["/library/favorites"]
   Public --> Channel["/channel/$slug"]
   Public --> Artist["/u/$username"]
   Artist --> Collection["/u/$username/c/$slug"]
   Artist --> Subscribe["/subscribe/$username"]
   Public --> Help["/help"]
   Public --> About["/about · /terms · /privacy"]
+  Public --> StudioGate["/studio · sign-in prompt (StudioGate)"]
   Login["/login · /join"] --> Library["/library"]
   Library --> History["/library/history"]
   Library --> Collections["/library/collections"]
@@ -35,7 +37,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Login --> Governance["/governance"]
   Governance --> GovernanceHistory["/governance/history · public closed motions"]
   Governance --> GrantReports["/transparency/grants/$year · yearly reports"]
-  Login --> Studio["/studio"]
+  StudioGate --> Studio["Signed in + channel → /studio"]
   Studio --> Perform["Go Live · Schedule · Shows · Channel · Radio · Multicast"]
   Studio --> Music["Sounds · Collections · Releases · Upload"]
   Studio --> Grow["Stats · Governance · Audience · Updates"]
@@ -47,7 +49,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   classDef session fill:#ecfdf5,stroke:#10b981,color:#065f46;
   classDef artist fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;
   classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
-  class Home,Public,Radio,Discover,Channel,Artist,Collection,Subscribe,Help,About public;
+  class Home,Public,Radio,Discover,Favorites,Channel,Artist,Collection,Subscribe,Help,About,StudioGate public;
   class Login,Library,History,Collections,Messages,Governance session;
   class GovernanceHistory,GrantReports public;
   class Studio,Perform,Music,Grow,Settings,SettingsSources artist;
@@ -622,12 +624,16 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   {
     id: 'nuclear-anonymous-listener',
     pack: 'nuclear',
-    source: 'Listen / Channel / Radio',
+    source: 'Listen / Channel / Radio / Discover / Studio',
     title: 'Anonymous listener — navigation',
-    blurb: 'Listen hub is /. Chat + queue live in the right rail / player bar.',
+    blurb:
+      'Listen hub is /. Sidebar now surfaces Discover, Favorites, and Studio to anonymous visitors too — Studio shows a sign-in prompt (StudioGate) instead of bouncing to Settings.',
     mermaid: `flowchart TD
   A([Open beta.tahti.live]) --> L["/ Listen"]
   L --> R["/radio"]
+  L --> D["/discover"]
+  L --> Fav["/library/favorites"]
+  L --> St["/studio · StudioGate sign-in prompt"]
   L --> C["/channel/:slug"]
   L --> U["/u/:username"]
   R --> C

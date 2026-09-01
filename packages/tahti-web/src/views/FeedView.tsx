@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button, MediaArtwork, SectionShell } from '@nuclearplayer/ui';
 
@@ -90,6 +91,13 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const queue = usePlayerStore((s) => s.queue);
+  const scrollRef = useRef<HTMLUListElement>(null);
+  const scrollByPage = (direction: 1 | -1) => {
+    scrollRef.current?.scrollBy({
+      left: direction * scrollRef.current.clientWidth,
+      behavior: 'smooth',
+    });
+  };
 
   useEffect(() => {
     if (!user) {
@@ -228,151 +236,191 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
           }
         />
       ) : (
-        <ul className="flex gap-3 overflow-x-auto pb-2">
-          {items.map((item) => (
-            <li
-              key={`${item.kind}-${item.id}`}
-              className="border-border bg-background-secondary flex w-[min(24rem,calc(100vw-3rem))] shrink-0 flex-col gap-3 rounded-lg border p-4"
-            >
-              {item.kind !== 'track' && <FeedItemHeader item={item} />}
+        <div className="relative">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            aria-label="Previous"
+            onClick={() => scrollByPage(-1)}
+            className="absolute top-1/2 -left-3 z-10 hidden -translate-y-1/2 sm:flex"
+          >
+            <ChevronLeftIcon size={16} aria-hidden />
+          </Button>
+          <ul
+            ref={scrollRef}
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {items.map((item) => (
+              <li
+                key={`${item.kind}-${item.id}`}
+                style={{ width: 'calc((100% - 2rem) / 3)' }}
+                className="group/glow relative shrink-0 snap-start"
+              >
+                <div
+                  className="bg-primary pointer-events-none absolute -inset-3 rounded-2xl opacity-20 blur-xl"
+                  aria-hidden
+                />
+                <div className="border-border bg-background-secondary relative flex h-full min-w-56 flex-col gap-3 rounded-lg border p-4">
+                  {item.kind !== 'track' && <FeedItemHeader item={item} />}
 
-              <div className="min-w-0 flex-1">
-                {item.kind === 'post' && (
-                  <Link
-                    to="/u/$username"
-                    params={{ username: item.artist.username }}
-                    className="hover:bg-background mt-2 block rounded-md text-left"
-                  >
-                    {item.title && (
-                      <div className="text-sm font-medium">{item.title}</div>
-                    )}
-                    <p className="text-foreground-secondary mt-0.5 text-sm">
-                      {item.body}
-                    </p>
-                  </Link>
-                )}
-
-                {item.kind === 'track' &&
-                  (() => {
-                    const playable: TahtiPlayable | null = item.audioUrl
-                      ? {
-                          id: `archive:${item.id}`,
-                          kind: 'archive',
-                          title: item.title,
-                          artist: item.artist.displayName,
-                          coverUrl: item.bannerUrl ?? undefined,
-                          streamUrl: item.audioUrl,
-                          protocol: 'https',
-                          channelSlug: item.channelSlug,
-                        }
-                      : (feedPlayables[item.id] ?? null);
-                    return (
-                      <div className="flex flex-col gap-3">
-                        <div className="relative aspect-square w-full overflow-hidden rounded-md">
-                          <MediaArtwork
-                            size="fill"
-                            src={item.bannerUrl}
-                            alt={item.title}
-                            placeholder={
-                              <span className="text-lg font-bold">
-                                {item.title.slice(0, 2).toUpperCase()}
-                              </span>
-                            }
-                            onArtworkClick={() =>
-                              setInfoTrack({
-                                title: item.title,
-                                artistName: item.artist.displayName,
-                                artistUsername: item.artist.username,
-                                artworkUrl: item.bannerUrl,
-                                meta: formatFeedDate(item.date),
-                                playable,
-                              })
-                            }
-                            onPlay={playable ? () => play(playable) : undefined}
-                            playDisabled={!playable}
-                            playLabel={`Play ${item.title}`}
-                            onQueue={
-                              playable ? () => enqueue(playable) : undefined
-                            }
-                            queueDisabled={!playable}
-                            queueLabel={`Queue ${item.title}`}
-                            queueActive={Boolean(
-                              playable &&
-                              queue.some(
-                                (queueItem) => queueItem.id === playable.id,
-                              ),
-                            )}
-                          />
-                          <div
-                            className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2 pt-6"
-                            aria-hidden
-                          />
-                          <span className="pointer-events-none absolute right-2 bottom-2 left-2 truncate text-sm font-semibold text-white">
+                  <div className="min-w-0 flex-1">
+                    {item.kind === 'post' && (
+                      <Link
+                        to="/u/$username"
+                        params={{ username: item.artist.username }}
+                        className="hover:bg-background mt-2 block rounded-md text-left"
+                      >
+                        {item.title && (
+                          <div className="text-sm font-medium">
                             {item.title}
-                          </span>
-                        </div>
-                        <FeedItemHeader item={item} />
-                      </div>
-                    );
-                  })()}
+                          </div>
+                        )}
+                        <p className="text-foreground-secondary mt-0.5 text-sm">
+                          {item.body}
+                        </p>
+                      </Link>
+                    )}
 
-                {item.kind === 'release' &&
-                  (() => {
-                    const playables = releaseFeedPlayables[item.id] ?? [];
-                    const [first, ...rest] = playables;
-                    const navigateTo = item.smartLinkSlug
-                      ? {
-                          to: '/r/$slug' as const,
-                          params: { slug: item.smartLinkSlug },
-                        }
-                      : {
-                          to: '/u/$username' as const,
-                          params: { username: item.artist.username },
-                        };
-                    return (
-                      <div className="mt-2 flex items-center gap-3">
-                        <MediaArtwork
-                          size="thumb"
-                          className="rounded-md"
-                          src={item.artworkUrl}
-                          alt={item.title}
-                          placeholder={
-                            <span className="text-[10px] font-bold">
-                              {item.title.slice(0, 2).toUpperCase()}
-                            </span>
-                          }
-                          onPlay={
-                            first
-                              ? () => play(first, { enqueueRest: rest })
-                              : undefined
-                          }
-                          playDisabled={!first}
-                          playLabel={`Play ${item.title}`}
-                          onQueue={
-                            first
-                              ? () => {
-                                  enqueue(first);
-                                  rest.forEach((p) => enqueue(p));
+                    {item.kind === 'track' &&
+                      (() => {
+                        const playable: TahtiPlayable | null = item.audioUrl
+                          ? {
+                              id: `archive:${item.id}`,
+                              kind: 'archive',
+                              title: item.title,
+                              artist: item.artist.displayName,
+                              coverUrl: item.bannerUrl ?? undefined,
+                              streamUrl: item.audioUrl,
+                              protocol: 'https',
+                              channelSlug: item.channelSlug,
+                            }
+                          : (feedPlayables[item.id] ?? null);
+                        return (
+                          <div className="flex flex-col gap-3">
+                            <div className="relative aspect-square w-full overflow-hidden rounded-md">
+                              <MediaArtwork
+                                size="fill"
+                                src={item.bannerUrl}
+                                alt={item.title}
+                                placeholder={
+                                  <span className="text-lg font-bold">
+                                    {item.title.slice(0, 2).toUpperCase()}
+                                  </span>
                                 }
-                              : undefined
-                          }
-                          queueDisabled={!first}
-                          queueLabel={`Queue ${item.title}`}
-                        />
-                        <Link
-                          to={navigateTo.to}
-                          params={navigateTo.params}
-                          className="min-w-0 flex-1 truncate text-sm font-medium underline-offset-2 hover:underline"
-                        >
-                          {item.title}
-                        </Link>
-                      </div>
-                    );
-                  })()}
-              </div>
-            </li>
-          ))}
-        </ul>
+                                onArtworkClick={() =>
+                                  setInfoTrack({
+                                    title: item.title,
+                                    artistName: item.artist.displayName,
+                                    artistUsername: item.artist.username,
+                                    artworkUrl: item.bannerUrl,
+                                    meta: formatFeedDate(item.date),
+                                    playable,
+                                  })
+                                }
+                                onPlay={
+                                  playable ? () => play(playable) : undefined
+                                }
+                                playDisabled={!playable}
+                                playLabel={`Play ${item.title}`}
+                                onQueue={
+                                  playable ? () => enqueue(playable) : undefined
+                                }
+                                queueDisabled={!playable}
+                                queueLabel={`Queue ${item.title}`}
+                                queueActive={Boolean(
+                                  playable &&
+                                  queue.some(
+                                    (queueItem) => queueItem.id === playable.id,
+                                  ),
+                                )}
+                              />
+                              <div
+                                className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2 pt-6"
+                                aria-hidden
+                              />
+                              <span className="pointer-events-none absolute right-2 bottom-2 left-2 truncate text-sm font-semibold text-white">
+                                {item.title}
+                              </span>
+                            </div>
+                            <FeedItemHeader item={item} />
+                          </div>
+                        );
+                      })()}
+
+                    {item.kind === 'release' &&
+                      (() => {
+                        const playables = releaseFeedPlayables[item.id] ?? [];
+                        const [first, ...rest] = playables;
+                        const navigateTo = item.smartLinkSlug
+                          ? {
+                              to: '/r/$slug' as const,
+                              params: { slug: item.smartLinkSlug },
+                            }
+                          : {
+                              to: '/u/$username' as const,
+                              params: { username: item.artist.username },
+                            };
+                        return (
+                          <div className="flex flex-col gap-3">
+                            <div className="relative aspect-square w-full overflow-hidden rounded-md">
+                              <MediaArtwork
+                                size="fill"
+                                src={item.artworkUrl}
+                                alt={item.title}
+                                placeholder={
+                                  <span className="text-lg font-bold">
+                                    {item.title.slice(0, 2).toUpperCase()}
+                                  </span>
+                                }
+                                onPlay={
+                                  first
+                                    ? () => play(first, { enqueueRest: rest })
+                                    : undefined
+                                }
+                                playDisabled={!first}
+                                playLabel={`Play ${item.title}`}
+                                onQueue={
+                                  first
+                                    ? () => {
+                                        enqueue(first);
+                                        rest.forEach((p) => enqueue(p));
+                                      }
+                                    : undefined
+                                }
+                                queueDisabled={!first}
+                                queueLabel={`Queue ${item.title}`}
+                              />
+                              <div
+                                className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2 pt-6"
+                                aria-hidden
+                              />
+                              <Link
+                                to={navigateTo.to}
+                                params={navigateTo.params}
+                                className="absolute right-2 bottom-2 left-2 truncate text-sm font-semibold text-white hover:underline"
+                              >
+                                {item.title}
+                              </Link>
+                            </div>
+                            <FeedItemHeader item={item} />
+                          </div>
+                        );
+                      })()}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            aria-label="Next"
+            onClick={() => scrollByPage(1)}
+            className="absolute top-1/2 -right-3 z-10 hidden -translate-y-1/2 sm:flex"
+          >
+            <ChevronRightIcon size={16} aria-hidden />
+          </Button>
+        </div>
       )}
 
       <TrackInfoDialog

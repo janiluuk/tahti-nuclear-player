@@ -1,5 +1,89 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-02 — Chrome depth/colour parity, Discover filters, Feed carousel
+
+**Completed:** A batch of smaller fixes plus one real feature slice, driven
+by side-by-side comparison against the user's own `nuclear.png` reference
+and live screenshots of the desktop app, not guesswork.
+
+- **Neobrutalist depth restored in dark mode** — the generic
+  `[data-theme='dark']` block in `packages/tailwind-config/global.css` was
+  zeroing `--shadow-x/y` and thinning `--border-width` to 1px for every
+  theme (not just `tahti-dark`, which has its own fixed-dark block and was
+  never affected). Removed the override so dark mode inherits the same 2px
+  offset-shadow/border treatment as light mode. `packages/tailwind-config`.
+- **Main content background parity** — `PlayerWorkspace.Main`
+  (`@nuclearplayer/ui`) painted `bg-background-secondary`; the old Nuclear
+  `ViewShell` (still in the repo, unused since `main.tsx` moved to
+  tahti-web) paints `bg-background` on top of that same parent, which is
+  why the reference read darker. Changed `PlayerWorkspaceMain` to
+  `bg-background`; verified pixel-identical (`rgb(12,25,21)`) against the
+  reference via direct pixel sampling, not eyeballing.
+- **Top bar/sidebar/right-rail colour parity** — `AppTopNav`'s `<header>`
+  used `bg-background` while both sidebars already shared
+  `bg-background-secondary` (via the one `PlayerWorkspaceSidebar`
+  component). Switched the top bar to match, so all three chrome regions
+  now share one tone against the darker content canvas.
+- **New round logo mark** — `TahtiMark` in `TahtiLogo.tsx`: a circular
+  badge (`bg-primary`, standard border + offset-shadow depth) with a star
+  glyph, embedded before the wordmark and nav chevrons, matching the
+  reference's logo-badge position. Original mark (star, for "Tahti"), not
+  a copy of Nuclear's icon.
+- **Settings nested-dialog stacking bug** — closing the outer Settings
+  modal while the nested "Configure theme" dialog (opened via a theme
+  card's gear icon) was still open left the two independently-animating
+  `Dialog.Root` instances visibly overlapping mid-transition, sometimes
+  leaving the inner dialog stuck open over the page underneath. Root
+  cause: the inner dialog's `isOpen` was local state with no link to the
+  outer modal's own open/close. Fix: `ThemesPanel` now watches
+  `useSettingsModalStore`'s `isOpen` and force-closes the nested dialog in
+  the same render pass the outer modal starts closing, so both exit
+  animations run together instead of the inner one lagging indefinitely.
+  Reproduced before and after with scripted open/close sequences via
+  Playwright, not just read the diff.
+- **Discover/Listen filter chips** — `FilterChips` (`@nuclearplayer/ui`,
+  shared by `DiscoverView` and `ListenView`)'s selected state used a
+  one-off inverted `bg-foreground`/`text-background` scheme instead of the
+  app's standard `bg-primary`/`text-primary-foreground` treatment used
+  everywhere else (nav items, tabs, buttons). Fixed at the component
+  level.
+- **Listen page layout** — "Your widgets" renamed to "Radio channels"
+  (`ListenerWidgetsSection.tsx`) and moved into the same row as "Continue
+  listening" (flex row, side-by-side ≥`sm`, stacks on mobile; a lone
+  section still fills the row rather than leaving a gap, since flex
+  doesn't reserve a second column the way grid would).
+- **Feed carousel** (`FeedView.tsx`) — track cards already showed full
+  square artwork with a bottom gradient scrim and title overlay; release
+  cards only had a small thumbnail. Release cards now use the same full-
+  artwork treatment as tracks. Added a background glow behind every card
+  (blurred `bg-primary` at low opacity, same visual language as the
+  existing `GlowMediaTile` hover glow, but always-on here rather than
+  hover-triggered, since the ask was for a steady "glow" look). Replaced
+  the bare `overflow-x-auto` scroll with `snap-x snap-mandatory` +
+  percentage-based card widths (`calc((100% - 2rem) / 3)`) so exactly 3
+  cards are visible at any viewport width, plus prev/next arrow buttons
+  that `scrollBy` one `clientWidth` (i.e. exactly one 3-card page) per
+  click — no manual index/state tracking needed, the snap points do the
+  alignment.
+
+**Validation:** `tsc --noEmit`, `eslint`, and the full `tahti-web`/`ui`
+vitest suites (303 + 252 tests) all pass; 4 snapshot tests intentionally
+updated (`FilterChips`, `LogViewer`, `PlayerWorkspace`, `PlayerShell` — all
+composing `PlayerWorkspace`/`FilterChips`, no unrelated diffs). Chrome
+colour/logo/depth changes live-verified via the dev server (pixel-sampled
+computed styles, not just visual inspection) and via the desktop Tauri
+build, rebuilt and relaunched after each round. Deployed twice to
+`beta.tahti.live` (`pnpm deploy:tahti-beta`), both with passing smoke
+checks (`spa:200`, `api-proxy:200`).
+
+**Not done, flagged separately:** production CORS is missing the desktop
+app's origin (`tauri://localhost` / `http://tauri.localhost`), which is
+the likely root cause of "cannot log in" on the desktop app specifically —
+fix drafted for `tahti/apps/api/src/plugins/cors.ts` but not applied
+(blocked by the auto-mode permission classifier as a security-sensitive
+change in a different repo; needs explicit sign-off). Studio/admin grid
+refactor still needs concrete scoping from the user before starting.
+
 ## 2026-09-01 — Tahti Jam view, and widget removal on the Listen dashboard
 
 **Completed:** Two independent pieces.
