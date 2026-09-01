@@ -5,6 +5,7 @@ import {
   formatBytes,
   formatFileDate,
   formatQuota,
+  groupFileRowsByUser,
   groupFilesByUser,
   usagePercent,
 } from './storageFormat';
@@ -117,5 +118,40 @@ describe('groupFilesByUser', () => {
 
   it('returns an empty array for an empty input', () => {
     expect(groupFilesByUser([])).toEqual([]);
+  });
+});
+
+describe('groupFileRowsByUser', () => {
+  const files = [
+    {
+      userId: 'u-1',
+      username: 'dj-moonlight',
+      displayName: 'DJ Moonlight',
+      sizeBytes: 100,
+    },
+    {
+      userId: 'u-2',
+      username: 'kaiku-collective',
+      displayName: 'Kaiku Collective',
+      sizeBytes: 500,
+    },
+    {
+      userId: 'u-1',
+      username: 'dj-moonlight',
+      displayName: 'DJ Moonlight',
+      sizeBytes: 50,
+    },
+  ];
+
+  it("keeps each user's own rows, in the order they were passed in", () => {
+    const groups = groupFileRowsByUser(files);
+    expect(groups.map((g) => g.userId)).toEqual(['u-2', 'u-1']);
+    const dj = groups.find((g) => g.userId === 'u-1')!;
+    expect(dj.files).toEqual([files[0], files[2]]);
+    expect(dj).toMatchObject({ totalBytes: 150, fileCount: 2 });
+  });
+
+  it('returns an empty array for an empty input', () => {
+    expect(groupFileRowsByUser([])).toEqual([]);
   });
 });

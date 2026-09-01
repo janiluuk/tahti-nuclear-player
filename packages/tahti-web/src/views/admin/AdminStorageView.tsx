@@ -45,16 +45,19 @@ import {
   formatBytes,
   formatFileDate,
   formatQuota,
-  groupFilesByUser,
+  groupFileRowsByUser,
   usagePercent,
 } from '../../lib/storageFormat';
 import { usePlayerStore } from '../../stores/playerStore';
 
 const CONTENT_TYPE_LABELS: Record<string, string> = {
   TRACK: 'Track',
-  LIVE_SET: 'Live set',
-  STASH: 'Stash',
-  AUDIOCLIPS: 'Clip',
+  LIVE: 'Live',
+  DJ_MIX: 'DJ Set',
+  PODCAST: 'Podcast',
+  ORIGINAL: 'Original',
+  REMIX: 'Remix',
+  RADIO_SHOW: 'Radio show',
 };
 
 function contentTypeLabel(contentType: string): string {
@@ -589,6 +592,93 @@ function StorageOverviewTab() {
   );
 }
 
+function FileRow({
+  f,
+  pendingPlayId,
+  onPlay,
+  onViewDetail,
+  onEditUploader,
+  onDelete,
+}: {
+  f: AdminFileRow;
+  pendingPlayId: string | null;
+  onPlay: (f: AdminFileRow) => void;
+  onViewDetail: (f: AdminFileRow) => void;
+  onEditUploader: (userId: string) => void;
+  onDelete: (f: AdminFileRow) => void;
+}) {
+  return (
+    <li className="flex flex-wrap items-center justify-between gap-3 px-2 py-3 text-sm">
+      <div className="min-w-0 flex-1">
+        <div className="font-medium">
+          {f.title}{' '}
+          <span className="text-foreground-secondary font-normal">
+            · {formatBytes(f.sizeBytes)} · {contentTypeLabel(f.contentType)}
+          </span>
+        </div>
+        <div className="text-foreground-secondary text-xs">
+          <button
+            type="button"
+            className="hover:text-foreground underline-offset-2 hover:underline"
+            onClick={() => onEditUploader(f.userId)}
+          >
+            @{f.username}
+          </button>{' '}
+          · {formatFileDate(f.createdAt)}
+          {f.genre ? ` · ${f.genre}` : ''}
+        </div>
+      </div>
+      <div className="flex shrink-0 items-center gap-1.5">
+        <Badge variant="pill" color="secondary">
+          {f.format ?? '—'}
+        </Badge>
+        <Badge variant="pill" color={f.isPublic ? 'green' : 'secondary'}>
+          {f.isPublic ? 'Public' : 'Private'}
+        </Badge>
+        <Button
+          size="icon-sm"
+          variant="text"
+          aria-label={`Preview ${f.title}`}
+          title="Preview"
+          disabled={pendingPlayId === f.id}
+          onClick={() => onPlay(f)}
+        >
+          <PlayIcon size={16} aria-hidden />
+        </Button>
+        <Button
+          size="icon-sm"
+          variant="text"
+          aria-label={`View details for ${f.title}`}
+          title="View details"
+          onClick={() => onViewDetail(f)}
+        >
+          <SearchIcon size={15} aria-hidden />
+        </Button>
+        <Link to="/admin/storage/$userId" params={{ userId: f.userId }}>
+          <Button
+            size="icon-sm"
+            variant="text"
+            aria-label={`View ${f.displayName}'s storage`}
+            title="View uploader's storage"
+          >
+            <ExternalLinkIcon size={15} aria-hidden />
+          </Button>
+        </Link>
+        <Button
+          size="icon-sm"
+          variant="text"
+          className="text-accent-red hover:text-accent-red"
+          aria-label={`Delete ${f.title}`}
+          title="Delete"
+          onClick={() => onDelete(f)}
+        >
+          <Trash2Icon size={15} aria-hidden />
+        </Button>
+      </div>
+    </li>
+  );
+}
+
 function FilesBrowserTab() {
   const play = usePlayerStore((s) => s.play);
   const [query, setQuery] = useState('');
@@ -613,8 +703,17 @@ function FilesBrowserTab() {
     return () => clearTimeout(handle);
   }, [query]);
 
-  const groups = useMemo(() => groupFilesByUser(files), [files]);
   const sortedFiles = useMemo(() => sortFiles(files, sortBy), [files, sortBy]);
+  // Groups are built from the already-sorted list so each user's files keep
+  // the active sort instead of reverting to insertion order.
+  const groupedRows = useMemo(
+    () => groupFileRowsByUser(sortedFiles),
+    [sortedFiles],
+  );
+  const totalSizeBytes = useMemo(
+    () => sortedFiles.reduce((sum, f) => sum + (f.sizeBytes ?? 0), 0),
+    [sortedFiles],
+  );
 
   const handlePlay = async (file: AdminFileRow) => {
     if (pendingPlayId) {
@@ -646,6 +745,13 @@ function FilesBrowserTab() {
     });
   };
 
+  const handleDelete = (f: AdminFileRow) => {
+    if (!window.confirm(`Delete "${f.title}" permanently?`)) {
+      return;
+    }
+    void deleteAdminFile(f.id).then(() => reload(query));
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -672,60 +778,78 @@ function FilesBrowserTab() {
           <UsersIcon size={14} aria-hidden className="mr-1.5" />
           Group by user
         </Button>
-        {!groupByUser ? (
-          <div className="flex items-center gap-1.5">
-            <ArrowDownAZIcon size={14} aria-hidden />
-            <Select
-              label="Sort files by"
-              value={sortBy}
-              onValueChange={(value) => setSortBy(value as FileSortKey)}
-              options={SORT_OPTIONS.map((option) => ({
-                id: option.id,
-                label: option.label,
-              }))}
-            />
-          </div>
-        ) : null}
+        <div className="flex items-center gap-1.5 sm:ml-auto">
+          <ArrowDownAZIcon size={14} aria-hidden />
+          <Select
+            label="Sort files by"
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as FileSortKey)}
+            options={SORT_OPTIONS.map((option) => ({
+              id: option.id,
+              label: option.label,
+            }))}
+          />
+        </div>
       </div>
+
+      {!loading && sortedFiles.length > 0 ? (
+        <div className="text-foreground-secondary text-xs">
+          Total size:{' '}
+          <span className="text-foreground font-semibold">
+            {formatBytes(totalSizeBytes)}
+          </span>{' '}
+          across {sortedFiles.length}{' '}
+          {sortedFiles.length === 1 ? 'file' : 'files'}
+        </div>
+      ) : null}
 
       {groupByUser ? (
         <StudioPanel
-          title="Totals by user"
-          description="Sum of every matching file's size, grouped by uploader. Click a row for their full file list and running total."
+          title="Files by user"
+          description="Every matching file, grouped by uploader with a running total per user."
         >
           {loading ? (
             <PageLoading label="Loading storage users…" />
-          ) : groups.length === 0 ? (
+          ) : groupedRows.length === 0 ? (
             <p className="text-foreground-secondary py-4 text-center text-sm">
               No files match this search.
             </p>
           ) : (
-            <ul className="divide-border divide-y">
-              {groups.map((g) => (
-                <li key={g.userId}>
-                  <Link
-                    to="/admin/storage/$userId"
-                    params={{ userId: g.userId }}
-                    className="hover:bg-background-secondary -mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-3 text-sm transition-colors"
-                  >
-                    <div className="min-w-0">
-                      <div className="font-medium">
-                        {g.displayName}{' '}
-                        <span className="text-foreground-secondary font-normal">
-                          @{g.username}
-                        </span>
-                      </div>
-                      <div className="text-foreground-secondary text-xs">
-                        {g.fileCount} {g.fileCount === 1 ? 'file' : 'files'}
-                      </div>
-                    </div>
-                    <span className="shrink-0 font-semibold">
+            <div className="flex flex-col gap-5">
+              {groupedRows.map((g) => (
+                <div key={g.userId}>
+                  <div className="mb-1 flex items-center justify-between gap-3">
+                    <Link
+                      to="/admin/storage/$userId"
+                      params={{ userId: g.userId }}
+                      className="hover:underline"
+                    >
+                      <span className="font-medium">{g.displayName}</span>{' '}
+                      <span className="text-foreground-secondary">
+                        @{g.username}
+                      </span>
+                    </Link>
+                    <span className="text-foreground-secondary shrink-0 text-xs">
+                      {g.fileCount} {g.fileCount === 1 ? 'file' : 'files'} ·{' '}
                       {formatBytes(g.totalBytes)}
                     </span>
-                  </Link>
-                </li>
+                  </div>
+                  <ul className="divide-border [&>li:nth-child(even)]:bg-background-secondary/40 divide-y">
+                    {g.files.map((f) => (
+                      <FileRow
+                        key={f.id}
+                        f={f}
+                        pendingPlayId={pendingPlayId}
+                        onPlay={(file) => void handlePlay(file)}
+                        onViewDetail={setDetailFile}
+                        onEditUploader={setUserEditId}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </StudioPanel>
       ) : (
@@ -737,90 +861,17 @@ function FilesBrowserTab() {
               No files match this search.
             </p>
           ) : (
-            <ul className="divide-border divide-y">
+            <ul className="divide-border [&>li:nth-child(even)]:bg-background-secondary/40 divide-y">
               {sortedFiles.map((f) => (
-                <li
+                <FileRow
                   key={f.id}
-                  className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium">
-                      {f.title}{' '}
-                      <span className="text-foreground-secondary font-normal">
-                        · {formatBytes(f.sizeBytes)} ·{' '}
-                        {contentTypeLabel(f.contentType)}
-                      </span>
-                    </div>
-                    <div className="text-foreground-secondary text-xs">
-                      <button
-                        type="button"
-                        className="hover:text-foreground underline-offset-2 hover:underline"
-                        onClick={() => setUserEditId(f.userId)}
-                      >
-                        {f.artistName}
-                      </button>{' '}
-                      · @{f.username} · {formatFileDate(f.createdAt)}
-                      {f.genre ? ` · ${f.genre}` : ''}
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    <Badge
-                      variant="pill"
-                      color={f.isPublic ? 'green' : 'secondary'}
-                    >
-                      {f.isPublic ? 'Public' : 'Private'}
-                    </Badge>
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      aria-label={`Preview ${f.title}`}
-                      title="Preview"
-                      disabled={pendingPlayId === f.id}
-                      onClick={() => void handlePlay(f)}
-                    >
-                      <PlayIcon size={16} aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      aria-label={`View details for ${f.title}`}
-                      title="View details"
-                      onClick={() => setDetailFile(f)}
-                    >
-                      <SearchIcon size={15} aria-hidden />
-                    </Button>
-                    <Link
-                      to="/admin/storage/$userId"
-                      params={{ userId: f.userId }}
-                    >
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        aria-label={`View ${f.displayName}'s storage`}
-                        title="View uploader's storage"
-                      >
-                        <ExternalLinkIcon size={15} aria-hidden />
-                      </Button>
-                    </Link>
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      className="text-accent-red hover:text-accent-red"
-                      aria-label={`Delete ${f.title}`}
-                      title="Delete"
-                      onClick={() => {
-                        if (
-                          !window.confirm(`Delete "${f.title}" permanently?`)
-                        ) {
-                          return;
-                        }
-                        void deleteAdminFile(f.id).then(() => reload(query));
-                      }}
-                    >
-                      <Trash2Icon size={15} aria-hidden />
-                    </Button>
-                  </div>
-                </li>
+                  f={f}
+                  pendingPlayId={pendingPlayId}
+                  onPlay={(file) => void handlePlay(file)}
+                  onViewDetail={setDetailFile}
+                  onEditUploader={setUserEditId}
+                  onDelete={handleDelete}
+                />
               ))}
             </ul>
           )}

@@ -1,10 +1,11 @@
+import { UploadIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
 
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
-import { ImageUploadField } from '../../components/ImageUploadField';
+import { ArtworkPresetUploadDialog } from '../../components/ArtworkPresetUploadDialog';
 import {
   GENERATED_ARTWORK_COUNT,
   generatedArtworkUrl,
@@ -22,11 +23,18 @@ export function AdminArtworkPresetsView() {
   const [presets, setPresets] = useState<string[]>(defaultPresets);
   const [selected, setSelected] = useState(0);
   const [saved, setSaved] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
   const selectedUrl = presets[selected] ?? '';
   const presetNames = useMemo(
     () => presets.map((_, index) => `Artwork ${index + 1}`),
     [presets],
   );
+  // The default preset (index `selected`) always renders first in the grid
+  // so it's immediately visible rather than wherever it happens to sit.
+  const orderedIndices = useMemo(() => {
+    const rest = presets.map((_, index) => index).filter((i) => i !== selected);
+    return [selected, ...rest];
+  }, [presets, selected]);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -65,7 +73,7 @@ export function AdminArtworkPresetsView() {
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-4 lg:grid-cols-8">
-            {presets.map((url, index) => (
+            {orderedIndices.map((index) => (
               <button
                 key={presetNames[index]}
                 type="button"
@@ -73,7 +81,11 @@ export function AdminArtworkPresetsView() {
                 className={`border-border overflow-hidden rounded-lg border text-left ${selected === index ? 'ring-primary ring-2' : ''}`}
                 aria-label={`Edit ${presetNames[index]}`}
               >
-                <img src={url} alt="" className="aspect-square w-full" />
+                <img
+                  src={presets[index]}
+                  alt=""
+                  className="aspect-square w-full"
+                />
                 <span className="block px-2 py-1 text-xs">
                   {presetNames[index]}
                 </span>
@@ -88,28 +100,36 @@ export function AdminArtworkPresetsView() {
                 readOnly
                 description="New artwork-free uploads use this selection in this browser until a replacement is saved."
               />
-              <ImageUploadField
-                label={`Replace ${presetNames[selected] ?? 'preset'}`}
-                description="Upload a square JPG, PNG, WebP, or GIF."
-                value={selectedUrl}
-                onChange={(url) => {
-                  setPresets((current) =>
-                    current.map((preset, index) =>
-                      index === selected ? url : preset,
-                    ),
-                  );
-                }}
-              />
               <Button onClick={save}>{saved ? 'Saved' : 'Save presets'}</Button>
             </div>
-            <img
-              src={selectedUrl}
-              alt="Selected artwork preset"
-              className="aspect-square w-full max-w-64 rounded-xl object-cover"
-            />
+            <div className="group relative aspect-square w-full max-w-64">
+              <img
+                src={selectedUrl}
+                alt="Selected artwork preset"
+                className="h-full w-full rounded-xl object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => setUploadOpen(true)}
+                aria-label={`Replace ${presetNames[selected] ?? 'preset'}`}
+                className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/0 opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100"
+              >
+                <UploadIcon size={28} aria-hidden className="text-white" />
+              </button>
+            </div>
           </div>
         </div>
       </AdminPageLayout>
+      <ArtworkPresetUploadDialog
+        isOpen={uploadOpen}
+        label={presetNames[selected] ?? 'preset'}
+        onClose={() => setUploadOpen(false)}
+        onUploaded={(url) => {
+          setPresets((current) =>
+            current.map((preset, index) => (index === selected ? url : preset)),
+          );
+        }}
+      />
     </AdminGate>
   );
 }

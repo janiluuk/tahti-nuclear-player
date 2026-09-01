@@ -225,6 +225,17 @@ function InternetRadioPresetsPanel() {
           Shown as a default in the Listen page radio feed once enabled.
         </Dialog.Description>
         <div className="flex flex-col gap-4">
+          <div className="flex flex-col items-center gap-2 self-center">
+            <RoundImageUploadButton
+              label="Station logo"
+              value={draft.iconUrl}
+              sizeClassName="h-28 w-28"
+              onChange={(iconUrl) => setDraft({ ...draft, iconUrl })}
+            />
+            <span className="text-foreground-secondary text-xs">
+              Station logo — JPEG, PNG, or WebP.
+            </span>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Input
               label="Name"
@@ -272,16 +283,6 @@ function InternetRadioPresetsPanel() {
               setDraft({ ...draft, programmingUrl: event.target.value })
             }
           />
-          <div className="flex items-center gap-3">
-            <RoundImageUploadButton
-              label="Station logo"
-              value={draft.iconUrl}
-              onChange={(iconUrl) => setDraft({ ...draft, iconUrl })}
-            />
-            <span className="text-foreground-secondary text-xs">
-              Station logo — JPEG, PNG, or WebP.
-            </span>
-          </div>
           {error ? (
             <p className="text-accent-red text-sm" role="alert">
               {error}

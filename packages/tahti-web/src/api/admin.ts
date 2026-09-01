@@ -2880,6 +2880,7 @@ export type AdminFileRow = {
   isPublic: boolean;
   durationSec: number | null;
   sizeBytes: number | null;
+  format: string | null;
   createdAt: string;
   channelSlug: string;
   userId: string;
@@ -2907,6 +2908,7 @@ function mockAdminFiles(): AdminFileRow[] {
       isPublic: true,
       durationSec: 312,
       sizeBytes: 8_400_000,
+      format: 'MP3',
       createdAt: '2026-08-10T12:00:00.000Z',
       channelSlug: 'dj-moonlight',
       userId: 'u-1',
@@ -2925,6 +2927,7 @@ function mockAdminFiles(): AdminFileRow[] {
       isPublic: true,
       durationSec: 3480,
       sizeBytes: 92_000_000,
+      format: 'FLAC',
       createdAt: '2026-08-09T18:00:00.000Z',
       channelSlug: 'midnight-cartography',
       userId: 'u-2',
@@ -2943,6 +2946,7 @@ function mockAdminFiles(): AdminFileRow[] {
       isPublic: false,
       durationSec: 201,
       sizeBytes: 5_100_000,
+      format: 'MP3',
       createdAt: '2026-08-05T09:00:00.000Z',
       channelSlug: 'kaiku-collective',
       userId: 'u-3',
@@ -2961,6 +2965,7 @@ function mockAdminFiles(): AdminFileRow[] {
       isPublic: false,
       durationSec: 279,
       sizeBytes: 41_000_000,
+      format: 'WAV',
       createdAt: '2026-08-01T09:00:00.000Z',
       channelSlug: 'northern-lights',
       userId: 'u-4',

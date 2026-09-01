@@ -104,3 +104,33 @@ export function groupFilesByUser<T extends FileForGrouping>(
   }
   return [...byUser.values()].sort((a, b) => b.totalBytes - a.totalBytes);
 }
+
+export type UserFileRowGroup<T> = UserFileGroup & { files: T[] };
+
+/** Like `groupFilesByUser`, but keeps each user's own rows (in whatever
+ * order `files` was already in — pass an already-sorted list to preserve
+ * that sort within each group) instead of collapsing to totals only. */
+export function groupFileRowsByUser<T extends FileForGrouping>(
+  files: T[],
+): UserFileRowGroup<T>[] {
+  const byUser = new Map<string, UserFileRowGroup<T>>();
+  for (const file of files) {
+    const size = file.sizeBytes ?? 0;
+    const existing = byUser.get(file.userId);
+    if (existing) {
+      existing.totalBytes += size;
+      existing.fileCount += 1;
+      existing.files.push(file);
+    } else {
+      byUser.set(file.userId, {
+        userId: file.userId,
+        username: file.username,
+        displayName: file.displayName,
+        totalBytes: size,
+        fileCount: 1,
+        files: [file],
+      });
+    }
+  }
+  return [...byUser.values()].sort((a, b) => b.totalBytes - a.totalBytes);
+}
