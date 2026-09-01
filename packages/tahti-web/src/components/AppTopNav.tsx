@@ -70,6 +70,25 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
     refreshWhen: broadcastOpen,
   });
   const isLive = broadcast.kind === 'live';
+  const hasConnectionIssue =
+    user?.channel?.state === 'LIVE' && !broadcast.signalConnected;
+  const hasBroadcastWarning = broadcast.kind === 'preview';
+  const broadcastTone = isLive
+    ? 'healthy'
+    : hasConnectionIssue
+      ? 'error'
+      : hasBroadcastWarning
+        ? 'warning'
+        : 'idle';
+  const broadcastToneClass = {
+    healthy:
+      'border-accent-green/70 bg-accent-green/15 text-accent-green motion-safe:animate-[pulse_1.4s_ease-in-out_infinite]',
+    error:
+      'border-accent-red/70 bg-accent-red/15 text-accent-red motion-safe:animate-[pulse_1.1s_ease-in-out_infinite]',
+    warning:
+      'border-accent-yellow/70 bg-accent-yellow/15 text-accent-yellow motion-safe:animate-[pulse_1.6s_ease-in-out_infinite]',
+    idle: '',
+  }[broadcastTone];
   const displayName = user?.displayName?.trim() || user?.username || '';
   const initial = displayName ? displayName.charAt(0).toUpperCase() : '?';
 
@@ -196,10 +215,9 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                   iconBtnClass,
                   (broadcastOpen || pathname.startsWith('/studio/go-live')) &&
                     'border-primary bg-primary/15 text-primary',
-                  isLive &&
-                    'border-accent-green/70 bg-accent-green/15 text-accent-green motion-safe:animate-[pulse_1.4s_ease-in-out_infinite]',
+                  broadcastToneClass,
                 )}
-                aria-label="Broadcast status"
+                aria-label={`Open live panel — ${broadcast.label}`}
                 aria-haspopup="menu"
                 aria-expanded={broadcastOpen}
                 title="Broadcast status"
@@ -221,11 +239,18 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                     <span
                       className={cn(
                         'size-2 rounded-full',
-                        isLive
+                        broadcastTone === 'healthy'
                           ? 'bg-accent-green'
-                          : broadcast.kind === 'rotation'
-                            ? 'bg-accent-cyan'
-                            : 'bg-foreground-secondary/40',
+                          : broadcastTone === 'error'
+                            ? 'bg-accent-red'
+                            : broadcastTone === 'warning'
+                              ? 'bg-accent-yellow'
+                              : broadcast.kind === 'rotation'
+                                ? 'bg-accent-cyan'
+                                : 'bg-foreground-secondary/40',
+                        (broadcastTone !== 'idle' &&
+                          'motion-safe:animate-pulse') ||
+                          '',
                       )}
                       aria-hidden
                     />
@@ -240,6 +265,18 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                     <RadioIcon size={14} aria-hidden />
                     Open broadcast studio
                   </Link>
+                  {user?.username ? (
+                    <Link
+                      to="/u/$username/green-room"
+                      params={{ username: user.username }}
+                      role="menuitem"
+                      onClick={() => setBroadcastOpen(false)}
+                      className="hover:bg-background-secondary flex items-center gap-2 rounded-md px-2 py-2 text-xs"
+                    >
+                      <MessageSquareIcon size={14} aria-hidden />
+                      Open Green Room chat
+                    </Link>
+                  ) : null}
                 </div>
               ) : null}
             </div>

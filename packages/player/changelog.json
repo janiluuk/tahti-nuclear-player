@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-09-01T00:00",
+    "description": "The live notification now flashes green for a healthy stream, yellow for a warning, or red when the connection drops, with quick access to the live panel and Green Room chat.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Go Live", "color": "green" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
     "description": "The broadcast control now flashes while you are live, making it immediately clear that your channel is on air.",
     "type": "improvement",
     "contributors": ["jani"],
