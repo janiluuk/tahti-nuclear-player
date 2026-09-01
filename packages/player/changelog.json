@@ -1,6 +1,13 @@
 [
   {
     "date": "2026-09-01T00:00",
+    "description": "Go Live now gives you a clear signal check with waiting, connected, and listening states, plus live level meters before you go on air.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Go Live", "color": "green" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
     "description": "Playlist pages now use a cleaner artwork-led header and a compact, filterable track table, making it faster to scan and play a collection.",
     "type": "improvement",
     "contributors": ["jani"],

@@ -34,7 +34,7 @@ jq --arg v "$VERSION" '.version = $v' packages/player/package.json > packages/pl
 jq --arg v "$VERSION" '.version = $v' packages/player/src-tauri/tauri.conf.json > packages/player/src-tauri/tauri.conf.json.tmp && mv packages/player/src-tauri/tauri.conf.json.tmp packages/player/src-tauri/tauri.conf.json
 
 # Update metainfo.xml release info (if it exists)
-if [ -f "packages/player/src-tauri/resources/com.nuclearplayer.Nuclear.metainfo.xml" ]; then
+if [ -f "packages/player/src-tauri/resources/live.tahti.player.metainfo.xml" ]; then
   echo "Metainfo file found, updating release info..."
   # The prepare-release.mjs handles this, we'll skip manual metainfo update
   echo "  (metainfo update handled separately)"
@@ -49,8 +49,8 @@ cd "$PROJECT_DIR"
 
 git add packages/player/package.json packages/player/src-tauri/tauri.conf.json
 
-if [ -f "packages/player/src-tauri/resources/com.nuclearplayer.Nuclear.metainfo.xml" ]; then
-  git add packages/player/src-tauri/resources/com.nuclearplayer.Nuclear.metainfo.xml
+if [ -f "packages/player/src-tauri/resources/live.tahti.player.metainfo.xml" ]; then
+  git add packages/player/src-tauri/resources/live.tahti.player.metainfo.xml
 fi
 
 if git diff --cached --quiet; then

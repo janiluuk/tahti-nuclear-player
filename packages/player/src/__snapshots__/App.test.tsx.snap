@@ -884,7 +884,7 @@ exports[`App > should render snapshot 1`] = `
           </span>
         </div>
         <div
-          class="border-border bg-background-secondary absolute inset-x-0 top-2.5 h-1 overflow-hidden rounded-full border-(length:--border-width)"
+          class="border-border bg-background-secondary absolute inset-x-0 top-2.5 h-2.5 overflow-hidden rounded-full border-(length:--border-width)"
         >
           <div
             class="bg-primary h-full transition-none"

@@ -13,37 +13,19 @@ describe('SocialLinks', () => {
     vi.mocked(openUrl).mockClear();
   });
 
-  it('(Snapshot) renders all four social link buttons', () => {
+  it('(Snapshot) renders Tahti project links', () => {
     const { asFragment } = render(<SocialLinks />);
     expect(asFragment()).toMatchSnapshot();
-  });
-
-  it('opens Discord URL when Discord button is clicked', async () => {
-    render(<SocialLinks />);
-
-    const buttons = screen.getAllByRole('button');
-    await userEvent.click(buttons[0]);
-
-    expect(openUrl).toHaveBeenCalledWith('https://discord.gg/JqPjKxE');
   });
 
   it('opens GitHub URL when GitHub button is clicked', async () => {
     render(<SocialLinks />);
 
     const buttons = screen.getAllByRole('button');
-    await userEvent.click(buttons[1]);
-
-    expect(openUrl).toHaveBeenCalledWith('https://github.com/nukeop/nuclear');
-  });
-
-  it('opens Mastodon URL when Mastodon button is clicked', async () => {
-    render(<SocialLinks />);
-
-    const buttons = screen.getAllByRole('button');
-    await userEvent.click(buttons[2]);
+    await userEvent.click(buttons[0]);
 
     expect(openUrl).toHaveBeenCalledWith(
-      'https://fosstodon.org/@nuclearplayer',
+      'https://github.com/janiluuk/tahti-player',
     );
   });
 
@@ -51,8 +33,8 @@ describe('SocialLinks', () => {
     render(<SocialLinks />);
 
     const buttons = screen.getAllByRole('button');
-    await userEvent.click(buttons[3]);
+    await userEvent.click(buttons[1]);
 
-    expect(openUrl).toHaveBeenCalledWith('https://nuclearplayer.com');
+    expect(openUrl).toHaveBeenCalledWith('https://tahti.live');
   });
 });

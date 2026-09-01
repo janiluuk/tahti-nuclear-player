@@ -1,30 +1,20 @@
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { FC } from 'react';
 import { LuGlobe } from 'react-icons/lu';
-import { SiDiscord, SiGithub, SiMastodon } from 'react-icons/si';
+import { SiGithub } from 'react-icons/si';
 
 import { Button, Tooltip } from '@nuclearplayer/ui';
 
 const SOCIAL_LINKS = [
   {
-    label: 'Discord',
-    icon: <SiDiscord size={16} />,
-    url: 'https://discord.gg/JqPjKxE',
-  },
-  {
     label: 'GitHub',
     icon: <SiGithub size={16} />,
-    url: 'https://github.com/nukeop/nuclear',
-  },
-  {
-    label: 'Mastodon',
-    icon: <SiMastodon size={16} />,
-    url: 'https://fosstodon.org/@nuclearplayer',
+    url: 'https://github.com/janiluuk/tahti-player',
   },
   {
     label: 'Website',
     icon: <LuGlobe size={16} />,
-    url: 'https://nuclearplayer.com',
+    url: 'https://tahti.live',
   },
 ] as const;
 

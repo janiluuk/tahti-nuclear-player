@@ -850,6 +850,7 @@ export type ArtistPost = {
   body: string;
   linkUrl: string | null;
   linkLabel: string | null;
+  images: string[];
   publishAt: string;
   createdAt: string;
 };
@@ -871,6 +872,7 @@ let mockPosts: ArtistPost[] = [
     body: 'Archive just dropped — listen on the channel.',
     linkUrl: null,
     linkLabel: null,
+    images: [],
     publishAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
   },
@@ -894,13 +896,18 @@ export async function fetchArtistPosts(): Promise<{
 }> {
   if (forceMock()) {
     return {
-      data: [...mockPosts],
+      data: mockPosts.map((post) => ({ ...post, images: [...post.images] })),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
   try {
     const { data } = await requestJson<ArtistPost[]>('/api/me/posts');
-    return { data: Array.isArray(data) ? data : [], meta: { source: 'api' } };
+    return {
+      data: Array.isArray(data)
+        ? data.map((post) => ({ ...post, images: post.images ?? [] }))
+        : [],
+      meta: { source: 'api' },
+    };
   } catch (err) {
     return { data: [], meta: failMeta(err) };
   }
@@ -918,6 +925,7 @@ export async function createArtistPost(input: {
       body: input.body,
       linkUrl: input.linkUrl ?? null,
       linkLabel: null,
+      images: [],
       publishAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     };
@@ -929,11 +937,60 @@ export async function createArtistPost(input: {
       method: 'POST',
       body: JSON.stringify(input),
     });
-    return { ok: true, data };
+    return { ok: true, data: { ...data, images: data.images ?? [] } };
   } catch (err) {
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Create failed',
+    };
+  }
+}
+
+export async function uploadArtistPostImage(
+  postId: string,
+  file: File,
+): Promise<{ ok: true; data: ArtistPost } | { ok: false; error: string }> {
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    return { ok: false, error: 'Choose a JPEG, PNG, or WebP image.' };
+  }
+  if (forceMock()) {
+    const imageUrl = URL.createObjectURL(file);
+    const current = mockPosts.find((post) => post.id === postId);
+    if (!current) {
+      return { ok: false, error: 'Post not found.' };
+    }
+    const data = { ...current, images: [...current.images, imageUrl] };
+    mockPosts = mockPosts.map((post) => (post.id === postId ? data : post));
+    return { ok: true, data };
+  }
+  try {
+    const prepared = await requestJson<{
+      uploadKey: string;
+      uploadUrl: string;
+    }>(`/api/me/posts/${encodeURIComponent(postId)}/images/prepare`, {
+      method: 'POST',
+      body: JSON.stringify({ filename: file.name, contentType: file.type }),
+    });
+    const upload = await fetch(prepared.data.uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    });
+    if (!upload.ok) {
+      throw new Error(`Image upload failed (${upload.status})`);
+    }
+    const { data } = await requestJson<ArtistPost>(
+      `/api/me/posts/${encodeURIComponent(postId)}/images/complete`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ uploadKey: prepared.data.uploadKey }),
+      },
+    );
+    return { ok: true, data: { ...data, images: data.images ?? [] } };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Image upload failed',
     };
   }
 }

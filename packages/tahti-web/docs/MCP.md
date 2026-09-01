@@ -1,6 +1,6 @@
-# Nuclear MCP (desktop) — preserved as-is in this fork
+# Tahti Player MCP (desktop)
 
-The original Nuclear **Model Context Protocol** server is **not** part of the Vite SPA (`@nuclearplayer/tahti-web` / beta.tahti.live). It is the **Tauri desktop player** stack, kept **byte-identical** to upstream Nuclear in this monorepo.
+The **Model Context Protocol** server is **not** part of the Vite SPA (`@nuclearplayer/tahti-web` / beta.tahti.live). It is part of the Tahti Player Tauri desktop stack and exposes the local player controls to AI tools.
 
 ## Where it lives
 
@@ -21,7 +21,7 @@ node packages/tahti-web/scripts/verify-nuclear-mcp-parity.mjs
 
 ## Enable (desktop)
 
-1. Run the Nuclear player from this repo:
+1. Run Tahti Player from this repo:
    ```bash
    export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 22
    pnpm --filter @nuclearplayer/player tauri:dev   # or the package’s documented tauri script
@@ -38,5 +38,5 @@ MCP requires the Tauri process + webview **bridge** to the live player API. A mu
 
 ## Product stance
 
-- **Desktop Tahti Player:** MCP **complete / as-is**.
-- **Web cutover (`tahti-web`):** N/A for Nuclear MCP; optional future *Tahti API* MCP would be a separate package, not a port of this server.
+- **Desktop Tahti Player:** MCP **complete / local-only**.
+- **Web cutover (`tahti-web`):** N/A for desktop MCP; an optional future *Tahti API* MCP would be a separate package, not a browser-hosted local control plane.

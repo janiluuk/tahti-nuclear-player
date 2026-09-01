@@ -50,7 +50,7 @@ for (const file of versionFiles) {
 }
 
 const metainfoFile =
-  'packages/player/src-tauri/resources/com.nuclearplayer.Nuclear.metainfo.xml';
+  'packages/player/src-tauri/resources/live.tahti.player.metainfo.xml';
 const metainfoPath = resolve(rootDir, metainfoFile);
 writeFileSync(
   metainfoPath,

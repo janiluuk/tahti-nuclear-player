@@ -1,7 +1,5 @@
 import { Link } from '@tanstack/react-router';
 import {
-  ActivityIcon,
-  CheckCircle2Icon,
   CheckIcon,
   CircleDotIcon,
   CopyIcon,
@@ -45,6 +43,7 @@ import {
 import { ChannelShareButton } from '../../components/ChannelShareButton';
 import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
 import { ObsPresetButton } from '../../components/ObsPresetButton';
+import { SignalCheckWidget } from '../../components/SignalCheckWidget';
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -118,6 +117,7 @@ export function StudioGoLiveView() {
   const playbackStatus = usePlayerStore((state) => state.status);
   const currentId = usePlayerStore((state) => state.currentId);
   const setPlaybackStatus = usePlayerStore((state) => state.setStatus);
+  const analyser = usePlayerStore((state) => state.analyser);
 
   const [settings, setSettings] = useState<StreamSettings | null>(null);
   const [signal, setSignal] = useState<SignalStatus | null>(null);
@@ -150,6 +150,8 @@ export function StudioGoLiveView() {
   const isStreamPlaying =
     currentId === streamPlayableId &&
     (playbackStatus === 'playing' || playbackStatus === 'loading');
+  const isPreviewListening =
+    currentId === streamPlayableId && playbackStatus === 'playing';
 
   const patchLocalChannel = useCallback((state: string) => {
     setChannelState(state);
@@ -418,48 +420,20 @@ export function StudioGoLiveView() {
                     </span>
                   </div>
                 ) : null}
-                <div className="border-border bg-background/40 flex flex-wrap items-center gap-3 rounded-lg border p-3">
-                  {signalOk ? (
-                    <CheckCircle2Icon
-                      size={18}
-                      className="text-primary"
-                      aria-hidden
-                    />
-                  ) : (
-                    <ActivityIcon
-                      size={18}
-                      className="text-foreground-secondary"
-                      aria-hidden
-                    />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">
-                      {signalOk
-                        ? 'Encoder signal detected'
-                        : 'Waiting for signal'}
-                    </p>
-                    <p className="text-foreground-secondary text-xs">
-                      {signalOk
-                        ? 'Preview with the stream controls above, then publish when ready.'
-                        : 'This dashboard checks your signal every four seconds.'}
-                    </p>
-                  </div>
-                  {isMock && !signalOk && (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => {
-                        mockSimulateSignal(true);
-                        setChannelState('PREVIEW');
-                        void fetchSignalStatus().then((result) =>
-                          setSignal(result.data),
-                        );
-                      }}
-                    >
-                      Test connection
-                    </Button>
-                  )}
-                </div>
+                <SignalCheckWidget
+                  signal={signal}
+                  analyser={analyser}
+                  isChecking={isPreviewListening}
+                  onCheckAudio={toggleStreamPlayback}
+                  isMock={isMock}
+                  onTestConnection={() => {
+                    mockSimulateSignal(true);
+                    setChannelState('PREVIEW');
+                    void fetchSignalStatus().then((result) =>
+                      setSignal(result.data),
+                    );
+                  }}
+                />
               </StudioPanel>
 
               <StudioPanel

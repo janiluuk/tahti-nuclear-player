@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>com.nuclearplayer.Nuclear</id>
+  <id>live.tahti.player</id>
   <metadata_license>FSFAP</metadata_license>
   <project_license>AGPL-3.0-only</project_license>
-  <name>Nuclear</name>
-  <summary>Music streaming app</summary>
+  <name>Tahti Player</name>
+  <summary>Independent artist broadcasting and music player</summary>
 
-  <developer id="com.nuclearplayer">
-    <name>nukeop</name>
+  <developer id="live.tahti">
+    <name>Tahti ry</name>
   </developer>
 
   <!-- Migration from old Flatpak ID -->
@@ -20,7 +20,7 @@
 
   <description>
     <p>
-      Nuclear is a free, open-source music player without ads or tracking. Search for any song or artist, build playlists, and start listening.
+      Tahti Player is a free, open-source broadcasting and music player for independent artists, with live channels, archives, and fan-supported listening.
     </p>
     <ul>
       <li>Search for music across multiple sources</li>
@@ -53,11 +53,11 @@
     </screenshot>
   </screenshots>
 
-  <launchable type="desktop-id">com.nuclearplayer.Nuclear.desktop</launchable>
+  <launchable type="desktop-id">live.tahti.player.desktop</launchable>
 
-  <url type="homepage">https://nuclearplayer.com</url>
-  <url type="bugtracker">https://github.com/nukeop/nuclear/issues</url>
-  <url type="vcs-browser">https://github.com/nukeop/nuclear</url>
+  <url type="homepage">https://tahti.live</url>
+  <url type="bugtracker">https://github.com/janiluuk/tahti-player/issues</url>
+  <url type="vcs-browser">https://github.com/janiluuk/tahti-player</url>
 
   <branding>
     <color type="primary" scheme_preference="light">#B7C3E6</color>

@@ -29,9 +29,9 @@
   "bundle": {
     "active": false,
     "category": "Music",
-    "shortDescription": "Music streaming app for your desktop",
-    "longDescription": "Tahti Player is a free, open-source music player without ads or tracking, built on Nuclear's player UI. Search for any song or artist, build playlists, and start listening.",
-    "copyright": "Copyright 2025-2026 Tahti",
+    "shortDescription": "Independent artist broadcasting and music player",
+    "longDescription": "Tahti Player is a free, open-source broadcasting and music player for independent artists, with live channels, archives, and fan-supported listening.",
+    "copyright": "Copyright 2025-2026 Tahti ry",
     "createUpdaterArtifacts": true,
     "icon": [
       "icons/icon.png",

@@ -1,5 +1,15 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-01 — Go Live signal check widget
+
+**Completed:** Replaced the compact Go Live signal row with Tahti's richer
+audio-readiness widget. Artists now see a clear waiting, connected, or
+listening state, can check their own audio from the same card, and get live
+stereo level meters before going on air. The mock flow keeps its connection
+test action.
+
+**Validation:** tahti-web type-check and focused lint pass.
+
 ## 2026-09-01 — Playlist detail layout
 
 **Completed:** Updated public playlist and collection pages to match the
