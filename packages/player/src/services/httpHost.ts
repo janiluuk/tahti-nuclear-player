@@ -4,7 +4,7 @@ import type {
   HttpHost,
   HttpRequestInit,
   HttpResponseData,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { Logger } from './logger';
 

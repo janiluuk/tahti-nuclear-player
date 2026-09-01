@@ -10,7 +10,7 @@ import {
   Tabs,
   Textarea,
   Toggle,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   fetchDiscoveryPrefs,

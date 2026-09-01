@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import { Box, TopList } from '@nuclearplayer/ui';
-import type { TopListEntry } from '@nuclearplayer/ui';
+import { Box, TopList } from '@tahti-player/ui';
+import type { TopListEntry } from '@tahti-player/ui';
 
 import { formatListeningDuration } from '../utils/format';
 

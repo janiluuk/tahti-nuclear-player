@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { AudioLinesIcon, ExternalLinkIcon, PlayIcon } from 'lucide-react';
 import { useEffect, useState, type FC } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import {
   fetchChannelArchive,

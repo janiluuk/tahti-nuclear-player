@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { Track } from '@nuclearplayer/model';
+import type { Track } from '@tahti-player/model';
 import {
   Button,
   Dialog,
@@ -17,7 +17,7 @@ import {
   SaveButton,
   Select,
   TrackTable,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   addStudioCollectionItem,

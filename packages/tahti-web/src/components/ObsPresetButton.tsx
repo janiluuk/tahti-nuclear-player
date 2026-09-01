@@ -1,6 +1,6 @@
 import { DownloadIcon } from 'lucide-react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 type Props = {
   channelName: string;

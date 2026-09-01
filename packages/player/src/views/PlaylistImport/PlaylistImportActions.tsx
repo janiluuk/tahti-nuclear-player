@@ -1,9 +1,9 @@
 import { SaveIcon } from 'lucide-react';
 import type { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { Track } from '@nuclearplayer/model';
-import { Popover } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import type { Track } from '@tahti-player/model';
+import { Popover } from '@tahti-player/ui';
 
 import { PlaylistActions } from '../Playlists/components/PlaylistActions';
 

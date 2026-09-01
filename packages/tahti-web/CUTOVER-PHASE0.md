@@ -1,6 +1,6 @@
 # Cutover Phase 0 — decisions
 
-Working decisions for replacing production `apps/web` with `@nuclearplayer/tahti-web`.
+Working decisions for replacing production `apps/web` with `@tahti-player/tahti-web`.
 Full cutover phases live in [CUTOVER.md](./CUTOVER.md) when present; this file is the **decision log**.
 
 Legend: **Approved** (user stated) · **Proposed** (recommend default) · **Needs user confirm**

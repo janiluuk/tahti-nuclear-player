@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-import { Track } from '@nuclearplayer/model';
+import { Track } from '@tahti-player/model';
 
 import { TrackTableActions, TrackTableLabels, TrackTableProps } from './types';
 

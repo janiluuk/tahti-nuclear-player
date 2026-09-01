@@ -1,4 +1,4 @@
-# @nuclearplayer/tahti-web
+# @tahti-player/tahti-web
 
 Tahti’s listen, artist studio and administration client. It combines the Nuclear Player experience with publishing, broadcasting, community and platform-management tools.
 
@@ -149,8 +149,8 @@ Every image is a full-page route capture. The narration describes the job the vi
 ```bash
 pnpm dev
 pnpm storybook
-pnpm --filter @nuclearplayer/tahti-web type-check
-pnpm --filter @nuclearplayer/tahti-web lint
+pnpm --filter @tahti-player/tahti-web type-check
+pnpm --filter @tahti-player/tahti-web lint
 ```
 
 Refresh the guide against the mock app with:

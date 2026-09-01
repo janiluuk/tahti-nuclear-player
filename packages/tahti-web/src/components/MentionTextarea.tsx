@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Textarea } from '@nuclearplayer/ui';
+import { Textarea } from '@tahti-player/ui';
 
 import { searchMentionUsers, type MentionUser } from '../api/mentions';
 

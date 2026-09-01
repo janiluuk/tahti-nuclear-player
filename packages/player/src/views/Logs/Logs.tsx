@@ -1,5 +1,5 @@
-import { useTranslation } from '@nuclearplayer/i18n';
-import { LogViewer, ViewShell } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { LogViewer, ViewShell } from '@tahti-player/ui';
 
 import { useLogExport } from '../../hooks/useLogExport';
 import { useLogStream } from '../../hooks/useLogStream';

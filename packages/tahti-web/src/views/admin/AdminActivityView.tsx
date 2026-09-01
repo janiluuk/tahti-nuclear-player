@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { LogViewer, type LogEntryData, type LogLevel } from '@nuclearplayer/ui';
+import { LogViewer, type LogEntryData, type LogLevel } from '@tahti-player/ui';
 
 import {
   adminActivityExportCsvUrl,

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { SelectOption } from '@nuclearplayer/ui';
+import { SelectOption } from '@tahti-player/ui';
 
 import { useThemeStore } from '../stores/themeStore';
 

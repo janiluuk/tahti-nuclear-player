@@ -1,9 +1,9 @@
 import { FC } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { RepeatMode } from '@nuclearplayer/plugin-sdk';
-import { PlayerBar } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { RepeatMode } from '@tahti-player/plugin-sdk';
+import { PlayerBar } from '@tahti-player/ui';
 
 import { useCoreSetting } from '../../hooks/useCoreSetting';
 import { useProviders } from '../../hooks/useProviders';

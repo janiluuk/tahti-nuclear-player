@@ -547,7 +547,7 @@ exports[`Plugin Store > (Snapshot) renders the plugin store with plugins from th
                                   >
                                     <button
                                       aria-checked="true"
-                                      class="border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors bg-foreground text-background"
+                                      class="inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors bg-primary text-primary-foreground border-primary"
                                       role="radio"
                                       type="button"
                                     >
@@ -555,7 +555,7 @@ exports[`Plugin Store > (Snapshot) renders the plugin store with plugins from th
                                     </button>
                                     <button
                                       aria-checked="false"
-                                      class="border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors text-foreground hover:bg-foreground/10 bg-transparent"
+                                      class="inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors border-border text-foreground hover:bg-background-secondary bg-transparent"
                                       role="radio"
                                       type="button"
                                     >
@@ -563,7 +563,7 @@ exports[`Plugin Store > (Snapshot) renders the plugin store with plugins from th
                                     </button>
                                     <button
                                       aria-checked="false"
-                                      class="border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors text-foreground hover:bg-foreground/10 bg-transparent"
+                                      class="inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors border-border text-foreground hover:bg-background-secondary bg-transparent"
                                       role="radio"
                                       type="button"
                                     >
@@ -571,7 +571,7 @@ exports[`Plugin Store > (Snapshot) renders the plugin store with plugins from th
                                     </button>
                                     <button
                                       aria-checked="false"
-                                      class="border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors text-foreground hover:bg-foreground/10 bg-transparent"
+                                      class="inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors border-border text-foreground hover:bg-background-secondary bg-transparent"
                                       role="radio"
                                       type="button"
                                     >
@@ -579,7 +579,7 @@ exports[`Plugin Store > (Snapshot) renders the plugin store with plugins from th
                                     </button>
                                     <button
                                       aria-checked="false"
-                                      class="border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors text-foreground hover:bg-foreground/10 bg-transparent"
+                                      class="inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors border-border text-foreground hover:bg-background-secondary bg-transparent"
                                       role="radio"
                                       type="button"
                                     >
@@ -587,7 +587,7 @@ exports[`Plugin Store > (Snapshot) renders the plugin store with plugins from th
                                     </button>
                                     <button
                                       aria-checked="false"
-                                      class="border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors text-foreground hover:bg-foreground/10 bg-transparent"
+                                      class="inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors border-border text-foreground hover:bg-background-secondary bg-transparent"
                                       role="radio"
                                       type="button"
                                     >
@@ -595,7 +595,7 @@ exports[`Plugin Store > (Snapshot) renders the plugin store with plugins from th
                                     </button>
                                     <button
                                       aria-checked="false"
-                                      class="border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors text-foreground hover:bg-foreground/10 bg-transparent"
+                                      class="inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors border-border text-foreground hover:bg-background-secondary bg-transparent"
                                       role="radio"
                                       type="button"
                                     >
@@ -603,7 +603,7 @@ exports[`Plugin Store > (Snapshot) renders the plugin store with plugins from th
                                     </button>
                                     <button
                                       aria-checked="false"
-                                      class="border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors text-foreground hover:bg-foreground/10 bg-transparent"
+                                      class="inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors border-border text-foreground hover:bg-background-secondary bg-transparent"
                                       role="radio"
                                       type="button"
                                     >
@@ -611,7 +611,7 @@ exports[`Plugin Store > (Snapshot) renders the plugin store with plugins from th
                                     </button>
                                     <button
                                       aria-checked="false"
-                                      class="border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors text-foreground hover:bg-foreground/10 bg-transparent"
+                                      class="inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors border-border text-foreground hover:bg-background-secondary bg-transparent"
                                       role="radio"
                                       type="button"
                                     >

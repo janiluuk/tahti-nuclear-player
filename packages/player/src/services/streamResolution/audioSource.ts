@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 
-import { AudioSource } from '@nuclearplayer/hifi';
-import type { StreamCandidate } from '@nuclearplayer/model';
+import { AudioSource } from '@tahti-player/hifi';
+import type { StreamCandidate } from '@tahti-player/model';
 
 type ResolvedStream = NonNullable<StreamCandidate['stream']>;
 

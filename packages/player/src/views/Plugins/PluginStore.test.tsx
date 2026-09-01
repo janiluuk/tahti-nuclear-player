@@ -12,7 +12,7 @@ import {
 } from './Plugins.test.data';
 
 const setupRegistryMock = () => {
-  FetchMock.get('plugin-registry', {
+  FetchMock.get('plugins.json', {
     version: 1,
     plugins: fakeMarketplacePlugins,
   });

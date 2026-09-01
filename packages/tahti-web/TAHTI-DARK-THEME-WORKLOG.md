@@ -25,7 +25,7 @@ become an excuse to add chrome.
 
 Reskin through the theme system, never around it. Every colour, font,
 radius, spacing step, and shadow must come from a named design token defined
-in `@nuclearplayer/ui` / the `themes` package. This is a new **theme**,
+in `@tahti-player/ui` / the `themes` package. This is a new **theme**,
 not CSS sprinkled onto components. Failure conditions (any one of these
 means a phase isn't done):
 
@@ -55,7 +55,7 @@ starts in Phase 2:
 - [ ] `AGENTS.md` (repo root) — commands, package layout, code style, testing.
 - [ ] `.agents/skills/` — components + host-pattern skills; treat as the
       authority for how UI gets built/modified here.
-- [ ] `packages/ui/` (`@nuclearplayer/ui`) — locate the token definitions and
+- [ ] `packages/ui/` (`@tahti-player/ui`) — locate the token definitions and
       theme mechanism. Answer explicitly:
       - How are tokens defined (CSS variables? TS token object? Tailwind v4
         `@theme`? a `ThemeProvider`)?
@@ -103,7 +103,7 @@ token table below has been confirmed against these *real* names.
   `[data-theme-id='x']` (light) and `[data-theme-id='x'][data-theme='dark']`
   (dark) — see `aurora.css` as the reference pattern. Both attributes live on
   `document.documentElement`.
-- **Theme registration/switching API:** `@nuclearplayer/themes`
+- **Theme registration/switching API:** `@tahti-player/themes`
   (`packages/themes/src/index.ts` + `basic/index.ts`) exports
   `BUILTIN_BASIC_THEME_IDS` (id list) and a `BUILT_INS: BasicThemeMeta[]`
   array (id/name/4-swatch palette for the picker UI) — both need a new
@@ -260,7 +260,7 @@ Reminder: apply the standing minimalism principle above here first — these
 primitives are what every surface in Phase 5 will inherit its restraint (or
 its clutter) from.
 
-Add to `@nuclearplayer/ui` (or tahti-web shared components, whichever Phase 1
+Add to `@tahti-player/ui` (or tahti-web shared components, whichever Phase 1
 found to be the actual pattern), all token-driven and reduced-motion aware,
 each with a Storybook story:
 
@@ -301,10 +301,10 @@ each with a Storybook story:
       (e.g. a `variant="outline"` alongside the current filled default).
 
 **Storybook stories: not done.** Phase 1 didn't establish whether
-`tahti-web`-local components (as opposed to `@nuclearplayer/ui`) are wired
+`tahti-web`-local components (as opposed to `@tahti-player/ui`) are wired
 into the shared Storybook config at all — adding stories blind risked
 either not rendering or needing unplanned Storybook config changes. Placed
-these 4 in `tahti-web/src/components/tahti/` (not `@nuclearplayer/ui`)
+these 4 in `tahti-web/src/components/tahti/` (not `@tahti-player/ui`)
 since they're Tahti-brand-specific, not general Nuclear player chrome —
 confirm that placement is right before adding stories.
 
@@ -536,7 +536,7 @@ deliberate themed treatment).
   `--on-primary` token missing repo-wide, `Card.tsx`/`Button.tsx` both
   affected, worst in `tahti-dark` at 1.71:1), not a new finding specific
   to this surface, and not something a Fan-subscribe-only change can fix
-  without the same cross-package `@nuclearplayer/ui` change already
+  without the same cross-package `@tahti-player/ui` change already
   deferred as out of scope. Nothing left to do here that isn't already
   tracked by the Phase 6 finding.
 
@@ -1039,7 +1039,7 @@ Manual acceptance checklist:
       verified live (Phase 4), plus a real `vite build` succeeded
       (needed anyway to debug the settings-modal mobile fix). **Re-run
       2026-08-18** (`env -u VITE_FORCE_MOCK pnpm --filter
-      @nuclearplayer/tahti-web build`, the same production build path
+      @tahti-player/tahti-web build`, the same production build path
       `deploy-vimage.sh` uses): succeeds, `dist/index.html` produced (the
       large-chunk warning is pre-existing Mermaid/katex bundle size, not
       from this work).

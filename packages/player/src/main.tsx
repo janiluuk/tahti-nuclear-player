@@ -1,6 +1,6 @@
-import '@nuclearplayer/tailwind-config';
-import '@nuclearplayer/themes';
-import '@nuclearplayer/i18n';
+import '@tahti-player/tailwind-config';
+import '@tahti-player/themes';
+import '@tahti-player/i18n';
 
 import { mountTahtiApp } from '../../tahti-web/src/TahtiApp';
 

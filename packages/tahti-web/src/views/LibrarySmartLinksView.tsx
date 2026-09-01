@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLinkIcon, Link2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import { fetchStudioReleases } from '../api/studio';
 import type { StudioRelease } from '../api/studio-types';

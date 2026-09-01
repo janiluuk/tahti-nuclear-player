@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { FC } from 'react';
 
-import { RepeatMode } from '@nuclearplayer/model';
+import { RepeatMode } from '@tahti-player/model';
 
 import { Button } from '..';
 import { cn } from '../../utils';

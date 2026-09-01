@@ -1,7 +1,7 @@
 import { CodeIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, CopyButton, Dialog } from '@nuclearplayer/ui';
+import { Button, CopyButton, Dialog } from '@tahti-player/ui';
 
 export type EmbedTarget =
   | { kind: 'channel'; slug: string }

@@ -2,7 +2,7 @@ import { Search, X } from 'lucide-react';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input } from '@tahti-player/ui';
 
 import { SearchBoxPopover } from './SearchBoxPopover';
 import { useSearchBox } from './useSearchBox';

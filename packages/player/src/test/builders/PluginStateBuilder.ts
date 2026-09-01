@@ -1,4 +1,4 @@
-import type { NuclearPlugin, PluginMetadata } from '@nuclearplayer/plugin-sdk';
+import type { PluginMetadata, TahtiPlugin } from '@tahti-player/plugin-sdk';
 
 import type { PluginState } from '../../stores/pluginStore';
 
@@ -63,7 +63,7 @@ export class PluginStateBuilder {
     return this;
   }
 
-  withInstance(instance: NuclearPlugin): PluginStateBuilder {
+  withInstance(instance: TahtiPlugin): PluginStateBuilder {
     this.state.instance = instance;
     return this;
   }

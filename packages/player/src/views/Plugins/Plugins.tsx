@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Tabs, ViewShell } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Tabs, ViewShell } from '@tahti-player/ui';
 
 import { InstalledPlugins } from './InstalledPlugins';
 import { PluginStore } from './PluginStore';

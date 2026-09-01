@@ -1,8 +1,8 @@
 import { Minimize2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { formatArtistNames } from '@nuclearplayer/model';
-import { Button, cn, PlayerBar } from '@nuclearplayer/ui';
+import { formatArtistNames } from '@tahti-player/model';
+import { Button, cn, PlayerBar } from '@tahti-player/ui';
 
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { useDominantColor } from '../lib/useDominantColor';

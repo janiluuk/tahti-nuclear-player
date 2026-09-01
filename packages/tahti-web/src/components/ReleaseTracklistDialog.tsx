@@ -1,4 +1,4 @@
-import { Dialog } from '@nuclearplayer/ui';
+import { Dialog } from '@tahti-player/ui';
 
 import type { PublicProfileRelease, TahtiPlayable } from '../api/types';
 import { formatDuration } from '../lib/playableToTrack';

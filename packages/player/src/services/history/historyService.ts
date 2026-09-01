@@ -1,5 +1,5 @@
-import type { Track } from '@nuclearplayer/model';
-import { pickArtwork } from '@nuclearplayer/model';
+import type { Track } from '@tahti-player/model';
+import { pickArtwork } from '@tahti-player/model';
 
 import { useHistoryStore } from '../../stores/historyStore';
 import { getSetting } from '../../stores/settingsStore';

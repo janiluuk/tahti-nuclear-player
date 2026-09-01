@@ -1,7 +1,7 @@
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
-import type { QueueItem, RepeatMode } from '@nuclearplayer/model';
+import type { QueueItem, RepeatMode } from '@tahti-player/model';
 
 import type { TahtiPlayable } from '../api/types';
 import { playableToTrack } from '../lib/playableToTrack';

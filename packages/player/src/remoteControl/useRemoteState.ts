@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 
-import { i18n } from '@nuclearplayer/i18n';
-import type { Queue } from '@nuclearplayer/model';
-import { pickArtwork } from '@nuclearplayer/model';
-import { setThemeId } from '@nuclearplayer/themes';
-import type { ConnectionStatus } from '@nuclearplayer/ui';
+import { i18n } from '@tahti-player/i18n';
+import type { Queue } from '@tahti-player/model';
+import { pickArtwork } from '@tahti-player/model';
+import { setThemeId } from '@tahti-player/themes';
+import type { ConnectionStatus } from '@tahti-player/ui';
 
 import type { PlaybackState, SettingsState } from './remoteStore';
 import { useRemoteStore } from './remoteStore';

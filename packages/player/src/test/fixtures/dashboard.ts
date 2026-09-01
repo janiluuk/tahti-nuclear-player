@@ -3,7 +3,7 @@ import type {
   ArtistRef,
   PlaylistRef,
   Track,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 
 const TEST_PROVIDER_ID = 'test-dashboard-provider';
 

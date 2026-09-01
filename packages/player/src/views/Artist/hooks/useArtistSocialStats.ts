@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { ArtistSocialStats } from '@nuclearplayer/model';
+import type { ArtistSocialStats } from '@tahti-player/model';
 
 import { metadataHost } from '../../../services/metadataHost';
 

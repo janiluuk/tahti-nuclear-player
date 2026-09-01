@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PlayableTrackContextMenu } from '@tahti-web/components/PlayableTrackContextMenu';
 import { MoreHorizontalIcon } from 'lucide-react';
 
-import type { Track } from '@nuclearplayer/model';
-import { Button } from '@nuclearplayer/ui';
+import type { Track } from '@tahti-player/model';
+import { Button } from '@tahti-player/ui';
 
 import { withTahtiRouter } from './_lib/decorators';
 

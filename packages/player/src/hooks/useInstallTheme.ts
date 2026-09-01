@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BaseDirectory, writeTextFile } from '@tauri-apps/plugin-fs';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { type MarketplaceTheme } from '@nuclearplayer/themes';
+import { useTranslation } from '@tahti-player/i18n';
+import { type MarketplaceTheme } from '@tahti-player/themes';
 
 import { themeRegistryApi } from '../apis/themeRegistryApi';
 import { useThemeStore } from '../stores/themeStore';

@@ -7,7 +7,7 @@ import {
   within,
 } from '@testing-library/react';
 
-import { AudioSource } from '@nuclearplayer/hifi';
+import { AudioSource } from '@tahti-player/hifi';
 
 import App from '../App';
 import { useQueueStore } from '../stores/queueStore';

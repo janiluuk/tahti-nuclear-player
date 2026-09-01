@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 
-import { TopList, TopListEntry } from '@nuclearplayer/ui';
+import { TopList, TopListEntry } from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/TopList',

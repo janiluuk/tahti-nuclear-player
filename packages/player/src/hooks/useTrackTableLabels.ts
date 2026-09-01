@@ -1,5 +1,5 @@
-import { useTranslation } from '@nuclearplayer/i18n';
-import { TrackTableLabels } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { TrackTableLabels } from '@tahti-player/ui';
 
 export const useTrackTableLabels = (): TrackTableLabels => {
   const { t } = useTranslation('trackTable');

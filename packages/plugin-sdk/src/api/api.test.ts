@@ -1,8 +1,8 @@
-import { NuclearPluginAPI } from './index.js';
+import { TahtiPluginAPI } from './index.js';
 
-describe('NuclearPluginAPI', () => {
+describe('TahtiPluginAPI', () => {
   it('should create an instance', () => {
-    const api = new NuclearPluginAPI();
-    expect(api).toBeInstanceOf(NuclearPluginAPI);
+    const api = new TahtiPluginAPI();
+    expect(api).toBeInstanceOf(TahtiPluginAPI);
   });
 });

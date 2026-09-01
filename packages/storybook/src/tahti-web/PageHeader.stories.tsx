@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PageFrame, PageHeader } from '@tahti-web/components/PageHeader';
 
-import { Badge, Button } from '@nuclearplayer/ui';
+import { Badge, Button } from '@tahti-player/ui';
 
 const meta: Meta<typeof PageHeader> = {
   title: 'Tahti/Page/PageHeader',

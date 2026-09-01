@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@tahti-player/ui';
 
 import {
   createRtmpTarget,

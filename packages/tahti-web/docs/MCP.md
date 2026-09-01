@@ -1,6 +1,6 @@
 # Tahti Player MCP (desktop)
 
-The **Model Context Protocol** server is **not** part of the Vite SPA (`@nuclearplayer/tahti-web` / beta.tahti.live). It is part of the Tahti Player Tauri desktop stack and exposes the local player controls to AI tools.
+The **Model Context Protocol** server is **not** part of the Vite SPA (`@tahti-player/tahti-web` / beta.tahti.live). It is part of the Tahti Player Tauri desktop stack and exposes the local player controls to AI tools.
 
 ## Where it lives
 
@@ -24,7 +24,7 @@ node packages/tahti-web/scripts/verify-nuclear-mcp-parity.mjs
 1. Run Tahti Player from this repo:
    ```bash
    export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 22
-   pnpm --filter @nuclearplayer/player tauri:dev   # or the package’s documented tauri script
+   pnpm --filter @tahti-player/player tauri:dev   # or the package’s documented tauri script
    ```
 2. Settings → Integrations → **Enable MCP Server**.
 3. Server binds `http://127.0.0.1:8800/mcp` … `8809` (localhost only).

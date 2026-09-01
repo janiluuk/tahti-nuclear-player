@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { BaseDirectory, remove } from '@tauri-apps/plugin-fs';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { clearAdvancedTheme, DEFAULT_THEME_ID } from '@nuclearplayer/themes';
+import { useTranslation } from '@tahti-player/i18n';
+import { clearAdvancedTheme, DEFAULT_THEME_ID } from '@tahti-player/themes';
 
 import { useThemeStore } from '../stores/themeStore';
 import { reportError } from '../utils/logging';

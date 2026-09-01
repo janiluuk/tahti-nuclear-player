@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 
-import { TitleBar } from '@nuclearplayer/ui';
+import { TitleBar } from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/TitleBar',

@@ -5,8 +5,8 @@ import {
   applyAdvancedTheme,
   clearAdvancedTheme,
   type AdvancedTheme,
-} from '@nuclearplayer/themes';
-import { Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
+} from '@tahti-player/themes';
+import { Button, Dialog, Input, Textarea } from '@tahti-player/ui';
 
 import { useThemeStore } from '../plugins/themes';
 
@@ -133,7 +133,7 @@ function hslToHex(hue: number, saturation: number, lightness: number): string {
 }
 
 /** Visual editor for a custom theme: overrides a curated set of CSS
- * variables (see @nuclearplayer/themes' AdvancedThemeSchema) with live
+ * variables (see @tahti-player/themes' AdvancedThemeSchema) with live
  * preview via `applyAdvancedTheme`, then hands the assembled theme to
  * `importCustomTheme` to persist + activate it. Unfilled fields are left
  * out of the saved theme, so they keep inheriting from the base palette

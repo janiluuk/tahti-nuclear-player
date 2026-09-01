@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 type StemFile = { label: string; url: string };
 

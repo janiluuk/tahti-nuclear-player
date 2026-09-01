@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge } from '@nuclearplayer/ui';
+import { Badge } from '@tahti-player/ui';
 
 import { fetchPublicGovernanceMotions } from '../api/client';
 import type { PublicGovernanceMotion } from '../api/types';

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import type { Queue } from '@nuclearplayer/model';
-import type { ConnectionStatus } from '@nuclearplayer/ui';
+import type { Queue } from '@tahti-player/model';
+import type { ConnectionStatus } from '@tahti-player/ui';
 
 import type { PlaybackState, SettingsState } from './remoteStore';
 import { useRemoteStore } from './remoteStore';

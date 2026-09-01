@@ -3,7 +3,7 @@ import { ConnectedPlayerBar } from '@tahti-web/components/ConnectedPlayerBar';
 import { useLayoutStore } from '@tahti-web/stores/layoutStore';
 import { usePlayerStore } from '@tahti-web/stores/playerStore';
 
-import type { QueueItem } from '@nuclearplayer/model';
+import type { QueueItem } from '@tahti-player/model';
 
 import { withTahtiRouter } from './_lib/decorators';
 

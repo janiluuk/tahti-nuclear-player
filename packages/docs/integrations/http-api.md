@@ -1,12 +1,12 @@
 ---
-description: Control Nuclear from scripts and other tools via the HTTP API.
+description: Control Tahti Player from scripts and other tools via the HTTP API.
 ---
 
 # HTTP API
 
-When Nuclear Jam is enabled, Nuclear exposes a local HTTP API on the same server that serves the remote control UI. You can use it to build your own integrations, scripts, or alternative remotes.
+When Tahti Jam is enabled, Tahti Player exposes a local HTTP API on the same server that serves the remote control UI. You can use it to build your own integrations, scripts, or alternative remotes.
 
-Enable Nuclear Jam in Settings, then Integrations. The **API URL** field shows the base URL (e.g. `http://192.168.1.42:4120/api`).
+Enable Tahti Jam in Settings, then Integrations. The **API URL** field shows the base URL (e.g. `http://192.168.1.42:4120/api`).
 
 ## Endpoints
 
@@ -40,7 +40,7 @@ All action endpoints return `200 OK` with no body on success.
 
 ### Events (SSE)
 
-`GET /api/events` opens a Server-Sent Events stream. The server pushes named events whenever state changes in Nuclear.
+`GET /api/events` opens a Server-Sent Events stream. The server pushes named events whenever state changes in Tahti Player.
 
 Three event types:
 
@@ -75,4 +75,4 @@ Failed requests return a JSON body with an `error` field:
 { "error": "Playback.toggle failed: no track in queue" }
 ```
 
-The status code is `500` for bridge errors (the command reached Nuclear but failed) and standard HTTP codes for anything else (404 for unknown routes, etc.).
+The status code is `500` for bridge errors (the command reached Tahti Player but failed) and standard HTTP codes for anything else (404 for unknown routes, etc.).

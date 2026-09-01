@@ -18,7 +18,7 @@ import {
   SidebarNavigation,
   SidebarNavigationItem,
   Toaster,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import { useIsCompactDesktop, useIsMobile } from '../hooks/useIsMobile';
 import { MAIN_CONTENT_PADDING } from '../layout/contentPadding';

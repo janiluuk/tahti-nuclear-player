@@ -4,7 +4,7 @@ import {
   StudioPanel,
 } from '@tahti-web/components/StudioPanel';
 
-import { Badge, Button } from '@nuclearplayer/ui';
+import { Badge, Button } from '@tahti-player/ui';
 
 const meta: Meta<typeof StudioPanel> = {
   title: 'Tahti/Page/StudioPanel',

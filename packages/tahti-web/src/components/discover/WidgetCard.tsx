@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 
-import { Button, Dialog, EmptyState, Loader } from '@nuclearplayer/ui';
+import { Button, Dialog, EmptyState, Loader } from '@tahti-player/ui';
 
 import type { DiscoverArtistOfWeek } from '../../api/discover';
 import type { DiscoverCollection, DiscoverTrackItem } from '../../api/types';

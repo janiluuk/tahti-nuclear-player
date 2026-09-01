@@ -1,7 +1,7 @@
 import { omit } from 'lodash-es';
 
-import type { QueueItem, StreamCandidate } from '@nuclearplayer/model';
-import { stripResolutionState } from '@nuclearplayer/model';
+import type { QueueItem, StreamCandidate } from '@tahti-player/model';
+import { stripResolutionState } from '@tahti-player/model';
 
 import { useQueueStore } from '../../stores/queueStore';
 import { useSoundStore } from '../../stores/soundStore';

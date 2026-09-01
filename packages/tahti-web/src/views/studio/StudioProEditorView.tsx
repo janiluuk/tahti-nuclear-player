@@ -29,7 +29,7 @@ import {
   Dialog,
   Input,
   SaveButton,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import { fetchArchiveVersions } from '../../api/archive-versions';
 import {

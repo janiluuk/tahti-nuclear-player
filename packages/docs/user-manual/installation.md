@@ -1,5 +1,5 @@
 ---
-description: Download and install Nuclear on your platform
+description: Download and install Tahti Player on your platform
 ---
 
 # Installation
@@ -15,7 +15,11 @@ Download the latest release from [GitHub Releases](https://github.com/nukeop/nuc
 | `Nuclear_x.y.z_x64-setup.exe` | Interactive installer. Installs per-user, no admin required. Recommended for most users. |
 | `Nuclear_x.y.z_x64_en-US.msi` | MSI installer. For system-wide or managed deployments (e.g. via Group Policy). |
 
-Run the installer and follow the prompts. Nuclear will be available from the Start menu after installation.
+{% hint style="warning" %}
+Release artifacts are still named `Nuclear_*` — this predates the Tahti Player rebrand and hasn't been re-cut yet.
+{% endhint %}
+
+Run the installer and follow the prompts. Tahti Player will be available from the Start menu after installation.
 
 {% endtab %}
 
@@ -26,11 +30,11 @@ Run the installer and follow the prompts. Nuclear will be available from the Sta
 | `Nuclear_x.y.z_aarch64.dmg` | Disk image for Apple Silicon Macs (M1, M2, M3, M4). |
 | `Nuclear_x.y.z_x64.dmg` | Disk image for Intel Macs. |
 
-Open the `.dmg` and drag Nuclear to your Applications folder.
+Open the `.dmg` and drag Tahti Player to your Applications folder.
 
 ### Gatekeeper warning
 
-Nuclear is not signed with an Apple Developer certificate. macOS will block it from opening the first time. To allow it:
+Tahti Player is not signed with an Apple Developer certificate. macOS will block it from opening the first time. To allow it:
 
 1. Right-click the app in your Applications folder and select **Open**
 2. Click **Open** in the dialog that appears
@@ -38,7 +42,7 @@ Nuclear is not signed with an Apple Developer certificate. macOS will block it f
 If that doesn't work, run this in Terminal:
 
 ```bash
-sudo xattr -r -d com.apple.quarantine /Applications/Nuclear.app
+sudo xattr -r -d com.apple.quarantine "/Applications/Nuclear.app"
 ```
 
 You only need to do this once.
@@ -55,7 +59,7 @@ You only need to do this once.
 
 ### Flatpak
 
-Nuclear is available on [Flathub](https://flathub.org/en/apps/com.nuclearplayer.Nuclear). This is the recommended way to install on Linux if your distribution supports Flatpak, since Flathub handles updates automatically.
+Tahti Player is available on [Flathub](https://flathub.org/en/apps/com.nuclearplayer.Nuclear). This is the recommended way to install on Linux if your distribution supports Flatpak, since Flathub handles updates automatically.
 
 ```bash
 flatpak install flathub com.nuclearplayer.Nuclear
@@ -65,7 +69,7 @@ Note that the Flatpak sandbox may prevent some features from working. If you run
 
 ### Arch Linux
 
-Nuclear is available in the AUR:
+Tahti Player is available in the AUR:
 
 - [nuclear-player-bin](https://aur.archlinux.org/packages/nuclear-player-bin) - prebuilt binary
 - [nuclear-player-git](https://aur.archlinux.org/packages/nuclear-player-git) - built from source
@@ -82,4 +86,4 @@ yay -S nuclear-player-bin
 
 ## Auto-updates
 
-Nuclear checks for updates on startup and can install them automatically. You can toggle this in Settings under **General > Updates**.
+Tahti Player checks for updates on startup and can install them automatically. You can toggle this in Settings under **General > Updates**.

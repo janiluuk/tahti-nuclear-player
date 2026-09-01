@@ -1,9 +1,9 @@
 import { LucideIcon } from 'lucide-react';
 import { ComponentProps, FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { ProviderKind } from '@nuclearplayer/plugin-sdk';
-import { Badge } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import type { ProviderKind } from '@tahti-player/plugin-sdk';
+import { Badge } from '@tahti-player/ui';
 
 import { useProviders } from '../../../hooks/useProviders';
 import { ProviderPill } from './ProviderPill';

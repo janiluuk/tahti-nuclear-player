@@ -1,7 +1,7 @@
 import { PlusIcon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, Select } from '@nuclearplayer/ui';
+import { Button, Input, Select } from '@tahti-player/ui';
 
 import {
   createLedgerEntry,

@@ -2,7 +2,7 @@ import { PinIcon, SendIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input } from '@tahti-player/ui';
 
 import {
   deletePinnedAnnouncement,

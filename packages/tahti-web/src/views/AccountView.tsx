@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Box, Button, Tabs } from '@nuclearplayer/ui';
+import { Box, Button, Tabs } from '@tahti-player/ui';
 
 import { fetchMembership, fetchMySubscriptions } from '../api/client';
 import type { FanSubscriptionRow, MembershipStatus } from '../api/types';

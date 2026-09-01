@@ -16,7 +16,7 @@ Ranked by extraction cost (cheapest first):
 
 - **Lives**: `src/plugins/themes/store.ts` (moved from `src/stores/themeStore.ts`
   unchanged — same public interface). `listBasicThemes()` comes from
-  `@nuclearplayer/themes`; custom themes are user-imported JSON in
+  `@tahti-player/themes`; custom themes are user-imported JSON in
   `customThemes: Record<string, AdvancedTheme>`.
 - **Settings today**: `ThemesPanel` in `SettingsPanels.tsx`. The old
   `src/views/ThemesView.tsx` was found to be dead code (nothing routed to

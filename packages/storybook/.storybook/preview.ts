@@ -5,8 +5,8 @@ import '@fontsource/dm-sans/400.css';
 import '@fontsource/dm-sans/700.css';
 import '@fontsource/bricolage-grotesque/800.css';
 import '@fontsource/space-mono/400.css';
-import '@nuclearplayer/tailwind-config';
-import '@nuclearplayer/themes';
+import '@tahti-player/tailwind-config';
+import '@tahti-player/themes';
 
 const preview: Preview = {
   decorators: [

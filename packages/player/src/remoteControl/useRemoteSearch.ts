@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import type { Track } from '@nuclearplayer/model';
+import type { Track } from '@tahti-player/model';
 
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useRemoteActions } from './useRemoteActions';

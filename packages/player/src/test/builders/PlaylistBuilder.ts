@@ -7,7 +7,7 @@ import type {
   PlaylistItem,
   ProviderRef,
   Track,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 
 const now = () => new Date().toISOString();
 

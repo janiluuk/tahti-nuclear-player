@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { QueueItem, Track } from '@nuclearplayer/model';
+import type { QueueItem, Track } from '@tahti-player/model';
 
 import { useQueueStore } from '../../stores/queueStore';
 import { useSettingsStore } from '../../stores/settingsStore';

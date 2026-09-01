@@ -1,9 +1,9 @@
 import isEmpty from 'lodash-es/isEmpty';
 import { FC, useMemo } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { DashboardProvider } from '@nuclearplayer/plugin-sdk';
-import { Loader, ViewShell } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import type { DashboardProvider } from '@tahti-player/plugin-sdk';
+import { Loader, ViewShell } from '@tahti-player/ui';
 
 import { useProviders } from '../../hooks/useProviders';
 import { useStartupStore } from '../../stores/startupStore';

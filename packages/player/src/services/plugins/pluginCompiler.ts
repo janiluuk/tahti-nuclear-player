@@ -14,7 +14,7 @@
  * - Feed the entry file content to esbuild and handle ALL path resolutions/loads via
  *   Tauri's readTextFile (a virtual filesystem plugin), never touching the real fs.
  * - Only compile TS/TSX. For plain JS we skip compilation and just read the file.
- * - Externalize bare module imports (e.g., @nuclearplayer/plugin-sdk) so plugins don't
+ * - Externalize bare module imports (e.g., @tahti-player/plugin-sdk) so plugins don't
  *   accidentally try to bundle our runtime dependencies.
  * - Cache compiled bundles per entry path, invalidated by re-hashing every file
  *   that participated in the previous build (see CompileCacheEntry below).
@@ -206,7 +206,7 @@ export async function compilePlugin(
     jsx: 'automatic',
     // Do not bundle our host SDK. Plugins import it at runtime from the app,
     // not from the plugin bundle.
-    external: ['@nuclearplayer/plugin-sdk'],
+    external: ['@tahti-player/plugin-sdk'],
 
     // Keep a neutral working directory. Real resolution happens inside our
     // virtual "tauri-fs" plugin (below).

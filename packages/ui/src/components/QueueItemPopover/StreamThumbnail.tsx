@@ -1,7 +1,7 @@
 import { Music } from 'lucide-react';
 import { FC } from 'react';
 
-import type { StreamCandidate } from '@nuclearplayer/model';
+import type { StreamCandidate } from '@tahti-player/model';
 
 import { Badge } from '../Badge';
 

@@ -1,6 +1,6 @@
-import '@nuclearplayer/tailwind-config';
-import '@nuclearplayer/themes';
-import '@nuclearplayer/ui';
+import '@tahti-player/tailwind-config';
+import '@tahti-player/themes';
+import '@tahti-player/ui';
 import './styles.css';
 
 const el = document.getElementById('root');

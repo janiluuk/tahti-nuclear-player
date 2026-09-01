@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC, type ReactNode } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import { fetchGrantEstimate, type GrantEstimate } from '../../api/revenue';
 import {

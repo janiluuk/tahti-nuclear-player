@@ -3,7 +3,7 @@ import type {
   SearchParams,
   SearchResults,
   Track,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 
 import { useRemoteStore } from './remoteStore';
 

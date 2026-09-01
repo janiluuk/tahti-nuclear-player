@@ -7,7 +7,7 @@ import {
   HistoryRow,
   Pagination,
   Select,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import { useLibraryStore, type HistoryEntry } from '../../stores/libraryStore';
 import { usePlayerStore } from '../../stores/playerStore';

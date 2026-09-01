@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Music, Palette } from 'lucide-react';
 import { fn } from 'storybook/test';
 
-import { PluginItem, Toggle } from '@nuclearplayer/ui';
+import { PluginItem, Toggle } from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/PluginItem',

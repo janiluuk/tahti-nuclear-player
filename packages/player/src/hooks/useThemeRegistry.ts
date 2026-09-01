@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { type MarketplaceTheme } from '@nuclearplayer/themes';
+import { type MarketplaceTheme } from '@tahti-player/themes';
 
 import { themeRegistryApi } from '../apis/themeRegistryApi';
 

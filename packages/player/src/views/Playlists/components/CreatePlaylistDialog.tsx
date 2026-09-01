@@ -1,7 +1,7 @@
 import { useState, type FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Button, Dialog, Input } from '@tahti-player/ui';
 
 import { useCreatePlaylistContext } from '../PlaylistsContext';
 

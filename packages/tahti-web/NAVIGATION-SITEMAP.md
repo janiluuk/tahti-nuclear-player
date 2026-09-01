@@ -14,7 +14,7 @@ orphan is not mistaken for a missing feature.
 | Signed in | Library | `/library`, `/library/sounds`, `/library/collections`, `/library/favorites`, `/library/history`, `/library/messages`, `/library/media`, `/library/recordings`, `/library/releases`, `/library/smartlinks`, `/library/upload`, `/messages`, `/messages/$id` | Some legacy aliases redirect into the same library surfaces |
 | Artist | Studio | `/studio`, `/studio/stats`, `/studio/governance`, `/studio/updates`, `/studio/distribution`, `/studio/revenue`, `/studio/go-live`, `/studio/schedule`, `/studio/events`, `/studio/events/new`, `/studio/shows`, `/studio/shows/$id`, `/studio/channel`, `/studio/releases`, `/studio/collections`, `/studio/playlists`, `/studio/archive`, `/studio/upload`, `/studio/editor`, `/studio/recordings`, `/studio/branding`, `/studio/stash`, `/studio/mastering/$id` | Persistent Studio navigation owns these pages; detail routes are contextual |
 | Signed in | Settings | `/settings`, `/settings/$section`, `/account`, `/onboarding` | Account, artist, channel, broadcast, notifications, themes, and connections |
-| Board | Admin | `/admin`, `/admin/logs`, `/admin/moderation`, `/admin/users`, `/admin/content`, `/admin/radio`, `/admin/news`, `/admin/streams`, `/admin/venues`, `/admin/top-lists`, `/admin/announcements`, `/admin/storage`, `/admin/financial`, `/admin/governance`, `/admin/grants`, `/admin/agm`, `/admin/missed-shows`, `/admin/disco-widgets`, `/admin/status`, `/admin/vendors`, `/admin/i18n`, `/admin/tahti-selects` | Admin section navigation owns these pages; queue/detail routes remain contextual |
+| Board | Admin | `/admin`, `/admin/logs`, `/admin/moderation`, `/admin/users`, `/admin/content`, `/admin/radio`, `/admin/news`, `/admin/streams`, `/admin/venues`, `/admin/top-lists`, `/admin/announcements`, `/admin/storage`, `/admin/financial`, `/admin/governance`, `/admin/grants`, `/admin/agm`, `/admin/missed-shows`, `/admin/disco-widgets`, `/admin/status`, `/admin/vendors`, `/admin/i18n`, `/admin/tahti-selects`, `/admin/orphan-pages` | Admin section navigation owns these pages; queue/detail routes remain contextual |
 
 ## Intentional deep links and aliases
 
@@ -29,6 +29,32 @@ These routes are real but should not become extra top-level navigation items:
   `/reset-password`, and `/setup-password` are authentication flows.
 - `/dashboard/*`, `/c/$slug`, `/favorites`, `/history`, `/schedule`, `/themes`,
   `/sources/*`, and `/more` are compatibility or redirect routes.
+
+## Orphan pages
+
+Full studio/admin/library route audit against `AdminNav.tsx`, `StudioNav.tsx`,
+and every `<Link>`/`navigate()` call in `src/` (2026-09-02). One real,
+content-bearing page had no menu entry and no in-app link anywhere:
+`/admin/radio-station-suggestions` (`AdminRadioStationSuggestionsView`) — only
+referenced from `src/api/admin.ts`'s HTTP calls, never from a nav item or a
+`<Link>`. It's now `RadioStationSuggestionsTab`, gathered with any future
+finds under **`/admin/orphan-pages`** (`AdminOrphanPagesView`, tabbed —
+addressable per-tab at `/admin/orphan-pages/$tab`, same convention as
+`/admin/moderation/$tab`). The old URL redirects into its tab. `/admin/orphan-pages`
+itself is in `AdminNav`'s "Manage" section and linked from the Help Center's
+"Admin guide" article so the gathering page doesn't become an orphan itself.
+
+Two more routes were found unreachable but are not content pages, so they
+were left as-is rather than added to the tabs:
+- `/studio/setup-channel` (`StudioSetupChannelRedirect`) — a pure redirect
+  component (opens the channel-setup modal, then navigates to `/studio`);
+  nothing links to this exact path (the old-prod-URL alias for
+  `setup-channel` in `prodPathRedirects.ts` points at `/studio/channel?tab=setup`
+  instead). Dead route; candidate for removal in a follow-up.
+- `src/views/studio/StudioVenuesView.tsx` — a whole component with no route
+  pointing at it at all (`/studio/venues` redirects straight to
+  `/admin/venues`). Dead code, not a routable orphan; flagged for cleanup,
+  not touched here.
 
 ## Navigation gaps found
 

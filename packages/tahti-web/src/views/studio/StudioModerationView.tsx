@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, Tabs } from '@nuclearplayer/ui';
+import { Button, Input, Tabs } from '@tahti-player/ui';
 
 import {
   addModerator,

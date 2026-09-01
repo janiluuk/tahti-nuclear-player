@@ -39,10 +39,10 @@ Plugins subscribe to named events using `api.Events.on(eventName, listener)`. Ea
 Subscribing to events:
 
 ```typescript
-import type { NuclearPluginAPI } from '@nuclearplayer/plugin-sdk';
+import type { TahtiPluginAPI } from '@tahti-player/plugin-sdk';
 
 export default {
-  onEnable(api: NuclearPluginAPI) {
+  onEnable(api: TahtiPluginAPI) {
     const unsubscribe = api.Events.on('trackFinished', (track) => {
       api.Logger.info(`Finished: ${track.title}`);
     });
@@ -72,7 +72,7 @@ api.Events.on<E extends keyof PluginEventMap>(
 
 ```typescript
 type PluginEventMap = {
-  trackStarted: Track;   // from @nuclearplayer/model
+  trackStarted: Track;   // from @tahti-player/model
   trackFinished: Track;
 };
 

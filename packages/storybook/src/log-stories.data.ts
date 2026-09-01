@@ -1,4 +1,4 @@
-import { LogEntryData } from '@nuclearplayer/ui';
+import { LogEntryData } from '@tahti-player/ui';
 
 export const allVariantEntries: LogEntryData[] = [
   {

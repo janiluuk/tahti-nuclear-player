@@ -1,7 +1,7 @@
 import { BookOpenIcon, GithubIcon, InfoIcon } from 'lucide-react';
 import { useEffect } from 'react';
 
-import { Button, SettingsPanel } from '@nuclearplayer/ui';
+import { Button, SettingsPanel } from '@tahti-player/ui';
 
 import { MAIN_CONTENT_PADDING } from '../layout/contentPadding';
 import { useAuthModalStore } from '../stores/authModalStore';

@@ -2,8 +2,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import type { Track } from '@nuclearplayer/model';
-import { Button, Dialog, TrackTable } from '@nuclearplayer/ui';
+import type { Track } from '@tahti-player/model';
+import { Button, Dialog, TrackTable } from '@tahti-player/ui';
 
 import type { TahtiPlayable } from '../api/types';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';

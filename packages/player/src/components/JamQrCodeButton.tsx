@@ -2,8 +2,8 @@ import { QrCode } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Popover, Tooltip } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Popover, Tooltip } from '@tahti-player/ui';
 
 import { useCoreSetting } from '../hooks/useCoreSetting';
 import { InfoField } from '../views/Settings/InfoField';

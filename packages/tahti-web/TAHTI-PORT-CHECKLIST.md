@@ -1,4 +1,4 @@
-# Tahti port checklist — `@nuclearplayer/tahti-web`
+# Tahti port checklist — `@tahti-player/tahti-web`
 
 Living checklist of **prod `apps/web` → Nuclear tahti-web POC**.  
 Companion tables: [FEATURES.md](./FEATURES.md). Mock offline paths: [MOCKS.md](./MOCKS.md).
@@ -136,10 +136,10 @@ Things that look like product UI but are incomplete, offline-only, or still link
 
 ```bash
 unset VITE_FORCE_MOCK
-VITE_ALLOW_MOCK_FALLBACK=0 pnpm --filter @nuclearplayer/tahti-web dev
+VITE_ALLOW_MOCK_FALLBACK=0 pnpm --filter @tahti-player/tahti-web dev
 
 # Offline demo
-VITE_FORCE_MOCK=1 pnpm --filter @nuclearplayer/tahti-web dev
+VITE_FORCE_MOCK=1 pnpm --filter @tahti-player/tahti-web dev
 ```
 
 Update this file when a backlog item ships or a new `unwired` surface is found.

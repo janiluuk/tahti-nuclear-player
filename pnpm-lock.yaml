@@ -165,7 +165,7 @@ importers:
 
   packages/i18n:
     dependencies:
-      '@nuclearplayer/eslint-config':
+      '@tahti-player/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
       i18next:
@@ -206,7 +206,7 @@ importers:
         specifier: ^4.0.0
         version: 4.4.3
     devDependencies:
-      '@nuclearplayer/eslint-config':
+      '@tahti-player/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
       '@vitest/coverage-v8':
@@ -224,28 +224,28 @@ importers:
 
   packages/player:
     dependencies:
-      '@nuclearplayer/eslint-config':
+      '@tahti-player/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@nuclearplayer/hifi':
+      '@tahti-player/hifi':
         specifier: workspace:*
         version: link:../hifi
-      '@nuclearplayer/i18n':
+      '@tahti-player/i18n':
         specifier: workspace:*
         version: link:../i18n
-      '@nuclearplayer/model':
+      '@tahti-player/model':
         specifier: workspace:*
         version: link:../model
-      '@nuclearplayer/plugin-sdk':
+      '@tahti-player/plugin-sdk':
         specifier: workspace:*
         version: link:../plugin-sdk
-      '@nuclearplayer/tailwind-config':
+      '@tahti-player/tailwind-config':
         specifier: workspace:*
         version: link:../tailwind-config
-      '@nuclearplayer/themes':
+      '@tahti-player/themes':
         specifier: workspace:*
         version: link:../themes
-      '@nuclearplayer/ui':
+      '@tahti-player/ui':
         specifier: workspace:*
         version: link:../ui
       '@tanstack/devtools-vite':
@@ -429,10 +429,10 @@ importers:
 
   packages/plugin-sdk:
     dependencies:
-      '@nuclearplayer/model':
+      '@tahti-player/model':
         specifier: workspace:*
         version: link:../model
-      '@nuclearplayer/ui':
+      '@tahti-player/ui':
         specifier: workspace:*
         version: link:../ui
       class-variance-authority:
@@ -454,10 +454,10 @@ importers:
       '@microsoft/api-extractor':
         specifier: ^7.51.1
         version: 7.58.9(@types/node@26.0.1)
-      '@nuclearplayer/eslint-config':
+      '@tahti-player/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@nuclearplayer/tailwind-config':
+      '@tahti-player/tailwind-config':
         specifier: workspace:*
         version: link:../tailwind-config
       '@tailwindcss/vite':
@@ -511,16 +511,16 @@ importers:
       '@fontsource/space-mono':
         specifier: ^5.2.9
         version: 5.2.9
-      '@nuclearplayer/model':
+      '@tahti-player/model':
         specifier: workspace:*
         version: link:../model
-      '@nuclearplayer/tailwind-config':
+      '@tahti-player/tailwind-config':
         specifier: workspace:*
         version: link:../tailwind-config
-      '@nuclearplayer/themes':
+      '@tahti-player/themes':
         specifier: workspace:*
         version: link:../themes
-      '@nuclearplayer/ui':
+      '@tahti-player/ui':
         specifier: workspace:*
         version: link:../ui
       '@tanstack/react-router':
@@ -599,16 +599,16 @@ importers:
 
   packages/tahti-web:
     dependencies:
-      '@nuclearplayer/model':
+      '@tahti-player/model':
         specifier: workspace:*
         version: link:../model
-      '@nuclearplayer/tailwind-config':
+      '@tahti-player/tailwind-config':
         specifier: workspace:*
         version: link:../tailwind-config
-      '@nuclearplayer/themes':
+      '@tahti-player/themes':
         specifier: workspace:*
         version: link:../themes
-      '@nuclearplayer/ui':
+      '@tahti-player/ui':
         specifier: workspace:*
         version: link:../ui
       '@tanstack/react-router':
@@ -645,12 +645,12 @@ importers:
         specifier: ^5.0.7
         version: 5.0.14(@types/react@18.3.31)(immer@11.1.8)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1))
     devDependencies:
-      '@nuclearplayer/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.62.1
+      '@tahti-player/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       '@tailwindcss/vite':
         specifier: ^4.1.11
         version: 4.2.4(vite@7.3.6(@types/node@26.0.1)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3))
@@ -694,16 +694,16 @@ importers:
         specifier: ^1.3.6
         version: 1.4.0
     devDependencies:
-      '@nuclearplayer/eslint-config':
+      '@tahti-player/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
 
   packages/themes:
     dependencies:
-      '@nuclearplayer/eslint-config':
+      '@tahti-player/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@nuclearplayer/tailwind-config':
+      '@tahti-player/tailwind-config':
         specifier: workspace:*
         version: link:../tailwind-config
       culori:
@@ -761,7 +761,7 @@ importers:
 
   packages/tools:
     devDependencies:
-      '@nuclearplayer/eslint-config':
+      '@tahti-player/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
       '@vitest/coverage-v8':
@@ -800,18 +800,18 @@ importers:
       '@headlessui/react':
         specifier: ^2.2.7
         version: 2.2.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@nuclearplayer/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      '@nuclearplayer/model':
-        specifier: workspace:*
-        version: link:../model
-      '@nuclearplayer/tailwind-config':
-        specifier: workspace:*
-        version: link:../tailwind-config
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.16
         version: 2.1.16(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tahti-player/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@tahti-player/model':
+        specifier: workspace:*
+        version: link:../model
+      '@tahti-player/tailwind-config':
+        specifier: workspace:*
+        version: link:../tailwind-config
       '@tanstack/react-router':
         specifier: ^1.131.2
         version: 1.167.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -976,10 +976,10 @@ importers:
       '@astrojs/check':
         specifier: ^0.9.6
         version: 0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.8.3)(typescript@5.9.3)
-      '@nuclearplayer/eslint-config':
+      '@tahti-player/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@nuclearplayer/tailwind-config':
+      '@tahti-player/tailwind-config':
         specifier: workspace:*
         version: link:../tailwind-config
       '@tailwindcss/typography':

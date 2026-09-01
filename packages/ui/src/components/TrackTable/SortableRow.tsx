@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { flexRender, Row } from '@tanstack/react-table';
 
-import { Track } from '@nuclearplayer/model';
+import { Track } from '@tahti-player/model';
 
 import { cn } from '../../utils';
 

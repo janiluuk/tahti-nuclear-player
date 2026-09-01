@@ -1,8 +1,8 @@
 import { FC, useMemo } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Album, Track, TrackRef } from '@nuclearplayer/model';
-import { Loader } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Album, Track, TrackRef } from '@tahti-player/model';
+import { Loader } from '@tahti-player/ui';
 
 import { ConnectedTrackTable } from '../../../components/ConnectedTrackTable';
 import { useAlbumDetails } from '../hooks/useAlbumDetails';

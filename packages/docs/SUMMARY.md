@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Nuclear Documentation](README.md)
+* [Tahti Player Documentation](README.md)
 
 ## User Manual
 
@@ -10,7 +10,7 @@
 
 ## Core Concepts
 
-* [How Nuclear works](core-concepts/how-nuclear-works.md)
+* [How Tahti Player works](core-concepts/how-nuclear-works.md)
 * [Plugins and providers](core-concepts/plugins-and-providers.md)
 * [The queue](core-concepts/the-queue.md)
 * [Favorites](core-concepts/favorites.md)
@@ -34,6 +34,7 @@
 
 ## Plugins
 
+* [How Tahti Player works](plugins/how-nuclear-works.md)
 * [Getting started with plugins](plugins/getting-started.md)
 * [Plugin system](plugins/plugin-system.md)
 * [Plugin store](plugins/plugin-store.md)
@@ -64,6 +65,7 @@
 ## Development
 
 * [Contributing](development/contributing.md)
+* [Agent instructions](development/agent-instructions.md)
 * [Host pattern](development/host-pattern.md)
 * [Logging](development/logging.md)
 * [MCP Architecture](development/mcp-architecture.md)

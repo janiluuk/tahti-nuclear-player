@@ -1,4 +1,4 @@
-import { Button, Tabs } from '@nuclearplayer/ui';
+import { Button, Tabs } from '@tahti-player/ui';
 
 import { HistoryListSection } from '../components/history/HistoryListSection';
 import { HistoryStatsSection } from '../components/history/HistoryStatsSection';
@@ -11,7 +11,7 @@ const RECENTLY_PLAYED_PREVIEW = 5;
 
 /** Ported from Nuclear desktop's History view (packages/player/src/views/
  * History) — same two-tab layout (Stats / Listening history) and the same
- * `@nuclearplayer/ui` chart/list components. Nuclear's version reads a
+ * `@tahti-player/ui` chart/list components. Nuclear's version reads a
  * local SQLite play log with per-play listening duration; this reads
  * Tahti's lighter localStorage `history` (a play-event timestamp, deduped
  * to one row per track) — see src/lib/historyStats.ts for how listening

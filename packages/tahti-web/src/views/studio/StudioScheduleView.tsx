@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input, SaveButton, Select } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, SaveButton, Select } from '@tahti-player/ui';
 
 import {
   cancelScheduledShow,

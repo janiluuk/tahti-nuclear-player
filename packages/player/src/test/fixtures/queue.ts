@@ -1,4 +1,4 @@
-import type { QueueItem, Track } from '@nuclearplayer/model';
+import type { QueueItem, Track } from '@tahti-player/model';
 
 export const createTrack = (title: string): Track => ({
   title,

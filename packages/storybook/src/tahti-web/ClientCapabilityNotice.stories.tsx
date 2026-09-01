@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ClientCapabilityNotice } from '@tahti-web/components/ClientCapabilityNotice';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 const meta: Meta<typeof ClientCapabilityNotice> = {
   title: 'Tahti/Widgets/ClientCapabilityNotice',

@@ -1,7 +1,7 @@
 import { Link, useParams } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, SectionShell } from '@nuclearplayer/ui';
+import { Button, SectionShell } from '@tahti-player/ui';
 
 import {
   fetchAdminGrantHistory,

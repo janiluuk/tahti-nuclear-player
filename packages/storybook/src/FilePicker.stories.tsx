@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { FilePicker } from '@nuclearplayer/ui';
+import { FilePicker } from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/FilePicker',

@@ -41,7 +41,7 @@ describe('checkAndUpdatePlugins', () => {
     useSettingsStore.getState().setValue('core.plugins.autoUpdate', false);
     await seedPlugin({ id: 'outdated' });
 
-    FetchMock.get('plugin-registry', {
+    FetchMock.get('plugins.json', {
       version: 1,
       plugins: [
         new MarketplacePluginBuilder()
@@ -63,7 +63,7 @@ describe('checkAndUpdatePlugins', () => {
     useSettingsStore.getState().setValue('core.plugins.autoUpdate', true);
     await seedPlugin({ id: 'current', version: '2.0.0' });
 
-    FetchMock.get('plugin-registry', {
+    FetchMock.get('plugins.json', {
       version: 1,
       plugins: [
         new MarketplacePluginBuilder()
@@ -87,7 +87,7 @@ describe('checkAndUpdatePlugins', () => {
     await seedPlugin({ id: 'up-to-date', version: '3.0.0' });
     await seedPlugin({ id: 'outdated-2', version: '1.5.0' });
 
-    FetchMock.get('plugin-registry', {
+    FetchMock.get('plugins.json', {
       version: 1,
       plugins: [
         new MarketplacePluginBuilder()
@@ -130,7 +130,7 @@ describe('checkAndUpdatePlugins', () => {
     await seedPlugin({ id: 'dev-plugin', installationMethod: 'dev' });
     await seedPlugin({ id: 'store-plugin' });
 
-    FetchMock.get('plugin-registry', {
+    FetchMock.get('plugins.json', {
       version: 1,
       plugins: [
         new MarketplacePluginBuilder()
@@ -163,7 +163,7 @@ describe('checkAndUpdatePlugins', () => {
     await seedPlugin({ id: 'failing-plugin' });
     await seedPlugin({ id: 'good-plugin' });
 
-    FetchMock.get('plugin-registry', {
+    FetchMock.get('plugins.json', {
       version: 1,
       plugins: [
         new MarketplacePluginBuilder()
@@ -212,7 +212,7 @@ describe('checkAndUpdatePlugins', () => {
     await seedPlugin({ id: 'no-url' });
     await seedPlugin({ id: 'has-both' });
 
-    FetchMock.get('plugin-registry', {
+    FetchMock.get('plugins.json', {
       version: 1,
       plugins: [
         new MarketplacePluginBuilder()
@@ -249,7 +249,7 @@ describe('checkAndUpdatePlugins', () => {
     await seedPlugin({ id: 'enabled-plugin', enabled: true });
     await seedPlugin({ id: 'disabled-plugin', enabled: false });
 
-    FetchMock.get('plugin-registry', {
+    FetchMock.get('plugins.json', {
       version: 1,
       plugins: [
         new MarketplacePluginBuilder()

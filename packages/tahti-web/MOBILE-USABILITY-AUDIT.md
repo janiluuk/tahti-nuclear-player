@@ -80,7 +80,7 @@ that one route. Either removes the duplication instead of just labeling it.
 "Use a separate gradient for the player" one at ~731) styled only with a
 `mt-0.5` alignment class — plain browser checkbox rendering inside otherwise
 fully-styled cards. Not fixed in this pass; flagging for a follow-up to swap
-in whatever the Nuclear/`@nuclearplayer/ui` checkbox or toggle component is
+in whatever the Nuclear/`@tahti-player/ui` checkbox or toggle component is
 (same pattern as the `Select`/`Textarea` native-control sweep from rounds
 9-13 in `UI-REDESIGN-WORKLOG.md`).
 

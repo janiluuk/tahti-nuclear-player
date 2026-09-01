@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { emit } from '@tauri-apps/api/event';
 
-import { DEFAULT_THEME_ID } from '@nuclearplayer/themes';
+import { DEFAULT_THEME_ID } from '@tahti-player/themes';
 
 import { useQueueStore } from '../../stores/queueStore';
 import {

@@ -3,11 +3,11 @@ import type {
   ArtistRef,
   ProviderRef,
   Track,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 import type {
   FavoritesHost,
   FavoritesListener,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { useFavoritesStore } from '../stores/favoritesStore';
 

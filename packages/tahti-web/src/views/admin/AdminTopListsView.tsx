@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ListFilterIcon, PlayIcon, SearchIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input } from '@tahti-player/ui';
 
 import {
   fetchAdminTopLists,

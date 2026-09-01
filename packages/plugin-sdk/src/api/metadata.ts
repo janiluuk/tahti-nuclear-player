@@ -1,4 +1,4 @@
-import type { SearchParams } from '@nuclearplayer/model';
+import type { SearchParams } from '@tahti-player/model';
 
 import type { MetadataHost } from '../types/metadata';
 

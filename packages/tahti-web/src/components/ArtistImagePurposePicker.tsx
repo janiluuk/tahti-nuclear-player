@@ -1,7 +1,7 @@
 import { UploadCloudIcon, XIcon } from 'lucide-react';
 import { useState, type FC } from 'react';
 
-import { Button, Dialog, FilePicker } from '@nuclearplayer/ui';
+import { Button, Dialog, FilePicker } from '@tahti-player/ui';
 
 import {
   updatePressKitImage,

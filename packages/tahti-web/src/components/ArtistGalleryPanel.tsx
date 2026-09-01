@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useRef, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import {
   deletePressKitImage,

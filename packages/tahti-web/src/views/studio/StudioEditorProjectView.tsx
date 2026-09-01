@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { AudioLinesIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import {
   deleteEditorProject,

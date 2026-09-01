@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowLeftIcon, MapPinIcon, UsersIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { EmptyState } from '@nuclearplayer/ui';
+import { EmptyState } from '@tahti-player/ui';
 
 import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';

@@ -1,4 +1,4 @@
-import type { LoggerHost } from '@nuclearplayer/plugin-sdk';
+import type { LoggerHost } from '@tahti-player/plugin-sdk';
 
 import { createPluginLogger } from './logger';
 

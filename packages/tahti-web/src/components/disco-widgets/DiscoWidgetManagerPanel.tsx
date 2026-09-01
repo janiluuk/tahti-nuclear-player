@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowDown, ArrowUp, Settings2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, PluginStoreItem } from '@nuclearplayer/ui';
+import { Button, Dialog, PluginStoreItem } from '@tahti-player/ui';
 
 import {
   createDiscoWidgetInstall,

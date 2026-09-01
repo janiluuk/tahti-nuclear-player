@@ -1,8 +1,8 @@
 import { useParams } from '@tanstack/react-router';
 import { FC, useMemo } from 'react';
 
-import type { MetadataProvider } from '@nuclearplayer/plugin-sdk';
-import { ScrollableArea } from '@nuclearplayer/ui';
+import type { MetadataProvider } from '@tahti-player/plugin-sdk';
+import { ScrollableArea } from '@tahti-player/ui';
 
 import { providersHost } from '../../services/providersHost';
 import { ARTIST_WIDGETS, groupWidgets } from './artistWidgets';

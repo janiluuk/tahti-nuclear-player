@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 
-import { Button, Textarea } from '@nuclearplayer/ui';
+import { Button, Textarea } from '@tahti-player/ui';
 
 import {
   mapDraftKey,

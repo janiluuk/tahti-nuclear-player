@@ -1,8 +1,8 @@
 import { Music } from 'lucide-react';
 import { useMemo, type FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { EmptyState, ViewShell } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { EmptyState, ViewShell } from '@tahti-player/ui';
 
 import { ConnectedTrackTable } from '../../components/ConnectedTrackTable';
 import { useFavoritesStore } from '../../stores/favoritesStore';

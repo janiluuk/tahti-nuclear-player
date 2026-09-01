@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
+import { useTranslation } from '@tahti-player/i18n';
 import type {
   MetadataProvider,
   ProviderDescriptor,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 export const useProviderWarnings = (
   metadataProviders: MetadataProvider[],

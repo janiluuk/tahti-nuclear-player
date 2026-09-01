@@ -8,8 +8,8 @@ import {
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 
-import type { QueueItem, Track } from '@nuclearplayer/model';
-import { TrackContextMenu } from '@nuclearplayer/ui';
+import type { QueueItem, Track } from '@tahti-player/model';
+import { TrackContextMenu } from '@tahti-player/ui';
 
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { useLibraryStore } from '../stores/libraryStore';

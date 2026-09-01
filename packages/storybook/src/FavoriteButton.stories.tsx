@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { FavoriteButton } from '@nuclearplayer/ui';
+import { FavoriteButton } from '@tahti-player/ui';
 
 const meta: Meta<typeof FavoriteButton> = {
   title: 'Components/FavoriteButton',

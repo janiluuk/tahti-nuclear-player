@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Badge } from '@nuclearplayer/ui';
+import { Badge } from '@tahti-player/ui';
 
 import {
   fetchAdminIntegrationStatus,

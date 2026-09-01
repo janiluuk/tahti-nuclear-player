@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowLeftIcon, PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button } from '@nuclearplayer/ui';
+import { Badge, Button } from '@tahti-player/ui';
 
 import {
   fetchAdminStorageUserFiles,

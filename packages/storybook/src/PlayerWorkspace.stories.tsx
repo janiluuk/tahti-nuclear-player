@@ -31,7 +31,7 @@ import {
   SidebarNavigation,
   SidebarNavigationItem,
   TopBar,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 const meta = {
   title: 'Layout/PlayerWorkspace',

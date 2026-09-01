@@ -1,8 +1,8 @@
 import { PencilIcon } from 'lucide-react';
 import type { FC, ReactNode } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { Playlist } from '@nuclearplayer/model';
+import { useTranslation } from '@tahti-player/i18n';
+import type { Playlist } from '@tahti-player/model';
 import {
   Badge,
   Box,
@@ -11,7 +11,7 @@ import {
   Input,
   Textarea,
   Tooltip,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import { PlaylistArtwork } from './PlaylistArtwork';
 import { usePlaylistDetailHeader } from './usePlaylistDetailHeader';

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, SaveButton } from '@nuclearplayer/ui';
+import { Button, SaveButton } from '@tahti-player/ui';
 
 import {
   isHeaderImageUrl,

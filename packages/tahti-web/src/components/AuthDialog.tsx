@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { KeyRoundIcon, LogInIcon, UserPlusIcon } from 'lucide-react';
 import { FC, useEffect, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@tahti-player/ui';
 
 import {
   persistPendingArtistKind,
@@ -12,6 +12,13 @@ import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
 const MINIMUM_PASSWORD_LENGTH = 8;
+
+const slugifyUsername = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 export const AuthDialog: FC = () => {
   const isOpen = useAuthModalStore((s) => s.isOpen);
@@ -47,6 +54,10 @@ export const AuthDialog: FC = () => {
     setTotpCode('');
     setConfirmPassword('');
   }, [isOpen, mode, clearError]);
+
+  useEffect(() => {
+    setUsername(slugifyUsername(artistName));
+  }, [artistName]);
 
   useEffect(() => {
     if (user && isOpen && !totpChallengeId) {
@@ -169,76 +180,70 @@ export const AuthDialog: FC = () => {
           </Dialog.Actions>
         </form>
       ) : (
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input
-            label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-          />
-          <Input
-            label="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value.toLowerCase())}
-            description="lowercase letters, numbers, - and _"
-          />
-          <div className="flex gap-2 sm:col-span-2">
-            {(
-              [
-                ['SINGLE', 'Solo artist'],
-                ['COLLECTIVE', 'Band / collective'],
-              ] as const
-            ).map(([kind, label]) => (
-              <button
-                key={kind}
-                type="button"
-                aria-pressed={artistKind === kind}
-                onClick={() => setArtistKind(kind)}
-                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                  artistKind === kind
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border text-foreground-secondary hover:text-foreground'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+        <div className="mt-4 flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Input
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+              />
+            </div>
+            <div className="flex gap-2">
+              {(
+                [
+                  ['SINGLE', 'Artist'],
+                  ['COLLECTIVE', 'Band / Collective'],
+                ] as const
+              ).map(([kind, label]) => (
+                <button
+                  key={kind}
+                  type="button"
+                  aria-pressed={artistKind === kind}
+                  onClick={() => setArtistKind(kind)}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                    artistKind === kind
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border text-foreground-secondary hover:text-foreground'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <Input
+              label={
+                artistKind === 'COLLECTIVE' ? 'Collective name' : 'Artist name'
+              }
+              value={artistName}
+              onChange={(e) => setArtistName(e.target.value)}
+              autoComplete="name"
+            />
+            <Input
+              label="Password"
+              variant="password"
+              size="sm"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              description="Min 8 characters"
+              autoComplete="new-password"
+            />
+            <Input
+              label="Confirm password"
+              variant="password"
+              size="sm"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+            />
           </div>
-          <Input
-            label={
-              artistKind === 'COLLECTIVE' ? 'Collective name' : 'Artist name'
-            }
-            value={artistName}
-            onChange={(e) => setArtistName(e.target.value)}
-            autoComplete="name"
-          />
-          <Input
-            label="Password"
-            variant="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            description="Min 8 characters"
-            autoComplete="new-password"
-          />
-          <Input
-            label="Confirm password"
-            variant="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            autoComplete="new-password"
-          />
           {passwordsDoNotMatch ? (
-            <p className="text-accent-red text-sm sm:col-span-2">
-              Passwords do not match.
-            </p>
+            <p className="text-accent-red text-sm">Passwords do not match.</p>
           ) : null}
-          {error ? (
-            <p className="text-accent-red text-sm sm:col-span-2">{error}</p>
-          ) : null}
+          {error ? <p className="text-accent-red text-sm">{error}</p> : null}
           {message ? (
-            <p className="text-foreground-secondary text-sm sm:col-span-2">
-              {message}
-            </p>
+            <p className="text-foreground-secondary text-sm">{message}</p>
           ) : null}
           <Dialog.Actions>
             <Button variant="text" size="sm" onClick={() => setMode('login')}>

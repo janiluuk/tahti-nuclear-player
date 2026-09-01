@@ -3,7 +3,7 @@ import type {
   ArtistRef,
   ProviderRef,
   Track,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 
 export type FavoriteEntry<T> = {
   ref: T;

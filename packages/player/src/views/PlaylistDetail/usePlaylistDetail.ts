@@ -1,7 +1,7 @@
 import { useParams } from '@tanstack/react-router';
 import { useEffect, useMemo } from 'react';
 
-import type { PlaylistItem } from '@nuclearplayer/model';
+import type { PlaylistItem } from '@tahti-player/model';
 
 import { buildThumbnails } from '../../services/playlistFileService/buildThumbnails';
 import { usePlaylistStore } from '../../stores/playlistStore';

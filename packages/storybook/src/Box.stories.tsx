@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Box } from '@nuclearplayer/ui';
+import { Box } from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/Box',

@@ -8,8 +8,8 @@ import {
 } from 'lucide-react';
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { SettingsPanel } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { SettingsPanel } from '@tahti-player/ui';
 
 import {
   useSettingsModalStore,

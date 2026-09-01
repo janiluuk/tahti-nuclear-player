@@ -1,8 +1,8 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
 
 import { getRegistryEntry } from '../services/plugins/pluginRegistry';
-import { NuclearPluginBuilder } from '../test/builders/NuclearPluginBuilder';
 import { PluginStateBuilder } from '../test/builders/PluginStateBuilder';
+import { TahtiPluginBuilder } from '../test/builders/TahtiPluginBuilder';
 import { PluginFsMock } from '../test/mocks/plugin-fs';
 import { createPluginFolder } from '../test/utils/testPluginFolder';
 import { usePluginStore } from './pluginStore';
@@ -57,7 +57,7 @@ describe('usePluginStore', () => {
             .withId('from-store')
             .withInstallationMethod('store')
             .withOriginalPath(undefined)
-            .withInstance(new NuclearPluginBuilder().build())
+            .withInstance(new TahtiPluginBuilder().build())
             .build(),
         },
       });
@@ -220,7 +220,7 @@ describe('usePluginStore', () => {
           [id]: new PluginStateBuilder()
             .withId(id)
             .withInstance(
-              new NuclearPluginBuilder().withOnEnable(onEnable).build(),
+              new TahtiPluginBuilder().withOnEnable(onEnable).build(),
             )
             .build(),
         },
@@ -239,7 +239,7 @@ describe('usePluginStore', () => {
             .withId(id)
             .withEnabled(true)
             .withInstance(
-              new NuclearPluginBuilder().withOnDisable(onDisable).build(),
+              new TahtiPluginBuilder().withOnDisable(onDisable).build(),
             )
             .build(),
         },
@@ -293,7 +293,7 @@ describe('usePluginStore', () => {
             .withId(id)
             .withEnabled(true)
             .withInstance(
-              new NuclearPluginBuilder()
+              new TahtiPluginBuilder()
                 .withOnDisable(onDisable)
                 .withOnUnload(onUnload)
                 .build(),
@@ -313,7 +313,7 @@ describe('usePluginStore', () => {
         plugins: {
           [id]: new PluginStateBuilder()
             .withId(id)
-            .withInstance(new NuclearPluginBuilder().build())
+            .withInstance(new TahtiPluginBuilder().build())
             .build(),
         },
       });
@@ -336,7 +336,7 @@ describe('usePluginStore', () => {
             .withId(id)
             .withEnabled(true)
             .withInstance(
-              new NuclearPluginBuilder().withOnDisable(onDisable).build(),
+              new TahtiPluginBuilder().withOnDisable(onDisable).build(),
             )
             .build(),
         },

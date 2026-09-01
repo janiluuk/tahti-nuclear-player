@@ -1,9 +1,9 @@
-import type { QueueItem, Track } from '@nuclearplayer/model';
+import type { QueueItem, Track } from '@tahti-player/model';
 import type {
   Queue,
   QueueHost,
   QueueItemStateUpdate,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { useQueueStore } from '../stores/queueStore';
 

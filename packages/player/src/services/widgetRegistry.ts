@@ -1,7 +1,7 @@
 import type {
   CustomWidgetComponent,
   WidgetRegistry,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 const toKey = (pluginId: string, widgetId: string) =>
   `plugin.${pluginId}.${widgetId}`;

@@ -1,6 +1,6 @@
 import { MessageCircleIcon, MicIcon } from 'lucide-react';
 
-import { Button, Input, Select, Textarea } from '@nuclearplayer/ui';
+import { Button, Input, Select, Textarea } from '@tahti-player/ui';
 
 import type { ShowType, StudioShowSeries } from '../api/shows';
 import { ShowImagePicker } from './ShowImagePicker';

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { HeartIcon, PauseIcon, PlayIcon } from 'lucide-react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import type { TahtiPlayable } from '../api/types';
 import { archiveItemIdFromPlayableId } from '../lib/archiveId';

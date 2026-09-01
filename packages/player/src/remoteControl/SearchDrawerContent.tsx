@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { Track } from '@nuclearplayer/model';
-import { CenteredLoader, NuclearJam } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import type { Track } from '@tahti-player/model';
+import { CenteredLoader, TahtiJam } from '@tahti-player/ui';
 
 type SearchDrawerContentProps = {
   isError: boolean;
@@ -21,7 +21,7 @@ export const SearchDrawerContent: FC<SearchDrawerContentProps> = ({
 
   if (isError) {
     return (
-      <NuclearJam.SearchDrawer.Error
+      <TahtiJam.SearchDrawer.Error
         labels={{
           title: t('search.errorTitle'),
           description: t('search.errorDescription'),
@@ -34,7 +34,7 @@ export const SearchDrawerContent: FC<SearchDrawerContentProps> = ({
   }
   if (tracks.length === 0) {
     return (
-      <NuclearJam.SearchDrawer.Empty
+      <TahtiJam.SearchDrawer.Empty
         labels={{
           title: t('search.emptyTitle'),
           description: t('search.emptyDescription'),
@@ -43,14 +43,14 @@ export const SearchDrawerContent: FC<SearchDrawerContentProps> = ({
     );
   }
   return (
-    <NuclearJam.SearchDrawer.Results>
+    <TahtiJam.SearchDrawer.Results>
       {tracks.map((track) => (
-        <NuclearJam.SearchResultTrack
+        <TahtiJam.SearchResultTrack
           key={`${track.source.provider}:${track.source.id}`}
           track={track}
           onAdd={onAdd}
         />
       ))}
-    </NuclearJam.SearchDrawer.Results>
+    </TahtiJam.SearchDrawer.Results>
   );
 };

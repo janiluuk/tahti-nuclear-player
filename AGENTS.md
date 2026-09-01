@@ -8,19 +8,19 @@ Tahti Player is a free, open-source music player without ads or tracking, built 
 
 ### Packages
 
-- `@nuclearplayer/player` - Main Tauri app (React + Rust)
-- `@nuclearplayer/ui` - Shared UI components
-- `@nuclearplayer/plugin-sdk` - Plugin system (published to npm)
-- `@nuclearplayer/model` - Data model
-- `@nuclearplayer/themes` - Theming system
-- `@nuclearplayer/hifi` - Advanced HTML5 audio component
-- `@nuclearplayer/tailwind-config` - Shared Tailwind config
-- `@nuclearplayer/eslint-config` - Shared linting rules
-- `@nuclearplayer/i18n` - Internationalization
-- `@nuclearplayer/storybook` - Component demos
-- `@nuclearplayer/tools` - Build and maintenance utilities
-- `@nuclearplayer/docs` - Documentation
-- `@nuclearplayer/website` - Project website (Astro)
+- `@tahti-player/player` - Main Tauri app (React + Rust)
+- `@tahti-player/ui` - Shared UI components
+- `@tahti-player/plugin-sdk` - Plugin system (published to npm)
+- `@tahti-player/model` - Data model
+- `@tahti-player/themes` - Theming system
+- `@tahti-player/hifi` - Advanced HTML5 audio component
+- `@tahti-player/tailwind-config` - Shared Tailwind config
+- `@tahti-player/eslint-config` - Shared linting rules
+- `@tahti-player/i18n` - Internationalization
+- `@tahti-player/storybook` - Component demos
+- `@tahti-player/tools` - Build and maintenance utilities
+- `@tahti-player/docs` - Documentation
+- `@tahti-player/website` - Project website (Astro)
 
 ## Commands
 
@@ -43,8 +43,8 @@ pnpm test:coverage          # Run tests with coverage
 pnpm clean                  # Clean build artifacts
 
 # Package-specific testing
-pnpm --filter @nuclearplayer/ui test -- src/components/Badge/Badge.test.tsx
-pnpm --filter @nuclearplayer/ui test -- --testNamePattern="renders"
+pnpm --filter @tahti-player/ui test -- src/components/Badge/Badge.test.tsx
+pnpm --filter @tahti-player/ui test -- --testNamePattern="renders"
 
 # Update snapshots (run at root for all, or filter to a specific package)
 
@@ -52,7 +52,7 @@ pnpm --filter @nuclearplayer/ui test -- --testNamePattern="renders"
 pnpm test -- -u
 
 # Filtering for a specific package
-pnpm --filter @nuclearplayer/ui test -- -u
+pnpm --filter @tahti-player/ui test -- -u
 
 # After cd'ing into a package
 pnpm test -u
@@ -163,7 +163,7 @@ export const Component: FC<ComponentProps> = ({
 
 ### Adding UI Components
 
-When adding a new component to `@nuclearplayer/ui`:
+When adding a new component to `@tahti-player/ui`:
 
 1. Create component directory: `packages/ui/src/components/MyComponent/`
    - `MyComponent.tsx` - implementation
@@ -205,7 +205,7 @@ A "domain" is a feature area exposed to plugins (e.g., settings, queue, favorite
 
 2. **API class** (`packages/plugin-sdk/src/api/myDomain.ts`)
    - Create a class that wraps the host and exposes methods to plugins
-   - Add to `NuclearAPI` constructor in `packages/plugin-sdk/src/api/index.ts`
+   - Add to `TahtiAPI` constructor in `packages/plugin-sdk/src/api/index.ts`
 
 3. **Store** (`packages/player/src/stores/myDomainStore.ts`)
    - Zustand store holding the domain state
@@ -214,7 +214,7 @@ A "domain" is a feature area exposed to plugins (e.g., settings, queue, favorite
 4. **Host** (`packages/player/src/services/myDomainHost.ts`)
    - Implements the `MyDomainHost` interface
    - Bridges the SDK API to the Zustand store
-   - Passed to `NuclearAPI` when initializing plugins
+   - Passed to `TahtiAPI` when initializing plugins
 
 ### External API Clients
 
@@ -229,7 +229,7 @@ Live in `packages/player/src/apis/`. Use `ApiClient` base class (fetch→json→
 All user-facing strings go through i18n - no hardcoded UI text.
 
 ```tsx
-import { useTranslation } from '@nuclearplayer/i18n';
+import { useTranslation } from '@tahti-player/i18n';
 
 const { t } = useTranslation();
 <span>{t('navigation.settings')}</span>
@@ -357,7 +357,7 @@ packages/ui/src/components/Badge/
 The Tauri backend lives in `packages/player/src-tauri/src/`. Modules:
 
 - `bridge/` - bidirectional RPC. Lets Rust servers call into the frontend (`Bridge::call` emits a `bridge:request` event, frontend replies via the `bridge_respond` command).
-- `http_api/` - Axum REST + SSE server for Nuclear Jam remote control
+- `http_api/` - Axum REST + SSE server for Tahti Jam remote control
 - `mcp/` - MCP server exposing player functions as tools to LLM clients
 - `mpd/` - MPD-protocol TCP server for clients like ncmpcpp
 - `stream_server.rs` - local audio proxy adding CORS + Range so the browser can play blocked streams

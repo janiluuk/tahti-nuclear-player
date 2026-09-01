@@ -1,7 +1,7 @@
 import { CheckCircle2Icon, FingerprintIcon, SearchIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import type { FingerprintMatch, StudioReleaseTrack } from '../api/studio-types';
 import { acoustIdProvider } from '../plugins/fingerprinting';

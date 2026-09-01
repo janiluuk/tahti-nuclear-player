@@ -1,10 +1,14 @@
 ---
-description: Package, release, and submit your plugin to the Nuclear plugin store.
+description: Package, release, and submit your plugin to the Tahti Player plugin store.
 ---
 
 # Publishing
 
-Nuclear's plugin store is backed by a static registry at [github.com/NuclearPlayer/plugin-registry](https://github.com/NuclearPlayer/plugin-registry). The registry lists plugin metadata (name, repo, category). The actual plugin code lives in the developer's own GitHub repository. When a user installs a plugin, Nuclear fetches the latest GitHub release from that repo.
+Tahti Player's plugin store is backed by a static registry at [github.com/NuclearPlayer/plugin-registry](https://github.com/NuclearPlayer/plugin-registry). The registry lists plugin metadata (name, repo, category). The actual plugin code lives in the developer's own GitHub repository. When a user installs a plugin, Tahti Player fetches the latest GitHub release from that repo.
+
+{% hint style="info" %}
+The registry org and `nuclear-plugin-*` naming convention predate the Tahti Player rebrand and haven't changed on the wire — plugins built against them work unmodified. The manifest config field has moved from `nuclear` to `tahti` (see below); the old key is still read for backward compatibility.
+{% endhint %}
 
 Publishing a plugin takes three steps: configure your `package.json`, create a GitHub release with a `plugin.zip` asset, and submit a PR to the registry.
 
@@ -20,15 +24,15 @@ Your plugin's `package.json` must include these fields:
 | `version` | yes | Semver (e.g., `1.0.0`) |
 | `description` | yes | Short description |
 | `author` | yes | Your name or GitHub username |
-| `main` | no | Entry point (e.g., `dist/index.js`). If omitted, Nuclear tries `index.js`, `index.ts`, `index.tsx`, then `dist/index.*`. |
+| `main` | no | Entry point (e.g., `dist/index.js`). If omitted, Tahti Player tries `index.js`, `index.ts`, `index.tsx`, then `dist/index.*`. |
 
-### The `nuclear` field
+### The `tahti` field
 
-The `nuclear` field holds Nuclear-specific config:
+The `tahti` field holds Tahti Player-specific config:
 
 ```json
 {
-  "nuclear": {
+  "tahti": {
     "displayName": "My Plugin",
     "categories": ["metadata"],
     "icon": {
@@ -51,6 +55,10 @@ The `nuclear` field holds Nuclear-specific config:
 A plugin can belong to multiple categories. Pick all that apply based on the provider types your plugin registers.
 {% endhint %}
 
+{% hint style="warning" %}
+`nuclear` is still read as a legacy alias for `tahti` (identical shape) for plugins published before the rebrand. If both are present, `tahti` wins. New and updated plugins should use `tahti`.
+{% endhint %}
+
 ### Full example
 
 ```json
@@ -61,7 +69,7 @@ A plugin can belong to multiple categories. Pick all that apply based on the pro
   "author": "nukeop",
   "license": "MIT",
   "main": "dist/index.js",
-  "nuclear": {
+  "tahti": {
     "displayName": "Discogs",
     "categories": ["metadata"]
   }
@@ -77,7 +85,7 @@ A plugin can belong to multiple categories. Pick all that apply based on the pro
 3. Attach a file named exactly `plugin.zip` as a release asset.
 4. Publish the release.
 
-Nuclear looks for an asset named `plugin.zip` in the latest release. If it's missing, installation fails.
+Tahti Player looks for an asset named `plugin.zip` in the latest release. If it's missing, installation fails.
 
 ### What goes in plugin.zip
 
@@ -94,7 +102,7 @@ plugin.zip
 Files must be at the root of the zip, not inside a subdirectory. If your zip contains `my-plugin/index.js` instead of `index.js`, the plugin won't load.
 {% endhint %}
 
-Nuclear can compile TypeScript on the fly, so you can ship `.ts` or `.tsx` source files instead of pre-built JavaScript. Pre-building is recommended for faster load times.
+Tahti Player can compile TypeScript on the fly, so you can ship `.ts` or `.tsx` source files instead of pre-built JavaScript. Pre-building is recommended for faster load times.
 
 Set up CI to build and create the release automatically. Manual zip creation is error-prone.
 
@@ -132,8 +140,8 @@ Set up CI to build and create the release automatically. Manual zip creation is 
 | `description` | yes | 10-200 chars. |
 | `author` | yes | 1-64 chars. |
 | `repo` | yes | `owner/repo-name` format. |
-| `category` | yes | Must match your `package.json` `nuclear.category`. |
-| `categories` | yes | Array of categories matching your plugin's provider types. Same valid values as `nuclear.categories` in package.json. |
+| `category` | yes | Must match your `package.json` `tahti.category`. |
+| `categories` | yes | Array of categories matching your plugin's provider types. Same valid values as `tahti.categories` in package.json. |
 | `tags` | no | Up to 10 tags, lowercase with hyphens, unique. |
 | `version` | no | Latest released semver version. Populated automatically by CI. |
 | `downloadUrl` | no | Direct URL to the latest `plugin.zip`. Populated automatically by CI. |
@@ -143,12 +151,12 @@ Set up CI to build and create the release automatically. Manual zip creation is 
 
 ## Updating your plugin
 
-You don't need to update the registry to release new versions. Create a new GitHub release with an updated `plugin.zip`, and Nuclear will fetch it the next time someone installs your plugin.
+You don't need to update the registry to release new versions. Create a new GitHub release with an updated `plugin.zip`, and Tahti Player will fetch it the next time someone installs your plugin.
 
 Only submit a registry PR if you need to change the plugin's metadata (description, category, tags, etc.).
 
 {% hint style="info" %}
-Nuclear checks for plugin updates on startup. If auto-update is enabled (it is by default), installed store plugins are automatically updated to the latest version. Users can disable this in Settings under Plugins.
+Tahti Player checks for plugin updates on startup. If auto-update is enabled (it is by default), installed store plugins are automatically updated to the latest version. Users can disable this in Settings under Plugins.
 {% endhint %}
 
 ## Examples

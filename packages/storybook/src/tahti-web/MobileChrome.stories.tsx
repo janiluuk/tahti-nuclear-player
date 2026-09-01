@@ -5,7 +5,7 @@ import {
 } from '@tahti-web/components/MobileChrome';
 import { useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import { MOCK_USERS, withMockAuth, withTahtiRouter } from './_lib/decorators';
 

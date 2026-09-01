@@ -3,7 +3,7 @@ import type {
   ArtistRef,
   ProviderRef,
   Track,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 
 export const createTrack = (provider: string, id: string): Track => ({
   title: `Track ${id}`,

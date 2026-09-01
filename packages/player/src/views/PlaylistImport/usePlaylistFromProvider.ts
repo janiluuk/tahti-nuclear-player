@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { Playlist, PlaylistItem } from '@nuclearplayer/model';
-import type { PlaylistProvider } from '@nuclearplayer/plugin-sdk';
+import { useTranslation } from '@tahti-player/i18n';
+import type { Playlist, PlaylistItem } from '@tahti-player/model';
+import type { PlaylistProvider } from '@tahti-player/plugin-sdk';
 
 import { providersHost } from '../../services/providersHost';
 import { reportError } from '../../utils/logging';

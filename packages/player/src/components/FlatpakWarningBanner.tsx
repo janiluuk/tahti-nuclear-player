@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Button } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Button } from '@tahti-player/ui';
 
 import { isFlatpak } from '../services/tauri/commands';
 

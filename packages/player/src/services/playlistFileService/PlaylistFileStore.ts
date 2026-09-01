@@ -1,8 +1,8 @@
 import { BaseDirectory, remove } from '@tauri-apps/plugin-fs';
 import { LazyStore } from '@tauri-apps/plugin-store';
 
-import type { Playlist } from '@nuclearplayer/model';
-import { playlistSchema } from '@nuclearplayer/model';
+import type { Playlist } from '@tahti-player/model';
+import { playlistSchema } from '@tahti-player/model';
 
 import { Logger } from '../logger';
 import { loadValidated } from '../validatedStore';

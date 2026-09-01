@@ -12,7 +12,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input } from '@tahti-player/ui';
 
 import { fetchStudioCollections } from '../api/studio';
 import type { StudioCollection } from '../api/studio-types';

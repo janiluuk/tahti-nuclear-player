@@ -8,9 +8,9 @@ import {
 } from 'lucide-react';
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { pickArtwork } from '@nuclearplayer/model';
-import { Loader, StatChip } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { pickArtwork } from '@tahti-player/model';
+import { Loader, StatChip } from '@tahti-player/ui';
 
 import { ConnectedFavoriteButton } from '../../../components/ConnectedFavoriteButton';
 import { useArtistSocialStats } from '../hooks/useArtistSocialStats';

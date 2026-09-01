@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { Queue, Track } from '@nuclearplayer/model';
+import type { Queue, Track } from '@tahti-player/model';
 
 import {
   REMOTE_EMPTY_QUEUE,

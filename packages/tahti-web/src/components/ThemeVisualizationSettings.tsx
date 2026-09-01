@@ -1,4 +1,4 @@
-import { Button, Slider, Toggle } from '@nuclearplayer/ui';
+import { Button, Slider, Toggle } from '@tahti-player/ui';
 
 import { useThemeStore } from '../plugins/themes';
 import { TAHTI_BLUE_THEME_ID } from '../plugins/themes/presets';

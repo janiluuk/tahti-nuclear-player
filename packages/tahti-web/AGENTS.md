@@ -1,4 +1,4 @@
-# AGENTS.md — `@nuclearplayer/tahti-web`
+# AGENTS.md — `@tahti-player/tahti-web`
 
 Package-specific agent instructions. See the root [`AGENTS.md`](../../AGENTS.md) for generic
 Nuclear-monorepo conventions (lint/build/test commands, workspace layout) and
@@ -107,7 +107,7 @@ is reachable from the intended navigation tree.
 
 ## Design system compliance
 
-This app's shared UI — `@nuclearplayer/ui` plus tahti-web's own local shared components
+This app's shared UI — `@tahti-player/ui` plus tahti-web's own local shared components
 (`StudioPanel`/`StudioPageHeader`, `PageFrame`/`PageHeader`, `PageStates.tsx`'s
 `PageLoading`/`PageEmpty`/`PageError`, `InPageNav`, `AdminNav`/`AdminGate`,
 `StudioNav`/`StudioGate`, `Badge`, etc.) — is catalogued in Storybook
@@ -127,7 +127,7 @@ board-only `/more` page. **Always check new or changed UI against it before ship
   across light/dark/tahti-dark. The only legitimate exception is genuinely brand-locked data (a
   real external service's logo color, an artist's own channel-branding accent) — not the app's own
   fixed chrome.
-- If a component you need doesn't exist yet in either `@nuclearplayer/ui` or tahti-web's local
+- If a component you need doesn't exist yet in either `@tahti-player/ui` or tahti-web's local
   shared components, that's a signal to add it there (with a story) rather than building a one-off
   in the page that needs it — same reasoning as `AGENTS.md`'s (root) "Adding UI Components"
   section.
@@ -242,8 +242,8 @@ Known limitations and handoff notes:
 
    ```bash
    pnpm exec prettier --write <changed-files>
-   pnpm --filter @nuclearplayer/tahti-web type-check
-   pnpm --filter @nuclearplayer/tahti-web lint
+   pnpm --filter @tahti-player/tahti-web type-check
+   pnpm --filter @tahti-player/tahti-web lint
    git diff --check
    ```
 

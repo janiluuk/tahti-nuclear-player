@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type {
   ProviderDescriptor,
   ProviderKind,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { providersHost } from '../services/providersHost';
 

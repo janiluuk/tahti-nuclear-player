@@ -1,20 +1,20 @@
 ---
-description: Create and load your first Nuclear plugin and verify the SDK works end-to-end.
+description: Create and load your first Tahti Player plugin and verify the SDK works end-to-end.
 ---
 
 # Getting started with plugins
 
-Spin up a bare plugin, load it in Nuclear, and poke the Plugin SDK to make sure everything is wired.
+Spin up a bare plugin, load it in Tahti Player, and poke the Plugin SDK to make sure everything is wired.
 
 {% hint style="info" %}
-Plugins are folders on disk with a `package.json` and an entry file. The app loads them at runtime and provides `@nuclearplayer/plugin-sdk` to your code.
+Plugins are folders on disk with a `package.json` and an entry file. The app loads them at runtime and provides `@tahti-player/plugin-sdk` to your code.
 {% endhint %}
 
 ## Usage
 
 {% tabs %}
 {% tab title="1) Folder" %}
-Create a folder anywhere on your machine, e.g. `~/nuclear-plugins/hello-plugin`.
+Create a folder anywhere on your machine, e.g. `~/tahti-plugins/hello-plugin`.
 
 Run `npm init` inside.
 {% endtab %}
@@ -24,10 +24,10 @@ Run `npm init` inside.
 {
   "name": "hello-plugin",
   "version": "0.1.0",
-  "description": "Minimal Nuclear plugin",
+  "description": "Minimal Tahti Player plugin",
   "author": "Your Name",
   "main": "index.ts",
-  "nuclear": {
+  "tahti": {
     "displayName": "Hello Plugin",
     "categories": ["other"]
   }
@@ -67,7 +67,7 @@ The app compiles TS on the fly. No additional setup is needed.
 
 ## Load it in the app
 
-1. Open Nuclear → Preference → Plugins (from the left sidebar).
+1. Open Tahti Player → Preference → Plugins (from the left sidebar).
 2. Click Add Plugin and select your plugin folder.
 3. Toggle it on. `onLoad` runs at import time; `onEnable` runs when you enable.
 
@@ -84,10 +84,10 @@ Setting IDs are auto-namespaced. Use bare IDs like `hello`; the app stores them 
 
 ```typescript
 type Plugin = {
-  onLoad?(api: NuclearPluginAPI): void | Promise<void>;
-  onEnable?(api: NuclearPluginAPI): void | Promise<void>;
-  onDisable?(api: NuclearPluginAPI): void | Promise<void>;
-  onUnload?(api: NuclearPluginAPI): void | Promise<void>;
+  onLoad?(api: TahtiPluginAPI): void | Promise<void>;
+  onEnable?(api: TahtiPluginAPI): void | Promise<void>;
+  onDisable?(api: TahtiPluginAPI): void | Promise<void>;
+  onUnload?(api: TahtiPluginAPI): void | Promise<void>;
 };
 ```
 
@@ -95,6 +95,10 @@ type Plugin = {
 
 * `name`, `version`, `description`, `author`
 * `main` (optional). If missing, the app tries `index.js`, `index.ts`, `index.tsx`, then `dist/index.*`.
-* `nuclear.displayName` (optional UI name)
-* `nuclear.categories` (shown in the Plugins list)
-* `nuclear.icon` and `nuclear.permissions` (optional; unknown permissions get a warning)
+* `tahti.displayName` (optional UI name)
+* `tahti.categories` (shown in the Plugins list)
+* `tahti.icon` and `tahti.permissions` (optional; unknown permissions get a warning)
+
+{% hint style="info" %}
+`nuclear` is still read as a legacy alias for `tahti` (with the same shape), for plugins published before the Tahti rebrand. Use `tahti` for anything new.
+{% endhint %}

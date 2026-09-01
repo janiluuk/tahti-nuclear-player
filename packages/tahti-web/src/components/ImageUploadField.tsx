@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { FilePicker } from '@nuclearplayer/ui';
+import { FilePicker } from '@tahti-player/ui';
 
 import { uploadUserMediaFile } from '../api/user-media';
 

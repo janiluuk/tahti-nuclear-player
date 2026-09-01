@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { ThemeController } from '@nuclearplayer/ui';
+import { ThemeController } from '@tahti-player/ui';
 
 import { useCoreSetting } from '../hooks/useCoreSetting';
 

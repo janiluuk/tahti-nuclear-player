@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { Track } from '@nuclearplayer/model';
-import { NuclearJam } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import type { Track } from '@tahti-player/model';
+import { TahtiJam } from '@tahti-player/ui';
 
 import { SearchDrawerContent } from './SearchDrawerContent';
 import { useRemoteActions } from './useRemoteActions';
@@ -17,33 +17,33 @@ const RemoteControl: FC = () => {
 
   if (state.connectionStatus === 'failed') {
     return (
-      <NuclearJam>
-        <NuclearJam.Error
+      <TahtiJam>
+        <TahtiJam.Error
           labels={{
             title: t('error.title'),
             subtitle: t('error.subtitle'),
           }}
         />
-      </NuclearJam>
+      </TahtiJam>
     );
   }
 
   if (!state.synced || state.connectionStatus === 'connecting') {
     return (
-      <NuclearJam>
-        <NuclearJam.Connecting
+      <TahtiJam>
+        <TahtiJam.Connecting
           labels={{
             title: t('connecting.title'),
             subtitle: t('connecting.subtitle'),
           }}
         />
-      </NuclearJam>
+      </TahtiJam>
     );
   }
 
   return (
-    <NuclearJam>
-      <NuclearJam.Header
+    <TahtiJam>
+      <TahtiJam.Header
         connectionStatus={state.connectionStatus}
         connectionStatusLabels={{
           connecting: t('connection.connecting'),
@@ -52,15 +52,15 @@ const RemoteControl: FC = () => {
           failed: t('connection.failed'),
         }}
       >
-        <NuclearJam.SearchBar
+        <TahtiJam.SearchBar
           value={search.query}
           onChange={search.setQuery}
           labels={{ placeholder: t('search.placeholder') }}
         />
-      </NuclearJam.Header>
-      <NuclearJam.Content>
+      </TahtiJam.Header>
+      <TahtiJam.Content>
         {state.hasQueue && state.currentTrack && (
-          <NuclearJam.NowPlaying
+          <TahtiJam.NowPlaying
             title={state.currentTrack.title}
             artist={state.currentTrack.artist}
             coverUrl={state.currentTrack.coverUrl}
@@ -68,7 +68,7 @@ const RemoteControl: FC = () => {
           />
         )}
         {state.hasQueue && (
-          <NuclearJam.Controls
+          <TahtiJam.Controls
             isPlaying={state.isPlaying}
             isLoading={state.isLoading}
             shuffleActive={state.settings.shuffle}
@@ -80,7 +80,7 @@ const RemoteControl: FC = () => {
             {...actions}
           />
         )}
-        <NuclearJam.Queue
+        <TahtiJam.Queue
           items={state.queue.items}
           currentItemId={state.queue.currentItemId}
           onRemove={actions.onRemoveFromQueue}
@@ -90,7 +90,7 @@ const RemoteControl: FC = () => {
             subtitle: t('queue.emptySubtitle'),
           }}
         />
-        <NuclearJam.SearchDrawer
+        <TahtiJam.SearchDrawer
           open={search.query.length > 0}
           onBackdropClick={() => search.setQuery('')}
         >
@@ -103,9 +103,9 @@ const RemoteControl: FC = () => {
               search.setQuery('');
             }}
           />
-        </NuclearJam.SearchDrawer>
-      </NuclearJam.Content>
-    </NuclearJam>
+        </TahtiJam.SearchDrawer>
+      </TahtiJam.Content>
+    </TahtiJam>
   );
 };
 

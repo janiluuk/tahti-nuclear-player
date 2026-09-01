@@ -5,7 +5,7 @@ import { FC } from 'react';
 import type {
   CustomSettingDefinition,
   CustomWidgetProps,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { CustomWidgetField } from './CustomWidgetField';
 

@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { PluginManifest } from '@nuclearplayer/plugin-sdk';
+import { PluginManifest } from '@tahti-player/plugin-sdk';
 
 import { PluginFsMock } from '../mocks/plugin-fs';
 

@@ -1,5 +1,5 @@
 ---
-description: Agent and contributor guide for extending Tahti add-ons and Nuclear plugins safely.
+description: Agent and contributor guide for extending Tahti add-ons and Tahti Player plugins safely.
 ---
 
 # Tahti add-on and plugin authoring
@@ -14,7 +14,7 @@ Tahti web has no backend of its own. Before adding a live integration, inspect t
 
 | Type | Use it for | Tahti web location |
 | --- | --- | --- |
-| Runtime provider | Search, stream resolution, metadata, playlists or discovery behavior in Nuclear | `packages/tahti-web/src/plugins/` or `packages/plugin-sdk` |
+| Runtime provider | Search, stream resolution, metadata, playlists or discovery behavior in Tahti Player | `packages/tahti-web/src/plugins/` or `packages/plugin-sdk` |
 | Audio FX | A Pro Editor effect that contributes preview nodes and render parameters | `src/plugins/audio-fx` |
 | Visualizer | A Three.js scene preset reacting to artwork and analyser level | `src/plugins/visualizers` |
 | Source adapter | OAuth, search, link import or file import behavior | `src/plugins/import-sources` plus `src/api/sources.ts` |
@@ -27,7 +27,7 @@ Do not call a metadata array a runtime plugin. A registry entry is only active w
 
 ## Standalone plugin recipe
 
-The working example is [`examples/nuclear-plugin-example`](../../examples/nuclear-plugin-example). It is intentionally small and can be copied as a starting point.
+The working example is [`examples/tahti-plugin-example`](../../examples/tahti-plugin-example). It is intentionally small and can be copied as a starting point.
 
 ```text
 my-plugin/
@@ -36,23 +36,23 @@ my-plugin/
     index.ts
 ```
 
-The manifest must include a unique name, version, description, author, entry point, `nuclear.categories`, and only the permissions the plugin needs. Export one default `NuclearPlugin` object. Register behavior in `onEnable`; unregister providers and widgets in `onDisable`.
+The manifest must include a unique name, version, description, author, entry point, `tahti.categories`, and only the permissions the plugin needs. Export one default `TahtiPlugin` object. Register behavior in `onEnable`; unregister providers and widgets in `onDisable`.
 
 {% code title="package.json" %}
 
 ```json
 {
-  "name": "nuclear-plugin-example",
+  "name": "tahti-plugin-example",
   "version": "0.1.0",
   "main": "src/index.ts",
   "type": "module",
-  "nuclear": {
+  "tahti": {
     "displayName": "Example settings plugin",
     "categories": ["other"],
     "permissions": ["storage"]
   },
   "dependencies": {
-    "@nuclearplayer/plugin-sdk": "^2.8.0"
+    "@tahti-player/plugin-sdk": "^2.8.0"
   }
 }
 ```
@@ -92,7 +92,7 @@ Useful counterpart locations include `../tahti/apps/api/src/routes/me`, `../taht
 | Fingerprinting | AcoustID match and check adapter | One provider implemented; more providers pending |
 | Radio and embeds | Configurable stations and SoundCloud/YouTube/hearthis.at embeds | Page add-ons implemented; provider-specific runtime varies |
 | Discovery and channel widgets | Sandboxed listener/channel catalog | `/api/admin/disco-widgets` and install routes available; UI parity continues |
-| Nuclear registry integrations | Discogs, Deezer, ListenBrainz, Last.fm, YouTube, Bandcamp, SoundCloud and OmniSource entries | Explicit implemented/partial/missing status in `nuclearPluginAddons.ts` |
+| Tahti Player registry integrations | Discogs, Deezer, ListenBrainz, Last.fm, YouTube, Bandcamp, SoundCloud and OmniSource entries | Status varies per source; see `src/plugins/import-sources` for the current adapter set |
 
 ## Current three-slice follow-up
 
@@ -111,5 +111,5 @@ Each slice should land with a registry test, an API-parity note, a mock state, a
 - Does every network operation have a verified sibling API counterpart?
 - Are credentials validated, masked and excluded from logs?
 - Are register/unregister lifecycle paths covered?
-- Does the UI use Nuclear components and i18n conventions?
+- Does the UI use Tahti Player components and i18n conventions?
 - Are type-check, lint, focused tests and the relevant Playwright route capture clean?

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import type { QueueItem } from '@nuclearplayer/model';
+import type { QueueItem } from '@tahti-player/model';
 
 import { streamResolution } from '../services/streamResolution';
 import { useQueueStore } from '../stores/queueStore';

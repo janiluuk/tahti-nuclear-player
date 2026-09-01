@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { ThemeController } from '@nuclearplayer/ui';
+import { ThemeController } from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/ThemeController',

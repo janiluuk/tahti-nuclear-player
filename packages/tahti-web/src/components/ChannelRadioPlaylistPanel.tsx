@@ -10,7 +10,7 @@ import {
   SaveButton,
   Select,
   Toggle,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   createStudioCollection,

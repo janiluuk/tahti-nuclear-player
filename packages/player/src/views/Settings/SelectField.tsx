@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { Select } from '@nuclearplayer/ui';
+import { Select } from '@tahti-player/ui';
 
 type Option = { id: string; label: string };
 

@@ -1,6 +1,6 @@
 import { CellContext } from '@tanstack/react-table';
 
-import { Track } from '@nuclearplayer/model';
+import { Track } from '@tahti-player/model';
 
 export const TextCell = <T extends Track>({
   getValue,

@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { Button, Dialog, Input, Select } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Select } from '@tahti-player/ui';
 
 import {
   createStudioCollection,

@@ -1,4 +1,4 @@
-import type { Stream, StreamCandidate, Track } from '@nuclearplayer/model';
+import type { Stream, StreamCandidate, Track } from '@tahti-player/model';
 
 import type { ProviderDescriptor } from './providers';
 

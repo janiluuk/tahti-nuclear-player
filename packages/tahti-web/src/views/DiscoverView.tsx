@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, FilterChips, Popover, Select } from '@nuclearplayer/ui';
+import { Button, FilterChips, Popover, Select } from '@tahti-player/ui';
 
 import { fetchDirectory, fetchTrackDetail } from '../api/client';
 import {

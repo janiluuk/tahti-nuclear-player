@@ -1,8 +1,8 @@
 import { Import, Link } from 'lucide-react';
 import { type FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Button, Popover } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Button, Popover } from '@tahti-player/ui';
 
 import { usePlaylistImport } from '../../../hooks/usePlaylistImport';
 import { useImportFromUrlContext } from '../PlaylistsContext';

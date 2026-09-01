@@ -1,4 +1,4 @@
-import type { DiscoveryProvider } from '@nuclearplayer/plugin-sdk';
+import type { DiscoveryProvider } from '@tahti-player/plugin-sdk';
 
 export class DiscoveryProviderBuilder {
   private provider: DiscoveryProvider;

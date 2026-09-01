@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Button, MediaArtwork, SectionShell } from '@nuclearplayer/ui';
+import { Button, MediaArtwork, SectionShell } from '@tahti-player/ui';
 
 import { fetchArtistPlayables, fetchFeed, fetchProfile } from '../api/client';
 import type {

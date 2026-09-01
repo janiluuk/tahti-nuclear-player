@@ -1,4 +1,4 @@
-import { ScrollableArea } from '@nuclearplayer/ui';
+import { ScrollableArea } from '@tahti-player/ui';
 
 import { AdvancedThemeSelect } from './AdvancedThemeSelect';
 import { BasicThemes } from './BasicThemes';

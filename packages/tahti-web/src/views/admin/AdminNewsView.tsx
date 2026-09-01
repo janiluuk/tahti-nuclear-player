@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input, SaveButton, Textarea } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, SaveButton, Textarea } from '@tahti-player/ui';
 
 import {
   createNewsPost,

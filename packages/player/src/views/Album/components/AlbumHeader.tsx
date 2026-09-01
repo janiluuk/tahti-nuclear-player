@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { pickArtwork } from '@nuclearplayer/model';
-import { Box, Loader, StatChip } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { pickArtwork } from '@tahti-player/model';
+import { Box, Loader, StatChip } from '@tahti-player/ui';
 
 import { ConnectedFavoriteButton } from '../../../components/ConnectedFavoriteButton';
 import { useAlbumDetails } from '../hooks/useAlbumDetails';

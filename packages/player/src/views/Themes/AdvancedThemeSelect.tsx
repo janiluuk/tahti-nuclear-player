@@ -1,5 +1,5 @@
-import { useTranslation } from '@nuclearplayer/i18n';
-import { SectionShell, Select } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { SectionShell, Select } from '@tahti-player/ui';
 
 import { useAdvancedThemeOptions } from '../../hooks/useAdvancedThemeOptions';
 import { loadAndApplyAdvancedThemeFromFile } from '../../services/advancedThemeService';

@@ -1,7 +1,7 @@
 import { PencilIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import { fetchStudioArchive } from '../../api/studio';
 import type { StudioArchiveItem } from '../../api/studio-types';

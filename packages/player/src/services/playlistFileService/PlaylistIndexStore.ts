@@ -1,7 +1,7 @@
 import { LazyStore } from '@tauri-apps/plugin-store';
 
-import type { PlaylistIndexEntry } from '@nuclearplayer/model';
-import { playlistIndexSchema } from '@nuclearplayer/model';
+import type { PlaylistIndexEntry } from '@tahti-player/model';
+import { playlistIndexSchema } from '@tahti-player/model';
 
 import { loadValidated } from '../validatedStore';
 

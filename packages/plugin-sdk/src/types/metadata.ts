@@ -8,7 +8,7 @@ import type {
   SearchParams,
   SearchResults,
   TrackRef,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 
 export type MetadataHost = {
   search: (params: SearchParams, providerId?: string) => Promise<SearchResults>;

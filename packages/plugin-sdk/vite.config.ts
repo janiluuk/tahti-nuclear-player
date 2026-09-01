@@ -33,12 +33,12 @@ export default defineConfig(({ command, mode }) => {
         rollupOptions: {
           external: isNpmBuild
             ? ['react', 'react-dom']
-            : ['react', 'react-dom', '@nuclearplayer/ui'],
+            : ['react', 'react-dom', '@tahti-player/ui'],
           output: {
             globals: {
               react: 'React',
               'react-dom': 'ReactDOM',
-              '@nuclearplayer/ui': 'NuclearUI',
+              '@tahti-player/ui': 'NuclearUI',
             },
           },
         },

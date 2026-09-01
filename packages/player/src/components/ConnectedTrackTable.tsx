@@ -1,11 +1,11 @@
 import { FC } from 'react';
 
-import type { Track } from '@nuclearplayer/model';
+import type { Track } from '@tahti-player/model';
 import {
   TrackTable,
   TrackTableActions,
   TrackTableProps,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import { useQueueActions } from '../hooks/useQueueActions';
 import { useTrackActions } from '../hooks/useTrackActions';

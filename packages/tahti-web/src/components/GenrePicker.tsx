@@ -1,4 +1,4 @@
-import { CreatableCombobox } from '@nuclearplayer/ui';
+import { CreatableCombobox } from '@tahti-player/ui';
 
 import { capitalizeGenre, MAX_GENRES, PRESET_GENRES } from '../lib/genres';
 

@@ -46,7 +46,7 @@ Done since last update (was listed here as remaining, verified shipped): channel
 
 ## Storybook UI compliance backlog
 
-This backlog comes from the Storybook comparison audit. Prefer the original Nuclear primitives from `@nuclearplayer/ui` wherever they cover the need. Admin-specific Storybook entries are secondary references: keep board workflows dense where necessary, but match the shared Nuclear chrome, controls, states, and spacing first.
+This backlog comes from the Storybook comparison audit. Prefer the original Nuclear primitives from `@tahti-player/ui` wherever they cover the need. Admin-specific Storybook entries are secondary references: keep board workflows dense where necessary, but match the shared Nuclear chrome, controls, states, and spacing first.
 
 ### High priority
 
@@ -92,10 +92,10 @@ When replacing a bespoke element, check these existing Storybook components firs
 
 ```bash
 export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 22
-pnpm --filter @nuclearplayer/tahti-web type-check
-pnpm --filter @nuclearplayer/tahti-web build
+pnpm --filter @tahti-player/tahti-web type-check
+pnpm --filter @tahti-player/tahti-web build
 # Offline:
-VITE_FORCE_MOCK=1 pnpm --filter @nuclearplayer/tahti-web dev
+VITE_FORCE_MOCK=1 pnpm --filter @tahti-player/tahti-web dev
 # Live API (no silent mock in prod build):
-unset VITE_FORCE_MOCK && pnpm --filter @nuclearplayer/tahti-web dev
+unset VITE_FORCE_MOCK && pnpm --filter @tahti-player/tahti-web dev
 ```

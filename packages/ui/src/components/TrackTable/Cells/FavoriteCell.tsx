@@ -1,6 +1,6 @@
 import { CellContext } from '@tanstack/react-table';
 
-import { Track } from '@nuclearplayer/model';
+import { Track } from '@tahti-player/model';
 
 import { FavoriteButton } from '../../FavoriteButton';
 import { useTrackTableContext } from '../TrackTableContext';

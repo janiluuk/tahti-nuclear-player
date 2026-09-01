@@ -29,7 +29,7 @@ import { ShellAPI } from './shell';
 import { StreamingAPI } from './streaming';
 import { YtdlpAPI } from './ytdlp';
 
-export class NuclearAPI {
+export class TahtiAPI {
   readonly Settings: Settings;
   readonly Providers: Providers;
   readonly Queue: QueueAPI;
@@ -87,4 +87,9 @@ export class NuclearAPI {
   }
 }
 
-export class NuclearPluginAPI extends NuclearAPI {}
+export class TahtiPluginAPI extends TahtiAPI {}
+
+/** @deprecated Use `TahtiAPI` instead. Kept for source compatibility with existing plugins. */
+export { TahtiAPI as NuclearAPI };
+/** @deprecated Use `TahtiPluginAPI` instead. Kept for source compatibility with existing plugins. */
+export { TahtiPluginAPI as NuclearPluginAPI };

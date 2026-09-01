@@ -1,7 +1,7 @@
 import { AlertCircle, Inbox, PackageOpen, Radio } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import { Button, CenteredLoader, EmptyState } from '@nuclearplayer/ui';
+import { Button, CenteredLoader, EmptyState } from '@tahti-player/ui';
 
 export function PageLoading({ label }: { label?: string }) {
   return (

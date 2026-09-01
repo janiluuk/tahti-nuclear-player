@@ -1,6 +1,6 @@
 # Conversion queue — artist + admin gaps (Nuclear)
 
-Source of truth for **what exists on tahti.live but not yet in `@nuclearplayer/tahti-web`**.  
+Source of truth for **what exists on tahti.live but not yet in `@tahti-player/tahti-web`**.  
 Also see [FEATURES.md](./FEATURES.md) for shipped rows.
 
 Convert **one row at a time**.

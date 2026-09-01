@@ -2,8 +2,8 @@ import { HeaderContext } from '@tanstack/react-table';
 import { SortAsc, SortDesc } from 'lucide-react';
 import { PropsWithChildren, useCallback } from 'react';
 
-import { Track } from '@nuclearplayer/model';
-import { cn } from '@nuclearplayer/ui';
+import { Track } from '@tahti-player/model';
+import { cn } from '@tahti-player/ui';
 
 type HeaderValue = string | undefined;
 

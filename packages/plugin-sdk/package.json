@@ -1,5 +1,5 @@
 {
-  "name": "@nuclearplayer/plugin-sdk",
+  "name": "@tahti-player/plugin-sdk",
   "version": "2.8.0",
   "description": "Plugin SDK for Nuclear music player",
   "type": "module",
@@ -33,8 +33,8 @@
     "clean": "rm -rf dist build .turbo node_modules/.vite"
   },
   "dependencies": {
-    "@nuclearplayer/model": "workspace:*",
-    "@nuclearplayer/ui": "workspace:*",
+    "@tahti-player/model": "workspace:*",
+    "@tahti-player/ui": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.542.0",
@@ -43,8 +43,8 @@
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.51.1",
-    "@nuclearplayer/eslint-config": "workspace:*",
-    "@nuclearplayer/tailwind-config": "workspace:*",
+    "@tahti-player/eslint-config": "workspace:*",
+    "@tahti-player/tailwind-config": "workspace:*",
     "@tailwindcss/vite": "^4.1.11",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",

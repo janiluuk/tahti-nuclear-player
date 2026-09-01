@@ -1,13 +1,13 @@
 import {
   AdvancedThemeSchema,
   MarketplaceThemeRegistrySchema,
-} from '@nuclearplayer/themes';
+} from '@tahti-player/themes';
 
 import { ApiClient } from './ApiClient';
 
 class ThemeRegistryApi extends ApiClient {
   constructor() {
-    super('https://cdn.jsdelivr.net/gh/NuclearPlayer/theme-registry@master');
+    super('https://raw.githubusercontent.com/janiluuk/tahti-registry/master');
   }
 
   async getThemes() {

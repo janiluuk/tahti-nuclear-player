@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 
-import { Card, cn } from '@nuclearplayer/ui';
+import { Card, cn } from '@tahti-player/ui';
 
 type GlowMediaTileProps = {
   title: string;

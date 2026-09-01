@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { TopBar } from '@nuclearplayer/ui';
+import { TopBar } from '@tahti-player/ui';
 
 const meta = {
   title: 'Layout/TopBar',

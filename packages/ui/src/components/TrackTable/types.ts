@@ -1,6 +1,6 @@
 import { FC, ReactNode } from 'react';
 
-import { Track } from '@nuclearplayer/model';
+import { Track } from '@tahti-player/model';
 
 export type TrackTableLabels = {
   headers: {

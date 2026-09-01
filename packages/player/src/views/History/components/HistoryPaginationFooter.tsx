@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { PaginationLabels } from '@nuclearplayer/ui';
-import { Pagination, Select } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import type { PaginationLabels } from '@tahti-player/ui';
+import { Pagination, Select } from '@tahti-player/ui';
 
 type HistoryPaginationFooterProps = {
   currentPage: number;

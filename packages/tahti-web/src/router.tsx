@@ -16,6 +16,7 @@ import {
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { useAuthStore } from './stores/authStore';
 import type { AdminModerationTabId } from './views/admin/moderation/moderationNav';
+import type { AdminOrphanPageTabId } from './views/admin/orphanPages/orphanPagesNav';
 import { AgplView } from './views/AgplView';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
@@ -203,9 +204,9 @@ const AdminModerationView = lazyRouteComponent(
   () => import('./views/admin/moderation/AdminModerationView'),
   'AdminModerationView',
 );
-const AdminRadioStationSuggestionsView = lazyRouteComponent(
-  () => import('./views/admin/AdminRadioStationSuggestionsView'),
-  'AdminRadioStationSuggestionsView',
+const AdminOrphanPagesView = lazyRouteComponent(
+  () => import('./views/admin/orphanPages/AdminOrphanPagesView'),
+  'AdminOrphanPagesView',
 );
 const AdminRadioView = lazyRouteComponent(
   () => import('./views/admin/AdminRadioView'),
@@ -451,10 +452,36 @@ const adminRadioSubmissionsRoute = createRoute({
   },
 });
 
+// Radio station suggestions used to be a standalone admin route with no nav
+// entry and no in-app link (see NAVIGATION-SITEMAP.md's orphan-page audit).
+// It's now a tab on the Orphan pages gathering view — redirect the old URL,
+// same pattern as the six retired moderation routes above.
 const adminRadioStationSuggestionsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/radio-station-suggestions',
-  component: AdminRadioStationSuggestionsView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/admin/orphan-pages/$tab',
+      params: { tab: 'radio-station-suggestions' },
+    });
+  },
+});
+
+const adminOrphanPagesRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/orphan-pages',
+  component: () => <AdminOrphanPagesView />,
+});
+
+const adminOrphanPagesTabRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/orphan-pages/$tab',
+  component: function AdminOrphanPagesTabRoute() {
+    const { tab } = adminOrphanPagesTabRoute.useParams();
+    return (
+      <AdminOrphanPagesView tab={tab as AdminOrphanPageTabId | undefined} />
+    );
+  },
 });
 
 const adminNewsRoute = createRoute({
@@ -1554,6 +1581,8 @@ const routeTree = rootRoute.addChildren([
     adminRadioRoute,
     adminRadioSubmissionsRoute,
     adminRadioStationSuggestionsRoute,
+    adminOrphanPagesRoute,
+    adminOrphanPagesTabRoute,
     adminNewsRoute,
     adminSelectsRoute,
     adminStreamsRoute,

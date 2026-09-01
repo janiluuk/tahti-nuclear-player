@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import type { Playlist } from '@nuclearplayer/model';
+import type { Playlist } from '@tahti-player/model';
 
 import { usePlaylistStore } from '../../../stores/playlistStore';
 

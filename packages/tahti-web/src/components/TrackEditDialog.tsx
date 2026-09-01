@@ -23,7 +23,7 @@ import {
   Select,
   Tabs,
   Toggle,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   activateArchiveVersion,

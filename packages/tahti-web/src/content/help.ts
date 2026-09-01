@@ -481,6 +481,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
           'Dashboard and Status show platform health. Logs show service activity. Moderation handles support, beta, radio, reports, and feature queues.',
           'Users, Content, Radio, Streams, Storage, News, Venues, Top lists, and Announcements manage the everyday platform surfaces.',
           'Governance and AGM hold member records. Disco-widgets manages approved add-ons. Artwork presets manages the abstract defaults used for artwork-free uploads.',
+          'Orphan pages (/admin/orphan-pages) gathers real admin pages that shipped without a menu entry of their own — each is its own tab there rather than lost at an unlinked URL.',
         ],
       },
       {

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Box, Button, Tabs } from '@nuclearplayer/ui';
+import { Box, Button, Tabs } from '@tahti-player/ui';
 
 import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {

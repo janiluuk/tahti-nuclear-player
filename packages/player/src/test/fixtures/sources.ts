@@ -1,8 +1,8 @@
-import type { SearchResults } from '@nuclearplayer/model';
+import type { SearchResults } from '@tahti-player/model';
 import type {
   MetadataProvider,
   StreamingProvider,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { MetadataProviderBuilder } from '../builders/MetadataProviderBuilder';
 import { StreamingProviderBuilder } from '../builders/StreamingProviderBuilder';

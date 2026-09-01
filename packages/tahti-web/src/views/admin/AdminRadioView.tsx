@@ -1,7 +1,7 @@
 import { PauseIcon, PlayIcon, PlusIcon, RadioTowerIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
+import { Badge, Button, Dialog, Input, Textarea } from '@tahti-player/ui';
 
 import {
   createAdminInternetRadioPreset,

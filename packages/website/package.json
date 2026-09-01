@@ -1,5 +1,5 @@
 {
-  "name": "@nuclearplayer/website",
+  "name": "@tahti-player/website",
   "version": "2.10.0",
   "description": "Nuclear website",
   "type": "module",
@@ -32,8 +32,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
-    "@nuclearplayer/eslint-config": "workspace:*",
-    "@nuclearplayer/tailwind-config": "workspace:*",
+    "@tahti-player/eslint-config": "workspace:*",
+    "@tahti-player/tailwind-config": "workspace:*",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^18.3.23",

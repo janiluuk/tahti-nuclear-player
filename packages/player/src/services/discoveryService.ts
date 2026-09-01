@@ -1,5 +1,5 @@
-import { i18n } from '@nuclearplayer/i18n';
-import type { Track } from '@nuclearplayer/model';
+import { i18n } from '@tahti-player/i18n';
+import type { Track } from '@tahti-player/model';
 
 import { useQueueStore } from '../stores/queueStore';
 import { useSettingsStore } from '../stores/settingsStore';

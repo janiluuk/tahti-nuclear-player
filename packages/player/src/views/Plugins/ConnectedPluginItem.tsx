@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { PluginItem, Toggle } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { PluginItem, Toggle } from '@tahti-player/ui';
 
 import { PluginIconComponent } from '../../components/PluginIcon';
 import { PluginState, usePluginStore } from '../../stores/pluginStore';
