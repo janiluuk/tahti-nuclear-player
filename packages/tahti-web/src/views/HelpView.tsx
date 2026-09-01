@@ -4,7 +4,6 @@ import {
   ArrowRightIcon,
   BookOpenIcon,
   ChevronRightIcon,
-  CircleHelpIcon,
   HeadphonesIcon,
   LifeBuoyIcon,
   ListIcon,
@@ -98,7 +97,7 @@ const GUIDE_GROUPS: Array<{
     description:
       'Themes, imports, live mirrors, audio tools, and page widgets.',
     icon: PlugIcon,
-    slugs: ['add-ons', 'desktop-mcp', 'disco-widgets'],
+    slugs: ['add-ons', 'desktop-mcp'],
   },
   {
     id: 'build-with-tahti',
@@ -336,9 +335,9 @@ export function HelpHubView() {
             content: (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {group.items.map((item) => (
-                  <a
+                  <Link
                     key={item.title}
-                    href={item.to}
+                    to={item.to as never}
                     className="border-border bg-background hover:border-primary group rounded-xl border p-3 transition-colors"
                   >
                     <span className="flex items-center justify-between gap-2 text-sm font-semibold">
@@ -352,36 +351,13 @@ export function HelpHubView() {
                     <span className="text-foreground-secondary mt-1 block text-xs leading-relaxed">
                       {item.description}
                     </span>
-                  </a>
+                  </Link>
                 ))}
               </div>
             ),
           }))}
           listClassName="overflow-x-auto"
         />
-      </section>
-
-      <section
-        data-help-hub-panel
-        className="border-border bg-primary text-primary-foreground min-w-0 rounded-2xl border p-5 shadow-sm sm:p-6"
-      >
-        <div className="flex items-start gap-3">
-          <CircleHelpIcon size={22} className="mt-0.5 shrink-0" aria-hidden />
-          <div className="min-w-0">
-            <p className="text-xs font-bold tracking-[0.16em] uppercase opacity-75">
-              A practical guide
-            </p>
-            <h2 className="font-display mt-1 text-2xl font-bold tracking-tight">
-              Start with what you want to do.
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed opacity-85">
-              Listening is open to everyone. Sign in when you want to save
-              favorites, build playlists, chat, or support artists. Artists can
-              create a channel in Studio, publish their archive, and broadcast
-              with OBS, Mixxx, Traktor, or the browser studio.
-            </p>
-          </div>
-        </div>
       </section>
 
       <section data-help-hub-panel aria-labelledby="quick-start-heading">
@@ -436,7 +412,7 @@ export function HelpHubView() {
       <section
         data-help-hub-panel
         aria-labelledby="guide-index-heading"
-        className="flex min-w-0 flex-col gap-5"
+        className="flex min-w-0 flex-col gap-4"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -471,54 +447,42 @@ export function HelpHubView() {
             title="No guides match"
             description={`Try another search${query ? ` instead of “${query}”` : ''}.`}
           />
+        ) : query.trim() ? (
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {visibleGroups.flatMap((group) =>
+              group.articles.map((article) => (
+                <HelpGuideCard key={article.slug} article={article} />
+              )),
+            )}
+          </div>
         ) : (
-          <div className="grid min-w-0 gap-8 lg:grid-cols-[12rem_minmax(0,1fr)]">
-            <nav
-              aria-label="Help guide sections"
-              className="border-border hidden h-fit gap-1 border-l pl-3 lg:sticky lg:top-4 lg:flex lg:flex-col"
-            >
-              {visibleGroups.map((group) => (
-                <a
-                  key={group.id}
-                  href={`#${group.id}`}
-                  className="text-foreground-secondary hover:text-foreground py-1 text-xs font-semibold"
-                >
-                  {group.title}
-                </a>
-              ))}
-            </nav>
-            <div className="flex min-w-0 flex-col gap-8">
-              {visibleGroups.map((group) => {
-                const GroupIcon = group.icon;
-                return (
-                  <section
-                    key={group.id}
-                    id={group.id}
-                    className="min-w-0 scroll-mt-4"
-                  >
-                    <div className="mb-3 flex items-start gap-3">
-                      <div className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
-                        <GroupIcon size={18} aria-hidden />
-                      </div>
-                      <div>
-                        <h3 className="font-display text-xl font-bold tracking-tight">
-                          {group.title}
-                        </h3>
-                        <p className="text-foreground-secondary mt-0.5 text-sm">
-                          {group.description}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+          <Tabs
+            items={visibleGroups.map((group) => {
+              const GroupIcon = group.icon;
+              return {
+                id: group.id,
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <GroupIcon size={14} aria-hidden />
+                    {group.title}
+                  </span>
+                ),
+                content: (
+                  <div className="flex min-w-0 flex-col gap-3">
+                    <p className="text-foreground-secondary text-sm">
+                      {group.description}
+                    </p>
+                    <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                       {group.articles.map((article) => (
                         <HelpGuideCard key={article.slug} article={article} />
                       ))}
                     </div>
-                  </section>
-                );
-              })}
-            </div>
-          </div>
+                  </div>
+                ),
+              };
+            })}
+            listClassName="overflow-x-auto"
+          />
         )}
       </section>
 
@@ -536,6 +500,17 @@ export function HelpHubView() {
       </p>
     </PageFrame>
   );
+}
+
+function getRelatedArticles(slug: string): HelpArticle[] {
+  const group = GUIDE_GROUPS.find((item) => item.slugs.includes(slug));
+  if (!group) {
+    return [];
+  }
+  return group.slugs
+    .filter((related) => related !== slug)
+    .map((related) => getHelpArticle(related))
+    .filter((related): related is HelpArticle => related !== undefined);
 }
 
 export function HelpArticleView({ slug }: { slug: string }) {
@@ -556,12 +531,7 @@ export function HelpArticleView({ slug }: { slug: string }) {
     );
   }
 
-  const articleIndex = HELP_ARTICLES.findIndex((item) => item.slug === slug);
-  const previous = articleIndex > 0 ? HELP_ARTICLES[articleIndex - 1] : null;
-  const next =
-    articleIndex >= 0 && articleIndex < HELP_ARTICLES.length - 1
-      ? HELP_ARTICLES[articleIndex + 1]
-      : null;
+  const related = getRelatedArticles(slug);
 
   return (
     <PageFrame maxWidth="full" className="max-w-5xl min-w-0 pb-8">
@@ -687,41 +657,40 @@ export function HelpArticleView({ slug }: { slug: string }) {
             </div>
           )}
 
-          <nav
-            aria-label="More help guides"
-            className="border-border mt-8 grid gap-3 border-t pt-5 sm:grid-cols-2"
-          >
-            {previous ? (
-              <Link
-                to="/help/$slug"
-                params={{ slug: previous.slug }}
-                className="border-border hover:border-primary group rounded-xl border p-4 transition-colors"
-              >
-                <span className="text-foreground-secondary flex items-center gap-1 text-xs font-semibold tracking-wide uppercase">
-                  <ArrowLeftIcon size={14} aria-hidden /> Previous
-                </span>
-                <span className="mt-2 block text-sm font-bold">
-                  {previous.title}
-                </span>
-              </Link>
-            ) : (
-              <span />
-            )}
-            {next ? (
-              <Link
-                to="/help/$slug"
-                params={{ slug: next.slug }}
-                className="border-border hover:border-primary group rounded-xl border p-4 text-right transition-colors"
-              >
-                <span className="text-foreground-secondary flex items-center justify-end gap-1 text-xs font-semibold tracking-wide uppercase">
-                  Next <ArrowRightIcon size={14} aria-hidden />
-                </span>
-                <span className="mt-2 block text-sm font-bold">
-                  {next.title}
-                </span>
-              </Link>
-            ) : null}
-          </nav>
+          {related.length > 0 && (
+            <nav
+              aria-label="Related guides"
+              className="border-border mt-8 border-t pt-5"
+            >
+              <p className="text-foreground-secondary mb-3 text-xs font-bold tracking-[0.16em] uppercase">
+                Related guides
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {related.map((item) => (
+                  <Link
+                    key={item.slug}
+                    to="/help/$slug"
+                    params={{ slug: item.slug }}
+                    className="border-border hover:border-primary group flex items-start justify-between gap-2 rounded-xl border p-4 transition-colors"
+                  >
+                    <span className="min-w-0">
+                      <span className="block text-sm font-bold">
+                        {item.title}
+                      </span>
+                      <span className="text-foreground-secondary mt-1 block text-xs leading-relaxed">
+                        {item.description}
+                      </span>
+                    </span>
+                    <ArrowRightIcon
+                      size={15}
+                      aria-hidden
+                      className="text-foreground-secondary mt-0.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+                    />
+                  </Link>
+                ))}
+              </div>
+            </nav>
+          )}
         </article>
       </div>
     </PageFrame>

@@ -11,6 +11,7 @@ import {
   LibraryIcon,
   MapPinIcon,
   MegaphoneIcon,
+  PuzzleIcon,
   RadioIcon,
   ServerIcon,
   SettingsIcon,
@@ -177,6 +178,13 @@ const PRIMARY = [
     icon: <RadioIcon size={16} aria-hidden />,
     description: 'Manage the Tahti Selects editorial stream and rotation.',
   },
+  {
+    to: '/admin/orphan-pages',
+    label: 'Orphan pages',
+    icon: <PuzzleIcon size={16} aria-hidden />,
+    description:
+      'Real pages that shipped without a menu entry or an in-app link, gathered here as tabs.',
+  },
 ] as const;
 
 const ADMIN_SECTIONS = [
@@ -238,6 +246,7 @@ const ADMIN_SECTIONS = [
         '/admin/venues',
         '/admin/disco-widgets',
         '/admin/i18n',
+        '/admin/orphan-pages',
       ].includes(item.to),
     ),
   },
