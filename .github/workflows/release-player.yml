@@ -3,7 +3,7 @@ name: Release Player
 on:
   push:
     tags:
-      - "player@*.*.*"
+      - 'player@*.*.*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,15 +21,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: "macos-latest"
-            args: "--target aarch64-apple-darwin --bundles app"
-            arch: "arm64"
-          - platform: "macos-latest"
-            args: "--target x86_64-apple-darwin --bundles app"
-            arch: "x64"
-          - platform: "windows-latest"
-            args: "--bundles nsis"
-            arch: "x64"
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin --bundles app'
+            arch: 'arm64'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin --bundles app'
+            arch: 'x64'
+          - platform: 'windows-latest'
+            args: '--bundles nsis'
+            arch: 'x64'
+          - platform: 'ubuntu-22.04'
+            args: '--bundles deb,appimage'
+            arch: 'x64'
 
     runs-on: ${{ matrix.platform }}
 
@@ -50,7 +53,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24"
+          node-version: '24'
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
@@ -72,6 +75,19 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install Linux bundle dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            libssl-dev \
+            libfuse2 \
+            file \
+            patchelf
 
       - name: Cache cargo dependencies
         uses: actions/cache@v5
@@ -106,8 +122,8 @@ jobs:
           TAURI_BUNDLER_DMG_IGNORE_CI: false
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: "Tahti Player v${{ steps.version.outputs.version }}"
-          releaseBody: "${{ steps.release_notes.outputs.notes }}"
+          releaseName: 'Tahti Player v${{ steps.version.outputs.version }}'
+          releaseBody: '${{ steps.release_notes.outputs.notes }}'
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}

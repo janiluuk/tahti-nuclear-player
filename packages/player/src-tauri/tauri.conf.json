@@ -27,7 +27,7 @@
     }
   },
   "bundle": {
-    "active": false,
+    "active": true,
     "category": "Music",
     "shortDescription": "Independent artist broadcasting and music player",
     "longDescription": "Tahti Player is a free, open-source broadcasting and music player for independent artists, with live channels, archives, and fan-supported listening.",
