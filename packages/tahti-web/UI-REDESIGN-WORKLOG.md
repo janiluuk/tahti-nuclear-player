@@ -1,5 +1,67 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-01 — Tahti Jam view, and widget removal on the Listen dashboard
+
+**Completed:** Two independent pieces.
+
+**Tahti Jam** — a "Start a Jam" button on playlist/collection pages creates
+a synced group-listening session against the new `tahti` API
+(`/api/v1/jam`, see that repo's own worklog) and hands the host off to
+`/jam/$code`; guests open the same link to join. `src/hooks/useJam.ts`'s
+`useJamState` drives the view from the session's SSE stream and
+`useJamHostSync` mirrors the host's own player into the session every few
+seconds and on every play/pause/track change — the host's browser stays the
+actual player, the server only relays state. The view
+(`src/views/JamView.tsx`) reuses `@nuclearplayer/ui`'s `NuclearJam.*`
+building blocks (NowPlaying, Connecting, Error) rather than its
+Nuclear-branded Header, wrapped in glass-panel content cards over an
+ambient `ChannelVisualizer` background tinted from the current track's
+cover art.
+
+**Widget removal** — both radio stations and embed widgets on the Listen
+dashboard's "Your widgets" section can now be removed via a hover-revealed
+X icon in the card's corner, confirmed with a dialog first
+(`RemoveWidgetDialog`) instead of removing immediately. Radio station cards
+previously had no remove control at all. Removing only takes the widget off
+the dashboard — a station's overrides and an embed instance's saved
+input/label stay in the store keyed by id, so re-adding restores prior
+settings.
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest run` (53 files, 301
+tests) on `tahti-web` pass clean. The widget-removal hover/confirm/remove
+flow was screenshot-verified end to end in the browser (mock mode); a
+positioning bug where the X anchored to the whole grid row instead of the
+hovered card (CSS Grid's default item-stretch on the wrapper div) was
+caught and fixed the same way (`w-fit` on the wrapper) before landing.
+
+## 2026-09-01 — Anonymous discovery navigation
+
+**Completed:** Anonymous visitors can now reach Radio, Discover, Favorites,
+and Help center from both desktop and mobile navigation. The shared route
+boundary allows only those public destinations while Studio, Admin, and other
+private Library surfaces remain sign-in gated.
+
+**Validation:** tahti-web type-check, focused navigation lint, and diff
+validation pass.
+
+## 2026-09-01 — Favorites page duplicate panel
+
+**Completed:** The dedicated Favorites route no longer renders the compact
+left-side quick-jump panel alongside the full Favorites content, removing the
+duplicate sections while keeping the panel available throughout the rest of
+Library.
+
+**Validation:** tahti-web type-check, focused lint, and diff validation pass.
+
+## 2026-09-01 — Listen widget store and configuration
+
+**Completed:** Added an icon-only Listen header action that opens the real
+listener disco-widget add-on store in a compact multi-row layout. Installed
+widgets now expose a configuration gear for visibility and ordering, with the
+existing account-backed install state remaining the source of truth.
+
+**Validation:** Focused tahti-web lint, type-check, and diff validation pass.
+
 ## 2026-09-01 — Expandable stream playlist manager
 
 **Completed:** Kept Go Live’s stream playlist manager compact by default while
