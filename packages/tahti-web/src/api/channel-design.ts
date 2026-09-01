@@ -54,6 +54,11 @@ export const VISUAL_PRESETS = [
   'BACKDROP_BOX',
   'LENS_FLARES',
   'IES_SPOTLIGHT',
+  'INTERACTIVE_POINTS',
+  'FAT_LINES',
+  'VIDEO_KINECT',
+  'BACKDROP_AREA',
+  'COLOR_INSTANCES',
 ] as const;
 
 export type VisualPreset = (typeof VISUAL_PRESETS)[number];
@@ -92,7 +97,10 @@ export function isHeaderImageUrl(url: string | null | undefined): boolean {
   return HEADER_IMAGE_URL_PATTERN.test(url.trim());
 }
 
-export function youtubeEmbedUrl(url: string | null | undefined): string | null {
+export function youtubeEmbedUrl(
+  url: string | null | undefined,
+  muted = true,
+): string | null {
   if (!url) {
     return null;
   }
@@ -112,7 +120,7 @@ export function youtubeEmbedUrl(url: string | null | undefined): string | null {
       }
     }
     return /^[\w-]{11}$/.test(videoId)
-      ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0`
+      ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${videoId}&controls=0&rel=0`
       : null;
   } catch {
     return null;
@@ -298,6 +306,16 @@ export type ChannelVisual = {
    * matching column on the real API yet. */
   usePlayerGradient?: boolean;
   playerColorSchemeJson?: string | null;
+  /** Channel background designer — a third surface alongside the header and
+   * player, restricted to the audio-reactive "channel background" visualizer
+   * widgets (see plugins/visualizers/presets/{interactivePoints,fatLines,
+   * videoKinect,backdropArea}.ts). Shares the header's video/image backdrop
+   * the same way Player design's Video/image tab does — only the gradient
+   * and visualizer pick are independent. Client-only for now, same caveat
+   * as the player-gradient fields above. */
+  backgroundVisualPreset?: string | null;
+  useBackgroundGradient?: boolean;
+  backgroundColorSchemeJson?: string | null;
 };
 
 /** Per-preset speed/intensity/scale (clamped 0.25–2, scale 0.5–2) plus an
@@ -386,6 +404,9 @@ let mockVisual: ChannelVisual = {
   nowPlayingOverlaySettingsJson: null,
   usePlayerGradient: false,
   playerColorSchemeJson: null,
+  backgroundVisualPreset: 'INTERACTIVE_POINTS',
+  useBackgroundGradient: false,
+  backgroundColorSchemeJson: null,
 };
 
 /** Read-only peek at the mock design state — used by mockChannel() (in
@@ -411,6 +432,18 @@ export function getMockUsePlayerGradient(): boolean | undefined {
 
 export function getMockPlayerColorSchemeJson(): string | null | undefined {
   return mockVisual.playerColorSchemeJson;
+}
+
+export function getMockBackgroundVisualPreset(): string | null | undefined {
+  return mockVisual.backgroundVisualPreset;
+}
+
+export function getMockUseBackgroundGradient(): boolean | undefined {
+  return mockVisual.useBackgroundGradient;
+}
+
+export function getMockBackgroundColorSchemeJson(): string | null | undefined {
+  return mockVisual.backgroundColorSchemeJson;
 }
 
 export function parseColorScheme(json: string | null | undefined): ColorScheme {
@@ -456,6 +489,9 @@ export async function fetchChannelVisual(): Promise<{
         nowPlayingOverlaySettingsJson: null,
         usePlayerGradient: false,
         playerColorSchemeJson: null,
+        backgroundVisualPreset: 'INTERACTIVE_POINTS',
+        useBackgroundGradient: false,
+        backgroundColorSchemeJson: null,
       },
       meta: apiErrorMeta(err),
     };
@@ -477,6 +513,9 @@ export async function patchChannelVisual(patch: {
   nowPlayingOverlaySettingsJson?: string | null;
   usePlayerGradient?: boolean;
   playerColorSchemeJson?: string | null;
+  backgroundVisualPreset?: string | null;
+  useBackgroundGradient?: boolean;
+  backgroundColorSchemeJson?: string | null;
 }): Promise<{ ok: true; data: ChannelVisual } | { ok: false; error: string }> {
   if (forceMock()) {
     mockVisual = {
@@ -516,6 +555,15 @@ export async function patchChannelVisual(patch: {
         : {}),
       ...(patch.playerColorSchemeJson !== undefined
         ? { playerColorSchemeJson: patch.playerColorSchemeJson }
+        : {}),
+      ...(patch.backgroundVisualPreset !== undefined
+        ? { backgroundVisualPreset: patch.backgroundVisualPreset }
+        : {}),
+      ...(patch.useBackgroundGradient !== undefined
+        ? { useBackgroundGradient: patch.useBackgroundGradient }
+        : {}),
+      ...(patch.backgroundColorSchemeJson !== undefined
+        ? { backgroundColorSchemeJson: patch.backgroundColorSchemeJson }
         : {}),
       ...(patch.colorScheme !== undefined
         ? {

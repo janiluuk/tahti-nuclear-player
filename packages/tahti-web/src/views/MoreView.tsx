@@ -299,6 +299,14 @@ const FEATURES: FeatureRow[] = [
     notes: 'YES/NO/ABSTAIN + discussion; mock mutates tally',
   },
   {
+    feature: 'AGM / board meetings',
+    tahti: '/admin/agm',
+    nuclear: '—',
+    status: 'admin',
+    notes:
+      'Board-only: persisted meeting agenda/notice/schedule, live attendance + quorum, and a linked/publishable document archive (added 2026-09-01)',
+  },
+  {
     feature: 'Help',
     tahti: '/help/*',
     nuclear: '/help, /help/$slug',

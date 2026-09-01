@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 
-import { Button, EmptyState, Loader } from '@nuclearplayer/ui';
+import { Button, Dialog, EmptyState, Loader } from '@nuclearplayer/ui';
 
 import type { DiscoverArtistOfWeek } from '../../api/discover';
 import type { DiscoverTrackItem } from '../../api/types';
@@ -31,6 +31,7 @@ export function WidgetCard({
   onMove,
   onRemove,
   onSelectTrack,
+  isAdmin = false,
   settings,
 }: {
   id: DiscoverWidgetId;
@@ -46,14 +47,15 @@ export function WidgetCard({
   onMove: (id: DiscoverWidgetId, direction: 'up' | 'down') => void;
   onRemove: (id: DiscoverWidgetId) => void;
   onSelectTrack?: (item: DiscoverTrackItem) => void;
+  isAdmin?: boolean;
   /** Optional per-widget configuration, toggled open by the gear button
    * (e.g. the random-artist widget's rotation-length picker). */
   settings?: ReactNode;
 }) {
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [configureOpen, setConfigureOpen] = useState(false);
 
   return (
-    <section className="border-border bg-background-secondary flex min-h-[280px] flex-col gap-3 rounded-md border-(length:--border-width) p-4">
+    <section className="group border-border bg-background-secondary flex min-h-[280px] flex-col gap-3 rounded-md border-(length:--border-width) p-4">
       <header className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h3 className="truncate text-sm font-semibold">{title}</h3>
@@ -64,14 +66,14 @@ export function WidgetCard({
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          {settings && (
+          {isAdmin && (
             <Button
               size="icon-sm"
               variant="text"
-              aria-pressed={settingsOpen}
-              onClick={() => setSettingsOpen((v) => !v)}
-              title={settingsOpen ? 'Hide settings' : 'Configure'}
-              aria-label={settingsOpen ? 'Hide settings' : 'Configure widget'}
+              onClick={() => setConfigureOpen(true)}
+              title="Configure widget"
+              aria-label={`Configure ${title}`}
+              className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
             >
               <SettingsIcon size={14} />
             </Button>
@@ -108,12 +110,6 @@ export function WidgetCard({
           </Button>
         </div>
       </header>
-
-      {settings && settingsOpen && (
-        <div className="border-border bg-background/60 rounded border border-dashed p-2">
-          {settings}
-        </div>
-      )}
 
       {loading ? (
         <div className="flex flex-1 items-center justify-center">
@@ -162,6 +158,26 @@ export function WidgetCard({
           ))}
         </div>
       )}
+
+      <Dialog.Root
+        isOpen={configureOpen}
+        onClose={() => setConfigureOpen(false)}
+        className="max-w-lg"
+      >
+        <Dialog.Title>Configure {title}</Dialog.Title>
+        <Dialog.Description>
+          Adjust how this widget behaves on the Discover page.
+        </Dialog.Description>
+        {settings ?? (
+          <p className="text-foreground-secondary mt-4 text-sm">
+            This widget uses the Discover filters above. There are no additional
+            settings available yet.
+          </p>
+        )}
+        <Dialog.Actions>
+          <Dialog.Close>Done</Dialog.Close>
+        </Dialog.Actions>
+      </Dialog.Root>
     </section>
   );
 }

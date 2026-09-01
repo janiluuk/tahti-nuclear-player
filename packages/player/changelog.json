@@ -1,6 +1,41 @@
 [
   {
     "date": "2026-09-01T00:00",
+    "description": "Artist profiles now keep Subscribe and Embed together as compact top-right actions, leaving more room for the artist’s story and music.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Artists", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "Channel backdrop videos now start automatically and stay quiet when nothing is playing, so they add atmosphere without competing with silence or music.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Channels", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "Artist entries in Discover now have a vibrant cyan-violet ambient glow and stronger text contrast, making every name easier to read over artwork.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discovery", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "Discover now gives top lists their own shared view and moves the full artist directory into an Artists tab, keeping the widget carousel out of the way at the bottom.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discovery", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
+    "description": "Board admins can now configure Discover widgets from a quick gear button that appears when you hover a widget.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Discovery", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-01T00:00",
     "description": "Discover artist banners now carry Tahti Live’s vibrant cyan-and-violet glow, making the artist row feel more alive at a glance.",
     "type": "improvement",
     "contributors": ["jani"],

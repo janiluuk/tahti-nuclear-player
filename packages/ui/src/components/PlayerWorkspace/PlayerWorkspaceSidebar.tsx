@@ -48,6 +48,7 @@ export const PlayerWorkspaceSidebar: FC<PlayerWorkspaceSidebarProps> = ({
   return (
     <motion.div
       ref={sidebarRef}
+      initial={false}
       className={cn(
         'bg-background-secondary border-border relative flex flex-col overflow-hidden',
         {

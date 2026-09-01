@@ -108,7 +108,7 @@ export const RouteTransition = memo(function RouteTransition({
 
   return (
     <div className="min-h-full w-full">
-      <AnimatePresence mode={fast ? 'popLayout' : 'wait'} initial={false}>
+      <AnimatePresence mode="popLayout" initial={false}>
         <AnimatedOutlet key={pathname} fast={fast} />
       </AnimatePresence>
     </div>

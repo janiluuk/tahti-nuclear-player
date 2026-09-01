@@ -14,9 +14,16 @@ import { useAuthStore } from '../stores/authStore';
 type Props = {
   artistUsername: string;
   artistDisplayName: string;
+  iconOnly?: boolean;
 };
 
-function SignedInToggle({ artistUsername }: { artistUsername: string }) {
+function SignedInToggle({
+  artistUsername,
+  iconOnly = false,
+}: {
+  artistUsername: string;
+  iconOnly?: boolean;
+}) {
   const [subscribed, setSubscribed] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -67,16 +74,21 @@ function SignedInToggle({ artistUsername }: { artistUsername: string }) {
       onClick={toggle}
     >
       <MailIcon size={14} aria-hidden className="mr-1.5" />
-      {subscribed === null
-        ? 'Subscribe'
-        : subscribed
-          ? 'Subscribed'
-          : 'Subscribe'}
+      {!iconOnly &&
+        (subscribed === null
+          ? 'Subscribe'
+          : subscribed
+            ? 'Subscribed'
+            : 'Subscribe')}
     </Button>
   );
 }
 
-function AnonymousForm({ artistUsername, artistDisplayName }: Props) {
+function AnonymousForm({
+  artistUsername,
+  artistDisplayName,
+  iconOnly = false,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
@@ -91,7 +103,7 @@ function AnonymousForm({ artistUsername, artistDisplayName }: Props) {
         title="Subscribe by email — you're not signed in"
       >
         <MailIcon size={14} aria-hidden className="mr-1.5" />
-        Subscribe
+        {!iconOnly && 'Subscribe'}
       </Button>
     );
   }
@@ -147,14 +159,16 @@ function AnonymousForm({ artistUsername, artistDisplayName }: Props) {
 export function NewsletterSubscribeToggle({
   artistUsername,
   artistDisplayName,
+  iconOnly = false,
 }: Props) {
   const signedIn = Boolean(useAuthStore((s) => s.user));
   return signedIn ? (
-    <SignedInToggle artistUsername={artistUsername} />
+    <SignedInToggle artistUsername={artistUsername} iconOnly={iconOnly} />
   ) : (
     <AnonymousForm
       artistUsername={artistUsername}
       artistDisplayName={artistDisplayName}
+      iconOnly={iconOnly}
     />
   );
 }

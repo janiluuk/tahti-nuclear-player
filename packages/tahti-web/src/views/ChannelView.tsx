@@ -247,6 +247,9 @@ export function ChannelView({ slug }: { slug: string }) {
     channelIsCurrent &&
     (playbackStatus === 'playing' || playbackStatus === 'loading');
   const channelIsLoading = channelIsCurrent && playbackStatus === 'loading';
+  const channelVideoMuted =
+    !currentId ||
+    (playbackStatus !== 'playing' && playbackStatus !== 'loading');
 
   const openChat = () => {
     if (!chatOn) {
@@ -357,10 +360,15 @@ export function ChannelView({ slug }: { slug: string }) {
             }`}
           >
             {showHeaderVideo ? (
-              youtubeEmbedUrl(channel.videoBackgroundUrl) ? (
+              youtubeEmbedUrl(channel.videoBackgroundUrl, channelVideoMuted) ? (
                 <iframe
                   title="Channel video backdrop"
-                  src={youtubeEmbedUrl(channel.videoBackgroundUrl) ?? undefined}
+                  src={
+                    youtubeEmbedUrl(
+                      channel.videoBackgroundUrl,
+                      channelVideoMuted,
+                    ) ?? undefined
+                  }
                   className="pointer-events-none absolute inset-0 h-full w-full"
                   allow="autoplay; encrypted-media"
                   aria-hidden="true"
@@ -377,7 +385,7 @@ export function ChannelView({ slug }: { slug: string }) {
                   src={channel.videoBackgroundUrl ?? undefined}
                   autoPlay
                   loop
-                  muted
+                  muted={channelVideoMuted}
                   playsInline
                   aria-hidden="true"
                 />
@@ -690,10 +698,15 @@ export function ChannelView({ slug }: { slug: string }) {
       {!editing &&
         !heroVisible &&
         (showHeaderVideo ? (
-          youtubeEmbedUrl(channel.videoBackgroundUrl) ? (
+          youtubeEmbedUrl(channel.videoBackgroundUrl, channelVideoMuted) ? (
             <iframe
               title="Channel video backdrop"
-              src={youtubeEmbedUrl(channel.videoBackgroundUrl) ?? undefined}
+              src={
+                youtubeEmbedUrl(
+                  channel.videoBackgroundUrl,
+                  channelVideoMuted,
+                ) ?? undefined
+              }
               className={`pointer-events-none absolute inset-0 z-0 h-full w-full ${
                 live ? 'opacity-[0.32]' : 'opacity-[0.55]'
               }`}
@@ -716,7 +729,7 @@ export function ChannelView({ slug }: { slug: string }) {
               src={channel.videoBackgroundUrl ?? undefined}
               autoPlay
               loop
-              muted
+              muted={channelVideoMuted}
               playsInline
               aria-hidden="true"
             />

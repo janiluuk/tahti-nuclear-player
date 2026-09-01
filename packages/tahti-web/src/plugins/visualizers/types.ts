@@ -31,5 +31,11 @@ export interface VisualizerPreset {
     scene: THREE.Scene,
     scheme: VisualizerScheme,
     artworkUrl?: string | null,
+    /** Shared perspective camera, positioned by the host at (0, 0,
+     * CAMERA_DISTANCE) — optional 4th param, only presets that move the
+     * camera itself (e.g. a beat-reactive nudge) need to accept it. Reset on
+     * every preset switch since `ThreeVisualizer.tsx` recreates the camera
+     * per effect run. */
+    camera?: THREE.PerspectiveCamera,
   ): PresetScene;
 }

@@ -28,9 +28,11 @@ function embedPath(target: EmbedTarget): string {
 export function EmbedButton({
   target,
   label = 'Embed',
+  iconOnly = false,
 }: {
   target: EmbedTarget;
   label?: string;
+  iconOnly?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const url = `${window.location.origin}${embedPath(target)}`;
@@ -38,9 +40,19 @@ export function EmbedButton({
 
   return (
     <>
-      <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
-        <CodeIcon size={14} aria-hidden className="mr-1.5" />
-        {label}
+      <Button
+        size={iconOnly ? 'icon-sm' : 'sm'}
+        variant="secondary"
+        onClick={() => setOpen(true)}
+        aria-label={iconOnly ? 'Embed artist channel' : undefined}
+        title={iconOnly ? 'Embed artist channel' : undefined}
+      >
+        <CodeIcon
+          size={14}
+          aria-hidden
+          className={iconOnly ? undefined : 'mr-1.5'}
+        />
+        {!iconOnly && label}
       </Button>
       <Dialog.Root isOpen={open} onClose={() => setOpen(false)}>
         <Dialog.Title>Embed</Dialog.Title>

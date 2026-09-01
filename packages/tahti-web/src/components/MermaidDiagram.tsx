@@ -1,3 +1,4 @@
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 
 type Props = {
@@ -14,6 +15,25 @@ export function MermaidDiagram({ chart, className }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fullscreenRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === fullscreenRef.current);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () =>
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+      return;
+    }
+    void fullscreenRef.current?.requestFullscreen();
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -78,7 +98,10 @@ export function MermaidDiagram({ chart, className }: Props) {
   }, [chart, reactId]);
 
   return (
-    <div className={className}>
+    <div
+      ref={fullscreenRef}
+      className={`${className ?? ''} bg-background p-1 [&:fullscreen]:flex [&:fullscreen]:min-h-screen [&:fullscreen]:flex-col [&:fullscreen]:p-6`}
+    >
       <div
         className="mb-2 flex items-center justify-end gap-1"
         aria-label="Diagram zoom controls"
@@ -101,6 +124,17 @@ export function MermaidDiagram({ chart, className }: Props) {
         </button>
         <button
           type="button"
+          className="border-border text-foreground-secondary hover:text-foreground rounded border px-2 py-1"
+          onClick={toggleFullscreen}
+          aria-label={
+            isFullscreen ? 'Exit fullscreen diagram' : 'View diagram fullscreen'
+          }
+          title={isFullscreen ? 'Exit fullscreen' : 'View fullscreen'}
+        >
+          {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+        </button>
+        <button
+          type="button"
           className="border-border text-foreground-secondary hover:text-foreground rounded border px-2 py-1 text-xs"
           onClick={() => setZoom((current) => Math.min(2, current + 0.2))}
           aria-label="Zoom in diagram"
@@ -118,7 +152,7 @@ export function MermaidDiagram({ chart, className }: Props) {
           {chart}
         </pre>
       )}
-      <div className="mermaid-host max-h-[75vh] overflow-auto">
+      <div className="mermaid-host max-h-[75vh] min-h-0 overflow-auto [&:fullscreen]:max-h-none [&:fullscreen]:flex-1">
         <div
           ref={hostRef}
           style={{

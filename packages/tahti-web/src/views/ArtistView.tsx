@@ -8,7 +8,6 @@ import {
   PlayIcon,
   RadioTowerIcon,
   Repeat2Icon,
-  UsersRound,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
@@ -52,6 +51,7 @@ import { ChannelControlsWidget } from '../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
+import { EmbedButton } from '../components/EmbedButton';
 import { GlowMediaTile } from '../components/GlowMediaTile';
 import { ImageLightbox } from '../components/ImageLightbox';
 import { NewsletterSubscribeToggle } from '../components/NewsletterSubscribeToggle';
@@ -676,22 +676,18 @@ export function ArtistView({ username }: { username: string }) {
                 subtitle={`@${artist.username}`}
                 actions={
                   <>
-                    {!isOwner &&
-                    artist.freeSubscriptionsEnabled !== false &&
-                    fanTiers.length > 0 ? (
-                      <Link
-                        to="/subscribe/$username"
-                        params={{ username: artist.username }}
-                      >
-                        <Button
-                          size="icon-sm"
-                          variant="secondary"
-                          title={`Subscribe to ${artist.displayName}`}
-                          aria-label={`Subscribe to ${artist.displayName}`}
-                        >
-                          <UsersRound size={16} aria-hidden />
-                        </Button>
-                      </Link>
+                    {!isOwner && artist.freeSubscriptionsEnabled !== false ? (
+                      <NewsletterSubscribeToggle
+                        artistUsername={artist.username}
+                        artistDisplayName={artist.displayName}
+                        iconOnly
+                      />
+                    ) : null}
+                    {channel?.slug && !isOwner ? (
+                      <EmbedButton
+                        target={{ kind: 'channel', slug: channel.slug }}
+                        iconOnly
+                      />
                     ) : null}
                     {isOwner && channel?.slug ? (
                       <Link
@@ -852,12 +848,6 @@ export function ArtistView({ username }: { username: string }) {
         </div>
         <DiscoWidgetsSection widgets={discoWidgets} />
         <div className="flex flex-wrap gap-3 text-sm">
-          {!isOwner && artist.freeSubscriptionsEnabled !== false && (
-            <NewsletterSubscribeToggle
-              artistUsername={artist.username}
-              artistDisplayName={artist.displayName}
-            />
-          )}
           {isOwner && (
             <Link
               to="/studio/channel"

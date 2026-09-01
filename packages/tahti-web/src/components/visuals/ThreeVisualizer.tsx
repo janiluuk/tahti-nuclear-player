@@ -110,6 +110,7 @@ export const ThreeVisualizer: FC<ThreeVisualizerProps> = ({
       scene,
       scheme,
       artworkUrl,
+      camera,
     );
     // Uniformly grows/shrinks the whole scene around the origin — generic
     // across every preset (none of them render a viewport-fitted quad, so

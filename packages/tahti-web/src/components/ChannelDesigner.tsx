@@ -190,6 +190,7 @@ export function ChannelDesigner({
   const [visual, setVisual] = useState<ChannelVisual | null>(null);
   const [scheme, setScheme] = useState<ColorScheme>({});
   const [playerScheme, setPlayerScheme] = useState<ColorScheme>({});
+  const [backgroundScheme, setBackgroundScheme] = useState<ColorScheme>({});
   const [visualSettings, setVisualSettings] = useState<VisualSettingsMap>({});
   const [galleryMode, setGalleryMode] = useState<ChannelGalleryMode>('NONE');
   const [galleryImages, setGalleryImages] = useState('');
@@ -272,6 +273,9 @@ export function ChannelDesigner({
         setScheme(parseColorScheme(visualResult.data.colorSchemeJson));
         setPlayerScheme(
           parseColorScheme(visualResult.data.playerColorSchemeJson),
+        );
+        setBackgroundScheme(
+          parseColorScheme(visualResult.data.backgroundColorSchemeJson),
         );
         setVisualSettings(
           parseVisualSettingsMap(visualResult.data.visualSettingsJson),
@@ -529,6 +533,11 @@ export function ChannelDesigner({
       playerColorSchemeJson: visual.usePlayerGradient
         ? JSON.stringify(fillColorScheme(playerScheme))
         : null,
+      backgroundVisualPreset: visual.backgroundVisualPreset ?? undefined,
+      useBackgroundGradient: visual.useBackgroundGradient ?? false,
+      backgroundColorSchemeJson: visual.useBackgroundGradient
+        ? JSON.stringify(fillColorScheme(backgroundScheme))
+        : null,
     });
     if (!result.ok) {
       setBusy(false);
@@ -542,6 +551,9 @@ export function ChannelDesigner({
     setVisual(result.data);
     setScheme(parseColorScheme(result.data.colorSchemeJson));
     setPlayerScheme(parseColorScheme(result.data.playerColorSchemeJson));
+    setBackgroundScheme(
+      parseColorScheme(result.data.backgroundColorSchemeJson),
+    );
     setVisualSettings(parseVisualSettingsMap(result.data.visualSettingsJson));
     setSlideshowPreset(result.data.slideshowPreset ?? slideshowPreset);
     setSlideshowInterval(
