@@ -23,6 +23,10 @@ git fetch upstream
 git rebase upstream/master   # or merge
 ```
 
+## Plugin & theme registry
+
+Marketplace plugins and themes are both served from a single combined repo, [github.com/janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry) (`plugins.json` + `themes.json`, fetched via jsDelivr). It replaces the two separate upstream repos (`NuclearPlayer/plugin-registry`, `NuclearPlayer/theme-registry`). Client references: [`packages/player/src/apis/pluginMarketplaceApi.ts`](./packages/player/src/apis/pluginMarketplaceApi.ts), [`packages/player/src/apis/themeRegistryApi.ts`](./packages/player/src/apis/themeRegistryApi.ts).
+
 ## Tahti package
 
 - **`packages/tahti-web`** — listen/studio client on Nuclear UI → public Tahti API
