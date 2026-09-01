@@ -380,8 +380,6 @@ export function RadioView() {
           )}
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-xl font-bold tracking-tight">Programming</h2>
-
             <Tabs
               listClassName="border-border border-b"
               panelClassName="pt-3"
@@ -391,9 +389,26 @@ export function RadioView() {
                   label: 'Up next',
                   content:
                     upcoming.length === 0 ? (
-                      <p className="text-foreground-secondary text-sm">
-                        Nothing booked yet — fair rotation plays when nobody is.
-                      </p>
+                      <div className="flex flex-col items-start gap-2">
+                        <p className="text-foreground-secondary text-sm">
+                          Nothing booked yet — fair rotation plays when nobody
+                          is.
+                        </p>
+                        {user && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => setCalendarOpen(true)}
+                          >
+                            <CalendarIcon
+                              size={15}
+                              className="mr-1.5"
+                              aria-hidden
+                            />
+                            Book a slot
+                          </Button>
+                        )}
+                      </div>
                     ) : (
                       <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
                         {upcoming.map((b) => (
@@ -483,7 +498,8 @@ export function RadioView() {
                                     playable,
                                   })
                                 }
-                                className="flex min-w-0 flex-1 items-center gap-3 p-0 text-left"
+                                aria-label={`Track info for ${item.title}`}
+                                className="shrink-0 p-0"
                               >
                                 <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
                                   {item.artworkUrl ? (
@@ -496,19 +512,21 @@ export function RadioView() {
                                     item.title.slice(0, 2).toUpperCase()
                                   )}
                                 </div>
-                                <div className="min-w-0 flex-1">
-                                  <div
-                                    className={`truncate text-sm font-medium underline-offset-2 hover:underline ${
-                                      isPlaying ? 'text-accent-green' : ''
-                                    }`}
-                                  >
-                                    {item.title}
-                                  </div>
-                                  <div className="text-foreground-secondary truncate text-xs">
-                                    {item.artistName}
-                                  </div>
-                                </div>
                               </Button>
+                              <div className="min-w-0 flex-1">
+                                <Link
+                                  to="/t/$id"
+                                  params={{ id: item.id }}
+                                  className={`block truncate text-sm font-medium underline-offset-2 hover:underline ${
+                                    isPlaying ? 'text-accent-green' : ''
+                                  }`}
+                                >
+                                  {item.title}
+                                </Link>
+                                <div className="text-foreground-secondary truncate text-xs">
+                                  {item.artistName}
+                                </div>
+                              </div>
                               <span className="text-foreground-secondary hidden shrink-0 text-xs sm:inline">
                                 {formatAgo(item.playedAt)}
                               </span>
