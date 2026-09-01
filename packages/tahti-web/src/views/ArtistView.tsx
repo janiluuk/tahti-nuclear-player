@@ -8,6 +8,7 @@ import {
   PlayIcon,
   RadioTowerIcon,
   Repeat2Icon,
+  UsersRound,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
@@ -682,6 +683,23 @@ export function ArtistView({ username }: { username: string }) {
                         artistDisplayName={artist.displayName}
                         iconOnly
                       />
+                    ) : null}
+                    {!isOwner &&
+                    artist.freeSubscriptionsEnabled !== false &&
+                    fanTiers.length > 0 ? (
+                      <Link
+                        to="/subscribe/$username"
+                        params={{ username: artist.username }}
+                      >
+                        <Button
+                          size="icon-sm"
+                          variant="secondary"
+                          title={`Subscribe to ${artist.displayName}'s fan tiers`}
+                          aria-label={`Subscribe to ${artist.displayName}'s fan tiers`}
+                        >
+                          <UsersRound size={16} aria-hidden />
+                        </Button>
+                      </Link>
                     ) : null}
                     {channel?.slug && !isOwner ? (
                       <EmbedButton

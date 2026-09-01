@@ -101,6 +101,7 @@ function AnonymousForm({
         variant="secondary"
         onClick={() => setOpen(true)}
         title="Subscribe by email — you're not signed in"
+        aria-label={`Subscribe to ${artistDisplayName}`}
       >
         <MailIcon size={14} aria-hidden className="mr-1.5" />
         {!iconOnly && 'Subscribe'}
