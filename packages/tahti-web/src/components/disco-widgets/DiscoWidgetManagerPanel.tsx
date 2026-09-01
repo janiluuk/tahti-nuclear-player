@@ -1,7 +1,8 @@
 import { Link } from '@tanstack/react-router';
+import { ArrowDown, ArrowUp, Settings2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, PluginStoreItem } from '@nuclearplayer/ui';
+import { Button, Dialog, PluginStoreItem } from '@nuclearplayer/ui';
 
 import {
   createDiscoWidgetInstall,
@@ -18,11 +19,13 @@ import { PageLoading } from '../PageStates';
 export function DiscoWidgetManagerPanel({
   scope,
   description,
+  compact = false,
 }: {
   scope: DiscoWidgetScope;
   /** Omit when the caller already shows an equivalent description above
    * this panel (e.g. the Add-ons category body). */
   description?: string;
+  compact?: boolean;
 }) {
   const [widgets, setWidgets] = useState<DiscoWidgetStoreItem[]>([]);
   const [installs, setInstalls] = useState<DiscoWidgetInstallView[]>([]);
@@ -31,6 +34,7 @@ export function DiscoWidgetManagerPanel({
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [configuringId, setConfiguringId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -153,7 +157,11 @@ export function DiscoWidgetManagerPanel({
               Nothing installed yet — add one from the store below.
             </p>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div
+              className={
+                compact ? 'grid gap-3 sm:grid-cols-2' : 'flex flex-col gap-3'
+              }
+            >
               {installs.map((install, index) => {
                 const isPending = pendingId === install.id;
                 return (
@@ -177,22 +185,34 @@ export function DiscoWidgetManagerPanel({
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <Button
-                        size="sm"
+                        size="icon-sm"
                         variant="secondary"
                         disabled={isPending || index === 0}
                         onClick={() => void handleMove(install.id, 'up')}
                         aria-label="Move up"
+                        title="Move up"
                       >
-                        ↑
+                        <ArrowUp size={15} aria-hidden />
                       </Button>
                       <Button
-                        size="sm"
+                        size="icon-sm"
                         variant="secondary"
                         disabled={isPending || index === installs.length - 1}
                         onClick={() => void handleMove(install.id, 'down')}
                         aria-label="Move down"
+                        title="Move down"
                       >
-                        ↓
+                        <ArrowDown size={15} aria-hidden />
+                      </Button>
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        disabled={isPending}
+                        onClick={() => setConfiguringId(install.id)}
+                        aria-label={`Configure ${install.widget.name}`}
+                        title="Configure widget"
+                      >
+                        <Settings2 size={15} aria-hidden />
                       </Button>
                       <label className="text-foreground-secondary flex items-center gap-2 text-xs">
                         <input
@@ -250,10 +270,23 @@ export function DiscoWidgetManagerPanel({
                   : 'No widgets match your search.'}
               </p>
             ) : (
-              <div className="flex flex-col gap-3">
+              <div
+                className={
+                  compact ? 'grid gap-3 sm:grid-cols-2' : 'flex flex-col gap-3'
+                }
+              >
                 {filtered.map((widget) => (
                   <PluginStoreItem
                     key={widget.id}
+                    icon={
+                      widget.iconUrl ? (
+                        <img
+                          src={widget.iconUrl}
+                          alt=""
+                          className="size-full object-cover"
+                        />
+                      ) : undefined
+                    }
                     name={widget.name}
                     author={widget.authorName}
                     description={widget.description}
@@ -270,6 +303,69 @@ export function DiscoWidgetManagerPanel({
         </>
       )}
       {error ? <p className="text-accent-red text-sm">{error}</p> : null}
+      <Dialog.Root
+        isOpen={configuringId !== null}
+        onClose={() => setConfiguringId(null)}
+      >
+        <Dialog.Title>Configure widget</Dialog.Title>
+        <Dialog.Description>
+          Choose whether this widget is visible and adjust its order on the
+          Listen page.
+        </Dialog.Description>
+        {configuringId
+          ? (() => {
+              const install = installs.find(
+                (candidate) => candidate.id === configuringId,
+              );
+              if (!install) {
+                return null;
+              }
+              const installIndex = installs.indexOf(install);
+              const isPending = pendingId === install.id;
+              return (
+                <div className="flex flex-col gap-3">
+                  <p className="font-semibold">{install.widget.name}</p>
+                  <label className="text-foreground-secondary flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={install.enabled}
+                      disabled={isPending}
+                      onChange={(event) =>
+                        void handleToggle(install.id, event.target.checked)
+                      }
+                    />
+                    Show this widget on Listen
+                  </label>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={isPending || installIndex === 0}
+                      onClick={() => void handleMove(install.id, 'up')}
+                    >
+                      <ArrowUp size={15} aria-hidden />
+                      Move earlier
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={
+                        isPending || installIndex === installs.length - 1
+                      }
+                      onClick={() => void handleMove(install.id, 'down')}
+                    >
+                      <ArrowDown size={15} aria-hidden />
+                      Move later
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()
+          : null}
+        <Dialog.Actions>
+          <Dialog.Close>Done</Dialog.Close>
+        </Dialog.Actions>
+      </Dialog.Root>
     </div>
   );
 }

@@ -35,3 +35,12 @@ export const ListenerScope: Story = {
     description: 'Add-ons shown on your Listen page.',
   },
 };
+
+export const ListenerCompactStore: Story = {
+  args: {
+    scope: 'LISTENER',
+    compact: true,
+    description:
+      'The Listen-page add-widget dialog uses this compact store layout and the same installed-widget configuration controls.',
+  },
+};

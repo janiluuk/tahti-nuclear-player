@@ -10,6 +10,7 @@ export type RadioStation = {
   favicon?: string;
   tags?: string[];
   countryCode?: string;
+  country?: string;
   codec?: string;
   bitrateKbps?: number;
   /** Where the metadata came from. */
@@ -141,6 +142,7 @@ type RadioBrowserStation = {
   homepage: string;
   favicon: string;
   tags: string;
+  country: string;
   countrycode: string;
   codec: string;
   bitrate: number;
@@ -155,6 +157,7 @@ function fromRadioBrowser(s: RadioBrowserStation): RadioStation {
     favicon: s.favicon || undefined,
     tags: s.tags ? s.tags.split(',').filter(Boolean) : undefined,
     countryCode: s.countrycode || undefined,
+    country: s.country || undefined,
     codec: s.codec || undefined,
     bitrateKbps: s.bitrate || undefined,
     source: 'radio-browser',
@@ -202,6 +205,122 @@ export async function searchStationsByName(
     }
     const data = (await res.json()) as RadioBrowserStation[];
     return data.map(fromRadioBrowser);
+  } catch {
+    return [];
+  }
+}
+
+export type RadioBrowserSearch = {
+  name?: string;
+  /** Exact tag/genre match, e.g. "jazz". */
+  tag?: string;
+  /** ISO 3166-1 alpha-2 country code, e.g. "FI". */
+  countryCode?: string;
+  limit?: number;
+  order?: 'clickcount' | 'votes' | 'name' | 'bitrate';
+};
+
+/** Combined directory search — name, genre tag, and country filter can all
+ * apply together (radio-browser.info's own `/stations/search` supports all
+ * three as one query, so filters narrow the same result set the text search
+ * runs against, rather than being separate lookups). */
+export async function searchStations(
+  filters: RadioBrowserSearch,
+): Promise<RadioStation[]> {
+  const params = new URLSearchParams({
+    limit: String(filters.limit ?? 30),
+    hidebroken: 'true',
+    order: filters.order ?? 'clickcount',
+    reverse: 'true',
+  });
+  if (filters.name?.trim()) {
+    params.set('name', filters.name.trim());
+  }
+  if (filters.tag) {
+    params.set('tag', filters.tag);
+  }
+  if (filters.countryCode) {
+    params.set('countrycode', filters.countryCode);
+  }
+  try {
+    const res = await fetch(`${RADIO_BROWSER_BASE}/stations/search?${params}`);
+    if (!res.ok) {
+      return [];
+    }
+    const data = (await res.json()) as RadioBrowserStation[];
+    return data.map(fromRadioBrowser);
+  } catch {
+    return [];
+  }
+}
+
+/** Total public station count, for the directory banner ("Discover over N
+ * public stations") — best-effort, callers should tolerate `null`. */
+export async function fetchStationCount(): Promise<number | null> {
+  try {
+    const res = await fetch(`${RADIO_BROWSER_BASE}/stats`);
+    if (!res.ok) {
+      return null;
+    }
+    const data = (await res.json()) as { stations?: number };
+    return typeof data.stations === 'number' ? data.stations : null;
+  } catch {
+    return null;
+  }
+}
+
+export type RadioBrowserCountry = {
+  code: string;
+  name: string;
+  stationCount: number;
+};
+
+/** Countries with at least one listed station, for the country filter —
+ * sorted by station count, most-represented first. */
+export async function fetchCountryList(): Promise<RadioBrowserCountry[]> {
+  try {
+    const res = await fetch(`${RADIO_BROWSER_BASE}/countries`);
+    if (!res.ok) {
+      return [];
+    }
+    const data = (await res.json()) as Array<{
+      name: string;
+      iso_3166_1: string;
+      stationcount: number;
+    }>;
+    return data
+      .filter((c) => c.iso_3166_1 && c.name)
+      .map((c) => ({
+        code: c.iso_3166_1,
+        name: c.name,
+        stationCount: c.stationcount,
+      }))
+      .sort((a, b) => b.stationCount - a.stationCount);
+  } catch {
+    return [];
+  }
+}
+
+export type RadioBrowserTag = {
+  name: string;
+  stationCount: number;
+};
+
+/** Most-used genre tags, for the genre filter — capped at `limit` since the
+ * full tag list runs into the tens of thousands of mostly-unused values. */
+export async function fetchTagList(limit = 60): Promise<RadioBrowserTag[]> {
+  try {
+    const res = await fetch(
+      `${RADIO_BROWSER_BASE}/tags?order=stationcount&reverse=true&limit=${limit}`,
+    );
+    if (!res.ok) {
+      return [];
+    }
+    const data = (await res.json()) as Array<{
+      name: string;
+      stationcount: number;
+    }>;
+    return data.map((t) => ({ name: t.name, stationCount: t.stationcount }));
   } catch {
     return [];
   }

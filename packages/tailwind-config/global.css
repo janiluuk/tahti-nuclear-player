@@ -196,9 +196,4 @@
   --accent-cyan: oklch(0.75 0.11 200);
   --accent-red: oklch(0.68 0.14 18);
   --accent-foreground: oklch(0 0 0);
-
-  --border-width: 1px;
-
-  --shadow-x: 0px;
-  --shadow-y: 0px;
 }

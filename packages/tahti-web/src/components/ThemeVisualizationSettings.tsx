@@ -1,12 +1,14 @@
 import { Button, Slider, Toggle } from '@nuclearplayer/ui';
 
 import { useThemeStore } from '../plugins/themes';
+import { TAHTI_BLUE_THEME_ID } from '../plugins/themes/presets';
 import { useAmbientStore } from '../stores/ambientStore';
 
 const TAHTI_THEME_ID = 'nuclear:tahti-dark';
+const VISUALIZATION_THEME_IDS = new Set([TAHTI_THEME_ID, TAHTI_BLUE_THEME_ID]);
 
 export function isThemeVisualizationEnabled(themeId: string): boolean {
-  return themeId === TAHTI_THEME_ID;
+  return VISUALIZATION_THEME_IDS.has(themeId);
 }
 
 export function ThemeVisualizationSettings() {
@@ -31,7 +33,7 @@ export function ThemeVisualizationSettings() {
           Background visualizations
         </h2>
         <p className="text-foreground-secondary mt-1 text-sm">
-          The Tahti theme can show a quiet, audio-reactive Three.js ambience
+          The Tahti themes can show a quiet, audio-reactive Three.js ambience
           behind the app. More themes can opt into visualizations later.
         </p>
       </div>

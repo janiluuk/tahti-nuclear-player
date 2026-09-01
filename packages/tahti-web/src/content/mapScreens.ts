@@ -719,6 +719,14 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
             label: 'Open feature requests',
             to: '/governance/feature-requests',
           },
+          {
+            label: 'Open public motion history',
+            to: '/governance/history',
+          },
+          {
+            label: 'Open historical grant reports',
+            to: '/transparency/grants/$year',
+          },
         ],
         old: {
           image: '/map/auth/governance-member.png',

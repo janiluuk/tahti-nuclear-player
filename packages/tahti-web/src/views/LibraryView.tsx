@@ -82,9 +82,11 @@ export function LibraryView({
         <StudioNav current={libraryNavRoute(tab)} />
       ) : null}
       <div className="flex min-w-0 flex-1 flex-col gap-6 lg:flex-row lg:items-start">
-        <aside className="w-full shrink-0 lg:sticky lg:top-4 lg:w-64">
-          <FavoritesPanel />
-        </aside>
+        {tab !== 'favorites' ? (
+          <aside className="w-full shrink-0 lg:sticky lg:top-4 lg:w-64">
+            <FavoritesPanel />
+          </aside>
+        ) : null}
         <div className="min-w-0 flex-1">
           {tab === 'library' ? (
             <>

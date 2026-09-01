@@ -6,13 +6,20 @@ import { Badge, Button, SectionShell } from '@nuclearplayer/ui';
 import {
   createGovernanceMotion,
   fetchFeatureRequests,
+  fetchGovernanceDocuments,
+  fetchGovernanceMeetings,
   fetchGovernanceMotions,
   fetchMotionComments,
   postMotionComment,
   voteOnMotion,
   type MotionComment,
 } from '../api/client';
-import type { FeatureRequest, GovernanceMotion } from '../api/types';
+import type {
+  FeatureRequest,
+  GovernanceDocument,
+  GovernanceMeeting,
+  GovernanceMotion,
+} from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
 import { useAuthModalStore } from '../stores/authModalStore';
@@ -45,6 +52,8 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [motions, setMotions] = useState<GovernanceMotion[]>([]);
   const [requests, setRequests] = useState<FeatureRequest[]>([]);
+  const [meetings, setMeetings] = useState<GovernanceMeeting[]>([]);
+  const [documents, setDocuments] = useState<GovernanceDocument[]>([]);
   const [forbidden, setForbidden] = useState(false);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -60,10 +69,17 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
     if (!user) {
       return;
     }
-    void Promise.all([fetchGovernanceMotions(), fetchFeatureRequests()]).then(
-      ([motionsResult, requestsResult]) => {
+    void Promise.all([
+      fetchGovernanceMotions(),
+      fetchFeatureRequests(),
+      fetchGovernanceMeetings(),
+      fetchGovernanceDocuments(),
+    ]).then(
+      ([motionsResult, requestsResult, meetingsResult, documentsResult]) => {
         setMotions(motionsResult.data);
         setRequests(requestsResult.data);
+        setMeetings(meetingsResult.data);
+        setDocuments(documentsResult.data);
         setForbidden(
           Boolean(motionsResult.forbidden || requestsResult.forbidden) &&
             motionsResult.data.length === 0 &&
@@ -107,6 +123,71 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
             </Link>
           }
         />
+      )}
+
+      {user && !loading && !forbidden && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <SectionShell title="Published meetings">
+            {meetings.length === 0 ? (
+              <p className="text-foreground-secondary text-sm">
+                No published meeting records yet.
+              </p>
+            ) : (
+              <ul className="divide-border divide-y">
+                {meetings.map((meeting) => (
+                  <li
+                    key={meeting.id}
+                    className="py-2 text-sm first:pt-0 last:pb-0"
+                  >
+                    <div className="font-medium">{meeting.title}</div>
+                    <div className="text-foreground-secondary mt-0.5 text-xs">
+                      {meeting.scheduledAt
+                        ? new Date(meeting.scheduledAt).toLocaleDateString()
+                        : 'Date not listed'}{' '}
+                      · {meeting.state}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionShell>
+          <SectionShell title="Published documents">
+            {documents.length === 0 ? (
+              <p className="text-foreground-secondary text-sm">
+                No governance documents have been published yet.
+              </p>
+            ) : (
+              <ul className="divide-border divide-y">
+                {documents.map((document) => (
+                  <li
+                    key={document.id}
+                    className="py-2 text-sm first:pt-0 last:pb-0"
+                  >
+                    {document.downloadUrl || document.externalUrl ? (
+                      <a
+                        href={
+                          document.downloadUrl ??
+                          document.externalUrl ??
+                          undefined
+                        }
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-medium underline-offset-2 hover:underline"
+                      >
+                        {document.title}
+                      </a>
+                    ) : (
+                      <span className="font-medium">{document.title}</span>
+                    )}
+                    <div className="text-foreground-secondary mt-0.5 text-xs">
+                      {document.type} · version {document.version}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionShell>
+        </div>
       )}
 
       {!user && (

@@ -11,13 +11,20 @@ import {
   type BasicThemeMeta,
 } from '@nuclearplayer/themes';
 
+import {
+  NUCLEAR_GREEN_THEME,
+  NUCLEAR_GREEN_THEME_ID,
+  TAHTI_BLUE_THEME,
+  TAHTI_BLUE_THEME_ID,
+} from './presets';
+
 const CUSTOM_THEME_PREFIX = 'custom:';
 
 const THEME_KEY = 'tahti-nuclear-theme-id';
 const DARK_KEY = 'tahti-nuclear-dark';
 const PERSIST_NAME = 'tahti-web-theme';
 
-const DEFAULT_THEME_ID = 'nuclear:tahti-dark';
+const DEFAULT_THEME_ID = 'nuclear:default';
 
 export type ColorMode = 'light' | 'dark' | 'dynamic';
 
@@ -57,6 +64,27 @@ function slugify(name: string): string {
 
 function knownBasicThemeIds(): Set<string> {
   return new Set(listBasicThemes().map((t) => t.id));
+}
+
+/** Themes shipped pre-installed in the "Your imported themes" list — added
+ * by stable id on every load if not already present. A rename is kept (the
+ * id stays put), but removing one lets it reappear on the next load since
+ * there's no persisted "user deleted this on purpose" flag. */
+const PRESET_CUSTOM_THEMES: Record<string, AdvancedTheme> = {
+  [TAHTI_BLUE_THEME_ID]: TAHTI_BLUE_THEME,
+  [NUCLEAR_GREEN_THEME_ID]: NUCLEAR_GREEN_THEME,
+};
+
+function withPresetCustomThemes(
+  customThemes: Record<string, AdvancedTheme>,
+): Record<string, AdvancedTheme> {
+  const missing = Object.entries(PRESET_CUSTOM_THEMES).filter(
+    ([id]) => !(id in customThemes),
+  );
+  if (missing.length === 0) {
+    return customThemes;
+  }
+  return { ...customThemes, ...Object.fromEntries(missing) };
 }
 
 function resolveThemeId(
@@ -138,16 +166,17 @@ export const useThemeStore = create<ThemeState>()(
       themes: listBasicThemes(),
       customThemes: {},
       themeId: DEFAULT_THEME_ID,
-      dark: true,
-      colorMode: 'dark',
+      dark: false,
+      colorMode: 'light',
       hydrated: false,
 
       init: () => {
-        const { themeId, colorMode, customThemes } = get();
+        const { themeId, colorMode } = get();
+        const customThemes = withPresetCustomThemes(get().customThemes);
         const id = resolveThemeId(themeId, customThemes);
         const dark = resolveDarkForMode(colorMode);
         applyToDocument(id, dark, customThemes);
-        set({ themeId: id, dark, hydrated: true });
+        set({ customThemes, themeId: id, dark, hydrated: true });
 
         if (typeof window !== 'undefined' && !dynamicModeInterval) {
           dynamicModeInterval = setInterval(

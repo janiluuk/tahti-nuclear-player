@@ -56,6 +56,9 @@ export type ArchiveVersion = {
   durationSec: number | null;
   sourceFormat: string | null;
   sourceBitrateKbps: number | null;
+  sourceSampleRateHz: number | null;
+  sourceBitDepth: number | null;
+  sourceChannels: number | null;
   createdAt: string;
 };
 
@@ -76,6 +79,9 @@ function mockVersions(archiveItemId: string): ArchiveVersion[] {
       durationSec: 180,
       sourceFormat: 'mp3',
       sourceBitrateKbps: 320,
+      sourceSampleRateHz: 44100,
+      sourceBitDepth: 16,
+      sourceChannels: 2,
       createdAt: new Date(Date.now() - 86400_000).toISOString(),
     },
   ];

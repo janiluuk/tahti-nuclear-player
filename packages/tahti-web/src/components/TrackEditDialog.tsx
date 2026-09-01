@@ -686,6 +686,64 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                           ? `${Math.round(item.durationSec / 60)} min · ${item.status}`
                           : 'Source details are available after processing.'}
                       </p>
+                      {!item.embedUri && item.status === 'READY' && (
+                        <div className="border-border mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t pt-3 text-xs sm:grid-cols-3">
+                          <div>
+                            <span className="text-foreground-secondary block">
+                              Format
+                            </span>
+                            <span className="font-medium">
+                              {item.sourceFormat?.toUpperCase() ?? '—'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-foreground-secondary block">
+                              Sample rate
+                            </span>
+                            <span className="font-medium">
+                              {item.sourceSampleRateHz
+                                ? `${(item.sourceSampleRateHz / 1000).toLocaleString('en-US')} kHz`
+                                : '—'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-foreground-secondary block">
+                              Bit depth
+                            </span>
+                            <span className="font-medium">
+                              {item.sourceBitDepth
+                                ? `${item.sourceBitDepth}-bit`
+                                : '—'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-foreground-secondary block">
+                              Channels
+                            </span>
+                            <span className="font-medium">
+                              {item.sourceChannels === 1
+                                ? 'Mono'
+                                : item.sourceChannels === 2
+                                  ? 'Stereo'
+                                  : item.sourceChannels
+                                    ? `${item.sourceChannels} channels`
+                                    : '—'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-foreground-secondary block">
+                              Bitrate
+                            </span>
+                            <span className="font-medium">
+                              {item.sourceBitrateKbps
+                                ? `${item.sourceBitrateKbps} kbps`
+                                : item.sourceFormat?.toUpperCase() === 'FLAC'
+                                  ? 'Lossless'
+                                  : '—'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {!item.embedUri && (
@@ -836,6 +894,15 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                                         {v.status}
                                         {v.durationSec
                                           ? ` · ${formatTime(v.durationSec)}`
+                                          : ''}
+                                        {v.sourceFormat
+                                          ? ` · ${v.sourceFormat.toUpperCase()}`
+                                          : ''}
+                                        {v.sourceBitDepth
+                                          ? ` · ${v.sourceBitDepth}-bit`
+                                          : ''}
+                                        {v.sourceSampleRateHz
+                                          ? ` · ${(v.sourceSampleRateHz / 1000).toLocaleString('en-US')} kHz`
                                           : ''}
                                         {' · '}
                                         {new Date(v.createdAt).toLocaleString()}

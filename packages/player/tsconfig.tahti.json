@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "vite/client",
+      "vite-plugin-svgr/client",
+      "vitest/globals"
+    ],
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false
+  },
+  "include": [
+    "src/main.tsx",
+    "src/env.d.ts",
+    "vite.env.d.ts",
+    "../tahti-web/src/**/*.ts",
+    "../tahti-web/src/**/*.tsx",
+    "../tahti-web/src/**/*.d.ts"
+  ],
+  "exclude": [
+    "../tahti-web/src/**/*.test.ts",
+    "../tahti-web/src/**/*.test.tsx",
+    "../tahti-web/src/**/*.test-wrapper.tsx",
+    "../tahti-web/src/test/**"
+  ]
+}

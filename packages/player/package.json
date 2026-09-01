@@ -5,15 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "tauri dev",
-    "build": "tsc && vite build && tauri build",
-    "build:frontend": "tsc && vite build",
+    "build": "tsc -p tsconfig.tahti.json && vite build && tauri build",
+    "build:frontend": "tsc -p tsconfig.tahti.json && vite build",
     "tauri": "tauri",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest --run",
     "test:coverage": "vitest --run --coverage",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc -p tsconfig.tahti.json --noEmit",
     "clean": "rm -rf dist build .turbo node_modules/.vite"
   },
   "dependencies": {

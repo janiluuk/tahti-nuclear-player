@@ -33,6 +33,8 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Library --> Collections["/library/collections"]
   Login --> Messages["/messages"]
   Login --> Governance["/governance"]
+  Governance --> GovernanceHistory["/governance/history · public closed motions"]
+  Governance --> GrantReports["/transparency/grants/$year · yearly reports"]
   Login --> Studio["/studio"]
   Studio --> Perform["Go Live · Schedule · Shows · Channel · Radio · Multicast"]
   Studio --> Music["Sounds · Collections · Releases · Upload"]
@@ -47,6 +49,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
   class Home,Public,Radio,Discover,Channel,Artist,Collection,Subscribe,Help,About public;
   class Login,Library,History,Collections,Messages,Governance session;
+  class GovernanceHistory,GrantReports public;
   class Studio,Perform,Music,Grow,Settings,SettingsSources artist;
   class Board,Admin,AdminSections board;
 `,

@@ -135,6 +135,10 @@ const LegalView = lazyRouteComponent(
   () => import('./views/LegalView'),
   'LegalView',
 );
+const WhatIsItView = lazyRouteComponent(
+  () => import('./views/WhatIsItView'),
+  'WhatIsItView',
+);
 const StatusView = lazyRouteComponent(
   () => import('./views/StatusView'),
   'StatusView',
@@ -1067,7 +1071,7 @@ const aboutRoute = createRoute({
 const whatIsItRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/what-is-it',
-  component: () => <LegalView slug="what-is-it" />,
+  component: WhatIsItView,
 });
 
 const howItWorksRoute = createRoute({

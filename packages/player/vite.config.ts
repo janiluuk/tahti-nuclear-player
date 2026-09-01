@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { devtools } from '@tanstack/devtools-vite';
 import { tanstackRouter } from '@tanstack/router-vite-plugin';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 
 const commitHash = (() => {
@@ -17,54 +17,62 @@ const commitHash = (() => {
   }
 })();
 
-export default defineConfig(() => ({
-  define: {
-    __COMMIT_HASH__: JSON.stringify(commitHash),
-  },
-  plugins: [
-    devtools(),
-    react(),
-    tanstackRouter(),
-    tailwindcss(),
-    svgr(),
-    codecovVitePlugin({
-      enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
-      bundleName: 'player',
-      uploadToken: process.env.CODECOV_TOKEN,
-    }),
-  ],
-  clearScreen: false,
-  server: {
-    host: process.env.VITE_HOST ?? 'localhost',
-    port: 5173,
-    strictPort: true,
-    watch: {
-      ignored: ['**/src-tauri/**'],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const tahtiApiUrl = env.VITE_TAHTI_API_URL || 'https://api.tahti.live';
+
+  return {
+    define: {
+      __COMMIT_HASH__: JSON.stringify(commitHash),
+      __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? 'dev'),
+      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+      'import.meta.env.VITE_TAHTI_API_URL': JSON.stringify(tahtiApiUrl),
     },
-    proxy: {
-      '/api': {
-        target: 'http://localhost:4120',
-        changeOrigin: true,
+    plugins: [
+      devtools(),
+      react(),
+      tanstackRouter(),
+      tailwindcss(),
+      svgr(),
+      codecovVitePlugin({
+        enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
+        bundleName: 'player',
+        uploadToken: process.env.CODECOV_TOKEN,
+      }),
+    ],
+    clearScreen: false,
+    server: {
+      host: process.env.VITE_HOST ?? 'localhost',
+      port: 5173,
+      strictPort: true,
+      watch: {
+        ignored: ['**/src-tauri/**'],
+      },
+      proxy: {
+        '/api': {
+          target: 'http://localhost:4120',
+          changeOrigin: true,
+        },
       },
     },
-  },
-  test: {
-    globals: true,
-    clearMocks: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
-    reporters: ['default', ...(process.env.CI ? ['junit'] : [])],
-    outputFile: { junit: './test-results/junit.xml' },
-    coverage: {
-      reporter: ['text', 'lcov', 'html'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.test.{ts,tsx}',
-        '**/*.config.{ts,js}',
-        'dist/',
-        'src-tauri/',
-      ],
+    test: {
+      globals: true,
+      clearMocks: true,
+      environment: 'jsdom',
+      setupFiles: ['./src/test/setup.ts'],
+      reporters: ['default', ...(process.env.CI ? ['junit'] : [])],
+      outputFile: { junit: './test-results/junit.xml' },
+      coverage: {
+        reporter: ['text', 'lcov', 'html'],
+        exclude: [
+          'node_modules/',
+          'src/test/',
+          '**/*.test.{ts,tsx}',
+          '**/*.config.{ts,js}',
+          'dist/',
+          'src-tauri/',
+        ],
+      },
     },
-  },
-}));
+  };
+});

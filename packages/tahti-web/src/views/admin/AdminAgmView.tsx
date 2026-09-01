@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { Button, Input } from '@nuclearplayer/ui';
 
 import {
+  createAdminGovernanceDocument,
   createAdminGovernanceMeeting,
   fetchAdminAgmMotions,
   fetchAdminGovernanceDocuments,
   fetchAdminGovernanceMeetings,
+  patchAdminGovernanceMeeting,
   type AdminMotion,
 } from '../../api/admin';
 import type { GovernanceDocument, GovernanceMeeting } from '../../api/types';
@@ -140,6 +142,15 @@ export function AdminAgmView() {
   const [meetingType, setMeetingType] =
     useState<GovernanceMeeting['type']>('GENERAL');
   const [meetingSaving, setMeetingSaving] = useState(false);
+  const [documentTitle, setDocumentTitle] = useState('');
+  const [documentType, setDocumentType] =
+    useState<GovernanceDocument['type']>('MINUTES');
+  const [documentUrl, setDocumentUrl] = useState('');
+  const [documentPublish, setDocumentPublish] = useState(true);
+  const [documentSaving, setDocumentSaving] = useState(false);
+  const [meetingStateSaving, setMeetingStateSaving] = useState<string | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -236,6 +247,45 @@ export function AdminAgmView() {
                         · {meeting.presentCount}/
                         {meeting.eligibleMemberCount ?? '—'} present
                       </p>
+                      <div className="mt-2 flex items-center gap-2">
+                        <select
+                          value={meeting.state}
+                          aria-label={`State for ${meeting.title}`}
+                          disabled={meetingStateSaving === meeting.id}
+                          onChange={(event) => {
+                            const state = event.target
+                              .value as GovernanceMeeting['state'];
+                            setMeetingStateSaving(meeting.id);
+                            void patchAdminGovernanceMeeting(meeting.id, {
+                              state,
+                            }).then((result) => {
+                              setMeetingStateSaving(null);
+                              if (result.data) {
+                                setMeetings((current) =>
+                                  current.map((item) =>
+                                    item.id === meeting.id
+                                      ? result.data!
+                                      : item,
+                                  ),
+                                );
+                              }
+                            });
+                          }}
+                          className="border-border bg-background rounded-md border px-2 py-1 text-xs"
+                        >
+                          <option value="DRAFT">Draft</option>
+                          <option value="SCHEDULED">Scheduled</option>
+                          <option value="HELD">Held</option>
+                          <option value="MINUTES_DRAFT">Minutes draft</option>
+                          <option value="APPROVED">Approved</option>
+                          <option value="CANCELLED">Cancelled</option>
+                        </select>
+                        {meetingStateSaving === meeting.id && (
+                          <span className="text-foreground-secondary text-xs">
+                            Saving…
+                          </span>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -322,36 +372,103 @@ export function AdminAgmView() {
               </div>
               <div className="border-border mt-4 border-t pt-3">
                 <h3 className="text-sm font-semibold">Published documents</h3>
-                {documents.filter((document) => document.publishedAt).length ===
-                0 ? (
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
+                  <Input
+                    value={documentTitle}
+                    onChange={(event) => setDocumentTitle(event.target.value)}
+                    placeholder="Document title"
+                    aria-label="Document title"
+                  />
+                  <select
+                    value={documentType}
+                    onChange={(event) =>
+                      setDocumentType(
+                        event.target.value as GovernanceDocument['type'],
+                      )
+                    }
+                    aria-label="Document type"
+                    className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                  >
+                    <option value="MINUTES">Minutes</option>
+                    <option value="MEETING_NOTICE">Meeting notice</option>
+                    <option value="ANNUAL_REPORT">Annual report</option>
+                    <option value="BYLAWS">Bylaws</option>
+                    <option value="POLICY">Policy</option>
+                    <option value="FINANCIAL_STATEMENT">
+                      Financial statement
+                    </option>
+                    <option value="AUDIT_REPORT">Audit report</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                  <Input
+                    value={documentUrl}
+                    onChange={(event) => setDocumentUrl(event.target.value)}
+                    placeholder="Public document URL (optional)"
+                    aria-label="Public document URL"
+                  />
+                  <Button
+                    size="sm"
+                    disabled={documentSaving || !documentTitle.trim()}
+                    onClick={() => {
+                      setDocumentSaving(true);
+                      void createAdminGovernanceDocument({
+                        title: documentTitle.trim(),
+                        type: documentType,
+                        externalUrl: documentUrl.trim() || undefined,
+                        publishedAt: documentPublish
+                          ? new Date().toISOString()
+                          : null,
+                      }).then((result) => {
+                        setDocumentSaving(false);
+                        if (result.data) {
+                          setDocuments((current) => [result.data!, ...current]);
+                          setDocumentTitle('');
+                          setDocumentUrl('');
+                        }
+                      });
+                    }}
+                  >
+                    {documentSaving ? 'Publishing…' : 'Add document'}
+                  </Button>
+                </div>
+                <label className="text-foreground-secondary mt-2 flex items-center gap-2 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={documentPublish}
+                    onChange={(event) =>
+                      setDocumentPublish(event.target.checked)
+                    }
+                  />
+                  Publish immediately to members
+                </label>
+                {documents.length === 0 ? (
                   <p className="text-foreground-secondary mt-1 text-xs">
-                    No published governance documents yet.
+                    No governance documents yet.
                   </p>
                 ) : (
                   <ul className="mt-2 space-y-1 text-xs">
-                    {documents
-                      .filter((document) => document.publishedAt)
-                      .map((document) => (
-                        <li key={document.id}>
-                          {document.downloadUrl || document.externalUrl ? (
-                            <a
-                              href={
-                                document.downloadUrl ??
-                                document.externalUrl ??
-                                undefined
-                              }
-                              target="_blank"
-                              rel="noreferrer"
-                              className="underline-offset-2 hover:underline"
-                            >
-                              {document.title}
-                            </a>
-                          ) : (
-                            document.title
-                          )}{' '}
-                          · v{document.version}
-                        </li>
-                      ))}
+                    {documents.map((document) => (
+                      <li key={document.id}>
+                        {document.downloadUrl || document.externalUrl ? (
+                          <a
+                            href={
+                              document.downloadUrl ??
+                              document.externalUrl ??
+                              undefined
+                            }
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline-offset-2 hover:underline"
+                          >
+                            {document.title}
+                          </a>
+                        ) : (
+                          document.title
+                        )}{' '}
+                        · v{document.version} ·{' '}
+                        {document.publishedAt ? 'Published' : 'Draft'}
+                      </li>
+                    ))}
                   </ul>
                 )}
               </div>

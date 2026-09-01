@@ -2285,13 +2285,14 @@ function ThemesPanel() {
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {customEntries.map(([id, theme]) => {
                         const active = id === themeId;
+                        const configurable = isThemeVisualizationEnabled(id);
                         return (
                           <div
                             key={id}
                             className={
                               active
-                                ? 'border-border bg-primary rounded-lg border p-4'
-                                : 'border-border bg-background hover:bg-background-secondary rounded-lg border p-4'
+                                ? 'border-border bg-primary relative rounded-lg border p-4'
+                                : 'border-border bg-background hover:bg-background-secondary relative rounded-lg border p-4'
                             }
                           >
                             <button
@@ -2317,6 +2318,18 @@ function ThemesPanel() {
                                 </div>
                               )}
                             </button>
+                            {configurable && (
+                              <Button
+                                size="icon-sm"
+                                variant="secondary"
+                                className="absolute top-3 right-3"
+                                aria-label={`Configure ${theme.name}`}
+                                title={`Configure ${theme.name}`}
+                                onClick={() => setConfiguringThemeId(id)}
+                              >
+                                <Settings2Icon size={14} aria-hidden />
+                              </Button>
+                            )}
                             <div className="mt-2 flex items-center gap-2">
                               <Button
                                 size="icon-sm"

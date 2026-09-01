@@ -1,5 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import {
+  CompassIcon,
   GaugeIcon,
   LayoutDashboardIcon,
   LibraryIcon,
@@ -29,6 +30,13 @@ const NAV = [
     label: 'Radio',
     icon: RadioIcon,
     match: (p: string) => p.startsWith('/radio'),
+    boardOnly: false,
+  },
+  {
+    to: '/discover',
+    label: 'Discover',
+    icon: CompassIcon,
+    match: (p: string) => p.startsWith('/discover'),
     boardOnly: false,
   },
   {

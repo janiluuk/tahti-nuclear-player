@@ -63,7 +63,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDczRDk0QzBFODNCNDEyNUUKUldSZUVyU0REa3paYzdTaE9IdlErcjNoTmdyMkNLL0d3alFZTHVMcytxQzJ3K1NJRlFWQlVaYk4K",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDZENThDRjNFODg5MUNGRjUKUldUMXo1R0lQczlZYlVjWENnTnZTNW1OQUl5Nzl3dzFRdjlWNGZBVkF2SVhWcHRVbDY3ZHhqSVgK",
       "endpoints": [
         "https://github.com/janiluuk/tahti-player/releases/latest/download/latest.json"
       ]

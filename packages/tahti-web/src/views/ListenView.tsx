@@ -5,7 +5,6 @@ import {
   ListMusicIcon,
   PauseIcon,
   PlayIcon,
-  PlusIcon,
   RadioIcon,
   RadioTowerIcon,
   SlidersHorizontalIcon,
@@ -48,6 +47,7 @@ import {
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { ListenerWidgetsSection } from '../components/ListenerWidgetsSection';
+import { ListenWidgetStoreDialog } from '../components/ListenWidgetStoreDialog';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { QueueConfirmDialog } from '../components/QueueConfirmDialog';
@@ -55,7 +55,6 @@ import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
-import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { FeedView } from './FeedView';
 import { HistoryView } from './HistoryView';
 
@@ -100,7 +99,6 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
   const lastPlayed = useLibraryStore((s) => s.history[0] ?? null);
   const user = useAuthStore((s) => s.user);
   const signedIn = Boolean(user);
-  const openSettings = useSettingsModalStore((s) => s.open);
 
   useEffect(() => {
     let cancelled = false;
@@ -307,6 +305,7 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
           }
           actions={
             <div className="flex flex-wrap items-center gap-2">
+              {signedIn ? <ListenWidgetStoreDialog /> : null}
               <Link
                 to="/help"
                 className="text-foreground-secondary hover:text-foreground text-xs underline-offset-2 hover:underline"
@@ -375,19 +374,6 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
             ) : null}
 
             <DiscoWidgetsSection widgets={discoWidgets} />
-
-            {signedIn && (
-              <div className="flex justify-end">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => openSettings('plugin-store', 'listen')}
-                >
-                  <PlusIcon size={14} aria-hidden />
-                  Add widget
-                </Button>
-              </div>
-            )}
 
             <ListenerWidgetsSection />
 

@@ -60,13 +60,19 @@ import {
 } from '../api/distribution';
 import {
   COMMON_STATIONS,
+  fetchCountryList,
+  fetchStationCount,
+  fetchTagList,
   lookupStationByUrl,
   playableFromRadioStation,
   readIcyStreamTitle,
   resolveStreamUrl,
+  searchStations,
   searchStationsByName,
   testRadioStream,
   type RadioStation as PublicRadioStation,
+  type RadioBrowserCountry,
+  type RadioBrowserTag,
   type RadioStreamTestResult,
 } from '../api/radio-sources';
 import {
@@ -139,6 +145,7 @@ import { useLibraryStore } from '../stores/libraryStore';
 import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { usePluginInstallStore } from '../stores/pluginInstallStore';
+import { useRadioBrowserStore } from '../stores/radioBrowserStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
@@ -2763,6 +2770,238 @@ function PersonalRadioStreamCard() {
   );
 }
 
+function RadioBrowserStationRow({
+  station,
+  onPlay,
+  isFavorite,
+  onToggleFavorite,
+}: {
+  station: PublicRadioStation;
+  onPlay: () => void;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+}) {
+  return (
+    <li className="border-border hover:bg-background-secondary flex items-center gap-2 rounded-md border p-1.5 pr-1">
+      <div className="border-border bg-background flex size-9 shrink-0 items-center justify-center overflow-hidden rounded border">
+        {station.favicon ? (
+          <img
+            src={station.favicon}
+            alt=""
+            className="size-full object-contain"
+            onError={(e) => {
+              e.currentTarget.remove();
+            }}
+          />
+        ) : (
+          <RadioIcon
+            size={16}
+            className="text-foreground-secondary"
+            aria-hidden
+          />
+        )}
+      </div>
+      <button
+        type="button"
+        className="flex min-w-0 flex-1 flex-col items-start text-left"
+        onClick={onPlay}
+      >
+        <span className="w-full truncate text-sm">{station.name}</span>
+        <span className="text-foreground-secondary w-full truncate text-xs">
+          {station.country ?? station.tags?.[0] ?? 'Unknown'}
+        </span>
+      </button>
+      <Button
+        size="icon-sm"
+        variant="secondary"
+        aria-label={`Play ${station.name}`}
+        onClick={onPlay}
+      >
+        <PlayIcon size={14} aria-hidden />
+      </Button>
+      <FavoriteButton
+        size="sm"
+        isFavorite={isFavorite}
+        onToggle={onToggleFavorite}
+        ariaLabelAdd={`Add ${station.name} to library`}
+        ariaLabelRemove={`Remove ${station.name} from library`}
+      />
+    </li>
+  );
+}
+
+/** Full radio-browser.info directory: search + genre/country filters, a
+ * Finnish-stations banner, and a popular-stations list — separate from
+ * `PersonalRadioStreamCard`'s single-URL/search-only tool above it. Off by
+ * default (third-party API, not Tahti-hosted); enabling it reveals the
+ * browsing UI inline rather than behind another settings dialog. */
+function RadioBrowserDirectoryCard() {
+  const enabled = useRadioBrowserStore((s) => s.enabled);
+  const setEnabled = useRadioBrowserStore((s) => s.setEnabled);
+  const play = usePlayerStore((s) => s.play);
+  const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
+  const isFavoriteTrack = useLibraryStore((s) => s.isFavoriteTrack);
+
+  const [loaded, setLoaded] = useState(false);
+  const [stationCount, setStationCount] = useState<number | null>(null);
+  const [finnishStations, setFinnishStations] = useState<PublicRadioStation[]>(
+    [],
+  );
+  const [countries, setCountries] = useState<RadioBrowserCountry[]>([]);
+  const [tags, setTags] = useState<RadioBrowserTag[]>([]);
+  const [query, setQuery] = useState('');
+  const [genre, setGenre] = useState('');
+  const [country, setCountry] = useState('');
+  const [results, setResults] = useState<PublicRadioStation[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [isFiltered, setIsFiltered] = useState(false);
+
+  useEffect(() => {
+    if (!enabled || loaded) {
+      return;
+    }
+    setLoaded(true);
+    void fetchStationCount().then(setStationCount);
+    void searchStations({ countryCode: 'FI', limit: 8 }).then(
+      setFinnishStations,
+    );
+    void fetchCountryList().then(setCountries);
+    void fetchTagList().then(setTags);
+    void searchStations({ limit: 20 }).then(setResults);
+  }, [enabled, loaded]);
+
+  const runSearch = () => {
+    setSearching(true);
+    setIsFiltered(Boolean(query.trim() || genre || country));
+    void searchStations({
+      name: query,
+      tag: genre || undefined,
+      countryCode: country || undefined,
+      limit: 30,
+    }).then((r) => {
+      setResults(r);
+      setSearching(false);
+    });
+  };
+
+  const playStation = (station: PublicRadioStation) =>
+    play(playableFromRadioStation(station));
+  const favoriteProps = (station: PublicRadioStation) => ({
+    isFavorite: isFavoriteTrack(`radio:${station.id}`),
+    onToggleFavorite: () =>
+      toggleFavoriteTrack(playableFromRadioStation(station)),
+  });
+
+  return (
+    <div className="flex flex-col gap-2">
+      <AudioPluginToggleRow
+        name="Radio Browser directory"
+        author="radio-browser.info · community directory"
+        description="Browse and search 50,000+ public internet radio stations, with genre and country filters — separate from the personal stream tool above."
+        enabled={enabled}
+        onToggle={() => setEnabled(!enabled)}
+      />
+      {enabled && (
+        <div className="border-border flex flex-col gap-4 rounded-lg border p-4">
+          <div className="border-primary/30 bg-primary/5 flex flex-col gap-3 rounded-lg border p-4">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+                Finnish stations
+              </h3>
+              <span className="text-foreground-secondary text-xs">
+                {stationCount
+                  ? `${stationCount.toLocaleString()} public stations total`
+                  : null}
+              </span>
+            </div>
+            {finnishStations.length === 0 ? (
+              <p className="text-foreground-secondary text-xs">
+                Loading Finnish stations…
+              </p>
+            ) : (
+              <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                {finnishStations.map((s) => (
+                  <RadioBrowserStationRow
+                    key={s.id}
+                    station={s}
+                    onPlay={() => playStation(s)}
+                    {...favoriteProps(s)}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Input
+              className="min-w-[200px] flex-1"
+              size="sm"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  runSearch();
+                }
+              }}
+              placeholder="Search stations"
+            />
+            <Select
+              className="min-w-[150px] flex-1"
+              options={[
+                { id: '', label: 'All genres' },
+                ...tags.map((t) => ({
+                  id: t.name,
+                  label: `${t.name} (${t.stationCount})`,
+                })),
+              ]}
+              value={genre}
+              onValueChange={setGenre}
+            />
+            <Select
+              className="min-w-[150px] flex-1"
+              options={[
+                { id: '', label: 'All countries' },
+                ...countries.map((c) => ({
+                  id: c.code,
+                  label: `${c.name} (${c.stationCount})`,
+                })),
+              ]}
+              value={country}
+              onValueChange={setCountry}
+            />
+            <Button size="sm" disabled={searching} onClick={runSearch}>
+              <SearchIcon size={16} aria-hidden className="mr-1.5" />
+              {searching ? 'Searching…' : 'Search'}
+            </Button>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+              {isFiltered ? 'Results' : 'Popular stations'}
+            </h3>
+            {results.length === 0 ? (
+              <p className="text-foreground-secondary text-xs">
+                No stations found.
+              </p>
+            ) : (
+              <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                {results.map((s) => (
+                  <RadioBrowserStationRow
+                    key={s.id}
+                    station={s}
+                    onPlay={() => playStation(s)}
+                    {...favoriteProps(s)}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RadioCategory() {
   const play = usePlayerStore((s) => s.play);
   const currentId = usePlayerStore((s) => s.currentId);
@@ -2808,6 +3047,7 @@ function RadioCategory() {
   return (
     <div className="flex flex-col gap-3">
       <PersonalRadioStreamCard />
+      <RadioBrowserDirectoryCard />
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
           size="sm"
