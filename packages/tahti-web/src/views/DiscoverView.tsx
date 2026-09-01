@@ -46,9 +46,9 @@ import { usePlayerStore } from '../stores/playerStore';
 const ALL_FILTER_ID = '__all__';
 
 const CONTENT_TYPE_OPTIONS = [
-  { id: 'LIVE', label: 'Live' },
-  { id: 'STUDIO', label: 'Studio' },
-  { id: 'DJ_MIX', label: 'DJ mix' },
+  { id: 'LIVE', label: 'Live broadcast' },
+  { id: 'STUDIO', label: 'Track' },
+  { id: 'DJ_MIX', label: 'DJ Set' },
   { id: 'PODCAST', label: 'Podcast' },
   { id: 'ORIGINAL', label: 'Original' },
   { id: 'REMIX', label: 'Remix' },

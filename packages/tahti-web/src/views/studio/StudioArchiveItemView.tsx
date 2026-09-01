@@ -66,9 +66,8 @@ import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
 const CONTENT_TYPES = [
-  ['STUDIO', 'Studio track'],
-  ['LIVE', 'Live recording'],
-  ['DJ_MIX', 'DJ mix'],
+  ['STUDIO', 'Track'],
+  ['DJ_MIX', 'DJ Set'],
   ['PODCAST', 'Podcast'],
   ['ORIGINAL', 'Original'],
   ['REMIX', 'Remix'],

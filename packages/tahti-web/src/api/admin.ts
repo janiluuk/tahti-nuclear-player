@@ -217,7 +217,7 @@ function mockContentOverview(): AdminContentOverview {
       {
         id: 'content-1',
         title: 'Northern Lights — Live Set',
-        type: 'DJ mix',
+        type: 'DJ Set',
         artistName: 'Northern Lights',
         createdAt: '2026-08-28T09:30:00.000Z',
       },
