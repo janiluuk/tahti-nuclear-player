@@ -815,31 +815,19 @@ export function StudioScheduleView() {
           </Dialog.Description>
           <div className="mt-4 flex flex-col gap-5">
             <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_11rem]">
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-foreground-secondary inline-flex items-center gap-1.5 text-xs uppercase">
-                  <CalendarDaysIcon size={13} aria-hidden />
-                  Date
-                </span>
-                <input
-                  type="date"
-                  min={minimumDate}
-                  value={date}
-                  onChange={(event) => setDate(event.target.value)}
-                  className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-foreground-secondary inline-flex items-center gap-1.5 text-xs uppercase">
-                  <Clock3Icon size={13} aria-hidden />
-                  Local time
-                </span>
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(event) => setTime(event.target.value)}
-                  className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                />
-              </label>
+              <Input
+                type="date"
+                label="Date"
+                min={minimumDate}
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+              />
+              <Input
+                type="time"
+                label="Local time"
+                value={time}
+                onChange={(event) => setTime(event.target.value)}
+              />
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -943,22 +931,19 @@ export function StudioScheduleView() {
                 </label>
               ) : null}
               {showMode === 'SERIES' && episodeNumberEnabled ? (
-                <label className="flex items-center gap-2 text-sm">
-                  <span className="text-foreground-secondary text-xs uppercase">
-                    Start episode
-                  </span>
-                  <input
-                    type="number"
-                    min={1}
-                    value={nextEpisodeNumber}
-                    onChange={(event) =>
-                      setNextEpisodeNumber(
-                        Math.max(1, Number(event.target.value)),
-                      )
-                    }
-                    className="border-border bg-background h-10 w-24 rounded-md border px-3 text-sm"
-                  />
-                </label>
+                <Input
+                  type="number"
+                  variant="number"
+                  label="Start episode"
+                  min={1}
+                  value={nextEpisodeNumber}
+                  onChange={(event) =>
+                    setNextEpisodeNumber(
+                      Math.max(1, Number(event.target.value)),
+                    )
+                  }
+                  className="w-24"
+                />
               ) : null}
             </div>
 
