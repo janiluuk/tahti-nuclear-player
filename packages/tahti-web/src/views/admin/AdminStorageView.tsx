@@ -53,9 +53,8 @@ import { usePlayerStore } from '../../stores/playerStore';
 const CONTENT_TYPE_LABELS: Record<string, string> = {
   TRACK: 'Track',
   LIVE: 'Live',
-  DJ_MIX: 'DJ Set',
+  DJ_SET: 'DJ Set',
   PODCAST: 'Podcast',
-  ORIGINAL: 'Original',
   REMIX: 'Remix',
   RADIO_SHOW: 'Radio show',
 };

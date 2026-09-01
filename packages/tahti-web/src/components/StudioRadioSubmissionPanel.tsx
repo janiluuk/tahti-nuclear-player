@@ -25,7 +25,7 @@ const MAX_TRACKS = 5;
 const isSingleTrack = (item: StudioArchiveItem) =>
   item.status === 'READY' &&
   !item.embedProvider &&
-  item.contentType !== 'DJ_MIX' &&
+  item.contentType !== 'DJ_SET' &&
   item.contentType !== 'AUDIOCLIPS';
 
 export function StudioRadioSubmissionPanel() {

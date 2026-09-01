@@ -385,7 +385,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
 
   const items = col?.items ?? [];
   const isAlbumLike = useMemo(
-    () => ['ALBUM', 'EP', 'SINGLE', 'COMPILATION'].includes(style),
+    () => ['ALBUM', 'EP', 'SINGLE'].includes(style),
     [style],
   );
 

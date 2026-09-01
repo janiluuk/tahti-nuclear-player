@@ -47,10 +47,9 @@ const ALL_FILTER_ID = '__all__';
 
 const CONTENT_TYPE_OPTIONS = [
   { id: 'LIVE', label: 'Live broadcast' },
-  { id: 'STUDIO', label: 'Track' },
-  { id: 'DJ_MIX', label: 'DJ Set' },
+  { id: 'TRACK', label: 'Track' },
+  { id: 'DJ_SET', label: 'DJ Set' },
   { id: 'PODCAST', label: 'Podcast' },
-  { id: 'ORIGINAL', label: 'Original' },
   { id: 'REMIX', label: 'Remix' },
   { id: 'RADIO_SHOW', label: 'Radio show' },
 ];

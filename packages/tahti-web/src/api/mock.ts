@@ -709,7 +709,7 @@ export function mockTrackDetail(id: string): PublicTrackDetail | null {
     galleryMode: 'NONE',
     genre: item.genre ?? null,
     subGenres: [],
-    contentType: isSet ? 'DJ_MIX' : 'STUDIO',
+    contentType: isSet ? 'DJ_SET' : 'TRACK',
     mixVersion: null,
     description: isSet ? 'Thanks for joining!\n\nTraxx:' : null,
     commentary: null,

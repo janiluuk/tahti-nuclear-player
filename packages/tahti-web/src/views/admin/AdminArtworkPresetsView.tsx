@@ -1,4 +1,4 @@
-import { UploadIcon } from 'lucide-react';
+import { PlusIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Input } from '@tahti-player/ui';
@@ -10,84 +10,160 @@ import {
   GENERATED_ARTWORK_COUNT,
   generatedArtworkUrl,
 } from '../../lib/placeholderArt';
+import { useAuthStore } from '../../stores/authStore';
 
-const STORAGE_KEY = 'tahti-admin-artwork-presets';
+function storageKey(userId: string) {
+  return `tahti-admin-artwork-presets:${userId}`;
+}
 
-function defaultPresets() {
-  return Array.from({ length: GENERATED_ARTWORK_COUNT }, (_, index) =>
-    generatedArtworkUrl(String(index)),
-  );
+/** The 16 built-in generated placeholders — fixed content, fixed order,
+ * never mutated. A slot can be overridden (see `assignments`), but the
+ * default itself always stays available to revert back to. */
+const DEFAULT_ARTWORKS: string[] = Array.from(
+  { length: GENERATED_ARTWORK_COUNT },
+  (_, index) => generatedArtworkUrl(String(index)),
+);
+
+const DEFAULT_NAMES = DEFAULT_ARTWORKS.map(
+  (_, index) => `Artwork ${index + 1}`,
+);
+
+type SavedState = {
+  /** Default-slot index -> the custom-pool URL currently assigned to it.
+   * A slot with no entry here just shows its own DEFAULT_ARTWORKS image. */
+  assignments: Record<number, string>;
+  /** Every custom image the admin has ever uploaded — kept around after a
+   * reset so it can be re-assigned later without re-uploading. */
+  customPool: string[];
+};
+
+function parseSavedState(raw: string): SavedState | null {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      'assignments' in parsed &&
+      'customPool' in parsed
+    ) {
+      const { assignments, customPool } = parsed as Record<string, unknown>;
+      if (
+        assignments &&
+        typeof assignments === 'object' &&
+        Array.isArray(customPool) &&
+        customPool.every((v): v is string => typeof v === 'string')
+      ) {
+        const cleanAssignments: Record<number, string> = {};
+        for (const [key, value] of Object.entries(
+          assignments as Record<string, unknown>,
+        )) {
+          const index = Number(key);
+          if (
+            Number.isInteger(index) &&
+            index >= 0 &&
+            index < GENERATED_ARTWORK_COUNT &&
+            typeof value === 'string'
+          ) {
+            cleanAssignments[index] = value;
+          }
+        }
+        return { assignments: cleanAssignments, customPool };
+      }
+    }
+  } catch {
+    // fall through
+  }
+  return null;
 }
 
 export function AdminArtworkPresetsView() {
-  const [presets, setPresets] = useState<string[]>(defaultPresets);
+  const userId = useAuthStore((s) => s.user?.id);
+  const [assignments, setAssignments] = useState<Record<number, string>>({});
+  const [customPool, setCustomPool] = useState<string[]>([]);
   const [selected, setSelected] = useState(0);
   const [saved, setSaved] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
-  const selectedUrl = presets[selected] ?? '';
-  const presetNames = useMemo(
-    () => presets.map((_, index) => `Artwork ${index + 1}`),
-    [presets],
+
+  const activeUrls = useMemo(
+    () => DEFAULT_ARTWORKS.map((url, index) => assignments[index] ?? url),
+    [assignments],
   );
-  // The default preset (index `selected`) always renders first in the grid
-  // so it's immediately visible rather than wherever it happens to sit.
-  const orderedIndices = useMemo(() => {
-    const rest = presets.map((_, index) => index).filter((i) => i !== selected);
-    return [selected, ...rest];
-  }, [presets, selected]);
+  const selectedUrl = activeUrls[selected] ?? '';
+  const selectedIsCustom = assignments[selected] != null;
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (!userId) {
+      return;
+    }
+    const stored = window.localStorage.getItem(storageKey(userId));
     if (!stored) {
       return;
     }
-    try {
-      const parsed: unknown = JSON.parse(stored);
-      if (
-        Array.isArray(parsed) &&
-        parsed.length === GENERATED_ARTWORK_COUNT &&
-        parsed.every((value): value is string => typeof value === 'string')
-      ) {
-        setPresets(parsed);
-      }
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
+    const parsed = parseSavedState(stored);
+    if (parsed) {
+      setAssignments(parsed.assignments);
+      setCustomPool(parsed.customPool);
+    } else {
+      window.localStorage.removeItem(storageKey(userId));
     }
-  }, []);
+  }, [userId]);
+
+  const persist = (next: SavedState) => {
+    if (!userId) {
+      return;
+    }
+    window.localStorage.setItem(storageKey(userId), JSON.stringify(next));
+  };
 
   const save = () => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+    persist({ assignments, customPool });
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1800);
+  };
+
+  const resetToDefaults = () => {
+    setAssignments({});
+    persist({ assignments: {}, customPool });
+  };
+
+  const assignToSelected = (url: string) => {
+    setAssignments((current) => ({ ...current, [selected]: url }));
   };
 
   return (
     <AdminGate>
       <AdminPageLayout current="/admin/artwork-presets">
         <div className="flex flex-col gap-6">
-          <div>
-            <h1 className="text-2xl font-semibold">Artwork presets</h1>
-            <p className="text-foreground-secondary mt-1 text-sm">
-              Manage the abstract thumbnails used when a new upload has no
-              artwork. Choose a preset to edit or make it the default.
-            </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-semibold">Artwork presets</h1>
+              <p className="text-foreground-secondary mt-1 text-sm">
+                Manage the abstract thumbnails used when a new upload has no
+                artwork. The 16 defaults below can't be overwritten — assign one
+                of your own uploaded artworks to a slot instead.
+              </p>
+            </div>
+            <Button variant="secondary" onClick={resetToDefaults}>
+              Reset to defaults
+            </Button>
           </div>
           <div className="grid gap-3 sm:grid-cols-4 lg:grid-cols-8">
-            {orderedIndices.map((index) => (
+            {DEFAULT_ARTWORKS.map((_, index) => (
               <button
-                key={presetNames[index]}
+                key={DEFAULT_NAMES[index]}
                 type="button"
                 onClick={() => setSelected(index)}
                 className={`border-border overflow-hidden rounded-lg border text-left ${selected === index ? 'ring-primary ring-2' : ''}`}
-                aria-label={`Edit ${presetNames[index]}`}
+                aria-label={`Edit ${DEFAULT_NAMES[index]}`}
               >
                 <img
-                  src={presets[index]}
+                  src={activeUrls[index]}
                   alt=""
                   className="aspect-square w-full"
                 />
                 <span className="block px-2 py-1 text-xs">
-                  {presetNames[index]}
+                  {DEFAULT_NAMES[index]}
+                  {assignments[index] != null ? ' · custom' : ''}
                 </span>
               </button>
             ))}
@@ -95,11 +171,48 @@ export function AdminArtworkPresetsView() {
           <div className="border-border bg-background-secondary grid gap-5 rounded-xl border p-4 sm:grid-cols-[1fr_auto]">
             <div className="flex flex-col gap-4">
               <Input
-                label="Default preset"
-                value={presetNames[selected] ?? ''}
+                label="Editing slot"
+                value={DEFAULT_NAMES[selected] ?? ''}
                 readOnly
-                description="New artwork-free uploads use this selection in this browser until a replacement is saved."
+                description={
+                  selectedIsCustom
+                    ? 'Showing a custom artwork assigned to this slot instead of its default.'
+                    : "Showing this slot's default artwork — assign a custom one below, or upload a new one."
+                }
               />
+              {customPool.length > 0 ? (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-foreground text-sm font-semibold">
+                    Assign from your artwork
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {customPool.map((url) => (
+                      <button
+                        key={url}
+                        type="button"
+                        onClick={() => assignToSelected(url)}
+                        aria-label="Assign this artwork to the selected slot"
+                        className={`size-12 overflow-hidden rounded-md border ${assignments[selected] === url ? 'border-primary ring-primary ring-2' : 'border-border'}`}
+                      >
+                        <img
+                          src={url}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setUploadOpen(true)}
+                      aria-label="Upload a new artwork"
+                      title="Upload a new artwork"
+                      className="border-border text-foreground-secondary flex size-12 items-center justify-center rounded-md border border-dashed"
+                    >
+                      <PlusIcon size={16} aria-hidden />
+                    </button>
+                  </div>
+                </div>
+              ) : null}
               <Button onClick={save}>{saved ? 'Saved' : 'Save presets'}</Button>
             </div>
             <div className="group relative aspect-square w-full max-w-64">
@@ -111,7 +224,7 @@ export function AdminArtworkPresetsView() {
               <button
                 type="button"
                 onClick={() => setUploadOpen(true)}
-                aria-label={`Replace ${presetNames[selected] ?? 'preset'}`}
+                aria-label={`Upload artwork for ${DEFAULT_NAMES[selected] ?? 'this slot'}`}
                 className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/0 opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100"
               >
                 <UploadIcon size={28} aria-hidden className="text-white" />
@@ -122,12 +235,13 @@ export function AdminArtworkPresetsView() {
       </AdminPageLayout>
       <ArtworkPresetUploadDialog
         isOpen={uploadOpen}
-        label={presetNames[selected] ?? 'preset'}
+        label={DEFAULT_NAMES[selected] ?? 'preset'}
         onClose={() => setUploadOpen(false)}
         onUploaded={(url) => {
-          setPresets((current) =>
-            current.map((preset, index) => (index === selected ? url : preset)),
+          setCustomPool((current) =>
+            current.includes(url) ? current : [...current, url],
           );
+          assignToSelected(url);
         }}
       />
     </AdminGate>

@@ -66,10 +66,9 @@ import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
 const CONTENT_TYPES = [
-  ['STUDIO', 'Track'],
-  ['DJ_MIX', 'DJ Set'],
+  ['TRACK', 'Track'],
+  ['DJ_SET', 'DJ Set'],
   ['PODCAST', 'Podcast'],
-  ['ORIGINAL', 'Original'],
   ['REMIX', 'Remix'],
   ['RADIO_SHOW', 'Radio show'],
   ['AUDIOCLIPS', 'Audio clip'],
@@ -90,7 +89,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [genre, setGenre] = useState('');
-  const [contentType, setContentType] = useState('STUDIO');
+  const [contentType, setContentType] = useState('TRACK');
   const [visibility, setVisibility] = useState<TrackVisibility>('PUBLIC');
   const [fanTierIds, setFanTierIds] = useState<string[]>([]);
   const [releaseDate, setReleaseDate] = useState('');
@@ -123,7 +122,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
       setTitle(res.data.title);
       setDescription(res.data.description ?? '');
       setGenre(res.data.genre ? capitalizeGenre(res.data.genre) : '');
-      setContentType(res.data.contentType ?? 'STUDIO');
+      setContentType(res.data.contentType ?? 'TRACK');
       setVisibility(
         res.data.visibility ??
           (res.data.isPublic === false ? 'PRIVATE' : 'PUBLIC'),

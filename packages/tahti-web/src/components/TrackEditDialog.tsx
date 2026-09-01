@@ -90,10 +90,9 @@ type Props = {
 };
 
 const CONTENT_TYPES = [
-  ['STUDIO', 'Track'],
-  ['DJ_MIX', 'DJ Set'],
+  ['TRACK', 'Track'],
+  ['DJ_SET', 'DJ Set'],
   ['PODCAST', 'Podcast'],
-  ['ORIGINAL', 'Original'],
   ['REMIX', 'Remix'],
   ['RADIO_SHOW', 'Radio show'],
   ['AUDIOCLIPS', 'Audio clip'],
@@ -156,8 +155,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const [versionBusy, setVersionBusy] = useState<string | null>(null);
   const [quickBusy, setQuickBusy] = useState<'normalize' | 'trim' | null>(null);
   const [playBusy, setPlayBusy] = useState(false);
-  const isDjMix =
-    form.contentType === 'DJ_MIX' || form.contentType === 'DJ_SET';
+  const isDjMix = form.contentType === 'DJ_SET';
   const isAudioClip = form.contentType === 'AUDIOCLIPS';
   const visibleTabOrder = isDjMix
     ? TAB_ORDER
@@ -202,7 +200,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
           genre: res.data.genre ? capitalizeGenre(res.data.genre) : '',
           subGenres: res.data.subGenres ?? [],
           credits: parseCredits(res.data.credits ?? []),
-          contentType: res.data.contentType ?? 'STUDIO',
+          contentType: res.data.contentType ?? 'TRACK',
           license: res.data.license ?? '',
           isPublic: res.data.isPublic ?? true,
           visibility:
@@ -577,7 +575,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                     ) : null}
                     <Select
                       label="Content type"
-                      value={form.contentType ?? 'STUDIO'}
+                      value={form.contentType ?? 'TRACK'}
                       onValueChange={(value) =>
                         setForm({ ...form, contentType: value })
                       }
