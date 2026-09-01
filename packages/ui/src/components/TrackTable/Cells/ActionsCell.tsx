@@ -163,14 +163,14 @@ export const ActionsCell = <T extends Track>({
     hasAddToQueue || hasContextMenu || canEdit || canOpenDetail;
   const isQueued = meta?.isTrackQueued?.(track) ?? false;
 
-  if (!showControls || !hasActions) {
+  if (!hasActions) {
     return <td className="w-28" />;
   }
 
   return (
     <td className="w-28 px-1">
       <div className="flex items-center justify-end gap-1">
-        {hasAddToQueue && (
+        {showControls && hasAddToQueue && (
           <AddToQueueButton
             label={isQueued ? labels.inQueue : labels.addToQueue}
             queued={isQueued}

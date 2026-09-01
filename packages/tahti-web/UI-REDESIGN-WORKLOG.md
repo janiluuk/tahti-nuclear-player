@@ -1,5 +1,44 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-01 — Playlist detail layout
+
+**Completed:** Updated public playlist and collection pages to match the
+reference layout: a wide artwork-led hero with translucent cover ambience,
+compact Play/queue/embed actions, and a dense filterable track table with
+thumbnail, artist, title, favorite, and overflow actions. Artist-profile
+catalogs now use the same standard tracklisting treatment.
+
+**Validation:** tahti-web type-check, focused lint, and diff checks pass.
+The shared TrackTable tests also pass; compact overflow-only actions are
+scoped to artist-profile and playlist tracklists, while other track tables
+retain their existing inline controls.
+
+## 2026-09-01 — Discover, artist actions, and live broadcast feedback
+
+**Completed:** Reworked Discover into a stable two-tab surface. The main tab
+keeps all enabled top-list widgets together, places the remaining discovery
+widgets in the carousel below them, and moves the full artist directory into
+an Artists tab. Artist cards now use translucent artwork ambience with a
+cyan-violet Tahti glow, a stronger dark text scrim, and readable metadata.
+Board admins get a hover-only configure icon on each Discover widget; it opens
+the widget's settings in a modal while regular listeners see no admin control.
+
+Artist profiles now keep newsletter Subscribe, paid fan-tier Subscribe, and
+Embed actions together as compact icon controls in the top-right header. The
+channel backdrop supports autoplaying video and mutes it whenever there is no
+active player playback. The persistent app shell remains stable during route
+changes: only routed content transitions, and persisted open sidebars do not
+animate during reload.
+
+The broadcast notification now flashes green for a healthy live stream,
+yellow for a preview warning, and red when a channel marked LIVE has lost its
+ingest connection. Its live panel includes direct links to the broadcast
+studio and the artist's Green Room chat.
+
+**Validation:** tahti-web type-check, focused lint, full test suite (52 files,
+299 tests), production build, and deployment smoke checks pass. Deployed to
+`https://beta.tahti.live`; the related changes were pushed to `master`.
+
 ## 2026-09-01 — Governance navigation and route-map consolidation
 
 **Completed:** Audited the Tahti Player route tree against the persistent

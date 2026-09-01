@@ -15,11 +15,11 @@ import type {
   PublicCollection,
   TahtiPlayable,
 } from '../api/types';
-import { CollectionTrackList } from '../components/CollectionTrackList';
 import { EmbedButton } from '../components/EmbedButton';
 import { EmbedTrackRow } from '../components/EmbedTrackRow';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import type { EmbedProvider } from '../lib/embedSrc';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
@@ -162,21 +162,14 @@ export function CollectionView({
         </Link>
       </div>
 
-      {/* Nuclear desktop player's playlist-detail layout: square artwork +
-          name/description beside it, primary actions under the title. */}
-      <div
-        className="border-border bg-primary shadow-shadow relative isolate flex flex-col gap-6 overflow-hidden rounded-md border-(length:--border-width) p-6 md:flex-row"
-        style={
-          backdropUrl
-            ? {
-                backgroundImage: `linear-gradient(110deg, color-mix(in srgb, var(--color-primary) 94%, transparent), color-mix(in srgb, var(--color-primary) 72%, transparent)), url(${backdropUrl})`,
-                backgroundPosition: 'center',
-                backgroundSize: 'cover',
-              }
-            : undefined
-        }
-      >
-        <div className="bg-primary/35 pointer-events-none absolute inset-0 -z-10 backdrop-blur-2xl" />
+      <div className="border-border bg-primary shadow-shadow relative isolate flex flex-col gap-6 overflow-hidden rounded-md border-(length:--border-width) p-6 md:flex-row">
+        <img
+          src={backdropUrl ?? coverUrl}
+          alt=""
+          className="pointer-events-none absolute inset-0 -z-10 size-full scale-110 object-cover opacity-35 blur-3xl"
+          aria-hidden
+        />
+        <div className="bg-primary/75 pointer-events-none absolute inset-0 -z-10 backdrop-blur-xl" />
         {isOwner && (
           <Link
             to="/studio/collections/$slug"
@@ -188,7 +181,7 @@ export function CollectionView({
             </Button>
           </Link>
         )}
-        <div className="border-border bg-background-secondary shadow-shadow h-60 w-60 shrink-0 overflow-hidden rounded-md border-(length:--border-width)">
+        <div className="border-border bg-background-secondary/60 shadow-shadow h-60 w-60 shrink-0 overflow-hidden rounded-md border-(length:--border-width) backdrop-blur-sm">
           {coverUrl ? (
             <img src={coverUrl} alt="" className="size-full object-cover" />
           ) : (
@@ -240,15 +233,22 @@ export function CollectionView({
               onClick={queueAll}
               disabled={playables.length === 0}
               title="Add all to queue"
+              aria-label="Add all to queue"
             >
-              <ListPlusIcon size={16} />
+              <ListPlusIcon size={16} aria-hidden />
             </Button>
             <EmbedButton target={{ kind: 'collection', slug }} />
           </div>
         </div>
       </div>
 
-      {playables.length > 0 && <CollectionTrackList items={playables} />}
+      {playables.length > 0 && (
+        <PlayableTrackTable
+          items={playables}
+          compactActions
+          emptyMessage="No tracks yet."
+        />
+      )}
 
       {embedItems.length > 0 && (
         <section className="flex flex-col gap-2">

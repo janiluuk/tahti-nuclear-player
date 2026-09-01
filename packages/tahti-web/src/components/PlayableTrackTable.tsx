@@ -20,6 +20,7 @@ type Props = {
   emptyMessage?: string;
   playAll?: boolean;
   artistUsername?: string;
+  compactActions?: boolean;
   /** Present only when the caller has already decided the viewer can
    * edit these tracks (e.g. their own catalog) -- omit entirely to keep
    * the edit icon off tables of other people's/aggregated tracks. */
@@ -31,6 +32,7 @@ export function PlayableTrackTable({
   emptyMessage = 'No tracks yet.',
   playAll = true,
   artistUsername,
+  compactActions = false,
   onEdit,
 }: Props) {
   const navigate = useNavigate();
@@ -96,7 +98,7 @@ export function PlayableTrackTable({
               Boolean(i.sourceProvider && i.sourceProvider !== 'tahti'),
             ),
             displayReleaseDate: items.some((i) => Boolean(i.releaseDate)),
-            displayQueueControls: true,
+            displayQueueControls: !compactActions,
             displayPosition: false,
           }}
           actions={{

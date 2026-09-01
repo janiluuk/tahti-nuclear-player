@@ -1277,6 +1277,7 @@ export function ArtistView({ username }: { username: string }) {
             <PlayableTrackTable
               items={catalogPlayables}
               artistUsername={artist.username}
+              compactActions
               emptyMessage={
                 pinnedPlayables.length > 0
                   ? 'No other tracks on this profile.'
