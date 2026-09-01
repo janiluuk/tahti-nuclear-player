@@ -211,15 +211,12 @@ export function StudioCollectionsView() {
               </div>
               {style === 'ALBUM' || style === 'EP' ? (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="flex flex-col gap-1 text-sm">
-                    Release date
-                    <input
-                      type="date"
-                      value={releaseDate}
-                      onChange={(event) => setReleaseDate(event.target.value)}
-                      className="border-border bg-background h-10 rounded-md border px-3 text-sm"
-                    />
-                  </label>
+                  <Input
+                    type="date"
+                    label="Release date"
+                    value={releaseDate}
+                    onChange={(event) => setReleaseDate(event.target.value)}
+                  />
                   <Input
                     label="Genres"
                     value={genres}

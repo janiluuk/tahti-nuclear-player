@@ -50,7 +50,14 @@ const inputVariants = cva(
 
 type InputProps = Omit<ComponentPropsWithoutRef<'input'>, 'type' | 'size'> &
   VariantProps<typeof inputVariants> & {
-    type?: 'text' | 'number' | 'password' | 'date' | 'time' | 'datetime-local';
+    type?:
+      | 'text'
+      | 'search'
+      | 'number'
+      | 'password'
+      | 'date'
+      | 'time'
+      | 'datetime-local';
     label?: string;
     description?: string;
     error?: string;

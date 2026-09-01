@@ -16,7 +16,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, Select } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Select } from '@nuclearplayer/ui';
 
 import {
   fetchHearthisTrackById,
@@ -312,12 +312,13 @@ export function StudioArchiveView() {
         ) : (
           <StudioPanel>
             <div className="mb-4 flex flex-wrap items-center gap-3">
-              <input
+              <Input
                 type="search"
+                aria-label="Search archive"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search…"
-                className="border-border bg-background focus:border-primary max-w-md flex-1 rounded-md border px-3 py-2 text-sm outline-none"
+                className="max-w-md flex-1"
               />
               <Button
                 type="button"
@@ -370,15 +371,13 @@ export function StudioArchiveView() {
                 >
                   {sortDescending ? 'Descending' : 'Ascending'}
                 </Button>
-                <label className="flex min-w-36 flex-col gap-1 text-xs">
-                  Uploaded from
-                  <input
-                    type="date"
-                    value={uploadedFrom}
-                    onChange={(event) => setUploadedFrom(event.target.value)}
-                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
-                  />
-                </label>
+                <Input
+                  type="date"
+                  label="Uploaded from"
+                  value={uploadedFrom}
+                  onChange={(event) => setUploadedFrom(event.target.value)}
+                  className="min-w-36"
+                />
                 <label className="flex min-w-36 flex-col gap-1 text-xs">
                   Uploaded to
                   <input
