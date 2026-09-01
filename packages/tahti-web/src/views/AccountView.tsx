@@ -5,9 +5,9 @@ import { Box, Button, Tabs } from '@nuclearplayer/ui';
 
 import { fetchMembership, fetchMySubscriptions } from '../api/client';
 import type { FanSubscriptionRow, MembershipStatus } from '../api/types';
+import { MembershipStatusPanel } from '../components/MembershipStatusPanel';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
-import { membershipStatusLabel } from '../lib/membershipStatus';
 import { useAuthStore } from '../stores/authStore';
 
 function euros(cents: number): string {
@@ -121,62 +121,13 @@ export function AccountView() {
                 Membership details are unavailable right now.
               </p>
             ) : (
-              <dl className="border-border bg-background-secondary/40 grid gap-4 rounded-xl border p-5 text-sm sm:grid-cols-2">
-                <div>
-                  <dt className="text-foreground-secondary text-xs uppercase">
-                    Status
-                  </dt>
-                  <dd className="mt-1 font-semibold">
-                    {membershipStatusLabel(membership)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-foreground-secondary text-xs uppercase">
-                    Member
-                  </dt>
-                  <dd className="mt-1 font-semibold">
-                    {membership.isMember ? 'Yes' : 'No'}
-                  </dd>
-                </div>
-                {membership.memberNumber != null && (
-                  <div>
-                    <dt className="text-foreground-secondary text-xs uppercase">
-                      Member #
-                    </dt>
-                    <dd className="mt-1 font-semibold">
-                      {membership.memberNumber}
-                    </dd>
-                  </div>
-                )}
-                {membership.tier && (
-                  <div>
-                    <dt className="text-foreground-secondary text-xs uppercase">
-                      Tier
-                    </dt>
-                    <dd className="mt-1 font-semibold">{membership.tier}</dd>
-                  </div>
-                )}
-                {typeof membership.priceCents === 'number' && (
-                  <div>
-                    <dt className="text-foreground-secondary text-xs uppercase">
-                      Dues
-                    </dt>
-                    <dd className="mt-1 font-semibold">
-                      {euros(membership.priceCents)} / year
-                    </dd>
-                  </div>
-                )}
-                {membership.renewalDueAt && (
-                  <div>
-                    <dt className="text-foreground-secondary text-xs uppercase">
-                      Renewal
-                    </dt>
-                    <dd className="mt-1 font-semibold">
-                      {new Date(membership.renewalDueAt).toLocaleDateString()}
-                    </dd>
-                  </div>
-                )}
-              </dl>
+              <MembershipStatusPanel
+                membership={membership}
+                userEmail={user.email}
+                onChange={() =>
+                  void fetchMembership().then((m) => setMembership(m.data))
+                }
+              />
             ),
           },
           {

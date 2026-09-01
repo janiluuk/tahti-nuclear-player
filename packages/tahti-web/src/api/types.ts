@@ -568,6 +568,7 @@ export type MembershipStatus = {
   emailVerified?: boolean;
   renewalDueAt?: string | null;
   hasStripeSubscription?: boolean;
+  subscriptionMigrationRequired?: boolean;
 };
 
 export type FanSubscriptionRow = {

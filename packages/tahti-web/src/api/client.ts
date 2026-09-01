@@ -1817,6 +1817,61 @@ export async function startMembershipCheckout(opts?: {
   }
 }
 
+/** POST /api/me/membership/portal — Stripe Customer Portal (receipts, payment method, cancel). */
+export async function startMembershipPortal(): Promise<
+  { ok: true; portalUrl: string } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return { ok: true, portalUrl: 'https://billing.stripe.com/mock-session' };
+  }
+  try {
+    const { data } = await requestJson<{ portalUrl?: string; error?: string }>(
+      '/api/me/membership/portal',
+      { method: 'POST' },
+    );
+    if (data.portalUrl) {
+      return { ok: true, portalUrl: data.portalUrl };
+    }
+    return {
+      ok: false,
+      error: data.error ?? 'Billing portal did not return a URL',
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      error:
+        err instanceof Error ? err.message : 'Could not open billing portal',
+    };
+  }
+}
+
+/** POST /api/auth/resend-verification — re-sends the email confirmation link.
+ * Requires an hCaptcha token when the API has hCaptcha enforced (production);
+ * tahti-web has no hCaptcha widget yet, so this surfaces that as a normal
+ * error rather than pretending to succeed. */
+export async function resendVerificationEmail(
+  email: string,
+): Promise<{ ok: true; message: string } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true, message: 'Mock verification email sent.' };
+  }
+  try {
+    const { data } = await requestJson<{ message?: string; error?: string }>(
+      '/api/auth/resend-verification',
+      { method: 'POST', body: JSON.stringify({ email }) },
+    );
+    return { ok: true, message: data.message ?? 'Verification email sent.' };
+  } catch (err) {
+    return {
+      ok: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : 'Could not resend verification email',
+    };
+  }
+}
+
 export async function requestAccountDeletion(
   reason: string,
 ): Promise<{ ok: true; ticketId: string } | { ok: false; error: string }> {
