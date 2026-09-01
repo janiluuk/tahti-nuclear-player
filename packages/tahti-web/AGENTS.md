@@ -80,6 +80,24 @@ the prod service/upstream cutover itself hasn't happened), and a rehearsed cutov
 staging/canary. Monorepo placement, admin-host, brand, and beta-retirement policy are all already
 decided (§0 of `CUTOVER.md`) — don't re-litigate them without a reason.
 
+## Navigation and governance ownership
+
+Treat `router.tsx` as the route source of truth and keep it aligned with the
+persistent navigation in `AppShell.tsx`, `StudioNav.tsx`, and `AdminNav.tsx`.
+Document user-facing route flows in `src/content/mapScreens.ts` and
+`src/content/flowDiagrams.ts`; those records feed the `/more` atlas and its
+admin-gated map view. Do not claim a route is missing in the feature matrix
+when it exists in the router, and do not add atlas-only links to production
+navigation.
+
+Governance has three deliberate contexts: member `/governance` is entered from
+Settings → Account, artist `/studio/governance` is in Studio navigation, and
+board `/admin/governance` plus `/admin/agm` are in Admin navigation. Keep the
+public, Studio, and Admin views when they carry distinct permissions or
+workflow; remove redundant duplicate map/matrix entries instead of deleting
+the underlying governance route or API behavior. When changing this boundary,
+update `NAVIGATION-GAPS.md` and `UI-REDESIGN-WORKLOG.md` in the same change.
+
 ## Design system compliance
 
 This app's shared UI — `@nuclearplayer/ui` plus tahti-web's own local shared components

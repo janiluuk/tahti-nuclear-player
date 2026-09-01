@@ -88,6 +88,15 @@ Tahti’s `AGENTS.md`.
 The governance API and official-record foundation live in the sibling
 `../tahti` repository. Before adding governance UI here, inspect the sibling
 API routes, shared DTOs, OpenAPI output, and `docs/governance-worklog.md`.
+
+Governance navigation is intentionally split by context: member listeners use
+`/governance` from Settings → Account, artists use `/studio/governance` from
+Studio navigation, and board users use `/admin/governance` plus `/admin/agm`
+from Admin navigation. Keep these functional surfaces; remove duplicate
+global-rail or atlas-only governance links when consolidating navigation. The
+route tree in `packages/tahti-web/src/router.tsx`, persistent chrome in
+`AppShell.tsx`/`StudioNav.tsx`/`AdminNav.tsx`, and the corresponding
+`mapScreens.ts`/`flowDiagrams.ts` records must agree before shipping.
 Implement the player-side journeys against real contracts only: member motion
 submission, discussion, advisory voting, feature requests, public closed-motion
 history, yearly transparency reports, meetings, and published documents.

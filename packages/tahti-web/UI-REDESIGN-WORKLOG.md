@@ -1,5 +1,20 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-01 — Governance navigation and route-map consolidation
+
+**Completed:** Audited the Tahti Player route tree against the persistent
+Listen, Studio, and Admin navigation. Governance remains available in its
+three intentional contexts: member voting at `/governance` via Settings →
+Account, artist workflow at `/studio/governance`, and board operations at
+`/admin/governance` plus `/admin/agm`. Corrected the `/more` feature matrix to
+map the existing public feature-request and AGM routes, removed the redundant
+governance vote/comment matrix row, and documented the navigation decision in
+`NAVIGATION-GAPS.md`. Functional governance views, permissions, API calls, and
+route compatibility aliases were retained.
+
+**Validation:** tahti-web type-check, lint, and 299 unit tests pass; beta build
+and SPA/API-proxy smoke checks pass after deployment.
+
 ## 2026-08-31 — Import plugins use the runtime-backed registry
 
 **Completed:** The Settings → Add-ons → Import tab is now the single import-plugin surface. It uses the runtime-backed Tahti import-source registry, and the separate local-only Nuclear plugin catalog, category, and Storybook entry have been removed so inactive duplicate items cannot be mistaken for working integrations.
