@@ -230,7 +230,6 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Dash["/dashboard"]:::auth
   Msgs["/dashboard/messages"]:::auth
   Gov["/governance"]:::mem
-  GovVenues["/governance/venues"]:::board
 
   Stats["/dashboard/stats"]:::art
   Archive["/dashboard/archive · Music"]:::art
@@ -481,10 +480,10 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Fin --> Ledger["/admin/financial/ledger"]
   Fin --> FanSubs["/admin/financial/fansubs"]
   Fin --> Legacy["/admin/financial/legacy-members"]
-  Gov --> Audit["/admin/governance/audit"]
-  Gov --> Res["/admin/governance/resolutions"]
-  Gov --> Report["/admin/governance/report"]
-  Gov --> Venues["/governance/venues verification"]
+  Gov --> Audit["/admin/logs · audit events"]
+  Gov --> Res["/admin/governance · board resolutions"]
+  Gov --> Report["/admin/reports · annual reports"]
+  Gov --> Venues["/admin/venues · venue verification"]
   Grants --> GrantYear["/admin/grants/:year"]
 `,
   },

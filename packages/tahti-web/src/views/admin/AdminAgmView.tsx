@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button, Input } from '@nuclearplayer/ui';
 
 import {
+  createAdminGovernanceMeeting,
   fetchAdminAgmMotions,
   fetchAdminGovernanceDocuments,
   fetchAdminGovernanceMeetings,
@@ -135,6 +136,10 @@ export function AdminAgmView() {
   const [motions, setMotions] = useState<AdminMotion[]>([]);
   const [meetings, setMeetings] = useState<GovernanceMeeting[]>([]);
   const [documents, setDocuments] = useState<GovernanceDocument[]>([]);
+  const [meetingTitle, setMeetingTitle] = useState('');
+  const [meetingType, setMeetingType] =
+    useState<GovernanceMeeting['type']>('GENERAL');
+  const [meetingSaving, setMeetingSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -163,6 +168,49 @@ export function AdminAgmView() {
             <AgendaBuilder />
 
             <StudioPanel title="Meeting records">
+              <div className="border-border mb-4 grid gap-2 border-b pb-4 sm:grid-cols-[1fr_auto_auto]">
+                <Input
+                  value={meetingTitle}
+                  onChange={(event) => setMeetingTitle(event.target.value)}
+                  placeholder="Meeting title"
+                  aria-label="Meeting title"
+                />
+                <select
+                  value={meetingType}
+                  onChange={(event) =>
+                    setMeetingType(
+                      event.target.value as GovernanceMeeting['type'],
+                    )
+                  }
+                  aria-label="Meeting type"
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                >
+                  <option value="GENERAL">General meeting</option>
+                  <option value="EXTRAORDINARY_GENERAL">
+                    Extraordinary general
+                  </option>
+                  <option value="BOARD">Board meeting</option>
+                </select>
+                <Button
+                  size="sm"
+                  disabled={meetingSaving || !meetingTitle.trim()}
+                  onClick={() => {
+                    setMeetingSaving(true);
+                    void createAdminGovernanceMeeting({
+                      title: meetingTitle.trim(),
+                      type: meetingType,
+                    }).then((result) => {
+                      setMeetingSaving(false);
+                      if (result.data) {
+                        setMeetings((current) => [result.data!, ...current]);
+                        setMeetingTitle('');
+                      }
+                    });
+                  }}
+                >
+                  {meetingSaving ? 'Creating…' : 'Create meeting'}
+                </Button>
+              </div>
               {meetings.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
                   No persisted meeting records yet. Create the meeting record

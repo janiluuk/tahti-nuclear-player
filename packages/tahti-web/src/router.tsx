@@ -174,6 +174,10 @@ const AdminGovernanceView = lazyRouteComponent(
   () => import('./views/admin/AdminGovernanceView'),
   'AdminGovernanceView',
 );
+const AdminReportsView = lazyRouteComponent(
+  () => import('./views/admin/AdminReportsView'),
+  'AdminReportsView',
+);
 const AdminGrantsView = lazyRouteComponent(
   () => import('./views/admin/AdminGrantsView'),
   'AdminGrantsView',
@@ -392,7 +396,9 @@ const adminRoute = createRoute({
 const adminActivityRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/activity',
-  component: AdminLogsView,
+  beforeLoad: () => {
+    throw redirect({ to: '/admin/logs' });
+  },
 });
 
 const adminLogsRoute = createRoute({
@@ -545,6 +551,12 @@ const adminGovernanceRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/governance',
   component: AdminGovernanceView,
+});
+
+const adminReportsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/reports',
+  component: AdminReportsView,
 });
 
 const adminFeatureRequestsRoute = createRoute({
@@ -1542,6 +1554,7 @@ const routeTree = rootRoute.addChildren([
     adminContentReportsRoute,
     adminFinancialRoute,
     adminGovernanceRoute,
+    adminReportsRoute,
     adminFeatureRequestsRoute,
     adminGrantsRoute,
     adminGrantCycleRoute,

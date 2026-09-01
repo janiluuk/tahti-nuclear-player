@@ -3830,6 +3830,42 @@ export async function patchAdminResolution(
   }
 }
 
+export type AdminAnnualReport = {
+  id: string;
+  year: number;
+  storageKey: string;
+  generatedAt: string;
+  generatedByDisplayName: string | null;
+  downloadUrl: string | null;
+};
+
+export async function fetchAdminAnnualReports(): Promise<{
+  data: AdminAnnualReport[];
+  meta: FetchMeta;
+}> {
+  try {
+    const data = await getJson<AdminAnnualReport[]>('/api/admin/reports');
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function generateAdminAnnualReport(year: number): Promise<{
+  data: AdminAnnualReport | null;
+  meta: FetchMeta;
+}> {
+  try {
+    const data = await sendJson<AdminAnnualReport>(
+      `/api/admin/reports/annual/${year}`,
+      'POST',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
 // ── Vendors ─────────────────────────────────────────────────────────────────
 
 export type AdminIntegrationStatus = {

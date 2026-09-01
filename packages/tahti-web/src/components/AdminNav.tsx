@@ -123,6 +123,12 @@ const PRIMARY = [
     description: 'Member votes and cooperative governance items.',
   },
   {
+    to: '/admin/reports',
+    label: 'Annual reports',
+    icon: <FileTextIcon size={16} aria-hidden />,
+    description: 'Generate and publish yearly governance reports.',
+  },
+  {
     to: '/admin/grants',
     label: 'Grants',
     icon: <TicketIcon size={16} aria-hidden />,
@@ -195,6 +201,7 @@ const ADMIN_SECTIONS = [
         '/admin/moderation',
         '/admin/users',
         '/admin/governance',
+        '/admin/reports',
         '/admin/grants',
         '/admin/agm',
       ].includes(item.to),

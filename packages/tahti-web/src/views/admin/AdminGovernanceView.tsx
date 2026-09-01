@@ -112,6 +112,7 @@ export function AdminGovernanceView() {
       badge: overview
         ? `${overview.pendingVenueVerifications} pending`
         : undefined,
+      to: '/admin/venues',
     },
     {
       icon: ScrollTextIcon,
@@ -120,6 +121,7 @@ export function AdminGovernanceView() {
       badge: overview?.lastAnnualReportYear
         ? `Last: ${overview.lastAnnualReportYear}`
         : undefined,
+      to: '/admin/reports',
     },
     {
       icon: GavelIcon,
@@ -128,6 +130,7 @@ export function AdminGovernanceView() {
       badge: overview
         ? `${overview.boardResolutionsThisYear} this year`
         : undefined,
+      to: '/admin/governance',
     },
     {
       icon: VoteIcon,
@@ -145,6 +148,7 @@ export function AdminGovernanceView() {
       icon: FileTextIcon,
       title: 'Member register',
       desc: 'Full member list, exportable for the AGM notice mailing.',
+      to: '/admin/users',
     },
   ];
 
