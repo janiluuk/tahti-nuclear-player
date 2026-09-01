@@ -1,4 +1,4 @@
-import { Trash2Icon } from 'lucide-react';
+import { XIcon } from 'lucide-react';
 
 import { Box, Button } from '@nuclearplayer/ui';
 
@@ -14,6 +14,8 @@ export function ListenerWidgetEmbed({
   onRemove,
 }: {
   instance: ListenerWidgetInstance;
+  /** Called when the hover X is clicked — the caller owns confirmation,
+   * this component doesn't remove anything itself. */
   onRemove?: () => void;
 }) {
   const type = listenerWidgetType(instance.typeId);
@@ -22,7 +24,7 @@ export function ListenerWidgetEmbed({
   return (
     <Box
       variant="tertiary"
-      className="h-auto w-auto flex-col gap-2 rounded-lg p-3"
+      className="group relative h-auto w-auto flex-col gap-2 rounded-lg p-3"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0 truncate text-sm font-medium">
@@ -34,8 +36,9 @@ export function ListenerWidgetEmbed({
             variant="text"
             aria-label={`Remove ${instance.label}`}
             onClick={onRemove}
+            className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
           >
-            <Trash2Icon size={14} aria-hidden />
+            <XIcon size={14} aria-hidden />
           </Button>
         ) : null}
       </div>
