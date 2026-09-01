@@ -10,7 +10,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@tahti-player/ui';
+import { Button, EmptyState } from '@tahti-player/ui';
 
 import {
   fetchCollection,
@@ -383,9 +383,15 @@ export function CollectionView({
       )}
 
       {playables.length === 0 && embedItems.length === 0 && (
-        <p className="text-foreground-secondary text-sm">
-          No tracks in this collection yet.
-        </p>
+        <EmptyState
+          icon={<ListMusicIcon size={40} className="opacity-40" />}
+          title="No tracks in this playlist"
+          description={
+            isOwner
+              ? 'Add tracks from search results or your library.'
+              : "This playlist doesn't have any tracks yet."
+          }
+        />
       )}
 
       {collection.items.some((i) => i.release && !i.archiveItem) && (

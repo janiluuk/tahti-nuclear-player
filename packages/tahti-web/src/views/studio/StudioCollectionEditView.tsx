@@ -27,9 +27,11 @@ import {
 
 import {
   addStudioCollectionItem,
+  fetchCollectionGallery,
   fetchEditorSource,
   fetchStudioArchive,
   fetchStudioCollection,
+  patchCollectionGallery,
   patchStudioCollection,
   removeStudioCollectionItem,
   reorderStudioCollectionItems,
@@ -339,6 +341,10 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [genres, setGenres] = useState('');
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [backdropUrl, setBackdropUrl] = useState<string | null>(null);
+  /** More than one entry here means the backdrop is a slideshow, not a
+   * single still — saved together with the rest of the form via the
+   * gallery endpoint (see saveMeta). */
+  const [slideshowImages, setSlideshowImages] = useState<string[]>([]);
   const [uploadTarget, setUploadTarget] = useState<'cover' | 'backdrop' | null>(
     null,
   );
@@ -360,23 +366,31 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   const isPlaying = status === 'playing' || status === 'loading';
 
   const reload = () => {
-    void Promise.all([fetchStudioCollection(slug), fetchStudioArchive()]).then(
-      ([c, a]) => {
-        setCol(c.data);
-        setArchive(a.data);
-        setName(c.data.name);
-        setDescription(c.data.description ?? '');
-        setStyle(c.data.style ?? c.data.type ?? 'ALBUM');
-        setVisibility(
-          c.data.visibility ??
-            (c.data.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
-        );
-        setReleaseDate(c.data.releaseDate ?? '');
-        setGenres((c.data.genres ?? []).join(', '));
-        setCoverUrl(c.data.coverUrl ?? null);
-        setBackdropUrl(c.data.backdropUrl ?? null);
-      },
-    );
+    void Promise.all([
+      fetchStudioCollection(slug),
+      fetchStudioArchive(),
+      fetchCollectionGallery(slug),
+    ]).then(([c, a, g]) => {
+      setCol(c.data);
+      setArchive(a.data);
+      setName(c.data.name);
+      setDescription(c.data.description ?? '');
+      setStyle(c.data.style ?? c.data.type ?? 'ALBUM');
+      setVisibility(
+        c.data.visibility ?? (c.data.isPublic === false ? 'PRIVATE' : 'PUBLIC'),
+      );
+      setReleaseDate(c.data.releaseDate ?? '');
+      setGenres((c.data.genres ?? []).join(', '));
+      setCoverUrl(c.data.coverUrl ?? null);
+      setBackdropUrl(g.data.slideshowImages[0] ?? c.data.backdropUrl ?? null);
+      setSlideshowImages(
+        g.data.slideshowImages.length > 0
+          ? g.data.slideshowImages
+          : c.data.backdropUrl
+            ? [c.data.backdropUrl]
+            : [],
+      );
+    });
   };
 
   useEffect(() => {
@@ -504,9 +518,18 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
         .slice(0, 5),
       backdropUrl: backdropUrl?.trim() || null,
     });
-    setSaving(false);
     if (!result.ok) {
+      setSaving(false);
       toast.error(result.error);
+      return;
+    }
+    const galleryResult = await patchCollectionGallery(slug, {
+      slideshowImages,
+      galleryMode: slideshowImages.length > 1 ? 'STATIC_SLIDESHOW' : 'NONE',
+    });
+    setSaving(false);
+    if (!galleryResult.ok) {
+      toast.error(galleryResult.error);
       return;
     }
     setCol((c) =>
@@ -523,13 +546,12 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   };
 
   const uploadImage = async (files: readonly File[]) => {
-    const file = files[0];
-    if (!file || !uploadTarget) {
+    if (files.length === 0 || !uploadTarget) {
       return;
     }
     setUploadingImage(true);
     if (uploadTarget === 'cover') {
-      const result = await uploadCollectionCover(slug, file);
+      const result = await uploadCollectionCover(slug, files[0]!);
       setUploadingImage(false);
       if (!result.ok) {
         toast.error(result.error);
@@ -544,15 +566,28 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
       return;
     }
 
-    const result = await uploadUserMediaFile(file);
-    setUploadingImage(false);
-    if (!result.ok) {
-      toast.error(result.error);
-      return;
+    // Backdrop accepts one image (a still) or several (a slideshow) —
+    // upload them all, then stage the URLs locally; they're saved together
+    // with the rest of the form (see saveMeta).
+    const uploaded: string[] = [];
+    for (const file of files) {
+      const result = await uploadUserMediaFile(file);
+      if (!result.ok) {
+        setUploadingImage(false);
+        toast.error(result.error);
+        return;
+      }
+      uploaded.push(result.data.url);
     }
-    setBackdropUrl(result.data.url);
+    setUploadingImage(false);
+    setBackdropUrl(uploaded[0]!);
+    setSlideshowImages(uploaded);
     setUploadTarget(null);
-    toast.success('Backdrop uploaded. Save details to publish it.');
+    toast.success(
+      uploaded.length > 1
+        ? `${uploaded.length} backdrop images uploaded. Save details to publish them.`
+        : 'Backdrop uploaded. Save details to publish it.',
+    );
   };
 
   return (
@@ -603,6 +638,11 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                         {emptyLabel}
                       </span>
                     )}
+                    {target === 'backdrop' && slideshowImages.length > 1 ? (
+                      <span className="bg-background/80 text-foreground absolute top-2 right-2 rounded-full px-2 py-0.5 text-xs font-medium">
+                        {slideshowImages.length} images
+                      </span>
+                    ) : null}
                     <span className="absolute inset-0 flex items-center justify-center bg-black/0 text-white opacity-0 transition group-hover:bg-black/45 group-hover:opacity-100 group-focus-visible:bg-black/45 group-focus-visible:opacity-100">
                       <UploadCloudIcon size={24} aria-hidden />
                       <span className="sr-only">Upload {emptyLabel}</span>
@@ -1003,18 +1043,24 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
             Upload {uploadTarget === 'cover' ? 'cover' : 'backdrop'}
           </Dialog.Title>
           <Dialog.Description>
-            Choose an image for this collection&apos;s{' '}
-            {uploadTarget === 'cover' ? 'cover art' : 'backdrop'}.
+            {uploadTarget === 'cover'
+              ? "Choose an image for this collection's cover art."
+              : 'Choose one image for a still backdrop, or several for a slideshow.'}
           </Dialog.Description>
           <div className="mt-4">
             <FilePicker
               labels={{
                 title:
-                  uploadTarget === 'cover' ? 'Cover image' : 'Backdrop image',
+                  uploadTarget === 'cover' ? 'Cover image' : 'Backdrop images',
                 description: 'JPEG, PNG, WebP, or GIF',
-                browse: uploadingImage ? 'Uploading…' : 'Choose image',
+                browse: uploadingImage
+                  ? 'Uploading…'
+                  : uploadTarget === 'cover'
+                    ? 'Choose image'
+                    : 'Choose image(s)',
               }}
               accept="image/jpeg,image/png,image/webp,image/gif"
+              multiple={uploadTarget === 'backdrop'}
               disabled={uploadingImage}
               onFiles={(files) => void uploadImage(files)}
             />

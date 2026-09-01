@@ -1304,6 +1304,78 @@ export async function uploadCollectionCover(
   }
 }
 
+export type CollectionGalleryMode =
+  | 'NONE'
+  | 'STATIC_SLIDESHOW'
+  | 'TWISTED_WAVE_GLSL'
+  | 'ZOOM_BLUR_GLSL'
+  | 'RGB_SHIFT_GLSL'
+  | 'POSTER_WALL_GLSL'
+  | 'SHATTER_CAROUSEL_GLSL';
+
+export type CollectionGallery = {
+  galleryMode: CollectionGalleryMode;
+  slideshowImages: string[];
+  videoBackgroundUrl: string | null;
+};
+
+const DEFAULT_COLLECTION_GALLERY: CollectionGallery = {
+  galleryMode: 'NONE',
+  slideshowImages: [],
+  videoBackgroundUrl: null,
+};
+
+export async function fetchCollectionGallery(
+  slug: string,
+): Promise<{ data: CollectionGallery }> {
+  if (forceMock()) {
+    return { data: DEFAULT_COLLECTION_GALLERY };
+  }
+  try {
+    const { data } = await requestJson<CollectionGallery>(
+      `/api/me/collections/${encodeURIComponent(slug)}/gallery`,
+    );
+    return { data };
+  } catch {
+    return { data: DEFAULT_COLLECTION_GALLERY };
+  }
+}
+
+/** Backdrop can be a single still image (`slideshowImages` with one entry,
+ * mode NONE) or an actual slideshow (multiple entries, mode
+ * STATIC_SLIDESHOW) — same shape the channel-wide gallery uses
+ * (see api/channel-gallery.ts), just scoped to one collection. */
+export async function patchCollectionGallery(
+  slug: string,
+  patch: Partial<CollectionGallery>,
+): Promise<
+  { ok: true; data: CollectionGallery } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return {
+      ok: true,
+      data: {
+        galleryMode: patch.galleryMode ?? 'NONE',
+        slideshowImages: patch.slideshowImages ?? [],
+        videoBackgroundUrl: patch.videoBackgroundUrl ?? null,
+      },
+    };
+  }
+  try {
+    const { data } = await requestJson<CollectionGallery>(
+      `/api/me/collections/${encodeURIComponent(slug)}/gallery`,
+      { method: 'PATCH', body: JSON.stringify(patch) },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error:
+        err instanceof Error ? err.message : 'Could not save backdrop images',
+    };
+  }
+}
+
 // ── Upload ──────────────────────────────────────────────────────────────────
 
 export async function uploadArchiveFile(input: {
