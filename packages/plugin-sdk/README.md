@@ -1,39 +1,39 @@
-# Nuclear Plugin SDK
+# Tahti Player Plugin SDK
 
-Build plugins for Nuclear music player.
+Build plugins for Tahti Player music player.
 
-Plugins are JavaScript/TypeScript modules that extend Nuclear's functionality. Write lifecycle hooks, register providers, distribute it through the [plugin registry](https://github.com/NuclearPlayer/plugin-registry).
+Plugins are JavaScript/TypeScript modules that extend Tahti Player's functionality. Write lifecycle hooks, register providers, distribute it through the [plugin registry](https://github.com/NuclearPlayer/plugin-registry).
 
 ## Quick Start
 
 ```bash
 mkdir my-plugin && cd my-plugin
 pnpm init -y
-pnpm add @nuclearplayer/plugin-sdk
+pnpm add @tahti-player/plugin-sdk
 ```
 
 Create `src/index.ts`:
 
 ```ts
-import { NuclearPluginAPI } from '@nuclearplayer/plugin-sdk';
+import { TahtiPluginAPI } from '@tahti-player/plugin-sdk';
 
 export default {
-  async onLoad(api: NuclearPluginAPI) {
+  async onLoad(api: TahtiPluginAPI) {
     console.log('Plugin loaded');
   },
-  async onEnable(api: NuclearPluginAPI) {
+  async onEnable(api: TahtiPluginAPI) {
     console.log('Plugin enabled');
   },
-  async onDisable(api: NuclearPluginAPI) {
+  async onDisable(api: TahtiPluginAPI) {
     console.log('Plugin disabled');
   },
-  async onUnload(api: NuclearPluginAPI) {
+  async onUnload(api: TahtiPluginAPI) {
     console.log('Plugin unloaded');
   },
 };
 ```
 
-You can load both TS and JS files. Nuclear compiles TS using esbuild.
+You can load both TS and JS files. Tahti Player compiles TS using esbuild.
 
 ## Manifest (package.json)
 
@@ -46,8 +46,8 @@ You can load both TS and JS files. Nuclear compiles TS using esbuild.
 ### Optional fields
 - `main` - Entry file path (defaults to `index.js` or `dist/index.js`)
 
-### Nuclear-specific config
-Add a `nuclear` object for extra metadata:
+### Tahti-specific config
+Add a `tahti` object for extra metadata:
 
 - `displayName` - Friendly name (defaults to `name`)
 - `category` - Arbitrary grouping (e.g., `source`, `integration`, `lyrics`)
@@ -56,12 +56,12 @@ Add a `nuclear` object for extra metadata:
 
 ```json
 {
-  "name": "@nuclear-plugin/lastfm",
+  "name": "@tahti-plugin/lastfm",
   "version": "0.1.0",
   "description": "Scrobble tracks to Last.fm",
-  "author": "Nuclear Team",
+  "author": "Tahti Player Team",
   "main": "dist/index.js",
-  "nuclear": {
+  "tahti": {
     "displayName": "Last.fm Scrobbler",
     "category": "integration",
     "icon": { "type": "link", "link": "https://example.com/icon.png" },
@@ -69,6 +69,8 @@ Add a `nuclear` object for extra metadata:
   }
 }
 ```
+
+> `nuclear` is still read as a legacy alias for `tahti` for plugins published before the rebrand.
 
 ## Icons
 
@@ -122,7 +124,7 @@ The `api` object passed to lifecycle hooks provides access to these domain APIs:
 | `api.Logger` | Structured logging |
 | `api.Ytdlp` | yt-dlp integration |
 
-See the [full documentation](https://docs.nuclearplayer.com) for detailed guides on each API.
+See the [full documentation](https://docs.nuclearplayer.com) for detailed guides on each API. (This documentation site predates the Tahti Player rebrand.)
 
 ## Permissions
 
@@ -160,22 +162,22 @@ Run `pnpm build` and you'll get `dist/index.js`.
 
 1. Create your plugin folder
 2. Build to produce the entry file
-3. Load it in Nuclear
+3. Load it in Tahti Player
 4. You'll need to reload the plugin after changes
 
 ## Types
 
 ```ts
 import type {
-  NuclearPlugin,
+  TahtiPlugin,
   PluginManifest,
   PluginIcon,
-  // Model types (re-exported from @nuclearplayer/model)
+  // Model types (re-exported from @tahti-player/model)
   ArtistCredit,
   Album,
   Track,
   // ... and many more
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 ```
 
 ## License

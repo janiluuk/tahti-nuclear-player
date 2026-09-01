@@ -1,7 +1,7 @@
 import { CheckCircle2Icon, ExternalLinkIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import {
   exportTrack,

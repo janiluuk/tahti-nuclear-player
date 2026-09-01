@@ -10,8 +10,8 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { PlaylistProvider } from '@nuclearplayer/plugin-sdk';
+import { useTranslation } from '@tahti-player/i18n';
+import type { PlaylistProvider } from '@tahti-player/plugin-sdk';
 
 import { providersHost } from '../../services/providersHost';
 import { usePlaylistStore } from '../../stores/playlistStore';

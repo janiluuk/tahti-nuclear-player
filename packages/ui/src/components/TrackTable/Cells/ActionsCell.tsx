@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { FC, forwardRef, useEffect, useState } from 'react';
 
-import { Track } from '@nuclearplayer/model';
+import { Track } from '@tahti-player/model';
 
 import { cn } from '../../../utils';
 import { Button } from '../../Button';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Badge, Button } from '@nuclearplayer/ui';
+import { Badge, Button } from '@tahti-player/ui';
 
 import {
   caseFlowchart,

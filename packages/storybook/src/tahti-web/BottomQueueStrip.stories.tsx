@@ -2,8 +2,8 @@ import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
 import { BottomQueueStrip } from '@tahti-web/components/BottomQueueStrip';
 import { usePlayerStore } from '@tahti-web/stores/playerStore';
 
-import type { QueueItem } from '@nuclearplayer/model';
-import { PlayerBar } from '@nuclearplayer/ui';
+import type { QueueItem } from '@tahti-player/model';
+import { PlayerBar } from '@tahti-player/ui';
 
 function mockQueueItem(
   id: string,

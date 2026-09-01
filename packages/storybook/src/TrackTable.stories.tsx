@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
-import { Track } from '@nuclearplayer/model';
+import { Track } from '@tahti-player/model';
 import {
   TrackTable,
   TrackTableLabels,
   TrackTableProps,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 const labels: TrackTableLabels = {
   headers: {

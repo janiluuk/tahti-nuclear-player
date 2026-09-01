@@ -1,9 +1,9 @@
 import { ListMusicIcon, Trash2Icon, XIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import { formatArtistNames } from '@nuclearplayer/model';
-import type { QueueItem } from '@nuclearplayer/model';
-import { Button, cn } from '@nuclearplayer/ui';
+import { formatArtistNames } from '@tahti-player/model';
+import type { QueueItem } from '@tahti-player/model';
+import { Button, cn } from '@tahti-player/ui';
 
 import { usePlayerStore } from '../stores/playerStore';
 

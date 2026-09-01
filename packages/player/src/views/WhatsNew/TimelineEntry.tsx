@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon';
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Badge, Box, cn } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Badge, Box, cn } from '@tahti-player/ui';
 
 import type { ChangelogEntryType } from '../../types/changelog';
 import type { WeeklyChangelogEntry } from './groupChangelogByWeek';

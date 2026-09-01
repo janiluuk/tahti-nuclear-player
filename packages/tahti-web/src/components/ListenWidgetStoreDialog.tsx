@@ -1,7 +1,7 @@
 import { Blocks, Plus } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Dialog } from '@nuclearplayer/ui';
+import { Button, Dialog } from '@tahti-player/ui';
 
 import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
 

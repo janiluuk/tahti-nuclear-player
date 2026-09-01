@@ -1,6 +1,15 @@
-import type { NuclearPluginAPI } from './api';
+import type { TahtiPluginAPI } from './api';
 
 export type PluginIcon = { type: 'link'; link: string };
+
+export type PluginManifestConfig = {
+  displayName?: string;
+  // TODO: Remove category after registry migration to categories
+  category?: string;
+  categories?: string[];
+  icon?: PluginIcon;
+  permissions?: string[];
+};
 
 export type PluginManifest = {
   name: string;
@@ -8,22 +17,21 @@ export type PluginManifest = {
   description: string;
   author: string;
   main?: string;
-  nuclear?: {
-    displayName?: string;
-    // TODO: Remove category after registry migration to categories
-    category?: string;
-    categories?: string[];
-    icon?: PluginIcon;
-    permissions?: string[];
-  };
+  /** Primary config key. */
+  tahti?: PluginManifestConfig;
+  /** @deprecated Use `tahti` instead. Still read for plugins published before the Tahti rebrand. */
+  nuclear?: PluginManifestConfig;
 };
 
-export type NuclearPlugin = {
-  onLoad?(api: NuclearPluginAPI): void | Promise<void>;
-  onUnload?(api: NuclearPluginAPI): void | Promise<void>;
-  onEnable?(api: NuclearPluginAPI): void | Promise<void>;
-  onDisable?(api: NuclearPluginAPI): void | Promise<void>;
+export type TahtiPlugin = {
+  onLoad?(api: TahtiPluginAPI): void | Promise<void>;
+  onUnload?(api: TahtiPluginAPI): void | Promise<void>;
+  onEnable?(api: TahtiPluginAPI): void | Promise<void>;
+  onDisable?(api: TahtiPluginAPI): void | Promise<void>;
 };
+
+/** @deprecated Use `TahtiPlugin` instead. */
+export type NuclearPlugin = TahtiPlugin;
 
 export type PluginMetadata = {
   id: string;
@@ -41,6 +49,6 @@ export type PluginMetadata = {
 
 export type LoadedPlugin = {
   metadata: PluginMetadata;
-  instance: NuclearPlugin;
+  instance: TahtiPlugin;
   path: string;
 };

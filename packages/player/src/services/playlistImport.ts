@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import type { LegacyTrack, Playlist, PlaylistItem } from '@nuclearplayer/model';
+import type { LegacyTrack, Playlist, PlaylistItem } from '@tahti-player/model';
 import {
   legacyConfigSchema,
   legacyPlaylistSchema,
   playlistExportSchema,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 
 export type PlaylistFormat =
   | 'nuclear'

@@ -2,8 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { render, RenderResult, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_THEME_ID } from '@nuclearplayer/themes';
-import { createSelectWrapper } from '@nuclearplayer/ui';
+import { DEFAULT_THEME_ID } from '@tahti-player/themes';
+import { createSelectWrapper } from '@tahti-player/ui';
 
 import App from '../../App';
 import {

@@ -1,7 +1,7 @@
 import { join } from '@tauri-apps/api/path';
 import { BaseDirectory, readDir, readTextFile } from '@tauri-apps/plugin-fs';
 
-import { parseAdvancedTheme } from '@nuclearplayer/themes';
+import { parseAdvancedTheme } from '@tahti-player/themes';
 
 import type { AdvancedThemeFile } from '../stores/themeStore';
 import { useThemeStore } from '../stores/themeStore';

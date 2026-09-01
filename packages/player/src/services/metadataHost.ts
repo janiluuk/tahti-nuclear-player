@@ -9,13 +9,13 @@ import type {
   SearchParams,
   SearchResults,
   TrackRef,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 import {
   MissingCapabilityError,
   type ArtistMetadataCapability,
   type MetadataHost,
   type MetadataProvider,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { providersHost } from './providersHost';
 

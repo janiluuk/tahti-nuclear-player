@@ -3,7 +3,7 @@ import type {
   ArtistRef,
   PlaylistRef,
   Track,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 
 import type { ProviderDescriptor } from './providers';
 

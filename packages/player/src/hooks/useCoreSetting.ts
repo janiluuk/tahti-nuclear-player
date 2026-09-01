@@ -1,5 +1,5 @@
-import { useSetting } from '@nuclearplayer/plugin-sdk';
-import type { SettingValue } from '@nuclearplayer/plugin-sdk';
+import { useSetting } from '@tahti-player/plugin-sdk';
+import type { SettingValue } from '@tahti-player/plugin-sdk';
 
 import { coreSettingsHost } from '../services/settingsHost';
 

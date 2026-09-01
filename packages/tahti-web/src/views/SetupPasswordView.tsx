@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Box, Button, Input } from '@nuclearplayer/ui';
+import { Box, Button, Input } from '@tahti-player/ui';
 
 import { fetchSetupPasswordInfo } from '../api/client';
 import { useAuthStore } from '../stores/authStore';

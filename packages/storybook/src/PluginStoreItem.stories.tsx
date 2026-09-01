@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 
-import { PluginStoreItem } from '@nuclearplayer/ui';
+import { PluginStoreItem } from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/PluginStoreItem',

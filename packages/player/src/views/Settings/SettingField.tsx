@@ -5,7 +5,7 @@ import type {
   NumberWidget,
   SettingDefinition,
   SettingValue,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { CustomWidgetField } from './CustomWidgetField';
 import { InfoField } from './InfoField';

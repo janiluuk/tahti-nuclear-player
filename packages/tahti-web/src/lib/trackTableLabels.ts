@@ -1,4 +1,4 @@
-import type { TrackTableLabels } from '@nuclearplayer/ui';
+import type { TrackTableLabels } from '@tahti-player/ui';
 
 export const trackTableLabels: TrackTableLabels = {
   headers: {

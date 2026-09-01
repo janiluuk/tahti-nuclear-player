@@ -19,7 +19,7 @@ import {
   FilterChips,
   Input,
   SectionShell,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {

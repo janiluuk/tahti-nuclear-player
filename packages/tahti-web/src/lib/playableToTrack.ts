@@ -1,4 +1,4 @@
-import type { ArtistCredit, Track } from '@nuclearplayer/model';
+import type { ArtistCredit, Track } from '@tahti-player/model';
 
 import type { TahtiPlayable } from '../api/types';
 import { placeholderArtworkUrl } from './placeholderArt';

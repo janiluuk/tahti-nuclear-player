@@ -1,6 +1,6 @@
-import type { ArtworkSet, PlaylistItem } from '@nuclearplayer/model';
-import { pickArtwork } from '@nuclearplayer/model';
-import { MOSAIC_SIZE } from '@nuclearplayer/ui';
+import type { ArtworkSet, PlaylistItem } from '@tahti-player/model';
+import { pickArtwork } from '@tahti-player/model';
+import { MOSAIC_SIZE } from '@tahti-player/ui';
 
 type PlaylistWithItems = {
   artwork?: ArtworkSet;

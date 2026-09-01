@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CheckIcon, RadioIcon, SearchIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Input, Select } from '@nuclearplayer/ui';
+import { Button, Input, Select } from '@tahti-player/ui';
 
 import {
   fetchRecentBroadcasts,

@@ -9,7 +9,7 @@ import {
   setBasicTheme,
   type AdvancedTheme,
   type BasicThemeMeta,
-} from '@nuclearplayer/themes';
+} from '@tahti-player/themes';
 
 import {
   CLAUDE_THEME,
@@ -208,7 +208,7 @@ type ThemeState = {
    * (e.g. the dynamic-mode clock tick). */
   setDark: (dark: boolean) => void;
   setColorMode: (mode: ColorMode) => void;
-  /** Parses and applies a theme JSON matching @nuclearplayer/themes'
+  /** Parses and applies a theme JSON matching @tahti-player/themes'
    * AdvancedThemeSchema, persisting it under a generated id. */
   importCustomTheme: (
     json: unknown,

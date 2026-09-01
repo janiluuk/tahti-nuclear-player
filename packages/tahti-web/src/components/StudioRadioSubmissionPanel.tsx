@@ -7,7 +7,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, Input, Toggle } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Toggle } from '@tahti-player/ui';
 
 import {
   fetchMetaStreamPreference,

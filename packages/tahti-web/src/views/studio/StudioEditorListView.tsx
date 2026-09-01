@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { AudioLinesIcon, FolderOpenIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input, Select } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Select } from '@tahti-player/ui';
 
 import {
   createEditorProject,

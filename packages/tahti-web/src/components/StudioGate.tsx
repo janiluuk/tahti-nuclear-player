@@ -1,7 +1,7 @@
 import { LayoutDashboard, Lock } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import { Button, EmptyState } from '@nuclearplayer/ui';
+import { Button, EmptyState } from '@tahti-player/ui';
 
 import { hasAccountRole } from '../lib/accountRoles';
 import { useAuthModalStore } from '../stores/authModalStore';

@@ -14,7 +14,7 @@ import {
   UploadIcon,
 } from 'lucide-react';
 
-import { SidebarNavigationItem } from '@nuclearplayer/ui';
+import { SidebarNavigationItem } from '@tahti-player/ui';
 
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';

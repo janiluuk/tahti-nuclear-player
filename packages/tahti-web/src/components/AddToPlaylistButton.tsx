@@ -1,7 +1,7 @@
 import { ListPlusIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
 

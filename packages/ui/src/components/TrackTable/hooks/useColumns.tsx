@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { pickArtwork, Track } from '@nuclearplayer/model';
+import { pickArtwork, Track } from '@tahti-player/model';
 
 import { formatTimeMillis } from '../../../utils/time';
 import { ActionsCell } from '../Cells/ActionsCell';

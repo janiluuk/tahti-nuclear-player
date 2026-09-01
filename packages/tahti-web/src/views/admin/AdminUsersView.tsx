@@ -1,7 +1,7 @@
 import { SearchIcon, UserRoundIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Input, Select } from '@nuclearplayer/ui';
+import { Input, Select } from '@tahti-player/ui';
 
 import { fetchAdminUsers, type AdminUserRow } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';

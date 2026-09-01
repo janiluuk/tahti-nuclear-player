@@ -8,7 +8,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, SectionShell } from '@nuclearplayer/ui';
+import { Button, Input, SectionShell } from '@tahti-player/ui';
 
 import {
   confirmTotp,

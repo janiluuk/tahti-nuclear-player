@@ -1,5 +1,5 @@
-import type { Stream, StreamCandidate } from '@nuclearplayer/model';
-import type { StreamingProvider } from '@nuclearplayer/plugin-sdk';
+import type { Stream, StreamCandidate } from '@tahti-player/model';
+import type { StreamingProvider } from '@tahti-player/plugin-sdk';
 
 export class StreamingProviderBuilder {
   private provider: StreamingProvider;

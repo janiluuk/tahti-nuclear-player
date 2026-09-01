@@ -1,10 +1,14 @@
 ---
-description: Nuclear - Music streaming app for your desktop
+description: Tahti Player - Music streaming app for your desktop
 ---
 
-# Nuclear Documentation
+# Tahti Player Documentation
 
-Nuclear is a free, open-source music player without ads or tracking. Search for any song or artist, build playlists, and start listening. This documentation is for both users and developers.
+Tahti Player is a free, open-source music player without ads or tracking. Search for any song or artist, build playlists, and start listening. This documentation is for both users and developers.
+
+{% hint style="info" %}
+Tahti Player is a rebrand of the Nuclear player project. Some external links below (the nuclearplayer.com domain, the GitHub org, Mastodon handle) still point at pre-rebrand infrastructure we don't control.
+{% endhint %}
 
 ## Quick links
 
@@ -18,31 +22,31 @@ Nuclear is a free, open-source music player without ads or tracking. Search for 
 
 ## For users
 
-New to Nuclear? Start here:
+New to Tahti Player? Start here:
 
-- [Getting started](user-manual/getting-started.md) - install Nuclear and play your first song
-- [How Nuclear works](core-concepts/how-nuclear-works.md) - understand the plugin model and how playback works
+- [Getting started](user-manual/getting-started.md) - install Tahti Player and play your first song
+- [How Tahti Player works](core-concepts/how-nuclear-works.md) - understand the plugin model and how playback works
 - [Plugins and providers](core-concepts/plugins-and-providers.md) - what plugins do and how to manage your sources
 - [Installation](user-manual/installation.md) - platform-specific download and install instructions
-- [Themes](themes/themes.md) - customize Nuclear's appearance with built-in, custom, or community themes
+- [Themes](themes/themes.md) - customize Tahti Player's appearance with built-in, custom, or community themes
 
 ## What is in this repo?
 
 This is a pnpm/turbo monorepo with these major packages:
 
-- @nuclearplayer/player - Main Tauri app (React + Rust)
-- @nuclearplayer/ui - Shared UI components
-- @nuclearplayer/themes - Theming system and utilities
-- @nuclearplayer/plugin-sdk - Plugin framework and helpers
-- @nuclearplayer/model - Shared data model
-- @nuclearplayer/hifi - Advanced HTML5 audio engine
-- @nuclearplayer/i18n - Internationalization
-- @nuclearplayer/storybook - Component demos
-- @nuclearplayer/tailwind-config - Shared Tailwind v4 CSS config
-- @nuclearplayer/eslint-config - Shared linting rules
-- @nuclearplayer/tools - Build and maintenance utilities
-- @nuclearplayer/docs - This documentation
-- @nuclearplayer/website - Project website
+- @tahti-player/player - Main Tauri app (React + Rust)
+- @tahti-player/ui - Shared UI components
+- @tahti-player/themes - Theming system and utilities
+- @tahti-player/plugin-sdk - Plugin framework and helpers
+- @tahti-player/model - Shared data model
+- @tahti-player/hifi - Advanced HTML5 audio engine
+- @tahti-player/i18n - Internationalization
+- @tahti-player/storybook - Component demos
+- @tahti-player/tailwind-config - Shared Tailwind v4 CSS config
+- @tahti-player/eslint-config - Shared linting rules
+- @tahti-player/tools - Build and maintenance utilities
+- @tahti-player/docs - This documentation
+- @tahti-player/website - Project website
 
 ## For developers
 

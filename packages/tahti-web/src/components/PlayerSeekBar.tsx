@@ -1,4 +1,4 @@
-import { cn, PlayerBar } from '@nuclearplayer/ui';
+import { cn, PlayerBar } from '@tahti-player/ui';
 
 import { usePlayerStore } from '../stores/playerStore';
 

@@ -1,9 +1,9 @@
 import isEmpty from 'lodash-es/isEmpty';
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { pickArtwork } from '@nuclearplayer/model';
-import { Box, Loader } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { pickArtwork } from '@tahti-player/model';
+import { Box, Loader } from '@tahti-player/ui';
 
 import { ConnectedFavoriteButton } from '../../../components/ConnectedFavoriteButton';
 import { useArtistBio } from '../hooks/useArtistBio';

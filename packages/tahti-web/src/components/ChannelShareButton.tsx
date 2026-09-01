@@ -1,7 +1,7 @@
 import { CodeIcon, Share2Icon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, CopyButton, Dialog } from '@nuclearplayer/ui';
+import { Button, CopyButton, Dialog } from '@tahti-player/ui';
 
 import { useChannelShareStore } from '../stores/channelShareStore';
 

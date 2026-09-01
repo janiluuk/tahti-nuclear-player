@@ -7,8 +7,8 @@ import {
   Button,
   CopyButton,
   EmptyState,
-  NuclearJam,
-} from '@nuclearplayer/ui';
+  TahtiJam,
+} from '@tahti-player/ui';
 
 import { endJam, joinJam, leaveJam } from '../api/jam';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
@@ -78,44 +78,44 @@ export function JamView({ code }: { code: string }) {
 
   if (joinError) {
     return (
-      <NuclearJam>
-        <NuclearJam.Error
+      <TahtiJam>
+        <TahtiJam.Error
           labels={{ title: 'Jam not found', subtitle: joinError }}
         />
-      </NuclearJam>
+      </TahtiJam>
     );
   }
 
   if (ended) {
     return (
-      <NuclearJam>
+      <TahtiJam>
         <EmptyState
           icon={<XIcon size={48} />}
           title="This Jam has ended"
           description="The host closed the session."
           className="flex-1"
         />
-      </NuclearJam>
+      </TahtiJam>
     );
   }
 
   if (!session || connectionStatus === 'connecting') {
     return (
-      <NuclearJam>
-        <NuclearJam.Connecting
+      <TahtiJam>
+        <TahtiJam.Connecting
           labels={{
             title: 'Joining the Jam…',
             subtitle: 'Syncing with the host',
           }}
         />
-      </NuclearJam>
+      </TahtiJam>
     );
   }
 
   const track = session.currentTrack;
 
   return (
-    <NuclearJam className="relative h-full">
+    <TahtiJam className="relative h-full">
       <div className="pointer-events-none absolute inset-0 opacity-50">
         <ChannelVisualizer
           artworkUrl={track?.coverUrl}
@@ -156,7 +156,7 @@ export function JamView({ code }: { code: string }) {
         </GlassPanel>
 
         <GlassPanel>
-          <NuclearJam.NowPlaying
+          <TahtiJam.NowPlaying
             title={track?.title ?? 'Nothing playing yet'}
             artist={track?.artistName}
             coverUrl={track?.coverUrl ?? undefined}
@@ -206,6 +206,6 @@ export function JamView({ code }: { code: string }) {
           )}
         </div>
       </div>
-    </NuclearJam>
+    </TahtiJam>
   );
 }

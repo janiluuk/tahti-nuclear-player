@@ -1,6 +1,6 @@
-# CUTOVER — Nuclear `@nuclearplayer/tahti-web` → production `apps/web`
+# CUTOVER — Nuclear `@tahti-player/tahti-web` → production `apps/web`
 
-**Goal:** Replace the production Next.js client (`tahti` monorepo `apps/web`, served on `tahti.live` / `app.tahti.live`) with the Vite + Nuclear UI client (`@nuclearplayer/tahti-web`, currently `beta.tahti.live`).
+**Goal:** Replace the production Next.js client (`tahti` monorepo `apps/web`, served on `tahti.live` / `app.tahti.live`) with the Vite + Nuclear UI client (`@tahti-player/tahti-web`, currently `beta.tahti.live`).
 
 **Repos**
 
@@ -32,7 +32,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 3. **Admin & marketing split** — **Decided 2026-08-17:** the Nuclear admin port (22/22 pages, see [`UI-REDESIGN-WORKLOG.md`](UI-REDESIGN-WORKLOG.md) admin table) stays a completed side project, **not** on the cutover critical path. Production board admin keeps running the existing Next `/admin/*` on its current host (subdomain) after cutover; the listen/studio SPA does not need to serve `/admin/*` for go-live. Revisit switching admin over to Nuclear in a later, separate decision. `(marketing)` / apply / some info pages still live in `apps/web` while `website/` is a separate static site — host split for those still needs deciding.
 4. **SSR/SEO regression** — Next `sitemap.ts`, `generateMetadata`, OG cards become SPA problems unless rebuilt (prerender, edge meta, or keep a thin SSR shell).
 5. **Cookie / same-origin model** — today beta proxies `/tahti-api` → API so `tahti_session` is host-only on `beta.tahti.live`. Production must keep a **same-origin API proxy** (or deliberately set `Domain=.tahti.live`) and update `APP_URL` return paths.
-6. **Repo / AGPL / UI stack** — both trees are AGPL. **Decided 2026-08-17:** vend `@nuclearplayer/tahti-web` + minimal Nuclear UI packages into `tahti` (Option A, §3.1) rather than a submodule/subtree or published-package split — single deploy train. **Decided 2026-08-17:** ship the current Nuclear look as-is; no Tahti-brand token remap before cutover.
+6. **Repo / AGPL / UI stack** — both trees are AGPL. **Decided 2026-08-17:** vend `@tahti-player/tahti-web` + minimal Nuclear UI packages into `tahti` (Option A, §3.1) rather than a submodule/subtree or published-package split — single deploy train. **Decided 2026-08-17:** ship the current Nuclear look as-is; no Tahti-brand token remap before cutover.
 
 **Recommended sequence:** freeze feature inventory → route alias layer → parity P0 → move package into `tahti` → replace `tahti/web` image with nginx SPA → dual-run behind canary host → cutover → soak → deprecate beta.
 
@@ -61,7 +61,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [x] Full visualizer preset parity — ten distinct Three.js scenes, lazy-loaded outside the initial listen bundle.
 - [ ] Multitrack / pro editor depth vs prod ffmpeg/waveform stack (port or keep “good enough”).
 - [x] Nuclear screenshot atlas refreshed across all 38 referenced beta screens; each comparison now explains what the user can do, and the Mermaid site map reflects the current route and workspace structure. Production `tahti/docs/e2e-screenshots/` remains a post-vendoring follow-up.
-- [ ] Accessibility pass (keyboard, focus, live regions, contrast) on listen + studio critical paths. Covered so far: player bar seek/volume/controls keyboard + ARIA, chat `role="log"` live region and reaction labels (earlier pass); global search now a real combobox (arrow-key roving through results, `aria-activedescendant`, `role="listbox"`/`option`) instead of Tab-only; `MobileDrawer` (mobile nav/chat/queue slide-over) gained a focus trap + Escape-to-close (it was hand-rolled without either); nav links (`SidebarNavigationItem` in `@nuclearplayer/ui`, mobile bottom nav) now set `aria-current="page"`. Studio upload path: `StudioUploadView` and `UploadTrackDialog` had a validation/error message `<p>` with no live-region role at all (screen readers got zero announcement on a failed upload) — added `role="alert"` for errors, `role="status"` for the dialog's success note, matching the `role="alert"`/`role="status"` split already used elsewhere (`TrackEditDialog`, `StudioChannelView`). `StudioGoLiveView`'s status banner already has `role="status"`, but always at that priority (never `role="alert"`) and detects "is this an error" via a fragile message-text regex rather than real state — noted, not fixed this pass. Still open: contrast audit, and the go-live/editor half of the Studio critical-path pass.
+- [ ] Accessibility pass (keyboard, focus, live regions, contrast) on listen + studio critical paths. Covered so far: player bar seek/volume/controls keyboard + ARIA, chat `role="log"` live region and reaction labels (earlier pass); global search now a real combobox (arrow-key roving through results, `aria-activedescendant`, `role="listbox"`/`option`) instead of Tab-only; `MobileDrawer` (mobile nav/chat/queue slide-over) gained a focus trap + Escape-to-close (it was hand-rolled without either); nav links (`SidebarNavigationItem` in `@tahti-player/ui`, mobile bottom nav) now set `aria-current="page"`. Studio upload path: `StudioUploadView` and `UploadTrackDialog` had a validation/error message `<p>` with no live-region role at all (screen readers got zero announcement on a failed upload) — added `role="alert"` for errors, `role="status"` for the dialog's success note, matching the `role="alert"`/`role="status"` split already used elsewhere (`TrackEditDialog`, `StudioChannelView`). `StudioGoLiveView`'s status banner already has `role="status"`, but always at that priority (never `role="alert"`) and detects "is this an error" via a fragile message-text regex rather than real state — noted, not fixed this pass. Still open: contrast audit, and the go-live/editor half of the Studio critical-path pass.
 - [x] Bundle budget: mermaid is lazy (own `mermaid.core-*`/`cytoscape.esm-*`/`katex-*` chunks, confirmed in build output); Three.js is lazy too (`ChannelVisualizer.tsx` already `lazy()`-imports `ThreeVisualizer`, its own 528 kB chunk, not in `index-*.js`). CSS audit: one 152 kB CSS file for the whole app (`dist/assets/index-*.css`) — expected given Tailwind's JIT scans all sources into one stylesheet regardless of route; genuine per-route CSS splitting isn't a quick config flip without restructuring how Tailwind is wired into the build, so leaving as a known limitation rather than a bug. `LibraryView` (History's charts, `react-activity-calendar`) was pulled out of the main bundle this session (own 326 kB chunk) after it briefly regressed the main `index-*.js` by +367 kB.
 - [ ] CI: replace `apps/web` Docker build with SPA build; keep lint/format/typecheck gates.
 - [ ] Preview/PR envs serve the new client (or document that previews stay Next until cutover).
@@ -72,12 +72,12 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 
 - [ ] i18n strategy (neither client is truly localized today — decide before investing).
 - [ ] Rebrand Nuclear themes → Tahti brand tokens (or keep Nuclear as differentiator).
-- [ ] Upstream Nuclear sync policy for `@nuclearplayer/ui` / themes.
+- [ ] Upstream Nuclear sync policy for `@tahti-player/ui` / themes.
 - [ ] Deprecate `beta.tahti.live` (DNS/NPM #61, `/srv/tahti-beta`) or keep as canary.
 - [ ] Archive or slim `apps/web` Next tree (admin-only extract).
 - [ ] Channel custom-domain / wildcard host behaviour with SPA (Caddy/NPM #55).
 - [ ] Client-only storage migration story for favorites/history (localStorage namespaced).
-- [x] **Desktop MCP / MPD / Jam** — Nuclear MCP remains in `@nuclearplayer/player` **as-is** (not a SPA feature). Documented in [`docs/MCP.md`](docs/MCP.md); verify with `scripts/verify-nuclear-mcp-parity.mjs`.
+- [x] **Desktop MCP / MPD / Jam** — Nuclear MCP remains in `@tahti-player/player` **as-is** (not a SPA feature). Documented in [`docs/MCP.md`](docs/MCP.md); verify with `scripts/verify-nuclear-mcp-parity.mjs`.
 
 ---
 
@@ -228,8 +228,8 @@ Work from FEATURES.md; mark done there and here.
 
 Per the admin-host decision (§0.2 / §1.1), Next `apps/web` is **not** fully retired — it keeps serving `/admin/*` on its current host. The new SPA takes over listen/studio/everything-else as a new app.
 
-- [ ] Copy/vend `@nuclearplayer/tahti-web` → new `apps/listen` (do not replace `apps/web` in place, since it must keep serving admin)
-- [ ] Vend minimal Nuclear deps: `@nuclearplayer/ui`, `themes`, `tailwind-config`, `model` (or rename `@tahti/nuclear-ui`)
+- [ ] Copy/vend `@tahti-player/tahti-web` → new `apps/listen` (do not replace `apps/web` in place, since it must keep serving admin)
+- [ ] Vend minimal Nuclear deps: `@tahti-player/ui`, `themes`, `tailwind-config`, `model` (or rename `@tahti/nuclear-ui`)
 - [ ] Wire `pnpm-workspace.yaml`, turbo lint/typecheck, Dockerfile SPA build
 - [ ] Shrink Next `apps/web` to admin-only: strip listen/studio/public routes it no longer serves once the SPA is canonical for those, keep `/admin/*`
 

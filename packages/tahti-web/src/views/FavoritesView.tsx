@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 
-import { Button, Card, CardGrid, SectionShell } from '@nuclearplayer/ui';
+import { Button, Card, CardGrid, SectionShell } from '@tahti-player/ui';
 
 import { fetchChannel } from '../api/client';
 import {

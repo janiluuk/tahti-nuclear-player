@@ -16,7 +16,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, Input, Select } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Select } from '@tahti-player/ui';
 
 import {
   fetchHearthisTrackById,

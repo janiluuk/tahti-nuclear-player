@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { UploadIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Dialog, FilePicker, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, FilePicker, Input } from '@tahti-player/ui';
 
 import { uploadArchiveFile } from '../api/studio';
 

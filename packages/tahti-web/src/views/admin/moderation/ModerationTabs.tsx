@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 
-import { Tabs } from '@nuclearplayer/ui';
+import { Tabs } from '@tahti-player/ui';
 
 export type ModerationTabItem = {
   id: string;

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Input } from '@nuclearplayer/ui';
+import { Badge, Button, Input } from '@tahti-player/ui';
 
 import {
   fetchAdminSupportTicketDetail,

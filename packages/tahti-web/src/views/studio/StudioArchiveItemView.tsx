@@ -26,7 +26,7 @@ import {
   Select,
   Tabs,
   Textarea,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   activateArchiveVersion,

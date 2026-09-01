@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CalendarPlusIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, SaveButton } from '@nuclearplayer/ui';
+import { Button, Input, SaveButton } from '@tahti-player/ui';
 
 import {
   cancelVenueBroadcast,

@@ -1,7 +1,7 @@
 import { PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, FilePicker } from '@nuclearplayer/ui';
+import { Button, FilePicker } from '@tahti-player/ui';
 
 import {
   deleteAnnouncementClip,

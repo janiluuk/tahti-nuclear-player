@@ -16,7 +16,7 @@ import {
   type FC,
 } from 'react';
 
-import { Button, Input, Tabs, Textarea, Toggle } from '@nuclearplayer/ui';
+import { Button, Input, Tabs, Textarea, Toggle } from '@tahti-player/ui';
 
 import { searchMentionUsers, type MentionUser } from '../api/mentions';
 import type {

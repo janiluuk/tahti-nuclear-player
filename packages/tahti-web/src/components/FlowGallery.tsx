@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { Box, Button } from '@nuclearplayer/ui';
+import { Box, Button } from '@tahti-player/ui';
 
 import {
   FLOW_DIAGRAMS,

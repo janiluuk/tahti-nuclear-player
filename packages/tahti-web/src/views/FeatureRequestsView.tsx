@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Input, Textarea } from '@nuclearplayer/ui';
+import { Badge, Button, Input, Textarea } from '@tahti-player/ui';
 
 import {
   createFeatureRequest,

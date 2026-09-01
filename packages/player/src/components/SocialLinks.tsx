@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { LuGlobe } from 'react-icons/lu';
 import { SiGithub } from 'react-icons/si';
 
-import { Button, Tooltip } from '@nuclearplayer/ui';
+import { Button, Tooltip } from '@tahti-player/ui';
 
 const SOCIAL_LINKS = [
   {

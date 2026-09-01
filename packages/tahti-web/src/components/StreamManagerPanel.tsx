@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Dialog } from '@nuclearplayer/ui';
+import { Button, Dialog } from '@tahti-player/ui';
 
 import {
   fetchChannelManageStats,

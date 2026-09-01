@@ -1,6 +1,6 @@
 import { XIcon } from 'lucide-react';
 
-import { Box, Button } from '@nuclearplayer/ui';
+import { Box, Button } from '@tahti-player/ui';
 
 import { listenerWidgetType } from '../content/listenerWidgets';
 import type { ListenerWidgetInstance } from '../stores/listenerWidgetsStore';

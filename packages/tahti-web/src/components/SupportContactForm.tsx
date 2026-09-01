@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Button, Input, Select, Textarea } from '@nuclearplayer/ui';
+import { Button, Input, Select, Textarea } from '@tahti-player/ui';
 
 import { submitSupportTicket, type SupportTicketCategory } from '../api/client';
 import { useAuthStore } from '../stores/authStore';

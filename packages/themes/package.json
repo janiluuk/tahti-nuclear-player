@@ -1,5 +1,5 @@
 {
-  "name": "@nuclearplayer/themes",
+  "name": "@tahti-player/themes",
   "version": "0.0.10",
   "description": "Theme engine and utilities for Nuclear",
   "type": "module",
@@ -31,15 +31,15 @@
     "clean": "rm -rf dist build .turbo node_modules/.vite"
   },
   "dependencies": {
-    "@nuclearplayer/eslint-config": "workspace:*",
-    "@nuclearplayer/tailwind-config": "workspace:*",
+    "@tahti-player/eslint-config": "workspace:*",
+    "@tahti-player/tailwind-config": "workspace:*",
     "culori": "^4.0.2",
     "tailwindcss": "^4.1.11",
     "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@nuclearplayer/eslint-config": "workspace:*",
-    "@nuclearplayer/tailwind-config": "workspace:*",
+    "@tahti-player/eslint-config": "workspace:*",
+    "@tahti-player/tailwind-config": "workspace:*",
     "@tailwindcss/vite": "^4.1.11",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",

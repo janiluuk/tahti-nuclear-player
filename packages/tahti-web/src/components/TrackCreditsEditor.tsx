@@ -1,7 +1,7 @@
 import { ChevronDownIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Input, Select } from '@nuclearplayer/ui';
+import { Button, Input, Select } from '@tahti-player/ui';
 
 import {
   RELEASE_CREDIT_ROLES,

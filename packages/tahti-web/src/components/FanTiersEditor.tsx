@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Textarea } from '@tahti-player/ui';
 
 import {
   createFanTier,

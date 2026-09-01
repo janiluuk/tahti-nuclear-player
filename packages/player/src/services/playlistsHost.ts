@@ -1,8 +1,8 @@
-import type { Playlist, Track } from '@nuclearplayer/model';
+import type { Playlist, Track } from '@tahti-player/model';
 import type {
   PlaylistsHost,
   PlaylistsListener,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { usePlaylistStore } from '../stores/playlistStore';
 

@@ -6,7 +6,7 @@ import {
   TopBar,
   TopBarLogo,
   TopBarNavigation,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import { useAppVersion } from '../hooks/useAppVersion';
 import { useCanGoForward } from '../hooks/useCanGoForward';
@@ -32,7 +32,7 @@ export const ConnectedTopBar: FC = () => {
       <div className="flex flex-row items-center gap-4">
         {!isTitleBarEnabled && (
           <Tooltip
-            content={`Nuclear ${version}`}
+            content={`Tahti Player ${version}`}
             side="bottom"
             wrapperClassName="flex items-center"
           >

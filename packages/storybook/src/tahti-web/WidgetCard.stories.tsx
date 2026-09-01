@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { WidgetCard } from '@tahti-web/components/discover/WidgetCard';
 
-import { Select } from '@nuclearplayer/ui';
+import { Select } from '@tahti-player/ui';
 
 import { withTahtiRouter } from './_lib/decorators';
 

@@ -1,7 +1,7 @@
 import {
   AdvancedThemeSchema,
   MarketplaceThemeRegistrySchema,
-} from '@nuclearplayer/themes';
+} from '@tahti-player/themes';
 
 import { ApiClient } from './ApiClient';
 

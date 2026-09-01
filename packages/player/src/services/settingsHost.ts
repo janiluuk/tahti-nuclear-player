@@ -3,7 +3,7 @@ import type {
   SettingsHost,
   SettingSource,
   SettingValue,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { useSettingsStore } from '../stores/settingsStore';
 

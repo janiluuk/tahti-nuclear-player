@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 
-import type { Track } from '@nuclearplayer/model';
-import { TrackTable } from '@nuclearplayer/ui';
+import type { Track } from '@tahti-player/model';
+import { TrackTable } from '@tahti-player/ui';
 
 import type { AdminSelectsItem } from '../api/admin';
 import { trackTableLabels } from '../lib/trackTableLabels';

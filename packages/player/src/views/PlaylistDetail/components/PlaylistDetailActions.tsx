@@ -2,9 +2,9 @@ import { useNavigate } from '@tanstack/react-router';
 import { ShareIcon, Trash2Icon } from 'lucide-react';
 import { useState, type FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { Track } from '@nuclearplayer/model';
-import { Button, Dialog, Popover } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import type { Track } from '@tahti-player/model';
+import { Button, Dialog, Popover } from '@tahti-player/ui';
 
 import { usePlaylistExport } from '../../../hooks/usePlaylistExport';
 import { usePlaylistStore } from '../../../stores/playlistStore';

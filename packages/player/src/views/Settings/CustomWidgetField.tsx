@@ -3,7 +3,7 @@ import { FC } from 'react';
 import type {
   CustomSettingDefinition,
   SettingValue,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { widgetRegistry } from '../../services/widgetRegistry';
 import { usePluginStore } from '../../stores/pluginStore';

@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { MicIcon, PlusIcon, RadioIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
+import { Button, Dialog, Input, Textarea } from '@tahti-player/ui';
 
 import {
   createShowSeries,

@@ -5,7 +5,7 @@ import type {
   YtdlpPlaylistInfo,
   YtdlpSearchResult,
   YtdlpStreamInfo,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 export const ytdlpHost: YtdlpHost = {
   search: async (

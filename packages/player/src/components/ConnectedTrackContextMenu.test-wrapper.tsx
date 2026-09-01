@@ -6,7 +6,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { Track } from '@nuclearplayer/model';
+import type { Track } from '@tahti-player/model';
 
 import { usePlaylistStore } from '../stores/playlistStore';
 import { PlaylistBuilder } from '../test/builders/PlaylistBuilder';

@@ -5,7 +5,7 @@ import {
   clearAdvancedTheme,
   DEFAULT_THEME_ID,
   setThemeId,
-} from '@nuclearplayer/themes';
+} from '@tahti-player/themes';
 
 import { setSetting, useSettingsStore } from './settingsStore';
 

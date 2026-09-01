@@ -1,4 +1,4 @@
-# Deploy @nuclearplayer/tahti-web (beta.tahti.live) to vimage via jumphost.
+# Deploy @tahti-player/tahti-web (beta.tahti.live) to vimage via jumphost.
 #
 # Ported from the tahti-org repo's deploy-production.yml pattern: build on
 # the runner, SSH in through a jumphost (vimage sits on a private LAN, not
@@ -101,14 +101,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build @nuclearplayer/tahti-web
+      - name: Build @tahti-player/tahti-web
         # Leave VITE_TAHTI_API_URL unset so the client uses same-origin
         # /tahti-api (proxied to https://api.tahti.live by nginx on vimage).
         run: |
           env -u VITE_TAHTI_API_URL -u VITE_FORCE_MOCK -u VITE_ALLOW_MOCK_FALLBACK \
             VITE_CENTRIFUGO_WS="${VITE_CENTRIFUGO_WS:-wss://chat.tahti.live/connection/websocket}" \
             VITE_ENABLE_DIAGNOSTICS=1 \
-            pnpm --filter @nuclearplayer/tahti-web build
+            pnpm --filter @tahti-player/tahti-web build
 
       - name: Verify build output
         run: test -f packages/tahti-web/dist/index.html

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FC, useState } from 'react';
 import { vi } from 'vitest';
 
-import type { Track } from '@nuclearplayer/model';
+import type { Track } from '@tahti-player/model';
 
 import { TrackTable, TrackTableLabels } from '.';
 

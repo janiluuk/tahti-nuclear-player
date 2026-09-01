@@ -1,8 +1,8 @@
-import type { StreamCandidate, Track } from '@nuclearplayer/model';
+import type { StreamCandidate, Track } from '@tahti-player/model';
 import type {
   StreamingHost,
   StreamingProvider,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { getSetting, useSettingsStore } from '../stores/settingsStore';
 import { errorMessage } from '../utils/errorMessage';

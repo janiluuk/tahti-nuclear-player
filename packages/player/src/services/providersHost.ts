@@ -5,7 +5,7 @@ import type {
   ProviderDescriptor,
   ProviderKind,
   ProvidersHost,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import {
   initializeProvidersStore,

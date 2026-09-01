@@ -10,7 +10,7 @@ import {
   UserIcon,
 } from 'lucide-react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
+import { useTranslation } from '@tahti-player/i18n';
 import {
   PlayerShell,
   PlayerWorkspace,
@@ -18,7 +18,7 @@ import {
   SidebarNavigation,
   SidebarNavigationItem,
   Toaster,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import { ConnectedPlayerBar } from '../components/ConnectedPlayerBar';
 import {

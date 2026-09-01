@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, type FC, type ReactNode } from 'react';
 
-import { Badge, Button, CardGrid } from '@nuclearplayer/ui';
+import { Badge, Button, CardGrid } from '@tahti-player/ui';
 
 import {
   fetchRecentBroadcasts,

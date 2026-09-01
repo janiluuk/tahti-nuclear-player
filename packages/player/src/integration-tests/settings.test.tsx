@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FC } from 'react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { NuclearAPI } from '@nuclearplayer/plugin-sdk';
+import { TahtiAPI } from '@tahti-player/plugin-sdk';
 
 import App from '../App';
 import { useCoreSetting } from '../hooks/useCoreSetting';
@@ -43,7 +43,7 @@ describe('Settings integration', () => {
       'itest',
       'Integration Test Plugin',
     );
-    const api = new NuclearAPI({ settingsHost: pluginHost });
+    const api = new TahtiAPI({ settingsHost: pluginHost });
 
     await api.Settings.register([
       {
@@ -59,7 +59,7 @@ describe('Settings integration', () => {
     expect(definitions['plugin.itest.example.enabled']).toBeTruthy();
   });
 
-  it('plugin reads default values and updates settings via NuclearAPI.Settings', async () => {
+  it('plugin reads default values and updates settings via TahtiAPI.Settings', async () => {
     await initializeSettingsStore();
     registerBuiltInCoreSettings();
 
@@ -67,7 +67,7 @@ describe('Settings integration', () => {
       'itest',
       'Integration Test Plugin',
     );
-    const api = new NuclearAPI({ settingsHost: pluginHost });
+    const api = new TahtiAPI({ settingsHost: pluginHost });
 
     await api.Settings.register([
       {
@@ -95,7 +95,7 @@ describe('Settings integration', () => {
 
     render(<TestCoreSettingText id={'general.language'} testId="lang" />);
 
-    const coreApi = new NuclearAPI({ settingsHost: coreSettingsHost });
+    const coreApi = new TahtiAPI({ settingsHost: coreSettingsHost });
     await coreApi.Settings.set('general.language', 'fr');
 
     await waitFor(async () => {
@@ -108,7 +108,7 @@ describe('Settings integration', () => {
     await initializeSettingsStore();
     registerBuiltInCoreSettings();
 
-    const coreApi = new NuclearAPI({ settingsHost: coreSettingsHost });
+    const coreApi = new TahtiAPI({ settingsHost: coreSettingsHost });
     await coreApi.Settings.set('general.language', 'fr');
 
     useSettingsStore.setState({ definitions: {}, values: {}, loaded: false });

@@ -5,11 +5,11 @@ import type {
   ArtistRef,
   PlaylistRef,
   Track,
-} from '@nuclearplayer/model';
+} from '@tahti-player/model';
 import type {
   AttributedResult,
   DashboardCapability,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { dashboardHost } from '../../../services/dashboardHost';
 

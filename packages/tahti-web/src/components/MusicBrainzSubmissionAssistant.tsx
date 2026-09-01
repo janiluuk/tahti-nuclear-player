@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Box, Button, Dialog } from '@nuclearplayer/ui';
+import { Box, Button, Dialog } from '@tahti-player/ui';
 
 type MusicBrainzTrack = {
   title: string;

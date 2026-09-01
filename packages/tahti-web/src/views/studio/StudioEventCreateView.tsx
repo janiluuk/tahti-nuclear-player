@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeftIcon, CalendarPlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, Select, Textarea } from '@nuclearplayer/ui';
+import { Button, Input, Select, Textarea } from '@tahti-player/ui';
 
 import { fetchVenues } from '../../api/client';
 import { createEvent } from '../../api/events';

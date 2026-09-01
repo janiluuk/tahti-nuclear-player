@@ -1,5 +1,5 @@
 ---
-description: How plugins define, read, and update persisted settings in Nuclear.
+description: How plugins define, read, and update persisted settings in Tahti Player.
 ---
 
 # Settings
@@ -29,10 +29,10 @@ Access settings via the API object (api.Settings.\*) or the React hook described
 {% tabs %}
 {% tab title="Register settings" %}
 ```typescript
-import type { NuclearPluginAPI } from '@nuclearplayer/plugin-sdk';
+import type { TahtiPluginAPI } from '@tahti-player/plugin-sdk';
 
 export default {
-  async onLoad(api: NuclearPluginAPI) {
+  async onLoad(api: TahtiPluginAPI) {
     await api.Settings.register([
       {
         id: 'theme',
@@ -179,7 +179,7 @@ The `widgetId` references a React component registered via `api.Settings.registe
 {% tabs %}
 {% tab title="Register a custom widget" %}
 ```typescript
-import type { NuclearPluginAPI, CustomWidgetProps } from '@nuclearplayer/plugin-sdk';
+import type { TahtiPluginAPI, CustomWidgetProps } from '@tahti-player/plugin-sdk';
 import { FC } from 'react';
 
 const AuthWidget: FC<CustomWidgetProps> = ({ value, setValue }) => {
@@ -197,7 +197,7 @@ const AuthWidget: FC<CustomWidgetProps> = ({ value, setValue }) => {
 };
 
 export default {
-  async onEnable(api: NuclearPluginAPI) {
+  async onEnable(api: TahtiPluginAPI) {
     api.Settings.registerWidget('auth', AuthWidget);
 
     await api.Settings.register([{
@@ -209,7 +209,7 @@ export default {
     }]);
   },
 
-  async onDisable(api: NuclearPluginAPI) {
+  async onDisable(api: TahtiPluginAPI) {
     api.Settings.unregisterWidget('auth');
   },
 };
@@ -249,10 +249,10 @@ Always unregister your widget in `onDisable`. If a custom setting references a w
 ### End-to-end example
 
 ```typescript
-import type { NuclearPluginAPI } from '@nuclearplayer/plugin-sdk';
+import type { TahtiPluginAPI } from '@tahti-player/plugin-sdk';
 
 export default {
-  async onLoad(api: NuclearPluginAPI) {
+  async onLoad(api: TahtiPluginAPI) {
     await api.Settings.register([
       { id: 'apiKey', title: 'API Key', category: 'Account', kind: 'string', widget: { type: 'password' }, format: 'token' },
       { id: 'language', title: 'Language', category: 'General', kind: 'enum', options: [
@@ -272,7 +272,7 @@ export default {
     });
   },
 
-  async onEnable(api: NuclearPluginAPI) {
+  async onEnable(api: TahtiPluginAPI) {
     const scrobbling = await api.Settings.get<boolean>('scrobbleEnabled');
     if (scrobbling) {
       // start scrobbling service

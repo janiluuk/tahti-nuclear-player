@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CalendarDaysIcon, CalendarPlusIcon, Clock3Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog } from '@nuclearplayer/ui';
+import { Button, Dialog } from '@tahti-player/ui';
 
 import {
   fetchPublicRadioShow,

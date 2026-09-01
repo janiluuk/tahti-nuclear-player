@@ -4,7 +4,7 @@ description: Browse, install, and manage community themes from the built-in them
 
 # Theme store
 
-Nuclear has a built-in theme store where you can browse and install themes created by the community. Open Preferences from the sidebar, go to Themes, and switch to the **Store** tab.
+Tahti Player has a built-in theme store where you can browse and install themes created by the community. Open Preferences from the sidebar, go to Themes, and switch to the **Store** tab.
 
 <figure><img src="../.gitbook/assets/theme-store.png" alt="The theme store, showing available themes"><figcaption></figcaption></figure>
 
@@ -16,7 +16,7 @@ The search bar filters by name, description, author, and tags.
 
 ## Installing themes
 
-Click Install on any theme. Nuclear downloads the theme file from the registry and saves it locally. The button shows progress during the download, then switches to "Installed" when done.
+Click Install on any theme. Tahti Player downloads the theme file from the registry and saves it locally. The button shows progress during the download, then switches to "Installed" when done.
 
 Installed themes appear in the My Themes tab under a **Store themes** dropdown.
 
@@ -30,15 +30,15 @@ Selecting a store theme deselects any basic or advanced theme. Only one theme ca
 
 ## Uninstalling themes
 
-Click the trash icon on an installed theme in the Store tab. If the theme was active, Nuclear resets to the default theme.
+Click the trash icon on an installed theme in the Store tab. If the theme was active, Tahti Player resets to the default theme.
 
 ## Where store themes are stored
 
 Store themes live in a `themes/store/` subdirectory inside your app data folder, separate from user-created themes in `themes/`:
 
-- Linux: `~/.local/share/com.nuclearplayer/themes/store/`
-- macOS: `~/Library/Application Support/com.nuclearplayer/themes/store/`
-- Windows: `%APPDATA%/com.nuclearplayer/themes/store/`
+- Linux: `~/.local/share/live.tahti.player/themes/store/`
+- macOS: `~/Library/Application Support/live.tahti.player/themes/store/`
+- Windows: `%APPDATA%/live.tahti.player/themes/store/`
 
 ## Creating themes for the store
 

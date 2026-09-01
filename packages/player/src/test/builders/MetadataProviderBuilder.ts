@@ -1,4 +1,4 @@
-import { MetadataProvider } from '@nuclearplayer/plugin-sdk';
+import { MetadataProvider } from '@tahti-player/plugin-sdk';
 
 import { GIANT_STEPS } from '../fixtures/albums';
 import {

@@ -8,7 +8,7 @@
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "vite",
-    "beforeBuildCommand": "cd ../.. && pnpm --filter @nuclearplayer/player build:frontend"
+    "beforeBuildCommand": "cd ../.. && pnpm --filter @tahti-player/player build:frontend"
   },
   "app": {
     "windows": [

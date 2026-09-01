@@ -3,14 +3,14 @@ import { readTextFile } from '@tauri-apps/plugin-fs';
 import React from 'react';
 import * as jsxRuntime from 'react/jsx-runtime';
 
-import { NuclearPluginAPI } from '@nuclearplayer/plugin-sdk';
+import { TahtiPluginAPI } from '@tahti-player/plugin-sdk';
 import type {
   LoadedPlugin,
-  NuclearPlugin,
   PluginManifest,
   PluginMetadata,
-} from '@nuclearplayer/plugin-sdk';
-import * as nuclearUI from '@nuclearplayer/ui';
+  TahtiPlugin,
+} from '@tahti-player/plugin-sdk';
+import * as nuclearUI from '@tahti-player/ui';
 
 import { errorMessage } from '../../utils/errorMessage';
 import { Logger } from '../logger';
@@ -52,17 +52,20 @@ export class PluginLoader {
   }
 
   private buildMetadata(manifest: PluginManifest): PluginMetadata {
+    // `tahti` is the primary manifest key; `nuclear` is read for plugins
+    // published before the Tahti rebrand.
+    const config = manifest.tahti ?? manifest.nuclear;
     return {
       id: manifest.name,
       name: manifest.name,
-      displayName: manifest.nuclear?.displayName || manifest.name,
+      displayName: config?.displayName || manifest.name,
       version: manifest.version,
       description: manifest.description,
       author: manifest.author,
-      category: manifest.nuclear?.category,
-      categories: manifest.nuclear?.categories ?? [],
-      icon: manifest.nuclear?.icon,
-      permissions: manifest.nuclear?.permissions || [],
+      category: config?.category,
+      categories: config?.categories ?? [],
+      icon: config?.icon,
+      permissions: config?.permissions || [],
     };
   }
 
@@ -113,12 +116,17 @@ export class PluginLoader {
     return this.pluginCode;
   }
 
-  private evaluatePlugin(code: string): NuclearPlugin {
+  private evaluatePlugin(code: string): TahtiPlugin {
     Logger.plugins.debug('Evaluating plugin code');
     const exports = {} as Record<string, unknown>;
     const module = { exports } as { exports: unknown };
+    // Both scopes are kept so plugins published before the Tahti rebrand
+    // (require('@nuclearplayer/...')) keep working at runtime.
+    const sdkExports = { TahtiPluginAPI, NuclearPluginAPI: TahtiPluginAPI };
     const ALLOWED_MODULES: Record<string, unknown> = {
-      '@nuclearplayer/plugin-sdk': { NuclearPluginAPI },
+      '@tahti-player/plugin-sdk': sdkExports,
+      '@nuclearplayer/plugin-sdk': sdkExports,
+      '@tahti-player/ui': nuclearUI,
       '@nuclearplayer/ui': nuclearUI,
       react: React,
       'react/jsx-runtime': jsxRuntime,
@@ -149,7 +157,7 @@ export class PluginLoader {
       throw new Error('Plugin must export a default object.');
     }
     Logger.plugins.debug('Plugin code evaluated successfully');
-    return plugin as NuclearPlugin;
+    return plugin as TahtiPlugin;
   }
 
   async loadMetadata(): Promise<PluginMetadata> {
@@ -157,7 +165,7 @@ export class PluginLoader {
     return this.buildMetadata(manifest);
   }
 
-  async load(api?: NuclearPluginAPI): Promise<LoadedPlugin> {
+  async load(api?: TahtiPluginAPI): Promise<LoadedPlugin> {
     Logger.plugins.debug(`Loading plugin from ${this.path}`);
     const manifest = this.manifest ?? (await this.readManifest());
     const metadata = this.buildMetadata(manifest);

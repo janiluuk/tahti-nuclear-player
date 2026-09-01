@@ -4,8 +4,8 @@ import { platform } from '@tauri-apps/plugin-os';
 import { FC } from 'react';
 import { I18nextProvider } from 'react-i18next';
 
-import { i18n } from '@nuclearplayer/i18n';
-import { Platform, PlatformProvider } from '@nuclearplayer/ui';
+import { i18n } from '@tahti-player/i18n';
+import { Platform, PlatformProvider } from '@tahti-player/ui';
 
 import { routeTree } from './routeTree.gen';
 

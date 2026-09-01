@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
-import { Button, Input, Textarea } from '@nuclearplayer/ui';
+import { Button, Input, Textarea } from '@tahti-player/ui';
 
 import { registerVenue } from '../api/client';
 import { ImageUploadField } from '../components/ImageUploadField';

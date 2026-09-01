@@ -1,7 +1,7 @@
 import { CellContext } from '@tanstack/react-table';
 import { Music } from 'lucide-react';
 
-import { Artwork, Track } from '@nuclearplayer/model';
+import { Artwork, Track } from '@tahti-player/model';
 
 import { MediaArtwork } from '../../MediaArtwork';
 import { useTrackTableContext } from '../TrackTableContext';

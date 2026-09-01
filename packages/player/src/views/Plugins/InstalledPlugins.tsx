@@ -2,8 +2,8 @@ import { open } from '@tauri-apps/plugin-dialog';
 import isString from 'lodash-es/isString';
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Button, ScrollableArea } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Button, ScrollableArea } from '@tahti-player/ui';
 
 import { PluginState, usePluginStore } from '../../stores/pluginStore';
 import { ConnectedPluginItem } from './ConnectedPluginItem';

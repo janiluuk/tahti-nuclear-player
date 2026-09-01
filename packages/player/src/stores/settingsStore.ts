@@ -5,7 +5,7 @@ import type {
   SettingDefinition,
   SettingSource,
   SettingValue,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 const SETTINGS_FILE = 'settings.json';
 const store = new LazyStore(SETTINGS_FILE);

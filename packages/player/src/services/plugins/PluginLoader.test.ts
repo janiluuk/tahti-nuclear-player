@@ -1,6 +1,6 @@
 import { type Mock } from 'vitest';
 
-import { PluginManifest } from '@nuclearplayer/plugin-sdk';
+import { PluginManifest } from '@tahti-player/plugin-sdk';
 
 import { PluginFsMock } from '../../test/mocks/plugin-fs';
 import { compilePlugin } from './pluginCompiler';
@@ -15,11 +15,11 @@ vi.mock('./pluginCompiler', () => ({
   }),
 }));
 
-const mockNuclearPluginAPI = vi.fn();
-vi.mock('@nuclearplayer/plugin-sdk', () => ({
-  NuclearPluginAPI: class MockNuclearPluginAPI {
+const mockTahtiPluginAPI = vi.fn();
+vi.mock('@tahti-player/plugin-sdk', () => ({
+  TahtiPluginAPI: class MockTahtiPluginAPI {
     constructor() {
-      mockNuclearPluginAPI();
+      mockTahtiPluginAPI();
     }
     static add() {
       return 2 + 2;
@@ -203,7 +203,7 @@ describe('PluginLoader', () => {
 
     it('provides limited require for plugin-sdk', async () => {
       const pluginContents =
-        "const { NuclearPluginAPI } = require('@nuclearplayer/plugin-sdk'); module.exports = { testAdd: NuclearPluginAPI.add() }";
+        "const { TahtiPluginAPI } = require('@tahti-player/plugin-sdk'); module.exports = { testAdd: TahtiPluginAPI.add() }";
       const manifest = makeManifest({ main: 'index.ts' });
       PluginFsMock.setReadTextFileByMap({
         '/test/plugin/path/package.json': JSON.stringify(manifest),

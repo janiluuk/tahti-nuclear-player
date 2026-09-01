@@ -1,6 +1,6 @@
 import { Settings } from 'luxon';
 
-import { i18n } from '@nuclearplayer/i18n';
+import { i18n } from '@tahti-player/i18n';
 
 import { coreSettingsHost } from './settingsHost';
 

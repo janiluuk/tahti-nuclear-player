@@ -1,8 +1,8 @@
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { TitleBar } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { TitleBar } from '@tahti-player/ui';
 
 import { useCoreSetting } from '../hooks/useCoreSetting';
 

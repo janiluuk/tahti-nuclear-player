@@ -1,6 +1,6 @@
 # Screen atlas — app.tahti.live → Nuclear UI
 
-Inventory of production (`apps/web` / app.tahti.live) surfaces vs Nuclear (`@nuclearplayer/tahti-web` / beta.tahti.live), with screenshot status.
+Inventory of production (`apps/web` / app.tahti.live) surfaces vs Nuclear (`@tahti-player/tahti-web` / beta.tahti.live), with screenshot status.
 
 **Legend**
 

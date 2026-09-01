@@ -1,7 +1,7 @@
 import { BlocksIcon, UploadIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { UploadTrackDialog } from './UploadTrackDialog';

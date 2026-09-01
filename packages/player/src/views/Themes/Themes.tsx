@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Tabs, ViewShell } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Tabs, ViewShell } from '@tahti-player/ui';
 
 import { MyThemes } from './MyThemes';
 import { ThemeStore } from './ThemeStore';

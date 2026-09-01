@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import type { SettingDefinition } from '@nuclearplayer/plugin-sdk';
-import { SectionShell } from '@nuclearplayer/ui';
+import type { SettingDefinition } from '@tahti-player/plugin-sdk';
+import { SectionShell } from '@tahti-player/ui';
 
 import { SettingFieldWithHost } from './SettingFieldWithHost';
 

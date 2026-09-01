@@ -2,7 +2,7 @@ import { CheckCircle2Icon, ImageIcon, SaveIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Select } from '@nuclearplayer/ui';
+import { Button, Select } from '@tahti-player/ui';
 
 import { uploadProfileAvatar } from '../api/artist-settings';
 import {

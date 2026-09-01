@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { listBasicThemes } from '@nuclearplayer/themes';
-import { Button, cn, SectionShell } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { listBasicThemes } from '@tahti-player/themes';
+import { Button, cn, SectionShell } from '@tahti-player/ui';
 
 import { useThemeStore } from '../../stores/themeStore';
 

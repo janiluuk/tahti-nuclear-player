@@ -1,4 +1,4 @@
-import type { TopListEntry } from '@nuclearplayer/ui';
+import type { TopListEntry } from '@tahti-player/ui';
 
 import type {
   TopAlbum,

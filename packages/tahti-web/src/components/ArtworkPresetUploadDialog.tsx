@@ -1,7 +1,7 @@
 import { UploadIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Dialog, FilePicker } from '@nuclearplayer/ui';
+import { Button, Dialog, FilePicker } from '@tahti-player/ui';
 
 import { uploadUserMediaFile } from '../api/user-media';
 

@@ -1,7 +1,7 @@
 import { ExternalLinkIcon, SparklesIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { cn, ViewShell } from '@nuclearplayer/ui';
+import { cn, ViewShell } from '@tahti-player/ui';
 
 import { fetchAnnouncements } from '../api/client';
 import type { Announcement } from '../api/types';

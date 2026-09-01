@@ -13,10 +13,10 @@
         "TAURI_SIGNING_PRIVATE_KEY_PASSWORD"
       ]
     },
-    "@nuclearplayer/eslint-config#build": {
+    "@tahti-player/eslint-config#build": {
       "outputs": []
     },
-    "@nuclearplayer/tailwind-config#build": {
+    "@tahti-player/tailwind-config#build": {
       "outputs": []
     },
     "build:frontend": {
@@ -31,9 +31,9 @@
       "cache": false,
       "persistent": true
     },
-    "@nuclearplayer/player#dev": {
+    "@tahti-player/player#dev": {
       "dependsOn": [
-        "@nuclearplayer/player#build:frontend"
+        "@tahti-player/player#build:frontend"
       ],
       "cache": false,
       "persistent": true
@@ -61,11 +61,11 @@
         "^build"
       ]
     },
-    "@nuclearplayer/storybook#dev": {
+    "@tahti-player/storybook#dev": {
       "cache": false,
       "persistent": true
     },
-    "@nuclearplayer/storybook#build": {
+    "@tahti-player/storybook#build": {
       "dependsOn": [
         "^build"
       ],
@@ -73,11 +73,11 @@
         "storybook-static/**"
       ]
     },
-    "@nuclearplayer/website#build": {
-      "dependsOn": ["@nuclearplayer/tailwind-config#build"],
+    "@tahti-player/website#build": {
+      "dependsOn": ["@tahti-player/tailwind-config#build"],
       "outputs": ["dist/**"]
     },
-    "@nuclearplayer/website#dev": {
+    "@tahti-player/website#dev": {
       "cache": false,
       "persistent": true
     }

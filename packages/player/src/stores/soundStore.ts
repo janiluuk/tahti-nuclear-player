@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { AudioSource, SoundStatus } from '@nuclearplayer/hifi';
+import { AudioSource, SoundStatus } from '@tahti-player/hifi';
 
 import { eventBus } from '../services/eventBus';
 import { Logger } from '../services/logger';

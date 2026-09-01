@@ -1,5 +1,5 @@
-import type { SoundStatus } from '@nuclearplayer/hifi';
-import type { PluginEventMap } from '@nuclearplayer/plugin-sdk';
+import type { SoundStatus } from '@tahti-player/hifi';
+import type { PluginEventMap } from '@tahti-player/plugin-sdk';
 
 import { useSoundStore } from '../stores/soundStore';
 import { secondsToMs } from '../utils/time';

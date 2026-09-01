@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Button, KeyCombo } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Button, KeyCombo } from '@tahti-player/ui';
 
 import { useShortcutsStore } from '../../stores/shortcutsStore';
 import { useShortcutRecorder } from './useShortcutRecorder';

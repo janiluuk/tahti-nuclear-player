@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MusicIcon } from 'lucide-react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',

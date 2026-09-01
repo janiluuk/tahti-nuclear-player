@@ -1,4 +1,4 @@
-import type { AdvancedTheme } from '@nuclearplayer/themes';
+import type { AdvancedTheme } from '@tahti-player/themes';
 
 /** Stable id so seeding is idempotent across reloads (unlike
  * `importCustomTheme`'s generated `custom:<slug>-<timestamp>` ids). */
@@ -70,7 +70,7 @@ export const NUCLEAR_GREEN_THEME_ID = 'custom:nuclear-green';
  * hand-picked. One fixed-dark identity, like Tahti Blue: the reference has
  * no light variant. Deliberately doesn't touch `--shadow-x/y`,
  * `--border-width`, or radius — those are the shared neobrutalist depth
- * tokens (Button/Card in @nuclearplayer/ui already read them), and inherit
+ * tokens (Button/Card in @tahti-player/ui already read them), and inherit
  * root's 2px offset-shadow/border treatment so this theme automatically
  * gets the same chunky depth as every other theme once applied. */
 const NUCLEAR_GREEN_VARS: Record<string, string> = {

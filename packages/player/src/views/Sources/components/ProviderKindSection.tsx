@@ -1,9 +1,9 @@
 import { LucideIcon } from 'lucide-react';
 import { FC, ReactNode } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { ProviderKind } from '@nuclearplayer/plugin-sdk';
-import { Select } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import type { ProviderKind } from '@tahti-player/plugin-sdk';
+import { Select } from '@tahti-player/ui';
 
 import { useProviders } from '../../../hooks/useProviders';
 

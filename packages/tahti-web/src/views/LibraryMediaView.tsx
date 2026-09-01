@@ -2,7 +2,7 @@ import { ImageIcon, PlayIcon, Trash2Icon, VideoIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import {
   deleteUserMedia,

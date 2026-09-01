@@ -19,7 +19,7 @@ import {
   Input,
   SaveButton,
   Textarea,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   createEpisode,

@@ -2,7 +2,7 @@ import type { Decorator, Meta, StoryObj } from '@storybook/react-vite';
 import { ConnectedQueuePanel } from '@tahti-web/components/ConnectedQueuePanel';
 import { usePlayerStore } from '@tahti-web/stores/playerStore';
 
-import type { QueueItem } from '@nuclearplayer/model';
+import type { QueueItem } from '@tahti-player/model';
 
 function mockQueueItem(
   id: string,

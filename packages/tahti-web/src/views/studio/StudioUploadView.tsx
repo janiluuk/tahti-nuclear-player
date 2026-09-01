@@ -18,7 +18,7 @@ import {
   CardGrid,
   Dialog,
   FilePicker,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   fetchRecentBroadcasts,

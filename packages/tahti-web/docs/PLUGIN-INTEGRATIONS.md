@@ -1,6 +1,6 @@
 # Tahti add-on and plugin integration guide
 
-Agent-facing reference for authoring, reviewing, and extending plugins in this checkout. The GitHub documentation version is [Tahti add-on and plugin authoring](../../docs/plugins/tahti-web-authoring.md), and the copyable standalone example is [`examples/nuclear-plugin-example`](../../../examples/nuclear-plugin-example).
+Agent-facing reference for authoring, reviewing, and extending plugins in this checkout. The GitHub documentation version is [Tahti add-on and plugin authoring](../../docs/plugins/tahti-web-authoring.md), and the copyable standalone example is [`examples/tahti-plugin-example`](../../../examples/tahti-plugin-example).
 
 This agent-facing guide explains how to extend the Tahti web client’s add-ons. The UI hosts two
 related kinds of extension:
@@ -40,7 +40,7 @@ settings in the plugin boundary:
 - never duplicate the same provider fields in Settings, Go Live, and a page widget.
 
 For a standalone Nuclear plugin, follow `.agents/skills/writing-plugins/SKILL.md`: create a package
-with `package.json`, `src/index.ts`, a `nuclear` manifest, and a default `NuclearPlugin` export.
+with `package.json`, `src/index.ts`, a `tahti` manifest, and a default `TahtiPlugin` export.
 Use `api.Settings` for plugin-owned settings, `api.Http` for network access, and the relevant
 provider registry for behavior. Validate user input before calling the host API.
 

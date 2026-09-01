@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { PluginManifest } from '@nuclearplayer/plugin-sdk';
+import type { PluginManifest } from '@tahti-player/plugin-sdk';
 
 const PluginIconLinkSchema = z
   .object({ type: z.literal('link'), link: z.string().min(1) })
@@ -8,7 +8,7 @@ const PluginIconLinkSchema = z
 
 const PluginIconSchema = PluginIconLinkSchema;
 
-const NuclearSchema = z
+const TahtiConfigSchema = z
   .object({
     displayName: z.string().min(1).optional(),
     // TODO: Remove category after registry migration to categories
@@ -26,11 +26,13 @@ const PackageJsonSchema = z
     description: z.string().min(1),
     author: z.string().min(1),
     main: z.string().min(1).optional(),
-    nuclear: NuclearSchema.optional(),
+    tahti: TahtiConfigSchema.optional(),
+    // Legacy key, still read for plugins published before the Tahti rebrand.
+    nuclear: TahtiConfigSchema.optional(),
   })
   .passthrough();
 
-type NuclearType = NonNullable<PluginManifest['nuclear']>;
+type TahtiConfigType = NonNullable<PluginManifest['tahti']>;
 
 const normalizePermissions = (
   perms: unknown,
@@ -50,10 +52,8 @@ const normalizePermissions = (
   return deduped.sort((a, b) => a.localeCompare(b));
 };
 
-const collectUnknownNuclearKeys = (
-  nuclear: Record<string, unknown>,
-): string[] =>
-  Object.keys(nuclear).filter(
+const collectUnknownConfigKeys = (config: Record<string, unknown>): string[] =>
+  Object.keys(config).filter(
     (k) =>
       ![
         'displayName',
@@ -64,25 +64,26 @@ const collectUnknownNuclearKeys = (
       ].includes(k),
   );
 
-const normalizeNuclear = (
-  nuclear: z.infer<typeof NuclearSchema> | undefined,
+const normalizeTahtiConfig = (
+  config: z.infer<typeof TahtiConfigSchema> | undefined,
+  keyName: 'tahti' | 'nuclear',
   warnings: string[],
-): NuclearType | undefined => {
-  if (!nuclear) {
+): TahtiConfigType | undefined => {
+  if (!config) {
     return undefined;
   }
-  const unknown = collectUnknownNuclearKeys(nuclear as Record<string, unknown>);
+  const unknown = collectUnknownConfigKeys(config as Record<string, unknown>);
   if (unknown.length > 0) {
-    warnings.push(`nuclear contains unknown keys: ${unknown.join(', ')}`);
+    warnings.push(`${keyName} contains unknown keys: ${unknown.join(', ')}`);
   }
-  const permissions = normalizePermissions(nuclear.permissions, warnings);
-  const category = nuclear.category?.trim();
-  const categories = nuclear.categories ?? (category ? [category] : []);
+  const permissions = normalizePermissions(config.permissions, warnings);
+  const category = config.category?.trim();
+  const categories = config.categories ?? (category ? [category] : []);
   return {
-    displayName: nuclear.displayName?.trim(),
+    displayName: config.displayName?.trim(),
     category,
     categories,
-    icon: nuclear.icon as NuclearType['icon'],
+    icon: config.icon as TahtiConfigType['icon'],
     permissions,
   };
 };
@@ -119,13 +120,20 @@ export const safeParsePluginManifest = (raw: unknown): SafeParseResult => {
     );
   }
 
+  if (data.nuclear && !data.tahti) {
+    warnings.push(
+      'package.json uses the legacy "nuclear" field; rename it to "tahti".',
+    );
+  }
+
   const manifest: PluginManifest = {
     name: data.name.trim(),
     version: data.version.trim(),
     description: data.description.trim(),
     author: data.author.trim(),
     main: data.main?.trim(),
-    nuclear: normalizeNuclear(data.nuclear, warnings),
+    tahti: normalizeTahtiConfig(data.tahti, 'tahti', warnings),
+    nuclear: normalizeTahtiConfig(data.nuclear, 'nuclear', warnings),
   };
 
   return { success: true, data: manifest, warnings };

@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { CopyButton } from '@nuclearplayer/ui';
+import { CopyButton } from '@tahti-player/ui';
 
 type Props = {
   label: string;

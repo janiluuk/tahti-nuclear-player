@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   ArtistMetadataCapability,
   SearchParams,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { MetadataProviderBuilder } from '../test/builders/MetadataProviderBuilder';
 import { metadataHost } from './metadataHost';

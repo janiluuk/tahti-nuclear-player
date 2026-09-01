@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Badge, Button, Dialog } from '@nuclearplayer/ui';
+import { Badge, Button, Dialog } from '@tahti-player/ui';
 
 import {
   createRtmpTarget,

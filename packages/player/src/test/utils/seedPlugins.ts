@@ -1,7 +1,7 @@
 import { upsertRegistryEntry } from '../../services/plugins/pluginRegistry';
 import { usePluginStore } from '../../stores/pluginStore';
-import { NuclearPluginBuilder } from '../builders/NuclearPluginBuilder';
 import { PluginStateBuilder } from '../builders/PluginStateBuilder';
+import { TahtiPluginBuilder } from '../builders/TahtiPluginBuilder';
 
 type SeedParams = {
   id: string;
@@ -32,7 +32,7 @@ export const seedPlugin = async ({
         .withVersion(version)
         .withEnabled(enabled)
         .withInstallationMethod(installationMethod)
-        .withInstance(new NuclearPluginBuilder().build())
+        .withInstance(new TahtiPluginBuilder().build())
         .build(),
     },
   }));

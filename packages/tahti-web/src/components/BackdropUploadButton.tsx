@@ -2,7 +2,7 @@ import { ImageIcon, UploadCloudIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { Dialog, FilePicker } from '@nuclearplayer/ui';
+import { Dialog, FilePicker } from '@tahti-player/ui';
 
 import { uploadUserMediaFile } from '../api/user-media';
 import { cn } from '../lib/cn';

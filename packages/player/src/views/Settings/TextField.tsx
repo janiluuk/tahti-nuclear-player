@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { Input } from '@nuclearplayer/ui';
+import { Input } from '@tahti-player/ui';
 
 type Props = {
   label: string;

@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 
-import type { Queue, RepeatMode } from '@nuclearplayer/model';
-import { DEFAULT_THEME_ID } from '@nuclearplayer/themes';
-import type { ConnectionStatus } from '@nuclearplayer/ui';
+import type { Queue, RepeatMode } from '@tahti-player/model';
+import { DEFAULT_THEME_ID } from '@tahti-player/themes';
+import type { ConnectionStatus } from '@tahti-player/ui';
 
 export type PlaybackState = {
   status: 'playing' | 'paused' | 'stopped';

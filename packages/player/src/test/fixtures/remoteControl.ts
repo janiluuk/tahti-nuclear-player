@@ -1,4 +1,4 @@
-import type { Queue, Track } from '@nuclearplayer/model';
+import type { Queue, Track } from '@tahti-player/model';
 
 import type {
   PlaybackState,

@@ -1,8 +1,8 @@
 import { FilterIcon, Plus } from 'lucide-react';
 import { type FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Button, Input } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Button, Input } from '@tahti-player/ui';
 
 import type { PlaylistSortBy, SortDirection } from '../hooks/usePlaylistSort';
 import { useCreatePlaylistContext } from '../PlaylistsContext';

@@ -1,7 +1,7 @@
 import { ActivityIcon, CheckCircle2Icon, Mic2Icon } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import type { SignalStatus } from '../api/broadcast';
 

@@ -1,13 +1,13 @@
 import isEmpty from 'lodash-es/isEmpty';
 import { useMemo } from 'react';
 
-import type { AttributedResult } from '@nuclearplayer/plugin-sdk';
+import type { AttributedResult } from '@tahti-player/plugin-sdk';
 import {
   CardsRow,
   CardsRowItem,
   CardsRowLabels,
   Loader,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 type DashboardCardsWidgetProps<T> = {
   results: AttributedResult<T>[] | undefined;

@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { MessageCircleIcon, MicIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, SectionShell, Tabs } from '@nuclearplayer/ui';
+import { Button, SectionShell, Tabs } from '@tahti-player/ui';
 
 import {
   fetchPublicRadioShow,

@@ -6,8 +6,8 @@ import type {
   ArtistRef,
   ProviderRef,
   Track,
-} from '@nuclearplayer/model';
-import type { FavoriteEntry, FavoritesData } from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/model';
+import type { FavoriteEntry, FavoritesData } from '@tahti-player/plugin-sdk';
 
 export type { FavoriteEntry, FavoritesData };
 

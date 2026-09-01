@@ -1,7 +1,7 @@
 import { SettingsIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, PluginItem } from '@nuclearplayer/ui';
+import { Button, Dialog, PluginItem } from '@tahti-player/ui';
 
 import {
   fetchConnectionStatus,

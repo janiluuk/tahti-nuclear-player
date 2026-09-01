@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Textarea } from '@nuclearplayer/ui';
+import { Textarea } from '@tahti-player/ui';
 
 const meta: Meta<typeof Textarea> = {
   title: 'Components/Textarea',

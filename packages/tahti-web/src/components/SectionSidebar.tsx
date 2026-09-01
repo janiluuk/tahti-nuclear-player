@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { SidebarNavigation, SidebarNavigationItem } from '@nuclearplayer/ui';
+import { SidebarNavigation, SidebarNavigationItem } from '@tahti-player/ui';
 
 export type SectionSidebarItem = {
   id: string;

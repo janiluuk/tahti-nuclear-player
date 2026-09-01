@@ -5,7 +5,7 @@ import {
   HistoryDayGroup,
   HistoryRow,
   HistoryRowLabels,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/HistoryDayGroup',

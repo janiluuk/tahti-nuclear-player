@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import type { ConnectionStatus } from '@nuclearplayer/ui';
+import type { ConnectionStatus } from '@tahti-player/ui';
 
 export type EventSourceEvent = Event & { data: string };
 

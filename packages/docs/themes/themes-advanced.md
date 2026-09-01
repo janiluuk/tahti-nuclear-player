@@ -5,21 +5,21 @@ description: Create and use custom JSON-based themes.
 # Advanced themes
 
 ## Getting to your themes
-Navigate to Nuclear > Preferences > Themes and look for the "Advanced themes" dropdown. Any JSON files you've added to your themes folder will show up here, ready to apply.
+Navigate to Tahti Player > Preferences > Themes and look for the "Advanced themes" dropdown. Any JSON files you've added to your themes folder will show up here, ready to apply.
 
 <figure><img src="../.gitbook/assets/my-themes.png" alt="The themes view showing available themes"><figcaption></figcaption></figure>
 
 Your themes folder lives at:
-- Linux: `~/.local/share/com.nuclearplayer/themes`
-- macOS: `~/Library/Application Support/com.nuclearplayer/themes`
-- Windows: `%APPDATA%/com.nuclearplayer/themes`
+- Linux: `~/.local/share/live.tahti.player/themes`
+- macOS: `~/Library/Application Support/live.tahti.player/themes`
+- Windows: `%APPDATA%/live.tahti.player/themes`
 
 When you select a theme, it applies instantly. If you edit the file while it's active, your changes update live in the app.
 
 ## Creating your theme
 1. Create a new `.json` file with any name you like. Copy the template at the end of this page.
 2. Save it to your themes folder (see paths above).
-3. Select it from the Advanced themes dropdown in Nuclear.
+3. Select it from the Advanced themes dropdown in Tahti Player.
 
 Here's the basic structure:
 ```json
@@ -65,7 +65,7 @@ Custom fonts must be installed on the user's system.
 - To reset to default, choose "Default" from the dropdown
 
 ## Template
-A complete template with Nuclear's default values. Copy this and change what you want.
+A complete template with Tahti Player's default values. Copy this and change what you want.
 
 ```json
 {

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { Settings } from 'luxon';
 import { vi } from 'vitest';
 
-import { setupDomMocks } from '@nuclearplayer/ui';
+import { setupDomMocks } from '@tahti-player/ui';
 
 process.env.NODE_ENV = 'test';
 process.env.TZ = 'UTC';
@@ -90,7 +90,7 @@ vi.mock('uuid', async () => {
 vi.mock('motion/react', async (importOriginal) => {
   const mod = await importOriginal<typeof import('motion/react')>();
 
-  // Ugly as shit cross-package import but importing @nuclearplayer/ui here causes tests to hang indefinitely
+  // Ugly as shit cross-package import but importing @tahti-player/ui here causes tests to hang indefinitely
   const mockMod = await import('../../../ui/src/test/mockFramerMotion');
   const factory = mockMod.createFramerMotionMock;
   return factory(mod);

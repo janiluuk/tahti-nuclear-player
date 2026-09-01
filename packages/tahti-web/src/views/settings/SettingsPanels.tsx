@@ -43,7 +43,7 @@ import {
   Tabs,
   Textarea,
   type SelectOption,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   fetchChannelMembers,
@@ -2396,7 +2396,7 @@ function ThemesPanel() {
               <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
                 <h3 className="font-bold">Import a theme</h3>
                 <SettingsHint>
-                  Paste a theme JSON (matches @nuclearplayer/themes'
+                  Paste a theme JSON (matches @tahti-player/themes'
                   AdvancedThemeSchema — version, name, and vars / dark CSS
                   variable overrides) to add it without a code change.
                 </SettingsHint>

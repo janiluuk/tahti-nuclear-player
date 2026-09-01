@@ -9,8 +9,8 @@ import type {
   QueueItem,
   StreamCandidate,
   Track,
-} from '@nuclearplayer/model';
-import { stripResolutionState } from '@nuclearplayer/model';
+} from '@tahti-player/model';
+import { stripResolutionState } from '@tahti-player/model';
 
 import { eventBus } from '../services/eventBus';
 import { Logger } from '../services/logger';

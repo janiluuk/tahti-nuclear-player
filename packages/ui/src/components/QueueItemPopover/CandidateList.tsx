@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import type { StreamCandidate } from '@nuclearplayer/model';
+import type { StreamCandidate } from '@tahti-player/model';
 
 import { ScrollableArea } from '../ScrollableArea';
 import { CandidateRow } from './CandidateRow';

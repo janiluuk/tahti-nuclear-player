@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import type {
   MetadataProvider,
   ProviderDescriptor,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 type StreamingPairing = {
   lockedStreamingId: string | undefined;

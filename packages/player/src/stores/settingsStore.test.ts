@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import type { SettingDefinition } from '@nuclearplayer/plugin-sdk';
+import type { SettingDefinition } from '@tahti-player/plugin-sdk';
 
 import {
   createCoreSettingsHost,

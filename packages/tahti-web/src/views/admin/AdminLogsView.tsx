@@ -1,7 +1,7 @@
 import { ActivityIcon, ContainerIcon, HistoryIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { LogViewer, Tabs, type LogEntryData } from '@nuclearplayer/ui';
+import { LogViewer, Tabs, type LogEntryData } from '@tahti-player/ui';
 
 import {
   fetchAdminContainerLogs,

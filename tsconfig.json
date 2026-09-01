@@ -24,22 +24,22 @@
     "types": ["vitest/globals"],
     "baseUrl": ".",
     "paths": {
-      "@nuclearplayer/ui": [
+      "@tahti-player/ui": [
         "./packages/ui/src"
       ],
-      "@nuclearplayer/plugin-sdk": [
+      "@tahti-player/plugin-sdk": [
         "./packages/plugin-sdk/src"
       ],
-      "@nuclearplayer/tailwind-config": [
+      "@tahti-player/tailwind-config": [
         "./packages/tailwind-config/src"
       ],
-      "@nuclearplayer/eslint-config": [
+      "@tahti-player/eslint-config": [
         "./packages/eslint-config/src"
       ],
-      "@nuclearplayer/themes": [
+      "@tahti-player/themes": [
         "./packages/themes/src"
       ],
-      "@nuclearplayer/i18n": [
+      "@tahti-player/i18n": [
         "./packages/i18n/src"
       ]
     }

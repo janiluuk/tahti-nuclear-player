@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@tahti-player/ui';
 
 import {
   cancelShowBooking,

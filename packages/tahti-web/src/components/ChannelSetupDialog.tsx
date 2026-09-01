@@ -2,7 +2,7 @@ import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog } from '@nuclearplayer/ui';
+import { Button, Dialog } from '@tahti-player/ui';
 
 import { provisionChannel } from '../api/channel-provision';
 import { useAuthStore } from '../stores/authStore';

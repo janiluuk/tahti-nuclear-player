@@ -1,9 +1,9 @@
-import type { Track } from '@nuclearplayer/model';
+import type { Track } from '@tahti-player/model';
 import type {
   DiscoveryHost,
   DiscoveryOptions,
   DiscoveryProvider,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { providersHost } from './providersHost';
 

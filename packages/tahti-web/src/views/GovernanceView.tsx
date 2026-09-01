@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, SectionShell } from '@nuclearplayer/ui';
+import { Badge, Button, SectionShell } from '@tahti-player/ui';
 
 import {
   createGovernanceMotion,

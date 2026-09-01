@@ -2,9 +2,9 @@ import { useNavigate } from '@tanstack/react-router';
 import { User } from 'lucide-react';
 import { useMemo, type FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { pickArtwork } from '@nuclearplayer/model';
-import { Card, CardGrid, EmptyState, ViewShell } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { pickArtwork } from '@tahti-player/model';
+import { Card, CardGrid, EmptyState, ViewShell } from '@tahti-player/ui';
 
 import { useFavoritesStore } from '../../stores/favoritesStore';
 import { sortByAddedAtDesc } from '../../utils/sort';

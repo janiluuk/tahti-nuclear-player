@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { type MarketplaceTheme } from '@nuclearplayer/themes';
+import { type MarketplaceTheme } from '@tahti-player/themes';
 
 import { useMarketplaceThemes } from './useThemeRegistry';
 

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Button, Select } from '@nuclearplayer/ui';
+import { Button, Select } from '@tahti-player/ui';
 
 import {
   createStashShare,

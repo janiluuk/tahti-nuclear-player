@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { Album } from '@nuclearplayer/model';
+import type { Album } from '@tahti-player/model';
 
 import { metadataHost } from '../../../services/metadataHost';
 

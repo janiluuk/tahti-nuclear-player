@@ -1,5 +1,5 @@
-import { useTranslation } from '@nuclearplayer/i18n';
-import { ScrollableArea, ViewShell } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { ScrollableArea, ViewShell } from '@tahti-player/ui';
 
 import { SettingsSection } from './SettingsSection';
 import { useSettingsGroups } from './useSettingsGroups';

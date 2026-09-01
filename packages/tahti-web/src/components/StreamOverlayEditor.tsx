@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Button, FilePicker, Input } from '@nuclearplayer/ui';
+import { Button, FilePicker, Input } from '@tahti-player/ui';
 
 import { fetchStreamOverlay, patchStreamOverlay } from '../api/broadcast';
 import { uploadUserMediaFile } from '../api/user-media';

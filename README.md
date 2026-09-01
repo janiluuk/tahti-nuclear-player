@@ -10,7 +10,7 @@ Tahti is channel-first radio and archive listening: artists broadcast live, publ
 
 This repository holds:
 
-1. **`@nuclearplayer/tahti-web`** — the Nuclear-based **listen + studio** web client (the cutover candidate for `apps/web`)
+1. **`@tahti-player/tahti-web`** — the Nuclear-based **listen + studio** web client (the cutover candidate for `apps/web`)
 2. **Tahti Player** — the desktop app (Tauri), plugins, and shared UI packages the web client reuses
 
 The web client is not a separate product backend. It talks to the same public Tahti API (`api.tahti.live`), chat (`chat.tahti.live`), and media CDN that production uses. Cutover planning lives in [`packages/tahti-web/CUTOVER.md`](./packages/tahti-web/CUTOVER.md).
@@ -24,7 +24,7 @@ Goals:
 - Modern listen UX (directory, channel HLS/archive, radio, chat, fan subscribe) on Nuclear UI
 - Artist studio pillars (Go Live, library, releases, playlists/albums, channel design, schedule, stats, revenue) democked against the live API
 - A clear path to replace `app.tahti.live` once route compatibility and remaining parity items land (see CUTOVER)
-- Keep Nuclear’s agent/desktop heritage: shared `@nuclearplayer/ui` themes, plugin-oriented architecture, AGPL
+- Keep Nuclear’s agent/desktop heritage: shared `@tahti-player/ui` themes, plugin-oriented architecture, AGPL
 
 Honest status: beta already covers the core listener and studio loops on live data. A few production surfaces remain partial or out of scope for Nuclear UI (board admin, full SEO/SSR, some settings depth). Tracked in [`FEATURES.md`](./packages/tahti-web/FEATURES.md).
 
@@ -41,7 +41,7 @@ Live beta: **https://beta.tahti.live**
 
 ## Screenshots
 
-From `@nuclearplayer/tahti-web` (mock data for stable docs captures; beta uses the live API).
+From `@tahti-player/tahti-web` (mock data for stable docs captures; beta uses the live API).
 
 ### Listen home
 
@@ -94,10 +94,10 @@ More studio captures: [`packages/tahti-web/docs/redesign-shots/`](./packages/tah
 
 | Area | Package / path | Role |
 |------|----------------|------|
-| **Tahti web (beta)** | `@nuclearplayer/tahti-web` | Listen + studio UI → public Tahti API (or mocks) |
-| **Desktop player** | `@nuclearplayer/player` | Tahti Player Tauri app (React + Rust) |
-| Shared UI / themes | `@nuclearplayer/ui`, `themes`, … | Design system used by player and Tahti web |
-| Plugin SDK | `@nuclearplayer/plugin-sdk` | Plugin API (published upstream to npm) |
+| **Tahti web (beta)** | `@tahti-player/tahti-web` | Listen + studio UI → public Tahti API (or mocks) |
+| **Desktop player** | `@tahti-player/player` | Tahti Player Tauri app (React + Rust) |
+| Shared UI / themes | `@tahti-player/ui`, `themes`, … | Design system used by player and Tahti web |
+| Plugin SDK | `@tahti-player/plugin-sdk` | Plugin API (published upstream to npm) |
 
 pnpm + Turborepo. Package manager: `pnpm@10.33.4` (see root `package.json`).
 
@@ -188,7 +188,7 @@ claude mcp add tahti-player --transport http http://127.0.0.1:8800/mcp
 codex mcp add tahti-player --url http://127.0.0.1:8800/mcp
 ```
 
-Full docs: [`packages/docs/integrations/mcp-server.md`](./packages/docs/integrations/mcp-server.md) (tool reference, OpenCode/Cursor/Windsurf/MCP Inspector setup, agent skill download). This is a **desktop-only** capability — the Vite SPA (`@nuclearplayer/tahti-web`) can't host the localhost control-plane bridge a CDN-served multi-user app would need; see [`packages/tahti-web/docs/MCP.md`](./packages/tahti-web/docs/MCP.md) for why.
+Full docs: [`packages/docs/integrations/mcp-server.md`](./packages/docs/integrations/mcp-server.md) (tool reference, OpenCode/Cursor/Windsurf/MCP Inspector setup, agent skill download). This is a **desktop-only** capability — the Vite SPA (`@tahti-player/tahti-web`) can't host the localhost control-plane bridge a CDN-served multi-user app would need; see [`packages/tahti-web/docs/MCP.md`](./packages/tahti-web/docs/MCP.md) for why.
 
 ## Relation to Tahti
 

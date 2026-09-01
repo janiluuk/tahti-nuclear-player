@@ -4,7 +4,7 @@ import * as fs from '@tauri-apps/plugin-fs';
 import { LazyStore } from '@tauri-apps/plugin-store';
 import { screen, waitFor } from '@testing-library/react';
 
-import * as themes from '@nuclearplayer/themes';
+import * as themes from '@tahti-player/themes';
 
 import { applyThemeFromSettingsIfAny } from '../../services/advancedThemeService';
 import {

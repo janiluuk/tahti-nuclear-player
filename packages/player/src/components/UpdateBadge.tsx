@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Badge } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Badge } from '@tahti-player/ui';
 
 import { getSetting } from '../stores/settingsStore';
 import { useUpdaterStore } from '../stores/updaterStore';

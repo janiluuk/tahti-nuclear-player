@@ -1,4 +1,4 @@
-import { Badge, Button } from '@nuclearplayer/ui';
+import { Badge, Button } from '@tahti-player/ui';
 
 import { FlowGallery } from '../components/FlowGallery';
 import { MapCommentForm } from '../components/MapCommentForm';
@@ -135,7 +135,7 @@ const FEATURES: FeatureRow[] = [
     tahti: 'brand tokens',
     nuclear: '/settings/themes (was /themes)',
     status: 'live',
-    notes: '@nuclearplayer/themes presets under Settings',
+    notes: '@tahti-player/themes presets under Settings',
   },
   {
     feature: 'Venues directory',
@@ -653,7 +653,7 @@ export function MoreView() {
           <p className="text-foreground-secondary text-sm">
             Every shared tahti-web component and view — panels, dialogs,
             admin/studio chrome — is catalogued in Storybook alongside the
-            existing <code className="text-foreground">@nuclearplayer/ui</code>{' '}
+            existing <code className="text-foreground">@tahti-player/ui</code>{' '}
             library. New or changed UI should match what's documented there; see{' '}
             <code className="text-foreground">UI-REDESIGN-WORKLOG.md</code>
             's compliance-sweep entries for known gaps still being worked

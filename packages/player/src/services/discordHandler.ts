@@ -1,8 +1,8 @@
 import { invoke } from '@tauri-apps/api/core';
 import { toast } from 'sonner';
 
-import type { SoundStatus } from '@nuclearplayer/hifi';
-import { formatArtistNames, type Track } from '@nuclearplayer/model';
+import type { SoundStatus } from '@tahti-player/hifi';
+import { formatArtistNames, type Track } from '@tahti-player/model';
 
 import { useQueueStore } from '../stores/queueStore';
 import { getSetting, useSettingsStore } from '../stores/settingsStore';

@@ -6,7 +6,7 @@ import {
 } from '../test/fixtures/remoteControl';
 import { RemoteControlWrapper } from './RemoteControl.test-wrapper';
 
-vi.mock('@nuclearplayer/themes', () => ({
+vi.mock('@tahti-player/themes', () => ({
   setThemeId: vi.fn(),
   DEFAULT_THEME_ID: 'nuclear:default',
 }));

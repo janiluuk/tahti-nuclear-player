@@ -1,7 +1,7 @@
 import { PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Textarea } from '@nuclearplayer/ui';
+import { Badge, Button, Textarea } from '@tahti-player/ui';
 
 import {
   approveRadioSubmission,

@@ -8,7 +8,7 @@ import {
   Input,
   Select,
   Textarea,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   deleteAdminDiscoWidget,

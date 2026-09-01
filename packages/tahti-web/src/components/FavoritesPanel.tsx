@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
-import { Badge, SectionShell } from '@nuclearplayer/ui';
+import { Badge, SectionShell } from '@tahti-player/ui';
 
 import { useLibraryStore } from '../stores/libraryStore';
 

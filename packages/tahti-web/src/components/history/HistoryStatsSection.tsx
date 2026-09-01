@@ -10,7 +10,7 @@ import {
   ScrollableArea,
   Select,
   TopList,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   dailyListeningMs,

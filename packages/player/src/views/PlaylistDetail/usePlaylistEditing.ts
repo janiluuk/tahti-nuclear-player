@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import type { PlaylistItem, Track } from '@nuclearplayer/model';
+import type { PlaylistItem, Track } from '@tahti-player/model';
 
 import { usePlaylistStore } from '../../stores/playlistStore';
 

@@ -3,7 +3,7 @@ import { FullScreenPlayer } from '@tahti-web/components/FullScreenPlayer';
 import { useLayoutStore } from '@tahti-web/stores/layoutStore';
 import { usePlayerStore } from '@tahti-web/stores/playerStore';
 
-import type { QueueItem } from '@nuclearplayer/model';
+import type { QueueItem } from '@tahti-player/model';
 
 function mockQueueItem(
   id: string,

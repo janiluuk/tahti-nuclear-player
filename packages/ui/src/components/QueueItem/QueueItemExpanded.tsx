@@ -1,7 +1,7 @@
 import { AlertCircle, CassetteTape, X } from 'lucide-react';
 import { FC } from 'react';
 
-import { pickArtwork } from '@nuclearplayer/model';
+import { pickArtwork } from '@tahti-player/model';
 
 import { cn } from '../../utils';
 import { formatTimeMillis } from '../../utils/time';

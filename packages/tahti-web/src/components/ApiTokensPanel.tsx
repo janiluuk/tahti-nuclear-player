@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, SectionShell } from '@nuclearplayer/ui';
+import { Button, Input, SectionShell } from '@tahti-player/ui';
 
 import {
   createApiToken,

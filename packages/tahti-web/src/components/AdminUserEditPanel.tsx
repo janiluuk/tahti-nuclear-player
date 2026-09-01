@@ -15,7 +15,7 @@ import {
   SaveButton,
   Select,
   Textarea,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   fetchAdminUser,

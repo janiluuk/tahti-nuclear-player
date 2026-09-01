@@ -1,7 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from 'lucide-react';
 import { FC, useEffect, useRef } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 export type LightboxImage = {
   imageUrl: string;

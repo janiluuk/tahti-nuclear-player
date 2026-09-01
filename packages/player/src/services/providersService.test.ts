@@ -4,7 +4,7 @@ import type {
   MetadataProvider,
   ProviderDescriptor,
   ProviderKind,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import { useProvidersStore } from '../stores/providersStore';
 import { providersHost } from './providersHost';

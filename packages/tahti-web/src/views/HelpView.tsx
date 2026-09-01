@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { Input, Tabs } from '@nuclearplayer/ui';
+import { Input, Tabs } from '@tahti-player/ui';
 
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';

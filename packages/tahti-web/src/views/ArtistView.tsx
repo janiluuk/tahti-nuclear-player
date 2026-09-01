@@ -20,7 +20,7 @@ import {
   Dialog,
   SaveButton,
   Textarea,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   fetchMyPressKitImages,

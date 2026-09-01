@@ -34,7 +34,7 @@ import {
   Select,
   Slider,
   Tabs,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   createRtmpTarget,

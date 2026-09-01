@@ -1,5 +1,5 @@
 {
-  "name": "@nuclearplayer/tahti-web",
+  "name": "@tahti-player/tahti-web",
   "version": "0.0.19",
   "private": true,
   "type": "module",
@@ -17,10 +17,10 @@
     "deploy:vimage": "./deploy/deploy-vimage.sh"
   },
   "dependencies": {
-    "@nuclearplayer/model": "workspace:*",
-    "@nuclearplayer/tailwind-config": "workspace:*",
-    "@nuclearplayer/themes": "workspace:*",
-    "@nuclearplayer/ui": "workspace:*",
+    "@tahti-player/model": "workspace:*",
+    "@tahti-player/tailwind-config": "workspace:*",
+    "@tahti-player/themes": "workspace:*",
+    "@tahti-player/ui": "workspace:*",
     "@tanstack/react-router": "^1.131.2",
     "hls.js": "^1.5.15",
     "lucide-react": "^0.542.0",
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
-    "@nuclearplayer/eslint-config": "workspace:*",
+    "@tahti-player/eslint-config": "workspace:*",
     "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",

@@ -5,7 +5,7 @@ import {
   applyAdvancedTheme,
   parseAdvancedTheme,
   setThemeId,
-} from '@nuclearplayer/themes';
+} from '@tahti-player/themes';
 
 import { useThemeStore, type ActiveTheme } from '../stores/themeStore';
 import { errorMessage } from '../utils/errorMessage';

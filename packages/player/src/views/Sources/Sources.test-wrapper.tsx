@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-router';
 import { render, RenderResult, screen, within } from '@testing-library/react';
 
-import { createSelectWrapper } from '@nuclearplayer/ui';
+import { createSelectWrapper } from '@tahti-player/ui';
 
 import App from '../../App';
 import { routeTree } from '../../routeTree.gen';

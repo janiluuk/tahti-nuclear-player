@@ -1,7 +1,7 @@
 import { PlusIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Badge, Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Badge, Button, Dialog, Input } from '@tahti-player/ui';
 
 import {
   createAdminLanguage,

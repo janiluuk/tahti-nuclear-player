@@ -1,7 +1,7 @@
 import { useParams } from '@tanstack/react-router';
 import { FC } from 'react';
 
-import { ScrollableArea } from '@nuclearplayer/ui';
+import { ScrollableArea } from '@tahti-player/ui';
 
 import { AlbumHeader } from './components/AlbumHeader';
 import { AlbumTrackList } from './components/AlbumTrackList';

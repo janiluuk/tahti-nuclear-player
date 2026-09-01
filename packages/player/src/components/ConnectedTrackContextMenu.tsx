@@ -1,9 +1,9 @@
 import { Heart, ListEnd, ListMusicIcon, ListStart, Play } from 'lucide-react';
 import { FC, ReactNode } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { pickArtwork, Track } from '@nuclearplayer/model';
-import { Input, TrackContextMenu } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { pickArtwork, Track } from '@tahti-player/model';
+import { Input, TrackContextMenu } from '@tahti-player/ui';
 
 import { usePlaylistSubmenu } from '../hooks/usePlaylistSubmenu';
 import { useTrackActions } from '../hooks/useTrackActions';

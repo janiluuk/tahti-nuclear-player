@@ -1,7 +1,7 @@
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Card, CardGrid } from '@nuclearplayer/ui';
+import { Button, Card, CardGrid } from '@tahti-player/ui';
 
 import { radioStation, radioStationPlayable } from '../content/radioStations';
 import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';

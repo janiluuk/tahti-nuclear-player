@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import '@nuclearplayer/tailwind-config';
+import '@tahti-player/tailwind-config';
 
 import { FilePicker } from '.';
 

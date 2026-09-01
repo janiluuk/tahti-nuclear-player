@@ -1,5 +1,5 @@
-import { useTranslation } from '@nuclearplayer/i18n';
-import { SectionShell, Select } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { SectionShell, Select } from '@tahti-player/ui';
 
 import { useMarketplaceThemeOptions } from '../../hooks/useMarketplaceThemeOptions';
 import { loadAndApplyMarketplaceTheme } from '../../services/advancedThemeService';

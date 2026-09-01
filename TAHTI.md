@@ -7,7 +7,7 @@ It is **not** the upstream Nuclear project. Do not open Nuclear PRs from this tr
 
 ## Product in one paragraph
 
-**Tahti** is a Finnish nonprofit broadcasting platform for independent artists (live channels, archive, fan subscriptions). This fork adds `@nuclearplayer/tahti-web` — a Nuclear-UI listen + studio SPA that already runs on **beta.tahti.live** against the production API, intended to replace the Next.js `apps/web` client after cutover ([`packages/tahti-web/CUTOVER.md`](./packages/tahti-web/CUTOVER.md)).
+**Tahti** is a Finnish nonprofit broadcasting platform for independent artists (live channels, archive, fan subscriptions). This fork adds `@tahti-player/tahti-web` — a Nuclear-UI listen + studio SPA that already runs on **beta.tahti.live** against the production API, intended to replace the Next.js `apps/web` client after cutover ([`packages/tahti-web/CUTOVER.md`](./packages/tahti-web/CUTOVER.md)).
 
 ## Remotes
 

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import type { FC } from 'react';
 
-import { Badge } from '@nuclearplayer/ui';
+import { Badge } from '@tahti-player/ui';
 
 import type { FanPayoutStats } from '../api/revenue';
 

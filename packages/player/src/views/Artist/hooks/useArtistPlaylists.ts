@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { PlaylistRef } from '@nuclearplayer/model';
+import type { PlaylistRef } from '@tahti-player/model';
 
 import { metadataHost } from '../../../services/metadataHost';
 

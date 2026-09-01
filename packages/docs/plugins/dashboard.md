@@ -6,7 +6,7 @@ description: "Supply dashboard content: top tracks, trending artists, curated pl
 
 ## Dashboard Providers
 
-Dashboard providers supply Nuclear's home screen with content like charts, trending artists, new releases, and curated playlists. When you open the player, Nuclear calls each registered dashboard provider and assembles the results into an overview. Without a dashboard provider, the dashboard shows an empty state prompting the user to enable a plugin.
+Dashboard providers supply Tahti Player's home screen with content like charts, trending artists, new releases, and curated playlists. When you open the player, Tahti Player calls each registered dashboard provider and assembles the results into an overview. Without a dashboard provider, the dashboard shows an empty state prompting the user to enable a plugin.
 
 Plugins can either add a new dashboard provider, or consume dashboard data from existing providers.
 
@@ -19,7 +19,7 @@ Plugins can either add a new dashboard provider, or consume dashboard data from 
 You register dashboard providers with `api.Providers.register()` just like any other provider. It needs an `id`, `kind: 'dashboard'`, a `name`, a `metadataProviderId`, and a list of `capabilities` declaring which content it can supply:
 
 ```typescript
-import type { DashboardProvider, NuclearPlugin, NuclearPluginAPI } from '@nuclearplayer/plugin-sdk';
+import type { DashboardProvider, TahtiPlugin, TahtiPluginAPI } from '@tahti-player/plugin-sdk';
 
 const provider: DashboardProvider = {
   id: 'acme-dashboard',
@@ -37,11 +37,11 @@ const provider: DashboardProvider = {
   },
 };
 
-const plugin: NuclearPlugin = {
-  onEnable(api: NuclearPluginAPI) {
+const plugin: TahtiPlugin = {
+  onEnable(api: TahtiPluginAPI) {
     api.Providers.register(provider);
   },
-  onDisable(api: NuclearPluginAPI) {
+  onDisable(api: TahtiPluginAPI) {
     api.Providers.unregister('acme-dashboard');
   },
 };
@@ -50,12 +50,12 @@ export default plugin;
 ```
 
 {% hint style="warning" %}
-Always unregister your provider in `onDisable`. If you don't, it stays registered and Nuclear will keep calling it after the plugin is disabled.
+Always unregister your provider in `onDisable`. If you don't, it stays registered and Tahti Player will keep calling it after the plugin is disabled.
 {% endhint %}
 
 ### Capabilities
 
-Capabilities tell Nuclear which content your provider can fetch. Nuclear only calls methods for capabilities you declare. If you don't list `'topArtists'`, `fetchTopArtists` is never called even if you define it.
+Capabilities tell Tahti Player which content your provider can fetch. Tahti Player only calls methods for capabilities you declare. If you don't list `'topArtists'`, `fetchTopArtists` is never called even if you define it.
 
 | Capability | Method called | Returns | Widget |
 |------------|--------------|---------|--------|
@@ -66,7 +66,7 @@ Capabilities tell Nuclear which content your provider can fetch. Nuclear only ca
 | `'newReleases'` | `fetchNewReleases()` | `AlbumRef[]` | Album card row |
 
 {% hint style="info" %}
-Nuclear only calls methods for declared capabilities. Declare only the ones you actually implement.
+Tahti Player only calls methods for declared capabilities. Declare only the ones you actually implement.
 {% endhint %}
 
 Note that `fetchTopTracks` returns full `Track[]` objects, not `TrackRef[]`. The dashboard track table needs complete track data (title, artist, duration, thumbnail) to render without additional lookups.
@@ -75,9 +75,9 @@ Note that `fetchTopTracks` returns full `Track[]` objects, not `TrackRef[]`. The
 
 ## The `metadataProviderId` field
 
-Every dashboard provider must specify a `metadataProviderId`. This tells Nuclear which metadata provider can look up the entities your dashboard returns.
+Every dashboard provider must specify a `metadataProviderId`. This tells Tahti Player which metadata provider can look up the entities your dashboard returns.
 
-When a user clicks an artist or album on the dashboard, Nuclear navigates to a detail page. It needs to know which metadata provider can fetch that entity's full details, that's what `metadataProviderId` is for. If you set it to a provider that doesn't exist or can't resolve your IDs, artist and album links from the dashboard will fail.
+When a user clicks an artist or album on the dashboard, Tahti Player navigates to a detail page. It needs to know which metadata provider can fetch that entity's full details, that's what `metadataProviderId` is for. If you set it to a provider that doesn't exist or can't resolve your IDs, artist and album links from the dashboard will fail.
 
 Typically, your plugin registers both a metadata provider and a dashboard provider, and they share the same underlying API. Point `metadataProviderId` at your metadata provider's `id`.
 
@@ -85,7 +85,7 @@ Typically, your plugin registers both a metadata provider and a dashboard provid
 
 ## Attributed results
 
-When multiple dashboard providers are registered, Nuclear will render results from all of them. The API wraps each provider's data in an `AttributedResult<T>`:
+When multiple dashboard providers are registered, Tahti Player will render results from all of them. The API wraps each provider's data in an `AttributedResult<T>`:
 
 ```typescript
 type AttributedResult<T> = {
@@ -96,7 +96,7 @@ type AttributedResult<T> = {
 };
 ```
 
-Each attributed result carries the provider's name and IDs, so Nuclear can render labeled sections (e.g. "Top Tracks - Acme Music") and route navigation to the correct metadata provider.
+Each attributed result carries the provider's name and IDs, so Tahti Player can render labeled sections (e.g. "Top Tracks - Acme Music") and route navigation to the correct metadata provider.
 
 ---
 
@@ -106,7 +106,7 @@ Plugins can consume dashboard data from all registered providers via `api.Dashbo
 
 ```typescript
 export default {
-  async onEnable(api: NuclearPluginAPI) {
+  async onEnable(api: TahtiPluginAPI) {
     const topTracks = await api.Dashboard.fetchTopTracks();
 
     for (const result of topTracks) {
@@ -126,6 +126,6 @@ api.Dashboard.fetchEditorialPlaylists(providerId?: string): Promise<AttributedRe
 api.Dashboard.fetchNewReleases(providerId?: string): Promise<AttributedResult<AlbumRef>[]>
 ```
 
-All methods accept an optional `providerId`. If omitted, Nuclear queries all registered dashboard providers and returns an array with one `AttributedResult` per provider. If provided, only that provider is queried.
+All methods accept an optional `providerId`. If omitted, Tahti Player queries all registered dashboard providers and returns an array with one `AttributedResult` per provider. If provided, only that provider is queried.
 
 ---

@@ -32,7 +32,7 @@ import {
   Slider,
   Tabs,
   Tooltip,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   BRAND_ACCENTS,

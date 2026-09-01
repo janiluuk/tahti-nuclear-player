@@ -79,7 +79,7 @@ Login is `POST /api/auth/login`, TOTP login is
 Run this from the Nuclear repository root:
 
 ```bash
-pnpm --filter @nuclearplayer/tahti-web check:api-docs
+pnpm --filter @tahti-player/tahti-web check:api-docs
 ```
 
 The check hashes the sibling OpenAPI `paths` object and compares it with the

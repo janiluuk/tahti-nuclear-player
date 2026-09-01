@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, MediaArtwork, SectionShell } from '@nuclearplayer/ui';
+import { Button, MediaArtwork, SectionShell } from '@tahti-player/ui';
 
 import { fetchArtistPlayables, fetchFeed, fetchProfile } from '../api/client';
 import type {

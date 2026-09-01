@@ -2,10 +2,10 @@ import isEmpty from 'lodash-es/isEmpty';
 import { ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
 import { FC, useMemo, useRef, useState } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { ArtistRef, pickArtwork } from '@nuclearplayer/model';
-import type { AttributedResult } from '@nuclearplayer/plugin-sdk';
-import { Badge, Button, Input, Loader, MediaArtwork } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { ArtistRef, pickArtwork } from '@tahti-player/model';
+import type { AttributedResult } from '@tahti-player/plugin-sdk';
+import { Badge, Button, Input, Loader, MediaArtwork } from '@tahti-player/ui';
 
 import { useDashboardTopArtists } from '../hooks/useDashboardData';
 import { useNavigateToEntity } from '../hooks/useNavigateToEntity';

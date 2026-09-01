@@ -1,4 +1,4 @@
-import { QueuePanel } from '@nuclearplayer/ui';
+import { QueuePanel } from '@tahti-player/ui';
 
 import { usePlayerStore } from '../stores/playerStore';
 

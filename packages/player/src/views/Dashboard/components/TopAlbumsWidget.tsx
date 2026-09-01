@@ -1,9 +1,9 @@
 import { FC, useCallback } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { AlbumRef, pickArtwork } from '@nuclearplayer/model';
-import type { AttributedResult } from '@nuclearplayer/plugin-sdk';
-import type { CardsRowItem } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { AlbumRef, pickArtwork } from '@tahti-player/model';
+import type { AttributedResult } from '@tahti-player/plugin-sdk';
+import type { CardsRowItem } from '@tahti-player/ui';
 
 import { useDashboardTopAlbums } from '../hooks/useDashboardData';
 import { useNavigateToEntity } from '../hooks/useNavigateToEntity';

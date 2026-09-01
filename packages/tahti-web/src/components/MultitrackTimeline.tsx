@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Slider } from '@nuclearplayer/ui';
+import { Button, Slider } from '@tahti-player/ui';
 
 import type {
   EditorSource,

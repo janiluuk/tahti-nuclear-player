@@ -8,7 +8,7 @@ import {
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, FilePicker, Input, Textarea } from '@nuclearplayer/ui';
+import { Button, Dialog, FilePicker, Input, Textarea } from '@tahti-player/ui';
 
 import {
   createArtistPost,

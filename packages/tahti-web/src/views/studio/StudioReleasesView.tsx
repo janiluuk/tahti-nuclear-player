@@ -12,7 +12,7 @@ import {
 import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@tahti-player/ui';
 
 import {
   createStudioRelease,

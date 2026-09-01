@@ -21,7 +21,7 @@ import {
   SaveButton,
   Select,
   Tabs,
-} from '@nuclearplayer/ui';
+} from '@tahti-player/ui';
 
 import {
   deleteAdminFile,

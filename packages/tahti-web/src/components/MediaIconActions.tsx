@@ -2,7 +2,7 @@
 import { CheckIcon, HeartIcon, ListPlusIcon, PlayIcon } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button } from '@tahti-player/ui';
 
 import { cn } from '../lib/cn';
 

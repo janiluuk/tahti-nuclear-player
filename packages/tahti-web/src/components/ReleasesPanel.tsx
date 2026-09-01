@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowDownIcon, ArrowUpIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input } from '@tahti-player/ui';
 
 import type { PublicProfileRelease } from '../api/types';
 import { usePlayerStore } from '../stores/playerStore';

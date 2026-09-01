@@ -1,7 +1,7 @@
 import { ListMusicIcon, PlayIcon, Trash2Icon } from 'lucide-react';
 import { FC, useState } from 'react';
 
-import { Box, Button, Select } from '@nuclearplayer/ui';
+import { Box, Button, Select } from '@tahti-player/ui';
 
 import type { ProgrammeItem } from '../api/studio-extras';
 

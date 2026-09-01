@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { Track, TrackRef } from '@nuclearplayer/model';
+import type { Track, TrackRef } from '@tahti-player/model';
 
 import { metadataHost } from '../../../services/metadataHost';
 

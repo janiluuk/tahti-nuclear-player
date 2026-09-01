@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import {
   type SettingDefinition,
   type SettingsHost,
-} from '@nuclearplayer/plugin-sdk';
+} from '@tahti-player/plugin-sdk';
 
 import {
   coreSettingsHost,

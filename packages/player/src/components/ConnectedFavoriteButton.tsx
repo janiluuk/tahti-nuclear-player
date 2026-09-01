@@ -1,8 +1,8 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import type { AlbumRef, ArtistRef, ProviderRef } from '@nuclearplayer/model';
-import { FavoriteButton } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import type { AlbumRef, ArtistRef, ProviderRef } from '@tahti-player/model';
+import { FavoriteButton } from '@tahti-player/ui';
 
 import { useFavoritesStore } from '../stores/favoritesStore';
 

@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { Loader } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { Loader } from '@tahti-player/ui';
 
 import { ConnectedTrackTable } from '../../../components/ConnectedTrackTable';
 import { useArtistTopTracks } from '../hooks/useArtistTopTracks';

@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Select } from '@nuclearplayer/ui';
+import { Button, Select } from '@tahti-player/ui';
 
 import { fetchMyFanTiers, type FanTierRow } from '../api/fan-tiers';
 

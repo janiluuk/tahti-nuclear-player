@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { Toggle } from '@nuclearplayer/ui';
+import { Toggle } from '@tahti-player/ui';
 
 /** Nuclear Settings ToggleField pattern. */
 export function SettingsToggle({

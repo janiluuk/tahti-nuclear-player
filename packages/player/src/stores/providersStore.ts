@@ -1,7 +1,7 @@
 import { LazyStore } from '@tauri-apps/plugin-store';
 import { create } from 'zustand';
 
-import type { ProviderKind } from '@nuclearplayer/plugin-sdk';
+import type { ProviderKind } from '@tahti-player/plugin-sdk';
 
 const STORE_FILE = 'active-providers.json';
 const STORE_KEY = 'active';

@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import { useTranslation } from '@nuclearplayer/i18n';
-import { CenteredLoader, Input, ThemeStoreItem } from '@nuclearplayer/ui';
+import { useTranslation } from '@tahti-player/i18n';
+import { CenteredLoader, Input, ThemeStoreItem } from '@tahti-player/ui';
 
 import { useFilteredMarketplaceThemes } from '../../hooks/useFilteredMarketplaceThemes';
 import { useInstallTheme } from '../../hooks/useInstallTheme';

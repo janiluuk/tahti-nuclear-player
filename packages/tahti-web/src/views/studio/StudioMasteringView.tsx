@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { DownloadIcon, SlidersHorizontalIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, FilePicker } from '@nuclearplayer/ui';
+import { Button, FilePicker } from '@tahti-player/ui';
 
 import { fetchEditorSource } from '../../api/studio';
 import type { EditorSource } from '../../api/studio-types';

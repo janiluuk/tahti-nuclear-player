@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { QueueItem as QueueItemType } from '@nuclearplayer/model';
+import type { QueueItem as QueueItemType } from '@tahti-player/model';
 
 import { QueuePanel } from './QueuePanel';
 

@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Toaster } from '@nuclearplayer/ui';
+import { Toaster } from '@tahti-player/ui';
 
 import { reportError } from './logging';
 

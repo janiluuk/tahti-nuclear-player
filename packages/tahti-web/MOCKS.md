@@ -43,5 +43,5 @@ Production / beta builds (`import.meta.env.PROD`) **do not** fall back to fixtur
 ## Run
 
 ```bash
-VITE_FORCE_MOCK=1 pnpm --filter @nuclearplayer/tahti-web dev
+VITE_FORCE_MOCK=1 pnpm --filter @tahti-player/tahti-web dev
 ```
