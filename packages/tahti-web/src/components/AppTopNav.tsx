@@ -196,6 +196,8 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                   iconBtnClass,
                   (broadcastOpen || pathname.startsWith('/studio/go-live')) &&
                     'border-primary bg-primary/15 text-primary',
+                  isLive &&
+                    'border-accent-green/70 bg-accent-green/15 text-accent-green motion-safe:animate-[pulse_1.4s_ease-in-out_infinite]',
                 )}
                 aria-label="Broadcast status"
                 aria-haspopup="menu"
@@ -407,7 +409,12 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
             >
               {isLive ? (
                 <span
-                  className="bg-primary size-1.5 shrink-0 rounded-full"
+                  className={cn(
+                    'size-1.5 shrink-0 rounded-full',
+                    isLive
+                      ? 'bg-accent-green motion-safe:animate-pulse'
+                      : 'bg-primary',
+                  )}
                   aria-hidden
                 />
               ) : null}
