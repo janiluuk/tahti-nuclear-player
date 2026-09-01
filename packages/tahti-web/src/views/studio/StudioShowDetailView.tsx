@@ -920,32 +920,24 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
               and normalize, then approve.
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Trim start (sec)
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  step={0.1}
-                  value={trimStart}
-                  onChange={(e) => setTrimStart(Number(e.target.value))}
-                  className="border-border bg-background mt-1 w-full rounded border px-2 py-1.5"
-                />
-              </label>
-              <label className="text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Trim end (sec, 0 = full)
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  step={0.1}
-                  value={trimEnd}
-                  onChange={(e) => setTrimEnd(Number(e.target.value))}
-                  className="border-border bg-background mt-1 w-full rounded border px-2 py-1.5"
-                />
-              </label>
+              <Input
+                type="number"
+                variant="number"
+                label="Trim start (sec)"
+                min={0}
+                step={0.1}
+                value={trimStart}
+                onChange={(event) => setTrimStart(Number(event.target.value))}
+              />
+              <Input
+                type="number"
+                variant="number"
+                label="Trim end (sec, 0 = full)"
+                min={0}
+                step={0.1}
+                value={trimEnd}
+                onChange={(event) => setTrimEnd(Number(event.target.value))}
+              />
             </div>
             <label className="flex items-center gap-2 text-sm">
               <input
