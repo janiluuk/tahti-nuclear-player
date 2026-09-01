@@ -10,7 +10,7 @@ import {
   WifiOffIcon,
   XIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button, SaveButton } from '@nuclearplayer/ui';
 
@@ -31,7 +31,10 @@ import {
   type DiscoWidgetRenderItem,
 } from '../api/disco-widgets';
 import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
-import { ChannelDesigner } from '../components/ChannelDesigner';
+import {
+  ChannelDesigner,
+  type ChannelDesignerHandle,
+} from '../components/ChannelDesigner';
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelShareButton } from '../components/ChannelShareButton';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
@@ -102,6 +105,9 @@ export function ChannelView({ slug }: { slug: string }) {
     offsetY: number;
   } | null>(null);
   const [layoutDirty, setLayoutDirty] = useState(false);
+  const [lookDirty, setLookDirty] = useState(false);
+  const [savingLook, setSavingLook] = useState(false);
+  const channelDesignerRef = useRef<ChannelDesignerHandle>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(true);
   const [lookTick, setLookTick] = useState(0);
   const [presetNote, setPresetNote] = useState<string | null>(null);
@@ -306,6 +312,21 @@ export function ChannelView({ slug }: { slug: string }) {
     saveChannelPageLayout(slug, layout);
     saveChannelLayoutPresetId(slug, activePresetId);
     setLayoutDirty(false);
+  };
+
+  // Combined save for the single toolbar button: the layers menu embeds
+  // ChannelDesigner in `lookOnly` mode for its look controls, which used to
+  // render its own separate "Save look" button right next to this one —
+  // confusing to have two saves in the same panel. This one now covers both.
+  const saveAll = async () => {
+    if (layoutDirty) {
+      saveLayout();
+    }
+    if (lookDirty) {
+      setSavingLook(true);
+      await channelDesignerRef.current?.save();
+      setSavingLook(false);
+    }
   };
 
   const exitEdit = () => {
@@ -1057,6 +1078,7 @@ export function ChannelView({ slug }: { slug: string }) {
       onApplyPreset={applyPreset}
       lookSlot={
         <ChannelDesigner
+          ref={channelDesignerRef}
           lookOnly
           reloadToken={lookTick}
           displayName={channel.user.displayName}
@@ -1071,6 +1093,7 @@ export function ChannelView({ slug }: { slug: string }) {
                 ? 'visual-style'
                 : null
           }
+          onDirtyChange={setLookDirty}
           onSaved={() => setLookTick((n) => n + 1)}
         />
       }
@@ -1087,7 +1110,9 @@ export function ChannelView({ slug }: { slug: string }) {
           <p className="text-foreground-secondary text-xs">
             Pick a preset, then drag / hide / add. Layout saves in this browser
             for now.
-            {layoutDirty ? ' · unsaved layout' : ' · layout saved locally'}
+            {layoutDirty || lookDirty
+              ? ' · unsaved changes'
+              : ' · saved locally'}
           </p>
           {presetNote && (
             <p className="text-foreground-secondary mt-1 text-xs">
@@ -1105,9 +1130,11 @@ export function ChannelView({ slug }: { slug: string }) {
             {mobileMenuOpen ? 'Hide menu' : 'Layers menu'}
           </Button>
           <SaveButton
-            disabled={!layoutDirty}
-            label="Save page layout"
-            onClick={saveLayout}
+            disabled={!layoutDirty && !lookDirty}
+            saving={savingLook}
+            label="Save changes"
+            savingLabel="Saving…"
+            onClick={() => void saveAll()}
           />
           <Button size="sm" onClick={exitEdit}>
             Done

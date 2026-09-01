@@ -1,5 +1,65 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-01 — Help center coverage audit
+
+**Completed:** Reorganized Help into task-based groups and added guides for
+getting around, the player, favorites and playlists, timeline comments,
+channel design, uploads and processing, sharing and embeds, notifications,
+governance, and admin operations. Existing add-on, artist, listener,
+broadcast, release, account, and support guides remain linked from the hub.
+
+**Validation:** Help content lint, tahti-web type-check, and the existing
+add-on/help catalog tests pass.
+
+## 2026-09-01 — Default white theme reference alignment
+
+**Completed:** Matched the default light palette to the supplied reference:
+white surfaces, blush-pink utility bands and controls, coral primary actions,
+dark navy text, black outlines, and compact rounded corners. Named alternate
+themes remain unchanged, and the existing Tahti logo remains in the top-left
+brand slot.
+
+## 2026-09-01 — Mobile usability audit; Channel Designer preview fix
+
+Phone-width audit of listener/artist surfaces — see
+[MOBILE-USABILITY-AUDIT.md](MOBILE-USABILITY-AUDIT.md) for the full method
+and findings table. No real horizontal-overflow bugs found at 400px across
+Listen, Radio, Discover, a channel page, Library, or Studio home; the
+earlier-flagged `WORKPLAN.md` item about unstyled native controls in
+`StudioDistributionView`/`StudioReleasesView`/Go Live/Schedule looks stale
+and can be dropped — those already use the shared Nuclear form components.
+
+**Fixed:** Channel Designer's live preview scrolled out of view while
+editing its long controls form on anything narrower than 1280px (every
+phone/tablet/most laptops, plus the Settings → Channel & design compact
+instance) — the preview is now sticky and stays pinned during scroll. The
+"Open my channel →" link, previously only in the top action row that
+scrolls away, is now also shown in the preview panel's own header so it
+stays reachable while editing.
+
+**Flagged, not yet fixed:** `/library/favorites` renders two separate
+"Favorites" sections at once (the new sidebar panel plus the older full-page
+view) — a header subtitle now explains the relationship, but full
+consolidation is still open. Five unstyled native `<input type="checkbox">`
+elements remain in `ChannelDesigner.tsx` (lines 650, 718, 881, 1938, and the
+"separate gradient for the player" toggle).
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest run` (53 files, 301
+tests) on `tahti-web` pass clean for the two files touched
+(`ChannelDesigner.tsx`, `FavoritesView.tsx`).
+
+## 2026-09-01 — Anonymous navigation boundary and artwork defaults
+
+**Completed:** Anonymous visitors can stay on Listen and Settings (including
+authentication and essential legal/help routes), while authenticated areas
+redirect to Settings → Account and are removed from anonymous navigation. The
+bottom player bar now stays hidden until a playable item exists. Added sixteen
+generated abstract artwork presets, deterministic artwork fallbacks, and an
+admin preset management page with replacement uploads.
+
+**Validation:** tahti-web type-check, focused lint, and artwork fallback tests
+pass.
+
 ## 2026-09-01 — Round validation cleanup; bump to 0.0.18
 
 **Completed:** Closed out this round's validation: fixed two leftover

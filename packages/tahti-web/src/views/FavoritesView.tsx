@@ -29,7 +29,10 @@ export function FavoritesView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Favorites" />
+      <PageHeader
+        title="Favorites"
+        subtitle="Play, queue, or unfavorite from here. The panel on the left is a quick-jump list to the same items."
+      />
 
       <SectionShell title="Channels">
         {favoriteChannels.length === 0 && radioFavorites.length === 0 ? (
