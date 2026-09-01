@@ -31,6 +31,7 @@ import {
 import { FeedView } from './views/FeedView';
 import { ForgotPasswordView } from './views/ForgotPasswordView';
 import { GreenRoomView } from './views/GreenRoomView';
+import { JamView } from './views/JamView';
 import { JoinView } from './views/JoinView';
 import { ListenView } from './views/ListenView';
 import { LoginView } from './views/LoginView';
@@ -857,6 +858,15 @@ const artistRoute = createRoute({
   },
 });
 
+const jamRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/jam/$code',
+  component: function JamRoute() {
+    const { code } = jamRoute.useParams();
+    return <JamView code={code} />;
+  },
+});
+
 const collectionRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/u/$username/c/$slug',
@@ -1590,6 +1600,7 @@ const routeTree = rootRoute.addChildren([
     channelRoute,
     prodChannelAliasRoute,
     artistRoute,
+    jamRoute,
     collectionRoute,
     trackDetailRoute,
     prodSubscribeAliasRoute,

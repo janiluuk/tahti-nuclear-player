@@ -5,8 +5,10 @@ import {
   ListPlusIcon,
   PencilIcon,
   PlayIcon,
+  RadioIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@nuclearplayer/ui';
 
@@ -15,6 +17,7 @@ import {
   fetchCollectionSubscription,
   setCollectionSubscription,
 } from '../api/client';
+import { createJam } from '../api/jam';
 import type {
   CollectionArchiveItem,
   PublicCollection,
@@ -184,6 +187,19 @@ export function CollectionView({
     }
   };
 
+  const startJam = async () => {
+    if (!me) {
+      void navigate({ to: '/login' });
+      return;
+    }
+    try {
+      const session = await createJam(slug);
+      void navigate({ to: '/jam/$code', params: { code: session.code } });
+    } catch {
+      toast.error("Couldn't start a Jam for this playlist.");
+    }
+  };
+
   const toggleSubscription = async () => {
     if (!subscription || subscriptionBusy) {
       return;
@@ -302,6 +318,10 @@ export function CollectionView({
               <ListPlusIcon size={16} aria-hidden />
             </Button>
             <EmbedButton target={{ kind: 'collection', slug }} />
+            <Button variant="secondary" onClick={() => void startJam()}>
+              <RadioIcon size={15} aria-hidden className="mr-1.5" />
+              Start a Jam
+            </Button>
             <Button
               variant={isFavorite ? 'default' : 'secondary'}
               aria-pressed={isFavorite}

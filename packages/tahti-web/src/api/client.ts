@@ -94,14 +94,14 @@ export { TAHTI_RADIO_SLUG };
 const forceMock = isForceMock;
 
 /** Browser calls go through Vite proxy → Tahti API (avoids CORS). */
-const apiBase = () => {
+export const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
     return import.meta.env.VITE_TAHTI_API_URL.replace(/\/$/, '');
   }
   return '/tahti-api';
 };
 
-async function requestJson<T>(
+export async function requestJson<T>(
   path: string,
   init?: RequestInit,
 ): Promise<{ data: T; status: number }> {
