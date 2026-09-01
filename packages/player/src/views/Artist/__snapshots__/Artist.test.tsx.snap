@@ -667,7 +667,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
         />
       </div>
       <main
-        class="bg-background-secondary min-w-0 overflow-auto"
+        class="bg-background min-w-0 overflow-auto"
         data-testid="player-workspace-main"
       >
         <div
@@ -687,7 +687,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                 style="scrollbar-width: none;"
               >
                 <div
-                  class="border-border bg-primary shadow-shadow relative m-4 rounded-md border-(length:--border-width) p-6"
+                  class="border-border flex rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-shadow relative m-4 h-auto w-auto p-6"
                 >
                   <button
                     aria-label="Add to favorites"
@@ -2516,7 +2516,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
         />
       </div>
       <main
-        class="bg-background-secondary min-w-0 overflow-auto"
+        class="bg-background min-w-0 overflow-auto"
         data-testid="player-workspace-main"
       >
         <div

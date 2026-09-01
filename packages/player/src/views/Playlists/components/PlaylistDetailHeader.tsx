@@ -3,7 +3,15 @@ import type { FC, ReactNode } from 'react';
 
 import { useTranslation } from '@nuclearplayer/i18n';
 import type { Playlist } from '@nuclearplayer/model';
-import { Badge, Button, cn, Input, Textarea, Tooltip } from '@nuclearplayer/ui';
+import {
+  Badge,
+  Box,
+  Button,
+  cn,
+  Input,
+  Textarea,
+  Tooltip,
+} from '@nuclearplayer/ui';
 
 import { PlaylistArtwork } from './PlaylistArtwork';
 import { usePlaylistDetailHeader } from './usePlaylistDetailHeader';
@@ -34,9 +42,10 @@ export const PlaylistDetailHeader: FC<PlaylistDetailHeaderProps> = ({
   } = usePlaylistDetailHeader(playlist);
 
   return (
-    <div
+    <Box
+      variant="primary"
       className={cn(
-        'border-border bg-primary shadow-shadow relative flex flex-col gap-6 rounded-md border-(length:--border-width) p-6 md:flex-row',
+        'relative h-auto w-auto flex-col gap-6 p-6 md:flex-row',
         className,
       )}
     >
@@ -121,6 +130,6 @@ export const PlaylistDetailHeader: FC<PlaylistDetailHeaderProps> = ({
 
         {children}
       </div>
-    </div>
+    </Box>
   );
 };

@@ -3,7 +3,7 @@ import { FC } from 'react';
 
 import { useTranslation } from '@nuclearplayer/i18n';
 import { pickArtwork } from '@nuclearplayer/model';
-import { Loader, StatChip } from '@nuclearplayer/ui';
+import { Box, Loader, StatChip } from '@nuclearplayer/ui';
 
 import { ConnectedFavoriteButton } from '../../../components/ConnectedFavoriteButton';
 import { useAlbumDetails } from '../hooks/useAlbumDetails';
@@ -48,7 +48,10 @@ export const AlbumHeader: FC<AlbumHeaderProps> = ({ providerId, albumId }) => {
   const trackCount = album.tracks?.length ?? 0;
 
   return (
-    <div className="border-border bg-primary shadow-shadow relative mx-6 mt-6 flex flex-col gap-6 rounded-md border-(length:--border-width) p-6 md:flex-row">
+    <Box
+      variant="primary"
+      className="relative mx-6 mt-6 h-auto w-auto flex-col gap-6 p-6 md:flex-row"
+    >
       <ConnectedFavoriteButton
         type="album"
         source={{ provider: providerId, id: albumId }}
@@ -96,6 +99,6 @@ export const AlbumHeader: FC<AlbumHeaderProps> = ({ providerId, albumId }) => {
           <StatChip value={trackCount} label={t('tracks')} />
         </div>
       </div>
-    </div>
+    </Box>
   );
 };

@@ -537,7 +537,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
                                       >
                                         <button
                                           aria-pressed="true"
-                                          class="cursor-pointer touch-manipulation items-center whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground hover:bg-black/5 active:bg-black/10 h-auto border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y flex flex-col justify-between gap-2 rounded-md border-(length:--border-width) px-4 py-2 transition hover:shadow-none bg-primary"
+                                          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y text-foreground border-(length:--border-width) hover:shadow-none h-auto flex-col justify-between gap-2 px-4 py-2 bg-primary"
                                           data-headlessui-state=""
                                           type="button"
                                         >
@@ -552,28 +552,28 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
                                             <span
                                               aria-hidden="true"
                                               class="ring-border inline-block size-5 rounded-full ring-2"
-                                              style="background-color: oklch(0.77 0.17 342);"
+                                              style="background-color: oklch(0.78 0.15 20);"
                                             />
                                             <span
                                               aria-hidden="true"
                                               class="ring-border inline-block size-5 rounded-full ring-2"
-                                              style="background-color: oklch(0.95 0.02 342);"
+                                              style="background-color: oklch(0.917 0.036 7.16);"
                                             />
                                             <span
                                               aria-hidden="true"
                                               class="ring-border inline-block size-5 rounded-full ring-2"
-                                              style="background-color: oklch(0.42 0.1 342);"
+                                              style="background-color: oklch(0.48 0.08 5);"
                                             />
                                             <span
                                               aria-hidden="true"
                                               class="ring-border inline-block size-5 rounded-full ring-2"
-                                              style="background-color: oklch(0.15 0.02 342);"
+                                              style="background-color: oklch(0.28 0.12 260);"
                                             />
                                           </div>
                                         </button>
                                         <button
                                           aria-pressed="false"
-                                          class="cursor-pointer touch-manipulation items-center whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground hover:bg-black/5 active:bg-black/10 h-auto bg-background-secondary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y flex flex-col justify-between gap-2 rounded-md border-(length:--border-width) px-4 py-2 transition hover:shadow-none"
+                                          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background-secondary text-foreground border-(length:--border-width) hover:shadow-none h-auto flex-col justify-between gap-2 px-4 py-2"
                                           data-headlessui-state=""
                                           type="button"
                                         >
@@ -609,7 +609,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
                                         </button>
                                         <button
                                           aria-pressed="false"
-                                          class="cursor-pointer touch-manipulation items-center whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground hover:bg-black/5 active:bg-black/10 h-auto bg-background-secondary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y flex flex-col justify-between gap-2 rounded-md border-(length:--border-width) px-4 py-2 transition hover:shadow-none"
+                                          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background-secondary text-foreground border-(length:--border-width) hover:shadow-none h-auto flex-col justify-between gap-2 px-4 py-2"
                                           data-headlessui-state=""
                                           type="button"
                                         >
@@ -645,7 +645,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
                                         </button>
                                         <button
                                           aria-pressed="false"
-                                          class="cursor-pointer touch-manipulation items-center whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground hover:bg-black/5 active:bg-black/10 h-auto bg-background-secondary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y flex flex-col justify-between gap-2 rounded-md border-(length:--border-width) px-4 py-2 transition hover:shadow-none"
+                                          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background-secondary text-foreground border-(length:--border-width) hover:shadow-none h-auto flex-col justify-between gap-2 px-4 py-2"
                                           data-headlessui-state=""
                                           type="button"
                                         >
@@ -681,7 +681,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
                                         </button>
                                         <button
                                           aria-pressed="false"
-                                          class="cursor-pointer touch-manipulation items-center whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground hover:bg-black/5 active:bg-black/10 h-auto bg-background-secondary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y flex flex-col justify-between gap-2 rounded-md border-(length:--border-width) px-4 py-2 transition hover:shadow-none"
+                                          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background-secondary text-foreground border-(length:--border-width) hover:shadow-none h-auto flex-col justify-between gap-2 px-4 py-2"
                                           data-headlessui-state=""
                                           type="button"
                                         >
@@ -717,7 +717,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
                                         </button>
                                         <button
                                           aria-pressed="false"
-                                          class="cursor-pointer touch-manipulation items-center whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground hover:bg-black/5 active:bg-black/10 h-auto bg-background-secondary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y flex flex-col justify-between gap-2 rounded-md border-(length:--border-width) px-4 py-2 transition hover:shadow-none"
+                                          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background-secondary text-foreground border-(length:--border-width) hover:shadow-none h-auto flex-col justify-between gap-2 px-4 py-2"
                                           data-headlessui-state=""
                                           type="button"
                                         >

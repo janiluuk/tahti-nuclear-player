@@ -667,7 +667,7 @@ exports[`Album view > (Snapshot) renders the album view 1`] = `
         />
       </div>
       <main
-        class="bg-background-secondary min-w-0 overflow-auto"
+        class="bg-background min-w-0 overflow-auto"
         data-testid="player-workspace-main"
       >
         <div
@@ -688,7 +688,7 @@ exports[`Album view > (Snapshot) renders the album view 1`] = `
                 style="scrollbar-width: none;"
               >
                 <div
-                  class="border-border bg-primary shadow-shadow relative mx-6 mt-6 flex flex-col gap-6 rounded-md border-(length:--border-width) p-6 md:flex-row"
+                  class="border-border flex rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-shadow relative mx-6 mt-6 h-auto w-auto flex-col gap-6 p-6 md:flex-row"
                 >
                   <button
                     aria-label="Add to favorites"

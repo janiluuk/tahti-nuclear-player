@@ -3,7 +3,7 @@ import { FC } from 'react';
 
 import { useTranslation } from '@nuclearplayer/i18n';
 import { pickArtwork } from '@nuclearplayer/model';
-import { Loader } from '@nuclearplayer/ui';
+import { Box, Loader } from '@nuclearplayer/ui';
 
 import { ConnectedFavoriteButton } from '../../../components/ConnectedFavoriteButton';
 import { useArtistBio } from '../hooks/useArtistBio';
@@ -28,17 +28,20 @@ export const ArtistBioHeader: FC<ArtistBioHeaderProps> = ({
 
   if (isLoading) {
     return (
-      <div className="border-border bg-primary shadow-shadow m-4 flex items-center justify-center rounded-md border-(length:--border-width) p-6">
+      <Box
+        variant="primary"
+        className="m-4 h-auto w-auto items-center justify-center p-6"
+      >
         <Loader size="xl" data-testid="artist-header-loader" />
-      </div>
+      </Box>
     );
   }
 
   if (isError) {
     return (
-      <div className="border-border bg-primary shadow-shadow m-4 rounded-md border-(length:--border-width) p-6">
+      <Box variant="primary" className="m-4 h-auto w-auto p-6">
         <div className="text-accent-red">{t('errors.failedToLoadDetails')}</div>
-      </div>
+      </Box>
     );
   }
 
@@ -50,7 +53,7 @@ export const ArtistBioHeader: FC<ArtistBioHeaderProps> = ({
   const avatar = pickArtwork(artist.artwork, 'avatar', AVATAR_SIZE_PX);
 
   return (
-    <div className="border-border bg-primary shadow-shadow relative m-4 rounded-md border-(length:--border-width) p-6">
+    <Box variant="primary" className="relative m-4 h-auto w-auto p-6">
       <ConnectedFavoriteButton
         type="artist"
         source={{ provider: providerId, id: artistId }}
@@ -112,6 +115,6 @@ export const ArtistBioHeader: FC<ArtistBioHeaderProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </Box>
   );
 };

@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { FC } from 'react';
 
 import { useTranslation } from '@nuclearplayer/i18n';
-import { Badge, cn } from '@nuclearplayer/ui';
+import { Badge, Box, cn } from '@nuclearplayer/ui';
 
 import type { ChangelogEntryType } from '../../types/changelog';
 import type { WeeklyChangelogEntry } from './groupChangelogByWeek';
@@ -71,7 +71,7 @@ export const TimelineEntry: FC<TimelineEntryProps> = ({
             </div>
           )}
         </div>
-        <div className="border-border bg-background-secondary shadow-shadow flex-1 rounded-md border-(length:--border-width) p-4">
+        <Box variant="tertiary" className="h-auto w-auto flex-1">
           <div
             data-testid="changelog-description"
             className="flex flex-col gap-1"
@@ -84,7 +84,7 @@ export const TimelineEntry: FC<TimelineEntryProps> = ({
               </span>
             ))}
           </div>
-        </div>
+        </Box>
         <div className="flex items-center justify-between px-1">
           <span data-testid="changelog-date" className="text-xs">
             {DateTime.fromISO(entry.date).toLocaleString(DateTime.DATE_MED)}

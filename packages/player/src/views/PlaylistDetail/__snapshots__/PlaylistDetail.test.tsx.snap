@@ -2,7 +2,7 @@
 
 exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`] = `
 <main
-  class="bg-background-secondary min-w-0 overflow-auto"
+  class="bg-background min-w-0 overflow-auto"
   data-testid="player-workspace-main"
 >
   <div
@@ -23,7 +23,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
           style="scrollbar-width: none;"
         >
           <div
-            class="border-border bg-primary shadow-shadow relative flex flex-col gap-6 rounded-md border-(length:--border-width) p-6 md:flex-row mx-6 mt-6"
+            class="border-border flex rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-shadow relative h-auto w-auto flex-col gap-6 p-6 md:flex-row mx-6 mt-6"
           >
             <button
               class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-secondary text-secondary-foreground border-(length:--border-width) hover:shadow-none size-8 justify-center absolute top-4 right-4 z-10"
