@@ -393,7 +393,7 @@ export function AppShell() {
       <AudioEngine />
 
       {isMobile ? (
-        <div className="tahti-ambient-surface bg-background-secondary relative flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="tahti-ambient-surface bg-background relative flex min-h-0 flex-1 flex-col overflow-hidden">
           <div
             className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
             data-studio-shell

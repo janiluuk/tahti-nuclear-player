@@ -18,7 +18,7 @@ const PlayerWorkspaceMain: FC<MainProps> = ({ children, className = '' }) => {
   return (
     <main
       data-testid="player-workspace-main"
-      className={cn('bg-background-secondary min-w-0 overflow-auto', className)}
+      className={cn('bg-background min-w-0 overflow-auto', className)}
     >
       {children}
     </main>

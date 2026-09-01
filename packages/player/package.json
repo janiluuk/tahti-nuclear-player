@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tauri dev",
-    "build": "tsc -p tsconfig.tahti.json && vite build && tauri build",
+    "build": "tsc -p tsconfig.tahti.json && vite build && tauri build --no-bundle",
     "build:frontend": "tsc -p tsconfig.tahti.json && vite build",
     "tauri": "tauri",
     "preview": "vite preview",

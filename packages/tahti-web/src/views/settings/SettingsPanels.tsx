@@ -2174,6 +2174,16 @@ function ThemesPanel() {
   const [configuringThemeId, setConfiguringThemeId] = useState<string | null>(
     null,
   );
+  // Close the nested "Configure theme" dialog in step with the outer
+  // Settings modal, not after it — leaving it open while the parent's own
+  // exit animation plays stacks two independently-animating overlays and
+  // leaves visible fragments of both mid-transition.
+  const settingsOpen = useSettingsModalStore((s) => s.isOpen);
+  useEffect(() => {
+    if (!settingsOpen) {
+      setConfiguringThemeId(null);
+    }
+  }, [settingsOpen]);
   const ambientPreset = useAmbientStore((s) => s.preset);
   const ambientSpeed = useAmbientStore((s) => s.speed);
   const ambientIntensity = useAmbientStore((s) => s.intensity);

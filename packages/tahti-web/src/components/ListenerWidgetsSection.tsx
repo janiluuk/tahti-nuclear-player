@@ -68,7 +68,7 @@ export function ListenerWidgetsSection() {
   return (
     <section className="mb-6 flex w-full flex-col gap-3">
       <div className="flex w-full flex-wrap items-center justify-between gap-2">
-        <h2 className="text-2xl font-bold">Your widgets</h2>
+        <h2 className="text-2xl font-bold">Radio channels</h2>
         <button
           type="button"
           onClick={() => openSettings('plugin-store')}

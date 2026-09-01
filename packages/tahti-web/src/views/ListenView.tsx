@@ -357,25 +357,30 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
 
         {tab === 'listen' ? (
           <>
-            {lastPlayed ? (
-              <SectionShell title="Continue listening">
-                <CardGrid>
-                  <Card
-                    title={lastPlayed.playable.title}
-                    subtitle={lastPlayed.playable.artist}
-                    src={
-                      lastPlayed.playable.coverUrl ??
-                      placeholderArtworkUrl(lastPlayed.playable.id)
-                    }
-                    onPlay={() => play(lastPlayed.playable)}
-                  />
-                </CardGrid>
-              </SectionShell>
-            ) : null}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+              {lastPlayed ? (
+                <div className="sm:min-w-0 sm:flex-1">
+                  <SectionShell title="Continue listening">
+                    <CardGrid>
+                      <Card
+                        title={lastPlayed.playable.title}
+                        subtitle={lastPlayed.playable.artist}
+                        src={
+                          lastPlayed.playable.coverUrl ??
+                          placeholderArtworkUrl(lastPlayed.playable.id)
+                        }
+                        onPlay={() => play(lastPlayed.playable)}
+                      />
+                    </CardGrid>
+                  </SectionShell>
+                </div>
+              ) : null}
+              <div className="sm:min-w-0 sm:flex-1">
+                <ListenerWidgetsSection />
+              </div>
+            </div>
 
             <DiscoWidgetsSection widgets={discoWidgets} />
-
-            <ListenerWidgetsSection />
 
             {radio ? (
               <Box

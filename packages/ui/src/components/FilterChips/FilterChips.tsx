@@ -5,12 +5,13 @@ import { cn } from '../../utils';
 import { useFilterChips, UseFilterChipsConfig } from './useFilterChips';
 
 const chipVariants = cva(
-  'border-border inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors',
+  'inline-flex cursor-pointer items-center justify-center rounded-full border-(length:--border-width) px-3 py-1 text-sm font-medium transition-colors',
   {
     variants: {
       selected: {
-        true: 'bg-foreground text-background',
-        false: 'text-foreground hover:bg-foreground/10 bg-transparent',
+        true: 'bg-primary text-primary-foreground border-primary',
+        false:
+          'border-border text-foreground hover:bg-background-secondary bg-transparent',
       },
     },
     defaultVariants: {
