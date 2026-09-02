@@ -1,0 +1,123 @@
+# Deploy @tahti-player/tahti-web (beta.tahti.live) to vimage via a
+# self-hosted runner that lives ON vimage itself.
+#
+# Unlike deploy-tahti-web.yml (GitHub-hosted runner + jumphost SSH), this
+# workflow needs no external SSH exposure at all: the runner is registered
+# directly on vimage (as the unprivileged `gha-runner` user, in the
+# `docker` group, owning /srv/tahti-beta) and builds + deploys locally.
+# Chosen over the jumphost path specifically to avoid exposing SSH to the
+# public internet on a public repo — see the runner setup notes in
+# packages/tahti-web/deploy/README.md.
+#
+# Deliberately triggers ONLY on workflow_run (after CI succeeds on master)
+# and workflow_dispatch — never on pull_request/pull_request_target. This
+# repo is public, so a self-hosted runner must never be reachable by an
+# arbitrary fork PR; scoping the trigger this way means only someone who
+# can already push to master (or a maintainer clicking "Run workflow")
+# can cause this job to execute.
+name: Deploy tahti-web (beta, self-hosted)
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+
+env:
+  DO_NOT_TRACK: 1
+  DEPLOY_PATH: /srv/tahti-beta
+  DEPLOY_HOST_PORT: 15180
+
+permissions:
+  contents: read
+
+concurrency:
+  # Shared with deploy-tahti-web.yml's group name on purpose: only one of
+  # the two deploy paths (jumphost SSH vs. this self-hosted runner) should
+  # ever run at a time against the same vimage containers/directory.
+  group: deploy-tahti-web
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy beta (self-hosted)
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'master')
+    runs-on: [self-hosted, tahti-deploy]
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Get PNPM store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup PNPM cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @tahti-player/tahti-web
+        # Leave VITE_TAHTI_API_URL unset so the client uses same-origin
+        # /tahti-api (proxied to https://api.tahti.live by nginx on vimage).
+        run: |
+          env -u VITE_TAHTI_API_URL -u VITE_FORCE_MOCK -u VITE_ALLOW_MOCK_FALLBACK \
+            VITE_CENTRIFUGO_WS="${VITE_CENTRIFUGO_WS:-wss://chat.tahti.live/connection/websocket}" \
+            VITE_ENABLE_DIAGNOSTICS=1 \
+            pnpm --filter @tahti-player/tahti-web build
+
+      - name: Verify build output
+        run: test -f packages/tahti-web/dist/index.html
+
+      - name: Sync dist + deploy config locally
+        run: |
+          set -euo pipefail
+          mkdir -p "${DEPLOY_PATH}/dist" "${DEPLOY_PATH}/deploy"
+          rsync -a --delete packages/tahti-web/dist/ "${DEPLOY_PATH}/dist/"
+          rsync -a --delete \
+            --exclude 'deploy-vimage.sh' \
+            --exclude 'README.md' \
+            packages/tahti-web/deploy/ "${DEPLOY_PATH}/deploy/"
+
+      - name: Build image and restart container
+        run: |
+          cd "${DEPLOY_PATH}"
+          docker build -t tahti-beta-web:local -f deploy/Dockerfile .
+          docker compose -f deploy/docker-compose.yml up -d --force-recreate
+          docker image prune -f >/dev/null 2>&1 || true
+
+      - name: Smoke checks
+        run: |
+          set -e
+          code=$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:${DEPLOY_HOST_PORT}/")
+          echo "spa:${code}"
+          test "${code}" = '200'
+          code=$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:${DEPLOY_HOST_PORT}/tahti-api/api/v1/channels/directory")
+          echo "api-proxy:${code}"
+          test "${code}" = '200'
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::tahti-web self-hosted deploy failed for ${{ github.sha }}"

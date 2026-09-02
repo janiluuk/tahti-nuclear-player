@@ -177,9 +177,9 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Shell --> Admin["Admin · board role"]
 
   subgraph studio["Studio sections"]
-    Studio --> StudioOverview["Studio: Overview · Stats · Governance · Posts · Distribution · Audience"]
+    Studio --> StudioOverview["Studio: Overview · Branding · Stats · Governance · Posts · Audience"]
     Studio --> Perform["Perform: Go Live · Schedule · Events · Shows · Channel · Radio · Multicast"]
-    Studio --> Library["Library: Library · Releases · Media · Upload · Editor · Stash"]
+    Studio --> Library["Library: Sounds · Collections · Releases (+ Distribution) · Upload · Editor"]
   end
 
   subgraph admin["Admin sections"]
