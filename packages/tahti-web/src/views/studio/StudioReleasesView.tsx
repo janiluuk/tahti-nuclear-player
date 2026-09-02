@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router';
 import {
-  CopyIcon,
   Disc3Icon,
   DiscAlbumIcon,
   ExternalLinkIcon,
@@ -12,7 +11,7 @@ import {
 import { useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, Input } from '@tahti-player/ui';
+import { Button, CopyButton, Dialog, Input } from '@tahti-player/ui';
 
 import {
   createStudioRelease,
@@ -214,11 +213,15 @@ export function StudioReleasesView({
                     >
                       {r.title}
                     </Link>
-                    <p className="text-foreground-secondary text-xs">
+                    <p className="text-foreground-secondary truncate text-xs">
                       {r.type}, {r.state}
                       {typeof r._count?.tracks === 'number'
                         ? `, ${r._count.tracks} tracks`
                         : ''}
+                      {' · '}
+                      <code className="text-foreground-secondary">
+                        /r/{r.smartLinkSlug}
+                      </code>
                     </p>
                   </div>
                   <Link to="/studio/releases/$id" params={{ id: r.id }}>
@@ -226,21 +229,13 @@ export function StudioReleasesView({
                       Edit
                     </Button>
                   </Link>
-                  <Button
+                  <CopyButton
+                    text={`${window.location.origin}/r/${r.smartLinkSlug}`}
                     size="icon-sm"
                     variant="text"
                     aria-label={`Copy smartlink for ${r.title}`}
                     title="Copy smartlink"
-                    onClick={() => {
-                      const smartLink = `${window.location.origin}/r/${r.smartLinkSlug}`;
-                      void navigator.clipboard.writeText(smartLink).then(
-                        () => toast.success('Smartlink copied.'),
-                        () => toast.error('Could not copy smartlink.'),
-                      );
-                    }}
-                  >
-                    <CopyIcon size={16} aria-hidden />
-                  </Button>
+                  />
                   {r.smartLinkTargets?.bandcamp ? (
                     <a
                       href={r.smartLinkTargets.bandcamp}
