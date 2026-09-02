@@ -35,7 +35,7 @@ key alone (dead, harmless).
 |---|---|---|
 | `tahti-nuclear-theme-id`, `tahti-nuclear-dark` | `themeStore.ts` | Legacy/bootstrap pair, read synchronously before the zustand store hydrates, to set the theme attribute before first paint (avoids a flash of the wrong theme) |
 | `tahti-web-chat-handle` | `ChannelChatPanel.tsx` | Anonymous chat display name, remembered across channels |
-| `tahti-web-hearthis-imports:{userId}` | `SourcesView.tsx` | Per-user list of hearthis.at tracks already queued for import |
+| `tahti-web-hearthis-imports:{userId}` | `PluginStorePanel.tsx` | Per-user list of hearthis.at tracks already queued for import |
 | `tahti-web-auto-record-broadcast` | `broadcast.ts` | Mock-mode auto-record toggle (dev/beta only — real prod value lives server-side) |
 | `tahti-web-mock-news` | `admin.ts` | Mock-mode news post store (dev/beta only) |
 | `tahti-studio-show-series-v1`, `tahti-studio-episodes-v1` | `shows.ts` | Mock-mode show/episode data (dev/beta only) |

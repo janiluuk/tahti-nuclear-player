@@ -11,6 +11,56 @@ Building those per-screen diagrams required grep-verifying every real
 out of scope here). Findings below are real, source-grounded gaps in the
 **Nuclear (this client)** navigation graph, not documentation drift.
 
+## 2026-09-03 — Chrome vs sitemap vs inbound links
+
+Re-audited persistent chrome (`AppShell`, `StudioNav`, `AdminNav`,
+`MobileChrome`) against `router.tsx` and in-app `<Link>`/`navigate()` calls
+(excluding atlas/`MoreView` diagnostics). [NAVIGATION-SITEMAP.md](NAVIGATION-SITEMAP.md)
+now lists chrome separately from routes it does not actually own.
+
+### Sitemap drift (docs claimed chrome that is not there)
+
+1. **Listen does not include Venues.** The sitemap table listed `/venues`
+   under Listen. Chrome is Listen / Radio / Discover / Favorites / Studio
+   (+ Help / Settings). `/venues` has no sidebar, drawer, or bottom-nav
+   entry. The only production links in are venue detail and venue register
+   (back to the directory). Help Center does not mention it.
+
+2. **Radio does not include the public `/schedule` page.** The sitemap said
+   schedule is reached from the radio surface. `RadioView` has no such
+   link. `/schedule` is only opened from `RadioBookingCalendar` and
+   `ScheduleDialog` (book-a-slot flows). `/studio/schedule` is the artist
+   Perform submenu item — a different page.
+
+3. **Library submenu does not include Smart links, Distribution, or Stash
+   as first-class items.** `/library/smartlinks` is a real `LibraryView`
+   tab with zero production inbound links. `/studio/distribution` is a
+   Releases-row + export-add-on deep link. Stash is a collections tab
+   (`/library/collections?tab=stash`); `/studio/stash` itself is only a
+   direct-URL / atlas target.
+
+### Still open (production orphans)
+
+| Gap | Why it matters |
+| --- | --- |
+| `/venues` not in Listen/mobile chrome | Public directory is easy to miss; sitemap and Listen flow diagrams still imply it is a discovery sibling of Radio. |
+| `/schedule` buried in booking UI | Listeners on Radio cannot see the programme without opening the calendar dialog. |
+| `/library/smartlinks` unlinked | Smart-link manager exists but cannot be chosen from Library Overview / Sounds / Collections. |
+| `/studio/distribution` Releases-only | Artists who are not on the releases list have no StudioNav path to delivery status. |
+| `/studio/stash` vs collections tab | Two URLs for the same locker; only the collections tab is discoverable. |
+| `/jam/$code` unlinked | Join-by-code route has no in-app entry besides the atlas. |
+
+### Checked this pass, not orphans
+
+- Admin `/admin/beta`, support, radio-submissions, content-reports,
+  feature-requests, missed-shows, files, activity: **redirects** into
+  Moderation, Storage, or Logs — already in AdminNav.
+- `/admin/orphan-pages` is in Admin → Manage.
+- `/admin/map` and `/more` stay diagnostics-only by design.
+- Help / Settings live in the desktop sidebar and mobile drawer (not the
+  phone bottom bar). That is chrome, not an orphan.
+- Member `/governance` remains Settings → Account only (see item 5 below).
+
 ## Real gaps
 
 1. **Fixed this session — Music/Archive had no entry in the persistent
@@ -31,7 +81,9 @@ out of scope here). Findings below are real, source-grounded gaps in the
    the three is actually broken — they all rely entirely on the persistent
    `StudioNav` sidebar — but they're worth a second look if any of them
    ever needs a "go to the thing I just created" contextual link (e.g.
-   Updates → the post's public page once published).
+   Updates → the post's public page once published). Stash's sidebar
+   highlight works via `SECTION_PREFIXES`; it still has no dedicated
+   submenu label (see 2026-09-03 table).
 
 ## Fixed this session (found while cross-checking, not pre-existing docs)
 
@@ -54,7 +106,7 @@ out of scope here). Findings below are real, source-grounded gaps in the
 
 5. **Governance has no listener top-level sidebar/topnav entry** — intentional:
    the public member-gated route is reachable through the "Governance" button
-   in Settings → Account (`SettingsPanels.tsx:486`). Artists also have the
+   in Settings → Account (`SettingsPanels.tsx`). Artists also have the
    dedicated `/studio/governance` item in `StudioNav`, and board members have
    `/admin/governance` plus `/admin/agm` in `AdminNav`. The `/more` atlas is a
    diagnostics-only map entry, not a production navigation dependency. Keep
@@ -81,3 +133,8 @@ deliberately **excluded** from each screen's `goesTo` list — it reaches
 nearly every top-level section from anywhere and would make all 46
 diagrams identical noise. That's also why gap #1 above matters: it's a
 hole in the one navigation surface that *isn't* per-screen.
+
+The 2026-09-03 pass inverts that method for orphans: chrome is the
+inclusion test, then inbound links are checked so a page with no menu
+item is not counted as reachable just because the atlas diagram mentions
+it.
