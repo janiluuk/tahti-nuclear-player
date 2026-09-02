@@ -25,6 +25,7 @@ import { fetchConversations, type ConversationSummary } from '../api/messages';
 import {
   dismissNotification,
   fetchNotifications,
+  markAllNotificationsRead,
   type TahtiNotification,
 } from '../api/notifications';
 import { fetchStudioSounds } from '../api/studio';
@@ -167,7 +168,22 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
     if (!user) {
       return;
     }
-    void fetchNotifications().then((result) => setNotifications(result.data));
+    void fetchNotifications().then((result) => {
+      setNotifications(result.data);
+      // Opening the bell marks every unread notification read — the same
+      // behavior the backend's /read-all route exists for (sticky
+      // notifications rely on it too). Optimistic so the pill clears
+      // immediately instead of waiting on a second round trip.
+      if (notificationsOpen && result.data.some((n) => !n.readAt)) {
+        void markAllNotificationsRead();
+        setNotifications((prev) =>
+          prev.map((n) => ({
+            ...n,
+            readAt: n.readAt ?? new Date().toISOString(),
+          })),
+        );
+      }
+    });
   }, [notificationsOpen, user]);
 
   useEffect(() => {
