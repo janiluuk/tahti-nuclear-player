@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-02T00:00",
+    "description": "Visualizer presets that follow the playing track now show an Audio reactive label, so you can tell at a glance which backdrops respond to the music.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Visualizers", "color": "cyan" }]
+  },
+  {
     "date": "2026-09-01T00:00",
     "description": "Visitors can now browse Radio, Discover, and Favorites and open the Help center directly from the navigation before signing in.",
     "type": "improvement",

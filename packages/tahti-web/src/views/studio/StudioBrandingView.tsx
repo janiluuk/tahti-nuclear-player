@@ -37,7 +37,6 @@ import {
 } from '../../api/artist-settings';
 import { fetchMeProfile, type ProfileFields } from '../../api/studio-extras';
 import { ArtistGalleryPanel } from '../../components/ArtistGalleryPanel';
-import { ChannelControlsWidget } from '../../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { ImageLightbox } from '../../components/ImageLightbox';
 import { StudioGate } from '../../components/StudioGate';
@@ -389,22 +388,12 @@ export const StudioBrandingPanel: FC<{
               title="Channel outlook"
               description="Apply the same visual language across your profile and live channel."
             >
-              <ChannelControlsWidget
-                sections={[
-                  {
-                    id: 'channel-design',
-                    title: 'Channel appearance',
-                    children: (
-                      <ChannelDesigner
-                        displayName={profile.displayName}
-                        username={profile.username}
-                        avatarUrl={avatarUrl}
-                        bio={profile.bio}
-                        compact
-                      />
-                    ),
-                  },
-                ]}
+              <ChannelDesigner
+                displayName={profile.displayName}
+                username={profile.username}
+                avatarUrl={avatarUrl}
+                bio={profile.bio}
+                compact
               />
             </StudioPanel>
           ) : null}

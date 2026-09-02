@@ -102,7 +102,6 @@ import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { AMBIENT_SCHEME } from '../../components/AmbientBackground';
 import { ApiTokensPanel } from '../../components/ApiTokensPanel';
 import { ArtistImagePurposePicker } from '../../components/ArtistImagePurposePicker';
-import { ChannelControlsWidget } from '../../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { ChannelVisualizer } from '../../components/ChannelVisualizer';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
@@ -1289,23 +1288,13 @@ function ChannelPanel() {
                 </Link>
                 .
               </SettingsHint>
-              <ChannelControlsWidget
-                sections={[
-                  {
-                    id: 'channel-design',
-                    title: 'Channel appearance',
-                    children: (
-                      <ChannelDesigner
-                        displayName={user.displayName}
-                        username={user.username}
-                        channelSlug={channel?.slug}
-                        avatarUrl={user.avatarUrl}
-                        livePreview={!ambientVisualizerActive}
-                        compact
-                      />
-                    ),
-                  },
-                ]}
+              <ChannelDesigner
+                displayName={user.displayName}
+                username={user.username}
+                channelSlug={channel?.slug}
+                avatarUrl={user.avatarUrl}
+                livePreview={!ambientVisualizerActive}
+                compact
               />
             </div>
           ),

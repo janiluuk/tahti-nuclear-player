@@ -162,13 +162,18 @@ test('Plugin store explains categories, previews themes, and labels audio-reacti
   await expect(page.getByRole('note')).toContainText('Themes');
 
   await page.getByRole('tab', { name: /Visualizers/ }).click();
+  const auroraCard = page.getByRole('button', { name: /Aurora/ });
+  await expect(auroraCard.getByText('Audio reactive')).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: /Minimal/ }).getByText('Audio reactive'),
+  ).toHaveCount(0);
+
   await page.getByRole('button', { name: 'Configure Aurora' }).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('checkbox', { name: /Audio reactivity/ }).check();
-  await dialog.getByRole('button', { name: 'Done' }).click();
   await expect(
-    page.getByText('Audio reactive', { exact: true }).first(),
+    dialog.getByRole('checkbox', { name: /Audio reactivity/ }),
   ).toBeVisible();
+  await dialog.getByRole('button', { name: 'Done' }).click();
 });
 
 test('Studio release fingerprinting: check and re-fingerprint a track through the AcoustID plugin', async ({

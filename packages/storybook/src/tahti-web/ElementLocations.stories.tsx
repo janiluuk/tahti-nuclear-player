@@ -26,7 +26,12 @@ const locations: ElementLocation[] = [
   {
     element: 'ChannelDesigner',
     kind: 'Component',
-    pages: 'Studio → Manage → Channel, channel edit mode',
+    pages: 'Studio → Manage → Channel, channel edit mode, Settings → Channel',
+  },
+  {
+    element: 'ChannelElementEditor',
+    kind: 'Component',
+    pages: 'Channel designer look panel',
   },
   {
     element: 'ChannelLayersMenu',

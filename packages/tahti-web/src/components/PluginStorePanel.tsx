@@ -134,7 +134,10 @@ import {
   type MulticastProviderId,
 } from '../plugins/multicast';
 import { useThemeStore } from '../plugins/themes';
-import { visualizerMetadata } from '../plugins/visualizers';
+import {
+  visualizerMetadata,
+  visualizerSupportsAudioReactive,
+} from '../plugins/visualizers';
 import { useAuthStore } from '../stores/authStore';
 import {
   ALL_WIDGET_IDS,
@@ -547,8 +550,13 @@ function VisualizersCategory() {
           )}
           <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12 text-white">
             <div>
-              <p className="text-sm font-semibold">
+              <p className="flex flex-wrap items-center gap-1.5 text-sm font-semibold">
                 {presetLabel(previewPreset)}
+                {visualizerSupportsAudioReactive(previewPreset) ? (
+                  <Badge variant="pill" color="blue">
+                    Audio reactive
+                  </Badge>
+                ) : null}
               </p>
               <p className="text-xs text-white/75">
                 {visualizerDescription(previewPreset)}
@@ -557,7 +565,7 @@ function VisualizersCategory() {
             <Eye size={18} aria-hidden />
           </div>
         </div>
-        {previewPreset !== 'MINIMAL' ? (
+        {visualizerSupportsAudioReactive(previewPreset) ? (
           <label className="border-border text-foreground-secondary flex items-center gap-2 border-t px-4 py-3 text-xs">
             <input
               type="checkbox"
@@ -605,7 +613,7 @@ function VisualizersCategory() {
                       {presetLabel(id)}
                       {active ? ' · active' : ''}
                     </span>
-                    {settingsMap[id]?.audioReactive ? (
+                    {metadata.audioReactive ? (
                       <Badge variant="pill" color="blue">
                         Audio reactive
                       </Badge>
@@ -730,25 +738,27 @@ function VisualizersCategory() {
                 Grows or shrinks the whole scene.
               </p>
             </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={configurationSettings.audioReactive}
-                onChange={(event) =>
-                  saveTuning(configurationPreset, {
-                    ...configurationSettings,
-                    audioReactive: event.target.checked,
-                  })
-                }
-              />
-              <span>
-                Audio reactivity
-                <span className="text-foreground-secondary ml-1 text-xs">
-                  (respond to the playing track, instead of a gentle idle
-                  animation)
+            {visualizerSupportsAudioReactive(configurationPreset) ? (
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={configurationSettings.audioReactive}
+                  onChange={(event) =>
+                    saveTuning(configurationPreset, {
+                      ...configurationSettings,
+                      audioReactive: event.target.checked,
+                    })
+                  }
+                />
+                <span>
+                  Audio reactivity
+                  <span className="text-foreground-secondary ml-1 text-xs">
+                    (respond to the playing track, instead of a gentle idle
+                    animation)
+                  </span>
                 </span>
-              </span>
-            </label>
+              </label>
+            ) : null}
             <Button
               size="sm"
               variant="text"
