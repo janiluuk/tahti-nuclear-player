@@ -129,6 +129,8 @@ jobs:
           args: ${{ matrix.args }}
 
   release-android:
+    # Mobile releases are paused for now -- flip this to `true` to resume.
+    if: false
     runs-on: ubuntu-22.04
 
     steps:
@@ -242,6 +244,8 @@ jobs:
   # configured here. This job never uploads a release artifact and never
   # blocks the desktop/Android releases if it fails.
   verify-ios-build:
+    # Mobile releases are paused for now -- flip this to `true` to resume.
+    if: false
     runs-on: macos-latest
     continue-on-error: true
 

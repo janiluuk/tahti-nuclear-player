@@ -1,0 +1,72 @@
+name: Bump & Tag Player Release
+
+# Auto-releases the desktop player on every master merge that touches it:
+# bumps the patch version, commits, and pushes a `player@X.Y.Z` tag. The tag
+# push is what actually triggers the build — see release-player.yml, which
+# generates the release notes from packages/player/changelog.json and
+# publishes the desktop builds to GitHub Releases.
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'packages/player/**'
+      - 'packages/hifi/**'
+      - 'packages/i18n/**'
+      - 'packages/model/**'
+      - 'packages/plugin-sdk/**'
+      - 'packages/tailwind-config/**'
+      - 'packages/themes/**'
+      - 'packages/ui/**'
+      - 'pnpm-lock.yaml'
+
+concurrency:
+  group: bump-and-tag-player
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump-and-tag:
+    runs-on: ubuntu-22.04
+    # The version-bump commit below touches packages/player/package.json,
+    # which matches this workflow's own path filter -- without this guard
+    # every release would re-trigger itself.
+    if: "${{ !startsWith(github.event.head_commit.message, 'chore(player): release v') }}"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump player version
+        id: bump
+        run: |
+          CURRENT=$(jq -r .version packages/player/package.json)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          NEXT="$MAJOR.$MINOR.$((PATCH + 1))"
+
+          for file in packages/player/package.json packages/player/src-tauri/tauri.conf.json; do
+            jq --arg v "$NEXT" '.version = $v' "$file" > "$file.tmp"
+            mv "$file.tmp" "$file"
+          done
+
+          echo "version=$NEXT" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push version bump
+        run: |
+          git add packages/player/package.json packages/player/src-tauri/tauri.conf.json
+          git commit -m "chore(player): release v${{ steps.bump.outputs.version }}"
+          git push origin HEAD:master
+
+      - name: Tag release
+        run: |
+          git tag "player@${{ steps.bump.outputs.version }}"
+          git push origin "player@${{ steps.bump.outputs.version }}"

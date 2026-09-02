@@ -131,6 +131,8 @@ export function ChannelView({ slug }: { slug: string }) {
   const setChatContext = useLayoutStore((s) => s.setChatContext);
   const clearChatContext = useLayoutStore((s) => s.clearChatContext);
   const openChatRail = useLayoutStore((s) => s.openChatRail);
+  const rightCollapsed = useLayoutStore((s) => s.rightCollapsed);
+  const toggleRight = useLayoutStore((s) => s.toggleRight);
 
   useEffect(() => clearChatContext, [clearChatContext]);
 
@@ -268,6 +270,17 @@ export function ChannelView({ slug }: { slug: string }) {
       return;
     }
     openChatRail(slug);
+  };
+
+  const handleToggleChat = () => {
+    if (!chatOn) {
+      return;
+    }
+    if (rightCollapsed) {
+      openChatRail(slug);
+    } else {
+      toggleRight();
+    }
   };
 
   const handlePlayChannel = () => {
@@ -518,6 +531,21 @@ export function ChannelView({ slug }: { slug: string }) {
             )}
             {(live || channel.hlsUrl) && (
               <div className="absolute right-4 bottom-4 z-[2] flex items-center gap-3">
+                {chatOn && (
+                  <Button
+                    size="icon"
+                    variant="text"
+                    className="size-11 bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
+                    onClick={handleToggleChat}
+                    aria-pressed={!rightCollapsed}
+                    aria-label={
+                      rightCollapsed ? 'Expand chat' : 'Collapse chat'
+                    }
+                    title={rightCollapsed ? 'Expand chat' : 'Collapse chat'}
+                  >
+                    <MessageCircle size={20} />
+                  </Button>
+                )}
                 <Button
                   size="icon"
                   variant="text"
@@ -796,56 +824,69 @@ export function ChannelView({ slug }: { slug: string }) {
               setSelectedId('header');
             }
           }}
-          className={editing ? 'cursor-pointer rounded-lg' : undefined}
+          className={`flex flex-wrap items-start gap-4 ${
+            editing ? 'cursor-pointer rounded-lg' : ''
+          }`}
         >
-          <PageHeader
-            title={channel.user.displayName}
-            subtitle={
-              <Link
-                to="/u/$username"
-                params={{ username: channel.user.username }}
-                className="hover:text-foreground underline-offset-2 hover:underline"
-              >
-                @{channel.user.username}
-              </Link>
-            }
-            back={
-              !editing ? (
+          {channel.user.avatarUrl ? (
+            <div className="border-border bg-background relative size-28 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-40">
+              <img
+                src={channel.user.avatarUrl}
+                alt=""
+                className="size-full object-cover"
+              />
+            </div>
+          ) : null}
+          <div className="min-w-0 flex-1">
+            <PageHeader
+              title={channel.user.displayName}
+              subtitle={
                 <Link
-                  to="/"
-                  className="text-foreground-secondary text-xs hover:underline"
+                  to="/u/$username"
+                  params={{ username: channel.user.username }}
+                  className="hover:text-foreground underline-offset-2 hover:underline"
                 >
-                  ← Listen
+                  @{channel.user.username}
                 </Link>
-              ) : undefined
-            }
-            actions={
-              <>
-                {live ? (
-                  <OnAirBadge />
-                ) : (
-                  <span className="text-foreground-secondary border-border rounded border px-2 py-0.5 font-mono text-xs uppercase">
-                    {channel.state}
-                  </span>
-                )}
-                {isOwner && !editing && (
-                  <Button size="sm" variant="secondary" onClick={startEdit}>
-                    <span className="inline-flex items-center gap-1.5">
-                      <PencilIcon size={14} />
-                      Edit design
+              }
+              back={
+                !editing ? (
+                  <Link
+                    to="/"
+                    className="text-foreground-secondary text-xs hover:underline"
+                  >
+                    ← Listen
+                  </Link>
+                ) : undefined
+              }
+              actions={
+                <>
+                  {live ? (
+                    <OnAirBadge />
+                  ) : (
+                    <span className="text-foreground-secondary border-border rounded border px-2 py-0.5 font-mono text-xs uppercase">
+                      {channel.state}
                     </span>
-                  </Button>
-                )}
-                {!editing && (
-                  <ChannelShareButton
-                    channelSlug={slug}
-                    displayName={channel.user.displayName}
-                    iconOnly={false}
-                  />
-                )}
-              </>
-            }
-          />
+                  )}
+                  {isOwner && !editing && (
+                    <Button size="sm" variant="secondary" onClick={startEdit}>
+                      <span className="inline-flex items-center gap-1.5">
+                        <PencilIcon size={14} />
+                        Edit design
+                      </span>
+                    </Button>
+                  )}
+                  {!editing && (
+                    <ChannelShareButton
+                      channelSlug={slug}
+                      displayName={channel.user.displayName}
+                      iconOnly={false}
+                    />
+                  )}
+                </>
+              }
+            />
+          </div>
         </div>
 
         {visibleItems.map((item) => {
