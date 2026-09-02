@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { CheckIcon, HeartIcon, ListPlusIcon, PlayIcon } from 'lucide-react';
+import {
+  CheckIcon,
+  HeartIcon,
+  ListPlusIcon,
+  PauseIcon,
+  PlayIcon,
+} from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import { Button } from '@tahti-player/ui';
@@ -14,6 +20,10 @@ export type MediaIconAction = {
   disabled?: boolean;
   title?: string;
   active?: boolean;
+  /** `active` also disables the button by default (right for a one-shot
+   * toggle like "queued"). Set false for actions that must stay clickable
+   * while active, like play/pause. */
+  disableWhenActive?: boolean;
   /** Visual weight — default is primary for play, text for others. */
   variant?: 'default' | 'secondary' | 'text';
 };
@@ -43,7 +53,11 @@ export function MediaIconActions({ actions, className }: Props) {
           type="button"
           size="icon-sm"
           variant={a.variant ?? (a.id === 'play' ? 'default' : 'text')}
-          disabled={a.disabled || a.active || flashingId === a.id}
+          disabled={
+            a.disabled ||
+            (a.active && a.disableWhenActive !== false) ||
+            flashingId === a.id
+          }
           className={cn(
             (a.active || flashingId === a.id) &&
               'bg-primary/20 text-primary motion-safe:animate-pulse',
@@ -75,14 +89,29 @@ export function playQueueFavoriteActions(opts: {
   queued?: boolean;
   playLabel?: string;
   queueLabel?: string;
+  /** True when this exact item is the one loaded (playing or loading) in
+   * the player. Rule: any play button for a playable track must reflect
+   * this — swaps the icon to Pause and highlights the control instead of
+   * always showing a static Play glyph. */
+  isPlaying?: boolean;
+  /** Called instead of onPlay when isPlaying is true (defaults to onPlay,
+   * which restarts rather than pauses — pass this to toggle pause). */
+  onTogglePause?: () => void;
 }): MediaIconAction[] {
   const actions: MediaIconAction[] = [
     {
       id: 'play',
-      label: opts.playLabel ?? 'Play',
-      icon: <PlayIcon size={16} className="fill-current" />,
-      onClick: opts.onPlay,
+      label: opts.isPlaying ? 'Pause' : (opts.playLabel ?? 'Play'),
+      icon: opts.isPlaying ? (
+        <PauseIcon size={16} className="fill-current" />
+      ) : (
+        <PlayIcon size={16} className="fill-current" />
+      ),
+      onClick:
+        opts.isPlaying && opts.onTogglePause ? opts.onTogglePause : opts.onPlay,
       disabled: opts.playDisabled,
+      active: opts.isPlaying,
+      disableWhenActive: false,
     },
     {
       id: 'queue',

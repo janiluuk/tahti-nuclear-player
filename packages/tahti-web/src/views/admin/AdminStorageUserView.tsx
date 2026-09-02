@@ -118,7 +118,7 @@ export function AdminStorageUserView({ userId }: { userId: string }) {
                       <div className="min-w-0 flex-1">
                         <div className="font-medium">{f.title}</div>
                         <div className="text-foreground-secondary text-xs">
-                          {f.kind === 'stash' ? 'Stash' : 'Archive'} ·{' '}
+                          {f.kind === 'stash' ? 'Stash' : 'Sounds'} ·{' '}
                           {formatBytes(f.sizeBytes)} ·{' '}
                           {formatFileDate(f.createdAt)} · running total{' '}
                           {formatBytes(f.runningTotalBytes)}

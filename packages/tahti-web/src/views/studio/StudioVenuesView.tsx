@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { CalendarPlusIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Input, SaveButton } from '@tahti-player/ui';
 
@@ -183,10 +184,18 @@ function VenueCard({
                   variant="text"
                   aria-label={`Cancel booking on ${new Date(b.startAt).toLocaleString()}`}
                   onClick={() => {
+                    if (
+                      !window.confirm(
+                        `Cancel the booking on ${new Date(b.startAt).toLocaleString()}?`,
+                      )
+                    ) {
+                      return;
+                    }
                     void cancelVenueBroadcast(venue.slug, b.id).then((r) => {
                       if (!r.ok) {
                         setMsg(r.error);
                       } else {
+                        toast.success('Booking cancelled.');
                         onChanged();
                       }
                     });

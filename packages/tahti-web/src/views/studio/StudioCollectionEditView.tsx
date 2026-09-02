@@ -29,8 +29,8 @@ import {
   addStudioCollectionItem,
   fetchCollectionGallery,
   fetchEditorSource,
-  fetchStudioArchive,
   fetchStudioCollection,
+  fetchStudioSounds,
   patchCollectionGallery,
   patchStudioCollection,
   removeStudioCollectionItem,
@@ -38,9 +38,9 @@ import {
   uploadCollectionCover,
 } from '../../api/studio';
 import type {
-  StudioArchiveItem,
   StudioCollection,
   StudioCollectionItem,
+  StudioSound,
 } from '../../api/studio-types';
 import { uploadUserMediaFile } from '../../api/user-media';
 import { PageLoading } from '../../components/PageStates';
@@ -48,22 +48,13 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
+import { COLLECTION_STYLES } from '../../content/collectionStyles';
 import {
   EMBED_PROVIDER_HEIGHT,
   EMBED_PROVIDER_LABEL,
   embedSrcFor,
 } from '../../lib/embedSrc';
 import { usePlayerStore } from '../../stores/playerStore';
-
-const STYLE_OPTIONS = [
-  'ALBUM',
-  'EP',
-  'SINGLE',
-  'PODCAST',
-  'PLAYLIST',
-  'DJ_SET_SERIES',
-  'SERIES',
-] as const;
 
 const PEAK_BUCKETS = 200;
 
@@ -78,25 +69,25 @@ function formatDuration(sec: number | null | undefined): string {
 }
 
 function trackTitle(item: StudioCollectionItem): string {
-  return item.archiveItem?.title ?? item.release?.title ?? item.id;
+  return item.sound?.title ?? item.release?.title ?? item.id;
 }
 
 /** Decodes a track's audio in-browser into a bucketed peaks array the
  * first time its row expands — same "attempt then degrade" approach as
  * the pro editor's own waveform decode, just scoped to one track. */
-function useTrackPeaks(archiveItemId: string | undefined, enabled: boolean) {
+function useTrackPeaks(soundId: string | undefined, enabled: boolean) {
   const [peaks, setPeaks] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!enabled || !archiveItemId || peaks.length > 0) {
+    if (!enabled || !soundId || peaks.length > 0) {
       return;
     }
     let cancelled = false;
     setLoading(true);
     void (async () => {
       try {
-        const { data } = await fetchEditorSource(archiveItemId);
+        const { data } = await fetchEditorSource(soundId);
         const res = await fetch(data.url);
         const buf = await res.arrayBuffer();
         const ctx = new AudioContext();
@@ -129,7 +120,7 @@ function useTrackPeaks(archiveItemId: string | undefined, enabled: boolean) {
     return () => {
       cancelled = true;
     };
-  }, [enabled, archiveItemId, peaks.length]);
+  }, [enabled, soundId, peaks.length]);
 
   return { peaks, loading };
 }
@@ -169,11 +160,11 @@ function TrackRow({
   onRemove: () => void;
   genre?: string | null;
 }) {
-  const { peaks } = useTrackPeaks(item.archiveItem?.id, isExpanded);
-  const durationSec = item.archiveItem?.durationSec ?? 0;
+  const { peaks } = useTrackPeaks(item.sound?.id, isExpanded);
+  const durationSec = item.sound?.durationSec ?? 0;
   // EMBED_ONLY items have no audio of ours to play or draw a waveform from.
-  const embedProvider = item.archiveItem?.embedProvider ?? null;
-  const embedUri = item.archiveItem?.embedUri ?? null;
+  const embedProvider = item.sound?.embedProvider ?? null;
+  const embedUri = item.sound?.embedUri ?? null;
   const isEmbed = Boolean(embedProvider && embedUri);
 
   return (
@@ -220,7 +211,7 @@ function TrackRow({
         <span className="text-foreground-secondary text-xs tabular-nums">
           {formatDuration(durationSec)}
         </span>
-        {item.archiveItem && !isEmbed && (
+        {item.sound && !isEmbed && (
           <Button
             size="icon-sm"
             variant="text"
@@ -237,7 +228,7 @@ function TrackRow({
             )}
           </Button>
         )}
-        {item.archiveItem && isEmbed && (
+        {item.sound && isEmbed && (
           <Button
             size="icon-sm"
             variant="text"
@@ -256,7 +247,7 @@ function TrackRow({
             <PlayIcon size={16} className="fill-current" aria-hidden />
           </Button>
         )}
-        {item.archiveItem && !isEmbed && (
+        {item.sound && !isEmbed && (
           <Button
             size="icon-sm"
             variant="text"
@@ -303,7 +294,7 @@ function TrackRow({
         </div>
       )}
 
-      {isExpanded && item.archiveItem && !isEmbed && (
+      {isExpanded && item.sound && !isEmbed && (
         <div className="px-3 pb-3">
           {durationSec > 0 && peaks.length > 0 ? (
             <div className="border-border bg-background h-24 overflow-hidden rounded-lg border">
@@ -329,7 +320,7 @@ function TrackRow({
 
 export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [col, setCol] = useState<StudioCollection | null>(null);
-  const [archive, setArchive] = useState<StudioArchiveItem[]>([]);
+  const [archive, setArchive] = useState<StudioSound[]>([]);
   const [addPickerOpen, setAddPickerOpen] = useState(false);
   const [addBusyId, setAddBusyId] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -369,7 +360,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   const reload = () => {
     void Promise.all([
       fetchStudioCollection(slug),
-      fetchStudioArchive(),
+      fetchStudioSounds(),
       fetchCollectionGallery(slug),
     ]).then(([c, a, g]) => {
       setCol(c.data);
@@ -412,7 +403,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
     return items.filter((item) => trackTitle(item).toLowerCase().includes(q));
   }, [items, trackQuery]);
 
-  const filteredArchive = useMemo(() => {
+  const filteredSounds = useMemo(() => {
     const query = archiveQuery.trim().toLowerCase();
     if (!query) {
       return archive;
@@ -426,18 +417,18 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
     );
   }, [archive, archiveQuery]);
   const existingArchiveIds = useMemo(
-    () => new Set(items.map((item) => item.archiveItem?.id).filter(Boolean)),
+    () => new Set(items.map((item) => item.sound?.id).filter(Boolean)),
     [items],
   );
-  const availableArchive = filteredArchive.filter(
-    (archiveItem) => !existingArchiveIds.has(archiveItem.id),
+  const availableSounds = filteredSounds.filter(
+    (sound) => !existingArchiveIds.has(sound.id),
   );
 
   const nowPlayingItem = items.find(
-    (i) => i.archiveItem && currentId === `archive:${i.archiveItem.id}`,
+    (i) => i.sound && currentId === `archive:${i.sound.id}`,
   );
 
-  const playArchiveItem = async (id: string, title: string) => {
+  const playSound = async (id: string, title: string) => {
     const { data } = await fetchEditorSource(id);
     play({
       id: `archive:${id}`,
@@ -452,26 +443,26 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   const togglePlayItem = (item: StudioCollectionItem) => {
     // EMBED_ONLY items have no Tahti-hosted audio — playing them through
     // the normal path would just fail or fall back to something else.
-    if (!item.archiveItem || item.archiveItem.embedProvider) {
+    if (!item.sound || item.sound.embedProvider) {
       return;
     }
-    const isThisCurrent = currentId === `archive:${item.archiveItem.id}`;
+    const isThisCurrent = currentId === `archive:${item.sound.id}`;
     if (isThisCurrent) {
       setStatus(isPlaying ? 'paused' : 'playing');
       return;
     }
-    void playArchiveItem(item.archiveItem.id, item.archiveItem.title);
+    void playSound(item.sound.id, item.sound.title);
   };
 
-  const addArchiveItem = async (archiveItem: StudioArchiveItem) => {
-    setAddBusyId(archiveItem.id);
-    const result = await addStudioCollectionItem(slug, archiveItem.id);
+  const addSound = async (sound: StudioSound) => {
+    setAddBusyId(sound.id);
+    const result = await addStudioCollectionItem(slug, sound.id);
     setAddBusyId(null);
     if (!result.ok) {
       toast.error(result.error);
       return;
     }
-    toast.success(`${archiveItem.title} added.`);
+    toast.success(`${sound.title} added.`);
     reload();
   };
 
@@ -714,21 +705,21 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       Style
                     </span>
                     <div className="flex flex-wrap gap-2">
-                      {STYLE_OPTIONS.map((s) => (
+                      {COLLECTION_STYLES.map((s) => (
                         <Button
-                          key={s}
+                          key={s.id}
                           type="button"
                           variant="text"
                           size="flexible"
-                          aria-pressed={style === s}
+                          aria-pressed={style === s.id}
                           className={`rounded-md border px-3 py-1 text-xs ${
-                            style === s
+                            style === s.id
                               ? 'border-primary bg-primary/15 text-primary'
                               : 'border-border text-foreground-secondary'
                           }`}
-                          onClick={() => setStyle(s)}
+                          onClick={() => setStyle(s.id)}
                         >
-                          {s.replace(/_/g, ' ')}
+                          {s.label}
                         </Button>
                       ))}
                     </div>
@@ -789,7 +780,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                   aria-label="Search tracks"
                 />
 
-                {nowPlayingItem?.archiveItem && (
+                {nowPlayingItem?.sound && (
                   <div className="border-border bg-background-input flex items-center gap-3 rounded-lg border px-3 py-2">
                     <Button
                       size="icon-sm"
@@ -806,7 +797,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       )}
                     </Button>
                     <span className="truncate text-sm font-medium">
-                      {nowPlayingItem.archiveItem.title}
+                      {nowPlayingItem.sound.title}
                     </span>
                     <div
                       className="border-border bg-background relative h-1.5 flex-1 cursor-pointer overflow-hidden rounded-full border"
@@ -847,8 +838,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                 {filteredItems.map((item) => {
                   const idx = items.indexOf(item);
                   const isCurrent = Boolean(
-                    item.archiveItem &&
-                    currentId === `archive:${item.archiveItem.id}`,
+                    item.sound && currentId === `archive:${item.sound.id}`,
                   );
                   return (
                     <TrackRow
@@ -868,11 +858,8 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       onSeek={(sec) => {
                         if (isCurrent) {
                           seekTo(sec);
-                        } else if (item.archiveItem) {
-                          void playArchiveItem(
-                            item.archiveItem.id,
-                            item.archiveItem.title,
-                          );
+                        } else if (item.sound) {
+                          void playSound(item.sound.id, item.sound.title);
                         }
                       }}
                       isDragging={draggedId === item.id}
@@ -886,11 +873,9 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                         setDraggedId(null);
                       }}
                       genre={
-                        item.archiveItem?.genre ??
-                        archive.find(
-                          (archiveItem) =>
-                            archiveItem.id === item.archiveItem?.id,
-                        )?.genre
+                        item.sound?.genre ??
+                        archive.find((sound) => sound.id === item.sound?.id)
+                          ?.genre
                       }
                       onRemove={() => {
                         void removeStudioCollectionItem(slug, item.id).then(
@@ -960,7 +945,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                 endAddon={<SearchIcon size={16} aria-hidden />}
               />
               <div className="border-border min-h-0 overflow-auto rounded-md border">
-                {availableArchive.length === 0 ? (
+                {availableSounds.length === 0 ? (
                   <p className="text-foreground-secondary p-4 text-sm">
                     {archiveQuery.trim()
                       ? 'No available tracks match your search.'
@@ -968,27 +953,24 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                   </p>
                 ) : (
                   <ul aria-label="Available library tracks">
-                    {availableArchive.map((archiveItem, index) => {
+                    {availableSounds.map((sound, index) => {
                       const itemIsPlaying =
-                        currentId === `archive:${archiveItem.id}` && isPlaying;
+                        currentId === `archive:${sound.id}` && isPlaying;
                       return (
                         <li
-                          key={archiveItem.id}
+                          key={sound.id}
                           className={`flex items-center gap-3 px-3 py-2.5 text-sm ${index % 2 === 1 ? 'bg-background-secondary/40' : 'bg-background'}`}
                         >
                           <Button
                             size="icon-sm"
                             variant={itemIsPlaying ? 'secondary' : 'text'}
-                            aria-label={`${itemIsPlaying ? 'Pause' : 'Preview'} ${archiveItem.title}`}
+                            aria-label={`${itemIsPlaying ? 'Pause' : 'Preview'} ${sound.title}`}
                             title={itemIsPlaying ? 'Pause' : 'Preview'}
                             onClick={() => {
                               if (itemIsPlaying) {
                                 setStatus('paused');
                               } else {
-                                void playArchiveItem(
-                                  archiveItem.id,
-                                  archiveItem.title,
-                                );
+                                void playSound(sound.id, sound.title);
                               }
                             }}
                           >
@@ -1000,25 +982,23 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                           </Button>
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-medium">
-                              {archiveItem.title}
+                              {sound.title}
                             </p>
                             <p className="text-foreground-secondary truncate text-xs">
-                              {archiveItem.artistName ?? 'Unknown artist'}
-                              {archiveItem.genre
-                                ? ` · ${archiveItem.genre}`
-                                : ''}
-                              {archiveItem.durationSec
-                                ? ` · ${formatDuration(archiveItem.durationSec)}`
+                              {sound.artistName ?? 'Unknown artist'}
+                              {sound.genre ? ` · ${sound.genre}` : ''}
+                              {sound.durationSec
+                                ? ` · ${formatDuration(sound.durationSec)}`
                                 : ''}
                             </p>
                           </div>
                           <Button
                             size="sm"
-                            disabled={addBusyId === archiveItem.id}
-                            onClick={() => void addArchiveItem(archiveItem)}
+                            disabled={addBusyId === sound.id}
+                            onClick={() => void addSound(sound)}
                           >
                             <PlusIcon size={15} aria-hidden className="mr-1" />
-                            {addBusyId === archiveItem.id ? 'Adding…' : 'Add'}
+                            {addBusyId === sound.id ? 'Adding…' : 'Add'}
                           </Button>
                         </li>
                       );

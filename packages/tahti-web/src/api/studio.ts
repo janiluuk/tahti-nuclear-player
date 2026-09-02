@@ -9,11 +9,11 @@ import type {
   EditorSource,
   EditorTimeline,
   FingerprintMatch,
-  StudioArchiveItem,
-  StudioArchivePatch,
   StudioCollection,
   StudioRelease,
   StudioReleaseList,
+  StudioSound,
+  StudioSoundPatch,
 } from './studio-types';
 import { createDefaultEditList } from './studio-types';
 
@@ -60,7 +60,7 @@ async function requestJson<T>(
 
 // ── Mock fixtures ───────────────────────────────────────────────────────────
 
-const mockArchiveStore: StudioArchiveItem[] = [
+const mockSoundStore: StudioSound[] = [
   {
     id: 'arch-mock-1',
     title: 'Northern Lights — Live Set',
@@ -137,7 +137,7 @@ let mockProjects: EditorProjectRow[] = [
   {
     id: 'proj-mock-1',
     title: 'Northern Lights — edit',
-    archiveItemId: 'arch-mock-1',
+    soundId: 'arch-mock-1',
     updatedAt: new Date().toISOString(),
   },
 ];
@@ -157,57 +157,57 @@ function mockPeaks(durationSec: number) {
   return { sampleRate: 44100, durationSec, levels: [level] };
 }
 
-// ── Archive ─────────────────────────────────────────────────────────────────
+// ── Sounds ─────────────────────────────────────────────────────────────────
 
-export async function fetchStudioArchive(): Promise<{
-  data: StudioArchiveItem[];
+export async function fetchStudioSounds(): Promise<{
+  data: StudioSound[];
   meta: FetchMeta;
 }> {
   if (forceMock()) {
     return {
-      data: [...mockArchiveStore],
+      data: [...mockSoundStore],
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
   try {
-    const { data } = await requestJson<StudioArchiveItem[]>('/api/me/archive');
+    const { data } = await requestJson<StudioSound[]>('/api/me/archive');
     return { data, meta: { source: 'api' } };
   } catch (err) {
     if (allowMockFallback()) {
-      return { data: [...mockArchiveStore], meta: failMeta(err) };
+      return { data: [...mockSoundStore], meta: failMeta(err) };
     }
     return { data: [], meta: apiErrorMeta(err) };
   }
 }
 
-export async function fetchStudioArchiveItem(id: string): Promise<{
-  data: StudioArchiveItem;
+export async function fetchStudioSound(id: string): Promise<{
+  data: StudioSound;
   meta: FetchMeta;
 }> {
   if (forceMock()) {
-    const item = mockArchiveStore.find((a) => a.id === id) ?? {
-      ...mockArchiveStore[0]!,
+    const item = mockSoundStore.find((a) => a.id === id) ?? {
+      ...mockSoundStore[0]!,
       id,
       title: `Mock ${id}`,
     };
     return { data: item, meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
   }
   try {
-    const { data } = await requestJson<StudioArchiveItem>(
+    const { data } = await requestJson<StudioSound>(
       `/api/me/archive/${encodeURIComponent(id)}`,
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
     if (allowMockFallback()) {
       const item =
-        mockArchiveStore.find((a) => a.id === id) ?? mockArchiveStore[0]!;
+        mockSoundStore.find((a) => a.id === id) ?? mockSoundStore[0]!;
       return { data: { ...item, id }, meta: failMeta(err) };
     }
-    throw err instanceof Error ? err : new Error('Archive item fetch failed');
+    throw err instanceof Error ? err : new Error('Sound fetch failed');
   }
 }
 
-export async function fetchStudioArchiveDownload(id: string): Promise<
+export async function fetchStudioSoundDownload(id: string): Promise<
   | {
       ok: true;
       url: string;
@@ -232,26 +232,24 @@ export async function fetchStudioArchiveDownload(id: string): Promise<
   }
 }
 
-export async function patchStudioArchiveItem(
+export async function patchStudioSound(
   id: string,
-  patch: StudioArchivePatch,
-): Promise<
-  { ok: true; data: StudioArchiveItem } | { ok: false; error: string }
-> {
+  patch: StudioSoundPatch,
+): Promise<{ ok: true; data: StudioSound } | { ok: false; error: string }> {
   if (forceMock()) {
-    const idx = mockArchiveStore.findIndex((a) => a.id === id);
+    const idx = mockSoundStore.findIndex((a) => a.id === id);
     const { pinned, ...rest } = patch;
     if (idx >= 0) {
-      const next: StudioArchiveItem = {
-        ...mockArchiveStore[idx]!,
+      const next: StudioSound = {
+        ...mockSoundStore[idx]!,
         ...rest,
-        title: patch.title ?? mockArchiveStore[idx]!.title,
+        title: patch.title ?? mockSoundStore[idx]!.title,
       };
       if (pinned !== undefined) {
         next.pinnedAt = pinned ? new Date().toISOString() : null;
       }
-      mockArchiveStore[idx] = next;
-      return { ok: true, data: mockArchiveStore[idx]! };
+      mockSoundStore[idx] = next;
+      return { ok: true, data: mockSoundStore[idx]! };
     }
     return {
       ok: true,
@@ -267,7 +265,7 @@ export async function patchStudioArchiveItem(
     };
   }
   try {
-    const { data } = await requestJson<StudioArchiveItem>(
+    const { data } = await requestJson<StudioSound>(
       `/api/me/archive/${encodeURIComponent(id)}`,
       { method: 'PATCH', body: JSON.stringify(patch) },
     );
@@ -287,7 +285,7 @@ export type RadioSubmission = {
   status: RadioSubmissionStatus;
   rejectionNote: string | null;
   createdAt: string;
-  archiveItem: { id: string; title: string };
+  sound: { id: string; title: string };
 };
 
 export type MetaStreamPreference = { metaStreamOptOut: boolean };
@@ -315,13 +313,13 @@ export async function fetchMyRadioSubmissions(): Promise<{
 /** Submit one READY track for Tahti Radio board review -- not immediate
  * inclusion, see RadioSubmissionStatus. */
 export async function submitTrackToRadioRotation(
-  archiveItemId: string,
+  soundId: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  return submitTracksToRadioRotation([archiveItemId]);
+  return submitTracksToRadioRotation([soundId]);
 }
 
 export async function submitTracksToRadioRotation(
-  archiveItemIds: string[],
+  soundIds: string[],
   note?: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
@@ -330,7 +328,7 @@ export async function submitTracksToRadioRotation(
   try {
     await requestJson('/api/me/radio-submissions', {
       method: 'POST',
-      body: JSON.stringify({ archiveItemIds, note: note?.trim() || undefined }),
+      body: JSON.stringify({ soundIds, note: note?.trim() || undefined }),
     });
     return { ok: true };
   } catch (err) {
@@ -391,8 +389,8 @@ export async function patchMetaStreamPreference(optOut: boolean): Promise<
   }
 }
 
-export async function uploadArchiveBanner(
-  archiveItemId: string,
+export async function uploadSoundBanner(
+  soundId: string,
   file: File,
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   if (forceMock()) {
@@ -402,7 +400,7 @@ export async function uploadArchiveBanner(
     const { data: prepared } = await requestJson<{
       uploadKey: string;
       uploadUrl: string;
-    }>(`/api/me/archive/${encodeURIComponent(archiveItemId)}/banner/prepare`, {
+    }>(`/api/me/archive/${encodeURIComponent(soundId)}/banner/prepare`, {
       method: 'POST',
       body: JSON.stringify({
         filename: file.name,
@@ -418,7 +416,7 @@ export async function uploadArchiveBanner(
       throw new Error(`Artwork upload failed (${upload.status})`);
     }
     const { data: completed } = await requestJson<{ url: string }>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/banner/complete`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/banner/complete`,
       {
         method: 'POST',
         body: JSON.stringify({ uploadKey: prepared.uploadKey }),
@@ -433,8 +431,8 @@ export async function uploadArchiveBanner(
   }
 }
 
-export async function importArchiveBanner(
-  archiveItemId: string,
+export async function importSoundBanner(
+  soundId: string,
   sourceUrl: string,
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   if (forceMock()) {
@@ -442,7 +440,7 @@ export async function importArchiveBanner(
   }
   try {
     const { data } = await requestJson<{ url: string }>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/banner/from-url`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/banner/from-url`,
       {
         method: 'POST',
         body: JSON.stringify({ sourceUrl }),
@@ -457,13 +455,13 @@ export async function importArchiveBanner(
   }
 }
 
-export async function deleteStudioArchiveItem(
+export async function deleteStudioSound(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
-    const idx = mockArchiveStore.findIndex((a) => a.id === id);
+    const idx = mockSoundStore.findIndex((a) => a.id === id);
     if (idx >= 0) {
-      mockArchiveStore.splice(idx, 1);
+      mockSoundStore.splice(idx, 1);
     }
     return { ok: true };
   }
@@ -480,12 +478,12 @@ export async function deleteStudioArchiveItem(
   }
 }
 
-export async function fetchEditorSource(archiveItemId: string): Promise<{
+export async function fetchEditorSource(soundId: string): Promise<{
   data: EditorSource;
   meta: FetchMeta;
 }> {
   if (forceMock()) {
-    const item = mockArchiveStore.find((a) => a.id === archiveItemId);
+    const item = mockSoundStore.find((a) => a.id === soundId);
     return {
       data: {
         url: DEMO_MP3,
@@ -497,7 +495,7 @@ export async function fetchEditorSource(archiveItemId: string): Promise<{
   }
   try {
     const { data } = await requestJson<EditorSource>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/editor/source`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/editor/source`,
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
@@ -534,7 +532,7 @@ export async function fetchStudioReleases(): Promise<{
                 id: 't1',
                 position: 1,
                 title: 'Moonlight Drive',
-                archiveItemId: 'arch-mock-1',
+                soundId: 'arch-mock-1',
                 status: 'READY',
                 sourceKey: 'releases/mock/t1.wav',
                 fingerprintMatch: {
@@ -548,7 +546,7 @@ export async function fetchStudioReleases(): Promise<{
                 id: 't2',
                 position: 2,
                 title: 'Blue Hour',
-                archiveItemId: 'arch-mock-2',
+                soundId: 'arch-mock-2',
                 status: 'READY',
                 sourceKey: 'releases/mock/t2.wav',
                 fingerprintMatch: null,
@@ -569,7 +567,7 @@ export async function fetchStudioReleases(): Promise<{
                 id: 't3',
                 position: 1,
                 title: 'Neon Tide',
-                archiveItemId: 'arch-mock-3',
+                soundId: 'arch-mock-3',
               },
             ],
             _count: { tracks: 1 },
@@ -587,7 +585,7 @@ export async function fetchStudioReleases(): Promise<{
                 id: 't4',
                 position: 1,
                 title: 'Session One',
-                archiveItemId: 'arch-mock-4',
+                soundId: 'arch-mock-4',
               },
             ],
             _count: { tracks: 1 },
@@ -677,7 +675,7 @@ export async function patchStudioReleaseVisual(
 
 export async function addStudioReleaseTrack(
   releaseId: string,
-  track: { title: string; archiveItemId?: string; durationSec?: number | null },
+  track: { title: string; soundId?: string; durationSec?: number | null },
 ): Promise<
   | { ok: true; data: NonNullable<StudioRelease['tracks']>[number] }
   | { ok: false; error: string }
@@ -689,7 +687,7 @@ export async function addStudioReleaseTrack(
         id: `release-track-${Date.now()}`,
         position: 1,
         title: track.title,
-        archiveItemId: track.archiveItemId,
+        soundId: track.soundId,
         durationSec: track.durationSec,
       },
     };
@@ -908,7 +906,7 @@ export type StemJob = {
   files?: Array<{ label: string; url: string }>;
 };
 
-export async function fetchArchiveStems(archiveItemId: string): Promise<{
+export async function fetchSoundStems(soundId: string): Promise<{
   data: StemJob[];
   meta: FetchMeta;
 }> {
@@ -939,7 +937,7 @@ export async function fetchArchiveStems(archiveItemId: string): Promise<{
   }
   try {
     const { data } = await requestJson<{ jobs: StemJob[] }>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/stems`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/stems`,
     );
     return { data: data.jobs ?? [], meta: { source: 'api' } };
   } catch (err) {
@@ -947,8 +945,8 @@ export async function fetchArchiveStems(archiveItemId: string): Promise<{
   }
 }
 
-export async function requestArchiveStems(
-  archiveItemId: string,
+export async function requestSoundStems(
+  soundId: string,
   stemSet: StemSet = 'TWO_STEM',
 ): Promise<{ ok: true; status: string } | { ok: false; error: string }> {
   if (forceMock()) {
@@ -956,7 +954,7 @@ export async function requestArchiveStems(
   }
   try {
     const { data } = await requestJson<{ status: string }>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/stems/render`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/stems/render`,
       { method: 'POST', body: JSON.stringify({ stemSet }) },
     );
     return { ok: true, status: data.status };
@@ -1044,11 +1042,11 @@ export async function fetchStudioCollection(slug: string): Promise<{
               ? 'ALBUM'
               : 'PLAYLIST',
         isPublic: true,
-        items: mockArchiveStore.map((a, i) => ({
+        items: mockSoundStore.map((a, i) => ({
           id: `ci-${a.id}`,
           position: i,
-          archiveItemId: a.id,
-          archiveItem: { id: a.id, title: a.title, durationSec: a.durationSec },
+          soundId: a.id,
+          sound: { id: a.id, title: a.title, durationSec: a.durationSec },
         })),
       },
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
@@ -1071,14 +1069,14 @@ export async function addStudioCollectionItem(
   slug: string,
   item:
     | string
-    | { archiveItemId: string; releaseId?: never }
-    | { releaseId: string; archiveItemId?: never },
+    | { soundId: string; releaseId?: never }
+    | { releaseId: string; soundId?: never },
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const body =
     typeof item === 'string'
-      ? { archiveItemId: item }
-      : item.archiveItemId
-        ? { archiveItemId: item.archiveItemId }
+      ? { soundId: item }
+      : item.soundId
+        ? { soundId: item.soundId }
         : { releaseId: item.releaseId };
   if (forceMock()) {
     return { ok: true };
@@ -1378,7 +1376,7 @@ export async function patchCollectionGallery(
 
 // ── Upload ──────────────────────────────────────────────────────────────────
 
-export async function uploadArchiveFile(input: {
+export async function uploadSoundFile(input: {
   file: File;
   title?: string;
 }): Promise<
@@ -1386,7 +1384,7 @@ export async function uploadArchiveFile(input: {
 > {
   if (forceMock()) {
     const id = `arch-mock-${Date.now()}`;
-    mockArchiveStore.unshift({
+    mockSoundStore.unshift({
       id,
       title: input.title || input.file.name,
       status: 'READY',
@@ -1470,7 +1468,7 @@ export async function fetchEditorProjects(): Promise<{
 
 export async function createEditorProject(input: {
   title?: string;
-  archiveItemId?: string;
+  soundId?: string;
 }): Promise<
   { ok: true; data: EditorProjectRow } | { ok: false; error: string }
 > {
@@ -1478,7 +1476,7 @@ export async function createEditorProject(input: {
     const row: EditorProjectRow = {
       id: `proj-mock-${Date.now()}`,
       title: input.title ?? 'Untitled session',
-      archiveItemId: input.archiveItemId ?? null,
+      soundId: input.soundId ?? null,
       updatedAt: new Date().toISOString(),
     };
     mockProjects = [row, ...mockProjects];
@@ -1509,7 +1507,7 @@ export async function fetchEditorProject(id: string): Promise<{
     const row = mockProjects.find((p) => p.id === id) ?? {
       id,
       title: 'Mock project',
-      archiveItemId: 'arch-mock-1',
+      soundId: 'arch-mock-1',
       updatedAt: new Date().toISOString(),
     };
     return {
@@ -1520,8 +1518,8 @@ export async function fetchEditorProject(id: string): Promise<{
           durationSec: 180,
           tracks: [],
         },
-        sources: row.archiveItemId
-          ? [{ id: row.archiveItemId, title: 'Mock source', url: DEMO_MP3 }]
+        sources: row.soundId
+          ? [{ id: row.soundId, title: 'Mock source', url: DEMO_MP3 }]
           : [],
       },
       meta: { source: 'mock' },
@@ -1591,33 +1589,33 @@ export async function deleteEditorProject(
   }
 }
 
-// ── Archive pro editor draft / render ───────────────────────────────────────
+// ── Sound pro editor draft / render ───────────────────────────────────────
 
-export async function fetchEditorDraft(archiveItemId: string): Promise<{
+export async function fetchEditorDraft(soundId: string): Promise<{
   data: EditorDraft;
   meta: FetchMeta;
 }> {
   if (forceMock()) {
-    const existing = mockDrafts.get(archiveItemId);
+    const existing = mockDrafts.get(soundId);
     if (existing) {
       return {
         data: existing,
         meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
       };
     }
-    const item = mockArchiveStore.find((a) => a.id === archiveItemId);
+    const item = mockSoundStore.find((a) => a.id === soundId);
     const duration = item?.durationSec ?? 180;
     const draft: EditorDraft = {
       editList: createDefaultEditList(duration),
       updatedAt: new Date().toISOString(),
       editorPeaks: mockPeaks(duration),
     };
-    mockDrafts.set(archiveItemId, draft);
+    mockDrafts.set(soundId, draft);
     return { data: draft, meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
   }
   try {
     const { data } = await requestJson<EditorDraft>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/editor/draft`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/editor/draft`,
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
@@ -1631,13 +1629,13 @@ export async function fetchEditorDraft(archiveItemId: string): Promise<{
 }
 
 export async function saveEditorDraft(
-  archiveItemId: string,
+  soundId: string,
   editList: EditList,
   expectedUpdatedAt?: string | null,
 ): Promise<{ ok: true; updatedAt: string } | { ok: false; error: string }> {
   if (forceMock()) {
     const updatedAt = new Date().toISOString();
-    mockDrafts.set(archiveItemId, {
+    mockDrafts.set(soundId, {
       editList,
       updatedAt,
       editorPeaks: mockPeaks(editList.sourceDuration),
@@ -1646,7 +1644,7 @@ export async function saveEditorDraft(
   }
   try {
     const { data } = await requestJson<{ ok: true; updatedAt: string }>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/editor/draft`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/editor/draft`,
       {
         method: 'PATCH',
         body: JSON.stringify({
@@ -1665,7 +1663,7 @@ export async function saveEditorDraft(
 }
 
 export async function renderEditorDraft(
-  archiveItemId: string,
+  soundId: string,
   editList: EditList,
   versionLabel: string,
   /** false = "save as new revision" -- rendered and added to Revision
@@ -1684,7 +1682,7 @@ export async function renderEditorDraft(
       versionId: string;
       versionNumber: number;
       status: string;
-    }>(`/api/me/archive/${encodeURIComponent(archiveItemId)}/editor/render`, {
+    }>(`/api/me/archive/${encodeURIComponent(soundId)}/editor/render`, {
       method: 'POST',
       body: JSON.stringify({
         editList,

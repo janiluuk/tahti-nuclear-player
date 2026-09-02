@@ -32,7 +32,7 @@ import {
   SOURCE_DEFS,
   type IntegrationId,
 } from '../../api/sources';
-import { fetchEditorSource, uploadArchiveFile } from '../../api/studio';
+import { fetchEditorSource, uploadSoundFile } from '../../api/studio';
 import { SourceServiceIcon } from '../../components/SourceServiceIcon';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -254,8 +254,7 @@ function RecordedBroadcastCard({
   const isPlaying = isCurrent && status === 'playing';
   const progressDuration =
     isCurrent && duration > 0 ? duration : (broadcast.durationSec ?? 0);
-  const title =
-    broadcast.title || broadcast.archiveItemTitle || 'Recorded broadcast';
+  const title = broadcast.title || broadcast.soundTitle || 'Recorded broadcast';
 
   return (
     <li className="border-border bg-background-secondary rounded-lg border p-3">
@@ -263,7 +262,7 @@ function RecordedBroadcastCard({
         <Button
           size="icon-sm"
           variant="secondary"
-          disabled={loading || !broadcast.archiveItemId}
+          disabled={loading || !broadcast.soundId}
           onClick={onPlay}
           aria-label={`${isPlaying ? 'Pause' : 'Play'} ${title}`}
           title={isPlaying ? 'Pause recording' : 'Play recording'}
@@ -281,11 +280,8 @@ function RecordedBroadcastCard({
             {formatRecordingDuration(broadcast.durationSec)}
           </div>
         </div>
-        {broadcast.archiveItemId ? (
-          <Link
-            to="/studio/archive/$id"
-            params={{ id: broadcast.archiveItemId }}
-          >
+        {broadcast.soundId ? (
+          <Link to="/studio/sounds/$id" params={{ id: broadcast.soundId }}>
             <Button
               size="icon-sm"
               variant="text"
@@ -341,16 +337,15 @@ export function StudioUploadView() {
       setStatus(playbackStatus === 'playing' ? 'paused' : 'playing');
       return;
     }
-    if (!recording.archiveItemId) {
+    if (!recording.soundId) {
       return;
     }
     setRecordingLoadingId(recording.id);
-    const source = await fetchEditorSource(recording.archiveItemId);
+    const source = await fetchEditorSource(recording.soundId);
     play({
       id: playableId,
       kind: 'archive',
-      title:
-        recording.title || recording.archiveItemTitle || 'Recorded broadcast',
+      title: recording.title || recording.soundTitle || 'Recorded broadcast',
       artist: 'Recorded broadcast',
       streamUrl: source.data.url,
       protocol: source.data.url.includes('.m3u8') ? 'hls' : 'https',
@@ -366,16 +361,16 @@ export function StudioUploadView() {
     }
     setBusy(true);
     setMessage(null);
-    const result = await uploadArchiveFile({ file });
+    const result = await uploadSoundFile({ file });
     setBusy(false);
     if (!result.ok) {
       setMessage(result.error);
       return;
     }
-    // Land on the durable /studio/archive/$id route rather than staying here —
+    // Land on the durable /studio/sounds/$id route rather than staying here —
     // that page polls and shows processing state, so it survives a refresh or
     // a share/bookmark of the URL in a way this ephemeral form state can't.
-    void navigate({ to: '/studio/archive/$id', params: { id: result.itemId } });
+    void navigate({ to: '/studio/sounds/$id', params: { id: result.itemId } });
   };
 
   return (

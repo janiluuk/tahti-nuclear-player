@@ -7,7 +7,7 @@ const meta: Meta<typeof TrackExportPanel> = {
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
   args: {
-    archiveItemId: 'archive-item-1',
+    soundId: 'archive-item-1',
   },
 };
 

@@ -25,9 +25,9 @@ import {
 import { fetchFeatureRequests, fetchGovernanceMotions } from '../../api/client';
 import { fetchShowSchedule, type ScheduledShow } from '../../api/shows';
 import {
-  fetchStudioArchive,
   fetchStudioCollections,
   fetchStudioReleases,
+  fetchStudioSounds,
 } from '../../api/studio';
 import { fetchStatsSummary, type StatsSummary } from '../../api/studio-extras';
 import type { FeatureRequest, GovernanceMotion } from '../../api/types';
@@ -64,9 +64,9 @@ function formatBroadcastDuration(seconds: number | undefined): string {
 function RecentBroadcastRow({ broadcast }: { broadcast: RecentBroadcast }) {
   const title =
     broadcast.title ||
-    broadcast.archiveItemTitle ||
+    broadcast.soundTitle ||
     `Broadcast ${formatBroadcastDate(broadcast.startedAt)}`;
-  const published = broadcast.archiveItemStatus === 'READY';
+  const published = broadcast.soundStatus === 'READY';
 
   return (
     <li className="border-border flex flex-wrap items-center gap-3 border-b px-4 py-3 last:border-b-0">
@@ -93,15 +93,11 @@ function RecentBroadcastRow({ broadcast }: { broadcast: RecentBroadcast }) {
         {published ? 'Published' : 'Recorded'}
       </span>
       <Link
-        to={
-          broadcast.archiveItemId ? '/studio/archive/$id' : '/studio/recordings'
-        }
-        params={
-          broadcast.archiveItemId ? { id: broadcast.archiveItemId } : undefined
-        }
+        to={broadcast.soundId ? '/studio/sounds/$id' : '/studio/recordings'}
+        params={broadcast.soundId ? { id: broadcast.soundId } : undefined}
       >
         <Button size="sm" variant="secondary">
-          {broadcast.archiveItemId ? 'Open' : 'Publish'}
+          {broadcast.soundId ? 'Open' : 'Publish'}
         </Button>
       </Link>
     </li>
@@ -258,7 +254,7 @@ export function StudioHomeView() {
       return;
     }
     void Promise.all([
-      fetchStudioArchive(),
+      fetchStudioSounds(),
       fetchStudioCollections(),
       fetchStudioReleases(),
       fetchStatsSummary(),
@@ -596,13 +592,13 @@ export function StudioHomeView() {
                   color="var(--accent-purple)"
                 />
                 <StudioActionTile
-                  to="/studio/archive"
+                  to="/studio/sounds"
                   icon={LibraryBigIcon}
                   label="Music"
                   subtitle={
                     counts.archive
                       ? `${counts.archive} items`
-                      : 'Archive & files'
+                      : 'Sounds & files'
                   }
                   color="var(--accent-orange)"
                 />

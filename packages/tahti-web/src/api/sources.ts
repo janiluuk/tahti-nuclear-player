@@ -716,7 +716,7 @@ export async function importHearthisTracks(
   imported: number;
   failed: number;
   artworkFailed: number;
-  items: Array<{ trackId: string; archiveItemId: string }>;
+  items: Array<{ trackId: string; soundId: string }>;
 }> {
   if (forceMock()) {
     return {
@@ -725,14 +725,14 @@ export async function importHearthisTracks(
       artworkFailed: 0,
       items: tracks.map((track) => ({
         trackId: track.id,
-        archiveItemId: `hearthis-${track.id}`,
+        soundId: `hearthis-${track.id}`,
       })),
     };
   }
   const results: PromiseSettledResult<{
     artworkFailed: boolean;
     trackId: string;
-    archiveItemId: string;
+    soundId: string;
   }>[] = [];
   for (
     let index = 0;
@@ -744,7 +744,7 @@ export async function importHearthisTracks(
       ...(await Promise.allSettled(
         batch.map((track) =>
           requestJson<{
-            archiveItemId: string;
+            soundId: string;
             track: { coverUrl?: string | null };
           }>('/api/v1/imports/hearthis/add', {
             method: 'POST',
@@ -755,12 +755,12 @@ export async function importHearthisTracks(
               return {
                 artworkFailed: false,
                 trackId: track.id,
-                archiveItemId: data.archiveItemId,
+                soundId: data.soundId,
               };
             }
             try {
               await requestJson(
-                `/api/me/archive/${encodeURIComponent(data.archiveItemId)}/banner/from-url`,
+                `/api/me/archive/${encodeURIComponent(data.soundId)}/banner/from-url`,
                 {
                   method: 'POST',
                   body: JSON.stringify({ sourceUrl: coverUrl }),
@@ -769,13 +769,13 @@ export async function importHearthisTracks(
               return {
                 artworkFailed: false,
                 trackId: track.id,
-                archiveItemId: data.archiveItemId,
+                soundId: data.soundId,
               };
             } catch {
               return {
                 artworkFailed: true,
                 trackId: track.id,
-                archiveItemId: data.archiveItemId,
+                soundId: data.soundId,
               };
             }
           }),
@@ -794,14 +794,14 @@ export async function importHearthisTracks(
       ? [
           {
             trackId: result.value.trackId,
-            archiveItemId: result.value.archiveItemId,
+            soundId: result.value.soundId,
           },
         ]
       : [],
   );
   useProcessingJobsStore.getState().start(
     items.map((item) => ({
-      id: item.archiveItemId,
+      id: item.soundId,
       title:
         tracks.find((track) => track.id === item.trackId)?.title ??
         'HearThis track',
@@ -879,7 +879,7 @@ export type TrackExportStatus = {
 };
 
 export async function fetchTrackExportStatus(
-  archiveItemId: string,
+  soundId: string,
   target: 'mixcloud',
 ): Promise<TrackExportStatus | null> {
   if (forceMock()) {
@@ -891,7 +891,7 @@ export async function fetchTrackExportStatus(
       mixcloudUrl: string | null;
       error: string | null;
     }>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/${encodeURIComponent(target)}`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/${encodeURIComponent(target)}`,
     );
     return {
       status: data.status,
@@ -904,7 +904,7 @@ export async function fetchTrackExportStatus(
 }
 
 export async function exportTrack(
-  archiveItemId: string,
+  soundId: string,
   target: 'mixcloud',
 ): Promise<
   { ok: true; status: TrackExportStatus } | { ok: false; error: string }
@@ -917,7 +917,7 @@ export async function exportTrack(
   }
   try {
     const { data } = await requestJson<{ status: string }>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/${encodeURIComponent(target)}`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/${encodeURIComponent(target)}`,
       { method: 'POST' },
     );
     return {
@@ -925,7 +925,7 @@ export async function exportTrack(
       status: { status: data.status, url: null, error: null },
     };
   } catch (err) {
-    const existing = await fetchTrackExportStatus(archiveItemId, target);
+    const existing = await fetchTrackExportStatus(soundId, target);
     if (existing) {
       return { ok: true, status: existing };
     }

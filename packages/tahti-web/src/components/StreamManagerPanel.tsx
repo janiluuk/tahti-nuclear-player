@@ -37,7 +37,7 @@ import { fetchChannel } from '../api/client';
 import {
   fetchStudioCollection,
   fetchStudioCollections,
-  patchStudioArchiveItem,
+  patchStudioSound,
 } from '../api/studio';
 import {
   fetchProgramme,
@@ -343,18 +343,18 @@ export function StreamManagerPanel({
       selectedCollection?.slug === selectedCollectionSlug
         ? selectedCollection
         : (await fetchStudioCollection(selectedCollectionSlug)).data;
-    const archiveItemIds = (collection?.items ?? [])
-      .map((item) => item.archiveItemId)
+    const soundIds = (collection?.items ?? [])
+      .map((item) => item.soundId)
       .filter((id): id is string => Boolean(id));
     if (replace && programme) {
       for (const item of editableRotation) {
-        await patchStudioArchiveItem(item.id, { isFallback: false });
+        await patchStudioSound(item.id, { isFallback: false });
       }
     }
     let added = 0;
     let failed = 0;
-    for (const archiveItemId of archiveItemIds) {
-      const result = await patchStudioArchiveItem(archiveItemId, {
+    for (const soundId of soundIds) {
+      const result = await patchStudioSound(soundId, {
         isFallback: true,
       });
       if (result.ok) {
@@ -391,7 +391,7 @@ export function StreamManagerPanel({
       items: programme.items.map((item) => {
         const position = positions.get(item.id);
         return {
-          archiveItemId: item.id,
+          soundId: item.id,
           isFallback: position !== undefined,
           ...(position !== undefined ? { fallbackOrder: position } : {}),
         };
@@ -813,7 +813,7 @@ export function StreamManagerPanel({
                       {(selectedCollection.items ?? []).map((item) => (
                         <li key={item.id} className="truncate">
                           {item.position + 1}.{' '}
-                          {item.archiveItem?.title ??
+                          {item.sound?.title ??
                             item.release?.title ??
                             'Untitled track'}
                         </li>

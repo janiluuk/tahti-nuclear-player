@@ -178,7 +178,7 @@ export function AdminTopListsView() {
                     </h2>
                     <div className="flex flex-col gap-3">
                       {bucket.entries.map((entry, i) => (
-                        <div key={entry.archiveItemId} className="text-sm">
+                        <div key={entry.soundId} className="text-sm">
                           <div className="flex items-baseline justify-between gap-2">
                             <span className="flex min-w-0 items-center gap-1.5">
                               {entry.audioUrl && (
@@ -189,7 +189,7 @@ export function AdminTopListsView() {
                                   title="Preview"
                                   onClick={() => {
                                     play({
-                                      id: `archive:${entry.archiveItemId}`,
+                                      id: `archive:${entry.soundId}`,
                                       kind: 'archive',
                                       title: entry.title,
                                       artist: entry.artistName,
@@ -203,8 +203,8 @@ export function AdminTopListsView() {
                                 </Button>
                               )}
                               <Link
-                                to="/studio/archive/$id"
-                                params={{ id: entry.archiveItemId }}
+                                to="/studio/sounds/$id"
+                                params={{ id: entry.soundId }}
                                 className="min-w-0 truncate hover:underline"
                               >
                                 #{i + 1} {entry.title} — {entry.artistName}

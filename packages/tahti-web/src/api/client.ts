@@ -1553,27 +1553,25 @@ export async function fetchEmbedCollection(slug: string): Promise<{
       coverUrl: col.coverUrl,
       artist: col.user,
       tracks: col.items
-        .filter((i) => i.archiveItem)
+        .filter((i) => i.sound)
         .map((i) => ({
-          id: i.archiveItem!.id,
-          title: i.archiveItem!.title,
-          durationSec: i.archiveItem!.durationSec,
-          hasStream: Boolean(i.archiveItem!.audioUrl),
+          id: i.sound!.id,
+          title: i.sound!.title,
+          durationSec: i.sound!.durationSec,
+          hasStream: Boolean(i.sound!.audioUrl),
         })),
     };
     const playables = col.items
-      .filter((i) => i.archiveItem?.audioUrl)
+      .filter((i) => i.sound?.audioUrl)
       .map(
         (i): TahtiPlayable => ({
-          id: `archive:${i.archiveItem!.id}`,
+          id: `archive:${i.sound!.id}`,
           kind: 'archive',
-          title: i.archiveItem!.title,
+          title: i.sound!.title,
           artist: col.user.displayName,
           coverUrl: col.coverUrl ?? undefined,
-          streamUrl: i.archiveItem!.audioUrl!,
-          protocol: i.archiveItem!.audioUrl!.includes('.m3u8')
-            ? 'hls'
-            : 'https',
+          streamUrl: i.sound!.audioUrl!,
+          protocol: i.sound!.audioUrl!.includes('.m3u8') ? 'hls' : 'https',
         }),
       );
     return {
@@ -1623,23 +1621,23 @@ export async function fetchEmbedCollection(slug: string): Promise<{
         coverUrl: col.coverUrl,
         artist: col.user,
         tracks: col.items
-          .filter((i) => i.archiveItem)
+          .filter((i) => i.sound)
           .map((i) => ({
-            id: i.archiveItem!.id,
-            title: i.archiveItem!.title,
+            id: i.sound!.id,
+            title: i.sound!.title,
             hasStream: true,
           })),
       },
       meta: failMeta(err),
       playables: col.items
-        .filter((i) => i.archiveItem?.audioUrl)
+        .filter((i) => i.sound?.audioUrl)
         .map(
           (i): TahtiPlayable => ({
-            id: `archive:${i.archiveItem!.id}`,
+            id: `archive:${i.sound!.id}`,
             kind: 'archive',
-            title: i.archiveItem!.title,
+            title: i.sound!.title,
             artist: col.user.displayName,
-            streamUrl: i.archiveItem!.audioUrl!,
+            streamUrl: i.sound!.audioUrl!,
             protocol: 'https',
           }),
         ),
@@ -1648,7 +1646,7 @@ export async function fetchEmbedCollection(slug: string): Promise<{
 }
 
 export async function postListenEvent(
-  archiveItemId: string,
+  soundId: string,
 ): Promise<{ recorded: boolean; meta: FetchMeta }> {
   if (forceMock()) {
     return {
@@ -1661,7 +1659,7 @@ export async function postListenEvent(
       '/api/listen-events',
       {
         method: 'POST',
-        body: JSON.stringify({ archiveItemId }),
+        body: JSON.stringify({ soundId }),
       },
     );
     return { recorded: Boolean(data.recorded), meta: { source: 'api' } };

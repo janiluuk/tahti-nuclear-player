@@ -70,11 +70,11 @@ export function RadioSubmissionsTab() {
       return;
     }
     play({
-      id: `radio-sub:${result.data.archiveItemId}`,
+      id: `radio-sub:${result.data.soundId}`,
       kind: 'archive',
       title: result.data.title,
       artist: result.data.artistName,
-      coverUrl: row.archiveItem.bannerUrl ?? undefined,
+      coverUrl: row.sound.bannerUrl ?? undefined,
       streamUrl: result.data.audioUrl,
       protocol: 'https',
     });
@@ -108,25 +108,23 @@ export function RadioSubmissionsTab() {
             <StudioPanel title="Auditing">
               <div className="flex items-start gap-4">
                 <div className="bg-surface-secondary flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg text-xs font-bold">
-                  {active.archiveItem.bannerUrl ? (
+                  {active.sound.bannerUrl ? (
                     <img
-                      src={active.archiveItem.bannerUrl}
+                      src={active.sound.bannerUrl}
                       alt=""
                       className="size-full object-cover"
                     />
                   ) : (
-                    active.archiveItem.title.slice(0, 2).toUpperCase()
+                    active.sound.title.slice(0, 2).toUpperCase()
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold">
-                    {active.archiveItem.title}
-                  </h3>
+                  <h3 className="text-base font-bold">{active.sound.title}</h3>
                   <p className="text-foreground-secondary text-sm">
-                    {active.archiveItem.artistName ??
+                    {active.sound.artistName ??
                       active.submitter?.displayName ??
                       'Unknown artist'}{' '}
-                    · {fmtDuration(active.archiveItem.durationSec)}
+                    · {fmtDuration(active.sound.durationSec)}
                   </p>
                   <Button
                     size="sm"
@@ -220,10 +218,10 @@ export function RadioSubmissionsTab() {
                     onClick={() => setActiveId(row.id)}
                     className="min-w-0 flex-1 text-left"
                   >
-                    <div className="font-medium">{row.archiveItem.title}</div>
+                    <div className="font-medium">{row.sound.title}</div>
                     <div className="text-foreground-secondary text-xs">
                       {row.submitter?.displayName ?? '—'} ·{' '}
-                      {fmtDuration(row.archiveItem.durationSec)} ·{' '}
+                      {fmtDuration(row.sound.durationSec)} ·{' '}
                       {new Date(row.createdAt).toLocaleDateString()}
                     </div>
                   </button>

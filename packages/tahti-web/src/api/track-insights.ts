@@ -40,7 +40,7 @@ function failMeta(err: unknown): FetchMeta {
 
 export type InsightsPeriod = '7d' | '30d' | 'all';
 
-export type InsightsKind = 'archive' | 'release-tracks';
+export type InsightsKind = 'sound' | 'release-tracks';
 
 export type TrackInsights = {
   title: string;
@@ -82,7 +82,7 @@ function mockInsights(period: InsightsPeriod, title: string): TrackInsights {
 }
 
 const KIND_PATH: Record<InsightsKind, string> = {
-  archive: '/api/me/archive',
+  sound: '/api/me/archive',
   'release-tracks': '/api/me/release-tracks',
 };
 

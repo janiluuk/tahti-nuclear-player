@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AdminContentView } from '@tahti-web/views/admin/AdminContentView';
 import { AdminMissedShowsView } from '@tahti-web/views/admin/AdminMissedShowsView';
 import { AdminSelectsView } from '@tahti-web/views/admin/AdminSelectsView';
-import { StudioArchiveItemView } from '@tahti-web/views/studio/StudioArchiveItemView';
 import { StudioBrandingView } from '@tahti-web/views/studio/StudioBrandingView';
 import { StudioChannelView } from '@tahti-web/views/studio/StudioChannelView';
 import { StudioCollectionsView } from '@tahti-web/views/studio/StudioCollectionsView';
@@ -13,6 +12,7 @@ import { StudioModerationView } from '@tahti-web/views/studio/StudioModerationVi
 import { StudioReleasesView } from '@tahti-web/views/studio/StudioReleasesView';
 import { StudioRevenueView } from '@tahti-web/views/studio/StudioRevenueView';
 import { StudioScheduleView } from '@tahti-web/views/studio/StudioScheduleView';
+import { StudioSoundView } from '@tahti-web/views/studio/StudioSoundView';
 import { StudioStatsView } from '@tahti-web/views/studio/StudioStatsView';
 import { StudioUploadView } from '@tahti-web/views/studio/StudioUploadView';
 
@@ -93,7 +93,7 @@ export const StudioUpload: Story = {
   render: () => <StudioUploadView />,
 };
 
-export const StudioArchiveItem: Story = {
+export const StudioSound: Story = {
   parameters: {
     docs: {
       description: {
@@ -102,10 +102,10 @@ export const StudioArchiveItem: Story = {
     },
   },
   decorators: [withTahtiRouter('/studio/archive/track-northern-signals')],
-  render: () => <StudioArchiveItemView id="track-northern-signals" />,
+  render: () => <StudioSoundView id="track-northern-signals" />,
 };
 
-export const StudioArchiveItemFixedWidth: Story = {
+export const StudioSoundFixedWidth: Story = {
   parameters: {
     docs: {
       description: {
@@ -115,7 +115,7 @@ export const StudioArchiveItemFixedWidth: Story = {
     },
   },
   decorators: [withTahtiRouter('/studio/archive/track-northern-signals')],
-  render: () => <StudioArchiveItemView id="track-northern-signals" />,
+  render: () => <StudioSoundView id="track-northern-signals" />,
 };
 
 export const StudioCollections: Story = {

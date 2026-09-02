@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { HardDriveIcon, HeadphonesIcon, Music2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { fetchStudioArchive } from '../api/studio';
+import { fetchStudioSounds } from '../api/studio';
 import {
   fetchStatsTopTracks,
   fetchStorageUsage,
@@ -12,27 +12,15 @@ import {
 import { FavoritesPanel } from '../components/FavoritesPanel';
 import { StudioNav } from '../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../components/StudioPanel';
-import { FavoritesView } from './FavoritesView';
-import { HistoryView } from './HistoryView';
 import { LibraryEmbedsView } from './LibraryEmbedsView';
 import { LibraryMediaView } from './LibraryMediaView';
 import { LibrarySmartLinksView } from './LibrarySmartLinksView';
 import { MyCollectionsView } from './MyCollectionsView';
 import { MyDiscographyView } from './MyDiscographyView';
 import { StudioRecordingsView } from './studio/StudioRecordingsView';
-import { StudioReleasesView } from './studio/StudioReleasesView';
 import { StudioStashView } from './studio/StudioStashView';
 
-type Tab =
-  | 'library'
-  | 'sounds'
-  | 'collections'
-  | 'releases'
-  | 'recordings'
-  | 'favorites'
-  | 'history'
-  | 'smartlinks'
-  | 'media';
+type Tab = 'library' | 'sounds' | 'collections' | 'smartlinks' | 'media';
 
 type CollectionTab =
   | 'collections'
@@ -44,19 +32,13 @@ type CollectionTab =
 const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
   library: '/library',
   sounds: '/library/sounds',
-  releases: '/library/releases',
   collections: '/library/collections',
-  recordings: '/library/recordings',
-  favorites: '/library/favorites',
-  history: '/library/history',
   smartlinks: '/library/smartlinks',
   media: '/library/media',
 };
 
 const libraryNavRoute = (tab: Tab): string =>
-  tab === 'recordings' || tab === 'media'
-    ? '/library/collections'
-    : LIBRARY_ROUTE_BY_TAB[tab];
+  tab === 'media' ? '/library/collections' : LIBRARY_ROUTE_BY_TAB[tab];
 
 export function LibraryView({
   tab = 'library',
@@ -78,15 +60,11 @@ export function LibraryView({
 
   return (
     <div className="studio-page-layout flex w-full flex-col gap-6">
-      {tab !== 'history' && tab !== 'favorites' ? (
-        <StudioNav current={libraryNavRoute(tab)} />
-      ) : null}
+      <StudioNav current={libraryNavRoute(tab)} />
       <div className="flex min-w-0 flex-1 flex-col gap-6 lg:flex-row lg:items-start">
-        {tab !== 'favorites' ? (
-          <aside className="w-full shrink-0 lg:sticky lg:top-4 lg:w-64">
-            <FavoritesPanel />
-          </aside>
-        ) : null}
+        <aside className="w-full shrink-0 lg:sticky lg:top-4 lg:w-64">
+          <FavoritesPanel />
+        </aside>
         <div className="min-w-0 flex-1">
           {tab === 'library' ? (
             <>
@@ -179,9 +157,6 @@ export function LibraryView({
               )}
             </>
           ) : null}
-          {tab === 'releases' && <StudioReleasesView embedded />}
-          {tab === 'favorites' && <FavoritesView />}
-          {tab === 'history' && <HistoryView />}
           {tab === 'smartlinks' && <LibrarySmartLinksView />}
         </div>
       </div>
@@ -211,7 +186,7 @@ function LibraryStats() {
   }, []);
 
   useEffect(() => {
-    void fetchStudioArchive().then((result) =>
+    void fetchStudioSounds().then((result) =>
       setSoundCount(result.data.length),
     );
   }, []);
@@ -268,15 +243,15 @@ function LibraryStats() {
           <ol className="divide-border divide-y">
             {topTracks.map((track, index) => (
               <li
-                key={track.archiveItemId}
+                key={track.soundId}
                 className="flex items-center gap-3 py-2 text-sm"
               >
                 <span className="text-foreground-secondary w-5 text-center text-xs">
                   {index + 1}
                 </span>
                 <Link
-                  to="/studio/archive/$id"
-                  params={{ id: track.archiveItemId }}
+                  to="/studio/sounds/$id"
+                  params={{ id: track.soundId }}
                   className="min-w-0 flex-1 truncate hover:underline"
                 >
                   {track.title}

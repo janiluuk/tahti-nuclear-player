@@ -14,7 +14,7 @@ const MIXCLOUD_TARGET = EXPORT_TARGETS.find(
   (target) => target.id === 'mixcloud' && target.supportsTracks,
 );
 
-export function TrackExportPanel({ archiveItemId }: { archiveItemId: string }) {
+export function TrackExportPanel({ soundId }: { soundId: string }) {
   const [status, setStatus] = useState<TrackExportStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
@@ -23,7 +23,7 @@ export function TrackExportPanel({ archiveItemId }: { archiveItemId: string }) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    void fetchTrackExportStatus(archiveItemId, 'mixcloud').then((result) => {
+    void fetchTrackExportStatus(soundId, 'mixcloud').then((result) => {
       if (!cancelled) {
         setStatus(result);
         setLoading(false);
@@ -32,7 +32,7 @@ export function TrackExportPanel({ archiveItemId }: { archiveItemId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [archiveItemId]);
+  }, [soundId]);
 
   if (!MIXCLOUD_TARGET) {
     return null;
@@ -88,7 +88,7 @@ export function TrackExportPanel({ archiveItemId }: { archiveItemId: string }) {
             onClick={() => {
               setExporting(true);
               setError(null);
-              void exportTrack(archiveItemId, 'mixcloud').then((result) => {
+              void exportTrack(soundId, 'mixcloud').then((result) => {
                 setExporting(false);
                 if (result.ok) {
                   setStatus(result.status);

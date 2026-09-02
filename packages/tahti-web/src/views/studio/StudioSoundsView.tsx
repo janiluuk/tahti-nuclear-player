@@ -23,13 +23,13 @@ import {
   playableFromHearthis,
 } from '../../api/sources';
 import {
-  deleteStudioArchiveItem,
+  deleteStudioSound,
   fetchEditorSource,
-  fetchStudioArchive,
-  fetchStudioArchiveDownload,
-  patchStudioArchiveItem,
+  fetchStudioSoundDownload,
+  fetchStudioSounds,
+  patchStudioSound,
 } from '../../api/studio';
-import type { StudioArchiveItem } from '../../api/studio-types';
+import type { StudioSound } from '../../api/studio-types';
 import { AddToMusicActions } from '../../components/AddToMusicActions';
 import { AddToPlaylistButton } from '../../components/AddToPlaylistButton';
 import { PageLoading } from '../../components/PageStates';
@@ -101,7 +101,7 @@ function formatUploadDate(value: string | undefined): string | null {
   }).format(date);
 }
 
-export function StudioArchiveView() {
+export function StudioSoundsView() {
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { folder?: string };
   const folder =
@@ -110,7 +110,7 @@ export function StudioArchiveView() {
       : search.folder === 'clips'
         ? 'clips'
         : 'archive';
-  const [items, setItems] = useState<StudioArchiveItem[]>([]);
+  const [items, setItems] = useState<StudioSound[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [embedFilter, setEmbedFilter] = useState<EmbedFilter>('ALL');
@@ -124,12 +124,12 @@ export function StudioArchiveView() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pinMessage, setPinMessage] = useState<string | null>(null);
   const [embedOpenId, setEmbedOpenId] = useState<string | null>(null);
-  const [statsItem, setStatsItem] = useState<StudioArchiveItem | null>(null);
+  const [statsItem, setStatsItem] = useState<StudioSound | null>(null);
   const play = usePlayerStore((s) => s.play);
 
   const reload = () => {
     setLoading(true);
-    void fetchStudioArchive().then((res) => {
+    void fetchStudioSounds().then((res) => {
       setItems(res.data);
       setLoading(false);
     });
@@ -212,7 +212,7 @@ export function StudioArchiveView() {
     setBusyId(null);
   };
 
-  const playEmbedItem = async (item: StudioArchiveItem) => {
+  const playEmbedItem = async (item: StudioSound) => {
     if (item.embedProvider !== 'HEARTHIS' || !item.embedUri) {
       setEmbedOpenId((id) => (id === item.id ? null : item.id));
       return;
@@ -235,9 +235,9 @@ export function StudioArchiveView() {
     }
   };
 
-  const downloadItem = async (item: StudioArchiveItem) => {
+  const downloadItem = async (item: StudioSound) => {
     setBusyId(item.id);
-    const result = await fetchStudioArchiveDownload(item.id);
+    const result = await fetchStudioSoundDownload(item.id);
     setBusyId(null);
     if (!result.ok) {
       setPinMessage(result.error);
@@ -252,11 +252,11 @@ export function StudioArchiveView() {
     link.remove();
   };
 
-  const togglePin = async (item: StudioArchiveItem) => {
+  const togglePin = async (item: StudioSound) => {
     const next = !isPinned(item);
     setPinMessage(null);
     setBusyId(item.id);
-    const result = await patchStudioArchiveItem(item.id, { pinned: next });
+    const result = await patchStudioSound(item.id, { pinned: next });
     setBusyId(null);
     if (!result.ok) {
       setPinMessage(result.error);
@@ -270,7 +270,7 @@ export function StudioArchiveView() {
   return (
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
-        <StudioNav current="/studio/archive" />
+        <StudioNav current="/studio/sounds" />
         <StudioPageHeader
           title="Sounds"
           subtitle="Your sounds and other files, in one place."
@@ -291,7 +291,7 @@ export function StudioArchiveView() {
               aria-selected={folder === f.id}
               onClick={() =>
                 void navigate({
-                  to: '/studio/archive',
+                  to: '/studio/sounds',
                   search: f.id === 'archive' ? {} : { folder: f.id },
                 })
               }
@@ -496,7 +496,7 @@ export function StudioArchiveView() {
                         <BarChart3Icon size={16} aria-hidden />
                       </Button>
                       <AddToPlaylistButton
-                        archiveItemId={item.id}
+                        soundId={item.id}
                         trackTitle={item.title}
                       />
                       <Button
@@ -534,7 +534,7 @@ export function StudioArchiveView() {
                           </Button>
                           {!embedSrc && (
                             <Link
-                              to="/studio/archive/$id/editor"
+                              to="/studio/sounds/$id/editor"
                               params={{ id: item.id }}
                             >
                               <Button
@@ -556,7 +556,7 @@ export function StudioArchiveView() {
                               if (!confirm(`Delete “${item.title}”?`)) {
                                 return;
                               }
-                              void deleteStudioArchiveItem(item.id).then(() =>
+                              void deleteStudioSound(item.id).then(() =>
                                 reload(),
                               );
                             }}
@@ -584,7 +584,7 @@ export function StudioArchiveView() {
           </StudioPanel>
         )}
         <TrackEditDialog
-          archiveItemId={editingId}
+          soundId={editingId}
           onClose={() => setEditingId(null)}
           onSaved={(saved) =>
             setItems((current) =>
@@ -603,7 +603,7 @@ export function StudioArchiveView() {
           Plays, downloads, and listener geography for this sound.
         </Dialog.Description>
         {statsItem ? (
-          <TrackInsightsPanel kind="archive" id={statsItem.id} />
+          <TrackInsightsPanel kind="sound" id={statsItem.id} />
         ) : null}
         <Dialog.Actions>
           <Dialog.Close>Close</Dialog.Close>

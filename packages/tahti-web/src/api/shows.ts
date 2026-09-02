@@ -108,7 +108,7 @@ export type StudioEpisode = {
   coverUrl: string | null;
   status: EpisodeStatus;
   source: EpisodeSource;
-  archiveItemId: string | null;
+  soundId: string | null;
   slotStartAt: string | null;
   slotEndAt: string | null;
   bookingId: string | null;
@@ -145,7 +145,7 @@ export type PublicRadioShowEpisode = {
   description?: string | null;
   coverUrl?: string | null;
   recording?: {
-    archiveItemId: string;
+    soundId: string;
     title: string;
     channelItemUrl: string;
   } | null;
@@ -262,7 +262,7 @@ function seedEpisodes(): StudioEpisode[] {
       coverUrl: null,
       status: 'APPROVED',
       source: 'upload',
-      archiveItemId: 'arch-mock-1',
+      soundId: 'arch-mock-1',
       slotStartAt: null,
       slotEndAt: null,
       bookingId: null,
@@ -277,7 +277,7 @@ function seedEpisodes(): StudioEpisode[] {
       coverUrl: null,
       status: 'PENDING_APPROVAL',
       source: 'broadcast',
-      archiveItemId: 'arch-mock-1',
+      soundId: 'arch-mock-1',
       slotStartAt: null,
       slotEndAt: null,
       bookingId: null,
@@ -292,7 +292,7 @@ function seedEpisodes(): StudioEpisode[] {
       coverUrl: null,
       status: 'APPROVED',
       source: 'upload',
-      archiveItemId: 'arch-mock-2',
+      soundId: 'arch-mock-2',
       slotStartAt: null,
       slotEndAt: null,
       bookingId: null,
@@ -308,7 +308,7 @@ function seedEpisodes(): StudioEpisode[] {
       coverUrl: null,
       status: 'APPROVED',
       source: 'broadcast',
-      archiveItemId: 'arch-mock-3',
+      soundId: 'arch-mock-3',
       slotStartAt: null,
       slotEndAt: null,
       bookingId: null,
@@ -323,7 +323,7 @@ function seedEpisodes(): StudioEpisode[] {
       coverUrl: null,
       status: 'PENDING_APPROVAL',
       source: 'broadcast',
-      archiveItemId: null,
+      soundId: null,
       slotStartAt: null,
       slotEndAt: null,
       bookingId: null,
@@ -339,7 +339,7 @@ function seedEpisodes(): StudioEpisode[] {
       coverUrl: null,
       status: 'APPROVED',
       source: 'upload',
-      archiveItemId: 'arch-mock-4',
+      soundId: 'arch-mock-4',
       slotStartAt: null,
       slotEndAt: null,
       bookingId: null,
@@ -355,7 +355,7 @@ function seedEpisodes(): StudioEpisode[] {
       coverUrl: null,
       status: 'APPROVED',
       source: 'upload',
-      archiveItemId: 'arch-mock-5',
+      soundId: 'arch-mock-5',
       slotStartAt: null,
       slotEndAt: null,
       bookingId: null,
@@ -451,7 +451,7 @@ type WireLiveShowEpisode = {
   artworkUrl: string | null;
   status: EpisodeStatus;
   source: 'UPLOAD' | 'BROADCAST';
-  archiveItemId: string | null;
+  soundId: string | null;
   radioSlotBookingId: string | null;
   createdAt: string;
 };
@@ -495,7 +495,7 @@ function episodeFromWire(w: WireLiveShowEpisode): StudioEpisode {
     coverUrl: w.artworkUrl,
     status: w.status,
     source: w.source === 'BROADCAST' ? 'broadcast' : 'upload',
-    archiveItemId: w.archiveItemId,
+    soundId: w.soundId,
     slotStartAt: null,
     slotEndAt: null,
     bookingId: w.radioSlotBookingId,
@@ -886,6 +886,37 @@ export async function fetchEpisodesForShow(
   }
 }
 
+/** A recording/archive item's real, stable reference to the show it
+ * belongs to — resolved by joining every show series' episodes
+ * (StudioEpisode.soundId) against the archive item id. There is no
+ * single "all episodes" endpoint, so this fetches every series' episodes
+ * and merges them; callers needing "which show made this recording"
+ * (e.g. StudioRecordingsView) should use this instead of matching on
+ * title text, which drifts as soon as two shows share a name. */
+export type ShowRefByArchiveItemId = Map<
+  string,
+  { showId: string; title: string }
+>;
+
+export async function fetchShowRefByArchiveItemId(): Promise<{
+  data: ShowRefByArchiveItemId;
+  meta: FetchMeta;
+}> {
+  const { data: series, meta } = await fetchShowSeries();
+  const episodeLists = await Promise.all(
+    series.map((show) => fetchEpisodesForShow(show.id)),
+  );
+  const map: ShowRefByArchiveItemId = new Map();
+  series.forEach((show, index) => {
+    for (const episode of episodeLists[index].data) {
+      if (episode.soundId) {
+        map.set(episode.soundId, { showId: show.id, title: show.title });
+      }
+    }
+  });
+  return { data: map, meta };
+}
+
 export async function fetchEpisode(
   id: string,
 ): Promise<{ data: StudioEpisode | null; meta: FetchMeta }> {
@@ -917,7 +948,7 @@ export async function fetchEpisode(
 export async function createEpisode(input: {
   showId: string;
   source: EpisodeSource;
-  archiveItemId?: string | null;
+  soundId?: string | null;
   slotStartAt?: string | null;
   slotEndAt?: string | null;
   bookingId?: string | null;
@@ -941,7 +972,7 @@ export async function createEpisode(input: {
       coverUrl: show.coverUrl,
       status: input.source === 'broadcast' ? 'PENDING_APPROVAL' : 'DRAFT',
       source: input.source,
-      archiveItemId: input.archiveItemId ?? null,
+      soundId: input.soundId ?? null,
       slotStartAt: input.slotStartAt ?? null,
       slotEndAt: input.slotEndAt ?? null,
       bookingId: input.bookingId ?? null,
@@ -963,7 +994,7 @@ export async function createEpisode(input: {
         body: JSON.stringify({
           source: input.source === 'broadcast' ? 'BROADCAST' : 'UPLOAD',
           title: input.title,
-          archiveItemId: input.archiveItemId,
+          soundId: input.soundId,
           radioSlotBookingId: input.bookingId,
         }),
       },
@@ -986,7 +1017,7 @@ export async function patchEpisode(
       | 'description'
       | 'coverUrl'
       | 'status'
-      | 'archiveItemId'
+      | 'soundId'
       | 'slotStartAt'
       | 'slotEndAt'
       | 'bookingId'
@@ -1017,8 +1048,8 @@ export async function patchEpisode(
     if ('status' in patch) {
       body.status = patch.status;
     }
-    if ('archiveItemId' in patch) {
-      body.archiveItemId = patch.archiveItemId;
+    if ('soundId' in patch) {
+      body.soundId = patch.soundId;
     }
     if ('bookingId' in patch) {
       body.radioSlotBookingId = patch.bookingId;
@@ -1047,7 +1078,7 @@ export async function approveEpisode(
   if (
     ep.source === 'broadcast' &&
     ep.status === 'PENDING_APPROVAL' &&
-    !ep.archiveItemId
+    !ep.soundId
   ) {
     return { ok: false, error: 'Attach audio before approving' };
   }
@@ -1103,11 +1134,11 @@ export async function fetchPublicRadioShow(
         title: episode?.title,
         description: episode?.description,
         coverUrl: episode?.coverUrl,
-        recording: episode?.archiveItemId
+        recording: episode?.soundId
           ? {
-              archiveItemId: episode.archiveItemId,
+              soundId: episode.soundId,
               title: episode.title,
-              channelItemUrl: `/channel/${booking.channelSlug}#archive-item-${episode.archiveItemId}`,
+              channelItemUrl: `/channel/${booking.channelSlug}#archive-item-${episode.soundId}`,
             }
           : null,
       };

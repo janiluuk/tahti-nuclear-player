@@ -89,6 +89,8 @@ export function RadioView() {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const currentId = usePlayerStore((s) => s.currentId);
+  const playerStatus = usePlayerStore((s) => s.status);
+  const setPlayerStatus = usePlayerStore((s) => s.setStatus);
   const queue = usePlayerStore((s) => s.queue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const favorited = useLibraryStore((s) =>
@@ -475,6 +477,10 @@ export function RadioView() {
                           const isPlaying = Boolean(
                             playable && playable.id === currentId,
                           );
+                          const isActivelyPlaying =
+                            isPlaying &&
+                            (playerStatus === 'playing' ||
+                              playerStatus === 'loading');
                           return (
                             <li
                               key={item.id}
@@ -533,6 +539,14 @@ export function RadioView() {
                               <MediaIconActions
                                 actions={playQueueFavoriteActions({
                                   onPlay: () => playable && play(playable),
+                                  onTogglePause: () =>
+                                    setPlayerStatus(
+                                      playerStatus === 'playing' ||
+                                        playerStatus === 'loading'
+                                        ? 'paused'
+                                        : 'playing',
+                                    ),
+                                  isPlaying: isActivelyPlaying,
                                   onQueue: () => playable && enqueue(playable),
                                   playDisabled: !playable,
                                   queueDisabled: !playable,

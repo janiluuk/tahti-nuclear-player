@@ -14,12 +14,15 @@ import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
-export function FavoritesView() {
+export function FavoritesView({ embedded = false }: { embedded?: boolean }) {
   const favoriteChannels = useLibraryStore((s) => s.favoriteChannels);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const currentId = usePlayerStore((s) => s.currentId);
+  const playerStatus = usePlayerStore((s) => s.status);
+  const setPlayerStatus = usePlayerStore((s) => s.setStatus);
   const radioFavorites = favoriteTracks.filter(
     (track) => track.kind === 'radio',
   );
@@ -29,10 +32,12 @@ export function FavoritesView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Favorites"
-        subtitle="Play, queue, or unfavorite from here. The panel on the left is a quick-jump list to the same items."
-      />
+      {!embedded ? (
+        <PageHeader
+          title="Favorites"
+          subtitle="Play, queue, or unfavorite from here."
+        />
+      ) : null}
 
       <SectionShell title="Channels">
         {favoriteChannels.length === 0 && radioFavorites.length === 0 ? (
@@ -61,6 +66,9 @@ export function FavoritesView() {
                 <MediaIconActions
                   className="px-1"
                   actions={playQueueFavoriteActions({
+                    // No isPlaying here: a channel's live playable id is
+                    // only known after fetchChannel resolves it, so there's
+                    // nothing to compare currentId against up front.
                     onPlay: () => {
                       void fetchChannel(ch.slug).then(({ playable }) => {
                         if (playable) {
@@ -95,6 +103,16 @@ export function FavoritesView() {
                   className="px-1"
                   actions={playQueueFavoriteActions({
                     onPlay: () => play(radio),
+                    onTogglePause: () =>
+                      setPlayerStatus(
+                        playerStatus === 'playing' || playerStatus === 'loading'
+                          ? 'paused'
+                          : 'playing',
+                      ),
+                    isPlaying:
+                      radio.id === currentId &&
+                      (playerStatus === 'playing' ||
+                        playerStatus === 'loading'),
                     onQueue: () => enqueue(radio),
                     onFavorite: () =>
                       useLibraryStore.getState().toggleFavoriteTrack(radio),
@@ -111,7 +129,7 @@ export function FavoritesView() {
       <SectionShell title="Tracks">
         <PlayableTrackTable
           items={audioFavorites}
-          emptyMessage="No favorite tracks yet. Heart rows in Archive / Collections."
+          emptyMessage="No favorite tracks yet. Heart rows in Sounds / Collections."
           playAll={false}
         />
       </SectionShell>

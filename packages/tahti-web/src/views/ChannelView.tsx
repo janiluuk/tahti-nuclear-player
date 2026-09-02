@@ -349,11 +349,20 @@ export function ChannelView({ slug }: { slug: string }) {
       avatarUrl: channel.user.avatarUrl,
     });
 
+  // Takes an updater (not a precomputed array) so each call always builds on
+  // the latest layout — reading the closed-over `layout` variable directly
+  // races when two edits (e.g. a fast double-click on "Add") fire before
+  // React re-renders between them, both computing from the same stale array
+  // and silently dropping one of the changes (or duplicating an item).
   const updateLayout = (
-    next: ChannelPageItem[],
+    updater:
+      | ChannelPageItem[]
+      | ((prev: ChannelPageItem[]) => ChannelPageItem[]),
     opts?: { clearPreset?: boolean },
   ) => {
-    setLayout(next);
+    setLayout((prev) =>
+      typeof updater === 'function' ? updater(prev) : updater,
+    );
     setLayoutDirty(true);
     if (opts?.clearPreset !== false && activePresetId) {
       setActivePresetId(null);
@@ -362,7 +371,7 @@ export function ChannelView({ slug }: { slug: string }) {
   };
 
   const removeLayoutItem = (id: string) => {
-    updateLayout(layout.filter((item) => item.id !== id));
+    updateLayout((prev) => prev.filter((item) => item.id !== id));
     if (selectedId === id) {
       setSelectedId(null);
     }
@@ -516,7 +525,7 @@ export function ChannelView({ slug }: { slug: string }) {
                           id: 'links',
                           label: 'Links',
                           onClick: () =>
-                            updateLayout(addItemType(layout, 'links')),
+                            updateLayout((prev) => addItemType(prev, 'links')),
                         }
                       : null,
                     !layout.find((i) => i.type === 'about')?.visible
@@ -524,7 +533,7 @@ export function ChannelView({ slug }: { slug: string }) {
                           id: 'about',
                           label: 'Bio',
                           onClick: () =>
-                            updateLayout(addItemType(layout, 'about')),
+                            updateLayout((prev) => addItemType(prev, 'about')),
                         }
                       : null,
                     !layout.find((i) => i.type === 'stats')?.visible
@@ -532,7 +541,7 @@ export function ChannelView({ slug }: { slug: string }) {
                           id: 'stats',
                           label: 'Stats',
                           onClick: () =>
-                            updateLayout(addItemType(layout, 'stats')),
+                            updateLayout((prev) => addItemType(prev, 'stats')),
                         }
                       : null,
                   ].filter((chip): chip is NonNullable<typeof chip> =>
@@ -876,8 +885,14 @@ export function ChannelView({ slug }: { slug: string }) {
         );
         return instance ? <ListenerWidgetEmbed instance={instance} /> : null;
       }
-      default:
+      default: {
+        // Exhaustiveness guard: adding a type to CHANNEL_PAGE_ITEM_TYPES
+        // without a matching case here used to compile fine and silently
+        // render nothing — this turns that into a build error instead.
+        const unhandled: never = item.type;
+        void unhandled;
         return null;
+      }
     }
   };
 
@@ -1052,7 +1067,7 @@ export function ChannelView({ slug }: { slug: string }) {
                   return;
                 }
                 e.preventDefault();
-                updateLayout(moveItem(layout, dragId, item.id));
+                updateLayout((prev) => moveItem(prev, dragId, item.id));
                 setDragId(null);
               }}
               onClick={() => {
@@ -1064,9 +1079,9 @@ export function ChannelView({ slug }: { slug: string }) {
                 if (moveDrag?.id !== item.id) {
                   return;
                 }
-                updateLayout(
+                updateLayout((prev) =>
                   setItemOffset(
-                    layout,
+                    prev,
                     item.id,
                     snapToGrid(
                       moveDrag.offsetX + event.clientX - moveDrag.startX,
@@ -1110,6 +1125,15 @@ export function ChannelView({ slug }: { slug: string }) {
                 <>
                   <div
                     className="text-foreground-secondary mb-2 flex touch-none items-center gap-2 pr-9 text-[10px] tracking-wide uppercase"
+                    // Opts this handle out of the block's own `draggable`
+                    // (used for stack reordering, above) — without this the
+                    // browser's native drag-and-drop and this handle's
+                    // pointer-capture free-offset drag both try to own the
+                    // same gesture, so grabbing the handle would sometimes
+                    // reorder the stack instead of (or in addition to)
+                    // repositioning the block.
+                    draggable={false}
+                    onDragStart={(event) => event.preventDefault()}
                     onPointerDown={(event) => {
                       event.preventDefault();
                       event.stopPropagation();
@@ -1245,33 +1269,40 @@ export function ChannelView({ slug }: { slug: string }) {
       activePresetId={activePresetId}
       onSelect={setSelectedId}
       onToggleVisible={(id) => {
-        const row = layout.find((i) => i.id === id);
-        if (!row) {
-          return;
-        }
-        updateLayout(setItemVisible(layout, id, !row.visible));
+        updateLayout((prev) => {
+          const row = prev.find((i) => i.id === id);
+          return row ? setItemVisible(prev, id, !row.visible) : prev;
+        });
       }}
       onResize={(id, width) => {
-        updateLayout(setItemWidth(layout, id, width));
+        updateLayout((prev) => setItemWidth(prev, id, width));
       }}
       onRemove={removeLayoutItem}
       onAdd={(type: ChannelPageItemType) => {
-        updateLayout(addItemType(layout, type));
+        updateLayout((prev) => addItemType(prev, type));
       }}
       embedItems={configuredEmbedItems}
       onAddEmbed={(embedInstanceId) => {
-        updateLayout([
-          ...layout,
-          {
-            id: `embed-${embedInstanceId}`,
-            type: 'embed',
-            embedInstanceId,
-            visible: true,
-          },
-        ]);
+        updateLayout((prev) => {
+          const existing = prev.find(
+            (i) => i.type === 'embed' && i.embedInstanceId === embedInstanceId,
+          );
+          if (existing) {
+            return setItemVisible(prev, existing.id, true);
+          }
+          return [
+            ...prev,
+            {
+              id: `embed-${embedInstanceId}`,
+              type: 'embed',
+              embedInstanceId,
+              visible: true,
+            },
+          ];
+        });
       }}
       onReorder={(fromId, toId) => {
-        updateLayout(moveItem(layout, fromId, toId));
+        updateLayout((prev) => moveItem(prev, fromId, toId));
       }}
       onApplyPreset={applyPreset}
       lookSlot={

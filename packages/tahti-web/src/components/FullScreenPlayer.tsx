@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { formatArtistNames } from '@tahti-player/model';
 import { Button, cn, PlayerBar } from '@tahti-player/ui';
 
-import { archiveItemIdFromPlayableId } from '../lib/archiveId';
+import { soundIdFromPlayableId } from '../lib/archiveId';
 import { useDominantColor } from '../lib/useDominantColor';
 import { useLayoutStore } from '../stores/layoutStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
@@ -82,7 +82,7 @@ export function FullScreenPlayer() {
   const artist =
     playable?.artist ??
     (current ? formatArtistNames(current.track.artists) : '');
-  const archiveItemId = archiveItemIdFromPlayableId(playable?.id ?? currentId);
+  const soundId = soundIdFromPlayableId(playable?.id ?? currentId);
   const isPlaying = status === 'playing' || status === 'loading';
   const hearthisEmbed = playable?.embed;
 
@@ -157,10 +157,10 @@ export function FullScreenPlayer() {
           {artist && (
             <p className="text-foreground-secondary mt-1 text-lg">{artist}</p>
           )}
-          {archiveItemId && playable ? (
+          {soundId && playable ? (
             <div className="mt-3 flex justify-center">
               <AddToPlaylistButton
-                archiveItemId={archiveItemId}
+                soundId={soundId}
                 trackTitle={title}
                 variant="secondary"
                 iconOnly={false}

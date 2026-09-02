@@ -246,7 +246,7 @@ export async function fetchProgramme(): Promise<{
 }
 
 export type ProgrammeItemPatch = {
-  archiveItemId: string;
+  soundId: string;
   isFallback: boolean;
   fallbackOrder?: number;
 };
@@ -268,7 +268,7 @@ export async function patchProgramme(
       ...patch,
       items: patch.items
         ? patch.items.map((i, idx) => ({
-            id: i.archiveItemId,
+            id: i.soundId,
             title: `Rotation ${idx + 1}`,
             status: 'READY',
             durationSec: null,
@@ -301,7 +301,7 @@ export async function patchProgramme(
 
 /** Apply a playlist's archive tracks as the channel 24/7 rotation. */
 export async function applyPlaylistToProgramme(
-  archiveItemIds: string[],
+  soundIds: string[],
   opts?: {
     enable?: boolean;
     mode?: 'shuffle' | 'ordered';
@@ -309,7 +309,7 @@ export async function applyPlaylistToProgramme(
     announcementsEnabled?: boolean;
   },
 ): Promise<{ ok: true; data: ProgrammeView } | { ok: false; error: string }> {
-  const ids = archiveItemIds.filter(Boolean);
+  const ids = soundIds.filter(Boolean);
   if (ids.length === 0) {
     return { ok: false, error: 'Playlist has no archive tracks to rotate' };
   }
@@ -322,8 +322,8 @@ export async function applyPlaylistToProgramme(
     ...(opts?.announcementsEnabled !== undefined
       ? { announcementsEnabled: opts.announcementsEnabled }
       : {}),
-    items: ids.map((archiveItemId, fallbackOrder) => ({
-      archiveItemId,
+    items: ids.map((soundId, fallbackOrder) => ({
+      soundId,
       isFallback: true,
       fallbackOrder,
     })),
@@ -372,7 +372,7 @@ export async function fetchStorageUsage(): Promise<{
 }
 
 export type StatsTopTrack = {
-  archiveItemId: string;
+  soundId: string;
   title: string;
   plays: number;
 };
@@ -381,7 +381,7 @@ export type StatsTopCountry = { country: string; count: number };
 export type StatsTopListDimension = 'type' | 'genre';
 export type StatsTopListSort = 'asc' | 'desc';
 export type StatsTopListEntry = {
-  archiveItemId: string;
+  soundId: string;
   listens: number;
   title: string;
   contentType: string;
@@ -435,11 +435,11 @@ export async function fetchStatsTopTracks(
     return {
       data: [
         {
-          archiveItemId: 'arch-mock-1',
+          soundId: 'arch-mock-1',
           title: 'Northern Lights — Live Set',
           plays: 420,
         },
-        { archiveItemId: 'arch-mock-2', title: 'Studio sketch A', plays: 88 },
+        { soundId: 'arch-mock-2', title: 'Studio sketch A', plays: 88 },
       ],
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
@@ -494,7 +494,7 @@ export async function fetchStatsTopLists(
           bucket: 'TRACK',
           entries: [
             {
-              archiveItemId: 'arch-mock-1',
+              soundId: 'arch-mock-1',
               listens: 420,
               title: 'Northern Lights — Live Set',
               contentType: 'TRACK',

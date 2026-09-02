@@ -462,11 +462,11 @@ export const StudioStatsView: FC = () => {
                       </h3>
                       <div className="flex flex-col gap-3">
                         {bucket.entries.map((entry, index) => (
-                          <div key={entry.archiveItemId}>
+                          <div key={entry.soundId}>
                             <div className="mb-1 flex justify-between gap-3 text-xs">
                               <Link
-                                to="/studio/archive/$id"
-                                params={{ id: entry.archiveItemId }}
+                                to="/studio/sounds/$id"
+                                params={{ id: entry.soundId }}
                                 className="min-w-0 truncate font-medium hover:underline"
                               >
                                 #{index + 1} {entry.title}
@@ -502,12 +502,12 @@ export const StudioStatsView: FC = () => {
               <ul className="divide-border divide-y">
                 {tracks.map((track) => (
                   <li
-                    key={track.archiveItemId}
+                    key={track.soundId}
                     className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0"
                   >
                     <Link
-                      to="/studio/archive/$id"
-                      params={{ id: track.archiveItemId }}
+                      to="/studio/sounds/$id"
+                      params={{ id: track.soundId }}
                       className="min-w-0 flex-1 truncate text-sm font-medium hover:underline"
                     >
                       {track.title}
@@ -517,7 +517,7 @@ export const StudioStatsView: FC = () => {
                     </span>
                     <Link
                       to="/studio/insights/$kind/$id"
-                      params={{ kind: 'archive', id: track.archiveItemId }}
+                      params={{ kind: 'sound', id: track.soundId }}
                       aria-label={`Insights for ${track.title}`}
                     >
                       <Button

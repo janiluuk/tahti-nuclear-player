@@ -5,7 +5,7 @@
 export const DASHBOARD_REDIRECTS: Record<string, string> = {
   '': '/studio',
   broadcast: '/studio/go-live',
-  archive: '/studio/archive',
+  archive: '/studio/sounds',
   upload: '/studio/upload',
   releases: '/studio/releases',
   collections: '/studio/collections',
@@ -63,9 +63,9 @@ export function resolveDashboardRedirect(rest: string | undefined): string {
   if (first === 'archive' && key.includes('/')) {
     const id = key.split('/')[1];
     if (id && key.endsWith('/editor')) {
-      return `/studio/archive/${id}/editor`;
+      return `/studio/sounds/${id}/editor`;
     }
-    return id ? `/studio/archive/${id}` : '/studio/archive';
+    return id ? `/studio/sounds/${id}` : '/studio/sounds';
   }
   if (first === 'releases' && key.includes('/')) {
     const id = key.split('/')[1];

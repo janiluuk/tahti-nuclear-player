@@ -21,7 +21,7 @@ type Story = StoryObj<typeof meta>;
 const items: AdminSelectsItem[] = [
   {
     id: 'selects-1',
-    archiveItemId: 'archive-item-1',
+    soundId: 'archive-item-1',
     title: 'Aurora',
     durationSec: 214,
     license: 'CC_BY',
@@ -31,7 +31,7 @@ const items: AdminSelectsItem[] = [
   },
   {
     id: 'selects-2',
-    archiveItemId: 'archive-item-2',
+    soundId: 'archive-item-2',
     title: 'Frost Line',
     durationSec: 198,
     license: 'CC0',
@@ -41,7 +41,7 @@ const items: AdminSelectsItem[] = [
   },
   {
     id: 'selects-3',
-    archiveItemId: 'archive-item-4',
+    soundId: 'archive-item-4',
     title: 'Midnight Frequency',
     durationSec: 301,
     license: 'ALL_RIGHTS_RESERVED',

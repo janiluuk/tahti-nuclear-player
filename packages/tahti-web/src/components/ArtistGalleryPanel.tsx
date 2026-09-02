@@ -64,6 +64,9 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
     if (!isOwner) {
       return;
     }
+    if (!window.confirm('Remove this photo?')) {
+      return;
+    }
     const prev = images;
     onChange(images.filter((i) => i.id !== id));
     setSelected((current) => {

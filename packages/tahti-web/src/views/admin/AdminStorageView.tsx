@@ -39,6 +39,7 @@ import { AdminPageLayout } from '../../components/AdminNav';
 import { AdminUserEditPanel } from '../../components/AdminUserEditPanel';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { contentTypeLabel } from '../../content/contentTypes';
 import { formatDuration } from '../../lib/playableToTrack';
 import {
   bytesToMb,
@@ -49,22 +50,6 @@ import {
   usagePercent,
 } from '../../lib/storageFormat';
 import { usePlayerStore } from '../../stores/playerStore';
-
-const CONTENT_TYPE_LABELS: Record<string, string> = {
-  TRACK: 'Track',
-  LIVE: 'Live',
-  DJ_SET: 'DJ Set',
-  PODCAST: 'Podcast',
-  REMIX: 'Remix',
-  SHOW: 'Radio show',
-  EPISODE: 'Episode',
-  CLIP: 'Clip',
-  EMBED: 'Embed',
-};
-
-function contentTypeLabel(contentType: string): string {
-  return CONTENT_TYPE_LABELS[contentType.toUpperCase()] ?? contentType;
-}
 
 const STORAGE_LOCATION_LABELS: Record<'local' | 'r2', string> = {
   local: 'Local disk',

@@ -12,7 +12,7 @@ describe('resolveDashboardRedirect', () => {
     ['setup-channel', '/studio/channel?tab=setup'],
     ['posts', '/studio/updates'],
     ['upload/from-broadcast', '/studio/recordings'],
-    ['archive/track-1/editor', '/studio/archive/track-1/editor'],
+    ['archive/track-1/editor', '/studio/sounds/track-1/editor'],
     ['insights/archive/track-1', '/studio/insights/archive/track-1'],
     ['collections/new', '/studio/collections'],
     ['settings/media', '/studio/branding'],

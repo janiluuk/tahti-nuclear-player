@@ -859,7 +859,7 @@ export function mockProfile(username: string): PublicProfile {
       position: j + 1,
       title: a.title,
       durationSec: a.durationSec,
-      archiveItemId: a.id,
+      soundId: a.id,
       playUrl: a.audioUrl,
     })),
   }));
@@ -958,7 +958,7 @@ export function mockCollection(
       ...archive.slice(0, 2).map((a, i) => ({
         id: `col-item-${a.id}`,
         position: i,
-        archiveItem: {
+        sound: {
           id: a.id,
           title: a.title,
           durationSec: a.durationSec,
@@ -973,7 +973,7 @@ export function mockCollection(
       {
         id: 'col-item-hearthis-mock',
         position: 2,
-        archiveItem: {
+        sound: {
           id: 'archive-hearthis-mock',
           title: 'Deep Space Transmission (hearthis.at)',
           durationSec: 2280,

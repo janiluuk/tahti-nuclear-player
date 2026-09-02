@@ -22,7 +22,7 @@ import { PageLoading } from './PageStates';
 
 type Props = {
   isOpen: boolean;
-  archiveItemId: string;
+  soundId: string;
   trackTitle: string;
   onClose: () => void;
 };
@@ -39,7 +39,7 @@ function playlistGlyph(c: StudioCollection) {
 
 export function AddToPlaylistPanel({
   isOpen,
-  archiveItemId,
+  soundId,
   trackTitle,
   onClose,
 }: Props) {
@@ -99,7 +99,7 @@ export function AddToPlaylistPanel({
     setAddingSlug(slug);
     setNote(null);
     try {
-      const r = await addStudioCollectionItem(slug, { archiveItemId });
+      const r = await addStudioCollectionItem(slug, { soundId });
       if (!r.ok) {
         setNote(r.error);
         return;
@@ -130,7 +130,7 @@ export function AddToPlaylistPanel({
         return;
       }
       const add = await addStudioCollectionItem(created.data.slug, {
-        archiveItemId,
+        soundId,
       });
       if (!add.ok) {
         setNote(add.error);

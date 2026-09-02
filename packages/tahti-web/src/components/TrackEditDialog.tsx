@@ -38,21 +38,22 @@ import {
   fetchEditorDraft,
   fetchEditorSource,
   fetchMyRadioSubmissions,
-  fetchStudioArchiveItem,
-  patchStudioArchiveItem,
+  fetchStudioSound,
+  patchStudioSound,
   renderEditorDraft,
   submitTrackToRadioRotation,
-  uploadArchiveBanner,
+  uploadSoundBanner,
   type RadioSubmission,
 } from '../api/studio';
 import type {
   EditList,
-  StudioArchiveItem,
-  StudioArchivePatch,
+  StudioSound,
+  StudioSoundPatch,
   TracklistEntry,
   TracklistOverlaySettings,
 } from '../api/studio-types';
 import { createDefaultEditList } from '../api/studio-types';
+import { SELECTABLE_CONTENT_TYPES } from '../content/contentTypes';
 import { autoTrimCuts } from '../lib/autoTrimCuts';
 import { capitalizeGenre, PRESET_GENRES } from '../lib/genres';
 import { useMasteringFeatureStore } from '../plugins/mastering/store';
@@ -86,20 +87,10 @@ function formatTime(sec: number): string {
 type Tab = 'basics' | 'tracklist' | 'audio' | 'sharing' | 'export' | 'advanced';
 
 type Props = {
-  archiveItemId: string | null;
+  soundId: string | null;
   onClose: () => void;
-  onSaved?: (item: StudioArchiveItem) => void;
+  onSaved?: (item: StudioSound) => void;
 };
-
-const CONTENT_TYPES = [
-  ['TRACK', 'Track'],
-  ['DJ_SET', 'DJ Set'],
-  ['PODCAST', 'Podcast'],
-  ['REMIX', 'Remix'],
-  ['SHOW', 'Radio show'],
-  ['EPISODE', 'Episode'],
-  ['CLIP', 'Audio clip'],
-] as const;
 
 const LICENSES = [
   ['', 'No license (default)'],
@@ -127,7 +118,7 @@ const TAB_ORDER: Tab[] = [
   'advanced',
 ];
 
-export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
+export function TrackEditDialog({ soundId, onClose, onSaved }: Props) {
   const masteringEnabled = useMasteringFeatureStore((state) => state.enabled);
   const play = usePlayerStore((state) => state.play);
   const setPlayerStatus = usePlayerStore((state) => state.setStatus);
@@ -136,10 +127,10 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const playerStatus = usePlayerStore((state) => state.status);
   const currentTime = usePlayerStore((state) => state.currentTime);
   const playerDuration = usePlayerStore((state) => state.duration);
-  const isOpen = Boolean(archiveItemId);
+  const isOpen = Boolean(soundId);
   const [tab, setTab] = useState<Tab>('basics');
-  const [item, setItem] = useState<StudioArchiveItem | null>(null);
-  const [form, setForm] = useState<StudioArchivePatch>({});
+  const [item, setItem] = useState<StudioSound | null>(null);
+  const [form, setForm] = useState<StudioSoundPatch>({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [playlistOpen, setPlaylistOpen] = useState(false);
@@ -165,15 +156,15 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     : TAB_ORDER.filter((tabId) => tabId !== 'tracklist');
 
   useEffect(() => {
-    if (!archiveItemId) {
+    if (!soundId) {
       setRadioSubmission(null);
       return;
     }
     void fetchMyRadioSubmissions().then(({ data }) => {
-      const latest = data.find((s) => s.archiveItem.id === archiveItemId);
+      const latest = data.find((s) => s.sound.id === soundId);
       setRadioSubmission(latest ?? null);
     });
-  }, [archiveItemId]);
+  }, [soundId]);
 
   useEffect(() => {
     if (!isDjMix && tab === 'tracklist') {
@@ -182,7 +173,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   }, [isDjMix, tab]);
 
   useEffect(() => {
-    if (!archiveItemId) {
+    if (!soundId) {
       setItem(null);
       return;
     }
@@ -190,7 +181,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     setLoading(true);
     setLoadError(null);
     setTab('basics');
-    void fetchStudioArchiveItem(archiveItemId)
+    void fetchStudioSound(soundId)
       .then((res) => {
         if (cancelled) {
           return;
@@ -240,24 +231,24 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [archiveItemId]);
+  }, [soundId]);
 
   const reloadVersions = () => {
-    if (!archiveItemId) {
+    if (!soundId) {
       return;
     }
-    void fetchArchiveVersions(archiveItemId).then((r) => setVersions(r.data));
+    void fetchArchiveVersions(soundId).then((r) => setVersions(r.data));
   };
 
   useEffect(() => {
-    if (!archiveItemId) {
+    if (!soundId) {
       setEditList(null);
       setPeaks([]);
       setVersions([]);
       return;
     }
     let cancelled = false;
-    void fetchEditorDraft(archiveItemId).then((res) => {
+    void fetchEditorDraft(soundId).then((res) => {
       if (cancelled) {
         return;
       }
@@ -265,7 +256,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       const level = res.data.editorPeaks?.levels?.[0];
       setPeaks(level && level.length > 0 ? level : []);
     });
-    void fetchArchiveVersions(archiveItemId).then((r) => {
+    void fetchArchiveVersions(soundId).then((r) => {
       if (!cancelled) {
         setVersions(r.data);
       }
@@ -273,7 +264,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [archiveItemId]);
+  }, [soundId]);
 
   const updateArtwork = (url: string) => {
     setForm((current) => ({ ...current, bannerUrl: url }));
@@ -308,16 +299,16 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     link.remove();
   };
 
-  const isCurrentPlayable = currentId === `archive:${archiveItemId}`;
+  const isCurrentPlayable = currentId === `archive:${soundId}`;
   const isPlaying =
     isCurrentPlayable &&
     (playerStatus === 'playing' || playerStatus === 'loading');
 
   const startPlayback = async (startAt?: number) => {
-    if (!item || !archiveItemId) {
+    if (!item || !soundId) {
       return;
     }
-    const playableId = `archive:${archiveItemId}`;
+    const playableId = `archive:${soundId}`;
     if (currentId === playableId) {
       if (startAt !== undefined) {
         seekTo(startAt);
@@ -326,7 +317,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       return;
     }
     setPlayBusy(true);
-    const { data } = await fetchEditorSource(archiveItemId);
+    const { data } = await fetchEditorSource(soundId);
     setPlayBusy(false);
     play({
       id: playableId,
@@ -347,11 +338,11 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
     next: EditList,
     label: string,
   ) => {
-    if (!archiveItemId) {
+    if (!soundId) {
       return;
     }
     setQuickBusy(kind);
-    const result = await renderEditorDraft(archiveItemId, next, label);
+    const result = await renderEditorDraft(soundId, next, label);
     setQuickBusy(null);
     if (!result.ok) {
       toast.error(result.error);
@@ -386,11 +377,11 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   };
 
   const onActivateVersion = (versionId: string) => {
-    if (!archiveItemId) {
+    if (!soundId) {
       return;
     }
     setVersionBusy(versionId);
-    void activateArchiveVersion(archiveItemId, versionId).then((result) => {
+    void activateArchiveVersion(soundId, versionId).then((result) => {
       setVersionBusy(null);
       if (!result.ok) {
         toast.error(result.error);
@@ -402,7 +393,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   };
 
   const save = async () => {
-    if (!archiveItemId || !item || !form.title?.trim()) {
+    if (!soundId || !item || !form.title?.trim()) {
       return;
     }
     setSaving(true);
@@ -422,7 +413,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
         };
       })
       .filter((credit) => credit.name.length > 0);
-    const result = await patchStudioArchiveItem(archiveItemId, {
+    const result = await patchStudioSound(soundId, {
       ...metadata,
       ...(license ? { license } : {}),
       title: form.title.trim(),
@@ -512,11 +503,10 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                           sizeClassName="h-20 w-20"
                           className="ring-background ring-4"
                           upload={(file) =>
-                            uploadArchiveBanner(archiveItemId!, file).then(
-                              (r) =>
-                                r.ok
-                                  ? { ok: true as const, data: { url: r.url } }
-                                  : r,
+                            uploadSoundBanner(soundId!, file).then((r) =>
+                              r.ok
+                                ? { ok: true as const, data: { url: r.url } }
+                                : r,
                             )
                           }
                           onChange={updateArtwork}
@@ -584,10 +574,12 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                       onValueChange={(value) =>
                         setForm({ ...form, contentType: value })
                       }
-                      options={CONTENT_TYPES.map(([value, label]) => ({
-                        id: value,
-                        label,
-                      }))}
+                      options={SELECTABLE_CONTENT_TYPES.map(
+                        ({ id, label }) => ({
+                          id,
+                          label,
+                        }),
+                      )}
                     />
                     <div className="border-border bg-background-secondary/30 flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
                       <span className="font-medium">Allow downloads</span>
@@ -841,7 +833,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                             aria-hidden
                           />
                           <Link
-                            to="/studio/archive/$id/editor"
+                            to="/studio/sounds/$id/editor"
                             params={{ id: item.id }}
                           >
                             <Button
@@ -1010,11 +1002,11 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                               radioSubmission?.status === 'APPROVED'
                             }
                             onClick={() => {
-                              if (!archiveItemId) {
+                              if (!soundId) {
                                 return;
                               }
                               setSubmittingToRadio(true);
-                              void submitTrackToRadioRotation(archiveItemId)
+                              void submitTrackToRadioRotation(soundId)
                                 .then((result) => {
                                   if (result.ok) {
                                     toast.success(
@@ -1025,8 +1017,8 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                                       status: 'PENDING',
                                       rejectionNote: null,
                                       createdAt: new Date().toISOString(),
-                                      archiveItem: {
-                                        id: archiveItemId,
+                                      sound: {
+                                        id: soundId,
                                         title: form.title ?? '',
                                       },
                                     });
@@ -1104,7 +1096,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                 ),
                 content: (
                   <div className="flex flex-col gap-4">
-                    <TrackExportPanel archiveItemId={item.id} />
+                    <TrackExportPanel soundId={item.id} />
                     <TrackExportConnections />
                   </div>
                 ),
@@ -1190,10 +1182,10 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
         </Dialog.Actions>
       </Dialog.Root>
 
-      {archiveItemId && (
+      {soundId && (
         <AddToPlaylistPanel
           isOpen={playlistOpen}
-          archiveItemId={archiveItemId}
+          soundId={soundId}
           trackTitle={item?.title ?? ''}
           onClose={() => setPlaylistOpen(false)}
         />

@@ -19,12 +19,12 @@ import {
   type StashFile,
 } from '../api/sources';
 import {
-  fetchStudioArchive,
   fetchStudioCollections,
-  patchStudioArchiveItem,
+  fetchStudioSounds,
   patchStudioCollection,
+  patchStudioSound,
 } from '../api/studio';
-import type { StudioArchiveItem, StudioCollection } from '../api/studio-types';
+import type { StudioCollection, StudioSound } from '../api/studio-types';
 import { usePlayerStore } from '../stores/playerStore';
 import { StudioPanel } from './StudioPanel';
 
@@ -57,7 +57,7 @@ export const StashFilesPanel = () => {
   const [granteeUsername, setGranteeUsername] = useState('');
   const [permission, setPermission] = useState<'READ' | 'DOWNLOAD'>('DOWNLOAD');
   const [expiryDays, setExpiryDays] = useState(7);
-  const [archiveItems, setArchiveItems] = useState<StudioArchiveItem[]>([]);
+  const [archiveItems, setArchiveItems] = useState<StudioSound[]>([]);
   const [collections, setCollections] = useState<StudioCollection[]>([]);
 
   const reload = () =>
@@ -67,7 +67,7 @@ export const StashFilesPanel = () => {
 
   useEffect(() => {
     void reload();
-    void Promise.all([fetchStudioArchive(), fetchStudioCollections()]).then(
+    void Promise.all([fetchStudioSounds(), fetchStudioCollections()]).then(
       ([archive, collectionResult]) => {
         setArchiveItems(archive.data);
         setCollections(collectionResult.data);
@@ -75,9 +75,9 @@ export const StashFilesPanel = () => {
     );
   }, []);
 
-  const moveTrackToStash = async (item: StudioArchiveItem) => {
+  const moveTrackToStash = async (item: StudioSound) => {
     setBusy(true);
-    const result = await patchStudioArchiveItem(item.id, {
+    const result = await patchStudioSound(item.id, {
       visibility: 'PRIVATE',
       isPublic: false,
     });
@@ -345,6 +345,9 @@ export const StashFilesPanel = () => {
                       title="Delete"
                       aria-label={`Delete ${file.filename}`}
                       onClick={() => {
+                        if (!window.confirm(`Delete "${file.filename}"?`)) {
+                          return;
+                        }
                         void deleteStashFile(file.id).then((result) => {
                           if (!result.ok) {
                             setMessage(result.error);
@@ -355,6 +358,7 @@ export const StashFilesPanel = () => {
                               (candidate) => candidate.id !== file.id,
                             ),
                           );
+                          setMessage(`Deleted ${file.filename}.`);
                         });
                       }}
                     >

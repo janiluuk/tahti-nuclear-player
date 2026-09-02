@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button, Dialog } from '@tahti-player/ui';
 
 import type { TahtiPlayable } from '../api/types';
-import { archiveItemIdFromPlayableId } from '../lib/archiveId';
+import { soundIdFromPlayableId } from '../lib/archiveId';
 import { useLibraryStore } from '../stores/libraryStore';
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
 
@@ -51,7 +51,7 @@ export function TrackInfoDialog({
   const favorited = playable
     ? favoriteTracks.some((t) => t.id === playable.id)
     : false;
-  const archiveItemId = archiveItemIdFromPlayableId(playable?.id);
+  const soundId = soundIdFromPlayableId(playable?.id);
 
   return (
     <>
@@ -100,7 +100,7 @@ export function TrackInfoDialog({
                         }
                       />
                     </Button>
-                    {archiveItemId && (
+                    {soundId && (
                       <Button
                         size="icon-sm"
                         variant="text"
@@ -162,10 +162,10 @@ export function TrackInfoDialog({
         )}
       </Dialog.Root>
 
-      {archiveItemId && (
+      {soundId && (
         <AddToPlaylistPanel
           isOpen={playlistOpen}
-          archiveItemId={archiveItemId}
+          soundId={soundId}
           trackTitle={track?.title ?? ''}
           onClose={() => setPlaylistOpen(false)}
         />

@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import {
+  ArrowLeftIcon,
   BarcodeIcon,
   BookOpenIcon,
   CopyIcon,
@@ -975,6 +976,15 @@ export function StudioDistributionView() {
         <StudioPageHeader
           title="Distribution"
           subtitle="DSP delivery & catalog metadata — submit releases to Revelator, track UPC/ISRC/MusicBrainz identifiers, and review royalty reports."
+          action={
+            <Link
+              to="/studio/releases"
+              className="text-foreground-secondary hover:text-foreground inline-flex items-center gap-1 text-xs underline underline-offset-2"
+            >
+              <ArrowLeftIcon size={12} aria-hidden />
+              Back to Releases
+            </Link>
+          }
         />
 
         <section className="flex flex-col gap-3">

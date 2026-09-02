@@ -249,7 +249,7 @@ export type PublicProfileRelease = {
     position: number;
     title: string;
     durationSec?: number | null;
-    archiveItemId?: string | null;
+    soundId?: string | null;
     playUrl?: string | null;
   }>;
 };
@@ -283,7 +283,7 @@ export type PublicProfile = {
   backgroundMusicUrl?: string | null;
 };
 
-export type CollectionArchiveItem = {
+export type CollectionSound = {
   id: string;
   title: string;
   durationSec?: number | null;
@@ -299,7 +299,7 @@ export type CollectionArchiveItem = {
 export type CollectionItem = {
   id?: string;
   position: number;
-  archiveItem: CollectionArchiveItem | null;
+  sound: CollectionSound | null;
   release: {
     id: string;
     title: string;

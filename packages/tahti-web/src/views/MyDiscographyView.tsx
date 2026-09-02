@@ -15,13 +15,14 @@ import { Button } from '@tahti-player/ui';
 
 import {
   fetchEditorSource,
-  fetchStudioArchive,
-  patchStudioArchiveItem,
+  fetchStudioSounds,
+  patchStudioSound,
 } from '../api/studio';
-import type { StudioArchiveItem } from '../api/studio-types';
+import type { StudioSound } from '../api/studio-types';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { TrackEditDialog } from '../components/TrackEditDialog';
+import { EMBED_PROVIDER_LABEL } from '../lib/embedSrc';
 import { isPinned, sortPinnedFirst } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -44,16 +45,14 @@ const SORT_OPTIONS: Array<{ id: SortKey; label: string }> = [
   { id: 'title-desc', label: 'Title Z–A' },
 ];
 
-const itemFilter = (
-  item: StudioArchiveItem,
-): Exclude<VisibilityFilter, 'all'> => {
+const itemFilter = (item: StudioSound): Exclude<VisibilityFilter, 'all'> => {
   if (item.status !== 'READY') {
     return 'processing';
   }
   return item.isPublic === false ? 'private' : 'public';
 };
 
-const sortItems = (items: StudioArchiveItem[], sort: SortKey) =>
+const sortItems = (items: StudioSound[], sort: SortKey) =>
   [...items].sort((first, second) => {
     if (sort === 'title-asc') {
       return first.title.localeCompare(second.title);
@@ -75,7 +74,7 @@ export const MyDiscographyView: FC = () => {
   const status = usePlayerStore((state) => state.status);
   const currentTime = usePlayerStore((state) => state.currentTime);
   const duration = usePlayerStore((state) => state.duration);
-  const [items, setItems] = useState<StudioArchiveItem[]>([]);
+  const [items, setItems] = useState<StudioSound[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<VisibilityFilter>('all');
@@ -87,7 +86,7 @@ export const MyDiscographyView: FC = () => {
 
   const reload = () => {
     setLoading(true);
-    void fetchStudioArchive().then((result) => {
+    void fetchStudioSounds().then((result) => {
       setItems(result.data);
       setLoading(false);
     });
@@ -130,13 +129,12 @@ export const MyDiscographyView: FC = () => {
     return sortPinnedFirst(sortItems(filtered, sort));
   }, [filter, items, query, sort]);
 
-  const playableId = (item: StudioArchiveItem) => `archive:${item.id}`;
-  const isCurrentItem = (item: StudioArchiveItem) =>
-    currentId === playableId(item);
-  const isPlayingItem = (item: StudioArchiveItem) =>
+  const playableId = (item: StudioSound) => `archive:${item.id}`;
+  const isCurrentItem = (item: StudioSound) => currentId === playableId(item);
+  const isPlayingItem = (item: StudioSound) =>
     isCurrentItem(item) && status === 'playing';
 
-  const playItem = async (item: StudioArchiveItem) => {
+  const playItem = async (item: StudioSound) => {
     if (isCurrentItem(item)) {
       setStatus(status === 'playing' ? 'paused' : 'playing');
       return;
@@ -155,11 +153,11 @@ export const MyDiscographyView: FC = () => {
     setLoadingId(null);
   };
 
-  const togglePin = async (item: StudioArchiveItem) => {
+  const togglePin = async (item: StudioSound) => {
     const nextPinned = !isPinned(item);
     setPinMessage(null);
     setBusyPinId(item.id);
-    const result = await patchStudioArchiveItem(item.id, {
+    const result = await patchStudioSound(item.id, {
       pinned: nextPinned,
     });
     setBusyPinId(null);
@@ -286,7 +284,7 @@ export const MyDiscographyView: FC = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <Link
-                        to="/studio/archive/$id"
+                        to="/studio/sounds/$id"
                         params={{ id: item.id }}
                         className={`block truncate font-semibold hover:underline ${isPlayingItem(item) ? 'text-primary' : ''}`}
                       >
@@ -301,11 +299,18 @@ export const MyDiscographyView: FC = () => {
                             : 'Public'}
                         {item.genre ? ` · ${item.genre}` : ''}
                       </p>
-                      {isPinned(item) ? (
-                        <span className="text-primary mt-1 inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase">
-                          <PinIcon size={11} aria-hidden /> Pinned to profile
-                        </span>
-                      ) : null}
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        {isPinned(item) ? (
+                          <span className="text-primary inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase">
+                            <PinIcon size={11} aria-hidden /> Pinned to profile
+                          </span>
+                        ) : null}
+                        {item.embedProvider ? (
+                          <span className="border-border text-foreground-secondary inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+                            Embed · {EMBED_PROVIDER_LABEL[item.embedProvider]}
+                          </span>
+                        ) : null}
+                      </div>
                       {item.peaks && item.peaks.length > 0 ? (
                         <WaveformSeekbar
                           trackId={item.id}
@@ -369,7 +374,7 @@ export const MyDiscographyView: FC = () => {
                       <PencilIcon size={16} aria-hidden />
                     </Button>
                     <Link
-                      to="/studio/archive/$id/editor"
+                      to="/studio/sounds/$id/editor"
                       params={{ id: item.id }}
                     >
                       <Button
@@ -390,7 +395,7 @@ export const MyDiscographyView: FC = () => {
       )}
 
       <TrackEditDialog
-        archiveItemId={editingArchiveId}
+        soundId={editingArchiveId}
         onClose={() => setEditingArchiveId(null)}
         onSaved={reload}
       />

@@ -52,10 +52,10 @@ export function StudioEditorProjectView({ id }: { id: string }) {
           sourceKey: source.id,
           durationSec: null,
         }));
-      if (!resolved.length && res.data.archiveItemId) {
-        const source = await fetchEditorSource(res.data.archiveItemId);
+      if (!resolved.length && res.data.soundId) {
+        const source = await fetchEditorSource(res.data.soundId);
         if (source.data.url) {
-          resolved = [{ ...source.data, sourceKey: res.data.archiveItemId }];
+          resolved = [{ ...source.data, sourceKey: res.data.soundId }];
         } else {
           setError('The archive source is unavailable.');
         }
@@ -126,10 +126,10 @@ export function StudioEditorProjectView({ id }: { id: string }) {
                     <Trash2Icon size={16} aria-hidden className="mr-1.5" />
                     Delete
                   </Button>
-                  {project.archiveItemId ? (
+                  {project.soundId ? (
                     <Link
-                      to="/studio/archive/$id/editor"
-                      params={{ id: project.archiveItemId }}
+                      to="/studio/sounds/$id/editor"
+                      params={{ id: project.soundId }}
                     >
                       <Button
                         size="sm"
@@ -192,13 +192,13 @@ export function StudioEditorProjectView({ id }: { id: string }) {
                 </div>
                 <div>
                   <dt className="text-foreground-secondary text-xs uppercase">
-                    Archive link
+                    Sound link
                   </dt>
                   <dd className="mt-0.5">
-                    {project.archiveItemId ? (
+                    {project.soundId ? (
                       <Link
-                        to="/studio/archive/$id"
-                        params={{ id: project.archiveItemId }}
+                        to="/studio/sounds/$id"
+                        params={{ id: project.soundId }}
                         className="underline-offset-2 hover:underline"
                       >
                         Open in Library
@@ -209,7 +209,7 @@ export function StudioEditorProjectView({ id }: { id: string }) {
                   </dd>
                 </div>
               </dl>
-              {!project.archiveItemId && (
+              {!project.soundId && (
                 <p className="text-foreground-secondary mt-4 text-sm">
                   No archive seed — create a project from an archive item, or
                   open Library → Audio editor.

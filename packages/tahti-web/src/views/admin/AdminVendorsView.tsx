@@ -59,7 +59,7 @@ const INTEGRATION_VENDORS = [
     dpaRequired: true,
     status: 'blocked',
     blocker:
-      'Provider API key and production distribution contract are not configured.',
+      'Sign the production distribution contract and issue a live API key from the Revelator partner dashboard, then set it in the distribution service config — Studio → Distribution reads it via fetchRevelatorBilling/payAndSubmitToRevelator and stays "not submitted" for every release until it is set.',
   },
   {
     name: 'Email provider',
@@ -123,6 +123,82 @@ const INTEGRATION_VENDORS = [
     status: 'pending',
     blocker:
       'Confirm production API key, rate limits, attribution, and privacy terms.',
+  },
+] as const;
+
+/** DSP/catalog partners with no vendor account of our own to configure —
+ * artists self-serve through the provider's own portal. Tracked here so the
+ * "what's left to do" list doesn't stop at Revelator; each references the
+ * matching flow in Studio → Distribution. */
+const DISTRIBUTION_ACTIONS = [
+  {
+    name: 'Revelator',
+    action:
+      'Association-owned account (see Integrations below) — this is the one distribution vendor we configure centrally, not per-artist.',
+  },
+  {
+    name: 'Discogs',
+    action:
+      'No account needed from us — an artist submits their own release via Discogs’ "Submit a new release" form after export. Studio → Distribution → Guides has the exact steps and a prefilled-metadata copy button.',
+  },
+  {
+    name: 'MusicBrainz',
+    action:
+      'Same as Discogs — self-service, no vendor account. The release editor in Studio → Distribution walks an artist through it and copies a prefill.',
+  },
+  {
+    name: 'Spotify for Artists',
+    action:
+      'No vendor account — once Revelator delivery marks a release "delivered", the artist claims their own profile at artists.spotify.com. Nothing for us to configure beyond keeping Revelator delivery working.',
+  },
+  {
+    name: 'Apple Music for Artists',
+    action:
+      'Same pattern as Spotify — artist self-claims at artists.apple.com after DSP delivery.',
+  },
+  {
+    name: 'YouTube Official Artist Channel',
+    action:
+      'Same pattern — artist requests their Official Artist Channel from YouTube directly; no vendor setup on our side.',
+  },
+] as const;
+
+type CooperativeActionStatus = 'needs-legal-review' | 'needs-board-decision';
+
+const COOPERATIVE_ACTION_STATUS_LABEL: Record<CooperativeActionStatus, string> =
+  {
+    'needs-legal-review': 'Needs legal review',
+    'needs-board-decision': 'Needs board decision',
+  };
+
+/** Cooperative-governance and local-culture-organisation actions requested
+ * for this page. None of this is legal advice or a confirmed procedure —
+ * every row is a question for the board/legal counsel to resolve, not an
+ * instruction this tool can verify or complete on its own. */
+const COOPERATIVE_ACTIONS = [
+  {
+    title: 'Confirm nonprofit/cooperative registration status',
+    detail:
+      'Verify current registration (e.g. yhdistysrekisteri/osuuskuntarekisteri with the Finnish Patent and Registration Office, PRH) is active, bylaws are up to date, and officers on file match the current board.',
+    status: 'needs-legal-review',
+  },
+  {
+    title: 'Review collecting-society agreements',
+    detail:
+      'Confirm membership/reporting status with Teosto and Gramex (see Studio → Distribution → Guides for the pointers already in-app) covers the association’s current activity, not just individual artists.',
+    status: 'needs-legal-review',
+  },
+  {
+    title: 'Confirm annual nonprofit activity report obligations',
+    detail:
+      'Check with the board’s accountant/auditor (tilintarkastaja or toiminnantarkastaja) what the annual report generator (Governance → Annual report generator) needs to satisfy statutory filing requirements.',
+    status: 'needs-legal-review',
+  },
+  {
+    title: 'Decide cooperation terms with local culture organisations',
+    detail:
+      'For co-produced events or shared venues with other local culture organisations, agree who holds insurance/liability, and record the agreement — this tool cannot draft or verify that agreement.',
+    status: 'needs-board-decision',
   },
 ] as const;
 
@@ -253,6 +329,46 @@ export function AdminVendorsContent() {
 
       <StudioPanel title="Integrations">
         <VendorTable vendors={integrationVendors} />
+      </StudioPanel>
+
+      <StudioPanel
+        title="DSP & catalog partners"
+        description="Distribution partners artists reach through Studio → Distribution — no vendor account for us to configure beyond Revelator."
+      >
+        <ul className="divide-border divide-y">
+          {DISTRIBUTION_ACTIONS.map((row) => (
+            <li key={row.name} className="py-2.5 text-sm first:pt-0 last:pb-0">
+              <div className="font-medium">{row.name}</div>
+              <div className="text-foreground-secondary mt-0.5 text-xs">
+                {row.action}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </StudioPanel>
+
+      <StudioPanel
+        title="Cooperative governance & local culture-organisation actions"
+        description="Open questions for the board/legal counsel — not legal advice, and not something this tool has verified or completed."
+      >
+        <ul className="divide-border divide-y">
+          {COOPERATIVE_ACTIONS.map((row) => (
+            <li
+              key={row.title}
+              className="flex flex-wrap items-start justify-between gap-2 py-2.5 text-sm first:pt-0 last:pb-0"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="font-medium">{row.title}</div>
+                <div className="text-foreground-secondary mt-0.5 text-xs">
+                  {row.detail}
+                </div>
+              </div>
+              <Badge variant="pill" color="orange">
+                {COOPERATIVE_ACTION_STATUS_LABEL[row.status]}
+              </Badge>
+            </li>
+          ))}
+        </ul>
       </StudioPanel>
     </div>
   );

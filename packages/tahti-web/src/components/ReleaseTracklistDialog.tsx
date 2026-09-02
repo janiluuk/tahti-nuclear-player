@@ -16,7 +16,7 @@ export function releaseTrackPlayable(
   }
   const isHls = track.playUrl.includes('.m3u8');
   return {
-    id: `archive:${track.archiveItemId ?? `${release.id}-${track.position}`}`,
+    id: `archive:${track.soundId ?? `${release.id}-${track.position}`}`,
     kind: 'archive',
     title: track.title,
     artist,
@@ -55,6 +55,8 @@ export function ReleaseTracklistDialog({
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const currentId = usePlayerStore((s) => s.currentId);
+  const playerStatus = usePlayerStore((s) => s.status);
+  const setPlayerStatus = usePlayerStore((s) => s.setStatus);
   const queue = usePlayerStore((s) => s.queue);
 
   const tracks = [...(release?.tracks ?? [])].sort(
@@ -108,6 +110,9 @@ export function ReleaseTracklistDialog({
                 const isPlaying = Boolean(
                   playable && playable.id === currentId,
                 );
+                const isActivelyPlaying =
+                  isPlaying &&
+                  (playerStatus === 'playing' || playerStatus === 'loading');
                 return (
                   <li
                     key={track.position}
@@ -132,6 +137,14 @@ export function ReleaseTracklistDialog({
                     <MediaIconActions
                       actions={playQueueFavoriteActions({
                         onPlay: () => playable && play(playable),
+                        onTogglePause: () =>
+                          setPlayerStatus(
+                            playerStatus === 'playing' ||
+                              playerStatus === 'loading'
+                              ? 'paused'
+                              : 'playing',
+                          ),
+                        isPlaying: isActivelyPlaying,
                         onQueue: () => playable && enqueue(playable),
                         playDisabled: !playable,
                         queueDisabled: !playable,

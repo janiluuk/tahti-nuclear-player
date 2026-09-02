@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 
 type MasteringFeatureState = {
   /** Gates the "Master" / "Match to a reference track" entry points
-   * (StudioArchiveItemView, TrackEditDialog). On by default — this is an
+   * (StudioSoundView, TrackEditDialog). On by default — this is an
    * always-available in-browser tool (see plugins/mastering/README.md),
    * not something gated behind a Tahti API contract. */
   enabled: boolean;

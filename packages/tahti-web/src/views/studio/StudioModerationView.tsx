@@ -5,6 +5,7 @@ import {
   UserRoundPlusIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Input, Tabs } from '@tahti-player/ui';
 
@@ -111,10 +112,18 @@ export function StudioModerationView({
                               aria-label={`Remove ${m.displayName} as moderator`}
                               title="Remove moderator"
                               onClick={() => {
+                                if (
+                                  !window.confirm(
+                                    `Remove ${m.displayName} as moderator?`,
+                                  )
+                                ) {
+                                  return;
+                                }
                                 void removeModerator(m.id).then((r) => {
                                   if (!r.ok) {
                                     setMsg(r.error);
                                   } else {
+                                    toast.success('Moderator removed.');
                                     reload();
                                   }
                                 });
@@ -207,6 +216,7 @@ export function StudioModerationView({
                                   if (!r.ok) {
                                     setMsg(r.error);
                                   } else {
+                                    toast.success('Unbanned.');
                                     reload();
                                   }
                                 });

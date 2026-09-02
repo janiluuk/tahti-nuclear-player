@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import type { IntegrationId } from '../api/sources';
-import { fetchStudioArchive } from '../api/studio';
-import type { StudioArchiveItem } from '../api/studio-types';
+import { fetchStudioSounds } from '../api/studio';
+import type { StudioSound } from '../api/studio-types';
 import { EmbedTrackRow } from '../components/EmbedTrackRow';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { SourceServiceIcon } from '../components/SourceServiceIcon';
@@ -15,12 +15,12 @@ const PROVIDER_SOURCE_ICON_ID: Record<EmbedProvider, IntegrationId> = {
   BANDCAMP: 'bandcamp',
 };
 
-type EmbedItem = StudioArchiveItem & {
+type EmbedItem = StudioSound & {
   embedProvider: EmbedProvider;
   embedUri: string;
 };
 
-const isEmbedItem = (item: StudioArchiveItem): item is EmbedItem =>
+const isEmbedItem = (item: StudioSound): item is EmbedItem =>
   Boolean(item.embedProvider && item.embedUri);
 
 /** Imported tracks Tahti only references (hearthis.at/Mixcloud/Spotify/
@@ -28,11 +28,11 @@ const isEmbedItem = (item: StudioArchiveItem): item is EmbedItem =>
  * provider's own embedded widget (EmbedTrackRow) — never mixed in with
  * Tahti-hosted audio in the regular Sounds list. */
 export function LibraryEmbedsView() {
-  const [items, setItems] = useState<StudioArchiveItem[] | null>(null);
+  const [items, setItems] = useState<StudioSound[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    void fetchStudioArchive().then((result) => {
+    void fetchStudioSounds().then((result) => {
       if (!cancelled) {
         setItems(result.data);
       }

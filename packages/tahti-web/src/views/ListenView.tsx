@@ -1,6 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
   ChevronDownIcon,
+  HeartIcon,
   HistoryIcon,
   ListMusicIcon,
   PauseIcon,
@@ -55,10 +56,11 @@ import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
+import { FavoritesView } from './FavoritesView';
 import { FeedView } from './FeedView';
 import { HistoryView } from './HistoryView';
 
-export type ListenTab = 'listen' | 'feed' | 'history';
+export type ListenTab = 'listen' | 'feed' | 'favorites' | 'history';
 
 // 'dj'/'producer'/'band' match the artist's self-selected roles
 // (ARTIST_ROLE_OPTIONS in views/settings/SettingsPanels.tsx); 'radio-host'
@@ -332,6 +334,7 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
             [
               ['listen', 'Listen', ListMusicIcon, '/'],
               ['feed', 'Feed', ListMusicIcon, '/listen/feed'],
+              ['favorites', 'Favorites', HeartIcon, '/listen/favorites'],
               ['history', 'History', HistoryIcon, '/listen/history'],
             ] as const
           ).map(([id, label, Icon, to]) => (
@@ -353,6 +356,7 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
         </nav>
 
         {tab === 'feed' ? <FeedView embedded /> : null}
+        {tab === 'favorites' ? <FavoritesView embedded /> : null}
         {tab === 'history' ? <HistoryView embedded /> : null}
 
         {tab === 'listen' ? (

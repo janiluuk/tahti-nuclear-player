@@ -43,8 +43,7 @@ const NAV = [
     to: '/library',
     label: 'Library',
     icon: LibraryIcon,
-    match: (p: string) =>
-      p.startsWith('/library') || p.startsWith('/favorites'),
+    match: (p: string) => p.startsWith('/library'),
     boardOnly: false,
   },
   {

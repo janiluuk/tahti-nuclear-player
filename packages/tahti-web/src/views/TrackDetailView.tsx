@@ -832,7 +832,7 @@ export function TrackDetailView({ id }: { id: string }) {
 
       <AddToPlaylistPanel
         isOpen={playlistOpen}
-        archiveItemId={id}
+        soundId={id}
         trackTitle={playable.title}
         onClose={() => setPlaylistOpen(false)}
       />

@@ -5,7 +5,7 @@ import { formatArtistNames } from '@tahti-player/model';
 import { Button, cn, PlayerBar } from '@tahti-player/ui';
 
 import { useIsMobile } from '../hooks/useIsMobile';
-import { archiveItemIdFromPlayableId } from '../lib/archiveId';
+import { soundIdFromPlayableId } from '../lib/archiveId';
 import { useLayoutStore } from '../stores/layoutStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
@@ -78,7 +78,7 @@ export function ConnectedPlayerBar() {
       ? formatArtistNames(current.track.artists)
       : 'Pick a channel to listen');
   const artist = provider ? `${artistBase}, ${provider}` : artistBase;
-  const archiveItemId = archiveItemIdFromPlayableId(playable?.id ?? currentId);
+  const soundId = soundIdFromPlayableId(playable?.id ?? currentId);
 
   const controls = (
     <div className="flex flex-col items-center gap-1">
@@ -149,9 +149,9 @@ export function ConnectedPlayerBar() {
                 }
                 action={isLive ? <PlayerLiveBadge /> : undefined}
               />
-              {archiveItemId && playable && (
+              {soundId && playable && (
                 <AddToPlaylistButton
-                  archiveItemId={archiveItemId}
+                  soundId={soundId}
                   trackTitle={playable.title}
                   variant="secondary"
                 />

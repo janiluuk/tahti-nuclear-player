@@ -19,7 +19,7 @@ import {
 } from '../api/client';
 import { createJam } from '../api/jam';
 import type {
-  CollectionArchiveItem,
+  CollectionSound,
   PublicCollection,
   TahtiPlayable,
 } from '../api/types';
@@ -41,7 +41,7 @@ import { usePlayerStore } from '../stores/playerStore';
 function collectionToPlayables(col: PublicCollection): TahtiPlayable[] {
   const out: TahtiPlayable[] = [];
   for (const item of col.items) {
-    const archive = item.archiveItem;
+    const archive = item.sound;
     if (!archive?.audioUrl) {
       continue;
     }
@@ -135,10 +135,9 @@ export function CollectionView({
     if (!collection) {
       return [];
     }
-    const out: { archive: CollectionArchiveItem; provider: EmbedProvider }[] =
-      [];
+    const out: { archive: CollectionSound; provider: EmbedProvider }[] = [];
     for (const item of collection.items) {
-      const archive = item.archiveItem;
+      const archive = item.sound;
       if (
         archive &&
         !archive.audioUrl &&
@@ -394,7 +393,7 @@ export function CollectionView({
         />
       )}
 
-      {collection.items.some((i) => i.release && !i.archiveItem) && (
+      {collection.items.some((i) => i.release && !i.sound) && (
         <section className="flex flex-col gap-2">
           <h2>
             <Eyebrow>Linked releases</Eyebrow>

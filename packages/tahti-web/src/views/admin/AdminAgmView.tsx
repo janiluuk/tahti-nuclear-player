@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -174,6 +175,14 @@ export function AdminAgmView() {
             <StudioPageHeader
               title="Annual General Meeting"
               subtitle="AGM planning tools — agenda, motions, member notice, and minutes."
+              action={
+                <Link
+                  to="/admin/governance"
+                  className="text-foreground-secondary hover:text-foreground text-xs underline underline-offset-2"
+                >
+                  Governance overview
+                </Link>
+              }
             />
 
             <AgendaBuilder />

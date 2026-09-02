@@ -6,7 +6,7 @@ import { Button } from '@tahti-player/ui';
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
 
 type Props = {
-  archiveItemId: string;
+  soundId: string;
   trackTitle: string;
   size?: 'sm' | 'default' | 'icon-sm' | 'icon';
   variant?: 'secondary' | 'text' | 'default';
@@ -16,7 +16,7 @@ type Props = {
 };
 
 export function AddToPlaylistButton({
-  archiveItemId,
+  soundId,
   trackTitle,
   size = 'icon-sm',
   variant = 'text',
@@ -42,7 +42,7 @@ export function AddToPlaylistButton({
       </Button>
       <AddToPlaylistPanel
         isOpen={open}
-        archiveItemId={archiveItemId}
+        soundId={soundId}
         trackTitle={trackTitle}
         onClose={() => setOpen(false)}
       />

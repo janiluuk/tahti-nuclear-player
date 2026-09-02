@@ -37,14 +37,14 @@ import {
 import {
   fetchEditorDraft,
   fetchEditorSource,
-  fetchStudioArchiveItem,
-  patchStudioArchiveItem,
+  fetchStudioSound,
+  patchStudioSound,
   renderEditorDraft,
 } from '../../api/studio';
 import {
   createDefaultEditList,
   type EditList,
-  type StudioArchiveItem,
+  type StudioSound,
 } from '../../api/studio-types';
 import { AddToPlaylistPanel } from '../../components/AddToPlaylistPanel';
 import {
@@ -58,6 +58,7 @@ import { StudioPageHeader } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
+import { SELECTABLE_CONTENT_TYPES } from '../../content/contentTypes';
 import { autoTrimCuts } from '../../lib/autoTrimCuts';
 import { capitalizeGenre, PRESET_GENRES } from '../../lib/genres';
 import { isPinned } from '../../lib/pinnedTracks';
@@ -65,17 +66,7 @@ import { useMasteringFeatureStore } from '../../plugins/mastering/store';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
-const CONTENT_TYPES = [
-  ['TRACK', 'Track'],
-  ['DJ_SET', 'DJ Set'],
-  ['PODCAST', 'Podcast'],
-  ['REMIX', 'Remix'],
-  ['SHOW', 'Radio show'],
-  ['EPISODE', 'Episode'],
-  ['CLIP', 'Audio clip'],
-] as const;
-
-export function StudioArchiveItemView({ id }: { id: string }) {
+export function StudioSoundView({ id }: { id: string }) {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const masteringEnabled = useMasteringFeatureStore((state) => state.enabled);
@@ -86,7 +77,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const play = usePlayerStore((state) => state.play);
   const setPlayerStatus = usePlayerStore((state) => state.setStatus);
   const seekTo = usePlayerStore((state) => state.seekTo);
-  const [item, setItem] = useState<StudioArchiveItem | null>(null);
+  const [item, setItem] = useState<StudioSound | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [genre, setGenre] = useState('');
@@ -118,7 +109,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   };
 
   useEffect(() => {
-    void fetchStudioArchiveItem(id).then((res) => {
+    void fetchStudioSound(id).then((res) => {
       setItem(res.data);
       setTitle(res.data.title);
       setDescription(res.data.description ?? '');
@@ -157,7 +148,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
       return;
     }
     const timer = setInterval(() => {
-      void fetchStudioArchiveItem(id).then((res) => setItem(res.data));
+      void fetchStudioSound(id).then((res) => setItem(res.data));
     }, 4000);
     return () => clearInterval(timer);
   }, [id, status]);
@@ -165,7 +156,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const save = async () => {
     setSaving(true);
     setMessage(null);
-    const result = await patchStudioArchiveItem(id, {
+    const result = await patchStudioSound(id, {
       title,
       description,
       ...(isAudioClip ? { genre: null } : { genre: genre || null }),
@@ -195,7 +186,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     const next = !isPinned(item);
     setMessage(null);
     setPinBusy(true);
-    const result = await patchStudioArchiveItem(id, { pinned: next });
+    const result = await patchStudioSound(id, { pinned: next });
     setPinBusy(false);
     if (!result.ok) {
       setMessage(result.error);
@@ -212,7 +203,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     const next = !item.isFallback;
     setRotationBusy(true);
     setMessage(null);
-    const result = await patchStudioArchiveItem(id, { isFallback: next });
+    const result = await patchStudioSound(id, { isFallback: next });
     setRotationBusy(false);
     if (!result.ok) {
       setMessage(result.error);
@@ -226,7 +217,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
 
   const moveToStash = async () => {
     setSaving(true);
-    const result = await patchStudioArchiveItem(id, {
+    const result = await patchStudioSound(id, {
       visibility: 'PRIVATE',
       isPublic: false,
     });
@@ -354,9 +345,9 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   return (
     <StudioGate>
       <div className="studio-page-layout studio-page-layout--fixed-width mx-auto flex max-w-4xl flex-col gap-6">
-        <StudioNav current={`/studio/archive/${id}`} />
+        <StudioNav current={`/studio/sounds/${id}`} />
         <Link
-          to="/studio/archive"
+          to="/studio/sounds"
           className="text-foreground-secondary text-xs hover:underline"
         >
           ← Music
@@ -530,7 +521,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                     </Popover.Section>
                   </Popover.Menu>
                 </Popover>
-                <Link to="/studio/archive/$id/editor" params={{ id }}>
+                <Link to="/studio/sounds/$id/editor" params={{ id }}>
                   <Button
                     size="icon-sm"
                     variant="text"
@@ -604,10 +595,9 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                           label="Content type"
                           value={contentType}
                           onValueChange={setContentType}
-                          options={CONTENT_TYPES.map(([value, label]) => ({
-                            id: value,
-                            label,
-                          }))}
+                          options={SELECTABLE_CONTENT_TYPES.map(
+                            ({ id, label }) => ({ id, label }),
+                          )}
                         />
                         <div className="sm:col-span-2">
                           <label className="flex flex-col gap-1 text-sm">
@@ -854,7 +844,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                       Insights
                     </span>
                   ),
-                  content: <TrackInsightsPanel kind="archive" id={id} />,
+                  content: <TrackInsightsPanel kind="sound" id={id} />,
                 },
               ]}
             />
@@ -862,7 +852,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
         )}
         <AddToPlaylistPanel
           isOpen={playlistOpen}
-          archiveItemId={id}
+          soundId={id}
           trackTitle={item?.title ?? title}
           onClose={() => setPlaylistOpen(false)}
         />

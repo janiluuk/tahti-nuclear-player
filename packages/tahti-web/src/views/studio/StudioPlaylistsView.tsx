@@ -23,23 +23,24 @@ import {
   addStudioCollectionItem,
   createStudioCollection,
   fetchEditorSource,
-  fetchStudioArchive,
   fetchStudioCollection,
   fetchStudioCollections,
   fetchStudioReleases,
+  fetchStudioSounds,
   patchStudioCollection,
   removeStudioCollectionItem,
   reorderStudioCollectionItems,
 } from '../../api/studio';
 import type {
-  StudioArchiveItem,
   StudioCollection,
   StudioRelease,
+  StudioSound,
 } from '../../api/studio-types';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { normalizeCollectionStyle } from '../../content/collectionStyles';
 import { trackTableLabels } from '../../lib/trackTableLabels';
 import { usePlayerStore } from '../../stores/playerStore';
 
@@ -268,7 +269,7 @@ function itemToTrack(
 
 export function StudioPlaylistEditorView({ slug }: { slug: string }) {
   const [col, setCol] = useState<StudioCollection | null>(null);
-  const [archive, setArchive] = useState<StudioArchiveItem[]>([]);
+  const [archive, setArchive] = useState<StudioSound[]>([]);
   const [releases, setReleases] = useState<StudioRelease[]>([]);
   const [name, setName] = useState('');
   const [isPublic, setIsPublic] = useState(true);
@@ -283,13 +284,13 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
   const currentId = usePlayerStore((s) => s.currentId);
   const playerStatus = usePlayerStore((s) => s.status);
   const setPlayerStatus = usePlayerStore((s) => s.setStatus);
-  const isDjSet = col?.style === 'DJ_SET_SERIES' || col?.style === 'MIX_SERIES';
+  const isDjSet = normalizeCollectionStyle(col?.style) === 'DJ_SET_SERIES';
   const kindLabel = isDjSet ? 'DJ set' : 'Playlist';
 
   const reload = () => {
     void Promise.all([
       fetchStudioCollection(slug),
-      fetchStudioArchive(),
+      fetchStudioSounds(),
       fetchStudioReleases(),
     ]).then(([c, a, r]) => {
       setCol(c.data);
@@ -310,9 +311,9 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
     () =>
       items.map((item) =>
         itemToTrack(
-          item.archiveItem?.title ?? item.release?.title ?? item.id,
+          item.sound?.title ?? item.release?.title ?? item.id,
           item.id,
-          item.archiveItem?.durationSec,
+          item.sound?.durationSec,
         ),
       ),
     [items],
@@ -335,7 +336,7 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
     reload();
   };
 
-  const playArchiveItem = async (id: string, title: string) => {
+  const playSound = async (id: string, title: string) => {
     const { data } = await fetchEditorSource(id);
     play({
       id: `archive:${id}`,
@@ -347,7 +348,7 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
     });
   };
 
-  const enqueueArchiveItem = async (id: string, title: string) => {
+  const enqueueSound = async (id: string, title: string) => {
     const { data } = await fetchEditorSource(id);
     enqueue({
       id: `archive:${id}`,
@@ -477,8 +478,8 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                       },
                       onPlayNow: (t) => {
                         const item = items.find((i) => i.id === t.source.id);
-                        if (item?.archiveItem) {
-                          const playableId = `archive:${item.archiveItem.id}`;
+                        if (item?.sound) {
+                          const playableId = `archive:${item.sound.id}`;
                           if (currentId === playableId) {
                             setPlayerStatus(
                               playerStatus === 'playing' ||
@@ -487,14 +488,14 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                                 : 'playing',
                             );
                           } else {
-                            void playArchiveItem(item.archiveItem.id, t.title);
+                            void playSound(item.sound.id, t.title);
                           }
                         }
                       },
                       onAddToQueue: (t) => {
                         const item = items.find((i) => i.id === t.source.id);
-                        if (item?.archiveItem) {
-                          void enqueueArchiveItem(item.archiveItem.id, t.title);
+                        if (item?.sound) {
+                          void enqueueSound(item.sound.id, t.title);
                         }
                       },
                     }}
@@ -504,8 +505,8 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                           (candidate) => candidate.id === track.source.id,
                         );
                         return Boolean(
-                          item?.archiveItem &&
-                          currentId === `archive:${item.archiveItem.id}`,
+                          item?.sound &&
+                          currentId === `archive:${item.sound.id}`,
                         );
                       },
                       isTrackPlaying: (track) => {
@@ -513,8 +514,8 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                           (candidate) => candidate.id === track.source.id,
                         );
                         return Boolean(
-                          item?.archiveItem &&
-                          currentId === `archive:${item.archiveItem.id}` &&
+                          item?.sound &&
+                          currentId === `archive:${item.sound.id}` &&
                           (playerStatus === 'playing' ||
                             playerStatus === 'loading'),
                         );
@@ -526,8 +527,8 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                           );
                           return (
                             queueItem.id === track.source.id ||
-                            (item?.archiveItem &&
-                              queueItem.id === `archive:${item.archiveItem.id}`)
+                            (item?.sound &&
+                              queueItem.id === `archive:${item.sound.id}`)
                           );
                         }),
                     }}
@@ -551,7 +552,7 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                     disabled={!addArchiveId}
                     onClick={() => {
                       void addStudioCollectionItem(slug, {
-                        archiveItemId: addArchiveId,
+                        soundId: addArchiveId,
                       }).then((r) => {
                         setMsg(r.ok ? 'Track added.' : r.error);
                         if (r.ok) {

@@ -31,9 +31,9 @@ import {
 import {
   addStudioReleaseTrack,
   fetchEditorSource,
-  fetchStudioArchive,
-  fetchStudioArchiveItem,
   fetchStudioReleases,
+  fetchStudioSound,
+  fetchStudioSounds,
   patchStudioRelease,
   removeStudioReleaseTrack,
   reorderStudioReleaseTracks,
@@ -41,8 +41,8 @@ import {
 } from '../../api/studio';
 import type {
   FingerprintMatch,
-  StudioArchiveItem,
   StudioRelease,
+  StudioSound,
 } from '../../api/studio-types';
 import { EmbedTrackRow } from '../../components/EmbedTrackRow';
 import { FingerprintTrackPanel } from '../../components/FingerprintTrackPanel';
@@ -130,17 +130,17 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
 
   const playFirstTrack = async () => {
     const firstTrack = release?.tracks?.[0];
-    if (!firstTrack?.archiveItemId) {
+    if (!firstTrack?.soundId) {
       toast.info('The first track is not playable yet.');
       return;
     }
-    const source = await fetchEditorSource(firstTrack.archiveItemId);
+    const source = await fetchEditorSource(firstTrack.soundId);
     if (!source.data.url) {
       toast.info('The first track is still being prepared.');
       return;
     }
     play({
-      id: `archive:${firstTrack.archiveItemId}`,
+      id: `archive:${firstTrack.soundId}`,
       kind: 'archive',
       title: firstTrack.title,
       artist: user?.displayName ?? 'You',
@@ -320,7 +320,7 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                                 track={t}
                                 shopUrl={release.smartLinkTargets?.bandcamp}
                                 isPlaying={
-                                  currentId === `archive:${t.archiveItemId}` &&
+                                  currentId === `archive:${t.soundId}` &&
                                   (playbackStatus === 'playing' ||
                                     playbackStatus === 'loading')
                                 }
@@ -473,11 +473,11 @@ function ReleaseTrackRow({
   } | null>(null);
 
   useEffect(() => {
-    if (!track.archiveItemId) {
+    if (!track.soundId) {
       return;
     }
-    const archiveId = track.archiveItemId;
-    void fetchStudioArchiveItem(archiveId).then((result) => {
+    const archiveId = track.soundId;
+    void fetchStudioSound(archiveId).then((result) => {
       if (result.data.embedProvider && result.data.embedUri) {
         setEmbed({
           provider: result.data.embedProvider,
@@ -489,7 +489,7 @@ function ReleaseTrackRow({
         setSourceUrl(source.data.url),
       );
     });
-  }, [track.archiveItemId]);
+  }, [track.soundId]);
 
   if (embed) {
     return (
@@ -516,7 +516,7 @@ function ReleaseTrackRow({
           title={`Play ${track.title}`}
           onClick={() =>
             play({
-              id: `archive:${track.archiveItemId}`,
+              id: `archive:${track.soundId}`,
               kind: 'archive',
               title: track.title,
               artist: 'You',
@@ -528,10 +528,10 @@ function ReleaseTrackRow({
           <PlayIcon size={15} aria-hidden />
         </Button>
       ) : null}
-      {track.archiveItemId ? (
+      {track.soundId ? (
         <Link
-          to="/studio/archive/$id/editor"
-          params={{ id: track.archiveItemId }}
+          to="/studio/sounds/$id/editor"
+          params={{ id: track.soundId }}
           className="text-primary text-xs underline"
         >
           editor
@@ -576,7 +576,7 @@ function ReleaseSmartLinksPanel({
     release.smartLinkTargets ?? {},
   );
   const [tracks, setTracks] = useState(release.tracks ?? []);
-  const [archive, setArchive] = useState<StudioArchiveItem[]>([]);
+  const [archive, setArchive] = useState<StudioSound[]>([]);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [contentType, setContentType] = useState('ALL');
@@ -588,10 +588,10 @@ function ReleaseSmartLinksPanel({
   }, [release]);
 
   useEffect(() => {
-    void fetchStudioArchive().then((result) => setArchive(result.data));
+    void fetchStudioSounds().then((result) => setArchive(result.data));
   }, []);
 
-  const filteredArchive = useMemo(() => {
+  const filteredSounds = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return archive.filter((item) => {
       const matchesType =
@@ -652,10 +652,13 @@ function ReleaseSmartLinksPanel({
     });
   };
 
-  const removeTrack = async (trackId: string) => {
+  const removeTrack = async (trackId: string, trackTitle: string) => {
+    if (!window.confirm(`Remove "${trackTitle}" from this release?`)) {
+      return;
+    }
     const result = await removeStudioReleaseTrack(release.id, trackId);
     if (!result.ok) {
-      onMessage(result.error);
+      toast.error(result.error);
       return;
     }
     const next = tracks.filter((track) => track.id !== trackId);
@@ -664,16 +667,16 @@ function ReleaseSmartLinksPanel({
       ...release,
       tracks: next.map((track, index) => ({ ...track, position: index + 1 })),
     });
-    onMessage('Track removed from release.');
+    toast.success('Track removed from release.');
   };
 
-  const addArchiveItem = async (item: StudioArchiveItem) => {
-    if (tracks.some((track) => track.archiveItemId === item.id)) {
+  const addSound = async (item: StudioSound) => {
+    if (tracks.some((track) => track.soundId === item.id)) {
       return;
     }
     const result = await addStudioReleaseTrack(release.id, {
       title: item.title,
-      archiveItemId: item.id,
+      soundId: item.id,
       durationSec: item.durationSec,
     });
     if (!result.ok) {
@@ -782,7 +785,7 @@ function ReleaseSmartLinksPanel({
                   variant="text"
                   aria-label={`Remove ${track.title}`}
                   title="Remove from release"
-                  onClick={() => void removeTrack(track.id)}
+                  onClick={() => void removeTrack(track.id, track.title)}
                 >
                   <Trash2Icon size={15} aria-hidden />
                 </Button>
@@ -835,16 +838,16 @@ function ReleaseSmartLinksPanel({
           />
         </div>
         <div className="flex max-h-72 flex-col gap-1 overflow-y-auto">
-          {filteredArchive.map((item) => {
+          {filteredSounds.map((item) => {
             const alreadyAdded = tracks.some(
-              (track) => track.archiveItemId === item.id,
+              (track) => track.soundId === item.id,
             );
             return (
               <button
                 key={item.id}
                 type="button"
                 disabled={alreadyAdded}
-                onClick={() => void addArchiveItem(item)}
+                onClick={() => void addSound(item)}
                 className="border-border hover:bg-background-secondary flex items-center gap-2 rounded border px-3 py-2 text-left text-sm disabled:opacity-50"
               >
                 <span className="min-w-0 flex-1 truncate">{item.title}</span>
@@ -859,7 +862,7 @@ function ReleaseSmartLinksPanel({
               </button>
             );
           })}
-          {filteredArchive.length === 0 && (
+          {filteredSounds.length === 0 && (
             <p className="text-foreground-secondary py-6 text-sm">
               No library items match.
             </p>

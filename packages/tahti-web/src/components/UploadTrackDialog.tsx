@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { Button, Dialog, FilePicker, Input } from '@tahti-player/ui';
 
-import { uploadArchiveFile } from '../api/studio';
+import { uploadSoundFile } from '../api/studio';
 
 type Props = {
   isOpen: boolean;
@@ -42,7 +42,7 @@ export function UploadTrackDialog({ isOpen, onClose, onUploaded }: Props) {
     setBusy(true);
     setError(null);
     setNote(null);
-    const result = await uploadArchiveFile({ file, title: title || file.name });
+    const result = await uploadSoundFile({ file, title: title || file.name });
     setBusy(false);
     if (!result.ok) {
       setError(result.error);
@@ -100,7 +100,7 @@ export function UploadTrackDialog({ isOpen, onClose, onUploaded }: Props) {
           )}
           {itemId && (
             <Link
-              to="/studio/archive/$id"
+              to="/studio/sounds/$id"
               params={{ id: itemId }}
               className="text-sm underline"
               onClick={handleClose}

@@ -113,7 +113,7 @@ export function SelectsTab() {
     return () => clearTimeout(handle);
   }, [pickerOpen, query]);
 
-  const inRotationIds = new Set(items.map((i) => i.archiveItemId));
+  const inRotationIds = new Set(items.map((i) => i.soundId));
 
   const toggleStreamPlayback = () => {
     if (!stream.hlsUrl) {
@@ -281,7 +281,7 @@ export function SelectsTab() {
                 return;
               }
               play({
-                id: `archive:${item.archiveItemId}`,
+                id: `archive:${item.soundId}`,
                 kind: 'archive',
                 title: item.title,
                 artist: item.artistName,

@@ -69,7 +69,7 @@ import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { TrackEditDialog } from '../components/TrackEditDialog';
 import { hasAccountRole } from '../lib/accountRoles';
-import { archiveItemIdFromPlayableId } from '../lib/archiveId';
+import { soundIdFromPlayableId } from '../lib/archiveId';
 import { isPinned } from '../lib/pinnedTracks';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { formatDuration } from '../lib/playableToTrack';
@@ -199,7 +199,7 @@ function releaseToPlayable(
   }
   const isHls = track.playUrl.includes('.m3u8');
   return {
-    id: `archive:${track.archiveItemId ?? release.id}`,
+    id: `archive:${track.soundId ?? release.id}`,
     kind: 'archive',
     title: track.title,
     artist,
@@ -1174,7 +1174,7 @@ export function ArtistView({ username }: { username: string }) {
                 <Eyebrow>Pinned</Eyebrow>
                 {isOwner && (
                   <Link
-                    to="/studio/archive"
+                    to="/studio/sounds"
                     className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
                   >
                     Manage pins in Studio
@@ -1306,7 +1306,7 @@ export function ArtistView({ username }: { username: string }) {
               onEdit={
                 isOwner
                   ? (item) =>
-                      setEditingArchiveId(archiveItemIdFromPlayableId(item.id))
+                      setEditingArchiveId(soundIdFromPlayableId(item.id))
                   : undefined
               }
             />
@@ -1469,7 +1469,7 @@ export function ArtistView({ username }: { username: string }) {
       />
 
       <TrackEditDialog
-        archiveItemId={editingArchiveId}
+        soundId={editingArchiveId}
         onClose={() => setEditingArchiveId(null)}
         onSaved={() => {
           void fetchProfile(username).then((res) => setProfile(res.data));

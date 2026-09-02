@@ -75,7 +75,7 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
             ?.filter((track) => track.playUrl)
             .map(
               (track): TahtiPlayable => ({
-                id: `archive:${track.archiveItemId ?? `${matched.id}-${track.position}`}`,
+                id: `archive:${track.soundId ?? `${matched.id}-${track.position}`}`,
                 kind: 'archive',
                 title: track.title,
                 artist: result.data.artist.displayName,
@@ -90,7 +90,7 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
           const archive = await fetchChannelArchive(profile.data.channel.slug);
           const archiveIds = new Set(
             matched.tracks
-              .map((track) => track.archiveItemId)
+              .map((track) => track.soundId)
               .filter((id): id is string => Boolean(id)),
           );
           archiveGenre =
