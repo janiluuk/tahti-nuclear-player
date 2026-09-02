@@ -1128,7 +1128,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/stats-detail.png',
-          route: '/studio/insights/sound/:id',
+          route: '/studio/insights/$kind/$id',
           caption:
             'You can compare a track’s plays and downloads over time and see its audience on the listener world map.',
         },

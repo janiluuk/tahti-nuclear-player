@@ -1,11 +1,9 @@
-import { ExternalLinkIcon, SparklesIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Link } from '@tanstack/react-router';
+import { SparklesIcon } from 'lucide-react';
 
 import { cn, ViewShell } from '@tahti-player/ui';
 
-import { fetchAnnouncements } from '../api/client';
-import type { Announcement } from '../api/types';
-import { PageLoading } from '../components/PageStates';
+import { RELEASE_NOTES, type ReleaseNote } from '../content/releaseNotes';
 
 function TimelineNode({ isLatest }: { isLatest?: boolean }) {
   return isLatest ? (
@@ -21,36 +19,17 @@ function TimelineNode({ isLatest }: { isLatest?: boolean }) {
   );
 }
 
-function TimelineEntry({
-  entry,
+function ReleaseEntry({
+  note,
   isFirst,
   isLast,
 }: {
-  entry: Announcement;
+  note: ReleaseNote;
   isFirst: boolean;
   isLast: boolean;
 }) {
-  const safeUrl = (value: string | null | undefined, relative = false) => {
-    if (!value) {
-      return null;
-    }
-    if (relative && value.startsWith('/')) {
-      return value;
-    }
-    try {
-      const url = new URL(value);
-      return url.protocol === 'http:' || url.protocol === 'https:'
-        ? value
-        : null;
-    } catch {
-      return null;
-    }
-  };
-  const imageUrl = safeUrl(entry.imageUrl);
-  const linkUrl = safeUrl(entry.linkUrl, true);
-
   return (
-    <div data-testid="announcement-entry" className="flex gap-4">
+    <div data-testid="release-note-entry" className="flex gap-4">
       <div className="flex w-4 flex-col items-center gap-1">
         <div
           className={cn(
@@ -69,10 +48,10 @@ function TimelineEntry({
       <div className="my-4 flex flex-1 flex-col gap-1">
         <div className="flex items-center justify-between px-1">
           <span className="text-foreground-secondary text-xs font-medium">
-            {entry.authorName}
+            Version {note.version}
           </span>
           <span className="text-foreground-secondary text-xs">
-            {new Date(entry.publishedAt).toLocaleDateString(undefined, {
+            {new Date(note.date).toLocaleDateString(undefined, {
               year: 'numeric',
               month: 'short',
               day: 'numeric',
@@ -80,94 +59,40 @@ function TimelineEntry({
           </span>
         </div>
         <div className="border-border bg-background-secondary shadow-shadow flex-1 overflow-hidden rounded-md border-(length:--border-width)">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={`${entry.headline} thumbnail`}
-              className="aspect-[16/7] w-full object-cover"
-            />
-          ) : null}
-          <div className="p-4">
-            <p className="text-sm font-semibold">{entry.headline}</p>
-            <p className="text-foreground-secondary mt-1 text-sm whitespace-pre-wrap">
-              {entry.summary}
-            </p>
-            {linkUrl ? (
-              <a
-                href={linkUrl}
-                target={linkUrl.startsWith('/') ? undefined : '_blank'}
-                rel={linkUrl.startsWith('/') ? undefined : 'noreferrer'}
-                className="text-primary mt-3 inline-flex items-center gap-1.5 text-sm font-semibold underline-offset-2 hover:underline"
-              >
-                {entry.linkLabel?.trim() || 'Read more'}
-                <ExternalLinkIcon size={14} aria-hidden />
-              </a>
-            ) : null}
-          </div>
+          <ul className="flex list-disc flex-col gap-1.5 p-4 pl-8 text-sm">
+            {note.highlights.map((highlight) => (
+              <li key={highlight}>{highlight}</li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
   );
 }
 
-const INITIAL_COUNT = 5;
-
-/** Announcements timeline — embeddable under Settings. */
+/** Release notes timeline — embeddable under Settings. */
 export function WhatsNewPanel() {
-  const [entries, setEntries] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    void fetchAnnouncements().then((res) => {
-      if (cancelled) {
-        return;
-      }
-      setEntries(res.data);
-      setLoading(false);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const visibleEntries = showAll ? entries : entries.slice(0, INITIAL_COUNT);
-  const hiddenCount = entries.length - INITIAL_COUNT;
-
   return (
     <div className="flex w-full flex-col">
       <p className="text-foreground-secondary mb-4 text-sm">
-        News, releases, and service updates from Tahti.
+        What changed in each release, in plain language.{' '}
+        <Link
+          to="/news"
+          className="text-primary font-medium underline-offset-2 hover:underline"
+        >
+          See platform announcements
+        </Link>
+        .
       </p>
 
-      {loading && <PageLoading label="Loading announcements…" />}
-
-      {!loading && entries.length === 0 && (
-        <p className="text-foreground-secondary text-sm">
-          No announcements yet.
-        </p>
-      )}
-
-      {visibleEntries.map((entry, index) => (
-        <TimelineEntry
-          key={entry.id}
-          entry={entry}
+      {RELEASE_NOTES.map((note, index) => (
+        <ReleaseEntry
+          key={note.version}
+          note={note}
           isFirst={index === 0}
-          isLast={index === visibleEntries.length - 1}
+          isLast={index === RELEASE_NOTES.length - 1}
         />
       ))}
-
-      {!showAll && hiddenCount > 0 && (
-        <button
-          type="button"
-          className="hover:text-foreground cursor-pointer py-4 text-sm transition-colors"
-          onClick={() => setShowAll(true)}
-        >
-          Show {hiddenCount} more
-        </button>
-      )}
     </div>
   );
 }

@@ -110,6 +110,25 @@ export function StatusView() {
           </p>
         </>
       )}
+
+      <dl className="text-foreground-secondary border-border grid gap-2 border-t pt-4 text-sm sm:grid-cols-3">
+        <div>
+          <dt className="text-xs uppercase">Client version</dt>
+          <dd className="text-foreground">{__APP_VERSION__.split('+')[0]}</dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase">Tagged</dt>
+          <dd className="text-foreground">
+            {new Date(__RELEASE_TAG_DATE__).toLocaleString()}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs uppercase">Deployed</dt>
+          <dd className="text-foreground">
+            {new Date(__BUILD_TIME__).toLocaleString()}
+          </dd>
+        </div>
+      </dl>
     </PageFrame>
   );
 }

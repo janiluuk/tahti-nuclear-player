@@ -18,6 +18,18 @@ const commitHash = (() => {
   }
 })();
 
+// Commit date of the checked-out HEAD -- the release each deploy is built
+// from is tagged `tahti-web@<version>` against this same commit (see
+// .github/workflows/deploy-tahti-web-selfhosted.yml), so this doubles as
+// "when this release was tagged" without needing to fetch tag metadata.
+const releaseTagDate = (() => {
+  try {
+    return execSync('git log -1 --format=%cI').toString().trim();
+  } catch {
+    return new Date().toISOString();
+  }
+})();
+
 // Written by the "Apply review" button on /more (ScreenAtlas). Claude Code
 // reads this file to see which pages still need changes vs. which are
 // approved — see tahti-fit/README.md for the review workflow.
@@ -125,6 +137,7 @@ export default defineConfig(({ command, mode }) => {
       // bundle was built, which for beta is deploy time (deploy-vimage.sh
       // builds and ships the same dist/ in one step).
       __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+      __RELEASE_TAG_DATE__: JSON.stringify(releaseTagDate),
     },
     plugins: [
       react(),

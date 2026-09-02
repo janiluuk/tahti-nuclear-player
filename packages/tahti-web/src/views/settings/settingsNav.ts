@@ -74,7 +74,7 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   {
     id: 'whats-new',
     label: "What's new",
-    description: 'Product announcements',
+    description: 'What changed in each release',
     Icon: Sparkles,
   },
 ];

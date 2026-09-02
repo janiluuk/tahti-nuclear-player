@@ -37,6 +37,7 @@ import { JoinView } from './views/JoinView';
 import { ListenView } from './views/ListenView';
 import { LoginView } from './views/LoginView';
 import { MessagesView } from './views/MessagesView';
+import { NewsView } from './views/NewsView';
 import { OnboardingView } from './views/OnboardingView';
 import { PrivacyView } from './views/PrivacyView';
 import { RadioScheduleView } from './views/RadioScheduleView';
@@ -880,6 +881,12 @@ const whatsNewRoute = createRoute({
   component: WhatsNewView,
 });
 
+const newsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/news',
+  component: NewsView,
+});
+
 const channelRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/channel/$slug',
@@ -1673,6 +1680,7 @@ const routeTree = rootRoute.addChildren([
     venueDetailRoute,
     moreRoute,
     whatsNewRoute,
+    newsRoute,
     channelRoute,
     prodChannelAliasRoute,
     artistRoute,

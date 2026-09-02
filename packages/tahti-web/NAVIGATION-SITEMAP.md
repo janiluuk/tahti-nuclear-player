@@ -68,8 +68,15 @@ were left as-is rather than added to the tabs:
   Channels, and Artists tabs. Playlist/artist entries can show a New marker
   until the user opens them; timestamps are stored with the local favourite.
 - All public utility pages (`/help`, `/help/$slug`, `/status`, `/transparency`,
-  `/transparency/methodology`, legal pages, and `/whats-new`) are reachable from
-  the public shell or their parent page and contain no Tahti-map breadcrumb.
+  `/transparency/methodology`, legal pages, `/whats-new`, and `/news`) are
+  reachable from the public shell or their parent page and contain no
+  Tahti-map breadcrumb.
+- `/whats-new` (also embedded under Settings → "What's new") now shows
+  plain-language release notes sourced from `src/content/releaseNotes.ts`,
+  one entry per shipped batch of work. The admin-authored platform news/
+  announcements feed that used to live at `/whats-new` moved to `/news`
+  (`NewsView`) — linked from Help Center's Operations group and
+  cross-linked with `/whats-new`. `/admin/news` (authoring) is unchanged.
 
 The sitemap deliberately excludes `src/content/mapScreens.ts`'s internal
 anchors: those links navigate within the diagnostics atlas itself and are not

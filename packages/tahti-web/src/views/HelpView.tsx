@@ -208,6 +208,11 @@ const DOCUMENT_GROUPS = [
         to: '/status',
       },
       {
+        title: 'Platform news',
+        description: 'News, service updates, and posts from the Tahti team.',
+        to: '/news',
+      },
+      {
         title: 'Support',
         description: 'Contact support about an account or platform problem.',
         to: '/help/support',

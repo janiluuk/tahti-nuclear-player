@@ -30,7 +30,7 @@ env:
   DEPLOY_HOST_PORT: 15180
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   # Shared with deploy-tahti-web.yml's group name on purpose: only one of
@@ -54,6 +54,27 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Tag release
+        # Tags the deployed commit tahti-web@<package.json version>, matching
+        # the player@<version> convention from bump-and-tag-player.yml. The
+        # version here isn't bumped by this workflow -- it's whatever the
+        # deployed commit already carries -- so this just records which
+        # commit shipped as which version; re-deploys of the same version
+        # (e.g. workflow_dispatch reruns) skip re-tagging instead of failing.
+        run: |
+          set -euo pipefail
+          VERSION=$(jq -r .version packages/tahti-web/package.json)
+          TAG="tahti-web@${VERSION}"
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "Tag ${TAG} already exists on origin, skipping."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "${TAG}"
+            git push origin "${TAG}"
+            echo "Tagged and pushed ${TAG}."
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
