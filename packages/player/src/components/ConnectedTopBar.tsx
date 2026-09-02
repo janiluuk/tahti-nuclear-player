@@ -39,13 +39,13 @@ export const ConnectedTopBar: FC = () => {
             <TopBarLogo />
           </Tooltip>
         )}
+        <UpdateBadge />
         <TopBarNavigation
           onBack={() => router.history.back()}
           onForward={() => router.history.forward()}
           canGoBack={canGoBack}
           canGoForward={canGoForward}
         />
-        <UpdateBadge />
       </div>
       <SearchBox />
       <div className="flex flex-row items-center justify-end gap-2">

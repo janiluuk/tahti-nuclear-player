@@ -21,7 +21,6 @@ export const UpdateBadge: FC = () => {
         data-testid="update-badge"
         variant="pill"
         color="green"
-        animated
         className="ml-2 cursor-pointer"
         onClick={restartToUpdate}
       >
@@ -36,6 +35,7 @@ export const UpdateBadge: FC = () => {
         data-testid="update-badge"
         variant="pill"
         color="green"
+        animated
         className="ml-2"
       >
         {t('downloading', { progress: downloadProgress })}
@@ -52,7 +52,6 @@ export const UpdateBadge: FC = () => {
           data-testid="update-badge"
           variant="pill"
           color="green"
-          animated
           className="ml-2"
         >
           {t('updateAvailable')}
