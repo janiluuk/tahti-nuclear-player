@@ -1,5 +1,96 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-02 — Channel/player designer: Links + Text overlay segments, shared backdrop card, grid-snap
+
+**Completed:** Ported the links and overlay editing UX from `../tahti`'s
+channel editor (that repo has no drag/toolbar/segment system to port
+verbatim — what's portable is the interaction pattern: label+url rows with
+platform-icon detection, and an effect/text/alignment picker) into
+`ChannelLayersMenu`'s side toolbar, which already had `links`/`textOverlay`
+as segment types but no real content behind them — `links` was a static
+"render here once loaded" placeholder and `textOverlay` was hardcoded to
+the display name.
+
+- **New segments**: `ChannelLinksEditor.tsx` (add/edit/remove label+url
+  rows, reusing the existing `SocialLinkIcon` platform-detection component
+  rather than porting a second, visually-different icon set) and
+  `ChannelTextOverlayEditor.tsx`/`ChannelTextOverlayView.tsx` (5 text
+  effects: none/gradient-shimmer/cosmic-neon/shimmer-lines/ghost-echo,
+  driven by new `channelTextOverlay.css` keyframes keyed off the channel's
+  own accent/highlight colors). Both are true live-preview — typing in the
+  side panel updates the canvas block instantly via local draft state in
+  `ChannelView`, with an explicit Save persisting through
+  `patchChannelVisual`. Added a `stats` segment (follower count, fetched
+  from the artist profile alongside the channel).
+- **Shared backdrop card**: extracted `ChannelBackdropCard.tsx`, now used
+  by both `ChannelDesigner`'s preview and `ChannelView`'s real page —
+  previously the designer's preview was a hand-built mock (fake avatar
+  circle, fake nav pills, no real playback chrome) sitting beside the real
+  page's plain-text `PageHeader` + separate `hero` block, so they
+  structurally could not match. The merged card puts identity
+  (avatar/name/bio/nav) as an overlay on the same stage background the
+  hero block already renders (video/image/gradient/solid/visualizer),
+  matching how the artist-menu designer's card always looked. Along the
+  way, found and fixed a real drift bug: `mockChannel()` hardcoded
+  `headerStyle`/`colorScheme`/`videoBackgroundUrl` per station instead of
+  reading them back from `channel-design.ts`'s mock state the way
+  `nowPlayingOverlayStyle` already did — saving a header-style change in
+  the designer never showed up on the real page under `VITE_FORCE_MOCK`.
+  Fixed the same way as that existing field, scoped to non-curated
+  stations only (`isCuratedStation`) so editing your own channel doesn't
+  repaint every other demo artist's fixed look.
+- **Selection → side-panel wiring**: clicking hero/backdrop/links/overlay
+  on the canvas now fades in only that element's own settings
+  (`FadeSwitch`, both in `ChannelLayersMenu` and `ChannelDesigner`'s
+  `lookOnly` single-section render) instead of a generic layers list or
+  the whole accordion. Added an "Overlay" tab to Player design (alongside
+  Gradient/Video-image/Visualizer) for a headline inside the player stage
+  itself, distinct from the channel page's Text overlay block.
+- **Grid-snap**: the existing free-pixel `translate()` drag offset now
+  snaps to a 16px grid (`snapToGrid` in `ChannelView.tsx`) instead of
+  landing on arbitrary values.
+- **Double borders / black-box placeholders**: the per-block edit-mode
+  dashed frame and each block's own border were both drawing at once;
+  block borders are now conditional on `!editing`. Replaced the
+  dashed-text-only `actions`/`subscribe`(editing)/`chat` placeholders with
+  representative mock UI (real-looking Play/Favorite pill buttons, a
+  Subscribe preview card), and `links`/`textOverlay` now render their real
+  content instead of placeholder text once configured.
+- **Backdrop quick-add**: clicking the backdrop's nav row shows "+ Links /
+  + Bio / + Stats" chips for whichever of those blocks aren't yet visible
+  on the page, calling the existing `addItemType`/layout-visibility path.
+- **Bonus fix, found while verifying the above**: `ChannelControlsWidget`'s
+  controlled-accordion mode was silently broken — clicking a closed
+  section closed whichever section was previously open but never actually
+  opened the clicked one, because letting the browser's native `<details>`
+  toggle fire (in addition to the React state update) caused the
+  side-effect-closed section's own `onToggle` to fire too, resetting
+  `openId` back to `null`. Fixed by calling `event.preventDefault()` on
+  the `<summary>` click and owning open/close purely through
+  `onOpenChange`; verified by reproducing it first against an untouched
+  section ("Now playing overlay") before fixing.
+
+**Not yet persisted against the live API:** `channelLinks`,
+`textOverlayMode/Text/Align`, and `playerOverlayMode/Text/Align` are new
+`ChannelVisual`/`PublicChannel` fields with no matching column in `../tahti`
+yet — same "client-only for now, round-trips fully under `VITE_FORCE_MOCK`"
+caveat already carried by `nowPlayingOverlayStyle` and the player-gradient
+fields, not a new pattern. `PublicChannel.followerCount` is wired to a real
+second fetch (`fetchProfile`) rather than a fabricated number, but the
+public channel API itself still has no stats field of its own.
+
+**Validation:** `tsc --noEmit`, `eslint`, and `vitest run` (53 files, 303
+tests) on `tahti-web` pass clean. Added
+`e2e/channel-designer-parity.spec.ts` (2 specs: designer/live-page identity
+match, and a saved header-style edit showing up on the real page) and ran
+the full existing Playwright suite against a local `VITE_FORCE_MOCK=1` dev
+server (`PLAYWRIGHT_CHROMIUM_PATH` pointed at the locally installed
+Chromium, since the checked-in config assumes `/usr/bin/chromium`) — all
+green. Screenshot-verified the live-preview flow end to end in the browser:
+typing a link/label or picking a text effect updates the canvas
+immediately, and the fixed accordion now opens the section that was
+actually clicked.
+
 ## 2026-09-02 — Chrome depth/colour parity, Discover filters, Feed carousel
 
 **Completed:** A batch of smaller fixes plus one real feature slice, driven

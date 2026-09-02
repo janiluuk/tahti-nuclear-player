@@ -6,7 +6,7 @@ import {
   PlusIcon,
   Trash2Icon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { Button } from '@tahti-player/ui';
 
@@ -22,6 +22,15 @@ import {
 type Props = {
   items: ChannelPageItem[];
   selectedId: string | null;
+  /** Which look section the current selection maps to, if any — drives the
+   * side panel to fade in that element's own settings instead of the
+   * generic layers list. `null` for blocks with no dedicated designer. */
+  lookOpenSection?:
+    | 'player-design'
+    | 'visual-style'
+    | 'links'
+    | 'text-overlay'
+    | null;
   activePresetId: ChannelLayoutPresetId | null;
   onSelect: (id: string) => void;
   onToggleVisible: (id: string) => void;
@@ -40,9 +49,36 @@ type Props = {
   lookSlot?: React.ReactNode;
 };
 
+/** Crossfades in the look panel's content whenever the selected element
+ * changes — clicking a different canvas element fades in only that
+ * element's own settings instead of jump-cutting to it. */
+function FadeSwitch({
+  activeKey,
+  children,
+}: {
+  activeKey: string;
+  children: ReactNode;
+}) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    setVisible(false);
+    const frame = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(frame);
+  }, [activeKey]);
+  return (
+    <div
+      key={activeKey}
+      className={`transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function ChannelLayersMenu({
   items,
   selectedId,
+  lookOpenSection,
   activePresetId,
   onSelect,
   onToggleVisible,
@@ -61,12 +97,12 @@ export function ChannelLayersMenu({
   );
 
   useEffect(() => {
-    if (selectedId === 'hero' || selectedId === 'header') {
+    if (lookOpenSection) {
       setPanel('look');
     } else if (selectedId) {
       setPanel('layers');
     }
-  }, [selectedId]);
+  }, [selectedId, lookOpenSection]);
 
   const hiddenCatalog = CHANNEL_PAGE_ITEM_TYPES.filter((type) => {
     const row = items.find((i) => i.type === type);
@@ -172,7 +208,7 @@ export function ChannelLayersMenu({
                     }
                     setDragId(null);
                   }}
-                  className={`border-border flex items-center gap-1 rounded-lg border px-1.5 py-1.5 ${
+                  className={`border-border flex items-center gap-1 rounded-md border px-1 py-1 ${
                     selected ? 'border-primary/60 bg-primary/10' : ''
                   } ${dragId === item.id ? 'opacity-50' : ''} ${
                     item.visible ? '' : 'opacity-60'
@@ -313,13 +349,15 @@ export function ChannelLayersMenu({
         )}
 
         {panel === 'look' && (
-          <div className="flex flex-col gap-3">
-            {lookSlot ?? (
-              <p className="text-foreground-secondary text-xs">
-                Look controls unavailable.
-              </p>
-            )}
-          </div>
+          <FadeSwitch activeKey={lookOpenSection ?? 'default'}>
+            <div className="flex flex-col gap-3">
+              {lookSlot ?? (
+                <p className="text-foreground-secondary text-xs">
+                  Look controls unavailable.
+                </p>
+              )}
+            </div>
+          </FadeSwitch>
         )}
       </div>
     </aside>

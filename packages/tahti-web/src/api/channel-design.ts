@@ -316,7 +316,61 @@ export type ChannelVisual = {
   backgroundVisualPreset?: string | null;
   useBackgroundGradient?: boolean;
   backgroundColorSchemeJson?: string | null;
+  /** Outbound social/link buttons shown in the channel page's Links block.
+   * Client-only for now, same caveat as the other fields above: it
+   * round-trips under VITE_FORCE_MOCK but has no matching column on the
+   * real API yet. */
+  channelLinks?: ChannelLink[] | null;
+  /** Stylized headline shown in the channel page's Text overlay block.
+   * Client-only for now, same caveat as above. */
+  textOverlayMode?: TextOverlayMode | string | null;
+  textOverlayText?: string | null;
+  textOverlayAlign?: TextOverlayAlign | string | null;
+  /** Same headline treatment, but for the standalone overlay shown inside
+   * the player stage itself (Player design → Overlay tab) rather than the
+   * channel page's separate Text overlay block. Client-only for now, same
+   * caveat as above. */
+  playerOverlayMode?: TextOverlayMode | string | null;
+  playerOverlayText?: string | null;
+  playerOverlayAlign?: TextOverlayAlign | string | null;
 };
+
+export type ChannelLink = { label: string; url: string };
+
+export const TEXT_OVERLAY_MODES = [
+  'NONE',
+  'GRADIENT_SHIMMER',
+  'COSMIC_NEON',
+  'SHIMMER_LINES',
+  'GHOST_ECHO',
+] as const;
+export type TextOverlayMode = (typeof TEXT_OVERLAY_MODES)[number];
+
+export const TEXT_OVERLAY_MODE_LABELS: Record<TextOverlayMode, string> = {
+  NONE: 'None',
+  GRADIENT_SHIMMER: 'Gradient shimmer',
+  COSMIC_NEON: 'Cosmic neon',
+  SHIMMER_LINES: 'Shimmer lines',
+  GHOST_ECHO: 'Ghost echo',
+};
+
+export const TEXT_OVERLAY_ALIGNMENTS = ['LEFT', 'CENTER', 'RIGHT'] as const;
+export type TextOverlayAlign = (typeof TEXT_OVERLAY_ALIGNMENTS)[number];
+
+export const TEXT_OVERLAY_ALIGN_LABELS: Record<TextOverlayAlign, string> = {
+  LEFT: 'Left',
+  CENTER: 'Center',
+  RIGHT: 'Right',
+};
+
+export function isActiveTextOverlay(overlay: {
+  mode?: string | null;
+  text?: string | null;
+}): boolean {
+  return Boolean(
+    overlay.mode && overlay.mode !== 'NONE' && overlay.text?.trim(),
+  );
+}
 
 /** Per-preset speed/intensity/scale (clamped 0.25–2, scale 0.5–2) plus an
  * audio-reactivity toggle — matches the backend's VisualPresetSettingsSchema
@@ -407,6 +461,13 @@ let mockVisual: ChannelVisual = {
   backgroundVisualPreset: 'INTERACTIVE_POINTS',
   useBackgroundGradient: false,
   backgroundColorSchemeJson: null,
+  channelLinks: [],
+  textOverlayMode: 'NONE',
+  textOverlayText: '',
+  textOverlayAlign: 'CENTER',
+  playerOverlayMode: 'NONE',
+  playerOverlayText: '',
+  playerOverlayAlign: 'CENTER',
 };
 
 /** Read-only peek at the mock design state — used by mockChannel() (in
@@ -444,6 +505,50 @@ export function getMockUseBackgroundGradient(): boolean | undefined {
 
 export function getMockBackgroundColorSchemeJson(): string | null | undefined {
   return mockVisual.backgroundColorSchemeJson;
+}
+
+export function getMockVisualPreset(): string {
+  return mockVisual.visualPreset;
+}
+
+export function getMockHeaderStyle(): string {
+  return mockVisual.headerStyle;
+}
+
+export function getMockVideoBackgroundUrl(): string | null {
+  return mockVisual.videoBackgroundUrl ?? null;
+}
+
+export function getMockChannelColorScheme(): Required<ColorScheme> {
+  return fillColorScheme(parseColorScheme(mockVisual.colorSchemeJson));
+}
+
+export function getMockChannelLinks(): ChannelLink[] {
+  return mockVisual.channelLinks ?? [];
+}
+
+export function getMockTextOverlay(): {
+  mode: string | null | undefined;
+  text: string | null | undefined;
+  align: string | null | undefined;
+} {
+  return {
+    mode: mockVisual.textOverlayMode,
+    text: mockVisual.textOverlayText,
+    align: mockVisual.textOverlayAlign,
+  };
+}
+
+export function getMockPlayerOverlay(): {
+  mode: string | null | undefined;
+  text: string | null | undefined;
+  align: string | null | undefined;
+} {
+  return {
+    mode: mockVisual.playerOverlayMode,
+    text: mockVisual.playerOverlayText,
+    align: mockVisual.playerOverlayAlign,
+  };
 }
 
 export function parseColorScheme(json: string | null | undefined): ColorScheme {
@@ -492,6 +597,13 @@ export async function fetchChannelVisual(): Promise<{
         backgroundVisualPreset: 'INTERACTIVE_POINTS',
         useBackgroundGradient: false,
         backgroundColorSchemeJson: null,
+        channelLinks: [],
+        textOverlayMode: 'NONE',
+        textOverlayText: '',
+        textOverlayAlign: 'CENTER',
+        playerOverlayMode: 'NONE',
+        playerOverlayText: '',
+        playerOverlayAlign: 'CENTER',
       },
       meta: apiErrorMeta(err),
     };
@@ -516,6 +628,13 @@ export async function patchChannelVisual(patch: {
   backgroundVisualPreset?: string | null;
   useBackgroundGradient?: boolean;
   backgroundColorSchemeJson?: string | null;
+  channelLinks?: ChannelLink[] | null;
+  textOverlayMode?: string;
+  textOverlayText?: string;
+  textOverlayAlign?: string;
+  playerOverlayMode?: string;
+  playerOverlayText?: string;
+  playerOverlayAlign?: string;
 }): Promise<{ ok: true; data: ChannelVisual } | { ok: false; error: string }> {
   if (forceMock()) {
     mockVisual = {
@@ -564,6 +683,27 @@ export async function patchChannelVisual(patch: {
         : {}),
       ...(patch.backgroundColorSchemeJson !== undefined
         ? { backgroundColorSchemeJson: patch.backgroundColorSchemeJson }
+        : {}),
+      ...(patch.channelLinks !== undefined
+        ? { channelLinks: patch.channelLinks }
+        : {}),
+      ...(patch.textOverlayMode !== undefined
+        ? { textOverlayMode: patch.textOverlayMode }
+        : {}),
+      ...(patch.textOverlayText !== undefined
+        ? { textOverlayText: patch.textOverlayText }
+        : {}),
+      ...(patch.textOverlayAlign !== undefined
+        ? { textOverlayAlign: patch.textOverlayAlign }
+        : {}),
+      ...(patch.playerOverlayMode !== undefined
+        ? { playerOverlayMode: patch.playerOverlayMode }
+        : {}),
+      ...(patch.playerOverlayText !== undefined
+        ? { playerOverlayText: patch.playerOverlayText }
+        : {}),
+      ...(patch.playerOverlayAlign !== undefined
+        ? { playerOverlayAlign: patch.playerOverlayAlign }
         : {}),
       ...(patch.colorScheme !== undefined
         ? {

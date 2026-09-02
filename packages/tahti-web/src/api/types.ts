@@ -74,6 +74,17 @@ export type PublicChannel = {
    * content/nowPlayingOverlayPresets.ts. Defaults to 'classic' when unset. */
   nowPlayingOverlayStyle?: string | null;
   nowPlayingOverlaySettingsJson?: string | null;
+  /** Outbound links shown in the channel page's Links block. */
+  channelLinks?: Array<{ label: string; url: string }> | null;
+  /** Stylized headline shown in the channel page's Text overlay block. */
+  textOverlayMode?: string | null;
+  textOverlayText?: string | null;
+  textOverlayAlign?: string | null;
+  /** Headline shown inside the player stage itself (Player design →
+   * Overlay tab) — distinct from the channel page's Text overlay block. */
+  playerOverlayMode?: string | null;
+  playerOverlayText?: string | null;
+  playerOverlayAlign?: string | null;
   user: {
     username: string;
     displayName: string;
@@ -81,6 +92,10 @@ export type PublicChannel = {
     avatarUrl: string | null;
   };
   nowPlaying: ChannelNowPlaying | null;
+  /** Public follower count for the channel's Stats block — sourced from the
+   * artist profile (GET /api/v1/u/:username/profile), fetched alongside the
+   * channel so the backdrop's Stats element has something real to show. */
+  followerCount?: number | null;
 };
 
 export type RadioNowPlaying = {
