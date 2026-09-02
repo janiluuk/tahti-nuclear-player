@@ -5,13 +5,10 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ImageIcon,
-  ImagesIcon,
   LinkIcon,
-  PaletteIcon,
   PlaySquareIcon,
   SettingsIcon,
   Trash2Icon,
-  TypeIcon,
 } from 'lucide-react';
 import {
   forwardRef,
@@ -24,6 +21,7 @@ import {
 import { toast } from 'sonner';
 
 import {
+  Badge,
   Button,
   Dialog,
   FilePicker,
@@ -33,6 +31,7 @@ import {
   Select,
   Slider,
   Tabs,
+  Toggle,
   Tooltip,
 } from '@tahti-player/ui';
 
@@ -77,9 +76,24 @@ import {
   resolveNowPlayingOverlayPreset,
   type NowPlayingOverlaySettings,
 } from '../content/nowPlayingOverlayPresets';
-import { visualizerMetadata } from '../plugins/visualizers';
+import {
+  CHANNEL_LOOK_ELEMENTS,
+  type ChannelLookElementId,
+} from '../lib/channelLookElements';
+import {
+  loadChannelPageLayout,
+  saveChannelPageLayout,
+  setItemVisible,
+  type ChannelPageItem,
+  type ChannelPageItemType,
+} from '../lib/channelPageLayout';
+import {
+  visualizerMetadata,
+  visualizerSupportsAudioReactive,
+} from '../plugins/visualizers';
 import { ChannelBackdropCard } from './ChannelBackdropCard';
 import { ChannelControlsWidget } from './ChannelControlsWidget';
+import { ChannelElementEditor } from './ChannelElementEditor';
 import { ChannelLinksEditor } from './ChannelLinksEditor';
 import { ChannelTextOverlayEditor } from './ChannelTextOverlayEditor';
 import { ChannelTextOverlayView } from './ChannelTextOverlayView';
@@ -281,9 +295,9 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     const [highlightSection, setHighlightSection] = useState<
       'header' | 'visualizer' | null
     >(null);
-    const [openSectionId, setOpenSectionId] = useState<
-      LookSection | 'now-playing' | null
-    >(lookOpenSection ?? 'visual-style');
+    const [selectedLookId, setSelectedLookId] =
+      useState<ChannelLookElementId>('header');
+    const [pageLayout, setPageLayout] = useState<ChannelPageItem[]>([]);
 
     const [presets, setPresets] = useState<ChannelVisualPreset[]>([]);
     const [savePresetOpen, setSavePresetOpen] = useState(false);
@@ -295,24 +309,38 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       null,
     );
 
-    const handleOpenSectionChange = (id: string | null) => {
-      if (
-        id === null ||
-        id === 'player-design' ||
-        id === 'visual-style' ||
-        id === 'now-playing' ||
-        id === 'links' ||
-        id === 'text-overlay'
-      ) {
-        setOpenSectionId(id);
-      }
-    };
-
     useEffect(() => {
       if (lookOpenSection !== undefined) {
-        setOpenSectionId(lookOpenSection);
+        if (lookOpenSection === 'player-design') {
+          setSelectedLookId('player');
+        } else if (lookOpenSection === 'visual-style') {
+          setSelectedLookId('header');
+        } else if (lookOpenSection === 'links') {
+          setSelectedLookId('links');
+        }
       }
     }, [lookOpenSection]);
+
+    const layoutSlug = channelSlug ?? username;
+
+    useEffect(() => {
+      setPageLayout(loadChannelPageLayout(layoutSlug));
+    }, [layoutSlug, reloadToken]);
+
+    const layoutVisible = (type: ChannelPageItemType): boolean =>
+      pageLayout.find((item) => item.type === type)?.visible !== false;
+
+    const toggleLayoutType = (type: ChannelPageItemType) => {
+      setPageLayout((current) => {
+        const row = current.find((item) => item.type === type);
+        if (!row) {
+          return current;
+        }
+        const next = setItemVisible(current, row.id, !row.visible);
+        saveChannelPageLayout(layoutSlug, next);
+        return next;
+      });
+    };
 
     const focusPreviewSection = (
       tab: 'header' | 'visualizer',
@@ -320,7 +348,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     ) => {
       setActiveTab(tab);
       setHighlightSection(tab);
-      setOpenSectionId(tab === 'header' ? 'visual-style' : 'player-design');
       document
         .getElementById(elementId)
         ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -892,18 +919,21 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             />
           );
         })}
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={
-              resolveVisualPresetSettings(visualSettings, preset).audioReactive
-            }
-            onChange={(event) =>
-              setPresetSetting(preset, 'audioReactive', event.target.checked)
-            }
-          />
-          Audio reactive
-        </label>
+        {visualizerSupportsAudioReactive(preset) ? (
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={
+                resolveVisualPresetSettings(visualSettings, preset)
+                  .audioReactive
+              }
+              onChange={(event) =>
+                setPresetSetting(preset, 'audioReactive', event.target.checked)
+              }
+            />
+            Audio reactive
+          </label>
+        ) : null}
       </>
     );
 
@@ -1029,7 +1059,47 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         ) : (
           <p className="text-foreground-secondary text-xs">
             The player currently matches the channel header's gradient, set in
-            Backdrop design.
+            Header.
+          </p>
+        )}
+      </section>
+    );
+
+    const backgroundControls = (
+      <section className="flex flex-col gap-4">
+        <label className="border-border bg-background-secondary/40 flex items-start gap-3 rounded-lg border p-3 text-sm">
+          <Toggle
+            checked={visual.useBackgroundGradient ?? false}
+            onChange={(useBackgroundGradient) => {
+              if (useBackgroundGradient && !visual.backgroundColorSchemeJson) {
+                setBackgroundScheme(scheme);
+              }
+              applyLocal({ useBackgroundGradient });
+            }}
+            label="Use a separate background palette"
+            className="mt-0.5"
+          />
+          <span>
+            <span className="block font-semibold">
+              Use a separate background palette
+            </span>
+            <span className="text-foreground-secondary block text-xs">
+              Off by default — the page reuses the header colors.
+            </span>
+          </span>
+        </label>
+        {visual.useBackgroundGradient ? (
+          <ColorSchemeFields
+            scheme={backgroundScheme}
+            onChange={(next) => {
+              setBackgroundScheme(next);
+              setDirty(true);
+            }}
+          />
+        ) : (
+          <p className="text-foreground-secondary text-xs">
+            The page currently matches the header colors. Turn on a separate
+            palette to style the background on its own.
           </p>
         )}
       </section>
@@ -1233,8 +1303,13 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
                   </button>
                 }
                 name={
-                  <span className="text-base">
+                  <span className="inline-flex flex-wrap items-center gap-2 text-base">
                     {activeVisualizer.replace(/_/g, ' ')}
+                    {meta.audioReactive ? (
+                      <Badge variant="pill" color="blue">
+                        Audio reactive
+                      </Badge>
+                    ) : null}
                   </span>
                 }
                 description={meta.description}
@@ -1515,39 +1590,118 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     );
 
     const playerOverlaySection = (
-      <div className="flex flex-col gap-3">
-        <ChannelTextOverlayEditor
-          value={{
-            mode: visual.playerOverlayMode ?? 'NONE',
-            text: visual.playerOverlayText ?? '',
-            align: visual.playerOverlayAlign ?? 'CENTER',
-          }}
-          onChange={(next) =>
-            applyLocal({
-              playerOverlayMode: next.mode,
-              playerOverlayText: next.text,
-              playerOverlayAlign: next.align,
-            })
-          }
-        />
-        <div
-          className="relative flex min-h-24 items-center overflow-hidden rounded-lg border border-white/10 p-4"
-          style={{ background: previewStyle.bg }}
-        >
-          <ChannelTextOverlayView
-            mode={visual.playerOverlayMode}
-            text={visual.playerOverlayText}
-            align={visual.playerOverlayAlign}
-            accent={previewStyle.accent}
-            highlight={previewStyle.highlight}
-            size="sm"
-            className="w-full"
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3">
+          <Eyebrow>Stage overlay</Eyebrow>
+          <ChannelTextOverlayEditor
+            value={{
+              mode: visual.playerOverlayMode ?? 'NONE',
+              text: visual.playerOverlayText ?? '',
+              align: visual.playerOverlayAlign ?? 'CENTER',
+            }}
+            onChange={(next) =>
+              applyLocal({
+                playerOverlayMode: next.mode,
+                playerOverlayText: next.text,
+                playerOverlayAlign: next.align,
+              })
+            }
           />
-          {!visual.playerOverlayText?.trim() && (
-            <p className="text-foreground-secondary text-xs">
-              Preview — enter text above to see it on the player stage.
-            </p>
-          )}
+          <div
+            className="relative flex min-h-24 items-center overflow-hidden rounded-lg border border-white/10 p-4"
+            style={{ background: previewStyle.bg }}
+          >
+            <ChannelTextOverlayView
+              mode={visual.playerOverlayMode}
+              text={visual.playerOverlayText}
+              align={visual.playerOverlayAlign}
+              accent={previewStyle.accent}
+              highlight={previewStyle.highlight}
+              size="sm"
+              className="w-full"
+            />
+            {!visual.playerOverlayText?.trim() && (
+              <p className="text-foreground-secondary text-xs">
+                Preview — enter text above to see it on the player stage.
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <Eyebrow>Now playing</Eyebrow>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setOverlayConfigOpen(true)}
+            >
+              <SettingsIcon size={14} aria-hidden />
+              Configure text
+            </Button>
+          </div>
+          <p className="text-foreground-secondary text-xs">
+            How the title and artist sit over live audio or an archive track.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {NOW_PLAYING_OVERLAY_PRESETS.map((preset) => {
+              const active =
+                resolveNowPlayingOverlayPreset(
+                  visual.nowPlayingOverlayStyle,
+                ) === preset.id;
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() =>
+                    applyLocal({ nowPlayingOverlayStyle: preset.id })
+                  }
+                  className={`flex flex-col gap-2 rounded-lg border p-2 text-left transition-colors ${
+                    active
+                      ? 'border-primary bg-primary/10 ring-primary ring-1'
+                      : 'border-border bg-background hover:bg-background-secondary'
+                  }`}
+                >
+                  <div
+                    className="relative flex aspect-video items-end overflow-hidden rounded-md bg-cover bg-center p-2"
+                    style={{
+                      backgroundColor: '#0B1220',
+                      backgroundImage: avatarUrl
+                        ? `url(${avatarUrl})`
+                        : undefined,
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
+                    <div className="relative w-full">
+                      <NowPlayingOverlay
+                        presetId={preset.id}
+                        title="Sample Track"
+                        artist={displayName}
+                        artworkUrl={avatarUrl}
+                        compact
+                        settings={overlaySettings}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5 text-sm font-semibold">
+                      {preset.name}
+                      {active && (
+                        <CheckIcon
+                          size={14}
+                          className="text-primary"
+                          aria-hidden
+                        />
+                      )}
+                    </div>
+                    <p className="text-foreground-secondary text-xs">
+                      {preset.description}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
@@ -1671,827 +1825,107 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       </Link>
     );
 
-    const controls = (
-      <div className="flex flex-col gap-3">
-        <div
-          id="channel-designer-section-player"
-          className={`order-2 rounded-xl transition-shadow ${
-            highlightSection === 'visualizer' ? 'ring-primary ring-2' : ''
-          }`}
-        >
-          <ChannelControlsWidget
-            openId={openSectionId}
-            onOpenChange={handleOpenSectionChange}
-            sections={[
-              {
-                id: 'player-design',
-                title: 'Player design',
-                children: playerDesignTabsContent,
-              },
-            ]}
-          />
-        </div>
-        <div
-          id="channel-designer-section-header"
-          className={`order-1 rounded-xl transition-shadow ${
-            highlightSection === 'header' ? 'ring-primary ring-2' : ''
-          }`}
-        >
-          <ChannelControlsWidget
-            openId={openSectionId}
-            onOpenChange={handleOpenSectionChange}
-            sections={[
-              {
-                id: 'visual-style',
-                title: 'Backdrop design',
-                children: (
-                  <>
-                    {headerControls}
-                    <div className="hidden" aria-hidden="true">
-                      <Tabs
-                        listClassName="flex-wrap border-border border-b pb-3"
-                        panelClassName="pt-2"
-                        selectedIndex={
-                          slideshowHeaderSelected ||
-                          visual.headerStyle === 'GRADIENT'
-                            ? 0
-                            : activeTab === 'header'
-                              ? 1
-                              : 0
-                        }
-                        onChange={(index) => {
-                          if (
-                            slideshowHeaderSelected ||
-                            visual.headerStyle === 'GRADIENT'
-                          ) {
-                            setActiveTab('header');
-                          } else {
-                            setActiveTab(
-                              index === 1 ? 'header' : 'color-scheme',
-                            );
-                          }
-                        }}
-                        items={[
-                          {
-                            id: 'visualizer',
-                            label: (
-                              <span className="inline-flex items-center gap-1.5">
-                                <PlaySquareIcon size={14} aria-hidden />{' '}
-                                Visualizer
-                              </span>
-                            ),
-                            content: (
-                              <section className="flex flex-col gap-4">
-                                {(() => {
-                                  const meta =
-                                    visualizerMetadata(activeVisualizer);
-                                  return (
-                                    <PluginItem
-                                      icon={
-                                        <button
-                                          type="button"
-                                          className="hover:bg-background-secondary flex size-full items-center justify-center rounded-lg transition-colors"
-                                          aria-label="Choose visualizer"
-                                          title="Choose visualizer"
-                                          onClick={() => {
-                                            setVisualizerPickerPreset(
-                                              activeVisualizer,
-                                            );
-                                            setVisualizerPickerOpen(true);
-                                          }}
-                                        >
-                                          <meta.Icon size={22} aria-hidden />
-                                        </button>
-                                      }
-                                      name={
-                                        <span className="text-base">
-                                          {activeVisualizer.replace(/_/g, ' ')}
-                                        </span>
-                                      }
-                                      description={meta.description}
-                                      descriptionBelow
-                                      className={`ring-primary bg-primary/10 ring-2 ring-inset ${
-                                        !visualizerEnabled
-                                          ? 'opacity-50 grayscale'
-                                          : ''
-                                      }`}
-                                      rightAccessory={
-                                        <div className="flex items-center gap-1">
-                                          <Button
-                                            size="icon-sm"
-                                            variant="text"
-                                            disabled={!visualizerEnabled}
-                                            onClick={() => changeVisualizer(-1)}
-                                            aria-label="Previous visualizer"
-                                            title="Previous visualizer"
-                                          >
-                                            <ChevronLeftIcon
-                                              size={16}
-                                              aria-hidden
-                                            />
-                                          </Button>
-                                          <Button
-                                            size="icon-sm"
-                                            variant="text"
-                                            disabled={!visualizerEnabled}
-                                            onClick={() => changeVisualizer(1)}
-                                            aria-label="Next visualizer"
-                                            title="Next visualizer"
-                                          >
-                                            <ChevronRightIcon
-                                              size={16}
-                                              aria-hidden
-                                            />
-                                          </Button>
-                                          <Button
-                                            size="icon-sm"
-                                            variant={
-                                              showVisualizerSettings
-                                                ? 'default'
-                                                : 'text'
-                                            }
-                                            disabled={!visualizerEnabled}
-                                            aria-pressed={
-                                              showVisualizerSettings
-                                            }
-                                            aria-label={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
-                                            title={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
-                                            onClick={() =>
-                                              setShowVisualizerSettings(
-                                                (isVisible) => !isVisible,
-                                              )
-                                            }
-                                          >
-                                            <SettingsIcon
-                                              size={15}
-                                              aria-hidden
-                                            />
-                                          </Button>
-                                          <Button
-                                            size="icon-sm"
-                                            variant={
-                                              visualizerEnabled
-                                                ? 'default'
-                                                : 'secondary'
-                                            }
-                                            aria-pressed={visualizerEnabled}
-                                            aria-label={
-                                              visualizerEnabled
-                                                ? 'Disable visualizer'
-                                                : 'Enable visualizer'
-                                            }
-                                            title={
-                                              visualizerEnabled
-                                                ? 'Disable visualizer'
-                                                : 'Enable visualizer'
-                                            }
-                                            onClick={() => {
-                                              if (visualizerEnabled) {
-                                                setPreviewPreset('MINIMAL');
-                                                applyLocal({
-                                                  visualPreset: 'MINIMAL',
-                                                });
-                                              } else {
-                                                setPreviewPreset(
-                                                  activeVisualizer,
-                                                );
-                                                applyLocal({
-                                                  visualPreset:
-                                                    activeVisualizer,
-                                                });
-                                              }
-                                            }}
-                                          >
-                                            {visualizerEnabled ? (
-                                              <CheckIcon
-                                                size={15}
-                                                aria-hidden
-                                              />
-                                            ) : (
-                                              <PlaySquareIcon
-                                                size={15}
-                                                aria-hidden
-                                              />
-                                            )}
-                                          </Button>
-                                        </div>
-                                      }
-                                    />
-                                  );
-                                })()}
-                                {/* Tuning always sits directly under the preset
-                    picker, in this same card — never in the separate
-                    preview card above, so switching/tuning a preset and
-                    confirming it via Save all happen in one place. */}
-                                {dockTuning && (
-                                  <div className="border-border flex flex-col gap-4 rounded-lg border p-3">
-                                    <Eyebrow>
-                                      Tune{' '}
-                                      {visual.visualPreset.replace(/_/g, ' ')}
-                                    </Eyebrow>
-                                    {tuningSliders(visual.visualPreset)}
-                                  </div>
-                                )}
-                              </section>
-                            ),
-                          },
-                          {
-                            id: 'color-scheme',
-                            label: (
-                              <span className="inline-flex items-center gap-1.5">
-                                <PaletteIcon size={14} aria-hidden /> Color
-                                scheme
-                              </span>
-                            ),
-                            content:
-                              visual.headerStyle === 'GRADIENT' ? (
-                                <p className="text-foreground-secondary text-sm">
-                                  Color controls are available under Header
-                                  while the gradient header is selected.
-                                </p>
-                              ) : (
-                                colorSchemeControls
-                              ),
-                          },
-                          {
-                            id: 'header',
-                            label: (
-                              <span className="inline-flex items-center gap-1.5">
-                                <TypeIcon size={14} aria-hidden /> Header
-                              </span>
-                            ),
-                            content: (
-                              <section className="flex flex-col gap-3">
-                                <Eyebrow>Header style</Eyebrow>
-                                <div className="grid gap-2 sm:grid-cols-2">
-                                  {HEADER_DESIGN_OPTIONS.map((headerStyle) => {
-                                    const active =
-                                      headerStyle === 'SLIDESHOW'
-                                        ? slideshowHeaderSelected
-                                        : !slideshowHeaderSelected &&
-                                          visual.headerStyle === headerStyle;
-                                    return (
-                                      <button
-                                        key={headerStyle}
-                                        type="button"
-                                        aria-pressed={active}
-                                        onClick={() => {
-                                          if (headerStyle === 'SLIDESHOW') {
-                                            setGalleryMode((mode) =>
-                                              mode === 'NONE'
-                                                ? 'STATIC_SLIDESHOW'
-                                                : mode,
-                                            );
-                                            applyLocal({
-                                              headerStyle: 'GRADIENT',
-                                            });
-                                          } else {
-                                            setGalleryMode('NONE');
-                                            applyLocal({ headerStyle });
-                                          }
-                                          setActiveTab('header');
-                                        }}
-                                        className={`rounded-lg border p-4 text-left text-sm font-semibold tracking-wide uppercase transition-colors ${
-                                          active
-                                            ? 'border-primary bg-primary/10 ring-primary ring-1'
-                                            : 'border-border bg-background hover:bg-background-secondary text-foreground-secondary hover:text-foreground'
-                                        }`}
-                                      >
-                                        {headerStyle === 'SLIDESHOW'
-                                          ? 'SLIDESHOW'
-                                          : headerStyle === 'VIDEO_LOOP'
-                                            ? 'VIDEO / IMAGE'
-                                            : headerStyle.replace(/_/g, ' ')}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                                {visual.headerStyle === 'GRADIENT' &&
-                                  !slideshowHeaderSelected && (
-                                    <div className="border-border border-t pt-4">
-                                      <Eyebrow>Gradient colors</Eyebrow>
-                                      <div className="mt-3">
-                                        {colorSchemeControls}
-                                      </div>
-                                    </div>
-                                  )}
-                                {slideshowHeaderSelected && (
-                                  <div className="border-border border-t pt-4">
-                                    <Eyebrow>Slideshow</Eyebrow>
-                                    <div className="mt-3">
-                                      {slideshowControls}
-                                    </div>
-                                  </div>
-                                )}
-                                {visual.headerStyle === 'SOLID' && (
-                                  <label className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm">
-                                    <input
-                                      type="color"
-                                      value={
-                                        scheme.bg ?? DEFAULT_COLOR_SCHEME.bg
-                                      }
-                                      onChange={(event) =>
-                                        applyLocal(
-                                          {},
-                                          {
-                                            ...scheme,
-                                            bg: event.target.value,
-                                          },
-                                        )
-                                      }
-                                      className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
-                                      aria-label="Solid header color"
-                                    />
-                                    <span className="min-w-0">
-                                      <span className="block text-sm font-semibold">
-                                        Solid header color
-                                      </span>
-                                      <code className="text-foreground-secondary text-xs">
-                                        {scheme.bg ?? DEFAULT_COLOR_SCHEME.bg}
-                                      </code>
-                                    </span>
-                                  </label>
-                                )}
-                                {visual.headerStyle === 'VIDEO_LOOP' &&
-                                  (() => {
-                                    const previewIsImage = pendingVideoFile
-                                      ? pendingVideoFile.type.startsWith(
-                                          'image/',
-                                        )
-                                      : isHeaderImageUrl(videoBackgroundUrl);
-                                    return (
-                                      <div className="flex flex-col gap-3">
-                                        <div>
-                                          <div>
-                                            <Eyebrow>
-                                              Video or image backdrop
-                                            </Eyebrow>
-                                            <p className="text-foreground-secondary mt-1 text-xs">
-                                              Upload an MP4/WebM video or a
-                                              JPEG/PNG/WebP/GIF image, up to 10
-                                              MB. A video loops muted; an image
-                                              is shown static — either sits
-                                              behind your channel header and is
-                                              stored in your private R2 storage.
-                                            </p>
-                                          </div>
-                                        </div>
-                                        <div className="relative">
-                                          <FilePicker
-                                            accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-                                            disabled={busy}
-                                            selectedFiles={
-                                              pendingVideoFile
-                                                ? [pendingVideoFile]
-                                                : []
-                                            }
-                                            labels={{
-                                              title: 'Choose a video or image',
-                                              description:
-                                                'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
-                                              browse: 'Browse files',
-                                            }}
-                                            onFiles={selectVideoFile}
-                                          />
-                                          <div className="absolute top-2 right-2">
-                                            {videoUrlToggle}
-                                          </div>
-                                        </div>
-                                        {videoUrlInput}
-                                        {(pendingVideoPreviewUrl ||
-                                          videoBackgroundUrl) && (
-                                          <div className="border-border bg-background relative overflow-hidden rounded-lg border">
-                                            {youtubeEmbedUrl(
-                                              videoBackgroundUrl,
-                                            ) && !pendingVideoPreviewUrl ? (
-                                              <iframe
-                                                title="YouTube backdrop preview"
-                                                src={
-                                                  youtubeEmbedUrl(
-                                                    videoBackgroundUrl,
-                                                  ) ?? undefined
-                                                }
-                                                className="pointer-events-none aspect-video max-h-64 w-full"
-                                                allow="autoplay; encrypted-media"
-                                              />
-                                            ) : previewIsImage ? (
-                                              <img
-                                                key={
-                                                  pendingVideoPreviewUrl ??
-                                                  videoBackgroundUrl
-                                                }
-                                                src={
-                                                  pendingVideoPreviewUrl ??
-                                                  videoBackgroundUrl
-                                                }
-                                                alt=""
-                                                className="aspect-video max-h-64 w-full object-cover"
-                                              />
-                                            ) : (
-                                              <video
-                                                key={
-                                                  pendingVideoPreviewUrl ??
-                                                  videoBackgroundUrl
-                                                }
-                                                src={
-                                                  pendingVideoPreviewUrl ??
-                                                  videoBackgroundUrl
-                                                }
-                                                muted
-                                                loop
-                                                autoPlay
-                                                playsInline
-                                                controls
-                                                className="aspect-video max-h-64 w-full object-cover"
-                                              />
-                                            )}
-                                            <div className="bg-background/85 text-foreground-secondary absolute inset-x-0 bottom-0 px-3 py-2 text-xs backdrop-blur-sm">
-                                              {pendingVideoFile
-                                                ? 'Preview — save your channel design to approve and upload it.'
-                                                : 'Current uploaded backdrop'}
-                                            </div>
-                                          </div>
-                                        )}
-                                        {(pendingVideoFile ||
-                                          videoBackgroundUrl) && (
-                                          <Button
-                                            size="sm"
-                                            variant="secondary"
-                                            className="self-start"
-                                            onClick={clearVideo}
-                                          >
-                                            Remove backdrop
-                                          </Button>
-                                        )}
-                                      </div>
-                                    );
-                                  })()}
-                              </section>
-                            ),
-                          },
-                          {
-                            id: 'slideshow',
-                            label: (
-                              <span className="inline-flex items-center gap-1.5">
-                                <ImagesIcon size={14} aria-hidden /> Slideshow
-                              </span>
-                            ),
-                            content: (
-                              <section className="flex flex-col gap-4">
-                                <FilePicker
-                                  accept="image/jpeg,image/png,image/webp"
-                                  multiple
-                                  disabled={busy}
-                                  selectedFiles={galleryFiles}
-                                  icon={<ImageIcon size={20} aria-hidden />}
-                                  labels={{
-                                    title: 'Drop slideshow images here',
-                                    description:
-                                      'JPEG, PNG, or WebP · up to 10 images',
-                                    browse: 'Browse images',
-                                  }}
-                                  onFiles={selectGalleryFiles}
-                                />
-                                {galleryImageList.length > 0 ? (
-                                  <div className="flex flex-col gap-2">
-                                    <div className="flex items-center justify-between gap-2">
-                                      <Eyebrow>
-                                        {galleryImageList.length === 1
-                                          ? 'Single image preview'
-                                          : `Slideshow · ${galleryImageList.length} images`}
-                                      </Eyebrow>
-                                      <span className="text-foreground-secondary text-xs">
-                                        {galleryPreviewIndex + 1} /{' '}
-                                        {galleryImageList.length}
-                                      </span>
-                                    </div>
-                                    <div className="border-border bg-background relative h-36 overflow-hidden rounded-lg border">
-                                      <img
-                                        key={
-                                          galleryImageList[galleryPreviewIndex]
-                                        }
-                                        src={
-                                          galleryImageList[galleryPreviewIndex]
-                                        }
-                                        alt=""
-                                        className="h-full w-full object-cover transition-all duration-700"
-                                      />
-                                      <div className="bg-background/80 text-foreground-secondary absolute inset-x-0 bottom-0 px-3 py-2 text-xs backdrop-blur-sm">
-                                        {galleryImageList.length === 1
-                                          ? 'Preview of the image used behind the artist channel.'
-                                          : `Automatic ${slideshowPreset.toLowerCase()} slideshow preview.`}
-                                      </div>
-                                    </div>
-                                    <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
-                                      {galleryImageList.map((image, index) => (
-                                        <div
-                                          key={`${image}-${index}`}
-                                          className="group relative"
-                                          draggable
-                                          onDragStart={() =>
-                                            setDraggedGalleryIndex(index)
-                                          }
-                                          onDragOver={(event) =>
-                                            event.preventDefault()
-                                          }
-                                          onDrop={() => {
-                                            if (draggedGalleryIndex !== null) {
-                                              reorderGalleryImage(
-                                                draggedGalleryIndex,
-                                                index,
-                                              );
-                                            }
-                                            setDraggedGalleryIndex(null);
-                                          }}
-                                          onDragEnd={() =>
-                                            setDraggedGalleryIndex(null)
-                                          }
-                                        >
-                                          <button
-                                            type="button"
-                                            className={`border-border h-16 w-full overflow-hidden rounded-md border ${index === galleryPreviewIndex ? 'border-primary ring-primary ring-2' : ''}`}
-                                            aria-label={`Preview slideshow image ${index + 1}`}
-                                            aria-pressed={
-                                              index === galleryPreviewIndex
-                                            }
-                                            onClick={() =>
-                                              setGalleryPreviewIndex(index)
-                                            }
-                                          >
-                                            <img
-                                              src={image}
-                                              alt=""
-                                              className="h-full w-full object-cover"
-                                            />
-                                          </button>
-                                          <Button
-                                            size="icon-sm"
-                                            variant="secondary"
-                                            className="absolute top-1 right-1 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-                                            aria-label={`Remove slideshow image ${index + 1}`}
-                                            title="Remove image"
-                                            onClick={() =>
-                                              removeGalleryImage(index)
-                                            }
-                                          >
-                                            <Trash2Icon size={14} aria-hidden />
-                                          </Button>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <p className="text-foreground-secondary text-xs">
-                                    Upload images to build the slideshow behind
-                                    your channel.
-                                  </p>
-                                )}
-                                <Select
-                                  label="Gallery style"
-                                  value={galleryMode}
-                                  onValueChange={(value) => {
-                                    setGalleryMode(value as ChannelGalleryMode);
-                                    setDirty(true);
-                                  }}
-                                  options={GALLERY_MODES.map((mode) => ({
-                                    id: mode.id,
-                                    label: mode.label,
-                                  }))}
-                                />
-                                <p className="text-foreground-secondary text-xs">
-                                  Video backdrops are managed in Header → Video
-                                  loop. Uploaded images use your artist media
-                                  storage and can also be reused in your public
-                                  gallery.
-                                </p>
-                                {galleryImageList.length === 1 ? (
-                                  <div className="border-border flex flex-col gap-2 rounded-lg border p-3">
-                                    <Eyebrow>Single image effect</Eyebrow>
-                                    <p className="text-foreground-secondary text-xs">
-                                      Try an effect designed for one persistent
-                                      artist backdrop.
-                                    </p>
-                                    <div className="grid gap-2 sm:grid-cols-2">
-                                      {GALLERY_MODES.filter(
-                                        (mode) =>
-                                          mode.id !== 'STATIC_SLIDESHOW',
-                                      ).map((mode) => {
-                                        const active = galleryMode === mode.id;
-                                        return (
-                                          <button
-                                            key={mode.id}
-                                            type="button"
-                                            aria-pressed={active}
-                                            onClick={() => {
-                                              setGalleryMode(mode.id);
-                                              setDirty(true);
-                                            }}
-                                            className={`border-border rounded-md border px-3 py-2 text-left text-xs font-semibold ${active ? 'border-primary bg-primary/10' : 'hover:border-primary/50'}`}
-                                          >
-                                            {mode.label}
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-                                ) : null}
-                                {galleryImageList.length > 1 ? (
-                                  <div className="flex flex-col gap-4">
-                                    <Select
-                                      label="Transition"
-                                      value={slideshowPreset}
-                                      onValueChange={(value) => {
-                                        setSlideshowPreset(value);
-                                        setDirty(true);
-                                      }}
-                                      options={SLIDESHOW_PRESETS.map(
-                                        ([id, label]) => ({ id, label }),
-                                      )}
-                                    />
-                                    <Slider
-                                      label={`Interval: ${slideshowInterval}s`}
-                                      min={5}
-                                      max={30}
-                                      step={1}
-                                      value={slideshowInterval}
-                                      onValueChange={(value) => {
-                                        setSlideshowInterval(value);
-                                        setDirty(true);
-                                      }}
-                                    />
-                                    <Slider
-                                      label={`Transition speed: ${slideshowTransition}ms`}
-                                      min={300}
-                                      max={1500}
-                                      step={100}
-                                      value={slideshowTransition}
-                                      onValueChange={(value) => {
-                                        setSlideshowTransition(value);
-                                        setDirty(true);
-                                      }}
-                                    />
-                                    <label className="flex items-center gap-2 text-sm">
-                                      <input
-                                        type="checkbox"
-                                        checked={slideshowAutoplay}
-                                        onChange={(event) => {
-                                          setSlideshowAutoplay(
-                                            event.target.checked,
-                                          );
-                                          setDirty(true);
-                                        }}
-                                      />
-                                      Automatically advance slides
-                                    </label>
-                                  </div>
-                                ) : null}
-                              </section>
-                            ),
-                          },
-                        ].filter((item) => {
-                          if (
-                            item.id === 'visualizer' ||
-                            item.id === 'slideshow'
-                          ) {
-                            return false;
-                          }
-                          return !(
-                            item.id === 'color-scheme' &&
-                            (visual.headerStyle === 'GRADIENT' ||
-                              slideshowHeaderSelected)
-                          );
-                        })}
-                      />
-                    </div>
-                  </>
-                ),
-              },
-            ]}
-          />
-        </div>
-        <div id="channel-designer-section-now-playing" className="order-3">
-          <ChannelControlsWidget
-            openId={openSectionId}
-            onOpenChange={handleOpenSectionChange}
-            sections={[
-              {
-                id: 'now-playing',
-                title: 'Now playing overlay',
-                description:
-                  'How the title and artist are presented over whatever this channel is playing — live or an archive track.',
-                children: (
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-foreground-secondary text-xs">
-                        Choose a layout, then fine-tune its scale and position.
-                      </p>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setOverlayConfigOpen(true)}
-                      >
-                        <SettingsIcon size={14} aria-hidden />
-                        Configure text
-                      </Button>
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {NOW_PLAYING_OVERLAY_PRESETS.map((preset) => {
-                        const active =
-                          resolveNowPlayingOverlayPreset(
-                            visual.nowPlayingOverlayStyle,
-                          ) === preset.id;
-                        return (
-                          <button
-                            key={preset.id}
-                            type="button"
-                            aria-pressed={active}
-                            onClick={() =>
-                              applyLocal({ nowPlayingOverlayStyle: preset.id })
-                            }
-                            className={`flex flex-col gap-2 rounded-lg border p-2 text-left transition-colors ${
-                              active
-                                ? 'border-primary bg-primary/10 ring-primary ring-1'
-                                : 'border-border bg-background hover:bg-background-secondary'
-                            }`}
-                          >
-                            <div
-                              className="relative flex aspect-video items-end overflow-hidden rounded-md bg-cover bg-center p-2"
-                              style={{
-                                backgroundColor: '#0B1220',
-                                backgroundImage: avatarUrl
-                                  ? `url(${avatarUrl})`
-                                  : undefined,
-                              }}
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
-                              <div className="relative w-full">
-                                <NowPlayingOverlay
-                                  presetId={preset.id}
-                                  title="Sample Track"
-                                  artist={displayName}
-                                  artworkUrl={avatarUrl}
-                                  compact
-                                  settings={overlaySettings}
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-1.5 text-sm font-semibold">
-                                {preset.name}
-                                {active && (
-                                  <CheckIcon
-                                    size={14}
-                                    className="text-primary"
-                                    aria-hidden
-                                  />
-                                )}
-                              </div>
-                              <p className="text-foreground-secondary text-xs">
-                                {preset.description}
-                              </p>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ),
-              },
-            ]}
-          />
-        </div>
-        <div id="channel-designer-section-links" className="order-4">
-          <ChannelControlsWidget
-            openId={openSectionId}
-            onOpenChange={handleOpenSectionChange}
-            sections={[
-              {
-                id: 'links',
-                title: 'Links',
-                description:
-                  'Outbound social / streaming links for the channel page.',
-                children: channelLinksSection,
-              },
-            ]}
-          />
-        </div>
-        <div id="channel-designer-section-text-overlay" className="order-5">
-          <ChannelControlsWidget
-            openId={openSectionId}
-            onOpenChange={handleOpenSectionChange}
-            sections={[
-              {
-                id: 'text-overlay',
-                title: 'Text overlay',
-                description: 'A stylized headline shown on the channel page.',
-                children: channelTextOverlaySection,
-              },
-            ]}
-          />
-        </div>
-      </div>
-    );
+    const layoutOnlyHint = (id: ChannelLookElementId) => {
+      const meta = CHANNEL_LOOK_ELEMENTS.find((element) => element.id === id);
+      return (
+        <p className="text-foreground-secondary text-sm">
+          {meta?.hint}. Hide this block with the eye button — visitors will not
+          see it on your channel.
+        </p>
+      );
+    };
 
+    const selectLookElement = (id: ChannelLookElementId) => {
+      setSelectedLookId(id);
+      if (id === 'header') {
+        setHighlightSection('header');
+      } else if (id === 'player') {
+        setHighlightSection('visualizer');
+      } else {
+        setHighlightSection(null);
+      }
+      window.setTimeout(() => {
+        setHighlightSection(null);
+      }, 1600);
+    };
+
+    const toggleSelectedLook = (id: ChannelLookElementId) => {
+      const meta = CHANNEL_LOOK_ELEMENTS.find((element) => element.id === id);
+      if (meta?.layoutType) {
+        toggleLayoutType(meta.layoutType);
+      }
+    };
+
+    const lookEditorItems = [
+      {
+        id: 'header' as const,
+        content: (
+          <div id="channel-designer-section-header">{headerControls}</div>
+        ),
+      },
+      {
+        id: 'player' as const,
+        disabled: !layoutVisible('hero'),
+        content: (
+          <div id="channel-designer-section-player">
+            {playerDesignTabsContent}
+          </div>
+        ),
+      },
+      {
+        id: 'background' as const,
+        content: backgroundControls,
+      },
+      {
+        id: 'actions' as const,
+        disabled: !layoutVisible('actions'),
+        content: layoutOnlyHint('actions'),
+      },
+      {
+        id: 'archive' as const,
+        disabled: !layoutVisible('archive'),
+        content: layoutOnlyHint('archive'),
+      },
+      {
+        id: 'about' as const,
+        disabled: !layoutVisible('about'),
+        content: layoutOnlyHint('about'),
+      },
+      {
+        id: 'links' as const,
+        disabled: !layoutVisible('links'),
+        content: (
+          <div id="channel-designer-section-links">{channelLinksSection}</div>
+        ),
+      },
+      {
+        id: 'subscribe' as const,
+        disabled: !layoutVisible('subscribe'),
+        content: layoutOnlyHint('subscribe'),
+      },
+      {
+        id: 'stats' as const,
+        disabled: !layoutVisible('stats'),
+        content: layoutOnlyHint('stats'),
+      },
+      {
+        id: 'events' as const,
+        disabled: !layoutVisible('events'),
+        content: layoutOnlyHint('events'),
+      },
+    ];
+
+    const controls = (
+      <ChannelElementEditor
+        selectedId={selectedLookId}
+        onSelect={selectLookElement}
+        onToggleDisabled={toggleSelectedLook}
+        items={lookEditorItems}
+        className={`max-h-[min(40rem,70vh)] ${
+          highlightSection ? 'ring-primary ring-2' : ''
+        }`}
+      />
+    );
     if (lookOnly) {
       if (lookOpenSection) {
         const activeSection = LOOK_SECTION_CONTENT[lookOpenSection];
@@ -2511,7 +1945,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
           </FadeSwitch>
         );
       }
-      return <div className="flex flex-col gap-3">{controls}</div>;
+      return controls;
     }
 
     return (
@@ -2585,10 +2019,10 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             </div>
           )}
 
-          <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,23rem)]">
+          <div className="flex min-h-0 flex-col gap-4 xl:flex-row xl:items-start">
             <main
               aria-label="Channel page preview"
-              className="border-border bg-background sticky top-4 z-10 max-h-[calc(100vh-2rem)] min-w-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-lg"
+              className="border-border bg-background min-w-0 flex-1 overflow-x-hidden overflow-y-auto rounded-xl border shadow-lg"
             >
               <div className="border-border bg-background-secondary/40 flex items-center justify-between gap-1.5 border-b px-4 py-2.5">
                 <div className="flex items-center gap-1.5">
@@ -2644,18 +2078,20 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
                 editable
                 identitySelected={highlightSection === 'header'}
                 backgroundSelected={highlightSection === 'visualizer'}
-                onEditIdentity={() =>
+                onEditIdentity={() => {
+                  selectLookElement('header');
                   focusPreviewSection(
                     'header',
                     'channel-designer-section-header',
-                  )
-                }
-                onEditBackground={() =>
+                  );
+                }}
+                onEditBackground={() => {
+                  selectLookElement('player');
                   focusPreviewSection(
                     'visualizer',
                     'channel-designer-section-player',
-                  )
-                }
+                  );
+                }}
                 badge={
                   <span
                     className="rounded px-2 py-1 text-[10px] font-bold tracking-wide uppercase"
@@ -2725,7 +2161,10 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
               </div>
             </main>
 
-            <aside aria-label="Channel appearance controls" className="min-w-0">
+            <aside
+              aria-label="Channel appearance controls"
+              className="min-w-0 xl:sticky xl:top-4 xl:w-[24rem] xl:shrink-0"
+            >
               {controls}
             </aside>
           </div>
@@ -2836,8 +2275,15 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
                           />
                         </span>
                         <span className="min-w-0">
-                          <span className="block truncate text-sm font-semibold">
-                            {preset.replace(/_/g, ' ')}
+                          <span className="flex flex-wrap items-center gap-1.5">
+                            <span className="truncate text-sm font-semibold">
+                              {preset.replace(/_/g, ' ')}
+                            </span>
+                            {meta.audioReactive ? (
+                              <Badge variant="pill" color="blue">
+                                Audio reactive
+                              </Badge>
+                            ) : null}
                           </span>
                           <span className="text-foreground-secondary block truncate text-xs">
                             {meta.description}
@@ -2869,8 +2315,14 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
                     <div className="text-xs font-semibold tracking-wide uppercase">
                       Live preview
                     </div>
-                    <div className="mt-1 text-lg font-bold">
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-lg font-bold">
                       {visualizerPickerPreset.replace(/_/g, ' ')}
+                      {visualizerMetadata(visualizerPickerPreset)
+                        .audioReactive ? (
+                        <Badge variant="pill" color="blue">
+                          Audio reactive
+                        </Badge>
+                      ) : null}
                     </div>
                   </div>
                 </div>

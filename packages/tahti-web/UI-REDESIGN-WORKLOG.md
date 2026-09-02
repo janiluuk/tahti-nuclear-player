@@ -1,5 +1,9 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-02 — Audio-reactive labels on visualizer plugins
+
+**Completed:** Scanned every channel visualizer plugin’s `update(elapsed, level)` hook. All fifteen WebGL presets (`WATER_RIPPLE` through `COLOR_INSTANCES`) scale motion, size, or opacity from the audio envelope; `MINIMAL` does not (it is CSS-only). Recorded that as `audioReactive` on `VISUALIZER_METADATA` and show an **Audio reactive** pill on Settings → Add-ons → Visualizers and the Channel Designer picker. The audio-reactivity toggle now appears only for presets that actually use the envelope. Bumped `@tahti-player/tahti-web` to `0.0.23`.
+
 ## 2026-09-02 — Component-reuse audit: 39 unswept spots across 33 files
 
 **Found, not yet fixed.** A cross-reference pass over `src/views/**` and `src/components/**`
