@@ -6,6 +6,7 @@ import {
   LayoutGridIcon,
   LibraryIcon,
   ListMusicIcon,
+  PaletteIcon,
   RadioIcon,
   RadioTowerIcon,
   Settings2Icon,
@@ -41,9 +42,14 @@ const PRIMARY = [
   },
 ] as const;
 
-const SUBMENUS = {
+export const SUBMENUS = {
   '/studio': [
     { to: '/studio', label: 'Overview', icon: <LayoutGridIcon size={16} /> },
+    {
+      to: '/studio/branding',
+      label: 'Branding',
+      icon: <PaletteIcon size={16} />,
+    },
     { to: '/studio/stats', label: 'Stats', icon: <TrendingUpIcon size={16} /> },
     {
       to: '/studio/governance',
@@ -53,11 +59,6 @@ const SUBMENUS = {
     {
       to: '/studio/updates',
       label: 'Posts',
-      icon: <TrendingUpIcon size={16} />,
-    },
-    {
-      to: '/studio/distribution',
-      label: 'Distribution',
       icon: <TrendingUpIcon size={16} />,
     },
     {
@@ -132,16 +133,17 @@ export const STUDIO_NAV_TOUR_STEPS: TourStep[] = PRIMARY.map(
 const SECTION_PREFIXES: Record<string, readonly string[]> = {
   '/studio': [
     '/studio',
+    '/studio/branding',
     '/studio/stats',
     '/studio/governance',
     '/studio/updates',
-    '/studio/distribution',
     '/studio/revenue',
   ],
   '/library': [
     '/library',
-    '/studio/archive',
+    '/studio/sounds',
     '/studio/releases',
+    '/studio/distribution',
     '/library/collections',
     '/studio/collections',
     '/library/recordings',
@@ -194,14 +196,12 @@ const isSubmenuActive = (current: string | undefined, to: string) => {
       : to === '/library' || to === '/studio'
         ? pathname === to
         : pathname === to || pathname?.startsWith(`${to}/`) === true) ||
-    (to === '/studio/releases' && pathname === '/library/releases') ||
-    (to === '/library/sounds' && pathname?.startsWith('/studio/archive')) ||
+    (to === '/studio/releases' && pathname === '/studio/distribution') ||
+    (to === '/library/sounds' && pathname?.startsWith('/studio/sounds')) ||
     (to === '/library/collections' &&
       (pathname === '/studio/collections' ||
         pathname?.startsWith('/studio/collections/') === true ||
-        pathname?.startsWith('/studio/playlists/') === true)) ||
-    (to === '/studio/recordings' && pathname === '/library/recordings') ||
-    (to === '/library/history' && pathname === '/library/history')
+        pathname?.startsWith('/studio/playlists/') === true))
   );
 };
 

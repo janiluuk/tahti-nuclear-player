@@ -1,7 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 import {
   ActivityIcon,
-  AlertTriangleIcon,
   BanknoteIcon,
   FileTextIcon,
   FlagIcon,
@@ -26,7 +25,7 @@ import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
 import { SectionSidebar } from './SectionSidebar';
 
-const PRIMARY = [
+export const PRIMARY = [
   {
     to: '/admin',
     label: 'Dashboard',
@@ -142,12 +141,6 @@ const PRIMARY = [
     description: 'Annual general meeting scheduling and records.',
   },
   {
-    to: '/admin/missed-shows',
-    label: 'Missed shows',
-    icon: <AlertTriangleIcon size={16} aria-hidden />,
-    description: 'Review scheduled shows that passed without a broadcast.',
-  },
-  {
     to: '/admin/disco-widgets',
     label: 'Disco widgets',
     icon: <SettingsIcon size={16} aria-hidden />,
@@ -187,7 +180,7 @@ const PRIMARY = [
   },
 ] as const;
 
-const ADMIN_SECTIONS = [
+export const ADMIN_SECTIONS = [
   {
     id: 'overview',
     label: 'Overview',

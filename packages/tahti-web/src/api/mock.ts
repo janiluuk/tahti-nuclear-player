@@ -1,6 +1,13 @@
 import {
+  getMockChannelColorScheme,
+  getMockChannelLinks,
+  getMockHeaderStyle,
   getMockNowPlayingOverlaySettingsJson,
   getMockNowPlayingOverlayStyle,
+  getMockPlayerOverlay,
+  getMockTextOverlay,
+  getMockVideoBackgroundUrl,
+  getMockVisualPreset,
 } from './channel-design';
 import { getMockFreeSubscriptionsEnabled } from './mock-profile-preferences';
 import type {
@@ -432,32 +439,64 @@ function stationContent(slug: string): StationContent {
   );
 }
 
+/** Curated demo artists keep their own fixed look — only a slug that isn't
+ * one of them (i.e. the signed-in mock user's own channel) reflects
+ * Channel Designer edits, so editing your own header/colors doesn't also
+ * repaint every other artist's demo channel. */
+const isCuratedStation = (key: string) =>
+  Object.prototype.hasOwnProperty.call(STATION_CONTENT, key);
+
 export function mockChannel(slug: string): PublicChannel {
   const isRadio = slug === TAHTI_RADIO_SLUG;
-  const content = stationContent(isRadio ? 'northern-lights' : slug);
+  const contentKey = isRadio ? 'northern-lights' : slug;
+  const content = stationContent(contentKey);
   const live = LIVE_SLUGS.has(slug);
+  const usesOwnDesign = !isRadio && !isCuratedStation(contentKey);
+  const ownColorScheme = getMockChannelColorScheme();
   return {
     slug,
     state: live ? 'LIVE' : 'OFFLINE',
     hlsUrl: live ? DEMO_HLS : null,
     chatEnabled: true,
-    visualPreset: isRadio ? 'REACTIVE_GRID' : 'AURORA',
-    headerStyle: 'GRADIENT',
-    videoBackgroundUrl: null,
-    colorSchemeJson: JSON.stringify({
-      accent: content.colorAccent,
-      highlight: content.colorHighlight,
-      background: '#0B1220',
-      foreground: '#F8FAFC',
-      muted: '#64748B',
-    }),
-    colorScheme: {
-      accent: content.colorAccent,
-      highlight: content.colorHighlight,
-      background: '#0B1220',
-      foreground: '#F8FAFC',
-      muted: '#64748B',
-    },
+    visualPreset: isRadio
+      ? 'REACTIVE_GRID'
+      : usesOwnDesign
+        ? getMockVisualPreset()
+        : 'AURORA',
+    headerStyle: usesOwnDesign ? getMockHeaderStyle() : 'GRADIENT',
+    videoBackgroundUrl: usesOwnDesign ? getMockVideoBackgroundUrl() : null,
+    colorSchemeJson: JSON.stringify(
+      usesOwnDesign
+        ? {
+            accent: ownColorScheme.accent,
+            highlight: ownColorScheme.highlight,
+            background: ownColorScheme.bg,
+            foreground: ownColorScheme.text,
+            muted: ownColorScheme.muted,
+          }
+        : {
+            accent: content.colorAccent,
+            highlight: content.colorHighlight,
+            background: '#0B1220',
+            foreground: '#F8FAFC',
+            muted: '#64748B',
+          },
+    ),
+    colorScheme: usesOwnDesign
+      ? {
+          accent: ownColorScheme.accent,
+          highlight: ownColorScheme.highlight,
+          background: ownColorScheme.bg,
+          foreground: ownColorScheme.text,
+          muted: ownColorScheme.muted,
+        }
+      : {
+          accent: content.colorAccent,
+          highlight: content.colorHighlight,
+          background: '#0B1220',
+          foreground: '#F8FAFC',
+          muted: '#64748B',
+        },
     // The rest of this mock is a per-slug fabrication, disconnected from
     // channel-design.ts's own mock state — nowPlayingOverlayStyle is the one
     // field wired to the artist's actual saved Channel Designer pick, so the
@@ -465,6 +504,13 @@ export function mockChannel(slug: string): PublicChannel {
     // other (pre-existing, unrelated) hardcoded field here.
     nowPlayingOverlayStyle: getMockNowPlayingOverlayStyle(),
     nowPlayingOverlaySettingsJson: getMockNowPlayingOverlaySettingsJson(),
+    channelLinks: getMockChannelLinks(),
+    textOverlayMode: getMockTextOverlay().mode,
+    textOverlayText: getMockTextOverlay().text,
+    textOverlayAlign: getMockTextOverlay().align,
+    playerOverlayMode: getMockPlayerOverlay().mode,
+    playerOverlayText: getMockPlayerOverlay().text,
+    playerOverlayAlign: getMockPlayerOverlay().align,
     user: {
       username: slug,
       displayName: isRadio ? 'Tahti Radio' : content.displayName,
@@ -479,6 +525,7 @@ export function mockChannel(slug: string): PublicChannel {
           artworkUrl: isRadio ? null : (content.trackArtwork?.[0] ?? null),
         }
       : null,
+    followerCount: content.followerCount,
   };
 }
 
@@ -812,7 +859,7 @@ export function mockProfile(username: string): PublicProfile {
       position: j + 1,
       title: a.title,
       durationSec: a.durationSec,
-      archiveItemId: a.id,
+      soundId: a.id,
       playUrl: a.audioUrl,
     })),
   }));
@@ -911,7 +958,7 @@ export function mockCollection(
       ...archive.slice(0, 2).map((a, i) => ({
         id: `col-item-${a.id}`,
         position: i,
-        archiveItem: {
+        sound: {
           id: a.id,
           title: a.title,
           durationSec: a.durationSec,
@@ -926,7 +973,7 @@ export function mockCollection(
       {
         id: 'col-item-hearthis-mock',
         position: 2,
-        archiveItem: {
+        sound: {
           id: 'archive-hearthis-mock',
           title: 'Deep Space Transmission (hearthis.at)',
           durationSec: 2280,

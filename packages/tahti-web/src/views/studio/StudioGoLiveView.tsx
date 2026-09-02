@@ -13,6 +13,7 @@ import {
   VideoIcon,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge, Button, Dialog } from '@tahti-player/ui';
 
@@ -608,8 +609,22 @@ export function StudioGoLiveView() {
                               size="icon-sm"
                               variant="text"
                               onClick={() => {
-                                void deleteRtmpTarget(target.id).then(() =>
-                                  reload(),
+                                if (
+                                  !window.confirm(
+                                    `Remove ${target.label || target.provider}? This deletes the saved stream key.`,
+                                  )
+                                ) {
+                                  return;
+                                }
+                                void deleteRtmpTarget(target.id).then(
+                                  (result) => {
+                                    if (!result.ok) {
+                                      toast.error(result.error);
+                                      return;
+                                    }
+                                    toast.success('Destination removed.');
+                                    reload();
+                                  },
                                 );
                               }}
                               aria-label={`Remove ${target.label || target.provider}`}

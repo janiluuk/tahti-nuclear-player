@@ -188,7 +188,7 @@ function filterQuery(filters: DiscoverFilters): string {
 }
 
 type WireTopListEntry = {
-  archiveItemId: string;
+  soundId: string;
   listens: number;
   title: string;
   artistName: string;
@@ -200,7 +200,7 @@ type WireTopListEntry = {
 
 function topListEntryToTrack(entry: WireTopListEntry): DiscoverTrackItem {
   return {
-    id: `archive:${entry.archiveItemId}`,
+    id: `archive:${entry.soundId}`,
     title: entry.title,
     artist: entry.artistName,
     channelSlug: entry.channelSlug,
@@ -248,8 +248,8 @@ export async function fetchTopTracks(
     const byId = new Map<string, WireTopListEntry>();
     for (const list of lists) {
       for (const entry of list) {
-        if (!byId.has(entry.archiveItemId)) {
-          byId.set(entry.archiveItemId, entry);
+        if (!byId.has(entry.soundId)) {
+          byId.set(entry.soundId, entry);
         }
       }
     }
@@ -266,7 +266,7 @@ export async function fetchTopTracks(
 }
 
 type WireGalleryItem = {
-  archiveItemId: string;
+  soundId: string;
   title: string;
   artistName: string;
   artistUsername: string | null;
@@ -278,7 +278,7 @@ type WireGalleryItem = {
 
 function galleryItemToTrack(item: WireGalleryItem): DiscoverTrackItem {
   return {
-    id: `archive:${item.archiveItemId}`,
+    id: `archive:${item.soundId}`,
     title: item.title,
     artist: item.artistName,
     artistUsername: item.artistUsername,
@@ -318,8 +318,8 @@ export async function fetchLatestTracks(
     const byId = new Map<string, WireGalleryItem>();
     for (const list of lists) {
       for (const item of list) {
-        if (!byId.has(item.archiveItemId)) {
-          byId.set(item.archiveItemId, item);
+        if (!byId.has(item.soundId)) {
+          byId.set(item.soundId, item);
         }
       }
     }

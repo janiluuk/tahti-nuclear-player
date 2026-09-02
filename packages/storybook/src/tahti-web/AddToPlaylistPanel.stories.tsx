@@ -10,7 +10,7 @@ const meta: Meta<typeof AddToPlaylistPanel> = {
   decorators: [withTahtiRouter('/library')],
   args: {
     isOpen: true,
-    archiveItemId: 'archive-item-1',
+    soundId: 'archive-item-1',
     trackTitle: 'Northern Lights — Aurora',
     onClose: () => {},
   },

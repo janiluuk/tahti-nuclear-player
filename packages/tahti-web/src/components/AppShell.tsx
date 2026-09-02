@@ -63,7 +63,7 @@ const ANONYMOUS_ALLOWED_ROUTES = [
   /^\/(login|join|apply|signup|verify|setup-password|forgot-password|reset-password)(?:\/|$)/,
   /^\/(about|privacy|terms|agpl|help|what-is-it|how-it-works|for-artists)(?:\/|$)/,
   /^\/(radio|discover)(?:\/|$)/,
-  /^\/(library\/favorites|favorites)(?:\/|$)/,
+  /^\/(listen\/favorites|library\/favorites|favorites)(?:\/|$)/,
   /^\/studio(?:\/|$)/,
   /^\/transparency(?:\/|$)/,
   /^\/governance\/history(?:\/|$)/,
@@ -111,9 +111,14 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
         </div>
         <div data-tour-id="nav-favorites">
           <SidebarNavigationItem
-            to="/library/favorites"
+            to="/listen/favorites"
             icon={<HeartIcon size={16} />}
             label="Favorites"
+            isSelected={
+              pathname.startsWith('/listen/favorites') ||
+              pathname.startsWith('/library/favorites') ||
+              pathname.startsWith('/favorites')
+            }
           />
         </div>
         <div data-tour-id="nav-studio" className="flex flex-col gap-2">
@@ -459,7 +464,7 @@ export function AppShell() {
                 </div>
                 <div data-tour-id="nav-favorites">
                   <SidebarNavigationItem
-                    to="/library/favorites"
+                    to="/listen/favorites"
                     icon={<HeartIcon size={16} />}
                     label="Favorites"
                   />

@@ -1,5 +1,5 @@
 /** Extract archive item UUID from playable / queue ids like `archive:<id>`. */
-export function archiveItemIdFromPlayableId(
+export function soundIdFromPlayableId(
   id: string | null | undefined,
 ): string | null {
   if (!id) {

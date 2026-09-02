@@ -8,7 +8,7 @@ export type StudioChannel = {
   customDomainVerified?: boolean;
 };
 
-export type StudioArchiveItem = {
+export type StudioSound = {
   id: string;
   title: string;
   status: string;
@@ -71,7 +71,7 @@ export type TracklistOverlaySettings = {
   preset: 'minimal' | 'cards' | 'ticker';
 };
 
-export type StudioArchivePatch = {
+export type StudioSoundPatch = {
   title?: string;
   description?: string;
   artistName?: string | null;
@@ -111,7 +111,7 @@ export type StudioReleaseTrack = {
   title: string;
   status?: string;
   durationSec?: number | null;
-  archiveItemId?: string | null;
+  soundId?: string | null;
   sourceKey?: string | null;
   fingerprintMatch?: FingerprintMatch | null;
 };
@@ -146,9 +146,9 @@ export type StudioReleaseList = {
 export type StudioCollectionItem = {
   id: string;
   position: number;
-  archiveItemId?: string | null;
+  soundId?: string | null;
   releaseId?: string | null;
-  archiveItem?: {
+  sound?: {
     id: string;
     title: string;
     durationSec?: number | null;
@@ -187,7 +187,7 @@ export type StudioCollection = {
 export type EditorProjectRow = {
   id: string;
   title: string;
-  archiveItemId?: string | null;
+  soundId?: string | null;
   updatedAt: string;
 };
 

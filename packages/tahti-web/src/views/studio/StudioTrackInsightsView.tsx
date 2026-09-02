@@ -18,10 +18,10 @@ export function StudioTrackInsightsView({
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6">
         <StudioNav current="/studio/stats" />
         <Link
-          to={kind === 'archive' ? '/studio/archive' : '/studio/releases'}
+          to={kind === 'sound' ? '/studio/sounds' : '/studio/releases'}
           className="text-foreground-secondary text-xs hover:underline"
         >
-          ← {kind === 'archive' ? 'Music' : 'Releases'}
+          ← {kind === 'sound' ? 'Music' : 'Releases'}
         </Link>
 
         <StudioPageHeader

@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { StudioArchiveView } from '@tahti-web/views/studio/StudioArchiveView';
+import { StudioSoundsView } from '@tahti-web/views/studio/StudioSoundsView';
 
 import { withMockAuth, withTahtiRouter } from './_lib/decorators';
 
-const meta: Meta<typeof StudioArchiveView> = {
-  title: 'Tahti/Studio/StudioArchiveView',
-  component: StudioArchiveView,
+const meta: Meta<typeof StudioSoundsView> = {
+  title: 'Tahti/Studio/StudioSoundsView',
+  component: StudioSoundsView,
   parameters: {
     layout: 'fullscreen',
     docs: {
@@ -15,7 +15,7 @@ const meta: Meta<typeof StudioArchiveView> = {
       },
     },
   },
-  decorators: [withTahtiRouter('/studio/archive'), withMockAuth()],
+  decorators: [withTahtiRouter('/studio/sounds'), withMockAuth()],
 };
 
 export default meta;

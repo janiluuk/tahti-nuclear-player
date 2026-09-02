@@ -26,7 +26,7 @@ describe('importHearthisTracks', () => {
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({
-            archiveItemId: 'archive-1',
+            soundId: 'archive-1',
             track: { coverUrl: track.coverUrl },
           }),
           { status: 201, headers: { 'Content-Type': 'application/json' } },
@@ -46,7 +46,7 @@ describe('importHearthisTracks', () => {
       imported: 1,
       failed: 0,
       artworkFailed: 0,
-      items: [{ trackId: 'hearthis-track', archiveItemId: 'archive-1' }],
+      items: [{ trackId: 'hearthis-track', soundId: 'archive-1' }],
     });
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,

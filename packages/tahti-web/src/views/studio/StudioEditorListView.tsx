@@ -7,23 +7,21 @@ import { Button, Dialog, Input, Select } from '@tahti-player/ui';
 import {
   createEditorProject,
   fetchEditorProjects,
-  fetchStudioArchive,
+  fetchStudioSounds,
 } from '../../api/studio';
-import type {
-  EditorProjectRow,
-  StudioArchiveItem,
-} from '../../api/studio-types';
+import type { EditorProjectRow, StudioSound } from '../../api/studio-types';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { contentTypeLabel } from '../../content/contentTypes';
 
 export function StudioEditorListView() {
   const [projects, setProjects] = useState<EditorProjectRow[]>([]);
-  const [archive, setArchive] = useState<StudioArchiveItem[]>([]);
+  const [archive, setArchive] = useState<StudioSound[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [title, setTitle] = useState('');
-  const [archiveItemId, setArchiveItemId] = useState('');
+  const [soundId, setArchiveItemId] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -56,18 +54,10 @@ export function StudioEditorListView() {
   }, [archive, libraryQuery, libraryType]);
 
   const formatLibraryType = (type: string) =>
-    type === 'ALL'
-      ? 'All'
-      : type === 'CLIP'
-        ? 'Clips'
-        : type
-            .toLowerCase()
-            .split(/[_-]/)
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
+    type === 'ALL' ? 'All' : contentTypeLabel(type);
 
   const reload = () => {
-    void Promise.all([fetchEditorProjects(), fetchStudioArchive()]).then(
+    void Promise.all([fetchEditorProjects(), fetchStudioSounds()]).then(
       ([p, a]) => {
         setProjects(p.data);
         // EMBED_ONLY items (hearthis.at, Mixcloud, Spotify, Bandcamp) have
@@ -97,7 +87,7 @@ export function StudioEditorListView() {
     setBusy(true);
     void createEditorProject({
       title: title || undefined,
-      archiveItemId: archiveItemId || undefined,
+      soundId: soundId || undefined,
     }).then((r) => {
       setBusy(false);
       if (!r.ok) {
@@ -163,7 +153,7 @@ export function StudioEditorListView() {
               />
               <Select
                 label="Seed from archive (optional)"
-                value={archiveItemId}
+                value={soundId}
                 onValueChange={setArchiveItemId}
                 placeholder="None"
                 options={archive.map((item) => ({
@@ -212,7 +202,7 @@ export function StudioEditorListView() {
                     <p className="font-medium">{p.title}</p>
                     <p className="text-foreground-secondary text-xs">
                       Updated {new Date(p.updatedAt).toLocaleString()}
-                      {p.archiveItemId ? ', linked archive' : ''}
+                      {p.soundId ? ', linked archive' : ''}
                     </p>
                   </div>
                   <Link to="/studio/editor/$id" params={{ id: p.id }}>
@@ -225,10 +215,10 @@ export function StudioEditorListView() {
                       <FolderOpenIcon size={16} aria-hidden />
                     </Button>
                   </Link>
-                  {p.archiveItemId && (
+                  {p.soundId && (
                     <Link
-                      to="/studio/archive/$id/editor"
-                      params={{ id: p.archiveItemId }}
+                      to="/studio/sounds/$id/editor"
+                      params={{ id: p.soundId }}
                     >
                       <Button
                         size="icon-sm"
@@ -325,7 +315,7 @@ export function StudioEditorListView() {
                         </p>
                       </div>
                       <Link
-                        to="/studio/archive/$id/editor"
+                        to="/studio/sounds/$id/editor"
                         params={{ id: item.id }}
                         onClick={() => setLibraryOpen(false)}
                       >

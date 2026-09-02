@@ -22,49 +22,42 @@ import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import {
+  collectionStyleLabel,
+  normalizeCollectionStyle,
+} from '../../content/collectionStyles';
 
-const CREATE_STYLES = [
-  { id: 'ALBUM', label: 'Album', icon: <Disc3Icon size={18} aria-hidden /> },
-  { id: 'EP', label: 'EP', icon: <DiscAlbumIcon size={18} aria-hidden /> },
-  {
-    id: 'PLAYLIST',
-    label: 'Playlist',
-    icon: <ListMusicIcon size={18} aria-hidden />,
-  },
-  {
-    id: 'DJ_SET_SERIES',
-    label: 'DJ set',
-    icon: <HeadphonesIcon size={18} aria-hidden />,
-  },
-  { id: 'PODCAST', label: 'Podcast', icon: <Mic2Icon size={18} aria-hidden /> },
-  {
-    id: 'SERIES',
-    label: 'Show series',
-    icon: <RadioTowerIcon size={18} aria-hidden />,
-  },
-] as const;
+/** Styles this quick-create dialog and the filter tabs offer — a subset of
+ * CollectionStyleId (no SINGLE; those come from linking a release, not from
+ * a blank "new collection" flow). Icons are kept local since the shared
+ * content/ modules stay JSX-free. */
+const CREATE_STYLE_ICONS = {
+  ALBUM: <Disc3Icon size={18} aria-hidden />,
+  EP: <DiscAlbumIcon size={18} aria-hidden />,
+  PLAYLIST: <ListMusicIcon size={18} aria-hidden />,
+  DJ_SET_SERIES: <HeadphonesIcon size={18} aria-hidden />,
+  PODCAST: <Mic2Icon size={18} aria-hidden />,
+  SERIES: <RadioTowerIcon size={18} aria-hidden />,
+} as const;
 
-type CreateStyle = (typeof CREATE_STYLES)[number]['id'];
+type CreateStyle = keyof typeof CREATE_STYLE_ICONS;
 type CollectionFilter = 'ALL' | CreateStyle;
 
+const CREATE_STYLES = (Object.keys(CREATE_STYLE_ICONS) as CreateStyle[]).map(
+  (id) => ({
+    id,
+    label: collectionStyleLabel(id),
+    icon: CREATE_STYLE_ICONS[id],
+  }),
+);
+
 const collectionStyle = (collection: StudioCollection): CreateStyle => {
-  const style = collection.style ?? collection.type;
-  if (style === 'EP') {
-    return 'EP';
-  }
-  if (style === 'DJ_SET_SERIES' || style === 'MIX_SERIES') {
-    return 'DJ_SET_SERIES';
-  }
-  if (style === 'PODCAST') {
-    return 'PODCAST';
-  }
-  if (style === 'SERIES') {
-    return 'SERIES';
-  }
-  if (!style || ['PLAYLIST', 'CUSTOM', 'LIST'].includes(style)) {
-    return 'PLAYLIST';
-  }
-  return 'ALBUM';
+  const normalized = normalizeCollectionStyle(
+    collection.style ?? collection.type,
+  );
+  // This view's tabs and quick-create dialog don't have a dedicated
+  // Single bucket — group singles under Album, same as before.
+  return normalized === 'SINGLE' ? 'ALBUM' : normalized;
 };
 
 export function StudioCollectionsView() {
@@ -295,7 +288,7 @@ export function StudioCollectionsView() {
                   key={option.id}
                   selected={filter === option.id}
                   icon={option.icon}
-                  label={`${option.label}s (${counts[option.id]})`}
+                  label={`${option.label.endsWith('s') ? option.label : `${option.label}s`} (${counts[option.id]})`}
                   onClick={() => setFilter(option.id)}
                 />
               ))}
@@ -350,7 +343,7 @@ export function StudioCollectionsView() {
                     </Link>
                     <p className="text-foreground-secondary text-xs">
                       /{c.slug}
-                      {`, ${collectionStyle(c).replaceAll('_', ' ')}`}
+                      {`, ${collectionStyleLabel(collectionStyle(c))}`}
                       {c.releaseDate ? `, releases ${c.releaseDate}` : ''}
                       {c.genres?.length ? `, ${c.genres.join(', ')}` : ''}
                       {typeof c.itemCount === 'number'

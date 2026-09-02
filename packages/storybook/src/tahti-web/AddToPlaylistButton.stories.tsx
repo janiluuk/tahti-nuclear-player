@@ -10,7 +10,7 @@ const meta: Meta<typeof AddToPlaylistButton> = {
   tags: ['autodocs'],
   decorators: [withTahtiRouter('/library'), withMockAuth()],
   args: {
-    archiveItemId: 'archive-item-1',
+    soundId: 'archive-item-1',
     trackTitle: 'Northern Lights — Aurora',
   },
 };

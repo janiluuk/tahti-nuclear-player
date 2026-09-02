@@ -21,11 +21,7 @@ const STAGE_LABELS: Record<MasteringStage, string> = {
   limiting: 'Finalizing…',
 };
 
-export function StudioMasteringView({
-  archiveItemId,
-}: {
-  archiveItemId: string;
-}) {
+export function StudioMasteringView({ soundId }: { soundId: string }) {
   const [source, setSource] = useState<EditorSource | null>(null);
   const [loading, setLoading] = useState(true);
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
@@ -37,7 +33,7 @@ export function StudioMasteringView({
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    void fetchEditorSource(archiveItemId).then(({ data }) => {
+    void fetchEditorSource(soundId).then(({ data }) => {
       if (!cancelled) {
         setSource(data);
         setLoading(false);
@@ -46,7 +42,7 @@ export function StudioMasteringView({
     return () => {
       cancelled = true;
     };
-  }, [archiveItemId]);
+  }, [soundId]);
 
   const handleReferenceFiles = (files: readonly File[]) => {
     setDecodeError(null);
@@ -94,21 +90,21 @@ export function StudioMasteringView({
 
         <div className="flex flex-wrap gap-3 text-xs">
           <Link
-            to="/studio/archive"
+            to="/studio/sounds"
             className="text-foreground-secondary hover:underline"
           >
             ← Music
           </Link>
           <Link
-            to="/studio/archive/$id"
-            params={{ id: archiveItemId }}
+            to="/studio/sounds/$id"
+            params={{ id: soundId }}
             className="text-foreground-secondary hover:underline"
           >
             Metadata
           </Link>
           <Link
-            to="/studio/archive/$id/editor"
-            params={{ id: archiveItemId }}
+            to="/studio/sounds/$id/editor"
+            params={{ id: soundId }}
             className="text-foreground-secondary hover:underline"
           >
             Audio editor

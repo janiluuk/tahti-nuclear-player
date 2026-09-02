@@ -281,12 +281,12 @@ export function AudioEngine() {
     if (!playable.id.startsWith('archive:')) {
       return;
     }
-    const archiveItemId = playable.id.slice('archive:'.length);
-    if (!archiveItemId || listenReportedRef.current.has(archiveItemId)) {
+    const soundId = playable.id.slice('archive:'.length);
+    if (!soundId || listenReportedRef.current.has(soundId)) {
       return;
     }
-    listenReportedRef.current.add(archiveItemId);
-    void postListenEvent(archiveItemId);
+    listenReportedRef.current.add(soundId);
+    void postListenEvent(soundId);
   }, [playable, currentTime]);
 
   return <audio ref={audioRef} preload="none" className="hidden" />;

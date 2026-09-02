@@ -39,18 +39,25 @@ export function ChannelControlsWidget({
           open={
             controlled ? section.id === openId : (section.defaultOpen ?? true)
           }
-          onToggle={
-            controlled
-              ? (event) => {
-                  const isOpen = (event.currentTarget as HTMLDetailsElement)
-                    .open;
-                  onOpenChange(isOpen ? section.id : null);
-                }
-              : undefined
-          }
           className="border-border bg-background-secondary/40 group rounded-xl border shadow-sm"
         >
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
+          <summary
+            onClick={
+              controlled
+                ? (event) => {
+                    // Fully own open/close via onOpenChange instead of the
+                    // native toggle: letting the browser toggle natively
+                    // fires a *second* toggle event on whichever other
+                    // <details> React closes as a side effect of this one
+                    // opening, and that section's own handler would then
+                    // call onOpenChange(null) and clobber the selection.
+                    event.preventDefault();
+                    onOpenChange(section.id === openId ? null : section.id);
+                  }
+                : undefined
+            }
+            className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden"
+          >
             <span className="min-w-0">
               <span className="font-display block text-base font-bold tracking-tight">
                 {section.title}

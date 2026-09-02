@@ -17,7 +17,7 @@ import { MermaidDiagram } from './MermaidDiagram';
 
 /** route (first alternative, no query/hash) -> case id, for turning a
  * `goesTo` target into a jump-to-card link when it lands on a documented
- * screen. Routes we don't have a card for (e.g. `/studio/archive/$id`)
+ * screen. Routes we don't have a card for (e.g. `/studio/sounds/$id`)
  * fall back to plain text. */
 const CASE_ID_BY_ROUTE: Record<string, string> = (() => {
   const map: Record<string, string> = {};

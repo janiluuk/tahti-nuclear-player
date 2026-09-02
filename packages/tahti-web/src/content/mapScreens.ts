@@ -638,22 +638,23 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         id: 'listener-library',
         title: 'Library / follows',
         viewName: 'Library',
-        caption: 'Favorites, history, follows after login.',
+        caption:
+          'Follows and owned sounds after login — Favorites/History live under Listen, not Library.',
         actions: [
           'Search every owned/followed sound',
           'Filter by visibility or processing state',
           'Play a track',
           'Edit metadata',
           'Open the audio editor',
-          'Switch Favorites / History / Collections / Recordings / Releases tabs',
+          'Switch Collections / Recordings / Releases tabs',
         ],
         goesTo: [
           {
             label: 'Open the audio editor for a track',
-            to: '/studio/archive/$id/editor',
+            to: '/studio/sounds/$id/editor',
           },
-          { label: 'Open Favorites', to: '/library/favorites' },
-          { label: 'Open History', to: '/library/history' },
+          { label: 'Open Favorites', to: '/listen/favorites' },
+          { label: 'Open History', to: '/listen/history' },
         ],
         old: {
           image: '/map/auth/listener-dashboard.png',
@@ -812,7 +813,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         ],
         goesTo: [
           { label: 'Go Live', to: '/studio/go-live' },
-          { label: 'Open Music/Archive', to: '/studio/archive' },
+          { label: 'Open Sounds', to: '/studio/sounds' },
           { label: 'Open Channel design', to: '/studio/channel' },
           {
             label: 'If no channel yet, land on setup',
@@ -904,7 +905,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           {
             label:
               "On success, navigates straight to the new track's detail page (as of this session — previously stayed on this form)",
-            to: '/studio/archive/$id',
+            to: '/studio/sounds/$id',
           },
           {
             label: 'Open Add-ons → Import for cloud imports instead',
@@ -924,8 +925,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
       },
       {
         id: 'artist-archive',
-        title: 'Music / archive',
-        viewName: 'Archive',
+        title: 'Music / Sounds',
+        viewName: 'Sounds',
         caption: 'Catalog list — play, meta, delete, open editor.',
         actions: [
           'Search / sort the track list',
@@ -934,10 +935,10 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'More menu: pin to Stage / add to 24/7 rotation / add to playlist / view insights / delete',
         ],
         goesTo: [
-          { label: "Open a track's detail page", to: '/studio/archive/$id' },
+          { label: "Open a track's detail page", to: '/studio/sounds/$id' },
           {
             label: 'Open the audio editor for a track',
-            to: '/studio/archive/$id/editor',
+            to: '/studio/sounds/$id/editor',
           },
         ],
         old: {
@@ -947,16 +948,16 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/archive.png',
-          route: '/studio/archive',
+          route: '/studio/sounds',
           caption: 'Nuclear archive',
         },
       },
       {
         id: 'artist-archive-item',
         title: 'Music / track detail',
-        viewName: 'Archive item',
+        viewName: 'Sound',
         caption:
-          'Single-track page reached from Upload or Archive — polls PENDING/PROCESSING until READY (added this session), then unlocks playback and editing; ERROR shows a banner instead.',
+          'Single-track page reached from Upload or Sounds — polls PENDING/PROCESSING until READY (added this session), then unlocks playback and editing; ERROR shows a banner instead.',
         actions: [
           'Play / pause the track (disabled until READY)',
           'Add to or remove from 24/7 rotation',
@@ -970,14 +971,14 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'Add the track to one or more playlists',
         ],
         goesTo: [
-          { label: 'Back to Music/archive list', to: '/studio/archive' },
+          { label: 'Back to Sounds list', to: '/studio/sounds' },
           {
             label: 'Open track insights',
             to: '/studio/insights/$kind/$id',
           },
           {
             label: 'Open the audio editor (disabled until READY)',
-            to: '/studio/archive/$id/editor',
+            to: '/studio/sounds/$id/editor',
           },
         ],
         old: {
@@ -987,7 +988,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           absent: true,
         },
         new: {
-          route: '/studio/archive/$id',
+          route: '/studio/sounds/$id',
           caption: 'Nuclear track detail — shot pending',
         },
       },
@@ -1086,7 +1087,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
             label: "Open a track's insights detail",
             to: '/studio/insights/$kind/$id',
           },
-          { label: "Open a track's catalog entry", to: '/studio/archive/$id' },
+          { label: "Open a track's catalog entry", to: '/studio/sounds/$id' },
           {
             label: 'Open Revenue for money-side metrics',
             to: '/studio/revenue',
@@ -1114,7 +1115,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'See its audience on the listener world map',
         ],
         goesTo: [
-          { label: 'Back to Music/Archive', to: '/studio/archive' },
+          { label: 'Back to Sounds', to: '/studio/sounds' },
           {
             label: 'Back to Releases (when the source is a release track)',
             to: '/studio/releases',
@@ -1127,7 +1128,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/stats-detail.png',
-          route: '/studio/insights/archive/:id',
+          route: '/studio/insights/sound/:id',
           caption:
             'You can compare a track’s plays and downloads over time and see its audience on the listener world map.',
         },
@@ -1146,8 +1147,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         ],
         goesTo: [
           {
-            label: 'Land in Music/Archive once an import completes',
-            to: '/studio/archive/$id',
+            label: 'Land in Sounds once an import completes',
+            to: '/studio/sounds/$id',
           },
           {
             label: 'Land in Collections when importing into a playlist',
@@ -1279,10 +1280,10 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'Save a draft or render a new version',
         ],
         goesTo: [
-          { label: 'Back to Music/Archive', to: '/studio/archive' },
+          { label: 'Back to Sounds', to: '/studio/sounds' },
           {
             label: "Open a specific track's standalone editor route",
-            to: '/studio/archive/$id/editor',
+            to: '/studio/sounds/$id/editor',
           },
         ],
         old: {
@@ -1403,7 +1404,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         goesTo: [
           { label: 'Open channel design', to: '/studio/channel' },
           { label: 'Open Go Live', to: '/studio/go-live' },
-          { label: 'Open the Sounds library', to: '/studio/archive' },
+          { label: 'Open the Sounds library', to: '/studio/sounds' },
         ],
         old: {
           absent: true,
@@ -1458,7 +1459,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'Review pending, approved, or rejected results',
         ],
         goesTo: [
-          { label: 'Browse Sounds', to: '/studio/archive' },
+          { label: 'Browse Sounds', to: '/studio/sounds' },
           {
             label: 'Return to Radio controls',
             to: '/studio/channel?tab=radio',

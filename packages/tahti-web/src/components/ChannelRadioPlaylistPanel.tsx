@@ -15,10 +15,10 @@ import {
 import {
   createStudioCollection,
   fetchEditorSource,
-  fetchStudioArchive,
   fetchStudioCollection,
   fetchStudioCollections,
   fetchStudioReleases,
+  fetchStudioSounds,
 } from '../api/studio';
 import {
   applyPlaylistToProgramme,
@@ -72,7 +72,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
     void Promise.all([
       fetchProgramme(),
       fetchStudioCollections(),
-      fetchStudioArchive(),
+      fetchStudioSounds(),
       fetchStudioReleases(),
     ]).then(
       ([programmeResult, collectionResult, archiveResult, releaseResult]) => {
@@ -141,9 +141,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
       id: `release-${release.id}`,
       label: `Release · ${release.title}`,
       items: (release.tracks ?? [])
-        .map((track) =>
-          libraryItems.find((item) => item.id === track.archiveItemId),
-        )
+        .map((track) => libraryItems.find((item) => item.id === track.soundId))
         .filter((item): item is ProgrammeItem => Boolean(item)),
     }));
     const playlistGroups = playlists.map((playlist) => ({
@@ -151,9 +149,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
       label: `Playlist · ${playlist.name}`,
       items: (playlist.items ?? [])
         .map((item) =>
-          libraryItems.find(
-            (libraryItem) => libraryItem.id === item.archiveItemId,
-          ),
+          libraryItems.find((libraryItem) => libraryItem.id === item.soundId),
         )
         .filter((item): item is ProgrammeItem => Boolean(item)),
     }));
@@ -199,10 +195,10 @@ export const ChannelRadioPlaylistPanel: FC = () => {
     }
     setBusy(true);
     const { data } = await fetchStudioCollection(selectedSlug);
-    const archiveItemIds = (data.items ?? [])
-      .map((item) => item.archiveItemId)
+    const soundIds = (data.items ?? [])
+      .map((item) => item.soundId)
       .filter((id): id is string => Boolean(id));
-    const result = await applyPlaylistToProgramme(archiveItemIds, {
+    const result = await applyPlaylistToProgramme(soundIds, {
       enable: fallbackEnabled,
       mode: fallbackMode,
       autoEnroll: fallbackAutoEnroll,
@@ -214,7 +210,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
       return;
     }
     applyProgramme(result.data);
-    toast.success(`Using “${data.name}” with ${archiveItemIds.length} tracks.`);
+    toast.success(`Using “${data.name}” with ${soundIds.length} tracks.`);
   };
 
   const saveRotation = async (
@@ -236,7 +232,7 @@ export const ChannelRadioPlaylistPanel: FC = () => {
       items: programme.items.map((item) => {
         const position = positions.get(item.id);
         return {
-          archiveItemId: item.id,
+          soundId: item.id,
           isFallback: position !== undefined,
           ...(position !== undefined ? { fallbackOrder: position } : {}),
         };

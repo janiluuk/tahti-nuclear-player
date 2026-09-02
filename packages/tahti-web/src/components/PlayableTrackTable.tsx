@@ -6,7 +6,7 @@ import type { Track } from '@tahti-player/model';
 import { Button, Dialog, TrackTable } from '@tahti-player/ui';
 
 import type { TahtiPlayable } from '../api/types';
-import { archiveItemIdFromPlayableId } from '../lib/archiveId';
+import { soundIdFromPlayableId } from '../lib/archiveId';
 import { playableToTrack } from '../lib/playableToTrack';
 import { trackTableLabels } from '../lib/trackTableLabels';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -132,7 +132,7 @@ export function PlayableTrackTable({
             },
             onOpenDetail: (track) => {
               const item = resolve(track);
-              const archiveId = archiveItemIdFromPlayableId(track.source.id);
+              const archiveId = soundIdFromPlayableId(track.source.id);
               if (item && archiveId) {
                 rememberTrackDetail(item);
                 void navigate({ to: '/t/$id', params: { id: archiveId } });
@@ -185,7 +185,7 @@ export function PlayableTrackTable({
             // page to open, so the icon is hidden for them rather than
             // rendering a dead link.
             canOpenDetail: (track) =>
-              Boolean(archiveItemIdFromPlayableId(track.source.id)),
+              Boolean(soundIdFromPlayableId(track.source.id)),
             ContextMenuWrapper: PlayableTrackContextMenu,
           }}
         />

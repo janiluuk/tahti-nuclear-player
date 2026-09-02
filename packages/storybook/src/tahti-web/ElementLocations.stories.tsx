@@ -69,7 +69,7 @@ const locations: ElementLocation[] = [
     pages: 'Admin → Overview, Admin → Streams',
   },
   {
-    element: 'StudioArchiveView',
+    element: 'StudioSoundsView',
     kind: 'View',
     pages: 'Studio → Music → Sounds, Clips, Files',
   },

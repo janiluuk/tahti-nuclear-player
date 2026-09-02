@@ -18,6 +18,7 @@ import {
   useImperativeHandle,
   useMemo,
   useState,
+  type ReactNode,
 } from 'react';
 import { toast } from 'sonner';
 
@@ -71,14 +72,45 @@ import {
   type NowPlayingOverlaySettings,
 } from '../content/nowPlayingOverlayPresets';
 import { visualizerMetadata } from '../plugins/visualizers';
+import { ChannelBackdropCard } from './ChannelBackdropCard';
 import { ChannelControlsWidget } from './ChannelControlsWidget';
+import { ChannelLinksEditor } from './ChannelLinksEditor';
+import { ChannelTextOverlayEditor } from './ChannelTextOverlayEditor';
+import { ChannelTextOverlayView } from './ChannelTextOverlayView';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { NowPlayingOverlay } from './NowPlayingOverlay';
 import { PageLoading } from './PageStates';
 import { Eyebrow } from './tahti/Eyebrow';
 
 type TabId = 'visualizer' | 'color-scheme' | 'header';
-type PlayerDesignTab = 'gradient' | 'video-image' | 'visualizer';
+type PlayerDesignTab = 'gradient' | 'video-image' | 'visualizer' | 'overlay';
+type LookSection = 'player-design' | 'visual-style' | 'links' | 'text-overlay';
+
+/** Crossfades in new content whenever `activeKey` changes — used so
+ * selecting a different canvas element (player, backdrop, links, overlay)
+ * fades in only that element's own settings instead of jump-cutting. */
+function FadeSwitch({
+  activeKey,
+  children,
+}: {
+  activeKey: string;
+  children: ReactNode;
+}) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    setVisible(false);
+    const frame = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(frame);
+  }, [activeKey]);
+  return (
+    <div
+      key={activeKey}
+      className={`transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+    >
+      {children}
+    </div>
+  );
+}
 
 const HEADER_MEDIA_TYPES = [
   'video/mp4',
@@ -177,7 +209,7 @@ type Props = {
   /** Remount / reload trigger when an external preset applies a look. */
   reloadToken?: number;
   /** Which look section should open when embedded in the full channel editor. */
-  lookOpenSection?: 'player-design' | 'visual-style' | null;
+  lookOpenSection?: LookSection | null;
   /** Reports look-panel dirty state so a `lookOnly` host can drive its own
    * save button instead of rendering this component's (see `ChannelDesignerHandle`). */
   onDirtyChange?: (dirty: boolean) => void;
@@ -244,7 +276,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       'header' | 'visualizer' | null
     >(null);
     const [openSectionId, setOpenSectionId] = useState<
-      'player-design' | 'visual-style' | 'now-playing' | null
+      LookSection | 'now-playing' | null
     >(lookOpenSection ?? 'visual-style');
 
     const handleOpenSectionChange = (id: string | null) => {
@@ -252,7 +284,9 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         id === null ||
         id === 'player-design' ||
         id === 'visual-style' ||
-        id === 'now-playing'
+        id === 'now-playing' ||
+        id === 'links' ||
+        id === 'text-overlay'
       ) {
         setOpenSectionId(id);
       }
@@ -562,6 +596,13 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         backgroundColorSchemeJson: visual.useBackgroundGradient
           ? JSON.stringify(fillColorScheme(backgroundScheme))
           : null,
+        channelLinks: visual.channelLinks ?? [],
+        textOverlayMode: visual.textOverlayMode ?? 'NONE',
+        textOverlayText: visual.textOverlayText ?? '',
+        textOverlayAlign: visual.textOverlayAlign ?? 'CENTER',
+        playerOverlayMode: visual.playerOverlayMode ?? 'NONE',
+        playerOverlayText: visual.playerOverlayText ?? '',
+        playerOverlayAlign: visual.playerOverlayAlign ?? 'CENTER',
       });
       if (!result.ok) {
         setBusy(false);
@@ -629,8 +670,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     const headerBackdropIsImage = pendingVideoFile
       ? pendingVideoFile.type.startsWith('image/')
       : isHeaderImageUrl(previewVideoUrl);
-    const showGalleryBackdrop =
-      galleryImageList.length > 0 && galleryMode !== 'NONE' && !showHeaderVideo;
 
     const availableVisualizers = VISUAL_PRESETS.filter(
       (preset) => preset !== 'MINIMAL',
@@ -1274,6 +1313,159 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       </section>
     );
 
+    const channelLinksSection = (
+      <ChannelLinksEditor
+        links={visual.channelLinks ?? []}
+        onChange={(channelLinks) => applyLocal({ channelLinks })}
+      />
+    );
+
+    const channelTextOverlaySection = (
+      <ChannelTextOverlayEditor
+        value={{
+          mode: visual.textOverlayMode ?? 'NONE',
+          text: visual.textOverlayText ?? '',
+          align: visual.textOverlayAlign ?? 'CENTER',
+        }}
+        onChange={(next) =>
+          applyLocal({
+            textOverlayMode: next.mode,
+            textOverlayText: next.text,
+            textOverlayAlign: next.align,
+          })
+        }
+      />
+    );
+
+    const playerOverlaySection = (
+      <div className="flex flex-col gap-3">
+        <ChannelTextOverlayEditor
+          value={{
+            mode: visual.playerOverlayMode ?? 'NONE',
+            text: visual.playerOverlayText ?? '',
+            align: visual.playerOverlayAlign ?? 'CENTER',
+          }}
+          onChange={(next) =>
+            applyLocal({
+              playerOverlayMode: next.mode,
+              playerOverlayText: next.text,
+              playerOverlayAlign: next.align,
+            })
+          }
+        />
+        <div
+          className="relative flex min-h-24 items-center overflow-hidden rounded-lg border border-white/10 p-4"
+          style={{ background: previewStyle.bg }}
+        >
+          <ChannelTextOverlayView
+            mode={visual.playerOverlayMode}
+            text={visual.playerOverlayText}
+            align={visual.playerOverlayAlign}
+            accent={previewStyle.accent}
+            highlight={previewStyle.highlight}
+            size="sm"
+            className="w-full"
+          />
+          {!visual.playerOverlayText?.trim() && (
+            <p className="text-foreground-secondary text-xs">
+              Preview — enter text above to see it on the player stage.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+
+    const playerDesignTabsContent = (
+      <Tabs
+        listClassName="flex-wrap border-border border-b pb-3"
+        panelClassName="pt-2"
+        selectedIndex={
+          playerDesignTab === 'gradient'
+            ? 0
+            : playerDesignTab === 'video-image'
+              ? 1
+              : playerDesignTab === 'visualizer'
+                ? 2
+                : 3
+        }
+        onChange={(index) => {
+          const nextTab: PlayerDesignTab =
+            index === 0
+              ? 'gradient'
+              : index === 1
+                ? 'video-image'
+                : index === 2
+                  ? 'visualizer'
+                  : 'overlay';
+          setPlayerDesignTab(nextTab);
+        }}
+        items={[
+          {
+            id: 'gradient',
+            label: 'Gradient',
+            content: playerGradientControls,
+          },
+          {
+            id: 'video-image',
+            label: 'Video / image',
+            content: (
+              <div className="flex flex-col gap-3">
+                <p className="text-foreground-secondary text-xs">
+                  Use a looping video or still image behind the channel header.
+                </p>
+                <div className="relative">
+                  <FilePicker
+                    accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
+                    disabled={busy}
+                    selectedFiles={pendingVideoFile ? [pendingVideoFile] : []}
+                    labels={{
+                      title: 'Choose a video or image',
+                      description:
+                        'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
+                      browse: 'Browse files',
+                    }}
+                    onFiles={selectVideoFile}
+                  />
+                  <div className="absolute top-2 right-2">{videoUrlToggle}</div>
+                </div>
+                {videoUrlInput}
+              </div>
+            ),
+          },
+          visualizerItem,
+          {
+            id: 'overlay',
+            label: 'Overlay',
+            content: playerOverlaySection,
+          },
+        ]}
+      />
+    );
+
+    const LOOK_SECTION_CONTENT: Record<
+      LookSection,
+      { title: string; description?: string; children: ReactNode }
+    > = {
+      'player-design': {
+        title: 'Player design',
+        children: playerDesignTabsContent,
+      },
+      'visual-style': {
+        title: 'Backdrop design',
+        children: headerControls,
+      },
+      links: {
+        title: 'Links',
+        description: 'Outbound social / streaming links for the channel page.',
+        children: channelLinksSection,
+      },
+      'text-overlay': {
+        title: 'Text overlay',
+        description: 'A stylized headline shown on the channel page.',
+        children: channelTextOverlaySection,
+      },
+    };
+
     const saveButton = (
       <SaveButton
         disabled={!dirty || videoLoopNeedsUrl}
@@ -1317,68 +1509,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
               {
                 id: 'player-design',
                 title: 'Player design',
-                children: (
-                  <Tabs
-                    listClassName="flex-wrap border-border border-b pb-3"
-                    panelClassName="pt-2"
-                    selectedIndex={
-                      playerDesignTab === 'gradient'
-                        ? 0
-                        : playerDesignTab === 'video-image'
-                          ? 1
-                          : 2
-                    }
-                    onChange={(index) => {
-                      const nextTab: PlayerDesignTab =
-                        index === 0
-                          ? 'gradient'
-                          : index === 1
-                            ? 'video-image'
-                            : 'visualizer';
-                      setPlayerDesignTab(nextTab);
-                    }}
-                    items={[
-                      {
-                        id: 'gradient',
-                        label: 'Gradient',
-                        content: playerGradientControls,
-                      },
-                      {
-                        id: 'video-image',
-                        label: 'Video / image',
-                        content: (
-                          <div className="flex flex-col gap-3">
-                            <p className="text-foreground-secondary text-xs">
-                              Use a looping video or still image behind the
-                              channel header.
-                            </p>
-                            <div className="relative">
-                              <FilePicker
-                                accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-                                disabled={busy}
-                                selectedFiles={
-                                  pendingVideoFile ? [pendingVideoFile] : []
-                                }
-                                labels={{
-                                  title: 'Choose a video or image',
-                                  description:
-                                    'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
-                                  browse: 'Browse files',
-                                }}
-                                onFiles={selectVideoFile}
-                              />
-                              <div className="absolute top-2 right-2">
-                                {videoUrlToggle}
-                              </div>
-                            </div>
-                            {videoUrlInput}
-                          </div>
-                        ),
-                      },
-                      visualizerItem,
-                    ]}
-                  />
-                ),
+                children: playerDesignTabsContent,
               },
             ]}
           />
@@ -2152,10 +2283,57 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             ]}
           />
         </div>
+        <div id="channel-designer-section-links" className="order-4">
+          <ChannelControlsWidget
+            openId={openSectionId}
+            onOpenChange={handleOpenSectionChange}
+            sections={[
+              {
+                id: 'links',
+                title: 'Links',
+                description:
+                  'Outbound social / streaming links for the channel page.',
+                children: channelLinksSection,
+              },
+            ]}
+          />
+        </div>
+        <div id="channel-designer-section-text-overlay" className="order-5">
+          <ChannelControlsWidget
+            openId={openSectionId}
+            onOpenChange={handleOpenSectionChange}
+            sections={[
+              {
+                id: 'text-overlay',
+                title: 'Text overlay',
+                description: 'A stylized headline shown on the channel page.',
+                children: channelTextOverlaySection,
+              },
+            ]}
+          />
+        </div>
       </div>
     );
 
     if (lookOnly) {
+      if (lookOpenSection) {
+        const activeSection = LOOK_SECTION_CONTENT[lookOpenSection];
+        return (
+          <FadeSwitch activeKey={lookOpenSection}>
+            <ChannelControlsWidget
+              openId={lookOpenSection}
+              sections={[
+                {
+                  id: lookOpenSection,
+                  title: activeSection.title,
+                  description: activeSection.description,
+                  children: activeSection.children,
+                },
+              ]}
+            />
+          </FadeSwitch>
+        );
+      }
       return <div className="flex flex-col gap-3">{controls}</div>;
     }
 
@@ -2205,161 +2383,50 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
               </div>
               {openChannelLink}
             </div>
-            <div
-              role="button"
-              tabIndex={0}
-              aria-label="Edit backdrop design"
-              title="Edit backdrop design"
-              onClick={() =>
+            <ChannelBackdropCard
+              minHeightClassName="min-h-[24rem]"
+              displayName={displayName}
+              username={username}
+              channelSlug={channelSlug}
+              avatarUrl={avatarUrl}
+              bio={bio}
+              headerStyle={visual.headerStyle}
+              videoBackgroundUrl={previewVideoUrl}
+              showVideoOverride={showHeaderVideo}
+              isImageOverride={headerBackdropIsImage}
+              accent={previewStyle.accent}
+              highlight={previewStyle.highlight}
+              bg={previewStyle.bg}
+              fg={previewStyle.fg}
+              gradientOverride={previewStyle.gradient}
+              visualPreset={previewPreset}
+              colorScheme={scheme}
+              artworkUrl={avatarUrl}
+              galleryMode={galleryMode}
+              slideshowImages={galleryImageList}
+              mountVisualizer={hasLivePreview && visualizerEnabled}
+              editable
+              identitySelected={highlightSection === 'header'}
+              backgroundSelected={highlightSection === 'visualizer'}
+              onEditIdentity={() =>
                 focusPreviewSection('header', 'channel-designer-section-header')
               }
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  focusPreviewSection(
-                    'header',
-                    'channel-designer-section-header',
-                  );
-                }
-              }}
-              className="relative min-h-52 cursor-pointer overflow-hidden p-5 transition-shadow outline-none hover:ring-2 hover:ring-white/40 focus-visible:ring-2 focus-visible:ring-white/70 sm:p-7"
-              style={{
-                background: showHeaderVideo
-                  ? previewStyle.bg
-                  : previewStyle.gradient,
-                color: previewStyle.fg,
-              }}
-            >
-              {showHeaderVideo && headerBackdropIsImage && (
-                <img
-                  className="absolute inset-0 h-full w-full object-cover"
-                  src={previewVideoUrl || undefined}
-                  alt=""
-                />
-              )}
-              {showHeaderVideo && !headerBackdropIsImage && (
-                <video
-                  className="absolute inset-0 h-full w-full object-cover"
-                  src={previewVideoUrl || undefined}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  aria-hidden="true"
-                />
-              )}
-              {showGalleryBackdrop && (
-                <img
-                  src={galleryImageList[galleryPreviewIndex]}
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover opacity-45"
-                />
-              )}
-              <div className="absolute inset-0 bg-black/25" />
-              <div className="relative flex flex-wrap items-center gap-4">
-                <div
-                  className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 text-lg font-bold"
-                  style={{
-                    borderColor: previewStyle.accent,
-                    background: previewStyle.bg,
-                  }}
-                >
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt=""
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    displayName.slice(0, 1).toUpperCase()
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-display text-2xl font-extrabold tracking-tight">
-                    {displayName}
-                  </div>
-                  <div className="text-sm opacity-80">
-                    @{username}
-                    {channelSlug ? ` · /${channelSlug}` : ''}
-                  </div>
-                  {bio ? (
-                    <p className="mt-1 line-clamp-2 text-sm opacity-90">
-                      {bio}
-                    </p>
-                  ) : null}
-                </div>
+              onEditBackground={() =>
+                focusPreviewSection(
+                  'visualizer',
+                  'channel-designer-section-player',
+                )
+              }
+              badge={
                 <span
                   className="rounded px-2 py-1 text-[10px] font-bold tracking-wide uppercase"
                   style={{ background: previewStyle.accent, color: '#0B1220' }}
                 >
                   Artist channel
                 </span>
-              </div>
-              <nav
-                aria-label="Channel preview navigation"
-                className="relative mt-6 flex gap-5 border-t border-white/20 pt-3 text-xs font-semibold uppercase opacity-90"
-              >
-                <span
-                  className="border-b-2 pb-2"
-                  style={{ borderColor: previewStyle.accent }}
-                >
-                  Home
-                </span>
-                <span className="pb-2">Tracks</span>
-                <span className="pb-2">About</span>
-              </nav>
-            </div>
-
-            <div className="flex flex-col gap-5 p-4 sm:p-6">
-              <section
-                role="button"
-                tabIndex={0}
-                aria-label="Edit player design"
-                title="Edit player design"
-                onClick={() =>
-                  focusPreviewSection(
-                    'visualizer',
-                    'channel-designer-section-player',
-                  )
-                }
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    focusPreviewSection(
-                      'visualizer',
-                      'channel-designer-section-player',
-                    );
-                  }
-                }}
-                className="relative min-h-64 cursor-pointer overflow-hidden rounded-xl border border-white/10 transition-shadow outline-none hover:ring-2 hover:ring-white/40 focus-visible:ring-2 focus-visible:ring-white/70"
-                style={{
-                  background: visual.usePlayerGradient
-                    ? (playerScheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
-                    : previewStyle.bg,
-                  color: previewStyle.fg,
-                }}
-              >
-                {hasLivePreview && visualizerEnabled ? (
-                  <ChannelVisualizer
-                    className="absolute inset-0 size-full"
-                    preset={previewPreset}
-                    colorScheme={
-                      visual.usePlayerGradient ? playerScheme : scheme
-                    }
-                    visualSettingsJson={JSON.stringify(visualSettings)}
-                    artworkUrl={avatarUrl}
-                  />
-                ) : (
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background: visual.usePlayerGradient
-                        ? (playerScheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
-                        : previewStyle.bg,
-                    }}
-                  />
-                )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 pt-16">
+              }
+              bottomSlot={
+                <div className="bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 pt-16">
                   <div className="text-[10px] font-semibold tracking-wide text-white/70 uppercase">
                     Now playing
                   </div>
@@ -2370,15 +2437,10 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
                     A live preview of the artist stage
                   </div>
                 </div>
-                <Button
-                  size="icon"
-                  className="bg-primary text-primary-foreground absolute right-4 bottom-4 size-12 rounded-full"
-                  aria-label="Play channel preview"
-                  title="Play channel preview"
-                >
-                  <PlaySquareIcon size={20} aria-hidden />
-                </Button>
-              </section>
+              }
+            />
+
+            <div className="flex flex-col gap-5 p-4 sm:p-6">
               <section>
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-lg font-bold">Tracks</h3>

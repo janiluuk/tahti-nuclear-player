@@ -9,6 +9,7 @@ export const CHANNEL_PAGE_ITEM_TYPES = [
   'links',
   'textOverlay',
   'subscribe',
+  'stats',
 ] as const;
 
 export type ChannelPageItemType = (typeof CHANNEL_PAGE_ITEM_TYPES)[number];
@@ -59,6 +60,10 @@ export const CHANNEL_PAGE_ITEM_META: Record<
     label: 'Subscribe CTA',
     hint: 'Fan membership pitch',
   },
+  stats: {
+    label: 'Stats',
+    hint: 'Follower count',
+  },
   embed: {
     label: 'External embed',
     hint: 'Configured streaming player',
@@ -107,6 +112,7 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
       item('chat', false),
       item('links', false),
       item('textOverlay', false),
+      item('stats', false),
     ],
     look: {
       visualPreset: 'MINIMAL',
@@ -134,6 +140,7 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
       item('chat', false),
       item('textOverlay', false),
       item('links', false),
+      item('stats', false),
     ],
     look: {
       visualPreset: 'AURORA',
@@ -161,6 +168,7 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
       item('links', true),
       item('chat', false),
       item('textOverlay', false),
+      item('stats', true),
     ],
     look: {
       visualPreset: 'WAVEFORM_BARS',
@@ -188,6 +196,7 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
       item('links', false),
       item('chat', false),
       item('textOverlay', false),
+      item('stats', false),
     ],
     look: {
       visualPreset: 'WAVEFORM_BARS',
@@ -218,6 +227,7 @@ export function defaultChannelPageLayout(): ChannelPageItem[] {
     item('about', true),
     item('links', false),
     item('subscribe', true),
+    item('stats', false),
     // Chat is the Nuclear right rail — keep the layout slot hidden so it
     // never double-renders an in-page panel alongside the rail.
     item('chat', false),

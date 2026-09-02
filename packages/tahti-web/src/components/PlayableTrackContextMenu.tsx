@@ -11,7 +11,7 @@ import { useState } from 'react';
 import type { QueueItem, Track } from '@tahti-player/model';
 import { TrackContextMenu } from '@tahti-player/ui';
 
-import { archiveItemIdFromPlayableId } from '../lib/archiveId';
+import { soundIdFromPlayableId } from '../lib/archiveId';
 import { useLibraryStore } from '../stores/libraryStore';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 import { AddToPlaylistPanel } from './AddToPlaylistPanel';
@@ -35,7 +35,7 @@ export function PlayableTrackContextMenu({
   const isFavorite = useLibraryStore((s) =>
     s.favoriteTracks.some((t) => t.id === track.source.id),
   );
-  const archiveItemId = archiveItemIdFromPlayableId(track.source.id);
+  const soundId = soundIdFromPlayableId(track.source.id);
 
   const toPlayable = () => {
     const qi: QueueItem = {
@@ -103,7 +103,7 @@ export function PlayableTrackContextMenu({
           >
             {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           </TrackContextMenu.Action>
-          {archiveItemId && (
+          {soundId && (
             <TrackContextMenu.Action
               icon={<ListPlusIcon size={16} />}
               onClick={() => setOpen(true)}
@@ -113,10 +113,10 @@ export function PlayableTrackContextMenu({
           )}
         </TrackContextMenu.Content>
       </TrackContextMenu>
-      {archiveItemId && (
+      {soundId && (
         <AddToPlaylistPanel
           isOpen={open}
-          archiveItemId={archiveItemId}
+          soundId={soundId}
           trackTitle={track.title}
           onClose={() => setOpen(false)}
         />

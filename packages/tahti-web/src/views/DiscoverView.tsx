@@ -33,6 +33,7 @@ import { WidgetCard } from '../components/discover/WidgetCard';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
+import { CONTENT_TYPES } from '../content/contentTypes';
 import { hasAccountRole } from '../lib/accountRoles';
 import { PRESET_GENRES } from '../lib/genres';
 import { useAuthStore } from '../stores/authStore';
@@ -44,17 +45,6 @@ import {
 import { usePlayerStore } from '../stores/playerStore';
 
 const ALL_FILTER_ID = '__all__';
-
-const CONTENT_TYPE_OPTIONS = [
-  { id: 'LIVE', label: 'Live broadcast' },
-  { id: 'TRACK', label: 'Track' },
-  { id: 'DJ_SET', label: 'DJ Set' },
-  { id: 'PODCAST', label: 'Podcast' },
-  { id: 'REMIX', label: 'Remix' },
-  { id: 'SHOW', label: 'Radio show' },
-  { id: 'EPISODE', label: 'Episode' },
-  { id: 'CLIP', label: 'Clip' },
-];
 
 const WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
   'this-week-most-played': 'This week: most played',
@@ -390,10 +380,7 @@ export function DiscoverView() {
         {contentTypesOpen ? (
           <FilterChips
             multiple
-            items={[
-              { id: ALL_FILTER_ID, label: 'All' },
-              ...CONTENT_TYPE_OPTIONS,
-            ]}
+            items={[{ id: ALL_FILTER_ID, label: 'All' }, ...CONTENT_TYPES]}
             selected={
               contentTypeFilter.length > 0 ? contentTypeFilter : [ALL_FILTER_ID]
             }

@@ -79,6 +79,9 @@ export function ReleasesPanel({
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const queue = usePlayerStore((s) => s.queue);
+  const currentId = usePlayerStore((s) => s.currentId);
+  const playerStatus = usePlayerStore((s) => s.status);
+  const setPlayerStatus = usePlayerStore((s) => s.setStatus);
 
   const setSort = (key: SortKey) => {
     if (key === sortKey) {
@@ -227,6 +230,17 @@ export function ReleasesPanel({
                               play(head, { enqueueRest: rest });
                             }
                           },
+                          onTogglePause: () =>
+                            setPlayerStatus(
+                              playerStatus === 'playing' ||
+                                playerStatus === 'loading'
+                                ? 'paused'
+                                : 'playing',
+                            ),
+                          isPlaying:
+                            playables.some((p) => p.id === currentId) &&
+                            (playerStatus === 'playing' ||
+                              playerStatus === 'loading'),
                           onQueue: () => {
                             for (const p of playables) {
                               enqueue(p);

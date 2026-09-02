@@ -4,7 +4,7 @@ import { HeartIcon, PauseIcon, PlayIcon } from 'lucide-react';
 import { Button } from '@tahti-player/ui';
 
 import type { TahtiPlayable } from '../api/types';
-import { archiveItemIdFromPlayableId } from '../lib/archiveId';
+import { soundIdFromPlayableId } from '../lib/archiveId';
 import { generatedArtworkUrl } from '../lib/placeholderArt';
 import { formatDuration } from '../lib/playableToTrack';
 import { useDominantColor } from '../lib/useDominantColor';
@@ -34,7 +34,7 @@ function TrackRow({ item }: { item: TahtiPlayable }) {
   const totalDuration = (isCurrent ? duration : 0) || item.durationSec || 0;
   const elapsed = isCurrent ? currentTime : 0;
   const progress = isCurrent && totalDuration > 0 ? elapsed / totalDuration : 0;
-  const archiveItemId = archiveItemIdFromPlayableId(item.id);
+  const soundId = soundIdFromPlayableId(item.id);
   const cover = item.coverUrl ?? generatedArtworkUrl(item.id);
   const rgb = useDominantColor(item.coverUrl);
   const ambient = rgb
@@ -59,10 +59,10 @@ function TrackRow({ item }: { item: TahtiPlayable }) {
     }
   };
 
-  const title = archiveItemId ? (
+  const title = soundId ? (
     <Link
       to="/t/$id"
-      params={{ id: archiveItemId }}
+      params={{ id: soundId }}
       className="hover:text-primary min-w-0 truncate font-semibold"
     >
       {item.title}
@@ -123,11 +123,8 @@ function TrackRow({ item }: { item: TahtiPlayable }) {
             onSeek={seekFraction}
           />
           <div className="mt-1.5 flex items-center gap-1">
-            {archiveItemId ? (
-              <AddToPlaylistButton
-                archiveItemId={archiveItemId}
-                trackTitle={item.title}
-              />
+            {soundId ? (
+              <AddToPlaylistButton soundId={soundId} trackTitle={item.title} />
             ) : null}
             <Button
               size="icon-sm"

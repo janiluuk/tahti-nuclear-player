@@ -32,6 +32,14 @@ export function AdminGrantsView() {
             <StudioPageHeader
               title="Grant cycles"
               subtitle="Annual 90%-surplus disbursement to artists, based on engagement units."
+              action={
+                <Link
+                  to="/admin/governance"
+                  className="text-foreground-secondary hover:text-foreground text-xs underline underline-offset-2"
+                >
+                  Governance overview
+                </Link>
+              }
             />
 
             <StudioPanel title="Disbursement history">

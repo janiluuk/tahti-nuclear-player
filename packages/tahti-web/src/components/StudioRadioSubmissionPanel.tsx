@@ -12,24 +12,24 @@ import { Button, Dialog, Input, Toggle } from '@tahti-player/ui';
 import {
   fetchMetaStreamPreference,
   fetchMyRadioSubmissions,
-  fetchStudioArchive,
+  fetchStudioSounds,
   patchMetaStreamPreference,
   submitTracksToRadioRotation,
   type RadioSubmission,
 } from '../api/studio';
-import type { StudioArchiveItem } from '../api/studio-types';
+import type { StudioSound } from '../api/studio-types';
 import { PageLoading } from './PageStates';
 import { StudioPanel } from './StudioPanel';
 
 const MAX_TRACKS = 5;
-const isSingleTrack = (item: StudioArchiveItem) =>
+const isSingleTrack = (item: StudioSound) =>
   item.status === 'READY' &&
   !item.embedProvider &&
   item.contentType !== 'DJ_SET' &&
   item.contentType !== 'CLIP';
 
 export function StudioRadioSubmissionPanel() {
-  const [archive, setArchive] = useState<StudioArchiveItem[]>([]);
+  const [archive, setArchive] = useState<StudioSound[]>([]);
   const [submissions, setSubmissions] = useState<RadioSubmission[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [note, setNote] = useState('');
@@ -40,7 +40,7 @@ export function StudioRadioSubmissionPanel() {
 
   const reload = () => {
     void Promise.all([
-      fetchStudioArchive(),
+      fetchStudioSounds(),
       fetchMyRadioSubmissions(),
       fetchMetaStreamPreference(),
     ]).then(([archiveResult, submissionResult, preference]) => {
@@ -54,7 +54,7 @@ export function StudioRadioSubmissionPanel() {
 
   const candidates = useMemo(() => archive.filter(isSingleTrack), [archive]);
   const submitted = useMemo(
-    () => new Map(submissions.map((item) => [item.archiveItem.id, item])),
+    () => new Map(submissions.map((item) => [item.sound.id, item])),
     [submissions],
   );
 
@@ -120,7 +120,7 @@ export function StudioRadioSubmissionPanel() {
                 <StatusIcon status={submission.status} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold">
-                    {submission.archiveItem.title}
+                    {submission.sound.title}
                   </p>
                   <p className="text-foreground-secondary text-xs">
                     {statusLabel(submission.status)}

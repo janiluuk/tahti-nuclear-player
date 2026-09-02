@@ -33,7 +33,7 @@ import {
   type StudioShowBooking,
   type StudioShowSeries,
 } from '../../api/shows';
-import { uploadArchiveFile } from '../../api/studio';
+import { uploadSoundFile } from '../../api/studio';
 import { PageLoading } from '../../components/PageStates';
 import { ShowImagePicker } from '../../components/ShowImagePicker';
 import { StudioGate } from '../../components/StudioGate';
@@ -149,7 +149,7 @@ function EpisodeEditorRow({
           <div>
             <p className="text-foreground-secondary text-xs uppercase">Audio</p>
             <p className="mt-1 text-sm font-medium">
-              {episode.archiveItemId ? 'Attached' : 'Not attached'}
+              {episode.soundId ? 'Attached' : 'Not attached'}
             </p>
           </div>
           <div>
@@ -313,14 +313,14 @@ export function StudioShowDetailView({ id }: { id: string }) {
     setBusy(true);
     setMsg(null);
 
-    let archiveItemId: string | null = null;
+    let soundId: string | null = null;
     if (source === 'upload') {
       if (!file) {
         setBusy(false);
         setMsg('Choose an audio file to upload.');
         return;
       }
-      const up = await uploadArchiveFile({
+      const up = await uploadSoundFile({
         file,
         title: defaultEpisodeTitle,
       });
@@ -329,13 +329,13 @@ export function StudioShowDetailView({ id }: { id: string }) {
         setMsg(up.error);
         return;
       }
-      archiveItemId = up.itemId;
+      soundId = up.itemId;
     }
 
     const ep = await createEpisode({
       showId: show.id,
       source,
-      archiveItemId,
+      soundId,
       slotStartAt: nextSlotHint?.startAt ?? null,
       slotEndAt: nextSlotHint?.endAt ?? null,
       bookingId: nextSlotHint?.id ?? null,
@@ -662,10 +662,10 @@ export function StudioShowDetailView({ id }: { id: string }) {
                               · {episode.status}
                             </p>
                           </div>
-                          {episode.archiveItemId ? (
+                          {episode.soundId ? (
                             <Link
-                              to="/studio/archive/$id"
-                              params={{ id: episode.archiveItemId }}
+                              to="/studio/sounds/$id"
+                              params={{ id: episode.soundId }}
                             >
                               <Button size="sm" variant="secondary">
                                 Play recording
@@ -947,11 +947,11 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
               />
               Peak normalize / loudness (stream target)
             </label>
-            {episode.archiveItemId ? (
+            {episode.soundId ? (
               <div className="flex flex-wrap gap-2">
                 <Link
-                  to="/studio/archive/$id/editor"
-                  params={{ id: episode.archiveItemId }}
+                  to="/studio/sounds/$id/editor"
+                  params={{ id: episode.soundId }}
                 >
                   <Button size="sm" variant="secondary">
                     Open full editor
@@ -968,7 +968,7 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
                       import('../../api/studio-types'),
                     ]).then(async ([studio, types]) => {
                       const { data: draft } = await studio.fetchEditorDraft(
-                        episode.archiveItemId!,
+                        episode.soundId!,
                       );
                       const base =
                         draft.editList ?? types.createDefaultEditList(180);
@@ -993,7 +993,7 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
                         },
                       };
                       const r = await studio.renderEditorDraft(
-                        episode.archiveItemId!,
+                        episode.soundId!,
                         editList,
                         `Episode ${episode.episodeNumber} review`,
                       );
@@ -1051,11 +1051,8 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
             <p className="text-sm">
               Episode #{episode.episodeNumber} is {episodeStatusLabel(episode)}.
             </p>
-            {episode.archiveItemId && (
-              <Link
-                to="/studio/archive/$id"
-                params={{ id: episode.archiveItemId }}
-              >
+            {episode.soundId && (
+              <Link to="/studio/sounds/$id" params={{ id: episode.soundId }}>
                 <Button size="sm" variant="secondary">
                   Open in Library
                 </Button>

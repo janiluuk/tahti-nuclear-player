@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@tahti-player/ui';
 
-import { fetchStudioArchive } from '../../api/studio';
-import type { StudioArchiveItem } from '../../api/studio-types';
+import { fetchStudioSounds } from '../../api/studio';
+import type { StudioSound } from '../../api/studio-types';
 import { StashFilesPanel } from '../../components/StashFilesPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -13,11 +13,11 @@ import { TrackEditDialog } from '../../components/TrackEditDialog';
 
 export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
   const [tab, setTab] = useState<'all' | 'files'>('all');
-  const [items, setItems] = useState<StudioArchiveItem[]>([]);
+  const [items, setItems] = useState<StudioSound[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetchStudioArchive().then((result) => {
+    void fetchStudioSounds().then((result) => {
       setItems(
         result.data.filter(
           (item) =>
@@ -112,7 +112,7 @@ export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
           </section>
         )}
         <TrackEditDialog
-          archiveItemId={editingId}
+          soundId={editingId}
           onClose={() => setEditingId(null)}
           onSaved={(saved) =>
             setItems((current) =>

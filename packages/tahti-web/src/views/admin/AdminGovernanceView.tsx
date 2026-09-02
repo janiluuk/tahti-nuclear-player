@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import {
+  BanknoteIcon,
   BuildingIcon,
   FileTextIcon,
   GavelIcon,
@@ -126,17 +127,22 @@ export function AdminGovernanceView() {
     {
       icon: GavelIcon,
       title: 'Board resolutions',
-      desc: 'Record and publish formal board decisions and vote outcomes.',
+      desc: 'Record and publish formal board decisions and vote outcomes — form below.',
       badge: overview
         ? `${overview.boardResolutionsThisYear} this year`
         : undefined,
-      to: '/admin/governance',
     },
     {
       icon: VoteIcon,
       title: 'Annual General Meeting',
       desc: 'Agenda builder, open motions, member notice checklist, and minutes links.',
       to: '/admin/agm',
+    },
+    {
+      icon: BanknoteIcon,
+      title: 'Grants',
+      desc: 'Yearly grant cycles, applications, and payout tracking.',
+      to: '/admin/grants',
     },
     {
       icon: ShieldCheckIcon,

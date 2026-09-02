@@ -206,7 +206,7 @@ export type AdminContentOverview = {
     artistName?: string | null;
     recordedAt: string;
     durationSec?: number | null;
-    archiveItemId?: string | null;
+    soundId?: string | null;
   }>;
 };
 
@@ -250,7 +250,7 @@ function mockContentOverview(): AdminContentOverview {
         artistName: 'DJ Moonlight',
         recordedAt: '2026-08-28T01:20:00.000Z',
         durationSec: 6840,
-        archiveItemId: 'arch-mock-1',
+        soundId: 'arch-mock-1',
       },
       {
         id: 'broadcast-2',
@@ -258,7 +258,7 @@ function mockContentOverview(): AdminContentOverview {
         artistName: 'Kaiku Collective',
         recordedAt: '2026-08-27T20:00:00.000Z',
         durationSec: 4920,
-        archiveItemId: 'arch-mock-3',
+        soundId: 'arch-mock-3',
       },
       {
         id: 'broadcast-3',
@@ -266,7 +266,7 @@ function mockContentOverview(): AdminContentOverview {
         artistName: 'Moss Archive',
         recordedAt: '2026-08-26T22:15:00.000Z',
         durationSec: 3780,
-        archiveItemId: null,
+        soundId: null,
       },
     ],
   };
@@ -971,7 +971,7 @@ export type AdminRadioRotationItem = {
   title: string;
   artistName: string;
   durationSec: number | null;
-  archiveItemId: string;
+  soundId: string;
   audioUrl?: string | null;
   channelSlug: string;
   license: string;
@@ -981,7 +981,7 @@ export type AdminRadioRotationItem = {
 const mockRadioRotation: AdminRadioRotationItem[] = [
   {
     id: 'radio-rotation-1',
-    archiveItemId: 'radio-archive-1',
+    soundId: 'radio-archive-1',
     title: 'Night Transit',
     artistName: 'Tahti Radio submissions',
     durationSec: 288,
@@ -991,7 +991,7 @@ const mockRadioRotation: AdminRadioRotationItem[] = [
   },
   {
     id: 'radio-rotation-2',
-    archiveItemId: 'radio-archive-2',
+    soundId: 'radio-archive-2',
     title: 'Signal Bloom',
     artistName: 'Tahti Radio submissions',
     durationSec: 346,
@@ -1024,7 +1024,7 @@ export async function fetchAdminRadioRotation(): Promise<{
     return {
       data: data.map((item) => ({
         ...item,
-        archiveItemId: item.id,
+        soundId: item.id,
         durationSec: item.durationSec ?? null,
         channelSlug: item.artistUsername ?? 'tahti-radio',
         license: '',
@@ -1287,7 +1287,7 @@ export type AdminRadioSubmission = {
   rejectionNote: string | null;
   createdAt: string;
   submitter: { username: string; displayName: string } | null;
-  archiveItem: {
+  sound: {
     id: string;
     title: string;
     artistName: string | null;
@@ -1305,7 +1305,7 @@ function mockRadioSubmissions(): AdminRadioSubmission[] {
       rejectionNote: null,
       createdAt: '2026-08-16T12:00:00.000Z',
       submitter: { username: 'dj-moonlight', displayName: 'DJ Moonlight' },
-      archiveItem: {
+      sound: {
         id: 'arch-sub-1',
         title: 'Moonlight Drive',
         artistName: 'DJ Moonlight',
@@ -1324,7 +1324,7 @@ function mockRadioSubmissions(): AdminRadioSubmission[] {
         username: 'kaiku-collective',
         displayName: 'Kaiku Collective',
       },
-      archiveItem: {
+      sound: {
         id: 'arch-sub-2',
         title: 'Echo Chamber Cypher',
         artistName: 'Kaiku Collective',
@@ -1368,24 +1368,23 @@ export async function fetchAdminRadioSubmissionAudio(id: string): Promise<
         audioUrl: string;
         title: string;
         artistName: string;
-        archiveItemId: string;
+        soundId: string;
       };
     }
   | { ok: false; error: string }
 > {
   if (forceMock()) {
     const row = mockRadioSubmissions().find((item) => item.id === id);
-    if (!row?.archiveItem.audioUrl) {
+    if (!row?.sound.audioUrl) {
       return { ok: false, error: 'No playable audio' };
     }
     return {
       ok: true,
       data: {
-        audioUrl: row.archiveItem.audioUrl,
-        title: row.archiveItem.title,
-        artistName:
-          row.archiveItem.artistName ?? row.submitter?.displayName ?? '',
-        archiveItemId: row.archiveItem.id,
+        audioUrl: row.sound.audioUrl,
+        title: row.sound.title,
+        artistName: row.sound.artistName ?? row.submitter?.displayName ?? '',
+        soundId: row.sound.id,
       },
     };
   }
@@ -1394,7 +1393,7 @@ export async function fetchAdminRadioSubmissionAudio(id: string): Promise<
       audioUrl: string;
       title: string;
       artistName: string;
-      archiveItemId: string;
+      soundId: string;
     }>(`/api/admin/radio-submissions/${encodeURIComponent(id)}/audio`);
     return { ok: true, data };
   } catch (err) {
@@ -1730,7 +1729,7 @@ export async function deleteNewsPost(
 
 export type AdminSelectsItem = {
   id: string;
-  archiveItemId: string;
+  soundId: string;
   title: string;
   durationSec: number | null;
   license: string;
@@ -1768,7 +1767,7 @@ function selectsState(): AdminSelectsItem[] {
     mockSelectsItems = [
       {
         id: 'sel-1',
-        archiveItemId: 'arch-nl-1',
+        soundId: 'arch-nl-1',
         title: 'Aurora Drift',
         durationSec: 372,
         license: 'CC_BY',
@@ -1780,7 +1779,7 @@ function selectsState(): AdminSelectsItem[] {
       },
       {
         id: 'sel-2',
-        archiveItemId: 'arch-mc-1',
+        soundId: 'arch-mc-1',
         title: 'Route 550',
         durationSec: 541,
         license: 'CC_BY_SA',
@@ -1894,7 +1893,7 @@ export function addToSelectsRotation(item: AdminSelectsBrowseItem) {
   if (forceMock()) {
     selectsState().push({
       id: `sel-${Date.now()}`,
-      archiveItemId: item.id,
+      soundId: item.id,
       title: item.title,
       durationSec: item.durationSec,
       license: item.license,
@@ -1905,7 +1904,7 @@ export function addToSelectsRotation(item: AdminSelectsBrowseItem) {
     return Promise.resolve({ ok: true } as const);
   }
   return mutate('/api/admin/tahti-selects/items', 'POST', {
-    archiveItemId: item.id,
+    soundId: item.id,
   });
 }
 
@@ -2391,7 +2390,7 @@ export type AdminTopListDimension = 'type' | 'genre';
 export type AdminTopListSort = 'desc' | 'asc';
 
 export type AdminTopListEntry = {
-  archiveItemId: string;
+  soundId: string;
   listens: number;
   title: string;
   artistName: string;
@@ -2449,7 +2448,7 @@ function mockTopLists(dimension: AdminTopListDimension): AdminTopListBucket[] {
   return bucketed.map((b) => ({
     bucket: b.bucket,
     entries: b.entries.map((t, i) => ({
-      archiveItemId: `${b.bucket}-${i}`,
+      soundId: `${b.bucket}-${i}`,
       listens: t.listens,
       title: t.title,
       artistName: t.artistName,
@@ -3881,7 +3880,7 @@ export type AdminIntegrationStatus = {
 
 function mockIntegrationStatus(): AdminIntegrationStatus[] {
   return [
-    { name: 'Mixcloud', live: true, detail: 'Archive uploads connected' },
+    { name: 'Mixcloud', live: true, detail: 'Sound uploads connected' },
     { name: 'Revelator', live: false, detail: 'Stub mode — API key not set' },
   ];
 }

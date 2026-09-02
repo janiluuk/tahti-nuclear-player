@@ -9,11 +9,11 @@ const meta: Meta<typeof TrackEditDialog> = {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   decorators: [
-    withTahtiRouter('/studio/archive/archive-item-1'),
+    withTahtiRouter('/studio/sounds/archive-item-1'),
     withMockAuth(),
   ],
   args: {
-    archiveItemId: 'archive-item-1',
+    soundId: 'archive-item-1',
     onClose: () => {},
   },
 };
@@ -21,7 +21,7 @@ const meta: Meta<typeof TrackEditDialog> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Self-fetches the archive item (fetchStudioArchiveItem) and radio
+// Self-fetches the sound (fetchStudioSound) and radio
 // submission status from the mocked API layer; the metadata tab renders
 // once that resolves.
 export const Default: Story = {};

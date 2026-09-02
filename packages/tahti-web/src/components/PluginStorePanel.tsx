@@ -1783,8 +1783,8 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
           label: result.items.length === 1 ? 'Open track' : 'Open first track',
           onClick: () =>
             void navigate({
-              to: '/studio/archive/$id',
-              params: { id: firstItem.archiveItemId },
+              to: '/studio/sounds/$id',
+              params: { id: firstItem.soundId },
             }),
         },
       });

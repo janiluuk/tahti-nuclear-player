@@ -27,8 +27,8 @@ import {
   fetchNotifications,
   type TahtiNotification,
 } from '../api/notifications';
-import { fetchStudioArchive } from '../api/studio';
-import type { StudioArchiveItem } from '../api/studio-types';
+import { fetchStudioSounds } from '../api/studio';
+import type { StudioSound } from '../api/studio-types';
 import { useCanGoForward } from '../hooks/useCanGoForward';
 import { useOwnBroadcastPresence } from '../hooks/useOwnBroadcastPresence';
 import { cn } from '../lib/cn';
@@ -70,7 +70,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const [processingOpen, setProcessingOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [notifications, setNotifications] = useState<TahtiNotification[]>([]);
-  const [archiveItems, setArchiveItems] = useState<StudioArchiveItem[]>([]);
+  const [archiveItems, setArchiveItems] = useState<StudioSound[]>([]);
   const localProcessingJobs = useProcessingJobsStore((state) => state.jobs);
   const settleProcessingJobs = useProcessingJobsStore((state) => state.settle);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -177,7 +177,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
     }
     let cancelled = false;
     const loadArchiveStatus = () => {
-      void fetchStudioArchive().then((result) => {
+      void fetchStudioSounds().then((result) => {
         if (!cancelled) {
           setArchiveItems(result.data);
           settleProcessingJobs(
@@ -260,7 +260,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                   {processingItems.map((item) => (
                     <li key={item.id}>
                       <Link
-                        to="/studio/archive/$id"
+                        to="/studio/sounds/$id"
                         params={{ id: item.id }}
                         className="hover:bg-background-secondary flex items-center justify-between gap-3 rounded-md px-2 py-2 text-xs"
                         onClick={() => setProcessingOpen(false)}

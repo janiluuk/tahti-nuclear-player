@@ -46,7 +46,6 @@ import { ResetPasswordView } from './views/ResetPasswordView';
 import { SetupPasswordView } from './views/SetupPasswordView';
 import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
-import { StudioArchiveView } from './views/studio/StudioArchiveView';
 import { StudioBrandingView } from './views/studio/StudioBrandingView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
@@ -61,6 +60,7 @@ import { StudioReleasesView } from './views/studio/StudioReleasesView';
 import { StudioScheduleView } from './views/studio/StudioScheduleView';
 import { StudioSetupChannelRedirect } from './views/studio/StudioSetupChannelRedirect';
 import { StudioShowsView } from './views/studio/StudioShowsView';
+import { StudioSoundsView } from './views/studio/StudioSoundsView';
 import { StudioStatsDetailView } from './views/studio/StudioStatsDetailView';
 import { StudioStatsView } from './views/studio/StudioStatsView';
 import { StudioUploadView } from './views/studio/StudioUploadView';
@@ -80,9 +80,9 @@ const AdminAgmView = lazyRouteComponent(
   () => import('./views/admin/AdminAgmView'),
   'AdminAgmView',
 );
-const StudioArchiveItemView = lazyRouteComponent(
-  () => import('./views/studio/StudioArchiveItemView'),
-  'StudioArchiveItemView',
+const StudioSoundView = lazyRouteComponent(
+  () => import('./views/studio/StudioSoundView'),
+  'StudioSoundView',
 );
 const StudioCollectionEditView = lazyRouteComponent(
   () => import('./views/studio/StudioCollectionEditView'),
@@ -313,6 +313,12 @@ const listenFeedRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/listen/feed',
   component: () => <ListenView tab="feed" />,
+});
+
+const listenFavoritesRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/listen/favorites',
+  component: () => <ListenView tab="favorites" />,
 });
 
 const listenHistoryRoute = createRoute({
@@ -707,7 +713,9 @@ const librarySoundsRoute = createRoute({
 const libraryReleasesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/releases',
-  component: () => <LibraryView tab="releases" />,
+  beforeLoad: () => {
+    throw redirect({ to: '/studio/releases' });
+  },
 });
 
 const libraryCollectionsRoute = createRoute({
@@ -735,13 +743,17 @@ const libraryCollectionsRoute = createRoute({
 const libraryRecordingsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/recordings',
-  component: () => <LibraryView tab="recordings" />,
+  beforeLoad: () => {
+    throw redirect({ to: '/studio/recordings' });
+  },
 });
 
 const libraryFavoritesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/favorites',
-  component: () => <LibraryView tab="favorites" />,
+  beforeLoad: () => {
+    throw redirect({ to: '/listen/favorites' });
+  },
 });
 
 const libraryHistoryRoute = createRoute({
@@ -791,7 +803,7 @@ const favoritesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/favorites',
   beforeLoad: () => {
-    throw redirect({ to: '/library/favorites' });
+    throw redirect({ to: '/listen/favorites' });
   },
 });
 
@@ -1151,10 +1163,20 @@ const studioBroadcastInfoRoute = createRoute({
   },
 });
 
-const studioArchiveRoute = createRoute({
+const studioSoundsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/sounds',
+  component: StudioSoundsView,
+});
+
+/** Old path, kept as a redirect — linked from bookmarks, old shares, and
+ * the "archive" naming this page used before the Sounds rename. */
+const studioArchiveRedirectRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/archive',
-  component: StudioArchiveView,
+  beforeLoad: () => {
+    throw redirect({ to: '/studio/sounds' });
+  },
 });
 
 const studioRecordingsRoute = createRoute({
@@ -1163,21 +1185,37 @@ const studioRecordingsRoute = createRoute({
   component: StudioRecordingsView,
 });
 
-const studioArchiveItemRoute = createRoute({
+const studioSoundItemRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
-  path: '/studio/archive/$id',
-  component: function StudioArchiveItemRoute() {
-    const { id } = studioArchiveItemRoute.useParams();
-    return <StudioArchiveItemView id={id} />;
+  path: '/studio/sounds/$id',
+  component: function StudioSoundItemRoute() {
+    const { id } = studioSoundItemRoute.useParams();
+    return <StudioSoundView id={id} />;
   },
 });
 
-const studioArchiveEditorRoute = createRoute({
+const studioArchiveItemRedirectRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/archive/$id',
+  beforeLoad: ({ params }) => {
+    throw redirect({ to: '/studio/sounds/$id', params });
+  },
+});
+
+const studioSoundEditorRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/sounds/$id/editor',
+  component: function StudioSoundEditorRoute() {
+    const { id } = studioSoundEditorRoute.useParams();
+    return <StudioProEditorView soundId={id} />;
+  },
+});
+
+const studioArchiveEditorRedirectRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/archive/$id/editor',
-  component: function StudioArchiveEditorRoute() {
-    const { id } = studioArchiveEditorRoute.useParams();
-    return <StudioProEditorView archiveItemId={id} />;
+  beforeLoad: ({ params }) => {
+    throw redirect({ to: '/studio/sounds/$id/editor', params });
   },
 });
 
@@ -1186,7 +1224,7 @@ const studioMasteringRoute = createRoute({
   path: '/studio/mastering/$id',
   component: function StudioMasteringRoute() {
     const { id } = studioMasteringRoute.useParams();
-    return <StudioMasteringView archiveItemId={id} />;
+    return <StudioMasteringView soundId={id} />;
   },
 });
 
@@ -1409,7 +1447,7 @@ const studioInsightsRoute = createRoute({
     const { kind, id } = studioInsightsRoute.useParams();
     return (
       <StudioTrackInsightsView
-        kind={kind === 'release-tracks' ? 'release-tracks' : 'archive'}
+        kind={kind === 'release-tracks' ? 'release-tracks' : 'sound'}
         id={id}
       />
     );
@@ -1560,6 +1598,7 @@ const routeTree = rootRoute.addChildren([
   appLayoutRoute.addChildren([
     listenRoute,
     listenFeedRoute,
+    listenFavoritesRoute,
     listenHistoryRoute,
     listenAliasRoute,
     radioRoute,
@@ -1672,10 +1711,13 @@ const routeTree = rootRoute.addChildren([
     studioSetupChannelRoute,
     studioGoLiveRoute,
     studioBroadcastInfoRoute,
-    studioArchiveRoute,
+    studioSoundsRoute,
+    studioArchiveRedirectRoute,
     studioRecordingsRoute,
-    studioArchiveItemRoute,
-    studioArchiveEditorRoute,
+    studioSoundItemRoute,
+    studioArchiveItemRedirectRoute,
+    studioSoundEditorRoute,
+    studioArchiveEditorRedirectRoute,
     studioMasteringRoute,
     studioReleasesRoute,
     studioReleaseDetailRoute,

@@ -64,14 +64,14 @@ export type ArchiveVersion = {
 
 const mockVersionsByItem = new Map<string, ArchiveVersion[]>();
 
-function mockVersions(archiveItemId: string): ArchiveVersion[] {
-  const existing = mockVersionsByItem.get(archiveItemId);
+function mockVersions(soundId: string): ArchiveVersion[] {
+  const existing = mockVersionsByItem.get(soundId);
   if (existing) {
     return existing;
   }
   const initial: ArchiveVersion[] = [
     {
-      id: `ver-mock-${archiveItemId}-1`,
+      id: `ver-mock-${soundId}-1`,
       versionNumber: 1,
       versionLabel: 'Original upload',
       status: 'READY',
@@ -85,23 +85,23 @@ function mockVersions(archiveItemId: string): ArchiveVersion[] {
       createdAt: new Date(Date.now() - 86400_000).toISOString(),
     },
   ];
-  mockVersionsByItem.set(archiveItemId, initial);
+  mockVersionsByItem.set(soundId, initial);
   return initial;
 }
 
-export async function fetchArchiveVersions(archiveItemId: string): Promise<{
+export async function fetchArchiveVersions(soundId: string): Promise<{
   data: ArchiveVersion[];
   meta: FetchMeta;
 }> {
   if (forceMock()) {
     return {
-      data: mockVersions(archiveItemId),
+      data: mockVersions(soundId),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
   try {
     const { data } = await requestJson<ArchiveVersion[]>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/versions`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/versions`,
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
@@ -110,22 +110,22 @@ export async function fetchArchiveVersions(archiveItemId: string): Promise<{
 }
 
 export async function activateArchiveVersion(
-  archiveItemId: string,
+  soundId: string,
   versionId: string,
 ): Promise<
   { ok: true; data: ArchiveVersion[] } | { ok: false; error: string }
 > {
   if (forceMock()) {
-    const versions = mockVersions(archiveItemId).map((v) => ({
+    const versions = mockVersions(soundId).map((v) => ({
       ...v,
       isActive: v.id === versionId,
     }));
-    mockVersionsByItem.set(archiveItemId, versions);
+    mockVersionsByItem.set(soundId, versions);
     return { ok: true, data: versions };
   }
   try {
     const { data } = await requestJson<ArchiveVersion[]>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/versions/${encodeURIComponent(versionId)}/activate`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/versions/${encodeURIComponent(versionId)}/activate`,
       { method: 'POST' },
     );
     return { ok: true, data };
@@ -138,7 +138,7 @@ export async function activateArchiveVersion(
 }
 
 export async function fetchVersionDownloadUrl(
-  archiveItemId: string,
+  soundId: string,
   versionId: string,
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   if (forceMock()) {
@@ -146,7 +146,7 @@ export async function fetchVersionDownloadUrl(
   }
   try {
     const { data } = await requestJson<{ url: string; contentType: string }>(
-      `/api/me/archive/${encodeURIComponent(archiveItemId)}/versions/${encodeURIComponent(versionId)}/download`,
+      `/api/me/archive/${encodeURIComponent(soundId)}/versions/${encodeURIComponent(versionId)}/download`,
     );
     return { ok: true, url: data.url };
   } catch (err) {

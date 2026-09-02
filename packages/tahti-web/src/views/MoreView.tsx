@@ -259,7 +259,7 @@ const FEATURES: FeatureRow[] = [
   {
     feature: 'Studio Music (archive)',
     tahti: '/dashboard/archive',
-    nuclear: '/studio/archive',
+    nuclear: '/studio/sounds',
     status: 'live',
     notes: 'List/play/meta/delete + pro editor link',
   },
@@ -287,7 +287,7 @@ const FEATURES: FeatureRow[] = [
   {
     feature: 'Audio editor',
     tahti: '/dashboard/editor + archive editor',
-    nuclear: '/studio/editor, /studio/archive/$id/editor',
+    nuclear: '/studio/editor, /studio/sounds/$id/editor',
     status: 'live',
     notes: 'Waveform cut/trim, EQ/comp/limiter, stems request, draft/render',
   },

@@ -661,9 +661,9 @@ export type RecentBroadcast = {
   source?: string;
   startedAt: string;
   endedAt?: string | null;
-  archiveItemId: string | null;
-  archiveItemTitle?: string;
-  archiveItemStatus?: string;
+  soundId: string | null;
+  soundTitle?: string;
+  soundStatus?: string;
   durationSec?: number;
 };
 
@@ -674,9 +674,9 @@ const mockRecordings: RecentBroadcast[] = [
     source: 'RTMP',
     startedAt: new Date(Date.now() - 2 * 86_400_000).toISOString(),
     endedAt: new Date(Date.now() - 2 * 86_400_000 + 3600_000).toISOString(),
-    archiveItemId: 'arc-1',
-    archiveItemTitle: 'Friday night set',
-    archiveItemStatus: 'READY',
+    soundId: 'arc-1',
+    soundTitle: 'Friday night set',
+    soundStatus: 'READY',
     durationSec: 3600,
   },
   {
@@ -685,7 +685,7 @@ const mockRecordings: RecentBroadcast[] = [
     source: 'BROWSER',
     startedAt: new Date(Date.now() - 6 * 86_400_000).toISOString(),
     endedAt: new Date(Date.now() - 6 * 86_400_000 + 1800_000).toISOString(),
-    archiveItemId: null,
+    soundId: null,
     durationSec: 1800,
   },
 ];

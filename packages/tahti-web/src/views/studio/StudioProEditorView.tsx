@@ -33,11 +33,11 @@ import {
 
 import { fetchArchiveVersions } from '../../api/archive-versions';
 import {
-  fetchArchiveStems,
   fetchEditorDraft,
   fetchEditorSource,
+  fetchSoundStems,
   renderEditorDraft,
-  requestArchiveStems,
+  requestSoundStems,
   saveEditorDraft,
   STEM_SET_LABELS,
   type StemJob,
@@ -135,11 +135,7 @@ function FilterCurve({ path }: { path: string }) {
   );
 }
 
-export function StudioProEditorView({
-  archiveItemId,
-}: {
-  archiveItemId: string;
-}) {
+export function StudioProEditorView({ soundId }: { soundId: string }) {
   const masteringEnabled = useMasteringFeatureStore((state) => state.enabled);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
@@ -193,8 +189,8 @@ export function StudioProEditorView({
     let cancelled = false;
     setLoading(true);
     void Promise.all([
-      fetchEditorSource(archiveItemId),
-      fetchEditorDraft(archiveItemId),
+      fetchEditorSource(soundId),
+      fetchEditorDraft(soundId),
     ]).then(([src, draft]) => {
       if (cancelled) {
         return;
@@ -214,7 +210,7 @@ export function StudioProEditorView({
       setPeaks(level && level.length > 0 ? level : []);
       setLoading(false);
     });
-    void fetchArchiveStems(archiveItemId).then((r) => {
+    void fetchSoundStems(soundId).then((r) => {
       if (!cancelled) {
         setStems(r.data);
       }
@@ -222,7 +218,7 @@ export function StudioProEditorView({
     return () => {
       cancelled = true;
     };
-  }, [archiveItemId]);
+  }, [soundId]);
 
   // Stem separation runs on a GPU worker and can take a while — poll until
   // every requested job has left PENDING/PROCESSING rather than making the
@@ -234,7 +230,7 @@ export function StudioProEditorView({
       return;
     }
     const timer = setInterval(() => {
-      void fetchArchiveStems(archiveItemId).then((r) => {
+      void fetchSoundStems(soundId).then((r) => {
         for (const next of r.data) {
           const prev = stems.find((s) => s.stemSet === next.stemSet);
           const wasProcessing =
@@ -251,14 +247,14 @@ export function StudioProEditorView({
       });
     }, 4000);
     return () => clearInterval(timer);
-  }, [archiveItemId, stems]);
+  }, [soundId, stems]);
 
   useEffect(() => {
     if (!renderPendingVersionId) {
       return;
     }
     const timer = setInterval(() => {
-      void fetchArchiveVersions(archiveItemId).then((r) => {
+      void fetchArchiveVersions(soundId).then((r) => {
         const version = r.data.find((v) => v.id === renderPendingVersionId);
         if (
           !version ||
@@ -276,7 +272,7 @@ export function StudioProEditorView({
       });
     }, 4000);
     return () => clearInterval(timer);
-  }, [archiveItemId, renderPendingVersionId]);
+  }, [soundId, renderPendingVersionId]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -607,7 +603,7 @@ export function StudioProEditorView({
     }
     setBusy(true);
     setMessage(null);
-    const result = await saveEditorDraft(archiveItemId, editList, updatedAt);
+    const result = await saveEditorDraft(soundId, editList, updatedAt);
     setBusy(false);
     if (!result.ok) {
       setMessage(result.error);
@@ -624,12 +620,12 @@ export function StudioProEditorView({
     setRenderPromptOpen(false);
     setBusy(true);
     setMessage(null);
-    const saveFirst = await saveEditorDraft(archiveItemId, editList, updatedAt);
+    const saveFirst = await saveEditorDraft(soundId, editList, updatedAt);
     if (saveFirst.ok) {
       setUpdatedAt(saveFirst.updatedAt);
     }
     const result = await renderEditorDraft(
-      archiveItemId,
+      soundId,
       editList,
       versionLabel.trim() || 'Edited mix',
       activate,
@@ -661,14 +657,14 @@ export function StudioProEditorView({
         <StudioNav current="/studio/editor" />
         <div className="flex flex-wrap gap-3 text-xs">
           <Link
-            to="/studio/archive"
+            to="/studio/sounds"
             className="text-foreground-secondary hover:underline"
           >
             ← Music
           </Link>
           <Link
-            to="/studio/archive/$id"
-            params={{ id: archiveItemId }}
+            to="/studio/sounds/$id"
+            params={{ id: soundId }}
             className="text-foreground-secondary hover:underline"
           >
             Metadata
@@ -682,7 +678,7 @@ export function StudioProEditorView({
           {masteringEnabled && (
             <Link
               to="/studio/mastering/$id"
-              params={{ id: archiveItemId }}
+              params={{ id: soundId }}
               className="text-foreground-secondary hover:underline"
             >
               Mastering
@@ -969,18 +965,17 @@ export function StudioProEditorView({
                             toast.info(
                               `Splitting into ${STEM_SET_LABELS[activeStemSet].toLowerCase()}…`,
                             );
-                            void requestArchiveStems(
-                              archiveItemId,
-                              activeStemSet,
-                            ).then((r) => {
-                              if (!r.ok) {
-                                toast.error(r.error);
-                              } else {
-                                void fetchArchiveStems(archiveItemId).then(
-                                  (s) => setStems(s.data),
-                                );
-                              }
-                            });
+                            void requestSoundStems(soundId, activeStemSet).then(
+                              (r) => {
+                                if (!r.ok) {
+                                  toast.error(r.error);
+                                } else {
+                                  void fetchSoundStems(soundId).then((s) =>
+                                    setStems(s.data),
+                                  );
+                                }
+                              },
+                            );
                           }}
                         >
                           {busyStem

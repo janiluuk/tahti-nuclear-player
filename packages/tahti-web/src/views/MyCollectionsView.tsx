@@ -8,6 +8,7 @@ import {
   ListMusicIcon,
   LockIcon,
   Mic2Icon,
+  RadioTowerIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -17,6 +18,7 @@ import { Button, Input } from '@tahti-player/ui';
 import { fetchStudioCollections } from '../api/studio';
 import type { StudioCollection } from '../api/studio-types';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { normalizeCollectionStyle } from '../content/collectionStyles';
 import { useAuthStore } from '../stores/authStore';
 
 type Group = {
@@ -25,7 +27,13 @@ type Group = {
   icon: ReactNode;
 };
 
-type CollectionKind = 'album' | 'ep' | 'dj-set' | 'podcast' | 'playlist';
+type CollectionKind =
+  | 'album'
+  | 'ep'
+  | 'dj-set'
+  | 'podcast'
+  | 'series'
+  | 'playlist';
 type CollectionFilter = 'all' | CollectionKind;
 
 const GROUPS: Group[] = [
@@ -50,28 +58,32 @@ const GROUPS: Group[] = [
     icon: <Mic2Icon size={14} aria-hidden />,
   },
   {
+    id: 'series',
+    label: 'Show series',
+    icon: <RadioTowerIcon size={14} aria-hidden />,
+  },
+  {
     id: 'playlist',
     label: 'Playlists',
     icon: <ListMusicIcon size={14} aria-hidden />,
   },
 ];
 
-const collectionKind = (collection: StudioCollection): CollectionKind => {
-  const style = collection.style ?? collection.type;
-  if (style === 'EP') {
-    return 'ep';
-  }
-  if (style === 'DJ_SET_SERIES' || style === 'MIX_SERIES') {
-    return 'dj-set';
-  }
-  if (style === 'PODCAST') {
-    return 'podcast';
-  }
-  if (!style || ['PLAYLIST', 'CUSTOM', 'LIST'].includes(style)) {
-    return 'playlist';
-  }
-  return 'album';
+const STYLE_TO_KIND: Record<
+  ReturnType<typeof normalizeCollectionStyle>,
+  CollectionKind
+> = {
+  ALBUM: 'album',
+  SINGLE: 'album',
+  EP: 'ep',
+  DJ_SET_SERIES: 'dj-set',
+  PODCAST: 'podcast',
+  SERIES: 'series',
+  PLAYLIST: 'playlist',
 };
+
+const collectionKind = (collection: StudioCollection): CollectionKind =>
+  STYLE_TO_KIND[normalizeCollectionStyle(collection.style ?? collection.type)];
 
 function CollectionRow({ collection }: { collection: StudioCollection }) {
   const trackCount = collection.itemCount ?? collection.items?.length ?? 0;
