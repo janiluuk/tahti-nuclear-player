@@ -15,9 +15,9 @@ const locations: ElementLocation[] = [
   },
   { element: 'MobileChrome', kind: 'Navigation', pages: 'Every mobile route' },
   {
-    element: 'SectionSidebar',
+    element: 'SectionTabs',
     kind: 'Navigation',
-    pages: 'Library, Studio, Admin, Admin → Moderation',
+    pages: 'Admin section sub-pages (icon-tab row below the primary tabs)',
   },
   { element: 'StudioNav', kind: 'Navigation', pages: 'Studio routes' },
   { element: 'AdminNav', kind: 'Navigation', pages: 'Admin routes' },

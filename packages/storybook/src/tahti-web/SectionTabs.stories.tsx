@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
-  SectionSidebar,
-  type SectionSidebarItem,
-} from '@tahti-web/components/SectionSidebar';
+  SectionTabs,
+  type SectionTabsItem,
+} from '@tahti-web/components/SectionTabs';
 import { HeartIcon, LibraryIcon, RadioIcon, SettingsIcon } from 'lucide-react';
 
 import { withTahtiRouter } from './_lib/decorators';
 
-const ITEMS: SectionSidebarItem[] = [
+const ITEMS: SectionTabsItem[] = [
   {
     id: 'library',
     to: '/library',
@@ -35,9 +35,9 @@ const ITEMS: SectionSidebarItem[] = [
   },
 ];
 
-const meta: Meta<typeof SectionSidebar> = {
-  title: 'Tahti/Navigation/SectionSidebar',
-  component: SectionSidebar,
+const meta: Meta<typeof SectionTabs> = {
+  title: 'Tahti/Navigation/SectionTabs',
+  component: SectionTabs,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
   decorators: [withTahtiRouter('/library')],
@@ -68,7 +68,21 @@ export const DeepRoute: Story = {
   decorators: [withTahtiRouter('/library/favorites')],
 };
 
-export const MobileOverflow: Story = {
+// SectionTabs is always a wrapping row now (icon tabs below the primary
+// section tabs, never a left-docked sidebar), so this exercises wrapping
+// with many items rather than a mobile-only layout switch.
+export const ManyItems: Story = {
+  args: {
+    'aria-label': 'Sections',
+    items: [...ITEMS, ...ITEMS].map((item, index) => ({
+      ...item,
+      id: `${item.id}-${index}`,
+      active: index === 0,
+    })),
+  },
+};
+
+export const MobileViewport: Story = {
   args: {
     'aria-label': 'Sections',
     items: [...ITEMS, ...ITEMS].map((item, index) => ({

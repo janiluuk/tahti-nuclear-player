@@ -23,7 +23,7 @@ import type { ReactNode } from 'react';
 
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
-import { SectionSidebar } from './SectionSidebar';
+import { SectionTabs } from './SectionTabs';
 
 export const PRIMARY = [
   {
@@ -245,7 +245,7 @@ export const ADMIN_SECTIONS = [
   },
 ] as const;
 
-const SUBMENU_SLOT_CLASS = 'min-h-0 sm:min-h-56';
+const SUBMENU_SLOT_CLASS = 'min-h-7';
 
 export const ADMIN_NAV_TOUR_STEPS: TourStep[] = PRIMARY.map(
   (item): TourStep => ({
@@ -305,7 +305,7 @@ function useAdminNavParts(
   );
   const menu = (
     <div className={SUBMENU_SLOT_CLASS} data-admin-section-menu>
-      <SectionSidebar
+      <SectionTabs
         aria-label={`Admin ${section.label}`}
         items={section.items.map((link) => ({
           id: link.to,
@@ -349,10 +349,9 @@ export function AdminNav({
   );
 }
 
-/** Standard admin page shell: section tabs across the top, the section's
- * page list docked to the hard left as a true sidebar column, and page
- * content filling the remaining width beside it — instead of every admin
- * view stacking AdminNav above its own content in one centered column. */
+/** Standard admin page shell: primary section tabs across the top, the
+ * current section's page list directly below as a row of smaller icon
+ * tabs (not a left-docked sidebar column), then page content below both. */
 export function AdminPageLayout({
   current,
   moderationPendingCount,
@@ -365,12 +364,10 @@ export function AdminPageLayout({
   const { tabs, menu } = useAdminNavParts(current, moderationPendingCount);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {tabs}
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        {menu}
-        <div className="min-w-0 flex-1">{children}</div>
-      </div>
+      {menu}
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 }
