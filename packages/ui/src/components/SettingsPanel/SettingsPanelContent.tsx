@@ -35,7 +35,10 @@ export const SettingsPanelContent: FC<SettingsPanelContentProps> = ({
     )}
   >
     {onBack && (
-      <div className="border-border flex shrink-0 items-center gap-1 border-b-(length:--border-width) p-2 sm:hidden">
+      // `sm:hidden!` forced important: same cascade conflict noted above —
+      // without `!`, this mobile-only back header stays visible on desktop
+      // too, above the actual settings content it's supposed to replace.
+      <div className="border-border flex shrink-0 items-center gap-1 border-b-(length:--border-width) p-2 sm:hidden!">
         <Button
           size="icon-sm"
           variant="text"
