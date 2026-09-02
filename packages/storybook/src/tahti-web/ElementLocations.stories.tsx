@@ -105,6 +105,17 @@ const locations: ElementLocation[] = [
     pages: 'Studio → Stash, Sounds → Move to stash',
   },
   {
+    element: 'StreamOverlayEditor',
+    kind: 'Component',
+    pages: 'Studio → Go Live, Settings → Broadcast → Multistream overlay',
+  },
+  {
+    element: 'ImageUploadField',
+    kind: 'Component',
+    pages:
+      'ShowImagePicker, VenueRegisterView, StudioScheduleView, StudioVenuesView, Admin → Disco-widgets, Admin → News',
+  },
+  {
     element: 'AddToMusicActions',
     kind: 'Component',
     pages: 'Listen, Library, channel and artist track lists',
