@@ -68,6 +68,7 @@ import { MentionTextarea } from './MentionTextarea';
 import { MusicBrainzSubmissionAssistant } from './MusicBrainzSubmissionAssistant';
 import { PageLoading } from './PageStates';
 import { RoundImageUploadButton } from './RoundImageUploadButton';
+import { SoundShareLinksSection } from './SoundShareLinksSection';
 import { SubgenreTagInput } from './SubgenreTagInput';
 import { WaveformSeekbar } from './tahti/WaveformSeekbar';
 import { TrackCreditsEditor } from './TrackCreditsEditor';
@@ -955,6 +956,10 @@ export function TrackEditDialog({ soundId, onClose, onSaved }: Props) {
                         setForm({ ...form, fanTierIds })
                       }
                     />
+                    {form.visibility === 'PRIVATE' ||
+                    form.visibility === 'STASH' ? (
+                      <SoundShareLinksSection soundId={soundId!} />
+                    ) : null}
                     {!isAudioClip ? (
                       <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3">
                         <div className="flex items-start justify-between gap-3 text-sm">

@@ -96,7 +96,18 @@ function cueLabel(artist: string | null, title: string): string {
   return artist ? `${artist} - ${title}` : title;
 }
 
-export function TrackDetailView({ id }: { id: string }) {
+export function TrackDetailView({
+  id,
+  shareKey,
+}: {
+  id: string;
+  /** Present when this page was opened via a PRIVATE/STASH sound's share
+   * link (`/t/$id?key=...`, see SoundShareLinksSection). Passed through to
+   * every fetch/comment call so the backend can serve the otherwise-private
+   * sound and log the visit/interaction to the audit log instead of
+   * treating it as public activity. */
+  shareKey?: string;
+}) {
   const user = useAuthStore((s) => s.user);
   const playableId = `archive:${id}`;
   const remembered = useTrackDetailStore((s) => s.cache[playableId]);
@@ -122,7 +133,7 @@ export function TrackDetailView({ id }: { id: string }) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    void fetchTrackDetail(id).then(({ data }) => {
+    void fetchTrackDetail(id, shareKey).then(({ data }) => {
       if (!cancelled) {
         setDetail(data);
         setLoading(false);
@@ -139,11 +150,11 @@ export function TrackDetailView({ id }: { id: string }) {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, shareKey]);
 
   useEffect(() => {
     let cancelled = false;
-    void fetchTrackComments(id).then((result) => {
+    void fetchTrackComments(id, shareKey).then((result) => {
       if (!cancelled) {
         setComments(result.data.comments);
         setCommentsEnabled(result.data.commentsEnabled);
@@ -152,7 +163,7 @@ export function TrackDetailView({ id }: { id: string }) {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, shareKey]);
 
   const play = usePlayerStore((s) => s.play);
   const setStatus = usePlayerStore((s) => s.setStatus);
@@ -306,7 +317,7 @@ export function TrackDetailView({ id }: { id: string }) {
     // observes a real playback position for them — stamping "[0:00]" on
     // every comment would be misleading, so those go in untimed.
     const stamped = embedSrc ? body : formatTimedCommentBody(clock, body);
-    const result = await postTrackComment(id, stamped);
+    const result = await postTrackComment(id, stamped, shareKey);
     setCommentBusy(false);
     if (!result.ok) {
       setCommentError(result.error);
@@ -389,6 +400,14 @@ export function TrackDetailView({ id }: { id: string }) {
         <div className="pointer-events-none absolute inset-0 bg-black/45" />
 
         <div className="relative z-10 flex flex-col gap-5 text-white">
+          {shareKey ? (
+            <span
+              role="status"
+              className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold tracking-wide text-white/80 uppercase"
+            >
+              Private — viewing via share link
+            </span>
+          ) : null}
           <div className="flex items-start gap-6">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-4">

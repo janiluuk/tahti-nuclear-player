@@ -62,6 +62,49 @@ Login is `POST /api/auth/login`, TOTP login is
 - Download gates, stash access, fan tiers, and private audience content must
   be checked server-side for every request, including direct URLs.
 
+## Proposed contract — not yet implemented in `../tahti`
+
+These client wrappers exist and typecheck, with a mock fallback, but the
+backend route does not exist yet — verified 2026-09-02 by reading
+`apps/api/src/routes/tracks/get.ts`, `apps/api/src/routes/comments/index.ts`,
+and `apps/api/src/routes/me/stash.ts` in `../tahti` directly. Do not treat
+these as live until a corresponding route lands there and this section is
+moved into the verified table above.
+
+**Sound share links** (PRIVATE/STASH sound → keyed access, `TrackEditDialog`
+Sharing tab → `SoundShareLinksSection.tsx`, `src/api/studio.ts`'s
+`createSoundShare`/`revokeSoundShare`/`fetchSoundShares`). Modeled exactly
+on the real, existing `POST /api/me/stash/:id/share` /
+`DELETE /api/me/stash/shares/:shareId` contract (`StashShare`), same
+request/response shape, same auth (`requireAuth`, ownership-checked):
+
+- `POST /api/me/archive/:id/share` — body `{ granteeUsername?: string,
+  permission: 'READ' | 'DOWNLOAD', expiresInDays?: number }` → `{ id,
+  token, permission, expiresAt }`.
+- `DELETE /api/me/archive/shares/:shareId`.
+- `GET /api/me/archive/:id/shares` → `{ shares: SoundShare[] }` (list, for
+  the panel to show existing links — the stash contract doesn't have a
+  standalone list-by-id endpoint since `GET /api/me/stash` already returns
+  each file's `shares` inline; a real archive equivalent should decide
+  whether to do the same on `GET /api/me/archive` or keep this separate
+  endpoint).
+
+**Keyed public access.** `GET /api/tracks/:id` today hard-codes
+`where: { isPublic: true }` (see `tracks/get.ts`) — no bypass exists.
+The client now optionally appends `?key=<token>` to
+`GET /api/tracks/:id`, `GET /api/comments/track/:id`, and
+`POST /api/comments/track/:id` (`src/api/client.ts`'s `withShareKey`).
+The backend needs to: validate the key against a `SoundShare`-equivalent
+row scoped to that archive item, serve the item when valid even though
+`isPublic` is false, and — this is the part with no code to point at,
+purely a requirement — treat any comment/reaction made using a valid key
+as **not** public activity: skip whatever event/notification/activity-feed
+fanout a normal comment triggers, and write an audit-log entry instead
+(who accessed, which share token, what action). `POST /api/comments/track/:id`
+already requires `requireAuth`, unchanged by this — a key does not let an
+anonymous visitor comment, only view; it changes what happens server-side
+once an authenticated comment is posted while viewing via that key.
+
 ## Adding or changing an API call
 
 1. Find the route, Zod/shared DTO, permission check, and mock fixture in
