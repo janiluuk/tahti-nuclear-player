@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-03T02:00",
+    "description": "The Branding gallery no longer shows a photo count or an Add images button — upload with the plus icon, toggle whether the gallery is public, and find how to rearrange photos in the Help center.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
     "date": "2026-09-03T01:00",
     "description": "Admins can now replace an internet radio station’s cover by hovering the artwork and uploading a new image, and the new cover shows up everywhere that station appears.",
     "type": "improvement",

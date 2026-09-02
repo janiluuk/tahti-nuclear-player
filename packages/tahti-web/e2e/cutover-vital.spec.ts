@@ -520,11 +520,13 @@ test('branding workspace manages an avatar, public gallery, press kit, and slide
   await expect(
     page.getByRole('heading', { name: 'Artist branding' }),
   ).toBeVisible();
-  await page.getByLabel('Profile picture').setInputFiles({
-    name: 'portrait.jpg',
-    mimeType: 'image/jpeg',
-    buffer: Buffer.from('portrait'),
-  });
+  await page
+    .locator('input[type="file"][aria-label="Profile picture"]')
+    .setInputFiles({
+      name: 'portrait.jpg',
+      mimeType: 'image/jpeg',
+      buffer: Buffer.from('portrait'),
+    });
   await expect(
     page.getByRole('button', { name: 'View Demo Artist profile picture' }),
   ).toBeVisible();
@@ -537,26 +539,57 @@ test('branding workspace manages an avatar, public gallery, press kit, and slide
   await page.keyboard.press('Escape');
 
   await page.getByRole('tab', { name: 'Gallery' }).click();
+  await expect(page.getByText(/images in gallery/)).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Add images' })).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Upload more gallery images' }),
+  ).toBeVisible();
   await page.getByRole('switch', { name: 'Public gallery' }).click();
-  await page.getByLabel('Gallery images').setInputFiles(
+  await page
+    .getByRole('button', { name: 'Upload more gallery images' })
+    .click();
+  page.once('dialog', (dialog) => {
+    void dialog.accept();
+  });
+  await page.getByRole('button', { name: 'Replace' }).click();
+  await page.getByLabel('Drop gallery images here').setInputFiles(
     Array.from({ length: 11 }, (_, index) => ({
       name: `press-${index + 1}.jpg`,
       mimeType: 'image/jpeg',
       buffer: Buffer.from(`press-${index + 1}`),
     })),
   );
-  await expect(page.getByText(/11 images in gallery/)).toBeVisible();
+  await expect(
+    page.getByRole('dialog', { name: 'Upload gallery images' }),
+  ).toBeHidden();
+  await expect(page.getByTestId('gallery-photo')).toHaveCount(11);
+  await expect(
+    page.getByRole('button', { name: 'Start slideshow' }),
+  ).toBeVisible();
 
   await page.getByRole('tab', { name: 'Press kit' }).click();
   await expect(page.getByText(/10 of 10 press kit images/)).toBeVisible();
 
-  await page.goto('/u/demo');
+  await page.getByRole('button', { name: /^Signed in as/ }).click();
+  await page.getByRole('menuitem', { name: 'My channel' }).click();
   await page.getByRole('tab', { name: 'Gallery' }).click();
   await page.getByRole('button', { name: 'Start slideshow' }).click();
   await expect(page.getByText('1 / 11')).toBeVisible();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByText('2 / 11')).toBeVisible();
   await page.keyboard.press('Escape');
+});
+
+test('help center documents artist gallery upload and reorder', async ({
+  page,
+}) => {
+  await page.goto('/help/for-artists');
+  await expect(page.getByTestId('page-title')).toHaveText('Artist guide');
+  await expect(
+    page.getByRole('heading', { name: 'Artist gallery' }),
+  ).toBeVisible();
+  await expect(page.getByText(/Drag a photo to reorder/)).toBeVisible();
+  await expect(page.getByText(/no separate Add images button/)).toBeVisible();
 });
 
 test('artist creates a four-image promotion kit and another user can download the same kit from the artist page', async ({

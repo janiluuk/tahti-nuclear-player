@@ -201,6 +201,7 @@ export const SOURCE_DEFS: SourceDef[] = [
     description:
       'Paste Spotify/Bandcamp/etc. URLs to seed smart-link targets on a release.',
     oauthStartPath: null,
+    studioDeepLink: '/studio/releases',
     kind: 'tool',
     capabilities: {
       connect: false,

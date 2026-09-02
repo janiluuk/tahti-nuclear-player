@@ -25,24 +25,22 @@ import {
   type RecentBroadcast,
 } from '../../api/broadcast';
 import type { MockOauthId } from '../../api/mock-session';
-import {
-  connectIntegrationMock,
-  fetchConnectionStatus,
-  oauthStartUrl,
-  SOURCE_DEFS,
-  type IntegrationId,
-} from '../../api/sources';
+import { connectIntegrationMock, type IntegrationId } from '../../api/sources';
 import { fetchEditorSource, uploadSoundFile } from '../../api/studio';
 import { SourceServiceIcon } from '../../components/SourceServiceIcon';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader } from '../../components/StudioPanel';
 import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
+import {
+  importSourcePlugins,
+  type ImportSourcePlugin,
+} from '../../plugins/import-sources';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
 const ENABLED_SOURCES_STORAGE_KEY = 'tahti-web-enabled-sources';
-const UPLOAD_SOURCES = SOURCE_DEFS.filter(
+const UPLOAD_SOURCES = importSourcePlugins.filter(
   (source) => source.id !== 'upload' && source.id !== 'stash',
 );
 
@@ -50,7 +48,10 @@ function UploadSourceWidgets() {
   const user = useAuthStore((state) => state.user);
   const [statuses, setStatuses] = useState<
     Partial<
-      Record<IntegrationId, Awaited<ReturnType<typeof fetchConnectionStatus>>>
+      Record<
+        IntegrationId,
+        Awaited<ReturnType<ImportSourcePlugin['checkStatus']>>
+      >
     >
   >({});
   const [enabledIds, setEnabledIds] = useState<Set<IntegrationId>>(new Set());
@@ -59,8 +60,7 @@ function UploadSourceWidgets() {
   useEffect(() => {
     void Promise.all(
       UPLOAD_SOURCES.map(
-        async (source) =>
-          [source.id, await fetchConnectionStatus(source.id)] as const,
+        async (source) => [source.id, await source.checkStatus()] as const,
       ),
     ).then((entries) => setStatuses(Object.fromEntries(entries)));
     const storageKey = user
@@ -168,7 +168,7 @@ function UploadSourceWidgets() {
                 {enabledIds.has(selected.id) ? 'Disable' : 'Enable'}
               </Button>
             </div>
-            {selected.kind === 'oauth' && selected.oauthStartPath ? (
+            {selected.kind === 'oauth' && selected.oauthUrl ? (
               import.meta.env.VITE_FORCE_MOCK === '1' ? (
                 <Button
                   size="sm"
@@ -177,7 +177,7 @@ function UploadSourceWidgets() {
                     void connectIntegrationMock(
                       selected.id as MockOauthId,
                     ).then(() => {
-                      void fetchConnectionStatus(selected.id).then((result) =>
+                      void selected.checkStatus().then((result) =>
                         setStatuses((current) => ({
                           ...current,
                           [selected.id]: result,
@@ -190,7 +190,7 @@ function UploadSourceWidgets() {
                   {selectedStatus?.connected ? 'Reconnect' : 'Connect'}
                 </Button>
               ) : (
-                <a href={oauthStartUrl(selected.oauthStartPath)}>
+                <a href={selected.oauthUrl}>
                   <Button size="sm" disabled={!user}>
                     <PlugIcon size={16} aria-hidden className="mr-1.5" />
                     {selectedStatus?.connected ? 'Reconnect' : 'Connect'}

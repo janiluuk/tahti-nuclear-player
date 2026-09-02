@@ -18,7 +18,7 @@ import {
   SettingsIcon,
   XIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
@@ -76,20 +76,7 @@ import {
   type RadioStreamTestResult,
 } from '../api/radio-sources';
 import {
-  disconnectIntegration,
-  fetchBandcampAlbums,
-  fetchConnectionStatus,
-  fetchHearthisCollectionTracks,
-  fetchHearthisLibrary,
-  fetchSoundcloudTracks,
-  importBandcampAlbum,
-  importHearthisTracks,
-  importSoundcloudTracks,
-  importSpotifyTracks,
-  oauthStartUrl,
   playableFromHearthis,
-  searchHearthisTracks,
-  searchSpotifyTracks,
   type BandcampAlbum,
   type HearthisLibrary,
   type HearthisTrack,
@@ -122,7 +109,13 @@ import {
   useAudioFxStore,
 } from '../plugins/audio-fx';
 import { EXPORT_TARGETS } from '../plugins/export';
-import { importSourcePlugins } from '../plugins/import-sources';
+import {
+  hearthisSourceAdapter,
+  importSourcePlugins,
+  oauthAdapterFor,
+  spotifySourceAdapter,
+  toolSourceAdapter,
+} from '../plugins/import-sources';
 import { useMasteringFeatureStore } from '../plugins/mastering/store';
 import {
   multicastProviderLabel,
@@ -935,15 +928,19 @@ const SERVICE_PLUGINS: ServicePlugin[] = [
  * navigation to a different page. */
 function DspUrlPasteCard() {
   const [urlPaste, setUrlPaste] = useState('');
+  const urlTool = toolSourceAdapter('url');
 
   return (
     <ConfigurableCard
-      title="URL / DSP paste"
+      title={urlTool?.name ?? 'URL / DSP paste'}
       header={(open) => (
         <PluginStoreItem
-          name="URL / DSP paste"
+          name={urlTool?.name ?? 'URL / DSP paste'}
           author="Tool"
-          description="Paste Spotify/Bandcamp/etc. URLs to seed smart-link targets on a release."
+          description={
+            urlTool?.description ??
+            'Paste Spotify/Bandcamp/etc. URLs to seed smart-link targets on a release.'
+          }
           isInstalled={false}
           onInstall={open}
           labels={{ install: 'Configure' }}
@@ -961,7 +958,7 @@ function DspUrlPasteCard() {
         placeholder="https://open.spotify.com/track/…"
       />
       <Link
-        to="/studio/releases"
+        to={(urlTool?.studioDeepLink ?? '/studio/releases') as never}
         onClick={() => useSettingsModalStore.getState().close()}
       >
         <Button size="sm">
@@ -1074,7 +1071,7 @@ function SpotifyCard({ plugin }: { plugin: ServicePlugin }) {
       return;
     }
     setBusy(true);
-    const result = await searchSpotifyTracks(query.trim());
+    const result = await spotifySourceAdapter.search(query.trim());
     setTracks(result.data);
     setSelected(new Set());
     setBusy(false);
@@ -1098,7 +1095,7 @@ function SpotifyCard({ plugin }: { plugin: ServicePlugin }) {
       return;
     }
     setBusy(true);
-    const result = await importSpotifyTracks(
+    const result = await spotifySourceAdapter.importTracks(
       chosen.map((track) => ({
         trackId: track.id,
         title: track.name,
@@ -1276,6 +1273,10 @@ function OAuthServiceCard({
   plugin: ServicePlugin;
   action: Extract<ServiceAction, { kind: 'oauth' }>;
 }) {
+  const adapter = useMemo(
+    () => oauthAdapterFor(action.integrationId, action.oauthPath),
+    [action.integrationId, action.oauthPath],
+  );
   const [status, setStatus] = useState<{
     connected: boolean;
     username?: string | null;
@@ -1292,11 +1293,9 @@ function OAuthServiceCard({
   const [scMessage, setScMessage] = useState<string | null>(null);
 
   const reload = () =>
-    void fetchConnectionStatus(action.integrationId).then((r) =>
-      setStatus(r.data),
-    );
+    void adapter.checkStatus().then((r) => setStatus(r.data));
 
-  useEffect(reload, [action.integrationId]);
+  useEffect(reload, [adapter]);
 
   useEffect(() => {
     usePluginInstallStore
@@ -1305,27 +1304,27 @@ function OAuthServiceCard({
   }, [plugin.id, status?.connected]);
 
   useEffect(() => {
-    if (action.integrationId !== 'bandcamp' || !status?.connected) {
+    if (adapter.id !== 'bandcamp' || !status?.connected) {
       return;
     }
     setBandcampBusy(true);
     setBandcampMessage(null);
-    void fetchBandcampAlbums().then((result) => {
+    void adapter.listAlbums().then((result) => {
       setBandcampAlbums(result.data);
       setBandcampMessage(result.message ?? null);
       setBandcampBusy(false);
     });
-  }, [action.integrationId, status?.connected]);
+  }, [adapter, status?.connected]);
 
   useEffect(() => {
-    if (action.integrationId !== 'soundcloud' || !status?.connected) {
+    if (adapter.id !== 'soundcloud' || !status?.connected) {
       return;
     }
-    void fetchSoundcloudTracks().then((r) => setScTracks(r.data));
-  }, [action.integrationId, status?.connected]);
+    void adapter.listTracks().then((r) => setScTracks(r.data));
+  }, [adapter, status?.connected]);
 
   useEffect(() => {
-    if (action.integrationId !== 'soundcloud') {
+    if (adapter.id !== 'soundcloud') {
       return;
     }
     void fetchMeProfile().then((r) => {
@@ -1333,7 +1332,7 @@ function OAuthServiceCard({
       setProfileUrl(value);
       setProfileDraft(value);
     });
-  }, [action.integrationId]);
+  }, [adapter]);
 
   const saveProfileUrl = () => {
     const value = profileDraft.trim();
@@ -1361,14 +1360,7 @@ function OAuthServiceCard({
 
   const disconnect = () => {
     setBusy(true);
-    void disconnectIntegration(
-      action.integrationId as
-        | 'bandcamp'
-        | 'soundcloud'
-        | 'google-drive'
-        | 'mixcloud'
-        | 'musicbrainz',
-    ).then(() => {
+    void adapter.disconnect().then(() => {
       setBusy(false);
       reload();
     });
@@ -1384,7 +1376,7 @@ function OAuthServiceCard({
           description={plugin.description}
           isInstalled={Boolean(status?.connected)}
           onInstall={() => {
-            window.location.href = oauthStartUrl(action.oauthPath);
+            window.location.href = adapter.oauthUrl;
           }}
           labels={{ install: 'Connect', installed: 'Connected' }}
         />
@@ -1404,7 +1396,7 @@ function OAuthServiceCard({
           >
             {busy ? 'Disconnecting…' : 'Disconnect'}
           </Button>
-          {action.integrationId === 'bandcamp' && (
+          {adapter.id === 'bandcamp' && (
             <div className="border-border flex flex-col gap-3 border-t pt-3">
               <p className="text-sm font-medium">Your Bandcamp discography</p>
               {bandcampBusy ? (
@@ -1445,8 +1437,11 @@ function OAuthServiceCard({
                       <Button
                         size="sm"
                         onClick={() => {
+                          if (adapter.id !== 'bandcamp') {
+                            return;
+                          }
                           setBandcampMessage(null);
-                          void importBandcampAlbum(album).then((result) => {
+                          void adapter.importAlbum(album).then((result) => {
                             setBandcampMessage(
                               result.ok
                                 ? `Imported ${result.count} item${result.count === 1 ? '' : 's'}.`
@@ -1468,7 +1463,7 @@ function OAuthServiceCard({
               ) : null}
             </div>
           )}
-          {action.integrationId === 'soundcloud' && (
+          {adapter.id === 'soundcloud' && (
             <div className="border-border flex flex-col gap-3 border-t pt-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm font-medium">Your SoundCloud tracks</p>
@@ -1478,11 +1473,18 @@ function OAuthServiceCard({
                     disabled={scBusy}
                     onClick={() => {
                       setScBusy(true);
-                      void importSoundcloudTracks(
-                        scTracks.map((track) => ({
-                          trackId: track.id,
-                          title: track.title,
-                        })),
+                      void (
+                        adapter.id === 'soundcloud'
+                          ? adapter.importTracks(
+                              scTracks.map((track) => ({
+                                trackId: track.id,
+                                title: track.title,
+                              })),
+                            )
+                          : Promise.resolve({
+                              ok: false as const,
+                              error: 'Unavailable',
+                            })
                       ).then((r) => {
                         setScBusy(false);
                         setScMessage(
@@ -1516,9 +1518,16 @@ function OAuthServiceCard({
                         disabled={scBusy}
                         onClick={() => {
                           setScBusy(true);
-                          void importSoundcloudTracks([
-                            { trackId: track.id, title: track.title },
-                          ]).then((r) => {
+                          void (
+                            adapter.id === 'soundcloud'
+                              ? adapter.importTracks([
+                                  { trackId: track.id, title: track.title },
+                                ])
+                              : Promise.resolve({
+                                  ok: false as const,
+                                  error: 'Unavailable',
+                                })
+                          ).then((r) => {
                             setScBusy(false);
                             setScMessage(
                               r.ok
@@ -1628,17 +1637,18 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
       return;
     }
     setLibraryBusy(true);
-    void Promise.all([fetchHearthisLibrary(), fetchStudioCollections()]).then(
-      ([libraryResult, collectionResult]) => {
-        setLibraryBusy(false);
-        setLibrary(libraryResult.data);
-        setDestinationCollections(collectionResult.data);
-        setDestinationId(
-          (current) =>
-            current || (collectionResult.data.find((c) => c.id)?.id ?? ''),
-        );
-      },
-    );
+    void Promise.all([
+      hearthisSourceAdapter.library(),
+      fetchStudioCollections(),
+    ]).then(([libraryResult, collectionResult]) => {
+      setLibraryBusy(false);
+      setLibrary(libraryResult.data);
+      setDestinationCollections(collectionResult.data);
+      setDestinationId(
+        (current) =>
+          current || (collectionResult.data.find((c) => c.id)?.id ?? ''),
+      );
+    });
   };
 
   useEffect(loadLibrary, [user]);
@@ -1764,7 +1774,7 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
     const notificationId = toast.loading(
       `Import started for ${pendingTracks.length} item${pendingTracks.length === 1 ? '' : 's'}…`,
     );
-    const result = await importHearthisTracks(
+    const result = await hearthisSourceAdapter.importTracks(
       resolvedDestinationId,
       pendingTracks,
     );
@@ -1829,7 +1839,10 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
       });
       return;
     }
-    const result = await importHearthisTracks(created.data.id, pendingTracks);
+    const result = await hearthisSourceAdapter.importTracks(
+      created.data.id,
+      pendingTracks,
+    );
     if (coverUrl) {
       await patchStudioCollection(created.data.slug, { coverUrl });
     }
@@ -1865,7 +1878,9 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
   ) => {
     setBusy(true);
     try {
-      const tracks = await fetchHearthisCollectionTracks(collection.permalink);
+      const tracks = await hearthisSourceAdapter.collectionTracks(
+        collection.permalink,
+      );
       await importTracksAsCollection(
         collection.title,
         collection.description,
@@ -1992,7 +2007,7 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
                 disabled={!q.trim() || libraryBusy}
                 onClick={() => {
                   setLibraryBusy(true);
-                  void searchHearthisTracks(q.trim()).then((result) => {
+                  void hearthisSourceAdapter.search(q.trim()).then((result) => {
                     setLibraryBusy(false);
                     setHits(result.data);
                   });

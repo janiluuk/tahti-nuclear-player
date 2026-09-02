@@ -157,6 +157,15 @@ export const HELP_ARTICLES: HelpArticle[] = [
           'Upload archive sets and releases from the studio; they appear on your channel and profile.',
         ],
       },
+      {
+        heading: 'Artist gallery',
+        body: [
+          'Open Studio → Branding → Gallery to add photos to your public artist page. Use the plus icon in the gallery header to upload — there is no separate Add images button.',
+          'Turn Public on so the gallery appears on your profile, or leave it off while you arrange photos.',
+          'Drag a photo to reorder it, or use the arrows on hover. Check photos to select them, then remove the ones you do not want.',
+          'Photos you include can also appear in your press kit. Channel backdrops and slideshows are covered in Design your channel.',
+        ],
+      },
     ],
   },
   {

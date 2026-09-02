@@ -106,45 +106,27 @@ Ranked by extraction cost (cheapest first):
   one against nothing to implement it would just be an unused interface,
   so this extraction stopped at relocation rather than inventing one.
 
-## 5. Import (Sources) — connection-status contract done, per-source logic still in api/sources.ts
+## 5. Import (Sources) — OAuth / search / tool adapters done
 
-- **Lives**: `src/api/sources.ts` is still 993 lines and still owns
-  `SOURCE_DEFS` plus every source's actual OAuth-flow/search/import-job
-  calls (SoundCloud track listing, Spotify search, hearthis search+import,
-  Google Drive picker, Bandcamp album import, ...) — those stay here
-  because they share this file's private `requestJson`/mock-fallback
-  plumbing with each other, same reasoning as fingerprinting (§6) leaving
-  the AcoustID HTTP calls in `api/studio.ts`. `src/plugins/import-sources/`
-  is the new thin layer on top: an `ImportSourcePlugin` per `SourceDef`
-  entry with `checkStatus()` (wraps `fetchConnectionStatus`) and a
-  precomputed `oauthUrl`.
-- **Settings today**: `(a)` is done — `IMPORT_SERVICES` duplication in
-  `SettingsPanels.tsx` is gone (see the `refactor(sources)` commit),
-  `ImportExportPanel`'s import list now derives from `SOURCE_DEFS`
-  directly. `PluginStorePanel`'s `IMPORT_SERVICE_PLUGINS` now reads
-  `importSourcePlugins` instead of raw `SOURCE_DEFS`. `SourcesView.tsx`
-  (the actual per-source connect/manage screen, 700+ lines) still calls
-  `fetchConnectionStatus`/`oauthStartUrl`/`disconnectIntegration` directly
-  — not routed through the plugin object, left alone deliberately (see
-  below).
-- **Already plugin-shaped**: partially now — `checkStatus()`/`oauthUrl`
-  are genuinely uniform across all ten sources and are real plugin
-  behavior, not just relocated metadata.
-- **What's still open, and why it stopped here**: `(b)` — splitting each
-  source's bespoke OAuth-callback/search/import-job logic into one module
-  per source — is real, larger work than this pass did. The naive version
-  (force every source into one `start/status/import` shape) doesn't
-  actually fit: OAuth sources (bandcamp/soundcloud/google-drive/mixcloud)
-  have a real connect/disconnect lifecycle, search sources
-  (spotify/hearthis) don't "import" so much as search-then-add, and `url`/
-  `radio` are paste-a-link tools with no connection state at all — forcing
-  one interface onto all three shapes would be exactly the kind of
-  abstraction `docs/PLUGINS.md` says not to build. A real split needs a
-  design pass on what each *kind* actually needs (closer to three smaller
-  interfaces than one `ImportSourcePlugin` for everything), and touching
-  `SourcesView.tsx`'s 700+ lines of live OAuth flows without being able to
-  exercise each provider's real callback end-to-end is genuine regression
-  risk — left for a dedicated pass, not rushed into this one.
+HTTP still lives in `src/api/sources.ts`. Kind-specific behavior is on
+`src/plugins/import-sources/` (`oauth.ts`, `search.ts`, `tool.ts`).
+`PluginStorePanel` (the Add-ons host that replaced `SourcesView`) and
+`StudioUploadView` call adapters, not raw connect/search/import helpers.
+Sibling `GET /api/me/import-plugins` lists the same catalog. A universal
+`start/status/import` interface was not added.
+
+The original extraction notes below are kept for history.
+
+- **Lives**: `src/api/sources.ts` still owns `SOURCE_DEFS` plus every source's
+  OAuth-flow/search/import-job HTTP (SoundCloud track listing, Spotify search,
+  hearthis search+import, Google Drive import jobs, Bandcamp album import,
+  ...) because they share this file's private `requestJson`/mock-fallback
+  plumbing. Adapters wrap those functions per kind.
+- **Settings today**: `PluginStorePanel` Import cards and Studio Upload
+  widgets route through `oauthAdapterFor` / `spotifySourceAdapter` /
+  `hearthisSourceAdapter` / `toolSourceAdapter`.
+- **Already plugin-shaped**: three adapter contracts, not one fake
+  start/status/import shape.
 
 ## 6. Fingerprinting — DONE (interface only, still one provider)
 
@@ -236,12 +218,10 @@ Ranked by extraction cost (cheapest first):
    Revelator against it, *then* the extraction is actually done
    (Fingerprinting's `FingerprintProvider` half of this item already is,
    see §6).
-5. **Largest, do last**: Visualizers is DONE (§7) — turned out to be less
-   restructuring than expected (see §7's note). Import's connection-status
-   contract is done (§5); its remaining per-source OAuth/search/import-job
-   split is the one item left in this whole plan still needing real
-   internal restructuring before "remove from main codebase" is
-   meaningful.
+5. **Largest, do last**: Visualizers is DONE (§7). Import's kind adapters
+   are DONE (§5) — OAuth/search/tool contracts plus Add-ons/Upload hosts.
+   Export remains metadata-only until sibling submit/status/webhook
+   routes exist.
 
 ## Pending — Nuclear plugin-registry gap follow-up
 

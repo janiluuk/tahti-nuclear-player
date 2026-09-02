@@ -1,17 +1,19 @@
 import type { FetchMeta } from '../../api/client';
-import type { ConnectionStatus, SourceDef } from '../../api/sources';
+import type {
+  BandcampAlbum,
+  ConnectionStatus,
+  HearthisLibrary,
+  HearthisTrack,
+  IntegrationId,
+  SoundcloudTrack,
+  SourceDef,
+  SpotifySearchTrack,
+} from '../../api/sources';
 
 /**
- * A place a release/catalog item can come from. Wraps a `SourceDef` (id,
- * name, description, kind — the metadata `api/sources.ts` already
- * exports) with the one behavior every source actually has in common:
- * checking whether it's connected. The bespoke per-source logic (OAuth
- * callbacks, SoundCloud track listing, Spotify/hearthis search, Google
- * Drive import jobs, ...) stays in `api/sources.ts`, where it shares that
- * file's request plumbing with everything else — see
- * PLUGIN-STORE-PLAN.md §5 for why this extraction stops at the shared
- * connection-status contract rather than forcing all ten sources into one
- * `start/status/import` shape that doesn't actually fit search/tool kinds.
+ * Shared metadata every import source exposes. Kind-specific behavior lives
+ * on OAuth, search, and tool/upload adapters — do not add a fake universal
+ * start/status/import method here.
  */
 export type ImportSourcePlugin = SourceDef & {
   /** Full OAuth authorize URL, or null if this source isn't OAuth-based. */
@@ -20,19 +22,99 @@ export type ImportSourcePlugin = SourceDef & {
   checkStatus(): Promise<{ data: ConnectionStatus; meta: FetchMeta }>;
 };
 
-export type SourceAdapterBase = ImportSourcePlugin & {
-  kind: SourceDef['kind'];
-};
+export type DisconnectResult = { ok: true } | { ok: false; error: string };
 
-export type OAuthSourceAdapter = SourceAdapterBase & {
+export type OAuthDisconnectId = Extract<
+  IntegrationId,
+  'bandcamp' | 'soundcloud' | 'google-drive' | 'mixcloud' | 'musicbrainz'
+>;
+
+type OAuthAdapterBase = ImportSourcePlugin & {
   kind: 'oauth';
   oauthUrl: string;
+  disconnect(): Promise<DisconnectResult>;
 };
 
-export type SearchSourceAdapter = SourceAdapterBase & {
+export type BandcampSourceAdapter = OAuthAdapterBase & {
+  id: 'bandcamp';
+  listAlbums(): Promise<{
+    data: BandcampAlbum[];
+    connected: boolean;
+    message?: string;
+    meta: FetchMeta;
+  }>;
+  importAlbum(
+    album: BandcampAlbum,
+  ): Promise<{ ok: true; count: number } | { ok: false; error: string }>;
+};
+
+export type SoundcloudSourceAdapter = OAuthAdapterBase & {
+  id: 'soundcloud';
+  listTracks(): Promise<{ data: SoundcloudTrack[]; meta: FetchMeta }>;
+  importTracks(
+    tracks: Array<{ trackId: string; title: string }>,
+  ): Promise<{ ok: true; count: number } | { ok: false; error: string }>;
+};
+
+export type GoogleDriveSourceAdapter = OAuthAdapterBase & {
+  id: 'google-drive';
+};
+
+export type MixcloudSourceAdapter = OAuthAdapterBase & {
+  id: 'mixcloud';
+};
+
+export type FallbackOAuthAdapter = OAuthAdapterBase & {
+  id: 'musicbrainz';
+};
+
+export type OAuthSourceAdapter =
+  | BandcampSourceAdapter
+  | SoundcloudSourceAdapter
+  | GoogleDriveSourceAdapter
+  | MixcloudSourceAdapter
+  | FallbackOAuthAdapter;
+
+type SearchAdapterBase = ImportSourcePlugin & {
   kind: 'search';
 };
 
-export type ToolSourceAdapter = SourceAdapterBase & {
+export type SpotifySourceAdapter = SearchAdapterBase & {
+  id: 'spotify';
+  search(query: string): Promise<{
+    data: SpotifySearchTrack[];
+    meta: FetchMeta;
+  }>;
+  importTracks(
+    tracks: Array<{ trackId: string; title: string; externalUrl?: string }>,
+  ): Promise<{ ok: true; count: number } | { ok: false; error: string }>;
+};
+
+export type HearthisImportResult = {
+  imported: number;
+  failed: number;
+  artworkFailed: number;
+  items: Array<{ trackId: string; soundId: string }>;
+};
+
+export type HearthisSourceAdapter = SearchAdapterBase & {
+  id: 'hearthis';
+  search(query: string): Promise<{ data: HearthisTrack[]; meta: FetchMeta }>;
+  library(): Promise<{ data: HearthisLibrary; meta: FetchMeta }>;
+  collectionTracks(permalink: string): Promise<HearthisTrack[]>;
+  importTracks(
+    destinationId: string,
+    tracks: HearthisTrack[],
+  ): Promise<HearthisImportResult>;
+};
+
+export type SearchSourceAdapter = SpotifySourceAdapter | HearthisSourceAdapter;
+
+export type ToolSourceAdapter = ImportSourcePlugin & {
   kind: 'tool' | 'upload';
 };
+
+export type SourceAdapter =
+  | OAuthSourceAdapter
+  | SearchSourceAdapter
+  | ToolSourceAdapter;

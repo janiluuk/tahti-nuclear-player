@@ -87,7 +87,7 @@ Useful counterpart locations include `../tahti/apps/api/src/routes/me`, `../taht
 | Visualizers | Eleven selectable presets, including Minimal | Implemented in the browser |
 | Audio FX | EQ, compressor, limiter and filter preview registry | Preview host implemented; generic third-party UI pending |
 | Multicast | Eight typed RTMP providers with CRUD | `/api/me/rtmp-targets` implemented; shared form extraction pending |
-| Import / Sources | OAuth, search, link and tool source families | Status layer implemented; per-source adapters remain split by behavior |
+| Import / Sources | OAuth, search, link and tool source families | OAuth, search, and tool/upload adapters implemented; HTTP remains in `api/sources.ts` |
 | Export | Destination registry and distribution deep links | Provider submit/status/webhook contract pending |
 | Fingerprinting | AcoustID match and check adapter | One provider implemented; more providers pending |
 | Radio and embeds | Configurable stations and SoundCloud/YouTube/hearthis.at embeds | Page add-ons implemented; provider-specific runtime varies |
@@ -99,8 +99,7 @@ Useful counterpart locations include `../tahti/apps/api/src/routes/me`, `../taht
 The unfinished work is tracked in [`packages/tahti-web/WORKPLAN.md`](../../tahti-web/WORKPLAN.md). The next safe slices are:
 
 - extract one generic Audio FX chain host so plugin-owned controls replace the current per-plugin branches;
-- extract one shared multicast destination form used by Settings and Go Live;
-- split source adapters into OAuth, search and link/tool contracts without forcing incompatible providers into one interface.
+- extract one shared multicast destination form used by Settings and Go Live.
 
 Each slice should land with a registry test, an API-parity note, a mock state, and a user-facing empty/error state. A future ExportProvider stays blocked until `../tahti` exposes submit/status/webhook behavior.
 

@@ -32,9 +32,15 @@ type Props = {
   images: GalleryImage[];
   isOwner: boolean;
   onChange: (next: GalleryImage[]) => void;
+  showUpload?: boolean;
 };
 
-export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
+export function ArtistGalleryPanel({
+  images,
+  isOwner,
+  onChange,
+  showUpload = true,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -151,17 +157,15 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
     void reorder(id, target.id);
   }
 
+  const showToolbar =
+    (isOwner && selected.size > 0) ||
+    images.length > 0 ||
+    (isOwner && showUpload);
+
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-foreground-secondary text-sm">
-          {images.length === 0
-            ? 'No gallery photos yet.'
-            : `${images.length} photo${images.length === 1 ? '' : 's'}${
-                selected.size > 0 ? ` · ${selected.size} selected` : ''
-              }`}
-        </p>
-        <div className="flex items-center gap-2">
+      {showToolbar ? (
+        <div className="flex flex-wrap items-center justify-end gap-2">
           {isOwner && selected.size > 0 ? (
             <Button
               size="sm"
@@ -183,16 +187,21 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
               Start slideshow
             </Button>
           ) : null}
-          {isOwner ? (
+          {isOwner && showUpload ? (
             <>
               <Button
-                size="sm"
+                size="icon-sm"
                 variant="secondary"
                 disabled={busy}
+                aria-label={
+                  busy
+                    ? 'Uploading gallery images'
+                    : 'Upload more gallery images'
+                }
+                title="Upload more gallery images"
                 onClick={() => inputRef.current?.click()}
               >
-                <ImagePlusIcon size={14} className="mr-1.5" />
-                {busy ? 'Uploading…' : 'Add images'}
+                <ImagePlusIcon size={16} aria-hidden />
               </Button>
               <input
                 ref={inputRef}
@@ -205,21 +214,16 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
             </>
           ) : null}
         </div>
-      </div>
+      ) : null}
 
       {error ? <p className="text-accent-red text-sm">{error}</p> : null}
-      {isOwner && images.length > 1 ? (
-        <p className="text-foreground-secondary text-xs">
-          Drag a photo to reorder it, or use the arrows on hover. Check photos
-          to select them, then remove the ones you don't want.
-        </p>
-      ) : null}
 
       {images.length > 0 ? (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {images.map((img, index) => (
             <li
               key={img.id}
+              data-testid="gallery-photo"
               draggable={isOwner}
               onDragStart={() => setDragId(img.id)}
               onDragOver={(event) => {

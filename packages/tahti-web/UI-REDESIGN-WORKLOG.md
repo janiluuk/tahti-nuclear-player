@@ -1,5 +1,13 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Source capability contracts (OAuth / search / tool)
+
+**Completed:** Import sources are three adapter families instead of one fake start/status/import shape. Settings → Add-ons (the host that replaced Sources) and Studio Upload call `oauth` / `search` / `tool` adapters; Bandcamp album import, SoundCloud track import, Spotify search, and hearthis search/import keep their existing provider-specific flows. Sibling `GET /api/me/import-plugins` now lists the same catalog. `ExportProvider` remains metadata/deep-link only — Tahti still has no submit/status/webhook export routes.
+
+## 2026-09-03 — Branding gallery: drop count copy, icon-only upload, help in Help
+
+**Completed:** Studio → Branding → Gallery no longer shows “N images in gallery” or the labeled Add images button. Upload is the existing plus icon (`aria-label="Upload more gallery images"`), public/private is a compact toggle in the panel header, and the reorder/select/remove how-to now lives in Help → Artist guide → Artist gallery (`help.ts`). `ArtistGalleryPanel` keeps an icon-only upload on the public artist page and hides its own upload when Branding already provides the dialog. Updated `e2e/cutover-vital.spec.ts` to assert eleven `gallery-photo` tiles instead of the removed count copy. Bumped `@tahti-player/tahti-web` to `0.0.26`.
+
 ## 2026-09-03 — Admin hover-edit for internet radio covers
 
 **Completed:** Board admins can replace an internet radio station cover by hovering the artwork (pencil) on Settings → Add-ons → Radio, Listen widgets, the Listen Radio feed, and Admin → Radio. Upload writes a persistable image URL (data URL in mock, user-media in live) to both the catalog `stationOverrides` and the matching admin preset `iconUrl`. The old “cover updated” toast came from `RoundImageUploadButton` after a blob URL write that died on navigation; the mock preset store also reset on every full page load, so Admin Radio / Listen Radio kept the old Radio Helsinki logo. Mock presets now persist in `localStorage`. Non-admins do not see the edit control. Sibling `PATCH /api/admin/internet-radio-presets/:id` already accepts `iconUrl`; catalog-only stations without a matching preset stay local. Bumped `@tahti-player/tahti-web` to `0.0.25`.

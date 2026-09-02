@@ -84,7 +84,7 @@ tests and user-facing coverage for every new configuration flow.
 | Reference mastering | `src/plugins/mastering` | Browser-only Matchering reference loudness/tonal-balance matching with a final limiter | Implemented; no API mutation — output is local WAV download/preview |
 | Multicast | `src/plugins/multicast` + `api/broadcast.ts` | YouTube, Twitch, Kick, Facebook, TikTok, Mixcloud Live, Instagram, Custom RTMP | Provider registry and API typing implemented; shared add-target form pending |
 | Export | `src/plugins/export` | DSP/export destinations and source deep links | Metadata registry only; provider submit/status API contract pending |
-| Import / Sources | `src/plugins/import-sources` + `api/sources.ts` | OAuth sources, search sources, and link/tool imports | Shared status contract implemented; per-source adapters pending |
+| Import / Sources | `src/plugins/import-sources` + `api/sources.ts` | OAuth sources, search sources, and link/tool imports | OAuth, search, and tool/upload adapters implemented; HTTP remains in `api/sources.ts` |
 | Fingerprinting | `src/plugins/fingerprinting` | AcoustID match/check actions | Provider contract and AcoustID adapter implemented; additional providers pending |
 | Radio | `content/radioStations.ts` | Configurable internet-radio stations | Page add-on implemented with local station configuration |
 | Embed | embed add-on registry | SoundCloud, YouTube, and hearthis.at embeds | Implemented; provider configuration and shared playback are present |
@@ -113,7 +113,5 @@ tests and user-facing coverage for every new configuration flow.
   credentials inside each provider configuration.
 - Design and implement an `ExportProvider` only after `../tahti` exposes submit/status/webhook
   contracts; current Revelator delivery is not provider-specific.
-- Split Sources into OAuth, search, and link/tool adapter contracts without forcing them into one
-  misleading `start/status/import` interface.
 - Add a real integrations marketplace only when per-user credentials, permissions, and API
   lifecycle are specified.

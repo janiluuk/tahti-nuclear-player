@@ -2,55 +2,59 @@
 
 Wraps each `SourceDef` in `../../api/sources.ts` (bandcamp, soundcloud,
 google-drive, mixcloud, spotify, hearthis, url, upload, stash, radio) with
-the one behavior genuinely uniform across all ten: checking whether the
-source is connected.
+kind-specific adapters. HTTP calls stay in `api/sources.ts`; adapters are
+the only contract Settings → Add-ons (Import) and Studio Upload should use.
 
-## Contract
+The retired `/sources` page now redirects into Add-ons. `PluginStorePanel`
+and `StudioUploadView` are the Sources host.
+
+## Three adapter kinds
+
+Do not force these into one `start/status/import` shape.
+
+### OAuth (`oauth.ts`)
+
+Bandcamp, SoundCloud, Google Drive, Mixcloud.
 
 ```ts
-type ImportSourcePlugin = SourceDef & {
-  oauthUrl: string | null; // full authorize URL, only for oauth-kind sources
-  checkStatus(): Promise<{ data: ConnectionStatus; meta: FetchMeta }>;
-};
+checkStatus();
+oauthUrl; // full authorize URL
+disconnect();
+// Bandcamp only
+listAlbums();
+importAlbum(album);
+// SoundCloud only
+listTracks();
+importTracks(tracks);
 ```
 
-Every source also declares `capabilities` with `connect`, `search`,
-`import`, and `playback` flags. The registry test requires every source to
-declare all four so a future UI can expose only operations backed by the
-provider contract.
+MusicBrainz stays a fingerprinting OAuth connection and uses
+`oauthAdapterFor('musicbrainz', path)` rather than a catalog adapter.
 
-`importSourcePlugins: ImportSourcePlugin[]` — every source.
-`importSourcePlugin(id)` — look up one by id.
+### Search (`search.ts`)
 
-## Why this is a partial extraction — read before extending
+Spotify and hearthis.at — search-then-add, no connect/disconnect.
 
-This is **deliberately not** a full `start/status/import` plugin system.
-The ten sources split into three real kinds that don't share enough shape
-to justify one forced interface:
+```ts
+spotifySourceAdapter.search(query);
+spotifySourceAdapter.importTracks(tracks);
+hearthisSourceAdapter.search(query);
+hearthisSourceAdapter.library();
+hearthisSourceAdapter.importTracks(destinationId, tracks);
+```
 
-- **oauth** (bandcamp, soundcloud, google-drive, mixcloud) — a real
-  connect/disconnect lifecycle. `checkStatus()` covers this.
-- **search** (spotify, hearthis) — search-then-add, not "import" in the
-  connect sense. No connection state to speak of.
-- **tool** (url, radio) — paste-a-link, no connection state at all.
+### Tool / upload (`tool.ts`)
 
-Each source's actual bespoke logic (SoundCloud track listing, Spotify
-search, hearthis search+import, Google Drive picker, Bandcamp album
-import, OAuth callbacks) stays in `../../api/sources.ts` — it shares that
-file's private `requestJson`/mock-fallback plumbing with everything else
-there, same reasoning as fingerprinting leaving AcoustID's HTTP calls in
-`api/studio.ts`. `SourcesView.tsx` (the actual per-source connect/manage
-screen, 700+ lines) still calls `fetchConnectionStatus`/`oauthStartUrl`/
-`disconnectIntegration` directly, not through this plugin — rewriting its
-live per-source flows without being able to exercise each provider's real
-OAuth round-trip is genuine regression risk, deliberately left alone.
+URL paste, internet radio, local upload, stash. Metadata, `checkStatus()`,
+and optional `studioDeepLink` only.
 
-See [`../../../PLUGIN-STORE-PLAN.md`](../../../PLUGIN-STORE-PLAN.md) §5
-for the full reasoning and what a real split would need — likely three
-smaller interfaces (one per kind), not one `ImportSourcePlugin` covering
-everything.
+## Sibling API
+
+`GET /api/me/import-plugins` in `../tahti` lists the same ids and kinds.
+See `docs/technical/import-plugin-contracts.md` there. Export/DSP
+submit/status/webhook is **not** this contract.
 
 ## Consumers
 
-`PluginStorePanel.tsx`'s `IMPORT_SERVICE_PLUGINS` derives from
-`importSourcePlugins` instead of raw `SOURCE_DEFS`.
+- `PluginStorePanel` Import / URL paste cards
+- `StudioUploadView` import-source widgets

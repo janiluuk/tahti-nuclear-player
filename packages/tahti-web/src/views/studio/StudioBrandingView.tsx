@@ -404,22 +404,34 @@ export const StudioBrandingPanel: FC<{
         <>
           <StudioPanel
             title="Gallery"
-            description={`${images.length} images in gallery · ${galleryPublic ? 'public' : 'private'}`}
             action={
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                aria-label="Upload more gallery images"
-                title="Upload more gallery images"
-                onClick={() => setGalleryUploadOpen(true)}
-              >
-                <ImagePlusIcon size={16} aria-hidden />
-              </Button>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-sm">
+                  <span className="text-foreground-secondary text-xs">
+                    Public
+                  </span>
+                  <Toggle
+                    checked={galleryPublic}
+                    onChange={(checked) => void setVisibility(checked)}
+                    aria-label="Public gallery"
+                  />
+                </label>
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Upload more gallery images"
+                  title="Upload more gallery images"
+                  onClick={() => setGalleryUploadOpen(true)}
+                >
+                  <ImagePlusIcon size={16} aria-hidden />
+                </Button>
+              </div>
             }
           >
             <ArtistGalleryPanel
               images={images}
               isOwner
+              showUpload={false}
               onChange={(next) => setImages(next as PressKitImageItem[])}
             />
           </StudioPanel>
@@ -480,19 +492,6 @@ export const StudioBrandingPanel: FC<{
                   void uploadGallery(files);
                 }}
               />
-              <label className="flex items-center justify-between gap-4 text-sm">
-                <span>
-                  Public gallery
-                  <span className="text-foreground-secondary block text-xs">
-                    Listed on your artist profile
-                  </span>
-                </span>
-                <Toggle
-                  checked={galleryPublic}
-                  onChange={(checked) => void setVisibility(checked)}
-                  aria-label="Public gallery"
-                />
-              </label>
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"

@@ -65,7 +65,7 @@ This backlog comes from the Storybook comparison audit. Prefer the original Nucl
 - [x] **Slice 4 — generic Audio FX chain host** — extracted add/remove/reorder operations and plugin-owned parameter metadata/controls from `StudioProEditorView`, with chain regression coverage.
 - [x] **Slice 5 — shared multicast destination form** — share the destination form between Go Live and Settings, keeping provider-specific credentials inside each provider configuration.
 - [ ] Define and implement an `ExportProvider` only after `../tahti` exposes submit/status/webhook contracts; the current registry is metadata/deep-link only.
-- [ ] **Slice 6 — source capability contracts** — split Sources into OAuth, search, and link/tool adapter contracts and route `SourcesView` through them without losing provider-specific behavior.
+- [x] **Slice 6 — source capability contracts** — split Sources into OAuth, search, and link/tool adapter contracts and route the Add-ons Import host (ex-`SourcesView`) plus Studio Upload through them without losing provider-specific behavior. Sibling `GET /api/me/import-plugins` now lists the same catalog.
 - [ ] Define the credential/permission lifecycle for a real integrations marketplace before implementing it.
 
 ### Medium priority

@@ -1,12 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  hearthisSourceAdapter,
   importSourcePlugin,
   importSourcePlugins,
+  oauthAdapterFor,
   oauthSourceAdapters,
   searchSourceAdapters,
+  spotifySourceAdapter,
   toolSourceAdapters,
-} from './registry';
+} from './index';
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -15,14 +18,33 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
+const SIBLING_IMPORT_PLUGIN_IDS = [
+  'bandcamp',
+  'google-drive',
+  'hearthis',
+  'mixcloud',
+  'radio',
+  'soundcloud',
+  'spotify',
+  'stash',
+  'upload',
+  'url',
+] as const;
+
 describe('importSourcePlugins', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
   it('has a unique id for every source', () => {
-    const ids = importSourcePlugins.map((p) => p.id);
+    const ids = importSourcePlugins.map((plugin) => plugin.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('covers the sibling GET /api/me/import-plugins catalog', () => {
+    expect(importSourcePlugins.map((plugin) => plugin.id).sort()).toEqual(
+      [...SIBLING_IMPORT_PLUGIN_IDS].sort(),
+    );
   });
 
   it('exposes an explicit capability contract for every source', () => {
@@ -63,6 +85,38 @@ describe('importSourcePlugins', () => {
     expect(groupedIds).toEqual(
       expect.arrayContaining(importSourcePlugins.map((plugin) => plugin.id)),
     );
+  });
+
+  it('oauth adapters disconnect through the provider status route', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await oauthSourceAdapters[0]!.disconnect();
+    expect(result).toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/api/me/'),
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+  });
+
+  it('search adapters keep provider-specific search and import methods', () => {
+    expect(spotifySourceAdapter.search).toEqual(expect.any(Function));
+    expect(spotifySourceAdapter.importTracks).toEqual(expect.any(Function));
+    expect(hearthisSourceAdapter.search).toEqual(expect.any(Function));
+    expect(hearthisSourceAdapter.importTracks).toEqual(expect.any(Function));
+    expect(hearthisSourceAdapter.library).toEqual(expect.any(Function));
+  });
+
+  it('oauthAdapterFor falls back to MusicBrainz without inventing a catalog adapter', () => {
+    const adapter = oauthAdapterFor(
+      'musicbrainz',
+      '/api/me/musicbrainz/oauth/start',
+    );
+    expect(adapter.id).toBe('musicbrainz');
+    expect(adapter.oauthUrl).toContain('/api/me/musicbrainz/oauth/start');
+    expect(adapter).not.toHaveProperty('listAlbums');
   });
 
   it('checkStatus() delegates to this source’s own connection-status endpoint', async () => {
