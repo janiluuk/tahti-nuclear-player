@@ -96,8 +96,9 @@ const CONTENT_TYPES = [
   ['DJ_SET', 'DJ Set'],
   ['PODCAST', 'Podcast'],
   ['REMIX', 'Remix'],
-  ['RADIO_SHOW', 'Radio show'],
-  ['AUDIOCLIPS', 'Audio clip'],
+  ['SHOW', 'Radio show'],
+  ['EPISODE', 'Episode'],
+  ['CLIP', 'Audio clip'],
 ] as const;
 
 const LICENSES = [
@@ -158,7 +159,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
   const [quickBusy, setQuickBusy] = useState<'normalize' | 'trim' | null>(null);
   const [playBusy, setPlayBusy] = useState(false);
   const isDjMix = form.contentType === 'DJ_SET';
-  const isAudioClip = form.contentType === 'AUDIOCLIPS';
+  const isAudioClip = form.contentType === 'CLIP';
   const visibleTabOrder = isDjMix
     ? TAB_ORDER
     : TAB_ORDER.filter((tabId) => tabId !== 'tracklist');

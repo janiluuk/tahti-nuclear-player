@@ -26,7 +26,7 @@ const isSingleTrack = (item: StudioArchiveItem) =>
   item.status === 'READY' &&
   !item.embedProvider &&
   item.contentType !== 'DJ_SET' &&
-  item.contentType !== 'AUDIOCLIPS';
+  item.contentType !== 'CLIP';
 
 export function StudioRadioSubmissionPanel() {
   const [archive, setArchive] = useState<StudioArchiveItem[]>([]);

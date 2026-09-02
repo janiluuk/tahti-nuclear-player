@@ -62,6 +62,7 @@ const STYLE_OPTIONS = [
   'PODCAST',
   'PLAYLIST',
   'DJ_SET_SERIES',
+  'SERIES',
 ] as const;
 
 const PEAK_BUCKETS = 200;

@@ -56,7 +56,10 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
   DJ_SET: 'DJ Set',
   PODCAST: 'Podcast',
   REMIX: 'Remix',
-  RADIO_SHOW: 'Radio show',
+  SHOW: 'Radio show',
+  EPISODE: 'Episode',
+  CLIP: 'Clip',
+  EMBED: 'Embed',
 };
 
 function contentTypeLabel(contentType: string): string {

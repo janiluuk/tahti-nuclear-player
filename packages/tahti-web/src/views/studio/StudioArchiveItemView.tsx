@@ -70,8 +70,9 @@ const CONTENT_TYPES = [
   ['DJ_SET', 'DJ Set'],
   ['PODCAST', 'Podcast'],
   ['REMIX', 'Remix'],
-  ['RADIO_SHOW', 'Radio show'],
-  ['AUDIOCLIPS', 'Audio clip'],
+  ['SHOW', 'Radio show'],
+  ['EPISODE', 'Episode'],
+  ['CLIP', 'Audio clip'],
 ] as const;
 
 export function StudioArchiveItemView({ id }: { id: string }) {
@@ -141,7 +142,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   }, [id]);
 
   useEffect(() => {
-    if (contentType === 'AUDIOCLIPS' && tab === 'playlists') {
+    if (contentType === 'CLIP' && tab === 'playlists') {
       setTab('details');
     }
   }, [contentType, tab]);
@@ -342,7 +343,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
             .toLowerCase(),
         )
     : '';
-  const isAudioClip = contentType === 'AUDIOCLIPS';
+  const isAudioClip = contentType === 'CLIP';
   const pinned = item ? isPinned(item) : false;
   const hasError = status === 'ERROR';
   const notReady = status != null && status !== 'READY' && !hasError;

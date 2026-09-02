@@ -58,7 +58,7 @@ export function StudioEditorListView() {
   const formatLibraryType = (type: string) =>
     type === 'ALL'
       ? 'All'
-      : type === 'AUDIOCLIPS'
+      : type === 'CLIP'
         ? 'Clips'
         : type
             .toLowerCase()

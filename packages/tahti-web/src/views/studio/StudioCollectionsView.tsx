@@ -7,6 +7,7 @@ import {
   ListMusicIcon,
   Mic2Icon,
   PlusIcon,
+  RadioTowerIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
@@ -36,6 +37,11 @@ const CREATE_STYLES = [
     icon: <HeadphonesIcon size={18} aria-hidden />,
   },
   { id: 'PODCAST', label: 'Podcast', icon: <Mic2Icon size={18} aria-hidden /> },
+  {
+    id: 'SERIES',
+    label: 'Show series',
+    icon: <RadioTowerIcon size={18} aria-hidden />,
+  },
 ] as const;
 
 type CreateStyle = (typeof CREATE_STYLES)[number]['id'];
@@ -51,6 +57,9 @@ const collectionStyle = (collection: StudioCollection): CreateStyle => {
   }
   if (style === 'PODCAST') {
     return 'PODCAST';
+  }
+  if (style === 'SERIES') {
+    return 'SERIES';
   }
   if (!style || ['PLAYLIST', 'CUSTOM', 'LIST'].includes(style)) {
     return 'PLAYLIST';

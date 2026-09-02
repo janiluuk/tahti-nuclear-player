@@ -51,7 +51,9 @@ const CONTENT_TYPE_OPTIONS = [
   { id: 'DJ_SET', label: 'DJ Set' },
   { id: 'PODCAST', label: 'Podcast' },
   { id: 'REMIX', label: 'Remix' },
-  { id: 'RADIO_SHOW', label: 'Radio show' },
+  { id: 'SHOW', label: 'Radio show' },
+  { id: 'EPISODE', label: 'Episode' },
+  { id: 'CLIP', label: 'Clip' },
 ];
 
 const WIDGET_LABELS: Record<DiscoverWidgetId, string> = {

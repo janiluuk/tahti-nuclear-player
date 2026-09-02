@@ -127,14 +127,14 @@ export const ChannelRadioPlaylistPanel: FC = () => {
 
   const libraryGroups = useMemo(() => {
     const clips = libraryItems.filter(
-      (item) => item.contentType?.toUpperCase() === 'AUDIOCLIPS',
+      (item) => item.contentType?.toUpperCase() === 'CLIP',
     );
     const djSets = libraryItems.filter((item) =>
       item.contentType?.toUpperCase().includes('DJ'),
     );
     const tracks = libraryItems.filter(
       (item) =>
-        item.contentType?.toUpperCase() !== 'AUDIOCLIPS' &&
+        item.contentType?.toUpperCase() !== 'CLIP' &&
         !djSets.some((djSet) => djSet.id === item.id),
     );
     const releaseGroups = releases.map((release) => ({

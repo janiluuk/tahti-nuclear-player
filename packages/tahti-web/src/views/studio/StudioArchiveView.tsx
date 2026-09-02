@@ -153,10 +153,10 @@ export function StudioArchiveView() {
             i.status.toLowerCase().includes(q),
         );
     const filteredItems = base.filter((item) => {
-      if (folder === 'clips' && item.contentType !== 'AUDIOCLIPS') {
+      if (folder === 'clips' && item.contentType !== 'CLIP') {
         return false;
       }
-      if (folder === 'archive' && item.contentType === 'AUDIOCLIPS') {
+      if (folder === 'archive' && item.contentType === 'CLIP') {
         return false;
       }
       const provider = item.embedProvider ?? 'NATIVE';

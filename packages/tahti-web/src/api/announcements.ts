@@ -17,7 +17,7 @@ export type AnnouncementClip = {
   isEnabled: boolean;
   renderStatus: 'READY' | 'PROCESSING' | 'ERROR';
   isProfileBackground?: boolean;
-  contentType: 'AUDIOCLIPS';
+  contentType: 'CLIP';
 };
 
 export type PinnedAnnouncement = {
@@ -34,7 +34,7 @@ const mockClips: AnnouncementClip[] = [
     isEnabled: true,
     renderStatus: 'READY',
     isProfileBackground: false,
-    contentType: 'AUDIOCLIPS',
+    contentType: 'CLIP',
   },
 ];
 
@@ -174,7 +174,7 @@ export async function uploadAnnouncementClip(file: File): Promise<
       isEnabled: true,
       renderStatus: 'READY',
       isProfileBackground: false,
-      contentType: 'AUDIOCLIPS',
+      contentType: 'CLIP',
     };
     mockClips.unshift(clip);
     return { ok: true, clip };
@@ -207,7 +207,7 @@ export async function uploadAnnouncementClip(file: File): Promise<
         body: JSON.stringify({
           uploadId: prepared.uploadId,
           title,
-          contentType: 'AUDIOCLIPS',
+          contentType: 'CLIP',
         }),
       },
     );
