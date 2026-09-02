@@ -4,6 +4,7 @@ import {
   HeartIcon,
   LoaderCircleIcon,
   MessageCircle,
+  Mic,
   PauseIcon,
   PencilIcon,
   PlayIcon,
@@ -32,6 +33,7 @@ import {
   fetchChannelDiscoWidgets,
   type DiscoWidgetRenderItem,
 } from '../api/disco-widgets';
+import { fetchPublicRadioShow, type PublicRadioShow } from '../api/shows';
 import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
 import { ChannelBackdropCard } from '../components/ChannelBackdropCard';
 import {
@@ -53,6 +55,7 @@ import { NowPlayingOverlay } from '../components/NowPlayingOverlay';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { ShowEpisodeList } from '../components/ShowEpisodeList';
 import { SocialLinkIcon } from '../components/SocialLinkIcon';
 import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -135,6 +138,7 @@ export function ChannelView({ slug }: { slug: string }) {
   const [lookTick, setLookTick] = useState(0);
   const [presetNote, setPresetNote] = useState<string | null>(null);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
+  const [liveShows, setLiveShows] = useState<PublicRadioShow | null>(null);
   const [channelTab, setChannelTab] = useState<'overview' | 'manage'>(
     'overview',
   );
@@ -204,13 +208,15 @@ export function ChannelView({ slug }: { slug: string }) {
       fetchChannel(slug),
       fetchChannelArchive(slug),
       fetchChannelDiscoWidgets(slug),
-    ]).then(([ch, items, widgets]) => {
+      fetchPublicRadioShow(slug),
+    ]).then(([ch, items, widgets, shows]) => {
       if (cancelled) {
         return;
       }
       setChannel(ch.data);
       setArchive(items.data);
       setDiscoWidgets(widgets.data);
+      setLiveShows(shows.data);
       setLoading(false);
 
       if (ch.data) {
@@ -876,6 +882,49 @@ export function ChannelView({ slug }: { slug: string }) {
             </div>
           </section>
         );
+      case 'events': {
+        if (
+          !liveShows ||
+          (liveShows.upcomingEpisodes.length === 0 &&
+            liveShows.pastEpisodes.length === 0)
+        ) {
+          return editing ? (
+            <div className="px-4 py-3 text-sm">
+              <h2 className="text-sm font-bold tracking-tight">Live shows</h2>
+              <p className="text-foreground-secondary mt-1 text-xs">
+                No scheduled or past broadcasts yet — this block shows once
+                there are some.
+              </p>
+            </div>
+          ) : null;
+        }
+        return (
+          <section
+            className={`flex flex-col gap-4 px-4 py-3 ${editing ? '' : 'border-border rounded-lg border'}`}
+          >
+            <h2 className="text-sm font-bold tracking-tight">Live shows</h2>
+            <div className="grid gap-5 lg:grid-cols-2">
+              {liveShows.upcomingEpisodes.length > 0 ? (
+                <ShowEpisodeList
+                  title="Upcoming"
+                  episodes={liveShows.upcomingEpisodes}
+                  icon={<Mic size={16} aria-hidden />}
+                  channelSlug={slug}
+                  username={channel.user.username}
+                />
+              ) : null}
+              {liveShows.pastEpisodes.length > 0 ? (
+                <ShowEpisodeList
+                  title="Past recordings"
+                  episodes={liveShows.pastEpisodes}
+                  icon={<MessageCircle size={16} aria-hidden />}
+                  channelSlug={slug}
+                />
+              ) : null}
+            </div>
+          </section>
+        );
+      }
       case 'subscribe':
         return editing ? (
           <div className="px-4 py-3 text-sm">
