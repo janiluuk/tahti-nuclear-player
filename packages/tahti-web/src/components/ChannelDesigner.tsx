@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import {
+  BookmarkPlusIcon,
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -38,7 +39,9 @@ import {
 import {
   BRAND_ACCENTS,
   DEFAULT_COLOR_SCHEME,
+  deleteChannelVisualPreset,
   fetchChannelVisual,
+  fetchChannelVisualPresets,
   fillColorScheme,
   HEADER_STYLES,
   isHeaderImageUrl,
@@ -49,11 +52,14 @@ import {
   parseVisualSettingsMap,
   patchChannelVisual,
   resolveVisualPresetSettings,
+  saveChannelVisualPreset,
   shouldDockVisualizerTuning,
   uploadChannelHeaderVideo,
   VISUAL_PRESETS,
   youtubeEmbedUrl,
   type ChannelVisual,
+  type ChannelVisualPatch,
+  type ChannelVisualPreset,
   type ColorScheme,
   type VisualPreset,
   type VisualSettingsMap,
@@ -279,6 +285,16 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       LookSection | 'now-playing' | null
     >(lookOpenSection ?? 'visual-style');
 
+    const [presets, setPresets] = useState<ChannelVisualPreset[]>([]);
+    const [savePresetOpen, setSavePresetOpen] = useState(false);
+    const [presetNameInput, setPresetNameInput] = useState('');
+    const [presetBusy, setPresetBusy] = useState(false);
+    const [deletePresetTarget, setDeletePresetTarget] =
+      useState<ChannelVisualPreset | null>(null);
+    const [appliedPresetName, setAppliedPresetName] = useState<string | null>(
+      null,
+    );
+
     const handleOpenSectionChange = (id: string | null) => {
       if (
         id === null ||
@@ -313,7 +329,11 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       }, 1600);
     };
 
-    useEffect(() => {
+    /** (Re)loads the live saved look from the server, discarding any local
+     * draft — the mount/reload path, and also what "Revert" replays after a
+     * preset was applied but not saved (see `applyPreset` / the keep-or-revert
+     * banner below). */
+    const loadFromServer = () => {
       void Promise.all([fetchChannelVisual(), fetchChannelGallery()]).then(
         ([visualResult, galleryResult]) => {
           setVisual(visualResult.data);
@@ -354,6 +374,12 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
           setDirty(false);
         },
       );
+    };
+
+    useEffect(loadFromServer, [reloadToken]);
+
+    useEffect(() => {
+      void fetchChannelVisualPresets().then(({ data }) => setPresets(data));
     }, [reloadToken]);
 
     const galleryImageList = useMemo(
@@ -537,6 +563,47 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       setDirty(true);
     };
 
+    /** Everything the "Look" currently holds, as one patch — sent to save,
+     * and (with the current, not-yet-uploaded backdrop URL) snapshotted
+     * as-is when saving a named preset. */
+    const buildVisualPatch = (
+      videoUrl: string | null,
+    ): ChannelVisualPatch | null => {
+      if (!visual) {
+        return null;
+      }
+      return {
+        visualPreset: visual.visualPreset,
+        headerStyle: visual.headerStyle,
+        videoBackgroundUrl: videoUrl,
+        brandAccentPreset: visual.brandAccentPreset,
+        colorScheme: fillColorScheme(scheme),
+        visualSettings,
+        slideshowPreset,
+        slideshowIntervalSeconds: slideshowInterval,
+        slideshowTransitionMs: slideshowTransition,
+        slideshowAutoplay,
+        nowPlayingOverlayStyle: visual.nowPlayingOverlayStyle ?? undefined,
+        nowPlayingOverlaySettingsJson: JSON.stringify(overlaySettings),
+        usePlayerGradient: visual.usePlayerGradient ?? false,
+        playerColorSchemeJson: visual.usePlayerGradient
+          ? JSON.stringify(fillColorScheme(playerScheme))
+          : null,
+        backgroundVisualPreset: visual.backgroundVisualPreset ?? undefined,
+        useBackgroundGradient: visual.useBackgroundGradient ?? false,
+        backgroundColorSchemeJson: visual.useBackgroundGradient
+          ? JSON.stringify(fillColorScheme(backgroundScheme))
+          : null,
+        channelLinks: visual.channelLinks ?? [],
+        textOverlayMode: visual.textOverlayMode ?? 'NONE',
+        textOverlayText: visual.textOverlayText ?? '',
+        textOverlayAlign: visual.textOverlayAlign ?? 'CENTER',
+        playerOverlayMode: visual.playerOverlayMode ?? 'NONE',
+        playerOverlayText: visual.playerOverlayText ?? '',
+        playerOverlayAlign: visual.playerOverlayAlign ?? 'CENTER',
+      };
+    };
+
     const save = async () => {
       if (!visual) {
         return;
@@ -574,36 +641,12 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         setPendingVideoFile(null);
         setPendingVideoPreviewUrl(null);
       }
-      const result = await patchChannelVisual({
-        visualPreset: visual.visualPreset,
-        headerStyle: visual.headerStyle,
-        videoBackgroundUrl: savedVideoUrl,
-        brandAccentPreset: visual.brandAccentPreset,
-        colorScheme: fillColorScheme(scheme),
-        visualSettings,
-        slideshowPreset,
-        slideshowIntervalSeconds: slideshowInterval,
-        slideshowTransitionMs: slideshowTransition,
-        slideshowAutoplay,
-        nowPlayingOverlayStyle: visual.nowPlayingOverlayStyle ?? undefined,
-        nowPlayingOverlaySettingsJson: JSON.stringify(overlaySettings),
-        usePlayerGradient: visual.usePlayerGradient ?? false,
-        playerColorSchemeJson: visual.usePlayerGradient
-          ? JSON.stringify(fillColorScheme(playerScheme))
-          : null,
-        backgroundVisualPreset: visual.backgroundVisualPreset ?? undefined,
-        useBackgroundGradient: visual.useBackgroundGradient ?? false,
-        backgroundColorSchemeJson: visual.useBackgroundGradient
-          ? JSON.stringify(fillColorScheme(backgroundScheme))
-          : null,
-        channelLinks: visual.channelLinks ?? [],
-        textOverlayMode: visual.textOverlayMode ?? 'NONE',
-        textOverlayText: visual.textOverlayText ?? '',
-        textOverlayAlign: visual.textOverlayAlign ?? 'CENTER',
-        playerOverlayMode: visual.playerOverlayMode ?? 'NONE',
-        playerOverlayText: visual.playerOverlayText ?? '',
-        playerOverlayAlign: visual.playerOverlayAlign ?? 'CENTER',
-      });
+      const patch = buildVisualPatch(savedVideoUrl);
+      if (!patch) {
+        setBusy(false);
+        return;
+      }
+      const result = await patchChannelVisual(patch);
       if (!result.ok) {
         setBusy(false);
         toast.error(result.error);
@@ -629,6 +672,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       );
       setSlideshowAutoplay(result.data.slideshowAutoplay ?? slideshowAutoplay);
       setDirty(false);
+      setAppliedPresetName(null);
       onSaved?.();
 
       const galleryResult = await patchChannelGallery({
@@ -651,6 +695,139 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     useEffect(() => {
       onDirtyChange?.(dirty);
     }, [dirty, onDirtyChange]);
+
+    const openSavePresetModal = () => {
+      if (pendingVideoFile) {
+        toast.error(
+          'Upload or clear the pending backdrop file before saving a preset.',
+        );
+        return;
+      }
+      setPresetNameInput('');
+      setSavePresetOpen(true);
+    };
+
+    const confirmSavePreset = async () => {
+      const name = presetNameInput.trim();
+      if (!name) {
+        toast.error('Give the preset a name.');
+        return;
+      }
+      const patch = buildVisualPatch(videoBackgroundUrl.trim() || null);
+      if (!patch) {
+        return;
+      }
+      setPresetBusy(true);
+      const result = await saveChannelVisualPreset(name, patch);
+      setPresetBusy(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setPresets((prev) => [
+        result.data,
+        ...prev.filter((p) => p.id !== result.data.id),
+      ]);
+      toast.success(`Saved "${name}"`);
+      setSavePresetOpen(false);
+    };
+
+    /** Applies a saved preset's settings straight into the local draft — the
+     * same "dirty until Saved" flow as any other designer change — then
+     * surfaces the keep-or-revert banner so a preset switch never silently
+     * discards whatever the owner had before, and never silently commits it
+     * either. */
+    const applyPreset = (preset: ChannelVisualPreset) => {
+      const s = preset.settings;
+      setVisual((v) =>
+        v
+          ? {
+              ...v,
+              ...(s.visualPreset !== undefined
+                ? { visualPreset: s.visualPreset }
+                : {}),
+              ...(s.headerStyle !== undefined
+                ? { headerStyle: s.headerStyle }
+                : {}),
+              videoBackgroundUrl: s.videoBackgroundUrl ?? null,
+              brandAccentPreset: s.brandAccentPreset ?? null,
+              nowPlayingOverlayStyle:
+                s.nowPlayingOverlayStyle ?? v.nowPlayingOverlayStyle,
+              usePlayerGradient: s.usePlayerGradient ?? false,
+              backgroundVisualPreset:
+                s.backgroundVisualPreset ?? v.backgroundVisualPreset,
+              useBackgroundGradient: s.useBackgroundGradient ?? false,
+              channelLinks: s.channelLinks ?? [],
+              textOverlayMode: s.textOverlayMode ?? 'NONE',
+              textOverlayText: s.textOverlayText ?? '',
+              textOverlayAlign: s.textOverlayAlign ?? 'CENTER',
+              playerOverlayMode: s.playerOverlayMode ?? 'NONE',
+              playerOverlayText: s.playerOverlayText ?? '',
+              playerOverlayAlign: s.playerOverlayAlign ?? 'CENTER',
+            }
+          : v,
+      );
+      setScheme(s.colorScheme ?? {});
+      setPlayerScheme(
+        s.playerColorSchemeJson
+          ? (parseColorScheme(s.playerColorSchemeJson) ?? {})
+          : {},
+      );
+      setBackgroundScheme(
+        s.backgroundColorSchemeJson
+          ? (parseColorScheme(s.backgroundColorSchemeJson) ?? {})
+          : {},
+      );
+      setVisualSettings(s.visualSettings ?? {});
+      setSlideshowPreset(s.slideshowPreset ?? 'FADE');
+      setSlideshowInterval(s.slideshowIntervalSeconds ?? 8);
+      setSlideshowTransition(s.slideshowTransitionMs ?? 600);
+      setSlideshowAutoplay(s.slideshowAutoplay ?? true);
+      setOverlaySettings(
+        parseNowPlayingOverlaySettings(s.nowPlayingOverlaySettingsJson),
+      );
+      setVideoBackgroundUrl(
+        typeof s.videoBackgroundUrl === 'string' ? s.videoBackgroundUrl : '',
+      );
+      if (
+        s.visualPreset &&
+        isVisualPreset(s.visualPreset) &&
+        s.visualPreset !== 'MINIMAL'
+      ) {
+        setPreviewPreset(s.visualPreset);
+      }
+      setDirty(true);
+      setAppliedPresetName(preset.name);
+    };
+
+    const keepAppliedPreset = () => {
+      setAppliedPresetName(null);
+    };
+
+    const revertAppliedPreset = () => {
+      loadFromServer();
+      setAppliedPresetName(null);
+    };
+
+    const confirmDeletePreset = async () => {
+      if (!deletePresetTarget) {
+        return;
+      }
+      const target = deletePresetTarget;
+      setPresetBusy(true);
+      const result = await deleteChannelVisualPreset(target.id);
+      setPresetBusy(false);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setPresets((prev) => prev.filter((p) => p.id !== target.id));
+      if (appliedPresetName === target.name) {
+        setAppliedPresetName(null);
+      }
+      toast.success(`Deleted "${target.name}"`);
+      setDeletePresetTarget(null);
+    };
 
     if (!visual) {
       return <PageLoading label="Loading designer…" />;
@@ -2338,314 +2515,439 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     }
 
     return (
-      <div className={`flex flex-col gap-4 ${compact ? '' : 'w-full'}`}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-display text-xl font-bold tracking-tight">
-            Channel Designer
-          </h2>
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            {saveButton}
-            {openChannelLink}
-          </div>
-        </div>
-
-        <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,23rem)]">
-          <main
-            aria-label="Channel page preview"
-            className="border-border bg-background sticky top-4 z-10 max-h-[calc(100vh-2rem)] min-w-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-lg"
-          >
-            <div className="border-border bg-background-secondary/40 flex items-center justify-between gap-1.5 border-b px-4 py-2.5">
-              <div className="flex items-center gap-1.5">
-                <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                  Live page preview
-                </span>
-                <Tooltip
-                  side="bottom"
-                  content={
-                    <p className="max-w-64 text-xs leading-relaxed">
-                      This mirrors the public channel structure. Visitors see
-                      your profile header, channel navigation, live stage,
-                      tracks, and artist information in this order. Layout
-                      blocks are edited from the channel page editor.
-                    </p>
-                  }
-                >
-                  <span
-                    tabIndex={0}
-                    aria-label="About this preview"
-                    className="text-foreground-secondary hover:text-foreground inline-flex size-4 cursor-help items-center justify-center rounded-full border border-current"
-                  >
-                    <span className="text-[10px] leading-none font-bold">
-                      ?
-                    </span>
-                  </span>
-                </Tooltip>
-              </div>
+      <>
+        <div className={`flex flex-col gap-4 ${compact ? '' : 'w-full'}`}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-display text-xl font-bold tracking-tight">
+              Channel Designer
+            </h2>
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <Button variant="secondary" onClick={openSavePresetModal}>
+                <BookmarkPlusIcon size={16} /> Save preset
+              </Button>
+              {saveButton}
               {openChannelLink}
             </div>
-            <ChannelBackdropCard
-              minHeightClassName="min-h-[24rem]"
-              displayName={displayName}
-              username={username}
-              channelSlug={channelSlug}
-              avatarUrl={avatarUrl}
-              bio={bio}
-              headerStyle={visual.headerStyle}
-              videoBackgroundUrl={previewVideoUrl}
-              showVideoOverride={showHeaderVideo}
-              isImageOverride={headerBackdropIsImage}
-              accent={previewStyle.accent}
-              highlight={previewStyle.highlight}
-              bg={previewStyle.bg}
-              fg={previewStyle.fg}
-              gradientOverride={previewStyle.gradient}
-              visualPreset={previewPreset}
-              colorScheme={scheme}
-              artworkUrl={avatarUrl}
-              galleryMode={galleryMode}
-              slideshowImages={galleryImageList}
-              mountVisualizer={hasLivePreview && visualizerEnabled}
-              editable
-              identitySelected={highlightSection === 'header'}
-              backgroundSelected={highlightSection === 'visualizer'}
-              onEditIdentity={() =>
-                focusPreviewSection('header', 'channel-designer-section-header')
-              }
-              onEditBackground={() =>
-                focusPreviewSection(
-                  'visualizer',
-                  'channel-designer-section-player',
-                )
-              }
-              badge={
-                <span
-                  className="rounded px-2 py-1 text-[10px] font-bold tracking-wide uppercase"
-                  style={{ background: previewStyle.accent, color: '#0B1220' }}
+          </div>
+
+          {presets.length > 0 && (
+            <div className="border-border bg-background-secondary/30 flex flex-wrap items-center gap-2 rounded-lg border p-3">
+              <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                Saved looks
+              </span>
+              {presets.map((preset) => (
+                <div
+                  key={preset.id}
+                  className="border-border bg-background flex items-center gap-1 rounded-full border py-1 pr-1 pl-3 text-sm"
                 >
-                  Artist channel
-                </span>
-              }
-              bottomSlot={
-                <div className="bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 pt-16">
-                  <div className="text-[10px] font-semibold tracking-wide text-white/70 uppercase">
-                    Now playing
-                  </div>
-                  <div className="mt-1 text-2xl font-extrabold text-white">
-                    Your live channel
-                  </div>
-                  <div className="text-sm text-white/80">
-                    A live preview of the artist stage
-                  </div>
+                  <button
+                    type="button"
+                    className="hover:text-primary font-semibold"
+                    disabled={presetBusy}
+                    onClick={() => applyPreset(preset)}
+                  >
+                    {preset.name}
+                  </button>
+                  <Tooltip content="Delete preset">
+                    <button
+                      type="button"
+                      aria-label={`Delete "${preset.name}"`}
+                      className="text-foreground-secondary hover:text-accent-red rounded-full p-1.5"
+                      disabled={presetBusy}
+                      onClick={() => setDeletePresetTarget(preset)}
+                    >
+                      <Trash2Icon size={14} />
+                    </button>
+                  </Tooltip>
                 </div>
-              }
-            />
-
-            <div className="flex flex-col gap-5 p-4 sm:p-6">
-              <section>
-                <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-lg font-bold">Tracks</h3>
-                  <span className="text-foreground-secondary text-xs">
-                    Published on your channel
-                  </span>
-                </div>
-                <div className="border-border divide-border divide-y overflow-hidden rounded-lg border">
-                  {['Latest release', 'Live session', 'Featured track'].map(
-                    (title, index) => (
-                      <div
-                        key={title}
-                        className="flex items-center gap-3 px-3 py-3"
-                      >
-                        <span className="bg-primary/15 text-primary flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold">
-                          {index + 1}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-semibold">
-                            {title}
-                          </div>
-                          <div className="text-foreground-secondary text-xs">
-                            {displayName}
-                          </div>
-                        </div>
-                        <span className="text-foreground-secondary text-xs">
-                          Preview
-                        </span>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </section>
-              <section className="border-border rounded-lg border p-4">
-                <h3 className="text-sm font-bold">About {displayName}</h3>
-                <p className="text-foreground-secondary mt-1 line-clamp-2 text-sm">
-                  {bio || 'Your artist bio will appear here for visitors.'}
-                </p>
-              </section>
+              ))}
             </div>
-          </main>
+          )}
 
-          <aside aria-label="Channel appearance controls" className="min-w-0">
-            {controls}
-          </aside>
+          {appliedPresetName && (
+            <div className="border-primary/40 bg-primary/10 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm">
+              <span>
+                Applied <strong>&ldquo;{appliedPresetName}&rdquo;</strong>. Keep
+                this look, or revert to what was last saved?
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={revertAppliedPreset}
+                >
+                  Revert
+                </Button>
+                <Button size="sm" onClick={keepAppliedPreset}>
+                  Keep
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,23rem)]">
+            <main
+              aria-label="Channel page preview"
+              className="border-border bg-background sticky top-4 z-10 max-h-[calc(100vh-2rem)] min-w-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-lg"
+            >
+              <div className="border-border bg-background-secondary/40 flex items-center justify-between gap-1.5 border-b px-4 py-2.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                    Live page preview
+                  </span>
+                  <Tooltip
+                    side="bottom"
+                    content={
+                      <p className="max-w-64 text-xs leading-relaxed">
+                        This mirrors the public channel structure. Visitors see
+                        your profile header, channel navigation, live stage,
+                        tracks, and artist information in this order. Layout
+                        blocks are edited from the channel page editor.
+                      </p>
+                    }
+                  >
+                    <span
+                      tabIndex={0}
+                      aria-label="About this preview"
+                      className="text-foreground-secondary hover:text-foreground inline-flex size-4 cursor-help items-center justify-center rounded-full border border-current"
+                    >
+                      <span className="text-[10px] leading-none font-bold">
+                        ?
+                      </span>
+                    </span>
+                  </Tooltip>
+                </div>
+                {openChannelLink}
+              </div>
+              <ChannelBackdropCard
+                minHeightClassName="min-h-[24rem]"
+                displayName={displayName}
+                username={username}
+                channelSlug={channelSlug}
+                avatarUrl={avatarUrl}
+                bio={bio}
+                headerStyle={visual.headerStyle}
+                videoBackgroundUrl={previewVideoUrl}
+                showVideoOverride={showHeaderVideo}
+                isImageOverride={headerBackdropIsImage}
+                accent={previewStyle.accent}
+                highlight={previewStyle.highlight}
+                bg={previewStyle.bg}
+                fg={previewStyle.fg}
+                gradientOverride={previewStyle.gradient}
+                visualPreset={previewPreset}
+                colorScheme={scheme}
+                artworkUrl={avatarUrl}
+                galleryMode={galleryMode}
+                slideshowImages={galleryImageList}
+                mountVisualizer={hasLivePreview && visualizerEnabled}
+                editable
+                identitySelected={highlightSection === 'header'}
+                backgroundSelected={highlightSection === 'visualizer'}
+                onEditIdentity={() =>
+                  focusPreviewSection(
+                    'header',
+                    'channel-designer-section-header',
+                  )
+                }
+                onEditBackground={() =>
+                  focusPreviewSection(
+                    'visualizer',
+                    'channel-designer-section-player',
+                  )
+                }
+                badge={
+                  <span
+                    className="rounded px-2 py-1 text-[10px] font-bold tracking-wide uppercase"
+                    style={{
+                      background: previewStyle.accent,
+                      color: '#0B1220',
+                    }}
+                  >
+                    Artist channel
+                  </span>
+                }
+                bottomSlot={
+                  <div className="bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 pt-16">
+                    <div className="text-[10px] font-semibold tracking-wide text-white/70 uppercase">
+                      Now playing
+                    </div>
+                    <div className="mt-1 text-2xl font-extrabold text-white">
+                      Your live channel
+                    </div>
+                    <div className="text-sm text-white/80">
+                      A live preview of the artist stage
+                    </div>
+                  </div>
+                }
+              />
+
+              <div className="flex flex-col gap-5 p-4 sm:p-6">
+                <section>
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-lg font-bold">Tracks</h3>
+                    <span className="text-foreground-secondary text-xs">
+                      Published on your channel
+                    </span>
+                  </div>
+                  <div className="border-border divide-border divide-y overflow-hidden rounded-lg border">
+                    {['Latest release', 'Live session', 'Featured track'].map(
+                      (title, index) => (
+                        <div
+                          key={title}
+                          className="flex items-center gap-3 px-3 py-3"
+                        >
+                          <span className="bg-primary/15 text-primary flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold">
+                            {index + 1}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-semibold">
+                              {title}
+                            </div>
+                            <div className="text-foreground-secondary text-xs">
+                              {displayName}
+                            </div>
+                          </div>
+                          <span className="text-foreground-secondary text-xs">
+                            Preview
+                          </span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </section>
+                <section className="border-border rounded-lg border p-4">
+                  <h3 className="text-sm font-bold">About {displayName}</h3>
+                  <p className="text-foreground-secondary mt-1 line-clamp-2 text-sm">
+                    {bio || 'Your artist bio will appear here for visitors.'}
+                  </p>
+                </section>
+              </div>
+            </main>
+
+            <aside aria-label="Channel appearance controls" className="min-w-0">
+              {controls}
+            </aside>
+          </div>
+
+          {overlayConfigOpen ? (
+            <Dialog.Root
+              isOpen
+              onClose={() => setOverlayConfigOpen(false)}
+              className="max-w-lg"
+            >
+              <Dialog.Title>Configure text overlay</Dialog.Title>
+              <Dialog.Description>
+                Fine-tune the now-playing title and artist overlay used on your
+                channel.
+              </Dialog.Description>
+              <div className="flex flex-col gap-4">
+                <Slider
+                  label={`Text size: ${Math.round(overlaySettings.textScale * 100)}%`}
+                  min={0.6}
+                  max={1.6}
+                  step={0.05}
+                  value={overlaySettings.textScale}
+                  onValueChange={(value) =>
+                    setOverlaySetting('textScale', value)
+                  }
+                />
+                <Slider
+                  label={`Horizontal position: ${overlaySettings.offsetX}px`}
+                  min={-120}
+                  max={120}
+                  step={4}
+                  value={overlaySettings.offsetX}
+                  onValueChange={(value) => setOverlaySetting('offsetX', value)}
+                />
+                <Slider
+                  label={`Vertical position: ${overlaySettings.offsetY}px`}
+                  min={-120}
+                  max={120}
+                  step={4}
+                  value={overlaySettings.offsetY}
+                  onValueChange={(value) => setOverlaySetting('offsetY', value)}
+                />
+                <Slider
+                  label={`Opacity: ${Math.round(overlaySettings.opacity * 100)}%`}
+                  min={0.2}
+                  max={1}
+                  step={0.05}
+                  value={overlaySettings.opacity}
+                  onValueChange={(value) => setOverlaySetting('opacity', value)}
+                />
+              </div>
+            </Dialog.Root>
+          ) : null}
+
+          {visualizerPickerOpen ? (
+            <Dialog.Root
+              isOpen
+              onClose={() => setVisualizerPickerOpen(false)}
+              className="max-w-3xl"
+            >
+              <Dialog.Title>Choose visualizer</Dialog.Title>
+              <Dialog.Description>
+                Preview each animated stage and choose the one that fits your
+                channel.
+              </Dialog.Description>
+              <div className="mt-2 grid gap-4 lg:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)]">
+                <div className="grid content-start gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                  {availableVisualizers.map((preset) => {
+                    const meta = visualizerMetadata(preset);
+                    const selected = visualizerPickerPreset === preset;
+                    return (
+                      <button
+                        key={preset}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() => setVisualizerPickerPreset(preset)}
+                        className={`border-border flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
+                          selected
+                            ? 'border-primary bg-primary/10'
+                            : 'hover:border-primary/50'
+                        }`}
+                      >
+                        <span className="bg-background-secondary relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md">
+                          {livePreview ? (
+                            <span className="absolute inset-0" aria-hidden>
+                              <ChannelVisualizer
+                                preset={preset}
+                                colorScheme={scheme}
+                                visualSettingsJson={JSON.stringify(
+                                  visualSettings,
+                                )}
+                                className="size-full"
+                                audioReactive={false}
+                              />
+                            </span>
+                          ) : (
+                            <span
+                              className="absolute inset-0 animate-pulse"
+                              style={{
+                                background: `linear-gradient(135deg, ${scheme.highlight ?? '#A78BFA'}, ${scheme.accent ?? '#22D3EE'}, ${scheme.bg ?? '#0B1220'})`,
+                              }}
+                            />
+                          )}
+                          <meta.Icon
+                            size={16}
+                            className="relative z-[1] text-white drop-shadow"
+                            aria-hidden
+                          />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold">
+                            {preset.replace(/_/g, ' ')}
+                          </span>
+                          <span className="text-foreground-secondary block truncate text-xs">
+                            {meta.description}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div
+                  className="border-border bg-background relative min-h-56 overflow-hidden rounded-xl border"
+                  aria-label={`${visualizerPickerPreset.replace(/_/g, ' ')} preview`}
+                >
+                  {livePreview ? (
+                    <ChannelVisualizer
+                      className="absolute inset-0 size-full"
+                      preset={visualizerPickerPreset}
+                      colorScheme={scheme}
+                      visualSettingsJson={JSON.stringify(visualSettings)}
+                      artworkUrl={avatarUrl}
+                    />
+                  ) : (
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: previewStyle.gradient }}
+                    />
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-4 pt-16 text-white">
+                    <div className="text-xs font-semibold tracking-wide uppercase">
+                      Live preview
+                    </div>
+                    <div className="mt-1 text-lg font-bold">
+                      {visualizerPickerPreset.replace(/_/g, ' ')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Dialog.Actions>
+                <Dialog.Close>Cancel</Dialog.Close>
+                <Button
+                  onClick={() => {
+                    setPreviewPreset(visualizerPickerPreset);
+                    applyLocal({ visualPreset: visualizerPickerPreset });
+                    setVisualizerPickerOpen(false);
+                  }}
+                >
+                  Use visualizer
+                </Button>
+              </Dialog.Actions>
+            </Dialog.Root>
+          ) : null}
         </div>
 
-        {overlayConfigOpen ? (
-          <Dialog.Root
-            isOpen
-            onClose={() => setOverlayConfigOpen(false)}
-            className="max-w-lg"
-          >
-            <Dialog.Title>Configure text overlay</Dialog.Title>
-            <Dialog.Description>
-              Fine-tune the now-playing title and artist overlay used on your
-              channel.
-            </Dialog.Description>
-            <div className="flex flex-col gap-4">
-              <Slider
-                label={`Text size: ${Math.round(overlaySettings.textScale * 100)}%`}
-                min={0.6}
-                max={1.6}
-                step={0.05}
-                value={overlaySettings.textScale}
-                onValueChange={(value) => setOverlaySetting('textScale', value)}
-              />
-              <Slider
-                label={`Horizontal position: ${overlaySettings.offsetX}px`}
-                min={-120}
-                max={120}
-                step={4}
-                value={overlaySettings.offsetX}
-                onValueChange={(value) => setOverlaySetting('offsetX', value)}
-              />
-              <Slider
-                label={`Vertical position: ${overlaySettings.offsetY}px`}
-                min={-120}
-                max={120}
-                step={4}
-                value={overlaySettings.offsetY}
-                onValueChange={(value) => setOverlaySetting('offsetY', value)}
-              />
-              <Slider
-                label={`Opacity: ${Math.round(overlaySettings.opacity * 100)}%`}
-                min={0.2}
-                max={1}
-                step={0.05}
-                value={overlaySettings.opacity}
-                onValueChange={(value) => setOverlaySetting('opacity', value)}
-              />
-            </div>
-          </Dialog.Root>
-        ) : null}
+        <Dialog.Root
+          isOpen={savePresetOpen}
+          onClose={() => {
+            if (!presetBusy) {
+              setSavePresetOpen(false);
+            }
+          }}
+        >
+          <Dialog.Title>Save preset</Dialog.Title>
+          <Dialog.Description>
+            Save the current look under a name so you can switch back to it
+            later.
+          </Dialog.Description>
+          <Input
+            label="Preset name"
+            value={presetNameInput}
+            onChange={(event) => setPresetNameInput(event.target.value)}
+            placeholder="e.g. Neon night"
+            autoFocus
+          />
+          <Dialog.Actions>
+            <Dialog.Close>Cancel</Dialog.Close>
+            <Button
+              disabled={presetBusy}
+              onClick={() => void confirmSavePreset()}
+            >
+              Save preset
+            </Button>
+          </Dialog.Actions>
+        </Dialog.Root>
 
-        {visualizerPickerOpen ? (
-          <Dialog.Root
-            isOpen
-            onClose={() => setVisualizerPickerOpen(false)}
-            className="max-w-3xl"
-          >
-            <Dialog.Title>Choose visualizer</Dialog.Title>
-            <Dialog.Description>
-              Preview each animated stage and choose the one that fits your
-              channel.
-            </Dialog.Description>
-            <div className="mt-2 grid gap-4 lg:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)]">
-              <div className="grid content-start gap-2 sm:grid-cols-2 lg:grid-cols-1">
-                {availableVisualizers.map((preset) => {
-                  const meta = visualizerMetadata(preset);
-                  const selected = visualizerPickerPreset === preset;
-                  return (
-                    <button
-                      key={preset}
-                      type="button"
-                      aria-pressed={selected}
-                      onClick={() => setVisualizerPickerPreset(preset)}
-                      className={`border-border flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
-                        selected
-                          ? 'border-primary bg-primary/10'
-                          : 'hover:border-primary/50'
-                      }`}
-                    >
-                      <span className="bg-background-secondary relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md">
-                        {livePreview ? (
-                          <span className="absolute inset-0" aria-hidden>
-                            <ChannelVisualizer
-                              preset={preset}
-                              colorScheme={scheme}
-                              visualSettingsJson={JSON.stringify(
-                                visualSettings,
-                              )}
-                              className="size-full"
-                              audioReactive={false}
-                            />
-                          </span>
-                        ) : (
-                          <span
-                            className="absolute inset-0 animate-pulse"
-                            style={{
-                              background: `linear-gradient(135deg, ${scheme.highlight ?? '#A78BFA'}, ${scheme.accent ?? '#22D3EE'}, ${scheme.bg ?? '#0B1220'})`,
-                            }}
-                          />
-                        )}
-                        <meta.Icon
-                          size={16}
-                          className="relative z-[1] text-white drop-shadow"
-                          aria-hidden
-                        />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-semibold">
-                          {preset.replace(/_/g, ' ')}
-                        </span>
-                        <span className="text-foreground-secondary block truncate text-xs">
-                          {meta.description}
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              <div
-                className="border-border bg-background relative min-h-56 overflow-hidden rounded-xl border"
-                aria-label={`${visualizerPickerPreset.replace(/_/g, ' ')} preview`}
-              >
-                {livePreview ? (
-                  <ChannelVisualizer
-                    className="absolute inset-0 size-full"
-                    preset={visualizerPickerPreset}
-                    colorScheme={scheme}
-                    visualSettingsJson={JSON.stringify(visualSettings)}
-                    artworkUrl={avatarUrl}
-                  />
-                ) : (
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: previewStyle.gradient }}
-                  />
-                )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-4 pt-16 text-white">
-                  <div className="text-xs font-semibold tracking-wide uppercase">
-                    Live preview
-                  </div>
-                  <div className="mt-1 text-lg font-bold">
-                    {visualizerPickerPreset.replace(/_/g, ' ')}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <Dialog.Actions>
-              <Dialog.Close>Cancel</Dialog.Close>
-              <Button
-                onClick={() => {
-                  setPreviewPreset(visualizerPickerPreset);
-                  applyLocal({ visualPreset: visualizerPickerPreset });
-                  setVisualizerPickerOpen(false);
-                }}
-              >
-                Use visualizer
-              </Button>
-            </Dialog.Actions>
-          </Dialog.Root>
-        ) : null}
-      </div>
+        <Dialog.Root
+          isOpen={deletePresetTarget !== null}
+          onClose={() => {
+            if (!presetBusy) {
+              setDeletePresetTarget(null);
+            }
+          }}
+        >
+          <Dialog.Title>
+            Delete &ldquo;{deletePresetTarget?.name}&rdquo;?
+          </Dialog.Title>
+          <Dialog.Description>
+            This preset will be gone for good. Your current, live look is not
+            affected.
+          </Dialog.Description>
+          <Dialog.Actions>
+            <Dialog.Close>Cancel</Dialog.Close>
+            <Button
+              disabled={presetBusy}
+              onClick={() => void confirmDeletePreset()}
+            >
+              Delete preset
+            </Button>
+          </Dialog.Actions>
+        </Dialog.Root>
+      </>
     );
   },
 );
