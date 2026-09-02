@@ -25,6 +25,8 @@ export function ListenerWidgetEmbed({
     <Box
       variant="tertiary"
       className="group relative h-auto w-auto flex-col gap-2 rounded-lg p-3"
+      data-testid="listener-widget-embed"
+      data-widget-type={instance.typeId}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0 truncate text-sm font-medium">

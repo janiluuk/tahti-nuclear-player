@@ -262,3 +262,48 @@ export const LISTENER_WIDGET_TYPES: ListenerWidgetType[] = [
 export function listenerWidgetType(id: string): ListenerWidgetType | undefined {
   return LISTENER_WIDGET_TYPES.find((t) => t.id === id);
 }
+
+export type ResolvedListenerWidgetInput =
+  | { ok: true; input: string; saveSoundcloudProfile: boolean }
+  | { ok: false; error: string };
+
+export function resolveListenerWidgetInput(
+  typeId: string,
+  rawInput: string,
+): ResolvedListenerWidgetInput {
+  const input = rawInput.trim();
+  const type = listenerWidgetType(typeId);
+  if (!type) {
+    return { ok: false, error: 'Unknown add-on.' };
+  }
+  if (!input) {
+    return {
+      ok: false,
+      error:
+        typeId === 'soundcloud'
+          ? 'Add a SoundCloud profile, track, set, or playlist URL.'
+          : `Add a ${type.name} link.`,
+    };
+  }
+  if (typeId === 'soundcloud') {
+    const profile = soundcloudProfileUrl(input);
+    if (profile) {
+      return { ok: true, input: profile, saveSoundcloudProfile: true };
+    }
+    if (type.toEmbedUrl(input)) {
+      return { ok: true, input, saveSoundcloudProfile: false };
+    }
+    return {
+      ok: false,
+      error:
+        'Use a SoundCloud profile, track, set, or playlist URL such as https://soundcloud.com/your-name.',
+    };
+  }
+  if (!type.toEmbedUrl(input)) {
+    return {
+      ok: false,
+      error: `Couldn't recognize this ${type.name} link. ${type.helpText}`,
+    };
+  }
+  return { ok: true, input, saveSoundcloudProfile: false };
+}

@@ -1,5 +1,17 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Admin hover-edit for internet radio covers
+
+**Completed:** Board admins can replace an internet radio station cover by hovering the artwork (pencil) on Settings → Add-ons → Radio, Listen widgets, the Listen Radio feed, and Admin → Radio. Upload writes a persistable image URL (data URL in mock, user-media in live) to both the catalog `stationOverrides` and the matching admin preset `iconUrl`. The old “cover updated” toast came from `RoundImageUploadButton` after a blob URL write that died on navigation; the mock preset store also reset on every full page load, so Admin Radio / Listen Radio kept the old Radio Helsinki logo. Mock presets now persist in `localStorage`. Non-admins do not see the edit control. Sibling `PATCH /api/admin/internet-radio-presets/:id` already accepts `iconUrl`; catalog-only stations without a matching preset stay local. Bumped `@tahti-player/tahti-web` to `0.0.25`.
+
+## 2026-09-03 — Listen add-ons actually appear after install/configure
+
+**Completed:** The shared `ListenAddonsPanel` opened a nested Headless UI Dialog for Configure, which closed the Listen add-widget picker (and could also fight the Settings modal). Configure is now an inline fold-out, install jumps to Installed and opens that fold-out, URLs are validated before save, SoundCloud accepts a profile (saved to the account) or a track/set/playlist URL, Favorites on Listen renders embedded instead of a second page header, and uninstall removes embeds from the page. Discovery configure stays on the install row in the picker so it does not nest a dialog. Shipped with `@tahti-player/tahti-web` `0.0.24`.
+
+## 2026-09-03 — Listen add-widget picker includes the Listen store catalog
+
+**Completed:** `ListenWidgetStoreDialog` only listed disco-widgets. The Settings → Add-ons → Listen catalog (Favorites plus SoundCloud, Spotify, YouTube, hearthis.at, and Bandcamp) now lives in `ListenAddonsPanel` and is reused by both the store tab and the Listen header picker, which opens on Available. Discovery widgets stay in the same dialog below. Bumped `@tahti-player/tahti-web` to `0.0.24`.
+
 ## 2026-09-02 — Audio-reactive labels on visualizer plugins
 
 **Completed:** Scanned every channel visualizer plugin’s `update(elapsed, level)` hook. All fifteen WebGL presets (`WATER_RIPPLE` through `COLOR_INSTANCES`) scale motion, size, or opacity from the audio envelope; `MINIMAL` does not (it is CSS-only). Recorded that as `audioReactive` on `VISUALIZER_METADATA` and show an **Audio reactive** pill on Settings → Add-ons → Visualizers and the Channel Designer picker. The audio-reactivity toggle now appears only for presets that actually use the envelope. Bumped `@tahti-player/tahti-web` to `0.0.23`.

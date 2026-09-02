@@ -52,6 +52,7 @@ import { ListenWidgetStoreDialog } from '../components/ListenWidgetStoreDialog';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { QueueConfirmDialog } from '../components/QueueConfirmDialog';
+import { RadioStationCoverEditButton } from '../components/RadioStationCover';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -308,12 +309,6 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
           actions={
             <div className="flex flex-wrap items-center gap-2">
               {signedIn ? <ListenWidgetStoreDialog /> : null}
-              <Link
-                to="/help"
-                className="text-foreground-secondary hover:text-foreground text-xs underline-offset-2 hover:underline"
-              >
-                Help center →
-              </Link>
               {!signedIn ? (
                 <Link to="/what-is-it">
                   <Button size="sm" variant="secondary">
@@ -472,35 +467,53 @@ export function ListenView({ tab = 'listen' }: { tab?: ListenTab }) {
                       (playbackStatus === 'playing' ||
                         playbackStatus === 'loading');
                     return (
-                      <Card
-                        key={preset.id}
-                        title={preset.name}
-                        subtitle={preset.genre ?? 'Internet radio'}
-                        src={
-                          preset.iconUrl ?? placeholderArtworkUrl(playableId)
-                        }
-                        isPlaying={isPlaying}
-                        playDisabled={!preset.streamUrl}
-                        onPlay={() => {
-                          if (!preset.streamUrl) {
-                            return;
+                      <div key={preset.id} className="group relative w-fit">
+                        <RadioStationCoverEditButton
+                          label={preset.name}
+                          stationName={preset.name}
+                          presetId={preset.id}
+                          className="absolute top-3 left-3 z-10 rounded-full"
+                          onCoverChange={(iconUrl) =>
+                            setRadioPresets((current) =>
+                              current.map((item) =>
+                                item.id === preset.id
+                                  ? { ...item, iconUrl }
+                                  : item,
+                              ),
+                            )
                           }
-                          if (isCurrent) {
-                            setPlaybackStatus(isPlaying ? 'paused' : 'playing');
-                            return;
+                        />
+                        <Card
+                          title={preset.name}
+                          subtitle={preset.genre ?? 'Internet radio'}
+                          src={
+                            preset.iconUrl ?? placeholderArtworkUrl(playableId)
                           }
-                          play({
-                            id: playableId,
-                            kind: 'radio',
-                            title: preset.name,
-                            artist: preset.genre ?? 'Internet radio',
-                            coverUrl: preset.iconUrl ?? undefined,
-                            streamUrl: preset.streamUrl,
-                            protocol: 'https',
-                            sourceProvider: 'internet-radio',
-                          });
-                        }}
-                      />
+                          isPlaying={isPlaying}
+                          playDisabled={!preset.streamUrl}
+                          onPlay={() => {
+                            if (!preset.streamUrl) {
+                              return;
+                            }
+                            if (isCurrent) {
+                              setPlaybackStatus(
+                                isPlaying ? 'paused' : 'playing',
+                              );
+                              return;
+                            }
+                            play({
+                              id: playableId,
+                              kind: 'radio',
+                              title: preset.name,
+                              artist: preset.genre ?? 'Internet radio',
+                              coverUrl: preset.iconUrl ?? undefined,
+                              streamUrl: preset.streamUrl,
+                              protocol: 'https',
+                              sourceProvider: 'internet-radio',
+                            });
+                          }}
+                        />
+                      </div>
                     );
                   })}
                 </CardGrid>

@@ -22,7 +22,7 @@ import { fetchRadioStation } from '../../api/client';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
-import { RoundImageUploadButton } from '../../components/RoundImageUploadButton';
+import { RadioStationCover } from '../../components/RadioStationCover';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { TahtiRotationPlaylistEditor } from '../../components/TahtiRotationPlaylistEditor';
 import { usePlayerStore } from '../../stores/playerStore';
@@ -146,15 +146,19 @@ function InternetRadioPresetsPanel() {
               className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
             >
               <div className="bg-background-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg text-xs font-bold">
-                {preset.iconUrl ? (
-                  <img
-                    src={preset.iconUrl}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  preset.name.slice(0, 2).toUpperCase()
-                )}
+                <RadioStationCover
+                  src={preset.iconUrl ?? ''}
+                  label={preset.name}
+                  stationName={preset.name}
+                  presetId={preset.id}
+                  onCoverChange={(iconUrl) =>
+                    setPresets((current) =>
+                      current.map((item) =>
+                        item.id === preset.id ? { ...item, iconUrl } : item,
+                      ),
+                    )
+                  }
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
@@ -226,14 +230,26 @@ function InternetRadioPresetsPanel() {
         </Dialog.Description>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col items-center gap-2 self-center">
-            <RoundImageUploadButton
-              label="Station logo"
-              value={draft.iconUrl}
-              sizeClassName="h-28 w-28"
-              onChange={(iconUrl) => setDraft({ ...draft, iconUrl })}
+            <RadioStationCover
+              src={draft.iconUrl || ''}
+              label={draft.name.trim() || 'Station'}
+              stationName={draft.name.trim() || 'Station'}
+              presetId={editingId ?? undefined}
+              persist={Boolean(editingId)}
+              className="h-28 w-28 overflow-hidden rounded-lg"
+              onCoverChange={(iconUrl) => {
+                setDraft((current) => ({ ...current, iconUrl }));
+                if (editingId) {
+                  setPresets((current) =>
+                    current.map((item) =>
+                      item.id === editingId ? { ...item, iconUrl } : item,
+                    ),
+                  );
+                }
+              }}
             />
             <span className="text-foreground-secondary text-xs">
-              Station logo — JPEG, PNG, or WebP.
+              Station logo — JPEG, PNG, or WebP. Hover to replace.
             </span>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">

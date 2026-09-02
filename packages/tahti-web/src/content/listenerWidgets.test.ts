@@ -1,6 +1,23 @@
 import { describe, expect, it } from 'vitest';
 
-import { listenerWidgetType, soundcloudProfileUrl } from './listenerWidgets';
+import {
+  LISTENER_WIDGET_TYPES,
+  listenerWidgetType,
+  resolveListenerWidgetInput,
+  soundcloudProfileUrl,
+} from './listenerWidgets';
+
+describe('Listen store catalog', () => {
+  it('lists every streaming add-on the Listen store and add-widget picker share', () => {
+    expect(LISTENER_WIDGET_TYPES.map((type) => type.id)).toEqual([
+      'soundcloud',
+      'youtube',
+      'spotify',
+      'hearthis',
+      'bandcamp',
+    ]);
+  });
+});
 
 describe('hearthis.at listener embed', () => {
   const hearthis = listenerWidgetType('hearthis');
@@ -38,6 +55,53 @@ describe('SoundCloud profile URL', () => {
       null,
     );
     expect(soundcloudProfileUrl('https://example.com/artist')).toBe(null);
+  });
+});
+
+describe('resolveListenerWidgetInput', () => {
+  it('accepts a SoundCloud profile and marks it to save on the account', () => {
+    expect(
+      resolveListenerWidgetInput('soundcloud', 'https://soundcloud.com/artist'),
+    ).toEqual({
+      ok: true,
+      input: 'https://soundcloud.com/artist',
+      saveSoundcloudProfile: true,
+    });
+  });
+
+  it('accepts a SoundCloud track URL without treating it as a profile', () => {
+    expect(
+      resolveListenerWidgetInput(
+        'soundcloud',
+        'https://soundcloud.com/artist/track',
+      ),
+    ).toEqual({
+      ok: true,
+      input: 'https://soundcloud.com/artist/track',
+      saveSoundcloudProfile: false,
+    });
+  });
+
+  it('rejects an unrecognized YouTube URL instead of saving a broken embed', () => {
+    expect(
+      resolveListenerWidgetInput('youtube', 'https://example.com/watch'),
+    ).toEqual({
+      ok: false,
+      error: expect.stringContaining("Couldn't recognize this YouTube link"),
+    });
+  });
+
+  it('accepts a YouTube watch URL', () => {
+    expect(
+      resolveListenerWidgetInput(
+        'youtube',
+        'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      ),
+    ).toEqual({
+      ok: true,
+      input: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      saveSoundcloudProfile: false,
+    });
   });
 });
 

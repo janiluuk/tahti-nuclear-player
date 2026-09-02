@@ -108,10 +108,6 @@ import type {
   StudioCollection,
 } from '../api/studio-types';
 import {
-  LISTENER_WIDGET_TYPES,
-  soundcloudProfileUrl,
-} from '../content/listenerWidgets';
-import {
   PLUGIN_CATEGORIES,
   type PluginCategoryId,
 } from '../content/pluginStoreCategories';
@@ -152,9 +148,9 @@ import { useRadioBrowserStore } from '../stores/radioBrowserStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
-import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
+import { ListenAddonsPanel } from './ListenAddonsPanel';
 import { PageLoading } from './PageStates';
-import { RoundImageUploadButton } from './RoundImageUploadButton';
+import { RadioStationCover } from './RadioStationCover';
 import { SourceServiceIcon } from './SourceServiceIcon';
 import { ThemeVisualizationSettings } from './ThemeVisualizationSettings';
 
@@ -387,7 +383,7 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
       {categoryId === 'multicast' && <MulticastCategory />}
       {categoryId === 'audio-plugins' && <AudioPluginsCategory />}
       {categoryId === 'radio' && <RadioCategory />}
-      {categoryId === 'listen' && <ListenCategory />}
+      {categoryId === 'listen' && <ListenAddonsPanel />}
       {categoryId === 'discovery' && <DiscoveryCategory />}
       {categoryId === 'channel' && <ChannelCategory />}
     </div>
@@ -3204,10 +3200,11 @@ function RadioCategory() {
             <PluginItem
               key={station.id}
               icon={
-                <img
+                <RadioStationCover
                   src={station.logoUrl}
-                  alt=""
-                  className="size-full object-cover"
+                  label={station.name}
+                  stationName={station.name}
+                  catalogStationId={station.id}
                 />
               }
               name={
@@ -3382,13 +3379,13 @@ function RadioCategory() {
               />
               <div className="flex flex-col gap-1.5 sm:col-span-2">
                 <span className="text-sm font-medium">Cover image</span>
-                <RoundImageUploadButton
-                  label="Station cover image"
-                  value={logoUrlDraft}
-                  onChange={(logoUrl) => {
-                    setLogoUrlDraft(logoUrl);
-                    updateStation(editingStation.id, { logoUrl });
-                  }}
+                <RadioStationCover
+                  src={logoUrlDraft}
+                  label={editingStation.name}
+                  stationName={editingStation.name}
+                  catalogStationId={editingStation.id}
+                  className="h-28 w-28 overflow-hidden rounded-lg"
+                  onCoverChange={setLogoUrlDraft}
                 />
                 <input type="hidden" name="logoUrl" value={logoUrlDraft} />
               </div>
@@ -3445,261 +3442,6 @@ function RadioCategory() {
           </form>
         )}
       </Dialog.Root>
-    </div>
-  );
-}
-
-function ListenCategory() {
-  const [installTab, setInstallTab] = useState<'installed' | 'available'>(
-    'installed',
-  );
-  const installedTypeIds = useListenerWidgetsStore((s) => s.installedTypeIds);
-  const instances = useListenerWidgetsStore((s) => s.instances);
-  const installType = useListenerWidgetsStore((s) => s.installType);
-  const uninstallType = useListenerWidgetsStore((s) => s.uninstallType);
-  const addInstance = useListenerWidgetsStore((s) => s.addInstance);
-  const removeInstance = useListenerWidgetsStore((s) => s.removeInstance);
-  const [inputByType, setInputByType] = useState<Record<string, string>>({});
-  const [soundcloudProfile, setSoundcloudProfile] = useState('');
-  const [soundcloudProfileLoading, setSoundcloudProfileLoading] =
-    useState(true);
-  const [soundcloudProfileError, setSoundcloudProfileError] = useState<
-    string | null
-  >(null);
-  const [savingSoundcloudProfile, setSavingSoundcloudProfile] = useState(false);
-
-  useEffect(() => {
-    void fetchMeProfile().then((profile) => {
-      const accountLink = profile.data.socialLinks?.soundcloud ?? '';
-      setSoundcloudProfile(soundcloudProfileUrl(accountLink) ?? accountLink);
-      setSoundcloudProfileLoading(false);
-    });
-  }, []);
-
-  const addWidgetInstance = async (typeId: string, label: string) => {
-    const rawInput =
-      inputByType[typeId] ?? (typeId === 'soundcloud' ? soundcloudProfile : '');
-    const input = rawInput.trim();
-    if (!input) {
-      if (typeId === 'soundcloud') {
-        setSoundcloudProfileError(
-          'Add your SoundCloud profile URL before configuring this widget.',
-        );
-      }
-      return;
-    }
-
-    if (typeId !== 'soundcloud') {
-      addInstance(typeId, input, label);
-      setInputByType((prev) => ({ ...prev, [typeId]: '' }));
-      return;
-    }
-
-    const normalizedProfile = soundcloudProfileUrl(input);
-    if (!normalizedProfile) {
-      setSoundcloudProfileError(
-        'Use a SoundCloud profile URL such as https://soundcloud.com/your-name.',
-      );
-      return;
-    }
-
-    setSavingSoundcloudProfile(true);
-    setSoundcloudProfileError(null);
-    const profile = await fetchMeProfile();
-    const saved = await patchMeProfile({
-      socialLinks: {
-        ...(profile.data.socialLinks ?? {}),
-        soundcloud: normalizedProfile,
-      },
-    });
-    setSavingSoundcloudProfile(false);
-    if (!saved.ok) {
-      setSoundcloudProfileError(saved.error);
-      return;
-    }
-    setSoundcloudProfile(normalizedProfile);
-    addInstance('soundcloud', normalizedProfile, 'SoundCloud');
-    setInputByType((prev) => ({ ...prev, soundcloud: normalizedProfile }));
-  };
-
-  const favoritesInstalled = installedTypeIds.includes('favorites');
-  const installedCount =
-    (favoritesInstalled ? 1 : 0) +
-    LISTENER_WIDGET_TYPES.filter((t) => installedTypeIds.includes(t.id)).length;
-  const availableCount = LISTENER_WIDGET_TYPES.length + 1 - installedCount;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div
-        className="flex gap-1"
-        role="tablist"
-        aria-label="Installed or available"
-      >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={installTab === 'installed'}
-          onClick={() => setInstallTab('installed')}
-          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-            installTab === 'installed'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-border text-foreground hover:bg-background-secondary'
-          }`}
-        >
-          Installed ({installedCount})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={installTab === 'available'}
-          onClick={() => setInstallTab('available')}
-          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-            installTab === 'available'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-border text-foreground hover:bg-background-secondary'
-          }`}
-        >
-          Available ({availableCount})
-        </button>
-      </div>
-      {favoritesInstalled === (installTab === 'installed') && (
-        <ConfigurableCard
-          title="Favorites"
-          header={
-            <PluginStoreItem
-              name="Favorites"
-              author="Tahti"
-              description="Show your favorite channels and tracks as a section on Listen."
-              category="Listen"
-              isInstalled={favoritesInstalled}
-              onInstall={() => installType('favorites')}
-            />
-          }
-        >
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-foreground-secondary text-sm">
-              Enabled favorites appear on the Listen page.
-            </p>
-            <Button
-              size="sm"
-              variant="text"
-              onClick={() => uninstallType('favorites')}
-            >
-              Uninstall
-            </Button>
-          </div>
-        </ConfigurableCard>
-      )}
-      {LISTENER_WIDGET_TYPES.filter(
-        (type) =>
-          installedTypeIds.includes(type.id) === (installTab === 'installed'),
-      ).map((type) => {
-        const isInstalled = installedTypeIds.includes(type.id);
-        const typeInstances = instances.filter((i) => i.typeId === type.id);
-        return (
-          <ConfigurableCard
-            key={type.id}
-            title={type.name}
-            header={
-              <PluginStoreItem
-                name={type.name}
-                author={type.author}
-                description={type.description}
-                category={type.category}
-                isInstalled={isInstalled}
-                onInstall={() => installType(type.id)}
-              />
-            }
-          >
-            {isInstalled ? (
-              <div className="border-border ml-2 flex flex-col gap-3 border-l pl-4">
-                {typeInstances.map((instance) => (
-                  <ListenerWidgetEmbed
-                    key={instance.id}
-                    instance={instance}
-                    onRemove={() => removeInstance(instance.id)}
-                  />
-                ))}
-                <form
-                  className="flex flex-wrap items-end gap-2"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    void addWidgetInstance(type.id, type.name);
-                  }}
-                >
-                  <Input
-                    label={
-                      type.id === 'soundcloud'
-                        ? 'SoundCloud profile URL'
-                        : `Add a ${type.name} link`
-                    }
-                    value={
-                      inputByType[type.id] ??
-                      (type.id === 'soundcloud' ? soundcloudProfile : '')
-                    }
-                    onChange={(e) =>
-                      type.id === 'soundcloud'
-                        ? (setSoundcloudProfileError(null),
-                          setInputByType((prev) => ({
-                            ...prev,
-                            [type.id]: e.target.value,
-                          })))
-                        : setInputByType((prev) => ({
-                            ...prev,
-                            [type.id]: e.target.value,
-                          }))
-                    }
-                    placeholder={type.placeholder}
-                    className="min-w-[18rem] flex-1"
-                    required={type.id === 'soundcloud'}
-                    disabled={
-                      type.id === 'soundcloud' && soundcloudProfileLoading
-                    }
-                  />
-                  <Button
-                    size="sm"
-                    type="submit"
-                    disabled={
-                      (type.id === 'soundcloud' &&
-                        (soundcloudProfileLoading ||
-                          savingSoundcloudProfile)) ||
-                      !(
-                        inputByType[type.id] ??
-                        (type.id === 'soundcloud' ? soundcloudProfile : '')
-                      ).trim()
-                    }
-                  >
-                    {type.id === 'soundcloud' && savingSoundcloudProfile
-                      ? 'Saving…'
-                      : 'Add'}
-                  </Button>
-                </form>
-                {type.id === 'soundcloud' && soundcloudProfileError && (
-                  <p className="text-destructive text-xs" role="alert">
-                    {soundcloudProfileError}
-                  </p>
-                )}
-                <div className="flex items-center justify-between">
-                  <p className="text-foreground-secondary text-xs">
-                    {type.helpText}
-                  </p>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() => uninstallType(type.id)}
-                  >
-                    Uninstall
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <p className="text-foreground-secondary text-sm">
-                Install this add-on to add and manage embeds.
-              </p>
-            )}
-          </ConfigurableCard>
-        );
-      })}
     </div>
   );
 }

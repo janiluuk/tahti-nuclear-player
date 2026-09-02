@@ -1,5 +1,26 @@
 [
   {
+    "date": "2026-09-03T01:00",
+    "description": "Admins can now replace an internet radio station’s cover by hovering the artwork and uploading a new image, and the new cover shows up everywhere that station appears.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Radio", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-03T00:00",
+    "description": "You can now install a Listen add-on from the add-widget button, paste a link, and see the player on Listen right away — configuring no longer closes the picker, SoundCloud accepts track or profile URLs, and uninstalling takes the widget off the page.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-03T00:00",
+    "description": "The Listen add-widget button now lists every Listen add-on from the store — Favorites plus SoundCloud, Spotify, YouTube, hearthis.at, and Bandcamp — so you can install them without leaving the page.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
     "date": "2026-09-02T00:00",
     "description": "Visualizer presets that follow the playing track now show an Audio reactive label, so you can tell at a glance which backdrops respond to the music.",
     "type": "improvement",

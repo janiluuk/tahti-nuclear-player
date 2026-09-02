@@ -204,16 +204,18 @@ export function DiscoWidgetManagerPanel({
                       >
                         <ArrowDown size={15} aria-hidden />
                       </Button>
-                      <Button
-                        size="icon-sm"
-                        variant="secondary"
-                        disabled={isPending}
-                        onClick={() => setConfiguringId(install.id)}
-                        aria-label={`Configure ${install.widget.name}`}
-                        title="Configure widget"
-                      >
-                        <Settings2 size={15} aria-hidden />
-                      </Button>
+                      {compact ? null : (
+                        <Button
+                          size="icon-sm"
+                          variant="secondary"
+                          disabled={isPending}
+                          onClick={() => setConfiguringId(install.id)}
+                          aria-label={`Configure ${install.widget.name}`}
+                          title="Configure widget"
+                        >
+                          <Settings2 size={15} aria-hidden />
+                        </Button>
+                      )}
                       <label className="text-foreground-secondary flex items-center gap-2 text-xs">
                         <input
                           type="checkbox"

@@ -2,9 +2,13 @@ import { expect, test } from '@playwright/test';
 
 async function signIn(page: import('@playwright/test').Page): Promise<void> {
   await page.goto('/login');
+  await expect(page.getByLabel('Email')).toBeVisible({ timeout: 20_000 });
   await page.getByLabel('Email').fill('artist@tahti.live');
   await page.getByLabel('Password').fill('demo-password');
   await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(
+    page.getByRole('button', { name: /^Signed in as/ }),
+  ).toBeVisible();
   await page.evaluate(() => {
     const raw = localStorage.getItem('tahti-web-auth');
     const userId = raw ? JSON.parse(raw)?.state?.user?.id : null;
@@ -174,6 +178,206 @@ test('Plugin store explains categories, previews themes, and labels audio-reacti
     dialog.getByRole('checkbox', { name: /Audio reactivity/ }),
   ).toBeVisible();
   await dialog.getByRole('button', { name: 'Done' }).click();
+});
+
+const LISTEN_EMBED_ADDONS = [
+  {
+    name: 'SoundCloud',
+    url: 'https://soundcloud.com/artist/track',
+    type: 'soundcloud',
+  },
+  {
+    name: 'YouTube',
+    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    type: 'youtube',
+  },
+  {
+    name: 'Spotify',
+    url: 'https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6',
+    type: 'spotify',
+  },
+  {
+    name: 'hearthis.at',
+    url: '12345',
+    type: 'hearthis',
+  },
+  {
+    name: 'Bandcamp',
+    url: 'https://bandcamp.com/EmbeddedPlayer/album=1234567890/size=large/tracklist=false/',
+    type: 'bandcamp',
+  },
+] as const;
+
+async function clearListenAddons(
+  page: import('@playwright/test').Page,
+): Promise<void> {
+  await page.evaluate(() => {
+    localStorage.removeItem('tahti-web-listener-widgets');
+  });
+}
+
+test('Listen add-widget dialog lists every Listen store add-on', async ({
+  page,
+}) => {
+  await signIn(page);
+  await clearListenAddons(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Add Listen widgets' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(
+    dialog.getByRole('heading', { name: 'Listen add-ons' }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByTestId('plugin-store-item-name').getByText('Favorites'),
+  ).toBeVisible();
+  await expect(
+    dialog.getByTestId('plugin-store-item-name').getByText('SoundCloud'),
+  ).toBeVisible();
+  await expect(
+    dialog.getByTestId('plugin-store-item-name').getByText('YouTube'),
+  ).toBeVisible();
+  await expect(
+    dialog.getByTestId('plugin-store-item-name').getByText('Spotify'),
+  ).toBeVisible();
+  await expect(
+    dialog.getByTestId('plugin-store-item-name').getByText('hearthis.at'),
+  ).toBeVisible();
+  await expect(
+    dialog.getByTestId('plugin-store-item-name').getByText('Bandcamp'),
+  ).toBeVisible();
+});
+
+test('Listen add-widget picker installs, configures, and uninstalls every Listen add-on without closing', async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  await signIn(page);
+  await clearListenAddons(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Add Listen widgets' }).click();
+  const dialog = page.getByRole('dialog');
+
+  for (const addon of LISTEN_EMBED_ADDONS) {
+    await dialog.getByRole('tab', { name: /Available/ }).click();
+    const card = dialog
+      .getByTestId('plugin-store-item')
+      .filter({ hasText: addon.name });
+    await card.getByRole('button', { name: 'Install' }).click();
+    await expect(
+      dialog.getByRole('heading', { name: 'Add Listen widgets' }),
+    ).toBeVisible();
+    await dialog.getByLabel(`Add a ${addon.name} link`).fill(addon.url);
+    await dialog
+      .getByTestId(`listen-addon-config-${addon.name}`)
+      .getByRole('button', { name: 'Add', exact: true })
+      .click();
+    await expect(
+      dialog.locator(
+        `[data-testid="listener-widget-embed"][data-widget-type="${addon.type}"]`,
+      ),
+    ).toBeVisible();
+  }
+
+  await dialog.getByRole('tab', { name: /Available/ }).click();
+  await dialog
+    .getByTestId('plugin-store-item')
+    .filter({ hasText: 'Favorites' })
+    .getByRole('button', { name: 'Install' })
+    .click();
+  await expect(
+    dialog.getByText('Enabled favorites appear on the Listen page.'),
+  ).toBeVisible();
+
+  await dialog.getByTestId('dialog-x-close').click();
+  await expect(dialog).toBeHidden();
+
+  const section = page.getByTestId('listener-widgets-section');
+  await expect(
+    section.getByRole('heading', { name: 'Listen add-ons' }),
+  ).toBeVisible();
+  for (const addon of LISTEN_EMBED_ADDONS) {
+    await expect(
+      section.locator(`[data-widget-type="${addon.type}"]`),
+    ).toBeVisible();
+  }
+  await expect(
+    section.getByRole('heading', { name: 'Channels' }),
+  ).toBeVisible();
+
+  await page.getByRole('button', { name: 'Add Listen widgets' }).click();
+  const again = page.getByRole('dialog');
+  await again.getByRole('tab', { name: /Installed/ }).click();
+  for (const addon of [...LISTEN_EMBED_ADDONS].reverse()) {
+    await again
+      .getByRole('button', { name: `Configure ${addon.name}` })
+      .click();
+    await again.getByRole('button', { name: 'Uninstall' }).click();
+  }
+  await again.getByRole('button', { name: 'Configure Favorites' }).click();
+  await again.getByRole('button', { name: 'Uninstall' }).click();
+  await again.getByTestId('dialog-x-close').click();
+
+  await expect(page.getByTestId('listener-widgets-section')).toHaveCount(0);
+});
+
+test('Settings Add-ons Listen tab can add and remove a widget on Listen', async ({
+  page,
+}) => {
+  await signIn(page);
+  await clearListenAddons(page);
+  await page.goto('/');
+  await expect(
+    page.getByRole('button', { name: 'Add Listen widgets' }),
+  ).toBeVisible();
+  await page.goto('/settings/plugin-store?category=listen');
+
+  const settings = page.getByRole('dialog');
+  await expect(
+    settings.getByText(/listener widgets on your Listen page/i),
+  ).toBeVisible();
+  await settings.getByRole('tab', { name: /Available/ }).click();
+  await settings
+    .getByTestId('plugin-store-item')
+    .filter({ hasText: 'YouTube' })
+    .getByRole('button', { name: 'Install' })
+    .click();
+  await settings
+    .getByLabel('Add a YouTube link')
+    .fill('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+  await settings
+    .getByTestId('listen-addon-config-YouTube')
+    .getByRole('button', { name: 'Add', exact: true })
+    .click();
+  await expect(settings.locator('[data-widget-type="youtube"]')).toBeVisible();
+  await expect
+    .poll(async () =>
+      page.evaluate(() => localStorage.getItem('tahti-web-listener-widgets')),
+    )
+    .toContain('youtube');
+  await settings.getByTestId('dialog-x-close').click();
+
+  await page.goto('/');
+  await expect(
+    page.getByRole('button', { name: 'Add Listen widgets' }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByTestId('listener-widgets-section')
+      .locator('[data-widget-type="youtube"]'),
+  ).toBeVisible();
+
+  await page.goto('/settings/plugin-store?category=listen');
+  const again = page.getByRole('dialog');
+  await again.getByRole('tab', { name: /Installed/ }).click();
+  await again.getByRole('button', { name: 'Configure YouTube' }).click();
+  await again.getByRole('button', { name: 'Uninstall' }).click();
+  await again.getByTestId('dialog-x-close').click();
+
+  await page.goto('/');
+  await expect(
+    page.getByRole('button', { name: 'Add Listen widgets' }),
+  ).toBeVisible();
+  await expect(page.getByTestId('listener-widgets-section')).toHaveCount(0);
 });
 
 test('Studio release fingerprinting: check and re-fingerprint a track through the AcoustID plugin', async ({

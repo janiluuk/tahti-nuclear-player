@@ -9,6 +9,7 @@ import { usePlayerStore } from '../stores/playerStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { FavoritesView } from '../views/FavoritesView';
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
+import { RadioStationCoverEditButton } from './RadioStationCover';
 import { RemoveWidgetDialog } from './RemoveWidgetDialog';
 
 type PendingRemoval =
@@ -41,6 +42,7 @@ export function ListenerWidgetsSection() {
     .filter((s) => s != null);
 
   const favoritesEnabled = installedTypeIds.includes('favorites');
+  const hasListenAddons = instances.length > 0 || favoritesEnabled;
 
   if (
     instances.length === 0 &&
@@ -66,12 +68,17 @@ export function ListenerWidgetsSection() {
   };
 
   return (
-    <section className="mb-6 flex w-full flex-col gap-3">
+    <section
+      className="mb-6 flex w-full flex-col gap-3"
+      data-testid="listener-widgets-section"
+    >
       <div className="flex w-full flex-wrap items-center justify-between gap-2">
-        <h2 className="text-2xl font-bold">Radio channels</h2>
+        <h2 className="text-2xl font-bold">
+          {hasListenAddons ? 'Listen add-ons' : 'Radio channels'}
+        </h2>
         <button
           type="button"
-          onClick={() => openSettings('plugin-store')}
+          onClick={() => openSettings('plugin-store', 'listen')}
           className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
         >
           Manage widgets
@@ -82,6 +89,12 @@ export function ListenerWidgetsSection() {
         <CardGrid>
           {enabledStations.map((station) => (
             <div key={station.id} className="group relative w-fit">
+              <RadioStationCoverEditButton
+                label={station.name}
+                stationName={station.name}
+                catalogStationId={station.id}
+                className="absolute top-3 left-3 z-10 rounded-full"
+              />
               <Button
                 size="icon-sm"
                 variant="text"
@@ -138,7 +151,7 @@ export function ListenerWidgetsSection() {
         </div>
       )}
 
-      {favoritesEnabled ? <FavoritesView /> : null}
+      {favoritesEnabled ? <FavoritesView embedded /> : null}
 
       <RemoveWidgetDialog
         isOpen={pendingRemoval != null}

@@ -164,7 +164,17 @@ const locations: ElementLocation[] = [
     element: 'DiscoWidgetManagerPanel',
     kind: 'Component',
     pages:
-      'Settings → Add-ons (listener scope), Studio → Manage → Channel (artist scope)',
+      'Settings → Add-ons (listener scope), Studio → Manage → Channel (artist scope), Listen add-widget dialog',
+  },
+  {
+    element: 'ListenAddonsPanel',
+    kind: 'Component',
+    pages: 'Settings → Add-ons → Listen, Listen add-widget dialog',
+  },
+  {
+    element: 'ListenWidgetStoreDialog',
+    kind: 'Component',
+    pages: 'Listen header',
   },
   {
     element: 'AdminDiscoWidgetsView',

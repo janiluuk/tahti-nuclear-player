@@ -14,7 +14,9 @@ export type MockInternetRadioPreset = {
   enabled: boolean;
 };
 
-let presets: MockInternetRadioPreset[] = [
+const STORAGE_KEY = 'tahti-web-internet-radio-presets';
+
+const INITIAL_PRESETS: MockInternetRadioPreset[] = [
   {
     id: 'preset-radio-helsinki',
     name: 'Radio Helsinki',
@@ -27,8 +29,55 @@ let presets: MockInternetRadioPreset[] = [
   },
 ];
 
+function cloneInitialPresets(): MockInternetRadioPreset[] {
+  return INITIAL_PRESETS.map((preset) => ({ ...preset }));
+}
+
+function readStoredPresets(): MockInternetRadioPreset[] | null {
+  if (typeof localStorage === 'undefined') {
+    return null;
+  }
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    return null;
+  }
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return null;
+    }
+    return parsed.filter((item): item is MockInternetRadioPreset => {
+      return (
+        Boolean(item) &&
+        typeof item === 'object' &&
+        typeof (item as MockInternetRadioPreset).id === 'string' &&
+        typeof (item as MockInternetRadioPreset).name === 'string'
+      );
+    });
+  } catch {
+    return null;
+  }
+}
+
+function persistPresets(): void {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+}
+
+let presets: MockInternetRadioPreset[] =
+  readStoredPresets() ?? cloneInitialPresets();
+
 export function listMockInternetRadioPresets(): MockInternetRadioPreset[] {
   return presets;
+}
+
+export function resetMockInternetRadioPresets(): void {
+  presets = cloneInitialPresets();
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem(STORAGE_KEY);
+  }
 }
 
 export function listEnabledMockInternetRadioPresets(): MockInternetRadioPreset[] {
@@ -46,6 +95,7 @@ export function createMockInternetRadioPreset(
     ...input,
   };
   presets = [preset, ...presets];
+  persistPresets();
   return preset;
 }
 
@@ -59,9 +109,11 @@ export function patchMockInternetRadioPreset(
   }
   const updated = { ...existing, ...patch };
   presets = presets.map((p) => (p.id === id ? updated : p));
+  persistPresets();
   return updated;
 }
 
 export function deleteMockInternetRadioPreset(id: string): void {
   presets = presets.filter((p) => p.id !== id);
+  persistPresets();
 }
