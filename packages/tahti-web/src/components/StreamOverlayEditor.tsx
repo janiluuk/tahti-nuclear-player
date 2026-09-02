@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, FilePicker, Input } from '@tahti-player/ui';
 
@@ -82,11 +83,22 @@ export function StreamOverlayEditor({ onSaved }: { onSaved?: () => void }) {
           })
         }
       />
+      {overlay.streamOverlayCoverUrl ? (
+        <img
+          src={overlay.streamOverlayCoverUrl}
+          alt="Overlay cover preview"
+          className="border-border h-20 w-20 rounded-md border object-cover"
+        />
+      ) : null}
       <FilePicker
         labels={{
           title: 'Overlay cover image',
           description: 'JPEG, PNG, or WebP',
-          browse: coverFile ? 'Choose another image' : 'Choose image',
+          browse: coverUploading
+            ? 'Uploading…'
+            : coverFile
+              ? 'Choose another image'
+              : 'Choose image',
         }}
         accept="image/jpeg,image/png,image/webp"
         selectedFiles={coverFile ? [coverFile] : []}
@@ -103,12 +115,14 @@ export function StreamOverlayEditor({ onSaved }: { onSaved?: () => void }) {
             setCoverUploading(false);
             if (!result.ok) {
               setError(result.error);
+              toast.error(result.error);
               return;
             }
             setOverlay((current) => ({
               ...current,
               streamOverlayCoverUrl: result.data.url,
             }));
+            toast.success('Overlay cover updated.');
           });
         }}
       />

@@ -284,9 +284,11 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                               void uploadReleaseArtwork(id, file).then((r) => {
                                 if (!r.ok) {
                                   setMessage(r.error);
+                                  toast.error(r.error);
                                 } else {
                                   setArtworkPreview(r.artworkUrl);
                                   setMessage('Artwork uploaded.');
+                                  toast.success('Artwork uploaded.');
                                 }
                                 setArtworkPickerOpen(false);
                               });

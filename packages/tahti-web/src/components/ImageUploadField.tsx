@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { FilePicker } from '@tahti-player/ui';
 
@@ -35,9 +36,11 @@ export function ImageUploadField({
     setBusy(false);
     if (!result.ok) {
       setError(result.error);
+      toast.error(result.error);
       return;
     }
     onChange(result.data.url);
+    toast.success(`${label} updated.`);
   };
 
   return (

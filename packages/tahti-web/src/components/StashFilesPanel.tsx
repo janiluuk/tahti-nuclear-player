@@ -6,6 +6,7 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Select } from '@tahti-player/ui';
 
@@ -188,9 +189,11 @@ export const StashFilesPanel = () => {
               setBusy(false);
               if (!result.ok) {
                 setMessage(result.error);
+                toast.error(result.error);
                 return;
               }
               setMessage(`Uploaded ${file.name}`);
+              toast.success(`Uploaded ${file.name}`);
               void reload();
             });
           }}

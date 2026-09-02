@@ -162,6 +162,7 @@ export function OnboardingView() {
       return;
     }
     setAvatarUrl(result.avatarUrl);
+    toast.success('Profile photo updated.');
     await refresh();
   };
 

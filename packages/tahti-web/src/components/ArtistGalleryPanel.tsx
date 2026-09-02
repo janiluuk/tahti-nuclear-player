@@ -7,6 +7,7 @@ import {
   Trash2Icon,
 } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@tahti-player/ui';
 
@@ -51,9 +52,15 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
     setBusy(false);
     if (result.images.length > 0) {
       onChange([...images, ...result.images]);
+      toast.success(
+        result.images.length === 1
+          ? 'Photo added.'
+          : `${result.images.length} photos added.`,
+      );
     }
     if (result.errors.length > 0) {
       setError(result.errors.join('; '));
+      toast.error(result.errors.join('; '));
     }
     if (inputRef.current) {
       inputRef.current.value = '';
@@ -81,6 +88,7 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
     if (!res.ok) {
       onChange(prev);
       setError(res.error);
+      toast.error(res.error);
     }
   }
 
@@ -108,6 +116,7 @@ export function ArtistGalleryPanel({ images, isOwner, onChange }: Props) {
     if (results.some((r) => !r.ok)) {
       onChange(prev);
       setError('Some images could not be removed.');
+      toast.error('Some images could not be removed.');
     }
   }
 
@@ -349,9 +358,15 @@ export function ArtistGalleryAddIcon({
     setBusy(false);
     if (result.images.length > 0) {
       onCreated(result.images);
+      toast.success(
+        result.images.length === 1
+          ? 'Photo added.'
+          : `${result.images.length} photos added.`,
+      );
     }
     if (result.errors.length > 0) {
       setError(result.errors.join('; '));
+      toast.error(result.errors.join('; '));
     }
     if (inputRef.current) {
       inputRef.current.value = '';
