@@ -1,42 +1,262 @@
 {
   "surface": "beta.tahti.live",
-  "capturedAt": "2026-09-01",
+  "capturedAt": "2026-08-31",
   "images": [
     {
       "file": "about.png",
       "url": "https://beta.tahti.live/map/nuclear/about.png"
     },
     {
+      "file": "account--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/account--0-themes.png"
+    },
+    {
+      "file": "account--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/account--1-what-s-new.png"
+    },
+    {
+      "file": "account--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/account--2-tab.png"
+    },
+    {
+      "file": "account--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/account--3-tab.png"
+    },
+    {
+      "file": "account--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/account--4-tab.png"
+    },
+    {
       "file": "account.png",
       "url": "https://beta.tahti.live/map/nuclear/account.png"
+    },
+    {
+      "file": "admin--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin--0-themes.png"
+    },
+    {
+      "file": "admin--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin--1-what-s-new.png"
+    },
+    {
+      "file": "admin--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin--2-tab.png"
+    },
+    {
+      "file": "admin--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin--3-tab.png"
+    },
+    {
+      "file": "admin--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin--4-tab.png"
+    },
+    {
+      "file": "admin-activity-orphan--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-activity-orphan--0-themes.png"
+    },
+    {
+      "file": "admin-activity-orphan--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-activity-orphan--1-what-s-new.png"
+    },
+    {
+      "file": "admin-activity-orphan--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-activity-orphan--2-tab.png"
+    },
+    {
+      "file": "admin-activity-orphan--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-activity-orphan--3-tab.png"
+    },
+    {
+      "file": "admin-activity-orphan--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-activity-orphan--4-tab.png"
     },
     {
       "file": "admin-activity-orphan.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-activity-orphan.png"
     },
     {
+      "file": "admin-agm--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-agm--0-themes.png"
+    },
+    {
+      "file": "admin-agm--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-agm--1-what-s-new.png"
+    },
+    {
+      "file": "admin-agm--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-agm--2-tab.png"
+    },
+    {
+      "file": "admin-agm--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-agm--3-tab.png"
+    },
+    {
+      "file": "admin-agm--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-agm--4-tab.png"
+    },
+    {
       "file": "admin-agm.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-agm.png"
+    },
+    {
+      "file": "admin-announcements--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-announcements--0-themes.png"
+    },
+    {
+      "file": "admin-announcements--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-announcements--1-what-s-new.png"
+    },
+    {
+      "file": "admin-announcements--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-announcements--2-tab.png"
+    },
+    {
+      "file": "admin-announcements--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-announcements--3-tab.png"
+    },
+    {
+      "file": "admin-announcements--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-announcements--4-tab.png"
     },
     {
       "file": "admin-announcements.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-announcements.png"
     },
     {
+      "file": "admin-content--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-content--0-themes.png"
+    },
+    {
+      "file": "admin-content--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-content--1-what-s-new.png"
+    },
+    {
+      "file": "admin-content--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-content--2-tab.png"
+    },
+    {
+      "file": "admin-content--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-content--3-tab.png"
+    },
+    {
+      "file": "admin-content--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-content--4-tab.png"
+    },
+    {
       "file": "admin-content.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-content.png"
+    },
+    {
+      "file": "admin-disco-widgets--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-disco-widgets--0-themes.png"
+    },
+    {
+      "file": "admin-disco-widgets--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-disco-widgets--1-what-s-new.png"
+    },
+    {
+      "file": "admin-disco-widgets--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-disco-widgets--2-tab.png"
+    },
+    {
+      "file": "admin-disco-widgets--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-disco-widgets--3-tab.png"
+    },
+    {
+      "file": "admin-disco-widgets--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-disco-widgets--4-tab.png"
     },
     {
       "file": "admin-disco-widgets.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-disco-widgets.png"
     },
     {
+      "file": "admin-financial--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-financial--0-themes.png"
+    },
+    {
+      "file": "admin-financial--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-financial--1-what-s-new.png"
+    },
+    {
+      "file": "admin-financial--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-financial--2-tab.png"
+    },
+    {
+      "file": "admin-financial--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-financial--3-tab.png"
+    },
+    {
+      "file": "admin-financial--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-financial--4-tab.png"
+    },
+    {
       "file": "admin-financial.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-financial.png"
     },
     {
+      "file": "admin-governance--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-governance--0-themes.png"
+    },
+    {
+      "file": "admin-governance--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-governance--1-what-s-new.png"
+    },
+    {
+      "file": "admin-governance--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-governance--2-tab.png"
+    },
+    {
+      "file": "admin-governance--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-governance--3-tab.png"
+    },
+    {
+      "file": "admin-governance--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-governance--4-tab.png"
+    },
+    {
       "file": "admin-governance.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-governance.png"
+    },
+    {
+      "file": "admin-grants--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants--0-themes.png"
+    },
+    {
+      "file": "admin-grants--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants--1-what-s-new.png"
+    },
+    {
+      "file": "admin-grants--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants--2-tab.png"
+    },
+    {
+      "file": "admin-grants--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants--3-tab.png"
+    },
+    {
+      "file": "admin-grants--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants--4-tab.png"
+    },
+    {
+      "file": "admin-grants-year--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants-year--0-themes.png"
+    },
+    {
+      "file": "admin-grants-year--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants-year--1-what-s-new.png"
+    },
+    {
+      "file": "admin-grants-year--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants-year--2-tab.png"
+    },
+    {
+      "file": "admin-grants-year--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants-year--3-tab.png"
+    },
+    {
+      "file": "admin-grants-year--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-grants-year--4-tab.png"
     },
     {
       "file": "admin-grants-year.png",
@@ -47,16 +267,116 @@
       "url": "https://beta.tahti.live/map/nuclear/admin-grants.png"
     },
     {
+      "file": "admin-i18n--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-i18n--0-themes.png"
+    },
+    {
+      "file": "admin-i18n--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-i18n--1-what-s-new.png"
+    },
+    {
+      "file": "admin-i18n--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-i18n--2-tab.png"
+    },
+    {
+      "file": "admin-i18n--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-i18n--3-tab.png"
+    },
+    {
+      "file": "admin-i18n--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-i18n--4-tab.png"
+    },
+    {
       "file": "admin-i18n.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-i18n.png"
+    },
+    {
+      "file": "admin-logs--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-logs--0-themes.png"
+    },
+    {
+      "file": "admin-logs--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-logs--1-what-s-new.png"
+    },
+    {
+      "file": "admin-logs--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-logs--2-tab.png"
+    },
+    {
+      "file": "admin-logs--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-logs--3-tab.png"
+    },
+    {
+      "file": "admin-logs--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-logs--4-tab.png"
     },
     {
       "file": "admin-logs.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-logs.png"
     },
     {
+      "file": "admin-map--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-map--0-themes.png"
+    },
+    {
+      "file": "admin-map--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-map--1-what-s-new.png"
+    },
+    {
+      "file": "admin-map--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-map--2-tab.png"
+    },
+    {
+      "file": "admin-map--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-map--3-tab.png"
+    },
+    {
+      "file": "admin-map--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-map--4-tab.png"
+    },
+    {
       "file": "admin-map.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-map.png"
+    },
+    {
+      "file": "admin-moderation--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation--0-themes.png"
+    },
+    {
+      "file": "admin-moderation--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation--1-what-s-new.png"
+    },
+    {
+      "file": "admin-moderation--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation--2-tab.png"
+    },
+    {
+      "file": "admin-moderation--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation--3-tab.png"
+    },
+    {
+      "file": "admin-moderation--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation--4-tab.png"
+    },
+    {
+      "file": "admin-moderation-tab--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation-tab--0-themes.png"
+    },
+    {
+      "file": "admin-moderation-tab--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation-tab--1-what-s-new.png"
+    },
+    {
+      "file": "admin-moderation-tab--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation-tab--2-tab.png"
+    },
+    {
+      "file": "admin-moderation-tab--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation-tab--3-tab.png"
+    },
+    {
+      "file": "admin-moderation-tab--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-moderation-tab--4-tab.png"
     },
     {
       "file": "admin-moderation-tab.png",
@@ -67,8 +387,68 @@
       "url": "https://beta.tahti.live/map/nuclear/admin-moderation.png"
     },
     {
+      "file": "admin-news--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-news--0-themes.png"
+    },
+    {
+      "file": "admin-news--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-news--1-what-s-new.png"
+    },
+    {
+      "file": "admin-news--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-news--2-tab.png"
+    },
+    {
+      "file": "admin-news--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-news--3-tab.png"
+    },
+    {
+      "file": "admin-news--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-news--4-tab.png"
+    },
+    {
       "file": "admin-news.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-news.png"
+    },
+    {
+      "file": "admin-radio--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio--0-themes.png"
+    },
+    {
+      "file": "admin-radio--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio--1-what-s-new.png"
+    },
+    {
+      "file": "admin-radio--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio--2-tab.png"
+    },
+    {
+      "file": "admin-radio--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio--3-tab.png"
+    },
+    {
+      "file": "admin-radio--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio--4-tab.png"
+    },
+    {
+      "file": "admin-radio-station-suggestions-orphan--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio-station-suggestions-orphan--0-themes.png"
+    },
+    {
+      "file": "admin-radio-station-suggestions-orphan--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio-station-suggestions-orphan--1-what-s-new.png"
+    },
+    {
+      "file": "admin-radio-station-suggestions-orphan--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio-station-suggestions-orphan--2-tab.png"
+    },
+    {
+      "file": "admin-radio-station-suggestions-orphan--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio-station-suggestions-orphan--3-tab.png"
+    },
+    {
+      "file": "admin-radio-station-suggestions-orphan--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-radio-station-suggestions-orphan--4-tab.png"
     },
     {
       "file": "admin-radio-station-suggestions-orphan.png",
@@ -79,8 +459,68 @@
       "url": "https://beta.tahti.live/map/nuclear/admin-radio.png"
     },
     {
+      "file": "admin-status--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-status--0-themes.png"
+    },
+    {
+      "file": "admin-status--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-status--1-what-s-new.png"
+    },
+    {
+      "file": "admin-status--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-status--2-tab.png"
+    },
+    {
+      "file": "admin-status--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-status--3-tab.png"
+    },
+    {
+      "file": "admin-status--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-status--4-tab.png"
+    },
+    {
       "file": "admin-status.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-status.png"
+    },
+    {
+      "file": "admin-storage--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage--0-themes.png"
+    },
+    {
+      "file": "admin-storage--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage--1-what-s-new.png"
+    },
+    {
+      "file": "admin-storage--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage--2-tab.png"
+    },
+    {
+      "file": "admin-storage--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage--3-tab.png"
+    },
+    {
+      "file": "admin-storage--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage--4-tab.png"
+    },
+    {
+      "file": "admin-storage-user--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage-user--0-themes.png"
+    },
+    {
+      "file": "admin-storage-user--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage-user--1-what-s-new.png"
+    },
+    {
+      "file": "admin-storage-user--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage-user--2-tab.png"
+    },
+    {
+      "file": "admin-storage-user--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage-user--3-tab.png"
+    },
+    {
+      "file": "admin-storage-user--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-storage-user--4-tab.png"
     },
     {
       "file": "admin-storage-user.png",
@@ -91,24 +531,144 @@
       "url": "https://beta.tahti.live/map/nuclear/admin-storage.png"
     },
     {
+      "file": "admin-streams--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-streams--0-themes.png"
+    },
+    {
+      "file": "admin-streams--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-streams--1-what-s-new.png"
+    },
+    {
+      "file": "admin-streams--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-streams--2-tab.png"
+    },
+    {
+      "file": "admin-streams--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-streams--3-tab.png"
+    },
+    {
+      "file": "admin-streams--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-streams--4-tab.png"
+    },
+    {
       "file": "admin-streams.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-streams.png"
+    },
+    {
+      "file": "admin-tahti-selects--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-tahti-selects--0-themes.png"
+    },
+    {
+      "file": "admin-tahti-selects--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-tahti-selects--1-what-s-new.png"
+    },
+    {
+      "file": "admin-tahti-selects--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-tahti-selects--2-tab.png"
+    },
+    {
+      "file": "admin-tahti-selects--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-tahti-selects--3-tab.png"
+    },
+    {
+      "file": "admin-tahti-selects--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-tahti-selects--4-tab.png"
     },
     {
       "file": "admin-tahti-selects.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-tahti-selects.png"
     },
     {
+      "file": "admin-top-lists--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-top-lists--0-themes.png"
+    },
+    {
+      "file": "admin-top-lists--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-top-lists--1-what-s-new.png"
+    },
+    {
+      "file": "admin-top-lists--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-top-lists--2-tab.png"
+    },
+    {
+      "file": "admin-top-lists--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-top-lists--3-tab.png"
+    },
+    {
+      "file": "admin-top-lists--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-top-lists--4-tab.png"
+    },
+    {
       "file": "admin-top-lists.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-top-lists.png"
+    },
+    {
+      "file": "admin-users--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-users--0-themes.png"
+    },
+    {
+      "file": "admin-users--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-users--1-what-s-new.png"
+    },
+    {
+      "file": "admin-users--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-users--2-tab.png"
+    },
+    {
+      "file": "admin-users--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-users--3-tab.png"
+    },
+    {
+      "file": "admin-users--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-users--4-tab.png"
     },
     {
       "file": "admin-users.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-users.png"
     },
     {
+      "file": "admin-vendors--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-vendors--0-themes.png"
+    },
+    {
+      "file": "admin-vendors--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-vendors--1-what-s-new.png"
+    },
+    {
+      "file": "admin-vendors--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-vendors--2-tab.png"
+    },
+    {
+      "file": "admin-vendors--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-vendors--3-tab.png"
+    },
+    {
+      "file": "admin-vendors--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-vendors--4-tab.png"
+    },
+    {
       "file": "admin-vendors.png",
       "url": "https://beta.tahti.live/map/nuclear/admin-vendors.png"
+    },
+    {
+      "file": "admin-venues--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-venues--0-themes.png"
+    },
+    {
+      "file": "admin-venues--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-venues--1-what-s-new.png"
+    },
+    {
+      "file": "admin-venues--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-venues--2-tab.png"
+    },
+    {
+      "file": "admin-venues--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-venues--3-tab.png"
+    },
+    {
+      "file": "admin-venues--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/admin-venues--4-tab.png"
     },
     {
       "file": "admin-venues.png",
@@ -151,12 +711,92 @@
       "url": "https://beta.tahti.live/map/nuclear/archive.png"
     },
     {
+      "file": "artist-subscribe-alias--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/artist-subscribe-alias--0-themes.png"
+    },
+    {
+      "file": "artist-subscribe-alias--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/artist-subscribe-alias--1-what-s-new.png"
+    },
+    {
+      "file": "artist-subscribe-alias--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/artist-subscribe-alias--2-tab.png"
+    },
+    {
+      "file": "artist-subscribe-alias--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/artist-subscribe-alias--3-tab.png"
+    },
+    {
+      "file": "artist-subscribe-alias--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/artist-subscribe-alias--4-tab.png"
+    },
+    {
       "file": "artist-subscribe-alias.png",
       "url": "https://beta.tahti.live/map/nuclear/artist-subscribe-alias.png"
     },
     {
+      "file": "c-shortlink--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/c-shortlink--0-themes.png"
+    },
+    {
+      "file": "c-shortlink--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/c-shortlink--1-what-s-new.png"
+    },
+    {
+      "file": "c-shortlink--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/c-shortlink--2-tab.png"
+    },
+    {
+      "file": "c-shortlink--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/c-shortlink--3-tab.png"
+    },
+    {
+      "file": "c-shortlink--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/c-shortlink--4-tab.png"
+    },
+    {
       "file": "c-shortlink.png",
       "url": "https://beta.tahti.live/map/nuclear/c-shortlink.png"
+    },
+    {
+      "file": "channel--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel--0-themes.png"
+    },
+    {
+      "file": "channel--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel--1-what-s-new.png"
+    },
+    {
+      "file": "channel--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel--2-tab.png"
+    },
+    {
+      "file": "channel--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel--3-tab.png"
+    },
+    {
+      "file": "channel--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel--4-tab.png"
+    },
+    {
+      "file": "channel-chat--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel-chat--0-themes.png"
+    },
+    {
+      "file": "channel-chat--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel-chat--1-what-s-new.png"
+    },
+    {
+      "file": "channel-chat--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel-chat--2-tab.png"
+    },
+    {
+      "file": "channel-chat--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel-chat--3-tab.png"
+    },
+    {
+      "file": "channel-chat--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/channel-chat--4-tab.png"
     },
     {
       "file": "channel-chat.png",
@@ -171,8 +811,48 @@
       "url": "https://beta.tahti.live/map/nuclear/channel.png"
     },
     {
+      "file": "chat-general--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/chat-general--0-themes.png"
+    },
+    {
+      "file": "chat-general--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/chat-general--1-what-s-new.png"
+    },
+    {
+      "file": "chat-general--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/chat-general--2-tab.png"
+    },
+    {
+      "file": "chat-general--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/chat-general--3-tab.png"
+    },
+    {
+      "file": "chat-general--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/chat-general--4-tab.png"
+    },
+    {
       "file": "chat-general.png",
       "url": "https://beta.tahti.live/map/nuclear/chat-general.png"
+    },
+    {
+      "file": "collection--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/collection--0-themes.png"
+    },
+    {
+      "file": "collection--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/collection--1-what-s-new.png"
+    },
+    {
+      "file": "collection--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/collection--2-tab.png"
+    },
+    {
+      "file": "collection--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/collection--3-tab.png"
+    },
+    {
+      "file": "collection--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/collection--4-tab.png"
     },
     {
       "file": "collection-edit.png",
@@ -185,6 +865,14 @@
     {
       "file": "collections.png",
       "url": "https://beta.tahti.live/map/nuclear/collections.png"
+    },
+    {
+      "file": "discover--0-discover.png",
+      "url": "https://beta.tahti.live/map/nuclear/discover--0-discover.png"
+    },
+    {
+      "file": "discover--1-artists.png",
+      "url": "https://beta.tahti.live/map/nuclear/discover--1-artists.png"
     },
     {
       "file": "discover.png",
@@ -223,6 +911,26 @@
       "url": "https://beta.tahti.live/map/nuclear/favorites.png"
     },
     {
+      "file": "feed--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/feed--0-themes.png"
+    },
+    {
+      "file": "feed--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/feed--1-what-s-new.png"
+    },
+    {
+      "file": "feed--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/feed--2-tab.png"
+    },
+    {
+      "file": "feed--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/feed--3-tab.png"
+    },
+    {
+      "file": "feed--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/feed--4-tab.png"
+    },
+    {
       "file": "feed.png",
       "url": "https://beta.tahti.live/map/nuclear/feed.png"
     },
@@ -247,8 +955,80 @@
       "url": "https://beta.tahti.live/map/nuclear/governance.png"
     },
     {
+      "file": "green-room--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/green-room--0-themes.png"
+    },
+    {
+      "file": "green-room--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/green-room--1-what-s-new.png"
+    },
+    {
+      "file": "green-room--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/green-room--2-tab.png"
+    },
+    {
+      "file": "green-room--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/green-room--3-tab.png"
+    },
+    {
+      "file": "green-room--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/green-room--4-tab.png"
+    },
+    {
       "file": "green-room.png",
       "url": "https://beta.tahti.live/map/nuclear/green-room.png"
+    },
+    {
+      "file": "help--0-transparency.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--0-transparency.png"
+    },
+    {
+      "file": "help--1-governance.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--1-governance.png"
+    },
+    {
+      "file": "help--10-governance-and-admin.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--10-governance-and-admin.png"
+    },
+    {
+      "file": "help--11-add-ons.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--11-add-ons.png"
+    },
+    {
+      "file": "help--12-build-with-tahti.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--12-build-with-tahti.png"
+    },
+    {
+      "file": "help--2-legal-policies.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--2-legal-policies.png"
+    },
+    {
+      "file": "help--3-operations.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--3-operations.png"
+    },
+    {
+      "file": "help--4-start-here.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--4-start-here.png"
+    },
+    {
+      "file": "help--5-listen-and-share.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--5-listen-and-share.png"
+    },
+    {
+      "file": "help--6-artist-tools.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--6-artist-tools.png"
+    },
+    {
+      "file": "help--7-broadcasting.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--7-broadcasting.png"
+    },
+    {
+      "file": "help--8-releasing.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--8-releasing.png"
+    },
+    {
+      "file": "help--9-account-and-support.png",
+      "url": "https://beta.tahti.live/map/nuclear/help--9-account-and-support.png"
     },
     {
       "file": "help-topic.png",
@@ -257,6 +1037,30 @@
     {
       "file": "help.png",
       "url": "https://beta.tahti.live/map/nuclear/help.png"
+    },
+    {
+      "file": "history--0-listen.png",
+      "url": "https://beta.tahti.live/map/nuclear/history--0-listen.png"
+    },
+    {
+      "file": "history--1-feed.png",
+      "url": "https://beta.tahti.live/map/nuclear/history--1-feed.png"
+    },
+    {
+      "file": "history--2-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/history--2-history.png"
+    },
+    {
+      "file": "history--3-recently-played.png",
+      "url": "https://beta.tahti.live/map/nuclear/history--3-recently-played.png"
+    },
+    {
+      "file": "history--4-stats.png",
+      "url": "https://beta.tahti.live/map/nuclear/history--4-stats.png"
+    },
+    {
+      "file": "history--5-listening-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/history--5-listening-history.png"
     },
     {
       "file": "history.png",
@@ -287,6 +1091,46 @@
       "url": "https://beta.tahti.live/map/nuclear/join.png"
     },
     {
+      "file": "library--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/library--0-themes.png"
+    },
+    {
+      "file": "library--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/library--1-what-s-new.png"
+    },
+    {
+      "file": "library--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library--2-tab.png"
+    },
+    {
+      "file": "library--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library--3-tab.png"
+    },
+    {
+      "file": "library--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library--4-tab.png"
+    },
+    {
+      "file": "library-collections--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-collections--0-themes.png"
+    },
+    {
+      "file": "library-collections--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-collections--1-what-s-new.png"
+    },
+    {
+      "file": "library-collections--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-collections--2-tab.png"
+    },
+    {
+      "file": "library-collections--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-collections--3-tab.png"
+    },
+    {
+      "file": "library-collections--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-collections--4-tab.png"
+    },
+    {
       "file": "library-collections.png",
       "url": "https://beta.tahti.live/map/nuclear/library-collections.png"
     },
@@ -295,28 +1139,172 @@
       "url": "https://beta.tahti.live/map/nuclear/library-favorites.png"
     },
     {
+      "file": "library-history--0-listen.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-history--0-listen.png"
+    },
+    {
+      "file": "library-history--1-feed.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-history--1-feed.png"
+    },
+    {
+      "file": "library-history--2-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-history--2-history.png"
+    },
+    {
+      "file": "library-history--3-recently-played.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-history--3-recently-played.png"
+    },
+    {
+      "file": "library-history--4-stats.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-history--4-stats.png"
+    },
+    {
+      "file": "library-history--5-listening-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-history--5-listening-history.png"
+    },
+    {
       "file": "library-history.png",
       "url": "https://beta.tahti.live/map/nuclear/library-history.png"
+    },
+    {
+      "file": "library-media--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-media--0-themes.png"
+    },
+    {
+      "file": "library-media--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-media--1-what-s-new.png"
+    },
+    {
+      "file": "library-media--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-media--2-tab.png"
+    },
+    {
+      "file": "library-media--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-media--3-tab.png"
+    },
+    {
+      "file": "library-media--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-media--4-tab.png"
     },
     {
       "file": "library-media.png",
       "url": "https://beta.tahti.live/map/nuclear/library-media.png"
     },
     {
+      "file": "library-recordings--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-recordings--0-themes.png"
+    },
+    {
+      "file": "library-recordings--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-recordings--1-what-s-new.png"
+    },
+    {
+      "file": "library-recordings--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-recordings--2-tab.png"
+    },
+    {
+      "file": "library-recordings--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-recordings--3-tab.png"
+    },
+    {
+      "file": "library-recordings--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-recordings--4-tab.png"
+    },
+    {
       "file": "library-recordings.png",
       "url": "https://beta.tahti.live/map/nuclear/library-recordings.png"
+    },
+    {
+      "file": "library-releases--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-releases--0-themes.png"
+    },
+    {
+      "file": "library-releases--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-releases--1-what-s-new.png"
+    },
+    {
+      "file": "library-releases--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-releases--2-tab.png"
+    },
+    {
+      "file": "library-releases--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-releases--3-tab.png"
+    },
+    {
+      "file": "library-releases--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-releases--4-tab.png"
     },
     {
       "file": "library-releases.png",
       "url": "https://beta.tahti.live/map/nuclear/library-releases.png"
     },
     {
+      "file": "library-smartlinks--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-smartlinks--0-themes.png"
+    },
+    {
+      "file": "library-smartlinks--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-smartlinks--1-what-s-new.png"
+    },
+    {
+      "file": "library-smartlinks--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-smartlinks--2-tab.png"
+    },
+    {
+      "file": "library-smartlinks--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-smartlinks--3-tab.png"
+    },
+    {
+      "file": "library-smartlinks--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-smartlinks--4-tab.png"
+    },
+    {
       "file": "library-smartlinks.png",
       "url": "https://beta.tahti.live/map/nuclear/library-smartlinks.png"
     },
     {
+      "file": "library-sounds--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-sounds--0-themes.png"
+    },
+    {
+      "file": "library-sounds--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-sounds--1-what-s-new.png"
+    },
+    {
+      "file": "library-sounds--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-sounds--2-tab.png"
+    },
+    {
+      "file": "library-sounds--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-sounds--3-tab.png"
+    },
+    {
+      "file": "library-sounds--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-sounds--4-tab.png"
+    },
+    {
       "file": "library-sounds.png",
       "url": "https://beta.tahti.live/map/nuclear/library-sounds.png"
+    },
+    {
+      "file": "library-upload--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-upload--0-themes.png"
+    },
+    {
+      "file": "library-upload--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-upload--1-what-s-new.png"
+    },
+    {
+      "file": "library-upload--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-upload--2-tab.png"
+    },
+    {
+      "file": "library-upload--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-upload--3-tab.png"
+    },
+    {
+      "file": "library-upload--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/library-upload--4-tab.png"
     },
     {
       "file": "library-upload.png",
@@ -339,8 +1327,44 @@
       "url": "https://beta.tahti.live/map/nuclear/listen--2-history.png"
     },
     {
+      "file": "listen-feed-alias--0-listen.png",
+      "url": "https://beta.tahti.live/map/nuclear/listen-feed-alias--0-listen.png"
+    },
+    {
+      "file": "listen-feed-alias--1-feed.png",
+      "url": "https://beta.tahti.live/map/nuclear/listen-feed-alias--1-feed.png"
+    },
+    {
+      "file": "listen-feed-alias--2-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/listen-feed-alias--2-history.png"
+    },
+    {
       "file": "listen-feed-alias.png",
       "url": "https://beta.tahti.live/map/nuclear/listen-feed-alias.png"
+    },
+    {
+      "file": "listen-history-alias--0-listen.png",
+      "url": "https://beta.tahti.live/map/nuclear/listen-history-alias--0-listen.png"
+    },
+    {
+      "file": "listen-history-alias--1-feed.png",
+      "url": "https://beta.tahti.live/map/nuclear/listen-history-alias--1-feed.png"
+    },
+    {
+      "file": "listen-history-alias--2-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/listen-history-alias--2-history.png"
+    },
+    {
+      "file": "listen-history-alias--3-recently-played.png",
+      "url": "https://beta.tahti.live/map/nuclear/listen-history-alias--3-recently-played.png"
+    },
+    {
+      "file": "listen-history-alias--4-stats.png",
+      "url": "https://beta.tahti.live/map/nuclear/listen-history-alias--4-stats.png"
+    },
+    {
+      "file": "listen-history-alias--5-listening-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/listen-history-alias--5-listening-history.png"
     },
     {
       "file": "listen-history-alias.png",
@@ -349,6 +1373,26 @@
     {
       "file": "listen.png",
       "url": "https://beta.tahti.live/map/nuclear/listen.png"
+    },
+    {
+      "file": "listener-dashboard--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/listener-dashboard--0-themes.png"
+    },
+    {
+      "file": "listener-dashboard--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/listener-dashboard--1-what-s-new.png"
+    },
+    {
+      "file": "listener-dashboard--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/listener-dashboard--2-tab.png"
+    },
+    {
+      "file": "listener-dashboard--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/listener-dashboard--3-tab.png"
+    },
+    {
+      "file": "listener-dashboard--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/listener-dashboard--4-tab.png"
     },
     {
       "file": "listener-dashboard.png",
@@ -379,6 +1423,46 @@
       "url": "https://beta.tahti.live/map/nuclear/mastering.png"
     },
     {
+      "file": "messages--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages--0-themes.png"
+    },
+    {
+      "file": "messages--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages--1-what-s-new.png"
+    },
+    {
+      "file": "messages--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages--2-tab.png"
+    },
+    {
+      "file": "messages--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages--3-tab.png"
+    },
+    {
+      "file": "messages--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages--4-tab.png"
+    },
+    {
+      "file": "messages-thread--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages-thread--0-themes.png"
+    },
+    {
+      "file": "messages-thread--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages-thread--1-what-s-new.png"
+    },
+    {
+      "file": "messages-thread--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages-thread--2-tab.png"
+    },
+    {
+      "file": "messages-thread--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages-thread--3-tab.png"
+    },
+    {
+      "file": "messages-thread--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/messages-thread--4-tab.png"
+    },
+    {
       "file": "messages-thread.png",
       "url": "https://beta.tahti.live/map/nuclear/messages-thread.png"
     },
@@ -391,6 +1475,26 @@
       "url": "https://beta.tahti.live/map/nuclear/money-fan-subs.png"
     },
     {
+      "file": "money-tiers--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/money-tiers--0-themes.png"
+    },
+    {
+      "file": "money-tiers--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/money-tiers--1-what-s-new.png"
+    },
+    {
+      "file": "money-tiers--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/money-tiers--2-tab.png"
+    },
+    {
+      "file": "money-tiers--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/money-tiers--3-tab.png"
+    },
+    {
+      "file": "money-tiers--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/money-tiers--4-tab.png"
+    },
+    {
       "file": "money-tiers.png",
       "url": "https://beta.tahti.live/map/nuclear/money-tiers.png"
     },
@@ -399,12 +1503,52 @@
       "url": "https://beta.tahti.live/map/nuclear/more.png"
     },
     {
+      "file": "onboarding--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/onboarding--0-themes.png"
+    },
+    {
+      "file": "onboarding--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/onboarding--1-what-s-new.png"
+    },
+    {
+      "file": "onboarding--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/onboarding--2-tab.png"
+    },
+    {
+      "file": "onboarding--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/onboarding--3-tab.png"
+    },
+    {
+      "file": "onboarding--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/onboarding--4-tab.png"
+    },
+    {
       "file": "onboarding.png",
       "url": "https://beta.tahti.live/map/nuclear/onboarding.png"
     },
     {
       "file": "privacy.png",
       "url": "https://beta.tahti.live/map/nuclear/privacy.png"
+    },
+    {
+      "file": "profile--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/profile--0-themes.png"
+    },
+    {
+      "file": "profile--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/profile--1-what-s-new.png"
+    },
+    {
+      "file": "profile--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/profile--2-tab.png"
+    },
+    {
+      "file": "profile--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/profile--3-tab.png"
+    },
+    {
+      "file": "profile--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/profile--4-tab.png"
     },
     {
       "file": "profile.png",
@@ -417,6 +1561,14 @@
     {
       "file": "radio--1-just-played.png",
       "url": "https://beta.tahti.live/map/nuclear/radio--1-just-played.png"
+    },
+    {
+      "file": "radio-show--0-upcoming.png",
+      "url": "https://beta.tahti.live/map/nuclear/radio-show--0-upcoming.png"
+    },
+    {
+      "file": "radio-show--1-past-episodes.png",
+      "url": "https://beta.tahti.live/map/nuclear/radio-show--1-past-episodes.png"
     },
     {
       "file": "radio-show.png",
@@ -443,6 +1595,26 @@
       "url": "https://beta.tahti.live/map/nuclear/revenue.png"
     },
     {
+      "file": "schedule-page--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/schedule-page--0-themes.png"
+    },
+    {
+      "file": "schedule-page--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/schedule-page--1-what-s-new.png"
+    },
+    {
+      "file": "schedule-page--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/schedule-page--2-tab.png"
+    },
+    {
+      "file": "schedule-page--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/schedule-page--3-tab.png"
+    },
+    {
+      "file": "schedule-page--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/schedule-page--4-tab.png"
+    },
+    {
       "file": "schedule-page.png",
       "url": "https://beta.tahti.live/map/nuclear/schedule-page.png"
     },
@@ -451,8 +1623,48 @@
       "url": "https://beta.tahti.live/map/nuclear/schedule.png"
     },
     {
+      "file": "settings--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings--0-themes.png"
+    },
+    {
+      "file": "settings--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings--1-what-s-new.png"
+    },
+    {
+      "file": "settings--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings--2-tab.png"
+    },
+    {
+      "file": "settings--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings--3-tab.png"
+    },
+    {
+      "file": "settings--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings--4-tab.png"
+    },
+    {
       "file": "settings-account.png",
       "url": "https://beta.tahti.live/map/nuclear/settings-account.png"
+    },
+    {
+      "file": "settings-section--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings-section--0-themes.png"
+    },
+    {
+      "file": "settings-section--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings-section--1-what-s-new.png"
+    },
+    {
+      "file": "settings-section--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings-section--2-tab.png"
+    },
+    {
+      "file": "settings-section--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings-section--3-tab.png"
+    },
+    {
+      "file": "settings-section--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/settings-section--4-tab.png"
     },
     {
       "file": "settings-section.png",
@@ -487,6 +1699,14 @@
       "url": "https://beta.tahti.live/map/nuclear/signup--0-listen.png"
     },
     {
+      "file": "signup--1-feed.png",
+      "url": "https://beta.tahti.live/map/nuclear/signup--1-feed.png"
+    },
+    {
+      "file": "signup--2-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/signup--2-history.png"
+    },
+    {
       "file": "signup-payment.png",
       "url": "https://beta.tahti.live/map/nuclear/signup-payment.png"
     },
@@ -495,8 +1715,68 @@
       "url": "https://beta.tahti.live/map/nuclear/signup.png"
     },
     {
+      "file": "smart-link--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/smart-link--0-themes.png"
+    },
+    {
+      "file": "smart-link--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/smart-link--1-what-s-new.png"
+    },
+    {
+      "file": "smart-link--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/smart-link--2-tab.png"
+    },
+    {
+      "file": "smart-link--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/smart-link--3-tab.png"
+    },
+    {
+      "file": "smart-link--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/smart-link--4-tab.png"
+    },
+    {
       "file": "smart-link.png",
       "url": "https://beta.tahti.live/map/nuclear/smart-link.png"
+    },
+    {
+      "file": "sources--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources--0-themes.png"
+    },
+    {
+      "file": "sources--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources--1-what-s-new.png"
+    },
+    {
+      "file": "sources--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources--2-tab.png"
+    },
+    {
+      "file": "sources--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources--3-tab.png"
+    },
+    {
+      "file": "sources--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources--4-tab.png"
+    },
+    {
+      "file": "sources-detail--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources-detail--0-themes.png"
+    },
+    {
+      "file": "sources-detail--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources-detail--1-what-s-new.png"
+    },
+    {
+      "file": "sources-detail--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources-detail--2-tab.png"
+    },
+    {
+      "file": "sources-detail--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources-detail--3-tab.png"
+    },
+    {
+      "file": "sources-detail--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/sources-detail--4-tab.png"
     },
     {
       "file": "sources-detail.png",
@@ -521,6 +1801,26 @@
     {
       "file": "stats.png",
       "url": "https://beta.tahti.live/map/nuclear/stats.png"
+    },
+    {
+      "file": "status--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/status--0-themes.png"
+    },
+    {
+      "file": "status--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/status--1-what-s-new.png"
+    },
+    {
+      "file": "status--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/status--2-tab.png"
+    },
+    {
+      "file": "status--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/status--3-tab.png"
+    },
+    {
+      "file": "status--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/status--4-tab.png"
     },
     {
       "file": "status.png",
@@ -563,6 +1863,26 @@
       "url": "https://beta.tahti.live/map/nuclear/studio-info.png"
     },
     {
+      "file": "studio-moderation--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-moderation--0-themes.png"
+    },
+    {
+      "file": "studio-moderation--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-moderation--1-what-s-new.png"
+    },
+    {
+      "file": "studio-moderation--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-moderation--2-tab.png"
+    },
+    {
+      "file": "studio-moderation--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-moderation--3-tab.png"
+    },
+    {
+      "file": "studio-moderation--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-moderation--4-tab.png"
+    },
+    {
       "file": "studio-moderation.png",
       "url": "https://beta.tahti.live/map/nuclear/studio-moderation.png"
     },
@@ -579,8 +1899,48 @@
       "url": "https://beta.tahti.live/map/nuclear/studio-recordings.png"
     },
     {
+      "file": "studio-setup-channel--0-listen.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-setup-channel--0-listen.png"
+    },
+    {
+      "file": "studio-setup-channel--1-feed.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-setup-channel--1-feed.png"
+    },
+    {
+      "file": "studio-setup-channel--2-favorites.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-setup-channel--2-favorites.png"
+    },
+    {
+      "file": "studio-setup-channel--2-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-setup-channel--2-history.png"
+    },
+    {
+      "file": "studio-setup-channel--3-history.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-setup-channel--3-history.png"
+    },
+    {
       "file": "studio-setup-channel.png",
       "url": "https://beta.tahti.live/map/nuclear/studio-setup-channel.png"
+    },
+    {
+      "file": "studio-venues--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-venues--0-themes.png"
+    },
+    {
+      "file": "studio-venues--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-venues--1-what-s-new.png"
+    },
+    {
+      "file": "studio-venues--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-venues--2-tab.png"
+    },
+    {
+      "file": "studio-venues--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-venues--3-tab.png"
+    },
+    {
+      "file": "studio-venues--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/studio-venues--4-tab.png"
     },
     {
       "file": "studio-venues.png",
@@ -591,8 +1951,48 @@
       "url": "https://beta.tahti.live/map/nuclear/studio.png"
     },
     {
+      "file": "subscribe--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/subscribe--0-themes.png"
+    },
+    {
+      "file": "subscribe--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/subscribe--1-what-s-new.png"
+    },
+    {
+      "file": "subscribe--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/subscribe--2-tab.png"
+    },
+    {
+      "file": "subscribe--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/subscribe--3-tab.png"
+    },
+    {
+      "file": "subscribe--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/subscribe--4-tab.png"
+    },
+    {
       "file": "subscribe.png",
       "url": "https://beta.tahti.live/map/nuclear/subscribe.png"
+    },
+    {
+      "file": "t-shortlink--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/t-shortlink--0-themes.png"
+    },
+    {
+      "file": "t-shortlink--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/t-shortlink--1-what-s-new.png"
+    },
+    {
+      "file": "t-shortlink--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/t-shortlink--2-tab.png"
+    },
+    {
+      "file": "t-shortlink--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/t-shortlink--3-tab.png"
+    },
+    {
+      "file": "t-shortlink--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/t-shortlink--4-tab.png"
     },
     {
       "file": "t-shortlink.png",
@@ -601,6 +2001,26 @@
     {
       "file": "terms.png",
       "url": "https://beta.tahti.live/map/nuclear/terms.png"
+    },
+    {
+      "file": "themes--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/themes--0-themes.png"
+    },
+    {
+      "file": "themes--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/themes--1-what-s-new.png"
+    },
+    {
+      "file": "themes--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/themes--2-tab.png"
+    },
+    {
+      "file": "themes--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/themes--3-tab.png"
+    },
+    {
+      "file": "themes--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/themes--4-tab.png"
     },
     {
       "file": "themes.png",
@@ -619,12 +2039,92 @@
       "url": "https://beta.tahti.live/map/nuclear/updates.png"
     },
     {
+      "file": "upload--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/upload--0-themes.png"
+    },
+    {
+      "file": "upload--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/upload--1-what-s-new.png"
+    },
+    {
+      "file": "upload--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/upload--2-tab.png"
+    },
+    {
+      "file": "upload--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/upload--3-tab.png"
+    },
+    {
+      "file": "upload--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/upload--4-tab.png"
+    },
+    {
       "file": "upload.png",
       "url": "https://beta.tahti.live/map/nuclear/upload.png"
     },
     {
+      "file": "v-shortlink--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/v-shortlink--0-themes.png"
+    },
+    {
+      "file": "v-shortlink--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/v-shortlink--1-what-s-new.png"
+    },
+    {
+      "file": "v-shortlink--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/v-shortlink--2-tab.png"
+    },
+    {
+      "file": "v-shortlink--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/v-shortlink--3-tab.png"
+    },
+    {
+      "file": "v-shortlink--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/v-shortlink--4-tab.png"
+    },
+    {
       "file": "v-shortlink.png",
       "url": "https://beta.tahti.live/map/nuclear/v-shortlink.png"
+    },
+    {
+      "file": "venues--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues--0-themes.png"
+    },
+    {
+      "file": "venues--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues--1-what-s-new.png"
+    },
+    {
+      "file": "venues--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues--2-tab.png"
+    },
+    {
+      "file": "venues--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues--3-tab.png"
+    },
+    {
+      "file": "venues--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues--4-tab.png"
+    },
+    {
+      "file": "venues-register--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues-register--0-themes.png"
+    },
+    {
+      "file": "venues-register--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues-register--1-what-s-new.png"
+    },
+    {
+      "file": "venues-register--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues-register--2-tab.png"
+    },
+    {
+      "file": "venues-register--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues-register--3-tab.png"
+    },
+    {
+      "file": "venues-register--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/venues-register--4-tab.png"
     },
     {
       "file": "venues-register.png",
@@ -641,6 +2141,26 @@
     {
       "file": "what-is-it.png",
       "url": "https://beta.tahti.live/map/nuclear/what-is-it.png"
+    },
+    {
+      "file": "whats-new--0-themes.png",
+      "url": "https://beta.tahti.live/map/nuclear/whats-new--0-themes.png"
+    },
+    {
+      "file": "whats-new--1-what-s-new.png",
+      "url": "https://beta.tahti.live/map/nuclear/whats-new--1-what-s-new.png"
+    },
+    {
+      "file": "whats-new--2-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/whats-new--2-tab.png"
+    },
+    {
+      "file": "whats-new--3-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/whats-new--3-tab.png"
+    },
+    {
+      "file": "whats-new--4-tab.png",
+      "url": "https://beta.tahti.live/map/nuclear/whats-new--4-tab.png"
     },
     {
       "file": "whats-new.png",

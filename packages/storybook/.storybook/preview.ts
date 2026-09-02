@@ -7,6 +7,7 @@ import '@fontsource/bricolage-grotesque/800.css';
 import '@fontsource/space-mono/400.css';
 import '@tahti-player/tailwind-config';
 import '@tahti-player/themes';
+import './dark-docs.css';
 
 import { listBasicThemes } from '@tahti-player/themes';
 

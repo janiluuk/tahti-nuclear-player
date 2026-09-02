@@ -1,5 +1,57 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-02 — Component-reuse audit: 39 unswept spots across 33 files
+
+**Found, not yet fixed.** A cross-reference pass over `src/views/**` and `src/components/**`
+against `@tahti-player/ui`, prompted by the "Design system compliance" section above being
+followed inconsistently. Full findings (file, line, what's there, the library component that
+replaces it, and why) were compiled into a table; the categories and counts, so a future sweep
+knows where to start:
+
+- **Actions (3):** `AdminAgmView.tsx`, `MusicBrainzSubmissionAssistant.tsx` hand-roll a
+  copy-with-2s-feedback button instead of `CopyButton` (no cleanup-on-unmount, unlike the real
+  one — this is the same unswept violation `WORKPLAN.md` already flagged for
+  `StudioReleasesView`/`StudioGoLiveView`, now confirmed in two more files). `CollectionTrackList.tsx`
+  reimplements `FavoriteButton` byte-for-byte instead of using it.
+- **Form controls (11):** native `<select>` instead of `Select` in `MyDiscographyView.tsx`,
+  `AdminAgmView.tsx` (×3), `AdminAnnouncementsView.tsx`, `AdminGovernanceView.tsx`; bare
+  `<input type="range">` instead of `Slider` in `StudioProEditorView.tsx` (6 instances) and
+  `ThemeEditor.tsx`; `aria-pressed` chip toggles instead of `FilterChips` in `GenrePicker.tsx`;
+  native `<input list>`/`<datalist>` instead of `CreatableCombobox` in `SubgenreTagInput.tsx`
+  (its sibling field, `GenrePicker.tsx`, already uses `CreatableCombobox` for the same
+  pick-or-type interaction); hand-built `role="switch"` instead of `Toggle` in
+  `PluginStorePanel.tsx` and `StudioProEditorView.tsx` (different dimensions from each other);
+  native checkboxes instead of `Toggle` in `StudioSoundView.tsx`.
+- **Status & badges (7):** hand-typed pill `<span>`s duplicating `Badge`'s compound variants
+  (often at a different opacity than `Badge` itself uses) in `DiscoverView.tsx`,
+  `StreamManagerPanel.tsx`, `MembershipStatusPanel.tsx`, `ChannelView.tsx`,
+  `StudioCollectionEditView.tsx`, `AppTopNav.tsx` (×2, notifications + messages),
+  `RightRailPanel.tsx` (×2) — the same red unread-count pill copy-pasted four times total across
+  the last two files.
+- **Overlays & dialogs (9):** `ImageLightbox.tsx` hand-rolls a focus trap instead of `Dialog.Root`
+  (Headless UI's real trap keeps Tab inside the panel; this one doesn't). Five `window.confirm()`
+  call sites instead of the app's own `QueueConfirmDialog` pattern:
+  `StashFilesPanel.tsx`, `ApiTokensPanel.tsx`, `StudioVenuesView.tsx`,
+  `AdminDiscoWidgetsView.tsx`, `ChannelAnnouncementsPanel.tsx`. `AppTopNav.tsx` (3 menus sharing
+  one ref) and `GlobalSearch.tsx` each hand-write the same outside-click/Escape-to-close
+  `useEffect` instead of `Popover`. `MobileChrome.tsx`'s slide-in drawer also hand-writes a real
+  focus trap — flagged with no exact library match (not a `Dialog` fit, it's a side panel, not
+  centered) as the first candidate if a `Drawer` primitive is ever added.
+- **Navigation (4):** hand-rolled `role="tablist"` strips with no arrow-key roving focus instead
+  of `Tabs` in `FavoritesPanel.tsx`, `AdminNav.tsx`, `StudioSoundsView.tsx`, `RightRailPanel.tsx`
+  (a second one, in the same file as one of the badge duplicates above).
+- **Feedback (5):** `LoaderCircleIcon` + `animate-spin` instead of `Loader` (a different icon than
+  `Loader` wraps) in `ChannelView.tsx` and `discover/WidgetTrackRow.tsx`; bare `<p>` empty states
+  instead of `EmptyState` in `StashFilesPanel.tsx`, `ChannelChatPanel.tsx`,
+  `AddToPlaylistPanel.tsx` (the last one is a textbook `EmptyState` `action`-slot case — the
+  panel already has its own "New" trigger to wire up).
+
+**Not fixed this pass** — this was an audit, not a sweep; the findings above are the backlog.
+Also worth noting: `Combobox` (the plain export, as opposed to `CreatableCombobox` which tahti-web
+does use), `ImageReveal`, `Mosaic`, `PulsingText`, and `StatChip` have no Storybook coverage and
+also aren't consumed anywhere in tahti-web today — lower priority than the above until something
+actually needs them.
+
 ## 2026-09-02 — Channel/player designer: Links + Text overlay segments, shared backdrop card, grid-snap
 
 **Completed:** Ported the links and overlay editing UX from `../tahti`'s

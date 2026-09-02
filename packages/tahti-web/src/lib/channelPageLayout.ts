@@ -10,6 +10,7 @@ export const CHANNEL_PAGE_ITEM_TYPES = [
   'textOverlay',
   'subscribe',
   'stats',
+  'events',
 ] as const;
 
 export type ChannelPageItemType = (typeof CHANNEL_PAGE_ITEM_TYPES)[number];
@@ -63,6 +64,10 @@ export const CHANNEL_PAGE_ITEM_META: Record<
   stats: {
     label: 'Stats',
     hint: 'Follower count',
+  },
+  events: {
+    label: 'Live shows',
+    hint: 'Upcoming & past broadcasts',
   },
   embed: {
     label: 'External embed',
@@ -228,6 +233,7 @@ export function defaultChannelPageLayout(): ChannelPageItem[] {
     item('links', false),
     item('subscribe', true),
     item('stats', false),
+    item('events', false),
     // Chat is the Nuclear right rail — keep the layout slot hidden so it
     // never double-renders an in-page panel alongside the rail.
     item('chat', false),

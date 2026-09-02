@@ -115,6 +115,19 @@ This app's shared UI — `@tahti-player/ui` plus tahti-web's own local shared co
 is the authoritative reference for what compliant UI looks like here, also linked from the
 board-only `/more` page. **Always check new or changed UI against it before shipping:**
 
+**When building a new view (or any piece of a view), check in this order before writing markup:**
+1. Does `@tahti-player/ui` (Storybook) already have this? Use it.
+2. If not, does tahti-web already have a local shared component for it (`StudioPanel`,
+   `PageHeader`, `PageStates.tsx`, `InPageNav`, etc.)? Use that.
+3. Only if neither exists, build it — and add it to one of the two catalogs above (with a story,
+   if it belongs in `@tahti-player/ui`) instead of leaving it as a one-off in the page that needed
+   it, so the next view that needs the same thing finds it at step 1 or 2. A 2026-09-02 audit
+   (`packages/tahti-web/UI-REDESIGN-WORKLOG.md`) found 39 places across 33 files where this order
+   wasn't followed — native `<select>`s instead of `Select`, `window.confirm()` instead of the
+   app's own confirm-dialog pattern, hand-typed badge pills, hand-rolled tab strips missing
+   keyboard nav, and more — treat that list as the standing example of what skipping this check
+   costs, not a one-time cleanup.
+
 - Reuse an existing cataloged component instead of hand-rolling the same pattern again — a status
   pill is `Badge variant="pill" color="..."`, not a hand-styled `<span>`; a page header is
   `PageHeader`/`StudioPageHeader`, not a raw `<h1>`; a data-fetch loading/empty/error state is

@@ -140,3 +140,12 @@ export async function dismissNotification(id: string): Promise<void> {
     { method: 'PATCH' },
   );
 }
+
+export async function markAllNotificationsRead(): Promise<void> {
+  if (forceMock()) {
+    return;
+  }
+  await requestJson<void>('/api/me/notifications/read-all', {
+    method: 'POST',
+  });
+}

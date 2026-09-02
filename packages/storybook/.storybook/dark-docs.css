@@ -1,0 +1,11 @@
+/* @storybook/blocks' embedded "Canvas" preview card (.sbdocs-preview) has a
+ * hardcoded white background/border, independent of the app-level
+ * [data-theme]/[data-theme-id] globals this project themes real components
+ * with (see preview.ts's withTahtiTheme decorator) — so a Docs page showed
+ * correctly dark-rendered components sitting inside a jarring white box.
+ * Overriding just this one addon-docs class, scoped to dark mode, fixes
+ * that without touching Storybook's own light doc-text/code styling. */
+[data-theme='dark'] .sbdocs-preview {
+  background-color: #12151c !important;
+  border-color: #262b36 !important;
+}

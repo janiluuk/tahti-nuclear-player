@@ -41,6 +41,7 @@ Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which
 - [x] **Channel moderator management** — `/studio/moderation` is exposed from Studio Manage, with owner-gated assignment/removal, chat-ban UI, and mock/API coverage for the delegated moderator contract.
 - [x] Multitrack timeline + press-kit polish — press-kit gallery and download flows are shipped; editor projects now have a typed, autosaved multitrack timeline with synchronized preview and responsive controls.
 - [ ] Production cutover for `apps/web` — complete the listener/artist/admin no-drop ledger in [GAP-MAPPING.md](GAP-MAPPING.md) before changing the official client; keep Next Admin canonical unless the Admin parity gate is explicitly closed.
+- [ ] Move Help center and Settings to the bottom of the sidebar (`SectionSidebar`/`SidebarNavigation`), separated from the main nav groups above.
 
 Done since last update (was listed here as remaining, verified shipped): channel chat hardening (hCaptcha + rail parity), Stash upload UI, Stats detail page, Venue register, Membership purchase, Password/account security (TOTP panel), board admin (22/22 pages, now `partial` not `out-of-scope`).
 
