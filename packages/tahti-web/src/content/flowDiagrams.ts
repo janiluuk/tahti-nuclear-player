@@ -12,6 +12,93 @@ export type FlowDiagram = {
 
 export const FLOW_DIAGRAMS: FlowDiagram[] = [
   {
+    id: 'nuclear-content-data-model-2026-09',
+    pack: 'nuclear',
+    source: '@tahti/shared ARCHIVE_CONTENT_TYPES / COLLECTION_STYLES',
+    title:
+      'Content data model — sound types, collection styles, where they list',
+    blurb:
+      'Every ArchiveContentType a single sound can be, every CollectionStyle a group of sounds can be, which sound types feed which collection styles, and the real surfaces each one shows up on. Kept in sync by hand with packages/shared/src/dto/archive-metadata.ts and collection.ts whenever the taxonomy changes.',
+    mermaid: `flowchart TB
+  subgraph sounds["Sound content types · ArchiveContentType"]
+    direction TB
+    TRACK["TRACK<br/><small>ordinary upload</small>"]
+    LIVE["LIVE<br/><small>live recording</small>"]
+    DJSET["DJ_SET<br/><small>DJ mix / set</small>"]
+    PODCASTS["PODCAST<br/><small>standalone episode-less podcast</small>"]
+    REMIX["REMIX"]
+    SHOW["SHOW<br/><small>one-off radio show</small>"]
+    EPISODE["EPISODE<br/><small>installment of a podcast or show series</small>"]
+    CLIP["CLIP<br/><small>short clip / preview / small-scale audio</small>"]
+    EMBED["EMBED<br/><small>linked from Mixcloud / Hearthis / Spotify — no hosted audio</small>"]
+  end
+
+  subgraph collections["Collection styles · CollectionStyle"]
+    direction TB
+    ALBUM["ALBUM"]
+    EPC["EP"]
+    SINGLE["SINGLE"]
+    DJSERIES["DJ_SET_SERIES<br/><small>groups DJ_SET tracks</small>"]
+    PODCASTC["PODCAST<br/><small>groups EPISODE tracks</small>"]
+    RECORDING["RECORDING<br/><small>archived live set — not user-selectable</small>"]
+    PLAYLIST["PLAYLIST"]
+    SERIESC["SERIES<br/><small>groups a recurring SHOW's EPISODEs</small>"]
+  end
+
+  TRACK -.-> ALBUM
+  TRACK -.-> EPC
+  TRACK -.-> SINGLE
+  TRACK -.-> PLAYLIST
+  DJSET -.-> DJSERIES
+  EPISODE -.-> PODCASTC
+  EPISODE -.-> SERIESC
+  SHOW -.-> SERIESC
+  LIVE -.-> RECORDING
+
+  subgraph surfaces["Where they're listed"]
+    direction TB
+    Sounds["Studio → Sounds<br/><small>archive / clips folders</small>"]
+    Discover["Discover<br/><small>content-type filter chips</small>"]
+    Library["Library<br/><small>owned + followed sounds</small>"]
+    Radio["Radio · Tahti Radio<br/><small>rotation + submissions</small>"]
+    Channel["Channel page<br/><small>archive tab · Elsewhere embeds</small>"]
+    CollectionsUI["Studio → Collections / Playlists"]
+    Jam["Tahti Jam<br/><small>synced group listening</small>"]
+  end
+
+  TRACK --> Sounds
+  DJSET --> Sounds
+  CLIP --> Sounds
+  TRACK --> Discover
+  LIVE --> Discover
+  DJSET --> Discover
+  PODCASTS --> Discover
+  REMIX --> Discover
+  SHOW --> Discover
+  EPISODE --> Discover
+  CLIP --> Discover
+  TRACK --> Library
+  SHOW --> Radio
+  EPISODE --> Radio
+  EMBED --> Channel
+  ALBUM --> CollectionsUI
+  EPC --> CollectionsUI
+  SINGLE --> CollectionsUI
+  DJSERIES --> CollectionsUI
+  PLAYLIST --> CollectionsUI
+  SERIESC --> CollectionsUI
+  PODCASTC --> CollectionsUI
+  PLAYLIST --> Jam
+
+  classDef sound fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;
+  classDef coll fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;
+  classDef surface fill:#ecfdf5,stroke:#10b981,color:#065f46;
+  class TRACK,LIVE,DJSET,PODCASTS,REMIX,SHOW,EPISODE,CLIP,EMBED sound;
+  class ALBUM,EPC,SINGLE,DJSERIES,PODCASTC,RECORDING,PLAYLIST,SERIESC coll;
+  class Sounds,Discover,Library,Radio,Channel,CollectionsUI,Jam surface;
+`,
+  },
+  {
     id: 'nuclear-sitemap-2026',
     pack: 'nuclear',
     source: 'router.tsx · current beta routes',

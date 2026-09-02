@@ -1667,6 +1667,59 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Account notification and visibility controls',
         },
       },
+      {
+        id: 'tahti-jam',
+        title: 'Tahti Jam',
+        viewName: 'Jam',
+        caption:
+          'Host-authoritative synced group listening — join a playlist jam by code or link, see who else is jamming, and hear the same track at the same position as the host.',
+        actions: [
+          'Start a Jam from a playlist (host)',
+          'Join a Jam by code or shared link',
+          'Copy the invite link',
+          'See the live participant list',
+          'Leave the Jam',
+          'End the Jam for everyone (host only)',
+        ],
+        goesTo: [
+          { label: 'Start a Jam from a playlist', to: '/u/$username/c/$slug' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No production equivalent',
+        },
+        new: {
+          route: '/jam/$code',
+          caption:
+            "Nuclear-only group listening — shot pending. Backend is Redis pub/sub (SSE fan-out survives multiple API instances) with a full playable snapshot per track, so a guest's own player streams in sync rather than just showing a status readout.",
+        },
+      },
+      {
+        id: 'admin-artwork-presets',
+        title: 'Artwork presets',
+        viewName: 'Admin · Artwork presets',
+        caption:
+          'The 16 built-in placeholder covers used when an upload has no artwork of its own — protected defaults plus a per-slot assignable pool of uploaded custom artwork.',
+        actions: [
+          'Select a default artwork slot to edit',
+          'Assign a previously-uploaded custom artwork to a slot',
+          'Upload a new artwork (hover the preview, or the + tile)',
+          'Save presets',
+          'Reset all slots back to their defaults',
+        ],
+        goesTo: [{ label: 'Return to Admin overview', to: '/admin' }],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No direct Nuclear-era capture',
+        },
+        new: {
+          route: '/admin/artwork-presets',
+          caption:
+            'Defaults are immutable — a slot shows a custom artwork instead of overwriting the built-in one, saved per signed-in admin — shot pending.',
+        },
+      },
     ],
   },
   {
