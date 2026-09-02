@@ -1,8 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import {
-  CheckIcon,
   CircleDotIcon,
-  CopyIcon,
   FolderOpenIcon,
   HeadphonesIcon,
   ListMusicIcon,
@@ -15,7 +13,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Badge, Button, Dialog } from '@tahti-player/ui';
+import { Badge, Button, CopyButton, Dialog } from '@tahti-player/ui';
 
 import {
   createRtmpTarget,
@@ -60,17 +58,12 @@ import { usePlayerStore } from '../../stores/playerStore';
 
 type Ingest = 'obs' | 'icecast' | 'traktor';
 
-async function copyText(value: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(value);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
+// System rule: any field displaying a value meant to be copied (URLs,
+// stream keys, credentials) pairs a visible <code> with the shared
+// CopyButton (@tahti-player/ui) — this used to hand-roll the same
+// check-icon-swap CopyButton already provides. See WORKPLAN.md's
+// URL-field copy convention entry.
 function CopyField({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false);
   return (
     <div className="border-border bg-background-secondary flex flex-col gap-1 rounded-lg border p-3">
       <div className="text-foreground-secondary font-mono text-xs tracking-wide uppercase">
@@ -80,22 +73,11 @@ function CopyField({ label, value }: { label: string; value: string }) {
         <code className="text-foreground flex-1 truncate font-mono text-sm">
           {value}
         </code>
-        <Button
-          size="icon-sm"
+        <CopyButton
+          text={value}
           variant="secondary"
           aria-label={`Copy ${label}`}
-          title={`Copy ${label}`}
-          onClick={() => {
-            void copyText(value).then((success) => {
-              if (success) {
-                setCopied(true);
-                window.setTimeout(() => setCopied(false), 1500);
-              }
-            });
-          }}
-        >
-          {copied ? <CheckIcon size={14} /> : <CopyIcon size={14} />}
-        </Button>
+        />
       </div>
     </div>
   );

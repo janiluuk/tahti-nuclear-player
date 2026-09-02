@@ -286,9 +286,29 @@ export async function fetchChannelArchive(slug: string): Promise<{
   }
 }
 
+/** Appends a private-share key as `?key=` (or `&key=` if the path already
+ * has a query string) — the one thing every call below needs to pass
+ * through to let the backend recognize "this request is using a share
+ * link for a PRIVATE/STASH sound, not normal public access" and (per the
+ * share-link contract) serve it without a public visibility check, and
+ * log the access/interaction to the audit log instead of fanning it out
+ * as a normal public activity/notification event. */
+function withShareKey(path: string, shareKey: string | undefined): string {
+  if (!shareKey) {
+    return path;
+  }
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}key=${encodeURIComponent(shareKey)}`;
+}
+
 /** Full detail for a standalone track page — reached only by track id, so
- * (unlike fetchChannelArchive) it can't rely on already knowing the channel. */
-export async function fetchTrackDetail(id: string): Promise<{
+ * (unlike fetchChannelArchive) it can't rely on already knowing the channel.
+ * `shareKey` is the token from a PRIVATE/STASH sound's share link
+ * (`/t/$id?key=...`) — see withShareKey. */
+export async function fetchTrackDetail(
+  id: string,
+  shareKey?: string,
+): Promise<{
   data: PublicTrackDetail | null;
   meta: FetchMeta;
 }> {
@@ -300,7 +320,7 @@ export async function fetchTrackDetail(id: string): Promise<{
   }
   try {
     const data = await getJson<PublicTrackDetail>(
-      `/api/tracks/${encodeURIComponent(id)}`,
+      withShareKey(`/api/tracks/${encodeURIComponent(id)}`, shareKey),
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
@@ -312,7 +332,10 @@ export async function fetchTrackDetail(id: string): Promise<{
   }
 }
 
-export async function fetchTrackComments(id: string): Promise<{
+export async function fetchTrackComments(
+  id: string,
+  shareKey?: string,
+): Promise<{
   data: { comments: TrackComment[]; commentsEnabled: boolean };
   meta: FetchMeta;
 }> {
@@ -329,7 +352,7 @@ export async function fetchTrackComments(id: string): Promise<{
     const data = await getJson<{
       comments: TrackComment[];
       commentsEnabled: boolean;
-    }>(`/api/comments/track/${encodeURIComponent(id)}`);
+    }>(withShareKey(`/api/comments/track/${encodeURIComponent(id)}`, shareKey));
     return { data, meta: { source: 'api' } };
   } catch (err) {
     return withMockFallback(
@@ -343,6 +366,7 @@ export async function fetchTrackComments(id: string): Promise<{
 export async function postTrackComment(
   id: string,
   body: string,
+  shareKey?: string,
 ): Promise<{ ok: true; data: TrackComment } | { ok: false; error: string }> {
   if (forceMock()) {
     return {
@@ -359,7 +383,7 @@ export async function postTrackComment(
   }
   try {
     const { data } = await requestJson<TrackComment>(
-      `/api/comments/track/${encodeURIComponent(id)}`,
+      withShareKey(`/api/comments/track/${encodeURIComponent(id)}`, shareKey),
       { method: 'POST', body: JSON.stringify({ body }) },
     );
     return { ok: true, data };

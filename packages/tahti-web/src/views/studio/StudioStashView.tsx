@@ -23,6 +23,7 @@ export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
           (item) =>
             item.visibility === 'STASH' ||
             item.visibility === 'PRIVATE' ||
+            item.visibility === 'UNLISTED' ||
             item.isPublic === false,
         ),
       );

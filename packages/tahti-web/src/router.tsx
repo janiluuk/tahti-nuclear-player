@@ -922,9 +922,13 @@ const collectionRoute = createRoute({
 const trackDetailRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/t/$id',
+  validateSearch: (search: Record<string, unknown>): { key?: string } => ({
+    key: typeof search.key === 'string' ? search.key : undefined,
+  }),
   component: function TrackDetailRoute() {
     const { id } = trackDetailRoute.useParams();
-    return <TrackDetailView id={id} />;
+    const { key } = trackDetailRoute.useSearch();
+    return <TrackDetailView id={id} shareKey={key} />;
   },
 });
 

@@ -278,6 +278,115 @@ export async function patchStudioSound(
   }
 }
 
+/** A keyed access link for a PRIVATE/STASH sound — same shape and
+ * contract as StashShare (api/sources.ts), for the same reason: mints a
+ * token a specific link (`/t/$id?key=<token>`) can present to bypass the
+ * normal visibility check for that one sound. The backend must treat any
+ * request carrying a valid key as a private-share access: never fan it
+ * out as a public play/comment/reaction event, only record it in the
+ * audit log (who/when/via which share). This client only mints, sends,
+ * and revokes the token — it cannot itself enforce that server-side
+ * behavior. */
+export type SoundShare = {
+  id: string;
+  granteeUsername: string | null;
+  token: string;
+  permission: 'READ' | 'DOWNLOAD';
+  expiresAt: string | null;
+  createdAt: string;
+};
+
+let mockSoundShares: Record<string, SoundShare[]> = {};
+
+export async function fetchSoundShares(soundId: string): Promise<{
+  data: SoundShare[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockSoundShares[soundId] ?? [],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{ shares: SoundShare[] }>(
+      `/api/me/archive/${encodeURIComponent(soundId)}/shares`,
+    );
+    return { data: data.shares ?? [], meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function createSoundShare(
+  soundId: string,
+  input: {
+    granteeUsername?: string;
+    permission: 'READ' | 'DOWNLOAD';
+    expiresInDays?: number;
+  },
+): Promise<{ ok: true; data: SoundShare } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const now = new Date();
+    const share: SoundShare = {
+      id: `mock-sound-share-${Date.now()}`,
+      granteeUsername: input.granteeUsername?.replace(/^@/, '') || null,
+      token: `mock-key-${Date.now()}`,
+      permission: input.permission,
+      expiresAt: input.expiresInDays
+        ? new Date(
+            now.getTime() + input.expiresInDays * 86_400_000,
+          ).toISOString()
+        : null,
+      createdAt: now.toISOString(),
+    };
+    mockSoundShares = {
+      ...mockSoundShares,
+      [soundId]: [...(mockSoundShares[soundId] ?? []), share],
+    };
+    return { ok: true, data: share };
+  }
+  try {
+    const { data } = await requestJson<SoundShare>(
+      `/api/me/archive/${encodeURIComponent(soundId)}/share`,
+      { method: 'POST', body: JSON.stringify(input) },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Share creation failed',
+    };
+  }
+}
+
+export async function revokeSoundShare(
+  soundId: string,
+  shareId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    mockSoundShares = {
+      ...mockSoundShares,
+      [soundId]: (mockSoundShares[soundId] ?? []).filter(
+        (share) => share.id !== shareId,
+      ),
+    };
+    return { ok: true };
+  }
+  try {
+    await requestJson<void>(
+      `/api/me/archive/shares/${encodeURIComponent(shareId)}`,
+      { method: 'DELETE' },
+    );
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Revoke failed',
+    };
+  }
+}
+
 export type RadioSubmissionStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export type RadioSubmission = {

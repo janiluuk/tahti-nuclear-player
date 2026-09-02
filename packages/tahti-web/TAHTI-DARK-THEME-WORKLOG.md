@@ -300,18 +300,28 @@ each with a Storybook story:
       separate follow-up to make Card's fill theme-configurable
       (e.g. a `variant="outline"` alongside the current filled default).
 
-**Storybook stories: not done.** Phase 1 didn't establish whether
-`tahti-web`-local components (as opposed to `@tahti-player/ui`) are wired
-into the shared Storybook config at all — adding stories blind risked
-either not rendering or needing unplanned Storybook config changes. Placed
-these 4 in `tahti-web/src/components/tahti/` (not `@tahti-player/ui`)
-since they're Tahti-brand-specific, not general Nuclear player chrome —
-confirm that placement is right before adding stories.
+**Storybook stories: still not done for these 4 components** — placed in
+`tahti-web/src/components/tahti/` (not `@tahti-player/ui`) since they're
+Tahti-brand-specific, not general Nuclear player chrome; confirm that
+placement is right before adding stories.
+
+**Storybook theme *switching* itself: done (2026-09-02).** The Storybook
+config-level half of this gap — Storybook could only toggle a bare
+`data-theme=dark` class, never apply any of the six real named palettes
+at all — is closed: `packages/storybook/.storybook/preview.ts` now has
+two independent toolbar globals (Theme palette, Mode light/dark) that set
+`data-theme-id`/`data-theme` on `document.documentElement`, read from
+`listBasicThemes()` so the list can't drift from the real registry.
+Live-verified: Moss+Dark renders the green dark palette, Tahti renders
+correctly regardless of the Mode toggle. This makes every *existing*
+story (not just these 4 primitives) themeable in Storybook — but stories
+for Eyebrow/OnAirBadge/Waveform/StatNumber themselves are still missing.
 
 **Status:** primitives built and live-verified (dev server + Playwright
 screenshot: Eyebrow/OnAirBadge/Waveform/StatNumber all render correctly
-with `tahti-dark` active). Storybook stories and the base-primitive
-token-consumption check are still open.
+with `tahti-dark` active). Storybook *stories* for these 4 and the
+base-primitive token-consumption check are still open; Storybook's
+theme-switching mechanism itself is not.
 
 ## Phase 4 — Make `tahti-dark` selectable
 
@@ -1070,8 +1080,9 @@ Manual acceptance checklist:
 re-verified as of 2026-08-18, not carried over stale from the 2026-08-17
 first pass. The only open items are the ones already flagged as
 deliberately out of scope elsewhere in this file: the cross-package
-`--primary-foreground` token (Phase 6), Storybook wiring for `tahti-web`
-components (Phase 3), and 9 capture files needing scripted interactions
+`--primary-foreground` token (Phase 6), Storybook stories for the 4
+Tahti-brand primitives (Phase 3 — Storybook's theme-*switching* mechanism
+itself was closed 2026-09-02), and 9 capture files needing scripted interactions
 this pass didn't attempt.
 
 ## Phase 8 — Commit / land

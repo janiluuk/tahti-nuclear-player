@@ -157,10 +157,11 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Play --> Queue[Queue and favorite]
   Browse --> Join{Sign in?}
   Join -->|No| Anonymous[Continue anonymously]
-  Join -->|Yes| Library[Library and History]
+  Join -->|Yes| Library[Library]
   Library --> Messages[Messages and notifications]
   Library --> Subscribe[Subscribe to an artist]
   Library --> Governance[Vote and discuss]
+  Play --> FavHist[Favorites and history]
   Play --> Chat[Join channel chat]
 `,
   },
@@ -177,9 +178,9 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Shell --> Admin["Admin · board role"]
 
   subgraph studio["Studio sections"]
-    Studio --> StudioOverview["Studio: Overview · Stats · Governance · Posts · Distribution · Audience"]
+    Studio --> StudioOverview["Studio: Overview · Branding · Stats · Governance · Posts · Audience"]
     Studio --> Perform["Perform: Go Live · Schedule · Events · Shows · Channel · Radio · Multicast"]
-    Studio --> Library["Library: Library · Releases · Media · Upload · Editor · Stash"]
+    Studio --> Library["Library: Sounds · Collections · Releases (+ Distribution) · Upload · Editor"]
   end
 
   subgraph admin["Admin sections"]
@@ -636,10 +637,12 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     R["/radio"]
     C["/channel/:slug"]
     U["/u/:username"]
+    LF["/listen/favorites"]
+    LH["/listen/history"]
   end
 
   subgraph library["My Library"]
-    LIB["/library · Favorites · History · Messages"]
+    LIB["/library · Messages"]
   end
 
   subgraph studio["Studio routes"]
@@ -660,6 +663,8 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   SB --> ST
   SB --> MORE
   L --> C
+  L --> LF
+  L --> LH
   C --> RR
   C --> PB
   ST --> GL
@@ -744,15 +749,15 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     source: 'Library / Governance / Settings',
     title: 'Logged-in listener / member — navigation',
     blurb:
-      'Library tabs replace dashboard listener chrome; themes under Settings.',
+      'Library tabs replace dashboard listener chrome; Favorites/History are Listen tabs, not Library; themes under Settings.',
     mermaid: `flowchart TD
   Auth["/join · /login · TOTP"] --> L["/ Listen"]
-  L --> Lib["/library · Favorites · History · Messages"]
+  L --> Lib["/library · Messages"]
+  L --> Fav["/listen/favorites"]
+  L --> Hist["/listen/history"]
   L --> Sub["/subscribe/:artist"]
   L --> Gov["/governance · if member"]
   L --> Acc["/settings · Account"]
-  Lib --> Fav[Favorites]
-  Lib --> Hist[History]
   Lib --> DM[Messages]
   Acc --> Themes[Settings → Themes]
   Sub --> Stripe[Stripe checkout URL]
@@ -991,7 +996,8 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     title: 'Cases — listener / member',
     blurb: 'Library tabs, subscribe checkout, DMs, governance member vs gated.',
     mermaid: `flowchart TD
-  Auth --> Lib["/library Favorites History"]
+  Auth --> Lib["/library"]
+  Auth --> LF["/listen/favorites · /listen/history"]
   Auth --> Sub["/subscribe/:artist → Stripe"]
   Auth --> DM["/messages"]
   Auth --> Mem{Member?}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy @nuclearplayer/tahti-web beta to vimage next to production Tahti.
+# Deploy @tahti-player/tahti-web beta to vimage next to production Tahti.
 #
 # Layout on the host:
 #   /srv/tahti          production stack (untouched)
@@ -45,7 +45,7 @@ if [[ -s "$NVM_DIR/nvm.sh" ]]; then
   nvm use 22 >/dev/null 2>&1 || nvm use 24 >/dev/null 2>&1 || true
 fi
 
-echo "==> Building @nuclearplayer/tahti-web"
+echo "==> Building @tahti-player/tahti-web"
 echo "    API: same-origin /tahti-api (proxied to https://api.tahti.live)"
 echo "    Chat WS: ${CENTRIFUGO_WS}"
 echo "    Deploy version: ${DEPLOY_VERSION}"
@@ -56,7 +56,7 @@ env -u VITE_TAHTI_API_URL -u VITE_FORCE_MOCK -u VITE_ALLOW_MOCK_FALLBACK \
   VITE_CENTRIFUGO_WS="${CENTRIFUGO_WS}" \
   VITE_DEPLOY_VERSION="${DEPLOY_VERSION}" \
   VITE_ENABLE_DIAGNOSTICS=1 \
-  pnpm --filter @nuclearplayer/tahti-web build
+  pnpm --filter @tahti-player/tahti-web build
 
 if [[ ! -f "$ROOT/dist/index.html" ]]; then
   echo "error: build did not produce dist/index.html" >&2

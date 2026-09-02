@@ -66,9 +66,6 @@ export function FavoritesView({ embedded = false }: { embedded?: boolean }) {
                 <MediaIconActions
                   className="px-1"
                   actions={playQueueFavoriteActions({
-                    // No isPlaying here: a channel's live playable id is
-                    // only known after fetchChannel resolves it, so there's
-                    // nothing to compare currentId against up front.
                     onPlay: () => {
                       void fetchChannel(ch.slug).then(({ playable }) => {
                         if (playable) {
@@ -76,6 +73,19 @@ export function FavoritesView({ embedded = false }: { embedded?: boolean }) {
                         }
                       });
                     },
+                    onTogglePause: () =>
+                      setPlayerStatus(
+                        playerStatus === 'playing' || playerStatus === 'loading'
+                          ? 'paused'
+                          : 'playing',
+                      ),
+                    // A channel's live playable id is always `live:<slug>`
+                    // (see api/client.ts's fetchChannel), so this is
+                    // knowable without fetching first.
+                    isPlaying:
+                      currentId === `live:${ch.slug}` &&
+                      (playerStatus === 'playing' ||
+                        playerStatus === 'loading'),
                     onQueue: () => {
                       void fetchChannel(ch.slug).then(({ playable }) => {
                         if (playable) {
