@@ -1,6 +1,6 @@
 # Tahti Player navigation sitemap
 
-Updated 2026-09-01 from `src/router.tsx`, `AppShell.tsx`, `StudioNav.tsx`,
+Updated 2026-09-02 from `src/router.tsx`, `AppShell.tsx`, `StudioNav.tsx`,
 `AdminNav.tsx`, and `MobileChrome.tsx`. This is the navigation audit source of
 truth for the Nuclear client; route aliases and diagnostics are listed so an
 orphan is not mistaken for a missing feature.
@@ -12,9 +12,9 @@ orphan is not mistaken for a missing feature.
 | Everyone | Listen | `/`, `/listen`, `/channel/$slug`, `/u/$username`, `/u/$username/c/$slug`, `/r/$slug`, `/t/$id`, `/discover`, `/radio`, `/venues`, `/v/$slug` | Public discovery and playback |
 | Everyone | Radio | `/radio`, `/radio/show/$channelSlug`, `/schedule` | Schedule is reached from the radio surface |
 | Signed in | Library | `/library`, `/library/sounds`, `/library/collections`, `/library/favorites`, `/library/history`, `/library/messages`, `/library/media`, `/library/recordings`, `/library/releases`, `/library/smartlinks`, `/library/upload`, `/messages`, `/messages/$id` | Some legacy aliases redirect into the same library surfaces |
-| Artist | Studio | `/studio`, `/studio/stats`, `/studio/governance`, `/studio/updates`, `/studio/distribution`, `/studio/revenue`, `/studio/go-live`, `/studio/schedule`, `/studio/events`, `/studio/events/new`, `/studio/shows`, `/studio/shows/$id`, `/studio/channel`, `/studio/releases`, `/studio/collections`, `/studio/playlists`, `/studio/archive`, `/studio/upload`, `/studio/editor`, `/studio/recordings`, `/studio/branding`, `/studio/stash`, `/studio/mastering/$id` | Persistent Studio navigation owns these pages; detail routes are contextual |
+| Artist | Studio | `/studio`, `/studio/stats`, `/studio/governance`, `/studio/updates`, `/studio/distribution`, `/studio/revenue`, `/studio/go-live`, `/studio/schedule`, `/studio/events`, `/studio/events/new`, `/studio/shows`, `/studio/shows/$id`, `/studio/channel`, `/studio/releases`, `/studio/collections`, `/studio/playlists`, `/studio/sounds`, `/studio/editor`, `/studio/recordings`, `/studio/branding`, `/studio/stash`, `/studio/mastering/$id` | Persistent Studio navigation owns these pages; detail routes are contextual. `/studio/archive`, `/studio/archive/$id`, `/studio/archive/$id/editor`, and `/studio/upload` are legacy aliases redirecting into their `/studio/sounds`/`/library/upload` equivalents (Archive was renamed to Sounds) |
 | Signed in | Settings | `/settings`, `/settings/$section`, `/account`, `/onboarding` | Account, artist, channel, broadcast, notifications, themes, and connections |
-| Board | Admin | `/admin`, `/admin/logs`, `/admin/moderation`, `/admin/users`, `/admin/content`, `/admin/radio`, `/admin/news`, `/admin/streams`, `/admin/venues`, `/admin/top-lists`, `/admin/announcements`, `/admin/storage`, `/admin/financial`, `/admin/governance`, `/admin/grants`, `/admin/agm`, `/admin/missed-shows`, `/admin/disco-widgets`, `/admin/status`, `/admin/vendors`, `/admin/i18n`, `/admin/tahti-selects`, `/admin/orphan-pages` | Admin section navigation owns these pages; queue/detail routes remain contextual |
+| Board | Admin | `/admin`, `/admin/logs`, `/admin/moderation`, `/admin/users`, `/admin/content`, `/admin/radio`, `/admin/news`, `/admin/streams`, `/admin/venues`, `/admin/top-lists`, `/admin/announcements`, `/admin/storage`, `/admin/artwork-presets`, `/admin/financial`, `/admin/governance`, `/admin/reports`, `/admin/grants`, `/admin/agm`, `/admin/disco-widgets`, `/admin/status`, `/admin/vendors`, `/admin/i18n`, `/admin/tahti-selects`, `/admin/orphan-pages` | Admin section navigation owns these pages; queue/detail routes remain contextual. `/admin/missed-shows` is now a legacy alias redirecting into `/admin/moderation/$tab` (tab: missed-shows) |
 
 ## Intentional deep links and aliases
 
