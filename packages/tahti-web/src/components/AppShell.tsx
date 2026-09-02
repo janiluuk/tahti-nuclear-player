@@ -62,6 +62,7 @@ const ANONYMOUS_ALLOWED_ROUTES = [
   /^\/settings(?:\/|$)/,
   /^\/(login|join|apply|signup|verify|setup-password|forgot-password|reset-password)(?:\/|$)/,
   /^\/(about|privacy|terms|agpl|help|what-is-it|how-it-works|for-artists)(?:\/|$)/,
+  /^\/(status|whats-new|news)(?:\/|$)/,
   /^\/(radio|discover)(?:\/|$)/,
   /^\/(listen\/favorites|library\/favorites|favorites)(?:\/|$)/,
   /^\/studio(?:\/|$)/,
