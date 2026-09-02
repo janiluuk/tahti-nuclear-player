@@ -240,9 +240,9 @@ export function ChannelBackdropCard({
         }`}
         style={{ color: fg }}
       >
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
           <div
-            className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 text-lg font-bold sm:size-16"
+            className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 text-3xl font-bold sm:size-32 sm:text-4xl"
             style={{ borderColor: accent, background: bg }}
           >
             {avatarUrl ? (
@@ -254,7 +254,7 @@ export function ChannelBackdropCard({
           <div className="min-w-0 flex-1">
             <div
               data-testid="channel-backdrop-card-name"
-              className="font-display text-xl font-extrabold tracking-tight sm:text-2xl"
+              className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl"
             >
               {displayName}
             </div>

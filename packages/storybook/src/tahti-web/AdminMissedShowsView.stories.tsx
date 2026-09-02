@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { AdminMissedShowsView } from '@tahti-web/views/admin/AdminMissedShowsView';
+import { AdminMissedShowsPanel } from '@tahti-web/views/admin/AdminMissedShowsView';
 
 import { withMockAuth, withTahtiRouter } from './_lib/decorators';
 
-const meta: Meta<typeof AdminMissedShowsView> = {
+const meta: Meta<typeof AdminMissedShowsPanel> = {
   title: 'Tahti/Admin/AdminMissedShowsView',
-  component: AdminMissedShowsView,
+  component: AdminMissedShowsPanel,
   parameters: { layout: 'fullscreen' },
   tags: ['autodocs'],
   decorators: [withTahtiRouter('/admin/missed-shows'), withMockAuth()],

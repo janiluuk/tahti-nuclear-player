@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
-import { LogOutIcon, UsersIcon, XIcon } from 'lucide-react';
+import { LogOutIcon, PlayIcon, UsersIcon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -12,7 +12,11 @@ import {
 
 import { endJam, joinJam, leaveJam } from '../api/jam';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
-import { useJamHostSync, useJamState } from '../hooks/useJam';
+import {
+  useJamGuestPlayback,
+  useJamHostSync,
+  useJamState,
+} from '../hooks/useJam';
 import { useAuthStore } from '../stores/authStore';
 
 /** A frosted glass panel whose glow tints toward the current track's own
@@ -60,7 +64,9 @@ export function JamView({ code }: { code: string }) {
 
   const { session, connectionStatus, ended } = useJamState(sessionId);
   const isHost = Boolean(session && userId && session.hostUserId === userId);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
   useJamHostSync(sessionId, isHost && !ended);
+  useJamGuestPlayback(session, !isHost && audioUnlocked && !ended);
 
   const leave = async () => {
     if (sessionId) {
@@ -155,12 +161,17 @@ export function JamView({ code }: { code: string }) {
           </div>
         </GlassPanel>
 
-        <GlassPanel>
+        <GlassPanel className="flex flex-wrap items-center justify-between gap-3">
           <TahtiJam.NowPlaying
             title={track?.title ?? 'Nothing playing yet'}
             artist={track?.artistName}
             coverUrl={track?.coverUrl ?? undefined}
           />
+          {!isHost && !audioUnlocked && track?.streamUrl ? (
+            <Button onClick={() => setAudioUnlocked(true)}>
+              <PlayIcon size={16} /> Play along
+            </Button>
+          ) : null}
         </GlassPanel>
 
         <GlassPanel>

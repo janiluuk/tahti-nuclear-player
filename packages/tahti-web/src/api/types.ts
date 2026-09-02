@@ -846,6 +846,12 @@ export type JamTrack = {
   title: string;
   artistName: string;
   coverUrl: string | null;
+  /** Null for embed-only tracks (Mixcloud/Hearthis/Spotify) — guests see
+   * "now playing" for those but can't auto-play them, same as elsewhere. */
+  streamUrl: string | null;
+  protocol: 'hls' | 'https' | null;
+  channelSlug: string | null;
+  durationSec: number | null;
 };
 
 export type JamSession = {

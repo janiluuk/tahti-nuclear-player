@@ -154,6 +154,8 @@ export function ChannelView({ slug }: { slug: string }) {
   const setChatContext = useLayoutStore((s) => s.setChatContext);
   const clearChatContext = useLayoutStore((s) => s.clearChatContext);
   const openChatRail = useLayoutStore((s) => s.openChatRail);
+  const rightCollapsed = useLayoutStore((s) => s.rightCollapsed);
+  const toggleRight = useLayoutStore((s) => s.toggleRight);
 
   useEffect(() => clearChatContext, [clearChatContext]);
 
@@ -328,6 +330,17 @@ export function ChannelView({ slug }: { slug: string }) {
       return;
     }
     openChatRail(slug);
+  };
+
+  const handleToggleChat = () => {
+    if (!chatOn) {
+      return;
+    }
+    if (rightCollapsed) {
+      openChatRail(slug);
+    } else {
+      toggleRight();
+    }
   };
 
   const handlePlayChannel = () => {
@@ -609,6 +622,23 @@ export function ChannelView({ slug }: { slug: string }) {
                   )}
                   {(live || channel.hlsUrl) && (
                     <div className="absolute right-4 bottom-4 z-[2] flex items-center gap-3">
+                      {chatOn && (
+                        <Button
+                          size="icon"
+                          variant="text"
+                          className="size-11 bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
+                          onClick={handleToggleChat}
+                          aria-pressed={!rightCollapsed}
+                          aria-label={
+                            rightCollapsed ? 'Expand chat' : 'Collapse chat'
+                          }
+                          title={
+                            rightCollapsed ? 'Expand chat' : 'Collapse chat'
+                          }
+                        >
+                          <MessageCircle size={20} />
+                        </Button>
+                      )}
                       <Button
                         size="icon"
                         variant="text"

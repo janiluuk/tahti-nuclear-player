@@ -380,6 +380,22 @@ const FEATURES: FeatureRow[] = [
     notes:
       'Help content exists; authenticated ticket submission still links out',
   },
+  {
+    feature: 'Tahti Jam',
+    tahti: '—',
+    nuclear: '/jam/$code',
+    status: 'live',
+    notes:
+      'Host-authoritative synced group listening from a playlist. Backend SSE fan-out is Redis pub/sub (survives multiple API instances); guest playback actually streams in sync, not just a status readout.',
+  },
+  {
+    feature: 'Artwork presets',
+    tahti: '—',
+    nuclear: '/admin/artwork-presets',
+    status: 'admin',
+    notes:
+      'The 16 built-in placeholder covers for artwork-free uploads — protected defaults, per-slot assignable custom-upload pool, saved per admin, reset-to-defaults.',
+  },
 ];
 
 function statusClass(status: Status): string {

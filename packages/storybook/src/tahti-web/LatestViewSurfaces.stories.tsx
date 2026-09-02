@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AdminContentView } from '@tahti-web/views/admin/AdminContentView';
-import { AdminMissedShowsView } from '@tahti-web/views/admin/AdminMissedShowsView';
+import { AdminMissedShowsPanel } from '@tahti-web/views/admin/AdminMissedShowsView';
 import { AdminSelectsView } from '@tahti-web/views/admin/AdminSelectsView';
 import { StudioBrandingView } from '@tahti-web/views/studio/StudioBrandingView';
 import { StudioChannelView } from '@tahti-web/views/studio/StudioChannelView';
@@ -50,7 +50,7 @@ export const AdminMissedShows: Story = {
     },
   },
   decorators: [withTahtiRouter('/admin/moderation?tab=missed-shows')],
-  render: () => <AdminMissedShowsView />,
+  render: () => <AdminMissedShowsPanel />,
 };
 
 export const AdminSelects: Story = {
