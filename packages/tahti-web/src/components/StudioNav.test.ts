@@ -15,4 +15,10 @@ describe('StudioNav section coverage', () => {
       });
     }
   }
+
+  it('keeps multicast under Radio instead of a Perform sibling', () => {
+    const destinations = SUBMENUS['/studio/go-live'].map((item) => item.to);
+    expect(destinations).not.toContain('/studio/channel?tab=multicast');
+    expect(destinations).toContain('/studio/channel?tab=radio');
+  });
 });

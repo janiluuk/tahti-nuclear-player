@@ -10,6 +10,8 @@ describe('resolveDashboardRedirect', () => {
     ['venues', '/studio/venues'],
     ['recordings', '/studio/recordings'],
     ['setup-channel', '/studio/channel?tab=setup'],
+    ['channel/edit', '/studio/branding?tab=channel-designer'],
+    ['settings/multistream', '/studio/channel?tab=multicast'],
     ['posts', '/studio/updates'],
     ['upload/from-broadcast', '/studio/recordings'],
     ['archive/track-1/editor', '/studio/sounds/track-1/editor'],

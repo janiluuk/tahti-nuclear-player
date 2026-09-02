@@ -125,7 +125,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Governance --> GovernanceHistory["/governance/history · public closed motions"]
   Governance --> GrantReports["/transparency/grants/$year · yearly reports"]
   StudioGate --> Studio["Signed in + channel → /studio"]
-  Studio --> Perform["Go Live · Schedule · Shows · Channel · Radio · Multicast"]
+  Studio --> Perform["Go Live · Schedule · Shows · Channel · Radio"]
   Studio --> Music["Sounds · Collections · Releases · Upload"]
   Studio --> Grow["Stats · Governance · Audience · Updates"]
   Login --> Settings["/settings"]
@@ -696,7 +696,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Listen --> Settings["Settings · account · artist · security"]:::auth
   Settings --> Sources["Sources · imports and exports"]:::auth
   Listen --> Studio["Studio · overview · library · perform"]:::studio
-  Studio --> GoLive["Perform · Go live · schedule · shows · events · channel · radio · multicast"]:::studio
+  Studio --> GoLive["Perform · Go live · schedule · shows · events · channel · radio"]:::studio
   Studio --> Music["Library · sounds · releases · collections · upload · editor"]:::studio
   Studio --> Publish["Studio · governance · posts · distribution · audience · stats"]:::studio
   Listen --> Public["Venues · transparency · help · legal · embeds"]:::pub

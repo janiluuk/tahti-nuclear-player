@@ -8,7 +8,6 @@ import {
   Download,
   Gift,
   Globe,
-  Image as ImageIcon,
   KeyRound,
   Landmark,
   Lock,
@@ -102,7 +101,6 @@ import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { AMBIENT_SCHEME } from '../../components/AmbientBackground';
 import { ApiTokensPanel } from '../../components/ApiTokensPanel';
 import { ArtistImagePurposePicker } from '../../components/ArtistImagePurposePicker';
-import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { ChannelVisualizer } from '../../components/ChannelVisualizer';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
@@ -1161,11 +1159,6 @@ function ArtistPanel() {
           label: tabLabel(Sparkles, 'Releases'),
           content: <ReleaseVisualDefaultsPanel />,
         },
-        {
-          id: 'gallery',
-          label: tabLabel(ImageIcon, 'Gallery'),
-          content: <StudioBrandingPanel section="gallery" />,
-        },
       ].filter(
         (item) => item.id !== 'people' || profile?.artistKind === 'COLLECTIVE',
       )}
@@ -1233,14 +1226,6 @@ function ChannelPanel() {
   const user = useAuthStore((s) => s.user);
   const closeSettings = useSettingsModalStore((s) => s.close);
   const channel = user?.channel;
-  // AmbientBackground (mounted globally in AppShell) can already be running
-  // its own ChannelVisualizer WebGL context behind this modal — only skip
-  // the designer's live preview when that's actually true (see 7a8060d7),
-  // not unconditionally, or the preview never works for anyone.
-  const ambientEnabled = useAmbientStore((s) => s.enabled);
-  const themeId = useThemeStore((s) => s.themeId);
-  const ambientVisualizerActive =
-    ambientEnabled && isThemeVisualizationEnabled(themeId);
   const [discovery, setDiscovery] = useState<DiscoveryPrefs | null>(null);
   const [channelProfile, setChannelProfile] = useState<ProfileFields | null>(
     null,
@@ -1276,26 +1261,16 @@ function ChannelPanel() {
           content: (
             <div className="flex flex-col gap-4">
               <SettingsHint>
-                Live preview of presets and accents. Owners can also open Design
-                on{' '}
-                <Link
-                  to="/u/$username"
-                  params={{ username: user.username }}
-                  onClick={closeSettings}
-                  className="underline-offset-2 hover:underline"
-                >
-                  their public profile
-                </Link>
-                .
+                Channel look now lives in one place: Studio → Branding → Channel
+                Designer.
               </SettingsHint>
-              <ChannelDesigner
-                displayName={user.displayName}
-                username={user.username}
-                channelSlug={channel?.slug}
-                avatarUrl={user.avatarUrl}
-                livePreview={!ambientVisualizerActive}
-                compact
-              />
+              <Link
+                to="/studio/branding"
+                search={{ tab: 'channel-designer' }}
+                onClick={closeSettings}
+              >
+                <Button size="sm">Open Channel Designer</Button>
+              </Link>
             </div>
           ),
         },

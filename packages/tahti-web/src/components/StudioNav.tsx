@@ -15,6 +15,7 @@ import {
   UploadIcon,
 } from 'lucide-react';
 
+import { useTranslation } from '@tahti-player/i18n';
 import { SidebarNavigationItem } from '@tahti-player/ui';
 
 import type { TourStep } from '../lib/pageTour';
@@ -24,99 +25,124 @@ const PRIMARY = [
   {
     to: '/studio',
     label: 'Studio',
-    icon: <LayoutGridIcon size={16} aria-hidden />,
+    labelKey: 'nav.studio',
     description:
       'Your channel snapshot — status, quick links, and recent activity.',
+    descriptionKey: 'studio.studioDescription',
+    icon: <LayoutGridIcon size={16} aria-hidden />,
   },
   {
     to: '/library',
     label: 'Library',
-    icon: <LibraryIcon size={16} aria-hidden />,
+    labelKey: 'nav.library',
     description: 'All your uploaded tracks, releases, and files in one place.',
+    descriptionKey: 'studio.libraryDescription',
+    icon: <LibraryIcon size={16} aria-hidden />,
   },
   {
     to: '/studio/go-live',
     label: 'Perform',
-    icon: <RadioTowerIcon size={16} aria-hidden />,
+    labelKey: 'nav.perform',
     description: 'Go live, schedule broadcasts, and manage performances.',
+    descriptionKey: 'studio.performDescription',
+    icon: <RadioTowerIcon size={16} aria-hidden />,
   },
 ] as const;
 
 export const SUBMENUS = {
   '/studio': [
-    { to: '/studio', label: 'Overview', icon: <LayoutGridIcon size={16} /> },
+    {
+      to: '/studio',
+      labelKey: 'studio.overview',
+      icon: <LayoutGridIcon size={16} />,
+    },
     {
       to: '/studio/branding',
-      label: 'Branding',
+      labelKey: 'studio.branding',
       icon: <PaletteIcon size={16} />,
     },
-    { to: '/studio/stats', label: 'Stats', icon: <TrendingUpIcon size={16} /> },
+    {
+      to: '/studio/stats',
+      labelKey: 'studio.stats',
+      icon: <TrendingUpIcon size={16} />,
+    },
     {
       to: '/studio/governance',
-      label: 'Governance',
+      labelKey: 'studio.governance',
       icon: <LandmarkIcon size={16} />,
     },
     {
       to: '/studio/updates',
-      label: 'Posts',
+      labelKey: 'studio.posts',
       icon: <TrendingUpIcon size={16} />,
     },
     {
       to: '/studio/revenue',
-      label: 'Audience',
+      labelKey: 'studio.audience',
       icon: <HeartIcon size={16} />,
     },
   ],
   '/library': [
-    { to: '/library', label: 'Overview', icon: <LibraryIcon size={16} /> },
+    {
+      to: '/library',
+      labelKey: 'studio.overview',
+      icon: <LibraryIcon size={16} />,
+    },
     {
       to: '/library/sounds',
-      label: 'Sounds',
+      labelKey: 'studio.sounds',
       icon: <ListMusicIcon size={16} />,
     },
     {
       to: '/library/collections',
-      label: 'Collections',
+      labelKey: 'studio.collections',
       icon: <LayersIcon size={16} />,
     },
     {
       to: '/studio/releases',
-      label: 'Releases',
+      labelKey: 'studio.releases',
       icon: <ListMusicIcon size={16} />,
     },
-    { to: '/library/upload', label: 'Upload', icon: <UploadIcon size={16} /> },
+    {
+      to: '/library/upload',
+      labelKey: 'studio.upload',
+      icon: <UploadIcon size={16} />,
+    },
     {
       to: '/studio/editor',
-      label: 'Editor',
+      labelKey: 'studio.editor',
       icon: <SlidersHorizontalIcon size={16} />,
     },
   ],
   '/studio/go-live': [
     {
       to: '/studio/go-live',
-      label: 'Go live',
+      labelKey: 'studio.goLive',
       icon: <RadioTowerIcon size={16} />,
     },
     {
       to: '/studio/schedule',
-      label: 'Schedule',
+      labelKey: 'studio.schedule',
       icon: <RadioIcon size={16} />,
     },
-    { to: '/studio/events', label: 'Events', icon: <RadioIcon size={16} /> },
-    { to: '/studio/shows', label: 'Shows', icon: <RadioIcon size={16} /> },
     {
-      to: '/studio/channel?tab=multicast',
-      label: 'Multicast',
-      icon: <RadioTowerIcon size={16} />,
+      to: '/studio/events',
+      labelKey: 'studio.events',
+      icon: <RadioIcon size={16} />,
+    },
+    {
+      to: '/studio/shows',
+      labelKey: 'studio.shows',
+      icon: <RadioIcon size={16} />,
     },
     {
       to: '/studio/channel',
-      label: 'Channel',
+      labelKey: 'studio.channel',
       icon: <Settings2Icon size={16} />,
     },
     {
       to: '/studio/channel?tab=radio',
-      label: 'Radio',
+      labelKey: 'nav.radio',
       icon: <RadioIcon size={16} />,
     },
   ],
@@ -169,9 +195,6 @@ const isActive = (current: string | undefined, to: string) => {
   if (!current) {
     return false;
   }
-  if (to === '/studio/go-live' && current === '/studio/channel?tab=multicast') {
-    return true;
-  }
   const pathname = current.split('?')[0];
   if (to === '/studio') {
     return (
@@ -190,6 +213,19 @@ export const getStudioPrimaryRoute = (current: string | undefined) =>
 
 const isSubmenuActive = (current: string | undefined, to: string) => {
   const pathname = current?.split('?')[0];
+  if (to === '/studio/channel?tab=radio') {
+    return (
+      current === '/studio/channel?tab=radio' ||
+      current === '/studio/channel?tab=multicast'
+    );
+  }
+  if (to === '/studio/channel') {
+    return (
+      pathname === '/studio/channel' &&
+      current !== '/studio/channel?tab=radio' &&
+      current !== '/studio/channel?tab=multicast'
+    );
+  }
   return (
     (to.includes('?')
       ? current === to
@@ -214,6 +250,7 @@ export const StudioNav = ({
 }) => (global ? <StudioNavigation current={current} /> : null);
 
 export function StudioMainNavItems() {
+  const { t } = useTranslation('web');
   const current = useRouterState({
     select: (state) => state.location.pathname + state.location.searchStr,
   });
@@ -225,7 +262,7 @@ export function StudioMainNavItems() {
           key={item.to}
           to={item.to}
           icon={item.icon}
-          label={item.label}
+          label={t(item.labelKey)}
           isSelected={isActive(current, item.to)}
         />
       ))}
@@ -234,14 +271,18 @@ export function StudioMainNavItems() {
 }
 
 function StudioNavigation({ current }: { current?: string }) {
+  const { t } = useTranslation('web');
   const selectedSection = getStudioPrimaryRoute(current) ?? '/studio';
+  const sectionLabel =
+    PRIMARY.find((item) => item.to === selectedSection)?.labelKey ??
+    'nav.studio';
 
   const submenu = SUBMENUS[selectedSection as keyof typeof SUBMENUS] ?? [];
 
   return (
     <div className="flex min-w-0 flex-col gap-1" data-studio-navigation>
       <nav
-        aria-label={`${PRIMARY.find((item) => item.to === selectedSection)?.label ?? 'Studio'} pages`}
+        aria-label={`${t(sectionLabel)} pages`}
         className="border-border flex min-w-0 flex-wrap gap-1 border-b pb-2"
         data-studio-section-menu
       >
@@ -260,7 +301,7 @@ function StudioNavigation({ current }: { current?: string }) {
               }`}
             >
               <span className="shrink-0">{item.icon}</span>
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           ))}
       </nav>

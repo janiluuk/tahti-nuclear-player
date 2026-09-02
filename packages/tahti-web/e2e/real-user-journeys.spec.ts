@@ -107,7 +107,7 @@ test('governance navigation keeps member, artist, and board entries reachable an
   await signIn(page);
 
   await page.goto('/settings/account');
-  await page.getByRole('link', { name: 'Governance' }).click();
+  await page.getByRole('tab', { name: 'Governance' }).click();
   await expect(page.getByRole('heading', { name: 'Governance' })).toBeVisible();
 
   await page.goto('/studio/governance');
@@ -150,11 +150,9 @@ test('governance navigation keeps member, artist, and board entries reachable an
   );
   await expect(
     page
-      .getByRole('navigation', { name: 'Admin Community' })
-      .getByRole('link', {
-        name: 'Governance',
-      }),
-  ).toHaveAttribute('aria-current', 'page');
+      .getByRole('tablist', { name: 'Admin Community' })
+      .getByRole('tab', { name: 'Governance' }),
+  ).toHaveAttribute('aria-selected', 'true');
 
   await page.goto('/admin/agm');
   await expect(page.getByRole('tab', { name: 'Community' })).toHaveAttribute(
@@ -163,11 +161,9 @@ test('governance navigation keeps member, artist, and board entries reachable an
   );
   await expect(
     page
-      .getByRole('navigation', { name: 'Admin Community' })
-      .getByRole('link', {
-        name: 'AGM',
-      }),
-  ).toHaveAttribute('aria-current', 'page');
+      .getByRole('tablist', { name: 'Admin Community' })
+      .getByRole('tab', { name: 'AGM' }),
+  ).toHaveAttribute('aria-selected', 'true');
 });
 
 test('governance: closed motions show their final decision as a permanent history/decision log', async ({

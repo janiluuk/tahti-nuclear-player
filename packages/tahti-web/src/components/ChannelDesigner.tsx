@@ -1951,17 +1951,12 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     return (
       <>
         <div className={`flex flex-col gap-4 ${compact ? '' : 'w-full'}`}>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-display text-xl font-bold tracking-tight">
-              Channel Designer
-            </h2>
-            <div className="flex flex-wrap items-center justify-end gap-3">
-              <Button variant="secondary" onClick={openSavePresetModal}>
-                <BookmarkPlusIcon size={16} /> Save preset
-              </Button>
-              {saveButton}
-              {openChannelLink}
-            </div>
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <Button variant="secondary" onClick={openSavePresetModal}>
+              <BookmarkPlusIcon size={16} /> Save preset
+            </Button>
+            {saveButton}
+            {openChannelLink}
           </div>
 
           {presets.length > 0 && (
@@ -2019,10 +2014,10 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             </div>
           )}
 
-          <div className="flex min-h-0 flex-col gap-4 xl:flex-row xl:items-start">
+          <div className="grid min-h-0 grid-cols-1 gap-4">
             <main
               aria-label="Channel page preview"
-              className="border-border bg-background min-w-0 flex-1 overflow-x-hidden overflow-y-auto rounded-xl border shadow-lg"
+              className="border-border bg-background min-w-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-lg"
             >
               <div className="border-border bg-background-secondary/40 flex items-center justify-between gap-1.5 border-b px-4 py-2.5">
                 <div className="flex items-center gap-1.5">
@@ -2161,12 +2156,12 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
               </div>
             </main>
 
-            <aside
+            <section
               aria-label="Channel appearance controls"
-              className="min-w-0 xl:sticky xl:top-4 xl:w-[24rem] xl:shrink-0"
+              className="min-w-0"
             >
               {controls}
-            </aside>
+            </section>
           </div>
 
           {overlayConfigOpen ? (

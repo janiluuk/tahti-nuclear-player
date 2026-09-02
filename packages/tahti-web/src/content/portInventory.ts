@@ -285,7 +285,7 @@ export const PORT_GAP_HIGHLIGHTS: PortInventoryItem[] = [
   {
     id: 'gap-press-kit-gallery',
     surface: 'Press-kit gallery',
-    route: '/settings/artist',
+    route: '/studio/branding',
     status: 'done',
     detail:
       '/api/me/press-kit/images/* upload/delete; ArtistGalleryPanel wired into the gallery tab.',

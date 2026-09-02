@@ -1,9 +1,10 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useSearch } from '@tanstack/react-router';
 import {
+  Blocks,
   ChevronDownIcon,
   PauseIcon,
   PlayIcon,
-  PlusIcon,
+  Plus,
   SlidersHorizontalIcon,
   XIcon,
 } from 'lucide-react';
@@ -33,8 +34,10 @@ import { WidgetCard } from '../components/discover/WidgetCard';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
+import { VenuesDirectory } from '../components/VenuesDirectory';
 import { CONTENT_TYPES } from '../content/contentTypes';
 import { hasAccountRole } from '../lib/accountRoles';
+import { discoverTabFromSearch, type DiscoverTab } from '../lib/discoverTabs';
 import { PRESET_GENRES } from '../lib/genres';
 import { useAuthStore } from '../stores/authStore';
 import {
@@ -77,7 +80,17 @@ type DiscoverSelection = {
   playable: TahtiPlayable;
 };
 
-type DiscoverTab = 'discover' | 'artists';
+const DISCOVER_TABS: Array<{ id: DiscoverTab; label: string }> = [
+  { id: 'discover', label: 'Discover' },
+  { id: 'artists', label: 'Artists' },
+  { id: 'venues', label: 'Venues' },
+];
+
+const DISCOVER_SUBTITLES: Record<DiscoverTab, string> = {
+  discover: 'Pick the widgets you want to see, and filter by genre or type.',
+  artists: 'Artists from the Listen directory, filtered for your picks.',
+  venues: 'Browse verified venues in the Tahti community.',
+};
 
 export function DiscoverView() {
   const enabledWidgets = useDiscoverStore((s) => s.enabledWidgets);
@@ -108,7 +121,8 @@ export function DiscoverView() {
   );
   const [artists, setArtists] = useState<ChannelDirectoryItem[]>([]);
   const [artistsLoading, setArtistsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<DiscoverTab>('discover');
+  const search = useSearch({ strict: false }) as { tab?: string };
+  const activeTab = discoverTabFromSearch(search.tab);
 
   const filters = useMemo(
     () => ({ genres: genreFilter, contentTypes: contentTypeFilter }),
@@ -294,104 +308,126 @@ export function DiscoverView() {
     <PageFrame>
       <PageHeader
         title="Discover"
-        subtitle="Pick the widgets you want to see, and filter by genre or type."
+        subtitle={DISCOVER_SUBTITLES[activeTab]}
         meta={<Eyebrow>Discover</Eyebrow>}
+        actions={
+          activeTab === 'venues' ? (
+            <Link
+              to="/venues/register"
+              className="text-sm font-medium underline-offset-2 hover:underline"
+            >
+              Register a venue
+            </Link>
+          ) : activeTab === 'discover' ? (
+            <DiscoverAddWidgetButton
+              availableToAdd={availableToAdd}
+              onAdd={addWidget}
+            />
+          ) : null
+        }
       />
 
-      <div className="border-border flex gap-1 border-b" role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'discover'}
-          className={`border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${activeTab === 'discover' ? 'border-primary text-foreground' : 'text-foreground-secondary hover:text-foreground border-transparent'}`}
-          onClick={() => setActiveTab('discover')}
-        >
-          Discover
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'artists'}
-          className={`border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${activeTab === 'artists' ? 'border-primary text-foreground' : 'text-foreground-secondary hover:text-foreground border-transparent'}`}
-          onClick={() => setActiveTab('artists')}
-        >
-          Artists
-        </button>
+      <div
+        className="border-border flex gap-1 border-b"
+        role="tablist"
+        aria-label="Discover sections"
+      >
+        {DISCOVER_TABS.map((tab) => (
+          <Link
+            key={tab.id}
+            to="/discover"
+            search={tab.id === 'discover' ? {} : { tab: tab.id }}
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            data-testid={`discover-tab-${tab.id}`}
+            className={`border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
+              activeTab === tab.id
+                ? 'border-primary text-foreground'
+                : 'text-foreground-secondary hover:text-foreground border-transparent'
+            }`}
+          >
+            {tab.label}
+          </Link>
+        ))}
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div
-          data-testid="discover-filters"
-          className="flex flex-wrap items-center gap-2"
-        >
-          <Button
-            size="sm"
-            variant="secondary"
-            aria-expanded={genresOpen}
-            onClick={() => setGenresOpen((open) => !open)}
+      {activeTab !== 'venues' ? (
+        <div className="flex flex-col gap-3">
+          <div
+            data-testid="discover-filters"
+            className="flex flex-wrap items-center gap-2"
           >
-            <SlidersHorizontalIcon size={15} className="mr-1.5" aria-hidden />
-            Genres{genreFilter.length > 0 ? ` (${genreFilter.length})` : ''}
-            <ChevronDownIcon
-              size={15}
-              className={`ml-1.5 transition-transform ${genresOpen ? 'rotate-180' : ''}`}
-              aria-hidden
+            <Button
+              size="sm"
+              variant="secondary"
+              aria-expanded={genresOpen}
+              onClick={() => setGenresOpen((open) => !open)}
+            >
+              <SlidersHorizontalIcon size={15} className="mr-1.5" aria-hidden />
+              Genres{genreFilter.length > 0 ? ` (${genreFilter.length})` : ''}
+              <ChevronDownIcon
+                size={15}
+                className={`ml-1.5 transition-transform ${genresOpen ? 'rotate-180' : ''}`}
+                aria-hidden
+              />
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              aria-expanded={contentTypesOpen}
+              onClick={() => setContentTypesOpen((open) => !open)}
+            >
+              <SlidersHorizontalIcon size={15} className="mr-1.5" aria-hidden />
+              Types
+              {contentTypeFilter.length > 0
+                ? ` (${contentTypeFilter.length})`
+                : ''}
+              <ChevronDownIcon
+                size={15}
+                className={`ml-1.5 transition-transform ${contentTypesOpen ? 'rotate-180' : ''}`}
+                aria-hidden
+              />
+            </Button>
+            <FilterChips
+              multiple
+              items={[{ id: 'unheard', label: 'Tracks I haven’t heard' }]}
+              selected={unheardOnly ? ['unheard'] : []}
+              onChange={(selected) =>
+                setUnheardOnly(selected.includes('unheard'))
+              }
             />
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            aria-expanded={contentTypesOpen}
-            onClick={() => setContentTypesOpen((open) => !open)}
-          >
-            <SlidersHorizontalIcon size={15} className="mr-1.5" aria-hidden />
-            Types
-            {contentTypeFilter.length > 0
-              ? ` (${contentTypeFilter.length})`
-              : ''}
-            <ChevronDownIcon
-              size={15}
-              className={`ml-1.5 transition-transform ${contentTypesOpen ? 'rotate-180' : ''}`}
-              aria-hidden
+          </div>
+          {genresOpen ? (
+            <FilterChips
+              multiple
+              items={[
+                { id: ALL_FILTER_ID, label: 'All' },
+                ...PRESET_GENRES.map((g) => ({ id: g, label: g })),
+              ]}
+              selected={genreFilter.length > 0 ? genreFilter : [ALL_FILTER_ID]}
+              onChange={(selected) =>
+                setGenreFilter(selected.filter((id) => id !== ALL_FILTER_ID))
+              }
             />
-          </Button>
-          <FilterChips
-            multiple
-            items={[{ id: 'unheard', label: 'Tracks I haven’t heard' }]}
-            selected={unheardOnly ? ['unheard'] : []}
-            onChange={(selected) =>
-              setUnheardOnly(selected.includes('unheard'))
-            }
-          />
+          ) : null}
+          {contentTypesOpen ? (
+            <FilterChips
+              multiple
+              items={[{ id: ALL_FILTER_ID, label: 'All' }, ...CONTENT_TYPES]}
+              selected={
+                contentTypeFilter.length > 0
+                  ? contentTypeFilter
+                  : [ALL_FILTER_ID]
+              }
+              onChange={(selected) =>
+                setContentTypeFilter(
+                  selected.filter((id) => id !== ALL_FILTER_ID),
+                )
+              }
+            />
+          ) : null}
         </div>
-        {genresOpen ? (
-          <FilterChips
-            multiple
-            items={[
-              { id: ALL_FILTER_ID, label: 'All' },
-              ...PRESET_GENRES.map((g) => ({ id: g, label: g })),
-            ]}
-            selected={genreFilter.length > 0 ? genreFilter : [ALL_FILTER_ID]}
-            onChange={(selected) =>
-              setGenreFilter(selected.filter((id) => id !== ALL_FILTER_ID))
-            }
-          />
-        ) : null}
-        {contentTypesOpen ? (
-          <FilterChips
-            multiple
-            items={[{ id: ALL_FILTER_ID, label: 'All' }, ...CONTENT_TYPES]}
-            selected={
-              contentTypeFilter.length > 0 ? contentTypeFilter : [ALL_FILTER_ID]
-            }
-            onChange={(selected) =>
-              setContentTypeFilter(
-                selected.filter((id) => id !== ALL_FILTER_ID),
-              )
-            }
-          />
-        ) : null}
-      </div>
+      ) : null}
 
       {activeTab === 'discover' && enabledWidgets.length > 0 && (
         <div className="grid gap-4 lg:grid-cols-3">
@@ -449,37 +485,55 @@ export function DiscoverView() {
         <ArtistCarousel artists={filteredArtists} loading={artistsLoading} />
       )}
 
+      {activeTab === 'venues' && <VenuesDirectory />}
+
       {selectedTrack && (
         <DiscoverWaveformPlayer
           selection={selectedTrack}
           onClose={() => setSelectedTrack(null)}
         />
       )}
-
-      {availableToAdd.length > 0 && (
-        <div className="border-border flex min-h-[280px] items-center justify-center rounded-md border-(length:--border-width) border-dashed">
-          <Popover
-            className="relative"
-            anchor="bottom start"
-            trigger={
-              <Button variant="secondary">
-                <PlusIcon size={16} className="mr-1.5" aria-hidden />
-                Add a widget
-              </Button>
-            }
-            panelClassName="w-56"
-          >
-            <Popover.Menu>
-              {availableToAdd.map((id) => (
-                <Popover.Item key={id} onClick={() => addWidget(id)}>
-                  {WIDGET_LABELS[id]}
-                </Popover.Item>
-              ))}
-            </Popover.Menu>
-          </Popover>
-        </div>
-      )}
     </PageFrame>
+  );
+}
+
+function DiscoverAddWidgetButton({
+  availableToAdd,
+  onAdd,
+}: {
+  availableToAdd: DiscoverWidgetId[];
+  onAdd: (id: DiscoverWidgetId) => void;
+}) {
+  if (availableToAdd.length === 0) {
+    return null;
+  }
+
+  return (
+    <Popover
+      className="relative"
+      anchor="bottom end"
+      trigger={
+        <Button
+          size="icon"
+          variant="secondary"
+          aria-label="Add a widget"
+          title="Add a widget"
+          data-testid="discover-add-widget"
+        >
+          <Plus size={17} aria-hidden />
+          <Blocks size={15} aria-hidden />
+        </Button>
+      }
+      panelClassName="w-56"
+    >
+      <Popover.Menu>
+        {availableToAdd.map((id) => (
+          <Popover.Item key={id} onClick={() => onAdd(id)}>
+            {WIDGET_LABELS[id]}
+          </Popover.Item>
+        ))}
+      </Popover.Menu>
+    </Popover>
   );
 }
 

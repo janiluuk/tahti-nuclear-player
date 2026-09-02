@@ -1,5 +1,11 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Settings / Branding / Radio IA
+
+**Completed (first slice):** Gallery left Settings → Artist. Studio → Branding now owns Branding, Gallery, Press kit, and Channel Designer. Channel outlook is gone. Settings → Channel & design → Appearance is a wayfinder to that single designer. `/studio/channel?tab=design` (and the stale `profile` tab) redirect there. Perform no longer has a Multicast sibling — multicast is a Radio subtab (`/studio/channel?tab=multicast`). Channel keeps Setup / Green room / Selects so those are not orphans. Channel Designer dropped the extra inner heading and the right-side sticky design menu; preview and controls stack in one grid. Bumped `@tahti-player/tahti-web` to `0.0.27`.
+
+**Left for later slices:** Artist-page Channel Designer is still the old look-only editor; its element list should become releases, tracks, latest, feed, news, player, backdrop. Library as a Studio tab and the stream playlist manager stay later leftovers, not this item.
+
 ## 2026-09-03 — Source capability contracts (OAuth / search / tool)
 
 **Completed:** Import sources are three adapter families instead of one fake start/status/import shape. Settings → Add-ons (the host that replaced Sources) and Studio Upload call `oauth` / `search` / `tool` adapters; Bandcamp album import, SoundCloud track import, Spotify search, and hearthis search/import keep their existing provider-specific flows. Sibling `GET /api/me/import-plugins` now lists the same catalog. `ExportProvider` remains metadata/deep-link only — Tahti still has no submit/status/webhook export routes.

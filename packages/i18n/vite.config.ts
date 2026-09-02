@@ -3,6 +3,10 @@ import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+  },
   build: {
     lib: {
       entry: 'src/index.ts',

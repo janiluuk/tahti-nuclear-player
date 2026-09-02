@@ -1,19 +1,12 @@
+import { SUPPORTED_LOCALES } from '@tahti-player/i18n';
 import type { SettingDefinition } from '@tahti-player/plugin-sdk';
 
 import { registerCoreSettings } from '../stores/settingsStore';
 
-const LANGUAGE_OPTIONS = [
-  { value: 'en_US', label: 'English' },
-  { value: 'de_DE', label: 'Deutsch' },
-  { value: 'es_ES', label: 'Español' },
-  { value: 'fr_FR', label: 'Français' },
-  { value: 'it_IT', label: 'Italiano' },
-  { value: 'ja_JP', label: '日本語' },
-  { value: 'pl_PL', label: 'Polski' },
-  { value: 'pt_BR', label: 'Português (Brasil)' },
-  { value: 'ru_RU', label: 'Русский' },
-  { value: 'zh_CN', label: '简体中文' },
-];
+const LANGUAGE_OPTIONS = SUPPORTED_LOCALES.map((locale) => ({
+  value: locale.code,
+  label: locale.nativeLabel,
+}));
 
 export const CORE_SETTINGS: SettingDefinition[] = [
   {

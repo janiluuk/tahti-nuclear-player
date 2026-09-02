@@ -1,9 +1,10 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import {
   DownloadIcon,
   EyeIcon,
   ImagePlusIcon,
   ImagesIcon,
+  PaintbrushIcon,
   PaletteIcon,
   Trash2Icon,
 } from 'lucide-react';
@@ -46,7 +47,21 @@ import { useAuthStore } from '../../stores/authStore';
 
 const ACCEPTED_IMAGES = 'image/jpeg,image/png,image/webp';
 
-export type StudioBrandingSection = 'branding' | 'gallery' | 'press-kit';
+export const STUDIO_BRANDING_SECTIONS = [
+  'branding',
+  'gallery',
+  'press-kit',
+  'channel-designer',
+] as const;
+
+export type StudioBrandingSection = (typeof STUDIO_BRANDING_SECTIONS)[number];
+
+export function isStudioBrandingSection(
+  value: string | undefined,
+): value is StudioBrandingSection {
+  return STUDIO_BRANDING_SECTIONS.some((section) => section === value);
+}
+
 type UploadMode = 'append' | 'replace';
 
 const selectedPressKitImages = (images: PressKitImageItem[]) =>
@@ -56,7 +71,9 @@ const selectedPressKitImages = (images: PressKitImageItem[]) =>
 
 export const StudioBrandingPanel: FC<{
   section?: StudioBrandingSection;
-}> = ({ section }) => {
+  hideSectionNav?: boolean;
+  onSectionChange?: (section: StudioBrandingSection) => void;
+}> = ({ section, hideSectionNav = section != null, onSectionChange }) => {
   const user = useAuthStore((state) => state.user);
   const refreshAuth = useAuthStore((state) => state.refresh);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -93,6 +110,17 @@ export const StudioBrandingPanel: FC<{
   useEffect(() => {
     void reload();
   }, []);
+
+  useEffect(() => {
+    if (section) {
+      setTab(section);
+    }
+  }, [section]);
+
+  const selectSection = (next: StudioBrandingSection) => {
+    setTab(next);
+    onSectionChange?.(next);
+  };
 
   const setVisibility = async (nextPublic: boolean) => {
     const previous = galleryPublic;
@@ -262,7 +290,7 @@ export const StudioBrandingPanel: FC<{
 
   return (
     <div className="flex flex-col gap-6">
-      {section == null && (
+      {hideSectionNav ? null : (
         <nav
           className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
           role="tablist"
@@ -273,6 +301,7 @@ export const StudioBrandingPanel: FC<{
               ['branding', 'Branding', PaletteIcon],
               ['gallery', 'Gallery', ImagesIcon],
               ['press-kit', 'Press kit', DownloadIcon],
+              ['channel-designer', 'Channel Designer', PaintbrushIcon],
             ] as const
           ).map(([id, label, Icon]) => (
             <Button
@@ -286,7 +315,7 @@ export const StudioBrandingPanel: FC<{
                   ? 'bg-primary text-primary-foreground'
                   : 'text-foreground-secondary hover:text-foreground'
               }`}
-              onClick={() => setTab(id)}
+              onClick={() => selectSection(id)}
             >
               <Icon size={15} aria-hidden />
               {label}
@@ -383,21 +412,25 @@ export const StudioBrandingPanel: FC<{
               </div>
             </div>
           </StudioPanel>
-          {profile ? (
-            <StudioPanel
-              title="Channel outlook"
-              description="Apply the same visual language across your profile and live channel."
-            >
-              <ChannelDesigner
-                displayName={profile.displayName}
-                username={profile.username}
-                avatarUrl={avatarUrl}
-                bio={profile.bio}
-                compact
-              />
-            </StudioPanel>
-          ) : null}
         </>
+      ) : null}
+
+      {tab === 'channel-designer' ? (
+        profile ? (
+          <ChannelDesigner
+            displayName={profile.displayName}
+            username={profile.username}
+            channelSlug={user?.channel?.slug}
+            avatarUrl={avatarUrl}
+            bio={profile.bio}
+          />
+        ) : (
+          <StudioPanel title="Channel Designer">
+            <p className="text-foreground-secondary text-sm">
+              Sign in to design your public channel.
+            </p>
+          </StudioPanel>
+        )
       ) : null}
 
       {tab === 'gallery' ? (
@@ -750,14 +783,21 @@ function PressKitPreview({
 
 export const StudioBrandingView: FC = () => {
   const profile = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as { tab?: string };
+  const section = isStudioBrandingSection(search.tab) ? search.tab : 'branding';
 
   return (
     <StudioGate>
-      <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
+      <div
+        className={`studio-page-layout mx-auto flex flex-col gap-6 px-1 py-2 ${
+          section === 'channel-designer' ? 'w-full max-w-none' : 'max-w-5xl'
+        }`}
+      >
         <StudioNav current="/studio/branding" />
         <StudioPageHeader
           title="Artist branding"
-          subtitle="Shape your visual identity, keep a public image gallery, and assemble a promoter-ready press kit."
+          subtitle="Shape your visual identity, keep a public image gallery, assemble a press kit, and design the public channel."
           action={
             profile ? (
               <Link to="/u/$username" params={{ username: profile.username }}>
@@ -769,7 +809,16 @@ export const StudioBrandingView: FC = () => {
             ) : undefined
           }
         />
-        <StudioBrandingPanel />
+        <StudioBrandingPanel
+          section={section}
+          hideSectionNav={false}
+          onSectionChange={(next) => {
+            void navigate({
+              to: '/studio/branding',
+              search: { tab: next === 'branding' ? undefined : next },
+            });
+          }}
+        />
       </div>
     </StudioGate>
   );

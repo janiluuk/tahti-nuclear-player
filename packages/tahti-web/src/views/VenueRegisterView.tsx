@@ -50,7 +50,8 @@ export function VenueRegisterView() {
           appears in the public directory.
         </p>
         <Link
-          to="/venues"
+          to="/discover"
+          search={{ tab: 'venues' }}
           className="text-sm underline-offset-2 hover:underline"
         >
           ← Back to venues
@@ -66,7 +67,8 @@ export function VenueRegisterView() {
         subtitle="New venues are reviewed by the board before appearing publicly."
         back={
           <Link
-            to="/venues"
+            to="/discover"
+            search={{ tab: 'venues' }}
             className="text-foreground-secondary text-xs hover:underline"
           >
             ← Venues

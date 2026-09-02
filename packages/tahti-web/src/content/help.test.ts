@@ -22,4 +22,16 @@ describe('artist gallery help', () => {
       ),
     ).toBe(true);
   });
+
+  it('points channel design help at Studio Branding Channel Designer', () => {
+    const article = getHelpArticle('channel-design');
+    const look = article?.sections.find(
+      (section) => section.heading === 'Choose a look',
+    );
+
+    expect(look).toBeDefined();
+    expect(
+      look?.body.some((line) => line.includes('Branding → Channel Designer')),
+    ).toBe(true);
+  });
 });

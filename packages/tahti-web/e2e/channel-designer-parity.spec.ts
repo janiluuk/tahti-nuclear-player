@@ -31,7 +31,7 @@ test('channel designer preview and the real channel page render the same backdro
 }) => {
   await signIn(page);
 
-  await page.goto('/studio/channel?tab=design');
+  await page.goto('/studio/branding?tab=channel-designer');
   const designerCard = page.getByTestId('channel-backdrop-card').first();
   await expect(designerCard).toBeVisible();
   const designerName = await designerCard
@@ -70,7 +70,7 @@ test('a saved backdrop design change shows up on the real channel page', async (
 }) => {
   await signIn(page);
 
-  await page.goto('/studio/channel?tab=design');
+  await page.goto('/studio/branding?tab=channel-designer');
   const initialStyle = await page
     .getByTestId('channel-backdrop-card')
     .first()

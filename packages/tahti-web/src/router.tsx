@@ -13,6 +13,7 @@ import {
   appendSearchParams,
   resolveDashboardCallbackRedirect,
 } from './lib/cutoverReturns';
+import { parseDiscoverSearch } from './lib/discoverTabs';
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { useAuthStore } from './stores/authStore';
 import type { AdminModerationTabId } from './views/admin/moderation/moderationNav';
@@ -70,7 +71,6 @@ import { TermsView } from './views/TermsView';
 import { TrackDetailView } from './views/TrackDetailView';
 import { VenueDetailView } from './views/VenueDetailView';
 import { VenueRegisterView } from './views/VenueRegisterView';
-import { VenuesView } from './views/VenuesView';
 import { VerifyView } from './views/VerifyView';
 import { WhatsNewView } from './views/WhatsNewView';
 
@@ -337,6 +337,7 @@ const radioRoute = createRoute({
 const discoverRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/discover',
+  validateSearch: parseDiscoverSearch,
   component: DiscoverView,
 });
 
@@ -846,7 +847,9 @@ const sourcesTabRoute = createRoute({
 const venuesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/venues',
-  component: VenuesView,
+  beforeLoad: () => {
+    throw redirect({ to: '/discover', search: { tab: 'venues' } });
+  },
 });
 
 const venuesRegisterRoute = createRoute({
@@ -1346,12 +1349,25 @@ const studioSetupChannelRoute = createRoute({
 const studioChannelRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/channel',
+  validateSearch: (search: Record<string, unknown>): { tab?: string } => ({
+    tab: typeof search.tab === 'string' ? search.tab : undefined,
+  }),
   component: StudioChannelView,
 });
 
 const studioBrandingRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/branding',
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { tab?: 'gallery' | 'press-kit' | 'channel-designer' } => ({
+    tab:
+      search.tab === 'gallery' ||
+      search.tab === 'press-kit' ||
+      search.tab === 'channel-designer'
+        ? search.tab
+        : undefined,
+  }),
   component: StudioBrandingView,
 });
 

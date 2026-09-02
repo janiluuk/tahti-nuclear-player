@@ -28,6 +28,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         heading: 'The main areas',
         body: [
           'Listen is the starting point for finding music, channels, radio, and public pages. It is available without an account.',
+          'Discover is next to Listen: widgets, artists, and venues.',
           'Library contains your history and saved music. Favorites and playlists require you to sign in.',
           'Studio is for artists: upload audio, prepare releases, schedule shows, go live, and design your channel.',
           'Settings contains your account, themes, add-ons, playback, and channel preferences.',
@@ -56,6 +57,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
           'Browse who’s on air from Listen, or open a channel at /channel/$slug.',
           'When an artist is offline, their channel still plays archive items.',
           'Tahti Radio (/radio) is a fair-rotation stream across the community.',
+          'Discover has widgets, artists, and venues. Open Discover → Venues to browse verified venues, or Discover → Artists for the directory.',
           'Signed-in listeners can install Disco-widgets on Listen from Settings → Add-ons → Discovery.',
         ],
       },
@@ -177,7 +179,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         heading: 'Choose a look',
         body: [
-          'Open Studio → Channel and choose Design. The preview shows what listeners see on your public channel and artist page.',
+          'Open Studio → Branding → Channel Designer. The preview shows what listeners see on your public channel and artist page.',
           'Header design controls the channel header. Player design controls the player separately, including the shared gradient presets and manual colors.',
           'Visual style controls the animated visualizer and its speed, intensity, scale, and audio-reactive behavior.',
         ],

@@ -766,13 +766,14 @@ function VisualizersCategory() {
       ) : null}
       <p className="text-foreground-secondary text-xs">
         Header style, color scheme, and enable/disable live in{' '}
-        <button
-          type="button"
+        <Link
+          to="/studio/branding"
+          search={{ tab: 'channel-designer' }}
           className="underline underline-offset-2"
-          onClick={() => useSettingsModalStore.getState().open('channel')}
+          onClick={() => useSettingsModalStore.getState().close()}
         >
-          Settings → Channel &amp; design
-        </button>
+          Studio → Branding → Channel Designer
+        </Link>
         .
       </p>
     </div>

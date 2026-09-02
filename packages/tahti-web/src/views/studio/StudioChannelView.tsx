@@ -1,4 +1,4 @@
-import { useSearch } from '@tanstack/react-router';
+import { Navigate, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@tahti-player/ui';
@@ -9,7 +9,6 @@ import {
   type StatsPlaysRange,
 } from '../../api/studio-extras';
 import { ChannelAnnouncementsPanel } from '../../components/ChannelAnnouncementsPanel';
-import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { ChannelRadioPlaylistPanel } from '../../components/ChannelRadioPlaylistPanel';
 import { PageLoading } from '../../components/PageStates';
 import { PinnedAnnouncementsPanel } from '../../components/PinnedAnnouncementsPanel';
@@ -23,26 +22,21 @@ import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
 import { SelectsTab } from '../admin/moderation/tabs/SelectsTab';
 import { BroadcastPanel } from '../settings/SettingsPanels';
 
-type Tab =
-  | 'setup'
-  | 'design'
-  | 'radio'
-  | 'green-room'
-  | 'multicast'
-  | 'selects';
+type Tab = 'setup' | 'radio' | 'green-room' | 'selects';
 type RadioTab =
   | 'stream'
   | 'rotation'
   | 'announcements'
   | 'pinned'
-  | 'tahti-radio';
+  | 'tahti-radio'
+  | 'multicast';
 
 const RADIO_STATS_RANGES: StatsPlaysRange[] = ['1', '7', '30'];
 
 const isTab = (value: string | undefined): value is Tab =>
-  ['setup', 'design', 'radio', 'green-room', 'multicast', 'selects'].includes(
-    value ?? '',
-  );
+  ['setup', 'radio', 'green-room', 'selects'].includes(value ?? '');
+
+const DESIGNER_TABS = new Set(['design', 'profile']);
 
 function ChannelOverallStats() {
   const [stats, setStats] = useState<
@@ -105,50 +99,92 @@ function ChannelOverallStats() {
 
 export function StudioChannelView() {
   const search = useSearch({ strict: false }) as { tab?: string };
+  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const openChannelSetup = useChannelSetupModalStore((s) => s.open);
   const channel = user?.channel;
-  const [tab, setTab] = useState<Tab>(channel ? 'design' : 'setup');
+  const [tab, setTab] = useState<Tab>(channel ? 'green-room' : 'setup');
   const [radioTab, setRadioTab] = useState<RadioTab>('stream');
 
   useEffect(() => {
+    if (search.tab === 'multicast') {
+      setTab('radio');
+      setRadioTab('multicast');
+      return;
+    }
     if (isTab(search.tab) && (search.tab !== 'setup' || !channel)) {
       setTab(search.tab);
+      if (search.tab === 'radio') {
+        setRadioTab('stream');
+      }
     } else if (!channel) {
       setTab('setup');
     } else {
-      setTab('design');
+      setTab('green-room');
     }
   }, [channel, search.tab]);
 
+  if (DESIGNER_TABS.has(search.tab ?? '')) {
+    return (
+      <Navigate to="/studio/branding" search={{ tab: 'channel-designer' }} />
+    );
+  }
+
   return (
     <StudioGate requireChannel={false}>
-      <div
-        className={`studio-page-layout mx-auto flex flex-col gap-6 px-1 py-2 ${
-          tab === 'design' ? 'w-full max-w-none' : 'max-w-5xl'
-        }`}
-      >
+      <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav
           current={
             search.tab ? `/studio/channel?tab=${search.tab}` : '/studio/channel'
           }
         />
         <StudioPageHeader
-          title={
-            tab === 'radio'
-              ? 'Radio'
-              : tab === 'multicast'
-                ? 'Multicast'
-                : 'Channel design'
-          }
+          title={tab === 'radio' ? 'Radio' : 'Channel'}
           subtitle={
             tab === 'radio'
-              ? 'Manage your stream and 24/7 rotation.'
-              : tab === 'multicast'
-                ? 'Manage the services that mirror your live broadcast.'
-                : 'Design your channel, background media, visualizer, and header.'
+              ? 'Manage your stream, 24/7 rotation, and multicast destinations.'
+              : 'Set up the channel, green room, and selects.'
           }
         />
+
+        {tab !== 'radio' ? (
+          <nav
+            className="border-border flex w-fit flex-wrap gap-1 rounded-lg border p-1"
+            role="tablist"
+            aria-label="Channel sections"
+          >
+            {(
+              [
+                ...(!channel ? ([['setup', 'Setup']] as const) : []),
+                ['green-room', 'Green room'],
+                ['selects', 'Selects'],
+              ] as const
+            ).map(([id, label]) => (
+              <Button
+                key={id}
+                type="button"
+                size="sm"
+                variant="text"
+                role="tab"
+                aria-selected={tab === id}
+                onClick={() => {
+                  setTab(id);
+                  void navigate({
+                    to: '/studio/channel',
+                    search: { tab: id },
+                  });
+                }}
+                className={
+                  tab === id
+                    ? 'bg-primary text-primary-foreground rounded-md'
+                    : 'text-foreground-secondary rounded-md'
+                }
+              >
+                {label}
+              </Button>
+            ))}
+          </nav>
+        ) : null}
 
         {tab === 'setup' && !channel && (
           <StudioPanel title="Channel setup">
@@ -162,15 +198,6 @@ export function StudioChannelView() {
               </Button>
             </div>
           </StudioPanel>
-        )}
-
-        {tab === 'design' && user && (
-          <ChannelDesigner
-            displayName={user.displayName}
-            username={user.username}
-            channelSlug={channel?.slug}
-            avatarUrl={user.avatarUrl}
-          />
         )}
 
         {tab === 'radio' && (
@@ -187,6 +214,7 @@ export function StudioChannelView() {
                   ['announcements', 'Announcements'],
                   ['pinned', 'Pinned'],
                   ['tahti-radio', 'Tahti Radio'],
+                  ['multicast', 'Multicast'],
                 ] as const
               ).map(([id, label]) => (
                 <Button
@@ -196,7 +224,17 @@ export function StudioChannelView() {
                   variant="text"
                   role="tab"
                   aria-selected={radioTab === id}
-                  onClick={() => setRadioTab(id)}
+                  onClick={() => {
+                    setRadioTab(id);
+                    if (id === 'multicast' || search.tab === 'multicast') {
+                      void navigate({
+                        to: '/studio/channel',
+                        search: {
+                          tab: id === 'multicast' ? 'multicast' : 'radio',
+                        },
+                      });
+                    }
+                  }}
                   className={
                     radioTab === id
                       ? 'bg-primary text-primary-foreground rounded-md'
@@ -233,13 +271,13 @@ export function StudioChannelView() {
               ) : null
             ) : radioTab === 'tahti-radio' ? (
               <StudioRadioSubmissionPanel />
+            ) : radioTab === 'multicast' ? (
+              <BroadcastPanel section="multistream" />
             ) : null}
           </div>
         )}
 
         {tab === 'green-room' && <BroadcastPanel section="green-room" />}
-
-        {tab === 'multicast' && <BroadcastPanel section="multistream" />}
 
         {tab === 'selects' && <SelectsTab />}
       </div>

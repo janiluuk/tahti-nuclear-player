@@ -814,7 +814,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         goesTo: [
           { label: 'Go Live', to: '/studio/go-live' },
           { label: 'Open Sounds', to: '/studio/sounds' },
-          { label: 'Open Channel design', to: '/studio/channel' },
+          { label: 'Open Channel Designer', to: '/studio/branding' },
           {
             label: 'If no channel yet, land on setup',
             to: '/studio/channel?tab=setup',
@@ -1193,7 +1193,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         id: 'artist-channel-design',
         title: 'Channel design',
         viewName: 'Channel design',
-        caption: 'Look, presets, accent — also owner Design tab on profile.',
+        caption:
+          'Look, presets, accent — Studio → Branding → Channel Designer.',
         actions: [
           'Pick a visual preset',
           'Pick a brand accent',
@@ -1214,7 +1215,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/channel-design.png',
-          route: '/studio/channel',
+          route: '/studio/branding?tab=channel-designer',
           caption: 'Nuclear channel designer',
         },
       },
@@ -1231,8 +1232,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         ],
         goesTo: [
           {
-            label: 'Open Channel design for rotation/fallback settings',
-            to: '/studio/channel',
+            label: 'Open Channel Designer for rotation/fallback settings',
+            to: '/studio/branding?tab=channel-designer',
           },
         ],
         old: {
@@ -1402,7 +1403,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'Submit up to five tracks to Tahti Radio',
         ],
         goesTo: [
-          { label: 'Open channel design', to: '/studio/channel' },
+          { label: 'Open Channel Designer', to: '/studio/branding' },
           { label: 'Open Go Live', to: '/studio/go-live' },
           { label: 'Open the Sounds library', to: '/studio/sounds' },
         ],

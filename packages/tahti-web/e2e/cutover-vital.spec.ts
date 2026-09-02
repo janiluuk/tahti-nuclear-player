@@ -520,6 +520,10 @@ test('branding workspace manages an avatar, public gallery, press kit, and slide
   await expect(
     page.getByRole('heading', { name: 'Artist branding' }),
   ).toBeVisible();
+  await expect(page.getByText('Channel outlook')).toHaveCount(0);
+  await expect(
+    page.getByRole('tab', { name: 'Channel Designer' }),
+  ).toBeVisible();
   await page
     .locator('input[type="file"][aria-label="Profile picture"]')
     .setInputFiles({
@@ -590,6 +594,46 @@ test('help center documents artist gallery upload and reorder', async ({
   ).toBeVisible();
   await expect(page.getByText(/Drag a photo to reorder/)).toBeVisible();
   await expect(page.getByText(/no separate Add images button/)).toBeVisible();
+});
+
+test('branding and radio own gallery, channel designer, and multicast', async ({
+  page,
+}) => {
+  await signIn(page);
+
+  await page.goto('/settings/artist');
+  await expect(page.getByRole('tab', { name: 'Gallery' })).toHaveCount(0);
+  await expect(page.getByRole('tab', { name: 'Branding' })).toBeVisible();
+
+  await page.goto('/studio/branding?tab=channel-designer');
+  await expect(
+    page.getByRole('tab', { name: 'Channel Designer' }),
+  ).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByTestId('channel-backdrop-card').first()).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Channel Designer' }),
+  ).toHaveCount(0);
+
+  await page.goto('/studio/channel?tab=design');
+  await expect(page).toHaveURL(/\/studio\/branding\?tab=channel-designer/);
+
+  await page.goto('/studio/channel?tab=radio');
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Perform pages' })
+      .getByRole('link', { name: 'Radio' }),
+  ).toHaveAttribute('aria-current', 'page');
+  await expect(
+    page.getByRole('navigation', { name: 'Perform pages' }).getByRole('link', {
+      name: 'Multicast',
+    }),
+  ).toHaveCount(0);
+  await page.getByRole('tab', { name: 'Multicast' }).click();
+  await expect(page).toHaveURL(/\/studio\/channel\?tab=multicast/);
+  await expect(page.getByRole('tab', { name: 'Multicast' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
 });
 
 test('artist creates a four-image promotion kit and another user can download the same kit from the artist page', async ({

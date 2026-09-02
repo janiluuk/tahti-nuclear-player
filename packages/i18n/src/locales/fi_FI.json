@@ -1,0 +1,681 @@
+{
+  "common": {
+    "app": {
+      "name": "Tahti Player",
+      "description": "Musiikkisoitin työpöydällesi"
+    },
+    "actions": {
+      "save": "Tallenna",
+      "cancel": "Peruuta",
+      "delete": "Poista",
+      "edit": "Muokkaa",
+      "close": "Sulje",
+      "back": "Takaisin",
+      "next": "Seuraava",
+      "confirm": "Vahvista",
+      "apply": "Käytä",
+      "reset": "Palauta",
+      "clear": "Tyhjennä",
+      "search": "Hae",
+      "loading": "Ladataan...",
+      "retry": "Yritä uudelleen"
+    },
+    "errors": {
+      "network": "Verkkovirhe. Tarkista yhteytesi.",
+      "notFound": "Ei löytynyt"
+    }
+  },
+  "navigation": {
+    "explore": "Tutustu",
+    "dashboard": "Koti",
+    "collection": "Kokoelma",
+    "favoriteAlbums": "Suosikkialbumit",
+    "favoriteTracks": "Suosikkikappaleet",
+    "favoriteArtists": "Suosikkiesiintyjät",
+    "playlists": "Soittolistat",
+    "history": "Historia",
+    "sources": "Lähteet"
+  },
+  "history": {
+    "title": "Historia",
+    "empty": "Ei vielä kuunneltua",
+    "emptyDescription": "Soittamasi kappaleet näkyvät täällä",
+    "today": "Tänään",
+    "yesterday": "Eilen",
+    "tabs": {
+      "stats": "Tilastot",
+      "listeningHistory": "Kuunteluhistoria"
+    },
+    "row": {
+      "favorite": "Lisää suosikkeihin",
+      "unfavorite": "Poista suosikeista",
+      "addToQueue": "Lisää jonoon"
+    },
+    "stats": {
+      "busiestHour": "Vilkkain tunti",
+      "listeningTime": "Kuunteluaika",
+      "hourOfDay": "Kellonaika",
+      "dayOfWeek": "Viikonpäivä",
+      "calendar": "Kuuntelukalenteri",
+      "topArtists": "Suosituimmat esiintyjät",
+      "topAlbums": "Suosituimmat albumit",
+      "topTracks": "Suosituimmat kappaleet",
+      "empty": "Ei vielä kuuntelutietoja",
+      "emptyDescription": "Kuuntelemasi kappaleet näkyvät tilastoissa",
+      "legendLess": "Vähemmän",
+      "legendMore": "Enemmän",
+      "range": {
+        "last7Days": "Viimeiset 7 päivää",
+        "last30Days": "Viimeiset 30 päivää",
+        "last90Days": "Viimeiset 90 päivää",
+        "last12Months": "Viimeiset 12 kuukautta",
+        "allTime": "Koko aika"
+      }
+    }
+  },
+  "sources": {
+    "title": "Lähteet",
+    "streaming": "Toisto",
+    "streamingDescription": "Toistolähteet toimittavat äänen. Kun soitat kappaleen, toistolähde etsii ja toimittaa äänivirran.",
+    "metadata": "Metatiedot",
+    "metadataDescription": "Metatietolähteet kertovat esiintyjistä, albumeista ja kappaleista. Hakutulokset, artistisivut ja albumin tiedot tulevat aktiivisesta metatietolähteestä.",
+    "dashboard": "Koti",
+    "dashboardDescription": "Kodin lähteet tuovat henkilökohtaista sisältöä, kuten suosituimmat kappaleet, uutuudet ja suositukset.",
+    "playlists": "Soittolistat",
+    "playlistsDescription": "Soittolistalähteillä tuot soittolistoja ulkoisista palveluista osoitteen perusteella.",
+    "discovery": "Löytäminen",
+    "discoveryDescription": "Löytölähteet suosittelevat uusia kappaleita kuuntelusi perusteella. Ota musiikin löytäminen käyttöön boombox-kuvakkeesta alapalkissa.",
+    "lyrics": "Sanoitukset",
+    "lockedReason": "<metadata>{{metadataName}}</metadata>-metatietolähde edellyttää <streaming>{{streamingName}}</streaming>-toistolähdettä.",
+    "missingStreamingProvider": "Vaadittu toistolähde \"{{providerId}}\" ei ole käytettävissä",
+    "noProviders": "Ei asennettuja lähteitä"
+  },
+  "discovery": {
+    "recommendationError": "Suosituksia ei saatu"
+  },
+  "favorites": {
+    "albums": {
+      "title": "Suosikkialbumit",
+      "empty": "Ei vielä suosikkialbumeita",
+      "emptyDescription": "Suosikeiksi merkitsemäsi albumit näkyvät täällä"
+    },
+    "tracks": {
+      "title": "Suosikkikappaleet",
+      "empty": "Ei vielä suosikkikappaleita",
+      "emptyDescription": "Suosikeiksi merkitsemäsi kappaleet näkyvät täällä"
+    },
+    "artists": {
+      "title": "Suosikkiesiintyjät",
+      "empty": "Ei vielä suosikkiesiintyjiä",
+      "emptyDescription": "Suosikeiksi merkitsemäsi esiintyjät näkyvät täällä"
+    }
+  },
+  "playlists": {
+    "title": "Soittolistat",
+    "empty": "Ei vielä soittolistoja",
+    "emptyDescription": "Luo soittolista tai tuo olemassa oleva päästäksesi alkuun",
+    "emptyTracks": "Tässä soittolistassa ei ole kappaleita",
+    "emptyTracksDescription": "Lisää kappaleita hakutuloksista tai kirjastostasi",
+    "create": "Luo uusi",
+    "importJson": "Tuo JSON-tiedostosta",
+    "exportJson": "Vie JSON-tiedostona",
+    "add": "Lisää",
+    "delete": "Poista soittolista",
+    "deleteConfirm": "Haluatko varmasti poistaa tämän soittolistan?",
+    "play": "Toista",
+    "addToQueue": "Lisää jonoon",
+    "inQueue": "Jonossa",
+    "saveLocally": "Tallenna paikallisesti",
+    "readOnlyBadge": "{{source}}",
+    "readOnlyTooltip": "Tämä soittolista on lähteestä {{source}} eikä sitä voi muokata. Tallenna paikallinen kopio muokataksesi.",
+    "trackCount": "{{count}} kappale",
+    "trackCount_other": "{{count}} kappaletta",
+    "addToPlaylist": "Lisää soittolistaan",
+    "filterPlaylists": "Suodata soittolistoja...",
+    "sortBy": {
+      "name": "Nimi",
+      "dateAdded": "Lisäyspäivä",
+      "dateModified": "Muokkauspäivä",
+      "trackCount": "Kappaleet",
+      "duration": "Kesto"
+    },
+    "filterNoResults": "Mikään soittolista ei vastaa suodatinta",
+    "filterNoResultsDescription": "Muuta tai tyhjennä haku",
+    "createNew": "Luo uusi soittolista",
+    "saveQueueAsPlaylist": "Tallenna jono soittolistaksi",
+    "name": "Nimi",
+    "namePlaceholder": "Soittolistan nimi...",
+    "exportSuccess": "Soittolista viety",
+    "exportError": "Soittolistan vienti epäonnistui",
+    "importSuccess": "Soittolista tuotu",
+    "importBatchSuccess": "{{count}} soittolistaa tuotu",
+    "importError": "Soittolistan tuonti epäonnistui",
+    "importNoPlaylists": "Tiedostosta ei löytynyt soittolistoja",
+    "importUrl": "Tuo osoitteesta",
+    "importUrlTitle": "Tuo soittolista osoitteesta",
+    "importUrlPlaceholder": "Liitä soittolistan osoite...",
+    "importUrlNoProvider": "Mikään lisäosa ei osaa käsitellä tätä osoitetta. Asenna palvelua tukeva lisäosa.",
+    "importUrlImporting": "Tuodaan...",
+    "descriptionPlaceholder": "Lisää kuvaus..."
+  },
+  "search": {
+    "title": "Haku",
+    "query": "Haku",
+    "placeholder": "Hae",
+    "noResults": "Ei tuloksia",
+    "searching": "Haetaan...",
+    "failedToLoad": "Tuloksia ei voitu ladata.",
+    "clearRecentSearches": "Tyhjennä viimeaikaiset haut",
+    "recentSearches": "Viimeaikaiset haut",
+    "results": {
+      "tracks": "Kappaleet",
+      "albums": "Albumit",
+      "artists": "Esiintyjät",
+      "playlists": "Soittolistat"
+    },
+    "filters": {
+      "all": "Kaikki",
+      "tracks": "Kappaleet",
+      "albums": "Albumit",
+      "artists": "Esiintyjät",
+      "playlists": "Soittolistat"
+    },
+    "empty-state": "Metatietolisäosaa ei ole asennettu",
+    "empty-state-description": "Asenna metatietolisäosa musiikin hakemista varten.",
+    "empty-state-action": "Selaa lisäosia"
+  },
+  "artist": {
+    "title": "Esiintyjä",
+    "albums": "Albumit",
+    "tracks": "Kappaleet",
+    "similar": "Samankaltaiset esiintyjät",
+    "popularTracks": "Suosituimmat kappaleet",
+    "biography": "Elämäkerta",
+    "discography": "Diskografia",
+    "topTracks": "Suosituimmat kappaleet",
+    "onTour": "Kiertueella",
+    "notOnTour": "Ei kiertueella",
+    "followers": "Seuraajat",
+    "followings": "Seurataan",
+    "playlists": "Soittolistat",
+    "errors": {
+      "failedToLoadDetails": "Esiintyjän tietoja ei voitu ladata.",
+      "failedToLoadAlbums": "Albumeita ei voitu ladata.",
+      "failedToLoadPopularTracks": "Suosituimpia kappaleita ei voitu ladata.",
+      "failedToLoadSimilarArtists": "Samankaltaisia esiintyjiä ei voitu ladata.",
+      "failedToLoadSocialStats": "Esiintyjän tilastoja ei voitu ladata.",
+      "failedToLoadPlaylists": "Soittolistoja ei voitu ladata."
+    }
+  },
+  "album": {
+    "title": "Albumi",
+    "genre": "Tyyli",
+    "year": "Vuosi",
+    "tracks": "Kappaleet",
+    "errors": {
+      "failedToLoadDetails": "Albumin tietoja ei voitu ladata.",
+      "failedToLoadTracks": "Kappaleita ei voitu ladata."
+    }
+  },
+  "themes": {
+    "title": "Teemat",
+    "basic": "Perusteemat",
+    "advanced": "Edistyneet teemat",
+    "marketplace": "The Crate",
+    "marketplaceEmpty": "Crate-teemoja ei ole vielä asennettu. Selaa The Cratea lisätäksesi niitä.",
+    "default": "Oletus",
+    "selectPlaceholder": "Valitse teema",
+    "description": "Teemat sovelluksen teematiedostokansiosta",
+    "tabs": {
+      "myThemes": "Omat teemat",
+      "store": "The Crate"
+    },
+    "store": {
+      "searchPlaceholder": "Hae The Cratesta...",
+      "install": "Asenna",
+      "installing": "Asennetaan",
+      "installed": "Asennettu",
+      "by": "tekijä",
+      "installError": "{{name}} asennus epäonnistui",
+      "loadError": "The Cratea ei voitu ladata.",
+      "apply": "Käytä",
+      "active": "Käytössä",
+      "uninstall": "Poista",
+      "uninstallError": "{{name}} poisto epäonnistui"
+    }
+  },
+  "dashboard": {
+    "title": "Koti",
+    "empty-state": "Tervetuloa Tahti Playeriin",
+    "empty-state-description": "Asenna lisäosa nähdäksesi suosituimmat kappaleet, uutuudet ja suositukset täällä.",
+    "empty-state-action": "Selaa lisäosia",
+    "top-tracks": "Suosituimmat kappaleet",
+    "top-artists": "Suosituimmat esiintyjät",
+    "top-albums": "Suosituimmat albumit",
+    "editorial-playlists": "Suosituimmat soittolistat",
+    "new-releases": "Uutuudet",
+    "filter-artists": "Suodata esiintyjiä...",
+    "clear-filter": "Tyhjennä suodatin",
+    "filter-albums": "Suodata albumeita...",
+    "filter-playlists": "Suodata soittolistoja...",
+    "filter-releases": "Suodata julkaisuja...",
+    "nothing-found": "Ei tuloksia"
+  },
+  "plugins": {
+    "title": "Lisäosat",
+    "addPlugin": "Lisää lisäosa",
+    "tabs": {
+      "installed": "Asennetut",
+      "store": "Kauppa"
+    },
+    "installed": {
+      "empty-state": "Ei asennettuja lisäosia",
+      "empty-state-description": "Selaa lisäosakauppaa löytääksesi toisto-, metatieto- ja muita lisäosia.",
+      "empty-state-action": "Siirry kauppaan",
+      "update-available": "Päivitys saatavilla",
+      "by": "tekijä"
+    },
+    "store": {
+      "searchPlaceholder": "Hae lisäosia...",
+      "install": "Asenna",
+      "installing": "Asennetaan",
+      "installed": "Asennettu",
+      "by": "tekijä",
+      "categories": {
+        "all": "Kaikki",
+        "streaming": "Toisto",
+        "metadata": "Metatiedot",
+        "lyrics": "Sanoitukset",
+        "scrobbling": "Scrobblaus",
+        "dashboard": "Koti",
+        "playlists": "Soittolistat",
+        "discovery": "Löytäminen",
+        "other": "Muut"
+      },
+      "error": {
+        "title": "Lisäosia ei voitu ladata",
+        "description": "Lisäosarekisteriä ei saatu. Tarkista internetyhteytesi.",
+        "retry": "Yritä uudelleen"
+      },
+      "noResults": {
+        "title": "Lisäosia ei löytynyt",
+        "filtered": "Kokeile muuttaa hakua tai suodattimia.",
+        "empty": "Lisäosia ei ole vielä saatavilla."
+      },
+      "installError": {
+        "title": "{{name}} asennus epäonnistui"
+      }
+    }
+  },
+  "updater": {
+    "updateAvailable": "Päivitys saatavilla",
+    "clickToUpdate": "Napsauta päivittääksesi",
+    "downloading": "Ladataan... {{progress}} %",
+    "clickToRestart": "Napsauta käynnistääksesi uudelleen"
+  },
+  "flatpak": {
+    "sandboxWarning": "Käytät Tahti Playeria Flatpak-hiekkalaatikossa. Jotkin toiminnot eivät ehkä toimi oikein. Jos kohtaat ongelmia, kokeile .deb- tai AppImage-versiota.",
+    "dismiss": "Selvä"
+  },
+  "preferences": {
+    "title": "Asetukset",
+    "general": {
+      "title": "Yleiset",
+      "language": {
+        "title": "Kieli",
+        "description": "Valitse käyttöliittymän kieli"
+      }
+    },
+    "plugins": {
+      "title": "Lisäosat",
+      "auto-update": {
+        "title": "Päivitä lisäosat automaattisesti",
+        "description": "Lataa ja asenna kaupan lisäosien uudet versiot automaattisesti käynnistyessä"
+      }
+    },
+    "themes": {
+      "title": "Teemat"
+    },
+    "logs": {
+      "title": "Lokit"
+    },
+    "whats-new": {
+      "title": "Mitä uutta"
+    },
+    "shortcuts": {
+      "title": "Pikanäppäimet",
+      "sections": {
+        "playback": "Toisto",
+        "general": "Yleiset"
+      },
+      "commands": {
+        "playback.toggle": "Toista / tauko",
+        "playback.play": "Toista nykyinen kappale",
+        "playback.next": "Seuraava kappale",
+        "playback.previous": "Edellinen kappale",
+        "playback.seekForward": "Siirry eteenpäin",
+        "playback.seekBackward": "Siirry taaksepäin",
+        "playback.volumeUp": "Äänenvoimakkuus ylös",
+        "playback.volumeDown": "Äänenvoimakkuus alas",
+        "playback.mute": "Mykistä / palauta ääni",
+        "general.toggleSettings": "Avaa asetukset",
+        "general.goBack": "Takaisin",
+        "general.goForward": "Eteenpäin"
+      },
+      "recording": "Paina näppäinyhdistelmää...",
+      "resetAll": "Palauta oletukset",
+      "reset": "Palauta",
+      "conflict": "Tätä pikanäppäintä käyttää jo \"{{command}}\""
+    },
+    "appearance": {
+      "title": "Ulkoasu",
+      "framelessWindow": {
+        "title": "Kehyksetön ikkuna",
+        "description": "Piilota järjestelmän otsikkopalkki. Siirrä ikkunaa vetämällä yläpalkista."
+      },
+      "customTitleBar": {
+        "title": "Oma otsikkopalkki",
+        "description": "Korvaa järjestelmän otsikkopalkki sovituksen tyylisellä palkilla."
+      },
+      "titleBarStyle": {
+        "title": "Otsikkopalkin tyyli",
+        "description": "Valitse mukautetun otsikkopalkin ohjainten ulkoasu."
+      }
+    },
+    "playback": {
+      "title": "Toisto",
+      "skipSeconds": {
+        "title": "Siirtymän kesto",
+        "description": "Montako sekuntia siirrytään eteen- tai taaksepäin"
+      },
+      "crossfadeMs": {
+        "title": "Ristiinhäivytys",
+        "description": "Ristiinhäivytyksen kesto kappaleiden välillä millisekunteina"
+      },
+      "streamExpiryMs": {
+        "title": "Virran vanhenemisaika",
+        "description": "Kuinka kauan ratkaistua virtaosoitetta pidetään voimassa ennen uutta hakua"
+      },
+      "streamResolutionRetries": {
+        "title": "Virran hakuyritykset",
+        "description": "Montako kertaa virtaosoitetta yritetään hakea ennen seuraavaa ehdokasta"
+      },
+      "discoveryVariety": {
+        "title": "Löytämisen vaihtelu",
+        "description": "Kuinka kauas suositukset poikkeavat nykyisestä kuuntelusta. Pienempi arvo pysyy lähempänä.",
+        "startLabel": "Vähemmän villi",
+        "endLabel": "Villimpi"
+      }
+    },
+    "history": {
+      "title": "Historia",
+      "enabled": {
+        "title": "Tallenna kuunteluhistoria",
+        "description": "Pidä paikallinen loki soittamastasi musiikista."
+      }
+    },
+    "layout": {
+      "title": "Asettelu"
+    },
+    "updates": {
+      "title": "Päivitykset",
+      "checkForUpdates": {
+        "title": "Tarkista päivitykset",
+        "description": "Tarkista uudet versiot automaattisesti käynnistyessä"
+      },
+      "autoInstall": {
+        "title": "Asenna päivitykset automaattisesti",
+        "description": "Lataa ja asenna päivitykset automaattisesti, kun niitä on saatavilla"
+      }
+    },
+    "integrations": {
+      "title": "Integraatiot",
+      "jam": {
+        "enabled": {
+          "title": "Tahti Jam",
+          "description": "Käynnistä paikallinen verkkopalvelin, jolla ohjaat Tahti Playeria muista laitteen verkon laitteista."
+        },
+        "remoteUrl": {
+          "title": "Etäosoite",
+          "description": "Avaa tämä osoite toisella laitteella ohjataksesi Tahti Playeria."
+        },
+        "apiUrl": {
+          "title": "API-osoite",
+          "description": "HTTP-API:n perusosoite ohjelmallista käyttöä varten."
+        }
+      },
+      "mcp": {
+        "enabled": {
+          "title": "Ota MCP-palvelin käyttöön",
+          "description": "Käynnistä paikallinen MCP-palvelin, jolla tekoälytyökalut voivat ohjata Tahti Playeria."
+        },
+        "serverUrl": {
+          "title": "MCP-palvelimen osoite",
+          "description": "Osoita tekoälytyökalu tähän osoitteeseen yhdistääksesi Tahti Playeriin."
+        }
+      },
+      "mpd": {
+        "enabled": {
+          "title": "Ota MPD-palvelin käyttöön",
+          "description": "Käynnistä paikallinen MPD-yhteensopiva palvelin, jotta MPD-asiakkaat voivat ohjata Tahti Playeria."
+        },
+        "serverUrl": {
+          "title": "MPD-palvelimen osoite",
+          "description": "Osoita MPD-asiakas tähän osoitteeseen yhdistääksesi Tahti Playeriin."
+        }
+      },
+      "discord": {
+        "enabled": {
+          "title": "Discord Rich Presence",
+          "description": "Näytä kuuntelemaasi musiikkia Discord-profiilissasi."
+        }
+      }
+    }
+  },
+  "queue": {
+    "title": "Jono",
+    "empty": {
+      "title": "Jono on tyhjä",
+      "subtitle": "Lisää kappaleita aloittaaksesi toiston"
+    },
+    "actions": {
+      "remove": "Poista jonosta",
+      "clear": "Tyhjennä jono",
+      "saveAsPlaylist": "Tallenna jono soittolistaksi"
+    },
+    "errors": {
+      "playback": "Toistovirhe"
+    },
+    "candidates": {
+      "empty": "Ei virtakandidaatteja",
+      "failed": "epäonnistui"
+    }
+  },
+  "track": {
+    "actions": {
+      "playNow": "Toista nyt",
+      "playNext": "Toista seuraavaksi",
+      "addToQueue": "Lisää jonoon",
+      "addToFavorites": "Lisää suosikkeihin",
+      "removeFromFavorites": "Poista suosikeista"
+    }
+  },
+  "trackTable": {
+    "headers": {
+      "artist": "Esiintyjä",
+      "title": "Nimi",
+      "album": "Albumi",
+      "duration": "Kesto"
+    },
+    "favorite": "Lisää suosikkeihin",
+    "unfavorite": "Poista suosikeista",
+    "play": "Toista",
+    "pause": "Tauko",
+    "playAll": "Toista kaikki",
+    "addAllToQueue": "Lisää kaikki jonoon",
+    "addToQueue": "Lisää jonoon",
+    "trackOptions": "Kappaleen valinnat",
+    "remove": "Poista listasta",
+    "filterPlaceholder": "Suodata kappaleita"
+  },
+  "pagination": {
+    "navigation": "Sivutus",
+    "previous": "Edellinen sivu",
+    "next": "Seuraava sivu",
+    "page": "Sivu {{pageNumber}}"
+  },
+  "streaming": {
+    "errors": {
+      "noCandidatesFound": "Virtakandidaatteja ei löytynyt",
+      "allCandidatesFailed": "Kaikki virtakandidaatit epäonnistuivat",
+      "noProviderAvailable": "Toistolähdettä ei ole käytettävissä. Asenna toistolisäosa musiikin soittamista varten.",
+      "streamRecoveryFailed": "Virta katkesi eikä sitä voitu palauttaa",
+      "hifi": {
+        "loadFailed": "Äänivirtaa ei voitu ladata: {{details}}",
+        "unsupportedFormat": "Äänivirta ei ole tuetussa muodossa. Kokeile toista lähdettä tälle kappaleelle.",
+        "mseUnavailable": "Toisto ei ole käytettävissä, koska järjestelmästä puuttuvat MediaSource Extensions. Järjestelmän selainmoottorin päivitys voi auttaa.",
+        "appendRejected": "Äänimoottori hylkäsi virran. Koodekki ei ehkä ole tuettu. Kokeile toista lähdettä tälle kappaleelle."
+      }
+    }
+  },
+  "playerBar": {
+    "noTrackPlaying": "Ei toistettavaa kappaletta",
+    "shuffleOn": "Sekoitus: päällä",
+    "shuffleOff": "Sekoitus: pois",
+    "repeatOff": "Toisto: pois",
+    "repeatAll": "Toisto: kaikki",
+    "repeatOne": "Toisto: yksi",
+    "discoveryOn": "Löytäminen: päällä",
+    "discoveryOff": "Löytäminen: pois"
+  },
+  "logs": {
+    "title": "Lokit",
+    "searchPlaceholder": "Hae lokeista...",
+    "searchAriaLabel": "Hae lokeista",
+    "levelLabel": "Taso:",
+    "scopeLabel": "Laajuus:",
+    "clearButton": "Tyhjennä",
+    "exportButton": "Vie",
+    "openLogFolderButton": "Avaa lokikansio",
+    "noLogsMessage": "Ei näytettäviä lokeja",
+    "invalidRegexMessage": "Virheellinen säännöllinen lauseke",
+    "entryCount": "{{count}} rivi",
+    "entryCount_other": "{{count}} riviä",
+    "exportSuccess": "Lokit viety"
+  },
+  "remote": {
+    "connecting": {
+      "title": "Yhdistetään Tahti Playeriin...",
+      "subtitle": "Varmista, että Tahti Player on käynnissä ja Tahti Jam on käytössä"
+    },
+    "error": {
+      "title": "Tahti Playeriin ei saatu yhteyttä",
+      "subtitle": "Varmista, että Tahti Player on käynnissä ja Tahti Jam on käytössä asetuksissa"
+    },
+    "connection": {
+      "connecting": "Yhdistetään",
+      "connected": "Yhdistetty",
+      "reconnecting": "Yhdistetään uudelleen",
+      "failed": "Yhteys katkesi"
+    },
+    "queue": {
+      "upNext": "Seuraavaksi",
+      "emptyTitle": "Jono on tyhjä",
+      "emptySubtitle": "Lisää kappaleita Tahti Playerissa nähdäksesi ne täällä"
+    },
+    "search": {
+      "placeholder": "Hae musiikkia",
+      "emptyTitle": "Ei tuloksia",
+      "emptyDescription": "Haullesi ei löytynyt mitään",
+      "errorTitle": "Haku epäonnistui",
+      "errorDescription": "Tarkista yhteys Tahti Playeriin ja yritä uudelleen"
+    },
+    "qrCode": {
+      "tooltip": "Tahti Jam -kauko-ohjaus",
+      "instructions": "Skannaa QR-koodi tai kopioi osoite alta yhdistääksesi Tahti Jamiin"
+    }
+  },
+  "titleBar": {
+    "title": "Tahti Player",
+    "minimize": "Pienennä",
+    "maximize": "Suurenna",
+    "close": "Sulje"
+  },
+  "changelog": {
+    "title": "Mitä uutta",
+    "seeMore": "Näytä lisää ({{count}} vanhempaa)",
+    "types": {
+      "feature": "Uutuus",
+      "fix": "Korjaus",
+      "improvement": "Parannus",
+      "chore": "Ylläpito",
+      "plugin": "Lisäosa",
+      "docs": "Ohjeet"
+    }
+  },
+  "web": {
+    "nav": {
+      "listen": "Kuuntele",
+      "radio": "Radio",
+      "discover": "Tutustu",
+      "favorites": "Suosikit",
+      "studio": "Studio",
+      "library": "Kirjasto",
+      "perform": "Esiinny",
+      "admin": "Hallinta",
+      "help": "Ohjekeskus",
+      "settings": "Asetukset",
+      "queue": "Jono",
+      "primary": "Päänavigaatio"
+    },
+    "studio": {
+      "studioDescription": "Kanavasi tilannekuva — tila, pikavalinnat ja viimeisin toiminta.",
+      "libraryDescription": "Kaikki lähettämäsi kappaleet, julkaisut ja tiedostot yhdessä paikassa.",
+      "performDescription": "Mene liveen, aikatauluta lähetyksiä ja hallitse esiintymisiä.",
+      "overview": "Yhteenveto",
+      "branding": "Ilme",
+      "stats": "Tilastot",
+      "governance": "Hallinto",
+      "posts": "Julkaisut",
+      "audience": "Yleisö",
+      "sounds": "Äänet",
+      "collections": "Kokoelmat",
+      "releases": "Julkaisut",
+      "upload": "Lähetä",
+      "editor": "Muokkain",
+      "goLive": "Mene liveen",
+      "schedule": "Aikataulu",
+      "events": "Tapahtumat",
+      "shows": "Ohjelmat",
+      "channel": "Kanava"
+    },
+    "settings": {
+      "signInPrompt": "Kirjaudu sisään tili-, artisti- ja studioasetuksia varten.",
+      "logIn": "Kirjaudu",
+      "github": "GitHub",
+      "discord": "Discord",
+      "apiDocs": "API-ohjeet",
+      "about": "Tietoa",
+      "account": "Tili",
+      "accountDescription": "Istunto, tietoturva, jäsenyys, ilmoitukset",
+      "artist": "Artisti",
+      "artistDescription": "Profiili, ilme, some-linkit, jäsenet, pressikitti",
+      "channel": "Kanava ja ilme",
+      "channelDescription": "Löydettävyys, käyttäjätunnus, moderointi",
+      "broadcast": "Lähetys",
+      "broadcastDescription": "Radio, green room, moderaattorit, multicast",
+      "audience": "Yleisö",
+      "audienceDescription": "Fanitasot, tilaukset, apurahat",
+      "themes": "Teemat",
+      "themesDescription": "Sovelluksen ulkoasu",
+      "pluginStore": "Lisäosat",
+      "pluginStoreDescription": "Teemat, visualisoinnit, radio, upotukset, löytäminen, kanavawidgetit, vienti, tuonti, multicast, sormenjäljet, äänilisäosat — yksi selain",
+      "whatsNew": "Mitä uutta",
+      "whatsNewDescription": "Mitä kussakin julkaisussa muuttui"
+    },
+    "language": {
+      "label": "Kieli",
+      "description": "Valitse sovelluksen kieli. Voit vaihtaa sen milloin tahansa."
+    }
+  }
+}

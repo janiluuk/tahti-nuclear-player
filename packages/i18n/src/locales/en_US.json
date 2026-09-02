@@ -612,5 +612,70 @@
       "plugin": "Plugin",
       "docs": "Docs"
     }
+  },
+  "web": {
+    "nav": {
+      "listen": "Listen",
+      "radio": "Radio",
+      "discover": "Discover",
+      "favorites": "Favorites",
+      "studio": "Studio",
+      "library": "Library",
+      "perform": "Perform",
+      "admin": "Admin",
+      "help": "Help center",
+      "settings": "Settings",
+      "queue": "Queue",
+      "primary": "Primary"
+    },
+    "studio": {
+      "studioDescription": "Your channel snapshot — status, quick links, and recent activity.",
+      "libraryDescription": "All your uploaded tracks, releases, and files in one place.",
+      "performDescription": "Go live, schedule broadcasts, and manage performances.",
+      "overview": "Overview",
+      "branding": "Branding",
+      "stats": "Stats",
+      "governance": "Governance",
+      "posts": "Posts",
+      "audience": "Audience",
+      "sounds": "Sounds",
+      "collections": "Collections",
+      "releases": "Releases",
+      "upload": "Upload",
+      "editor": "Editor",
+      "goLive": "Go live",
+      "schedule": "Schedule",
+      "events": "Events",
+      "shows": "Shows",
+      "channel": "Channel"
+    },
+    "settings": {
+      "signInPrompt": "Sign in for account, artist, and studio settings.",
+      "logIn": "Log in",
+      "github": "GitHub",
+      "discord": "Discord",
+      "apiDocs": "API docs",
+      "about": "About",
+      "account": "Account",
+      "accountDescription": "Session, security, membership, notifications",
+      "artist": "Artist",
+      "artistDescription": "Profile, branding, social links, members, press kit",
+      "channel": "Channel & design",
+      "channelDescription": "Discovery, username, moderation",
+      "broadcast": "Broadcast",
+      "broadcastDescription": "Radio, green room, moderators, multistream",
+      "audience": "Audience",
+      "audienceDescription": "Fan tiers, subscriptions, grants",
+      "themes": "Themes",
+      "themesDescription": "App appearance",
+      "pluginStore": "Add-ons",
+      "pluginStoreDescription": "Themes, visualizers, radio, embeds, discovery, channel widgets, export, import, multicast, fingerprinting, audio plugins — one browser",
+      "whatsNew": "What's new",
+      "whatsNewDescription": "What changed in each release"
+    },
+    "language": {
+      "label": "Language",
+      "description": "Choose the language for the app. You can change this anytime."
+    }
   }
 }

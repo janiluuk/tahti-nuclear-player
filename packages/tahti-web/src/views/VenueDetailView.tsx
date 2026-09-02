@@ -44,7 +44,8 @@ export function VenueDetailView({ slug }: { slug: string }) {
 
   const backLink = (
     <Link
-      to="/venues"
+      to="/discover"
+      search={{ tab: 'venues' }}
       className="text-foreground-secondary inline-flex w-fit items-center gap-1.5 text-xs hover:underline"
     >
       <ArrowLeftIcon size={13} aria-hidden />
@@ -70,7 +71,8 @@ export function VenueDetailView({ slug }: { slug: string }) {
           description={`No verified venue matches "${slug}".`}
           action={
             <Link
-              to="/venues"
+              to="/discover"
+              search={{ tab: 'venues' }}
               className="text-sm font-medium underline-offset-2 hover:underline"
             >
               Browse venues

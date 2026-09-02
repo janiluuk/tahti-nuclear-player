@@ -20,7 +20,7 @@ export const DASHBOARD_REDIRECTS: Record<string, string> = {
   schedule: '/studio/schedule',
   stats: '/studio/stats',
   channel: '/studio/channel',
-  'channel/edit': '/studio/channel',
+  'channel/edit': '/studio/branding?tab=channel-designer',
   'settings/media': '/studio/branding',
   'settings/presskit': '/studio/branding',
   'tahti-radio-slots': '/studio/shows',
@@ -48,7 +48,7 @@ export const DASHBOARD_REDIRECTS: Record<string, string> = {
   'settings/green-room': '/settings/broadcast',
   'settings/distribution': '/studio/distribution',
   'settings/moderators': '/studio/moderation',
-  'settings/multistream': '/studio/go-live',
+  'settings/multistream': '/studio/channel?tab=multicast',
   'upload/from-broadcast': '/studio/recordings',
 };
 

@@ -43,7 +43,7 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   {
     id: 'channel',
     label: 'Channel & design',
-    description: 'Look, discovery, username',
+    description: 'Discovery, username, moderation',
     Icon: Paintbrush,
   },
   {
