@@ -97,14 +97,27 @@ const AnimatedOutlet = forwardRef<HTMLDivElement, { fast?: boolean }>(
 export const RouteTransition = memo(function RouteTransition({
   fast = false,
 }: {
-  /** Opacity-only fade with overlapping enter/exit, for high-frequency
-   * in-section navigation where a slide transition would add perceptible
-   * click-to-content delay. Still animated, just cheaper. */
+  /** High-frequency in-section navigation (Studio/Admin/Library/Listen
+   * tabs): skips the AnimatePresence remount-on-key cycle entirely instead
+   * of just cheapening it, since every one of these pages re-declares the
+   * same shared chrome (AdminGate/AdminPageLayout, StudioGate/StudioNav,
+   * Listen's own tab bar) at the same position in the tree -- keying by
+   * pathname forced that identical chrome to unmount and remount on every
+   * click instead of letting React reconcile it in place, which is what
+   * actually caused the visible flicker (not the animation style). */
   fast?: boolean;
 }) {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+
+  if (fast) {
+    return (
+      <div className="min-h-full w-full">
+        <Outlet />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full w-full">

@@ -227,9 +227,13 @@ export function AppShell() {
   const navigationLocation = useRouterState({
     select: (state) => state.location.pathname + state.location.searchStr,
   });
-  // High-frequency in-section navigation: gets a cheap fade instead of the
-  // full slide transition so clicking around doesn't feel delayed.
-  const fastNavigationRoute = /^\/(studio|admin|library)(\/|$)/.test(pathname);
+  // High-frequency in-section navigation: skips the remount-driven
+  // transition so clicking around doesn't flicker or feel delayed. Covers
+  // Studio/Admin/Library plus the Listen tabs (Listen/Feed/Favorites/
+  // History), which all re-declare the same persistent chrome per click.
+  const fastNavigationRoute =
+    /^\/(studio|admin|library)(\/|$)/.test(pathname) ||
+    /^\/$|^\/listen(?:\/|$)/.test(pathname);
   const currentTrackId = usePlayerStore((state) => state.currentId);
   const playerQueue = usePlayerStore((state) => state.queue);
   const playerStatus = usePlayerStore((state) => state.status);
