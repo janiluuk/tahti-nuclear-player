@@ -1,6 +1,6 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
-## 2026-09-03 — Remaining switches and Installed/Available tabs (five slices)
+## 2026-09-03 — Remaining switches, tabs, chips, and panels (eight slices)
 
 Bumped `@tahti-player/tahti-web` to `0.0.47`.
 
@@ -13,6 +13,12 @@ Bumped `@tahti-player/tahti-web` to `0.0.47`.
 **Slice 4 — Listen add-ons picker:** The Listen widget picker Installed/Available filter uses `Tabs`.
 
 **Slice 5 — Stream manager:** Active rotation / Stream stats / Overlay uses `Tabs`.
+
+**Slice 6 — Pro Editor filter type:** Mode selection uses `FilterChips`, with a curve preview for the active mode.
+
+**Slice 7 — Admin artwork presets:** Raw `<h1>` header replaced with `StudioPageHeader`.
+
+**Slice 8 — Transparency:** YTD, grants, and ledger sections use `SectionShell`; stat tiles use `Box`.
 
 No remaining hand-built `role="switch"` rows in tahti-web. Still open from the reuse audit: in-page `role="tablist"` strips on Branding, Channel, Pro Editor stems, and a few public pages.
 
