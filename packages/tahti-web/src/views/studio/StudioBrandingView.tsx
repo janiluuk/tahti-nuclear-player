@@ -525,14 +525,14 @@ export const StudioBrandingPanel: FC<{
                   void uploadGallery(files);
                 }}
               />
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span>Include uploaded images in press kit</span>
+                <Toggle
+                  label="Include uploaded images in press kit"
                   checked={includeUploads}
-                  onChange={(event) => setIncludeUploads(event.target.checked)}
+                  onChange={setIncludeUploads}
                 />
-                Include uploaded images in press kit
-              </label>
+              </div>
             </div>
             <Dialog.Actions>
               <Button
@@ -679,23 +679,23 @@ export const StudioBrandingPanel: FC<{
                         }
                       />
                       <div className="flex items-center justify-between gap-2">
-                        <label className="flex items-center gap-2 text-xs">
-                          <input
-                            type="checkbox"
+                        <span className="text-xs">Include in press kit</span>
+                        <div className="flex items-center gap-2">
+                          <Toggle
+                            label={`Include ${image.title || `image ${image.position + 1}`} in press kit`}
                             checked={image.includeInZip}
                             onChange={() => void togglePressKitImage(image)}
                           />
-                          Include in press kit
-                        </label>
-                        <Button
-                          size="icon-sm"
-                          variant="text"
-                          aria-label="Remove image from gallery"
-                          title="Remove image"
-                          onClick={() => void removeImage(image.id)}
-                        >
-                          <Trash2Icon size={14} aria-hidden />
-                        </Button>
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label="Remove image from gallery"
+                            title="Remove image"
+                            onClick={() => void removeImage(image.id)}
+                          >
+                            <Trash2Icon size={14} aria-hidden />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </li>

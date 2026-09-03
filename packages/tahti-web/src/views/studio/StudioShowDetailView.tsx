@@ -19,6 +19,7 @@ import {
   Input,
   SaveButton,
   Textarea,
+  Toggle,
 } from '@tahti-player/ui';
 
 import {
@@ -485,14 +486,7 @@ export function StudioShowDetailView({ id }: { id: string }) {
                       }}
                       onUrlChange={setBackdropUrl}
                     />
-                    <label className="border-border bg-background-secondary/30 flex items-center gap-2 rounded-md border p-3 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={autoArchive}
-                        onChange={(event) =>
-                          setAutoArchive(event.target.checked)
-                        }
-                      />
+                    <div className="border-border bg-background-secondary/30 flex items-center justify-between gap-3 rounded-md border p-3 text-sm">
                       <span>
                         <span className="block font-medium">
                           Record broadcasts by default
@@ -502,7 +496,12 @@ export function StudioShowDetailView({ id }: { id: string }) {
                           enabled.
                         </span>
                       </span>
-                    </label>
+                      <Toggle
+                        label="Record broadcasts by default"
+                        checked={autoArchive}
+                        onChange={setAutoArchive}
+                      />
+                    </div>
                     <div className="flex justify-end">
                       <SaveButton
                         saving={savingMeta}
@@ -939,14 +938,14 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
                 onChange={(event) => setTrimEnd(Number(event.target.value))}
               />
             </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span>Peak normalize / loudness (stream target)</span>
+              <Toggle
+                label="Peak normalize / loudness (stream target)"
                 checked={normalize}
-                onChange={(e) => setNormalize(e.target.checked)}
+                onChange={setNormalize}
               />
-              Peak normalize / loudness (stream target)
-            </label>
+            </div>
             {episode.soundId ? (
               <div className="flex flex-wrap gap-2">
                 <Link

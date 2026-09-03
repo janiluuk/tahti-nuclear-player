@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Button, Input, Select, Toggle } from '@tahti-player/ui';
 
 import {
   createAdminGovernanceDocument,
@@ -188,29 +188,28 @@ export function AdminAgmView() {
             <AgendaBuilder />
 
             <StudioPanel title="Meeting records">
-              <div className="border-border mb-4 grid gap-2 border-b pb-4 sm:grid-cols-[1fr_auto_auto]">
+              <div className="border-border mb-4 grid gap-2 border-b pb-4 sm:grid-cols-[1fr_minmax(12rem,auto)_auto]">
                 <Input
                   value={meetingTitle}
                   onChange={(event) => setMeetingTitle(event.target.value)}
                   placeholder="Meeting title"
                   aria-label="Meeting title"
                 />
-                <select
+                <Select
+                  label="Meeting type"
                   value={meetingType}
-                  onChange={(event) =>
-                    setMeetingType(
-                      event.target.value as GovernanceMeeting['type'],
-                    )
+                  onValueChange={(value) =>
+                    setMeetingType(value as GovernanceMeeting['type'])
                   }
-                  aria-label="Meeting type"
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                >
-                  <option value="GENERAL">General meeting</option>
-                  <option value="EXTRAORDINARY_GENERAL">
-                    Extraordinary general
-                  </option>
-                  <option value="BOARD">Board meeting</option>
-                </select>
+                  options={[
+                    { id: 'GENERAL', label: 'General meeting' },
+                    {
+                      id: 'EXTRAORDINARY_GENERAL',
+                      label: 'Extraordinary general',
+                    },
+                    { id: 'BOARD', label: 'Board meeting' },
+                  ]}
+                />
                 <Button
                   size="sm"
                   disabled={meetingSaving || !meetingTitle.trim()}
@@ -256,14 +255,13 @@ export function AdminAgmView() {
                         · {meeting.presentCount}/
                         {meeting.eligibleMemberCount ?? '—'} present
                       </p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <select
+                      <div className="mt-2 flex max-w-xs items-center gap-2">
+                        <Select
+                          label="State"
                           value={meeting.state}
-                          aria-label={`State for ${meeting.title}`}
                           disabled={meetingStateSaving === meeting.id}
-                          onChange={(event) => {
-                            const state = event.target
-                              .value as GovernanceMeeting['state'];
+                          onValueChange={(value) => {
+                            const state = value as GovernanceMeeting['state'];
                             setMeetingStateSaving(meeting.id);
                             void patchAdminGovernanceMeeting(meeting.id, {
                               state,
@@ -280,15 +278,15 @@ export function AdminAgmView() {
                               }
                             });
                           }}
-                          className="border-border bg-background rounded-md border px-2 py-1 text-xs"
-                        >
-                          <option value="DRAFT">Draft</option>
-                          <option value="SCHEDULED">Scheduled</option>
-                          <option value="HELD">Held</option>
-                          <option value="MINUTES_DRAFT">Minutes draft</option>
-                          <option value="APPROVED">Approved</option>
-                          <option value="CANCELLED">Cancelled</option>
-                        </select>
+                          options={[
+                            { id: 'DRAFT', label: 'Draft' },
+                            { id: 'SCHEDULED', label: 'Scheduled' },
+                            { id: 'HELD', label: 'Held' },
+                            { id: 'MINUTES_DRAFT', label: 'Minutes draft' },
+                            { id: 'APPROVED', label: 'Approved' },
+                            { id: 'CANCELLED', label: 'Cancelled' },
+                          ]}
+                        />
                         {meetingStateSaving === meeting.id && (
                           <span className="text-foreground-secondary text-xs">
                             Saving…
@@ -381,34 +379,33 @@ export function AdminAgmView() {
               </div>
               <div className="border-border mt-4 border-t pt-3">
                 <h3 className="text-sm font-semibold">Published documents</h3>
-                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_minmax(12rem,auto)]">
                   <Input
                     value={documentTitle}
                     onChange={(event) => setDocumentTitle(event.target.value)}
                     placeholder="Document title"
                     aria-label="Document title"
                   />
-                  <select
+                  <Select
+                    label="Document type"
                     value={documentType}
-                    onChange={(event) =>
-                      setDocumentType(
-                        event.target.value as GovernanceDocument['type'],
-                      )
+                    onValueChange={(value) =>
+                      setDocumentType(value as GovernanceDocument['type'])
                     }
-                    aria-label="Document type"
-                    className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                  >
-                    <option value="MINUTES">Minutes</option>
-                    <option value="MEETING_NOTICE">Meeting notice</option>
-                    <option value="ANNUAL_REPORT">Annual report</option>
-                    <option value="BYLAWS">Bylaws</option>
-                    <option value="POLICY">Policy</option>
-                    <option value="FINANCIAL_STATEMENT">
-                      Financial statement
-                    </option>
-                    <option value="AUDIT_REPORT">Audit report</option>
-                    <option value="OTHER">Other</option>
-                  </select>
+                    options={[
+                      { id: 'MINUTES', label: 'Minutes' },
+                      { id: 'MEETING_NOTICE', label: 'Meeting notice' },
+                      { id: 'ANNUAL_REPORT', label: 'Annual report' },
+                      { id: 'BYLAWS', label: 'Bylaws' },
+                      { id: 'POLICY', label: 'Policy' },
+                      {
+                        id: 'FINANCIAL_STATEMENT',
+                        label: 'Financial statement',
+                      },
+                      { id: 'AUDIT_REPORT', label: 'Audit report' },
+                      { id: 'OTHER', label: 'Other' },
+                    ]}
+                  />
                   <Input
                     value={documentUrl}
                     onChange={(event) => setDocumentUrl(event.target.value)}
@@ -440,16 +437,16 @@ export function AdminAgmView() {
                     {documentSaving ? 'Publishing…' : 'Add document'}
                   </Button>
                 </div>
-                <label className="text-foreground-secondary mt-2 flex items-center gap-2 text-xs">
-                  <input
-                    type="checkbox"
+                <div className="mt-2 flex items-center justify-between gap-3 text-sm">
+                  <span className="text-foreground-secondary text-xs">
+                    Publish immediately to members
+                  </span>
+                  <Toggle
+                    label="Publish immediately to members"
                     checked={documentPublish}
-                    onChange={(event) =>
-                      setDocumentPublish(event.target.checked)
-                    }
+                    onChange={setDocumentPublish}
                   />
-                  Publish immediately to members
-                </label>
+                </div>
                 {documents.length === 0 ? (
                   <p className="text-foreground-secondary mt-1 text-xs">
                     No governance documents yet.

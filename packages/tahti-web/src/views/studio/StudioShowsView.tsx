@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { MicIcon, PlusIcon, RadioIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input, Textarea } from '@tahti-player/ui';
+import { Button, Dialog, Input, Textarea, Toggle } from '@tahti-player/ui';
 
 import {
   createShowSeries,
@@ -167,12 +167,7 @@ export function StudioShowsView() {
                 }}
                 onUrlChange={setBackdropUrl}
               />
-              <label className="border-border bg-background-secondary/30 flex items-center gap-2 rounded-md border p-3 text-sm">
-                <input
-                  type="checkbox"
-                  checked={autoArchive}
-                  onChange={(event) => setAutoArchive(event.target.checked)}
-                />
+              <div className="border-border bg-background-secondary/30 flex items-center justify-between gap-3 rounded-md border p-3 text-sm">
                 <span>
                   <span className="block font-medium">
                     Record broadcasts by default
@@ -182,7 +177,12 @@ export function StudioShowsView() {
                     enabled.
                   </span>
                 </span>
-              </label>
+                <Toggle
+                  label="Record broadcasts by default"
+                  checked={autoArchive}
+                  onChange={setAutoArchive}
+                />
+              </div>
               <div className="flex flex-wrap gap-2">
                 {(['SERIES', 'SINGLE'] as const).map((value) => (
                   <button

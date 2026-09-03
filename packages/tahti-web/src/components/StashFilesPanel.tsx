@@ -1,14 +1,8 @@
-import {
-  PlayIcon,
-  Share2Icon,
-  Trash2Icon,
-  UploadIcon,
-  XIcon,
-} from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { PlayIcon, Share2Icon, Trash2Icon, XIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Select } from '@tahti-player/ui';
+import { Button, FilePicker, Input, Select } from '@tahti-player/ui';
 
 import {
   createStashShare,
@@ -50,7 +44,6 @@ const formatExpiry = (expiresAt: string | null) => {
 
 export const StashFilesPanel = () => {
   const play = usePlayerStore((state) => state.play);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<StashFile[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -167,48 +160,38 @@ export const StashFilesPanel = () => {
     setMessage('Share access revoked.');
   };
 
+  const uploadFile = (file: File) => {
+    setBusy(true);
+    setMessage(null);
+    void uploadStashFile(file).then((result) => {
+      setBusy(false);
+      if (!result.ok) {
+        setMessage(result.error);
+        toast.error(result.error);
+        return;
+      }
+      setMessage(`Uploaded ${file.name}`);
+      toast.success(`Uploaded ${file.name}`);
+      void reload();
+    });
+  };
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-foreground-secondary text-sm">
-          Files stay private until you grant access.
-        </p>
-        <input
-          ref={inputRef}
-          type="file"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            event.target.value = '';
-            if (!file) {
-              return;
-            }
-            setBusy(true);
-            setMessage(null);
-            void uploadStashFile(file).then((result) => {
-              setBusy(false);
-              if (!result.ok) {
-                setMessage(result.error);
-                toast.error(result.error);
-                return;
-              }
-              setMessage(`Uploaded ${file.name}`);
-              toast.success(`Uploaded ${file.name}`);
-              void reload();
-            });
-          }}
-        />
-        <Button
-          size="sm"
-          disabled={busy}
-          onClick={() => inputRef.current?.click()}
-          aria-label="Upload"
-          title="Upload"
-        >
-          <UploadIcon size={16} aria-hidden className="mr-1.5" />
-          {busy ? 'Working…' : 'Upload'}
-        </Button>
-      </div>
+      <FilePicker
+        disabled={busy}
+        labels={{
+          title: busy ? 'Uploading…' : 'Upload a private file',
+          description: 'Files stay private until you grant access.',
+          browse: busy ? 'Working…' : 'Choose file',
+        }}
+        onFiles={(picked) => {
+          const file = picked[0];
+          if (file) {
+            uploadFile(file);
+          }
+        }}
+      />
 
       {message ? (
         <p className="text-foreground-secondary text-sm" role="status">
@@ -280,12 +263,6 @@ export const StashFilesPanel = () => {
             <p className="text-foreground-secondary text-sm">
               No stash files yet.
             </p>
-            <div>
-              <Button size="sm" onClick={() => inputRef.current?.click()}>
-                <UploadIcon size={16} aria-hidden className="mr-1.5" />
-                Upload
-              </Button>
-            </div>
           </div>
         ) : (
           <ul className="divide-border divide-y">
@@ -372,19 +349,16 @@ export const StashFilesPanel = () => {
 
                 {sharingFileId === file.id ? (
                   <div className="border-border bg-background-secondary mt-3 grid gap-2 rounded-lg border p-3 sm:grid-cols-2">
-                    <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-                      <span className="text-foreground-secondary text-xs uppercase">
-                        Share with
-                      </span>
-                      <input
+                    <div className="sm:col-span-2">
+                      <Input
+                        label="Share with"
                         value={granteeUsername}
                         onChange={(event) =>
                           setGranteeUsername(event.target.value)
                         }
                         placeholder="@username, or leave empty for link access"
-                        className="border-border bg-background rounded-md border px-3 py-2"
                       />
-                    </label>
+                    </div>
                     <Select
                       label="Permission"
                       value={permission}

@@ -16,6 +16,7 @@ import {
   Input,
   SaveButton,
   Select,
+  Toggle,
   TrackTable,
 } from '@tahti-player/ui';
 
@@ -138,28 +139,28 @@ export function StudioPlaylistsView() {
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
               />
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span>Public on profile</span>
+                <Toggle
+                  label="Public on profile"
                   checked={isPublic}
-                  onChange={(e) => {
-                    setIsPublic(e.target.checked);
-                    if (!e.target.checked) {
+                  onChange={(checked) => {
+                    setIsPublic(checked);
+                    if (!checked) {
                       setCollaborative(false);
                     }
                   }}
                 />
-                Public on profile
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+              </div>
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span>Others can add tracks</span>
+                <Toggle
+                  label="Others can add tracks"
                   checked={collaborative}
                   disabled={!isPublic}
-                  onChange={(e) => setCollaborative(e.target.checked)}
+                  onChange={setCollaborative}
                 />
-                Others can add tracks
-              </label>
+              </div>
             </div>
             <Dialog.Actions>
               <Dialog.Close>Cancel</Dialog.Close>
@@ -409,29 +410,29 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span>Public on profile</span>
+                  <Toggle
+                    label="Public on profile"
                     checked={isPublic}
-                    onChange={(e) => {
-                      setIsPublic(e.target.checked);
-                      if (!e.target.checked) {
+                    onChange={(checked) => {
+                      setIsPublic(checked);
+                      if (!checked) {
                         setCollaborative(false);
                       }
                     }}
                   />
-                  Public on profile
-                </label>
+                </div>
                 {!isDjSet ? (
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
+                  <div className="flex items-center justify-between gap-3 text-sm">
+                    <span>Others can add tracks (collaborative)</span>
+                    <Toggle
+                      label="Others can add tracks (collaborative)"
                       checked={collaborative}
                       disabled={!isPublic}
-                      onChange={(e) => setCollaborative(e.target.checked)}
+                      onChange={setCollaborative}
                     />
-                    Others can add tracks (collaborative)
-                  </label>
+                  </div>
                 ) : null}
               </div>
             </StudioPanel>

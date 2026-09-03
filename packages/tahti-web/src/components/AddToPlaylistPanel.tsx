@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input } from '@tahti-player/ui';
+import { Button, Dialog, Input, Toggle } from '@tahti-player/ui';
 
 import {
   addStudioCollectionItem,
@@ -241,29 +241,29 @@ export function AddToPlaylistPanel({
             onChange={(e) => setNewName(e.target.value)}
             autoFocus
           />
-          <div className="flex flex-wrap gap-3 text-sm">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+          <div className="flex flex-col gap-3 text-sm">
+            <div className="flex items-center justify-between gap-3">
+              <span>Public</span>
+              <Toggle
+                label="Public"
                 checked={newPublic}
-                onChange={(e) => {
-                  setNewPublic(e.target.checked);
-                  if (!e.target.checked) {
+                onChange={(checked) => {
+                  setNewPublic(checked);
+                  if (!checked) {
                     setNewCollab(false);
                   }
                 }}
               />
-              Public
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span>Others can add tracks</span>
+              <Toggle
+                label="Others can add tracks"
                 checked={newCollab}
                 disabled={!newPublic}
-                onChange={(e) => setNewCollab(e.target.checked)}
+                onChange={setNewCollab}
               />
-              Others can add tracks
-            </label>
+            </div>
           </div>
           <Dialog.Actions>
             <Button

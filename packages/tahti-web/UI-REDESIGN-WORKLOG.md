@@ -1,5 +1,21 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Admin forms, stash, and remaining Toggles
+
+Five slices after the docs-sync + mock original-file batch. Bumped `@tahti-player/tahti-web` to `0.0.38`.
+
+**Slice 1 — Languages CSV:** `AdminI18nView` opens a `FilePicker` dialog to import a translation CSV instead of a hidden file input.
+
+**Slice 2 — Announcements:** Clip enable and system on/off are `Toggle`; schedule is `Select`; every-Nth count is `Input`.
+
+**Slice 3 — AGM:** Meeting type, meeting state, and document type use `Select`; “Publish immediately” is `Toggle`.
+
+**Slice 4 — Stash files:** Upload uses `FilePicker`; share-with is `Input`. Permission and expiry were already `Select`.
+
+**Slice 5 — Remaining Toggles:** Show auto-archive and episode normalize; playlist public/collaborative (create, edit, add-to-playlist); branding press-kit include switches. Avatar and gallery still use click-on-preview file inputs (media-upload convention), not a dropzone.
+
+**Validation:** tahti-web type-check and vitest. Deployed to beta after push.
+
 ## 2026-09-03 — Docs sync + mock original-file downloads
 
 Caught up FEATURES / GAP / sitemap / MOCKS / README / map copy after the Broadcast rename and native-control sweep. Mock uploads now register in `mock-uploads.ts` so `/t/:id` and public download can return the original file (not `DEMO_MP3`) once the track is public. Live download tries `?format=source` then the default gate; the track page sets `download` on the save link. Top bar vs Studio Upload accessible names no longer collide. Playwright helper `e2e/helpers/mockStripe.ts` can inject session fan-sub/track payout and audit rows for the journey spec.

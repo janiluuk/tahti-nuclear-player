@@ -1,7 +1,7 @@
 import { PlusIcon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Badge, Button, Dialog, Input } from '@tahti-player/ui';
+import { Badge, Button, Dialog, FilePicker, Input } from '@tahti-player/ui';
 
 import {
   createAdminLanguage,
@@ -23,7 +23,7 @@ export function AdminI18nView() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [importTarget, setImportTarget] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const reload = () => {
     setLoading(true);
@@ -42,10 +42,39 @@ export function AdminI18nView() {
     setBusy(false);
   };
 
+  const closeImport = () => {
+    setImportOpen(false);
+    setImportTarget(null);
+  };
+
   const triggerImport = (langCode: string) => {
     setImportTarget(langCode);
-    fileInputRef.current?.click();
+    setImportOpen(true);
   };
+
+  const runImport = (file: File) => {
+    const target = importTarget;
+    if (!target) {
+      return;
+    }
+    setBusy(true);
+    setMsg(null);
+    void importAdminLanguageCsv(target, file).then((res) => {
+      setBusy(false);
+      closeImport();
+      if (!res.ok) {
+        setMsg(res.error);
+        return;
+      }
+      setMsg(
+        `Imported ${res.data.imported} rows` +
+          (res.data.skipped ? `, skipped ${res.data.skipped}.` : '.'),
+      );
+      reload();
+    });
+  };
+
+  const importLanguage = languages.find((lang) => lang.code === importTarget);
 
   return (
     <AdminGate>
@@ -65,38 +94,6 @@ export function AdminI18nView() {
                   <PlusIcon size={16} aria-hidden />
                 </Button>
               }
-            />
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,text/csv"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                e.target.value = '';
-                const target = importTarget;
-                if (!file || !target) {
-                  return;
-                }
-                setBusy(true);
-                setMsg(null);
-                void importAdminLanguageCsv(target, file).then((res) => {
-                  setBusy(false);
-                  setImportTarget(null);
-                  if (!res.ok) {
-                    setMsg(res.error);
-                    return;
-                  }
-                  setMsg(
-                    `Imported ${res.data.imported} rows` +
-                      (res.data.skipped
-                        ? `, skipped ${res.data.skipped}.`
-                        : '.'),
-                  );
-                  reload();
-                });
-              }}
             />
 
             {msg && (
@@ -206,6 +203,34 @@ export function AdminI18nView() {
                   </Button>
                 </Dialog.Actions>
               </form>
+            </Dialog.Root>
+
+            <Dialog.Root isOpen={importOpen} onClose={closeImport}>
+              <Dialog.Title>
+                Import CSV
+                {importLanguage ? ` — ${importLanguage.name}` : ''}
+              </Dialog.Title>
+              <div className="mt-4">
+                <FilePicker
+                  accept=".csv,text/csv"
+                  disabled={busy}
+                  labels={{
+                    title: busy ? 'Importing…' : 'Translation CSV',
+                    description:
+                      'Choose a CSV translated from the English base.',
+                    browse: busy ? 'Importing…' : 'Choose CSV',
+                  }}
+                  onFiles={(files) => {
+                    const file = files[0];
+                    if (file) {
+                      runImport(file);
+                    }
+                  }}
+                />
+              </div>
+              <Dialog.Actions>
+                <Dialog.Close>Cancel</Dialog.Close>
+              </Dialog.Actions>
             </Dialog.Root>
           </div>
         </AdminPageLayout>

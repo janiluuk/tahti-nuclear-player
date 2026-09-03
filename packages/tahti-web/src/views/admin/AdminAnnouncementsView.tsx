@@ -1,7 +1,7 @@
 import { PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, FilePicker } from '@tahti-player/ui';
+import { Button, FilePicker, Input, Select, Toggle } from '@tahti-player/ui';
 
 import {
   deleteAnnouncementClip,
@@ -79,23 +79,19 @@ export function AdminAnnouncementsView() {
             <StudioPanel
               title="System announcements"
               action={
-                <Button
-                  size="sm"
-                  variant={systemEnabled ? 'secondary' : 'default'}
-                  onClick={() => {
-                    void setAnnouncementsSystemEnabled(!systemEnabled).then(
-                      (r) => {
-                        if (!r.ok) {
-                          setMsg(r.error);
-                        } else {
-                          setSystemEnabled(!systemEnabled);
-                        }
-                      },
-                    );
+                <Toggle
+                  label="System announcements"
+                  checked={systemEnabled}
+                  onChange={(checked) => {
+                    void setAnnouncementsSystemEnabled(checked).then((r) => {
+                      if (!r.ok) {
+                        setMsg(r.error);
+                      } else {
+                        setSystemEnabled(checked);
+                      }
+                    });
                   }}
-                >
-                  {systemEnabled ? 'On — disable' : 'Off — enable'}
-                </Button>
+                />
               }
             >
               <p className="text-foreground-secondary text-sm">
@@ -146,11 +142,11 @@ export function AdminAnnouncementsView() {
                       className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
                     >
                       <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
+                        <Toggle
+                          label={`Enable ${clip.title}`}
                           checked={clip.isEnabled}
-                          onChange={() =>
-                            patch(clip.id, { isEnabled: !clip.isEnabled })
+                          onChange={(checked) =>
+                            patch(clip.id, { isEnabled: checked })
                           }
                         />
                         <div>
@@ -160,12 +156,13 @@ export function AdminAnnouncementsView() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <select
+                      <div className="flex min-w-48 flex-wrap items-center gap-2">
+                        <Select
+                          label="Schedule"
                           value={clip.scheduleMode}
-                          onChange={(e) => {
-                            const scheduleMode = e.target
-                              .value as AdminAnnouncementScheduleMode;
+                          onValueChange={(value) => {
+                            const scheduleMode =
+                              value as AdminAnnouncementScheduleMode;
                             patch(clip.id, {
                               scheduleMode,
                               everyNth:
@@ -174,24 +171,30 @@ export function AdminAnnouncementsView() {
                                   : null,
                             });
                           }}
-                          className="border-border bg-background rounded-md border px-2 py-1 text-xs"
-                        >
-                          <option value="AFTER_EVERY">After every clip</option>
-                          <option value="EVERY_NTH">Every Nth clip</option>
-                          <option value="RANDOM">Randomly</option>
-                        </select>
+                          options={[
+                            {
+                              id: 'AFTER_EVERY',
+                              label: 'After every clip',
+                            },
+                            { id: 'EVERY_NTH', label: 'Every Nth clip' },
+                            { id: 'RANDOM', label: 'Randomly' },
+                          ]}
+                        />
                         {clip.scheduleMode === 'EVERY_NTH' && (
-                          <input
+                          <Input
                             type="number"
+                            variant="number"
+                            size="sm"
                             min={2}
                             max={100}
+                            label="Every Nth"
                             value={clip.everyNth ?? 4}
-                            onChange={(e) =>
+                            onChange={(event) =>
                               patch(clip.id, {
-                                everyNth: Number(e.target.value),
+                                everyNth: Number(event.target.value),
                               })
                             }
-                            className="border-border bg-background w-16 rounded-md border px-2 py-1 text-xs"
+                            className="w-24"
                           />
                         )}
                         {clip.audioUrl && (
