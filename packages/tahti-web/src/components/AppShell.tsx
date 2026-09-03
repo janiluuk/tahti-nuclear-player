@@ -45,6 +45,7 @@ import { AuthDialog } from './AuthDialog';
 import { ChannelSetupDialog } from './ChannelSetupDialog';
 import { ConnectedPlayerBar } from './ConnectedPlayerBar';
 import { ConnectedSettingsModal } from './ConnectedSettingsModal';
+import { ConnectedStatusBar } from './ConnectedStatusBar';
 import { FullScreenPlayer } from './FullScreenPlayer';
 import { MobileBottomNav, MobileDrawer } from './MobileChrome';
 import { NotificationToasts } from './NotificationToasts';
@@ -510,6 +511,7 @@ export function AppShell() {
       )}
 
       <ConnectedPlayerBar />
+      <ConnectedStatusBar />
       <FullScreenPlayer />
       <AuthDialog />
       <ChannelSetupDialog />

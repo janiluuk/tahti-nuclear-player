@@ -1,5 +1,26 @@
 [
   {
+    "date": "2026-09-04T01:25",
+    "description": "Track menus now add to playlists from a submenu and open audio tools (editor, mastering) from their own submenu when those tools apply.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-04T01:15",
+    "description": "Help center quick starts now open Keyboard navigation, with shortcut keys shown the same way as in Storybook.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-04T01:00",
+    "description": "Save actions look the same across Studio and Admin, with a clear Saving state. Counts on artist pages, Studio stats, and Admin dashboards use the same chips as the rest of the app.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
     "date": "2026-09-04T00:50",
     "description": "Add a News widget from Listen add-ons: paste an RSS feed, set a thumbnail, and a slider of articles shows on Listen and Discover.",
     "type": "feature",

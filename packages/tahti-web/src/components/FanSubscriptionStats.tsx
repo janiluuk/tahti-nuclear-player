@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import type { FC, ReactNode } from 'react';
 
-import { Badge } from '@tahti-player/ui';
+import { Badge, StatChip } from '@tahti-player/ui';
 
 import type { FanPayoutStats } from '../api/revenue';
 import type { RevenueOrderRow } from '../lib/revenueOrders';
@@ -41,19 +41,14 @@ const FanStat: FC<{
   value: string;
   icon: typeof UsersIcon;
 }> = ({ label, value, icon: Icon }) => (
-  <div
+  <StatChip
     role="group"
     aria-label={`${label}: ${value}`}
-    className="border-border bg-background flex max-w-full min-w-0 flex-col gap-2 overflow-hidden rounded-lg border p-3"
-  >
-    <span className="text-foreground-secondary flex min-w-0 items-center gap-2 text-[11px] font-semibold tracking-wide break-words uppercase">
-      <Icon size={14} aria-hidden className="text-primary" />
-      {label}
-    </span>
-    <strong className="font-display text-2xl font-extrabold tabular-nums">
-      {value}
-    </strong>
-  </div>
+    className="max-w-full min-w-0"
+    value={value}
+    label={label}
+    icon={<Icon size={14} aria-hidden className="text-primary" />}
+  />
 );
 
 export const FanSubscriptionStats: FC<FanSubscriptionStatsProps> = ({

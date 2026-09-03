@@ -1,7 +1,7 @@
 import { Navigate, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, Tabs } from '@tahti-player/ui';
+import { Button, StatChip, Tabs } from '@tahti-player/ui';
 
 import {
   fetchStatsPlays,
@@ -89,20 +89,20 @@ function ChannelOverallStats() {
           {RADIO_STATS_RANGES.map((range) => {
             const periodStats = stats[range];
             return (
-              <div
-                key={range}
-                className="border-border bg-background-secondary/40 rounded-lg border p-3"
-              >
+              <div key={range} className="flex min-w-0 flex-col gap-2">
                 <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
                   Last {range} day{range === '1' ? '' : 's'}
                 </p>
-                <p className="mt-2 text-2xl font-bold tabular-nums">
-                  {periodStats?.totalPlays.toLocaleString() ?? '—'}
-                </p>
-                <p className="text-foreground-secondary text-xs">
-                  plays · {periodStats?.totalDownloads.toLocaleString() ?? '—'}{' '}
-                  downloads
-                </p>
+                <div className="flex flex-wrap gap-2">
+                  <StatChip
+                    value={periodStats?.totalPlays.toLocaleString() ?? '—'}
+                    label="Plays"
+                  />
+                  <StatChip
+                    value={periodStats?.totalDownloads.toLocaleString() ?? '—'}
+                    label="Downloads"
+                  />
+                </div>
               </div>
             );
           })}

@@ -19,6 +19,7 @@ import {
   CardGrid,
   Dialog,
   SaveButton,
+  StatChip,
   Tabs,
   Textarea,
 } from '@tahti-player/ui';
@@ -800,26 +801,21 @@ export function ArtistView({ username }: { username: string }) {
             + Add full bio
           </Button>
         ) : null}
-        <div className="border-border/70 flex flex-wrap gap-x-7 gap-y-3 border-t pt-4">
-          {[
-            ...(artist.followerCount != null
-              ? [['Followers', artist.followerCount] as const]
-              : []),
-            ...(artist.followingCount != null
-              ? [['Following', artist.followingCount] as const]
-              : []),
-            ['Tracks', profile.tracks.length],
-            ['Releases', releases.length],
-            ['Collections', collections.length],
-          ].map(([label, value]) => (
-            <div key={label} className="min-w-16">
-              <div className="text-foreground text-lg font-bold tracking-tight">
-                {value}
-              </div>
-              <div className="text-foreground-secondary text-[11px] tracking-[0.12em] uppercase">
-                {label}
-              </div>
-            </div>
+        <div className="border-border/70 flex flex-wrap gap-2 border-t pt-4">
+          {(
+            [
+              ...(artist.followerCount != null
+                ? [{ label: 'Followers', value: artist.followerCount }]
+                : []),
+              ...(artist.followingCount != null
+                ? [{ label: 'Following', value: artist.followingCount }]
+                : []),
+              { label: 'Tracks', value: profile.tracks.length },
+              { label: 'Releases', value: releases.length },
+              { label: 'Collections', value: collections.length },
+            ] as Array<{ label: string; value: number }>
+          ).map((stat) => (
+            <StatChip key={stat.label} value={stat.value} label={stat.label} />
           ))}
         </div>
         <DiscoWidgetsSection widgets={discoWidgets} />

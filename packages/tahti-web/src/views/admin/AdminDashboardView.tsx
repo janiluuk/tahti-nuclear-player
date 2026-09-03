@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Dialog } from '@tahti-player/ui';
+import { Badge, Button, Dialog, StatChip } from '@tahti-player/ui';
 
 import { fetchAdminDashboard, type AdminDashboard } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
@@ -9,8 +9,6 @@ import { AdminPageLayout } from '../../components/AdminNav';
 import { AdminStreamManagerPanel } from '../../components/AdminStreamManagerPanel';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
-import { Eyebrow } from '../../components/tahti/Eyebrow';
-import { StatNumber } from '../../components/tahti/StatNumber';
 
 function euros(cents: number): string {
   return `€${(cents / 100).toLocaleString('fi-FI', { minimumFractionDigits: 0 })}`;
@@ -53,7 +51,7 @@ export function AdminDashboardView() {
               </StudioPanel>
             ) : (
               <>
-                <div className="grid gap-3 sm:grid-cols-4">
+                <div className="flex flex-wrap gap-2">
                   {(
                     [
                       ['Active members', data.kpis.activeMembers],
@@ -62,12 +60,11 @@ export function AdminDashboardView() {
                       ['Open tickets', data.kpis.openTickets],
                     ] as const
                   ).map(([label, value]) => (
-                    <StudioPanel key={label} className="!p-4 sm:!p-5">
-                      <Eyebrow>{label}</Eyebrow>
-                      <StatNumber className="mt-1 block text-2xl">
-                        {value.toLocaleString()}
-                      </StatNumber>
-                    </StudioPanel>
+                    <StatChip
+                      key={label}
+                      value={value.toLocaleString()}
+                      label={label}
+                    />
                   ))}
                 </div>
 

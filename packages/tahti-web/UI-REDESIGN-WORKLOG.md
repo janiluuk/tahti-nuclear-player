@@ -1,5 +1,103 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Player bar queue on the right rail (planned)
+
+**Status:** planned — tracked in [`WORKPLAN.md`](WORKPLAN.md) and
+[`docs/todo/playerbar-queue-right-rail.md`](../../docs/todo/playerbar-queue-right-rail.md).
+
+**Goal:** Player-bar queue button only toggles pressed/enabled. The compact
+bar does not grow or swap to `BottomQueueStrip`. Queue fades in on the
+**right rail** (if the rail is already open, only switch to the Queue tab).
+Seek becomes a **waveform**; title click expands it; artist click opens
+`/u/$username`.
+
+### Today (replace)
+
+- `ConnectedPlayerBar` + `bottomQueueOpen` → `BottomQueueStrip` (hides
+  NowPlaying, restyles the bar).
+- Right rail Queue tab already uses Storybook `QueuePanel` via
+  `SidebarQueuePanel`, but tab state is local and the list is full-height.
+- Seek is `PlayerBar.SeekBar`. `WaveformSeekbar` has no Storybook story.
+- Mobile and signed-out desktop have no right sidebar.
+
+### Storybook-first
+
+`QueuePanel` / `QueueItem`, `ScrollableArea` + `Button` chevrons on overflow,
+`PlayerBar` + `NowPlaying`, `RightRailPanel`, `ConnectedPlayerBar`. Add
+`Tahti/Player/WaveformSeekbar` (compact / expanded / live) before swapping
+seek. Flag then delete `BottomQueueStrip` (explicit replace).
+
+### Queue surface
+
+Compact viewport (named max-height, ~5–7 rows): 1–2 **past** items faded,
+current highlighted, upcoming below. Not a full-rail dump. Lift
+`rightRailTab` into `layoutStore`. Toggle off restores previous tab if the
+rail was already open. Signed-out / mobile: `QueuePanel` popover on the
+button — still no bottom strip.
+
+### Player bar
+
+Keep NowPlaying + controls. Waveform seek (`WaveformSeekbar`); live keeps
+`PlayerLiveBadge`. Title expands/collapses waveform height. Artist navigates
+when `channelSlug` (or username) exists. HearThis embed stays.
+
+**Chrome:** Opening the right rail is intended. Do not unmount left nav or
+the compact player.
+
+## 2026-09-04 — Help: keyboard navigation page
+
+Bumped `@tahti-player/tahti-web` to `0.0.58`.
+
+**Status:** executed (hub link + KeyCombo article + Storybook + binding
+coverage test). Settings remapping panel still deferred.
+
+**Goal:** Keep global keyboard shortcuts working; surface **Keyboard
+navigation** from the Help hub frontpage using Storybook `KeyCombo`.
+
+### Executed
+
+- Help hub `QUICK_STARTS` → `/help/keyboard-shortcuts`
+- `HelpKeyboardShortcuts` + `content/keyboardNavigation.ts` (`KeyCombo` rows)
+- Storybook `Tahti/Reference/Help center` → `KeyboardNavigation`
+- `ConnectedStatusBar` wired in `AppShell` (completes Status Bar plan)
+- Smoke coverage: shortcut list matches AppShell bindings
+
+### Still open
+
+- Optional Settings → “Keyboard shortcuts” deep link
+- Remapping store for web (player-only today)
+
+## 2026-09-04 — TrackContextMenu on all track listings
+
+Bumped `@tahti-player/tahti-web` to `0.0.58`.
+
+**Status:** first pass executed.
+
+**Goal:** Storybook `TrackContextMenu` + **With Submenu** for playlists;
+**Audio tools** submenu when available.
+
+### Executed
+
+- `PlayableTrackContextMenu`: Header, playlist Submenu (filter + add + New
+  playlist… → panel), Audio tools (Pro Editor / mastering when enabled)
+- `StudioSoundRowMenu`: replaces Studio Sounds expand-more strip (pin,
+  Audio tools, delete)
+- Storybook docs on ui + tahti-web PlayableTrackContextMenu stories
+
+### Still open
+
+- Queue / History / Favorites / Feed / Discover custom menus if any appear
+- Studio Sound detail Quick edits Popover could share Audio tools submenu
+
+## 2026-09-04 — SaveButton + StatChip sweep
+
+Bumped `@tahti-player/tahti-web` to `0.0.57`.
+
+Persist-edit controls now use Storybook `SaveButton` (Idle/Saving/Disabled/custom label): overlay, ledger entry, disco widget edits, radio schedule, show info, newsletter draft, admin radio edits, governance resolution, multicast destination edits, SoundCloud profile URL, multicast dest dialog, and station save. Create actions stay `Button` (Register widget / Add station / Add destination). Studio Sound toolbar stays icon-only (`SaveIcon`) — no room for a labeled control.
+
+Artist/channel follower rows, Studio home summary, stats overview, channel/schedule day cards, track insights, fan-sub summary, admin dashboard/content KPIs, stream manager cells, admin user followers, and storage used/free/total use Storybook `StatChip`. Chart-header totals and grant money stay `StatNumber`. Channel Designer reuses ChannelView’s stats block.
+
+
 ## 2026-09-04 — Listen / Discover CardGrid vs Storybook (planned)
 
 **Goal:** Every card-shaped media grid on Listen and Discover must match

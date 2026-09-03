@@ -81,6 +81,14 @@ export const PlayerControls: Story = {
 };
 
 export const StatusBar: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Production: tahti-web `ConnectedStatusBar` fills this slot when the compact player bar is hidden (signed-in).',
+      },
+    },
+  },
   args: {
     children: (
       <div className="flex w-full items-center justify-between text-sm">

@@ -6,12 +6,8 @@ import {
   DownloadIcon,
   FilterIcon,
   FolderIcon,
-  MoreHorizontalIcon,
   PencilIcon,
-  PinIcon,
-  PinOffIcon,
   PlayIcon,
-  Trash2Icon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -37,6 +33,7 @@ import { StashFilesPanel } from '../../components/StashFilesPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioSoundRowMenu } from '../../components/StudioSoundRowMenu';
 import { TrackEditDialog } from '../../components/TrackEditDialog';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
 import {
@@ -120,7 +117,6 @@ export function StudioSoundsView() {
   const [uploadedFrom, setUploadedFrom] = useState('');
   const [uploadedTo, setUploadedTo] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [openMoreId, setOpenMoreId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pinMessage, setPinMessage] = useState<string | null>(null);
   const [embedOpenId, setEmbedOpenId] = useState<string | null>(null);
@@ -498,72 +494,18 @@ export function StudioSoundsView() {
                         soundId={item.id}
                         trackTitle={item.title}
                       />
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        aria-label={openMoreId === item.id ? 'Less' : 'More'}
-                        title={openMoreId === item.id ? 'Less' : 'More'}
-                        onClick={() =>
-                          setOpenMoreId((id) =>
-                            id === item.id ? null : item.id,
-                          )
-                        }
-                      >
-                        <MoreHorizontalIcon size={16} aria-hidden />
-                      </Button>
-                      {openMoreId === item.id && (
-                        <div className="flex w-full flex-wrap gap-2 pt-1">
-                          <Button
-                            size="icon-sm"
-                            variant="text"
-                            disabled={busyId === item.id}
-                            aria-label={
-                              isPinned(item) ? 'Unpin from page' : 'Pin to page'
-                            }
-                            title={
-                              isPinned(item) ? 'Unpin from page' : 'Pin to page'
-                            }
-                            onClick={() => void togglePin(item)}
-                          >
-                            {isPinned(item) ? (
-                              <PinOffIcon size={16} aria-hidden />
-                            ) : (
-                              <PinIcon size={16} aria-hidden />
-                            )}
-                          </Button>
-                          {!embedSrc && (
-                            <Link
-                              to="/studio/sounds/$id/editor"
-                              params={{ id: item.id }}
-                            >
-                              <Button
-                                size="icon-sm"
-                                variant="text"
-                                aria-label="Audio editor"
-                                title="Audio editor"
-                              >
-                                <AudioLinesIcon size={16} aria-hidden />
-                              </Button>
-                            </Link>
-                          )}
-                          <Button
-                            size="icon-sm"
-                            variant="text"
-                            aria-label={`Delete ${item.title}`}
-                            title="Delete"
-                            onClick={() => {
-                              if (!confirm(`Delete “${item.title}”?`)) {
-                                return;
-                              }
-                              void deleteStudioSound(item.id).then(() =>
-                                reload(),
-                              );
-                            }}
-                          >
-                            <Trash2Icon size={16} aria-hidden />
-                          </Button>
-                        </div>
-                      )}
+                      <StudioSoundRowMenu
+                        item={item}
+                        busy={busyId === item.id}
+                        hasEmbed={Boolean(embedSrc)}
+                        onTogglePin={() => void togglePin(item)}
+                        onDelete={() => {
+                          if (!confirm(`Delete “${item.title}”?`)) {
+                            return;
+                          }
+                          void deleteStudioSound(item.id).then(() => reload());
+                        }}
+                      />
                       {embedSrc && embedOpenId === item.id && (
                         <iframe
                           title={item.title}

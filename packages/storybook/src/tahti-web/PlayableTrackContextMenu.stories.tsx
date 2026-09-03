@@ -47,9 +47,25 @@ const liveTrack: Track = {
 };
 
 export const ArchiveTrack: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Playlist actions use TrackContextMenu.Submenu (Storybook With Submenu). Archive tracks also get an Audio tools submenu when signed in.',
+      },
+    },
+  },
   args: { track: archiveTrack, children: trigger },
 };
 
 export const LiveTrackNoPlaylistAction: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Live/radio rows omit Add to playlist and Audio tools (no archive sound id).',
+      },
+    },
+  },
   args: { track: liveTrack, children: trigger },
 };

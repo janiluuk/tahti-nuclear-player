@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Badge, Button, Dialog, Tabs } from '@tahti-player/ui';
+import { Badge, Button, Dialog, StatChip, Tabs } from '@tahti-player/ui';
 
 import {
   fetchChannelManageStats,
@@ -73,26 +73,6 @@ function formatRemaining(seconds: number): string {
   return hours > 0
     ? `${hours}h ${minutes}m`
     : `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
-}
-
-function StatCell({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="border-border bg-background/40 flex min-h-20 flex-col justify-center gap-1 rounded-lg border p-3">
-      <div className="text-foreground-secondary flex items-center gap-1.5 text-[10px] tracking-wide uppercase">
-        {icon}
-        {label}
-      </div>
-      <span className="text-sm font-semibold tabular-nums">{value}</span>
-    </div>
-  );
 }
 
 export function StreamManagerPanel({
@@ -640,7 +620,7 @@ export function StreamManagerPanel({
           role="group"
           aria-label="Live stream status"
         >
-          <StatCell
+          <StatChip
             icon={
               rotationPlaying ? (
                 <ListMusicIcon size={14} aria-hidden />
@@ -651,7 +631,7 @@ export function StreamManagerPanel({
             label="Output"
             value={outputLabel}
           />
-          <StatCell
+          <StatChip
             icon={
               signalConnected ? (
                 <WifiIcon size={14} className="text-primary" aria-hidden />
@@ -672,7 +652,7 @@ export function StreamManagerPanel({
                       : 'No encoder'
             }
           />
-          <StatCell
+          <StatChip
             icon={<ActivityIcon size={14} aria-hidden />}
             label="Bitrate"
             value={
@@ -685,7 +665,7 @@ export function StreamManagerPanel({
                     : '—'
             }
           />
-          <StatCell
+          <StatChip
             icon={<Clock3Icon size={14} aria-hidden />}
             label="Time left"
             value={
@@ -696,7 +676,7 @@ export function StreamManagerPanel({
                 : '—'
             }
           />
-          <StatCell
+          <StatChip
             icon={<UsersIcon size={14} aria-hidden />}
             label="Listeners"
             value={
@@ -705,7 +685,7 @@ export function StreamManagerPanel({
                 : `${listeners ?? 0} / ${stats?.listenerPeak ?? 0}`
             }
           />
-          <StatCell
+          <StatChip
             icon={<TimerIcon size={14} aria-hidden />}
             label="Live for"
             value={

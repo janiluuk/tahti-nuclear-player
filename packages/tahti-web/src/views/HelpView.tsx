@@ -4,6 +4,7 @@ import {
   ArrowRightIcon,
   BookOpenIcon,
   HeadphonesIcon,
+  KeyboardIcon,
   LifeBuoyIcon,
   ListIcon,
   PlugIcon,
@@ -24,6 +25,7 @@ import {
   Tabs,
 } from '@tahti-player/ui';
 
+import { HelpKeyboardShortcuts } from '../components/HelpKeyboardShortcuts';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { StudioPanel } from '../components/StudioPanel';
 import { SupportContactForm } from '../components/SupportContactForm';
@@ -33,6 +35,7 @@ import {
   HELP_HUB_INTRO,
   type HelpArticle,
 } from '../content/help';
+import { KEYBOARD_NAVIGATION_SECTIONS } from '../content/keyboardNavigation';
 
 const PRODUCTION = 'https://tahti.live';
 
@@ -127,6 +130,13 @@ const QUICK_STARTS = [
     description: 'Create a channel and connect your broadcast software.',
     slug: 'for-artists',
     icon: RadioTowerIcon,
+  },
+  {
+    title: 'Keyboard navigation',
+    description:
+      'Global shortcuts for Listen, Radio, Library, Studio, and the tour.',
+    slug: 'keyboard-shortcuts',
+    icon: KeyboardIcon,
   },
   {
     title: 'I need support',
@@ -234,9 +244,18 @@ const DOCUMENT_GROUPS = [
 ] as const;
 
 function articleMatches(article: HelpArticle, query: string): boolean {
+  const keyboardExtra =
+    article.slug === 'keyboard-shortcuts'
+      ? KEYBOARD_NAVIGATION_SECTIONS.flatMap((section) => [
+          section.heading,
+          ...(section.notes ?? []),
+          ...section.rows.flatMap((row) => [row.label, row.shortcut]),
+        ])
+      : [];
   const haystack = [
     article.title,
     article.description,
+    ...keyboardExtra,
     ...article.sections.flatMap((section) => [
       section.heading,
       ...section.body,
@@ -579,86 +598,112 @@ export function HelpArticleView({ slug }: { slug: string }) {
               In this guide
             </div>
             <nav className="flex flex-col gap-2" aria-label="Article sections">
-              {article.sections.map((section, index) => (
-                <a
-                  key={`${section.heading}-${index}`}
-                  href={`#${sectionId(section.heading, index)}`}
-                  className="text-foreground-secondary hover:text-foreground text-xs leading-relaxed"
-                >
-                  {index + 1}. {section.heading}
-                </a>
-              ))}
+              {slug === 'keyboard-shortcuts'
+                ? KEYBOARD_NAVIGATION_SECTIONS.map((section, index) => {
+                    const id = section.heading
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/^-|-$/g, '');
+                    return (
+                      <a
+                        key={section.heading}
+                        href={`#${id || 'section'}`}
+                        className="text-foreground-secondary hover:text-foreground text-xs leading-relaxed"
+                      >
+                        {index + 1}. {section.heading}
+                      </a>
+                    );
+                  })
+                : article.sections.map((section, index) => (
+                    <a
+                      key={`${section.heading}-${index}`}
+                      href={`#${sectionId(section.heading, index)}`}
+                      className="text-foreground-secondary hover:text-foreground text-xs leading-relaxed"
+                    >
+                      {index + 1}. {section.heading}
+                    </a>
+                  ))}
             </nav>
           </Box>
         </aside>
 
         <article className="min-w-0">
           <div className="flex flex-col gap-4">
-            {article.sections.map((section, index) => (
+            {slug === 'keyboard-shortcuts' ? (
               <Box
-                key={`${section.heading}-${index}`}
-                id={sectionId(section.heading, index)}
                 variant="tertiary"
                 shadow="default"
                 className="scroll-mt-4 flex-col gap-3 sm:p-6"
               >
-                <div className="flex items-start gap-3">
-                  <Badge variant="pill" color="inverted">
-                    {index + 1}
-                  </Badge>
-                  <div className="min-w-0 flex-1">
-                    <h2 className="font-display text-xl font-bold tracking-tight">
-                      {section.heading}
-                    </h2>
-                    {section.body.length > 0 ? (
-                      <ul className="text-foreground-secondary mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed">
-                        {section.body.map((line) => (
-                          <li key={line}>{line}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                    {section.table ? (
-                      <div className="mt-4 overflow-x-auto">
-                        <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
-                          <caption className="sr-only">
-                            {section.heading}
-                          </caption>
-                          <thead>
-                            <tr className="border-border border-b">
-                              {section.table.columns.map((column) => (
-                                <th
-                                  key={column}
-                                  className="text-foreground px-2 py-2 font-semibold"
-                                >
-                                  {column}
-                                </th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {section.table.rows.map((row) => (
-                              <tr
-                                key={row.join('|')}
-                                className="border-border border-b last:border-b-0"
-                              >
-                                {row.map((cell, cellIndex) => (
-                                  <td
-                                    key={`${row[0]}-${cellIndex}`}
-                                    className="text-foreground-secondary px-2 py-2 align-top leading-relaxed"
+                <HelpKeyboardShortcuts />
+              </Box>
+            ) : (
+              article.sections.map((section, index) => (
+                <Box
+                  key={`${section.heading}-${index}`}
+                  id={sectionId(section.heading, index)}
+                  variant="tertiary"
+                  shadow="default"
+                  className="scroll-mt-4 flex-col gap-3 sm:p-6"
+                >
+                  <div className="flex items-start gap-3">
+                    <Badge variant="pill" color="inverted">
+                      {index + 1}
+                    </Badge>
+                    <div className="min-w-0 flex-1">
+                      <h2 className="font-display text-xl font-bold tracking-tight">
+                        {section.heading}
+                      </h2>
+                      {section.body.length > 0 ? (
+                        <ul className="text-foreground-secondary mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed">
+                          {section.body.map((line) => (
+                            <li key={line}>{line}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {section.table ? (
+                        <div className="mt-4 overflow-x-auto">
+                          <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
+                            <caption className="sr-only">
+                              {section.heading}
+                            </caption>
+                            <thead>
+                              <tr className="border-border border-b">
+                                {section.table.columns.map((column) => (
+                                  <th
+                                    key={column}
+                                    className="text-foreground px-2 py-2 font-semibold"
                                   >
-                                    {cell}
-                                  </td>
+                                    {column}
+                                  </th>
                                 ))}
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : null}
+                            </thead>
+                            <tbody>
+                              {section.table.rows.map((row) => (
+                                <tr
+                                  key={row.join('|')}
+                                  className="border-border border-b last:border-b-0"
+                                >
+                                  {row.map((cell, cellIndex) => (
+                                    <td
+                                      key={`${row[0]}-${cellIndex}`}
+                                      className="text-foreground-secondary px-2 py-2 align-top leading-relaxed"
+                                    >
+                                      {cell}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              </Box>
-            ))}
+                </Box>
+              ))
+            )}
           </div>
 
           {slug === 'support' && (

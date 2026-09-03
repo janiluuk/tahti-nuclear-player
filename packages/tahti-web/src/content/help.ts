@@ -401,33 +401,19 @@ export const HELP_ARTICLES: HelpArticle[] = [
     sections: [
       {
         heading: 'Page tour',
-        body: [
-          'H — open a guided tour of the current page, explaining what each nav item does.',
-          '← / → — move between tour steps. Esc or H again — close the tour.',
-          'The sidebar is explained everywhere; the top bar only on the homepage; Studio and Admin panel items while you’re inside those sections.',
-        ],
+        body: [],
       },
       {
         heading: 'Navigation',
-        body: [
-          'Alt+1 — Listen',
-          'Alt+2 — Radio',
-          'Alt+3 — Feed',
-          'Alt+4 — My Library',
-          'Alt+5 — Studio',
-        ],
+        body: [],
       },
       {
         heading: 'Player',
-        body: [
-          'V — toggle the full-screen player (only while a track is loaded).',
-        ],
+        body: [],
       },
       {
         heading: 'Notes',
-        body: [
-          'Shortcuts are disabled while typing in a text field, textarea, dropdown, or any editable content.',
-        ],
+        body: [],
       },
     ],
   },

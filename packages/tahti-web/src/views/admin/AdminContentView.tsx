@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, StatChip } from '@tahti-player/ui';
 
 import {
   fetchAdminContentOverview,
@@ -17,8 +17,6 @@ import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
-import { Eyebrow } from '../../components/tahti/Eyebrow';
-import { StatNumber } from '../../components/tahti/StatNumber';
 
 function formatDuration(durationSec: number | null | undefined): string {
   if (durationSec == null) {
@@ -64,7 +62,7 @@ export function AdminContentView() {
               </StudioPanel>
             ) : (
               <>
-                <div className="grid gap-3 sm:grid-cols-4">
+                <div className="flex flex-wrap gap-2">
                   {(
                     [
                       ['Tracks', data.counts.tracks, FileAudioIcon],
@@ -73,19 +71,18 @@ export function AdminContentView() {
                       ['Listens', data.counts.listens, Clock3Icon],
                     ] as const
                   ).map(([label, value, Icon]) => (
-                    <StudioPanel key={label} className="!p-4">
-                      <div className="flex items-center justify-between gap-2">
-                        <Eyebrow>{label}</Eyebrow>
+                    <StatChip
+                      key={label}
+                      value={value.toLocaleString()}
+                      label={label}
+                      icon={
                         <Icon
-                          size={17}
+                          size={16}
                           className="text-foreground-secondary"
                           aria-hidden
                         />
-                      </div>
-                      <StatNumber className="mt-1 block text-2xl">
-                        {value.toLocaleString()}
-                      </StatNumber>
-                    </StudioPanel>
+                      }
+                    />
                   ))}
                 </div>
                 <div className="grid gap-6 lg:grid-cols-2">

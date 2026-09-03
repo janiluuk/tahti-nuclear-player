@@ -16,6 +16,7 @@ import {
   Input,
   SaveButton,
   Select,
+  StatChip,
   Toggle,
 } from '@tahti-player/ui';
 
@@ -373,17 +374,14 @@ function ScheduleAnalytics() {
     >
       <div className="grid gap-3 sm:grid-cols-3">
         {(['1', '7', '30'] as const).map((range) => (
-          <div
-            key={range}
-            className="border-border bg-background-secondary/40 rounded-lg border p-3"
-          >
+          <div key={range} className="flex min-w-0 flex-col gap-2">
             <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
               Last {range} day{range === '1' ? '' : 's'}
             </p>
-            <p className="mt-2 text-2xl font-bold tabular-nums">
-              {stats[range]?.totalPlays.toLocaleString() ?? '—'}
-            </p>
-            <p className="text-foreground-secondary text-xs">plays</p>
+            <StatChip
+              value={stats[range]?.totalPlays.toLocaleString() ?? '—'}
+              label="Plays"
+            />
           </div>
         ))}
       </div>

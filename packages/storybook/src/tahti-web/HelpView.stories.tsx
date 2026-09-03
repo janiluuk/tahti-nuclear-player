@@ -74,3 +74,16 @@ export const Support: Story = {
   decorators: [withTahtiRouter('/help/support')],
   render: () => <HelpArticleView slug="support" />,
 };
+
+export const KeyboardNavigation: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Lives on `/help/keyboard-shortcuts`. Bindings use Storybook `KeyCombo` rows (same shape as Components/KeyCombo). Linked from the Help hub quick starts.',
+      },
+    },
+  },
+  decorators: [withTahtiRouter('/help/keyboard-shortcuts')],
+  render: () => <HelpArticleView slug="keyboard-shortcuts" />,
+};

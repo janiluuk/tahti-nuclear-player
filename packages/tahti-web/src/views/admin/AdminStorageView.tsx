@@ -20,6 +20,7 @@ import {
   Input,
   SaveButton,
   Select,
+  StatChip,
   Tabs,
 } from '@tahti-player/ui';
 
@@ -281,20 +282,11 @@ function DiskSpaceCard({
         <Icon size={18} aria-hidden className="text-primary" />
         <h3 className="font-display text-base font-bold">{title}</h3>
       </div>
-      <dl className="grid grid-cols-3 gap-3 text-sm">
-        <div>
-          <dt className="text-foreground-secondary text-xs uppercase">Used</dt>
-          <dd className="font-semibold">{formatBytes(space.usedBytes)}</dd>
-        </div>
-        <div>
-          <dt className="text-foreground-secondary text-xs uppercase">Free</dt>
-          <dd className="font-semibold">{formatBytes(space.freeBytes)}</dd>
-        </div>
-        <div>
-          <dt className="text-foreground-secondary text-xs uppercase">Total</dt>
-          <dd className="font-semibold">{formatBytes(space.totalBytes)}</dd>
-        </div>
-      </dl>
+      <div className="flex flex-wrap gap-2">
+        <StatChip value={formatBytes(space.usedBytes)} label="Used" />
+        <StatChip value={formatBytes(space.freeBytes)} label="Free" />
+        <StatChip value={formatBytes(space.totalBytes)} label="Total" />
+      </div>
       {pctUsed != null ? (
         <div className="bg-background-secondary mt-3 h-1.5 overflow-hidden rounded-full">
           <div

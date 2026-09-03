@@ -15,7 +15,15 @@ import { Button, TrackContextMenu } from '@tahti-player/ui';
 const meta: Meta<typeof TrackContextMenu> = {
   title: 'Components/TrackContextMenu',
   component: TrackContextMenu,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Track row overflow menu. Production: tahti-web `PlayableTrackContextMenu` and `StudioSoundRowMenu` use With Submenu for playlists / Audio tools.',
+      },
+    },
+  },
   tags: ['autodocs'],
 };
 

@@ -14,6 +14,7 @@ import {
   Input,
   SaveButton,
   Select,
+  StatChip,
   Textarea,
   Toggle,
 } from '@tahti-player/ui';
@@ -301,12 +302,19 @@ export function AdminUserEditPanel({
             </dd>
           </div>
           <div>
-            <dt className="text-foreground-secondary text-xs uppercase">
-              Followers
-            </dt>
-            <dd>
-              {publicProfile?.artist.followerCount ?? 'Hidden or unavailable'}
-            </dd>
+            {publicProfile?.artist.followerCount != null ? (
+              <StatChip
+                value={publicProfile.artist.followerCount}
+                label="Followers"
+              />
+            ) : (
+              <>
+                <dt className="text-foreground-secondary text-xs uppercase">
+                  Followers
+                </dt>
+                <dd>Hidden or unavailable</dd>
+              </>
+            )}
           </div>
           <div>
             <dt className="text-foreground-secondary text-xs uppercase">

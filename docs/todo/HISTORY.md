@@ -2,6 +2,12 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — SaveButton + StatChip sweep (0.0.57)
+
+Persist-edit controls use Storybook `SaveButton` (custom labels, Saving/Disabled). Create/publish stay `Button`. Studio Sound toolbar left icon-only. Disabled story added.
+
+`StatChip` now covers artist/channel followers, Studio home/stats/channel/schedule counts, track insights, fan-sub summary, admin dashboard/content KPIs, stream manager cells, admin user followers, and storage used/free/total. Chart-header totals and grant money stay `StatNumber`.
+
 ## 2026-09-03 — Playerbar/sidebar queue, revision picker, NewsWidget
 
 Playerbar queue uses `QueueItem` (current expanded, others collapsed) plus
