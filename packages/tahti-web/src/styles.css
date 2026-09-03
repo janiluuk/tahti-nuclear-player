@@ -13,6 +13,7 @@ body,
 .tahti-hide-scrollbar,
 [data-studio-shell],
 [role='tablist'] {
+  /* eslint-disable-next-line css/use-baseline -- widely supported in practice (Firefox/Chrome/Safari all ship it) */
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
