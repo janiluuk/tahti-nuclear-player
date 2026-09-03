@@ -21,6 +21,19 @@ FullScreenPlayer, MobileChrome, RightRail, GlobalSearch, SidebarQueuePanel,
 Listen / Discover / Feed. Listen also moved onto ViewShell. Remaining Studio /
 Admin / deep listener views still listed in `icon-button-tooltips.md`.
 
+## 2026-09-04 — TrackContextMenu sweep complete
+
+Checked queue (`ConnectedQueuePanel`/`SidebarQueuePanel`), history
+(`HistoryListSection`/`HistoryView`), and feed (`FeedView`) for hand-rolled
+context menus — none exist; those surfaces use inline icon buttons or card
+click affordances, not row overflow menus, so there is nothing to migrate.
+Sound-detail (`StudioSoundView`) Quick edits popover swapped from generic
+`Popover`/`Popover.Item` to `TrackContextMenu` (Header + Action), matching
+`StudioSoundRowMenu`'s pattern on the Sounds list. Added `disabled` support
+to `TrackContextMenuAction` (Radix `data-[disabled]` styling) since the
+generic `Popover.Item` had it and Quick edits needs it while an operation
+is in flight.
+
 ## 2026-09-04 — SaveButton + StatChip sweep (0.0.57)
 
 Persist-edit controls use Storybook `SaveButton` (custom labels, Saving/Disabled). Create/publish stay `Button`. Studio Sound toolbar left icon-only. Disabled story added.

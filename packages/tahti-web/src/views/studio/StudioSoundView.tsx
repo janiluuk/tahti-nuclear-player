@@ -22,11 +22,11 @@ import {
   Button,
   CreatableCombobox,
   Input,
-  Popover,
   Select,
   Tabs,
   Textarea,
   Toggle,
+  TrackContextMenu,
 } from '@tahti-player/ui';
 
 import {
@@ -436,11 +436,8 @@ export function StudioSoundView({ id }: { id: string }) {
                   </Button>
                 ) : null}
                 <span className="bg-border mx-1 h-5 w-px" aria-hidden />
-                <Popover
-                  className="relative"
-                  anchor="bottom end"
-                  panelClassName="w-56"
-                  trigger={
+                <TrackContextMenu>
+                  <TrackContextMenu.Trigger>
                     <Button
                       size="icon-sm"
                       variant="text"
@@ -450,44 +447,42 @@ export function StudioSoundView({ id }: { id: string }) {
                     >
                       <MoreHorizontalIcon size={16} aria-hidden />
                     </Button>
-                  }
-                >
-                  <Popover.Menu>
-                    <Popover.Section label="Quick edits">
-                      <Popover.Item
-                        disabled={quickBusy !== null}
-                        onClick={onNormalize}
-                        icon={<GaugeIcon size={16} aria-hidden />}
+                  </TrackContextMenu.Trigger>
+                  <TrackContextMenu.Content>
+                    <TrackContextMenu.Header title="Quick edits" />
+                    <TrackContextMenu.Action
+                      disabled={quickBusy !== null}
+                      onClick={onNormalize}
+                      icon={<GaugeIcon size={16} aria-hidden />}
+                    >
+                      {quickBusy === 'normalize'
+                        ? 'Normalizing…'
+                        : 'Normalize audio'}
+                    </TrackContextMenu.Action>
+                    <TrackContextMenu.Action
+                      disabled={quickBusy !== null}
+                      onClick={onAutoTrim}
+                      icon={<ScissorsIcon size={16} aria-hidden />}
+                    >
+                      {quickBusy === 'trim'
+                        ? 'Trimming silence…'
+                        : 'Trim silence'}
+                    </TrackContextMenu.Action>
+                    {masteringEnabled && (
+                      <TrackContextMenu.Action
+                        onClick={() =>
+                          void navigate({
+                            to: '/studio/mastering/$id',
+                            params: { id },
+                          })
+                        }
+                        icon={<SparklesIcon size={16} aria-hidden />}
                       >
-                        {quickBusy === 'normalize'
-                          ? 'Normalizing…'
-                          : 'Normalize audio'}
-                      </Popover.Item>
-                      <Popover.Item
-                        disabled={quickBusy !== null}
-                        onClick={onAutoTrim}
-                        icon={<ScissorsIcon size={16} aria-hidden />}
-                      >
-                        {quickBusy === 'trim'
-                          ? 'Trimming silence…'
-                          : 'Trim silence'}
-                      </Popover.Item>
-                      {masteringEnabled && (
-                        <Popover.Item
-                          onClick={() =>
-                            void navigate({
-                              to: '/studio/mastering/$id',
-                              params: { id },
-                            })
-                          }
-                          icon={<SparklesIcon size={16} aria-hidden />}
-                        >
-                          Master
-                        </Popover.Item>
-                      )}
-                    </Popover.Section>
-                  </Popover.Menu>
-                </Popover>
+                        Master
+                      </TrackContextMenu.Action>
+                    )}
+                  </TrackContextMenu.Content>
+                </TrackContextMenu>
                 <Link to="/studio/sounds/$id/editor" params={{ id }}>
                   <Button
                     size="icon-sm"
