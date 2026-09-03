@@ -99,40 +99,47 @@ export const MediaArtwork: FC<MediaArtworkProps> = ({
   const resolvedSrc = src ?? undefined;
   const iconPx = playIconSize[size];
   const overlayPx = overlayIconSize[size];
+  // At small/thumb/md sizes the card reads as crowded with more than a
+  // play control on it — only the two biggest presets (grid-card cover and
+  // an explicit `fill`) show queue/favorite/extra overlay actions. Smaller
+  // sizes still get onArtworkClick/onPlay, just not the secondary row.
+  const showSecondaryActions = size === 'lg' || size === 'fill';
 
-  const secondary: MediaArtworkAction[] = [
-    ...(onQueue
-      ? [
-          {
-            id: 'queue',
-            label: queueLabel,
-            icon: <ListPlus size={overlayPx} />,
-            onClick: onQueue,
-            disabled: queueDisabled,
-            active: queueActive,
-          } satisfies MediaArtworkAction,
-        ]
-      : []),
-    ...(onFavorite
-      ? [
-          {
-            id: 'favorite',
-            label: favorited ? unfavoriteLabel : favoriteLabel,
-            icon: (
-              <Heart
-                size={overlayPx}
-                className={
-                  favorited ? 'text-accent-red fill-current' : undefined
-                }
-              />
-            ),
-            onClick: onFavorite,
-            active: favorited,
-          } satisfies MediaArtworkAction,
-        ]
-      : []),
-    ...actions,
-  ];
+  const secondary: MediaArtworkAction[] = !showSecondaryActions
+    ? []
+    : [
+        ...(onQueue
+          ? [
+              {
+                id: 'queue',
+                label: queueLabel,
+                icon: <ListPlus size={overlayPx} />,
+                onClick: onQueue,
+                disabled: queueDisabled,
+                active: queueActive,
+              } satisfies MediaArtworkAction,
+            ]
+          : []),
+        ...(onFavorite
+          ? [
+              {
+                id: 'favorite',
+                label: favorited ? unfavoriteLabel : favoriteLabel,
+                icon: (
+                  <Heart
+                    size={overlayPx}
+                    className={
+                      favorited ? 'text-accent-red fill-current' : undefined
+                    }
+                  />
+                ),
+                onClick: onFavorite,
+                active: favorited,
+              } satisfies MediaArtworkAction,
+            ]
+          : []),
+        ...actions,
+      ];
 
   const stop = (e: MouseEvent) => {
     e.preventDefault();

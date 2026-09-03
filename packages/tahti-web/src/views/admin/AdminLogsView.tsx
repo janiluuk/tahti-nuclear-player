@@ -17,6 +17,17 @@ import { AdminActivityView } from './AdminActivityView';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
+function toAuditLogEntry(entry: AdminAuditRow): LogEntryData {
+  return {
+    id: entry.id,
+    timestamp: new Date(entry.createdAt),
+    level: 'info',
+    target: 'audit',
+    source: { type: 'core', scope: entry.action },
+    message: `Actor ${entry.actorId}`,
+  };
+}
+
 function RecentAuditEntries() {
   const [entries, setEntries] = useState<AdminAuditRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +39,9 @@ function RecentAuditEntries() {
     });
   }, []);
 
+  const logs = entries.map(toAuditLogEntry);
+  const scopes = [...new Set(logs.map((l) => l.source.scope))].sort();
+
   return (
     <StudioPanel title="Recent audit entries">
       {loading ? (
@@ -37,27 +51,26 @@ function RecentAuditEntries() {
           No recent audit entries.
         </p>
       ) : (
-        <ul className="divide-border divide-y">
-          {entries.map((entry) => (
-            <li
-              key={entry.id}
-              className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
-            >
-              <div>
-                <p className="font-medium">{entry.action}</p>
-                <p className="text-foreground-secondary text-xs">
-                  Actor {entry.actorId}
-                </p>
-              </div>
-              <time
-                className="text-foreground-secondary text-xs"
-                dateTime={entry.createdAt}
-              >
-                {new Date(entry.createdAt).toLocaleString()}
-              </time>
-            </li>
-          ))}
-        </ul>
+        <div className="h-[50vh]">
+          <LogViewer.Root
+            logs={logs}
+            scopes={scopes}
+            onClear={() => {}}
+            onExport={() => {}}
+            onOpenLogFolder={() => {}}
+          >
+            <div className="flex flex-wrap items-center gap-4">
+              <LogViewer.SearchInput />
+              <LogViewer.DateRangeFilter />
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <LogViewer.ScopeFilter />
+              <LogViewer.EntryCount />
+            </div>
+            <LogViewer.VirtualizedList />
+            <LogViewer.EntryDetailDialog />
+          </LogViewer.Root>
+        </div>
       )}
     </StudioPanel>
   );
@@ -131,12 +144,14 @@ export function AdminLogsView() {
           >
             <div className="flex flex-wrap items-center gap-4">
               <LogViewer.SearchInput />
+              <LogViewer.DateRangeFilter />
             </div>
             <div className="flex flex-wrap items-center gap-4">
               <LogViewer.ScopeFilter />
               <LogViewer.EntryCount />
             </div>
             <LogViewer.VirtualizedList />
+            <LogViewer.EntryDetailDialog />
           </LogViewer.Root>
         </div>
       )}

@@ -161,45 +161,6 @@ exports[`HistoryRow > (Snapshot) renders with artwork and all actions 1`] = `
               />
             </svg>
           </button>
-          <button
-            aria-label="Add to queue"
-            aria-pressed="false"
-            class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-4 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
-            data-headlessui-state=""
-            data-testid="media-artwork-queue"
-            title="Add to queue"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              class="lucide lucide-list-plus"
-              fill="none"
-              height="12"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-              width="12"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M11 12H3"
-              />
-              <path
-                d="M16 6H3"
-              />
-              <path
-                d="M16 18H3"
-              />
-              <path
-                d="M18 9v6"
-              />
-              <path
-                d="M21 12h-6"
-              />
-            </svg>
-          </button>
         </div>
       </div>
     </div>

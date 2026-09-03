@@ -493,4 +493,75 @@ describe('LogViewer', () => {
     expect(pluginsChip.tagName).toBe('BUTTON');
     expect(appChip.tagName).toBe('SPAN');
   });
+
+  it('clicking a log row opens the full entry in a modal', async () => {
+    const user = userEvent.setup();
+    const { getByText, getByRole } = render(
+      <LogViewer
+        logs={sampleLogs}
+        scopes={['plugins']}
+        onClear={vi.fn()}
+        onExport={vi.fn()}
+        onOpenLogFolder={vi.fn()}
+      />,
+    );
+
+    await user.click(getByText('Plugin failed to load'));
+
+    const dialog = getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(dialog.textContent).toContain('Plugin failed to load');
+    expect(dialog.textContent).toContain('error');
+  });
+
+  it('clicking a level badge does not also open the entry modal', async () => {
+    const user = userEvent.setup();
+    const { getAllByTestId, queryByRole } = render(
+      <LogViewer
+        logs={sampleLogs}
+        scopes={['plugins']}
+        onClear={vi.fn()}
+        onExport={vi.fn()}
+        onOpenLogFolder={vi.fn()}
+      />,
+    );
+
+    const levelBadges = getAllByTestId('log-level');
+    await user.click(levelBadges[0]!);
+
+    expect(queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('filters logs by date range', async () => {
+    // datetime-local inputs are minute-granularity, so use minute-spaced
+    // timestamps here rather than sampleLogs' sub-second offsets.
+    const spacedLogs: LogEntryData[] = [
+      createLog('early', 'error', 'plugins', 'Plugin failed to load', 0),
+      createLog('late', 'debug', 'plugins', 'Buffer status', 3 * 60 * 1000),
+    ];
+    const user = userEvent.setup();
+    const { getByTestId, queryByText } = render(
+      <LogViewer
+        logs={spacedLogs}
+        scopes={['plugins']}
+        onClear={vi.fn()}
+        onExport={vi.fn()}
+        onOpenLogFolder={vi.fn()}
+      />,
+    );
+
+    expect(queryByText('Plugin failed to load')).toBeInTheDocument();
+    expect(queryByText('Buffer status')).toBeInTheDocument();
+
+    await user.click(getByTestId('log-date-range-toggle'));
+    const from = getByTestId('log-date-range-form').querySelector(
+      'input[type="datetime-local"]',
+    ) as HTMLInputElement;
+    // baseTimestamp is 2026-02-05T10:00:00Z; 'late' is +3min, 'early' is +0.
+    await user.type(from, '2026-02-05T10:02');
+    await user.click(getByTestId('log-date-range-apply'));
+
+    expect(queryByText('Plugin failed to load')).not.toBeInTheDocument();
+    expect(queryByText('Buffer status')).toBeInTheDocument();
+  });
 });

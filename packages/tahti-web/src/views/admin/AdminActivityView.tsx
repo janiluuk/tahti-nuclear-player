@@ -201,6 +201,7 @@ export function AdminActivityView({
           >
             <div className="flex flex-wrap items-center gap-4">
               <LogViewer.SearchInput />
+              <LogViewer.DateRangeFilter />
             </div>
             <div className="flex flex-wrap items-center gap-4">
               <LogViewer.LevelFilter />
@@ -208,6 +209,7 @@ export function AdminActivityView({
               <LogViewer.EntryCount />
             </div>
             <LogViewer.VirtualizedList />
+            <LogViewer.EntryDetailDialog />
           </LogViewer.Root>
         </div>
       )}

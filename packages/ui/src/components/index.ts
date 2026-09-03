@@ -7,6 +7,7 @@ export * from './CardsRow';
 export * from './Combobox';
 export * from './CopyButton';
 export * from './Dialog';
+export * from './DropdownButton';
 export * from './FavoriteButton';
 export * from './FilePicker';
 export * from './MediaArtwork';

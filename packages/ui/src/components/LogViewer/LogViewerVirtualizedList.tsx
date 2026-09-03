@@ -8,7 +8,8 @@ import { useLogEntryHandlers } from './useLogEntryHandlers';
 const ESTIMATED_ROW_HEIGHT = 32;
 
 const LogViewerVirtualizedListImpl: FC = () => {
-  const { filteredLogs, searchResult, labels } = useLogViewerContext();
+  const { filteredLogs, searchResult, labels, setSelectedEntry } =
+    useLogViewerContext();
   const { handleLevelClick, handleScopeClick, isScopeClickable } =
     useLogEntryHandlers();
   const parentRef = useRef<HTMLDivElement>(null);
@@ -61,6 +62,7 @@ const LogViewerVirtualizedListImpl: FC = () => {
                   onLevelClick={handleLevelClick}
                   onScopeClick={handleScopeClick}
                   isScopeClickable={isScopeClickable}
+                  onEntryClick={setSelectedEntry}
                 />
               </div>
             );

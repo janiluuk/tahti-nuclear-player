@@ -7,6 +7,7 @@ import {
   ImageIcon,
   LinkIcon,
   PlaySquareIcon,
+  RotateCcwIcon,
   SettingsIcon,
   Trash2Icon,
 } from 'lucide-react';
@@ -23,6 +24,7 @@ import {
   Badge,
   Button,
   Dialog,
+  DropdownButton,
   FilePicker,
   Input,
   PluginItem,
@@ -293,6 +295,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     const [presetBusy, setPresetBusy] = useState(false);
     const [deletePresetTarget, setDeletePresetTarget] =
       useState<ChannelVisualPreset | null>(null);
+    const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
     const [appliedPresetName, setAppliedPresetName] = useState<string | null>(
       null,
     );
@@ -830,6 +833,16 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     const revertAppliedPreset = () => {
       loadFromServer();
       setAppliedPresetName(null);
+    };
+
+    /** Discards unsaved edits, restoring the live saved look — same replay
+     * as `revertAppliedPreset` above, gated by an explicit confirm since
+     * this can throw away more than a single unsaved preset apply. */
+    const confirmReset = () => {
+      loadFromServer();
+      setAppliedPresetName(null);
+      setResetConfirmOpen(false);
+      toast.success('Reset to your last saved version.');
     };
 
     const confirmDeletePreset = async () => {
@@ -1905,9 +1918,24 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       <>
         <div className={`flex flex-col gap-4 ${compact ? '' : 'w-full'}`}>
           <div className="flex flex-wrap items-center justify-end gap-3">
-            <Button variant="secondary" onClick={openSavePresetModal}>
-              <BookmarkPlusIcon size={16} /> Save preset
-            </Button>
+            <DropdownButton
+              label="More"
+              items={[
+                {
+                  id: 'save-preset',
+                  label: 'Save preset',
+                  icon: <BookmarkPlusIcon size={16} />,
+                  onClick: openSavePresetModal,
+                },
+                {
+                  id: 'reset',
+                  label: 'Reset',
+                  icon: <RotateCcwIcon size={16} />,
+                  disabled: !dirty,
+                  onClick: () => setResetConfirmOpen(true),
+                },
+              ]}
+            />
             {saveButton}
             {openChannelLink}
           </div>
@@ -2345,6 +2373,21 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             >
               Delete preset
             </Button>
+          </Dialog.Actions>
+        </Dialog.Root>
+
+        <Dialog.Root
+          isOpen={resetConfirmOpen}
+          onClose={() => setResetConfirmOpen(false)}
+        >
+          <Dialog.Title>Reset unsaved changes?</Dialog.Title>
+          <Dialog.Description>
+            This discards everything you&apos;ve changed since the last save and
+            restores your live look. This can&apos;t be undone.
+          </Dialog.Description>
+          <Dialog.Actions>
+            <Dialog.Close>Cancel</Dialog.Close>
+            <Button onClick={confirmReset}>Reset</Button>
           </Dialog.Actions>
         </Dialog.Root>
       </>

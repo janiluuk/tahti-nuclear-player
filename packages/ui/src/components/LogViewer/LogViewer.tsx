@@ -2,7 +2,9 @@ import { FC } from 'react';
 
 import type { LogEntryData } from '../LogEntry';
 import { LogViewerLabels } from './context';
+import { LogDateRangeFilter } from './LogDateRangeFilter';
 import { LogEntryCount } from './LogEntryCount';
+import { LogEntryDetailDialog } from './LogEntryDetailDialog';
 import { LogLevelFilter } from './LogLevelFilter';
 import { LogScopeFilter } from './LogScopeFilter';
 import { LogSearchInput } from './LogSearchInput';
@@ -25,9 +27,11 @@ type LogViewerComponent = FC<LogViewerProps> & {
   SearchInput: typeof LogSearchInput;
   LevelFilter: typeof LogLevelFilter;
   ScopeFilter: typeof LogScopeFilter;
+  DateRangeFilter: typeof LogDateRangeFilter;
   Toolbar: typeof LogToolbar;
   EntryCount: typeof LogEntryCount;
   VirtualizedList: typeof LogViewerVirtualizedList;
+  EntryDetailDialog: typeof LogEntryDetailDialog;
 };
 
 const LogViewerImpl: FC<LogViewerProps> = ({
@@ -50,6 +54,7 @@ const LogViewerImpl: FC<LogViewerProps> = ({
   >
     <div className="flex flex-wrap items-center gap-4">
       <LogSearchInput />
+      <LogDateRangeFilter />
       <LogToolbar />
     </div>
 
@@ -60,6 +65,7 @@ const LogViewerImpl: FC<LogViewerProps> = ({
     </div>
 
     <LogViewerVirtualizedList />
+    <LogEntryDetailDialog />
   </LogViewerRoot>
 );
 
@@ -68,6 +74,8 @@ LogViewer.Root = LogViewerRoot;
 LogViewer.SearchInput = LogSearchInput;
 LogViewer.LevelFilter = LogLevelFilter;
 LogViewer.ScopeFilter = LogScopeFilter;
+LogViewer.DateRangeFilter = LogDateRangeFilter;
 LogViewer.Toolbar = LogToolbar;
 LogViewer.EntryCount = LogEntryCount;
 LogViewer.VirtualizedList = LogViewerVirtualizedList;
+LogViewer.EntryDetailDialog = LogEntryDetailDialog;

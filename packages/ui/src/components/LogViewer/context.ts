@@ -7,6 +7,8 @@ type SearchResult = {
   isValid: boolean;
 };
 
+export type LogDateRange = { from: Date | null; to: Date | null };
+
 export type LogViewerLabels = {
   searchPlaceholder: string;
   searchAriaLabel: string;
@@ -18,6 +20,12 @@ export type LogViewerLabels = {
   noLogsMessage: string;
   invalidRegexMessage: string;
   entryCount: (count: number) => string;
+  dateRangeButtonLabel: string;
+  dateRangeFromLabel: string;
+  dateRangeToLabel: string;
+  dateRangeApplyButton: string;
+  dateRangeClearButton: string;
+  entryDetailTitle: string;
 };
 
 export const defaultLabels: LogViewerLabels = {
@@ -31,6 +39,12 @@ export const defaultLabels: LogViewerLabels = {
   noLogsMessage: 'No logs to display',
   invalidRegexMessage: 'Invalid regex pattern',
   entryCount: (count) => (count === 1 ? '1 entry' : `${count} entries`),
+  dateRangeButtonLabel: 'Date range',
+  dateRangeFromLabel: 'From',
+  dateRangeToLabel: 'To',
+  dateRangeApplyButton: 'Apply',
+  dateRangeClearButton: 'Clear',
+  entryDetailTitle: 'Log entry',
 };
 
 export type LogViewerContextValue = {
@@ -47,6 +61,12 @@ export type LogViewerContextValue = {
 
   selectedScopes: string[];
   setSelectedScopes: (scopes: string[]) => void;
+
+  dateRange: LogDateRange;
+  setDateRange: (range: LogDateRange) => void;
+
+  selectedEntry: LogEntryData | null;
+  setSelectedEntry: (entry: LogEntryData | null) => void;
 
   onClear: () => void;
   onExport: () => void | Promise<void>;

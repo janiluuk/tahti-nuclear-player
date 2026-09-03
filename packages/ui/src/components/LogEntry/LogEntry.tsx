@@ -66,6 +66,9 @@ export type LogEntryProps = ComponentProps<'div'> & {
   onLevelClick: (level: string) => void;
   onScopeClick: (scope: string) => void;
   isScopeClickable?: (scope: string) => boolean;
+  /** Opens the full-entry detail modal. Omit to keep the row non-clickable
+   * (existing behavior, unchanged). */
+  onEntryClick?: (entry: LogEntryData) => void;
 };
 
 const LogEntryImpl: FC<LogEntryProps> = ({
@@ -74,7 +77,9 @@ const LogEntryImpl: FC<LogEntryProps> = ({
   onLevelClick,
   onScopeClick,
   isScopeClickable,
+  onEntryClick,
   className,
+  onClick,
   ...props
 }) => {
   const formattedTime = DateTime.fromJSDate(entry.timestamp).toFormat(
@@ -95,8 +100,23 @@ const LogEntryImpl: FC<LogEntryProps> = ({
         'group border-border/50 relative grid grid-cols-[auto_auto_auto_auto_1fr] items-start gap-2 border-b px-2 py-2 font-mono text-sm',
         levelBorderVariants({ level: entry.level }),
         index !== undefined && index % 2 === 1 ? 'bg-foreground/[0.03]' : '',
+        onEntryClick && 'cursor-pointer',
         className,
       )}
+      onClick={
+        onEntryClick || onClick
+          ? (e) => {
+              onClick?.(e);
+              // Ignore clicks on nested interactive controls (expand
+              // toggle, level/scope chips, copy button) — only the empty
+              // row area opens the detail modal.
+              if ((e.target as HTMLElement).closest('button')) {
+                return;
+              }
+              onEntryClick?.(entry);
+            }
+          : undefined
+      }
       {...props}
     >
       <div className="flex w-4 items-center justify-center pt-0.5">

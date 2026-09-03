@@ -4,6 +4,7 @@ import { cn } from '../../utils';
 import type { LogEntryData } from '../LogEntry';
 import {
   defaultLabels,
+  LogDateRange,
   LogViewerContext,
   LogViewerLabels,
   parseSearch,
@@ -32,6 +33,11 @@ export const LogViewerRoot: FC<LogViewerRootProps> = ({
   const [search, setSearch] = useState('');
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<LogDateRange>({
+    from: null,
+    to: null,
+  });
+  const [selectedEntry, setSelectedEntry] = useState<LogEntryData | null>(null);
 
   const labels = useMemo(
     () => ({ ...defaultLabels, ...labelOverrides }),
@@ -63,9 +69,15 @@ export const LogViewerRoot: FC<LogViewerRootProps> = ({
       if (regex && !regex.test(log.message)) {
         return false;
       }
+      if (dateRange.from && log.timestamp < dateRange.from) {
+        return false;
+      }
+      if (dateRange.to && log.timestamp > dateRange.to) {
+        return false;
+      }
       return true;
     });
-  }, [logs, searchResult, selectedLevels, selectedScopes]);
+  }, [logs, searchResult, selectedLevels, selectedScopes, dateRange]);
 
   const contextValue = useMemo(
     () => ({
@@ -79,6 +91,10 @@ export const LogViewerRoot: FC<LogViewerRootProps> = ({
       setSelectedLevels,
       selectedScopes,
       setSelectedScopes,
+      dateRange,
+      setDateRange,
+      selectedEntry,
+      setSelectedEntry,
       onClear,
       onExport,
       onOpenLogFolder,
@@ -92,6 +108,8 @@ export const LogViewerRoot: FC<LogViewerRootProps> = ({
       searchResult,
       selectedLevels,
       selectedScopes,
+      dateRange,
+      selectedEntry,
       onClear,
       onExport,
       onOpenLogFolder,
