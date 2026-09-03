@@ -1,5 +1,33 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Persistent-chrome and leftover tabs + badges (ten slices)
+
+Bumped `@tahti-player/tahti-web` to `0.0.50`.
+
+**Slice 1 — Listen:** Listen / Feed / Favorites / History use `Tabs`.
+
+**Slice 2 — Library:** Sounds / Collections / Recordings / Media / Stash / Embeds / Smart links use `Tabs`.
+
+**Slice 3 — AdminNav:** Overview / Community / Content / Manage section tabs use `Tabs` (`data-admin-section-tabs` stays on the layout wrapper).
+
+**Slice 4 — SectionTabs:** Admin submenu Links use `Tabs` + `navigate`.
+
+**Slice 5 — Stash:** All stash / Move to stash use `Tabs`.
+
+**Slice 6 — Show detail:** Overview / Episodes / Recordings use `Tabs`.
+
+**Slice 7 — 24/7 programme:** Programme / Active rotation use `Tabs`.
+
+**Slice 8 — Right rail:** Chat / Notifications use `Tabs` when expanded; collapsed icon buttons stay buttons.
+
+**Slice 9 — AppTopNav:** Unread notification and message counts use `Badge`.
+
+**Slice 10 — Membership, rail counts, Discover Live:** Active-member pill, rail unread counts, and Discover Live use `Badge`.
+
+No remaining hand-built `role="tablist"` strips in tahti-web. StudioNav stays wrap `Link`s, not a tablist.
+
+**Validation:** tahti-web type-check and eslint on the touched files. Browser-checked Listen, Library, Admin, and Stash; Listen and Studio chrome stayed selected.
+
 ## 2026-09-03 — In-page tab strips to Nuclear Tabs (ten slices)
 
 Bumped `@tahti-player/tahti-web` to `0.0.49`.

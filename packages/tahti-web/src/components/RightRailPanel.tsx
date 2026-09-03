@@ -1,6 +1,8 @@
 import { Bell, Check, MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { Badge, Tabs } from '@tahti-player/ui';
+
 import {
   dismissNotification,
   fetchNotifications,
@@ -58,9 +60,13 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
         >
           <Bell size={18} />
           {notifications.length > 0 ? (
-            <span className="bg-accent-red text-accent-foreground absolute -top-1 -right-1 min-w-3 rounded-full px-1 text-center text-[9px] leading-3">
+            <Badge
+              variant="pill"
+              color="red"
+              className="absolute -top-1 -right-1 min-w-3 px-1 text-center text-[9px] leading-3"
+            >
               {notifications.length}
-            </span>
+            </Badge>
           ) : null}
         </button>
       </div>
@@ -69,31 +75,38 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
 
   return (
     <div className="flex h-full min-h-0 flex-col" data-testid="right-rail">
-      <div className="border-border flex shrink-0 items-center gap-1 border-b px-2 py-1">
-        <button
-          type="button"
-          className={`flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold uppercase ${tab === 'chat' ? 'bg-primary text-primary-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
-          aria-selected={tab === 'chat'}
-          onClick={() => setTab('chat')}
+      <Tabs.Root
+        className="shrink-0 gap-0"
+        selectedIndex={tab === 'notifications' ? 1 : 0}
+        onChange={(index) => setTab(index === 1 ? 'notifications' : 'chat')}
+      >
+        <Tabs.List
+          aria-label="Chat and notifications"
+          className="border-border shrink-0 border-b px-2 py-1"
         >
-          <MessageCircle size={13} />
-          Chat
-        </button>
-        <button
-          type="button"
-          className={`flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold uppercase ${tab === 'notifications' ? 'bg-primary text-primary-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
-          aria-selected={tab === 'notifications'}
-          onClick={() => setTab('notifications')}
-        >
-          <Bell size={13} />
-          Notifications
-          {notifications.length > 0 ? (
-            <span className="bg-accent-red text-accent-foreground ml-0.5 rounded-full px-1.5 text-[9px]">
-              {notifications.length}
+          <Tabs.Tab>
+            <span className="inline-flex items-center gap-1">
+              <MessageCircle size={13} aria-hidden />
+              Chat
             </span>
-          ) : null}
-        </button>
-      </div>
+          </Tabs.Tab>
+          <Tabs.Tab>
+            <span className="inline-flex items-center gap-1">
+              <Bell size={13} aria-hidden />
+              Notifications
+              {notifications.length > 0 ? (
+                <Badge
+                  variant="pill"
+                  color="red"
+                  className="ml-0.5 min-w-3 px-1.5 text-[9px] leading-3"
+                >
+                  {notifications.length}
+                </Badge>
+              ) : null}
+            </span>
+          </Tabs.Tab>
+        </Tabs.List>
+      </Tabs.Root>
 
       <div className="min-h-0 flex-1 overflow-hidden">
         {tab === 'notifications' ? (

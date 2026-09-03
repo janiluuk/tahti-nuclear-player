@@ -6,9 +6,14 @@ import { useTabsContext } from './context';
 
 type TabsListProps = PropsWithChildren<{
   className?: string;
+  'aria-label'?: string;
 }>;
 
-export const TabsList: FC<TabsListProps> = ({ children, className }) => {
+export const TabsList: FC<TabsListProps> = ({
+  children,
+  className,
+  'aria-label': ariaLabel,
+}) => {
   const {
     ids: { listId },
     listClassName,
@@ -16,6 +21,7 @@ export const TabsList: FC<TabsListProps> = ({ children, className }) => {
   return (
     <TabList
       id={listId}
+      aria-label={ariaLabel}
       className={cn('flex w-full items-center gap-2', listClassName, className)}
     >
       {children}

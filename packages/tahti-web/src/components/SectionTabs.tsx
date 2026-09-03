@@ -1,5 +1,7 @@
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+
+import { Tabs } from '@tahti-player/ui';
 
 export type SectionTabsItem = {
   id: string;
@@ -22,25 +24,34 @@ export function SectionTabs({
   items: SectionTabsItem[];
   'aria-label': string;
 }) {
+  const navigate = useNavigate();
+  const selectedIndex = items.findIndex((item) => item.active);
+
   return (
-    <nav aria-label={ariaLabel} className="flex flex-wrap gap-2" role="tablist">
-      {items.map((item) => (
-        <Link
-          key={item.id}
-          to={item.to}
-          role="tab"
-          aria-selected={item.active}
-          aria-current={item.active ? 'page' : undefined}
-          className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] font-semibold whitespace-nowrap ${
-            item.active
-              ? 'bg-primary text-primary-foreground'
-              : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
-          }`}
-        >
-          <span className="shrink-0 [&>svg]:size-3.5">{item.icon}</span>
-          {item.label}
-        </Link>
-      ))}
-    </nav>
+    <Tabs.Root
+      selectedIndex={Math.max(0, selectedIndex)}
+      onChange={(index) => {
+        const next = items[index];
+        if (next) {
+          void navigate({ to: next.to as never });
+        }
+      }}
+      tabClassName={
+        selectedIndex < 0
+          ? 'data-[selected]:bg-transparent data-[selected]:text-foreground-secondary'
+          : undefined
+      }
+    >
+      <Tabs.List aria-label={ariaLabel} className="w-fit flex-wrap">
+        {items.map((item) => (
+          <Tabs.Tab key={item.id}>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="shrink-0 [&>svg]:size-3.5">{item.icon}</span>
+              {item.label}
+            </span>
+          </Tabs.Tab>
+        ))}
+      </Tabs.List>
+    </Tabs.Root>
   );
 }

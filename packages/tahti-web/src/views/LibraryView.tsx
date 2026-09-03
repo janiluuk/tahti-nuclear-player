@@ -1,6 +1,8 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { HardDriveIcon, HeadphonesIcon, Music2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+
+import { Tabs } from '@tahti-player/ui';
 
 import { fetchStudioSounds } from '../api/studio';
 import {
@@ -39,6 +41,40 @@ const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
 const libraryNavRoute = (tab: Tab): string =>
   tab === 'media' ? '/library/collections' : LIBRARY_ROUTE_BY_TAB[tab];
 
+const LIBRARY_SECTION_TABS = [
+  { id: 'sounds' as const, label: 'Sounds', to: '/library/sounds' },
+  {
+    id: 'collections' as const,
+    label: 'Collections',
+    to: '/library/collections',
+  },
+  {
+    id: 'recordings' as const,
+    label: 'Recordings',
+    to: '/library/collections?tab=recordings',
+  },
+  {
+    id: 'media' as const,
+    label: 'Media',
+    to: '/library/collections?tab=media',
+  },
+  {
+    id: 'stash' as const,
+    label: 'Stash',
+    to: '/library/collections?tab=stash',
+  },
+  {
+    id: 'embeds' as const,
+    label: 'Embeds',
+    to: '/library/collections?tab=embeds',
+  },
+  {
+    id: 'smartlinks' as const,
+    label: 'Smart links',
+    to: '/library/smartlinks',
+  },
+];
+
 export function LibraryView({
   tab = 'library',
   collectionTab,
@@ -59,6 +95,7 @@ export function LibraryView({
         ? 'smartlinks'
         : activeCollectionTab
       : null;
+  const navigate = useNavigate();
 
   return (
     <div className="studio-page-layout flex w-full flex-col gap-6">
@@ -94,41 +131,27 @@ export function LibraryView({
             }
             subtitle="Your sounds, collections, recordings, media, and imported embeds."
           />
-          <nav
-            aria-label="Library sections"
-            className="border-border mt-4 flex w-full gap-1 overflow-x-auto border-b"
-            role="tablist"
+          <Tabs.Root
+            selectedIndex={Math.max(
+              0,
+              LIBRARY_SECTION_TABS.findIndex((item) => item.id === overviewTab),
+            )}
+            onChange={(index) => {
+              const next = LIBRARY_SECTION_TABS[index];
+              if (next) {
+                void navigate({ to: next.to as never });
+              }
+            }}
           >
-            {(
-              [
-                ['sounds', 'Sounds', '/library/sounds'],
-                ['collections', 'Collections', '/library/collections'],
-                [
-                  'recordings',
-                  'Recordings',
-                  '/library/collections?tab=recordings',
-                ],
-                ['media', 'Media', '/library/collections?tab=media'],
-                ['stash', 'Stash', '/library/collections?tab=stash'],
-                ['embeds', 'Embeds', '/library/collections?tab=embeds'],
-                ['smartlinks', 'Smart links', '/library/smartlinks'],
-              ] as const
-            ).map(([id, label, to]) => (
-              <Link
-                key={id}
-                to={to as never}
-                role="tab"
-                aria-selected={overviewTab === id}
-                className={`border-b-2 px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
-                  overviewTab === id
-                    ? 'border-primary text-foreground'
-                    : 'text-foreground-secondary hover:text-foreground border-transparent'
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
+            <Tabs.List
+              aria-label="Library sections"
+              className="mt-4 overflow-x-auto"
+            >
+              {LIBRARY_SECTION_TABS.map((item) => (
+                <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs.Root>
           {tab === 'sounds' && (
             <div className="mt-6">
               <MyDiscographyView />

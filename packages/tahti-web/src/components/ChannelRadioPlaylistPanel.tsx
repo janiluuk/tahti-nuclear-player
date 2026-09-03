@@ -9,6 +9,7 @@ import {
   Input,
   SaveButton,
   Select,
+  Tabs,
   Toggle,
 } from '@tahti-player/ui';
 
@@ -343,35 +344,20 @@ export const ChannelRadioPlaylistPanel: FC = () => {
         </div>
       </header>
 
-      <nav
-        className="border-border flex flex-wrap gap-1 border-b px-4 pt-3 sm:px-5"
-        role="tablist"
-        aria-label="24/7 programme sections"
+      <Tabs.Root
+        selectedIndex={activeTab === 'rotation' ? 1 : 0}
+        onChange={(index) =>
+          setActiveTab(index === 1 ? 'rotation' : 'programme')
+        }
       >
-        {(
-          [
-            ['programme', 'Programme'],
-            ['rotation', `Active rotation (${rotation.length})`],
-          ] as const
-        ).map(([id, label]) => (
-          <Button
-            key={id}
-            type="button"
-            size="sm"
-            variant="text"
-            role="tab"
-            aria-selected={activeTab === id}
-            onClick={() => setActiveTab(id)}
-            className={
-              activeTab === id
-                ? 'bg-accent-orange text-accent-foreground rounded-t-md'
-                : 'text-foreground-secondary rounded-t-md'
-            }
-          >
-            {label}
-          </Button>
-        ))}
-      </nav>
+        <Tabs.List
+          aria-label="24/7 programme sections"
+          className="border-border flex-wrap border-b px-4 pt-3 sm:px-5"
+        >
+          <Tabs.Tab>Programme</Tabs.Tab>
+          <Tabs.Tab>Active rotation ({rotation.length})</Tabs.Tab>
+        </Tabs.List>
+      </Tabs.Root>
 
       {activeTab === 'programme' ? (
         <div className="grid gap-4 p-4 lg:grid-cols-2 lg:p-5">

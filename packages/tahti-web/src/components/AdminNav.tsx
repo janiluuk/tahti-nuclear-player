@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
+import { Tabs } from '@tahti-player/ui';
+
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
 import { SectionTabs } from './SectionTabs';
@@ -277,38 +279,40 @@ function useAdminNavParts(
   );
   const section = routeSection;
 
+  const selectedSectionIndex = ADMIN_SECTIONS.findIndex(
+    (item) => item.id === section?.id,
+  );
   const tabs = (
     <div
-      aria-label="Admin sections"
-      className="border-border flex w-fit max-w-full gap-1 overflow-x-auto rounded-lg border p-1"
-      role="tablist"
+      className="border-border w-fit max-w-full overflow-x-auto rounded-lg border p-1"
       data-admin-section-tabs
     >
-      {ADMIN_SECTIONS.map((item) => {
-        const active = item.id === section?.id;
-        return (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            className={`flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold whitespace-nowrap ${
-              active
-                ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
-                : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
-            }`}
-            onClick={() => {
-              const firstPage = item.items[0];
-              if (firstPage) {
-                void navigate({ to: firstPage.to });
-              }
-            }}
-          >
-            <span className="shrink-0">{item.items[0]?.icon}</span>
-            {item.label}
-          </button>
-        );
-      })}
+      <Tabs.Root
+        className="w-fit max-w-full gap-0"
+        selectedIndex={Math.max(0, selectedSectionIndex)}
+        onChange={(index) => {
+          const firstPage = ADMIN_SECTIONS[index]?.items[0];
+          if (firstPage) {
+            void navigate({ to: firstPage.to });
+          }
+        }}
+        tabClassName={
+          selectedSectionIndex < 0
+            ? 'data-[selected]:bg-transparent data-[selected]:text-foreground-secondary'
+            : undefined
+        }
+      >
+        <Tabs.List aria-label="Admin sections" className="w-fit">
+          {ADMIN_SECTIONS.map((item) => (
+            <Tabs.Tab key={item.id}>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="shrink-0">{item.items[0]?.icon}</span>
+                {item.label}
+              </span>
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+      </Tabs.Root>
     </div>
   );
   const menu = (

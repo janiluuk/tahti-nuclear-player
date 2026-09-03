@@ -20,6 +20,7 @@ import {
   FilterChips,
   Input,
   SectionShell,
+  Tabs,
 } from '@tahti-player/ui';
 
 import { resolvePublicVisualizerPreset } from '../api/channel-design';
@@ -63,6 +64,28 @@ import { FeedView } from './FeedView';
 import { HistoryView } from './HistoryView';
 
 export type ListenTab = 'listen' | 'feed' | 'favorites' | 'history';
+
+const LISTEN_SECTION_TABS = [
+  { id: 'listen' as const, label: 'Listen', Icon: ListMusicIcon, to: '/' },
+  {
+    id: 'feed' as const,
+    label: 'Feed',
+    Icon: ListMusicIcon,
+    to: '/listen/feed',
+  },
+  {
+    id: 'favorites' as const,
+    label: 'Favorites',
+    Icon: HeartIcon,
+    to: '/listen/favorites',
+  },
+  {
+    id: 'history' as const,
+    label: 'History',
+    Icon: HistoryIcon,
+    to: '/listen/history',
+  },
+];
 
 // 'dj'/'producer'/'band' match the artist's self-selected roles
 // (ARTIST_ROLE_OPTIONS in views/settings/SettingsPanels.tsx); 'radio-host'
@@ -325,35 +348,29 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
           }
         />
 
-        <nav
-          aria-label="Listen sections"
-          className="border-border flex w-full gap-1 overflow-x-auto border-b"
-          role="tablist"
+        <Tabs.Root
+          selectedIndex={Math.max(
+            0,
+            LISTEN_SECTION_TABS.findIndex((item) => item.id === tab),
+          )}
+          onChange={(index) => {
+            const next = LISTEN_SECTION_TABS[index];
+            if (next) {
+              void navigate({ to: next.to });
+            }
+          }}
         >
-          {(
-            [
-              ['listen', 'Listen', ListMusicIcon, '/'],
-              ['feed', 'Feed', ListMusicIcon, '/listen/feed'],
-              ['favorites', 'Favorites', HeartIcon, '/listen/favorites'],
-              ['history', 'History', HistoryIcon, '/listen/history'],
-            ] as const
-          ).map(([id, label, Icon, to]) => (
-            <Link
-              key={id}
-              to={to}
-              role="tab"
-              aria-selected={tab === id}
-              className={`inline-flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
-                tab === id
-                  ? 'border-primary text-foreground'
-                  : 'text-foreground-secondary hover:text-foreground border-transparent'
-              }`}
-            >
-              <Icon size={14} aria-hidden />
-              {label}
-            </Link>
-          ))}
-        </nav>
+          <Tabs.List aria-label="Listen sections" className="overflow-x-auto">
+            {LISTEN_SECTION_TABS.map((item) => (
+              <Tabs.Tab key={item.id}>
+                <span className="inline-flex items-center gap-1.5">
+                  <item.Icon size={14} aria-hidden />
+                  {item.label}
+                </span>
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs.Root>
 
         {tab === 'feed' ? <FeedView embedded /> : null}
         {tab === 'favorites' ? <FavoritesView embedded /> : null}

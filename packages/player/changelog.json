@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-03T23:20",
+    "description": "Listen, Library, and Admin tabs now match the rest of the app, including arrow keys. Unread counts and Live labels use the same badges as elsewhere.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
     "date": "2026-09-03T22:30",
     "description": "In-page tabs on Branding, Channel, Discover, Stats, and Governance now match the rest of the app, including arrow keys between tabs.",
     "type": "improvement",

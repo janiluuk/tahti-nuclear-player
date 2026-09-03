@@ -18,6 +18,7 @@ import {
   FilePicker,
   Input,
   SaveButton,
+  Tabs,
   Textarea,
   Toggle,
 } from '@tahti-player/ui';
@@ -202,6 +203,9 @@ export function StudioShowDetailView({ id }: { id: string }) {
   const [showTab, setShowTab] = useState<
     'overview' | 'episodes' | 'recordings'
   >('overview');
+  const recordingCount = episodes.filter(
+    (episode) => episode.source === 'broadcast',
+  ).length;
 
   const reload = () => {
     void fetchShowSeriesById(id).then((r) => {
@@ -399,47 +403,41 @@ export function StudioShowDetailView({ id }: { id: string }) {
               }
             />
 
-            <nav
-              className="border-border flex gap-1 border-b pb-2"
-              role="tablist"
-              aria-label="Show sections"
+            <Tabs.Root
+              selectedIndex={
+                showTab === 'episodes' ? 1 : showTab === 'recordings' ? 2 : 0
+              }
+              onChange={(index) => {
+                setShowTab(
+                  index === 1
+                    ? 'episodes'
+                    : index === 2
+                      ? 'recordings'
+                      : 'overview',
+                );
+              }}
             >
-              <Button
-                size="xs"
-                variant={showTab === 'overview' ? undefined : 'text'}
-                role="tab"
-                aria-selected={showTab === 'overview'}
-                onClick={() => setShowTab('overview')}
-              >
-                <InfoIcon size={14} aria-hidden />
-                Overview
-              </Button>
-              <Button
-                size="xs"
-                variant={showTab === 'episodes' ? undefined : 'text'}
-                role="tab"
-                aria-selected={showTab === 'episodes'}
-                onClick={() => setShowTab('episodes')}
-              >
-                <ListMusicIcon size={14} aria-hidden />
-                Episodes ({episodes.length})
-              </Button>
-              <Button
-                size="xs"
-                variant={showTab === 'recordings' ? undefined : 'text'}
-                role="tab"
-                aria-selected={showTab === 'recordings'}
-                onClick={() => setShowTab('recordings')}
-              >
-                <CircleDotIcon size={14} aria-hidden />
-                Recordings (
-                {
-                  episodes.filter((episode) => episode.source === 'broadcast')
-                    .length
-                }
-                )
-              </Button>
-            </nav>
+              <Tabs.List aria-label="Show sections">
+                <Tabs.Tab>
+                  <span className="inline-flex items-center gap-1.5">
+                    <InfoIcon size={14} aria-hidden />
+                    Overview
+                  </span>
+                </Tabs.Tab>
+                <Tabs.Tab>
+                  <span className="inline-flex items-center gap-1.5">
+                    <ListMusicIcon size={14} aria-hidden />
+                    Episodes ({episodes.length})
+                  </span>
+                </Tabs.Tab>
+                <Tabs.Tab>
+                  <span className="inline-flex items-center gap-1.5">
+                    <CircleDotIcon size={14} aria-hidden />
+                    Recordings ({recordingCount})
+                  </span>
+                </Tabs.Tab>
+              </Tabs.List>
+            </Tabs.Root>
 
             {showTab === 'overview' ? (
               <>

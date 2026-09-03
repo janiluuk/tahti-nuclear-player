@@ -10,7 +10,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, FilterChips, Popover, Select, Tabs } from '@tahti-player/ui';
+import {
+  Badge,
+  Button,
+  FilterChips,
+  Popover,
+  Select,
+  Tabs,
+} from '@tahti-player/ui';
 
 import { fetchDirectory, fetchTrackDetail } from '../api/client';
 import {
@@ -605,9 +612,13 @@ function ArtistCarousel({
                   </p>
                 </div>
                 {isDirectoryArtistActive(artist) ? (
-                  <span className="bg-accent-cyan text-accent-foreground shrink-0 rounded-full px-2 py-1 text-[10px] font-bold tracking-wide uppercase shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+                  <Badge
+                    variant="pill"
+                    color="cyan"
+                    className="shrink-0 px-2 py-1 text-[10px] font-bold tracking-wide uppercase shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
+                  >
                     Live
-                  </span>
+                  </Badge>
                 ) : null}
               </div>
             </Link>

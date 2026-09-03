@@ -1,7 +1,7 @@
 import { PencilIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, Tabs } from '@tahti-player/ui';
 
 import { fetchStudioSounds } from '../../api/studio';
 import type { StudioSound } from '../../api/studio-types';
@@ -40,30 +40,15 @@ export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
             subtitle="Private locker — upload work in progress and grant access only when it is ready."
           />
         )}
-        <div
-          className="border-border flex gap-1 border-b pb-2"
-          role="tablist"
-          aria-label="Stash sections"
+        <Tabs.Root
+          selectedIndex={tab === 'files' ? 1 : 0}
+          onChange={(index) => setTab(index === 1 ? 'files' : 'all')}
         >
-          <Button
-            size="xs"
-            variant={tab === 'all' ? undefined : 'text'}
-            role="tab"
-            aria-selected={tab === 'all'}
-            onClick={() => setTab('all')}
-          >
-            All stash
-          </Button>
-          <Button
-            size="xs"
-            variant={tab === 'files' ? undefined : 'text'}
-            role="tab"
-            aria-selected={tab === 'files'}
-            onClick={() => setTab('files')}
-          >
-            Move to stash
-          </Button>
-        </div>
+          <Tabs.List aria-label="Stash sections">
+            <Tabs.Tab>All stash</Tabs.Tab>
+            <Tabs.Tab>Move to stash</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
         {tab === 'files' ? (
           <StashFilesPanel />
         ) : (

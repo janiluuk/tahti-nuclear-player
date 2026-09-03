@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { Badge } from '@tahti-player/ui';
+
 import { fetchConversations, type ConversationSummary } from '../api/messages';
 import {
   dismissNotification,
@@ -425,6 +427,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
               type="button"
               className={cn(
                 iconBtnClass,
+                'relative',
                 notificationsOpen &&
                   'border-primary bg-primary/15 text-primary',
               )}
@@ -441,9 +444,13 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
             >
               <BellIcon size={16} />
               {unreadNotifications.length > 0 ? (
-                <span className="bg-accent-red text-background absolute -top-1 -right-1 min-w-4 rounded-full px-1 text-center text-[9px] font-bold">
+                <Badge
+                  variant="pill"
+                  color="red"
+                  className="absolute -top-1 -right-1 min-w-4 px-1 text-center text-[9px] font-bold"
+                >
                   {Math.min(9, unreadNotifications.length)}
-                </span>
+                </Badge>
               ) : null}
             </button>
             {notificationsOpen ? (
@@ -509,6 +516,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
               type="button"
               className={cn(
                 iconBtnClass,
+                'relative',
                 (messagesOpen || pathname.startsWith('/messages')) &&
                   'border-primary bg-primary/15 text-primary',
               )}
@@ -528,7 +536,11 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                 (total, conversation) => total + conversation.unreadCount,
                 0,
               ) > 0 ? (
-                <span className="bg-accent-red text-background absolute -top-1 -right-1 min-w-4 rounded-full px-1 text-center text-[9px] font-bold">
+                <Badge
+                  variant="pill"
+                  color="red"
+                  className="absolute -top-1 -right-1 min-w-4 px-1 text-center text-[9px] font-bold"
+                >
                   {Math.min(
                     9,
                     conversations.reduce(
@@ -536,7 +548,7 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                       0,
                     ),
                   )}
-                </span>
+                </Badge>
               ) : null}
             </button>
             {messagesOpen ? (
@@ -583,9 +595,9 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                             {conversation.otherUser.displayName}
                           </span>
                           {conversation.unreadCount > 0 ? (
-                            <span className="text-accent-red">
+                            <Badge variant="pill" color="red">
                               {conversation.unreadCount}
-                            </span>
+                            </Badge>
                           ) : null}
                         </span>
                         <span className="text-foreground-secondary block truncate">

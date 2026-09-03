@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Box, Button } from '@tahti-player/ui';
+import { Badge, Box, Button } from '@tahti-player/ui';
 
 import {
   resendVerificationEmail,
@@ -98,9 +98,9 @@ export function MembershipStatusPanel({
 
     return (
       <Box variant="tertiary" className="flex-col items-start gap-3">
-        <span className="bg-accent-green/15 text-accent-green rounded-full px-2.5 py-1 text-xs font-semibold">
+        <Badge variant="pill" color="green">
           Active member #{membership.memberNumber ?? '—'}
-        </span>
+        </Badge>
         <p className="text-foreground-secondary text-sm">
           Thank you for supporting the cooperative — your membership includes
           lossless streaming for listeners and unlimited live broadcasting.
