@@ -31,6 +31,7 @@ import {
   scrollingPlaybackTitle,
   syncDocumentMetadata,
 } from '../lib/seo';
+import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -220,6 +221,7 @@ export function AppShell() {
   const refresh = useAuthStore((s) => s.refresh);
   const userId = useAuthStore((s) => s.user?.id);
   const authHydrated = useAuthStore((s) => s.hydrated);
+  const openAuth = useAuthModalStore((s) => s.open);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigationLocation = useRouterState({
@@ -250,8 +252,8 @@ export function AppShell() {
     if (!anonymousRouteBlocked) {
       return;
     }
-    void navigate({ to: '/settings/$section', params: { section: 'account' } });
-  }, [anonymousRouteBlocked, navigate]);
+    openAuth('login');
+  }, [anonymousRouteBlocked, openAuth]);
 
   useEffect(() => {
     syncDocumentMetadata(pathname);
