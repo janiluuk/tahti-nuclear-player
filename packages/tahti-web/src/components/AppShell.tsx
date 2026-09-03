@@ -424,7 +424,7 @@ export function AppShell() {
             )}
             data-studio-shell
           >
-            {getStudioPrimaryRoute(pathname) ? (
+            {userId && getStudioPrimaryRoute(pathname) ? (
               <StudioNav current={navigationLocation} global />
             ) : null}
             <RouteContent>
@@ -478,7 +478,7 @@ export function AppShell() {
               className="h-full min-w-0 overflow-x-hidden overflow-y-auto"
               data-studio-shell
             >
-              {getStudioPrimaryRoute(pathname) ? (
+              {userId && getStudioPrimaryRoute(pathname) ? (
                 <StudioNav current={navigationLocation} global />
               ) : null}
               <RouteContent>
