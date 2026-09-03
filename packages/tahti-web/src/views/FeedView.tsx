@@ -177,20 +177,23 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
   }, [user]);
 
   if (!hydrated || (user && loading)) {
-    return (
-      <PageFrame maxWidth="3xl">
-        <PageLoading label="Loading your feed…" />
-      </PageFrame>
+    const loadingContent = <PageLoading label="Loading your feed…" />;
+    return embedded ? (
+      loadingContent
+    ) : (
+      <PageFrame maxWidth="3xl">{loadingContent}</PageFrame>
     );
   }
 
   if (!user) {
-    return (
-      <PageFrame maxWidth="3xl">
-        <PageHeader
-          title="Your feed"
-          subtitle="New posts, tracks, and releases from artists you follow."
-        />
+    const signedOutContent = (
+      <>
+        {!embedded && (
+          <PageHeader
+            title="Your feed"
+            subtitle="New posts, tracks, and releases from artists you follow."
+          />
+        )}
         <PageEmpty
           icon="inbox"
           title="Sign in to see your feed"
@@ -201,7 +204,12 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
             </Button>
           }
         />
-      </PageFrame>
+      </>
+    );
+    return embedded ? (
+      signedOutContent
+    ) : (
+      <PageFrame maxWidth="3xl">{signedOutContent}</PageFrame>
     );
   }
 
