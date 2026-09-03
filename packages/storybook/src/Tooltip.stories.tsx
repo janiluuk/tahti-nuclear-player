@@ -14,6 +14,12 @@ const meta: Meta<typeof Tooltip> = {
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Hover/focus label. Every icon-only Button (size icon / icon-sm) in the player and tahti-web must wrap Tooltip — native title= is not enough; keep aria-label. Reference: SidebarIcons. Sweep list: docs/todo/icon-button-tooltips.md (288 missing as of 2026-09-04). Form “?” help badges are a separate sweep.',
+      },
+    },
   },
 };
 

@@ -10,7 +10,7 @@ const meta: Meta<typeof ViewShell> = {
     docs: {
       description: {
         component:
-          'The standard full-height, scrollable page frame most top-level views mount into — an optional title/subtitle, then a scrollable content area filling the rest of the viewport.',
+          'The standard full-height, scrollable page frame most top-level views mount into — an optional title/subtitle, then a scrollable content area filling the rest of the viewport. Tahti-web list pages (Listen, Studio, Admin) should use this instead of PageHeader / StudioPageHeader: title = page name only, subtitle = one short line, actions in children. Persistent nav (StudioNav, Admin tabs, Listen tabs) stays outside ViewShell. Nested under AppShell padding: pass classes.root px-0 pt-0 so padding does not double. Leave: full-screen player, share canvases, maximized Pro Editor, entity cover headers. Plan: docs/todo/viewshell-page-headers.md.',
       },
     },
   },
@@ -29,6 +29,34 @@ export const Default: Story = {
             Row {i + 1}
           </div>
         ))}
+      </ViewShell>
+    </div>
+  ),
+};
+
+export const TitleOnly: Story = {
+  render: () => (
+    <div className="h-[240px]">
+      <ViewShell title="Sounds">
+        <p className="text-sm">
+          Subtitle omitted when the page name is enough.
+        </p>
+      </ViewShell>
+    </div>
+  ),
+};
+
+export const NestedUnderAppPadding: Story = {
+  render: () => (
+    <div className="h-[240px] p-6">
+      <ViewShell
+        title="Dashboard"
+        subtitle="Members, live streams, and health."
+        classes={{ root: 'px-0 pt-0' }}
+      >
+        <p className="text-sm">
+          classes.root px-0 pt-0 when AppShell already pads the pane.
+        </p>
       </ViewShell>
     </div>
   ),

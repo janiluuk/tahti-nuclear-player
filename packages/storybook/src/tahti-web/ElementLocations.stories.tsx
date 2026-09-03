@@ -222,9 +222,21 @@ const locations: ElementLocation[] = [
     pages: 'Studio and Admin surfaces',
   },
   {
+    element: 'ViewShell',
+    kind: 'Component',
+    pages:
+      'Target page frame for Listen / Studio / Admin list hubs (title + short subtitle). News and What’s New already use it. Persistent nav stays outside. Plan: docs/todo/viewshell-page-headers.md',
+  },
+  {
     element: 'PageHeader',
     kind: 'Component',
-    pages: 'Listener, artist, and legal page headers',
+    pages:
+      'Listener list headers until ViewShell lands; then entity/legal only where a cover or back row is still needed',
+  },
+  {
+    element: 'StudioPageHeader',
+    kind: 'Component',
+    pages: 'Studio and Admin list headers until ViewShell lands; then remove',
   },
   {
     element: 'WaveformCanvas',

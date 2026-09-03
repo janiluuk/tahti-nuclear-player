@@ -1,5 +1,12 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — ViewShell headers + icon-button Tooltip (planned)
+
+**Status:** planned (workplan + `docs/todo`).
+
+1. **ViewShell:** listener / Studio / Admin list pages move from `PageHeader` / `StudioPageHeader` to Storybook `ViewShell` with a short title and optional one-line subtitle. Actions and back links sit in children. Nav tabs stay outside the shell. No double padding with `AppShell`. Entity covers, full-screen player, share canvases, and maximized Pro Editor stay out. [docs/todo/viewshell-page-headers.md](../../docs/todo/viewshell-page-headers.md).
+2. **Icon-button Tooltip:** every icon-only `Button` wraps Storybook `Tooltip` (keep `aria-label`; drop relying on native `title=`). Scan: 296 icon buttons, 288 without `Tooltip`. Primitives first (`DialogXClose`, `Pagination`, `PluginItem`, player transport). [docs/todo/icon-button-tooltips.md](../../docs/todo/icon-button-tooltips.md).
+
 ## 2026-09-04 — Player bar queue, Input startAddon, Radio Save, Studio FilterChips
 
 **Status:** executed (three push rounds → `0.0.59`).
