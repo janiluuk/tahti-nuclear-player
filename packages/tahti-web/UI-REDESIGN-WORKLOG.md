@@ -1,5 +1,33 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — In-page tab strips to Nuclear Tabs (ten slices)
+
+Bumped `@tahti-player/tahti-web` to `0.0.49`.
+
+**Slice 1 — Branding:** Branding / Gallery / Press kit / Channel Designer use `Tabs`.
+
+**Slice 2 — Public channel:** Overview / Manage uses `Tabs`.
+
+**Slice 3 — Studio Channel sections:** Setup / Green room / Selects use `Tabs`.
+
+**Slice 4 — Studio Radio settings:** Stream / 24/7 / Announcements / Pinned / Tahti Radio / Multicast use `Tabs`.
+
+**Slice 5 — Pro Editor stems:** Two-stem / four-stem split type uses `Tabs`.
+
+**Slice 6 — Artist profile:** Music / Releases / Collections / Gallery / Design use `Tabs`.
+
+**Slice 7 — Discover:** Discover / Artists / Venues use `Tabs` (route search still drives the selected tab).
+
+**Slice 8 — Radio schedule:** Tahti Radio / My channel uses `Tabs`.
+
+**Slice 9 — Studio Stats:** Overview / Plays & listeners / Top lists use `Tabs`.
+
+**Slice 10 — Studio Governance:** Motions / Topics use `Tabs` (query-string routes still highlight).
+
+Still open from the reuse audit: persistent-chrome tablists (Listen, Library, AdminNav, `SectionTabs`) plus in-page strips on Stash, show detail, and 24/7 programme.
+
+**Validation:** tahti-web type-check and eslint on the touched files. Browser-checked Branding, Channel, Discover, Stats, and Governance tabs.
+
 ## 2026-09-03 — Hide chrome scrollbars on tight widths
 
 Bumped `@tahti-player/tahti-web` to `0.0.48`.

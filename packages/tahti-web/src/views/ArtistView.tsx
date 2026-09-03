@@ -19,6 +19,7 @@ import {
   CardGrid,
   Dialog,
   SaveButton,
+  Tabs,
   Textarea,
 } from '@tahti-player/ui';
 
@@ -956,29 +957,26 @@ export function ArtistView({ username }: { username: string }) {
       ) : null}
 
       <div className="border-border flex flex-wrap items-center gap-2 border-b pb-3">
-        <nav
-          className="flex flex-wrap gap-2"
-          role="tablist"
-          aria-label="Profile sections"
-        >
-          {tabs.map((t) => (
-            <Button
-              key={t.id}
-              type="button"
-              variant="text"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-                tab === t.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              {t.label}
-            </Button>
-          ))}
-        </nav>
+        {tabs.length > 0 ? (
+          <Tabs.Root
+            selectedIndex={Math.max(
+              0,
+              tabs.findIndex((item) => item.id === tab),
+            )}
+            onChange={(index) => {
+              const next = tabs[index];
+              if (next) {
+                setTab(next.id);
+              }
+            }}
+          >
+            <Tabs.List className="w-fit flex-wrap">
+              {tabs.map((item) => (
+                <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs.Root>
+        ) : null}
         {isOwner && galleryLoaded && !hasGallery ? (
           <ArtistGalleryAddIcon
             onCreated={(images) => {

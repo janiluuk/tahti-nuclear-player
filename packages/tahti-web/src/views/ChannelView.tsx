@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Loader, SaveButton } from '@tahti-player/ui';
+import { Button, Loader, SaveButton, Tabs } from '@tahti-player/ui';
 
 import {
   isHeaderImageUrl,
@@ -1296,30 +1296,17 @@ export function ChannelView({ slug }: { slug: string }) {
     const isLiveChannel = channel.state === 'LIVE';
     return (
       <div className="flex min-h-full flex-col gap-3">
-        <div
-          className="border-border flex gap-1 border-b"
-          role="tablist"
-          aria-label="Channel view"
+        <Tabs.Root
+          selectedIndex={channelTab === 'manage' ? 1 : 0}
+          onChange={(index) =>
+            setChannelTab(index === 1 ? 'manage' : 'overview')
+          }
         >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={channelTab === 'overview'}
-            className={`border-b-2 px-3 py-2 text-sm font-semibold ${channelTab === 'overview' ? 'border-primary text-foreground' : 'text-foreground-secondary border-transparent'}`}
-            onClick={() => setChannelTab('overview')}
-          >
-            Overview
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={channelTab === 'manage'}
-            className={`border-b-2 px-3 py-2 text-sm font-semibold ${channelTab === 'manage' ? 'border-primary text-foreground' : 'text-foreground-secondary border-transparent'}`}
-            onClick={() => setChannelTab('manage')}
-          >
-            Manage
-          </button>
-        </div>
+          <Tabs.List>
+            <Tabs.Tab>Overview</Tabs.Tab>
+            <Tabs.Tab>Manage</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
         {channelTab === 'overview' ? (
           pageBody
         ) : (

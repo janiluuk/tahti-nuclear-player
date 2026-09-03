@@ -31,6 +31,7 @@ import {
   Input,
   SaveButton,
   Slider,
+  Tabs,
   Toggle,
 } from '@tahti-player/ui';
 
@@ -927,28 +928,20 @@ export function StudioProEditorView({ soundId }: { soundId: string }) {
             <div className="grid gap-4 md:grid-cols-2">
               <StudioPanel title="Stems">
                 <div className="mb-4 flex flex-col gap-2">
-                  <div
-                    className="border-border inline-flex w-fit gap-1 rounded-lg border p-1"
-                    role="tablist"
-                    aria-label="Stem split type"
+                  <Tabs.Root
+                    selectedIndex={activeStemSet === 'FOUR_STEM' ? 1 : 0}
+                    onChange={(index) =>
+                      setActiveStemSet(index === 1 ? 'FOUR_STEM' : 'TWO_STEM')
+                    }
                   >
-                    {(['TWO_STEM', 'FOUR_STEM'] as const).map((stemSet) => (
-                      <button
-                        key={stemSet}
-                        type="button"
-                        role="tab"
-                        aria-selected={activeStemSet === stemSet}
-                        onClick={() => setActiveStemSet(stemSet)}
-                        className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                          activeStemSet === stemSet
-                            ? 'bg-primary text-primary-foreground'
-                            : 'text-foreground-secondary hover:text-foreground'
-                        }`}
-                      >
-                        {STEM_SET_LABELS[stemSet]}
-                      </button>
-                    ))}
-                  </div>
+                    <Tabs.List className="w-fit">
+                      {(['TWO_STEM', 'FOUR_STEM'] as const).map((stemSet) => (
+                        <Tabs.Tab key={stemSet}>
+                          {STEM_SET_LABELS[stemSet]}
+                        </Tabs.Tab>
+                      ))}
+                    </Tabs.List>
+                  </Tabs.Root>
 
                   {(() => {
                     const existing = stems.find(

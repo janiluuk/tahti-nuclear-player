@@ -17,6 +17,7 @@ import {
   FilePicker,
   Input,
   SaveButton,
+  Tabs,
   Textarea,
   Toggle,
 } from '@tahti-player/ui';
@@ -301,37 +302,33 @@ export const StudioBrandingPanel: FC<{
   return (
     <div className="flex flex-col gap-6">
       {hideSectionNav ? null : (
-        <nav
-          className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
-          role="tablist"
-          aria-label="Branding sections"
+        <Tabs.Root
+          selectedIndex={Math.max(0, STUDIO_BRANDING_SECTIONS.indexOf(tab))}
+          onChange={(index) => {
+            const next = STUDIO_BRANDING_SECTIONS[index];
+            if (next) {
+              selectSection(next);
+            }
+          }}
         >
-          {(
-            [
-              ['branding', 'Branding', PaletteIcon],
-              ['gallery', 'Gallery', ImagesIcon],
-              ['press-kit', 'Press kit', DownloadIcon],
-              ['channel-designer', 'Channel Designer', PaintbrushIcon],
-            ] as const
-          ).map(([id, label, Icon]) => (
-            <Button
-              key={id}
-              type="button"
-              variant="text"
-              role="tab"
-              aria-selected={tab === id}
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
-                tab === id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground-secondary hover:text-foreground'
-              }`}
-              onClick={() => selectSection(id)}
-            >
-              <Icon size={15} aria-hidden />
-              {label}
-            </Button>
-          ))}
-        </nav>
+          <Tabs.List className="w-fit flex-wrap">
+            {(
+              [
+                ['branding', 'Branding', PaletteIcon],
+                ['gallery', 'Gallery', ImagesIcon],
+                ['press-kit', 'Press kit', DownloadIcon],
+                ['channel-designer', 'Channel Designer', PaintbrushIcon],
+              ] as const
+            ).map(([id, label, Icon]) => (
+              <Tabs.Tab key={id}>
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon size={15} aria-hidden />
+                  {label}
+                </span>
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs.Root>
       )}
 
       {tab === 'branding' ? (

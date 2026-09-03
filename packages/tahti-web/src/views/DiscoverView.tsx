@@ -1,4 +1,4 @@
-import { Link, useSearch } from '@tanstack/react-router';
+import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import {
   Blocks,
   ChevronDownIcon,
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, FilterChips, Popover, Select } from '@tahti-player/ui';
+import { Button, FilterChips, Popover, Select, Tabs } from '@tahti-player/ui';
 
 import { fetchDirectory, fetchTrackDetail } from '../api/client';
 import {
@@ -123,6 +123,7 @@ export function DiscoverView() {
   const [artistsLoading, setArtistsLoading] = useState(true);
   const search = useSearch({ strict: false }) as { tab?: string };
   const activeTab = discoverTabFromSearch(search.tab);
+  const navigate = useNavigate();
 
   const filters = useMemo(
     () => ({ genres: genreFilter, contentTypes: contentTypeFilter }),
@@ -327,29 +328,30 @@ export function DiscoverView() {
         }
       />
 
-      <div
-        className="border-border flex gap-1 border-b"
-        role="tablist"
-        aria-label="Discover sections"
+      <Tabs.Root
+        selectedIndex={Math.max(
+          0,
+          DISCOVER_TABS.findIndex((item) => item.id === activeTab),
+        )}
+        onChange={(index) => {
+          const next = DISCOVER_TABS[index];
+          if (!next) {
+            return;
+          }
+          void navigate({
+            to: '/discover',
+            search: next.id === 'discover' ? {} : { tab: next.id },
+          });
+        }}
       >
-        {DISCOVER_TABS.map((tab) => (
-          <Link
-            key={tab.id}
-            to="/discover"
-            search={tab.id === 'discover' ? {} : { tab: tab.id }}
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            data-testid={`discover-tab-${tab.id}`}
-            className={`border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
-              activeTab === tab.id
-                ? 'border-primary text-foreground'
-                : 'text-foreground-secondary hover:text-foreground border-transparent'
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
-      </div>
+        <Tabs.List>
+          {DISCOVER_TABS.map((item) => (
+            <Tabs.Tab key={item.id}>
+              <span data-testid={`discover-tab-${item.id}`}>{item.label}</span>
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+      </Tabs.Root>
 
       {activeTab !== 'venues' ? (
         <div className="flex flex-col gap-3">

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC, type ReactNode } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, Tabs } from '@tahti-player/ui';
 
 import { fetchGrantEstimate, type GrantEstimate } from '../../api/revenue';
 import {
@@ -280,28 +280,24 @@ export const StudioStatsView: FC = () => {
           }
         />
 
-        <nav
-          aria-label="Stats sections"
-          className="border-border flex w-full gap-1 overflow-x-auto border-b"
-          role="tablist"
+        <Tabs.Root
+          selectedIndex={Math.max(
+            0,
+            STATS_TABS.findIndex((item) => item.id === activeTab),
+          )}
+          onChange={(index) => {
+            const next = STATS_TABS[index];
+            if (next) {
+              setActiveTab(next.id);
+            }
+          }}
         >
-          {STATS_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`border-b-2 px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
-                activeTab === tab.id
-                  ? 'border-primary text-foreground'
-                  : 'text-foreground-secondary hover:text-foreground border-transparent'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
+          <Tabs.List className="overflow-x-auto">
+            {STATS_TABS.map((item) => (
+              <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs.Root>
 
         <section
           className={`${activeTab === 'overview' ? '' : 'hidden'} grid gap-3 sm:grid-cols-2 xl:grid-cols-3`}

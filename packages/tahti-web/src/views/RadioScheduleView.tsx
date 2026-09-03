@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input } from '@tahti-player/ui';
+import { Button, Dialog, Input, Tabs } from '@tahti-player/ui';
 
 import {
   cancelShowBooking,
@@ -137,6 +137,10 @@ export function RadioScheduleView() {
       replace: true,
     });
   }
+
+  const stationTabs: StationFilter[] = ownChannelSlug
+    ? ['radio', 'mine']
+    : ['radio'];
 
   const visibleBookings = useMemo(
     () => filterBookingsForStation(bookings, station, ownChannelSlug),
@@ -348,44 +352,23 @@ export function RadioScheduleView() {
 
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <div
-              className="border-border inline-flex gap-1 rounded-lg border p-1"
-              role="tablist"
-              aria-label="Station"
+            <Tabs.Root
+              selectedIndex={Math.max(0, stationTabs.indexOf(station))}
+              onChange={(index) => {
+                const next = stationTabs[index];
+                if (next) {
+                  changeStation(next);
+                }
+              }}
             >
-              <Button
-                type="button"
-                variant="text"
-                role="tab"
-                aria-selected={station === 'radio'}
-                onClick={() => changeStation('radio')}
-                className={cn(
-                  'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
-                  station === 'radio'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground-secondary hover:text-foreground',
-                )}
-              >
-                Tahti Radio
-              </Button>
-              {ownChannelSlug ? (
-                <Button
-                  type="button"
-                  variant="text"
-                  role="tab"
-                  aria-selected={station === 'mine'}
-                  onClick={() => changeStation('mine')}
-                  className={cn(
-                    'rounded-md px-3 py-1.5 text-sm font-semibold transition-colors',
-                    station === 'mine'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-foreground-secondary hover:text-foreground',
-                  )}
-                >
-                  My channel
-                </Button>
-              ) : null}
-            </div>
+              <Tabs.List className="w-fit">
+                {stationTabs.map((item) => (
+                  <Tabs.Tab key={item}>
+                    {item === 'radio' ? 'Tahti Radio' : 'My channel'}
+                  </Tabs.Tab>
+                ))}
+              </Tabs.List>
+            </Tabs.Root>
 
             <div className="flex items-center justify-between gap-2 sm:justify-end">
               <Button

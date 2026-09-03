@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-03T22:30",
+    "description": "In-page tabs on Branding, Channel, Discover, Stats, and Governance now match the rest of the app, including arrow keys between tabs.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
     "date": "2026-09-03T14:30",
     "description": "The main page no longer shows extra scrollbars when the window is a bit narrower — you can still scroll, the bars just stay out of the way.",
     "type": "fix",
