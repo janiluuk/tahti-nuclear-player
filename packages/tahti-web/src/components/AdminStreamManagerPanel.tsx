@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button, Dialog } from '@tahti-player/ui';
+import { Button, Dialog, Loader } from '@tahti-player/ui';
 
 import {
   fetchAdminStreams,
@@ -296,11 +296,11 @@ export function AdminStreamManagerPanel({
                 disabled={refreshing}
                 onClick={reload}
               >
-                <RefreshCw
-                  size={16}
-                  aria-hidden
-                  className={refreshing ? 'animate-spin' : ''}
-                />
+                {refreshing ? (
+                  <Loader size="sm" />
+                ) : (
+                  <RefreshCw size={16} aria-hidden />
+                )}
               </Button>
             </div>
           }

@@ -1,12 +1,8 @@
 import { Link } from '@tanstack/react-router';
-import {
-  HeartIcon,
-  LoaderCircleIcon,
-  MusicIcon,
-  PauseIcon,
-  PlayIcon,
-} from 'lucide-react';
+import { HeartIcon, MusicIcon, PauseIcon, PlayIcon } from 'lucide-react';
 import { useState } from 'react';
+
+import { Loader } from '@tahti-player/ui';
 
 import { fetchTrackDetail } from '../../api/client';
 import type { DiscoverTrackItem } from '../../api/types';
@@ -124,11 +120,7 @@ export function WidgetTrackRow({
         aria-label={isPlaying ? `Pause ${item.title}` : `Play ${item.title}`}
       >
         {loading ? (
-          <LoaderCircleIcon
-            size={16}
-            className="text-foreground animate-spin"
-            aria-hidden
-          />
+          <Loader size="sm" />
         ) : isPlaying ? (
           <PauseIcon size={16} className="text-foreground" aria-hidden />
         ) : (

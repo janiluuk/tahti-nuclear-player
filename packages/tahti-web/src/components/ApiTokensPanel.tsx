@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, SectionShell } from '@tahti-player/ui';
+import { Button, Input, SectionShell, Toggle } from '@tahti-player/ui';
 
 import {
   createApiToken,
@@ -187,17 +187,17 @@ export function ApiTokensPanel() {
                 placeholder="e.g. archive importer"
                 onChange={(event) => setName(event.target.value)}
               />
-              <label className="text-foreground-secondary flex items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={canWrite}
-                  onChange={(event) => setCanWrite(event.target.checked)}
-                />
+              <div className="text-foreground-secondary flex items-center justify-between gap-3 text-sm">
                 <span>
                   Allow write access (create, update, and delete). Leave off for
                   read-only access.
                 </span>
-              </label>
+                <Toggle
+                  label="Allow write access"
+                  checked={canWrite}
+                  onChange={setCanWrite}
+                />
+              </div>
               <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"

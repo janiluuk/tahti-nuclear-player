@@ -1,5 +1,21 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Loader + remaining selection Toggles (five slices)
+
+Bumped `@tahti-player/tahti-web` to `0.0.41`.
+
+**Slice 1 — Discover widget play:** `WidgetTrackRow` shows Nuclear `Loader` while resolving a track for play.
+
+**Slice 2 — Channel stream play:** `ChannelView` stream play/pause control uses `Loader` while the stream is loading.
+
+**Slice 3 — Admin live streams refresh:** `AdminStreamManagerPanel` refresh button swaps to `Loader` while reloading.
+
+**Slice 4 — API tokens:** “Allow write access” on new-token create is a `Toggle`.
+
+**Slice 5 — Import and radio row select:** `StudioRadioSubmissionPanel` track picks and `PluginStorePanel` Spotify/HearThis import multi-select use `Toggle` instead of native checkboxes.
+
+**Validation:** tahti-web type-check and eslint on the touched files. Deployed to beta after push.
+
 ## 2026-09-03 — Setting checkboxes to Nuclear Toggle (five slices)
 
 Bumped `@tahti-player/tahti-web` to `0.0.40`.

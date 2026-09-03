@@ -144,30 +144,30 @@ export function StudioRadioSubmissionPanel() {
             const existing = submitted.get(item.id);
             const checked = selected.includes(item.id);
             return (
-              <label
+              <div
                 key={item.id}
                 className="border-border flex items-center gap-3 rounded-lg border p-3"
               >
-                <input
-                  type="checkbox"
+                <span className="min-w-0 flex-1 text-sm">{item.title}</span>
+                <span className="text-foreground-secondary text-xs">
+                  {existing ? statusLabel(existing.status) : 'Ready'}
+                </span>
+                <Toggle
+                  label={`Select ${item.title}`}
                   checked={checked}
                   disabled={
                     Boolean(existing) ||
                     (!checked && selected.length >= MAX_TRACKS)
                   }
-                  onChange={() =>
+                  onChange={(next) =>
                     setSelected((current) =>
-                      checked
-                        ? current.filter((id) => id !== item.id)
-                        : [...current, item.id],
+                      next
+                        ? [...current, item.id]
+                        : current.filter((id) => id !== item.id),
                     )
                   }
                 />
-                <span className="min-w-0 flex-1 text-sm">{item.title}</span>
-                <span className="text-foreground-secondary text-xs">
-                  {existing ? statusLabel(existing.status) : 'Ready'}
-                </span>
-              </label>
+              </div>
             );
           })}
         </div>

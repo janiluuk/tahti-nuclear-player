@@ -1228,25 +1228,20 @@ function SpotifyCard({ plugin }: { plugin: ServicePlugin }) {
         </div>
         <div className="border-border flex max-h-72 flex-col gap-2 overflow-y-auto rounded-md border p-2">
           {tracks.map((track) => (
-            <label
+            <div
               key={track.id}
               className="border-border flex cursor-pointer items-center gap-2 rounded border p-2 text-sm"
             >
-              <input
-                type="checkbox"
-                checked={selected.has(track.id)}
-                onChange={() => toggle(track.id)}
-              />
               <span className="min-w-0 flex-1 truncate">{track.name}</span>
               <span className="text-foreground-secondary truncate text-xs">
                 {track.artists?.join(', ')}
               </span>
-              <CheckSquareIcon
-                size={15}
-                className="text-foreground-secondary"
-                aria-hidden
+              <Toggle
+                label={`Select ${track.name}`}
+                checked={selected.has(track.id)}
+                onChange={() => toggle(track.id)}
               />
-            </label>
+            </div>
           ))}
           {tracks.length === 0 && (
             <p className="text-foreground-secondary py-5 text-sm">
@@ -2087,11 +2082,10 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
                   key={collection.id}
                   className="border-border flex items-center gap-3 rounded-lg border p-3"
                 >
-                  <input
-                    type="checkbox"
+                  <Toggle
+                    label={`Select ${collection.title}`}
                     checked={selected.has(collection.id)}
                     onChange={() => toggleSelected(collection.id)}
-                    aria-label={`Select ${collection.title}`}
                   />
                   <MediaArtwork
                     size="sm"
@@ -2152,12 +2146,11 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
                   key={track.id}
                   className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
                 >
-                  <input
-                    type="checkbox"
+                  <Toggle
+                    label={`Select ${track.title}`}
                     checked={selected.has(track.id)}
                     disabled={importedIds.has(track.id)}
                     onChange={() => toggleSelected(track.id)}
-                    aria-label={`Select ${track.title}`}
                   />
                   <MediaArtwork
                     size="sm"

@@ -2,7 +2,6 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import {
   GripVerticalIcon,
   HeartIcon,
-  LoaderCircleIcon,
   MessageCircle,
   Mic,
   PauseIcon,
@@ -13,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, SaveButton } from '@tahti-player/ui';
+import { Button, Loader, SaveButton } from '@tahti-player/ui';
 
 import {
   isHeaderImageUrl,
@@ -681,11 +680,7 @@ export function ChannelView({ slug }: { slug: string }) {
                         aria-pressed={channelIsPlaying}
                       >
                         {channelIsLoading ? (
-                          <LoaderCircleIcon
-                            size={26}
-                            className="animate-spin"
-                            aria-hidden
-                          />
+                          <Loader />
                         ) : channelIsPlaying ? (
                           <PauseIcon
                             size={26}
