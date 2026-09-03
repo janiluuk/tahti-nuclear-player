@@ -10,6 +10,7 @@ import {
   SlidersHorizontalIcon,
   SparklesIcon,
   TvIcon,
+  WrenchIcon,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -33,6 +34,7 @@ export type PluginCategoryId =
   | 'multicast'
   | 'fingerprinting'
   | 'audio-plugins'
+  | 'tools'
   | 'radio'
   | 'listen'
   | 'discovery'
@@ -88,6 +90,13 @@ export const PLUGIN_CATEGORIES: PluginCategory[] = [
     label: 'Audio plugins',
     description: 'DSP chain available in the Pro Editor.',
     icon: SlidersHorizontalIcon,
+  },
+  {
+    id: 'tools',
+    label: 'Tools',
+    description:
+      'Platform utilities — board-only ops tools and other non-DSP helpers.',
+    icon: WrenchIcon,
   },
   {
     id: 'radio',

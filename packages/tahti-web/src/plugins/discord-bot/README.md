@@ -1,7 +1,7 @@
 # Tahti Radio Discord bot add-on
 
-Board-only Settings → Add-ons → Radio card for the Discord application ID and
-bot token. Configuration is stored by the sibling Tahti API, not in the
+Board-only Settings → Add-ons → **Tools** card for the Discord application ID
+and bot token. Configuration is stored by the sibling Tahti API, not in the
 browser. Opens a Configure dialog (Client ID + token).
 
 ## Contract
@@ -21,4 +21,5 @@ The Discord bot process reads plaintext credentials from
 ## Permission
 
 The card renders only when `hasAccountRole(user, 'BOARD')`. The API also
-enforces `requireBoard`.
+enforces `requireBoard`. Non-board users see an empty Tools section for this
+entry (the card returns `null`).

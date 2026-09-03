@@ -109,12 +109,14 @@ import {
   radioStationPlayable,
   type RadioStation,
 } from '../content/radioStations';
+import { hasAccountRole } from '../lib/accountRoles';
 import { flagEmoji } from '../lib/countries';
 import {
   ALL_PLUGIN_IDS,
   AUDIO_FX_PLUGINS,
   useAudioFxStore,
 } from '../plugins/audio-fx';
+import { DiscordBotAddonCard } from '../plugins/discord-bot/DiscordBotAddonCard';
 import { EXPORT_TARGETS } from '../plugins/export';
 import {
   hearthisSourceAdapter,
@@ -280,6 +282,12 @@ function InstalledAvailableTabs({
 export function PluginStorePanel() {
   const isOpen = useSettingsModalStore((s) => s.isOpen);
   const pluginCategory = useSettingsModalStore((s) => s.pluginCategory);
+  const user = useAuthStore((s) => s.user);
+  const isBoard = hasAccountRole(user, 'BOARD');
+  const categories = useMemo(
+    () => PLUGIN_CATEGORIES.filter((c) => (c.id === 'tools' ? isBoard : true)),
+    [isBoard],
+  );
   const [category, setCategory] = useState<PluginCategoryId>('themes');
 
   // The modal (and this panel) stays mounted across close/open cycles, so
@@ -292,15 +300,26 @@ export function PluginStorePanel() {
     }
   }, [isOpen, pluginCategory]);
 
+  useEffect(() => {
+    if (!categories.some((c) => c.id === category)) {
+      setCategory(categories[0]?.id ?? 'themes');
+    }
+  }, [categories, category]);
+
+  const selectedIndex = Math.max(
+    0,
+    categories.findIndex((c) => c.id === category),
+  );
+
   return (
     <Tabs
       vertical
       className="flex flex-col gap-4 sm:flex-row"
       listClassName="flex sm:flex-col gap-1 sm:w-48 shrink-0"
       panelClassName="min-w-0 flex-1"
-      selectedIndex={PLUGIN_CATEGORIES.findIndex((c) => c.id === category)}
-      onChange={(index) => setCategory(PLUGIN_CATEGORIES[index]!.id)}
-      items={PLUGIN_CATEGORIES.map((c) => ({
+      selectedIndex={selectedIndex}
+      onChange={(index) => setCategory(categories[index]!.id)}
+      items={categories.map((c) => ({
         id: c.id,
         label: (
           <span className="flex items-center gap-2">
@@ -359,6 +378,7 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
       )}
       {categoryId === 'multicast' && <MulticastCategory />}
       {categoryId === 'audio-plugins' && <AudioPluginsCategory />}
+      {categoryId === 'tools' && <ToolsCategory />}
       {categoryId === 'radio' && <RadioCategory />}
       {categoryId === 'listen' && <ListenAddonsPanel />}
       {categoryId === 'discovery' && <DiscoveryCategory />}
@@ -2574,6 +2594,15 @@ function AudioPluginsCategory() {
       <p className="text-foreground-secondary text-xs">
         Only activated audio plugins are available to add in the Pro Editor.
       </p>
+    </div>
+  );
+}
+
+/** Board-only platform utilities (not DSP, not per-page widgets). */
+function ToolsCategory() {
+  return (
+    <div className="flex flex-col gap-3">
+      <DiscordBotAddonCard />
     </div>
   );
 }
