@@ -106,3 +106,30 @@ export const Empty: Story = {
     labels,
   },
 };
+
+const radioLabels = {
+  filterPlaceholder: 'Filter stations...',
+  nothingFound: 'No stations match your filter',
+};
+
+// Tahti-shaped mock data: internet radio presets, the closest real Listen
+// page candidate for CardsRow (see docs/todo/storybook-cardsrow-combobox-audit.md)
+// — production doesn't render this through CardsRow yet since its current
+// per-item edit-cover overlay isn't representable in CardsRowItem's plain
+// src/title/subtitle/onClick shape.
+const radioItems = [
+  { id: 'r1', title: 'Tahti Radio', subtitle: 'Curated rotation' },
+  { id: 'r2', title: 'Deep Ambient FM', subtitle: 'Ambient · 128kbps' },
+  { id: 'r3', title: 'Nordic Bass Collective', subtitle: 'Bass · 192kbps' },
+  { id: 'r4', title: 'Warm Analog Radio', subtitle: 'Downtempo · 128kbps' },
+  { id: 'r5', title: 'Late Night Techno', subtitle: 'Techno · 192kbps' },
+  { id: 'r6', title: 'Fansub Community Picks', subtitle: 'Mixed · 128kbps' },
+];
+
+export const TahtiRadioRow: Story = {
+  args: {
+    title: 'Radio',
+    items: radioItems,
+    labels: radioLabels,
+  },
+};
