@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC, type ReactNode } from 'react';
 
-import { Button, Tabs } from '@tahti-player/ui';
+import { Button, StatChip, Tabs } from '@tahti-player/ui';
 
 import { fetchGrantEstimate, type GrantEstimate } from '../../api/revenue';
 import {
@@ -39,7 +39,6 @@ import { ListenerWorldMap } from '../../components/ListenerWorldMap';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
-import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
 import { countryFlagAndName } from '../../lib/countries';
 
@@ -307,14 +306,12 @@ export const StudioStatsView: FC = () => {
             const Icon = metric.icon;
             return (
               <StudioPanel key={metric.label} className="!p-4 sm:!p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <Eyebrow>{metric.label}</Eyebrow>
-                  <Icon size={17} aria-hidden className="text-primary" />
-                </div>
-                <StatNumber className="mt-1 block">
-                  {loading ? '—' : metric.value.toLocaleString()}
-                </StatNumber>
-                <p className="text-foreground-secondary mt-1 text-xs">
+                <StatChip
+                  value={loading ? '—' : metric.value.toLocaleString()}
+                  label={metric.label}
+                  icon={<Icon size={16} aria-hidden className="text-primary" />}
+                />
+                <p className="text-foreground-secondary mt-2 text-xs">
                   {metric.note}
                 </p>
               </StudioPanel>
