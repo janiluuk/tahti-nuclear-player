@@ -109,6 +109,7 @@ import {
   AUDIO_FX_PLUGINS,
   useAudioFxStore,
 } from '../plugins/audio-fx';
+import { DiscordBotAddonCard } from '../plugins/discord-bot/DiscordBotAddonCard';
 import { EXPORT_TARGETS } from '../plugins/export';
 import {
   hearthisSourceAdapter,
@@ -3071,6 +3072,7 @@ function RadioCategory() {
 
   return (
     <div className="flex flex-col gap-3">
+      <DiscordBotAddonCard />
       <PersonalRadioStreamCard />
       <RadioBrowserDirectoryCard />
       <div className="flex flex-wrap items-center justify-end gap-2">
