@@ -17,24 +17,37 @@ const HIGHLIGHTS = [
     section: 'Listen',
     blurb:
       'Discover stations and catalogue, then keep listening from the persistent player.',
-    files: ['listen-home', 'listen-radio', 'listen-discover', 'public-channel-aurora'],
+    files: [
+      'listen-home',
+      'listen-radio',
+      'listen-discover',
+      'public-channel-aurora',
+    ],
   },
   {
     section: 'Publish',
     blurb:
       'Upload, organise sounds and releases, and prepare catalogue for the public channel.',
-    files: ['studio-sounds', 'studio-releases', 'studio-upload', 'studio-collections'],
+    files: [
+      'studio-sounds',
+      'studio-releases',
+      'studio-upload',
+      'studio-collections',
+    ],
   },
   {
     section: 'Broadcast',
-    blurb:
-      'Go live, programme the schedule, and run channel / radio controls.',
-    files: ['studio-go-live', 'studio-schedule', 'studio-radio', 'studio-branding'],
+    blurb: 'Go live, programme the schedule, and run channel / radio controls.',
+    files: [
+      'studio-go-live',
+      'studio-schedule',
+      'studio-radio',
+      'studio-branding',
+    ],
   },
   {
     section: 'Connect',
-    blurb:
-      'Artist identity, audience, messages and community governance.',
+    blurb: 'Artist identity, audience, messages and community governance.',
     files: [
       'public-artist',
       'studio-audience',
@@ -46,7 +59,12 @@ const HIGHLIGHTS = [
     section: 'Operate',
     blurb:
       'Board tools for health, moderation queues and live stream oversight.',
-    files: ['admin-overview', 'admin-moderation', 'admin-streams', 'admin-status'],
+    files: [
+      'admin-overview',
+      'admin-moderation',
+      'admin-streams',
+      'admin-status',
+    ],
   },
 ];
 
@@ -591,7 +609,10 @@ let page = await browser.newPage({ viewport: VIEWPORT });
 await page.emulateMedia({ reducedMotion: 'reduce' });
 
 async function seedSession() {
-  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.goto(`${BASE}/`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 30000,
+  });
   await page.evaluate(
     ({ authState, layoutState }) => {
       localStorage.setItem('tahti-web-auth', JSON.stringify(authState));
@@ -718,8 +739,12 @@ writeFileSync(
 const byId = new Map(results.map((result) => [result.id, result]));
 
 const sectionFor = (title) => {
-  if (title.startsWith('Admin /')) return 'Administration';
-  if (title.startsWith('Studio /')) return 'Artist studio';
+  if (title.startsWith('Admin /')) {
+    return 'Administration';
+  }
+  if (title.startsWith('Studio /')) {
+    return 'Artist studio';
+  }
   if (
     title.startsWith('Public ') ||
     title === 'Governance' ||
@@ -764,22 +789,20 @@ for (const sectionName of sectionOrder) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
   const entries = gallerySections.get(sectionName) ?? [];
-  viewGuideLines.push(
-    `- [${sectionName}](#${anchor}) (${entries.length})`,
-  );
+  viewGuideLines.push(`- [${sectionName}](#${anchor}) (${entries.length})`);
 }
 viewGuideLines.push('');
 
 for (const sectionName of sectionOrder) {
   const entries = gallerySections.get(sectionName) ?? [];
-  if (entries.length === 0) continue;
+  if (entries.length === 0) {
+    continue;
+  }
   viewGuideLines.push(`## ${sectionName}`, '');
   viewGuideLines.push('| View | Path |', '| --- | --- |');
   for (const entry of entries) {
     const anchor = entry.id;
-    viewGuideLines.push(
-      `| [${entry.title}](#${anchor}) | \`${entry.path}\` |`,
-    );
+    viewGuideLines.push(`| [${entry.title}](#${anchor}) | \`${entry.path}\` |`);
   }
   viewGuideLines.push('');
   for (const entry of entries) {
@@ -811,7 +834,9 @@ for (const highlight of HIGHLIGHTS) {
   highlightMarkdown.push(`### ${highlight.section}`, '', highlight.blurb, '');
   for (const fileId of highlight.files) {
     const entry = byId.get(fileId);
-    if (!entry) continue;
+    if (!entry) {
+      continue;
+    }
     highlightMarkdown.push(
       `#### ${entry.title}`,
       '',
