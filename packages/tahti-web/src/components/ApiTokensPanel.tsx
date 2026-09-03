@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, SectionShell, Toggle } from '@tahti-player/ui';
+import {
+  Button,
+  CopyButton,
+  Input,
+  SectionShell,
+  Toggle,
+} from '@tahti-player/ui';
 
 import {
   createApiToken,
@@ -100,16 +106,13 @@ export function ApiTokensPanel() {
                   readOnly
                   onFocus={(event) => event.currentTarget.select()}
                 />
-                <Button
+                <CopyButton
+                  text={revealedToken}
                   size="sm"
                   variant="secondary"
-                  onClick={() => {
-                    void navigator.clipboard.writeText(revealedToken);
-                    toast.success('Token copied.');
-                  }}
-                >
-                  Copy
-                </Button>
+                  toastMessage="Token copied."
+                  aria-label="Copy API token"
+                />
                 <Button
                   size="sm"
                   variant="text"

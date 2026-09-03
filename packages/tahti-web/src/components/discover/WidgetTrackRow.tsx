@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { HeartIcon, MusicIcon, PauseIcon, PlayIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Loader } from '@tahti-player/ui';
+import { ImageReveal, Loader } from '@tahti-player/ui';
 
 import { fetchTrackDetail } from '../../api/client';
 import type { DiscoverTrackItem } from '../../api/types';
@@ -96,7 +96,7 @@ export function WidgetTrackRow({
       )}
     >
       {item.coverUrl ? (
-        <img src={item.coverUrl} alt="" className="size-full object-cover" />
+        <ImageReveal src={item.coverUrl} alt="" className="size-full" />
       ) : (
         <MusicIcon
           size={16}

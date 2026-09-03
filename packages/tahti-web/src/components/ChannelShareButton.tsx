@@ -52,16 +52,24 @@ export function ChannelShareButton({
             </div>
             <p className="text-foreground-secondary text-sm">{text}</p>
             <div className="flex items-center gap-2">
-              <code className="border-border bg-background-secondary min-w-0 flex-1 truncate rounded-md border px-3 py-2 text-sm">
+              <code className="border-border bg-background-secondary min-w-0 flex-1 overflow-x-auto rounded-md border px-3 py-2 text-sm whitespace-nowrap">
                 {url}
               </code>
-              <CopyButton text={url} aria-label="Copy channel link" />
+              <CopyButton
+                text={url}
+                aria-label="Copy channel link"
+                toastMessage="Link copied."
+              />
             </div>
             <div className="flex items-center gap-2">
-              <code className="border-border bg-background-secondary min-w-0 flex-1 truncate rounded-md border px-3 py-2 text-sm">
+              <code className="border-border bg-background-secondary min-w-0 flex-1 overflow-x-auto rounded-md border px-3 py-2 text-sm whitespace-nowrap">
                 {text}
               </code>
-              <CopyButton text={text} aria-label="Copy share message" />
+              <CopyButton
+                text={text}
+                aria-label="Copy share message"
+                toastMessage="Message copied."
+              />
             </div>
           </section>
           <section className="flex flex-col gap-3">
@@ -70,16 +78,24 @@ export function ChannelShareButton({
               <h3 className="text-sm font-bold">Embed</h3>
             </div>
             <div className="flex items-center gap-2">
-              <code className="border-border bg-background-secondary min-w-0 flex-1 truncate rounded-md border px-3 py-2 text-sm">
+              <code className="border-border bg-background-secondary min-w-0 flex-1 overflow-x-auto rounded-md border px-3 py-2 text-sm whitespace-nowrap">
                 {embedUrl}
               </code>
-              <CopyButton text={embedUrl} aria-label="Copy embed link" />
+              <CopyButton
+                text={embedUrl}
+                aria-label="Copy embed link"
+                toastMessage="Link copied."
+              />
             </div>
             <div className="flex items-center gap-2">
-              <code className="border-border bg-background-secondary min-w-0 flex-1 truncate rounded-md border px-3 py-2 text-xs">
+              <code className="border-border bg-background-secondary min-w-0 flex-1 overflow-x-auto rounded-md border px-3 py-2 text-xs whitespace-nowrap">
                 {embedSnippet}
               </code>
-              <CopyButton text={embedSnippet} aria-label="Copy iframe code" />
+              <CopyButton
+                text={embedSnippet}
+                aria-label="Copy iframe code"
+                toastMessage="Embed code copied."
+              />
             </div>
           </section>
         </div>

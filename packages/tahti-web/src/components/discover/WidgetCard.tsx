@@ -8,7 +8,13 @@ import {
 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 
-import { Button, Dialog, EmptyState, Loader } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  EmptyState,
+  ImageReveal,
+  Loader,
+} from '@tahti-player/ui';
 
 import type { DiscoverArtistOfWeek } from '../../api/discover';
 import type { DiscoverCollection, DiscoverTrackItem } from '../../api/types';
@@ -120,10 +126,11 @@ export function WidgetCard({
       ) : artist ? (
         <div className="flex flex-1 flex-col items-center text-center">
           {artist.avatarUrl ? (
-            <img
+            <ImageReveal
               src={artist.avatarUrl}
               alt={`${artist.displayName} profile`}
-              className="bg-background-secondary size-40 rounded-full object-cover"
+              className="bg-background-secondary size-40 rounded-full"
+              imgClassName="object-cover"
             />
           ) : (
             <div className="bg-background-secondary text-foreground-secondary flex size-40 items-center justify-center rounded-full text-4xl font-bold">
@@ -155,10 +162,10 @@ export function WidgetCard({
               className="border-border bg-background hover:bg-background-tertiary flex items-center gap-3 rounded-md border p-2 transition-colors"
             >
               {collection.coverUrl ? (
-                <img
+                <ImageReveal
                   src={collection.coverUrl}
                   alt=""
-                  className="size-12 shrink-0 rounded object-cover"
+                  className="size-12 shrink-0 rounded"
                 />
               ) : (
                 <div className="bg-primary text-primary-foreground flex size-12 shrink-0 items-center justify-center rounded text-xs font-bold">

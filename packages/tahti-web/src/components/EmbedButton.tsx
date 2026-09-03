@@ -65,10 +65,14 @@ export function EmbedButton({
               Link
             </span>
             <div className="flex items-center gap-2">
-              <code className="border-border bg-background-secondary flex-1 truncate rounded-md border px-3 py-2 text-sm">
+              <code className="border-border bg-background-secondary flex-1 overflow-x-auto rounded-md border px-3 py-2 text-sm whitespace-nowrap">
                 {url}
               </code>
-              <CopyButton text={url} aria-label="Copy embed link" />
+              <CopyButton
+                text={url}
+                aria-label="Copy embed link"
+                toastMessage="Link copied."
+              />
             </div>
           </div>
           <div className="flex flex-col gap-1">
@@ -76,10 +80,14 @@ export function EmbedButton({
               Iframe code
             </span>
             <div className="flex items-center gap-2">
-              <code className="border-border bg-background-secondary flex-1 truncate rounded-md border px-3 py-2 text-xs">
+              <code className="border-border bg-background-secondary flex-1 overflow-x-auto rounded-md border px-3 py-2 text-xs whitespace-nowrap">
                 {snippet}
               </code>
-              <CopyButton text={snippet} aria-label="Copy iframe code" />
+              <CopyButton
+                text={snippet}
+                aria-label="Copy iframe code"
+                toastMessage="Embed code copied."
+              />
             </div>
           </div>
         </div>

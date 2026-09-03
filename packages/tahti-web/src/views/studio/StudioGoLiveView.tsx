@@ -71,12 +71,13 @@ function CopyField({ label, value }: { label: string; value: string }) {
         {label}
       </div>
       <div className="flex items-center gap-2">
-        <code className="text-foreground flex-1 truncate font-mono text-sm">
+        <code className="text-foreground flex-1 overflow-x-auto font-mono text-sm whitespace-nowrap">
           {value}
         </code>
         <CopyButton
           text={value}
           variant="secondary"
+          toastMessage={`${label} copied.`}
           aria-label={`Copy ${label}`}
         />
       </div>

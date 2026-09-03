@@ -127,13 +127,14 @@ export function SoundShareLinksSection({ soundId }: { soundId: string }) {
                   WORKPLAN.md's URL-field sweep entry for the rest of the
                   app's fields still owed this treatment. */}
               <div className="flex items-center gap-2">
-                <code className="border-border bg-background-secondary min-w-0 flex-1 truncate rounded-md border px-2 py-1">
+                <code className="border-border bg-background-secondary min-w-0 flex-1 overflow-x-auto rounded-md border px-2 py-1 whitespace-nowrap">
                   {shareLinkFor(soundId, share.token)}
                 </code>
                 <CopyButton
                   text={shareLinkFor(soundId, share.token)}
                   aria-label="Copy share link"
                   variant="text"
+                  toastMessage="Link copied."
                 />
                 <Button
                   size="icon-sm"
