@@ -1,5 +1,23 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Remaining switches and Installed/Available tabs (five slices)
+
+Bumped `@tahti-player/tahti-web` to `0.0.47`.
+
+**Slice 1 — Go Live recording:** Record broadcast uses Nuclear `Toggle` instead of a hand-built switch.
+
+**Slice 2 — Add-ons audio plugins:** Plugin Store audio-plugin enable/disable uses `Toggle`.
+
+**Slice 3 — Plugin Store catalogs:** Installed/Available filters for add-on categories and internet radio use `Tabs`.
+
+**Slice 4 — Listen add-ons picker:** The Listen widget picker Installed/Available filter uses `Tabs`.
+
+**Slice 5 — Stream manager:** Active rotation / Stream stats / Overlay uses `Tabs`.
+
+No remaining hand-built `role="switch"` rows in tahti-web. Still open from the reuse audit: in-page `role="tablist"` strips on Branding, Channel, Pro Editor stems, and a few public pages.
+
+**Validation:** tahti-web type-check and eslint on the touched files. Deployed to beta after push.
+
 ## 2026-09-03 — Help center Nuclear primitives + Storybook surface
 
 Bumped `@tahti-player/tahti-web` to `0.0.46`.

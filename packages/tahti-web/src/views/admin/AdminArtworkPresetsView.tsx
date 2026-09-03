@@ -6,6 +6,7 @@ import { Button, Input } from '@tahti-player/ui';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { ArtworkPresetUploadDialog } from '../../components/ArtworkPresetUploadDialog';
+import { StudioPageHeader } from '../../components/StudioPanel';
 import {
   GENERATED_ARTWORK_COUNT,
   generatedArtworkUrl,
@@ -134,19 +135,15 @@ export function AdminArtworkPresetsView() {
     <AdminGate>
       <AdminPageLayout current="/admin/artwork-presets">
         <div className="flex flex-col gap-6">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-semibold">Artwork presets</h1>
-              <p className="text-foreground-secondary mt-1 text-sm">
-                Manage the abstract thumbnails used when a new upload has no
-                artwork. The 16 defaults below can't be overwritten — assign one
-                of your own uploaded artworks to a slot instead.
-              </p>
-            </div>
-            <Button variant="secondary" onClick={resetToDefaults}>
-              Reset to defaults
-            </Button>
-          </div>
+          <StudioPageHeader
+            title="Artwork presets"
+            subtitle="Manage the abstract thumbnails used when a new upload has no artwork. The 16 defaults below can't be overwritten — assign one of your own uploaded artworks to a slot instead."
+            action={
+              <Button variant="secondary" onClick={resetToDefaults}>
+                Reset to defaults
+              </Button>
+            }
+          />
           <div className="grid gap-3 sm:grid-cols-4 lg:grid-cols-8">
             {DEFAULT_ARTWORKS.map((_, index) => (
               <button

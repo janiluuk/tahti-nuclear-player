@@ -27,6 +27,7 @@ import {
   Card,
   CardGrid,
   Dialog,
+  FilterChips,
   Input,
   SaveButton,
   Slider,
@@ -1292,30 +1293,40 @@ export function StudioProEditorView({ soundId }: { soundId: string }) {
                                   <p className="text-foreground-secondary mb-2 text-xs uppercase">
                                     Filter type
                                   </p>
-                                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                                    {FILTER_MODES.map((option) => (
-                                      <button
-                                        key={option.id}
-                                        type="button"
-                                        aria-pressed={
-                                          editList.filter.mode === option.id
-                                        }
-                                        onClick={() =>
-                                          setEditList({
-                                            ...editList,
-                                            filter: {
-                                              ...editList.filter,
-                                              mode: option.id,
-                                            },
-                                          })
-                                        }
-                                        className={`border-border flex flex-col items-center gap-1 rounded border p-2 text-xs ${editList.filter.mode === option.id ? 'border-primary bg-primary/10 text-foreground' : 'text-foreground-secondary hover:text-foreground'}`}
-                                      >
-                                        <FilterCurve path={option.path} />
-                                        {option.label}
-                                      </button>
-                                    ))}
-                                  </div>
+                                  <FilterChips
+                                    aria-label="Filter type"
+                                    items={FILTER_MODES.map((option) => ({
+                                      id: option.id,
+                                      label: option.label,
+                                    }))}
+                                    selected={editList.filter.mode}
+                                    onChange={(mode) => {
+                                      const next = FILTER_MODES.find(
+                                        (option) => option.id === mode,
+                                      );
+                                      if (!next) {
+                                        return;
+                                      }
+                                      setEditList({
+                                        ...editList,
+                                        filter: {
+                                          ...editList.filter,
+                                          mode: next.id,
+                                        },
+                                      });
+                                    }}
+                                  />
+                                  {(() => {
+                                    const selectedMode = FILTER_MODES.find(
+                                      (option) =>
+                                        option.id === editList.filter.mode,
+                                    );
+                                    return selectedMode ? (
+                                      <div className="border-border mt-2 flex justify-center rounded border p-2">
+                                        <FilterCurve path={selectedMode.path} />
+                                      </div>
+                                    ) : null;
+                                  })()}
                                 </div>
                                 <Slider
                                   label="Freq"

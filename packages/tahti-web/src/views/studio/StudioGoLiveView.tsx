@@ -13,7 +13,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Badge, Button, CopyButton, Dialog } from '@tahti-player/ui';
+import { Badge, Button, CopyButton, Dialog, Toggle } from '@tahti-player/ui';
 
 import {
   createRtmpTarget,
@@ -490,15 +490,7 @@ export function StudioGoLiveView() {
                 title="Recording"
                 description="Save this and future broadcasts to your recordings archive."
               >
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={recordEnabled}
-                  aria-label="Record broadcast"
-                  disabled={recordBusy}
-                  onClick={() => void toggleRecording()}
-                  className="border-border bg-background hover:bg-background-secondary flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors disabled:opacity-60"
-                >
+                <div className="border-border bg-background flex w-full items-center gap-3 rounded-lg border p-3">
                   <CircleDotIcon
                     size={20}
                     aria-hidden
@@ -518,19 +510,13 @@ export function StudioGoLiveView() {
                         : 'Off · this broadcast will not be saved'}
                     </span>
                   </span>
-                  <span
-                    aria-hidden
-                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-                      recordEnabled ? 'bg-primary' : 'bg-background-secondary'
-                    }`}
-                  >
-                    <span
-                      className={`bg-foreground absolute top-1 size-4 rounded-full transition-transform ${
-                        recordEnabled ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </span>
-                </button>
+                  <Toggle
+                    label="Record broadcast"
+                    checked={recordEnabled}
+                    disabled={recordBusy}
+                    onChange={() => void toggleRecording()}
+                  />
+                </div>
                 <Link
                   to="/studio/recordings"
                   aria-label="Open recordings"

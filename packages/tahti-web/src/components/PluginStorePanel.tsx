@@ -236,38 +236,15 @@ function InstalledAvailableTabs({
 
   return (
     <div className="flex flex-col gap-3">
-      <div
-        className="flex gap-1"
-        role="tablist"
-        aria-label="Installed or available"
+      <Tabs.Root
+        selectedIndex={tab === 'installed' ? 0 : 1}
+        onChange={(index) => setTab(index === 0 ? 'installed' : 'available')}
       >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'installed'}
-          onClick={() => setTab('installed')}
-          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-            tab === 'installed'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-border text-foreground hover:bg-background-secondary'
-          }`}
-        >
-          Installed ({installedIds.length})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'available'}
-          onClick={() => setTab('available')}
-          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-            tab === 'available'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-border text-foreground hover:bg-background-secondary'
-          }`}
-        >
-          Available ({availableIds.length})
-        </button>
-      </div>
+        <Tabs.List>
+          <Tabs.Tab>Installed ({installedIds.length})</Tabs.Tab>
+          <Tabs.Tab>Available ({availableIds.length})</Tabs.Tab>
+        </Tabs.List>
+      </Tabs.Root>
       {visibleIds.length === 0 ? (
         <p className="text-foreground-secondary text-sm">
           {tab === 'installed' ? emptyInstalled : emptyAvailable}
@@ -2485,18 +2462,11 @@ function AudioPluginToggleRow({
           isInstalled={enabled}
         />
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={enabled}
-        aria-label={`${enabled ? 'Deactivate' : 'Activate'} ${name}`}
-        onClick={onToggle}
-        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border-2 transition-colors ${enabled ? 'border-primary bg-primary' : 'border-border bg-background'}`}
-      >
-        <span
-          className={`size-4 rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`}
-        />
-      </button>
+      <Toggle
+        label={`${enabled ? 'Deactivate' : 'Activate'} ${name}`}
+        checked={enabled}
+        onChange={() => onToggle()}
+      />
     </div>
   );
 }
@@ -3157,38 +3127,17 @@ function RadioCategory() {
         </form>
       )}
 
-      <div
-        className="flex gap-1"
-        role="tablist"
-        aria-label="Installed or available"
+      <Tabs.Root
+        selectedIndex={installTab === 'installed' ? 0 : 1}
+        onChange={(index) =>
+          setInstallTab(index === 0 ? 'installed' : 'available')
+        }
       >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={installTab === 'installed'}
-          onClick={() => setInstallTab('installed')}
-          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-            installTab === 'installed'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-border text-foreground hover:bg-background-secondary'
-          }`}
-        >
-          Installed ({stationInstalledCount})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={installTab === 'available'}
-          onClick={() => setInstallTab('available')}
-          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-            installTab === 'available'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-border text-foreground hover:bg-background-secondary'
-          }`}
-        >
-          Available ({stationAvailableCount})
-        </button>
-      </div>
+        <Tabs.List>
+          <Tabs.Tab>Installed ({stationInstalledCount})</Tabs.Tab>
+          <Tabs.Tab>Available ({stationAvailableCount})</Tabs.Tab>
+        </Tabs.List>
+      </Tabs.Root>
       <div className="flex flex-col gap-2">
         {RADIO_STATIONS.filter(
           (s) =>

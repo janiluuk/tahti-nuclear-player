@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
+import { Box, SectionShell } from '@tahti-player/ui';
+
 import {
   fetchTransparencyGrants,
   fetchTransparencyLedger,
@@ -81,8 +83,7 @@ export function TransparencyView() {
       />
 
       {ytd && (
-        <section className="flex flex-col gap-3">
-          <h2 className="font-display text-xl font-bold">YTD {ytd.year}</h2>
+        <SectionShell title={`YTD ${ytd.year}`}>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <Stat
               label="Running surplus"
@@ -97,7 +98,7 @@ export function TransparencyView() {
               value={String(Object.keys(ytd.byCategory).length)}
             />
           </div>
-          <table className="w-full border-collapse text-left text-sm">
+          <table className="mt-3 w-full border-collapse text-left text-sm">
             <thead>
               <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
                 <th className="py-2 pr-3 font-medium">Category</th>
@@ -113,14 +114,11 @@ export function TransparencyView() {
               ))}
             </tbody>
           </table>
-        </section>
+        </SectionShell>
       )}
 
       {grants && (
-        <section className="flex flex-col gap-3">
-          <h2 className="font-display text-xl font-bold">
-            Grants {grants.year}
-          </h2>
+        <SectionShell title={`Grants ${grants.year}`}>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <Stat label="Total" value={centsLabel(grants.totalCents)} />
             <Stat label="Count" value={String(grants.grantCount)} />
@@ -129,7 +127,7 @@ export function TransparencyView() {
               value={grants.disbursedAt ? grants.disbursedAt.slice(0, 10) : '—'}
             />
           </div>
-          <table className="w-full border-collapse text-left text-sm">
+          <table className="mt-3 w-full border-collapse text-left text-sm">
             <thead>
               <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
                 <th className="py-2 pr-3 font-medium">Published as</th>
@@ -152,7 +150,7 @@ export function TransparencyView() {
               ))}
             </tbody>
           </table>
-          <div className="flex flex-wrap gap-2 text-xs">
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
             {Array.from(
               { length: 5 },
               (_, index) => grants.year - index - 1,
@@ -167,11 +165,10 @@ export function TransparencyView() {
               </Link>
             ))}
           </div>
-        </section>
+        </SectionShell>
       )}
 
-      <section className="flex flex-col gap-3">
-        <h2 className="font-display text-xl font-bold">Latest ledger</h2>
+      <SectionShell title="Latest ledger">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
             <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
@@ -194,18 +191,18 @@ export function TransparencyView() {
             ))}
           </tbody>
         </table>
-      </section>
+      </SectionShell>
     </div>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-border bg-background rounded-lg border p-3">
+    <Box variant="secondary" shadow="default" className="flex-col gap-1">
       <div className="text-foreground-secondary text-[10px] tracking-wide uppercase">
         {label}
       </div>
-      <div className="font-display mt-1 text-lg font-bold">{value}</div>
-    </div>
+      <div className="font-display text-lg font-bold">{value}</div>
+    </Box>
   );
 }

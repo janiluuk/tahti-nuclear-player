@@ -1,7 +1,7 @@
 import { Heart, SettingsIcon, Youtube } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button, Input, PluginStoreItem } from '@tahti-player/ui';
+import { Button, Input, PluginStoreItem, Tabs } from '@tahti-player/ui';
 
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
 import {
@@ -195,38 +195,17 @@ export function ListenAddonsPanel({
 
   return (
     <div className="flex flex-col gap-3">
-      <div
-        className="flex gap-1"
-        role="tablist"
-        aria-label="Installed or available"
+      <Tabs.Root
+        selectedIndex={installTab === 'installed' ? 0 : 1}
+        onChange={(index) =>
+          setInstallTab(index === 0 ? 'installed' : 'available')
+        }
       >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={installTab === 'installed'}
-          onClick={() => setInstallTab('installed')}
-          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-            installTab === 'installed'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-border text-foreground hover:bg-background-secondary'
-          }`}
-        >
-          Installed ({installedCount})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={installTab === 'available'}
-          onClick={() => setInstallTab('available')}
-          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-            installTab === 'available'
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-border text-foreground hover:bg-background-secondary'
-          }`}
-        >
-          Available ({availableCount})
-        </button>
-      </div>
+        <Tabs.List>
+          <Tabs.Tab>Installed ({installedCount})</Tabs.Tab>
+          <Tabs.Tab>Available ({availableCount})</Tabs.Tab>
+        </Tabs.List>
+      </Tabs.Root>
       <div className={listClassName}>
         {favoritesInstalled === (installTab === 'installed') && (
           <ConfigurableCard

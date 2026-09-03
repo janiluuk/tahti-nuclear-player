@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Badge, Button, Dialog } from '@tahti-player/ui';
+import { Badge, Button, Dialog, Tabs } from '@tahti-player/ui';
 
 import {
   fetchChannelManageStats,
@@ -616,34 +616,22 @@ export function StreamManagerPanel({
       )}
 
       {(!rotationPlaying || rotationExpanded) && (
-        <div
-          className="border-border flex flex-wrap gap-1 border-b pb-2"
-          role="tablist"
-          aria-label="Stream manager sections"
+        <Tabs.Root
+          selectedIndex={
+            activeTab === 'rotation' ? 0 : activeTab === 'stats' ? 1 : 2
+          }
+          onChange={(index) =>
+            setActiveTab(
+              index === 0 ? 'rotation' : index === 1 ? 'stats' : 'overlay',
+            )
+          }
         >
-          {(
-            [
-              ['rotation', 'Active rotation'],
-              ['stats', 'Stream stats'],
-              ['overlay', 'Overlay'],
-            ] as const
-          ).map(([id, label]) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === id}
-              onClick={() => setActiveTab(id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-                activeTab === id
-                  ? 'bg-accent-orange text-accent-foreground'
-                  : 'text-foreground-secondary hover:text-foreground'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+          <Tabs.List>
+            <Tabs.Tab>Active rotation</Tabs.Tab>
+            <Tabs.Tab>Stream stats</Tabs.Tab>
+            <Tabs.Tab>Overlay</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
       )}
 
       {activeTab === 'stats' && (!rotationPlaying || rotationExpanded) && (
