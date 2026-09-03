@@ -67,7 +67,7 @@ async function uploadSound(
 ): Promise<string> {
   await page.goto('/studio/upload');
   await page.locator('input[type="file"]').setInputFiles(FIXTURE_AUDIO);
-  await page.getByRole('button', { name: /^Upload$/ }).click();
+  await page.getByRole('button', { name: 'Upload file' }).click();
   await expect(page).toHaveURL(/\/studio\/sounds\/[^/]+$/, {
     timeout: 15_000,
   });

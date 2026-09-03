@@ -83,7 +83,7 @@ test('artist can sign in and reach broadcast and upload tools', async ({
     mimeType: 'audio/mpeg',
     buffer: Buffer.from('cutover-smoke'),
   });
-  await page.getByRole('button', { name: 'Upload' }).click();
+  await page.getByRole('button', { name: 'Upload file' }).click();
   await expect(
     page.getByText('Upload complete — processing may take a minute.'),
   ).toBeVisible();

@@ -122,6 +122,12 @@ function messageFor(entry: AdminActivityEntry): string {
       const amount = cents !== null ? ` (€${(cents / 100).toFixed(2)}/mo)` : '';
       return `${actor} subscribed — ${str('tierName') ?? 'a tier'}${amount}`;
     }
+    case 'LEDGER_ENTRY_CREATE': {
+      const title = str('title');
+      return title
+        ? `${actor} logged a ledger entry — ${title}`
+        : `${actor} logged a ledger entry`;
+    }
     case 'USER_TIER_CHANGE': {
       const from = str('from') ?? 'unknown';
       const to = str('to') ?? 'unknown';

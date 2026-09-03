@@ -68,46 +68,41 @@ export async function installStripeMock(
     });
   });
 
+  await page.route('**/archive/**/download**', async (route: Route) => {
+    if (route.request().method() !== 'GET') {
+      await route.continue();
+      return;
+    }
+    const url = new URL(route.request().url());
+    if (url.searchParams.get('format')) {
+      await route.continue();
+      return;
+    }
+    url.searchParams.set('format', 'source');
+    await route.continue({ url: url.toString() });
+  });
+
   await page.route('**/api/v1/u/*/subscribe', async (route: Route) => {
     if (route.request().method() !== 'POST') {
       await route.continue();
       return;
     }
-    const response = await route.fetch();
-    const json = (await response.json()) as {
-      checkoutUrl?: string;
-      sessionId?: string;
-      activated?: boolean;
-      tierName?: string;
-      amountCents?: number;
-      subscriptionId?: string;
-      currentPeriodEnd?: string;
-      error?: string;
-    };
-    if (json.checkoutUrl && !json.activated) {
-      await route.fulfill({
-        status: 201,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          activated: true,
-          subscriptionId: json.sessionId ?? `stripe-mock-${Date.now()}`,
-          tierName: json.tierName ?? 'Supporter',
-          amountCents: json.amountCents ?? 500,
-          currentPeriodEnd: new Date(Date.now() + PERIOD_MS).toISOString(),
-        }),
-      });
-      state.fanSubs.push({
-        fanUsername: 'pending',
-        fanDisplayName: 'pending',
-        tierName: json.tierName ?? 'Supporter',
-        amountCents: json.amountCents ?? 500,
-      });
-      return;
-    }
     await route.fulfill({
-      status: response.status(),
+      status: 201,
       contentType: 'application/json',
-      body: JSON.stringify(json),
+      body: JSON.stringify({
+        activated: true,
+        subscriptionId: `stripe-mock-${Date.now()}`,
+        tierName: 'Supporter',
+        amountCents: 500,
+        currentPeriodEnd: new Date(Date.now() + PERIOD_MS).toISOString(),
+      }),
+    });
+    state.fanSubs.push({
+      fanUsername: 'pending',
+      fanDisplayName: 'pending',
+      tierName: 'Supporter',
+      amountCents: 500,
     });
   });
 
