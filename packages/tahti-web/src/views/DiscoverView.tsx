@@ -10,14 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import {
-  Badge,
-  Button,
-  FilterChips,
-  Popover,
-  Select,
-  Tabs,
-} from '@tahti-player/ui';
+import { Button, FilterChips, Popover, Select, Tabs } from '@tahti-player/ui';
 
 import { fetchDirectory, fetchTrackDetail } from '../api/client';
 import {
@@ -30,16 +23,17 @@ import {
   fetchTopTracks,
 } from '../api/discover';
 import type { DiscoverArtistOfWeek } from '../api/discover';
-import {
-  isDirectoryArtistActive,
-  type ChannelDirectoryItem,
-  type DiscoverCollection,
-  type DiscoverTrackItem,
-  type TahtiPlayable,
+import type {
+  ChannelDirectoryItem,
+  DiscoverCollection,
+  DiscoverTrackItem,
+  TahtiPlayable,
 } from '../api/types';
+import { DirectoryArtistCardGrid } from '../components/DirectoryArtistCardGrid';
 import { WidgetCard } from '../components/discover/WidgetCard';
 import { NewsFeedWidget } from '../components/NewsFeedWidget';
 import { PageFrame, PageHeader } from '../components/PageHeader';
+import { PageEmpty, PageLoading } from '../components/PageStates';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { VenuesDirectory } from '../components/VenuesDirectory';
@@ -459,7 +453,10 @@ export function DiscoverView() {
       ) : null}
 
       {activeTab === 'discover' && enabledWidgets.length > 0 && (
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div
+          className="grid gap-4 lg:grid-cols-3"
+          data-testid="discover-widget-columns"
+        >
           {enabledWidgets.map((id, index) => {
             const widgetData = data[id];
             return (
@@ -511,7 +508,10 @@ export function DiscoverView() {
       )}
 
       {activeTab === 'artists' && (
-        <ArtistCarousel artists={filteredArtists} loading={artistsLoading} />
+        <DiscoverArtistsGrid
+          artists={filteredArtists}
+          loading={artistsLoading}
+        />
       )}
 
       {activeTab === 'venues' && <VenuesDirectory />}
@@ -566,7 +566,7 @@ function DiscoverAddWidgetButton({
   );
 }
 
-function ArtistCarousel({
+function DiscoverArtistsGrid({
   artists,
   loading,
 }: {
@@ -574,77 +574,24 @@ function ArtistCarousel({
   loading: boolean;
 }) {
   if (loading) {
+    return <PageLoading label="Loading artists…" />;
+  }
+
+  if (artists.length === 0) {
     return (
-      <section className="border-border bg-background-secondary flex min-h-[280px] items-center justify-center rounded-md border p-4">
-        <p className="text-foreground-secondary text-sm">Loading artists…</p>
-      </section>
+      <PageEmpty
+        title="No artists match"
+        description="Try another Discover filter, or browse Listen for the full directory."
+      />
     );
   }
 
   return (
     <section className="flex flex-col gap-3" aria-label="Discover artists">
-      <div className="flex items-baseline justify-between gap-3">
-        <div>
-          <h2 className="font-display text-xl font-bold">Discover artists</h2>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Artists from the Listen directory, filtered for your picks.
-          </p>
-        </div>
-        <span className="text-foreground-secondary text-xs tabular-nums">
-          {artists.length} artists
-        </span>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {artists.map((artist) => (
-          <div key={artist.slug} className="group relative">
-            <div
-              className="from-accent-cyan/50 via-accent-purple/35 to-accent-cyan/45 pointer-events-none absolute -inset-3 rounded-3xl bg-linear-to-br opacity-75 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
-              aria-hidden
-            />
-            <Link
-              to="/u/$username"
-              params={{ username: artist.username }}
-              className="border-border bg-background-secondary shadow-shadow relative block h-48 overflow-hidden rounded-xl border transition-transform duration-300 hover:-translate-y-1"
-            >
-              {artist.avatarUrl ? (
-                <img
-                  src={artist.avatarUrl}
-                  alt=""
-                  className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              ) : (
-                <div className="bg-primary text-primary-foreground absolute inset-0 flex items-center justify-center text-6xl font-bold">
-                  {artist.displayName.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/35 via-transparent to-black/95" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-black/95 via-black/70 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-4">
-                <div className="min-w-0 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
-                  <h3 className="truncate text-lg font-bold tracking-tight">
-                    {artist.displayName}
-                  </h3>
-                  <p className="truncate text-xs font-medium text-white/90">
-                    @{artist.username}
-                    {artist.genres.length > 0
-                      ? ` · ${artist.genres.slice(0, 2).join(', ')}`
-                      : ''}
-                  </p>
-                </div>
-                {isDirectoryArtistActive(artist) ? (
-                  <Badge
-                    variant="pill"
-                    color="cyan"
-                    className="shrink-0 px-2 py-1 text-[10px] font-bold tracking-wide uppercase shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
-                  >
-                    Live
-                  </Badge>
-                ) : null}
-              </div>
-            </Link>
-          </div>
-        ))}
-      </div>
+      <p className="text-foreground-secondary text-xs tabular-nums">
+        {artists.length} artists
+      </p>
+      <DirectoryArtistCardGrid artists={artists} liveIndicator="badge" />
     </section>
   );
 }

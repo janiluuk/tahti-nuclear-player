@@ -7,6 +7,12 @@ const meta = {
   component: CardGrid,
   parameters: {
     layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Auto-fit media tile grid. Production consumers in tahti-web: Listen On air / Radio presets / Discover artists (Listen tab), Discover → Artists (`DirectoryArtistCardGrid`), and listener internet-radio stations. Discover widget columns stay `WidgetCard` panels — intentionally not CardGrid. Featured Tahti Radio strip and embed iframes are also non-Card by design.',
+      },
+    },
   },
   tags: ['autodocs'],
 } satisfies Meta<typeof CardGrid>;

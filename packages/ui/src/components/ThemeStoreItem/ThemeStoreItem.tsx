@@ -60,15 +60,49 @@ export const ThemeStoreItem: FC<ThemeStoreItemProps> = ({
     installed = 'Installed',
     apply = 'Apply',
     active = 'Active',
-    uninstall = 'Uninstall',
+    uninstall = 'Remove',
     by = 'by',
   } = labels;
 
+  const showInstallButton = !isInstalled || isInstalling;
+  const actionIcons =
+    (isInstalled && (onApply || onUninstall)) || accessory ? (
+      <div className="flex shrink-0 items-center gap-1">
+        {isInstalled && onApply ? (
+          <Tooltip content={isActive ? active : apply}>
+            <Button
+              size="icon-sm"
+              disabled={isActive}
+              onClick={onApply}
+              data-testid="theme-store-item-apply"
+              aria-label={isActive ? active : apply}
+            >
+              {isActive ? <Check size={16} /> : <Paintbrush size={16} />}
+            </Button>
+          </Tooltip>
+        ) : null}
+        {accessory}
+        {isInstalled && onUninstall ? (
+          <Tooltip content={uninstall}>
+            <Button
+              size="icon-sm"
+              intent="danger"
+              onClick={onUninstall}
+              data-testid="theme-store-item-uninstall"
+              aria-label={uninstall}
+            >
+              <Trash size={16} />
+            </Button>
+          </Tooltip>
+        ) : null}
+      </div>
+    ) : null;
+
   return (
-    <div data-testid="theme-store-item" className="flex flex-row gap-2">
+    <div data-testid="theme-store-item" className={cn('flex', className)}>
       <Box
         variant="tertiary"
-        className={cn('relative h-auto overflow-hidden p-2', className)}
+        className="relative h-auto min-w-0 flex-1 overflow-hidden p-1.5"
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
@@ -84,16 +118,22 @@ export const ThemeStoreItem: FC<ThemeStoreItemProps> = ({
         <Box
           variant="tertiary"
           shadow="none"
-          className="relative flex-1 flex-row items-center justify-between gap-4"
+          className="relative flex-1 flex-row items-center justify-between gap-2 !p-2"
         >
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
               <h3
                 data-testid="theme-store-item-name"
-                className="text-foreground text-base font-bold"
+                className="text-foreground truncate text-sm font-bold"
               >
                 {name}
               </h3>
+              <p
+                data-testid="theme-store-item-author"
+                className="text-foreground-secondary truncate text-xs"
+              >
+                {by} {author}
+              </p>
               {tags?.map((tag) => (
                 <Badge key={tag} variant="pill" color="cyan">
                   {tag}
@@ -102,70 +142,46 @@ export const ThemeStoreItem: FC<ThemeStoreItemProps> = ({
             </div>
             <p
               data-testid="theme-store-item-description"
-              className="text-foreground-secondary line-clamp-2 text-sm"
+              className="text-foreground-secondary line-clamp-1 text-xs"
             >
               {description}
             </p>
-            <p
-              data-testid="theme-store-item-author"
-              className="text-foreground-secondary text-xs"
-            >
-              {by} {author}
-            </p>
           </div>
-          <div className="shrink-0">
-            {isInstalling ? (
-              <Button disabled className="w-28">
-                <Loader size="sm" />
-                <span className="ml-2">{installing}</span>
-              </Button>
-            ) : isInstalled ? (
-              <Button disabled className="w-28">
-                <Check size={16} />
-                <span className="ml-2">{installed}</span>
-              </Button>
-            ) : (
+          {showInstallButton ? (
+            <div className="shrink-0">
+              {isInstalling ? (
+                <Button disabled size="sm" className="min-w-24">
+                  <Loader size="sm" />
+                  <span className="ml-2">{installing}</span>
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={onInstall}
+                  className="min-w-24"
+                  data-testid="theme-store-item-install"
+                >
+                  <Download size={16} />
+                  <span className="ml-2">{install}</span>
+                </Button>
+              )}
+            </div>
+          ) : actionIcons ? (
+            actionIcons
+          ) : (
+            <Tooltip content={installed}>
               <Button
-                onClick={onInstall}
-                className="w-28"
-                data-testid="theme-store-item-install"
+                size="icon-sm"
+                disabled
+                aria-label={installed}
+                data-testid="theme-store-item-installed"
               >
-                <Download size={16} />
-                <span className="ml-2">{install}</span>
+                <Check size={16} />
               </Button>
-            )}
-          </div>
+            </Tooltip>
+          )}
         </Box>
       </Box>
-      {(isInstalled && (onApply || onUninstall)) || accessory ? (
-        <div className="flex flex-col gap-2">
-          {isInstalled && onApply ? (
-            <Tooltip content={isActive ? active : apply}>
-              <Button
-                size="icon-sm"
-                disabled={isActive}
-                onClick={onApply}
-                data-testid="theme-store-item-apply"
-              >
-                {isActive ? <Check size={16} /> : <Paintbrush size={16} />}
-              </Button>
-            </Tooltip>
-          ) : null}
-          {isInstalled && onUninstall ? (
-            <Tooltip content={uninstall}>
-              <Button
-                size="icon-sm"
-                intent="danger"
-                onClick={onUninstall}
-                data-testid="theme-store-item-uninstall"
-              >
-                <Trash size={16} />
-              </Button>
-            </Tooltip>
-          ) : null}
-          {accessory}
-        </div>
-      ) : null}
     </div>
   );
 };

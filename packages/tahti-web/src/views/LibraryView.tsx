@@ -1,8 +1,8 @@
-import { Link, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { HardDriveIcon, HeadphonesIcon, Music2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Tabs } from '@tahti-player/ui';
+import { Tabs, TopList } from '@tahti-player/ui';
 
 import { fetchStudioSounds } from '../api/studio';
 import {
@@ -13,6 +13,7 @@ import {
 } from '../api/studio-extras';
 import { StudioNav } from '../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../components/StudioPanel';
+import { formatPlayCount } from '../lib/topListEntries';
 import { LibraryEmbedsView } from './LibraryEmbedsView';
 import { LibraryMediaView } from './LibraryMediaView';
 import { LibrarySmartLinksView } from './LibrarySmartLinksView';
@@ -197,6 +198,7 @@ function formatBytes(bytes: number): string {
 }
 
 function LibraryStats() {
+  const navigate = useNavigate();
   const [topTracks, setTopTracks] = useState<StatsTopTrack[]>([]);
   const [storage, setStorage] = useState<StorageUsage | null>(null);
   const [soundCount, setSoundCount] = useState(0);
@@ -255,38 +257,28 @@ function LibraryStats() {
           </p>
           <p className="text-foreground-secondary text-xs">
             {topTracks[0]
-              ? `${topTracks[0].plays.toLocaleString()} plays`
+              ? formatPlayCount(topTracks[0].plays)
               : 'No plays yet'}
           </p>
         </div>
       </div>
       {topTracks.length > 0 ? (
         <div className="mt-4">
-          <p className="text-foreground-secondary mb-2 text-xs font-semibold uppercase">
-            Top sounds · all time
-          </p>
-          <ol className="divide-border divide-y">
-            {topTracks.map((track, index) => (
-              <li
-                key={track.soundId}
-                className="flex items-center gap-3 py-2 text-sm"
-              >
-                <span className="text-foreground-secondary w-5 text-center text-xs">
-                  {index + 1}
-                </span>
-                <Link
-                  to="/studio/sounds/$id"
-                  params={{ id: track.soundId }}
-                  className="min-w-0 flex-1 truncate hover:underline"
-                >
-                  {track.title}
-                </Link>
-                <span className="text-foreground-secondary text-xs">
-                  {track.plays.toLocaleString()} plays
-                </span>
-              </li>
-            ))}
-          </ol>
+          <TopList
+            title="Top sounds · all time"
+            formatValue={formatPlayCount}
+            entries={topTracks.map((track) => ({
+              id: track.soundId,
+              label: track.title,
+              value: track.plays,
+              onClick: () => {
+                void navigate({
+                  to: '/studio/sounds/$id',
+                  params: { id: track.soundId },
+                });
+              },
+            }))}
+          />
         </div>
       ) : null}
     </StudioPanel>

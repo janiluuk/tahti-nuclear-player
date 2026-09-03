@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Horizontally scrolling card row used on the desktop player dashboard. Orphan in tahti-web: Listen/Discover card rows keep CardGrid plus per-item overlay controls that CardsRowItem cannot represent without dropping those actions. Missing states: per-item overlay/actions slot.',
+          'Horizontally scrolling card row used on the desktop player dashboard. Orphan in tahti-web: Listen On air / Radio / artists and Discover Artists use CardGrid+Card (DirectoryArtistCardGrid) with per-item overlays CardsRowItem cannot represent. Missing states: per-item overlay/actions slot.',
       },
     },
   },

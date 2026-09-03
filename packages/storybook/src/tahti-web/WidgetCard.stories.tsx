@@ -8,7 +8,15 @@ import { withTahtiRouter } from './_lib/decorators';
 const meta: Meta<typeof WidgetCard> = {
   title: 'Tahti/Discover/WidgetCard',
   component: WidgetCard,
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Discover tab ranking/list panels. Intentionally not CardGrid — dense track rows via WidgetTrackRow, not media Card tiles. If a widget grows cover tiles later, nest CardGrid+Card inside the panel.',
+      },
+    },
+  },
   tags: ['autodocs'],
   decorators: [withTahtiRouter('/discover')],
   args: {

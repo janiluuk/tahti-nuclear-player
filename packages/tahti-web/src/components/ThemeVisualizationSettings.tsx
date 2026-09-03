@@ -11,8 +11,16 @@ export function isThemeVisualizationEnabled(themeId: string): boolean {
   return VISUALIZATION_THEME_IDS.has(themeId);
 }
 
-export function ThemeVisualizationSettings() {
-  const themeId = useThemeStore((state) => state.themeId);
+/** Background visualization controls for Tahti themes.
+ * Pass `themeId` when configuring a theme that may not be the active one
+ * (Settings dialog / Add-ons expand) — otherwise the active store theme is used. */
+export function ThemeVisualizationSettings({
+  themeId: themeIdProp,
+}: {
+  themeId?: string;
+} = {}) {
+  const activeThemeId = useThemeStore((state) => state.themeId);
+  const themeId = themeIdProp ?? activeThemeId;
   const enabled = useAmbientStore((state) => state.enabled);
   const preset = useAmbientStore((state) => state.preset);
   const opacity = useAmbientStore((state) => state.opacity);

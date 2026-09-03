@@ -8,6 +8,12 @@ const meta = {
   component: ThemeController,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Sun/moon appearance toggle. Production: Settings → Themes (with a separate Toggle for Dynamic day/night).',
+      },
+    },
   },
   tags: ['autodocs'],
   argTypes: {

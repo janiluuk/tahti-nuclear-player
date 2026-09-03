@@ -23,7 +23,6 @@ import {
   Share2,
   Shield,
   Sparkles,
-  SunMoon,
   Tag,
   Trash2,
   User,
@@ -44,7 +43,9 @@ import {
   Select,
   Tabs,
   Textarea,
+  ThemeController,
   ThemeStoreItem,
+  Toggle,
   Tooltip,
   type SelectOption,
 } from '@tahti-player/ui';
@@ -2174,17 +2175,12 @@ function NotificationsVisibilityPanel() {
   );
 }
 
-const THEME_MODE_OPTIONS = [
-  { id: 'light' as const, label: 'Light' },
-  { id: 'dark' as const, label: 'Dark' },
-  { id: 'dynamic' as const, label: 'Dynamic' },
-];
-
 function ThemesPanel() {
   const {
     themes,
     customThemes,
     themeId,
+    dark,
     colorMode,
     setTheme,
     setColorMode,
@@ -2212,6 +2208,7 @@ function ThemesPanel() {
   const ambientIntensity = useAmbientStore((s) => s.intensity);
 
   const customEntries = Object.entries(customThemes);
+  const dynamicEnabled = colorMode === 'dynamic';
 
   const exportTheme = (id: string, theme: (typeof customThemes)[string]) => {
     const blob = new Blob([JSON.stringify(theme, null, 2)], {
@@ -2231,31 +2228,40 @@ function ThemesPanel() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         <SettingsHint>
           Choose a palette and the light, dark, or time-of-day appearance that
           suits you.
         </SettingsHint>
-        <div className="flex items-center gap-3">
-          {THEME_MODE_OPTIONS.map((mode) => (
-            <Button
-              key={mode.id}
-              size="sm"
-              variant={colorMode === mode.id ? undefined : 'text'}
-              onClick={() => setColorMode(mode.id)}
-            >
-              {mode.id === 'dynamic' && <SunMoon size={14} />}
-              {mode.label}
-            </Button>
-          ))}
-          <Tooltip content="Dark from 7pm to 7am, light the rest of the day.">
-            <CircleHelpIcon
-              size={14}
-              className="text-foreground-secondary"
-              aria-label="What Dynamic does"
+        <div className="flex flex-wrap items-center gap-4">
+          <ThemeController
+            isDark={dark}
+            onThemeChange={(nextDark) =>
+              setColorMode(nextDark ? 'dark' : 'light')
+            }
+          />
+          <div className="flex items-center gap-2">
+            <Toggle
+              checked={dynamicEnabled}
+              onChange={(enabled) => {
+                if (enabled) {
+                  setColorMode('dynamic');
+                  return;
+                }
+                setColorMode(dark ? 'dark' : 'light');
+              }}
+              label="Dynamic theme"
             />
-          </Tooltip>
+            <span className="text-sm font-medium">Dynamic</span>
+            <Tooltip content="Dark from 7pm to 7am, light the rest of the day.">
+              <CircleHelpIcon
+                size={14}
+                className="text-foreground-secondary"
+                aria-label="What Dynamic does"
+              />
+            </Tooltip>
+          </div>
         </div>
       </div>
 
@@ -2265,8 +2271,8 @@ function ThemesPanel() {
             id: 'browse',
             label: 'Browse',
             content: (
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
                   {themes.map((theme) => {
                     const active = theme.id === themeId;
                     const configurable = isThemeVisualizationEnabled(theme.id);
@@ -2282,7 +2288,6 @@ function ThemesPanel() {
                         onInstall={() => setTheme(theme.id)}
                         onApply={() => setTheme(theme.id)}
                         labels={{
-                          installed: 'Ready',
                           apply: 'Apply',
                           active: 'Active',
                         }}
@@ -2305,11 +2310,11 @@ function ThemesPanel() {
                 </div>
 
                 {customEntries.length > 0 && (
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1.5">
                     <h3 className="text-foreground-secondary text-xs uppercase">
                       Your imported themes
                     </h3>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-1.5">
                       {customEntries.map(([id, theme]) => {
                         const active = id === themeId;
                         const configurable = isThemeVisualizationEnabled(id);
@@ -2333,13 +2338,12 @@ function ThemesPanel() {
                             onApply={() => setTheme(id)}
                             onUninstall={() => removeCustomTheme(id)}
                             labels={{
-                              installed: 'Ready',
                               apply: 'Apply',
                               active: 'Active',
                               uninstall: 'Remove',
                             }}
                             accessory={
-                              <div className="flex flex-col gap-2">
+                              <>
                                 {configurable ? (
                                   <Button
                                     size="icon-sm"
@@ -2377,7 +2381,7 @@ function ThemesPanel() {
                                 >
                                   <Download size={14} aria-hidden />
                                 </Button>
-                              </div>
+                              </>
                             }
                           />
                         );
@@ -2462,7 +2466,9 @@ function ThemesPanel() {
               visualSettingsJson={`{"${ambientPreset}":{"speed":${ambientSpeed},"intensity":${ambientIntensity}}}`}
             />
           </div>
-          <ThemeVisualizationSettings />
+          <ThemeVisualizationSettings
+            themeId={configuringThemeId ?? undefined}
+          />
         </div>
         <Dialog.Actions>
           <Dialog.Close>Done</Dialog.Close>

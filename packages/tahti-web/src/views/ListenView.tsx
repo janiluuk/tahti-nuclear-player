@@ -25,7 +25,6 @@ import {
 
 import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {
-  fetchArtistPlayables,
   fetchChannel,
   fetchDirectory,
   fetchEnabledInternetRadioPresets,
@@ -44,15 +43,14 @@ import {
   type ChannelDirectoryItem,
   type OnAirChannel,
   type PublicChannel,
-  type TahtiPlayable,
 } from '../api/types';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
+import { DirectoryArtistCardGrid } from '../components/DirectoryArtistCardGrid';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { ListenerWidgetsSection } from '../components/ListenerWidgetsSection';
 import { ListenWidgetStoreDialog } from '../components/ListenWidgetStoreDialog';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
-import { QueueConfirmDialog } from '../components/QueueConfirmDialog';
 import { RadioStationCoverEditButton } from '../components/RadioStationCover';
 import { RADIO_STATIONS } from '../content/radioStations';
 import { activeListenTab } from '../lib/navigationActive';
@@ -117,17 +115,10 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
   const [radioPresets, setRadioPresets] = useState<
     EnabledInternetRadioPreset[]
   >([]);
-  const [queueConfirm, setQueueConfirm] = useState<{
-    displayName: string;
-    playables: TahtiPlayable[];
-  } | null>(null);
   const play = usePlayerStore((s) => s.play);
   const currentId = usePlayerStore((s) => s.currentId);
   const playbackStatus = usePlayerStore((s) => s.status);
   const setPlaybackStatus = usePlayerStore((s) => s.setStatus);
-  const enqueue = usePlayerStore((s) => s.enqueue);
-  const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
-  const favoriteChannels = useLibraryStore((s) => s.favoriteChannels);
   const lastPlayed = useLibraryStore((s) => s.history[0] ?? null);
   const user = useAuthStore((s) => s.user);
   const signedIn = Boolean(user);
@@ -254,26 +245,6 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
     if (playable) {
       play(playable);
     }
-  };
-
-  const playArtist = async (username: string) => {
-    const { data } = await fetchArtistPlayables(username);
-    const [first, ...rest] = data;
-    if (first) {
-      play(first, { enqueueRest: rest });
-    }
-  };
-
-  const queueArtist = async (username: string, displayName: string) => {
-    const { data } = await fetchArtistPlayables(username);
-    if (data.length === 0) {
-      return;
-    }
-    if (data.length > 1) {
-      setQueueConfirm({ displayName, playables: data });
-      return;
-    }
-    enqueue(data[0]);
   };
 
   const chipItems = useMemo(
@@ -682,79 +653,13 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
                     description={`${query ? `“${query}”` : 'Try another filter'}${genre !== 'all' ? ` in ${genre}` : ''}.`}
                   />
                 ) : (
-                  <CardGrid>
-                    {filtered.map((ch) => {
-                      const favorited =
-                        signedIn &&
-                        favoriteChannels.some((c) => c.slug === ch.slug);
-                      return (
-                        <Card
-                          key={ch.slug}
-                          title={
-                            <Link
-                              to="/u/$username"
-                              params={{ username: ch.username }}
-                              className="hover:underline"
-                            >
-                              {ch.displayName}
-                            </Link>
-                          }
-                          subtitle={
-                            <span className="font-mono">
-                              {isDirectoryArtistActive(ch) ? 'Active · ' : ''}
-                              {ch.genres.slice(0, 2).join(', ') ||
-                                `@${ch.username}`}
-                            </span>
-                          }
-                          src={
-                            ch.avatarUrl ?? placeholderArtworkUrl(ch.username)
-                          }
-                          onPlay={() => void playArtist(ch.username)}
-                          onQueue={() =>
-                            void queueArtist(ch.username, ch.displayName)
-                          }
-                          onFavorite={
-                            signedIn
-                              ? () =>
-                                  toggleFavoriteChannel({
-                                    slug: ch.slug,
-                                    displayName: ch.displayName,
-                                    avatarUrl: ch.avatarUrl,
-                                  })
-                              : undefined
-                          }
-                          favorited={favorited}
-                          onClick={() => {
-                            void navigate({
-                              to: '/u/$username',
-                              params: { username: ch.username },
-                            });
-                          }}
-                        />
-                      );
-                    })}
-                  </CardGrid>
+                  <DirectoryArtistCardGrid artists={filtered} />
                 )}
               </div>
             </SectionShell>
           </>
         ) : null}
       </PageFrame>
-
-      <QueueConfirmDialog
-        isOpen={Boolean(queueConfirm)}
-        count={queueConfirm?.playables.length ?? 0}
-        sourceLabel={queueConfirm?.displayName ?? ''}
-        onCancel={() => setQueueConfirm(null)}
-        onConfirm={() => {
-          if (queueConfirm) {
-            for (const item of queueConfirm.playables) {
-              enqueue(item);
-            }
-          }
-          setQueueConfirm(null);
-        }}
-      />
     </>
   );
 }

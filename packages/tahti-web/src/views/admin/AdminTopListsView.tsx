@@ -1,8 +1,8 @@
-import { Link } from '@tanstack/react-router';
-import { ListFilterIcon, PlayIcon, SearchIcon } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { ListFilterIcon, SearchIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Input, TopList } from '@tahti-player/ui';
 
 import {
   fetchAdminTopLists,
@@ -13,8 +13,12 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import {
+  formatListenCount,
+  rankingBucketTitle,
+} from '../../lib/topListEntries';
 import { usePlayerStore } from '../../stores/playerStore';
 
 const PERIODS: { id: AdminTopListPeriod; label: string }[] = [
@@ -50,19 +54,19 @@ function FilterRow<T extends string>({
       role="group"
       aria-label={label}
     >
-      {options.map((o) => (
+      {options.map((option) => (
         <button
-          key={o.id}
+          key={option.id}
           type="button"
-          aria-pressed={value === o.id}
-          onClick={() => onChange(o.id)}
+          aria-pressed={value === option.id}
+          onClick={() => onChange(option.id)}
           className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
-            value === o.id
+            value === option.id
               ? 'bg-primary text-primary-foreground shadow-sm'
               : 'text-foreground-secondary hover:text-foreground'
           }`}
         >
-          {o.label}
+          {option.label}
         </button>
       ))}
     </div>
@@ -70,7 +74,8 @@ function FilterRow<T extends string>({
 }
 
 export function AdminTopListsView() {
-  const play = usePlayerStore((s) => s.play);
+  const navigate = useNavigate();
+  const play = usePlayerStore((state) => state.play);
   const [period, setPeriod] = useState<AdminTopListPeriod>('month');
   const [dimension, setDimension] = useState<AdminTopListDimension>('type');
   const [sort, setSort] = useState<AdminTopListSort>('desc');
@@ -80,8 +85,8 @@ export function AdminTopListsView() {
 
   useEffect(() => {
     setLoading(true);
-    void fetchAdminTopLists(period, dimension, sort).then((res) => {
-      setBuckets(res.data);
+    void fetchAdminTopLists(period, dimension, sort).then((result) => {
+      setBuckets(result.data);
       setLoading(false);
     });
   }, [period, dimension, sort]);
@@ -159,76 +164,52 @@ export function AdminTopListsView() {
               </StudioPanel>
             ) : visibleBuckets.length === 0 ? (
               <StudioPanel>
-                <p className="text-foreground-secondary py-4 text-center text-sm">
-                  {normalizedQuery
-                    ? 'No matching top-list entries.'
-                    : 'No listens recorded for this period yet.'}
-                </p>
+                <PageEmpty
+                  title={
+                    normalizedQuery
+                      ? 'No matching top-list entries'
+                      : 'No listens yet'
+                  }
+                  description={
+                    normalizedQuery
+                      ? 'Try another search, period, or grouping.'
+                      : 'No listens recorded for this period yet.'
+                  }
+                />
               </StudioPanel>
             ) : (
-              visibleBuckets.map((bucket) => {
-                const max = Math.max(
-                  ...bucket.entries.map((e) => e.listens),
-                  1,
-                );
-                return (
-                  <StudioPanel key={bucket.bucket}>
-                    <h2 className="mb-3 text-sm font-semibold capitalize">
-                      {bucket.bucket.toLowerCase().replaceAll('_', ' ')}
-                    </h2>
-                    <div className="flex flex-col gap-3">
-                      {bucket.entries.map((entry, i) => (
-                        <div key={entry.soundId} className="text-sm">
-                          <div className="flex items-baseline justify-between gap-2">
-                            <span className="flex min-w-0 items-center gap-1.5">
-                              {entry.audioUrl && (
-                                <Button
-                                  size="icon-sm"
-                                  variant="text"
-                                  aria-label={`Preview ${entry.title}`}
-                                  title="Preview"
-                                  onClick={() => {
-                                    play({
-                                      id: `archive:${entry.soundId}`,
-                                      kind: 'archive',
-                                      title: entry.title,
-                                      artist: entry.artistName,
-                                      streamUrl: entry.audioUrl!,
-                                      protocol: 'https',
-                                      channelSlug: entry.channelSlug,
-                                    });
-                                  }}
-                                >
-                                  <PlayIcon size={14} aria-hidden />
-                                </Button>
-                              )}
-                              <Link
-                                to="/studio/sounds/$id"
-                                params={{ id: entry.soundId }}
-                                className="min-w-0 truncate hover:underline"
-                              >
-                                #{i + 1} {entry.title} — {entry.artistName}
-                              </Link>
-                            </span>
-                            <span className="text-foreground-secondary shrink-0 text-xs">
-                              {entry.listens}{' '}
-                              {entry.listens === 1 ? 'listen' : 'listens'}
-                            </span>
-                          </div>
-                          <div className="bg-background-secondary mt-1 h-1.5 overflow-hidden rounded-full">
-                            <div
-                              className="bg-primary h-full rounded-full"
-                              style={{
-                                width: `${(entry.listens / max) * 100}%`,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </StudioPanel>
-                );
-              })
+              visibleBuckets.map((bucket) => (
+                <StudioPanel key={bucket.bucket}>
+                  <TopList
+                    title={rankingBucketTitle(bucket.bucket)}
+                    formatValue={formatListenCount}
+                    entries={bucket.entries.map((entry) => ({
+                      id: entry.soundId,
+                      label: entry.title,
+                      sublabel: entry.artistName,
+                      value: entry.listens,
+                      onClick: () => {
+                        if (entry.audioUrl) {
+                          play({
+                            id: `archive:${entry.soundId}`,
+                            kind: 'archive',
+                            title: entry.title,
+                            artist: entry.artistName,
+                            streamUrl: entry.audioUrl,
+                            protocol: 'https',
+                            channelSlug: entry.channelSlug,
+                          });
+                          return;
+                        }
+                        void navigate({
+                          to: '/studio/sounds/$id',
+                          params: { id: entry.soundId },
+                        });
+                      },
+                    }))}
+                  />
+                </StudioPanel>
+              ))
             )}
           </div>
         </AdminPageLayout>

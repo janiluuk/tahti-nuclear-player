@@ -1,4 +1,4 @@
-import { FileJson } from 'lucide-react';
+import { ChevronDownIcon, FileJson, XIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -6,35 +6,60 @@ import {
   clearAdvancedTheme,
   type AdvancedTheme,
 } from '@tahti-player/themes';
-import { Button, Dialog, Input, Slider, Textarea } from '@tahti-player/ui';
+import { Box, Button, Dialog, Input, Slider, Textarea } from '@tahti-player/ui';
 
 import { useThemeStore } from '../plugins/themes';
 
 type VarField = { key: string; label: string };
 
-const CORE_VARS: VarField[] = [
-  { key: 'background', label: 'Background' },
-  { key: 'background-secondary', label: 'Background (secondary)' },
-  { key: 'foreground', label: 'Text' },
-  { key: 'foreground-secondary', label: 'Text (secondary)' },
-  { key: 'primary', label: 'Primary' },
-  { key: 'primary-foreground', label: 'Text on primary' },
-  { key: 'secondary', label: 'Secondary' },
-  { key: 'secondary-foreground', label: 'Text on secondary' },
-  { key: 'border', label: 'Border' },
-];
+type VarGroup = {
+  id: string;
+  title: string;
+  fields: VarField[];
+};
 
-const ACCENT_VARS: VarField[] = [
-  { key: 'accent-green', label: 'Green' },
-  { key: 'accent-yellow', label: 'Yellow' },
-  { key: 'accent-purple', label: 'Purple' },
-  { key: 'accent-blue', label: 'Blue' },
-  { key: 'accent-orange', label: 'Orange' },
-  { key: 'accent-cyan', label: 'Cyan' },
-  { key: 'accent-red', label: 'Red' },
+const VAR_GROUPS: VarGroup[] = [
+  {
+    id: 'surfaces',
+    title: 'Surfaces',
+    fields: [
+      { key: 'background', label: 'Background' },
+      { key: 'background-secondary', label: 'Secondary' },
+      { key: 'border', label: 'Border' },
+    ],
+  },
+  {
+    id: 'text',
+    title: 'Text',
+    fields: [
+      { key: 'foreground', label: 'Primary' },
+      { key: 'foreground-secondary', label: 'Secondary' },
+    ],
+  },
+  {
+    id: 'brand',
+    title: 'Brand',
+    fields: [
+      { key: 'primary', label: 'Primary' },
+      { key: 'primary-foreground', label: 'On primary' },
+      { key: 'secondary', label: 'Secondary' },
+      { key: 'secondary-foreground', label: 'On secondary' },
+    ],
+  },
+  {
+    id: 'accents',
+    title: 'Accents',
+    fields: [
+      { key: 'accent-green', label: 'Green' },
+      { key: 'accent-yellow', label: 'Yellow' },
+      { key: 'accent-purple', label: 'Purple' },
+      { key: 'accent-blue', label: 'Blue' },
+      { key: 'accent-orange', label: 'Orange' },
+      { key: 'accent-cyan', label: 'Cyan' },
+      { key: 'accent-red', label: 'Red' },
+    ],
+  },
 ];
-
-const ALL_VARS = [...CORE_VARS, ...ACCENT_VARS];
 
 function currentValue(key: string): string {
   if (typeof window === 'undefined') {
@@ -47,7 +72,7 @@ function currentValue(key: string): string {
 
 function nonEmpty(values: Record<string, string>): Record<string, string> {
   return Object.fromEntries(
-    Object.entries(values).filter(([, v]) => v.trim() !== ''),
+    Object.entries(values).filter(([, value]) => value.trim() !== ''),
   );
 }
 
@@ -78,7 +103,7 @@ function colorToHex(value: string): string {
     return '#888888';
   }
   return `#${[red, green, blue]
-    .map((channel) => channel.toString(16).padStart(2, '0'))
+    .map((channel) => channel!.toString(16).padStart(2, '0'))
     .join('')}`;
 }
 
@@ -97,13 +122,14 @@ function hexToHsl(value: string): [number, number, number] {
   const delta = max - min;
   const saturation =
     lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
-  let hue =
-    (max === red
+  const hue =
+    ((max === red
       ? (green - blue) / delta + (green < blue ? 6 : 0)
       : max === green
         ? (blue - red) / delta + 2
-        : (red - green) / delta + 4) / 6;
-  hue *= 360;
+        : (red - green) / delta + 4) /
+      6) *
+    360;
   return [hue, saturation, lightness];
 }
 
@@ -132,19 +158,144 @@ function hslToHex(hue: number, saturation: number, lightness: number): string {
     .join('')}`;
 }
 
-/** Visual editor for a custom theme: overrides a curated set of CSS
- * variables (see @tahti-player/themes' AdvancedThemeSchema) with live
- * preview via `applyAdvancedTheme`, then hands the assembled theme to
- * `importCustomTheme` to persist + activate it. Unfilled fields are left
- * out of the saved theme, so they keep inheriting from the base palette
- * — this edits a set of *overrides*, not a full theme from scratch. */
+type ColorTokenRowProps = {
+  field: VarField;
+  value: string;
+  placeholder: string;
+  expanded: boolean;
+  onExpand: () => void;
+  onCollapse: () => void;
+  onChange: (next: string) => void;
+  onClear: () => void;
+};
+
+function ColorTokenRow({
+  field,
+  value,
+  placeholder,
+  expanded,
+  onExpand,
+  onCollapse,
+  onChange,
+  onClear,
+}: ColorTokenRowProps) {
+  const display = value || placeholder;
+  const [hue, saturation, lightness] = hexToHsl(display);
+  const overridden = value.trim() !== '';
+
+  return (
+    <div
+      className="border-border rounded-md border"
+      data-testid={`theme-editor-token-${field.key}`}
+    >
+      <button
+        type="button"
+        className="hover:bg-background-secondary/60 flex w-full items-center gap-2 px-2 py-1.5 text-left"
+        aria-expanded={expanded}
+        onClick={() => (expanded ? onCollapse() : onExpand())}
+      >
+        <span
+          className="border-border size-6 shrink-0 rounded border"
+          style={{ background: display }}
+          aria-hidden
+        />
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">
+          {field.label}
+        </span>
+        {overridden ? (
+          <span className="text-foreground-secondary font-mono text-[10px] uppercase">
+            edit
+          </span>
+        ) : null}
+        <ChevronDownIcon
+          size={14}
+          aria-hidden
+          className={`text-foreground-secondary shrink-0 transition-transform ${
+            expanded ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+      {expanded ? (
+        <div className="border-border flex flex-col gap-2 border-t px-2 py-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={colorToHex(display)}
+              onChange={(event) => onChange(event.target.value)}
+              className="border-border size-8 shrink-0 cursor-pointer rounded-md border bg-transparent p-0.5"
+              aria-label={`Pick ${field.label}`}
+            />
+            <Input
+              value={value}
+              onChange={(event) => onChange(event.target.value)}
+              placeholder={placeholder}
+              aria-label={`${field.label} CSS color`}
+              className="font-mono text-xs"
+            />
+            {overridden ? (
+              <Button
+                size="icon-sm"
+                variant="text"
+                aria-label={`Clear ${field.label} override`}
+                onClick={onClear}
+              >
+                <XIcon size={14} aria-hidden />
+              </Button>
+            ) : null}
+          </div>
+          <Slider
+            label="Hue"
+            value={hue}
+            min={0}
+            max={360}
+            step={1}
+            unit="°"
+            showFooter={false}
+            onValueChange={(next) =>
+              onChange(hslToHex(next, saturation, lightness))
+            }
+          />
+          <Slider
+            label="Saturation"
+            value={Math.round(saturation * 100)}
+            min={0}
+            max={100}
+            step={1}
+            unit="%"
+            showFooter={false}
+            onValueChange={(next) =>
+              onChange(hslToHex(hue, next / 100, lightness))
+            }
+          />
+          <Slider
+            label="Lightness"
+            value={Math.round(lightness * 100)}
+            min={0}
+            max={100}
+            step={1}
+            unit="%"
+            showFooter={false}
+            onValueChange={(next) =>
+              onChange(hslToHex(hue, saturation, next / 100))
+            }
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Compact custom-theme editor. Token swatches stay collapsed; click one to
+ * reveal Storybook Slider HSL controls. Light/dark variant follows the
+ * Settings → Themes appearance row (`ThemeController`), not a local toggle. */
 export function ThemeEditor() {
-  const dark = useThemeStore((s) => s.dark);
-  const importCustomTheme = useThemeStore((s) => s.importCustomTheme);
+  const dark = useThemeStore((state) => state.dark);
+  const importCustomTheme = useThemeStore((state) => state.importCustomTheme);
 
   const [name, setName] = useState('My theme');
   const [lightValues, setLightValues] = useState<Record<string, string>>({});
   const [darkValues, setDarkValues] = useState<Record<string, string>>({});
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [importJson, setImportJson] = useState('');
@@ -168,6 +319,10 @@ export function ThemeEditor() {
   }, [draft]);
 
   useEffect(() => clearAdvancedTheme, []);
+
+  useEffect(() => {
+    setExpandedKey(null);
+  }, [dark]);
 
   const save = () => {
     const result = importCustomTheme(draft);
@@ -193,91 +348,21 @@ export function ThemeEditor() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-foreground-secondary text-sm">
-        Editing the <strong>{dark ? 'dark' : 'light'}</strong> variant — switch
-        appearance above to edit the other one. Leave a field blank to keep
-        inheriting the base palette there.
-      </p>
-
-      <Input
-        label="Theme name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {ALL_VARS.map((field) => (
-          <label key={field.key} className="flex flex-col gap-1 text-sm">
-            {field.label}
-            {(() => {
-              const value = activeValues[field.key] || currentValue(field.key);
-              const [hue, saturation, lightness] = hexToHsl(value);
-              return (
-                <>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="border-border size-8 shrink-0 rounded-md border"
-                      style={{
-                        background:
-                          activeValues[field.key] || currentValue(field.key),
-                      }}
-                      aria-hidden
-                    />
-                    <input
-                      type="color"
-                      value={colorToHex(value)}
-                      onChange={(e) =>
-                        setActiveValues((prev) => ({
-                          ...prev,
-                          [field.key]: e.target.value,
-                        }))
-                      }
-                      className="border-border size-9 shrink-0 cursor-pointer rounded-md border bg-transparent p-0.5"
-                      aria-label={`Pick ${field.label} color`}
-                    />
-                    <input
-                      type="text"
-                      value={activeValues[field.key] ?? ''}
-                      onChange={(e) =>
-                        setActiveValues((prev) => ({
-                          ...prev,
-                          [field.key]: e.target.value,
-                        }))
-                      }
-                      placeholder={currentValue(field.key)}
-                      className="border-border bg-background h-9 flex-1 rounded-md border px-2 font-mono text-xs"
-                    />
-                  </div>
-                  <Slider
-                    label={`${field.label} hue`}
-                    value={hue}
-                    min={0}
-                    max={360}
-                    step={1}
-                    unit="°"
-                    showFooter={false}
-                    onValueChange={(next) =>
-                      setActiveValues((prev) => ({
-                        ...prev,
-                        [field.key]: hslToHex(next, saturation, lightness),
-                      }))
-                    }
-                  />
-                </>
-              );
-            })()}
-          </label>
-        ))}
-      </div>
-
-      <div className="flex items-center gap-2">
+    <div
+      className="flex max-h-[min(70vh,36rem)] flex-col gap-3"
+      data-testid="theme-editor"
+    >
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="min-w-0 flex-1">
+          <Input
+            label="Name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </div>
         <Button size="sm" onClick={save}>
-          Save as theme
+          Save
         </Button>
-        {saveMsg && (
-          <span className="text-foreground-secondary text-xs">{saveMsg}</span>
-        )}
         <Button
           size="icon-sm"
           variant="secondary"
@@ -288,6 +373,60 @@ export function ThemeEditor() {
           <FileJson size={16} aria-hidden />
         </Button>
       </div>
+      <p className="text-foreground-secondary text-xs">
+        Editing the <strong>{dark ? 'dark' : 'light'}</strong> variant. Use the
+        sun/moon control above to switch. Click a color to tune it — blank keeps
+        the base palette.
+      </p>
+
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+        {VAR_GROUPS.map((group) => (
+          <Box
+            key={group.id}
+            variant="tertiary"
+            shadow="none"
+            className="flex-col gap-2 !p-2"
+            data-testid={`theme-editor-group-${group.id}`}
+          >
+            <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+              {group.title}
+            </h3>
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+              {group.fields.map((field) => (
+                <ColorTokenRow
+                  key={field.key}
+                  field={field}
+                  value={activeValues[field.key] ?? ''}
+                  placeholder={currentValue(field.key)}
+                  expanded={expandedKey === field.key}
+                  onExpand={() => setExpandedKey(field.key)}
+                  onCollapse={() => setExpandedKey(null)}
+                  onChange={(next) =>
+                    setActiveValues((prev) => ({
+                      ...prev,
+                      [field.key]: next,
+                    }))
+                  }
+                  onClear={() =>
+                    setActiveValues((prev) => {
+                      const next = { ...prev };
+                      delete next[field.key];
+                      return next;
+                    })
+                  }
+                />
+              ))}
+            </div>
+          </Box>
+        ))}
+      </div>
+
+      {saveMsg ? (
+        <span className="text-foreground-secondary text-xs" role="status">
+          {saveMsg}
+        </span>
+      ) : null}
+
       <Dialog.Root
         isOpen={importOpen}
         onClose={() => setImportOpen(false)}

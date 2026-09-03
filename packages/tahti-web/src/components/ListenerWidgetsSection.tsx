@@ -21,11 +21,8 @@ type PendingRemoval =
   | { kind: 'instance'; id: string; label: string }
   | { kind: 'station'; id: string; label: string };
 
-/** Renders the listener's enabled SoundCloud/YouTube embeds and internet
- * radio stations on the Listen page — see Settings > Add-ons (Radio /
- * Embed categories), where they're installed/enabled. Renders nothing if
- * the listener hasn't enabled anything, so it never clutters the page for
- * people who don't use this feature. */
+/** Listen-page add-ons (Settings → Add-ons). Stations = CardGrid+Card;
+ * embeds stay a non-Card iframe grid. Renders nothing when empty. */
 export function ListenerWidgetsSection() {
   const instances = useListenerWidgetsStore((s) => s.instances);
   const installedTypeIds = useListenerWidgetsStore((s) => s.installedTypeIds);

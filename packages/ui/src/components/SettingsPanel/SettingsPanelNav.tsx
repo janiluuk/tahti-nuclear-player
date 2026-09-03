@@ -33,11 +33,11 @@ export const SettingsPanelNav: FC<SettingsPanelNavProps> = ({
   // `hidden` — i.e. every time a tab was ever selected, permanently.
   <nav
     className={cn(
-      'border-border w-full shrink-0 flex-col overflow-y-auto border-b-(length:--border-width) p-2 sm:flex! sm:w-56! sm:border-r-(length:--border-width) sm:border-b-0 sm:p-4',
+      'border-border flex! h-full min-h-0 w-full shrink-0 flex-col border-b-(length:--border-width) p-2 sm:w-56! sm:border-r-(length:--border-width) sm:border-b-0 sm:p-4',
       className,
     )}
   >
-    <div className="flex flex-col gap-1">
+    <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
       {tabs.map((tab) => (
         <SettingsPanelNavItem
           key={tab.id}
@@ -49,6 +49,6 @@ export const SettingsPanelNav: FC<SettingsPanelNavProps> = ({
         />
       ))}
     </div>
-    {footer && <div className="mt-2 sm:mt-auto">{footer}</div>}
+    {footer ? <div className="mt-auto shrink-0 pt-2">{footer}</div> : null}
   </nav>
 );

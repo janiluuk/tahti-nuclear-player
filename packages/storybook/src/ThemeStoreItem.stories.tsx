@@ -9,6 +9,12 @@ const meta = {
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Compact theme row: name and author on one line, action icons (apply / configure / remove) in the right corner. Install button only when not yet installed. Production: Settings → Themes and Add-ons → Themes.',
+      },
+    },
   },
 } satisfies Meta<typeof ThemeStoreItem>;
 

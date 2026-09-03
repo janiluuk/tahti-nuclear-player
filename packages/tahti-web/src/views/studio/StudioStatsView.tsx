@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
   AudioLinesIcon,
   BarChart3Icon,
@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC, type ReactNode } from 'react';
 
-import { Button, StatChip, Tabs } from '@tahti-player/ui';
+import { StatChip, Tabs, TopList } from '@tahti-player/ui';
 
 import { fetchGrantEstimate, type GrantEstimate } from '../../api/revenue';
 import {
@@ -41,6 +41,11 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { StatNumber } from '../../components/tahti/StatNumber';
 import { countryFlagAndName } from '../../lib/countries';
+import {
+  formatListenCount,
+  formatPlayCount,
+  rankingBucketTitle,
+} from '../../lib/topListEntries';
 
 const RANGES: Array<{ id: StatsPlaysRange; label: string }> = [
   { id: '7', label: '7 days' },
@@ -112,6 +117,7 @@ const formatDate = (value: string) =>
   });
 
 export const StudioStatsView: FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<StatsTab>('overview');
   const [range, setRange] = useState<StatsPlaysRange>('30');
   const [summary, setSummary] = useState<StatsSummary>(EMPTY_SUMMARY);
@@ -443,111 +449,67 @@ export const StudioStatsView: FC = () => {
               </p>
             ) : (
               <div className="grid gap-5 md:grid-cols-2">
-                {topLists.map((bucket) => {
-                  const maxListens = Math.max(
-                    1,
-                    ...bucket.entries.map((entry) => entry.listens),
-                  );
-                  return (
-                    <div key={bucket.bucket}>
-                      <h3 className="mb-3 text-sm font-semibold capitalize">
-                        {bucket.bucket.toLowerCase().replaceAll('_', ' ')}
-                      </h3>
-                      <div className="flex flex-col gap-3">
-                        {bucket.entries.map((entry, index) => (
-                          <div key={entry.soundId}>
-                            <div className="mb-1 flex justify-between gap-3 text-xs">
-                              <Link
-                                to="/studio/sounds/$id"
-                                params={{ id: entry.soundId }}
-                                className="min-w-0 truncate font-medium hover:underline"
-                              >
-                                #{index + 1} {entry.title}
-                              </Link>
-                              <span className="text-foreground-secondary shrink-0 tabular-nums">
-                                {entry.listens.toLocaleString()}{' '}
-                                {entry.listens === 1 ? 'listen' : 'listens'}
-                              </span>
-                            </div>
-                            <div className="bg-background h-2 overflow-hidden rounded-full">
-                              <div
-                                className="bg-accent-cyan h-full rounded-full"
-                                style={{
-                                  width: `${(entry.listens / maxListens) * 100}%`,
-                                }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+                {topLists.map((bucket) => (
+                  <TopList
+                    key={bucket.bucket}
+                    title={rankingBucketTitle(bucket.bucket)}
+                    formatValue={formatListenCount}
+                    entries={bucket.entries.map((entry) => ({
+                      id: entry.soundId,
+                      label: entry.title,
+                      sublabel: entry.genre ?? entry.contentType,
+                      value: entry.listens,
+                      onClick: () => {
+                        void navigate({
+                          to: '/studio/sounds/$id',
+                          params: { id: entry.soundId },
+                        });
+                      },
+                    }))}
+                  />
+                ))}
               </div>
             )}
           </StudioPanel>
-          <StudioPanel title="Top tracks">
+          <StudioPanel>
             {tracks.length === 0 ? (
               <p className="text-foreground-secondary text-sm">
                 No track stats yet.
               </p>
             ) : (
-              <ul className="divide-border divide-y">
-                {tracks.map((track) => (
-                  <li
-                    key={track.soundId}
-                    className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0"
-                  >
-                    <Link
-                      to="/studio/sounds/$id"
-                      params={{ id: track.soundId }}
-                      className="min-w-0 flex-1 truncate text-sm font-medium hover:underline"
-                    >
-                      {track.title}
-                    </Link>
-                    <span className="text-foreground-secondary text-xs tabular-nums">
-                      {track.plays.toLocaleString()} plays
-                    </span>
-                    <Link
-                      to="/studio/insights/$kind/$id"
-                      params={{ kind: 'sound', id: track.soundId }}
-                      aria-label={`Insights for ${track.title}`}
-                    >
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        title="Track insights"
-                      >
-                        <BarChart3Icon size={16} aria-hidden />
-                      </Button>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <TopList
+                title="Top tracks"
+                formatValue={formatPlayCount}
+                entries={tracks.map((track) => ({
+                  id: track.soundId,
+                  label: track.title,
+                  value: track.plays,
+                  onClick: () => {
+                    void navigate({
+                      to: '/studio/sounds/$id',
+                      params: { id: track.soundId },
+                    });
+                  },
+                }))}
+              />
             )}
           </StudioPanel>
 
-          <StudioPanel title="Top countries">
+          <StudioPanel>
             {countries.length === 0 ? (
               <p className="text-foreground-secondary text-sm">
                 No country data yet.
               </p>
             ) : (
-              <ul className="divide-border divide-y">
-                {countries.map((country) => (
-                  <li
-                    key={country.country}
-                    className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
-                  >
-                    <span className="font-medium">
-                      {countryFlagAndName(country.country)}
-                    </span>
-                    <span className="text-foreground-secondary tabular-nums">
-                      {country.count.toLocaleString()}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <TopList
+                title="Top countries"
+                formatValue={(value) => value.toLocaleString()}
+                entries={countries.map((country) => ({
+                  id: country.country,
+                  label: countryFlagAndName(country.country),
+                  value: country.count,
+                }))}
+              />
             )}
           </StudioPanel>
         </div>

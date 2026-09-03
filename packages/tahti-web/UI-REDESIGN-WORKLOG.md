@@ -1,5 +1,116 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Remove About from Settings (planned)
+
+**Status:** planned — tracked in [`WORKPLAN.md`](WORKPLAN.md) and
+[`docs/todo/settings-remove-about.md`](../../docs/todo/settings-remove-about.md).
+
+**Goal:** Remove the **About** footer link from the Settings modal. Keep
+`/about` and Help → About Tahti.
+
+### Today
+
+`ConnectedSettingsModal` `navFooter`: GitHub, Discord, API docs, About
+(`/about`), then `SidebarBuildInfo`. About is not a Settings tab.
+
+### Do
+
+Drop the About row, `ABOUT_URL`, and `InfoIcon`. Update Storybook
+`DeploymentFooter` docs (GitHub, Discord, API docs, fingerprint). Leave
+the public about page.
+
+## 2026-09-04 — Input Storybook sweep (planned)
+
+**Status:** planned — tracked in [`WORKPLAN.md`](WORKPLAN.md) and
+[`docs/todo/input-storybook-sweep.md`](../../docs/todo/input-storybook-sweep.md).
+
+**Goal:** Replace remaining hand-rolled fields with Storybook `Input` (or
+`Textarea` / `Select` / `CreatableCombobox` / `Slider` / `Toggle` /
+`FilePicker` when that is the right primitive). Search and filter fields
+embed the icon **in** the control — `startAddon` `SearchIcon`,
+`endAddon` `FilterIcon` — not a sibling Search button and not an
+absolutely positioned icon over `pl-9`.
+
+### Today
+
+- Many surfaces already use `Input` but leave search bare (Listen
+  artists, Studio Sounds, collections, discography, releases, Disco
+  widgets, global search).
+- Help, Admin Users, Top lists, and Storage overlay `SearchIcon` +
+  `pl-9` instead of `startAddon`.
+- PluginStore directory searches (Radio Browser, HearThis, personal
+  stream) still use a labeled Search `Button` with the icon beside the
+  field.
+- Native leftovers: Feature Requests comments, Theme Editor hex,
+  Studio Sounds “Uploaded to” date, plus a few Governance / tracklist /
+  onboarding / preflight fields.
+
+Reference that already embeds the icon: Studio recordings, collection
+edit track search, Admin Support/Selects (`endAddon`). Prefer
+`startAddon` for search (quiet); keep `endAddon` for filter.
+
+### Leave alone
+
+Hidden inputs, media-upload file pickers, Theme Editor `type="color"`
+until a Storybook color field exists, Pro Editor ranges (`Slider`
+already planned), Discord bot files unless asked.
+
+**Chrome:** no nav changes.
+
+## 2026-09-04 — Radio Browser directory in Add-ons (planned)
+
+**Status:** planned — tracked in [`WORKPLAN.md`](WORKPLAN.md) and
+[`docs/todo/radio-browser-addon-store.md`](../../docs/todo/radio-browser-addon-store.md).
+
+**Goal:** Settings → Add-ons → Radio **Radio Browser directory** matches
+the other configurable add-ons: Storybook `PluginStoreItem` plus the
+standard configure gear, configuration in that dialog (not an inline dump
+on Activate). Split configure into **Browser** and **Stations**. Compact
+search with the icon inside the field, multi-genre chips, flag country
+dropdown, Save on Stations.
+
+### Today
+
+- `RadioBrowserDirectoryCard` uses `AudioPluginToggleRow` (Activate
+  `Toggle` only). **No** `ConfigurableCard` gear — unlike Personal radio
+  stream on the same tab.
+- Enabling unfolds a tertiary `Box`: Finnish stations banner, then
+  `Input` + single genre `Select` + country `Select` (plain names) +
+  labeled Search `Button` with `SearchIcon`.
+- Favourites go to `libraryStore` (`radio:{id}`). `radioBrowserStore`
+  only persists `enabled`.
+
+### Storybook-first
+
+`PluginStoreItem`, `ConfigurableCard` gear (`Button` `icon-sm` +
+`SettingsIcon` → `Dialog` “Configure Radio Browser directory”), `Tabs`
+(Browser | Stations), `Input` `startAddon` `SearchIcon`, `FilterChips`
+`multiple` for genres, `Select` country labels via `flagEmoji` (same as
+Settings/Onboarding — not `DropdownButton`), `SaveButton` on Stations,
+`EmptyState` / `Loader` / `FavoriteButton`. Add
+`Tahti/Settings/RadioBrowserDirectory` (card closed, Browser open,
+Stations open) before swapping production.
+
+### Configure tabs
+
+- **Browser** — directory search only. Compact name field (icon in the
+  input, Enter to search; drop the extra Search button). Multi-genre
+  `FilterChips`. Country `Select` with flag + name. Extend
+  `searchStations` with `tags[]` → radio-browser.info `tagList` (today
+  is a single `tag`). Finnish suggestions do not live on this tab.
+- **Stations** — your favourited Radio Browser channels; Finnish
+  station suggestions; `SaveButton` writes the selection to Listen radio
+  tiles (`listenerWidgetsStore`), not a second hidden list. Suggest-a-
+  station stays the existing Radio-tab create `Button`.
+
+### Card shell
+
+Activate only gates the third-party API. Browsing and station lists open
+from the gear, same as other add-ons. Do not keep the large inline Box
+under the card.
+
+**Chrome:** Settings modal / Add-ons Radio tab stay mounted.
+
 ## 2026-09-04 — Player bar queue on the right rail (planned)
 
 **Status:** planned — tracked in [`WORKPLAN.md`](WORKPLAN.md) and
@@ -98,59 +209,27 @@ Persist-edit controls now use Storybook `SaveButton` (Idle/Saving/Disabled/custo
 Artist/channel follower rows, Studio home summary, stats overview, channel/schedule day cards, track insights, fan-sub summary, admin dashboard/content KPIs, stream manager cells, admin user followers, and storage used/free/total use Storybook `StatChip`. Chart-header totals and grant money stay `StatNumber`. Channel Designer reuses ChannelView’s stats block.
 
 
-## 2026-09-04 — Listen / Discover CardGrid vs Storybook (planned)
+## 2026-09-04 — Listen / Discover CardGrid vs Storybook
 
-**Goal:** Every card-shaped media grid on Listen and Discover must match
-Storybook `Layout/CardGrid` + `Card` specs (`packages/storybook/src/CardGrid.stories.tsx`):
-`CardGrid` (`grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 …`) wrapping
-Nuclear `Card` tiles (cover via `MediaArtwork`, title/subtitle, play/queue/
-favorite overlays). Do not invent parallel auto-fit grids or bespoke cover
-cards for the same job.
+Bumped `@tahti-player/tahti-web` to `0.0.58`.
 
-**Storybook contract (current):**
-- Layout: `CardGrid` only — no local `grid sm:grid-cols-2 lg:grid-cols-3`
-  for media tiles that should behave like the player dashboard cards.
-- Tile: `Card` (`w-46`, bordered, square cover, text under). Overlays go
-  through `Card` → `MediaArtwork` (`fill`); secondary overlays follow the
-  MediaArtwork crowding rule (`lg`/`fill` only — Card covers use `fill`, so
-  queue/favorite on Card are correct).
-- Horizontal strip alternative is `CardsRow` — **orphan in tahti-web** for
-  Listen/Discover (per-item overlays/edit buttons don’t fit `CardsRowItem`).
-  Prefer `CardGrid`+`Card` unless a true horizontal scroller is required
-  (NewsWidget already covers news).
+**Status:** executed.
 
-### Audit — Listen (`ListenView` + listener widgets)
+**Goal:** Card-shaped media grids on Listen and Discover match Storybook
+`Layout/CardGrid` + `Card`.
 
-| Surface | Current | Gap |
-| --- | --- | --- |
-| Continue listening | `SectionShell` → `CardGrid` → `Card` | OK (single-card grid is fine) |
-| Radio presets | `CardGrid` → `Card` + cover-edit overlay wrapper | OK pattern; keep edit/remove as wrappers around `Card`, not a second card chrome |
-| On air | `CardGrid` → `Card` | OK |
-| Discover artists (Listen tab) | `CardGrid` → `Card` | OK |
-| Listener widget radio stations | `CardGrid` → `Card` | OK |
-| Featured Tahti Radio strip | hand-rolled `Box` + `size-12` thumb + buttons | Not a card grid — leave as hero/featured strip unless we deliberately promote it to a one-card `CardGrid` |
-| Embed widgets | custom `grid gap-3 sm:grid-cols-2` | Embeds are not `Card` tiles — leave; do not force `CardGrid` |
-| News feeds | `NewsWidget` / `NewsFeedWidget` | Correct (not CardGrid) |
-| Disco widgets | own section | Separate from CardGrid; out of this plan unless they grow card tiles |
+### Executed
 
-### Audit — Discover (`DiscoverView`)
+1. Shared `DirectoryArtistCardGrid` (play / queue confirm / favorite / Live)
+2. Listen Discover-artists section uses it
+3. Discover → Artists uses it (`DiscoverArtistsGrid`, Live badge)
+4. WidgetCard + ListenerWidgets stories document non-CardGrid boundaries
+5. CardGrid + CardsRow Storybook docs list production consumers
 
-| Surface | Current | Gap |
-| --- | --- | --- |
-| Discover tab widgets | hand-rolled `grid gap-4 lg:grid-cols-3` of `WidgetCard` | **Not CardGrid.** Widget panels are dense list/track UIs, not media `Card`s — keep panel chrome; do **not** force `Card`/`CardGrid` onto widget shells |
-| Artists tab (`ArtistCarousel`) | hand-rolled `grid gap-4 sm:grid-cols-2 lg:grid-cols-3` + full-bleed hero tiles | **Mismatch.** Same job as Listen’s artist `CardGrid`+`Card`, different look. Plan: swap to `CardGrid` + `Card` (play/queue/favorite parity with Listen directory cards where data allows); drop bespoke blur/gradient hero cards |
-| Venues tab | directory (non-Card) | Out of scope unless venues become cover cards |
-| News on Discover | `NewsFeedWidget` | OK |
+### Still open / intentional non-Card
 
-### Planned slices
-
-1. **Listen parity check** — walk every Listen card section against Storybook Default story; fix className overrides that break `minmax(10rem,1fr)` / gap / `Card` width; document intentional exceptions (featured radio strip, embeds).
-2. **Discover Artists → CardGrid+Card** — replace `ArtistCarousel` hero grid with Storybook `CardGrid`/`Card`; wire play (and queue/favorite if signed-in) like Listen artists; keep Live badge via subtitle or Card accessory if needed.
-3. **Discover widgets boundary** — confirm `WidgetCard` stays non-CardGrid; if any widget grows a media-tile row, use `CardGrid`+`Card` inside the panel, not a local CSS grid of thumbnails.
-4. **ListenerWidgetsSection** — keep station `CardGrid`; re-check embed grid is documented as non-Card; no duplicate station card chrome.
-5. **Storybook docs** — note on `CardGrid` story: Listen On air / Radio / artists + Discover artists are production consumers; flag Discover widget columns as intentionally not CardGrid; update CardsRow orphan note if Artists migrate away from custom grids.
-
-**Constraint:** Keep Listen data/behavior (live state, cover edit, queue confirm). Visual primitive swap only. Persistent chrome unchanged.
+- Venues directory, featured Tahti Radio strip, embed iframes, Discover
+  `WidgetCard` columns (dense track panels)
 
 ## 2026-09-04 — News widget (RSS slider)
 

@@ -4,6 +4,7 @@ import {
   CheckSquareIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  CircleHelpIcon,
   DownloadIcon,
   Eye,
   FolderDownIcon,
@@ -34,8 +35,10 @@ import {
   Select,
   Slider,
   Tabs,
+  ThemeController,
   ThemeStoreItem,
   Toggle,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import {
@@ -147,6 +150,7 @@ import { ListenAddonsPanel } from './ListenAddonsPanel';
 import { PageLoading } from './PageStates';
 import { RadioStationCover } from './RadioStationCover';
 import { SourceServiceIcon } from './SourceServiceIcon';
+import { ThemeEditor } from './ThemeEditor';
 import { ThemeVisualizationSettings } from './ThemeVisualizationSettings';
 
 function visualizerDescription(id: string): string {
@@ -377,8 +381,12 @@ function ThemesCategory() {
   const themes = useThemeStore((s) => s.themes);
   const customThemes = useThemeStore((s) => s.customThemes);
   const themeId = useThemeStore((s) => s.themeId);
+  const dark = useThemeStore((s) => s.dark);
+  const colorMode = useThemeStore((s) => s.colorMode);
   const setTheme = useThemeStore((s) => s.setTheme);
+  const setColorMode = useThemeStore((s) => s.setColorMode);
   const removeCustomTheme = useThemeStore((s) => s.removeCustomTheme);
+  const dynamicEnabled = colorMode === 'dynamic';
 
   const all = [
     ...themes.map((theme) => ({
@@ -422,7 +430,6 @@ function ThemesCategory() {
           : undefined
       }
       labels={{
-        installed: 'Ready',
         apply: 'Apply',
         active: 'Active',
         uninstall: 'Remove',
@@ -431,7 +438,36 @@ function ThemesCategory() {
   );
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-4">
+        <ThemeController
+          isDark={dark}
+          onThemeChange={(nextDark) =>
+            setColorMode(nextDark ? 'dark' : 'light')
+          }
+        />
+        <div className="flex items-center gap-2">
+          <Toggle
+            checked={dynamicEnabled}
+            onChange={(enabled) => {
+              if (enabled) {
+                setColorMode('dynamic');
+                return;
+              }
+              setColorMode(dark ? 'dark' : 'light');
+            }}
+            label="Dynamic theme"
+          />
+          <span className="text-sm font-medium">Dynamic</span>
+          <Tooltip content="Dark from 7pm to 7am, light the rest of the day.">
+            <CircleHelpIcon
+              size={14}
+              className="text-foreground-secondary"
+              aria-label="What Dynamic does"
+            />
+          </Tooltip>
+        </div>
+      </div>
       {all.map((theme) =>
         theme.id === 'nuclear:tahti-dark' ? (
           <ConfigurableCard
@@ -439,24 +475,18 @@ function ThemesCategory() {
             title={theme.name}
             header={themeCard(theme)}
           >
-            <ThemeVisualizationSettings />
+            <ThemeVisualizationSettings themeId={theme.id} />
           </ConfigurableCard>
         ) : (
           themeCard(theme)
         ),
       )}
-      <Box variant="tertiary" shadow="none" className="gap-1 py-3">
+      <Box variant="tertiary" shadow="none" className="gap-2 py-3">
+        <p className="text-sm font-medium">Custom theme editor</p>
         <p className="text-foreground-secondary text-xs">
-          Full theme editor (colors, custom JSON import) is in{' '}
-          <button
-            type="button"
-            className="underline underline-offset-2"
-            onClick={() => useSettingsModalStore.getState().open('themes')}
-          >
-            Settings → Themes
-          </button>
-          .
+          Click a color to expand its sliders. Appearance uses the row above.
         </p>
+        <ThemeEditor />
       </Box>
     </div>
   );

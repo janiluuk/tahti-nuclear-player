@@ -29,7 +29,15 @@ function withListenerWidgets(
 const meta: Meta<typeof ListenerWidgetsSection> = {
   title: 'Tahti/Widgets/ListenerWidgetsSection',
   component: ListenerWidgetsSection,
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Listen-page add-ons. Internet radio stations use Storybook CardGrid+Card. SoundCloud/YouTube embeds stay a non-Card `sm:grid-cols-2` iframe grid by design.',
+      },
+    },
+  },
 };
 
 export default meta;
