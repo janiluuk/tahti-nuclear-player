@@ -23,7 +23,7 @@ const ITEMS: SectionTabsItem[] = [
   },
   {
     id: 'favorites',
-    to: '/library/favorites',
+    to: '/listen/favorites',
     label: 'Favorites',
     icon: <HeartIcon size={16} aria-hidden />,
   },
@@ -65,7 +65,7 @@ export const DeepRoute: Story = {
       active: item.id === 'favorites',
     })),
   },
-  decorators: [withTahtiRouter('/library/favorites')],
+  decorators: [withTahtiRouter('/listen/favorites')],
 };
 
 // SectionTabs is always a wrapping row now (icon tabs below the primary

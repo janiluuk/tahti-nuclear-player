@@ -32,14 +32,6 @@ const PRIMARY = [
     icon: <LayoutGridIcon size={16} aria-hidden />,
   },
   {
-    to: '/library',
-    label: 'Library',
-    labelKey: 'nav.library',
-    description: 'All your uploaded tracks, releases, and files in one place.',
-    descriptionKey: 'studio.libraryDescription',
-    icon: <LibraryIcon size={16} aria-hidden />,
-  },
-  {
     to: '/studio/go-live',
     label: 'Perform',
     labelKey: 'nav.perform',
@@ -81,11 +73,9 @@ export const SUBMENUS = {
       labelKey: 'studio.audience',
       icon: <HeartIcon size={16} />,
     },
-  ],
-  '/library': [
     {
       to: '/library',
-      labelKey: 'studio.overview',
+      labelKey: 'nav.library',
       icon: <LibraryIcon size={16} />,
     },
     {
@@ -164,8 +154,6 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/governance',
     '/studio/updates',
     '/studio/revenue',
-  ],
-  '/library': [
     '/library',
     '/studio/sounds',
     '/studio/releases',
@@ -291,6 +279,7 @@ function StudioNavigation({ current }: { current?: string }) {
             <Link
               key={item.to}
               to={item.to as never}
+              activeOptions={{ exact: true }}
               aria-current={
                 isSubmenuActive(current, item.to) ? 'page' : undefined
               }

@@ -178,9 +178,8 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Shell --> Admin["Admin · board role"]
 
   subgraph studio["Studio sections"]
-    Studio --> StudioOverview["Studio: Overview · Branding · Stats · Governance · Posts · Audience"]
+    Studio --> StudioOverview["Studio: Overview · Branding · Stats · Governance · Posts · Audience · Library · Sounds · Collections · Releases · Upload · Editor"]
     Studio --> Perform["Perform: Go Live · Schedule · Events · Shows · Channel · Radio · Multicast"]
-    Studio --> Library["Library: Sounds · Collections · Releases (+ Distribution) · Upload · Editor"]
   end
 
   subgraph admin["Admin sections"]
@@ -196,7 +195,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   classDef studioNode fill:#f3e8ff,stroke:#9333ea,color:#4c1d95;
   classDef adminNode fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
   class Shell,Content shell;
-  class Studio,StudioOverview,Perform,Library studioNode;
+  class Studio,StudioOverview,Perform studioNode;
   class Admin,AdminOverview,AdminCommunity,AdminContent,AdminManage adminNode;
 `,
   },

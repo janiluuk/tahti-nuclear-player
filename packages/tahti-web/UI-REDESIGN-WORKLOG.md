@@ -1,5 +1,11 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Library as a Studio tab
+
+**Completed:** Library is no longer a sibling of Studio/Perform. `SUBMENUS['/library']` folded into Studio (Library, Sounds, Collections, Releases, Upload, Editor). `/library*` routes stay; Studio stays selected. Mobile bottom nav still has Library. Favorites stay on Listen (`/listen/favorites`); the Library-only `FavoritesPanel` is gone and `/library/favorites` still redirects. Governance Playwright covers Settings → Account member governance, Studio Governance Motions/Topics, and Admin Governance/AGM Community. Bumped `@tahti-player/tahti-web` to `0.0.29`.
+
+**Left for later:** Stream playlist manager under Schedule; rename Schedule → Broadcast; one expandable player row with controls/stream state; show replay; highlight current track in rotation.
+
 ## 2026-09-03 — Artist-page Channel Designer element menu
 
 **Completed:** Artist Design no longer wraps Channel Designer in `ChannelControlsWidget`. The element menu is releases, tracks, latest, feed, news, player, and backdrop. Old look-only menus (player-design / visual-style / links / text-overlay) fold into that menu — overlay under player, header + page colors under backdrop. Channel page edit mode opens the same element editor instead of the accordion. Live `PATCH /api/me/channel/visual` now sends only `ChannelVisualPatchSchema` fields; designer-only extras (links, overlays, player/background palettes) persist locally. Artist page hides those blocks when the eye toggle is off; feed uses `GET /api/channels/:slug/posts` and news uses pinned announcements. Bumped `@tahti-player/tahti-web` to `0.0.28`.

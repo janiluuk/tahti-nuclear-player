@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-03T03:20",
+    "description": "Library is now a Studio tab — Studio stays selected while you browse sounds, collections, releases, and uploads, and the phone bottom bar still has Library.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
     "date": "2026-09-03T03:00",
     "description": "The artist-page Channel Designer now uses the same element menu as Studio, with only the blocks you can actually use — releases, tracks, latest, feed, news, player, and backdrop.",
     "type": "improvement",

@@ -16,15 +16,14 @@ mistaken for a missing feature.
 | Everyone | Favorites | Desktop sidebar, mobile drawer | `/listen/favorites` |
 | Everyone | Help center | Desktop sidebar (with Settings), mobile drawer | `/help` |
 | Everyone | Settings | Desktop sidebar / mobile drawer (opens modal) | `ConnectedSettingsModal`; bookmarkable `/settings/$section` |
-| Signed in | Library | Studio primary + mobile bottom | `/library` |
+| Signed in | Library | Studio horizontal tab + mobile bottom | `/library` |
 | Signed in | Studio | Desktop sidebar, mobile drawer, mobile bottom | `/studio` |
 | Signed in | Perform | Studio primary (`StudioMainNavItems`) | `/studio/go-live` |
 | Board | Admin | Desktop sidebar, mobile drawer (when diagnostics enabled) | `/admin` |
 
 Studio section menus (`StudioNav` submenu):
 
-- Studio: Overview, Branding, Stats, Governance, Posts, Audience
-- Library: Overview, Sounds, Collections, Releases, Upload, Editor
+- Studio: Overview, Branding, Stats, Governance, Posts, Audience, Library, Sounds, Collections, Releases, Upload, Editor
 - Perform: Go live, Schedule, Events, Shows, Multicast, Channel, Radio
 
 Admin section menus (`AdminNav`): Dashboard, Logs, Moderation, Users,
@@ -45,8 +44,8 @@ bottom bar.
 | Everyone | Discover | `/discover` | |
 | Everyone | Favorites | `/listen/favorites`, `/library/favorites`, `/favorites` | Aliases share the same surface. |
 | Everyone | Help | `/help`, `/help/$slug` | Sidebar / drawer. Articles also reach `/status`, `/news`, `/whats-new`, legal pages, and `/transparency`. |
-| Signed in | Library | `/library`, `/library/sounds`, `/library/collections` (+ `?tab=` recordings/media/stash/embeds), `/library/upload`, `/studio/releases`, `/studio/editor` | Submenu items above. `/library/recordings` and `/library/media` alias into collections tabs. |
-| Artist | Studio | `/studio`, `/studio/branding`, `/studio/stats`, `/studio/governance`, `/studio/updates`, `/studio/revenue` | Submenu under Studio. |
+| Signed in | Library | `/library`, `/library/sounds`, `/library/collections` (+ `?tab=` recordings/media/stash/embeds), `/library/upload`, `/studio/releases`, `/studio/editor` | Studio horizontal tabs. `/library*` routes stay. `/library/recordings` and `/library/media` alias into collections tabs. Mobile bottom nav still has Library. |
+| Artist | Studio | `/studio`, `/studio/branding`, `/studio/stats`, `/studio/governance`, `/studio/updates`, `/studio/revenue`, `/library*` | Studio stays selected on Library routes. |
 | Artist | Perform | `/studio/go-live`, `/studio/schedule`, `/studio/events`, `/studio/events/new`, `/studio/shows`, `/studio/shows/$id`, `/studio/channel` | Multicast/Radio are channel query tabs. |
 | Signed in | Settings | `/settings`, `/settings/$section`, `/account`, `/onboarding` | Modal + bookmarkable sections. `/themes` redirects here. `/sources` and `/sources/$id` redirect to Add-ons → Import. |
 | Board | Admin | `/admin`, `/admin/logs`, `/admin/moderation` (+ `$tab`), `/admin/users`, `/admin/content`, `/admin/radio`, `/admin/news`, `/admin/streams`, `/admin/venues`, `/admin/top-lists`, `/admin/announcements`, `/admin/storage`, `/admin/artwork-presets`, `/admin/financial`, `/admin/governance`, `/admin/reports`, `/admin/grants`, `/admin/agm`, `/admin/disco-widgets`, `/admin/status`, `/admin/vendors`, `/admin/i18n`, `/admin/tahti-selects`, `/admin/orphan-pages` | Queue/detail routes stay contextual. |
@@ -107,8 +106,8 @@ mapping (2026-09-03) and the earlier atlas-diagram findings.
   `/admin/map`).
 - Studio detail pages and Admin queue/detail pages are intentionally
   contextual.
-- `/library/favorites` has its own left-side panel (Tracks, Playlists,
-  Channels, Artists).
+- Favorites live at `/listen/favorites` (sidebar). `/library/favorites`
+  still redirects there. Library no longer has a left-side favorites panel.
 - Public utility pages (`/status`, `/transparency*`, legal, `/whats-new`,
   `/news`) are reached from Help or parent pages, not from Listen chrome.
 - Member governance is Settings → Account → Governance (`/governance`), not

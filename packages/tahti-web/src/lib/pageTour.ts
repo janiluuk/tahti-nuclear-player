@@ -34,8 +34,7 @@ const SIDEBAR_STEPS: TourStep[] = [
   {
     id: 'nav-library',
     label: 'My Library',
-    description:
-      'Your saved tracks, favorites, playlists, and listening history.',
+    description: 'Your sounds, collections, playlists, and listening history.',
   },
   {
     id: 'nav-messages',
@@ -121,7 +120,7 @@ export function getPageTourSteps(pathname: string): TourStep[] {
   if (pathname === '/') {
     steps.push(...TOPBAR_STEPS);
   }
-  if (pathname.startsWith('/studio') || pathname === '/library') {
+  if (pathname.startsWith('/studio') || pathname.startsWith('/library')) {
     steps.push(...STUDIO_NAV_TOUR_STEPS);
   }
   if (pathname.startsWith('/admin')) {

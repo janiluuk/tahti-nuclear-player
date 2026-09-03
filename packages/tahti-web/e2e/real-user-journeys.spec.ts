@@ -166,6 +166,58 @@ test('governance navigation keeps member, artist, and board entries reachable an
   ).toHaveAttribute('aria-selected', 'true');
 });
 
+test('library is a Studio tab and keeps /library routes selected on Studio', async ({
+  page,
+}) => {
+  await signIn(page);
+
+  await page.goto('/library');
+  const studioPages = page.getByRole('navigation', { name: 'Studio pages' });
+  await expect(studioPages).toBeVisible();
+  await expect(
+    studioPages.getByRole('link', { name: 'Library' }),
+  ).toHaveAttribute('aria-current', 'page');
+  await expect(studioPages.getByRole('link', { name: 'Sounds' })).toBeVisible();
+  await expect(
+    studioPages.getByRole('link', { name: 'Collections' }),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId('sidebar-navigation-item').filter({ hasText: 'Studio' }),
+  ).toHaveClass(/bg-primary/);
+  await expect(
+    page
+      .getByTestId('sidebar-navigation-item')
+      .filter({ hasText: /^Library$/ }),
+  ).toHaveCount(0);
+
+  await studioPages.getByRole('link', { name: 'Sounds' }).click();
+  await expect(page).toHaveURL(/\/library\/sounds$/);
+  await expect(
+    studioPages.getByRole('link', { name: 'Sounds' }),
+  ).toHaveAttribute('aria-current', 'page');
+  await expect(
+    studioPages.getByRole('link', { name: 'Library' }),
+  ).not.toHaveAttribute('aria-current', 'page');
+  await expect(
+    page.getByTestId('sidebar-navigation-item').filter({ hasText: 'Studio' }),
+  ).toHaveClass(/bg-primary/);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobilePrimary = page.getByRole('navigation', { name: 'Primary' });
+  await expect(
+    mobilePrimary.getByRole('link', { name: 'Library' }),
+  ).toBeVisible();
+  await mobilePrimary.getByRole('link', { name: 'Library' }).click();
+  await expect(page).toHaveURL(/\/library$/);
+  await expect(
+    page.getByRole('navigation', { name: 'Studio pages' }),
+  ).toBeVisible();
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/library/favorites');
+  await expect(page).toHaveURL(/\/listen\/favorites/);
+});
+
 test('governance: closed motions show their final decision as a permanent history/decision log', async ({
   page,
 }) => {

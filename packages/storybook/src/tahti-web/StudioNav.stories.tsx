@@ -15,44 +15,44 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Overview: Story = {
-  args: { current: '/studio' },
+  args: { current: '/studio', global: true },
 };
 
 export const PerformActive: Story = {
-  args: { current: '/studio/schedule' },
+  args: { current: '/studio/schedule', global: true },
 };
 
 export const LibraryActive: Story = {
-  args: { current: '/studio/archive' },
+  args: { current: '/library', global: true },
 };
 
 export const GrowActive: Story = {
-  args: { current: '/studio/insights/archive/1' },
+  args: { current: '/studio/insights/archive/1', global: true },
 };
 
 export const ManageActive: Story = {
-  args: { current: '/studio/channel' },
+  args: { current: '/studio/channel', global: true },
 };
 
 export const ManageRadioActive: Story = {
-  args: { current: '/studio/channel?tab=radio' },
+  args: { current: '/studio/channel?tab=radio', global: true },
 };
 
 export const ManageSourcesActive: Story = {
-  args: { current: '/sources' },
+  args: { current: '/sources', global: true },
   decorators: [withTahtiRouter('/sources')],
 };
 
 export const NoCurrentRoute: Story = {
-  args: {},
+  args: { global: true },
 };
 
 export const NestedPerformRoute: Story = {
-  args: { current: '/studio/shows/weekly-session' },
+  args: { current: '/studio/shows/weekly-session', global: true },
   decorators: [withTahtiRouter('/studio/shows/weekly-session')],
 };
 
 export const MobileOverflow: Story = {
-  args: { current: '/studio/channel' },
+  args: { current: '/studio/channel', global: true },
   parameters: { viewport: { defaultViewport: 'mobile1' } },
 };
