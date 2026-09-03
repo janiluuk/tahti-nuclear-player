@@ -623,6 +623,7 @@ export type ChannelVisualPatch = {
   slideshowIntervalSeconds?: number;
   slideshowTransitionMs?: number;
   slideshowAutoplay?: boolean;
+  topBarText?: string | null;
   nowPlayingOverlayStyle?: string;
   nowPlayingOverlaySettingsJson?: string | null;
   usePlayerGradient?: boolean;
@@ -638,6 +639,139 @@ export type ChannelVisualPatch = {
   playerOverlayText?: string;
   playerOverlayAlign?: string;
 };
+
+export const CHANNEL_VISUAL_API_PATCH_KEYS = [
+  'visualPreset',
+  'colorScheme',
+  'visualSettings',
+  'headerStyle',
+  'videoBackgroundUrl',
+  'brandAccentPreset',
+  'slideshowPreset',
+  'slideshowIntervalSeconds',
+  'slideshowTransitionMs',
+  'slideshowAutoplay',
+  'topBarText',
+] as const;
+
+export type ChannelVisualApiPatch = Pick<
+  ChannelVisualPatch,
+  (typeof CHANNEL_VISUAL_API_PATCH_KEYS)[number]
+>;
+
+export function toChannelVisualApiPatch(
+  patch: ChannelVisualPatch,
+): ChannelVisualApiPatch {
+  const next: ChannelVisualApiPatch = {};
+  for (const key of CHANNEL_VISUAL_API_PATCH_KEYS) {
+    const value = patch[key];
+    if (value !== undefined) {
+      (next as Record<string, unknown>)[key] = value;
+    }
+  }
+  return next;
+}
+
+type ChannelLookExtras = Pick<
+  ChannelVisualPatch,
+  | 'nowPlayingOverlayStyle'
+  | 'nowPlayingOverlaySettingsJson'
+  | 'usePlayerGradient'
+  | 'playerColorSchemeJson'
+  | 'backgroundVisualPreset'
+  | 'useBackgroundGradient'
+  | 'backgroundColorSchemeJson'
+  | 'channelLinks'
+  | 'textOverlayMode'
+  | 'textOverlayText'
+  | 'textOverlayAlign'
+  | 'playerOverlayMode'
+  | 'playerOverlayText'
+  | 'playerOverlayAlign'
+>;
+
+function lookExtrasStorageKey(slug: string) {
+  return `tahti.channelLookExtras.${slug}`;
+}
+
+export function loadChannelLookExtras(slug: string): ChannelLookExtras {
+  if (!slug) {
+    return {};
+  }
+  try {
+    const raw = localStorage.getItem(lookExtrasStorageKey(slug));
+    if (!raw) {
+      return {};
+    }
+    const parsed = JSON.parse(raw) as ChannelLookExtras;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveChannelLookExtras(
+  slug: string,
+  extras: ChannelLookExtras,
+): void {
+  if (!slug) {
+    return;
+  }
+  const current = loadChannelLookExtras(slug);
+  localStorage.setItem(
+    lookExtrasStorageKey(slug),
+    JSON.stringify({ ...current, ...extras }),
+  );
+}
+
+export function channelLookExtrasFromPatch(
+  patch: ChannelVisualPatch,
+): ChannelLookExtras {
+  return {
+    ...(patch.nowPlayingOverlayStyle !== undefined
+      ? { nowPlayingOverlayStyle: patch.nowPlayingOverlayStyle }
+      : {}),
+    ...(patch.nowPlayingOverlaySettingsJson !== undefined
+      ? { nowPlayingOverlaySettingsJson: patch.nowPlayingOverlaySettingsJson }
+      : {}),
+    ...(patch.usePlayerGradient !== undefined
+      ? { usePlayerGradient: patch.usePlayerGradient }
+      : {}),
+    ...(patch.playerColorSchemeJson !== undefined
+      ? { playerColorSchemeJson: patch.playerColorSchemeJson }
+      : {}),
+    ...(patch.backgroundVisualPreset !== undefined
+      ? { backgroundVisualPreset: patch.backgroundVisualPreset }
+      : {}),
+    ...(patch.useBackgroundGradient !== undefined
+      ? { useBackgroundGradient: patch.useBackgroundGradient }
+      : {}),
+    ...(patch.backgroundColorSchemeJson !== undefined
+      ? { backgroundColorSchemeJson: patch.backgroundColorSchemeJson }
+      : {}),
+    ...(patch.channelLinks !== undefined
+      ? { channelLinks: patch.channelLinks }
+      : {}),
+    ...(patch.textOverlayMode !== undefined
+      ? { textOverlayMode: patch.textOverlayMode }
+      : {}),
+    ...(patch.textOverlayText !== undefined
+      ? { textOverlayText: patch.textOverlayText }
+      : {}),
+    ...(patch.textOverlayAlign !== undefined
+      ? { textOverlayAlign: patch.textOverlayAlign }
+      : {}),
+    ...(patch.playerOverlayMode !== undefined
+      ? { playerOverlayMode: patch.playerOverlayMode }
+      : {}),
+    ...(patch.playerOverlayText !== undefined
+      ? { playerOverlayText: patch.playerOverlayText }
+      : {}),
+    ...(patch.playerOverlayAlign !== undefined
+      ? { playerOverlayAlign: patch.playerOverlayAlign }
+      : {}),
+  };
+}
 
 export async function patchChannelVisual(
   patch: ChannelVisualPatch,
@@ -735,7 +869,7 @@ export async function patchChannelVisual(
       '/api/me/channel/visual',
       {
         method: 'PATCH',
-        body: JSON.stringify(patch),
+        body: JSON.stringify(toChannelVisualApiPatch(patch)),
       },
     );
     return { ok: true, data };

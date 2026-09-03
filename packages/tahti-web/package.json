@@ -1,6 +1,6 @@
 {
   "name": "@tahti-player/tahti-web",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "private": true,
   "type": "module",
   "description": "POC: Tahti listen experience on Nuclear UI — eventual production web listen client",
@@ -17,6 +17,7 @@
     "deploy:vimage": "./deploy/deploy-vimage.sh"
   },
   "dependencies": {
+    "@tahti-player/i18n": "workspace:*",
     "@tahti-player/model": "workspace:*",
     "@tahti-player/tailwind-config": "workspace:*",
     "@tahti-player/themes": "workspace:*",

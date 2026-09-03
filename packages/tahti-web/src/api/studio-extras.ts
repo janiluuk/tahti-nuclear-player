@@ -913,6 +913,31 @@ export async function fetchArtistPosts(): Promise<{
   }
 }
 
+export async function fetchChannelPosts(slug: string): Promise<{
+  data: ArtistPost[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockPosts.map((post) => ({ ...post, images: [...post.images] })),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<ArtistPost[]>(
+      `/api/channels/${encodeURIComponent(slug)}/posts`,
+    );
+    return {
+      data: Array.isArray(data)
+        ? data.map((post) => ({ ...post, images: post.images ?? [] }))
+        : [],
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
 export async function createArtistPost(input: {
   title?: string;
   body: string;

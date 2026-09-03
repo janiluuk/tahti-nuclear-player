@@ -4,16 +4,15 @@ import {
 } from './channelPageLayout';
 
 export type ChannelLookElementId =
-  | 'header'
+  | 'releases'
+  | 'tracks'
+  | 'latest'
+  | 'feed'
+  | 'news'
   | 'player'
-  | 'background'
-  | 'actions'
-  | 'archive'
-  | 'about'
-  | 'links'
-  | 'subscribe'
-  | 'stats'
-  | 'events';
+  | 'backdrop';
+
+export type ArtistLookBlockId = Exclude<ChannelLookElementId, 'backdrop'>;
 
 export type ChannelLookElement = {
   id: ChannelLookElementId;
@@ -23,15 +22,41 @@ export type ChannelLookElement = {
   canDisable: boolean;
 };
 
-/** Real visitor-facing pieces that can be styled (or shown/hidden) in the
- * channel designer. Overlay styling lives under Player — not its own row. */
 export const CHANNEL_LOOK_ELEMENTS: readonly ChannelLookElement[] = [
   {
-    id: 'header',
-    label: 'Header',
-    hint: 'Artist identity, badge, and backdrop treatment.',
+    id: 'releases',
+    label: 'Releases',
+    hint: 'Full discography on the artist page.',
     layoutType: null,
-    canDisable: false,
+    canDisable: true,
+  },
+  {
+    id: 'tracks',
+    label: 'Tracks',
+    hint: CHANNEL_PAGE_ITEM_META.archive.hint,
+    layoutType: 'archive',
+    canDisable: true,
+  },
+  {
+    id: 'latest',
+    label: 'Latest',
+    hint: 'Newest releases highlighted on the music tab.',
+    layoutType: null,
+    canDisable: true,
+  },
+  {
+    id: 'feed',
+    label: 'Feed',
+    hint: 'Artist updates and credits on the public page.',
+    layoutType: null,
+    canDisable: true,
+  },
+  {
+    id: 'news',
+    label: 'News',
+    hint: 'Pinned channel announcements.',
+    layoutType: null,
+    canDisable: true,
   },
   {
     id: 'player',
@@ -41,67 +66,40 @@ export const CHANNEL_LOOK_ELEMENTS: readonly ChannelLookElement[] = [
     canDisable: true,
   },
   {
-    id: 'background',
-    label: 'Background',
-    hint: 'Page colors behind the channel, separate from the header.',
+    id: 'backdrop',
+    label: 'Backdrop',
+    hint: 'Header style, slideshow, and page colors behind the channel.',
     layoutType: null,
     canDisable: false,
   },
-  {
-    id: 'actions',
-    label: CHANNEL_PAGE_ITEM_META.actions.label,
-    hint: CHANNEL_PAGE_ITEM_META.actions.hint,
-    layoutType: 'actions',
-    canDisable: true,
-  },
-  {
-    id: 'archive',
-    label: CHANNEL_PAGE_ITEM_META.archive.label,
-    hint: CHANNEL_PAGE_ITEM_META.archive.hint,
-    layoutType: 'archive',
-    canDisable: true,
-  },
-  {
-    id: 'about',
-    label: CHANNEL_PAGE_ITEM_META.about.label,
-    hint: CHANNEL_PAGE_ITEM_META.about.hint,
-    layoutType: 'about',
-    canDisable: true,
-  },
-  {
-    id: 'links',
-    label: CHANNEL_PAGE_ITEM_META.links.label,
-    hint: CHANNEL_PAGE_ITEM_META.links.hint,
-    layoutType: 'links',
-    canDisable: true,
-  },
-  {
-    id: 'subscribe',
-    label: CHANNEL_PAGE_ITEM_META.subscribe.label,
-    hint: CHANNEL_PAGE_ITEM_META.subscribe.hint,
-    layoutType: 'subscribe',
-    canDisable: true,
-  },
-  {
-    id: 'stats',
-    label: CHANNEL_PAGE_ITEM_META.stats.label,
-    hint: CHANNEL_PAGE_ITEM_META.stats.hint,
-    layoutType: 'stats',
-    canDisable: true,
-  },
-  {
-    id: 'events',
-    label: CHANNEL_PAGE_ITEM_META.events.label,
-    hint: CHANNEL_PAGE_ITEM_META.events.hint,
-    layoutType: 'events',
-    canDisable: true,
-  },
 ];
+
+export const DEFAULT_ARTIST_LOOK_VISIBILITY: Record<
+  ArtistLookBlockId,
+  boolean
+> = {
+  releases: true,
+  tracks: true,
+  latest: true,
+  feed: true,
+  news: true,
+  player: true,
+};
 
 export function isChannelLookElementId(
   value: string | null | undefined,
 ): value is ChannelLookElementId {
   return CHANNEL_LOOK_ELEMENTS.some((element) => element.id === value);
+}
+
+export function isArtistLookBlockId(
+  value: string | null | undefined,
+): value is ArtistLookBlockId {
+  return (
+    isChannelLookElementId(value) &&
+    CHANNEL_LOOK_ELEMENTS.find((element) => element.id === value)
+      ?.canDisable === true
+  );
 }
 
 export function adjacentLookElementId(
@@ -112,5 +110,61 @@ export function adjacentLookElementId(
   const index = ids.indexOf(currentId as ChannelLookElementId);
   const from = index < 0 ? 0 : index;
   const next = (from + direction + ids.length) % ids.length;
-  return ids[next] ?? 'header';
+  return ids[next] ?? 'releases';
+}
+
+function artistLookStorageKey(slug: string) {
+  return `tahti.artistLookBlocks.${slug}`;
+}
+
+export function loadArtistLookVisibility(
+  slug: string,
+): Record<ArtistLookBlockId, boolean> {
+  if (!slug) {
+    return { ...DEFAULT_ARTIST_LOOK_VISIBILITY };
+  }
+  try {
+    const raw = localStorage.getItem(artistLookStorageKey(slug));
+    if (!raw) {
+      return { ...DEFAULT_ARTIST_LOOK_VISIBILITY };
+    }
+    const parsed = JSON.parse(raw) as Partial<
+      Record<ArtistLookBlockId, boolean>
+    >;
+    return {
+      ...DEFAULT_ARTIST_LOOK_VISIBILITY,
+      ...Object.fromEntries(
+        Object.entries(parsed).filter(([key]) => isArtistLookBlockId(key)),
+      ),
+    };
+  } catch {
+    return { ...DEFAULT_ARTIST_LOOK_VISIBILITY };
+  }
+}
+
+export function saveArtistLookVisibility(
+  slug: string,
+  visibility: Record<ArtistLookBlockId, boolean>,
+): void {
+  if (!slug) {
+    return;
+  }
+  try {
+    localStorage.setItem(
+      artistLookStorageKey(slug),
+      JSON.stringify(visibility),
+    );
+  } catch {
+    return;
+  }
+}
+
+export function toggleArtistLookVisibility(
+  slug: string,
+  id: ArtistLookBlockId,
+): Record<ArtistLookBlockId, boolean> {
+  const current = loadArtistLookVisibility(slug);
+  const next = { ...current, [id]: !current[id] };
+  saveArtistLookVisibility(slug, next);
+  return next;
 }

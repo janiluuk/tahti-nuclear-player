@@ -5,6 +5,7 @@ import {
   isVisualPreset,
   resolvePublicVisualizerPreset,
   shouldDockVisualizerTuning,
+  toChannelVisualApiPatch,
 } from './channel-design';
 
 describe('isVisualPreset', () => {
@@ -118,5 +119,28 @@ describe('isValidHeaderVideoUrl', () => {
     expect(isValidHeaderVideoUrl('')).toBe(false);
     expect(isValidHeaderVideoUrl(null)).toBe(false);
     expect(isValidHeaderVideoUrl(undefined)).toBe(false);
+  });
+});
+
+describe('toChannelVisualApiPatch', () => {
+  it('keeps only fields ChannelVisualPatchSchema accepts', () => {
+    const patch = toChannelVisualApiPatch({
+      visualPreset: 'AURORA',
+      headerStyle: 'GRADIENT',
+      brandAccentPreset: 'aurora',
+      channelLinks: [{ label: 'Site', url: 'https://example.com' }],
+      textOverlayMode: 'CUSTOM',
+      textOverlayText: 'Hello',
+      usePlayerGradient: true,
+      playerOverlayMode: 'CUSTOM',
+    });
+    expect(patch).toEqual({
+      visualPreset: 'AURORA',
+      headerStyle: 'GRADIENT',
+      brandAccentPreset: 'aurora',
+    });
+    expect(patch).not.toHaveProperty('channelLinks');
+    expect(patch).not.toHaveProperty('textOverlayMode');
+    expect(patch).not.toHaveProperty('usePlayerGradient');
   });
 });

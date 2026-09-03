@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-03T03:00",
+    "description": "The artist-page Channel Designer now uses the same element menu as Studio, with only the blocks you can actually use — releases, tracks, latest, feed, news, player, and backdrop.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
     "date": "2026-09-03T02:30",
     "description": "Artist look now lives in one Branding place: Gallery and Channel Designer are under Studio → Branding, multicast sits with Radio, and Settings no longer duplicates those surfaces.",
     "type": "improvement",

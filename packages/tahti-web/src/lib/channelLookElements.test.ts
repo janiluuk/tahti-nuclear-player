@@ -1,34 +1,37 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import {
   adjacentLookElementId,
   CHANNEL_LOOK_ELEMENTS,
+  isArtistLookBlockId,
   isChannelLookElementId,
+  loadArtistLookVisibility,
+  saveArtistLookVisibility,
+  toggleArtistLookVisibility,
 } from './channelLookElements';
 import { CHANNEL_PAGE_ITEM_TYPES } from './channelPageLayout';
 
 describe('CHANNEL_LOOK_ELEMENTS', () => {
-  it('lists every stylable visitor-facing channel piece except chat and overlay', () => {
+  it('lists the usable artist-page blocks', () => {
     const ids = CHANNEL_LOOK_ELEMENTS.map((element) => element.id);
     expect(ids).toEqual([
-      'header',
+      'releases',
+      'tracks',
+      'latest',
+      'feed',
+      'news',
       'player',
-      'background',
-      'actions',
-      'archive',
-      'about',
-      'links',
-      'subscribe',
-      'stats',
-      'events',
+      'backdrop',
     ]);
+    expect(ids).not.toContain('header');
+    expect(ids).not.toContain('actions');
     expect(ids).not.toContain('chat');
     expect(ids).not.toContain('textOverlay');
   });
 
-  it('maps disable-able rows onto real layout types', () => {
+  it('maps disable-able rows with a layout type onto real layout types', () => {
     const layoutTypes = CHANNEL_LOOK_ELEMENTS.filter(
-      (element) => element.canDisable,
+      (element) => element.canDisable && element.layoutType,
     ).map((element) => element.layoutType);
     for (const type of layoutTypes) {
       expect(type).not.toBeNull();
@@ -39,27 +42,66 @@ describe('CHANNEL_LOOK_ELEMENTS', () => {
 
 describe('adjacentLookElementId', () => {
   it('wraps from the last element to the first', () => {
-    expect(adjacentLookElementId('events', 1)).toBe('header');
+    expect(adjacentLookElementId('backdrop', 1)).toBe('releases');
   });
 
   it('wraps from the first element to the last', () => {
-    expect(adjacentLookElementId('header', -1)).toBe('events');
+    expect(adjacentLookElementId('releases', -1)).toBe('backdrop');
   });
 
   it('steps to the next listed element', () => {
-    expect(adjacentLookElementId('header', 1)).toBe('player');
-    expect(adjacentLookElementId('player', -1)).toBe('header');
+    expect(adjacentLookElementId('releases', 1)).toBe('tracks');
+    expect(adjacentLookElementId('player', -1)).toBe('news');
   });
 
   it('falls back to the start of the list for an unknown id', () => {
-    expect(adjacentLookElementId('not-a-section', 1)).toBe('player');
+    expect(adjacentLookElementId('not-a-section', 1)).toBe('tracks');
   });
 });
 
 describe('isChannelLookElementId', () => {
   it('accepts listed ids only', () => {
     expect(isChannelLookElementId('player')).toBe(true);
+    expect(isChannelLookElementId('backdrop')).toBe(true);
+    expect(isChannelLookElementId('header')).toBe(false);
     expect(isChannelLookElementId('text-overlay')).toBe(false);
     expect(isChannelLookElementId(null)).toBe(false);
+  });
+});
+
+describe('artist look visibility', () => {
+  const memory = new Map<string, string>();
+
+  beforeEach(() => {
+    memory.clear();
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => memory.get(key) ?? null,
+        setItem: (key: string, value: string) => {
+          memory.set(key, value);
+        },
+        removeItem: (key: string) => {
+          memory.delete(key);
+        },
+      },
+    });
+  });
+
+  afterEach(() => {
+    memory.clear();
+  });
+
+  it('defaults every hideable block to visible', () => {
+    expect(loadArtistLookVisibility('demo').player).toBe(true);
+    expect(isArtistLookBlockId('backdrop')).toBe(false);
+  });
+
+  it('toggles and persists a hideable block', () => {
+    const hidden = toggleArtistLookVisibility('demo', 'latest');
+    expect(hidden.latest).toBe(false);
+    expect(loadArtistLookVisibility('demo').latest).toBe(false);
+    saveArtistLookVisibility('demo', { ...hidden, latest: true });
+    expect(loadArtistLookVisibility('demo').latest).toBe(true);
   });
 });

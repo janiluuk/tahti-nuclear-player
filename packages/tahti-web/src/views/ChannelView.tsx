@@ -20,6 +20,7 @@ import {
   isValidHeaderBackdropUrl,
   patchChannelVisual,
   resolvePublicVisualizerPreset,
+  saveChannelLookExtras,
   youtubeEmbedUrl,
   type ChannelLink,
 } from '../api/channel-design';
@@ -43,10 +44,7 @@ import {
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelLinksEditor } from '../components/ChannelLinksEditor';
 import { ChannelShareButton } from '../components/ChannelShareButton';
-import {
-  ChannelTextOverlayEditor,
-  type TextOverlayDraft,
-} from '../components/ChannelTextOverlayEditor';
+import { type TextOverlayDraft } from '../components/ChannelTextOverlayEditor';
 import { ChannelTextOverlayView } from '../components/ChannelTextOverlayView';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
@@ -67,6 +65,7 @@ import {
   resolveNowPlayingOverlayPreset,
 } from '../content/nowPlayingOverlayPresets';
 import { hasAccountRole } from '../lib/accountRoles';
+import type { ChannelLookElementId } from '../lib/channelLookElements';
 import {
   addItemType,
   CHANNEL_PAGE_ITEM_META,
@@ -417,7 +416,7 @@ export function ChannelView({ slug }: { slug: string }) {
     }
     if (linksOrOverlayDirty) {
       setSavingLook(true);
-      await patchChannelVisual({
+      saveChannelLookExtras(slug, {
         channelLinks: channelLinksDraft,
         textOverlayMode: textOverlayDraft.mode,
         textOverlayText: textOverlayDraft.text,
@@ -1329,16 +1328,15 @@ export function ChannelView({ slug }: { slug: string }) {
     selectedId === 'header'
       ? 'header'
       : layout.find((i) => i.id === selectedId)?.type;
-  const lookOpenSection =
-    selectedType === 'hero'
-      ? ('player-design' as const)
+  const lookElementId: ChannelLookElementId | null =
+    selectedType === 'hero' || selectedType === 'textOverlay'
+      ? 'player'
       : selectedType === 'header'
-        ? ('visual-style' as const)
-        : selectedType === 'links'
-          ? ('links' as const)
-          : selectedType === 'textOverlay'
-            ? ('text-overlay' as const)
-            : null;
+        ? 'backdrop'
+        : selectedType === 'archive'
+          ? 'tracks'
+          : null;
+  const lookOpenSection = selectedType === 'links' ? 'links' : lookElementId;
 
   const layersMenu = (
     <ChannelLayersMenu
@@ -1393,14 +1391,6 @@ export function ChannelView({ slug }: { slug: string }) {
               setLinksOrOverlayDirty(true);
             }}
           />
-        ) : lookOpenSection === 'text-overlay' ? (
-          <ChannelTextOverlayEditor
-            value={textOverlayDraft}
-            onChange={(next) => {
-              setTextOverlayDraft(next);
-              setLinksOrOverlayDirty(true);
-            }}
-          />
         ) : (
           <ChannelDesigner
             ref={channelDesignerRef}
@@ -1411,12 +1401,7 @@ export function ChannelView({ slug }: { slug: string }) {
             channelSlug={slug}
             avatarUrl={channel.user.avatarUrl}
             bio={channel.user.bio}
-            lookOpenSection={
-              lookOpenSection === 'player-design' ||
-              lookOpenSection === 'visual-style'
-                ? lookOpenSection
-                : null
-            }
+            lookOpenSection={lookElementId}
             onDirtyChange={setLookDirty}
             onSaved={() => setLookTick((n) => n + 1)}
           />

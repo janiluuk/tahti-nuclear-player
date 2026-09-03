@@ -180,8 +180,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
         heading: 'Choose a look',
         body: [
           'Open Studio → Branding → Channel Designer. The preview shows what listeners see on your public channel and artist page.',
-          'Header design controls the channel header. Player design controls the player separately, including the shared gradient presets and manual colors.',
-          'Visual style controls the animated visualizer and its speed, intensity, scale, and audio-reactive behavior.',
+          'Pick a block from the element menu: releases, tracks, latest, feed, news, player, or backdrop. Hide a block with the eye button.',
+          'Player controls the stage, visualizer, gradient, and overlay. Backdrop controls header style, slideshow, and page colors.',
         ],
       },
       {

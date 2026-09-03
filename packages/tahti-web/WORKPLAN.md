@@ -44,7 +44,7 @@ Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which
 - [ ] Move Help center and Settings to the bottom of the sidebar (`SectionSidebar`/`SidebarNavigation`), separated from the main nav groups above.
 - [ ] Any widget with a play icon (Listen widgets, disco-widgets, etc.) should reflect the shared player's actual state — highlighted/active whenever its track is the one currently playing, not just a static icon.
 - [x] **Settings / Branding / Radio IA (first slice)** — Gallery and Channel Designer live only under Studio → Branding; multicast is a Radio subtab; Settings no longer embeds those duplicates.
-- [ ] Artist-page Channel Designer element list (releases, tracks, latest, feed, news, player, backdrop) and the remaining look-only editor.
+- [x] Artist-page Channel Designer element list (releases, tracks, latest, feed, news, player, backdrop) and the remaining look-only editor.
 - [ ] Library as a Studio tab; stream playlist manager.
 
 Done since last update (was listed here as remaining, verified shipped): channel chat hardening (hCaptcha + rail parity), Stash upload UI, Stats detail page, Venue register, Membership purchase, Password/account security (TOTP panel), board admin (22/22 pages, now `partial` not `out-of-scope`).

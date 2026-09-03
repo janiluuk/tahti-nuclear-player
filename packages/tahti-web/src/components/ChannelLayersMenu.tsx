@@ -25,12 +25,7 @@ type Props = {
   /** Which look section the current selection maps to, if any — drives the
    * side panel to fade in that element's own settings instead of the
    * generic layers list. `null` for blocks with no dedicated designer. */
-  lookOpenSection?:
-    | 'player-design'
-    | 'visual-style'
-    | 'links'
-    | 'text-overlay'
-    | null;
+  lookOpenSection?: string | null;
   activePresetId: ChannelLayoutPresetId | null;
   onSelect: (id: string) => void;
   onToggleVisible: (id: string) => void;

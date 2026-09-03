@@ -23,6 +23,10 @@ import {
 } from '@tahti-player/ui';
 
 import {
+  fetchPinnedAnnouncements,
+  type PinnedAnnouncement,
+} from '../api/announcements';
+import {
   fetchMyPressKitImages,
   fetchPublicPressKitImages,
   type PublicPressKitImage,
@@ -34,7 +38,11 @@ import {
 } from '../api/disco-widgets';
 import { fetchPublicMentions, type PublicMention } from '../api/mentions';
 import { fetchPublicRadioShow, type PublicRadioShow } from '../api/shows';
-import { patchMeProfile } from '../api/studio-extras';
+import {
+  fetchChannelPosts,
+  patchMeProfile,
+  type ArtistPost,
+} from '../api/studio-extras';
 import type {
   PublicChannel,
   PublicProfile,
@@ -45,7 +53,6 @@ import {
   ArtistGalleryAddIcon,
   ArtistGalleryPanel,
 } from '../components/ArtistGalleryPanel';
-import { ChannelControlsWidget } from '../components/ChannelControlsWidget';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
@@ -67,6 +74,10 @@ import { Eyebrow } from '../components/tahti/Eyebrow';
 import { TrackEditDialog } from '../components/TrackEditDialog';
 import { hasAccountRole } from '../lib/accountRoles';
 import { soundIdFromPlayableId } from '../lib/archiveId';
+import {
+  loadArtistLookVisibility,
+  type ArtistLookBlockId,
+} from '../lib/channelLookElements';
 import { isPinned } from '../lib/pinnedTracks';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { formatDuration } from '../lib/playableToTrack';
@@ -263,6 +274,11 @@ export function ArtistView({ username }: { username: string }) {
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
   const [liveShows, setLiveShows] = useState<PublicRadioShow | null>(null);
   const [taggedIn, setTaggedIn] = useState<PublicMention[]>([]);
+  const [channelPosts, setChannelPosts] = useState<ArtistPost[]>([]);
+  const [channelNews, setChannelNews] = useState<PinnedAnnouncement[]>([]);
+  const [lookVisibility, setLookVisibility] = useState<
+    Record<ArtistLookBlockId, boolean>
+  >(loadArtistLookVisibility(username));
 
   const navigate = useNavigate();
   const play = usePlayerStore((s) => s.play);
@@ -342,28 +358,37 @@ export function ArtistView({ username }: { username: string }) {
     if (!slug) {
       setChannelVisual(null);
       setDiscoWidgets([]);
+      setChannelPosts([]);
+      setChannelNews([]);
+      setLookVisibility(loadArtistLookVisibility(username));
       return;
     }
+    setLookVisibility(loadArtistLookVisibility(slug));
     let cancelled = false;
-    void Promise.all([fetchChannel(slug), fetchChannelDiscoWidgets(slug)]).then(
-      ([res, widgets]) => {
-        if (cancelled) {
-          return;
-        }
-        setChannelVisual({
-          visualPreset: res.data.visualPreset,
-          visualSettingsJson: res.data.visualSettingsJson,
-          colorScheme: res.data.colorScheme,
-          colorSchemeJson: res.data.colorSchemeJson,
-          hlsUrl: res.data.hlsUrl,
-        });
-        setDiscoWidgets(widgets.data);
-      },
-    );
+    void Promise.all([
+      fetchChannel(slug),
+      fetchChannelDiscoWidgets(slug),
+      fetchChannelPosts(slug),
+      fetchPinnedAnnouncements(slug),
+    ]).then(([res, widgets, posts, news]) => {
+      if (cancelled) {
+        return;
+      }
+      setChannelVisual({
+        visualPreset: res.data.visualPreset,
+        visualSettingsJson: res.data.visualSettingsJson,
+        colorScheme: res.data.colorScheme,
+        colorSchemeJson: res.data.colorSchemeJson,
+        hlsUrl: res.data.hlsUrl,
+      });
+      setDiscoWidgets(widgets.data);
+      setChannelPosts(posts.data);
+      setChannelNews(news);
+    });
     return () => {
       cancelled = true;
     };
-  }, [profile?.channel?.slug]);
+  }, [profile?.channel?.slug, username]);
 
   useEffect(() => {
     const slug = profile?.channel?.slug;
@@ -412,9 +437,16 @@ export function ArtistView({ username }: { username: string }) {
     if (!profile) {
       return;
     }
+    const showMusic =
+      lookVisibility.player || lookVisibility.latest || lookVisibility.tracks;
     const availableTabs: Tab[] = [
-      ...(profile.tracks.length > 0 ? (['music'] as const) : []),
-      ...(profile.releases.length > 0 ? (['releases'] as const) : []),
+      ...(showMusic &&
+      (profile.tracks.length > 0 || profile.releases.length > 0)
+        ? (['music'] as const)
+        : []),
+      ...(lookVisibility.releases && profile.releases.length > 0
+        ? (['releases'] as const)
+        : []),
       ...(profile.collections.some((collection) => collection.itemCount > 0)
         ? (['collections'] as const)
         : []),
@@ -424,7 +456,7 @@ export function ArtistView({ username }: { username: string }) {
     if (!availableTabs.includes(tab)) {
       setTab(availableTabs[0] ?? 'music');
     }
-  }, [hasGallery, isOwner, profile, tab]);
+  }, [hasGallery, isOwner, lookVisibility, profile, tab]);
 
   const { pinnedPlayables, pinnedTiles, catalogPlayables, releaseTiles } =
     useMemo(() => {
@@ -531,10 +563,12 @@ export function ArtistView({ username }: { username: string }) {
   };
 
   const tabs: Array<{ id: Tab; label: string }> = [
-    ...(profile.tracks.length > 0
-      ? [{ id: 'music' as const, label: 'Music' }]
+    ...(lookVisibility.player || lookVisibility.latest || lookVisibility.tracks
+      ? profile.tracks.length > 0 || releases.length > 0
+        ? [{ id: 'music' as const, label: 'Music' }]
+        : []
       : []),
-    ...(releases.length > 0
+    ...(lookVisibility.releases && releases.length > 0
       ? [{ id: 'releases' as const, label: 'Releases' }]
       : []),
     ...(collections.some((collection) => collection.itemCount > 0)
@@ -847,7 +881,7 @@ export function ArtistView({ username }: { username: string }) {
         </p>
       )}
 
-      {taggedIn.length > 0 ? (
+      {lookVisibility.feed && taggedIn.length > 0 ? (
         <section className="border-border bg-background-secondary/50 rounded-2xl border p-4 sm:p-6">
           <div className="mb-3">
             <h2 className="font-display text-lg font-bold tracking-tight">
@@ -892,6 +926,35 @@ export function ArtistView({ username }: { username: string }) {
         </section>
       ) : null}
 
+      {lookVisibility.feed && channelPosts.length > 0 ? (
+        <section className="flex flex-col gap-3">
+          <Eyebrow>Feed</Eyebrow>
+          <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
+            {channelPosts.map((post) => (
+              <li key={post.id} className="flex flex-col gap-1 p-3">
+                {post.title ? (
+                  <p className="text-sm font-semibold">{post.title}</p>
+                ) : null}
+                <p className="text-foreground-secondary text-sm">{post.body}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {lookVisibility.news && channelNews.length > 0 ? (
+        <section className="flex flex-col gap-3">
+          <Eyebrow>News</Eyebrow>
+          <ul className="border-border divide-border divide-y overflow-hidden rounded-xl border">
+            {channelNews.map((item) => (
+              <li key={item.id} className="p-3 text-sm">
+                {item.body}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <div className="border-border flex flex-wrap items-center gap-2 border-b pb-3">
         <nav
           className="flex flex-wrap gap-2"
@@ -928,107 +991,113 @@ export function ArtistView({ username }: { username: string }) {
 
       {tab === 'music' && (
         <section className="flex flex-col gap-8">
-          <div className="border-border bg-background-input relative min-h-[20rem] w-full overflow-hidden rounded-lg border sm:min-h-[28rem]">
-            {featuredIsPlaying ? (
-              <ChannelVisualizer
-                className="absolute inset-0 size-full opacity-60"
-                artworkUrl={nowPlayingHere?.coverUrl}
-              />
-            ) : nowPlayingHere?.coverUrl ? (
-              <img
-                src={nowPlayingHere.coverUrl}
-                alt=""
-                className="absolute inset-0 size-full object-cover opacity-35"
-              />
-            ) : null}
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10"
-              aria-hidden
-            />
-            {nowPlayingHere ? (
-              <span className="absolute top-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.16em] text-white uppercase backdrop-blur-sm">
-                <span
-                  className="bg-accent-green size-1.5 rounded-full motion-safe:animate-pulse"
-                  aria-hidden
+          {lookVisibility.player ? (
+            <div className="border-border bg-background-input relative min-h-[20rem] w-full overflow-hidden rounded-lg border sm:min-h-[28rem]">
+              {featuredIsPlaying ? (
+                <ChannelVisualizer
+                  className="absolute inset-0 size-full opacity-60"
+                  artworkUrl={nowPlayingHere?.coverUrl}
                 />
-                Now playing
-              </span>
-            ) : null}
+              ) : nowPlayingHere?.coverUrl ? (
+                <img
+                  src={nowPlayingHere.coverUrl}
+                  alt=""
+                  className="absolute inset-0 size-full object-cover opacity-35"
+                />
+              ) : null}
+              <div
+                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10"
+                aria-hidden
+              />
+              {nowPlayingHere ? (
+                <span className="absolute top-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.16em] text-white uppercase backdrop-blur-sm">
+                  <span
+                    className="bg-accent-green size-1.5 rounded-full motion-safe:animate-pulse"
+                    aria-hidden
+                  />
+                  Now playing
+                </span>
+              ) : null}
 
-            {channel && (isOwner || isAdministrator) ? (
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                className="absolute top-3 right-3 z-[2]"
-                onClick={() => setManagerOpen(true)}
-                aria-label="Manage stream playlist"
-                title="Manage stream playlist"
-              >
-                <ListMusicIcon size={16} aria-hidden />
-                <span>Manage</span>
-              </Button>
-            ) : null}
-
-            {featuredPlayable ? (
-              <div className="absolute top-1/2 left-1/2 z-[2] -translate-x-1/2 -translate-y-1/2">
+              {channel && (isOwner || isAdministrator) ? (
                 <Button
                   type="button"
-                  size="icon"
-                  className="bg-primary text-primary-foreground size-16 rounded-full shadow-xl sm:size-20"
-                  onClick={playFeatured}
-                  aria-label={
-                    featuredIsPlaying
-                      ? 'Pause featured track'
-                      : 'Play featured track'
-                  }
-                  aria-pressed={featuredIsPlaying}
+                  size="sm"
+                  variant="secondary"
+                  className="absolute top-3 right-3 z-[2]"
+                  onClick={() => setManagerOpen(true)}
+                  aria-label="Manage stream playlist"
+                  title="Manage stream playlist"
                 >
-                  {featuredIsPlaying ? (
-                    <span className="text-xl font-bold" aria-hidden>
-                      ||
-                    </span>
-                  ) : (
-                    <PlayIcon size={28} className="fill-current" aria-hidden />
-                  )}
+                  <ListMusicIcon size={16} aria-hidden />
+                  <span>Manage</span>
                 </Button>
-              </div>
-            ) : null}
+              ) : null}
 
-            <div className="absolute inset-x-0 bottom-0 z-[1] flex items-end gap-3 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-3 sm:gap-4 sm:p-4">
-              {nowPlayingHere ? (
-                <>
-                  <div className="size-12 shrink-0 overflow-hidden rounded-md bg-white/10 shadow-lg ring-1 ring-white/15 sm:size-14">
-                    {nowPlayingHere.coverUrl ? (
-                      <img
-                        src={nowPlayingHere.coverUrl}
-                        alt=""
-                        className="size-full object-cover"
-                      />
+              {featuredPlayable ? (
+                <div className="absolute top-1/2 left-1/2 z-[2] -translate-x-1/2 -translate-y-1/2">
+                  <Button
+                    type="button"
+                    size="icon"
+                    className="bg-primary text-primary-foreground size-16 rounded-full shadow-xl sm:size-20"
+                    onClick={playFeatured}
+                    aria-label={
+                      featuredIsPlaying
+                        ? 'Pause featured track'
+                        : 'Play featured track'
+                    }
+                    aria-pressed={featuredIsPlaying}
+                  >
+                    {featuredIsPlaying ? (
+                      <span className="text-xl font-bold" aria-hidden>
+                        ||
+                      </span>
                     ) : (
-                      <div className="flex size-full items-center justify-center text-xs font-bold text-white/70">
-                        {nowPlayingHere.title.slice(0, 2).toUpperCase()}
-                      </div>
+                      <PlayIcon
+                        size={28}
+                        className="fill-current"
+                        aria-hidden
+                      />
                     )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-base leading-tight font-bold text-white sm:text-lg">
-                      {nowPlayingHere.title}
-                    </div>
-                    <div className="mt-0.5 truncate text-sm text-white/75">
-                      {artist.displayName}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="truncate text-base leading-tight font-bold text-white sm:text-lg">
-                  {artist.displayName}
+                  </Button>
                 </div>
-              )}
-            </div>
-          </div>
+              ) : null}
 
-          {featuredPlayable ? (
+              <div className="absolute inset-x-0 bottom-0 z-[1] flex items-end gap-3 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-3 sm:gap-4 sm:p-4">
+                {nowPlayingHere ? (
+                  <>
+                    <div className="size-12 shrink-0 overflow-hidden rounded-md bg-white/10 shadow-lg ring-1 ring-white/15 sm:size-14">
+                      {nowPlayingHere.coverUrl ? (
+                        <img
+                          src={nowPlayingHere.coverUrl}
+                          alt=""
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex size-full items-center justify-center text-xs font-bold text-white/70">
+                          {nowPlayingHere.title.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-base leading-tight font-bold text-white sm:text-lg">
+                        {nowPlayingHere.title}
+                      </div>
+                      <div className="mt-0.5 truncate text-sm text-white/75">
+                        {artist.displayName}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="truncate text-base leading-tight font-bold text-white sm:text-lg">
+                    {artist.displayName}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          {lookVisibility.player && featuredPlayable ? (
             <div
               className="flex items-center justify-center gap-5"
               aria-label="Track engagement"
@@ -1101,7 +1170,7 @@ export function ArtistView({ username }: { username: string }) {
             </div>
           )}
 
-          {releaseTiles.length > 0 && (
+          {lookVisibility.latest && releaseTiles.length > 0 && (
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <Eyebrow>Latest releases</Eyebrow>
@@ -1195,25 +1264,27 @@ export function ArtistView({ username }: { username: string }) {
             </div>
           )}
 
-          <div className="flex flex-col gap-3">
-            <Eyebrow>Catalog</Eyebrow>
-            <PlayableTrackTable
-              items={catalogPlayables}
-              artistUsername={artist.username}
-              compactActions
-              emptyMessage={
-                pinnedPlayables.length > 0
-                  ? 'No other tracks on this profile.'
-                  : 'No playable tracks on this profile.'
-              }
-              onEdit={
-                isOwner
-                  ? (item) =>
-                      setEditingArchiveId(soundIdFromPlayableId(item.id))
-                  : undefined
-              }
-            />
-          </div>
+          {lookVisibility.tracks ? (
+            <div className="flex flex-col gap-3">
+              <Eyebrow>Catalog</Eyebrow>
+              <PlayableTrackTable
+                items={catalogPlayables}
+                artistUsername={artist.username}
+                compactActions
+                emptyMessage={
+                  pinnedPlayables.length > 0
+                    ? 'No other tracks on this profile.'
+                    : 'No playable tracks on this profile.'
+                }
+                onEdit={
+                  isOwner
+                    ? (item) =>
+                        setEditingArchiveId(soundIdFromPlayableId(item.id))
+                    : undefined
+                }
+              />
+            </div>
+          ) : null}
         </section>
       )}
 
@@ -1311,26 +1382,17 @@ export function ArtistView({ username }: { username: string }) {
               >
                 channel page
               </Link>
-              . Quick look controls below.
+              .
             </p>
           ) : null}
-          <ChannelControlsWidget
-            sections={[
-              {
-                id: 'channel-design',
-                title: 'Channel appearance',
-                children: (
-                  <ChannelDesigner
-                    displayName={artist.displayName}
-                    username={artist.username}
-                    channelSlug={channel?.slug}
-                    avatarUrl={artist.avatarUrl}
-                    bio={artist.bio}
-                    compact
-                  />
-                ),
-              },
-            ]}
+          <ChannelDesigner
+            displayName={artist.displayName}
+            username={artist.username}
+            channelSlug={channel?.slug}
+            avatarUrl={artist.avatarUrl}
+            bio={artist.bio}
+            compact
+            onLookVisibilityChange={setLookVisibility}
           />
         </div>
       )}

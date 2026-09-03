@@ -16,7 +16,6 @@ import {
   useImperativeHandle,
   useMemo,
   useState,
-  type ReactNode,
 } from 'react';
 import { toast } from 'sonner';
 
@@ -37,6 +36,7 @@ import {
 
 import {
   BRAND_ACCENTS,
+  channelLookExtrasFromPatch,
   DEFAULT_COLOR_SCHEME,
   deleteChannelVisualPreset,
   fetchChannelVisual,
@@ -46,11 +46,13 @@ import {
   isHeaderImageUrl,
   isValidHeaderBackdropUrl,
   isVisualPreset,
+  loadChannelLookExtras,
   MAX_HEADER_VIDEO_BYTES,
   parseColorScheme,
   parseVisualSettingsMap,
   patchChannelVisual,
   resolveVisualPresetSettings,
+  saveChannelLookExtras,
   saveChannelVisualPreset,
   shouldDockVisualizerTuning,
   uploadChannelHeaderVideo,
@@ -78,6 +80,11 @@ import {
 } from '../content/nowPlayingOverlayPresets';
 import {
   CHANNEL_LOOK_ELEMENTS,
+  isArtistLookBlockId,
+  isChannelLookElementId,
+  loadArtistLookVisibility,
+  saveArtistLookVisibility,
+  type ArtistLookBlockId,
   type ChannelLookElementId,
 } from '../lib/channelLookElements';
 import {
@@ -92,9 +99,7 @@ import {
   visualizerSupportsAudioReactive,
 } from '../plugins/visualizers';
 import { ChannelBackdropCard } from './ChannelBackdropCard';
-import { ChannelControlsWidget } from './ChannelControlsWidget';
 import { ChannelElementEditor } from './ChannelElementEditor';
-import { ChannelLinksEditor } from './ChannelLinksEditor';
 import { ChannelTextOverlayEditor } from './ChannelTextOverlayEditor';
 import { ChannelTextOverlayView } from './ChannelTextOverlayView';
 import { ChannelVisualizer } from './ChannelVisualizer';
@@ -104,33 +109,12 @@ import { Eyebrow } from './tahti/Eyebrow';
 
 type TabId = 'visualizer' | 'color-scheme' | 'header';
 type PlayerDesignTab = 'gradient' | 'video-image' | 'visualizer' | 'overlay';
-type LookSection = 'player-design' | 'visual-style' | 'links' | 'text-overlay';
-
-/** Crossfades in new content whenever `activeKey` changes — used so
- * selecting a different canvas element (player, backdrop, links, overlay)
- * fades in only that element's own settings instead of jump-cutting. */
-function FadeSwitch({
-  activeKey,
-  children,
-}: {
-  activeKey: string;
-  children: ReactNode;
-}) {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    setVisible(false);
-    const frame = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(frame);
-  }, [activeKey]);
-  return (
-    <div
-      key={activeKey}
-      className={`transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
-    >
-      {children}
-    </div>
-  );
-}
+type LookSection =
+  | ChannelLookElementId
+  | 'player-design'
+  | 'visual-style'
+  | 'links'
+  | 'text-overlay';
 
 const HEADER_MEDIA_TYPES = [
   'video/mp4',
@@ -228,11 +212,11 @@ type Props = {
   onSaved?: () => void;
   /** Remount / reload trigger when an external preset applies a look. */
   reloadToken?: number;
-  /** Which look section should open when embedded in the full channel editor. */
   lookOpenSection?: LookSection | null;
-  /** Reports look-panel dirty state so a `lookOnly` host can drive its own
-   * save button instead of rendering this component's (see `ChannelDesignerHandle`). */
   onDirtyChange?: (dirty: boolean) => void;
+  onLookVisibilityChange?: (
+    visibility: Record<ArtistLookBlockId, boolean>,
+  ) => void;
 };
 
 export type ChannelDesignerHandle = {
@@ -254,6 +238,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       reloadToken = 0,
       lookOpenSection,
       onDirtyChange,
+      onLookVisibilityChange,
     }: Props,
     ref,
   ) {
@@ -296,8 +281,11 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       'header' | 'visualizer' | null
     >(null);
     const [selectedLookId, setSelectedLookId] =
-      useState<ChannelLookElementId>('header');
-    const [pageLayout, setPageLayout] = useState<ChannelPageItem[]>([]);
+      useState<ChannelLookElementId>('backdrop');
+    const [, setPageLayout] = useState<ChannelPageItem[]>([]);
+    const [lookVisibility, setLookVisibility] = useState<
+      Record<ArtistLookBlockId, boolean>
+    >(loadArtistLookVisibility(channelSlug ?? username));
 
     const [presets, setPresets] = useState<ChannelVisualPreset[]>([]);
     const [savePresetOpen, setSavePresetOpen] = useState(false);
@@ -310,14 +298,21 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     );
 
     useEffect(() => {
-      if (lookOpenSection !== undefined) {
-        if (lookOpenSection === 'player-design') {
-          setSelectedLookId('player');
-        } else if (lookOpenSection === 'visual-style') {
-          setSelectedLookId('header');
-        } else if (lookOpenSection === 'links') {
-          setSelectedLookId('links');
-        }
+      if (!lookOpenSection) {
+        return;
+      }
+      if (
+        lookOpenSection === 'player-design' ||
+        lookOpenSection === 'text-overlay'
+      ) {
+        setSelectedLookId('player');
+      } else if (
+        lookOpenSection === 'visual-style' ||
+        lookOpenSection === 'links'
+      ) {
+        setSelectedLookId('backdrop');
+      } else if (isChannelLookElementId(lookOpenSection)) {
+        setSelectedLookId(lookOpenSection);
       }
     }, [lookOpenSection]);
 
@@ -325,10 +320,10 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
 
     useEffect(() => {
       setPageLayout(loadChannelPageLayout(layoutSlug));
-    }, [layoutSlug, reloadToken]);
-
-    const layoutVisible = (type: ChannelPageItemType): boolean =>
-      pageLayout.find((item) => item.type === type)?.visible !== false;
+      const visibility = loadArtistLookVisibility(layoutSlug);
+      setLookVisibility(visibility);
+      onLookVisibilityChange?.(visibility);
+    }, [layoutSlug, reloadToken, onLookVisibilityChange]);
 
     const toggleLayoutType = (type: ChannelPageItemType) => {
       setPageLayout((current) => {
@@ -363,30 +358,30 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     const loadFromServer = () => {
       void Promise.all([fetchChannelVisual(), fetchChannelGallery()]).then(
         ([visualResult, galleryResult]) => {
-          setVisual(visualResult.data);
+          const extras = loadChannelLookExtras(layoutSlug);
+          const mergedVisual = { ...visualResult.data, ...extras };
+          setVisual(mergedVisual);
           setOverlaySettings(
             parseNowPlayingOverlaySettings(
-              visualResult.data.nowPlayingOverlaySettingsJson,
+              mergedVisual.nowPlayingOverlaySettingsJson,
             ),
           );
-          setScheme(parseColorScheme(visualResult.data.colorSchemeJson));
-          setPlayerScheme(
-            parseColorScheme(visualResult.data.playerColorSchemeJson),
-          );
+          setScheme(parseColorScheme(mergedVisual.colorSchemeJson));
+          setPlayerScheme(parseColorScheme(mergedVisual.playerColorSchemeJson));
           setBackgroundScheme(
-            parseColorScheme(visualResult.data.backgroundColorSchemeJson),
+            parseColorScheme(mergedVisual.backgroundColorSchemeJson),
           );
           setVisualSettings(
             parseVisualSettingsMap(visualResult.data.visualSettingsJson),
           );
           if (
-            isVisualPreset(visualResult.data.visualPreset) &&
-            visualResult.data.visualPreset !== 'MINIMAL'
+            isVisualPreset(mergedVisual.visualPreset) &&
+            mergedVisual.visualPreset !== 'MINIMAL'
           ) {
-            setPreviewPreset(visualResult.data.visualPreset);
+            setPreviewPreset(mergedVisual.visualPreset);
           } else {
             setPreviewPreset('AURORA');
-            setVisual({ ...visualResult.data, visualPreset: 'AURORA' });
+            setVisual({ ...mergedVisual, visualPreset: 'AURORA' });
             setDirty(true);
           }
           setGalleryMode(galleryResult.data.galleryMode);
@@ -673,6 +668,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         setBusy(false);
         return;
       }
+      saveChannelLookExtras(layoutSlug, channelLookExtrasFromPatch(patch));
       const result = await patchChannelVisual(patch);
       if (!result.ok) {
         setBusy(false);
@@ -1565,13 +1561,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       </section>
     );
 
-    const channelLinksSection = (
-      <ChannelLinksEditor
-        links={visual.channelLinks ?? []}
-        onChange={(channelLinks) => applyLocal({ channelLinks })}
-      />
-    );
-
     const channelTextOverlaySection = (
       <ChannelTextOverlayEditor
         value={{
@@ -1773,30 +1762,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       />
     );
 
-    const LOOK_SECTION_CONTENT: Record<
-      LookSection,
-      { title: string; description?: string; children: ReactNode }
-    > = {
-      'player-design': {
-        title: 'Player design',
-        children: playerDesignTabsContent,
-      },
-      'visual-style': {
-        title: 'Backdrop design',
-        children: headerControls,
-      },
-      links: {
-        title: 'Links',
-        description: 'Outbound social / streaming links for the channel page.',
-        children: channelLinksSection,
-      },
-      'text-overlay': {
-        title: 'Text overlay',
-        description: 'A stylized headline shown on the channel page.',
-        children: channelTextOverlaySection,
-      },
-    };
-
     const saveButton = (
       <SaveButton
         disabled={!dirty || videoLoopNeedsUrl}
@@ -1837,7 +1802,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
 
     const selectLookElement = (id: ChannelLookElementId) => {
       setSelectedLookId(id);
-      if (id === 'header') {
+      if (id === 'backdrop') {
         setHighlightSection('header');
       } else if (id === 'player') {
         setHighlightSection('visualizer');
@@ -1849,69 +1814,77 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       }, 1600);
     };
 
+    const lookBlockVisible = (id: ChannelLookElementId) => {
+      if (!isArtistLookBlockId(id)) {
+        return true;
+      }
+      return lookVisibility[id] !== false;
+    };
+
     const toggleSelectedLook = (id: ChannelLookElementId) => {
       const meta = CHANNEL_LOOK_ELEMENTS.find((element) => element.id === id);
       if (meta?.layoutType) {
         toggleLayoutType(meta.layoutType);
       }
+      if (!isArtistLookBlockId(id)) {
+        return;
+      }
+      const next = {
+        ...lookVisibility,
+        [id]: !lookBlockVisible(id),
+      };
+      setLookVisibility(next);
+      saveArtistLookVisibility(layoutSlug, next);
+      onLookVisibilityChange?.(next);
     };
 
     const lookEditorItems = [
       {
-        id: 'header' as const,
-        content: (
-          <div id="channel-designer-section-header">{headerControls}</div>
-        ),
+        id: 'releases' as const,
+        disabled: !lookBlockVisible('releases'),
+        content: layoutOnlyHint('releases'),
+      },
+      {
+        id: 'tracks' as const,
+        disabled: !lookBlockVisible('tracks'),
+        content: layoutOnlyHint('tracks'),
+      },
+      {
+        id: 'latest' as const,
+        disabled: !lookBlockVisible('latest'),
+        content: layoutOnlyHint('latest'),
+      },
+      {
+        id: 'feed' as const,
+        disabled: !lookBlockVisible('feed'),
+        content: layoutOnlyHint('feed'),
+      },
+      {
+        id: 'news' as const,
+        disabled: !lookBlockVisible('news'),
+        content: layoutOnlyHint('news'),
       },
       {
         id: 'player' as const,
-        disabled: !layoutVisible('hero'),
+        disabled: !lookBlockVisible('player'),
         content: (
           <div id="channel-designer-section-player">
             {playerDesignTabsContent}
+            <div className="mt-5">{channelTextOverlaySection}</div>
           </div>
         ),
       },
       {
-        id: 'background' as const,
-        content: backgroundControls,
-      },
-      {
-        id: 'actions' as const,
-        disabled: !layoutVisible('actions'),
-        content: layoutOnlyHint('actions'),
-      },
-      {
-        id: 'archive' as const,
-        disabled: !layoutVisible('archive'),
-        content: layoutOnlyHint('archive'),
-      },
-      {
-        id: 'about' as const,
-        disabled: !layoutVisible('about'),
-        content: layoutOnlyHint('about'),
-      },
-      {
-        id: 'links' as const,
-        disabled: !layoutVisible('links'),
+        id: 'backdrop' as const,
         content: (
-          <div id="channel-designer-section-links">{channelLinksSection}</div>
+          <div
+            id="channel-designer-section-header"
+            className="flex flex-col gap-6"
+          >
+            {headerControls}
+            {backgroundControls}
+          </div>
         ),
-      },
-      {
-        id: 'subscribe' as const,
-        disabled: !layoutVisible('subscribe'),
-        content: layoutOnlyHint('subscribe'),
-      },
-      {
-        id: 'stats' as const,
-        disabled: !layoutVisible('stats'),
-        content: layoutOnlyHint('stats'),
-      },
-      {
-        id: 'events' as const,
-        disabled: !layoutVisible('events'),
-        content: layoutOnlyHint('events'),
       },
     ];
 
@@ -1927,24 +1900,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       />
     );
     if (lookOnly) {
-      if (lookOpenSection) {
-        const activeSection = LOOK_SECTION_CONTENT[lookOpenSection];
-        return (
-          <FadeSwitch activeKey={lookOpenSection}>
-            <ChannelControlsWidget
-              openId={lookOpenSection}
-              sections={[
-                {
-                  id: lookOpenSection,
-                  title: activeSection.title,
-                  description: activeSection.description,
-                  children: activeSection.children,
-                },
-              ]}
-            />
-          </FadeSwitch>
-        );
-      }
       return controls;
     }
 
@@ -2074,7 +2029,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
                 identitySelected={highlightSection === 'header'}
                 backgroundSelected={highlightSection === 'visualizer'}
                 onEditIdentity={() => {
-                  selectLookElement('header');
+                  selectLookElement('backdrop');
                   focusPreviewSection(
                     'header',
                     'channel-designer-section-header',

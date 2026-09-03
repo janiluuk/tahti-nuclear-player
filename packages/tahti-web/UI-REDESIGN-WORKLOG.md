@@ -1,5 +1,9 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Artist-page Channel Designer element menu
+
+**Completed:** Artist Design no longer wraps Channel Designer in `ChannelControlsWidget`. The element menu is releases, tracks, latest, feed, news, player, and backdrop. Old look-only menus (player-design / visual-style / links / text-overlay) fold into that menu — overlay under player, header + page colors under backdrop. Channel page edit mode opens the same element editor instead of the accordion. Live `PATCH /api/me/channel/visual` now sends only `ChannelVisualPatchSchema` fields; designer-only extras (links, overlays, player/background palettes) persist locally. Artist page hides those blocks when the eye toggle is off; feed uses `GET /api/channels/:slug/posts` and news uses pinned announcements. Bumped `@tahti-player/tahti-web` to `0.0.28`.
+
 ## 2026-09-03 — Settings / Branding / Radio IA
 
 **Completed (first slice):** Gallery left Settings → Artist. Studio → Branding now owns Branding, Gallery, Press kit, and Channel Designer. Channel outlook is gone. Settings → Channel & design → Appearance is a wayfinder to that single designer. `/studio/channel?tab=design` (and the stale `profile` tab) redirect there. Perform no longer has a Multicast sibling — multicast is a Radio subtab (`/studio/channel?tab=multicast`). Channel keeps Setup / Green room / Selects so those are not orphans. Channel Designer dropped the extra inner heading and the right-side sticky design menu; preview and controls stack in one grid. Bumped `@tahti-player/tahti-web` to `0.0.27`.
