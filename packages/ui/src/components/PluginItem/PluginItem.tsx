@@ -13,6 +13,7 @@ import { cn } from '../../utils';
 import { Badge } from '../Badge';
 import { Box } from '../Box';
 import { Button } from '../Button';
+import { Tooltip } from '../Tooltip';
 
 type PluginItemProps = {
   name: ReactNode;
@@ -167,35 +168,44 @@ export const PluginItem: FC<PluginItemProps> = ({
     </Box>
     <div className="flex flex-col justify-between gap-2">
       {onViewDetails && (
-        <Button
-          data-testid="plugin-action-view-details"
-          size="icon-sm"
-          onClick={onViewDetails}
-          disabled={disabled || isLoading}
-        >
-          <SettingsIcon size={20} />
-        </Button>
+        <Tooltip content="Configure" side="top">
+          <Button
+            data-testid="plugin-action-view-details"
+            size="icon-sm"
+            onClick={onViewDetails}
+            disabled={disabled || isLoading}
+            aria-label="Configure"
+          >
+            <SettingsIcon size={20} />
+          </Button>
+        </Tooltip>
       )}
       {onReload && !isLoading && (
-        <Button
-          data-testid="plugin-action-reload"
-          size="icon-sm"
-          onClick={onReload}
-          disabled={reloadDisabled || disabled}
-        >
-          <RotateCwIcon size={20} />
-        </Button>
+        <Tooltip content="Reload" side="top">
+          <Button
+            data-testid="plugin-action-reload"
+            size="icon-sm"
+            onClick={onReload}
+            disabled={reloadDisabled || disabled}
+            aria-label="Reload"
+          >
+            <RotateCwIcon size={20} />
+          </Button>
+        </Tooltip>
       )}
       {onRemove && !isLoading && (
-        <Button
-          data-testid="plugin-action-remove"
-          size="icon-sm"
-          intent="danger"
-          onClick={onRemove}
-          disabled={removeDisabled}
-        >
-          <TrashIcon size={20} />
-        </Button>
+        <Tooltip content="Remove" side="top">
+          <Button
+            data-testid="plugin-action-remove"
+            size="icon-sm"
+            intent="danger"
+            onClick={onRemove}
+            disabled={removeDisabled}
+            aria-label="Remove"
+          >
+            <TrashIcon size={20} />
+          </Button>
+        </Tooltip>
       )}
     </div>
   </div>

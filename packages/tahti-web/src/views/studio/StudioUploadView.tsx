@@ -5,8 +5,6 @@ import {
   PlayIcon,
   PlugIcon,
   RadioIcon,
-  ToggleLeftIcon,
-  ToggleRightIcon,
   UploadIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -19,6 +17,7 @@ import {
   Dialog,
   FilePicker,
   Loader,
+  Toggle,
 } from '@tahti-player/ui';
 
 import {
@@ -155,19 +154,20 @@ function UploadSourceWidgets() {
                   {enabledIds.has(selected.id) ? 'Enabled' : 'Disabled'}
                 </span>
               </div>
-              <Button
-                size="sm"
-                variant={enabledIds.has(selected.id) ? undefined : 'secondary'}
+              <Toggle
+                label={
+                  enabledIds.has(selected.id)
+                    ? 'Disable source'
+                    : 'Enable source'
+                }
+                checked={enabledIds.has(selected.id)}
                 disabled={!selectedStatus?.configured}
-                onClick={() => toggleEnabled(selected.id)}
-              >
-                {enabledIds.has(selected.id) ? (
-                  <ToggleRightIcon size={16} aria-hidden className="mr-1.5" />
-                ) : (
-                  <ToggleLeftIcon size={16} aria-hidden className="mr-1.5" />
-                )}
-                {enabledIds.has(selected.id) ? 'Disable' : 'Enable'}
-              </Button>
+                onChange={(checked) => {
+                  if (checked !== enabledIds.has(selected.id)) {
+                    toggleEnabled(selected.id);
+                  }
+                }}
+              />
             </div>
             {selected.kind === 'oauth' && selected.oauthUrl ? (
               import.meta.env.VITE_FORCE_MOCK === '1' ? (

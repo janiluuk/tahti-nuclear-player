@@ -144,4 +144,16 @@ describe('Pagination', () => {
     );
     expect(container.firstChild).toBeNull();
   });
+
+  it('uses default labels when labels are omitted', () => {
+    render(
+      <Pagination currentPage={2} totalPages={5} onPageChange={vi.fn()} />,
+    );
+    expect(
+      screen.getByRole('navigation', { name: 'Pagination' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Previous page' }),
+    ).toBeInTheDocument();
+  });
 });

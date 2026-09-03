@@ -11,7 +11,13 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC, type ReactNode } from 'react';
 
-import { FilterChips, StatChip, Tabs, TopList } from '@tahti-player/ui';
+import {
+  EmptyState,
+  FilterChips,
+  StatChip,
+  Tabs,
+  TopList,
+} from '@tahti-player/ui';
 
 import { fetchGrantEstimate, type GrantEstimate } from '../../api/revenue';
 import {
@@ -397,9 +403,10 @@ export const StudioStatsView: FC = () => {
               />
             </div>
             {topLists.length === 0 ? (
-              <p className="text-foreground-secondary text-sm">
-                No listens recorded for this period yet.
-              </p>
+              <EmptyState
+                size="sm"
+                title="No listens recorded for this period yet"
+              />
             ) : (
               <div className="grid gap-5 md:grid-cols-2">
                 {topLists.map((bucket) => (
@@ -426,9 +433,7 @@ export const StudioStatsView: FC = () => {
           </StudioPanel>
           <StudioPanel>
             {tracks.length === 0 ? (
-              <p className="text-foreground-secondary text-sm">
-                No track stats yet.
-              </p>
+              <EmptyState size="sm" title="No track stats yet" />
             ) : (
               <TopList
                 title="Top tracks"
@@ -450,9 +455,7 @@ export const StudioStatsView: FC = () => {
 
           <StudioPanel>
             {countries.length === 0 ? (
-              <p className="text-foreground-secondary text-sm">
-                No country data yet.
-              </p>
+              <EmptyState size="sm" title="No country data yet" />
             ) : (
               <TopList
                 title="Top countries"

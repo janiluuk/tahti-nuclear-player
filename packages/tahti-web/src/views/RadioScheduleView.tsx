@@ -7,7 +7,14 @@ import {
 } from 'lucide-react';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input, SaveButton, Tabs } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  FilterChips,
+  Input,
+  SaveButton,
+  Tabs,
+} from '@tahti-player/ui';
 
 import {
   cancelShowBooking,
@@ -529,35 +536,15 @@ export function RadioScheduleView() {
               +1 hour
             </Button>
           ) : null}
-          <div
-            className="border-border flex gap-1 rounded-lg border p-1"
-            role="radiogroup"
+          <FilterChips
+            items={[
+              { id: 'LIVE_SET', label: 'Live set' },
+              { id: 'TALK', label: 'Talk' },
+            ]}
+            selected={showType}
+            onChange={(id) => setShowType(id as ShowType)}
             aria-label="Show type"
-          >
-            {(
-              [
-                ['LIVE_SET', 'Live set'],
-                ['TALK', 'Talk'],
-              ] as const
-            ).map(([type, label]) => (
-              <Button
-                key={type}
-                type="button"
-                variant="text"
-                size="flexible"
-                onClick={() => setShowType(type)}
-                aria-pressed={showType === type}
-                className={cn(
-                  'rounded-md px-2.5 py-1 text-xs font-semibold uppercase',
-                  showType === type
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground-secondary hover:text-foreground',
-                )}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
+          />
           <Input
             value={note}
             onChange={(e) => setNote(e.target.value)}

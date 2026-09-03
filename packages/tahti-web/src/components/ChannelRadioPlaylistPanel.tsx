@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import {
   Button,
   Dialog,
+  FilterChips,
   Input,
   SaveButton,
   Select,
@@ -444,33 +445,15 @@ export const ChannelRadioPlaylistPanel: FC = () => {
               </p>
             </div>
 
-            <div
-              className="border-border grid grid-cols-2 rounded-md border p-1"
-              role="group"
+            <FilterChips
+              items={[
+                { id: 'shuffle', label: 'Shuffle' },
+                { id: 'ordered', label: 'In order' },
+              ]}
+              selected={fallbackMode}
+              onChange={(id) => setFallbackMode(id as 'shuffle' | 'ordered')}
               aria-label="Rotation mode"
-            >
-              {(
-                [
-                  ['shuffle', 'Shuffle'] as const,
-                  ['ordered', 'In order'] as const,
-                ] as const
-              ).map(([mode, label]) => (
-                <Button
-                  key={mode}
-                  type="button"
-                  variant="text"
-                  className={`rounded px-3 py-2 text-xs font-semibold uppercase transition-colors ${
-                    fallbackMode === mode
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-foreground-secondary hover:text-foreground'
-                  }`}
-                  onClick={() => setFallbackMode(mode)}
-                  aria-pressed={fallbackMode === mode}
-                >
-                  {label}
-                </Button>
-              ))}
-            </div>
+            />
 
             <label className="flex items-center justify-between gap-3 text-sm">
               <span>

@@ -3,7 +3,7 @@ import { CalendarPlusIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, SaveButton } from '@tahti-player/ui';
+import { Button, EmptyState, Input, SaveButton } from '@tahti-player/ui';
 
 import {
   cancelVenueBroadcast,
@@ -310,9 +310,19 @@ export function StudioVenuesView() {
         {loading ? (
           <PageLoading label="Loading…" />
         ) : venues.length === 0 ? (
-          <p className="text-foreground-secondary text-sm">
-            No venues yet — register one to start booking shows.
-          </p>
+          <EmptyState
+            size="sm"
+            title="No venues yet"
+            description="Register one to start booking shows."
+            action={
+              <Link to="/venues/register">
+                <Button size="sm" variant="secondary">
+                  <PlusIcon size={14} aria-hidden className="mr-1.5" />
+                  Register a venue
+                </Button>
+              </Link>
+            }
+          />
         ) : (
           <div className="flex flex-col gap-4">
             {venues.map((v) => (

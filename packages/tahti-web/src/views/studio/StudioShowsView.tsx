@@ -2,7 +2,15 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { MicIcon, PlusIcon, RadioIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input, Textarea, Toggle } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  EmptyState,
+  FilterChips,
+  Input,
+  Textarea,
+  Toggle,
+} from '@tahti-player/ui';
 
 import {
   createShowSeries,
@@ -183,41 +191,25 @@ export function StudioShowsView() {
                   onChange={setAutoArchive}
                 />
               </div>
-              <div className="flex flex-wrap gap-2">
-                {(['SERIES', 'SINGLE'] as const).map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className={`rounded-md border px-3 py-1.5 text-xs ${
-                      mode === value
-                        ? 'border-primary bg-primary/15 text-primary'
-                        : 'border-border text-foreground-secondary'
-                    }`}
-                    onClick={() => setMode(value)}
-                    aria-pressed={mode === value}
-                  >
-                    {value === 'SERIES' ? 'Continuing series' : 'Single show'}
-                  </button>
-                ))}
-              </div>
+              <FilterChips
+                items={[
+                  { id: 'SERIES', label: 'Continuing series' },
+                  { id: 'SINGLE', label: 'Single show' },
+                ]}
+                selected={mode}
+                onChange={(id) => setMode(id as ShowMode)}
+                aria-label="Show mode"
+              />
               {mode === 'SERIES' ? (
-                <div className="flex flex-wrap gap-2">
-                  {([1, 2] as const).map((h) => (
-                    <button
-                      key={h}
-                      type="button"
-                      className={`rounded-md border px-3 py-1.5 text-xs ${
-                        intervalHours === h
-                          ? 'border-primary bg-primary/15 text-primary'
-                          : 'border-border text-foreground-secondary'
-                      }`}
-                      onClick={() => setIntervalHours(h)}
-                      aria-pressed={intervalHours === h}
-                    >
-                      {h}h slots
-                    </button>
-                  ))}
-                </div>
+                <FilterChips
+                  items={[
+                    { id: '1', label: '1 hour' },
+                    { id: '2', label: '2 hours' },
+                  ]}
+                  selected={String(intervalHours)}
+                  onChange={(id) => setIntervalHours(Number(id) as 1 | 2)}
+                  aria-label="Episode length"
+                />
               ) : null}
             </div>
             <Dialog.Actions>
@@ -233,21 +225,20 @@ export function StudioShowsView() {
           {loading ? (
             <PageLoading label="Loading…" />
           ) : shows.length === 0 ? (
-            <div className="flex flex-col gap-3 py-4 text-center">
-              <p className="text-foreground-secondary text-sm">
-                No shows yet. Create one to start numbering episodes.
-              </p>
-              <div>
+            <EmptyState
+              size="sm"
+              title="No shows yet"
+              description="Create one to start numbering episodes."
+              action={
                 <Button
                   size="icon-sm"
                   onClick={() => setCreateOpen(true)}
                   aria-label="New show"
-                  title="New show"
                 >
                   <PlusIcon size={16} aria-hidden />
                 </Button>
-              </div>
-            </div>
+              }
+            />
           ) : (
             <ul className="divide-border divide-y">
               {shows.map((s) => (

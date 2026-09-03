@@ -4,6 +4,7 @@ import { FC, ReactNode, type MouseEvent } from 'react';
 import { cn } from '../../utils';
 import { Button } from '../Button';
 import { ImageReveal } from '../ImageReveal';
+import { Tooltip } from '../Tooltip';
 
 export type MediaArtworkAction = {
   id: string;
@@ -231,50 +232,54 @@ export const MediaArtwork: FC<MediaArtworkProps> = ({
             )}
           >
             {hasPlay && (
-              <Button
-                type="button"
-                size="icon-sm"
-                variant="default"
-                disabled={playDisabled}
-                title={isPlaying ? pauseLabel : playLabel}
-                aria-label={isPlaying ? pauseLabel : playLabel}
-                aria-pressed={isPlaying || undefined}
-                data-testid="media-artwork-play"
-                className="pointer-events-auto size-6 rounded-full shadow-md"
-                onClick={(e) => {
-                  stop(e);
-                  onPlay?.();
-                }}
-              >
-                {isPlaying ? (
-                  <Pause size={iconPx} className="fill-current" />
-                ) : (
-                  <Play size={iconPx} className="translate-x-px fill-current" />
-                )}
-              </Button>
+              <Tooltip content={isPlaying ? pauseLabel : playLabel} side="top">
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  variant="default"
+                  disabled={playDisabled}
+                  aria-label={isPlaying ? pauseLabel : playLabel}
+                  aria-pressed={isPlaying || undefined}
+                  data-testid="media-artwork-play"
+                  className="pointer-events-auto size-6 rounded-full shadow-md"
+                  onClick={(e) => {
+                    stop(e);
+                    onPlay?.();
+                  }}
+                >
+                  {isPlaying ? (
+                    <Pause size={iconPx} className="fill-current" />
+                  ) : (
+                    <Play
+                      size={iconPx}
+                      className="translate-x-px fill-current"
+                    />
+                  )}
+                </Button>
+              </Tooltip>
             )}
             {secondary.map((action) => (
-              <Button
-                key={action.id}
-                type="button"
-                size="icon-sm"
-                variant="secondary"
-                disabled={action.disabled}
-                title={action.label}
-                aria-label={action.label}
-                aria-pressed={action.active}
-                data-testid={`media-artwork-${action.id}`}
-                className={cn(
-                  'pointer-events-auto size-4 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm',
-                  action.active && 'bg-primary text-primary-foreground',
-                )}
-                onClick={(e) => {
-                  stop(e);
-                  action.onClick();
-                }}
-              >
-                {action.icon}
-              </Button>
+              <Tooltip key={action.id} content={action.label} side="top">
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  variant="secondary"
+                  disabled={action.disabled}
+                  aria-label={action.label}
+                  aria-pressed={action.active}
+                  data-testid={`media-artwork-${action.id}`}
+                  className={cn(
+                    'pointer-events-auto size-4 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm',
+                    action.active && 'bg-primary text-primary-foreground',
+                  )}
+                  onClick={(e) => {
+                    stop(e);
+                    action.onClick();
+                  }}
+                >
+                  {action.icon}
+                </Button>
+              </Tooltip>
             ))}
           </div>
         )
@@ -287,32 +292,36 @@ export const MediaArtwork: FC<MediaArtworkProps> = ({
                 overlayReveal,
               )}
             >
-              <Button
-                type="button"
-                size="icon-sm"
-                variant={size === 'thumb' ? 'text' : 'default'}
-                disabled={playDisabled}
-                title={isPlaying ? pauseLabel : playLabel}
-                aria-label={isPlaying ? pauseLabel : playLabel}
-                aria-pressed={isPlaying || undefined}
-                data-testid="media-artwork-play"
-                className={cn(
-                  'pointer-events-auto rounded-full',
-                  size === 'thumb'
-                    ? 'text-white'
-                    : ['shadow-md', size === 'md' ? 'size-9' : 'size-11'],
-                )}
-                onClick={(e) => {
-                  stop(e);
-                  onPlay?.();
-                }}
-              >
-                {isPlaying ? (
-                  <Pause size={iconPx} className="fill-current" />
-                ) : (
-                  <Play size={iconPx} className="translate-x-px fill-current" />
-                )}
-              </Button>
+              <Tooltip content={isPlaying ? pauseLabel : playLabel} side="top">
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  variant={size === 'thumb' ? 'text' : 'default'}
+                  disabled={playDisabled}
+                  aria-label={isPlaying ? pauseLabel : playLabel}
+                  aria-pressed={isPlaying || undefined}
+                  data-testid="media-artwork-play"
+                  className={cn(
+                    'pointer-events-auto rounded-full',
+                    size === 'thumb'
+                      ? 'text-white'
+                      : ['shadow-md', size === 'md' ? 'size-9' : 'size-11'],
+                  )}
+                  onClick={(e) => {
+                    stop(e);
+                    onPlay?.();
+                  }}
+                >
+                  {isPlaying ? (
+                    <Pause size={iconPx} className="fill-current" />
+                  ) : (
+                    <Play
+                      size={iconPx}
+                      className="translate-x-px fill-current"
+                    />
+                  )}
+                </Button>
+              </Tooltip>
             </div>
           )}
 
@@ -324,24 +333,24 @@ export const MediaArtwork: FC<MediaArtworkProps> = ({
               )}
             >
               {secondary.map((action) => (
-                <Button
-                  key={action.id}
-                  type="button"
-                  size="icon-sm"
-                  variant="secondary"
-                  disabled={action.disabled}
-                  title={action.label}
-                  aria-label={action.label}
-                  aria-pressed={action.active}
-                  data-testid={`media-artwork-${action.id}`}
-                  className="pointer-events-auto size-7 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
-                  onClick={(e) => {
-                    stop(e);
-                    action.onClick();
-                  }}
-                >
-                  {action.icon}
-                </Button>
+                <Tooltip key={action.id} content={action.label} side="top">
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="secondary"
+                    disabled={action.disabled}
+                    aria-label={action.label}
+                    aria-pressed={action.active}
+                    data-testid={`media-artwork-${action.id}`}
+                    className="pointer-events-auto size-7 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                    onClick={(e) => {
+                      stop(e);
+                      action.onClick();
+                    }}
+                  >
+                    {action.icon}
+                  </Button>
+                </Tooltip>
               ))}
             </div>
           )}

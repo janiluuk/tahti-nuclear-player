@@ -3,7 +3,7 @@ import { ListMusicIcon, Maximize2Icon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { formatArtistNames } from '@tahti-player/model';
-import { Badge, Button, cn, PlayerBar } from '@tahti-player/ui';
+import { Badge, Button, cn, PlayerBar, Tooltip } from '@tahti-player/ui';
 
 import { useIsMobile } from '../hooks/useIsMobile';
 import { soundIdFromPlayableId } from '../lib/archiveId';
@@ -156,24 +156,28 @@ export function ConnectedPlayerBar() {
     </div>
   );
 
+  const queueLabel = queuePressed
+    ? 'Hide queue'
+    : queue.length > 1
+      ? `Show queue, ${queue.length} in queue`
+      : 'Show queue';
+
   const queueButton = (
     <div className="relative">
-      <Button
-        size="icon-sm"
-        variant={queuePressed ? 'secondary' : 'text'}
-        onClick={onQueueClick}
-        aria-label={
-          queuePressed
-            ? 'Hide queue'
-            : queue.length > 1
-              ? `Show queue, ${queue.length} in queue`
-              : 'Show queue'
-        }
-        aria-pressed={queuePressed}
-        data-testid={queuePressed ? 'close-bottom-queue' : 'open-bottom-queue'}
-      >
-        <ListMusicIcon size={16} />
-      </Button>
+      <Tooltip content={queueLabel} side="top">
+        <Button
+          size="icon-sm"
+          variant={queuePressed ? 'secondary' : 'text'}
+          onClick={onQueueClick}
+          aria-label={queueLabel}
+          aria-pressed={queuePressed}
+          data-testid={
+            queuePressed ? 'close-bottom-queue' : 'open-bottom-queue'
+          }
+        >
+          <ListMusicIcon size={16} />
+        </Button>
+      </Tooltip>
       {queue.length > 1 ? (
         <Badge
           variant="pill"
@@ -261,17 +265,18 @@ export function ConnectedPlayerBar() {
         }
         right={
           <div className="flex items-center gap-2">
-            <Button
-              size="icon-sm"
-              variant="text"
-              disabled={!playable}
-              onClick={() => setFullScreenPlayerOpen(true)}
-              title="Full screen"
-              aria-label="Full screen"
-              data-testid="expand-full-screen-player"
-            >
-              <Maximize2Icon size={16} />
-            </Button>
+            <Tooltip content="Full screen" side="top">
+              <Button
+                size="icon-sm"
+                variant="text"
+                disabled={!playable}
+                onClick={() => setFullScreenPlayerOpen(true)}
+                aria-label="Full screen"
+                data-testid="expand-full-screen-player"
+              >
+                <Maximize2Icon size={16} />
+              </Button>
+            </Tooltip>
             <PlayerBar.Volume
               value={muted ? 0 : Math.round(volume * 100)}
               onValueChange={(v) => setVolume(v / 100)}

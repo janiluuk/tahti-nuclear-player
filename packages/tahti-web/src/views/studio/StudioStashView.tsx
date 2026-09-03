@@ -1,7 +1,7 @@
 import { PencilIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Tabs } from '@tahti-player/ui';
+import { Button, EmptyState, Tabs } from '@tahti-player/ui';
 
 import { fetchStudioSounds } from '../../api/studio';
 import type { StudioSound } from '../../api/studio-types';
@@ -64,9 +64,11 @@ export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
               listings.
             </p>
             {items.length === 0 ? (
-              <p className="text-foreground-secondary mt-4 text-sm">
-                No tracks in your stash yet.
-              </p>
+              <EmptyState
+                size="sm"
+                title="No tracks in your stash yet"
+                className="mt-4"
+              />
             ) : (
               <ul className="mt-4 flex flex-col gap-2">
                 {items.map((item) => (

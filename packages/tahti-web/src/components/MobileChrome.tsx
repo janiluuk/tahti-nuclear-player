@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, Tooltip } from '@tahti-player/ui';
 
 import { hasAccountRole } from '../lib/accountRoles';
 import { cn } from '../lib/cn';
@@ -202,14 +202,16 @@ export function MobileDrawer({
           ) : (
             <span />
           )}
-          <Button
-            size="icon-sm"
-            variant="text"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <XIcon size={16} />
-          </Button>
+          <Tooltip content="Close" side="top">
+            <Button
+              size="icon-sm"
+              variant="text"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <XIcon size={16} />
+            </Button>
+          </Tooltip>
         </div>
         <div className="tahti-hide-scrollbar min-h-0 flex-1 overflow-auto p-3">
           {children}

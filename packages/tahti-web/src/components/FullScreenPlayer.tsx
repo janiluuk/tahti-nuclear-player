@@ -2,7 +2,7 @@ import { Minimize2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { formatArtistNames } from '@tahti-player/model';
-import { Button, cn, PlayerBar } from '@tahti-player/ui';
+import { Button, cn, PlayerBar, Tooltip } from '@tahti-player/ui';
 
 import { soundIdFromPlayableId } from '../lib/archiveId';
 import { useDominantColor } from '../lib/useDominantColor';
@@ -120,15 +120,16 @@ export function FullScreenPlayer() {
       </div>
 
       <div className="relative z-10 flex justify-end p-4">
-        <Button
-          size="icon-sm"
-          variant="text"
-          onClick={close}
-          aria-label="Minimize player"
-          title="Minimize"
-        >
-          <Minimize2Icon size={20} aria-hidden />
-        </Button>
+        <Tooltip content="Minimize player" side="top">
+          <Button
+            size="icon-sm"
+            variant="text"
+            onClick={close}
+            aria-label="Minimize player"
+          >
+            <Minimize2Icon size={20} aria-hidden />
+          </Button>
+        </Tooltip>
       </div>
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-8 overflow-y-auto px-6 pb-10">

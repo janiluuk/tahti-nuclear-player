@@ -80,38 +80,44 @@ export const PlayerBarControls: FC<PlayerBarControlsProps> = ({
         <Shuffle size={16} />
       </Button>
     </Tooltip>
-    <Button
-      size="icon"
-      variant="text"
-      className="rounded-full"
-      onClick={onPrevious}
-      aria-label="Previous"
-    >
-      <SkipBack size={16} />
-    </Button>
-    <Button
-      size="icon"
-      onClick={onPlayPause}
-      className={cn(
-        'active:bg-accent-green size-10 rounded-full shadow-md active:text-black',
-        isPlaying && 'bg-accent-green text-black',
-      )}
-      aria-label={isPlaying ? 'Pause' : 'Play'}
-      aria-pressed={isPlaying}
-      data-testid={isPlaying ? 'player-pause-button' : 'player-play-button'}
-    >
-      {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-    </Button>
-    <Button
-      size="icon"
-      variant="text"
-      className="rounded-full"
-      onClick={onNext}
-      aria-label="Next"
-      data-testid="player-next-button"
-    >
-      <SkipForward size={16} />
-    </Button>
+    <Tooltip content="Previous" side="top">
+      <Button
+        size="icon"
+        variant="text"
+        className="rounded-full"
+        onClick={onPrevious}
+        aria-label="Previous"
+      >
+        <SkipBack size={16} />
+      </Button>
+    </Tooltip>
+    <Tooltip content={isPlaying ? 'Pause' : 'Play'} side="top">
+      <Button
+        size="icon"
+        onClick={onPlayPause}
+        className={cn(
+          'active:bg-accent-green size-10 rounded-full shadow-md active:text-black',
+          isPlaying && 'bg-accent-green text-black',
+        )}
+        aria-label={isPlaying ? 'Pause' : 'Play'}
+        aria-pressed={isPlaying}
+        data-testid={isPlaying ? 'player-pause-button' : 'player-play-button'}
+      >
+        {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+      </Button>
+    </Tooltip>
+    <Tooltip content="Next" side="top">
+      <Button
+        size="icon"
+        variant="text"
+        className="rounded-full"
+        onClick={onNext}
+        aria-label="Next"
+        data-testid="player-next-button"
+      >
+        <SkipForward size={16} />
+      </Button>
+    </Tooltip>
     <Tooltip content={labels?.[REPEAT_LABEL_KEY[repeatMode]]} side="top">
       <Button
         size="icon"

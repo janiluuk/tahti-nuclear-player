@@ -1,8 +1,8 @@
 # Icon-button Tooltip sweep
 
-**Status:** planned. List from 2026-09-04 scan (`Button` `size="icon"` / `icon-sm"` in `tahti-web` + `@tahti-player/ui`).
-**Storybook:** `Components/Tooltip` → `SidebarIcons` (icon `Button` wrapped in `Tooltip`). Player transport already does this for shuffle / repeat / discovery in `PlayerBarControls`.
-**Count:** 296 icon buttons; **8** already wrapped; **288** missing.
+**Status:** in progress (UI primitives + chrome + listener hubs done 2026-09-04).
+**Storybook:** `Components/Tooltip` → `SidebarIcons` (icon `Button` wrapped in `Tooltip`).
+**Count:** ~288 missing at scan; first three work orders below are done. Re-scan before claiming 0.
 
 Every icon-only control must use Storybook `Tooltip` for the hover/focus label. Keep `aria-label` for assistive tech. Do not treat native `title=` as the tooltip.
 
@@ -14,7 +14,7 @@ Every icon-only control must use Storybook `Tooltip` for the hover/focus label. 
 </Tooltip>
 ```
 
-Prefer wrapping once in shared primitives (`DialogXClose`, `Pagination`, `PluginItem`, `MediaArtwork`, `PlayerBarControls`) so consumers inherit it.
+Prefer wrapping once in shared primitives so consumers inherit it.
 
 ## Leave
 
@@ -23,21 +23,40 @@ Prefer wrapping once in shared primitives (`DialogXClose`, `Pagination`, `Plugin
 - Drag handles if the label is already in surrounding copy **and** `aria-label` is set — still wrap if the control is icon-only
 - Full-screen player / Pro Editor take-over: still wrap; missing chrome is fine, missing tooltip is not
 
-## `@tahti-player/ui` (do first)
+## Done — `@tahti-player/ui` primitives
+
+| File | Notes |
+| --- | --- |
+| `PlayerBar/PlayerBarControls.tsx` | Previous / play-pause / next |
+| `PlayerBar/PlayerBarVolume.tsx` | Mute |
+| `PluginItem/PluginItem.tsx` | Settings / reload / remove |
+| `Pagination/Pagination.tsx` | Prev / next (+ default labels export) |
+| `Dialog/DialogXClose.tsx` | Close |
+| `MediaArtwork/MediaArtwork.tsx` | Play and overlay actions |
+| `TrackTable/Cells/ActionsCell.tsx` | Row actions |
+| `TrackTable/Cells/RemoveCell.tsx` | Remove |
+| `NewsWidget/NewsWidget.tsx` | Slider chevrons |
+| `CardsRow/CardsRow.tsx` | Scroll chevrons |
+
+## Done — listener + chrome (`packages/tahti-web`)
+
+| File | Notes |
+| --- | --- |
+| `ConnectedPlayerBar.tsx` | Queue / extra transport |
+| `FullScreenPlayer.tsx` | Minimize |
+| `MobileChrome.tsx` | Close |
+| `RightRailPanel.tsx` | Ack / rail actions |
+| `GlobalSearch.tsx` | Clear / close |
+| `SidebarQueuePanel.tsx` | Clear / shuffle / extras |
+| `ListenView.tsx` | Radio play / open radio (+ ViewShell header) |
+| `DiscoverView.tsx` | Add a widget |
+| `FeedView.tsx` | Previous / next |
+
+## Still `@tahti-player/ui`
 
 | File | Missing | Notes |
 | --- | --- | --- |
-| `PlayerBar/PlayerBarControls.tsx` | 3 | Previous / play-pause / next — shuffle/repeat already wrapped |
-| `PlayerBar/PlayerBarVolume.tsx` | 1 | Mute |
-| `PluginItem/PluginItem.tsx` | 3 | Settings / reload / remove |
-| `Pagination/Pagination.tsx` | 2 | Prev / next |
-| `Dialog/DialogXClose.tsx` | 1 | Close — every dialog |
-| `MediaArtwork/MediaArtwork.tsx` | 4 | Play and overlay actions |
-| `TrackTable/Cells/ActionsCell.tsx` | 4 | Row actions |
-| `TrackTable/Cells/RemoveCell.tsx` | 1 | |
-| `TrackTable/Toolbar.tsx` | 2 | (scan: size=icon) |
-| `NewsWidget/NewsWidget.tsx` | 2 | Slider chevrons |
-| `CardsRow/CardsRow.tsx` | 2 | Scroll chevrons |
+| `TrackTable/Toolbar.tsx` | 2 | |
 | `QueueItem/QueueItemExpanded.tsx` | 2 | |
 | `TopBarNavigation.tsx` | 2 | Back / forward |
 | `TahtiJam/TahtiJamControls.tsx` | 5 | |
@@ -48,19 +67,10 @@ Prefer wrapping once in shared primitives (`DialogXClose`, `Pagination`, `Plugin
 | `SettingsPanel/SettingsPanelContent.tsx` | 1 | Back |
 | `ThemeStoreItem/ThemeStoreItem.tsx` | 3 | (if still icon-only) |
 
-## Listener + chrome (`packages/tahti-web`)
+## Still listener (`packages/tahti-web`)
 
 | File | Missing | Typical labels |
 | --- | --- | --- |
-| `ConnectedPlayerBar.tsx` | 2 | Queue / extra transport |
-| `FullScreenPlayer.tsx` | 1 | Minimize |
-| `MobileChrome.tsx` | 1 | Close |
-| `RightRailPanel.tsx` | 1 | Close / collapse |
-| `GlobalSearch.tsx` | 1 | Clear / close |
-| `SidebarQueuePanel.tsx` | 3 | Clear / extra / shuffle |
-| `ListenView.tsx` | 2 | Radio play / open radio |
-| `DiscoverView.tsx` | 1 | Add a widget |
-| `FeedView.tsx` | 2 | Previous / next |
 | `CollectionView.tsx` | 2 | Edit in Studio / add to queue |
 | `ArtistView.tsx` | 4 | Subscribe / press kit / channel |
 | `ChannelView.tsx` | 6 | Chat, download playlist, remove block |
@@ -160,11 +170,12 @@ Heaviest: `StudioProEditorView` (12), `StudioCollectionEditView` (7), `ChannelDe
 
 ## Order of work
 
-1. UI primitives (Dialog close, Pagination, PluginItem, PlayerBar, MediaArtwork, TrackTable).
-2. App chrome (player bar, rail, mobile, fullscreen, search).
-3. Listener hubs and widgets.
-4. Studio toolbars (Pro Editor, collection editor, Channel Designer).
-5. Admin stream manager + storage + PluginStorePanel.
-6. Remainder. Re-run the scan; target **0** icon `Button`s without a wrapping `Tooltip`.
+1. ~~UI primitives (Dialog close, Pagination, PluginItem, PlayerBar, MediaArtwork, TrackTable).~~
+2. ~~App chrome (player bar, rail, mobile, fullscreen, search).~~
+3. ~~Listener hubs (Listen / Discover / Feed / SidebarQueue).~~
+4. Remaining listener views + widgets.
+5. Studio toolbars (Pro Editor, collection editor, Channel Designer).
+6. Admin stream manager + storage + PluginStorePanel.
+7. Remainder. Re-run the scan; target **0** icon `Button`s without a wrapping `Tooltip`.
 
 After wrapping, drop redundant native `title=` when `Tooltip` + `aria-label` already say the same thing.

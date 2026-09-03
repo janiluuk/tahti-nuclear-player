@@ -15,6 +15,7 @@ import {
   Button,
   Dialog,
   FilePicker,
+  FilterChips,
   Input,
   SaveButton,
   Tabs,
@@ -490,32 +491,15 @@ export const StudioBrandingPanel: FC<{
               Add images with drag and drop, or browse your device.
             </Dialog.Description>
             <div className="flex flex-col gap-4">
-              <div
-                className="border-border grid grid-cols-2 rounded-md border p-1"
-                role="group"
+              <FilterChips
+                items={[
+                  { id: 'append', label: 'Append' },
+                  { id: 'replace', label: 'Replace' },
+                ]}
+                selected={uploadMode}
+                onChange={(id) => setUploadMode(id as 'append' | 'replace')}
                 aria-label="Gallery upload mode"
-              >
-                {(
-                  [
-                    ['append', 'Append'],
-                    ['replace', 'Replace'],
-                  ] as const
-                ).map(([mode, label]) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    className={`rounded px-3 py-2 text-xs font-semibold uppercase ${
-                      uploadMode === mode
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-foreground-secondary'
-                    }`}
-                    aria-pressed={uploadMode === mode}
-                    onClick={() => setUploadMode(mode)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              />
               <FilePicker
                 accept={ACCEPTED_IMAGES}
                 multiple

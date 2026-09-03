@@ -1,6 +1,6 @@
 import { Bell, Check, ListMusicIcon, MessageCircle } from 'lucide-react';
 
-import { Badge, Button, EmptyState, Tabs } from '@tahti-player/ui';
+import { Badge, Button, EmptyState, Tabs, Tooltip } from '@tahti-player/ui';
 
 import type { TahtiNotification } from '../api/notifications';
 import { useLayoutStore, type RightRailTab } from '../stores/layoutStore';
@@ -203,19 +203,23 @@ function NotificationList({
                 {new Date(notification.createdAt).toLocaleString()}
               </p>
             </div>
-            <Button
-              size="icon-sm"
-              variant="text"
-              aria-label={
-                notification.sticky
-                  ? `Acknowledge ${notification.title}`
-                  : `Mark ${notification.title} as seen`
-              }
-              title={notification.sticky ? 'Acknowledge' : 'Mark as seen'}
-              onClick={() => onRead(notification.id)}
+            <Tooltip
+              content={notification.sticky ? 'Acknowledge' : 'Mark as seen'}
+              side="top"
             >
-              <Check size={14} />
-            </Button>
+              <Button
+                size="icon-sm"
+                variant="text"
+                aria-label={
+                  notification.sticky
+                    ? `Acknowledge ${notification.title}`
+                    : `Mark ${notification.title} as seen`
+                }
+                onClick={() => onRead(notification.id)}
+              >
+                <Check size={14} />
+              </Button>
+            </Tooltip>
           </div>
         </li>
       ))}

@@ -3,16 +3,17 @@ import { FC } from 'react';
 
 import { cn } from '../../utils';
 import { Button } from '../Button';
+import { Tooltip } from '../Tooltip';
 import { PaginationItem } from './PaginationItem';
 import { pageItemKey, paginationRange } from './paginationRange';
-import { PaginationProps } from './types';
+import { DEFAULT_PAGINATION_LABELS, PaginationProps } from './types';
 
 export const Pagination: FC<PaginationProps> = ({
   currentPage,
   totalPages,
   onPageChange,
   siblingCount = 1,
-  labels,
+  labels = DEFAULT_PAGINATION_LABELS,
   className,
   ...props
 }) => {
@@ -29,15 +30,17 @@ export const Pagination: FC<PaginationProps> = ({
       className={cn('flex items-center gap-2', className)}
       {...props}
     >
-      <Button
-        variant="secondary"
-        size="icon-sm"
-        aria-label={labels.previous}
-        disabled={currentPage <= 1}
-        onClick={() => onPageChange(currentPage - 1)}
-      >
-        <ChevronLeftIcon className="size-4" />
-      </Button>
+      <Tooltip content={labels.previous} side="top">
+        <Button
+          variant="secondary"
+          size="icon-sm"
+          aria-label={labels.previous}
+          disabled={currentPage <= 1}
+          onClick={() => onPageChange(currentPage - 1)}
+        >
+          <ChevronLeftIcon className="size-4" />
+        </Button>
+      </Tooltip>
       {items.map((item) => (
         <PaginationItem
           key={pageItemKey(item)}
@@ -47,15 +50,17 @@ export const Pagination: FC<PaginationProps> = ({
           pageLabel={labels.page}
         />
       ))}
-      <Button
-        variant="secondary"
-        size="icon-sm"
-        aria-label={labels.next}
-        disabled={currentPage >= totalPages}
-        onClick={() => onPageChange(currentPage + 1)}
-      >
-        <ChevronRightIcon className="size-4" />
-      </Button>
+      <Tooltip content={labels.next} side="top">
+        <Button
+          variant="secondary"
+          size="icon-sm"
+          aria-label={labels.next}
+          disabled={currentPage >= totalPages}
+          onClick={() => onPageChange(currentPage + 1)}
+        >
+          <ChevronRightIcon className="size-4" />
+        </Button>
+      </Tooltip>
     </nav>
   );
 };

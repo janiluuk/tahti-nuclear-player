@@ -13,7 +13,14 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, Input, Select, Tabs } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  EmptyState,
+  Input,
+  Select,
+  Tabs,
+} from '@tahti-player/ui';
 
 import {
   fetchHearthisTrackById,
@@ -401,12 +408,14 @@ export function StudioSoundsView() {
             {loading ? (
               <PageLoading label="Loading…" />
             ) : filtered.length === 0 ? (
-              <div className="flex flex-col gap-3 py-4 text-center">
-                <p className="text-foreground-secondary text-sm">
-                  No tracks yet. Upload a file or import from Sources.
-                </p>
-                <AddToMusicActions align="center" onUploaded={reload} />
-              </div>
+              <EmptyState
+                size="sm"
+                title="No tracks yet"
+                description="Upload a file or import from Sources."
+                action={
+                  <AddToMusicActions align="center" onUploaded={reload} />
+                }
+              />
             ) : (
               <ul className="divide-border divide-y">
                 {filtered.map((item) => {

@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Button, MediaArtwork, SectionShell } from '@tahti-player/ui';
+import { Button, MediaArtwork, SectionShell, Tooltip } from '@tahti-player/ui';
 
 import { fetchArtistPlayables, fetchFeed, fetchProfile } from '../api/client';
 import type {
@@ -245,15 +245,17 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
         />
       ) : (
         <div className="relative">
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            aria-label="Previous"
-            onClick={() => scrollByPage(-1)}
-            className="absolute top-1/2 -left-3 z-10 hidden -translate-y-1/2 sm:flex"
-          >
-            <ChevronLeftIcon size={16} aria-hidden />
-          </Button>
+          <Tooltip content="Previous" side="top">
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              aria-label="Previous"
+              onClick={() => scrollByPage(-1)}
+              className="absolute top-1/2 -left-3 z-10 hidden -translate-y-1/2 sm:flex"
+            >
+              <ChevronLeftIcon size={16} aria-hidden />
+            </Button>
+          </Tooltip>
           <ul
             ref={scrollRef}
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -419,15 +421,17 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
               </li>
             ))}
           </ul>
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            aria-label="Next"
-            onClick={() => scrollByPage(1)}
-            className="absolute top-1/2 -right-3 z-10 hidden -translate-y-1/2 sm:flex"
-          >
-            <ChevronRightIcon size={16} aria-hidden />
-          </Button>
+          <Tooltip content="Next" side="top">
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              aria-label="Next"
+              onClick={() => scrollByPage(1)}
+              className="absolute top-1/2 -right-3 z-10 hidden -translate-y-1/2 sm:flex"
+            >
+              <ChevronRightIcon size={16} aria-hidden />
+            </Button>
+          </Tooltip>
         </div>
       )}
 

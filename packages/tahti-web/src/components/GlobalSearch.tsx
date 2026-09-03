@@ -14,6 +14,7 @@ import {
   ImageReveal,
   Input,
   Loader,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import { fetchSearch } from '../api/client';
@@ -241,16 +242,18 @@ export function GlobalSearch() {
           }
         />
         {query ? (
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="text"
-            onClick={() => setQuery('')}
-            aria-label="Clear search"
-            className="absolute top-1 right-1"
-          >
-            <XIcon size={14} aria-hidden />
-          </Button>
+          <Tooltip content="Clear search" side="top">
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="text"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="absolute top-1 right-1"
+            >
+              <XIcon size={14} aria-hidden />
+            </Button>
+          </Tooltip>
         ) : null}
       </div>
 

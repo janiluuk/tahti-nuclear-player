@@ -2,7 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { ListFilterIcon, SearchIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Input, TopList } from '@tahti-player/ui';
+import { FilterChips, Input, TopList } from '@tahti-player/ui';
 
 import {
   fetchAdminTopLists,
@@ -36,42 +36,6 @@ const SORTS: { id: AdminTopListSort; label: string }[] = [
   { id: 'desc', label: 'Most listened' },
   { id: 'asc', label: 'Least listened' },
 ];
-
-function FilterRow<T extends string>({
-  options,
-  value,
-  onChange,
-  label,
-}: {
-  options: { id: T; label: string }[];
-  value: T;
-  onChange: (v: T) => void;
-  label: string;
-}) {
-  return (
-    <div
-      className="border-border flex gap-1 rounded-lg border p-1"
-      role="group"
-      aria-label={label}
-    >
-      {options.map((option) => (
-        <button
-          key={option.id}
-          type="button"
-          aria-pressed={value === option.id}
-          onClick={() => onChange(option.id)}
-          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
-            value === option.id
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-foreground-secondary hover:text-foreground'
-          }`}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 export function AdminTopListsView() {
   const navigate = useNavigate();
@@ -133,23 +97,23 @@ export function AdminTopListsView() {
                   aria-hidden
                   className="text-foreground-secondary"
                 />
-                <FilterRow
-                  options={PERIODS}
-                  value={period}
-                  onChange={setPeriod}
-                  label="Top list period"
+                <FilterChips
+                  items={PERIODS}
+                  selected={period}
+                  onChange={(id) => setPeriod(id as AdminTopListPeriod)}
+                  aria-label="Top list period"
                 />
-                <FilterRow
-                  options={DIMENSIONS}
-                  value={dimension}
-                  onChange={setDimension}
-                  label="Top list grouping"
+                <FilterChips
+                  items={DIMENSIONS}
+                  selected={dimension}
+                  onChange={(id) => setDimension(id as AdminTopListDimension)}
+                  aria-label="Top list grouping"
                 />
-                <FilterRow
-                  options={SORTS}
-                  value={sort}
-                  onChange={setSort}
-                  label="Top list order"
+                <FilterChips
+                  items={SORTS}
+                  selected={sort}
+                  onChange={(id) => setSort(id as AdminTopListSort)}
+                  aria-label="Top list order"
                 />
               </div>
             </div>

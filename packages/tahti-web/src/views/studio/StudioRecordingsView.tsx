@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CheckIcon, PencilIcon, RadioIcon, SearchIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Input, Select } from '@tahti-player/ui';
+import { Button, EmptyState, Input, Select } from '@tahti-player/ui';
 
 import {
   fetchRecentBroadcasts,
@@ -282,27 +282,29 @@ export function StudioRecordingsView({
         {loading ? (
           <PageLoading label="Loading…" />
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-start gap-2">
-            <p className="text-foreground-secondary text-sm">
-              {recordings.length === 0
-                ? 'No recorded shows yet.'
-                : 'No recordings match your search.'}
-            </p>
-            {recordings.length === 0 ? (
-              <>
-                <p className="text-foreground-secondary text-xs">
-                  Enable recording when you go live and completed shows will
-                  appear here.
-                </p>
+          <EmptyState
+            size="sm"
+            title={
+              recordings.length === 0
+                ? 'No recorded shows yet'
+                : 'No recordings match your search'
+            }
+            description={
+              recordings.length === 0
+                ? 'Enable recording when you go live and completed shows will appear here.'
+                : undefined
+            }
+            action={
+              recordings.length === 0 ? (
                 <Link to="/studio/go-live">
                   <Button size="sm" variant="secondary">
                     <RadioIcon size={14} aria-hidden className="mr-1" />
                     Open broadcast studio
                   </Button>
                 </Link>
-              </>
-            ) : null}
-          </div>
+              ) : undefined
+            }
+          />
         ) : (
           <div className="flex flex-col gap-6">
             {drafts.length > 0 ? (

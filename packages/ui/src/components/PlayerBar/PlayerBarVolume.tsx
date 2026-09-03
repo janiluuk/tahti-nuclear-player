@@ -3,6 +3,7 @@ import { FC } from 'react';
 
 import { Button, Slider } from '..';
 import { cn } from '../../utils';
+import { Tooltip } from '../Tooltip';
 
 type PlayerBarVolumeProps = {
   value?: number;
@@ -25,16 +26,18 @@ export const PlayerBarVolume: FC<PlayerBarVolumeProps> = ({
 }) => {
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <Button
-        size="icon"
-        variant="text"
-        disabled={disabled}
-        onClick={onMuteToggle}
-        aria-label={muted ? 'Unmute' : 'Mute'}
-        aria-pressed={muted}
-      >
-        {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-      </Button>
+      <Tooltip content={muted ? 'Unmute' : 'Mute'} side="top">
+        <Button
+          size="icon"
+          variant="text"
+          disabled={disabled}
+          onClick={onMuteToggle}
+          aria-label={muted ? 'Unmute' : 'Mute'}
+          aria-pressed={muted}
+        >
+          {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+        </Button>
+      </Tooltip>
       <div className="w-24" data-testid="player-volume-slider">
         {/* Slider.Header supplies the accessible name (aria-labelledby) the
          * range input needs — kept in the DOM but visually hidden so the

@@ -10,7 +10,15 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, FilterChips, Popover, Select, Tabs } from '@tahti-player/ui';
+import {
+  Button,
+  FilterChips,
+  Popover,
+  Select,
+  Tabs,
+  Tooltip,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import { fetchDirectory, fetchTrackDetail } from '../api/client';
 import {
@@ -32,9 +40,7 @@ import type {
 import { DirectoryArtistCardGrid } from '../components/DirectoryArtistCardGrid';
 import { WidgetCard } from '../components/discover/WidgetCard';
 import { NewsFeedWidget } from '../components/NewsFeedWidget';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
-import { Eyebrow } from '../components/tahti/Eyebrow';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { VenuesDirectory } from '../components/VenuesDirectory';
 import { CONTENT_TYPES } from '../content/contentTypes';
@@ -93,9 +99,9 @@ const DISCOVER_TABS: Array<{ id: DiscoverTab; label: string }> = [
 ];
 
 const DISCOVER_SUBTITLES: Record<DiscoverTab, string> = {
-  discover: 'Pick the widgets you want to see, and filter by genre or type.',
-  artists: 'Artists from the Listen directory, filtered for your picks.',
-  venues: 'Browse verified venues in the Tahti community.',
+  discover: 'Widgets filtered by genre or type.',
+  artists: 'Artists from the Listen directory.',
+  venues: 'Verified venues in the community.',
 };
 
 export function DiscoverView() {
@@ -315,27 +321,26 @@ export function DiscoverView() {
   };
 
   return (
-    <PageFrame>
-      <PageHeader
-        title="Discover"
-        subtitle={DISCOVER_SUBTITLES[activeTab]}
-        meta={<Eyebrow>Discover</Eyebrow>}
-        actions={
-          activeTab === 'venues' ? (
-            <Link
-              to="/venues/register"
-              className="text-sm font-medium underline-offset-2 hover:underline"
-            >
-              Register a venue
-            </Link>
-          ) : activeTab === 'discover' ? (
-            <DiscoverAddWidgetButton
-              availableToAdd={availableToAdd}
-              onAdd={addWidget}
-            />
-          ) : null
-        }
-      />
+    <ViewShell
+      title="Discover"
+      subtitle={DISCOVER_SUBTITLES[activeTab]}
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
+    >
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        {activeTab === 'venues' ? (
+          <Link
+            to="/venues/register"
+            className="text-sm font-medium underline-offset-2 hover:underline"
+          >
+            Register a venue
+          </Link>
+        ) : activeTab === 'discover' ? (
+          <DiscoverAddWidgetButton
+            availableToAdd={availableToAdd}
+            onAdd={addWidget}
+          />
+        ) : null}
+      </div>
 
       <Tabs.Root
         selectedIndex={Math.max(
@@ -522,7 +527,7 @@ export function DiscoverView() {
           onClose={() => setSelectedTrack(null)}
         />
       )}
-    </PageFrame>
+    </ViewShell>
   );
 }
 
@@ -542,16 +547,17 @@ function DiscoverAddWidgetButton({
       className="relative"
       anchor="bottom end"
       trigger={
-        <Button
-          size="icon"
-          variant="secondary"
-          aria-label="Add a widget"
-          title="Add a widget"
-          data-testid="discover-add-widget"
-        >
-          <Plus size={17} aria-hidden />
-          <Blocks size={15} aria-hidden />
-        </Button>
+        <Tooltip content="Add a widget" side="top">
+          <Button
+            size="icon"
+            variant="secondary"
+            aria-label="Add a widget"
+            data-testid="discover-add-widget"
+          >
+            <Plus size={17} aria-hidden />
+            <Blocks size={15} aria-hidden />
+          </Button>
+        </Tooltip>
       }
       panelClassName="w-56"
     >

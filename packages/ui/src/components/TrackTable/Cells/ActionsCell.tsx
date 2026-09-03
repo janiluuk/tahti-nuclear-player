@@ -12,6 +12,7 @@ import { Track } from '@tahti-player/model';
 
 import { cn } from '../../../utils';
 import { Button } from '../../Button';
+import { Tooltip } from '../../Tooltip';
 import { useTrackTableContext } from '../TrackTableContext';
 import { ContextMenuWrapperProps } from '../types';
 
@@ -32,37 +33,39 @@ type IconButtonProps = {
 };
 
 const EditButton: FC<IconButtonProps> = ({ label, onClick }) => (
-  <Button
-    data-testid="edit-track-button"
-    size="icon-sm"
-    variant="text"
-    className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-    onClick={(e) => {
-      e.stopPropagation();
-      onClick();
-    }}
-    aria-label={label}
-    title={label}
-  >
-    <Pencil size={14} />
-  </Button>
+  <Tooltip content={label} side="top">
+    <Button
+      data-testid="edit-track-button"
+      size="icon-sm"
+      variant="text"
+      className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      aria-label={label}
+    >
+      <Pencil size={14} />
+    </Button>
+  </Tooltip>
 );
 
 const OpenDetailButton: FC<IconButtonProps> = ({ label, onClick }) => (
-  <Button
-    data-testid="open-track-detail-button"
-    size="icon-sm"
-    variant="text"
-    className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-    onClick={(e) => {
-      e.stopPropagation();
-      onClick();
-    }}
-    aria-label={label}
-    title={label}
-  >
-    <ArrowUpRight size={14} />
-  </Button>
+  <Tooltip content={label} side="top">
+    <Button
+      data-testid="open-track-detail-button"
+      size="icon-sm"
+      variant="text"
+      className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      aria-label={label}
+    >
+      <ArrowUpRight size={14} />
+    </Button>
+  </Tooltip>
 );
 
 type AddToQueueButtonProps = {
@@ -92,27 +95,28 @@ const AddToQueueButton: FC<AddToQueueButtonProps> = ({
   }, [flashing]);
 
   return (
-    <Button
-      data-testid="add-to-queue-button"
-      size="icon-sm"
-      variant="text"
-      disabled={queued || flashing}
-      className={cn(
-        'size-7 opacity-100 transition-colors [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100',
-        (queued || flashing) &&
-          'bg-primary/20 text-primary opacity-100! motion-safe:animate-pulse',
-      )}
-      onClick={(event) => {
-        event.stopPropagation();
-        setFlashing(true);
-        onClick();
-      }}
-      aria-label={label}
-      aria-pressed={queued}
-      title={label}
-    >
-      {queued ? <Check size={14} /> : <ListPlus size={14} />}
-    </Button>
+    <Tooltip content={label} side="top">
+      <Button
+        data-testid="add-to-queue-button"
+        size="icon-sm"
+        variant="text"
+        disabled={queued || flashing}
+        className={cn(
+          'size-7 opacity-100 transition-colors [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100',
+          (queued || flashing) &&
+            'bg-primary/20 text-primary opacity-100! motion-safe:animate-pulse',
+        )}
+        onClick={(event) => {
+          event.stopPropagation();
+          setFlashing(true);
+          onClick();
+        }}
+        aria-label={label}
+        aria-pressed={queued}
+      >
+        {queued ? <Check size={14} /> : <ListPlus size={14} />}
+      </Button>
+    </Tooltip>
   );
 };
 
@@ -123,18 +127,20 @@ type ContextMenuButtonProps = {
 const ContextMenuButton = forwardRef<HTMLElement, ContextMenuButtonProps>(
   function ContextMenuButton({ label, ...props }, ref) {
     return (
-      <Button
-        {...props}
-        ref={ref}
-        data-testid="track-context-menu-button"
-        size="icon-sm"
-        variant="text"
-        className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-        onClick={(e) => e.stopPropagation()}
-        aria-label={label}
-      >
-        <EllipsisVertical size={16} />
-      </Button>
+      <Tooltip content={label} side="top">
+        <Button
+          {...props}
+          ref={ref}
+          data-testid="track-context-menu-button"
+          size="icon-sm"
+          variant="text"
+          className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+          onClick={(e) => e.stopPropagation()}
+          aria-label={label}
+        >
+          <EllipsisVertical size={16} />
+        </Button>
+      </Tooltip>
     );
   },
 );

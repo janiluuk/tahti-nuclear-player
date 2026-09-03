@@ -5,6 +5,7 @@ import { cn } from '../../utils';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
 import { ImageReveal } from '../ImageReveal';
+import { Tooltip } from '../Tooltip';
 import { ArticleCard, type ArticleCardItem } from './ArticleCard';
 
 const SCROLL_INCREMENT = 320;
@@ -69,22 +70,28 @@ export const NewsWidget: FC<NewsWidgetProps> = ({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            data-testid="news-widget-scroll-left"
-            size="icon"
-            onClick={() => scrollBy(-SCROLL_INCREMENT)}
-            variant="noShadow"
-          >
-            <ChevronLeft size={16} />
-          </Button>
-          <Button
-            data-testid="news-widget-scroll-right"
-            size="icon"
-            onClick={() => scrollBy(SCROLL_INCREMENT)}
-            variant="noShadow"
-          >
-            <ChevronRight size={16} />
-          </Button>
+          <Tooltip content="Scroll left" side="top">
+            <Button
+              data-testid="news-widget-scroll-left"
+              size="icon"
+              onClick={() => scrollBy(-SCROLL_INCREMENT)}
+              variant="noShadow"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft size={16} />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Scroll right" side="top">
+            <Button
+              data-testid="news-widget-scroll-right"
+              size="icon"
+              onClick={() => scrollBy(SCROLL_INCREMENT)}
+              variant="noShadow"
+              aria-label="Scroll right"
+            >
+              <ChevronRight size={16} />
+            </Button>
+          </Tooltip>
         </div>
       </div>
 

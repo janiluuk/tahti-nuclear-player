@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react';
 import { Track } from '@tahti-player/model';
 
 import { Button } from '../../Button';
+import { Tooltip } from '../../Tooltip';
 import { useTrackTableContext } from '../TrackTableContext';
 
 type RemoveCellMeta = {
@@ -20,17 +21,19 @@ export const RemoveCell = <T extends Track>({
 
   return (
     <td className="w-10 text-center">
-      <Button
-        size="icon-sm"
-        variant="text"
-        onClick={(e) => {
-          e.stopPropagation();
-          meta.onRemove(track, row.index);
-        }}
-        aria-label={labels.remove}
-      >
-        <Trash2 size={16} className="text-foreground-secondary" />
-      </Button>
+      <Tooltip content={labels.remove} side="top">
+        <Button
+          size="icon-sm"
+          variant="text"
+          onClick={(e) => {
+            e.stopPropagation();
+            meta.onRemove(track, row.index);
+          }}
+          aria-label={labels.remove}
+        >
+          <Trash2 size={16} className="text-foreground-secondary" />
+        </Button>
+      </Tooltip>
     </td>
   );
 };

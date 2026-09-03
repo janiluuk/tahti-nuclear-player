@@ -1,17 +1,38 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+import { fn } from 'storybook/test';
 
-import { Pagination } from '@tahti-player/ui';
+import { DEFAULT_PAGINATION_LABELS, Pagination } from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/Pagination',
   component: Pagination,
   tags: ['autodocs'],
+  args: {
+    currentPage: 12,
+    totalPages: 24,
+    labels: DEFAULT_PAGINATION_LABELS,
+    onPageChange: fn(),
+  },
+  argTypes: {
+    labels: { control: false },
+    onPageChange: { action: 'page-change' },
+  },
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Page number row with previous/next. Pass labels in the player (i18n); Storybook uses DEFAULT_PAGINATION_LABELS. Renders nothing when totalPages is 1.',
+      },
+    },
+  },
 } satisfies Meta<typeof Pagination>;
 
 export default meta;
 
 type Story = StoryObj<typeof Pagination>;
+
+export const Default: Story = {};
 
 export const Interactive: Story = {
   render: () => {
@@ -26,6 +47,7 @@ export const Interactive: Story = {
           <Pagination
             currentPage={manyPagesCurrent}
             totalPages={24}
+            labels={DEFAULT_PAGINATION_LABELS}
             onPageChange={setManyPagesCurrent}
           />
           <p className="text-foreground/60 text-xs">
@@ -39,6 +61,7 @@ export const Interactive: Story = {
           <Pagination
             currentPage={fewPagesCurrent}
             totalPages={5}
+            labels={DEFAULT_PAGINATION_LABELS}
             onPageChange={setFewPagesCurrent}
           />
           <p className="text-foreground/60 text-xs">
@@ -54,6 +77,7 @@ export const Interactive: Story = {
             currentPage={wideWindowCurrent}
             totalPages={20}
             siblingCount={2}
+            labels={DEFAULT_PAGINATION_LABELS}
             onPageChange={setWideWindowCurrent}
           />
           <p className="text-foreground/60 text-xs">
@@ -63,7 +87,12 @@ export const Interactive: Story = {
 
         <div className="flex flex-col gap-2">
           <h3 className="text-foreground text-sm font-semibold">Single page</h3>
-          <Pagination currentPage={1} totalPages={1} onPageChange={() => {}} />
+          <Pagination
+            currentPage={1}
+            totalPages={1}
+            labels={DEFAULT_PAGINATION_LABELS}
+            onPageChange={() => {}}
+          />
           <p className="text-foreground/60 text-xs">
             Renders nothing when there is only one page.
           </p>

@@ -2,6 +2,15 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — Icon Tooltip pass 1 (UI + chrome + hubs)
+
+Wrapped icon-only controls in Storybook `Tooltip` (kept `aria-label`):
+DialogXClose, Pagination, PluginItem, PlayerBar transport/mute, MediaArtwork,
+TrackTable Actions/Remove, NewsWidget + CardsRow chevrons; ConnectedPlayerBar,
+FullScreenPlayer, MobileChrome, RightRail, GlobalSearch, SidebarQueuePanel,
+Listen / Discover / Feed. Listen also moved onto ViewShell. Remaining Studio /
+Admin / deep listener views still listed in `icon-button-tooltips.md`.
+
 ## 2026-09-04 — SaveButton + StatChip sweep (0.0.57)
 
 Persist-edit controls use Storybook `SaveButton` (custom labels, Saving/Disabled). Create/publish stay `Button`. Studio Sound toolbar left icon-only. Disabled story added.

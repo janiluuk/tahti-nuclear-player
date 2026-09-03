@@ -2,7 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { ListMusicIcon, ShuffleIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, QueuePanel } from '@tahti-player/ui';
+import { Button, QueuePanel, Tooltip } from '@tahti-player/ui';
 
 import { soundIdFromPlayableId } from '../lib/archiveId';
 import { cn } from '../lib/cn';
@@ -83,39 +83,42 @@ export function SidebarQueuePanel({ compact = false }: { compact?: boolean }) {
       </div>
 
       <div className="border-border flex shrink-0 items-center justify-center gap-1 border-t px-2 py-1.5">
-        <Button
-          size="icon-sm"
-          variant="text"
-          disabled={queue.length === 0}
-          onClick={() => setConfirmingClear(true)}
-          className="text-foreground-secondary hover:text-accent-red"
-          title="Clear queue"
-          aria-label="Clear queue"
-        >
-          <Trash2Icon size={15} aria-hidden />
-        </Button>
-        <Button
-          size="icon-sm"
-          variant="text"
-          disabled={queue.length === 0}
-          onClick={() => setSavingAsPlaylist(true)}
-          className="text-foreground-secondary hover:text-foreground"
-          title="Save queue as playlist"
-          aria-label="Save queue as playlist"
-        >
-          <ListMusicIcon size={15} aria-hidden />
-        </Button>
-        <Button
-          size="icon-sm"
-          variant="text"
-          disabled={queue.length < 2}
-          onClick={shuffleQueueOrder}
-          className="text-foreground-secondary hover:text-foreground"
-          title="Randomize queue order"
-          aria-label="Randomize queue order"
-        >
-          <ShuffleIcon size={15} aria-hidden />
-        </Button>
+        <Tooltip content="Clear queue" side="top">
+          <Button
+            size="icon-sm"
+            variant="text"
+            disabled={queue.length === 0}
+            onClick={() => setConfirmingClear(true)}
+            className="text-foreground-secondary hover:text-accent-red"
+            aria-label="Clear queue"
+          >
+            <Trash2Icon size={15} aria-hidden />
+          </Button>
+        </Tooltip>
+        <Tooltip content="Save queue as playlist" side="top">
+          <Button
+            size="icon-sm"
+            variant="text"
+            disabled={queue.length === 0}
+            onClick={() => setSavingAsPlaylist(true)}
+            className="text-foreground-secondary hover:text-foreground"
+            aria-label="Save queue as playlist"
+          >
+            <ListMusicIcon size={15} aria-hidden />
+          </Button>
+        </Tooltip>
+        <Tooltip content="Randomize queue order" side="top">
+          <Button
+            size="icon-sm"
+            variant="text"
+            disabled={queue.length < 2}
+            onClick={shuffleQueueOrder}
+            className="text-foreground-secondary hover:text-foreground"
+            aria-label="Randomize queue order"
+          >
+            <ShuffleIcon size={15} aria-hidden />
+          </Button>
+        </Tooltip>
       </div>
 
       <ClearQueueConfirmDialog

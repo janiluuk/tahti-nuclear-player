@@ -7,6 +7,7 @@ import { Badge } from '../Badge';
 import { Button } from '../Button';
 import { Card } from '../Card';
 import { Input } from '../Input';
+import { Tooltip } from '../Tooltip';
 import { useCardsRow } from './useCardsRow';
 
 export type CardsRowItem = {
@@ -69,33 +70,42 @@ export const CardsRow: FC<CardsRowProps> = ({
             value={filterText}
             onChange={(event) => setFilterText(event.target.value)}
             endAddon={
-              <button
-                data-testid="cards-row-clear-filter"
-                type="button"
-                className="text-foreground cursor-pointer"
-                onClick={clearFilter}
-              >
-                <Filter size={14} />
-              </button>
+              <Tooltip content="Clear filter" side="top">
+                <button
+                  data-testid="cards-row-clear-filter"
+                  type="button"
+                  className="text-foreground cursor-pointer"
+                  onClick={clearFilter}
+                  aria-label="Clear filter"
+                >
+                  <Filter size={14} />
+                </button>
+              </Tooltip>
             }
           />
           <div className="flex items-center gap-2">
-            <Button
-              data-testid="cards-row-scroll-left"
-              size="icon"
-              onClick={scrollLeft}
-              variant="noShadow"
-            >
-              <ChevronLeft size={16} />
-            </Button>
-            <Button
-              data-testid="cards-row-scroll-right"
-              size="icon"
-              onClick={scrollRight}
-              variant="noShadow"
-            >
-              <ChevronRight size={16} />
-            </Button>
+            <Tooltip content="Scroll left" side="top">
+              <Button
+                data-testid="cards-row-scroll-left"
+                size="icon"
+                onClick={scrollLeft}
+                variant="noShadow"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft size={16} />
+              </Button>
+            </Tooltip>
+            <Tooltip content="Scroll right" side="top">
+              <Button
+                data-testid="cards-row-scroll-right"
+                size="icon"
+                onClick={scrollRight}
+                variant="noShadow"
+                aria-label="Scroll right"
+              >
+                <ChevronRight size={16} />
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </div>
