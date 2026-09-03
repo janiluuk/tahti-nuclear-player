@@ -1,5 +1,11 @@
 import { useNavigate } from '@tanstack/react-router';
-import { DiscIcon, ListMusicIcon, UserIcon, XIcon } from 'lucide-react';
+import {
+  DiscIcon,
+  ListMusicIcon,
+  SearchIcon,
+  UserIcon,
+  XIcon,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import {
@@ -230,6 +236,9 @@ export function GlobalSearch() {
           }
           autoComplete="off"
           className={query ? 'pr-9' : undefined}
+          startAddon={
+            <SearchIcon size={14} aria-hidden className="opacity-70" />
+          }
         />
         {query ? (
           <Button

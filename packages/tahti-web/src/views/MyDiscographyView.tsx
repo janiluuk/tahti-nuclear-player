@@ -8,6 +8,7 @@ import {
   PinOffIcon,
   PlayIcon,
   RadioTowerIcon,
+  SearchIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC } from 'react';
 
@@ -218,6 +219,9 @@ export const MyDiscographyView: FC = () => {
                   placeholder="Search all sounds…"
                   aria-label="Search all sounds"
                   className="min-w-0 flex-1"
+                  startAddon={
+                    <SearchIcon size={14} aria-hidden className="opacity-70" />
+                  }
                 />
                 <Select
                   label="Sort all sounds"

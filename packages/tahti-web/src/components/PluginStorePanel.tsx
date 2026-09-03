@@ -2849,13 +2849,13 @@ function PersonalRadioStreamCard() {
 function RadioBrowserStationRow({
   station,
   onPlay,
-  isFavorite,
-  onToggleFavorite,
+  isSaved,
+  onToggleSave,
 }: {
   station: PublicRadioStation;
   onPlay: () => void;
-  isFavorite: boolean;
-  onToggleFavorite: () => void;
+  isSaved: boolean;
+  onToggleSave: () => void;
 }) {
   return (
     <li className="border-border hover:bg-background-secondary flex items-center gap-2 rounded-md border p-1.5 pr-1">
@@ -2895,12 +2895,15 @@ function RadioBrowserStationRow({
       >
         <PlayIcon size={14} aria-hidden />
       </Button>
-      <FavoriteButton
+      <SaveButton
         size="sm"
-        isFavorite={isFavorite}
-        onToggle={onToggleFavorite}
-        ariaLabelAdd={`Add ${station.name} to library`}
-        ariaLabelRemove={`Remove ${station.name} from library`}
+        label={isSaved ? 'Saved' : 'Save'}
+        onClick={onToggleSave}
+        aria-label={
+          isSaved
+            ? `Remove ${station.name} from Listen`
+            : `Save ${station.name} to Listen`
+        }
       />
     </li>
   );
@@ -2913,9 +2916,12 @@ function RadioBrowserDirectoryCard() {
   const enabled = useRadioBrowserStore((s) => s.enabled);
   const setEnabled = useRadioBrowserStore((s) => s.setEnabled);
   const play = usePlayerStore((s) => s.play);
-  const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
-  const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
-  const isFavoriteTrack = useLibraryStore((s) => s.isFavoriteTrack);
+  const savedBrowserStations = useListenerWidgetsStore(
+    (s) => s.savedBrowserStations,
+  );
+  const toggleSavedBrowserStation = useListenerWidgetsStore(
+    (s) => s.toggleSavedBrowserStation,
+  );
 
   const [loaded, setLoaded] = useState(false);
   const [stationCount, setStationCount] = useState<number | null>(null);
@@ -2961,31 +2967,21 @@ function RadioBrowserDirectoryCard() {
 
   const playStation = (station: PublicRadioStation) =>
     play(playableFromRadioStation(station));
-  const favoriteProps = (station: PublicRadioStation) => ({
-    isFavorite: isFavoriteTrack(`radio:${station.id}`),
-    onToggleFavorite: () =>
-      toggleFavoriteTrack(playableFromRadioStation(station)),
+  const saveProps = (station: PublicRadioStation) => ({
+    isSaved: savedBrowserStations.some((item) => item.id === station.id),
+    onToggleSave: () =>
+      toggleSavedBrowserStation({
+        id: station.id,
+        name: station.name,
+        streamUrl: station.streamUrl,
+        favicon: station.favicon,
+        country: station.country,
+      }),
   });
 
-  const favouriteStations = favoriteTracks
-    .filter((track) => track.id.startsWith('radio:'))
-    .map((track) => {
-      const id = track.id.slice('radio:'.length);
-      const known =
-        results.find((station) => station.id === id) ??
-        finnishStations.find((station) => station.id === id);
-      if (known) {
-        return known;
-      }
-      return {
-        id,
-        name: track.title,
-        streamUrl: track.streamUrl ?? '',
-        favicon: track.coverUrl,
-        source: 'unknown' as const,
-      } satisfies PublicRadioStation;
-    })
-    .filter((station) => Boolean(station.streamUrl));
+  const savedStations = savedBrowserStations.filter((station) =>
+    Boolean(station.streamUrl),
+  );
 
   const genreOptions = tags.slice(0, 24).map((tag) => ({
     id: tag.name,
@@ -3090,7 +3086,7 @@ function RadioBrowserDirectoryCard() {
                             key={station.id}
                             station={station}
                             onPlay={() => playStation(station)}
-                            {...favoriteProps(station)}
+                            {...saveProps(station)}
                           />
                         ))}
                       </ul>
@@ -3108,22 +3104,32 @@ function RadioBrowserDirectoryCard() {
                     <h3 className="font-display text-sm font-bold tracking-wide uppercase">
                       Your stations
                     </h3>
-                    {favouriteStations.length === 0 ? (
+                    {savedStations.length === 0 ? (
                       <EmptyState
                         size="sm"
                         title="No saved stations yet"
-                        description="Favourite stations from Browser or Finnish suggestions."
+                        description="Save stations from Browser or Finnish suggestions to show them on Listen."
                       />
                     ) : (
                       <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                        {favouriteStations.map((station) => (
-                          <RadioBrowserStationRow
-                            key={station.id}
-                            station={station}
-                            onPlay={() => playStation(station)}
-                            {...favoriteProps(station)}
-                          />
-                        ))}
+                        {savedStations.map((station) => {
+                          const row: PublicRadioStation = {
+                            id: station.id,
+                            name: station.name,
+                            streamUrl: station.streamUrl,
+                            favicon: station.favicon,
+                            country: station.country,
+                            source: 'unknown',
+                          };
+                          return (
+                            <RadioBrowserStationRow
+                              key={station.id}
+                              station={row}
+                              onPlay={() => playStation(row)}
+                              {...saveProps(row)}
+                            />
+                          );
+                        })}
                       </ul>
                     )}
                   </div>
@@ -3144,7 +3150,7 @@ function RadioBrowserDirectoryCard() {
                             key={station.id}
                             station={station}
                             onPlay={() => playStation(station)}
-                            {...favoriteProps(station)}
+                            {...saveProps(station)}
                           />
                         ))}
                       </ul>

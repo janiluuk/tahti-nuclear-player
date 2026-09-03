@@ -1,6 +1,6 @@
 # Radio Browser directory → Add-ons store parity
 
-**Status:** shell + Browser tab executed; Stations Save → Listen still open.
+**Status:** shell + Browser tab executed; Stations Save → Listen executed.
 
 Executed:
 1. ConfigurableCard + Configure dialog (no inline dump on Activate)
@@ -9,6 +9,6 @@ Executed:
 4. `searchStations` `tags` → `tagList`
 5. Stations: favourites + Finnish suggestions
 
-Still open: SaveButton → Listen radio tiles; Playwright smoke.
+SaveButton → Listen tiles executed; Playwright smoke still open.
 
 Details: worklog / WORKPLAN.

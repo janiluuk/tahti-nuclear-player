@@ -11,6 +11,7 @@ describe('listener widgets store', () => {
       instances: [],
       enabledStationIds: [],
       stationOverrides: {},
+      savedBrowserStations: [],
     });
   });
 

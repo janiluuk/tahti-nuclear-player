@@ -7,6 +7,15 @@ export const NEWS_WIDGET_TYPE_ID = 'news';
 
 export type ListenerWidgetSurface = 'listen' | 'discover';
 
+/** Radio Browser stations saved onto Listen tiles (not the curated catalog). */
+export type SavedBrowserStation = {
+  id: string;
+  name: string;
+  streamUrl: string;
+  favicon?: string;
+  country?: string;
+};
+
 /** One user-added external embed — see src/content/listenerWidgets.ts.
  * `news` instances store an RSS URL in `input` plus optional thumbnail
  * and which pages they appear on. */
@@ -45,6 +54,8 @@ type ListenerWidgetsState = {
   /** RADIO_STATIONS ids the user has enabled from the store. */
   enabledStationIds: string[];
   stationOverrides: Record<string, Partial<RadioStation>>;
+  /** Radio Browser directory stations pinned to Listen. */
+  savedBrowserStations: SavedBrowserStation[];
   installType: (typeId: string) => void;
   uninstallType: (typeId: string) => void;
   addInstance: (
@@ -56,6 +67,8 @@ type ListenerWidgetsState = {
   removeInstance: (id: string) => void;
   toggleStation: (stationId: string) => void;
   updateStation: (stationId: string, patch: Partial<RadioStation>) => void;
+  toggleSavedBrowserStation: (station: SavedBrowserStation) => void;
+  removeSavedBrowserStation: (id: string) => void;
 };
 
 export const useListenerWidgetsStore = create<ListenerWidgetsState>()(
@@ -65,6 +78,7 @@ export const useListenerWidgetsStore = create<ListenerWidgetsState>()(
       instances: [],
       enabledStationIds: [],
       stationOverrides: {},
+      savedBrowserStations: [],
       installType: (typeId) =>
         set((s) => ({
           installedTypeIds: s.installedTypeIds.includes(typeId)
@@ -105,6 +119,23 @@ export const useListenerWidgetsStore = create<ListenerWidgetsState>()(
             ...s.stationOverrides,
             [stationId]: { ...s.stationOverrides[stationId], ...patch },
           },
+        })),
+      toggleSavedBrowserStation: (station) =>
+        set((s) => {
+          const exists = s.savedBrowserStations.some(
+            (item) => item.id === station.id,
+          );
+          return {
+            savedBrowserStations: exists
+              ? s.savedBrowserStations.filter((item) => item.id !== station.id)
+              : [...s.savedBrowserStations, station],
+          };
+        }),
+      removeSavedBrowserStation: (id) =>
+        set((s) => ({
+          savedBrowserStations: s.savedBrowserStations.filter(
+            (item) => item.id !== id,
+          ),
         })),
     }),
     { name: 'tahti-web-listener-widgets' },

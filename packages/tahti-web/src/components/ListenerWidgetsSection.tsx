@@ -19,7 +19,8 @@ import { RemoveWidgetDialog } from './RemoveWidgetDialog';
 
 type PendingRemoval =
   | { kind: 'instance'; id: string; label: string }
-  | { kind: 'station'; id: string; label: string };
+  | { kind: 'station'; id: string; label: string }
+  | { kind: 'browser'; id: string; label: string };
 
 /** Listen-page add-ons (Settings → Add-ons). Stations = CardGrid+Card;
  * embeds stay a non-Card iframe grid. Renders nothing when empty. */
@@ -28,8 +29,14 @@ export function ListenerWidgetsSection() {
   const installedTypeIds = useListenerWidgetsStore((s) => s.installedTypeIds);
   const enabledStationIds = useListenerWidgetsStore((s) => s.enabledStationIds);
   const stationOverrides = useListenerWidgetsStore((s) => s.stationOverrides);
+  const savedBrowserStations = useListenerWidgetsStore(
+    (s) => s.savedBrowserStations,
+  );
   const removeInstance = useListenerWidgetsStore((s) => s.removeInstance);
   const toggleStation = useListenerWidgetsStore((s) => s.toggleStation);
+  const removeSavedBrowserStation = useListenerWidgetsStore(
+    (s) => s.removeSavedBrowserStation,
+  );
   const play = usePlayerStore((s) => s.play);
   const openSettings = useSettingsModalStore((s) => s.open);
   const [pendingRemoval, setPendingRemoval] = useState<PendingRemoval | null>(
@@ -54,21 +61,21 @@ export function ListenerWidgetsSection() {
   if (
     embedInstances.length === 0 &&
     enabledStations.length === 0 &&
+    savedBrowserStations.length === 0 &&
     !favoritesEnabled &&
     newsFeeds.length === 0
   ) {
     return null;
   }
 
-  // Only takes the widget off the dashboard — a station's overrides and an
-  // instance's saved input/label live in the store keyed by id, untouched
-  // by this, so re-adding restores prior settings.
   const confirmRemoval = () => {
     if (!pendingRemoval) {
       return;
     }
     if (pendingRemoval.kind === 'instance') {
       removeInstance(pendingRemoval.id);
+    } else if (pendingRemoval.kind === 'browser') {
+      removeSavedBrowserStation(pendingRemoval.id);
     } else {
       toggleStation(pendingRemoval.id);
     }
@@ -134,6 +141,48 @@ export function ListenerWidgetsSection() {
                           }),
                         )
                     : undefined
+                }
+              />
+            </div>
+          ))}
+        </CardGrid>
+      )}
+
+      {savedBrowserStations.length > 0 && (
+        <CardGrid>
+          {savedBrowserStations.map((station) => (
+            <div key={station.id} className="group relative w-fit">
+              <Button
+                size="icon-sm"
+                variant="text"
+                aria-label={`Remove ${station.name}`}
+                onClick={() =>
+                  setPendingRemoval({
+                    kind: 'browser',
+                    id: station.id,
+                    label: station.name,
+                  })
+                }
+                className="bg-background/80 hover:bg-background absolute top-1 right-1 z-10 rounded-full opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+              >
+                <XIcon size={14} aria-hidden />
+              </Button>
+              <Card
+                src={station.favicon}
+                title={station.name}
+                subtitle={station.country ?? 'Internet radio'}
+                playLabel="Play"
+                onPlay={() =>
+                  play({
+                    id: `radio:${station.id}`,
+                    kind: 'radio',
+                    title: station.name,
+                    artist: station.country ?? 'Internet radio',
+                    coverUrl: station.favicon,
+                    streamUrl: station.streamUrl,
+                    protocol: 'https',
+                    sourceProvider: 'radio',
+                  })
                 }
               />
             </div>

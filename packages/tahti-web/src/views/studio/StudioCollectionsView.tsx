@@ -8,6 +8,7 @@ import {
   Mic2Icon,
   PlusIcon,
   RadioTowerIcon,
+  SearchIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
@@ -283,6 +284,9 @@ export function StudioCollectionsView() {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search collections…"
               aria-label="Search collections"
+              startAddon={
+                <SearchIcon size={14} aria-hidden className="opacity-70" />
+              }
             />
             <div className="flex flex-wrap gap-2" aria-label="Collection types">
               <StyleChip
