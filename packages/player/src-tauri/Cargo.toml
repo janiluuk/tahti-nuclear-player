@@ -2,9 +2,9 @@
 name = "player"
 version = "1.20.0"
 description = "Tahti Player"
-authors = ["nukeop <12746779+nukeop@users.noreply.github.com>"]
+authors = ["Tahti <noreply@tahti.live>"]
 license = "AGPL-3.0-only"
-repository = "https://github.com/janiluuk/tahti-electron-compatible-client"
+repository = "https://github.com/janiluuk/tahti-player"
 edition = "2021"
 rust-version = "1.77.2"
 

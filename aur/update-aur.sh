@@ -18,7 +18,7 @@ done
 
 [[ -z "${VERSION}" ]] && { echo "Usage: $0 --version <version> [--dry-run]"; exit 1; }
 
-DEB_URL="https://github.com/nukeop/nuclear/releases/download/player@${VERSION}/Nuclear_${VERSION}_amd64.deb"
+DEB_URL="https://github.com/janiluuk/tahti-player/releases/download/player@${VERSION}/Nuclear_${VERSION}_amd64.deb"
 
 export PKGVER="${VERSION}"
 export SHA256SUM=$(curl -fSL "${DEB_URL}" | sha256sum | cut -d' ' -f1)
@@ -48,6 +48,6 @@ cp "${WORK_DIR}/PKGBUILD" "${WORK_DIR}/.SRCINFO" "${AUR_REPO}/"
 cd "${AUR_REPO}"
 git add PKGBUILD .SRCINFO
 git diff --cached --quiet && { echo "Already up to date."; exit 0; }
-git -c user.name="nukeop" -c user.email="noreply@nuclearplayer.com" \
+git -c user.name="Tahti" -c user.email="noreply@tahti.live" \
     commit -m "Update to ${VERSION}"
 git push origin master

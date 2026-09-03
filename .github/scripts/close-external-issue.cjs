@@ -9,7 +9,7 @@ module.exports = async ({ github, context }) => {
     body: [
       'Nuclear does not accept external issues.',
       '',
-      'If you want to discuss Nuclear, use the [Discussions](https://github.com/nukeop/nuclear/discussions) tab.',
+      'If you want to discuss Tahti Player, use the [Discussions](https://github.com/janiluuk/tahti-player/discussions) tab.',
     ].join('\n'),
   });
 

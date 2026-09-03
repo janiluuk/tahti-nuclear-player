@@ -1,116 +1,39 @@
-# Nuclear Music Player - Copilot Instructions
+# Copilot instructions
 
-## Project overview
+Follow the root [`AGENTS.md`](../AGENTS.md) as the source of truth. Also read [`TAHTI.md`](../TAHTI.md) before Tahti-web, API, or registry work. Package-specific rules for the listen/studio SPA are in `packages/tahti-web/AGENTS.md`.
 
-Nuclear is a free, open-source music player without ads or tracking. Search for any song or artist, build playlists, and start listening.
+This file used to duplicate a thinner Nuclear Copilot prompt. Do not treat it as a second style guide. If anything here disagrees with `AGENTS.md`, `AGENTS.md` wins.
 
-It's a monorepo managed with pnpm and turbo.
+## This repo
 
-This particular repo is a rewrite project, with the original Nuclear codebase in a different repo. 
+Tahti Player is a free, open-source music player (no ads, no tracking). This tree is the Tahti fork of [Nuclear](https://github.com/nukeop/nuclear) (`janiluuk/tahti-player`), not a from-scratch rewrite. Upstream is `nukeop/nuclear`.
 
-### Key features
+The listen/studio web client is `@tahti-player/tahti-web` (beta.tahti.live). HTTP contracts live in the sibling `../tahti` repo. The Store catalog is `../tahti-registry`, not the player's on-disk runtime `plugins.json`.
 
-- **Themes**: Support for basic and advanced themes, which work by customizing CSS variables that then control Tailwind classes. Users can load their own themes from JSON, or use built-in ones.
-- **Plugins**: A powerful plugin system that allows you to control any part of the player. No sandboxing.
+**Themes** are CSS variables that drive Tailwind. **Plugins** are unsandboxed and can control any part of the player.
 
-### Tech stack
+## Do not
 
-- Typescript - primary language.
-- Tauri - creates a native desktop application shell.
-- Tailwind v4 - CSS-first setup. Configured via CSS using @theme and @layer (see `packages/tailwind-config/global.css`). No tailwind.config.js. Don't use built-in colors, prefer the palette defined in `global.css`.
-- Turbo repo - tool for managing the monorepo.
-- pnpm - the preferred package manager. Used for workspaces.
-- eslint + prettier - formatting and linting.
-- Storybook - used for demoing UI components.
-- Vite - build tool
-- Vitest - for all tests
-- Lucide React - icon library
-- motion and tw-animate-css - for animations
-- TanStack Router - chosen solution for routing.
-- TanStack Query v5 - chosen solution for HTTP requests.
+- Do not use Serena or any other tool that is not available in this workspace.
+- Do not prefer an IDE test-runner over `pnpm test` / package filters.
+- Do not invent API shapes for `tahti-web`. Check `../tahti` first.
+- Do not skip `tahti-registry` after adding or changing a Store plugin or theme.
 
-### Packages
-- `@tahti-player/player` - Main Tauri app (React + Rust).  
-- `@tahti-player/plugin-sdk` - Plugin system (TS/React).  
-- `@tahti-player/ui` - Shared UI components.  
-- `@tahti-player/model` - Data model.
-- `@tahti-player/docs` - Gitbook documentation.
-- `@tahti-player/tailwind-config` - Shared Tailwind config.  
-- `@tahti-player/eslint-config` - Shared linting & formatting rules.  
-- `@tahti-player/hifi` - Advanced HTML5 audio component for playback.
-- `@tahti-player/themes` - Theming system.
-- `@tahti-player/tools` - Build and maintenance utilities.
-- `@tahti-player/storybook` - Storybook stories.
-
-### Workflow Commands
+## Commands
 
 ```bash
-pnpm dev        # run the project in dev mode
-pnpm build      # build all packages
-pnpm lint       # lint all packages
-pnpm test       # test all packages
-pnpm test:coverage  # run tests with coverage
-pnpm type-check     # run TypeScript checks across packages
-pnpm tauri          # run Tauri CLI for the player
-pnpm storybook      # run Storybook
+pnpm dev          # player
+pnpm dev:tahti    # tahti-web (see TAHTI.md)
+pnpm storybook
+pnpm build
+pnpm lint
+pnpm type-check
+pnpm test
+pnpm tauri
 ```
 
-## Coding principles
+## Stack (short)
 
-### General
+TypeScript, Tauri, Vite, Vitest, pnpm, Turborepo, Tailwind v4 (`packages/tailwind-config/global.css`, no `tailwind.config.js`, no built-in palette colors), TanStack Router, TanStack Query v5, Zustand, Lucide, motion, tw-animate-css.
 
-- Prioritize readability.
-- This is a production project meant for long term maintenance and development. Cutting corners, using short term solutions, placeholders, half-baked methods, and messy code is unacceptable.
-- Avoid premature abstractions. Start concrete, extract later.
-- Prefer clarity over cleverness.
-- Do not leave comments in code. Their place is in the chat.
-- Stick to existing conventions. This is a monorepo so standardizing everything is very very important. Look at other packages when in doubt. Use centralized configs for tools like Typescript, Eslint, Prettier, Tailwind.
-- Break work into the smallest reasonable steps. Small commits > big dumps.
-- Always be on the lookout for dead code, copy-pasta, and other opportunities to optimize and trim the codebase in a sensible way.
-
-### TypeScript / React
-- Use `type`, not `interface` (except when TS requires merging). Do not use interfaces for props.
-- Use `const Component: FC<Props> = () => {}` instead of `function Component()`.
-- No magic numbers → extract into named constants.
-- Prefer compound components (`Component.Sub`) when building complex widgets.
-- Keep business logic out of UI components.
-
-### Architecture
-- UI components should stay dumb, presentation-only.
-- State management:
-  - **Zustand** for persistent UI state.  
-  - **React state** for local, temporary state.
-  - **TanStack Query v5 (aka react-query)** for HTTP requests.
-- Routing:
-  - **TanStack Router** for client-side routing.
-- Lift complex or performance-critical logic to Tauri (Rust).
-
-### Testing
-- Use **Vitest + React Testing Library**.
-- Test like a user: minimal mocks, simulate interactions.
-- Only mock external dependencies (HTTP, FS, Tauri).
-- Snapshot tests: **basic rendering only**. Start names with `(Snapshot)`.
-- Extract DOM querying into wrappers; assertions stay in tests.
-- Coverage: enabled across packages with V8-based coverage and CI reporting.
-- Use the test runner tool instead of running tests in the terminal manually.
-
-### Design & UX Philosophy
-
-- Visual style: **neo-brutalist with premium polish**.
-- Animations should enhance UX, not slow it down.
-- Disable animations during high-friction moments (e.g., resize).
-- Use **motion** + **tw-animate-css** for smooth springy physics.
-- Feel: professional yet approachable, Discord-like.
-
-#### Typography
-
-- Fonts are standardized at the design system level. Prefer utilities `font-sans` and `font-heading` when needed.
-- Defaults are applied for common HTML tags (e.g., body, headings), so you rarely need to set fonts manually.
-
-## Final Notes
-
-- Treat this as **production code from day one**. No shortcuts, no placeholders.
-- Prioritize long-term maintainability.
-- Work with me iteratively: pause, summarize, ask.
-- Above all: **be reliable, disciplined, and clear.**
-- Use Serena tools wherever possible for searches, lookups, replacements, and file operations.
+Packages include `@tahti-player/player`, `ui`, `plugin-sdk`, `model`, `themes`, `hifi`, `i18n`, `tahti-web`, `docs`, `website`, `storybook`, `tools`, `tailwind-config`, and `eslint-config`.

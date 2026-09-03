@@ -4,7 +4,7 @@
 
 ## Links
 
-- [Home](https://nuclearplayer.com): Website
-- [GitHub Repository](https://github.com/nukeop/nuclear): Source code
+- [Home](https://tahti.live): Website
+- [GitHub Repository](https://github.com/janiluuk/tahti-player): Source code
 - [Discord](https://discord.gg/JqPjKxE): Community chat
-- [Documentation](https://docs.nuclearplayer.com): Docs
+- [Documentation](https://tahti.live): Docs

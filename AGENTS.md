@@ -6,6 +6,10 @@ Guidelines for AI coding agents working on Tahti Player.
 
 Tahti Player is a free, open-source music player without ads or tracking, built on [Nuclear](https://github.com/nukeop/nuclear)'s player UI. Search for any song or artist, build playlists, and start listening. It's a desktop app built with Tauri (Rust + React), organized as a pnpm monorepo managed with Turborepo.
 
+This repository is the Tahti fork of Nuclear (`janiluuk/tahti-player`), not a from-scratch rewrite. Upstream is `nukeop/nuclear`. How the fork, sibling API (`../tahti`), marketplace catalog (`../tahti-registry`), and `tahti-web` cutover fit together is in [`TAHTI.md`](./TAHTI.md).
+
+**Themes** customize CSS variables that drive Tailwind classes. Users load JSON themes or use built-in ones. **Plugins** can control any part of the player; they are not sandboxed. The Store catalog is `tahti-registry`, not the on-disk runtime `plugins.json`.
+
 ### Packages
 
 - `@tahti-player/player` - Main Tauri app (React + Rust)
@@ -19,8 +23,9 @@ Tahti Player is a free, open-source music player without ads or tracking, built 
 - `@tahti-player/i18n` - Internationalization
 - `@tahti-player/storybook` - Component demos
 - `@tahti-player/tools` - Build and maintenance utilities
-- `@tahti-player/docs` - Documentation
+- `@tahti-player/docs` - Gitbook documentation
 - `@tahti-player/website` - Project website (Astro)
+- `@tahti-player/tahti-web` - Listen + studio SPA (beta.tahti.live); see `packages/tahti-web/AGENTS.md`
 
 ## Commands
 
@@ -29,9 +34,11 @@ Tahti Player is a free, open-source music player without ads or tracking, built 
 pnpm dev                    # Run player in dev mode
 pnpm dev:remote             # Same, but binds Vite to 0.0.0.0 so the remote control UI is reachable from other devices
 pnpm storybook              # Run Storybook
+pnpm dev:tahti              # Run tahti-web (see TAHTI.md)
 
 # Build
 pnpm build                  # Build all packages
+pnpm tauri                  # Tauri CLI for the player
 pnpm tauri build            # Build Tauri app
 
 # Quality
@@ -62,10 +69,12 @@ pnpm test -u
 
 ### General Principles
 
-- Prioritize readability over cleverness
+- Prioritize readability over cleverness. This is production code for long-term maintenance — no placeholders, shortcuts, or half-baked methods.
 - No comments in code - explain reasoning in chat/commits
 - Avoid premature abstractions - start concrete, extract later
+- Stick to existing conventions. Look at other packages when in doubt. Use the centralized TypeScript, ESLint, Prettier, and Tailwind configs.
 - Small, focused changes over large dumps
+- Trim dead code and copy-paste when you see it
 - Never commit unless explicitly asked
 
 ## Import plugin configuration
@@ -166,7 +175,7 @@ location, discovery semantics, or bootstrap order during preparation.
 
 ### TypeScript
 
-- Use `type` not `interface` (except when merging is required)
+- Use `type` not `interface` (except when merging is required). Do not use interfaces for props.
 - No magic numbers - extract into named constants
 - Strict mode with `noUnusedLocals` and `noUnusedParameters`
 - Do not use one-letter variable names.
@@ -200,7 +209,7 @@ export const Component: FC<ComponentProps> = ({
 
 - Use `const Component: FC<Props>` not `function Component()`
 - Compound components (`Component.Sub`) for complex widgets
-- Keep business logic out of UI components
+- Keep business logic out of UI components. Presentation-only; lift complex or performance-critical work to Tauri (Rust).
 
 ### Adding UI Components
 
@@ -216,9 +225,11 @@ When adding a new component to `@tahti-player/ui`:
 
 ### Styling (Tailwind v4)
 
-- CSS-first config in `packages/tailwind-config/global.css`
+- CSS-first config in `packages/tailwind-config/global.css` (`@theme` / `@layer`). There is no `tailwind.config.js`.
+- Do not use Tailwind's built-in color palette. Prefer the tokens in `global.css`.
 - Theme colors: `bg-background`, `text-foreground`, `bg-primary`
 - Accents: `accent-green`, `accent-yellow`, `accent-purple`, `accent-blue`, `accent-orange`, `accent-cyan`, `accent-red`
+- Fonts are design-system defaults (`font-sans`, `font-heading`). You rarely need to set fonts by hand.
 - Use `cn()` for conditional classes, `cva()` for variants
 
 ### State Management
@@ -287,7 +298,7 @@ their query-string routes, and Admin Governance/AGM must keep the Community
 section and correct submenu item highlighted. Verify the actual navigation
 entry points, not only direct route rendering.
 
-Tests use Vitest + React Testing Library. Globals enabled (`describe`, `it`, `expect`, `vi`).
+Tests use Vitest + React Testing Library. Globals enabled (`describe`, `it`, `expect`, `vi`). Coverage is V8-based across packages and reported in CI. Run tests with `pnpm test` (or a package filter), not a separate IDE test-runner tool.
 
 - Integration tests over unit tests for user-facing behavior. Render real components and assert on DOM content rather than verifying mock calls.
 - Unit tests for utilities - standalone data structures (RingBuffer, parsers) deserve isolated tests. Use them sparingly.
@@ -420,8 +431,8 @@ cargo test          # Rust tests (no clippy/rustfmt configured; run manually)
 ## Design Philosophy
 
 - Neo-brutalist with premium polish - bold borders, purposeful shadows
-- Premium, designed feel
-- Animations via `motion` and `tw-animate-css`
+- Professional and approachable, not decorative
+- Animations via `motion` and `tw-animate-css` should help UX, not slow it down
 - Disable animations during high-friction moments (resize, drag)
 - Avoid generic AI patterns (icon-grid cards, stock heroes, "Built with love" badges)
 
@@ -429,6 +440,7 @@ cargo test          # Rust tests (no clippy/rustfmt configured; run manually)
 
 - **pnpm** with workspace protocol for internal deps
 - **Turborepo** for task orchestration
+- **Vite** for frontend builds, **Vitest** for tests
 - **ESLint + Prettier** run together
 - **Husky + lint-staged** for pre-commit hooks
 

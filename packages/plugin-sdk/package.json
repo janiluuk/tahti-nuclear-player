@@ -71,17 +71,17 @@
     "react"
   ],
   "author": {
-    "name": "nukeop",
-    "email": "12746779+nukeop@users.noreply.github.com"
+    "name": "Tahti",
+    "email": "noreply@tahti.live"
   },
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nukeop/nuclear.git",
+    "url": "https://github.com/janiluuk/tahti-player.git",
     "directory": "packages/plugin-sdk"
   },
-  "homepage": "https://github.com/nukeop/nuclear#readme",
+  "homepage": "https://github.com/janiluuk/tahti-player#readme",
   "bugs": {
-    "url": "https://github.com/nukeop/nuclear/issues"
+    "url": "https://github.com/janiluuk/tahti-player/issues"
   }
 }

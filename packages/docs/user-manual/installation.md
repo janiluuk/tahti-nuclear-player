@@ -4,7 +4,7 @@ description: Download and install Tahti Player on your platform
 
 # Installation
 
-Download the latest release from [GitHub Releases](https://github.com/nukeop/nuclear/releases). Pick the file that matches your platform.
+Download the latest release from [GitHub Releases](https://github.com/janiluuk/tahti-player/releases). Pick the file that matches your platform.
 
 {% tabs %}
 

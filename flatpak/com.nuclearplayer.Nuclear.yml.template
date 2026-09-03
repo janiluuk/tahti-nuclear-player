@@ -31,7 +31,7 @@ modules:
     buildsystem: simple
     sources:
       - type: git
-        url: https://github.com/nukeop/nuclear.git
+        url: https://github.com/janiluuk/tahti-player.git
         tag: ${TAG}
         commit: ${COMMIT}
       - type: file

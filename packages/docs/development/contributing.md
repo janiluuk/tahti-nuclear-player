@@ -14,4 +14,4 @@ You can contribute translations for supported languages through [Crowdin](https:
 
 ## Discussions
 
-Discuss Tahti Player using the [GitHub Discussions](https://github.com/nukeop/nuclear/discussions) forum.
+Discuss Tahti Player using the [GitHub Discussions](https://github.com/janiluuk/tahti-player/discussions) forum.

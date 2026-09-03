@@ -124,7 +124,7 @@ The `api` object passed to lifecycle hooks provides access to these domain APIs:
 | `api.Logger` | Structured logging |
 | `api.Ytdlp` | yt-dlp integration |
 
-See the [full documentation](https://docs.nuclearplayer.com) for detailed guides on each API. (This documentation site predates the Tahti Player rebrand.)
+See the [full documentation](https://tahti.live) for detailed guides on each API.
 
 ## Permissions
 

@@ -7,18 +7,18 @@ description: Tahti Player - Music streaming app for your desktop
 Tahti Player is a free, open-source music player without ads or tracking. Search for any song or artist, build playlists, and start listening. This documentation is for both users and developers.
 
 {% hint style="info" %}
-Tahti Player is a rebrand of the Nuclear player project. Some external links below (the nuclearplayer.com domain, the GitHub org, Mastodon handle) still point at pre-rebrand infrastructure we don't control.
+Tahti Player is built on the Nuclear player project. The GitHub org and Mastodon handle below still point at upstream Nuclear where we don't run a replacement yet.
 {% endhint %}
 
 ## Quick links
 
 | Site     | Website                                                                    |
 | -------- | -------------------------------------------------------------------------- |
-| Website  | [https://nuclearplayer.com/](https://nuclearplayer.com/)                   |
-| Github   | [https://github.com/nukeop/nuclear](https://github.com/nukeop/nuclear)     |
+| Website  | [https://tahti.live](https://tahti.live)                                   |
+| Github   | [https://github.com/janiluuk/tahti-player](https://github.com/janiluuk/tahti-player) |
 | Discord  | [https://discord.gg/JqPjKxE](https://discord.gg/JqPjKxE)                   |
 | Mastodon | [https://fosstodon.org/@nuclearplayer](https://fosstodon.org/@nuclearplayer) |
-| Gitbook  | [https://docs.nuclearplayer.com](https://docs.nuclearplayer.com)   |
+| Docs     | [https://tahti.live](https://tahti.live)                                   |
 
 ## For users
 
