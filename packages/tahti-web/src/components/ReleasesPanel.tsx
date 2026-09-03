@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowDownIcon, ArrowUpIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Button, Input, MediaArtwork } from '@tahti-player/ui';
 
 import type { PublicProfileRelease } from '../api/types';
 import { usePlayerStore } from '../stores/playerStore';
@@ -194,17 +194,13 @@ export function ReleasesPanel({
                     }`}
                   >
                     <td className="px-3 py-2">
-                      <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-                        {rel.artworkUrl ? (
-                          <img
-                            src={rel.artworkUrl}
-                            alt=""
-                            className="size-full object-cover"
-                          />
-                        ) : (
-                          rel.title.slice(0, 2).toUpperCase()
-                        )}
-                      </div>
+                      <MediaArtwork
+                        size="sm"
+                        src={rel.artworkUrl}
+                        alt=""
+                        className="bg-surface-secondary rounded-md text-[10px] font-bold"
+                        placeholder={rel.title.slice(0, 2).toUpperCase()}
+                      />
                     </td>
                     <td className="px-3 py-2">
                       <button

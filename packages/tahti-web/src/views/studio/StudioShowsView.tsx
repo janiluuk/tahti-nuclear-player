@@ -8,6 +8,7 @@ import {
   EmptyState,
   FilterChips,
   Input,
+  MediaArtwork,
   Textarea,
   Toggle,
 } from '@tahti-player/ui';
@@ -265,17 +266,13 @@ function ShowRow({
 }) {
   return (
     <li className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
-      <div className="border-border bg-background-secondary flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
-        {show.coverUrl ? (
-          <img
-            src={show.coverUrl}
-            alt=""
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <RadioIcon size={28} className="opacity-40" aria-hidden />
-        )}
-      </div>
+      <MediaArtwork
+        size="md"
+        src={show.coverUrl}
+        alt=""
+        className="border-border bg-background-secondary size-20 rounded-lg border"
+        placeholder={<RadioIcon size={28} className="opacity-40" aria-hidden />}
+      />
       <div className="min-w-0 flex-1">
         <Link
           to="/studio/shows/$id"

@@ -14,6 +14,7 @@ import {
   Dialog,
   EmptyState,
   Input,
+  MediaArtwork,
   SaveButton,
   Select,
   Toggle,
@@ -197,17 +198,15 @@ export function StudioPlaylistsView() {
                   key={c.slug}
                   className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
                 >
-                  <div className="border-border bg-background flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg border shadow-sm">
-                    {c.coverUrl ? (
-                      <img
-                        src={c.coverUrl}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
+                  <MediaArtwork
+                    size="thumb"
+                    src={c.coverUrl}
+                    alt=""
+                    className="border-border bg-background rounded-lg border shadow-sm"
+                    placeholder={
                       <ListMusicIcon size={20} className="opacity-40" />
-                    )}
-                  </div>
+                    }
+                  />
                   <div className="min-w-0 flex-1">
                     <Link
                       to="/studio/collections/$slug"

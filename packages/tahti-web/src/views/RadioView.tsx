@@ -9,7 +9,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Box, Button, Tabs, Tooltip, ViewShell } from '@tahti-player/ui';
+import {
+  Box,
+  Button,
+  MediaArtwork,
+  Tabs,
+  Tooltip,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {
@@ -302,17 +309,13 @@ export function RadioView() {
               </div>
               <div className="relative z-10 flex flex-col gap-5 p-4 sm:p-5">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="bg-surface-secondary flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-bold">
-                    {nowPlaying?.artworkUrl ? (
-                      <img
-                        src={nowPlaying.artworkUrl}
-                        alt=""
-                        className="size-full object-cover"
-                      />
-                    ) : (
-                      'TR'
-                    )}
-                  </div>
+                  <MediaArtwork
+                    size="md"
+                    src={nowPlaying?.artworkUrl}
+                    alt=""
+                    className="bg-surface-secondary rounded-lg text-sm font-bold"
+                    placeholder="TR"
+                  />
                   <div className="min-w-0">
                     <Eyebrow tone="green">Live now</Eyebrow>
                     {nowPlaying?.title ? (
@@ -512,17 +515,15 @@ export function RadioView() {
                                 aria-label={`Track info for ${item.title}`}
                                 className="shrink-0 p-0"
                               >
-                                <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-                                  {item.artworkUrl ? (
-                                    <img
-                                      src={item.artworkUrl}
-                                      alt=""
-                                      className="size-full object-cover"
-                                    />
-                                  ) : (
-                                    item.title.slice(0, 2).toUpperCase()
-                                  )}
-                                </div>
+                                <MediaArtwork
+                                  size="sm"
+                                  src={item.artworkUrl}
+                                  alt=""
+                                  className="bg-surface-secondary rounded-md text-[10px] font-bold"
+                                  placeholder={item.title
+                                    .slice(0, 2)
+                                    .toUpperCase()}
+                                />
                               </Button>
                               <div className="min-w-0 flex-1">
                                 <Link
