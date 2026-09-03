@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowDown, ArrowUp, Settings2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, PluginStoreItem } from '@tahti-player/ui';
+import { Button, Dialog, PluginStoreItem, Toggle } from '@tahti-player/ui';
 
 import {
   createDiscoWidgetInstall,
@@ -216,17 +216,14 @@ export function DiscoWidgetManagerPanel({
                           <Settings2 size={15} aria-hidden />
                         </Button>
                       )}
-                      <label className="text-foreground-secondary flex items-center gap-2 text-xs">
-                        <input
-                          type="checkbox"
-                          checked={install.enabled}
-                          disabled={isPending}
-                          onChange={(e) =>
-                            void handleToggle(install.id, e.target.checked)
-                          }
-                        />
-                        Enabled
-                      </label>
+                      <Toggle
+                        label="Enabled"
+                        checked={install.enabled}
+                        disabled={isPending}
+                        onChange={(checked) =>
+                          void handleToggle(install.id, checked)
+                        }
+                      />
                       <Button
                         size="sm"
                         variant="text"
@@ -327,17 +324,19 @@ export function DiscoWidgetManagerPanel({
               return (
                 <div className="flex flex-col gap-3">
                   <p className="font-semibold">{install.widget.name}</p>
-                  <label className="text-foreground-secondary flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
+                  <div className="flex items-center justify-between gap-3 text-sm">
+                    <span className="text-foreground-secondary">
+                      Show this widget on Listen
+                    </span>
+                    <Toggle
+                      label="Show this widget on Listen"
                       checked={install.enabled}
                       disabled={isPending}
-                      onChange={(event) =>
-                        void handleToggle(install.id, event.target.checked)
+                      onChange={(checked) =>
+                        void handleToggle(install.id, checked)
                       }
                     />
-                    Show this widget on Listen
-                  </label>
+                  </div>
                   <div className="flex gap-2">
                     <Button
                       size="sm"

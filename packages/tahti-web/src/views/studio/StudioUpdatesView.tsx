@@ -8,7 +8,14 @@ import {
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, FilePicker, Input, Textarea } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  FilePicker,
+  Input,
+  Textarea,
+  Toggle,
+} from '@tahti-player/ui';
 
 import {
   createArtistPost,
@@ -585,14 +592,14 @@ export function StudioUpdatesView() {
                   required
                 />
               </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span>Fans / subscribers only</span>
+                <Toggle
+                  label="Fans / subscribers only"
                   checked={nlFansOnly}
-                  onChange={(e) => setNlFansOnly(e.target.checked)}
+                  onChange={setNlFansOnly}
                 />
-                Fans / subscribers only
-              </label>
+              </div>
             </div>
             <Dialog.Actions>
               <Dialog.Close>Cancel</Dialog.Close>

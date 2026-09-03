@@ -916,19 +916,19 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
           );
         })}
         {visualizerSupportsAudioReactive(preset) ? (
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span>Audio reactive</span>
+            <Toggle
+              label="Audio reactive"
               checked={
                 resolveVisualPresetSettings(visualSettings, preset)
                   .audioReactive
               }
-              onChange={(event) =>
-                setPresetSetting(preset, 'audioReactive', event.target.checked)
+              onChange={(checked) =>
+                setPresetSetting(preset, 'audioReactive', checked)
               }
             />
-            Audio reactive
-          </label>
+          </div>
         ) : null}
       </>
     );
@@ -986,19 +986,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
 
     const playerGradientControls = (
       <section className="flex flex-col gap-4">
-        <label className="border-border bg-background-secondary/40 flex items-start gap-3 rounded-lg border p-3 text-sm">
-          <input
-            type="checkbox"
-            className="mt-0.5"
-            checked={visual.usePlayerGradient ?? false}
-            onChange={(event) => {
-              const usePlayerGradient = event.target.checked;
-              if (usePlayerGradient && !visual.playerColorSchemeJson) {
-                setPlayerScheme(scheme);
-              }
-              applyLocal({ usePlayerGradient });
-            }}
-          />
+        <div className="border-border bg-background-secondary/40 flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
           <span>
             <span className="block font-semibold">
               Use a separate gradient for the player
@@ -1008,7 +996,17 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
               channel header.
             </span>
           </span>
-        </label>
+          <Toggle
+            label="Use a separate gradient for the player"
+            checked={visual.usePlayerGradient ?? false}
+            onChange={(usePlayerGradient) => {
+              if (usePlayerGradient && !visual.playerColorSchemeJson) {
+                setPlayerScheme(scheme);
+              }
+              applyLocal({ usePlayerGradient });
+            }}
+          />
+        </div>
         {visual.usePlayerGradient ? (
           <>
             <div className="flex flex-col gap-2">
@@ -1228,17 +1226,17 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
                 setDirty(true);
               }}
             />
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span>Automatically advance slides</span>
+              <Toggle
+                label="Automatically advance slides"
                 checked={slideshowAutoplay}
-                onChange={(event) => {
-                  setSlideshowAutoplay(event.target.checked);
+                onChange={(checked) => {
+                  setSlideshowAutoplay(checked);
                   setDirty(true);
                 }}
               />
-              Automatically advance slides
-            </label>
+            </div>
           </>
         ) : null}
       </section>

@@ -34,6 +34,7 @@ import {
   Select,
   Slider,
   Tabs,
+  Toggle,
 } from '@tahti-player/ui';
 
 import {
@@ -555,24 +556,24 @@ function VisualizersCategory() {
           </div>
         </div>
         {visualizerSupportsAudioReactive(previewPreset) ? (
-          <label className="border-border text-foreground-secondary flex items-center gap-2 border-t px-4 py-3 text-xs">
-            <input
-              type="checkbox"
-              checked={previewSettings.audioReactive}
-              onChange={(event) =>
-                saveTuning(previewPreset, {
-                  ...previewSettings,
-                  audioReactive: event.target.checked,
-                })
-              }
-            />
-            <span>
+          <div className="border-border flex items-center justify-between gap-3 border-t px-4 py-3">
+            <span className="text-foreground-secondary text-xs">
               Audio reactivity
               <span className="text-foreground-tertiary ml-1">
                 (let the visualizer respond to the playing track)
               </span>
             </span>
-          </label>
+            <Toggle
+              label="Audio reactivity"
+              checked={previewSettings.audioReactive}
+              onChange={(checked) =>
+                saveTuning(previewPreset, {
+                  ...previewSettings,
+                  audioReactive: checked,
+                })
+              }
+            />
+          </div>
         ) : null}
       </div>
 
@@ -728,17 +729,7 @@ function VisualizersCategory() {
               </p>
             </div>
             {visualizerSupportsAudioReactive(configurationPreset) ? (
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={configurationSettings.audioReactive}
-                  onChange={(event) =>
-                    saveTuning(configurationPreset, {
-                      ...configurationSettings,
-                      audioReactive: event.target.checked,
-                    })
-                  }
-                />
+              <div className="flex items-center justify-between gap-3 text-sm">
                 <span>
                   Audio reactivity
                   <span className="text-foreground-secondary ml-1 text-xs">
@@ -746,7 +737,17 @@ function VisualizersCategory() {
                     animation)
                   </span>
                 </span>
-              </label>
+                <Toggle
+                  label="Audio reactivity"
+                  checked={configurationSettings.audioReactive}
+                  onChange={(checked) =>
+                    saveTuning(configurationPreset, {
+                      ...configurationSettings,
+                      audioReactive: checked,
+                    })
+                  }
+                />
+              </div>
             ) : null}
             <Button
               size="sm"
@@ -2357,14 +2358,14 @@ function MulticastConfigureDialog({
             />
           </>
         )}
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={enabled}
-            onChange={(event) => setEnabled(event.target.checked)}
-          />
+        <div className="flex items-center justify-between gap-3 text-sm">
           <span>Enabled — mirror the live stream here</span>
-        </label>
+          <Toggle
+            label="Enabled — mirror the live stream here"
+            checked={enabled}
+            onChange={setEnabled}
+          />
+        </div>
         {error ? (
           <p className="text-accent-red text-sm" role="alert">
             {error}

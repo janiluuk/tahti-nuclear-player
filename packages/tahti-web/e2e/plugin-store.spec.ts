@@ -175,7 +175,7 @@ test('Plugin store explains categories, previews themes, and labels audio-reacti
   await page.getByRole('button', { name: 'Configure Aurora' }).click();
   const dialog = page.getByRole('dialog');
   await expect(
-    dialog.getByRole('checkbox', { name: /Audio reactivity/ }),
+    dialog.getByRole('switch', { name: /Audio reactivity/ }),
   ).toBeVisible();
   await dialog.getByRole('button', { name: 'Done' }).click();
 });

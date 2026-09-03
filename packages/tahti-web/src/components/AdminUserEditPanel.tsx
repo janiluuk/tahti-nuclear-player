@@ -15,6 +15,7 @@ import {
   SaveButton,
   Select,
   Textarea,
+  Toggle,
 } from '@tahti-player/ui';
 
 import {
@@ -395,14 +396,14 @@ export function AdminUserEditPanel({
               onChange={(event) => setEditMemberNumber(event.target.value)}
               placeholder="Not assigned"
             />
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span>Association member</span>
+              <Toggle
+                label="Association member"
                 checked={editMember}
-                onChange={(event) => setEditMember(event.target.checked)}
+                onChange={setEditMember}
               />
-              Association member
-            </label>
+            </div>
             <div className="flex justify-end">
               <SaveButton
                 saving={busy}

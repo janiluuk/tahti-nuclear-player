@@ -1,5 +1,21 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Setting checkboxes to Nuclear Toggle (five slices)
+
+Bumped `@tahti-player/tahti-web` to `0.0.40`.
+
+**Slice 1 — Channel designer:** visualizer audio-reactive, separate player gradient, and slideshow autoplay use `Toggle`.
+
+**Slice 2 — Add-ons:** visualizer preview/configure audio-reactivity and multicast destination enabled use `Toggle`. Import row multi-select stays checkboxes.
+
+**Slice 3 — Disco widgets:** Listen enable and configure “show on Listen” use `Toggle`.
+
+**Slice 4 — Posts newsletter:** “Fans / subscribers only” uses `Toggle`.
+
+**Slice 5 — Admin user:** “Association member” uses `Toggle`.
+
+**Validation:** tahti-web type-check and eslint on the touched files.
+
 ## 2026-09-03 — Audio file revisions + studio Stripe/e2e alignment
 
 Bumped `@tahti-player/tahti-web` to `0.0.39`.
