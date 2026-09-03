@@ -24,7 +24,7 @@ Still open on that spec: à la carte Buy, product-level subscribe→order/audit 
 
 ## 2026-09-03 — Fan-sub vs track-purchase e2e + worklist
 
-Playwright `e2e/fan-sub-and-track-purchase.spec.ts` drives: artist uploads `riff.wav`, a fan subscribes, another fan tries to buy the track separately, both downloads must match the original WAV, artist Audience must show both orders, board audit log must record them. Run against mock Vite (`PLAYWRIGHT_BASE_URL=http://127.0.0.1:5180`). Gaps are listed under WORKPLAN; mock original download, public `/t/:id` for uploads, and upload button names closed in the docs-sync batch below. The spec still fails on à la carte Buy and product-level orders/audit.
+Playwright `e2e/fan-sub-and-track-purchase.spec.ts` drives: artist uploads `riff.wav`, a fan subscribes, another fan tries to buy the track separately, both downloads must match the original WAV, artist Audience must show both orders, board audit log must record them. Run against mock Vite (`PLAYWRIGHT_BASE_URL=http://127.0.0.1:5180`). Gaps are listed under WORKPLAN; mock original download, public `/t/:id` for uploads, and upload button names closed in the docs-sync batch above. The spec still fails on à la carte Buy and product-level orders/audit.
 
 ## 2026-09-03 — Broadcast schedule + stream playlist batch (five slices)
 
