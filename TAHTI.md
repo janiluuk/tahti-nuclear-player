@@ -30,7 +30,7 @@ Marketplace plugins and themes are both served from a single combined repo, [git
 ## Tahti package
 
 - **`packages/tahti-web`** — listen/studio client on Nuclear UI → public Tahti API
-- Dev: `pnpm dev:tahti` (Node 22+)
+- Dev: `pnpm dev:tahti` (Node 24)
 - Offline: `VITE_FORCE_MOCK=1 pnpm dev:tahti`
 - Deploy beta: `pnpm deploy:tahti-beta` → vimage `:15180` / `beta.tahti.live`
 - Docs: package [`README.md`](./packages/tahti-web/README.md), [`FEATURES.md`](./packages/tahti-web/FEATURES.md), [`MOCKS.md`](./packages/tahti-web/MOCKS.md), [`deploy/README.md`](./packages/tahti-web/deploy/README.md)

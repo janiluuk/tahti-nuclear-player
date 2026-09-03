@@ -105,7 +105,7 @@ Feature checklist: [`packages/tahti-web/FEATURES.md`](./packages/tahti-web/FEATU
 
 ## Prerequisites
 
-- **Node.js** — `.node-version` pins **24**; Tahti web also runs on **Node 22+**
+- **Node.js** — `.node-version` pins **24** (`engines.node` `>=24`)
 - **pnpm** 10.x (`corepack enable` or install via npm)
 - For the **desktop player only**: [Tauri 2](https://v2.tauri.app/start/prerequisites/) system deps + **Rust** ≥ 1.77.2
 

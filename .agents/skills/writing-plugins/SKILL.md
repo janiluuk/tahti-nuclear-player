@@ -119,7 +119,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: zip -r plugin.zip src package.json README.md
       - uses: softprops/action-gh-release@v2
         with:
