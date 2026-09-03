@@ -3,7 +3,7 @@
 Living checklist of **prod `apps/web` → Nuclear tahti-web POC**.  
 Companion tables: [FEATURES.md](./FEATURES.md). Mock offline paths: [MOCKS.md](./MOCKS.md).
 
-**Last audited:** 2026-08-25 against `tahti-org` apps/web + public/me APIs.
+**Last audited:** 2026-09-03 against `tahti-org` apps/web + public/me APIs.
 
 ---
 
@@ -71,9 +71,9 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | Spotify / SoundCloud stream URLs  | Always DEMO_MP3, live or mock (neither API exposes a real per-track preview here); Play/Queue now labeled "demo audio" | Wire real preview / import playables         |
 | Channel chat                      | Fail closed when join fails (prod); mock send only under FORCE_MOCK; hCaptcha powers both chat surfaces | Live soak testing                            |
 | Themes                            | Nuclear local presets (`mock-ok`)                                                            | Keep — not a Tahti API                       |
-| Help / legal                      | Static hub + disco-widgets article + support form                    | Keep                                         |
+| Help / legal                      | Static hub + disco-widgets + artist gallery articles + support form                          | Keep                                         |
 | Settings extras                   | Email invites for people without an account have no backing API                              | Keep existing-user moderation in-client      |
-| Favorites / history               | Mostly **localStorage**, not server library                                                  | Optional: sync with API if/when exists       |
+| Favorites / history               | Listen Favorites/History in **localStorage**; follows merge from `/api/me/following`         | Optional: sync with API if/when exists       |
 | Pro editor                        | Partial vs prod multitrack — callout on editor                                               | Timeline + export parity                     |
 | Feature map `/more`, Screen atlas | Port inventory panel + doc chrome (`mock-ok`)                                                | Keep                                         |
 | Board `/admin/*`                  | 22 API-backed pages; some production detail and bulk operations remain scope-trimmed          | Continue detail-page parity                  |
@@ -112,7 +112,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | ----------------------------------- | ---------- | --------- |
 | Follow / fan sub / DMs / governance | matching   | `done`    |
 | Listener dashboard                  | `/library` | `done`    |
-| Server-side favorites library       | local only | `partial` |
+| Server-side favorites library       | `/listen/favorites` local | `partial` |
 
 ### Artist studio
 

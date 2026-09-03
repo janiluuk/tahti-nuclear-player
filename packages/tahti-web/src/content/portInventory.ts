@@ -186,7 +186,8 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
     surface: 'Help / legal',
     route: '/help',
     status: 'partial',
-    detail: 'Static help hub plus a Disco-widgets contribution guide.',
+    detail:
+      'Static help hub, Disco-widgets guide, and Artist gallery how-to. Support form is in-client.',
     section: 'mock',
   },
   {
@@ -201,9 +202,10 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
   {
     id: 'favorites-local',
     surface: 'Favorites / history',
-    route: '/library',
+    route: '/listen/favorites',
     status: 'partial',
-    detail: 'Mostly localStorage, not server library.',
+    detail:
+      'Listen Favorites and History persist in localStorage per account. Followed artists merge from GET /api/me/following; there is no server favorites library yet.',
     section: 'mock',
   },
   {

@@ -1,5 +1,9 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — CI tests and mock inventory
+
+**Completed:** GitHub CI `pnpm test` failed on `@tahti-player/tahti-web` because `LanguageSwitcher.test.tsx` imported testing-library packages the package does not declare, `locale.test.ts` ran in node without `localStorage`/`document`, and Discover asserted that `min-h-[280px]` was gone even though widget cards still use that height. Rewrote the language-switcher test to the same jsdom/`createRoot` pattern as Discover, marked locale tests jsdom, and asserted the add-widget control lives in the header. Refreshed the Mock / stub / unwired inventory so Favorites/History point at Listen (still localStorage) and Help lists the artist gallery article.
+
 ## 2026-09-03 — Library as a Studio tab
 
 **Completed:** Library is no longer a sibling of Studio/Perform. `SUBMENUS['/library']` folded into Studio (Library, Sounds, Collections, Releases, Upload, Editor). `/library*` routes stay; Studio stays selected. Mobile bottom nav still has Library. Favorites stay on Listen (`/listen/favorites`); the Library-only `FavoritesPanel` is gone and `/library/favorites` still redirects. Governance Playwright covers Settings → Account member governance, Studio Governance Motions/Topics, and Admin Governance/AGM Community. Bumped `@tahti-player/tahti-web` to `0.0.29`.

@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 
 import { i18n } from '@tahti-player/i18n';

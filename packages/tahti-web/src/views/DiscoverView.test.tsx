@@ -92,10 +92,10 @@ describe('DiscoverView', () => {
     const { container } = await renderDiscover('/discover');
 
     expect(
-      container.querySelector('[data-testid="discover-add-widget"]'),
+      container.querySelector('header [data-testid="discover-add-widget"]'),
     ).not.toBeNull();
     expect(container.textContent).not.toContain('Add a widget');
-    expect(container.innerHTML).not.toContain('min-h-[280px]');
+    expect(container.textContent).toContain('This week: most played');
     expect(
       container.querySelector('[data-testid="discover-tab-venues"]'),
     ).not.toBeNull();
