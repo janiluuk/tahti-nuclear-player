@@ -1,4 +1,4 @@
-import { AlertCircle, CassetteTape, X } from 'lucide-react';
+import { AlertCircle, CassetteTape, Heart, X } from 'lucide-react';
 import { FC } from 'react';
 
 import { pickArtwork } from '@tahti-player/model';
@@ -18,6 +18,9 @@ export const QueueItemExpanded: FC<QueueItemProps> = ({
   onRemove,
   labels,
   classes,
+  onTitleClick,
+  isLiked,
+  onToggleLike,
 }) => {
   const thumbnail = pickArtwork(track.artwork, 'thumbnail', 64);
   const duration = formatTimeMillis(track.durationMs);
@@ -66,8 +69,19 @@ export const QueueItemExpanded: FC<QueueItemProps> = ({
       <div className={cn('min-w-0 flex-1', classes?.content)}>
         <div
           data-testid="queue-item-title"
+          onClick={
+            onTitleClick
+              ? (e) => {
+                  e.stopPropagation();
+                  onTitleClick();
+                }
+              : undefined
+          }
+          role={onTitleClick ? 'link' : undefined}
+          tabIndex={onTitleClick ? 0 : undefined}
           className={cn(
             'text-foreground truncate text-sm font-bold',
+            onTitleClick && 'hover:underline',
             classes?.title,
           )}
         >
@@ -104,6 +118,32 @@ export const QueueItemExpanded: FC<QueueItemProps> = ({
           >
             {duration}
           </div>
+        )}
+
+        {onToggleLike && (
+          <Button
+            data-testid="queue-item-like-button"
+            size="icon-sm"
+            variant="noShadow"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onToggleLike();
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+            aria-label={isLiked ? 'Remove from favorites' : 'Add to favorites'}
+            aria-pressed={isLiked}
+            className={cn(
+              'absolute right-11 opacity-0 group-hover:opacity-100',
+              isLiked && 'opacity-100',
+              classes?.likeButton,
+            )}
+          >
+            <Heart
+              size={16}
+              className={isLiked ? 'text-accent-red fill-current' : undefined}
+            />
+          </Button>
         )}
 
         {onRemove && (

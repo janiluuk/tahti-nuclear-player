@@ -45,6 +45,11 @@ type PlayerState = {
   playQueueIndex: (id: string) => void;
   removeFromQueue: (id: string) => void;
   clearQueue: () => void;
+  reorderQueue: (fromIndex: number, toIndex: number) => void;
+  /** One-shot reshuffle of queue order (distinct from `shuffle`, the
+   * persistent next-track-selection mode) — keeps the current track in
+   * place, randomizes everything after it. */
+  shuffleQueueOrder: () => void;
   hidePlayerBar: () => void;
   setStatus: (status: PlaybackStatus, error?: string | null) => void;
   setProgress: (currentTime: number, duration: number) => void;
@@ -244,6 +249,42 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       currentTime: 0,
       duration: 0,
     }),
+
+  reorderQueue: (fromIndex, toIndex) => {
+    set((s) => {
+      if (
+        fromIndex < 0 ||
+        fromIndex >= s.queue.length ||
+        toIndex < 0 ||
+        toIndex >= s.queue.length ||
+        fromIndex === toIndex
+      ) {
+        return s;
+      }
+      const queue = [...s.queue];
+      const [moved] = queue.splice(fromIndex, 1);
+      if (!moved) {
+        return s;
+      }
+      queue.splice(toIndex, 0, moved);
+      return { queue };
+    });
+  },
+
+  shuffleQueueOrder: () => {
+    set((s) => {
+      const currentIndex = s.currentId
+        ? s.queue.findIndex((q) => q.id === s.currentId)
+        : -1;
+      const head = currentIndex >= 0 ? [s.queue[currentIndex]!] : [];
+      const rest = s.queue.filter((_, i) => i !== currentIndex);
+      for (let i = rest.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [rest[i], rest[j]] = [rest[j]!, rest[i]!];
+      }
+      return { queue: [...head, ...rest] };
+    });
+  },
 
   hidePlayerBar: () => set({ playerBarVisible: false }),
 

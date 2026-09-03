@@ -19,6 +19,9 @@ export type QueuePanelProps = {
   onSelectItem?: (itemId: string) => void;
   onRemoveItem?: (itemId: string) => void;
   onSelectCandidate?: (itemId: string, candidateId: string) => void;
+  onTitleClick?: (itemId: string) => void;
+  isLiked?: (itemId: string) => boolean;
+  onToggleLike?: (itemId: string) => void;
   labels: QueueItemLabels & {
     emptyTitle?: string;
     emptySubtitle?: string;
@@ -41,6 +44,9 @@ export const QueuePanel: FC<QueuePanelProps> = ({
   onSelectItem,
   onRemoveItem,
   onSelectCandidate,
+  onTitleClick,
+  isLiked,
+  onToggleLike,
   labels,
   classes,
 }) => {
@@ -121,6 +127,9 @@ export const QueuePanel: FC<QueuePanelProps> = ({
                 onSelect={onSelectItem}
                 onRemove={onRemoveItem}
                 onSelectCandidate={onSelectCandidate}
+                onTitleClick={onTitleClick}
+                isLiked={isLiked}
+                onToggleLike={onToggleLike}
                 labels={{
                   removeButton: labels?.removeButton,
                   playbackError: labels?.playbackError,

@@ -17,6 +17,9 @@ export type ReorderableQueueItemProps = {
   onSelect?: (id: string) => void;
   onRemove?: (id: string) => void;
   onSelectCandidate?: (itemId: string, candidateId: string) => void;
+  onTitleClick?: (id: string) => void;
+  isLiked?: (id: string) => boolean;
+  onToggleLike?: (id: string) => void;
   labels: QueueItemLabels & {
     noCandidates?: string;
     candidateFailed?: string;
@@ -31,6 +34,9 @@ export const ReorderableQueueItem: FC<ReorderableQueueItemProps> = ({
   onSelect,
   onRemove,
   onSelectCandidate,
+  onTitleClick,
+  isLiked,
+  onToggleLike,
   labels,
 }) => {
   const {
@@ -80,6 +86,9 @@ export const ReorderableQueueItem: FC<ReorderableQueueItemProps> = ({
           errorMessage={item.error}
           onSelect={() => onSelect?.(item.id)}
           onRemove={() => onRemove?.(item.id)}
+          onTitleClick={onTitleClick ? () => onTitleClick(item.id) : undefined}
+          isLiked={isLiked?.(item.id)}
+          onToggleLike={onToggleLike ? () => onToggleLike(item.id) : undefined}
           labels={labels}
         />
       </QueueItemPopover>

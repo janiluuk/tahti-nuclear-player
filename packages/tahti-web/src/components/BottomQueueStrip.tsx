@@ -1,67 +1,10 @@
-import { ListMusicIcon, Trash2Icon, XIcon } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { ListMusicIcon, Trash2Icon } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 
-import { formatArtistNames } from '@tahti-player/model';
-import type { QueueItem } from '@tahti-player/model';
-import { Button, cn } from '@tahti-player/ui';
+import { Badge, Button, QueueItem as QueueItemView } from '@tahti-player/ui';
 
 import { usePlayerStore } from '../stores/playerStore';
-
-function QueueChip({
-  item,
-  side,
-  onPlay,
-  onRemove,
-}: {
-  item: QueueItem;
-  side: 'past' | 'upcoming' | 'current';
-  onPlay: () => void;
-  onRemove: () => void;
-}) {
-  const title = item.track.title;
-  const artist = formatArtistNames(item.track.artists);
-  const cover = item.track.artwork?.items[0]?.url;
-
-  return (
-    <div className="group relative shrink-0">
-      <button
-        type="button"
-        onClick={onPlay}
-        title={`${title} — ${artist}`}
-        className={cn(
-          'border-border bg-background-secondary hover:border-primary/50 flex w-[10.5rem] items-center gap-2 rounded-md border py-1.5 pr-7 pl-2 text-left transition-colors',
-          side === 'current' && 'border-primary bg-primary/15',
-          side === 'past' && 'opacity-70 hover:opacity-100',
-        )}
-      >
-        <span className="bg-background size-8 shrink-0 overflow-hidden rounded">
-          {cover ? (
-            <img src={cover} alt="" className="size-full object-cover" />
-          ) : (
-            <span className="text-foreground-secondary flex size-full items-center justify-center text-[10px]">
-              ♪
-            </span>
-          )}
-        </span>
-        <span className="min-w-0">
-          <span className="block truncate text-xs font-semibold">{title}</span>
-          <span className="text-foreground-secondary block truncate text-[10px]">
-            {artist}
-          </span>
-        </span>
-      </button>
-      <button
-        type="button"
-        onClick={onRemove}
-        className="bg-background/90 text-foreground-secondary hover:text-accent-red absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center rounded opacity-0 shadow-sm transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 focus:opacity-100"
-        aria-label={`Remove ${title} from queue`}
-        title="Remove from queue"
-      >
-        <XIcon size={13} aria-hidden />
-      </button>
-    </div>
-  );
-}
+import { ClearQueueConfirmDialog } from './ClearQueueConfirmDialog';
 
 export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
   const queue = usePlayerStore((s) => s.queue);
@@ -69,9 +12,7 @@ export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
   const playQueueIndex = usePlayerStore((s) => s.playQueueIndex);
   const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
   const clearQueue = usePlayerStore((s) => s.clearQueue);
-  const currentIndex = currentId
-    ? queue.findIndex((item) => item.id === currentId)
-    : -1;
+  const [confirmingClear, setConfirmingClear] = useState(false);
 
   return (
     <div
@@ -86,28 +27,42 @@ export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
               <span>Nothing queued — add tracks to line them up here.</span>
             </div>
           ) : (
-            queue.map((item, index) => (
-              <QueueChip
-                key={item.id}
-                item={item}
-                side={
-                  item.id === currentId
-                    ? 'current'
-                    : currentIndex >= 0 && index < currentIndex
-                      ? 'past'
-                      : 'upcoming'
-                }
-                onPlay={() => playQueueIndex(item.id)}
-                onRemove={() => removeFromQueue(item.id)}
-              />
-            ))
+            queue.map((item) => {
+              const isCurrent = item.id === currentId;
+              return (
+                <div
+                  key={item.id}
+                  className={isCurrent ? 'w-[13rem] shrink-0' : 'shrink-0'}
+                >
+                  <QueueItemView
+                    track={item.track}
+                    status={isCurrent ? item.status : 'idle'}
+                    isCurrent={isCurrent}
+                    isCollapsed={!isCurrent}
+                    onSelect={() => playQueueIndex(item.id)}
+                    onRemove={() => removeFromQueue(item.id)}
+                    labels={{ removeButton: 'Remove from queue' }}
+                  />
+                </div>
+              );
+            })
           )}
         </div>
+        {queue.length > 0 && (
+          <Badge
+            variant="pill"
+            color="secondary"
+            className="shrink-0 text-[10px]"
+            title={`${queue.length} in queue`}
+          >
+            {queue.length}
+          </Badge>
+        )}
         <Button
           size="icon-sm"
           variant="text"
           disabled={queue.length === 0}
-          onClick={clearQueue}
+          onClick={() => setConfirmingClear(true)}
           className="text-foreground-secondary hover:text-accent-red shrink-0 opacity-60 hover:opacity-100"
           title="Clear queue"
           aria-label="Clear queue"
@@ -117,6 +72,15 @@ export function BottomQueueStrip({ controls }: { controls: ReactNode }) {
         </Button>
       </div>
       <div className="flex justify-center">{controls}</div>
+      <ClearQueueConfirmDialog
+        isOpen={confirmingClear}
+        count={queue.length}
+        onCancel={() => setConfirmingClear(false)}
+        onConfirm={() => {
+          clearQueue();
+          setConfirmingClear(false);
+        }}
+      />
     </div>
   );
 }

@@ -15,6 +15,12 @@ export type QueueItemProps = VariantProps<typeof queueItemVariants> & {
   onRemove?: () => void;
   errorMessage?: string;
   labels: QueueItemLabels;
+  /** Clicking the title navigates instead of selecting the item for
+   * playback — omit to keep the title inert (default, existing behavior). */
+  onTitleClick?: () => void;
+  /** Omit to hide the like control entirely (default, existing behavior). */
+  isLiked?: boolean;
+  onToggleLike?: () => void;
   classes?: {
     root?: string;
     thumbnail?: string;
@@ -24,5 +30,6 @@ export type QueueItemProps = VariantProps<typeof queueItemVariants> & {
     duration?: string;
     error?: string;
     removeButton?: string;
+    likeButton?: string;
   };
 };

@@ -1,4 +1,4 @@
-import { Bell, Check, MessageCircle } from 'lucide-react';
+import { Bell, Check, ListMusicIcon, MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge, Tabs } from '@tahti-player/ui';
@@ -9,15 +9,20 @@ import {
   type TahtiNotification,
 } from '../api/notifications';
 import { useLayoutStore } from '../stores/layoutStore';
+import { usePlayerStore } from '../stores/playerStore';
 import { ChannelChatPanel } from './ChannelChatPanel';
+import { SidebarQueuePanel } from './SidebarQueuePanel';
+
+type RailTab = 'chat' | 'notifications' | 'queue';
 
 export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
   const chatSlug = useLayoutStore((s) => s.chatSlug);
   const chatEnabled = useLayoutStore((s) => s.chatEnabled);
   const chatDisabledReason = useLayoutStore((s) => s.chatDisabledReason);
-  const [tab, setTab] = useState<'chat' | 'notifications'>('chat');
+  const [tab, setTab] = useState<RailTab>('chat');
   const [notifications, setNotifications] = useState<TahtiNotification[]>([]);
   const toggleRight = useLayoutStore((s) => s.toggleRight);
+  const queueCount = usePlayerStore((s) => s.queue.length);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,6 +74,27 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
             </Badge>
           ) : null}
         </button>
+        <button
+          type="button"
+          className={`text-foreground-secondary hover:text-foreground relative rounded-md p-1.5 ${tab === 'queue' ? 'bg-primary/15 text-primary' : ''}`}
+          aria-label="Open queue"
+          title="Open queue"
+          onClick={() => {
+            setTab('queue');
+            toggleRight();
+          }}
+        >
+          <ListMusicIcon size={18} />
+          {queueCount > 0 ? (
+            <Badge
+              variant="pill"
+              color="secondary"
+              className="absolute -top-1 -right-1 min-w-3 px-1 text-center text-[9px] leading-3"
+            >
+              {queueCount}
+            </Badge>
+          ) : null}
+        </button>
       </div>
     );
   }
@@ -77,11 +103,13 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
     <div className="flex h-full min-h-0 flex-col" data-testid="right-rail">
       <Tabs.Root
         className="shrink-0 gap-0"
-        selectedIndex={tab === 'notifications' ? 1 : 0}
-        onChange={(index) => setTab(index === 1 ? 'notifications' : 'chat')}
+        selectedIndex={tab === 'notifications' ? 1 : tab === 'queue' ? 2 : 0}
+        onChange={(index) =>
+          setTab(index === 1 ? 'notifications' : index === 2 ? 'queue' : 'chat')
+        }
       >
         <Tabs.List
-          aria-label="Chat and notifications"
+          aria-label="Chat, notifications, and queue"
           className="border-border shrink-0 border-b px-2 py-1"
         >
           <Tabs.Tab>
@@ -105,11 +133,28 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
               ) : null}
             </span>
           </Tabs.Tab>
+          <Tabs.Tab>
+            <span className="inline-flex items-center gap-1">
+              <ListMusicIcon size={13} aria-hidden />
+              Queue
+              {queueCount > 0 ? (
+                <Badge
+                  variant="pill"
+                  color="secondary"
+                  className="ml-0.5 min-w-3 px-1.5 text-[9px] leading-3"
+                >
+                  {queueCount}
+                </Badge>
+              ) : null}
+            </span>
+          </Tabs.Tab>
         </Tabs.List>
       </Tabs.Root>
 
       <div className="min-h-0 flex-1 overflow-hidden">
-        {tab === 'notifications' ? (
+        {tab === 'queue' ? (
+          <SidebarQueuePanel />
+        ) : tab === 'notifications' ? (
           <NotificationList
             notifications={notifications}
             onRead={(id) => {
