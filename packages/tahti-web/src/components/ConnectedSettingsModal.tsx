@@ -1,4 +1,4 @@
-import { BookOpenIcon, GithubIcon, InfoIcon, LogInIcon } from 'lucide-react';
+import { BookOpenIcon, GithubIcon, LogInIcon } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { Button, SettingsPanel } from '@tahti-player/ui';
@@ -20,7 +20,6 @@ import { SidebarBuildInfo } from './SidebarBuildInfo';
 const GITHUB_REPO_URL = 'https://github.com/janiluuk/tahti-player';
 /** Public Scalar/OpenAPI docs (packages/tahti-web/README.md). */
 const API_DOCS_URL = 'https://api.tahti.live/api';
-const ABOUT_URL = '/about';
 const DISCORD_URL = 'https://discord.gg/M6K43kbMa';
 
 const footerLinkClass =
@@ -130,10 +129,6 @@ export function ConnectedSettingsModal() {
               >
                 <BookOpenIcon size={14} aria-hidden />
                 API docs
-              </a>
-              <a href={ABOUT_URL} className={footerLinkClass}>
-                <InfoIcon size={14} aria-hidden />
-                About
               </a>
             </div>
             <SidebarBuildInfo />

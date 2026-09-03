@@ -54,7 +54,7 @@ export const DeploymentFooter: Story = {
     docs: {
       description: {
         story:
-          'The account settings footer keeps GitHub, API docs, About, and the deployment fingerprint together.',
+          'The account settings footer keeps GitHub, Discord, API docs, and the deployment fingerprint together.',
       },
     },
   },

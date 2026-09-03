@@ -214,6 +214,9 @@ export type RadioBrowserSearch = {
   name?: string;
   /** Exact tag/genre match, e.g. "jazz". */
   tag?: string;
+  /** Comma-separated tags (radio-browser.info `tagList`). Prefer over `tag`
+   * when multiple genres are selected. */
+  tags?: string[];
   /** ISO 3166-1 alpha-2 country code, e.g. "FI". */
   countryCode?: string;
   limit?: number;
@@ -236,7 +239,12 @@ export async function searchStations(
   if (filters.name?.trim()) {
     params.set('name', filters.name.trim());
   }
-  if (filters.tag) {
+  const tagList = (filters.tags ?? []).map((tag) => tag.trim()).filter(Boolean);
+  if (tagList.length > 1) {
+    params.set('tagList', tagList.join(','));
+  } else if (tagList.length === 1) {
+    params.set('tag', tagList[0]!);
+  } else if (filters.tag) {
     params.set('tag', filters.tag);
   }
   if (filters.countryCode) {

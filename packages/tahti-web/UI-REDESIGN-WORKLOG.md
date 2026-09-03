@@ -1,5 +1,91 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Remove About from Settings footer
+
+Dropped About from the Settings modal `navFooter`. GitHub, Discord, API docs,
+and the deployment fingerprint remain. `/about` and Help hub About are unchanged.
+
+## 2026-09-04 — Radio Browser directory in Add-ons (partial)
+
+**Status:** shell + Browser tab executed.
+
+Radio Browser directory uses `ConfigurableCard` + Configure dialog with
+Browser | Stations tabs. Browser: `Input` `startAddon` SearchIcon, multi
+`FilterChips` genres, flag country `Select`, `tags`→`tagList` API.
+Stations: favourites + Finnish suggestions. Activate no longer dumps UI
+inline under the card.
+
+### Still open
+
+- Stations `SaveButton` → Listen radio tiles
+- Playwright / store smoke
+
+## 2026-09-04 — TopList Storybook on all top lists
+
+**Status:** executed for Admin / Studio / Library. History already compliant.
+Discover widget rankings stay `WidgetTrackRow`.
+
+## 2026-09-04 — Player bar queue right rail (in progress)
+
+Lifted `rightRailTab` (+ `toggleQueueRail`) into `layoutStore`.
+`RightRailPanel` reads shared tab state. WaveformSeekbar Storybook story
+added (`Tahti/Player/WaveformSeekbar`). Bottom strip removal and waveform
+seek swap still open.
+
+## 2026-09-04 — Studio Storybook primitive sweep (planned)
+
+**Status:** planned (audit done) — tracked in [`WORKPLAN.md`](WORKPLAN.md)
+and [`docs/todo/studio-storybook-sweep.md`](../../docs/todo/studio-storybook-sweep.md).
+
+**Goal:** Studio views, Library-under-Studio routes, and Studio-owned
+panels use Storybook `Components/*` / `Tahti/*` where a ready primitive
+already matches: `FilterChips`, `Slider`, `Input` (search addon),
+`Toggle`, `EmptyState`, `ImageReveal` / `MediaArtwork`, `Badge`. Keep
+live data and overlays. Do not invent `SegmentedControl` in this pass.
+
+Does not replace the 2026-09-03 UX sweep (icons, Tooltip help, panel
+clones). Search addons overlap the Input sweep — do Studio surfaces here.
+
+### Audit — swap
+
+- **FilterChips (single, labels only):** Stats + StatsDetail 7d/30d/All
+  (duplicate strips); Stats top-list dimension/sort; Branding
+  Append/Replace; radio playlist Shuffle/In order; broadcast preflight
+  type/visibility; Shows SERIES/SINGLE + duration; editor library type;
+  schedule frequency days (`multiple`).
+- **Input:** Sounds / Collections / Editor library / Library discography
+  + collections + ReleasesPanel search without `startAddon` SearchIcon;
+  Release detail library dialog (orphan Search/Filter icons beside the
+  field); Sounds “Uploaded to” native date (sibling already `Input
+  type="date"`).
+- **Toggle:** Upload Configure Enable/Disable `Button` + ToggleLeft/Right
+  icons.
+- **EmptyState:** ~15 “No … yet” blocks (Sounds, Releases, Shows, Stash,
+  Recordings, Venues, Events, Home, Moderation, Updates, Revenue,
+  Distribution, FanTiers, revisions, radio submissions, booking empty,
+  schedule empty).
+- **ImageReveal / Badge:** MyCollections and ReleasesPanel covers;
+  Updates post image; PortInventory status pill.
+
+### Audit — leave
+
+Pro Editor / Channel Designer already on `Slider`. Mastering has no
+slider UI. Stats plays bars and booking calendar are not heatmap/clock
+charts. Track rows with pin/embed/edit are not `TrackTable`. Icon chips
+(`StyleChip`, `TypeChip`, `PerkChip`, Live/Talk) stay until FilterChips
+gains an icon slot. Schedule cards/list is icon-only, not FilterChips.
+
+### Slices
+
+1. Stats range + top-list filters → FilterChips
+2. Other label-only chip groups
+3. Studio search + date Inputs
+4. Upload Toggle
+5. EmptyState pass
+6. Covers + PortInventory Badge
+
+**Chrome:** Studio nav and section tabs stay mounted.
+
 ## 2026-09-04 — Remove About from Settings (planned)
 
 **Status:** planned — tracked in [`WORKPLAN.md`](WORKPLAN.md) and

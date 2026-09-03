@@ -1,22 +1,22 @@
 import { Bell, Check, ListMusicIcon, MessageCircle } from 'lucide-react';
-import { useState } from 'react';
 
 import { Badge, Button, EmptyState, Tabs } from '@tahti-player/ui';
 
 import type { TahtiNotification } from '../api/notifications';
-import { useLayoutStore } from '../stores/layoutStore';
+import { useLayoutStore, type RightRailTab } from '../stores/layoutStore';
 import { useNotificationInboxStore } from '../stores/notificationInboxStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { ChannelChatPanel } from './ChannelChatPanel';
 import { SidebarQueuePanel } from './SidebarQueuePanel';
 
-type RailTab = 'chat' | 'notifications' | 'queue';
+const TAB_INDEX: RightRailTab[] = ['chat', 'notifications', 'queue'];
 
 export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
   const chatSlug = useLayoutStore((s) => s.chatSlug);
   const chatEnabled = useLayoutStore((s) => s.chatEnabled);
   const chatDisabledReason = useLayoutStore((s) => s.chatDisabledReason);
-  const [tab, setTab] = useState<RailTab>('chat');
+  const tab = useLayoutStore((s) => s.rightRailTab);
+  const setRightRailTab = useLayoutStore((s) => s.setRightRailTab);
   const notifications = useNotificationInboxStore((s) =>
     s.items.filter((item) => !item.readAt),
   );
@@ -26,6 +26,11 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
   const toggleRight = useLayoutStore((s) => s.toggleRight);
   const queueCount = usePlayerStore((s) => s.queue.length);
 
+  const openTab = (next: RightRailTab) => {
+    setRightRailTab(next);
+    toggleRight();
+  };
+
   if (isCollapsed) {
     return (
       <div className="flex h-full flex-col items-center gap-2 py-3">
@@ -34,10 +39,7 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
           className={`text-foreground-secondary hover:text-foreground rounded-md p-1.5 ${tab === 'chat' ? 'bg-primary/15 text-primary' : ''}`}
           aria-label="Open chat"
           title="Open chat"
-          onClick={() => {
-            setTab('chat');
-            toggleRight();
-          }}
+          onClick={() => openTab('chat')}
         >
           <MessageCircle size={18} />
         </button>
@@ -46,10 +48,7 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
           className={`text-foreground-secondary hover:text-foreground relative rounded-md p-1.5 ${tab === 'notifications' ? 'bg-primary/15 text-primary' : ''}`}
           aria-label="Open notifications"
           title="Open notifications"
-          onClick={() => {
-            setTab('notifications');
-            toggleRight();
-          }}
+          onClick={() => openTab('notifications')}
         >
           <Bell size={18} />
           {notifications.length > 0 ? (
@@ -67,10 +66,7 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
           className={`text-foreground-secondary hover:text-foreground relative rounded-md p-1.5 ${tab === 'queue' ? 'bg-primary/15 text-primary' : ''}`}
           aria-label="Open queue"
           title="Open queue"
-          onClick={() => {
-            setTab('queue');
-            toggleRight();
-          }}
+          onClick={() => openTab('queue')}
         >
           <ListMusicIcon size={18} />
           {queueCount > 0 ? (
@@ -91,10 +87,8 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
     <div className="flex h-full min-h-0 flex-col" data-testid="right-rail">
       <Tabs.Root
         className="shrink-0 gap-0"
-        selectedIndex={tab === 'notifications' ? 1 : tab === 'queue' ? 2 : 0}
-        onChange={(index) =>
-          setTab(index === 1 ? 'notifications' : index === 2 ? 'queue' : 'chat')
-        }
+        selectedIndex={TAB_INDEX.indexOf(tab)}
+        onChange={(index) => setRightRailTab(TAB_INDEX[index] ?? 'chat')}
       >
         <Tabs.List
           aria-label="Chat, notifications, and queue"
