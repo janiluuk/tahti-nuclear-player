@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Button, EmptyState, Input } from '@tahti-player/ui';
 
 import {
   fetchChatAccess,
@@ -554,9 +554,11 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
         className={`space-y-2 overflow-y-auto px-3 py-2 text-sm ${rail ? 'min-h-0 flex-1' : 'flex-1'}`}
       >
         {messages.length === 0 && (
-          <p className="text-foreground-secondary text-xs">
-            No messages yet — say hi.
-          </p>
+          <EmptyState
+            size="sm"
+            title="No messages yet"
+            description="Say hi to start the chat."
+          />
         )}
         {messages.map((m) => (
           <div key={m.id} className="flex items-start gap-1.5 leading-snug">

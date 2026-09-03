@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, Select, Toggle } from '@tahti-player/ui';
+import { Button, CopyButton, Input, Select, Toggle } from '@tahti-player/ui';
 
 import {
   createAdminGovernanceDocument,
@@ -34,27 +34,22 @@ const DEFAULT_AGENDA = [
 
 function AgendaBuilder() {
   const [items, setItems] = useState<string[]>(DEFAULT_AGENDA);
-  const [copied, setCopied] = useState(false);
+  const agendaText = items
+    .filter(Boolean)
+    .map((item, i) => `${i + 1}. ${item}`)
+    .join('\n');
 
   return (
     <StudioPanel
       title="Agenda builder"
       action={
-        <Button
+        <CopyButton
+          text={agendaText}
           size="sm"
-          onClick={() => {
-            const text = items
-              .filter(Boolean)
-              .map((item, i) => `${i + 1}. ${item}`)
-              .join('\n');
-            void navigator.clipboard.writeText(text).then(() => {
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            });
-          }}
-        >
-          {copied ? 'Copied ✓' : 'Copy agenda'}
-        </Button>
+          variant="secondary"
+          aria-label="Copy agenda"
+          title="Copy agenda"
+        />
       }
     >
       <ol className="grid gap-2 sm:grid-cols-2">

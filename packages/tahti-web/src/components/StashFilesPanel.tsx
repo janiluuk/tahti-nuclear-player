@@ -2,7 +2,13 @@ import { PlayIcon, Share2Icon, Trash2Icon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, FilePicker, Input, Select } from '@tahti-player/ui';
+import {
+  Button,
+  EmptyState,
+  FilePicker,
+  Input,
+  Select,
+} from '@tahti-player/ui';
 
 import {
   createStashShare,
@@ -204,10 +210,11 @@ export const StashFilesPanel = () => {
         description="Move tracks and collections into your private stash. Private items are removed from public listings."
       >
         {archiveItems.length === 0 && collections.length === 0 ? (
-          <p className="text-foreground-secondary text-sm">
-            Everything in your library is already private or there is nothing to
-            move.
-          </p>
+          <EmptyState
+            size="sm"
+            title="Nothing to move"
+            description="Everything in your library is already private or there is nothing to move."
+          />
         ) : (
           <div className="flex flex-col gap-2">
             {archiveItems
@@ -259,11 +266,7 @@ export const StashFilesPanel = () => {
 
       <StudioPanel>
         {files.length === 0 ? (
-          <div className="flex flex-col gap-3 py-4 text-center">
-            <p className="text-foreground-secondary text-sm">
-              No stash files yet.
-            </p>
-          </div>
+          <EmptyState size="sm" title="No stash files yet" />
         ) : (
           <ul className="divide-border divide-y">
             {files.map((file) => (

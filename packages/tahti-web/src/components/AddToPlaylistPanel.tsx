@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input, Toggle } from '@tahti-player/ui';
+import { Button, Dialog, EmptyState, Input, Toggle } from '@tahti-player/ui';
 
 import {
   addStudioCollectionItem,
@@ -219,9 +219,17 @@ export function AddToPlaylistPanel({
               <span className="text-[11px] leading-tight">New</span>
             </Button>
             {collections.length === 0 && (
-              <p className="text-foreground-secondary col-span-full px-1 text-xs">
-                No playlists yet — tap New.
-              </p>
+              <EmptyState
+                size="sm"
+                className="col-span-full"
+                title="No playlists yet"
+                description="Create one to save this track."
+                action={
+                  <Button size="sm" onClick={() => setCreating(true)}>
+                    New
+                  </Button>
+                }
+              />
             )}
           </div>
         )}

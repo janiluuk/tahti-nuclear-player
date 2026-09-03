@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
-import { HeartIcon, PauseIcon, PlayIcon } from 'lucide-react';
+import { PauseIcon, PlayIcon } from 'lucide-react';
 
-import { Button } from '@tahti-player/ui';
+import { FavoriteButton } from '@tahti-player/ui';
 
 import type { TahtiPlayable } from '../api/types';
 import { soundIdFromPlayableId } from '../lib/archiveId';
@@ -126,21 +126,14 @@ function TrackRow({ item }: { item: TahtiPlayable }) {
             {soundId ? (
               <AddToPlaylistButton soundId={soundId} trackTitle={item.title} />
             ) : null}
-            <Button
-              size="icon-sm"
-              variant="text"
-              aria-label={favorited ? 'Remove from favorites' : 'Favorite'}
+            <FavoriteButton
+              size="sm"
+              isFavorite={favorited}
+              onToggle={() => toggleFavoriteTrack(item)}
+              ariaLabelAdd="Favorite"
+              ariaLabelRemove="Remove from favorites"
               title={favorited ? 'Remove from favorites' : 'Favorite'}
-              onClick={() => toggleFavoriteTrack(item)}
-            >
-              <HeartIcon
-                size={15}
-                aria-hidden
-                className={
-                  favorited ? 'fill-accent-red text-accent-red' : undefined
-                }
-              />
-            </Button>
+            />
           </div>
         </div>
       </div>

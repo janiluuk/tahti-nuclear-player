@@ -1,5 +1,23 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Storybook reuse-audit leftovers (five slices)
+
+Bumped `@tahti-player/tahti-web` to `0.0.43`.
+
+**Slice 1 — Library sounds chrome:** `MyDiscographyView` uses `FilterChips`, `Input`, and `Select`. Collection track rows use `FavoriteButton`.
+
+**Slice 2 — Copy actions:** AGM agenda builder and MusicBrainz metadata copy use `CopyButton` (with cleanup) instead of hand-rolled clipboard + timeout.
+
+**Slice 3 — Empty states:** `StashFilesPanel`, `ChannelChatPanel`, and `AddToPlaylistPanel` use `EmptyState` (Add-to-playlist wires New in the action slot).
+
+**Slice 4 — Genre pickers:** `GenrePicker` chips are `FilterChips`; `SubgenreTagInput` uses `CreatableCombobox` instead of a native datalist.
+
+**Slice 5 — Theme editor hue:** `ThemeEditor` hue control uses Nuclear `Slider`.
+
+Still open from the Sept 2 reuse audit: Pro Editor `type="range"` / role=switch rows, many `window.confirm` call sites, ImageLightbox focus trap, and assorted hand-rolled tablists.
+
+**Validation:** tahti-web type-check and eslint on the touched files. Deployed to beta after push.
+
 ## 2026-09-03 — Loader + remaining selection Toggles (five slices)
 
 Bumped `@tahti-player/tahti-web` to `0.0.41`.

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, FilterChips, Input, Select } from '@tahti-player/ui';
 
 import {
   fetchEditorSource,
@@ -195,43 +195,31 @@ export const MyDiscographyView: FC = () => {
         <>
           <section className="flex flex-col gap-4">
             <div className="border-border bg-background-secondary/30 flex flex-col gap-3 rounded-xl border p-3">
-              <div className="flex flex-wrap gap-2">
-                {FILTERS.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    aria-pressed={filter === option.id}
-                    onClick={() => setFilter(option.id)}
-                    className={`rounded-md px-3 py-1.5 text-xs font-semibold tracking-wide uppercase transition-colors ${
-                      filter === option.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'border-border text-foreground-secondary hover:text-foreground border'
-                    }`}
-                  >
-                    {option.label} ({counts[option.id]})
-                  </button>
-                ))}
-              </div>
+              <FilterChips
+                items={FILTERS.map((option) => ({
+                  id: option.id,
+                  label: `${option.label} (${counts[option.id]})`,
+                }))}
+                selected={filter}
+                onChange={(id) => setFilter(id as VisibilityFilter)}
+                aria-label="Filter sounds"
+              />
               <div className="flex flex-col gap-2 sm:flex-row">
-                <input
+                <Input
                   type="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search all sounds…"
-                  className="border-border bg-background focus:border-primary min-w-0 flex-1 rounded-md border px-3 py-2 text-sm outline-none"
+                  aria-label="Search all sounds"
+                  className="min-w-0 flex-1"
                 />
-                <select
+                <Select
+                  label="Sort all sounds"
                   value={sort}
-                  onChange={(event) => setSort(event.target.value as SortKey)}
-                  aria-label="Sort all sounds"
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                >
-                  {SORT_OPTIONS.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  onValueChange={(value) => setSort(value as SortKey)}
+                  options={SORT_OPTIONS}
+                  className="sm:w-44"
+                />
               </div>
               <p className="text-foreground-secondary text-xs">
                 Pinned {counts.pinned} · showing {visible.length} of{' '}

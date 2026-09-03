@@ -6,7 +6,7 @@ import {
   clearAdvancedTheme,
   type AdvancedTheme,
 } from '@tahti-player/themes';
-import { Button, Dialog, Input, Textarea } from '@tahti-player/ui';
+import { Button, Dialog, Input, Slider, Textarea } from '@tahti-player/ui';
 
 import { useThemeStore } from '../plugins/themes';
 
@@ -249,31 +249,21 @@ export function ThemeEditor() {
                       className="border-border bg-background h-9 flex-1 rounded-md border px-2 font-mono text-xs"
                     />
                   </div>
-                  <div className="text-foreground-secondary mt-1 flex items-center gap-2 text-xs">
-                    <span className="w-10 shrink-0">Hue</span>
-                    <input
-                      type="range"
-                      min="0"
-                      max="360"
-                      step="1"
-                      value={hue}
-                      onChange={(e) =>
-                        setActiveValues((prev) => ({
-                          ...prev,
-                          [field.key]: hslToHex(
-                            Number(e.target.value),
-                            saturation,
-                            lightness,
-                          ),
-                        }))
-                      }
-                      className="accent-primary min-w-0 flex-1"
-                      aria-label={`Adjust ${field.label} hue`}
-                    />
-                    <span className="w-8 text-right tabular-nums">
-                      {Math.round(hue)}°
-                    </span>
-                  </div>
+                  <Slider
+                    label={`${field.label} hue`}
+                    value={hue}
+                    min={0}
+                    max={360}
+                    step={1}
+                    unit="°"
+                    showFooter={false}
+                    onValueChange={(next) =>
+                      setActiveValues((prev) => ({
+                        ...prev,
+                        [field.key]: hslToHex(next, saturation, lightness),
+                      }))
+                    }
+                  />
                 </>
               );
             })()}

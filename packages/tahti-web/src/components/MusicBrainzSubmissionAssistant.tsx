@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import { Box, Button, Dialog } from '@tahti-player/ui';
+import { Box, Button, CopyButton, Dialog } from '@tahti-player/ui';
 
 type MusicBrainzTrack = {
   title: string;
@@ -28,24 +28,17 @@ export function MusicBrainzSubmissionAssistant({
   tracks = [],
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
   const isRelease = mode === 'release';
   const recordingUrl = `${RECORDING_EDITOR_URL}?edit-recording.name=${encodeURIComponent(title)}`;
-
-  const copyMetadata = () => {
-    void navigator.clipboard
-      .writeText(
-        JSON.stringify(
-          { title, artist: artistName, releaseDate, barcode, tracks },
-          null,
-          2,
-        ),
-      )
-      .then(() => {
-        setCopied(true);
-        window.setTimeout(() => setCopied(false), 2000);
-      });
-  };
+  const metadataText = useMemo(
+    () =>
+      JSON.stringify(
+        { title, artist: artistName, releaseDate, barcode, tracks },
+        null,
+        2,
+      ),
+    [title, artistName, releaseDate, barcode, tracks],
+  );
 
   return (
     <>
@@ -95,9 +88,13 @@ export function MusicBrainzSubmissionAssistant({
           editor. Beta prepares the metadata and keeps your work in this tab.
         </p>
         <Dialog.Actions>
-          <Button size="sm" variant="text" onClick={copyMetadata}>
-            {copied ? 'Copied' : 'Copy metadata'}
-          </Button>
+          <CopyButton
+            text={metadataText}
+            size="sm"
+            variant="text"
+            aria-label="Copy metadata"
+            title="Copy metadata"
+          />
           {isRelease ? (
             <form action={RELEASE_EDITOR_URL} method="post" target="_blank">
               <input type="hidden" name="name" value={title} />
