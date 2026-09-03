@@ -1,6 +1,14 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
-## 2026-09-04 — Remove About from Settings footer
+## 2026-09-04 — Player bar queue, Input startAddon, Radio Save, Studio FilterChips
+
+**Status:** executed (three push rounds → `0.0.59`).
+
+1. Queue button → right-rail Queue (`toggleQueueRail`); waveform seek; title expand; artist → `/u/$username`; compact faded queue; mobile drawer / signed-out panel. Removed `BottomQueueStrip`.
+2. Help / Admin Users / Top lists / Storage / Global search / Studio Sounds+Collections / MyDiscography use `Input` `startAddon` SearchIcon. Radio Browser `SaveButton` pins stations onto Listen tiles via `savedBrowserStations`.
+3. Studio Stats (+ detail) range / top-list segments → `FilterChips`.
+
+## ## 2026-09-04 — Remove About from Settings footer
 
 Dropped About from the Settings modal `navFooter`. GitHub, Discord, API docs,
 and the deployment fingerprint remain. `/about` and Help hub About are unchanged.

@@ -1,6 +1,6 @@
 # Player bar queue → right rail + waveform seek
 
-**Status:** round 1 executed (2026-09-04).
+**Status:** done (2026-09-04). BottomQueueStrip deleted.
 
 - [x] `layoutStore.rightRailTab` + `toggleQueueRail`
 - [x] `RightRailPanel` uses shared tab

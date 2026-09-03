@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC, type ReactNode } from 'react';
 
-import { StatChip, Tabs, TopList } from '@tahti-player/ui';
+import { FilterChips, StatChip, Tabs, TopList } from '@tahti-player/ui';
 
 import { fetchGrantEstimate, type GrantEstimate } from '../../api/revenue';
 import {
@@ -261,27 +261,12 @@ export const StudioStatsView: FC = () => {
           title="Stats"
           subtitle="Audience, track performance, broadcasts, and engagement in one place."
           action={
-            <div
-              className="border-border flex gap-1 rounded-lg border p-1"
-              role="group"
+            <FilterChips
+              items={RANGES}
+              selected={range}
+              onChange={(id) => setRange(id as StatsPlaysRange)}
               aria-label="Stats time range"
-            >
-              {RANGES.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-pressed={range === option.id}
-                  onClick={() => setRange(option.id)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide uppercase transition-colors ${
-                    range === option.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-foreground-secondary hover:text-foreground'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
+            />
           }
         />
 
@@ -390,58 +375,26 @@ export const StudioStatsView: FC = () => {
         >
           <StudioPanel title="Content rankings" className="lg:col-span-2">
             <div className="mb-4 flex flex-wrap gap-2">
-              <div
-                className="border-border flex gap-1 rounded-lg border p-1"
-                role="group"
+              <FilterChips
+                items={[
+                  { id: 'type', label: 'By type' },
+                  { id: 'genre', label: 'By genre' },
+                ]}
+                selected={topListDimension}
+                onChange={(id) =>
+                  setTopListDimension(id as StatsTopListDimension)
+                }
                 aria-label="Top list grouping"
-              >
-                {(
-                  [
-                    ['type', 'By type'],
-                    ['genre', 'By genre'],
-                  ] as const
-                ).map(([dimension, label]) => (
-                  <button
-                    key={dimension}
-                    type="button"
-                    aria-pressed={topListDimension === dimension}
-                    onClick={() => setTopListDimension(dimension)}
-                    className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
-                      topListDimension === dimension
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-foreground-secondary hover:text-foreground'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <div
-                className="border-border flex gap-1 rounded-lg border p-1"
-                role="group"
+              />
+              <FilterChips
+                items={[
+                  { id: 'desc', label: 'Most listened' },
+                  { id: 'asc', label: 'Least listened' },
+                ]}
+                selected={topListSort}
+                onChange={(id) => setTopListSort(id as StatsTopListSort)}
                 aria-label="Top list order"
-              >
-                {(
-                  [
-                    ['desc', 'Most listened'],
-                    ['asc', 'Least listened'],
-                  ] as const
-                ).map(([sort, label]) => (
-                  <button
-                    key={sort}
-                    type="button"
-                    aria-pressed={topListSort === sort}
-                    onClick={() => setTopListSort(sort)}
-                    className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
-                      topListSort === sort
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-foreground-secondary hover:text-foreground'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              />
             </div>
             {topLists.length === 0 ? (
               <p className="text-foreground-secondary text-sm">
