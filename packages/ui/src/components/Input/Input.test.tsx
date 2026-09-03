@@ -40,4 +40,15 @@ describe('Input', () => {
     );
     expect(container.firstChild).toMatchSnapshot();
   });
+
+  it('(Snapshot) renders with startAddon', () => {
+    const { container } = render(
+      <Input
+        id="input-with-prefix"
+        placeholder="polar-nights"
+        startAddon={<span>https://soundcloud.com/you/</span>}
+      />,
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
 });

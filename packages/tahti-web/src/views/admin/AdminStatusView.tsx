@@ -14,6 +14,7 @@ import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { humanizePastDate } from '../../lib/humanizeDate';
 
 export function AdminStatusView() {
   const [data, setData] = useState<AdminStatusData | null>(null);
@@ -89,7 +90,14 @@ export function AdminStatusView() {
                         (platform?.uptimeSec ?? data.uptimeSec) / 3600,
                       )}
                       h{' · checked '}
-                      {new Date(platform?.ts ?? data.ts).toLocaleString()}
+                      <time
+                        dateTime={platform?.ts ?? data.ts}
+                        title={new Date(
+                          platform?.ts ?? data.ts,
+                        ).toLocaleString()}
+                      >
+                        {humanizePastDate(platform?.ts ?? data.ts)}
+                      </time>
                     </span>
                   </div>
                   <ul className="divide-border divide-y">
@@ -152,7 +160,22 @@ export function AdminStatusView() {
                       >
                         <span title={job.description}>{job.jobName}</span>
                         <span className="text-foreground-secondary text-xs">
-                          {job.lastRun?.outcome ?? '—'}
+                          {job.lastRun ? (
+                            <>
+                              {job.lastRun.outcome ?? '—'}
+                              {' · '}
+                              <time
+                                dateTime={job.lastRun.startedAt}
+                                title={new Date(
+                                  job.lastRun.startedAt,
+                                ).toLocaleString()}
+                              >
+                                {humanizePastDate(job.lastRun.startedAt)}
+                              </time>
+                            </>
+                          ) : (
+                            '—'
+                          )}
                         </span>
                       </li>
                     ))}

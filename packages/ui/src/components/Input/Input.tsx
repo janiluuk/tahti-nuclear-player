@@ -61,6 +61,7 @@ type InputProps = Omit<ComponentPropsWithoutRef<'input'>, 'type' | 'size'> &
     label?: string;
     description?: string;
     error?: string;
+    startAddon?: ReactNode;
     endAddon?: ReactNode;
   };
 
@@ -75,6 +76,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     tone = 'primary',
     size,
     className,
+    startAddon,
     endAddon,
     ...rest
   },
@@ -95,6 +97,33 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
   const state = error ? 'error' : 'normal';
   const inputType = type ?? variant ?? 'text';
+  const hasAddon = Boolean(startAddon || endAddon);
+
+  const field = (
+    <HeadlessInput
+      as="input"
+      id={inputId}
+      ref={ref}
+      type={inputType}
+      aria-labelledby={label ? labelId : undefined}
+      aria-describedby={describedBy || undefined}
+      aria-invalid={!!error || undefined}
+      aria-errormessage={error ? errorId : undefined}
+      inputMode={variant === 'number' ? 'numeric' : undefined}
+      invalid={!!error}
+      className={cn(
+        inputVariants({
+          variant,
+          size,
+          tone,
+          state,
+          withAddon: hasAddon,
+          className,
+        }),
+      )}
+      {...rest}
+    />
+  );
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -107,52 +136,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           {label}
         </label>
       )}
-      {endAddon ? (
+      {hasAddon ? (
         <div className="border-border inline-flex w-full items-stretch overflow-hidden rounded-md border-(length:--border-width) has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-black has-[:focus-visible]:ring-offset-2">
-          <HeadlessInput
-            as="input"
-            id={inputId}
-            ref={ref}
-            type={inputType}
-            aria-labelledby={label ? labelId : undefined}
-            aria-describedby={describedBy || undefined}
-            aria-invalid={!!error || undefined}
-            aria-errormessage={error ? errorId : undefined}
-            inputMode={variant === 'number' ? 'numeric' : undefined}
-            invalid={!!error}
-            className={cn(
-              inputVariants({
-                variant,
-                size,
-                tone,
-                state,
-                withAddon: true,
-                className,
-              }),
-            )}
-            {...rest}
-          />
-          <div className="bg-primary text-primary-foreground border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm">
-            {endAddon}
-          </div>
+          {startAddon ? (
+            <div className="bg-background-secondary text-foreground-secondary border-border flex max-w-[55%] min-w-0 items-center border-r-(length:--border-width) px-3 text-xs">
+              {startAddon}
+            </div>
+          ) : null}
+          {field}
+          {endAddon ? (
+            <div className="bg-primary text-primary-foreground border-border flex items-center gap-2 border-l-(length:--border-width) px-3 text-sm">
+              {endAddon}
+            </div>
+          ) : null}
         </div>
       ) : (
-        <HeadlessInput
-          as="input"
-          id={inputId}
-          ref={ref}
-          type={inputType}
-          aria-labelledby={label ? labelId : undefined}
-          aria-describedby={describedBy || undefined}
-          aria-invalid={!!error || undefined}
-          aria-errormessage={error ? errorId : undefined}
-          inputMode={variant === 'number' ? 'numeric' : undefined}
-          invalid={!!error}
-          className={cn(
-            inputVariants({ variant, size, tone, state, className }),
-          )}
-          {...rest}
-        />
+        field
       )}
       {description && (
         <p

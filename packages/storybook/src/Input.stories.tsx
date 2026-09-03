@@ -80,3 +80,15 @@ export const WithEndAddon: Story = {
     ),
   },
 };
+
+export const WithStartAddon: Story = {
+  args: {
+    label: 'SoundCloud',
+    placeholder: 'polar-nights',
+    startAddon: (
+      <span className="truncate" title="https://soundcloud.com/you">
+        soundcloud.com/you/
+      </span>
+    ),
+  },
+};

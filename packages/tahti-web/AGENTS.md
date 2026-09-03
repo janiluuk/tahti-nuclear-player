@@ -188,6 +188,15 @@ state are documented in [`docs/PLUGIN-INTEGRATIONS.md`](docs/PLUGIN-INTEGRATIONS
 adding a provider or configuration dialog; it distinguishes standalone Nuclear runtime plugins
 from Tahti page add-ons and records which sibling `../tahti` API contract each one needs.
 
+Standalone marketplace plugins and themes are listed in
+[github.com/janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry)
+(`plugins.json` / `themes/`). If a change adds, removes, renames, or retargets a
+store listing — including Spotify, SoundCloud, Bandcamp, and MusicBrainz when
+they are catalogued there — update that registry in the same work (sibling
+`../tahti-registry` if checked out). In-app Add-ons that are Tahti page plugins
+rather than marketplace zips stay owned here, but do not let their public
+listings drift from `tahti-registry`.
+
 ## The goal
 
 Tahti exists to give independent artists a platform that takes their work as seriously as they

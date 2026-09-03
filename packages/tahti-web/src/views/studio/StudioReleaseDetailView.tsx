@@ -51,37 +51,17 @@ import { SourceServiceIcon } from '../../components/SourceServiceIcon';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import {
+  composeDspUrl,
+  displayDspPrefix,
+  DSP_SERVICES,
+  fillAllDspUrls,
+  isPluginStreamService,
+  loadDspPluginPrefixes,
+  prefixesForServices,
+} from '../../lib/dspPluginDefaults';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
-
-const SMART_LINK_TARGETS = [
-  {
-    key: 'spotify',
-    label: 'Spotify',
-    placeholder: 'https://open.spotify.com/...',
-  },
-  {
-    key: 'apple',
-    label: 'Apple Music',
-    placeholder: 'https://music.apple.com/...',
-  },
-  {
-    key: 'bandcamp',
-    label: 'Bandcamp',
-    placeholder: 'https://artist.bandcamp.com/...',
-  },
-  {
-    key: 'soundcloud',
-    label: 'SoundCloud',
-    placeholder: 'https://soundcloud.com/...',
-  },
-  {
-    key: 'youtube',
-    label: 'YouTube Music',
-    placeholder: 'https://music.youtube.com/...',
-  },
-  { key: 'tidal', label: 'Tidal', placeholder: 'https://listen.tidal.com/...' },
-] as const;
 
 export function StudioReleaseDetailView({ id }: { id: string }) {
   const user = useAuthStore((state) => state.user);
@@ -583,6 +563,10 @@ function ReleaseSmartLinksPanel({
   const [query, setQuery] = useState('');
   const [contentType, setContentType] = useState('ALL');
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [pluginPrefixes, setPluginPrefixes] = useState<Record<string, string>>(
+    {},
+  );
+  const [fillSlug, setFillSlug] = useState('');
 
   useEffect(() => {
     setTargets(release.smartLinkTargets ?? {});
@@ -591,6 +575,10 @@ function ReleaseSmartLinksPanel({
 
   useEffect(() => {
     void fetchStudioSounds().then((result) => setArchive(result.data));
+  }, []);
+
+  useEffect(() => {
+    void loadDspPluginPrefixes().then(setPluginPrefixes);
   }, []);
 
   const filteredSounds = useMemo(() => {
@@ -611,7 +599,15 @@ function ReleaseSmartLinksPanel({
 
   const saveTargets = async () => {
     const cleaned = Object.fromEntries(
-      Object.entries(targets).filter(([, value]) => value.trim()),
+      DSP_SERVICES.map((service) => {
+        const raw = targetValue(service.key).trim();
+        const url = /^https?:\/\//i.test(raw)
+          ? raw
+          : isPluginStreamService(service.key)
+            ? ''
+            : composeDspUrl(dspPrefixes[service.key] ?? '', raw);
+        return [service.key, url] as const;
+      }).filter(([, url]) => url),
     );
     const result = await patchStudioRelease(release.id, {
       smartLinkTargets: cleaned,
@@ -691,6 +687,12 @@ function ReleaseSmartLinksPanel({
     onMessage(`${item.title} added to release.`);
   };
 
+  const dspPrefixes = prefixesForServices(pluginPrefixes);
+  const missingPluginDsps = DSP_SERVICES.filter(
+    (service) =>
+      isPluginStreamService(service.key) && !pluginPrefixes[service.key],
+  );
+
   const targetValue = (key: string) =>
     key === 'spotify'
       ? spotify
@@ -707,27 +709,87 @@ function ReleaseSmartLinksPanel({
     setTargets((current) => ({ ...current, [key]: value }));
   };
 
+  const fillAllFromPlugins = () => {
+    const filled = fillAllDspUrls(dspPrefixes, fillSlug);
+    Object.entries(filled).forEach(([key, url]) => updateTarget(key, url));
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <StudioPanel
         title="Smart-link destinations"
-        description="Add the services where listeners can hear this release. Empty destinations stay hidden on the public smart-link page."
+        description="Spotify and SoundCloud use the stream URLs from your embed, import, and export plugin settings. Fill all, then edit any link."
       >
-        <div className="grid gap-3 sm:grid-cols-2">
-          {SMART_LINK_TARGETS.map((target) => (
-            <Input
-              key={target.key}
-              label={target.label}
-              placeholder={target.placeholder}
-              value={targetValue(target.key)}
-              onChange={(event) => updateTarget(target.key, event.target.value)}
-            />
-          ))}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <Input
+            label="Path for every service"
+            placeholder="polar-nights"
+            value={fillSlug}
+            onChange={(event) => setFillSlug(event.target.value)}
+            description="Spotify and SoundCloud copy your plugin stream URLs. Other services append this path."
+          />
+          <Button
+            variant="secondary"
+            onClick={fillAllFromPlugins}
+            disabled={Object.keys(dspPrefixes).length === 0}
+          >
+            Fill all
+          </Button>
+        </div>
+        {missingPluginDsps.length > 0 ? (
+          <p className="text-foreground-secondary mt-2 text-xs">
+            Set{' '}
+            {missingPluginDsps.map((service) => service.label).join(' and ')} in{' '}
+            <Link
+              to="/settings/$section"
+              params={{ section: 'plugin-store' }}
+              search={{ category: 'import' }}
+              className="underline underline-offset-2"
+            >
+              Add-ons
+            </Link>{' '}
+            (import, embed, or export) to use those plugin stream URLs.
+          </p>
+        ) : null}
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {DSP_SERVICES.map((target) => {
+            const prefix = dspPrefixes[target.key];
+            const value = targetValue(target.key);
+            const pluginStream = isPluginStreamService(target.key);
+            const showPrefix = Boolean(
+              prefix && !pluginStream && !/^https?:\/\//i.test(value.trim()),
+            );
+            return (
+              <Input
+                key={target.key}
+                label={target.label}
+                placeholder={
+                  pluginStream
+                    ? prefix || 'https://…'
+                    : prefix
+                      ? 'slug or full URL'
+                      : 'https://…'
+                }
+                value={value}
+                onChange={(event) =>
+                  updateTarget(target.key, event.target.value)
+                }
+                startAddon={
+                  showPrefix && prefix ? (
+                    <span className="truncate" title={prefix}>
+                      {displayDspPrefix(prefix)}
+                    </span>
+                  ) : undefined
+                }
+              />
+            );
+          })}
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Button variant="secondary" onClick={() => void saveTargets()}>
-            Save destinations
-          </Button>
+          <SaveButton
+            onClick={() => void saveTargets()}
+            label="Save destinations"
+          />
           <Link to="/r/$slug" params={{ slug: release.smartLinkSlug }}>
             <Button
               size="icon-sm"

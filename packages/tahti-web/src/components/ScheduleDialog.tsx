@@ -157,7 +157,14 @@ export function ScheduleDialog({
           </Button>
         ) : null}
         <Link to="/schedule" onClick={onClose}>
-          <Button size="sm">Open full schedule</Button>
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            aria-label="Open full calendar"
+            title="Open full calendar"
+          >
+            <CalendarDaysIcon size={16} aria-hidden />
+          </Button>
         </Link>
       </Dialog.Actions>
     </Dialog.Root>

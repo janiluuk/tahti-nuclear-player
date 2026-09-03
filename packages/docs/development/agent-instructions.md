@@ -121,7 +121,29 @@ i18n, add an integration journey test, and record the work in the player
 worklog/changelog. Do not invent response shapes or silently mock governance
 endpoints.
 
-## Plugin registry separation guardrail
+## Plugin and theme registry (`tahti-registry`)
+
+The official marketplace catalog is
+[github.com/janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry)
+(`plugins.json`, `themes/`, generated `themes.json`). The player fetches it from
+`https://raw.githubusercontent.com/janiluuk/tahti-registry/master` via
+`packages/player/src/apis/pluginMarketplaceApi.ts` and
+`packages/player/src/apis/themeRegistryApi.ts`. It replaces the upstream
+`NuclearPlayer/plugin-registry` and `NuclearPlayer/theme-registry` repos.
+
+Whenever you add, rename, recategorize, version, retarget, or remove a
+marketplace plugin or theme — or change listing ids, repo slugs, download URLs,
+or public metadata — update `tahti-registry` in the same change set. Prefer a
+sibling checkout at `../tahti-registry`; otherwise clone or open a PR against
+that repo. Run that repo’s `pnpm validate` / `pnpm check-plugins` (and the
+theme validators) before treating the listing as done. Do not ship a plugin or
+theme only in this monorepo’s store UI and leave the registry stale.
+
+The on-disk install list in the player (runtime `plugins.json`) is a different
+file from the marketplace catalog. Do not migrate or rewrite it while preparing
+the ownership split.
+
+### Runtime registry separation guardrail
 
 Start separating the plugin registry conceptually, but do not break or migrate
 the current runtime registry yet. First inventory all callers, the persisted

@@ -1,9 +1,9 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
+  CalendarDaysIcon,
   CalendarPlusIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  ExternalLinkIcon,
   MessageCircleIcon,
   MicIcon,
 } from 'lucide-react';
@@ -255,9 +255,21 @@ export function RadioBookingCalendar({
   return (
     <>
       <Dialog.Root isOpen={isOpen} onClose={onClose} className="max-w-2xl">
-        <Dialog.Title>
-          {scope === 'mine' ? 'My channel schedule' : 'Tahti Radio schedule'}
-        </Dialog.Title>
+        <div className="flex items-center gap-2 pr-8">
+          <Dialog.Title>
+            {scope === 'mine' ? 'My channel schedule' : 'Tahti Radio schedule'}
+          </Dialog.Title>
+          <Link to="/schedule" onClick={onClose}>
+            <Button
+              size="icon-sm"
+              variant="text"
+              aria-label="Open full calendar"
+              title="Open full calendar"
+            >
+              <CalendarDaysIcon size={16} aria-hidden />
+            </Button>
+          </Link>
+        </div>
         <Dialog.Description>
           {scope === 'mine'
             ? 'Your booked slots and shows on Tahti Radio.'
@@ -439,12 +451,6 @@ export function RadioBookingCalendar({
 
         <Dialog.Actions>
           <Dialog.Close>Close</Dialog.Close>
-          <Link to="/schedule" onClick={onClose}>
-            <Button size="sm" variant="secondary">
-              <ExternalLinkIcon size={14} aria-hidden className="mr-1.5" />
-              Open full schedule
-            </Button>
-          </Link>
         </Dialog.Actions>
       </Dialog.Root>
 

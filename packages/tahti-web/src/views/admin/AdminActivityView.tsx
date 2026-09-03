@@ -46,6 +46,7 @@ const ACTION_SCOPE: Record<string, string> = {
   USER_SUSPEND: 'moderation',
   USER_UNSUSPEND: 'moderation',
   BOARD_ROLE_CHANGE: 'moderation',
+  USER_TIER_CHANGE: 'moderation',
   ACCOUNT_DELETE: 'moderation',
   STREAM_KEY_ROTATE: 'broadcast',
   RTMP_TARGET_ADD: 'broadcast',
@@ -73,6 +74,7 @@ const ACTION_LEVEL: Record<string, LogLevel> = {
   CHAT_BAN: 'warn',
   ACCOUNT_DELETE: 'warn',
   MEMBERSHIP_LAPSED: 'warn',
+  USER_TIER_CHANGE: 'warn',
   STREAM_FORCE_OFFLINE: 'warn',
 };
 
@@ -119,6 +121,11 @@ function messageFor(entry: AdminActivityEntry): string {
         typeof meta.amountCents === 'number' ? meta.amountCents : null;
       const amount = cents !== null ? ` (€${(cents / 100).toFixed(2)}/mo)` : '';
       return `${actor} subscribed — ${str('tierName') ?? 'a tier'}${amount}`;
+    }
+    case 'USER_TIER_CHANGE': {
+      const from = str('from') ?? 'unknown';
+      const to = str('to') ?? 'unknown';
+      return `${actor} changed account tier from ${from} to ${to}`;
     }
     default:
       return `${actor} — ${entry.action.toLowerCase().replaceAll('_', ' ')}`;

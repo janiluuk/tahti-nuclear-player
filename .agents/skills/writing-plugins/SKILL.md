@@ -128,4 +128,4 @@ jobs:
 ```
 
 3. Tag release: `git tag v0.1.0 && git push origin v0.1.0`
-4. Submit PR to `NuclearPlayer/plugin-registry` adding your plugin to `plugins.json`
+4. Submit a PR to [janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry) adding your plugin to `plugins.json`. Do not use the upstream `NuclearPlayer/plugin-registry`.

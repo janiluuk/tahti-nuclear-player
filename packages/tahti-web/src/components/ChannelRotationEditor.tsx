@@ -1,9 +1,10 @@
-import { ListMusicIcon, PlayIcon, Trash2Icon } from 'lucide-react';
+import { ListMusicIcon, PauseIcon, PlayIcon, Trash2Icon } from 'lucide-react';
 import { FC, useState } from 'react';
 
 import { Box, Button, Select } from '@tahti-player/ui';
 
 import type { ProgrammeItem } from '../api/studio-extras';
+import { cn } from '../lib/cn';
 
 const SECONDS_PER_MINUTE = 60;
 
@@ -24,6 +25,8 @@ type ChannelRotationEditorProps = {
   onReorder: (items: ProgrammeItem[]) => void;
   onRemove: (item: ProgrammeItem) => void;
   onPlay?: (item: ProgrammeItem) => void;
+  currentItemId?: string | null;
+  isPlaying?: boolean;
   libraryGroups?: Array<{ id: string; label: string; items: ProgrammeItem[] }>;
   onAddGroup?: (group: {
     id: string;
@@ -40,6 +43,8 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
   onReorder,
   onRemove,
   onPlay,
+  currentItemId = null,
+  isPlaying = false,
   libraryGroups = [],
   onAddGroup,
 }) => {
@@ -137,9 +142,13 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
         <ol className="border-border divide-border divide-y overflow-hidden rounded-lg border">
           {items.map((item, index) => {
             const duration = formatDuration(item.durationSec);
+            const isCurrent = currentItemId === item.id;
+            const showPause = isCurrent && isPlaying;
             return (
               <li
                 key={item.id}
+                data-testid={isCurrent ? 'rotation-item-current' : undefined}
+                aria-current={isCurrent ? 'true' : undefined}
                 draggable={!busy}
                 onDragStart={(event) => {
                   event.dataTransfer.effectAllowed = 'move';
@@ -171,14 +180,27 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
                   setDraggedId(null);
                   onReorder(next);
                 }}
-                className={`bg-background flex cursor-grab items-center gap-3 px-3 py-2.5 active:cursor-grabbing ${draggedId === item.id ? 'opacity-50' : ''}`}
+                className={cn(
+                  'flex cursor-grab items-center gap-3 px-3 py-2.5 active:cursor-grabbing',
+                  isCurrent
+                    ? 'bg-primary/10 ring-primary/30 ring-1 ring-inset'
+                    : 'bg-background',
+                  draggedId === item.id && 'opacity-50',
+                )}
               >
                 <span className="text-foreground-secondary w-5 shrink-0 text-center font-mono text-xs">
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">
-                    {item.title}
+                  <div className="flex items-center gap-2">
+                    <div className="truncate text-sm font-medium">
+                      {item.title}
+                    </div>
+                    {isCurrent ? (
+                      <span className="text-primary shrink-0 text-[10px] font-semibold tracking-wide uppercase">
+                        Now
+                      </span>
+                    ) : null}
                   </div>
                   <div className="text-foreground-secondary text-xs">
                     {duration ?? item.status}
@@ -191,10 +213,14 @@ export const ChannelRotationEditor: FC<ChannelRotationEditorProps> = ({
                       variant="text"
                       disabled={busy}
                       onClick={() => onPlay(item)}
-                      aria-label={`Play ${item.title}`}
-                      title="Play"
+                      aria-label={`${showPause ? 'Pause' : 'Play'} ${item.title}`}
+                      title={showPause ? 'Pause' : 'Play'}
                     >
-                      <PlayIcon size={14} aria-hidden />
+                      {showPause ? (
+                        <PauseIcon size={14} aria-hidden />
+                      ) : (
+                        <PlayIcon size={14} aria-hidden />
+                      )}
                     </Button>
                   ) : null}
                   <Button
