@@ -112,3 +112,5 @@ Each slice should land with a registry test, an API-parity note, a mock state, a
 - Are register/unregister lifecycle paths covered?
 - Does the UI use Tahti Player components and i18n conventions?
 - Are type-check, lint, focused tests and the relevant Playwright route capture clean?
+- If this is a Store plugin: does `../tahti-registry` `plugins.json` list it (new) or
+  show a bumped `version`/`downloadUrl` (changed)?

@@ -190,12 +190,19 @@ from Tahti page add-ons and records which sibling `../tahti` API contract each o
 
 Standalone marketplace plugins and themes are listed in
 [github.com/janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry)
-(`plugins.json` / `themes/`). If a change adds, removes, renames, or retargets a
-store listing — including Spotify, SoundCloud, Bandcamp, and MusicBrainz when
-they are catalogued there — update that registry in the same work (sibling
-`../tahti-registry` if checked out). In-app Add-ons that are Tahti page plugins
-rather than marketplace zips stay owned here, but do not let their public
-listings drift from `tahti-registry`.
+(`plugins.json` / `themes/`). Sibling checkout: `../tahti-registry`. After any
+plugin change, check that catalog before finishing:
+
+- **Added** — the plugin must appear as a new `plugins.json` row so users can
+  see it in the registry repo. Do not leave it only in this package.
+- **Changed** — bump the plugin `version` and the matching registry
+  `version`/`downloadUrl`. Auto-update reads the catalog, not the local tree.
+- **Removed / renamed / retargeted** — update or delete the catalog row.
+
+Run `pnpm validate` / `pnpm check-plugins` in `tahti-registry`. In-app Add-ons
+that are Tahti page plugins rather than marketplace zips stay owned here, but
+do not let a public store listing drift from `tahti-registry`. Full checklist:
+root `AGENTS.md` → Plugin and theme registry.
 
 ## The goal
 

@@ -10,7 +10,7 @@ Tahti Player has a built-in theme store where you can browse and install themes 
 
 ## Browsing the store
 
-The Store tab lists themes from the official theme registry at [github.com/NuclearPlayer/theme-registry](https://github.com/NuclearPlayer/theme-registry). Each theme shows a color palette preview (diagonal swatches), its name, description, author, and tags.
+The Store tab lists themes from the official theme registry at [github.com/janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry) (`themes/` and generated `themes.json`). Each theme shows a color palette preview (diagonal swatches), its name, description, author, and tags.
 
 The search bar filters by name, description, author, and tags.
 
@@ -42,4 +42,4 @@ Store themes live in a `themes/store/` subdirectory inside your app data folder,
 
 ## Creating themes for the store
 
-Store themes are regular [advanced theme](themes-advanced.md) JSON files with extra metadata fields: author, description, tags, and a color palette for the preview. See the [theme registry](https://github.com/NuclearPlayer/theme-registry) for submission instructions and the required format.
+Store themes are regular [advanced theme](themes-advanced.md) JSON files with extra metadata fields: author, description, tags, and a color palette for the preview. See [tahti-registry](https://github.com/janiluuk/tahti-registry) (`themes/`) for submission instructions and the required format. New themes must appear there; changed themes must bump their catalog version.

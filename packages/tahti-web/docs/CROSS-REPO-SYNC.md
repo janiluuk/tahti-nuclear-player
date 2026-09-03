@@ -11,10 +11,11 @@ Canonical pointers when both checkouts are open:
 | Production route map | `../tahti/docs/flows/site-map.md` (`/dashboard/*`) |
 | Beta deploy ops | `deploy/README.md` here + `../tahti/ops/beta-tahti-live.md` |
 | Cutover gates | `CUTOVER.md` here (prod stub: `../tahti/ops/nuclear-web-cutover.md`) |
+| Plugin/theme Store catalog | Sibling `../tahti-registry` (`plugins.json`, `themes/`). After plugin add/change, check that repo (new listing or version bump). |
 
 ## Checkout names
 
-This monorepo directory may be `tahti-nuclear` or `tahti-player`. Sibling production stack is always **`../tahti`** (GitHub `janiluuk/tahti-org`). Older ops docs still say `tahti-player` — use the path that exists on disk.
+This monorepo directory may be `tahti-nuclear` or `tahti-player`. Sibling production stack is always **`../tahti`** (GitHub `janiluuk/tahti-org`). Official Store catalog is **`../tahti-registry`** (GitHub `janiluuk/tahti-registry`). Older ops docs still say `tahti-player` — use the path that exists on disk.
 
 ## Route aliases (prod → beta)
 

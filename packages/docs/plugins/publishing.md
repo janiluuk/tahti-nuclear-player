@@ -4,13 +4,13 @@ description: Package, release, and submit your plugin to the Tahti Player plugin
 
 # Publishing
 
-Tahti Player's plugin store is backed by a static registry at [github.com/NuclearPlayer/plugin-registry](https://github.com/NuclearPlayer/plugin-registry). The registry lists plugin metadata (name, repo, category). The actual plugin code lives in the developer's own GitHub repository. When a user installs a plugin, Tahti Player fetches the latest GitHub release from that repo.
+Tahti Player's plugin store is backed by a static registry at [github.com/janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry). The registry lists plugin metadata (name, repo, category, version). The actual plugin code lives in the developer's own GitHub repository. When a user installs a plugin, Tahti Player uses the catalog `downloadUrl`; auto-update compares catalog `version` to the installed copy.
 
 {% hint style="info" %}
-The registry org and `nuclear-plugin-*` naming convention predate the Tahti Player rebrand and haven't changed on the wire — plugins built against them work unmodified. The manifest config field has moved from `nuclear` to `tahti` (see below); the old key is still read for backward compatibility.
+This catalog replaced the upstream `NuclearPlayer/plugin-registry`. Submit listings only to `janiluuk/tahti-registry`. The manifest config field is `tahti` (see below); the old `nuclear` key is still read for backward compatibility.
 {% endhint %}
 
-Publishing a plugin takes three steps: configure your `package.json`, create a GitHub release with a `plugin.zip` asset, and submit a PR to the registry.
+Publishing a plugin takes three steps: configure your `package.json`, create a GitHub release with a `plugin.zip` asset, and add or update the listing in `tahti-registry`.
 
 ---
 
@@ -110,7 +110,7 @@ Set up CI to build and create the release automatically. Manual zip creation is 
 
 ## Submitting to the registry
 
-1. Fork [NuclearPlayer/plugin-registry](https://github.com/NuclearPlayer/plugin-registry).
+1. Prefer a sibling checkout at `../tahti-registry`; otherwise fork [janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry).
 2. Add your plugin to the `plugins` array in `plugins.json`:
 
 ```json
@@ -151,12 +151,17 @@ Set up CI to build and create the release automatically. Manual zip creation is 
 
 ## Updating your plugin
 
-You don't need to update the registry to release new versions. Create a new GitHub release with an updated `plugin.zip`, and Tahti Player will fetch it the next time someone installs your plugin.
+1. Bump `version` in the plugin `package.json`.
+2. Create a new GitHub release with an updated `plugin.zip`.
+3. **Update `tahti-registry` in the same change set** — set the matching `plugins.json` `version` and `downloadUrl` to the new release. Auto-update will not reach users until the catalog version is newer than the installed copy.
+4. Run `pnpm validate` / `pnpm check-plugins` in `tahti-registry`.
 
-Only submit a registry PR if you need to change the plugin's metadata (description, category, tags, etc.).
+A new plugin is not published until its row exists in `tahti-registry` `plugins.json`. Users should be able to see it in that repository.
+
+Only a catalog PR (or sibling commit) is enough for metadata-only edits (description, category, tags) that do not need a new zip.
 
 {% hint style="info" %}
-Tahti Player checks for plugin updates on startup. If auto-update is enabled (it is by default), installed store plugins are automatically updated to the latest version. Users can disable this in Settings under Plugins.
+Tahti Player checks for plugin updates on startup. If auto-update is enabled (it is by default), installed store plugins are automatically updated to the latest **catalog** version. Users can disable this in Settings under Plugins.
 {% endhint %}
 
 ## Examples

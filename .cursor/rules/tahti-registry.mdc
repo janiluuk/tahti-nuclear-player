@@ -1,0 +1,18 @@
+---
+description: After plugin/theme add or change, check and update github.com/janiluuk/tahti-registry (version bump; new listings must appear there).
+globs: "**/plugins/**"
+alwaysApply: false
+---
+
+# tahti-registry (marketplace catalog)
+
+The Store catalog is [janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry), sibling `../tahti-registry`. It is not the player's on-disk install `plugins.json`. Auto-update uses catalog `version` + `downloadUrl`.
+
+After plugin or theme work, check that repo before finishing:
+
+- **Added** — new `plugins.json` (or `themes/`) row. Users must see it in the registry repo.
+- **Changed** — bump plugin `package.json` version and the matching catalog `version`/`downloadUrl`.
+- **Removed / renamed / retargeted** — update or delete the catalog row.
+- Run `pnpm validate` / `pnpm check-plugins` in `tahti-registry`.
+
+Full checklist: root `AGENTS.md` → Plugin and theme registry.

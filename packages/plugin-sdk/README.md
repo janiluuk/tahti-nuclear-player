@@ -2,7 +2,7 @@
 
 Build plugins for Tahti Player music player.
 
-Plugins are JavaScript/TypeScript modules that extend Tahti Player's functionality. Write lifecycle hooks, register providers, distribute it through the [plugin registry](https://github.com/NuclearPlayer/plugin-registry).
+Plugins are JavaScript/TypeScript modules that extend Tahti Player's functionality. Write lifecycle hooks, register providers, distribute it through the [plugin registry](https://github.com/janiluuk/tahti-registry). After you add a plugin it must appear in that repo's `plugins.json`; after you change one, bump `version` there as well as in `package.json`.
 
 ## Quick Start
 

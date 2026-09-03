@@ -127,5 +127,11 @@ jobs:
           generate_release_notes: true
 ```
 
-3. Tag release: `git tag v0.1.0 && git push origin v0.1.0`
-4. Submit a PR to [janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry) adding your plugin to `plugins.json`. Do not use the upstream `NuclearPlayer/plugin-registry`.
+3. Bump `package.json` `version`, tag the release (`git tag vX.Y.Z && git push origin vX.Y.Z`).
+4. Update [janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry) `plugins.json` in
+   the same change set (sibling `../tahti-registry`):
+   - **New plugin** — add a row. Users must see it in that repo.
+   - **Changed plugin** — bump the catalog `version` and `downloadUrl` to the new release.
+     Player auto-update reads the catalog, not GitHub latest alone.
+5. Run `pnpm validate` / `pnpm check-plugins` in `tahti-registry`. Do not use
+   `NuclearPlayer/plugin-registry`.

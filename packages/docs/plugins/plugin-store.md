@@ -8,7 +8,7 @@ Tahti Player has a built-in plugin store. Open Preferences from the sidebar, and
 
 ## Browsing the store
 
-The Store tab lists plugins from the official plugin registry hosted at [github.com/NuclearPlayer/plugin-registry](https://github.com/NuclearPlayer/plugin-registry).
+The Store tab lists plugins from the official plugin registry hosted at [github.com/janiluuk/tahti-registry](https://github.com/janiluuk/tahti-registry).
 
 You can search by name, description, or author, and filter by category.
 

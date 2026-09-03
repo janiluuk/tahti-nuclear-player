@@ -25,6 +25,9 @@ without breaking unrelated categories.
    the API task to the workplan—do not invent a successful mutation.
 4. Decide whether the integration is a runtime provider, a configured page widget, or a deep-link
    to an existing Tahti flow. Keep those shapes separate.
+5. If it is a marketplace/store plugin, check sibling `../tahti-registry` (`plugins.json`):
+   a new plugin must appear there; a changed plugin must bump `version` (and `downloadUrl`).
+   See root `AGENTS.md` → Plugin and theme registry.
 
 ## Plugin-owned settings
 
