@@ -89,3 +89,18 @@ export function withMockAuth(
     return <Story />;
   };
 }
+
+/**
+ * Matches the live app canvas: themed background + page padding. Fullscreen
+ * Storybook stories without this look like they drift (transparent canvas,
+ * flush-to-edge pages) compared with AppShell's main column.
+ */
+export function withPageSurface(
+  className = 'bg-background text-foreground min-h-screen p-6',
+): Decorator {
+  return (Story) => (
+    <div className={className}>
+      <Story />
+    </div>
+  );
+}

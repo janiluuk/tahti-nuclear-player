@@ -3,7 +3,6 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   BookOpenIcon,
-  ChevronRightIcon,
   HeadphonesIcon,
   LifeBuoyIcon,
   ListIcon,
@@ -13,12 +12,20 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 
-import { Input, Tabs } from '@tahti-player/ui';
+import {
+  Badge,
+  Box,
+  Button,
+  EmptyState,
+  Input,
+  SectionShell,
+  Tabs,
+} from '@tahti-player/ui';
 
 import { PageFrame, PageHeader } from '../components/PageHeader';
-import { PageEmpty } from '../components/PageStates';
+import { StudioPanel } from '../components/StudioPanel';
 import { SupportContactForm } from '../components/SupportContactForm';
 import {
   getHelpArticle,
@@ -251,32 +258,63 @@ function sectionId(heading: string, index: number): string {
   return `${slug || 'section'}-${index}`;
 }
 
+function HelpLinkCard({
+  title,
+  description,
+  meta,
+  icon,
+}: {
+  title: string;
+  description: string;
+  meta?: ReactNode;
+  icon?: ReactNode;
+}) {
+  return (
+    <Box
+      variant="tertiary"
+      shadow="default"
+      className="group hover:border-primary flex min-h-32 min-w-0 flex-col justify-between gap-3 transition-colors"
+    >
+      <div className="flex min-w-0 items-start gap-3">
+        {icon ? (
+          <span className="bg-primary text-primary-foreground flex size-9 shrink-0 items-center justify-center rounded-md">
+            {icon}
+          </span>
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="font-display min-w-0 text-base font-bold tracking-tight">
+              {title}
+            </h3>
+            <ArrowRightIcon
+              size={17}
+              aria-hidden
+              className="text-foreground-secondary mt-0.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+            />
+          </div>
+          <p className="text-foreground-secondary mt-2 text-sm leading-relaxed">
+            {description}
+          </p>
+        </div>
+      </div>
+      {meta ? <div className="mt-auto">{meta}</div> : null}
+    </Box>
+  );
+}
+
 function HelpGuideCard({ article }: { article: HelpArticle }) {
   return (
-    <Link
-      to="/help/$slug"
-      params={{ slug: article.slug }}
-      className="border-border bg-background-secondary/50 hover:border-primary group flex min-h-36 min-w-0 flex-col justify-between rounded-xl border p-4 transition-colors"
-    >
-      <div>
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display min-w-0 text-base font-bold tracking-tight">
-            {article.title}
-          </h3>
-          <ArrowRightIcon
-            size={17}
-            aria-hidden
-            className="text-foreground-secondary transition-transform group-hover:translate-x-0.5"
-          />
-        </div>
-        <p className="text-foreground-secondary mt-2 text-sm leading-relaxed">
-          {article.description}
-        </p>
-      </div>
-      <span className="text-foreground-secondary mt-4 text-xs font-semibold tracking-wide uppercase">
-        {article.sections.length}{' '}
-        {article.sections.length === 1 ? 'section' : 'sections'}
-      </span>
+    <Link to="/help/$slug" params={{ slug: article.slug }} className="min-w-0">
+      <HelpLinkCard
+        title={article.title}
+        description={article.description}
+        meta={
+          <Badge variant="pill" color="secondary">
+            {article.sections.length}{' '}
+            {article.sections.length === 1 ? 'section' : 'sections'}
+          </Badge>
+        }
+      />
     </Link>
   );
 }
@@ -303,84 +341,61 @@ export function HelpHubView() {
         title="Help center"
         subtitle={HELP_HUB_INTRO}
         actions={
-          <Link
-            to="/about"
-            className="bg-secondary text-secondary-foreground hover:bg-secondary/80 inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-semibold transition-colors"
-          >
-            <BookOpenIcon size={16} aria-hidden />
-            About Tahti
+          <Link to="/about">
+            <Button size="sm" variant="secondary">
+              <BookOpenIcon size={16} aria-hidden className="mr-1.5" />
+              About Tahti
+            </Button>
           </Link>
         }
       />
 
-      <section
-        data-help-documents
-        aria-labelledby="help-documents-heading"
-        className="border-border bg-background-secondary/30 min-w-0 rounded-2xl border p-4 sm:p-5"
+      <StudioPanel
+        title="Documents and public records"
+        description="Find transparency, governance, legal, and service documents from one place."
+        className="min-w-0"
       >
-        <div className="mb-3">
-          <p className="text-foreground-secondary text-xs font-bold tracking-[0.16em] uppercase">
+        <div data-help-documents>
+          <p className="text-foreground-secondary mb-3 text-xs font-bold tracking-[0.16em] uppercase">
             Reference library
           </p>
-          <h2
-            id="help-documents-heading"
-            className="font-display mt-1 text-xl font-bold tracking-tight"
-          >
-            Documents and public records
-          </h2>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Find transparency, governance, legal, and service documents from one
-            place.
-          </p>
-        </div>
-        <Tabs
-          items={DOCUMENT_GROUPS.map((group) => ({
-            id: group.id,
-            label: group.label,
-            content: (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {group.items.map((item) => (
-                  <Link
-                    key={item.title}
-                    to={item.to as never}
-                    className="border-border bg-background hover:border-primary group rounded-xl border p-3 transition-colors"
-                  >
-                    <span className="flex items-center justify-between gap-2 text-sm font-semibold">
-                      {item.title}
-                      <ArrowRightIcon
-                        size={15}
-                        aria-hidden
-                        className="text-foreground-secondary transition-transform group-hover:translate-x-0.5"
+          <Tabs
+            items={DOCUMENT_GROUPS.map((group) => ({
+              id: group.id,
+              label: group.label,
+              content: (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.title}
+                      to={item.to as never}
+                      className="min-w-0"
+                    >
+                      <HelpLinkCard
+                        title={item.title}
+                        description={item.description}
                       />
-                    </span>
-                    <span className="text-foreground-secondary mt-1 block text-xs leading-relaxed">
-                      {item.description}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            ),
-          }))}
-          listClassName="overflow-x-auto"
-        />
-      </section>
+                    </Link>
+                  ))}
+                </div>
+              ),
+            }))}
+            listClassName="overflow-x-auto"
+          />
+        </div>
+      </StudioPanel>
 
-      <section data-help-hub-panel aria-labelledby="quick-start-heading">
-        <div className="mb-3 flex items-end justify-between gap-3">
-          <div>
-            <p className="text-foreground-secondary text-xs font-bold tracking-[0.16em] uppercase">
-              Quick start
-            </p>
-            <h2
-              id="quick-start-heading"
-              className="font-display mt-1 text-xl font-bold tracking-tight"
-            >
-              Pick a path
-            </h2>
-          </div>
-          <span className="text-foreground-secondary hidden text-xs sm:block">
+      <SectionShell title="Pick a path" data-testid="help-quick-start">
+        <div
+          data-help-hub-panel
+          className="mb-3 flex items-end justify-between gap-3"
+        >
+          <p className="text-foreground-secondary text-xs font-bold tracking-[0.16em] uppercase">
+            Quick start
+          </p>
+          <Badge variant="pill" color="secondary">
             {HELP_ARTICLES.length} guides
-          </span>
+          </Badge>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
           {QUICK_STARTS.map((item) => {
@@ -390,47 +405,27 @@ export function HelpHubView() {
                 key={item.title}
                 to="/help/$slug"
                 params={{ slug: item.slug }}
-                className="border-border bg-background-secondary/40 hover:border-primary group flex min-w-0 items-start gap-3 rounded-xl border p-4 transition-colors"
+                className="min-w-0"
               >
-                <span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
-                  <Icon size={18} aria-hidden />
-                </span>
-                <span className="min-w-0">
-                  <span className="flex items-center gap-1 text-sm font-bold">
-                    {item.title}
-                    <ChevronRightIcon
-                      size={15}
-                      aria-hidden
-                      className="text-foreground-secondary transition-transform group-hover:translate-x-0.5"
-                    />
-                  </span>
-                  <span className="text-foreground-secondary mt-1 block text-sm leading-relaxed">
-                    {item.description}
-                  </span>
-                </span>
+                <HelpLinkCard
+                  title={item.title}
+                  description={item.description}
+                  icon={<Icon size={18} aria-hidden />}
+                />
               </Link>
             );
           })}
         </div>
-      </section>
+      </SectionShell>
 
-      <section
-        data-help-hub-panel
-        aria-labelledby="guide-index-heading"
-        className="flex min-w-0 flex-col gap-4"
-      >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-foreground-secondary text-xs font-bold tracking-[0.16em] uppercase">
-              Guide index
-            </p>
-            <h2
-              id="guide-index-heading"
-              className="font-display mt-1 text-xl font-bold tracking-tight"
-            >
-              Browse all help
-            </h2>
-          </div>
+      <SectionShell title="Browse all help" data-testid="help-guide-index">
+        <div
+          data-help-hub-panel
+          className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+        >
+          <p className="text-foreground-secondary text-xs font-bold tracking-[0.16em] uppercase">
+            Guide index
+          </p>
           <div className="relative w-full sm:max-w-sm">
             <SearchIcon
               size={16}
@@ -448,9 +443,18 @@ export function HelpHubView() {
         </div>
 
         {visibleGroups.length === 0 ? (
-          <PageEmpty
+          <EmptyState
             title="No guides match"
             description={`Try another search${query ? ` instead of “${query}”` : ''}.`}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setQuery('')}
+              >
+                Clear search
+              </Button>
+            }
           />
         ) : query.trim() ? (
           <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -489,7 +493,7 @@ export function HelpHubView() {
             listClassName="overflow-x-auto"
           />
         )}
-      </section>
+      </SectionShell>
 
       <p className="text-foreground-secondary border-border border-t pt-5 text-xs">
         Looking for the latest public version?{' '}
@@ -523,12 +527,14 @@ export function HelpArticleView({ slug }: { slug: string }) {
   if (!article) {
     return (
       <PageFrame maxWidth="3xl">
-        <PageEmpty
+        <EmptyState
           title="Article not found"
           description={`No help page for ${slug}.`}
           action={
-            <Link to="/help" className="underline-offset-2 hover:underline">
-              Back to help hub
+            <Link to="/help">
+              <Button size="sm" variant="secondary">
+                Back to help hub
+              </Button>
             </Link>
           }
         />
@@ -544,11 +550,11 @@ export function HelpArticleView({ slug }: { slug: string }) {
         title={article.title}
         subtitle={article.description}
         back={
-          <Link
-            to="/help"
-            className="text-foreground-secondary inline-flex items-center gap-1 text-xs hover:underline"
-          >
-            <ArrowLeftIcon size={14} aria-hidden /> Help center
+          <Link to="/help">
+            <Button size="xs" variant="text">
+              <ArrowLeftIcon size={14} aria-hidden className="mr-1" />
+              Help center
+            </Button>
           </Link>
         }
         meta={
@@ -567,15 +573,12 @@ export function HelpArticleView({ slug }: { slug: string }) {
 
       <div className="grid min-w-0 gap-8 lg:grid-cols-[13rem_minmax(0,1fr)]">
         <aside className="h-fit lg:sticky lg:top-4">
-          <div className="border-border bg-background-secondary/40 rounded-xl border p-4">
+          <Box variant="tertiary" shadow="default" className="flex-col gap-3">
             <div className="flex items-center gap-2 text-sm font-bold">
               <ListIcon size={16} aria-hidden />
               In this guide
             </div>
-            <nav
-              className="mt-3 flex flex-col gap-2"
-              aria-label="Article sections"
-            >
+            <nav className="flex flex-col gap-2" aria-label="Article sections">
               {article.sections.map((section, index) => (
                 <a
                   key={`${section.heading}-${index}`}
@@ -586,21 +589,23 @@ export function HelpArticleView({ slug }: { slug: string }) {
                 </a>
               ))}
             </nav>
-          </div>
+          </Box>
         </aside>
 
         <article className="min-w-0">
           <div className="flex flex-col gap-4">
             {article.sections.map((section, index) => (
-              <section
+              <Box
                 key={`${section.heading}-${index}`}
                 id={sectionId(section.heading, index)}
-                className="border-border bg-background-secondary/35 scroll-mt-4 rounded-xl border p-5 sm:p-6"
+                variant="tertiary"
+                shadow="default"
+                className="scroll-mt-4 flex-col gap-3 sm:p-6"
               >
                 <div className="flex items-start gap-3">
-                  <span className="bg-primary text-primary-foreground flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+                  <Badge variant="pill" color="inverted">
                     {index + 1}
-                  </span>
+                  </Badge>
                   <div className="min-w-0 flex-1">
                     <h2 className="font-display text-xl font-bold tracking-tight">
                       {section.heading}
@@ -652,7 +657,7 @@ export function HelpArticleView({ slug }: { slug: string }) {
                     ) : null}
                   </div>
                 </div>
-              </section>
+              </Box>
             ))}
           </div>
 
@@ -667,33 +672,23 @@ export function HelpArticleView({ slug }: { slug: string }) {
               aria-label="Related guides"
               className="border-border mt-8 border-t pt-5"
             >
-              <p className="text-foreground-secondary mb-3 text-xs font-bold tracking-[0.16em] uppercase">
-                Related guides
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {related.map((item) => (
-                  <Link
-                    key={item.slug}
-                    to="/help/$slug"
-                    params={{ slug: item.slug }}
-                    className="border-border hover:border-primary group flex items-start justify-between gap-2 rounded-xl border p-4 transition-colors"
-                  >
-                    <span className="min-w-0">
-                      <span className="block text-sm font-bold">
-                        {item.title}
-                      </span>
-                      <span className="text-foreground-secondary mt-1 block text-xs leading-relaxed">
-                        {item.description}
-                      </span>
-                    </span>
-                    <ArrowRightIcon
-                      size={15}
-                      aria-hidden
-                      className="text-foreground-secondary mt-0.5 shrink-0 transition-transform group-hover:translate-x-0.5"
-                    />
-                  </Link>
-                ))}
-              </div>
+              <SectionShell title="Related guides">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {related.map((item) => (
+                    <Link
+                      key={item.slug}
+                      to="/help/$slug"
+                      params={{ slug: item.slug }}
+                      className="min-w-0"
+                    >
+                      <HelpLinkCard
+                        title={item.title}
+                        description={item.description}
+                      />
+                    </Link>
+                  ))}
+                </div>
+              </SectionShell>
             </nav>
           )}
         </article>

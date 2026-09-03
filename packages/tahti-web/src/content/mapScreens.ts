@@ -1,7 +1,8 @@
 /** Screenshot atlas + concrete flow cases for the Tahti map (`/more`).
  *
  * Old = production Tahti chrome (`public/map/{listen,studio,auth,settings}/`)
- * New = beta.tahti.live (`public/map/nuclear/`). Missing new shots show
+ * New = Nuclear beta (`public/map/nuclear/`, refreshed via
+ * `scripts/capture-map-screens.mjs`). Missing new shots show
  * "beta.tahti.live shot pending" rather than inventing pixels.
  */
 

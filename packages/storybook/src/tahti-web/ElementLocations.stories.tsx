@@ -248,6 +248,11 @@ const locations: ElementLocation[] = [
     kind: 'Component',
     pages: 'Help, Settings → Support',
   },
+  {
+    element: 'HelpHubView / HelpArticleView',
+    kind: 'View',
+    pages: '/help, /help/$slug',
+  },
 ];
 
 const meta: Meta = {

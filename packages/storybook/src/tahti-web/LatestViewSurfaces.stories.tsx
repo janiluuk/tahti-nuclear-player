@@ -17,7 +17,11 @@ import { StudioStatsView } from '@tahti-web/views/studio/StudioStatsView';
 import { StudioStripeView } from '@tahti-web/views/studio/StudioStripeView';
 import { StudioUploadView } from '@tahti-web/views/studio/StudioUploadView';
 
-import { withMockAuth, withTahtiRouter } from './_lib/decorators';
+import {
+  withMockAuth,
+  withPageSurface,
+  withTahtiRouter,
+} from './_lib/decorators';
 
 const meta: Meta = {
   title: 'Tahti/Reference/Latest view surfaces',
@@ -26,11 +30,11 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          'Rendered route-level surfaces added or reorganized in the latest Tahti pass. Each story documents the page where the surface lives.',
+          'Rendered route-level surfaces added or reorganized in the latest Tahti pass. Each story documents the page where the surface lives. Wrapped with `withPageSurface` so background and padding match the live AppShell canvas.',
       },
     },
   },
-  decorators: [withMockAuth()],
+  decorators: [withMockAuth(), withPageSurface()],
 };
 
 export default meta;

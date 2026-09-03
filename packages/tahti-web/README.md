@@ -2,7 +2,7 @@
 
 Tahti’s listen, artist studio and administration client. It combines the Nuclear Player experience with publishing, broadcasting, community and platform-management tools.
 
-The screenshots below are a guided tour of the current product. They were captured from the populated mock environment with the privileged board account, so the guide shows the full navigation and representative content without exposing production data. The capture script is [`scripts/capture-readme-guide.mjs`](./scripts/capture-readme-guide.mjs), and the complete manifest is [`docs/readme-shots/manifest.json`](./docs/readme-shots/manifest.json).
+The [View guide](#view-guide) below shows large highlights for each main product job. The complete indexed gallery lives in [`docs/VIEW-GUIDE.md`](./docs/VIEW-GUIDE.md). Shots come from the populated mock environment with the board account ([`scripts/capture-readme-guide.mjs`](./scripts/capture-readme-guide.mjs), [`docs/readme-shots/manifest.json`](./docs/readme-shots/manifest.json)).
 
 ## What Tahti is for
 
@@ -14,109 +14,151 @@ The screenshots below are a guided tour of the current product. They were captur
 
 ## View guide
 
-Every image is a full-page route capture. The narration describes the job the view supports and the key navigation context to look for.
+Highlights of the main product jobs. Each image is a large 1680×1050 capture from the mock board account. The full indexed gallery of every documented view is in [`docs/VIEW-GUIDE.md`](./docs/VIEW-GUIDE.md) (manifest: [`docs/readme-shots/manifest.json`](./docs/readme-shots/manifest.json)).
 
-### Listener and account
+### Listen
 
-| View               | Screenshot                                                        | What you can do                                                                                          |
-| ------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Listener home      | ![Listener home](./docs/readme-shots/listen-home.png)             | Start with a mixed home feed of stations and content, then continue playback from the persistent player. |
-| Radio directory    | ![Radio directory](./docs/readme-shots/listen-radio.png)          | Browse live channels, inspect their status and open a channel without leaving the listener area.         |
-| Discover           | ![Discover](./docs/readme-shots/listen-discover.png)              | Explore new tracks, artists and collections through the discovery catalogue.                             |
-| Your feed          | ![Your feed](./docs/readme-shots/listen-feed.png)                 | Read followed-artist updates and play tracks shared in the feed.                                         |
-| All sounds         | ![All sounds](./docs/readme-shots/library-all-sounds.png)         | Search and filter personal audio, inspect source and upload metadata, and start playback.                |
-| Collections        | ![Collections](./docs/readme-shots/library-collections.png)       | Open a collection or playlist and organize longer-form catalogue content.                                |
-| Recordings         | ![Recordings](./docs/readme-shots/library-recordings.png)         | Review recordings from broadcasts and shows.                                                             |
-| History            | ![History](./docs/readme-shots/library-history.png)               | Return to recently played items and keep listening context in one place.                                 |
-| Favourites         | ![Favourites](./docs/readme-shots/library-favorites.png)          | Revisit loved tracks from the library.                                                                   |
-| Smartlinks         | ![Smartlinks](./docs/readme-shots/library-smartlinks.png)         | Create and monitor shareable release links.                                                              |
-| Messages           | ![Messages](./docs/readme-shots/listener-messages.png)            | Open conversations directly from the top bar and identify the active thread.                             |
-| Account            | ![Account settings](./docs/readme-shots/settings-account.png)     | Manage account details, security, privacy, notifications and sessions.                                   |
-| Artist settings    | ![Artist settings](./docs/readme-shots/settings-artist.png)       | Edit identity, branding, gallery, press material and connected profiles.                                 |
-| Channel settings   | ![Channel settings](./docs/readme-shots/settings-channel.png)     | Configure channel-facing details and discovery visibility.                                               |
-| Broadcast settings | ![Broadcast settings](./docs/readme-shots/settings-broadcast.png) | Configure broadcast defaults, green room behavior and destinations.                                      |
-| Audience settings  | ![Audience settings](./docs/readme-shots/settings-audience.png)   | Manage fan tiers, subscriptions and grants.                                                              |
-| Themes             | ![Themes](./docs/readme-shots/settings-themes.png)                | Choose the application appearance and visualizer preferences.                                            |
-| Add-ons            | ![Add-ons](./docs/readme-shots/settings-addons.png)               | Configure integrations, player extensions and import/export providers.                                   |
-| What’s new         | ![What’s new](./docs/readme-shots/settings-whats-new.png)         | Read release notes and product announcements.                                                            |
+Discover stations and catalogue, then keep listening from the persistent player.
 
-### Public channel and community
+#### Listener home
 
-| View                          | Screenshot                                                       | What you can do                                                                               |
-| ----------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Artist channel / Aurora       | ![Artist channel](./docs/readme-shots/public-channel-aurora.png) | Visit a public artist channel with identity, catalogue, chat and the Aurora visual treatment. |
-| Radio channel / Reactive Grid | ![Radio channel](./docs/readme-shots/public-radio-grid.png)      | Listen to a live station with a distinct Reactive Grid visualizer preset.                     |
-| Artist profile                | ![Artist profile](./docs/readme-shots/public-artist.png)         | Read the artist story and people section, browse public content and follow the artist.        |
-| Governance                    | ![Governance](./docs/readme-shots/governance.png)                | Read proposals, participate in votes and follow community discussion context.                 |
-| Help center                   | ![Help center](./docs/readme-shots/help-center.png)              | Find clear product guidance and essential background information.                             |
-| Platform status               | ![Platform status](./docs/readme-shots/platform-status.png)      | Check the health of Tahti services and operational signals.                                   |
+<img src="./docs/readme-shots/listen-home.png" alt="Listener home" width="1680" />
 
-### Artist studio
+Browse stations, releases and the active player. · [`/`](./docs/VIEW-GUIDE.md#listen-home)
 
-| View                      | Screenshot                                                         | What you can do                                                          |
-| ------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| Studio overview           | ![Studio overview](./docs/readme-shots/studio-overview.png)        | See upcoming shows, governance attention and useful next actions.        |
-| Stats / Overview          | ![Stats overview](./docs/readme-shots/studio-stats-overview.png)   | Get a high-level view of catalogue, audience and broadcast performance.  |
-| Stats / Plays & listeners | ![Plays and listeners](./docs/readme-shots/studio-stats-plays.png) | Compare listening activity and audience numbers over selectable periods. |
-| Stats / Top lists         | ![Top lists](./docs/readme-shots/studio-stats-top-lists.png)       | Inspect strongest tracks, content types and listener locations.          |
-| Posts                     | ![Posts](./docs/readme-shots/studio-posts.png)                     | Publish artist updates and manage newsletter communication.              |
-| Distribution              | ![Distribution](./docs/readme-shots/studio-distribution.png)       | Prepare catalogue delivery and follow destination requirements.          |
-| Insights                  | ![Insights](./docs/readme-shots/studio-insights.png)               | Review insight summaries for the catalogue.                              |
-| Audience                  | ![Audience](./docs/readme-shots/studio-audience.png)               | Manage audience relationships, tiers and supporter features.             |
-| Sounds                    | ![Sounds](./docs/readme-shots/studio-sounds.png)                   | Filter, sort and play sound content, then open the full editor/player.   |
-| Clips                     | ![Clips](./docs/readme-shots/studio-clips.png)                     | Keep short clips and radio announcements in their own content type.      |
-| Collections               | ![Studio collections](./docs/readme-shots/studio-collections.png)  | Create and browse albums, EPs, podcasts, playlists and sets.             |
-| Releases                  | ![Releases](./docs/readme-shots/studio-releases.png)               | Manage artwork, metadata, tracks and shop links.                         |
-| Recordings                | ![Studio recordings](./docs/readme-shots/studio-recordings.png)    | Turn broadcasts into polished, publishable recordings.                   |
-| Upload                    | ![Upload](./docs/readme-shots/studio-upload.png)                   | Bring in local audio or use configured import providers.                 |
-| Audio editor              | ![Audio editor](./docs/readme-shots/studio-editor.png)             | Start a session or open existing material from the library.              |
-| Stash                     | ![Stash](./docs/readme-shots/studio-stash.png)                     | Keep private working material out of the public catalogue.               |
-| Go live                   | ![Go live](./docs/readme-shots/studio-go-live.png)                 | Run pre-flight, control live playback and edit the rotation.             |
-| Broadcast                 | ![Broadcast](./docs/readme-shots/studio-schedule.png)              | Plan live shows, manage 24/7 rotation, and review schedule analytics.    |
-| Events                    | ![Events](./docs/readme-shots/studio-events.png)                   | Browse upcoming and past events with venue and ticket context.           |
-| New event                 | ![New event](./docs/readme-shots/studio-event-new.png)             | Create an event and connect it to a venue and show.                      |
-| Venues                    | ![Venues](./docs/readme-shots/studio-venues.png)                   | Browse the venue directory or prepare a new venue entry.                 |
-| Shows                     | ![Shows](./docs/readme-shots/studio-shows.png)                     | Manage one-off shows and continuing series.                              |
-| Show detail               | ![Show detail](./docs/readme-shots/studio-show-detail.png)         | Edit show metadata, episodes and recordings.                             |
-| Manage / Channel          | ![Manage channel](./docs/readme-shots/studio-channel.png)          | Maintain channel data and reach setup when needed.                       |
-| Manage / Radio            | ![Manage radio](./docs/readme-shots/studio-radio.png)              | Monitor stream statistics and curate the 24/7 rotation.                  |
-| Manage / Green room       | ![Green room](./docs/readme-shots/studio-green-room.png)           | Configure the preparation area for broadcasts.                           |
-| Manage / Multicast        | ![Multicast](./docs/readme-shots/studio-multicast.png)             | Activate configured destinations and configure incomplete ones.          |
-| Manage / Tahti Selects    | ![Tahti Selects](./docs/readme-shots/studio-selects.png)           | Curate tracks for the platform-wide selection.                           |
-| Manage / Moderation       | ![Studio moderation](./docs/readme-shots/studio-moderation.png)    | Assign channel moderators and review channel-level work.                 |
+#### Radio directory
 
-### Administration
+<img src="./docs/readme-shots/listen-radio.png" alt="Radio directory" width="1680" />
 
-| View                      | Screenshot                                                             | What you can do                                                  |
-| ------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Overview                  | ![Admin overview](./docs/readme-shots/admin-overview.png)              | Triage needs-action items and inspect operational signals.       |
-| Status                    | ![Admin status](./docs/readme-shots/admin-status.png)                  | Combine platform health with administrative status information.  |
-| Logs / Activity           | ![Admin activity](./docs/readme-shots/admin-logs.png)                  | Review operational activity in chronological context.            |
-| Logs / Containers         | ![Container logs](./docs/readme-shots/admin-logs-containers.png)       | Inspect service and container output.                            |
-| Logs / Recent audit       | ![Recent audit](./docs/readme-shots/admin-logs-audit.png)              | Review privileged actions with actor and subject context.        |
-| Moderation / Support      | ![Support](./docs/readme-shots/admin-moderation.png)                   | Work the support queue and acknowledge items needing a response. |
-| Moderation / Beta         | ![Beta applications](./docs/readme-shots/admin-moderation-beta.png)    | Review beta applications by status.                              |
-| Moderation / Radio        | ![Radio submissions](./docs/readme-shots/admin-moderation-radio.png)   | Review and decide on Tahti Radio submissions.                    |
-| Moderation / Reports      | ![Content reports](./docs/readme-shots/admin-moderation-reports.png)   | Triage reports and record resulting action.                      |
-| Moderation / Features     | ![Feature requests](./docs/readme-shots/admin-moderation-features.png) | Track requests through planning and delivery states.             |
-| Moderation / Missed shows | ![Missed shows](./docs/readme-shots/admin-moderation-missed.png)       | Resolve missed broadcast follow-up.                              |
-| Users                     | ![Admin users](./docs/readme-shots/admin-users.png)                    | Manage accounts, roles and membership state.                     |
-| Radio                     | ![Admin radio](./docs/readme-shots/admin-radio.png)                    | Maintain radio station configuration and programming.            |
-| Posts                     | ![Admin posts](./docs/readme-shots/admin-news.png)                     | Publish generic platform news.                                   |
-| Streams                   | ![Admin streams](./docs/readme-shots/admin-streams.png)                | Monitor streams, listeners and stream controls.                  |
-| Top lists                 | ![Admin top lists](./docs/readme-shots/admin-top-lists.png)            | Explore platform-wide listening rankings.                        |
-| Announcements             | ![Announcements](./docs/readme-shots/admin-announcements.png)          | Manage public and pinned announcements.                          |
-| Storage                   | ![Storage](./docs/readme-shots/admin-storage.png)                      | Review storage totals and account usage.                         |
-| Storage / Files           | ![Stored files](./docs/readme-shots/admin-storage-files.png)           | Inspect stored files.                                            |
-| Financial                 | ![Financial](./docs/readme-shots/admin-financial.png)                  | Review platform financial summaries.                             |
-| Governance                | ![Admin governance](./docs/readme-shots/admin-governance.png)          | Review proposals, votes, discussions and comments.               |
-| Grants                    | ![Grants](./docs/readme-shots/admin-grants.png)                        | Manage grant cycles and awards.                                  |
-| AGM                       | ![AGM](./docs/readme-shots/admin-agm.png)                              | Prepare annual meeting material and decisions.                   |
-| Vendors                   | ![Vendors](./docs/readme-shots/admin-vendors.png)                      | Manage vendors and external integrations.                        |
-| Widgets                   | ![Widgets](./docs/readme-shots/admin-widgets.png)                      | Browse, add, configure and remove discovery widgets.             |
-| Localization              | ![Localization](./docs/readme-shots/admin-i18n.png)                    | Maintain translated product content.                             |
-| Tahti Selects             | ![Admin Selects](./docs/readme-shots/admin-selects.png)                | Curate the platform-wide selection.                              |
+Find live channels and open a station. · [`/radio`](./docs/VIEW-GUIDE.md#listen-radio)
 
+#### Discover
+
+<img src="./docs/readme-shots/listen-discover.png" alt="Discover" width="1680" />
+
+Explore tracks, artists and collections. · [`/discover`](./docs/VIEW-GUIDE.md#listen-discover)
+
+#### Public channel / Aurora
+
+<img src="./docs/readme-shots/public-channel-aurora.png" alt="Public channel / Aurora" width="1680" />
+
+A public artist channel with the Aurora visualizer. · [`/channel/demo`](./docs/VIEW-GUIDE.md#public-channel-aurora)
+
+More in this area: see the [full view guide](./docs/VIEW-GUIDE.md).
+
+### Publish
+
+Upload, organise sounds and releases, and prepare catalogue for the public channel.
+
+#### Studio / Library / Sounds
+
+<img src="./docs/readme-shots/studio-sounds.png" alt="Studio / Library / Sounds" width="1680" />
+
+Filter, sort, play and edit sound content. · [`/studio/archive`](./docs/VIEW-GUIDE.md#studio-sounds)
+
+#### Studio / Library / Releases
+
+<img src="./docs/readme-shots/studio-releases.png" alt="Studio / Library / Releases" width="1680" />
+
+Manage singles, EPs and albums. · [`/studio/releases`](./docs/VIEW-GUIDE.md#studio-releases)
+
+#### Studio / Library / Upload
+
+<img src="./docs/readme-shots/studio-upload.png" alt="Studio / Library / Upload" width="1680" />
+
+Add tracks, releases, clips and imports. · [`/studio/upload`](./docs/VIEW-GUIDE.md#studio-upload)
+
+#### Studio / Library / Collections
+
+<img src="./docs/readme-shots/studio-collections.png" alt="Studio / Library / Collections" width="1680" />
+
+Create and browse organized collections. · [`/studio/collections`](./docs/VIEW-GUIDE.md#studio-collections)
+
+More in this area: see the [full view guide](./docs/VIEW-GUIDE.md).
+
+### Broadcast
+
+Go live, programme the schedule, and run channel / radio controls.
+
+#### Studio / Perform / Go live
+
+<img src="./docs/readme-shots/studio-go-live.png" alt="Studio / Perform / Go live" width="1680" />
+
+Run pre-flight, rotation and live broadcast controls. · [`/studio/go-live`](./docs/VIEW-GUIDE.md#studio-go-live)
+
+#### Studio / Perform / Broadcast
+
+<img src="./docs/readme-shots/studio-schedule.png" alt="Studio / Perform / Broadcast" width="1680" />
+
+Plan live shows, manage 24/7 rotation, and inspect analytics. · [`/studio/schedule`](./docs/VIEW-GUIDE.md#studio-schedule)
+
+#### Studio / Manage / Radio
+
+<img src="./docs/readme-shots/studio-radio.png" alt="Studio / Manage / Radio" width="1680" />
+
+Control stream statistics and 24/7 rotation. · [`/studio/channel?tab=radio`](./docs/VIEW-GUIDE.md#studio-radio)
+
+More in this area: see the [full view guide](./docs/VIEW-GUIDE.md).
+
+### Connect
+
+Artist identity, audience, messages and community governance.
+
+#### Artist profile
+
+<img src="./docs/readme-shots/public-artist.png" alt="Artist profile" width="1680" />
+
+See the artist identity, story, people and public catalogue. · [`/u/demo`](./docs/VIEW-GUIDE.md#public-artist)
+
+#### Studio / Audience
+
+<img src="./docs/readme-shots/studio-audience.png" alt="Studio / Audience" width="1680" />
+
+Manage audience relationships and fan revenue. · [`/studio/revenue`](./docs/VIEW-GUIDE.md#studio-audience)
+
+#### Messages
+
+<img src="./docs/readme-shots/listener-messages.png" alt="Messages" width="1680" />
+
+Open conversations and highlighted message threads. · [`/messages`](./docs/VIEW-GUIDE.md#listener-messages)
+
+#### Governance
+
+<img src="./docs/readme-shots/governance.png" alt="Governance" width="1680" />
+
+Review proposals, voting and community decisions. · [`/governance`](./docs/VIEW-GUIDE.md#governance)
+
+More in this area: see the [full view guide](./docs/VIEW-GUIDE.md).
+
+### Operate
+
+Board tools for health, moderation queues and live stream oversight.
+
+#### Admin / Overview
+
+<img src="./docs/readme-shots/admin-overview.png" alt="Admin / Overview" width="1680" />
+
+Monitor platform needs action, streams and system status. · [`/admin`](./docs/VIEW-GUIDE.md#admin-overview)
+
+#### Admin / Moderation / Support
+
+<img src="./docs/readme-shots/admin-moderation.png" alt="Admin / Moderation / Support" width="1680" />
+
+Triage moderation queues. · [`/admin/moderation`](./docs/VIEW-GUIDE.md#admin-moderation)
+
+#### Admin / Streams
+
+<img src="./docs/readme-shots/admin-streams.png" alt="Admin / Streams" width="1680" />
+
+Manage streams, listeners and controls. · [`/admin/streams`](./docs/VIEW-GUIDE.md#admin-streams)
+
+#### Admin / Status
+
+<img src="./docs/readme-shots/admin-status.png" alt="Admin / Status" width="1680" />
+
+View platform health alongside operational data. · [`/admin/status`](./docs/VIEW-GUIDE.md#admin-status)
+
+More in this area: see the [full view guide](./docs/VIEW-GUIDE.md).
 ## Add-ons
 
 `Settings → Add-ons` is one app-store-style browser (`PluginStorePanel.tsx`, see [`PLUGIN-STORE-PLAN.md`](./PLUGIN-STORE-PLAN.md)) over every extension point in the client, grouped here by what each group is *for* rather than where its code lives.
@@ -156,10 +198,10 @@ pnpm --filter @tahti-player/tahti-web lint
 Refresh the guide against the mock app with:
 
 ```bash
-README_GUIDE_BASE_URL=http://127.0.0.1:5190 node packages/tahti-web/scripts/capture-readme-guide.mjs
+README_GUIDE_BASE_URL=http://127.0.0.1:5180 node packages/tahti-web/scripts/capture-readme-guide.mjs
 ```
 
-The capture uses deterministic mock content and reduced motion for stable documentation images. It intentionally includes two public channel views so the guide demonstrates more than one visualizer preset.
+That rewrites the README feature highlights and the full [`docs/VIEW-GUIDE.md`](./docs/VIEW-GUIDE.md) index from 1680×1050 viewport captures (mock content, reduced motion).
 
 ## Documentation and architecture
 

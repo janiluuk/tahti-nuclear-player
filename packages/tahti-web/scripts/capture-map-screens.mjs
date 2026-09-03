@@ -90,6 +90,10 @@ const shots = [
   { id: 'money-tiers', path: '/settings/money' },
   { id: 'money-fan-subs', path: '/settings/money' },
   { id: 'settings-account', path: '/settings/account' },
+  {
+    id: 'settings-notifications',
+    path: '/settings/account?tab=notifications',
+  },
   { id: 'sources', path: '/settings/plugin-store?category=import' },
   { id: 'radio-show', path: `/radio/show/${CHANNEL}` },
 
@@ -364,8 +368,11 @@ for (const s of shotsToCapture) {
         .getByRole('region', { name: 'Fan subscription summary' })
         .waitFor();
     }
-    if (s.id === 'settings-account') {
-      await page.getByRole('tab', { name: 'Notifications' }).click();
+    if (s.id === 'settings-notifications') {
+      await page
+        .getByRole('tab', { name: /Notifications/i })
+        .first()
+        .click();
       await page.getByRole('heading', { name: /notifications/i }).waitFor();
     }
     await page.waitForTimeout(s.wait ?? 300);
@@ -399,11 +406,12 @@ writeFileSync(
   join(outRoot, 'sitemap.json'),
   `${JSON.stringify(
     {
-      surface: 'beta.tahti.live',
+      surface: 'nuclear',
       capturedAt: '2026-09-03',
+      baseUrl: BASE,
       images: imageFiles.map((fileName) => ({
         file: fileName,
-        url: `https://beta.tahti.live/map/nuclear/${fileName}`,
+        url: `/map/nuclear/${fileName}`,
       })),
     },
     null,

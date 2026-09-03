@@ -1,5 +1,11 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Help center Nuclear primitives + Storybook surface
+
+Bumped `@tahti-player/tahti-web` to `0.0.46`.
+
+Reworked `/help` onto shared Storybook/Nuclear components: `Box`, `Badge`, `Button`, `Input`, `Tabs`, `SectionShell`, and `EmptyState`, plus `StudioPanel` for the documents library. Guide cards and article sections no longer use hand-rolled bordered panels. Getting-around / playlists copy now matches current Listen / Favorites / Library / Studio chrome. Added `Tahti/Reference/Help center` stories and a shared `withPageSurface` decorator so fullscreen Storybook pages get the live app background and padding (applied to Latest view surfaces too) instead of looking flush/transparent against the canvas.
+
 ## 2026-09-03 — Remaining confirm prompts (five slices)
 
 Bumped `@tahti-player/tahti-web` to `0.0.45`.

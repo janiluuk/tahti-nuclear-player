@@ -1,10 +1,54 @@
-import { mkdirSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { chromium } from '@playwright/test';
 
-const BASE = process.env.README_GUIDE_BASE_URL || 'http://127.0.0.1:5190';
-const outputDirectory = join(process.cwd(), 'docs/readme-shots');
+const BASE = process.env.README_GUIDE_BASE_URL || 'http://127.0.0.1:5180';
+const scriptDirectory = dirname(fileURLToPath(import.meta.url));
+const packageRoot = join(scriptDirectory, '..');
+const outputDirectory = join(packageRoot, 'docs/readme-shots');
+const readmePath = join(packageRoot, 'README.md');
+const viewGuidePath = join(packageRoot, 'docs/VIEW-GUIDE.md');
 mkdirSync(outputDirectory, { recursive: true });
+
+/** Main-feature highlights shown in README.md (full index lives in VIEW-GUIDE.md). */
+const HIGHLIGHTS = [
+  {
+    section: 'Listen',
+    blurb:
+      'Discover stations and catalogue, then keep listening from the persistent player.',
+    files: ['listen-home', 'listen-radio', 'listen-discover', 'public-channel-aurora'],
+  },
+  {
+    section: 'Publish',
+    blurb:
+      'Upload, organise sounds and releases, and prepare catalogue for the public channel.',
+    files: ['studio-sounds', 'studio-releases', 'studio-upload', 'studio-collections'],
+  },
+  {
+    section: 'Broadcast',
+    blurb:
+      'Go live, programme the schedule, and run channel / radio controls.',
+    files: ['studio-go-live', 'studio-schedule', 'studio-radio', 'studio-branding'],
+  },
+  {
+    section: 'Connect',
+    blurb:
+      'Artist identity, audience, messages and community governance.',
+    files: [
+      'public-artist',
+      'studio-audience',
+      'listener-messages',
+      'governance',
+    ],
+  },
+  {
+    section: 'Operate',
+    blurb:
+      'Board tools for health, moderation queues and live stream oversight.',
+    files: ['admin-overview', 'admin-moderation', 'admin-streams', 'admin-status'],
+  },
+];
 
 const auth = {
   state: {
@@ -194,6 +238,12 @@ const routes = [
     'See channel health, upcoming shows and work that needs attention.',
   ],
   [
+    '/studio/branding',
+    'studio-branding',
+    'Studio / Branding',
+    'Design channel look, artwork and public presentation.',
+  ],
+  [
     '/studio/stats',
     'studio-stats-overview',
     'Studio / Stats / Overview',
@@ -236,19 +286,25 @@ const routes = [
     'Manage audience relationships and fan revenue.',
   ],
   [
-    '/studio/archive',
+    '/studio/stripe',
+    'studio-stripe',
+    'Studio / Stripe',
+    'Connect payouts and review subscription billing setup.',
+  ],
+  [
+    '/studio/sounds',
     'studio-sounds',
     'Studio / Library / Sounds',
     'Filter, sort, play and edit sound content.',
   ],
   [
-    '/studio/archive?tab=clips',
+    '/studio/sounds?folder=clips',
     'studio-clips',
     'Studio / Library / Clips',
     'Manage short clips and radio announcements.',
   ],
   [
-    '/studio/collections',
+    '/library/collections',
     'studio-collections',
     'Studio / Library / Collections',
     'Create and browse organized collections.',
@@ -266,7 +322,7 @@ const routes = [
     'Polish and publish broadcast recordings.',
   ],
   [
-    '/studio/upload',
+    '/library/upload',
     'studio-upload',
     'Studio / Library / Upload',
     'Add tracks, releases, clips and imports.',
@@ -525,21 +581,77 @@ const routes = [
   ],
 ];
 
-const browser = await chromium.launch({
+const VIEWPORT = { width: 1680, height: 1050 };
+
+let browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
-  args: ['--no-sandbox'],
+  args: ['--no-sandbox', '--disable-dev-shm-usage'],
 });
-const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+let page = await browser.newPage({ viewport: VIEWPORT });
 await page.emulateMedia({ reducedMotion: 'reduce' });
-await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
-await page.evaluate(
-  ({ authState, layoutState }) => {
-    localStorage.setItem('tahti-web-auth', JSON.stringify(authState));
-    localStorage.setItem('tahti-web-layout', JSON.stringify(layoutState));
-    localStorage.setItem('tahti-web-onboarded:mock-board-1', '1');
-  },
-  { authState: auth, layoutState: layout },
-);
+
+async function seedSession() {
+  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.evaluate(
+    ({ authState, layoutState }) => {
+      localStorage.setItem('tahti-web-auth', JSON.stringify(authState));
+      localStorage.setItem('tahti-web-layout', JSON.stringify(layoutState));
+      localStorage.setItem('tahti-web-onboarded:mock-board-1', '1');
+      localStorage.setItem('tahti-nuclear-theme-id', 'nuclear:default');
+      localStorage.setItem('tahti-nuclear-dark', '0');
+      localStorage.setItem(
+        'tahti-web-theme',
+        JSON.stringify({
+          state: {
+            themeId: 'nuclear:default',
+            dark: false,
+            colorMode: 'light',
+            customThemes: {},
+          },
+          version: 0,
+        }),
+      );
+    },
+    { authState: auth, layoutState: layout },
+  );
+}
+
+async function recreatePage() {
+  if (!browser.isConnected()) {
+    browser = await chromium.launch({
+      executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
+      args: ['--no-sandbox', '--disable-dev-shm-usage'],
+    });
+  }
+  if (!page.isClosed()) {
+    await page.close().catch(() => {});
+  }
+  page = await browser.newPage({ viewport: VIEWPORT });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await seedSession();
+}
+
+async function captureShot(imagePath) {
+  try {
+    await page.screenshot({ path: imagePath, fullPage: false, type: 'png' });
+    return true;
+  } catch {
+    try {
+      await page.screenshot({
+        path: imagePath,
+        fullPage: false,
+        type: 'png',
+        animations: 'disabled',
+      });
+      return true;
+    } catch (error) {
+      console.error(`screenshot failed: ${error.message}`);
+      return false;
+    }
+  }
+}
+
+await seedSession();
 
 const results = [];
 for (const [path, file, title, narration] of routes) {
@@ -549,28 +661,184 @@ for (const [path, file, title, narration] of routes) {
       errors.push(message.text());
     }
   };
-  page.on('console', onConsole);
-  await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(700);
-  const bodyText = await page.locator('body').innerText();
-  const imagePath = join(outputDirectory, `${file}.png`);
-  await page.screenshot({ path: imagePath, fullPage: true });
-  results.push({
-    path,
-    file: `${file}.png`,
-    title,
-    narration,
-    hasContent: bodyText.trim().length > 40,
-    errors: errors.slice(0, 3),
-  });
-  page.off('console', onConsole);
-  console.log(`${file}: ${bodyText.trim().length} chars`);
+  try {
+    if (page.isClosed()) {
+      await recreatePage();
+    }
+    page.on('console', onConsole);
+    await page.goto(`${BASE}${path}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
+    await page.waitForTimeout(800);
+    const bodyText = await page.locator('body').innerText();
+    const imagePath = join(outputDirectory, `${file}.png`);
+    const ok = await captureShot(imagePath);
+    if (!ok) {
+      await recreatePage();
+      await page.goto(`${BASE}${path}`, {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+      });
+      await page.waitForTimeout(800);
+      await captureShot(imagePath);
+    }
+    results.push({
+      path,
+      file: `${file}.png`,
+      id: file,
+      title,
+      narration,
+      hasContent: bodyText.trim().length > 40,
+      errors: errors.slice(0, 3),
+    });
+    console.log(`${file}: ${bodyText.trim().length} chars`);
+  } catch (error) {
+    console.error(`fail ${file}: ${error.message}`);
+    results.push({
+      path,
+      file: `${file}.png`,
+      id: file,
+      title,
+      narration,
+      hasContent: false,
+      errors: [error.message],
+    });
+    await recreatePage();
+  } finally {
+    page.off('console', onConsole);
+  }
 }
 
 writeFileSync(
   join(outputDirectory, 'manifest.json'),
   `${JSON.stringify(results, null, 2)}\n`,
 );
+
+const byId = new Map(results.map((result) => [result.id, result]));
+
+const sectionFor = (title) => {
+  if (title.startsWith('Admin /')) return 'Administration';
+  if (title.startsWith('Studio /')) return 'Artist studio';
+  if (
+    title.startsWith('Public ') ||
+    title === 'Governance' ||
+    title === 'Help center' ||
+    title === 'Platform status'
+  ) {
+    return 'Public channel and community';
+  }
+  return 'Listener and account';
+};
+
+const sectionOrder = [
+  'Listener and account',
+  'Public channel and community',
+  'Artist studio',
+  'Administration',
+];
+
+const gallerySections = new Map(sectionOrder.map((name) => [name, []]));
+for (const result of results) {
+  gallerySections.get(sectionFor(result.title)).push(result);
+}
+
+function largeImage(alt, relativePath) {
+  return `<img src="${relativePath}" alt="${alt}" width="1680" />`;
+}
+
+const viewGuideLines = [
+  '# Tahti web — full view guide',
+  '',
+  'Indexed gallery of every documented route capture. Screenshots are 1680×1050 viewport shots from the populated mock environment with the board account. The README keeps [feature highlights](../README.md#view-guide) only; this page is the complete index.',
+  '',
+  'Capture: [`scripts/capture-readme-guide.mjs`](../scripts/capture-readme-guide.mjs) · Manifest: [`readme-shots/manifest.json`](./readme-shots/manifest.json)',
+  '',
+  '## Contents',
+  '',
+];
+
+for (const sectionName of sectionOrder) {
+  const anchor = sectionName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const entries = gallerySections.get(sectionName) ?? [];
+  viewGuideLines.push(
+    `- [${sectionName}](#${anchor}) (${entries.length})`,
+  );
+}
+viewGuideLines.push('');
+
+for (const sectionName of sectionOrder) {
+  const entries = gallerySections.get(sectionName) ?? [];
+  if (entries.length === 0) continue;
+  viewGuideLines.push(`## ${sectionName}`, '');
+  viewGuideLines.push('| View | Path |', '| --- | --- |');
+  for (const entry of entries) {
+    const anchor = entry.id;
+    viewGuideLines.push(
+      `| [${entry.title}](#${anchor}) | \`${entry.path}\` |`,
+    );
+  }
+  viewGuideLines.push('');
+  for (const entry of entries) {
+    viewGuideLines.push(
+      `### ${entry.title}`,
+      '',
+      `<a id="${entry.id}"></a>`,
+      '',
+      largeImage(entry.title, `./readme-shots/${entry.file}`),
+      '',
+      entry.narration,
+      '',
+      `\`${entry.path}\``,
+      '',
+    );
+  }
+}
+
+writeFileSync(viewGuidePath, `${viewGuideLines.join('\n')}\n`);
+
+const highlightMarkdown = [
+  '## View guide',
+  '',
+  'Highlights of the main product jobs. Each image is a large 1680×1050 capture from the mock board account. The full indexed gallery of every documented view is in [`docs/VIEW-GUIDE.md`](./docs/VIEW-GUIDE.md) (manifest: [`docs/readme-shots/manifest.json`](./docs/readme-shots/manifest.json)).',
+  '',
+];
+
+for (const highlight of HIGHLIGHTS) {
+  highlightMarkdown.push(`### ${highlight.section}`, '', highlight.blurb, '');
+  for (const fileId of highlight.files) {
+    const entry = byId.get(fileId);
+    if (!entry) continue;
+    highlightMarkdown.push(
+      `#### ${entry.title}`,
+      '',
+      largeImage(entry.title, `./docs/readme-shots/${entry.file}`),
+      '',
+      `${entry.narration} · [\`${entry.path}\`](./docs/VIEW-GUIDE.md#${entry.id})`,
+      '',
+    );
+  }
+  highlightMarkdown.push(
+    `More in this area: see the [full view guide](./docs/VIEW-GUIDE.md).`,
+    '',
+  );
+}
+
+const existingReadme = readFileSync(readmePath, 'utf8');
+const guideStart = existingReadme.indexOf('## View guide');
+const addOnsStart = existingReadme.indexOf('\n## Add-ons');
+if (guideStart === -1 || addOnsStart === -1) {
+  throw new Error('README.md is missing the View guide or Add-ons anchors');
+}
+const nextReadme =
+  existingReadme.slice(0, guideStart) +
+  highlightMarkdown.join('\n') +
+  existingReadme.slice(addOnsStart + 1);
+writeFileSync(readmePath, nextReadme);
+
 await browser.close();
 const failed = results.filter((result) => !result.hasContent);
 if (failed.length > 0) {
@@ -579,3 +847,5 @@ if (failed.length > 0) {
   );
   process.exitCode = 1;
 }
+console.log(`Updated ${readmePath}`);
+console.log(`Updated ${viewGuidePath}`);
