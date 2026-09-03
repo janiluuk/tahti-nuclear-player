@@ -58,7 +58,7 @@ export function AdminStatusView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/status">
           <div className="flex max-w-4xl flex-col gap-6">
-            <StudioPageHeader title="Service status" />
+            <StudioPageHeader title="Status" />
 
             <StudioPanel>
               {loading ? (

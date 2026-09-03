@@ -168,7 +168,7 @@ export function AdminAgmView() {
         <AdminPageLayout current="/admin/agm">
           <div className="flex max-w-4xl flex-col gap-6">
             <StudioPageHeader
-              title="Annual General Meeting"
+              title="AGM"
               subtitle="AGM planning tools — agenda, motions, member notice, and minutes."
               action={
                 <Link

@@ -299,7 +299,7 @@ export function StudioGoLiveView() {
         <StudioNav current="/studio/go-live" />
 
         <StudioPageHeader
-          title="Go Live"
+          title="Go live"
           subtitle="Monitor what listeners hear, connect your broadcast software, go on air, and manage destinations from one place."
           action={
             <div className="flex items-center gap-2">

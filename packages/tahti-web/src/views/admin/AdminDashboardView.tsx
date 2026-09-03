@@ -43,7 +43,7 @@ export function AdminDashboardView() {
         <AdminPageLayout current="/admin">
           <div className="flex max-w-5xl flex-col gap-6">
             <StudioPageHeader
-              title="Admin"
+              title="Dashboard"
               subtitle="Operations dashboard — members, live streams, and system health."
             />
 

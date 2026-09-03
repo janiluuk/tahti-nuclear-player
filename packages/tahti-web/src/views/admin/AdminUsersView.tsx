@@ -45,7 +45,7 @@ export const AdminUsersView = () => {
         <AdminPageLayout current="/admin/users">
           <div className="flex max-w-7xl flex-col gap-6">
             <StudioPageHeader
-              title="User management"
+              title="Users"
               subtitle={`${total} accounts · details, access, and communication`}
             />
 

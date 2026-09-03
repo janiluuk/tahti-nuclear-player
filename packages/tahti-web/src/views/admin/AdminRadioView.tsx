@@ -393,7 +393,7 @@ export function AdminRadioView() {
         <AdminPageLayout current="/admin/radio">
           <div className="flex max-w-4xl flex-col gap-6">
             <StudioPageHeader
-              title="Tahti Radio"
+              title="Radio"
               subtitle="Fair-rotation meta-stream — member channels, no editorial picks."
             />
 

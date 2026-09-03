@@ -821,7 +821,7 @@ export const StudioBrandingView: FC = () => {
       >
         <StudioNav current="/studio/branding" />
         <StudioPageHeader
-          title="Artist branding"
+          title="Branding"
           subtitle="Shape your visual identity, keep a public image gallery, assemble a press kit, and design the public channel."
           action={
             profile ? (

@@ -30,7 +30,7 @@ export function AdminGrantsView() {
         <AdminPageLayout current="/admin/grants">
           <div className="flex max-w-4xl flex-col gap-6">
             <StudioPageHeader
-              title="Grant cycles"
+              title="Grants"
               subtitle="Annual 90%-surplus disbursement to artists, based on engagement units."
               action={
                 <Link

@@ -1,5 +1,6 @@
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import {
+  DownloadIcon,
   GripVerticalIcon,
   HeartIcon,
   MessageCircle,
@@ -81,6 +82,7 @@ import {
   type ChannelPageItem,
   type ChannelPageItemType,
 } from '../lib/channelPageLayout';
+import { downloadM3uPlaylist } from '../lib/m3uPlaylist';
 import { isPinned } from '../lib/pinnedTracks';
 import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
@@ -355,6 +357,18 @@ export function ChannelView({ slug }: { slug: string }) {
     void fetchChannel(slug).then(({ playable }) => {
       if (playable) {
         play(playable);
+      }
+    });
+  };
+
+  const handleDownloadPlaylist = () => {
+    void fetchChannel(slug).then(({ playable }) => {
+      if (playable) {
+        downloadM3uPlaylist({
+          title: `${channel.user.displayName} on Tahti`,
+          streamUrl: playable.streamUrl,
+          fileSlug: slug,
+        });
       }
     });
   };
@@ -1078,6 +1092,17 @@ export function ChannelView({ slug }: { slug: string }) {
                   <PencilIcon size={14} />
                   Edit design
                 </span>
+              </Button>
+            )}
+            {!editing && live && (
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                onClick={handleDownloadPlaylist}
+                aria-label="Download playlist"
+                title="Download playlist"
+              >
+                <DownloadIcon size={16} aria-hidden />
               </Button>
             )}
             {!editing && (

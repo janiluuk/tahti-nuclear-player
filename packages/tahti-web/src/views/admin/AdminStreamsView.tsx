@@ -10,7 +10,7 @@ export function AdminStreamsView() {
         <AdminPageLayout current="/admin/streams">
           <div className="flex max-w-5xl flex-col gap-6">
             <StudioPageHeader
-              title="Stream manager"
+              title="Streams"
               subtitle="Monitor active channels and control their live audio. Restart bounces audio without ending the broadcast; Skip/Pause/Resume affect the archive rotation."
             />
             <AdminStreamManagerPanel />

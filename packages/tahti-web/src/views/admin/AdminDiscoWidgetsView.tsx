@@ -275,7 +275,7 @@ export function AdminDiscoWidgetsView() {
         <AdminPageLayout current="/admin/disco-widgets">
           <div className="flex max-w-5xl flex-col gap-6">
             <StudioPageHeader
-              title="Disco-widgets"
+              title="Disco widgets"
               subtitle="Register, review, and manage every add-on available to listeners, artists, and admins."
               action={
                 <Button

@@ -279,7 +279,7 @@ export function AdminVendorsContent() {
   return (
     <div className="flex flex-col gap-6">
       <StudioPageHeader
-        title="Vendors & DPA tracking"
+        title="Vendors"
         subtitle="Association-owned accounts. Credentials live in the board vault, never here."
       />
 
