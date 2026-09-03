@@ -1308,15 +1308,15 @@ export async function startFanSubscribe(
       method: 'POST',
       body: JSON.stringify({ tierId }),
     });
-    if (data.checkoutUrl) {
-      return { ok: true, checkoutUrl: data.checkoutUrl };
-    }
     if (status === 201 || data.activated) {
       return {
         ok: true,
         activated: true,
         message: `Subscribed to ${data.tierName ?? 'tier'} (dev activate)`,
       };
+    }
+    if (data.checkoutUrl) {
+      return { ok: true, checkoutUrl: data.checkoutUrl };
     }
     return { ok: false, error: 'Unexpected subscribe response' };
   } catch (err) {
