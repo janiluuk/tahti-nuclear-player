@@ -338,8 +338,8 @@
   {
     "path": "/studio/schedule",
     "file": "studio-schedule.png",
-    "title": "Studio / Perform / Schedule",
-    "narration": "Plan broadcasts and inspect analytics.",
+    "title": "Studio / Perform / Broadcast",
+    "narration": "Plan live shows, manage 24/7 rotation, and inspect analytics.",
     "hasContent": true,
     "errors": []
   },

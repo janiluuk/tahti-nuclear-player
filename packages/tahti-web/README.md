@@ -72,7 +72,7 @@ Every image is a full-page route capture. The narration describes the job the vi
 | Audio editor              | ![Audio editor](./docs/readme-shots/studio-editor.png)             | Start a session or open existing material from the library.              |
 | Stash                     | ![Stash](./docs/readme-shots/studio-stash.png)                     | Keep private working material out of the public catalogue.               |
 | Go live                   | ![Go live](./docs/readme-shots/studio-go-live.png)                 | Run pre-flight, control live playback and edit the rotation.             |
-| Schedule                  | ![Schedule](./docs/readme-shots/studio-schedule.png)               | Plan broadcasts, book shows and reach schedule analytics.                |
+| Broadcast                 | ![Broadcast](./docs/readme-shots/studio-schedule.png)              | Plan live shows, manage 24/7 rotation, and review schedule analytics.    |
 | Events                    | ![Events](./docs/readme-shots/studio-events.png)                   | Browse upcoming and past events with venue and ticket context.           |
 | New event                 | ![New event](./docs/readme-shots/studio-event-new.png)             | Create an event and connect it to a venue and show.                      |
 | Venues                    | ![Venues](./docs/readme-shots/studio-venues.png)                   | Browse the venue directory or prepare a new venue entry.                 |

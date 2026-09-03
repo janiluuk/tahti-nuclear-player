@@ -30,7 +30,8 @@ now lists chrome separately from routes it does not actually own.
    schedule is reached from the radio surface. `RadioView` has no such
    link. `/schedule` is only opened from `RadioBookingCalendar` and
    `ScheduleDialog` (book-a-slot flows). `/studio/schedule` is the artist
-   Perform submenu item — a different page.
+   Broadcast page (Perform submenu; nav label Broadcast since 2026-09-03) —
+   a different page from public `/schedule`.
 
 3. **Library submenu does not include Smart links, Distribution, or Stash
    as first-class items.** `/library/smartlinks` is a real `LibraryView`

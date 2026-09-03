@@ -1,5 +1,11 @@
 import type { FetchMeta } from './client';
 import { DEMO_MP3 } from './mock';
+import { getMockSessionUser } from './mock-session';
+import {
+  getMockUploadedSound,
+  patchMockUploadedSound,
+  registerMockUploadedSound,
+} from './mock-uploads';
 import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 import type {
   EditList,
@@ -216,7 +222,11 @@ export async function fetchStudioSoundDownload(id: string): Promise<
   | { ok: false; error: string }
 > {
   if (forceMock()) {
-    return { ok: true, url: DEMO_MP3, filename: 'tahti-sound.mp3' };
+    return {
+      ok: true,
+      url: getMockUploadedSound(id)?.objectUrl ?? DEMO_MP3,
+      filename: getMockUploadedSound(id)?.filename ?? 'tahti-sound.mp3',
+    };
   }
   try {
     const { data } = await requestJson<{ url: string; filename?: string }>(
@@ -239,6 +249,14 @@ export async function patchStudioSound(
   if (forceMock()) {
     const idx = mockSoundStore.findIndex((a) => a.id === id);
     const { pinned, ...rest } = patch;
+    patchMockUploadedSound(id, {
+      ...(patch.title ? { title: patch.title } : {}),
+      ...(patch.downloadsEnabled !== undefined
+        ? { downloadsEnabled: patch.downloadsEnabled }
+        : {}),
+      ...(patch.visibility ? { visibility: patch.visibility } : {}),
+      ...(patch.isPublic === true ? { visibility: 'PUBLIC' as const } : {}),
+    });
     if (idx >= 0) {
       const next: StudioSound = {
         ...mockSoundStore[idx]!,
@@ -1493,13 +1511,24 @@ export async function uploadSoundFile(input: {
 > {
   if (forceMock()) {
     const id = `arch-mock-${Date.now()}`;
+    const channelSlug = getMockSessionUser()?.username ?? 'demo';
+    const filename = input.file.name || 'upload.wav';
     mockSoundStore.unshift({
       id,
-      title: input.title || input.file.name,
+      title: input.title || filename,
       status: 'READY',
       durationSec: 180,
       isPublic: false,
       createdAt: new Date().toISOString(),
+    });
+    registerMockUploadedSound({
+      id,
+      title: input.title || filename,
+      filename,
+      objectUrl: URL.createObjectURL(input.file),
+      channelSlug,
+      downloadsEnabled: false,
+      visibility: 'PRIVATE',
     });
     return {
       ok: true,

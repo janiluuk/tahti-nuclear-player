@@ -409,8 +409,8 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
             <button
               type="button"
               className={cn('hidden sm:inline-flex', iconBtnClass)}
-              aria-label="Upload"
-              title="Upload"
+              aria-label="Open upload"
+              title="Open upload"
               data-tour-id="topbar-upload"
               onClick={() => setUploadOpen(true)}
             >

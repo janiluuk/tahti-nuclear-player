@@ -1,5 +1,13 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Docs sync + mock original-file downloads
+
+Caught up FEATURES / GAP / sitemap / MOCKS / README / map copy after the Broadcast rename and native-control sweep. Mock uploads now register in `mock-uploads.ts` so `/t/:id` and public download can return the original file (not `DEMO_MP3`) once the track is public. Live download tries `?format=source` then the default gate; the track page sets `download` on the save link. Top bar vs Studio Upload accessible names no longer collide. Playwright helper `e2e/helpers/mockStripe.ts` can inject session fan-sub/track payout and audit rows for the journey spec.
+
+Still open on that spec: à la carte Buy, product-level subscribe→order/audit (helper is test-only), and board-gated logs without the helper.
+
+**Validation:** tahti-web type-check and vitest. Bumped `@tahti-player/tahti-web` to `0.0.36`.
+
 ## 2026-09-03 — Native-control sweep (five slices)
 
 **Slice 1 — Go Live preflight fields:** `BroadcastPreflightPanel` show name, episode, and tagline use shared `Input`.
@@ -16,7 +24,7 @@
 
 ## 2026-09-03 — Fan-sub vs track-purchase e2e + worklist
 
-Playwright `e2e/fan-sub-and-track-purchase.spec.ts` drives: artist uploads `riff.wav`, a fan subscribes, another fan tries to buy the track separately, both downloads must match the original WAV, artist Audience must show both orders, board audit log must record them. Run against mock Vite (`PLAYWRIGHT_BASE_URL=http://127.0.0.1:5180`). The spec fails with a single worklist of product gaps (no à la carte purchase, mock upload not on `/t/:id`, download is not the original, orders/audit not session-tied, admin log board-gated). Same items added under WORKPLAN remaining.
+Playwright `e2e/fan-sub-and-track-purchase.spec.ts` drives: artist uploads `riff.wav`, a fan subscribes, another fan tries to buy the track separately, both downloads must match the original WAV, artist Audience must show both orders, board audit log must record them. Run against mock Vite (`PLAYWRIGHT_BASE_URL=http://127.0.0.1:5180`). Gaps are listed under WORKPLAN; mock original download, public `/t/:id` for uploads, and upload button names closed in the docs-sync batch below. The spec still fails on à la carte Buy and product-level orders/audit.
 
 ## 2026-09-03 — Broadcast schedule + stream playlist batch (five slices)
 

@@ -1254,9 +1254,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
       },
       {
         id: 'artist-schedule',
-        title: 'Schedule / programme',
-        viewName: 'Schedule',
-        caption: 'Next show + programme / fallback toggles.',
+        title: 'Broadcast / programme',
+        viewName: 'Broadcast',
+        caption: 'Next show, 24/7 rotation, and programme settings.',
         actions: [
           'Book a Tahti Radio slot',
           'Cancel a booking',
@@ -1551,7 +1551,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         ],
         goesTo: [
           { label: 'Open the new event page', to: '/studio/events/new' },
-          { label: 'Open the Studio schedule', to: '/studio/schedule' },
+          { label: 'Open the Studio Broadcast page', to: '/studio/schedule' },
           { label: 'Open venues', to: '/studio/venues' },
         ],
         old: {
@@ -1579,7 +1579,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         ],
         goesTo: [
           { label: 'Return to Events', to: '/studio/events' },
-          { label: 'Open the schedule', to: '/studio/schedule' },
+          { label: 'Open Broadcast', to: '/studio/schedule' },
         ],
         old: {
           absent: true,

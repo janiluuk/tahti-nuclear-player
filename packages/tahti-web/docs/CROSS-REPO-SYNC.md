@@ -25,7 +25,7 @@ This monorepo directory may be `tahti-nuclear` or `tahti-player`. Sibling produc
 | `/dashboard/governance` | `/studio/governance` (artist) + `/governance` (member, Settings → Account) |
 | `/dashboard/*` | `/studio/*` (redirects exist) |
 
-Production documents member governance as `/governance` and `/dashboard/governance` in one shell. Beta deliberately splits member (`/governance`), artist (`/studio/governance`), and board (`/admin/governance`, `/admin/agm`).
+Production documents member governance as `/governance` and `/dashboard/governance` in one shell. Beta deliberately splits member (`/governance`), artist (`/studio/governance`), and board (`/admin/governance`, `/admin/agm`). Studio Perform’s `/studio/schedule` is labelled **Broadcast** (24/7 programme lives on that page).
 
 ## Live feature status in this package
 

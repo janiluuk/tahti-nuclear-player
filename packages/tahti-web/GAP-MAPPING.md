@@ -42,7 +42,7 @@ This maps the public Tahti product described at [tahti.live](https://tahti.live/
 | Multistream RTMP | Go Live → multistream | Present | RTMP target management is included in the live flow. |
 | Archive, upload, releases, collections | `/studio/archive`, `/studio/upload`, `/studio/releases`, `/studio/collections` | Present | Upload prepare/complete and album-based collection design are implemented. |
 | Pro editor | `/studio/editor` | Partial | Core editor exists, but production-grade multitrack timeline depth is still missing. |
-| Schedule, 24/7 rotation, radio shows | `/studio/schedule`, `/studio/channel`, `/studio/shows` | Present | Programme, rotation, bookings, series, and episodes are represented. |
+| Schedule / 24/7 rotation / radio shows | `/studio/schedule` (Broadcast), `/studio/channel`, `/studio/shows` | Present | Nav and page title are Broadcast. Programme, rotation, bookings, series, and episodes are on that page and Channel → Radio. |
 | Stats and detail reporting | `/studio/stats`, `/studio/stats/detail` | Present | Summary and range-detail views exist. |
 | Channel design / profile / branding | `/studio/channel`, `/channel/$slug?edit=1` | Partial | Presets, layers, layout, gallery, and press-kit workflows exist; parity with the production designer is not complete. |
 | Updates/newsletter | `/studio/updates` | Present | Newsletter/update flow is live-API backed. |

@@ -39,6 +39,7 @@ import {
   mockUnfollow,
   setMockSessionUser,
 } from './mock-session';
+import { getMockUploadedSound } from './mock-uploads';
 import {
   allowMockFallback,
   apiErrorMeta,
@@ -301,6 +302,47 @@ function withShareKey(path: string, shareKey: string | undefined): string {
   return `${path}${separator}key=${encodeURIComponent(shareKey)}`;
 }
 
+function mockTrackDetailFromUpload(id: string): PublicTrackDetail | null {
+  const uploaded = getMockUploadedSound(id);
+  if (!uploaded || uploaded.visibility === 'PRIVATE') {
+    return null;
+  }
+  const channel = mockChannel(uploaded.channelSlug);
+  return {
+    id: uploaded.id,
+    title: uploaded.title,
+    artistName: channel.user.displayName,
+    channelSlug: uploaded.channelSlug,
+    channel: {
+      username: uploaded.channelSlug,
+      displayName: channel.user.displayName,
+      avatarUrl: channel.user.avatarUrl,
+      bio: channel.user.bio,
+    },
+    durationSec: null,
+    audioUrl: uploaded.objectUrl,
+    embedProvider: null,
+    embedUri: null,
+    bannerUrl: null,
+    backgroundUrl: null,
+    slideshowUrls: [],
+    galleryMode: 'NONE',
+    genre: null,
+    subGenres: [],
+    contentType: 'TRACK',
+    mixVersion: null,
+    description: null,
+    commentary: null,
+    license: 'ALL_RIGHTS_RESERVED',
+    releasedAt: new Date().toISOString(),
+    effectiveBpm: null,
+    effectiveKey: null,
+    peaks: null,
+    commentCount: 0,
+    downloadCount: 0,
+  };
+}
+
 /** Full detail for a standalone track page — reached only by track id, so
  * (unlike fetchChannelArchive) it can't rely on already knowing the channel.
  * `shareKey` is the token from a PRIVATE/STASH sound's share link
@@ -314,7 +356,7 @@ export async function fetchTrackDetail(
 }> {
   if (forceMock()) {
     return {
-      data: mockTrackDetail(id),
+      data: mockTrackDetail(id) ?? mockTrackDetailFromUpload(id),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
@@ -326,7 +368,7 @@ export async function fetchTrackDetail(
   } catch (err) {
     return withMockFallback(
       err,
-      () => mockTrackDetail(id),
+      () => mockTrackDetail(id) ?? mockTrackDetailFromUpload(id),
       () => null,
     );
   }
@@ -395,22 +437,45 @@ export async function postTrackComment(
   }
 }
 
+const ARCHIVE_DOWNLOAD_SOURCE_FORMAT = 'source';
+
 export async function fetchPublicArchiveDownload(
   channelSlug: string,
   itemId: string,
-): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; url: string; filename?: string } | { ok: false; error: string }
+> {
   if (forceMock()) {
-    return { ok: true, url: DEMO_MP3 };
+    const uploaded = getMockUploadedSound(itemId);
+    if (uploaded) {
+      return {
+        ok: true,
+        url: uploaded.objectUrl,
+        filename: uploaded.filename,
+      };
+    }
+    return { ok: true, url: DEMO_MP3, filename: 'tahti-sound.mp3' };
   }
   try {
     const fp = encodeURIComponent(listenerFingerprint());
-    const { data } = await requestJson<{ url?: string }>(
-      `/api/v1/c/${encodeURIComponent(channelSlug)}/archive/${encodeURIComponent(itemId)}/download?fp=${fp}`,
-    );
-    if (!data.url) {
-      return { ok: false, error: 'Download unavailable' };
+    const path = `/api/v1/c/${encodeURIComponent(channelSlug)}/archive/${encodeURIComponent(itemId)}/download`;
+    const tryFormats = [ARCHIVE_DOWNLOAD_SOURCE_FORMAT, undefined] as const;
+    for (const format of tryFormats) {
+      try {
+        const query = format ? `?fp=${fp}&format=${format}` : `?fp=${fp}`;
+        const { data } = await requestJson<{ url?: string; filename?: string }>(
+          `${path}${query}`,
+        );
+        if (data.url) {
+          return { ok: true, url: data.url, filename: data.filename };
+        }
+      } catch (err) {
+        if (format === undefined) {
+          throw err;
+        }
+      }
     }
-    return { ok: true, url: data.url };
+    return { ok: false, error: 'Download unavailable' };
   } catch (err) {
     return {
       ok: false,

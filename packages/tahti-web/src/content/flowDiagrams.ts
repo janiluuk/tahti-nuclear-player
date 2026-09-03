@@ -125,7 +125,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Governance --> GovernanceHistory["/governance/history · public closed motions"]
   Governance --> GrantReports["/transparency/grants/$year · yearly reports"]
   StudioGate --> Studio["Signed in + channel → /studio"]
-  Studio --> Perform["Go Live · Schedule · Shows · Channel · Radio"]
+  Studio --> Perform["Go Live · Broadcast · Shows · Channel · Radio"]
   Studio --> Music["Sounds · Collections · Releases · Upload"]
   Studio --> Grow["Stats · Governance · Audience · Updates"]
   Login --> Settings["/settings"]
@@ -179,7 +179,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
 
   subgraph studio["Studio sections"]
     Studio --> StudioOverview["Studio: Overview · Branding · Stats · Governance · Posts · Audience · Library · Sounds · Collections · Releases · Upload · Editor"]
-    Studio --> Perform["Perform: Go Live · Schedule · Events · Shows · Channel · Radio · Multicast"]
+    Studio --> Perform["Perform: Go Live · Broadcast · Events · Shows · Channel · Radio · Multicast"]
   end
 
   subgraph admin["Admin sections"]
@@ -209,7 +209,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     mermaid: `flowchart TB
   Login["/login"] --> Role{Role}
   Role -->|Artist| Studio["/studio"]
-  Studio --> Perform["Perform: Go Live · Schedule · Shows · Channel · Radio"]
+  Studio --> Perform["Perform: Go Live · Broadcast · Shows · Channel · Radio"]
   Studio --> Library["Library: Sounds · Upload · Collections"]
   Studio --> Grow["Grow: Stats · Governance · Audience · Posts"]
   Studio --> Settings["Settings: artist and account · broadcast sources"]

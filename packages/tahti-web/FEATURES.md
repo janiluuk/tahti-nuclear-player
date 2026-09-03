@@ -42,7 +42,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 - [x] Follows, favorites/history (local), fan subscribe checkout, DMs, governance
 - [x] Add to playlist
 - [x] Studio: Go Live dashboard, upload, releases, collections/album designer; all music lives first in My Library
-- [x] Studio: schedule, stats summary, channel design, updates, revenue/Connect
+- [x] Studio: Broadcast (`/studio/schedule`, nav label Broadcast) with 24/7 programme on the page, stats summary, channel design, updates, revenue/Connect
 - [x] Channel visualizer POC + analyser
 - [x] Fan tier create / activate-deactivate
 - [x] Settings shell (Nuclear sections), Sources hub (partial OAuth UX)
@@ -70,6 +70,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 - [x] Player bar seek bar now spans the full bottom bar width — it lived inside the center controls column (capped by `max-w-xl`), so it only ever covered a fraction of the bar. Pulled out of `ConnectedPlayerBar`'s controls block into a full-width strip above the whole bar, matching the bar's own padding so its edges line up with the transport controls beneath it.
 - [x] Discover dashboard (`/discover`) — six configurable widgets (this week most/least played, most played, latest tracks, new to you, loved), addable/removable/reorderable via a "+" tile, with genre and content-type filter chips persisted alongside the widget layout (`stores/discoverStore.ts`). Backed almost entirely by existing `tahti-org` infrastructure discovered mid-build (no schema migration needed — logged-in listens already dedupe by `user:<id>`, and `new-to-you` personalization already existed server-side); only two small additions landed there: `sort`/`genre` query params on `/api/top-lists` and a new `GET /api/discover/latest-tracks`. "Loved" and "New to you" intentionally ignore the dashboard filters since neither's data carries genre/content-type metadata to filter by.
 - [ ] Production cutover for `apps/web`
+- [ ] À la carte track purchase (public track page is Download, not Buy) — see WORKPLAN fan-sub vs track-purchase worklist
 
 ---
 
@@ -133,7 +134,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Upload | `/dashboard/upload` | `/studio/upload` | `live-api` | prepare→PUT→complete; demock wave 3 |
 | Pro editor | `/dashboard/editor` | `/studio/editor` | `partial` | |
 | Releases / collections | `/dashboard/releases`… | `/studio/releases`… | `live-api` | album designer on collections |
-| Schedule / programme | schedule + channel playlist | `/studio/schedule`, `/studio/channel` | `live-api` | Full 24/7 playlist source, playback settings, active rotation, ordering, and track management |
+| Schedule / programme | schedule + channel playlist | `/studio/schedule` (UI: Broadcast), `/studio/channel` | `live-api` | Page title and Studio nav say Broadcast. 24/7 playlist source, playback settings, and active rotation sit on the Broadcast page and on Channel → Radio. |
 | Stats | `/dashboard/stats` | `/studio/stats` | `live-api` | summary + `/studio/stats/detail` range-chip detail page |
 | Channel design | channel/edit | `/channel/$slug?edit=1` + `/studio/channel` | `partial` | Inline Edit design: presets, layers drag/hide/add; layout localStorage; look via API |
 | Updates / newsletter | posts | `/studio/updates` | `live-api` | |

@@ -24,7 +24,7 @@ mistaken for a missing feature.
 Studio section menus (`StudioNav` submenu):
 
 - Studio: Overview, Branding, Stats, Governance, Posts, Audience, Library, Sounds, Collections, Releases, Upload, Editor
-- Perform: Go live, Schedule, Events, Shows, Multicast, Channel, Radio
+- Perform: Go live, Broadcast, Events, Shows, Multicast, Channel, Radio
 
 Admin section menus (`AdminNav`): Dashboard, Logs, Moderation, Users,
 Content, Radio, News, Streams, Venues, Top lists, Announcements, Storage,
@@ -46,7 +46,7 @@ bottom bar.
 | Everyone | Help | `/help`, `/help/$slug` | Sidebar / drawer. Articles also reach `/status`, `/news`, `/whats-new`, legal pages, and `/transparency`. |
 | Signed in | Library | `/library`, `/library/sounds`, `/library/collections` (+ `?tab=` recordings/media/stash/embeds), `/library/upload`, `/studio/releases`, `/studio/editor` | Studio horizontal tabs. `/library*` routes stay. `/library/recordings` and `/library/media` alias into collections tabs. Mobile bottom nav still has Library. |
 | Artist | Studio | `/studio`, `/studio/branding`, `/studio/stats`, `/studio/governance`, `/studio/updates`, `/studio/revenue`, `/library*` | Studio stays selected on Library routes. |
-| Artist | Perform | `/studio/go-live`, `/studio/schedule`, `/studio/events`, `/studio/events/new`, `/studio/shows`, `/studio/shows/$id`, `/studio/channel` | Multicast/Radio are channel query tabs. |
+| Artist | Perform | `/studio/go-live`, `/studio/schedule`, `/studio/events`, `/studio/events/new`, `/studio/shows`, `/studio/shows/$id`, `/studio/channel` | Nav label is Broadcast. Multicast/Radio are channel query tabs. 24/7 programme is on `/studio/schedule`. |
 | Signed in | Settings | `/settings`, `/settings/$section`, `/account`, `/onboarding` | Modal + bookmarkable sections. `/themes` redirects here. `/sources` and `/sources/$id` redirect to Add-ons → Import. |
 | Board | Admin | `/admin`, `/admin/logs`, `/admin/moderation` (+ `$tab`), `/admin/users`, `/admin/content`, `/admin/radio`, `/admin/news`, `/admin/streams`, `/admin/venues`, `/admin/top-lists`, `/admin/announcements`, `/admin/storage`, `/admin/artwork-presets`, `/admin/financial`, `/admin/governance`, `/admin/reports`, `/admin/grants`, `/admin/agm`, `/admin/disco-widgets`, `/admin/status`, `/admin/vendors`, `/admin/i18n`, `/admin/tahti-selects`, `/admin/orphan-pages` | Queue/detail routes stay contextual. |
 
@@ -82,7 +82,7 @@ Audited 2026-09-03 against `AppShell` / `StudioNav` / `AdminNav` /
 | Route | Inbound from production UI? | Notes |
 | --- | --- | --- |
 | `/venues` | Only venue detail, venue register, and the diagnostics atlas | Sitemap previously listed it under Listen chrome. It is **not** in the sidebar, drawer, or mobile bottom nav. |
-| `/schedule` | Booking calendar + schedule dialog only | Public programme page. Radio chrome does not link it. Distinct from `/studio/schedule`. Listed as a compatibility route historically; the page is real. |
+| `/schedule` | Booking calendar + schedule dialog only | Public programme page. Radio chrome does not link it. Distinct from `/studio/schedule` (Studio **Broadcast**). Listed as a compatibility route historically; the page is real. |
 | `/library/smartlinks` | None (direct URL / atlas only) | `LibraryView` can render the tab, but the Library submenu and collections tab strip omit it. |
 | `/studio/distribution` | Studio Releases row + export add-on deep links | Not a StudioNav submenu item. `SECTION_PREFIXES` still highlights Library → Releases. |
 | `/studio/stash` | Library collections tab `?tab=stash` (embedded) | Dedicated `/studio/stash` has no submenu entry. Direct visits still highlight Library via `SECTION_PREFIXES`. |

@@ -405,7 +405,11 @@ export function StudioUploadView() {
               </p>
             )}
             <div className="flex flex-wrap gap-2">
-              <Button disabled={busy || !file} onClick={() => void submit()}>
+              <Button
+                disabled={busy || !file}
+                aria-label="Upload file"
+                onClick={() => void submit()}
+              >
                 <UploadIcon size={16} aria-hidden className="mr-1.5" />
                 {busy ? 'Uploading…' : 'Upload'}
               </Button>

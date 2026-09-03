@@ -35,14 +35,14 @@ Login is `POST /api/auth/login`, TOTP login is
 | Area | Representative API operations | Client surfaces |
 | --- | --- | --- |
 | Public discovery | `GET /api/v1/search`, `GET /api/v1/channels/directory`, `GET /api/channels/{slug}`, `GET /api/channels/{slug}/items` | Listen, Discover, public artist/channel pages |
-| Playback and engagement | `POST/DELETE/GET /api/v1/c/{slug}/archive/{itemId}/like`, `POST/DELETE/GET .../repost`, `GET .../download-gates` | Player, sounds, releases, favourites |
+| Playback and engagement | `POST/DELETE/GET /api/v1/c/{slug}/archive/{itemId}/like`, `POST/DELETE/GET .../repost`, `GET .../download`, `GET .../download-gates` | Player, sounds, releases, favourites. Public download tries `?format=source` then the default gate. |
 | Artist channel | `GET/PATCH /api/me/channel/slug`, `GET/PATCH /api/me/stream-settings`, `GET/PATCH /api/me/channel/publish-defaults` | Studio → Manage → Channel |
 | Broadcast controls | `POST /api/channels/{slug}/skip`, `/pause`, `/resume`, `/previous`; `GET /api/channels/{slug}/rtmp-status` | Go Live, Radio, stream manager |
 | Rotation and programming | `GET/PATCH /api/channels/{slug}/fallback-collections`, `GET /api/channels/{slug}/programme`, `PATCH /api/channels/{slug}/fallback-collection` | 24/7 rotation and radio management |
 | Multicast | `GET/POST /api/me/rtmp-targets`, `PATCH/DELETE /api/me/rtmp-targets/{id}`, `GET /api/me/rtmp-targets/{id}/stream-key` | Studio → Manage → Multicast and Go Live |
 | Archive and editing | `/api/me/archive`, `/api/me/archive/{id}`, `/api/me/archive/{id}/editor/draft`, `/api/me/archive/{id}/fingerprint` | Sounds, upload, stash, track editor, audio editor |
 | Collections and releases | `/api/me/collections`, `/api/me/releases`, `/api/me/releases/{id}`, release export and royalty routes | Collections, releases, distribution, smartlinks |
-| Shows and schedule | `/api/me/shows`, `/api/me/shows/{id}`, `/api/me/show-bookings`, `/api/me/episodes` | Shows, calendar, schedule, recordings |
+| Shows and schedule | `/api/me/shows`, `/api/me/shows/{id}`, `/api/me/show-bookings`, `/api/me/episodes` | Shows, calendar, Studio Broadcast (`/studio/schedule`), recordings |
 | Profile and audience | `/api/me/profile`, `/api/me/notification-preferences`, `/api/me/fan-tiers`, `/api/me/fan-sub-payouts`, `/api/me/fan-sub-payouts/summary`, `/api/me/fan-subs/connect`, `/api/me/revelator/royalties`, `/api/me/fan-subscriptions`, `/api/me/grants` | Settings, Studio → Audience, subscriptions |
 | Chat and mentions | `/api/channels/{slug}/presence`, `/api/me/chat/settings`, `/api/me/chat/announcements`, `/api/me/channel/moderators`, `/api/me/mentions` | Chat rail, moderation, tagged-in profile sections |
 | Governance | `GET/POST /api/v1/governance/motions`, `PATCH /api/v1/governance/motions/{id}`, `POST .../vote`, comments and reports | Artist and public Governance |

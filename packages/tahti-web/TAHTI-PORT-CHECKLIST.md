@@ -51,7 +51,7 @@ Ordered by listener/artist value × API readiness:
 - Auth: login / TOTP login / register / logout / email verify
 - Follows, fan subscribe checkout, my subscriptions, governance vote/comments, DMs
 - Add-to-playlist → `/api/me/collections`
-- Studio: home, Go Live wizard, archive/Music, upload, releases, collections/album designer, schedule, full 24/7 playlist editor, channel design, updates/newsletter, revenue/Connect, fan-tier editor
+- Studio: home, Go Live wizard, archive/Music, upload, releases, collections/album designer, Broadcast (`/studio/schedule`) with 24/7 programme, channel design, updates/newsletter, revenue/Connect, fan-tier editor
 - Stats summary + top tracks/countries + **plays time series**
 - Stash list/play/download + **upload/delete/share/revoke**
 - Settings shell (Nuclear sections) + artist/discovery/domain/notifications/social

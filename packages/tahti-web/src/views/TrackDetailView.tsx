@@ -348,8 +348,12 @@ export function TrackDetailView({
       toast.error(result.error);
       return;
     }
+    const filename =
+      result.filename ??
+      `${detail.title.replace(/[^\w.\- ]+/g, '').trim() || 'track'}.wav`;
     const link = document.createElement('a');
     link.href = result.url;
+    link.download = filename;
     link.rel = 'noopener noreferrer';
     document.body.appendChild(link);
     link.click();
@@ -602,6 +606,7 @@ export function TrackDetailView({
               <Button
                 size="sm"
                 variant="secondary"
+                aria-label={downloadBusy ? 'Preparing download' : 'Download'}
                 disabled={downloadBusy || !detail || Boolean(embedSrc)}
                 onClick={() => void downloadTrack()}
               >

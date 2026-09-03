@@ -10,6 +10,7 @@ Offline demo state lives in [`src/api/mock-session.ts`](src/api/mock-session.ts)
 | Listen / Radio / Channel / Archive | Directory + HLS/MP3 fixtures                                                   |
 | Favorites / Follow                 | Mutable following set                                                          |
 | Fan subscribe                      | Activates in-session; Account / Settings Money lists it                        |
+| Studio upload (FORCE_MOCK)         | `mock-uploads.ts` keeps the original file; public `/t/:id` and download use it once visibility is not PRIVATE |
 | Studio Go Live                     | Broadcast mocks + simulate signal                                              |
 | Sources OAuth Connect              | In-app mock connect/disconnect (no real OAuth redirect)                        |
 | Stripe Connect onboard             | In-app activate — no `connect.stripe.com` redirect                             |
@@ -40,6 +41,7 @@ Production / beta builds (`import.meta.env.PROD`) **do not** fall back to fixtur
 - [ ] Visualizer: no mock needed — needs real WebGL runtime
 - [ ] Stash share mock
 - [x] Sound share links (PRIVATE/STASH sound → keyed `/t/:id?key=...` link) — mock create/list/revoke in `api/studio.ts`; real backend route doesn't exist (see FEATURES.md, API-REFERENCE.md)
+- [x] Mock archive upload visibility — `arch-mock-*` ids resolve on `/t/:id` and return the uploaded bytes when public (`src/api/mock-uploads.ts`)
 
 ## Run
 
