@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Button, Input, Tooltip } from '@tahti-player/ui';
 
 import { fetchStudioCollections } from '../api/studio';
 import type { StudioCollection } from '../api/studio-types';
@@ -216,14 +216,15 @@ export function MyCollectionsView({
         description="Add tracks to an album, playlist, DJ set, or mix in Studio and it will appear here."
         action={
           <Link to="/studio/collections">
-            <Button
-              size="icon-sm"
-              variant="secondary"
-              aria-label="Open collections in Studio"
-              title="Open collections in Studio"
-            >
-              <FolderPlusIcon size={16} aria-hidden />
-            </Button>
+            <Tooltip content="Open collections in Studio" side="top">
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label="Open collections in Studio"
+              >
+                <FolderPlusIcon size={16} aria-hidden />
+              </Button>
+            </Tooltip>
           </Link>
         }
       />

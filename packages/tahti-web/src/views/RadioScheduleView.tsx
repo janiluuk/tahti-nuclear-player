@@ -14,6 +14,7 @@ import {
   Input,
   SaveButton,
   Tabs,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import {
@@ -291,19 +292,20 @@ export function RadioScheduleView() {
                   ? 'live now'
                   : 'starting soon'}
               </span>
-              <Link
-                to="/u/$username/green-room"
-                params={{ username: b.username }}
-              >
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  aria-label={`Open ${b.displayName}'s green room`}
-                  title="Green room"
+              <Tooltip content="Green room" side="top">
+                <Link
+                  to="/u/$username/green-room"
+                  params={{ username: b.username }}
                 >
-                  <MicIcon size={16} aria-hidden />
-                </Button>
-              </Link>
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    aria-label={`Open ${b.displayName}'s green room`}
+                  >
+                    <MicIcon size={16} aria-hidden />
+                  </Button>
+                </Link>
+              </Tooltip>
             </div>
           ))}
         </div>
@@ -378,27 +380,31 @@ export function RadioScheduleView() {
             </Tabs.Root>
 
             <div className="flex items-center justify-between gap-2 sm:justify-end">
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                aria-label="Previous week"
-                disabled={busy}
-                onClick={() => setWeekStart((w) => addDays(w, -7))}
-              >
-                <ChevronLeftIcon size={16} aria-hidden />
-              </Button>
+              <Tooltip content="Previous week" side="top">
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Previous week"
+                  disabled={busy}
+                  onClick={() => setWeekStart((w) => addDays(w, -7))}
+                >
+                  <ChevronLeftIcon size={16} aria-hidden />
+                </Button>
+              </Tooltip>
               <span className="text-sm font-semibold tabular-nums">
                 {weekLabel(days)}
               </span>
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                aria-label="Next week"
-                disabled={busy}
-                onClick={() => setWeekStart((w) => addDays(w, 7))}
-              >
-                <ChevronRightIcon size={16} aria-hidden />
-              </Button>
+              <Tooltip content="Next week" side="top">
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Next week"
+                  disabled={busy}
+                  onClick={() => setWeekStart((w) => addDays(w, 7))}
+                >
+                  <ChevronRightIcon size={16} aria-hidden />
+                </Button>
+              </Tooltip>
               {weekStart.toDateString() !==
               startOfLocalDay(new Date()).toDateString() ? (
                 <Button

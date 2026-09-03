@@ -1,7 +1,7 @@
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Card, CardGrid } from '@tahti-player/ui';
+import { Button, Card, CardGrid, Tooltip } from '@tahti-player/ui';
 
 import { radioStation, radioStationPlayable } from '../content/radioStations';
 import {
@@ -110,21 +110,23 @@ export function ListenerWidgetsSection() {
                 catalogStationId={station.id}
                 className="absolute top-3 left-3 z-10 rounded-full"
               />
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label={`Remove ${station.name}`}
-                onClick={() =>
-                  setPendingRemoval({
-                    kind: 'station',
-                    id: station.id,
-                    label: station.name,
-                  })
-                }
-                className="bg-background/80 hover:bg-background absolute top-1 right-1 z-10 rounded-full opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-              >
-                <XIcon size={14} aria-hidden />
-              </Button>
+              <Tooltip content={`Remove ${station.name}`} side="top">
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  aria-label={`Remove ${station.name}`}
+                  onClick={() =>
+                    setPendingRemoval({
+                      kind: 'station',
+                      id: station.id,
+                      label: station.name,
+                    })
+                  }
+                  className="bg-background/80 hover:bg-background absolute top-1 right-1 z-10 rounded-full opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                >
+                  <XIcon size={14} aria-hidden />
+                </Button>
+              </Tooltip>
               <Card
                 src={station.logoUrl}
                 title={station.name}
@@ -152,21 +154,23 @@ export function ListenerWidgetsSection() {
         <CardGrid>
           {savedBrowserStations.map((station) => (
             <div key={station.id} className="group relative w-fit">
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label={`Remove ${station.name}`}
-                onClick={() =>
-                  setPendingRemoval({
-                    kind: 'browser',
-                    id: station.id,
-                    label: station.name,
-                  })
-                }
-                className="bg-background/80 hover:bg-background absolute top-1 right-1 z-10 rounded-full opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-              >
-                <XIcon size={14} aria-hidden />
-              </Button>
+              <Tooltip content={`Remove ${station.name}`} side="top">
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  aria-label={`Remove ${station.name}`}
+                  onClick={() =>
+                    setPendingRemoval({
+                      kind: 'browser',
+                      id: station.id,
+                      label: station.name,
+                    })
+                  }
+                  className="bg-background/80 hover:bg-background absolute top-1 right-1 z-10 rounded-full opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                >
+                  <XIcon size={14} aria-hidden />
+                </Button>
+              </Tooltip>
               <Card
                 src={station.favicon}
                 title={station.name}

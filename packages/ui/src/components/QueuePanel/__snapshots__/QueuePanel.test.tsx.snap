@@ -301,34 +301,36 @@ exports[`QueuePanel > (Snapshot) renders default state 1`] = `
                       >
                         5:54
                       </div>
-                      <button
-                        aria-label="Remove from queue"
-                        class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border border-(length:--border-width) size-8 justify-center absolute right-4 opacity-0 group-hover:opacity-100"
-                        data-headlessui-state=""
-                        data-testid="queue-item-remove-button"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="lucide lucide-x"
-                          fill="none"
-                          height="16"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
-                          width="16"
-                          xmlns="http://www.w3.org/2000/svg"
+                      <div>
+                        <button
+                          aria-label="Remove from queue"
+                          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border border-(length:--border-width) size-8 justify-center absolute right-4 opacity-0 group-hover:opacity-100"
+                          data-headlessui-state=""
+                          data-testid="queue-item-remove-button"
+                          type="button"
                         >
-                          <path
-                            d="M18 6 6 18"
-                          />
-                          <path
-                            d="m6 6 12 12"
-                          />
-                        </svg>
-                      </button>
+                          <svg
+                            aria-hidden="true"
+                            class="lucide lucide-x"
+                            fill="none"
+                            height="16"
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                            width="16"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M18 6 6 18"
+                            />
+                            <path
+                              d="m6 6 12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -399,34 +401,36 @@ exports[`QueuePanel > (Snapshot) renders default state 1`] = `
                       >
                         8:02
                       </div>
-                      <button
-                        aria-label="Remove from queue"
-                        class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border border-(length:--border-width) size-8 justify-center absolute right-4 opacity-0 group-hover:opacity-100"
-                        data-headlessui-state=""
-                        data-testid="queue-item-remove-button"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="lucide lucide-x"
-                          fill="none"
-                          height="16"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
-                          width="16"
-                          xmlns="http://www.w3.org/2000/svg"
+                      <div>
+                        <button
+                          aria-label="Remove from queue"
+                          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border border-(length:--border-width) size-8 justify-center absolute right-4 opacity-0 group-hover:opacity-100"
+                          data-headlessui-state=""
+                          data-testid="queue-item-remove-button"
+                          type="button"
                         >
-                          <path
-                            d="M18 6 6 18"
-                          />
-                          <path
-                            d="m6 6 12 12"
-                          />
-                        </svg>
-                      </button>
+                          <svg
+                            aria-hidden="true"
+                            class="lucide lucide-x"
+                            fill="none"
+                            height="16"
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                            width="16"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M18 6 6 18"
+                            />
+                            <path
+                              d="m6 6 12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -497,34 +501,36 @@ exports[`QueuePanel > (Snapshot) renders default state 1`] = `
                       >
                         6:31
                       </div>
-                      <button
-                        aria-label="Remove from queue"
-                        class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border border-(length:--border-width) size-8 justify-center absolute right-4 opacity-0 group-hover:opacity-100"
-                        data-headlessui-state=""
-                        data-testid="queue-item-remove-button"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="lucide lucide-x"
-                          fill="none"
-                          height="16"
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
-                          width="16"
-                          xmlns="http://www.w3.org/2000/svg"
+                      <div>
+                        <button
+                          aria-label="Remove from queue"
+                          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border border-(length:--border-width) size-8 justify-center absolute right-4 opacity-0 group-hover:opacity-100"
+                          data-headlessui-state=""
+                          data-testid="queue-item-remove-button"
+                          type="button"
                         >
-                          <path
-                            d="M18 6 6 18"
-                          />
-                          <path
-                            d="m6 6 12 12"
-                          />
-                        </svg>
-                      </button>
+                          <svg
+                            aria-hidden="true"
+                            class="lucide lucide-x"
+                            fill="none"
+                            height="16"
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                            width="16"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M18 6 6 18"
+                            />
+                            <path
+                              d="m6 6 12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     <div
                       class="bg-stripes-diagonal absolute inset-x-0 bottom-0 h-1"

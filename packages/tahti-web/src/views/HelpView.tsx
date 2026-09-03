@@ -23,6 +23,7 @@ import {
   Input,
   SectionShell,
   Tabs,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import { HelpKeyboardShortcuts } from '../components/HelpKeyboardShortcuts';
@@ -32,7 +33,6 @@ import { SupportContactForm } from '../components/SupportContactForm';
 import {
   getHelpArticle,
   HELP_ARTICLES,
-  HELP_HUB_INTRO,
   type HelpArticle,
 } from '../content/help';
 import { KEYBOARD_NAVIGATION_SECTIONS } from '../content/keyboardNavigation';
@@ -355,19 +355,19 @@ export function HelpHubView() {
   );
 
   return (
-    <PageFrame maxWidth="full" className="max-w-full min-w-0 pb-8">
-      <PageHeader
-        title="Help center"
-        subtitle={HELP_HUB_INTRO}
-        actions={
-          <Link to="/about">
-            <Button size="sm" variant="secondary">
-              <BookOpenIcon size={16} aria-hidden className="mr-1.5" />
-              About Tahti
-            </Button>
-          </Link>
-        }
-      />
+    <ViewShell
+      title="Help"
+      subtitle="Guides, documents, and shortcuts."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-full min-w-0 pb-8' }}
+    >
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <Link to="/about">
+          <Button size="sm" variant="secondary">
+            <BookOpenIcon size={16} aria-hidden className="mr-1.5" />
+            About Tahti
+          </Button>
+        </Link>
+      </div>
 
       <StudioPanel
         title="Documents and public records"
@@ -522,7 +522,7 @@ export function HelpHubView() {
         </a>
         .
       </p>
-    </PageFrame>
+    </ViewShell>
   );
 }
 

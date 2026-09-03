@@ -20,6 +20,7 @@ import {
   Input,
   Select,
   Tabs,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -40,7 +41,7 @@ import { PageLoading } from '../../components/PageStates';
 import { StashFilesPanel } from '../../components/StashFilesPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { StudioSoundRowMenu } from '../../components/StudioSoundRowMenu';
 import { TrackEditDialog } from '../../components/TrackEditDialog';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
@@ -275,268 +276,274 @@ export function StudioSoundsView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/sounds" />
-        <StudioPageHeader
+        <ViewShell
           title="Sounds"
-          subtitle="Your sounds and other files, in one place."
-          action={
-            folder === 'archive' ? (
-              <AddToMusicActions onUploaded={reload} />
-            ) : undefined
-          }
-        />
-
-        <Tabs.Root
-          selectedIndex={FOLDERS.findIndex((entry) => entry.id === folder)}
-          onChange={(index) => {
-            const next = FOLDERS[index];
-            if (!next) {
-              return;
-            }
-            void navigate({
-              to: '/studio/sounds',
-              search: next.id === 'archive' ? {} : { folder: next.id },
-            });
-          }}
+          subtitle="Your files."
+          classes={{ root: 'px-0 pt-0' }}
         >
-          <Tabs.List>
-            {FOLDERS.map((folderOption) => (
-              <Tabs.Tab key={folderOption.id}>
-                <span className="inline-flex items-center gap-1.5">
-                  <folderOption.icon size={14} aria-hidden />
-                  {folderOption.label}
-                </span>
-              </Tabs.Tab>
-            ))}
-          </Tabs.List>
-        </Tabs.Root>
-
-        {folder === 'files' ? (
-          <StashFilesPanel />
-        ) : (
-          <StudioPanel>
-            <div className="mb-4 flex flex-wrap items-center gap-3">
-              <Input
-                type="search"
-                aria-label="Search archive"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search…"
-                className="max-w-md flex-1"
-                startAddon={
-                  <SearchIcon size={14} aria-hidden className="opacity-70" />
-                }
-              />
-              <Button
-                type="button"
-                size="icon-sm"
-                variant="secondary"
-                aria-expanded={filtersOpen}
-                aria-label={filtersOpen ? 'Collapse filters' : 'Expand filters'}
-                title={filtersOpen ? 'Collapse filters' : 'Expand filters'}
-                onClick={() => setFiltersOpen((current) => !current)}
-              >
-                <FilterIcon size={15} aria-hidden />
-                <ChevronDownIcon
-                  size={13}
-                  aria-hidden
-                  className={filtersOpen ? 'rotate-180' : ''}
-                />
-              </Button>
-              <span className="text-foreground-secondary text-xs">
-                Pinned {pinnedCount}
-              </span>
+          {folder === 'archive' ? (
+            <div className="mb-4">
+              <AddToMusicActions onUploaded={reload} />
             </div>
-            {filtersOpen && (
-              <div className="border-border mb-4 flex flex-wrap items-end gap-3 border-b pb-4">
-                <Select
-                  label="Source"
-                  value={embedFilter}
-                  onValueChange={(value) =>
-                    setEmbedFilter(value as EmbedFilter)
+          ) : null}
+
+          <Tabs.Root
+            selectedIndex={FOLDERS.findIndex((entry) => entry.id === folder)}
+            onChange={(index) => {
+              const next = FOLDERS[index];
+              if (!next) {
+                return;
+              }
+              void navigate({
+                to: '/studio/sounds',
+                search: next.id === 'archive' ? {} : { folder: next.id },
+              });
+            }}
+          >
+            <Tabs.List>
+              {FOLDERS.map((folderOption) => (
+                <Tabs.Tab key={folderOption.id}>
+                  <span className="inline-flex items-center gap-1.5">
+                    <folderOption.icon size={14} aria-hidden />
+                    {folderOption.label}
+                  </span>
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs.Root>
+
+          {folder === 'files' ? (
+            <StashFilesPanel />
+          ) : (
+            <StudioPanel>
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <Input
+                  type="search"
+                  aria-label="Search archive"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search…"
+                  className="max-w-md flex-1"
+                  startAddon={
+                    <SearchIcon size={14} aria-hidden className="opacity-70" />
                   }
-                  options={EMBED_FILTERS.map((filterOption) => ({
-                    id: filterOption.id,
-                    label: filterOption.label,
-                  }))}
-                  className="min-w-40"
-                />
-                <Select
-                  label="Sort by"
-                  value={sortField}
-                  onValueChange={(value) => setSortField(value as SortField)}
-                  options={SORT_FIELDS.map((sortOption) => ({
-                    id: sortOption.id,
-                    label: sortOption.label,
-                  }))}
-                  className="min-w-40"
                 />
                 <Button
-                  size="sm"
+                  type="button"
+                  size="icon-sm"
                   variant="secondary"
-                  onClick={() => setSortDescending((current) => !current)}
+                  aria-expanded={filtersOpen}
+                  aria-label={
+                    filtersOpen ? 'Collapse filters' : 'Expand filters'
+                  }
+                  title={filtersOpen ? 'Collapse filters' : 'Expand filters'}
+                  onClick={() => setFiltersOpen((current) => !current)}
                 >
-                  {sortDescending ? 'Descending' : 'Ascending'}
-                </Button>
-                <Input
-                  type="date"
-                  label="Uploaded from"
-                  value={uploadedFrom}
-                  onChange={(event) => setUploadedFrom(event.target.value)}
-                  className="min-w-36"
-                />
-                <label className="flex min-w-36 flex-col gap-1 text-xs">
-                  Uploaded to
-                  <input
-                    type="date"
-                    value={uploadedTo}
-                    onChange={(event) => setUploadedTo(event.target.value)}
-                    className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                  <FilterIcon size={15} aria-hidden />
+                  <ChevronDownIcon
+                    size={13}
+                    aria-hidden
+                    className={filtersOpen ? 'rotate-180' : ''}
                   />
-                </label>
+                </Button>
+                <span className="text-foreground-secondary text-xs">
+                  Pinned {pinnedCount}
+                </span>
               </div>
-            )}
+              {filtersOpen && (
+                <div className="border-border mb-4 flex flex-wrap items-end gap-3 border-b pb-4">
+                  <Select
+                    label="Source"
+                    value={embedFilter}
+                    onValueChange={(value) =>
+                      setEmbedFilter(value as EmbedFilter)
+                    }
+                    options={EMBED_FILTERS.map((filterOption) => ({
+                      id: filterOption.id,
+                      label: filterOption.label,
+                    }))}
+                    className="min-w-40"
+                  />
+                  <Select
+                    label="Sort by"
+                    value={sortField}
+                    onValueChange={(value) => setSortField(value as SortField)}
+                    options={SORT_FIELDS.map((sortOption) => ({
+                      id: sortOption.id,
+                      label: sortOption.label,
+                    }))}
+                    className="min-w-40"
+                  />
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setSortDescending((current) => !current)}
+                  >
+                    {sortDescending ? 'Descending' : 'Ascending'}
+                  </Button>
+                  <Input
+                    type="date"
+                    label="Uploaded from"
+                    value={uploadedFrom}
+                    onChange={(event) => setUploadedFrom(event.target.value)}
+                    className="min-w-36"
+                  />
+                  <label className="flex min-w-36 flex-col gap-1 text-xs">
+                    Uploaded to
+                    <input
+                      type="date"
+                      value={uploadedTo}
+                      onChange={(event) => setUploadedTo(event.target.value)}
+                      className="border-border bg-background h-9 rounded-md border px-2 text-sm"
+                    />
+                  </label>
+                </div>
+              )}
 
-            {pinMessage && (
-              <p
-                className="text-foreground-secondary mb-3 text-sm"
-                role="status"
-              >
-                {pinMessage}
-              </p>
-            )}
+              {pinMessage && (
+                <p
+                  className="text-foreground-secondary mb-3 text-sm"
+                  role="status"
+                >
+                  {pinMessage}
+                </p>
+              )}
 
-            {loading ? (
-              <PageLoading label="Loading…" />
-            ) : filtered.length === 0 ? (
-              <EmptyState
-                size="sm"
-                title="No tracks yet"
-                description="Upload a file or import from Sources."
-                action={
-                  <AddToMusicActions align="center" onUploaded={reload} />
-                }
-              />
-            ) : (
-              <ul className="divide-border divide-y">
-                {filtered.map((item) => {
-                  const embedSrc =
-                    item.embedProvider && item.embedUri
-                      ? embedSrcFor(item.embedProvider, item.embedUri)
-                      : null;
-                  return (
-                    <li
-                      key={item.id}
-                      className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <Link
-                          to="/t/$id"
-                          params={{ id: item.id }}
-                          className="font-medium hover:underline"
-                        >
-                          {item.title}
-                        </Link>
-                        <p className="text-foreground-secondary text-xs">
-                          {item.status}
-                          {formatUploadDate(item.createdAt)
-                            ? `, uploaded ${formatUploadDate(item.createdAt)}`
-                            : ''}
-                          {isPinned(item) ? ', pinned' : ''}
-                          {item.durationSec != null
-                            ? `, ${Math.round(item.durationSec / 60)} min`
-                            : ''}
-                          {item.genre ? `, ${item.genre}` : ''}
-                          {item.isPublic === false ? ', private' : ''}
-                          {embedSrc
-                            ? `, via ${EMBED_PROVIDER_LABEL[item.embedProvider!]}`
-                            : ''}
-                        </p>
-                      </div>
-                      <Button
-                        size="icon-sm"
-                        disabled={busyId === item.id}
-                        onClick={() =>
-                          embedSrc
-                            ? void playEmbedItem(item)
-                            : void playItem(item.id, item.title)
-                        }
-                        aria-label={
-                          embedSrc
-                            ? `Play ${item.title} on ${EMBED_PROVIDER_LABEL[item.embedProvider!]}`
-                            : `Play ${item.title}`
-                        }
-                        title={
-                          embedSrc
-                            ? `Play on ${EMBED_PROVIDER_LABEL[item.embedProvider!]}`
-                            : 'Play'
-                        }
+              {loading ? (
+                <PageLoading label="Loading…" />
+              ) : filtered.length === 0 ? (
+                <EmptyState
+                  size="sm"
+                  title="No tracks yet"
+                  description="Upload a file or import from Sources."
+                  action={
+                    <AddToMusicActions align="center" onUploaded={reload} />
+                  }
+                />
+              ) : (
+                <ul className="divide-border divide-y">
+                  {filtered.map((item) => {
+                    const embedSrc =
+                      item.embedProvider && item.embedUri
+                        ? embedSrcFor(item.embedProvider, item.embedUri)
+                        : null;
+                    return (
+                      <li
+                        key={item.id}
+                        className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
                       >
-                        <PlayIcon size={16} aria-hidden />
-                      </Button>
-                      {item.downloadsEnabled ? (
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            to="/t/$id"
+                            params={{ id: item.id }}
+                            className="font-medium hover:underline"
+                          >
+                            {item.title}
+                          </Link>
+                          <p className="text-foreground-secondary text-xs">
+                            {item.status}
+                            {formatUploadDate(item.createdAt)
+                              ? `, uploaded ${formatUploadDate(item.createdAt)}`
+                              : ''}
+                            {isPinned(item) ? ', pinned' : ''}
+                            {item.durationSec != null
+                              ? `, ${Math.round(item.durationSec / 60)} min`
+                              : ''}
+                            {item.genre ? `, ${item.genre}` : ''}
+                            {item.isPublic === false ? ', private' : ''}
+                            {embedSrc
+                              ? `, via ${EMBED_PROVIDER_LABEL[item.embedProvider!]}`
+                              : ''}
+                          </p>
+                        </div>
+                        <Button
+                          size="icon-sm"
+                          disabled={busyId === item.id}
+                          onClick={() =>
+                            embedSrc
+                              ? void playEmbedItem(item)
+                              : void playItem(item.id, item.title)
+                          }
+                          aria-label={
+                            embedSrc
+                              ? `Play ${item.title} on ${EMBED_PROVIDER_LABEL[item.embedProvider!]}`
+                              : `Play ${item.title}`
+                          }
+                          title={
+                            embedSrc
+                              ? `Play on ${EMBED_PROVIDER_LABEL[item.embedProvider!]}`
+                              : 'Play'
+                          }
+                        >
+                          <PlayIcon size={16} aria-hidden />
+                        </Button>
+                        {item.downloadsEnabled ? (
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            disabled={busyId === item.id}
+                            onClick={() => void downloadItem(item)}
+                            aria-label={`Download ${item.title}`}
+                            title="Download original"
+                          >
+                            <DownloadIcon size={16} aria-hidden />
+                          </Button>
+                        ) : null}
+                        <Button
+                          size="icon-sm"
+                          variant="secondary"
+                          aria-label={`Edit ${item.title}`}
+                          title="Edit track"
+                          onClick={() => setEditingId(item.id)}
+                        >
+                          <PencilIcon size={16} aria-hidden />
+                        </Button>
                         <Button
                           size="icon-sm"
                           variant="text"
-                          disabled={busyId === item.id}
-                          onClick={() => void downloadItem(item)}
-                          aria-label={`Download ${item.title}`}
-                          title="Download original"
+                          onClick={() => setStatsItem(item)}
+                          aria-label={`Show stats for ${item.title}`}
+                          title="Stats"
                         >
-                          <DownloadIcon size={16} aria-hidden />
+                          <BarChart3Icon size={16} aria-hidden />
                         </Button>
-                      ) : null}
-                      <Button
-                        size="icon-sm"
-                        variant="secondary"
-                        aria-label={`Edit ${item.title}`}
-                        title="Edit track"
-                        onClick={() => setEditingId(item.id)}
-                      >
-                        <PencilIcon size={16} aria-hidden />
-                      </Button>
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        onClick={() => setStatsItem(item)}
-                        aria-label={`Show stats for ${item.title}`}
-                        title="Stats"
-                      >
-                        <BarChart3Icon size={16} aria-hidden />
-                      </Button>
-                      <AddToPlaylistButton
-                        soundId={item.id}
-                        trackTitle={item.title}
-                      />
-                      <StudioSoundRowMenu
-                        item={item}
-                        busy={busyId === item.id}
-                        hasEmbed={Boolean(embedSrc)}
-                        onTogglePin={() => void togglePin(item)}
-                        onDelete={() => {
-                          if (!confirm(`Delete “${item.title}”?`)) {
-                            return;
-                          }
-                          void deleteStudioSound(item.id).then(() => reload());
-                        }}
-                      />
-                      {embedSrc && embedOpenId === item.id && (
-                        <iframe
-                          title={item.title}
-                          src={embedSrc}
-                          width="100%"
-                          height={EMBED_PROVIDER_HEIGHT[item.embedProvider!]}
-                          style={{ border: 0, display: 'block' }}
-                          allow="autoplay; encrypted-media"
-                          loading="lazy"
+                        <AddToPlaylistButton
+                          soundId={item.id}
+                          trackTitle={item.title}
                         />
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </StudioPanel>
-        )}
+                        <StudioSoundRowMenu
+                          item={item}
+                          busy={busyId === item.id}
+                          hasEmbed={Boolean(embedSrc)}
+                          onTogglePin={() => void togglePin(item)}
+                          onDelete={() => {
+                            if (!confirm(`Delete “${item.title}”?`)) {
+                              return;
+                            }
+                            void deleteStudioSound(item.id).then(() =>
+                              reload(),
+                            );
+                          }}
+                        />
+                        {embedSrc && embedOpenId === item.id && (
+                          <iframe
+                            title={item.title}
+                            src={embedSrc}
+                            width="100%"
+                            height={EMBED_PROVIDER_HEIGHT[item.embedProvider!]}
+                            style={{ border: 0, display: 'block' }}
+                            allow="autoplay; encrypted-media"
+                            loading="lazy"
+                          />
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </StudioPanel>
+          )}
+        </ViewShell>
         <TrackEditDialog
           soundId={editingId}
           onClose={() => setEditingId(null)}

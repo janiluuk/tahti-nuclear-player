@@ -30,6 +30,7 @@ export function Toolbar({
           <Button
             size="icon"
             onClick={actions.onPlayAll}
+            aria-label={labels.playAll}
             data-testid="play-all-button"
           >
             <PlayIcon size={16} strokeWidth={3} />
@@ -42,6 +43,7 @@ export function Toolbar({
             variant="secondary"
             size="icon"
             onClick={actions.onAddAllToQueue}
+            aria-label={labels.addAllToQueue}
             data-testid="add-all-to-queue-button"
           >
             <PlusIcon size={16} strokeWidth={3} />

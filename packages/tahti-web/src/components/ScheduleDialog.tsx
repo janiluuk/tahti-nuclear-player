@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CalendarDaysIcon, CalendarPlusIcon, Clock3Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog } from '@tahti-player/ui';
+import { Button, Dialog, Tooltip } from '@tahti-player/ui';
 
 import {
   fetchPublicRadioShow,
@@ -146,26 +146,28 @@ export function ScheduleDialog({
       <Dialog.Actions>
         <Dialog.Close>Close</Dialog.Close>
         {onBook ? (
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            onClick={onBook}
-            aria-label="Book a slot"
-            title="Book a slot"
-          >
-            <CalendarPlusIcon size={15} aria-hidden />
-          </Button>
+          <Tooltip content="Book a slot" side="top">
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              onClick={onBook}
+              aria-label="Book a slot"
+            >
+              <CalendarPlusIcon size={15} aria-hidden />
+            </Button>
+          </Tooltip>
         ) : null}
-        <Link to="/schedule" onClick={onClose}>
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            aria-label="Open full calendar"
-            title="Open full calendar"
-          >
-            <CalendarDaysIcon size={16} aria-hidden />
-          </Button>
-        </Link>
+        <Tooltip content="Open full calendar" side="top">
+          <Link to="/schedule" onClick={onClose}>
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              aria-label="Open full calendar"
+            >
+              <CalendarDaysIcon size={16} aria-hidden />
+            </Button>
+          </Link>
+        </Tooltip>
       </Dialog.Actions>
     </Dialog.Root>
   );

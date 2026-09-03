@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Box, Button, Tabs } from '@tahti-player/ui';
+import { Box, Button, Tabs, Tooltip, ViewShell } from '@tahti-player/ui';
 
 import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {
@@ -30,7 +30,6 @@ import {
   MediaIconActions,
   playQueueFavoriteActions,
 } from '../components/MediaIconActions';
-import { PageFrame } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { RadioBookingCalendar } from '../components/RadioBookingCalendar';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -170,7 +169,11 @@ export function RadioView() {
   };
 
   return (
-    <PageFrame maxWidth="3xl">
+    <ViewShell
+      title="Radio"
+      subtitle="Live Tahti Radio and schedule."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
+    >
       {loading ? (
         <PageLoading label="Tuning Tahti Radio…" />
       ) : !station ? (
@@ -223,26 +226,28 @@ export function RadioView() {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <Link to="/channel/$slug" params={{ slug: TAHTI_RADIO_SLUG }}>
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  aria-label="Open Tahti Radio channel"
-                  title="Open channel"
-                >
-                  <RadioTowerIcon size={16} aria-hidden />
-                </Button>
-              </Link>
+              <Tooltip content="Open Tahti Radio channel" side="top">
+                <Link to="/channel/$slug" params={{ slug: TAHTI_RADIO_SLUG }}>
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    aria-label="Open Tahti Radio channel"
+                  >
+                    <RadioTowerIcon size={16} aria-hidden />
+                  </Button>
+                </Link>
+              </Tooltip>
               {user && (
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  aria-label="Open booking calendar"
-                  title="Book a slot"
-                  onClick={() => setCalendarOpen(true)}
-                >
-                  <CalendarIcon size={16} aria-hidden />
-                </Button>
+                <Tooltip content="Book a slot" side="top">
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    aria-label="Open booking calendar"
+                    onClick={() => setCalendarOpen(true)}
+                  >
+                    <CalendarIcon size={16} aria-hidden />
+                  </Button>
+                </Tooltip>
               )}
             </div>
           </header>
@@ -600,6 +605,6 @@ export function RadioView() {
         onClose={() => setCalendarOpen(false)}
         onBooked={reloadUpcoming}
       />
-    </PageFrame>
+    </ViewShell>
   );
 }

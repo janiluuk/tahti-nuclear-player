@@ -10,7 +10,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, EmptyState } from '@tahti-player/ui';
+import { Button, EmptyState, Tooltip } from '@tahti-player/ui';
 
 import {
   fetchCollection,
@@ -255,9 +255,15 @@ export function CollectionView({
             params={{ slug }}
             className="absolute top-4 right-4 z-10"
           >
-            <Button variant="secondary" size="icon-sm" title="Edit in Studio">
-              <PencilIcon size={14} />
-            </Button>
+            <Tooltip content="Edit in Studio" side="top">
+              <Button
+                variant="secondary"
+                size="icon-sm"
+                aria-label="Edit in Studio"
+              >
+                <PencilIcon size={14} aria-hidden />
+              </Button>
+            </Tooltip>
           </Link>
         )}
         <div className="border-border bg-background-secondary/60 shadow-shadow h-60 w-60 shrink-0 overflow-hidden rounded-md border-(length:--border-width) backdrop-blur-sm">
@@ -306,16 +312,17 @@ export function CollectionView({
               <PlayIcon size={16} aria-hidden className="mr-1.5" />
               Play
             </Button>
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={queueAll}
-              disabled={playables.length === 0}
-              title="Add all to queue"
-              aria-label="Add all to queue"
-            >
-              <ListPlusIcon size={16} aria-hidden />
-            </Button>
+            <Tooltip content="Add all to queue" side="top">
+              <Button
+                variant="secondary"
+                size="icon"
+                onClick={queueAll}
+                disabled={playables.length === 0}
+                aria-label="Add all to queue"
+              >
+                <ListPlusIcon size={16} aria-hidden />
+              </Button>
+            </Tooltip>
             <EmbedButton target={{ kind: 'collection', slug }} />
             <Button variant="secondary" onClick={() => void startJam()}>
               <RadioIcon size={15} aria-hidden className="mr-1.5" />

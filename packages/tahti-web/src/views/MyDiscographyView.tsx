@@ -18,6 +18,7 @@ import {
   ImageReveal,
   Input,
   Select,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import {
@@ -328,61 +329,76 @@ export const MyDiscographyView: FC = () => {
                         />
                       ) : null}
                     </div>
-                    <Button
-                      size="icon-sm"
-                      variant={isPinned(item) ? 'secondary' : 'text'}
-                      disabled={busyPinId === item.id}
-                      aria-label={`${isPinned(item) ? 'Unpin' : 'Pin'} ${item.title}`}
-                      title={
-                        isPinned(item) ? 'Unpin from profile' : 'Pin to profile'
-                      }
-                      onClick={() => void togglePin(item)}
+                    <Tooltip
+                      content={`${isPinned(item) ? 'Unpin' : 'Pin'} ${item.title}`}
+                      side="top"
                     >
-                      {isPinned(item) ? (
-                        <PinOffIcon size={16} aria-hidden />
-                      ) : (
-                        <PinIcon size={16} aria-hidden />
-                      )}
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant={isPlayingItem(item) ? 'default' : 'text'}
-                      disabled={loadingId === item.id}
-                      aria-label={
+                      <Button
+                        size="icon-sm"
+                        variant={isPinned(item) ? 'secondary' : 'text'}
+                        disabled={busyPinId === item.id}
+                        aria-label={`${isPinned(item) ? 'Unpin' : 'Pin'} ${item.title}`}
+                        onClick={() => void togglePin(item)}
+                      >
+                        {isPinned(item) ? (
+                          <PinOffIcon size={16} aria-hidden />
+                        ) : (
+                          <PinIcon size={16} aria-hidden />
+                        )}
+                      </Button>
+                    </Tooltip>
+                    <Tooltip
+                      content={
                         isPlayingItem(item)
                           ? `Pause ${item.title}`
                           : `Play ${item.title}`
                       }
-                      title={isPlayingItem(item) ? 'Pause' : 'Play'}
-                      onClick={() => void playItem(item)}
+                      side="top"
                     >
-                      {isPlayingItem(item) ? (
-                        <PauseIcon size={16} aria-hidden />
-                      ) : (
-                        <PlayIcon size={16} aria-hidden />
-                      )}
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      aria-label={`Edit ${item.title}`}
-                      title="Edit track"
-                      onClick={() => setEditingArchiveId(item.id)}
-                    >
-                      <PencilIcon size={16} aria-hidden />
-                    </Button>
+                      <Button
+                        size="icon-sm"
+                        variant={isPlayingItem(item) ? 'default' : 'text'}
+                        disabled={loadingId === item.id}
+                        aria-label={
+                          isPlayingItem(item)
+                            ? `Pause ${item.title}`
+                            : `Play ${item.title}`
+                        }
+                        onClick={() => void playItem(item)}
+                      >
+                        {isPlayingItem(item) ? (
+                          <PauseIcon size={16} aria-hidden />
+                        ) : (
+                          <PlayIcon size={16} aria-hidden />
+                        )}
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content={`Edit ${item.title}`} side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        aria-label={`Edit ${item.title}`}
+                        onClick={() => setEditingArchiveId(item.id)}
+                      >
+                        <PencilIcon size={16} aria-hidden />
+                      </Button>
+                    </Tooltip>
                     <Link
                       to="/studio/sounds/$id/editor"
                       params={{ id: item.id }}
                     >
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        aria-label={`Open ${item.title} in audio editor`}
-                        title="Audio editor"
+                      <Tooltip
+                        content={`Open ${item.title} in audio editor`}
+                        side="top"
                       >
-                        <AudioLinesIcon size={16} aria-hidden />
-                      </Button>
+                        <Button
+                          size="icon-sm"
+                          variant="text"
+                          aria-label={`Open ${item.title} in audio editor`}
+                        >
+                          <AudioLinesIcon size={16} aria-hidden />
+                        </Button>
+                      </Tooltip>
                     </Link>
                   </li>
                 ))}

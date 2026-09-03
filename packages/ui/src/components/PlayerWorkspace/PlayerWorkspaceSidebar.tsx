@@ -4,6 +4,7 @@ import { FC, ReactNode, useRef } from 'react';
 
 import { cn } from '../../utils';
 import { Button } from '../Button';
+import { Tooltip } from '../Tooltip';
 import { SIDEBAR_CONFIG } from './constants';
 import { useSidebarResize } from './hooks';
 
@@ -77,27 +78,31 @@ export const PlayerWorkspaceSidebar: FC<PlayerWorkspaceSidebarProps> = ({
           'mb-2 justify-start': !isCollapsed && side === 'right',
         })}
       >
-        <Button
-          data-testid={`sidebar-toggle-${side}`}
-          variant={isCollapsed ? 'text' : 'secondary'}
-          size="icon-sm"
-          title={isCollapsed ? 'Expand panel' : 'Collapse panel'}
-          aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
-          aria-pressed={!isCollapsed}
-          className={cn(
-            'size-7 transition-all',
-            isCollapsed
-              ? 'text-foreground-secondary opacity-45 hover:opacity-100'
-              : 'opacity-100',
-          )}
-          onClick={onToggle}
+        <Tooltip
+          content={isCollapsed ? 'Expand panel' : 'Collapse panel'}
+          side="top"
         >
-          {side === 'left' ? (
-            <PanelLeft size={14} strokeWidth={isCollapsed ? 1.75 : 2.25} />
-          ) : (
-            <PanelRight size={14} strokeWidth={isCollapsed ? 1.75 : 2.25} />
-          )}
-        </Button>
+          <Button
+            data-testid={`sidebar-toggle-${side}`}
+            variant={isCollapsed ? 'text' : 'secondary'}
+            size="icon-sm"
+            aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
+            aria-pressed={!isCollapsed}
+            className={cn(
+              'size-7 transition-all',
+              isCollapsed
+                ? 'text-foreground-secondary opacity-45 hover:opacity-100'
+                : 'opacity-100',
+            )}
+            onClick={onToggle}
+          >
+            {side === 'left' ? (
+              <PanelLeft size={14} strokeWidth={isCollapsed ? 1.75 : 2.25} />
+            ) : (
+              <PanelRight size={14} strokeWidth={isCollapsed ? 1.75 : 2.25} />
+            )}
+          </Button>
+        </Tooltip>
         {!isCollapsed && headerActions && (
           <span className="flex flex-1 items-center justify-end gap-1">
             {headerActions}

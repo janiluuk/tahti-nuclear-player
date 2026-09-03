@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { MessageCircleIcon, MicIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, SectionShell, Tabs } from '@tahti-player/ui';
+import { Button, SectionShell, Tabs, Tooltip } from '@tahti-player/ui';
 
 import {
   fetchPublicRadioShow,
@@ -121,19 +121,20 @@ export const RadioShowView = ({ channelSlug }: { channelSlug: string }) => {
         actions={
           <div className="flex items-center gap-3">
             {greenRoomLive ? (
-              <Link
-                to="/u/$username/green-room"
-                params={{ username: show.artist.username }}
-              >
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  aria-label="Open green room"
-                  title="Green room"
+              <Tooltip content="Green room" side="top">
+                <Link
+                  to="/u/$username/green-room"
+                  params={{ username: show.artist.username }}
                 >
-                  <MicIcon size={16} aria-hidden />
-                </Button>
-              </Link>
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    aria-label="Open green room"
+                  >
+                    <MicIcon size={16} aria-hidden />
+                  </Button>
+                </Link>
+              </Tooltip>
             ) : null}
           </div>
         }

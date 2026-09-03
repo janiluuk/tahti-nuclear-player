@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input } from '@tahti-player/ui';
+import { Button, Dialog, Input, Tooltip } from '@tahti-player/ui';
 
 import {
   createEpisode,
@@ -259,16 +259,17 @@ export function RadioBookingCalendar({
           <Dialog.Title>
             {scope === 'mine' ? 'My channel schedule' : 'Tahti Radio schedule'}
           </Dialog.Title>
-          <Link to="/schedule" onClick={onClose}>
-            <Button
-              size="icon-sm"
-              variant="text"
-              aria-label="Open full calendar"
-              title="Open full calendar"
-            >
-              <CalendarDaysIcon size={16} aria-hidden />
-            </Button>
-          </Link>
+          <Tooltip content="Open full calendar" side="top">
+            <Link to="/schedule" onClick={onClose}>
+              <Button
+                size="icon-sm"
+                variant="text"
+                aria-label="Open full calendar"
+              >
+                <CalendarDaysIcon size={16} aria-hidden />
+              </Button>
+            </Link>
+          </Tooltip>
         </div>
         <Dialog.Description>
           {scope === 'mine'
@@ -277,18 +278,20 @@ export function RadioBookingCalendar({
         </Dialog.Description>
 
         <div className="mt-4 flex items-center justify-between">
-          <Button
-            size="icon-sm"
-            variant="text"
-            aria-label="Previous month"
-            onClick={() =>
-              setMonthCursor(
-                (m) => new Date(m.getFullYear(), m.getMonth() - 1, 1),
-              )
-            }
-          >
-            <ChevronLeftIcon size={16} aria-hidden />
-          </Button>
+          <Tooltip content="Previous month" side="top">
+            <Button
+              size="icon-sm"
+              variant="text"
+              aria-label="Previous month"
+              onClick={() =>
+                setMonthCursor(
+                  (m) => new Date(m.getFullYear(), m.getMonth() - 1, 1),
+                )
+              }
+            >
+              <ChevronLeftIcon size={16} aria-hidden />
+            </Button>
+          </Tooltip>
           <div className="text-sm font-semibold">
             {monthCursor.toLocaleDateString([], {
               month: 'long',
@@ -296,28 +299,31 @@ export function RadioBookingCalendar({
             })}
           </div>
           {user && (
+            <Tooltip content="Book a slot" side="top">
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label="Book a slot"
+                onClick={() => setBookingFormOpen(true)}
+              >
+                <CalendarPlusIcon size={15} aria-hidden />
+              </Button>
+            </Tooltip>
+          )}
+          <Tooltip content="Next month" side="top">
             <Button
               size="icon-sm"
-              variant="secondary"
-              aria-label="Book a slot"
-              title="Book a slot"
-              onClick={() => setBookingFormOpen(true)}
+              variant="text"
+              aria-label="Next month"
+              onClick={() =>
+                setMonthCursor(
+                  (m) => new Date(m.getFullYear(), m.getMonth() + 1, 1),
+                )
+              }
             >
-              <CalendarPlusIcon size={15} aria-hidden />
+              <ChevronRightIcon size={16} aria-hidden />
             </Button>
-          )}
-          <Button
-            size="icon-sm"
-            variant="text"
-            aria-label="Next month"
-            onClick={() =>
-              setMonthCursor(
-                (m) => new Date(m.getFullYear(), m.getMonth() + 1, 1),
-              )
-            }
-          >
-            <ChevronRightIcon size={16} aria-hidden />
-          </Button>
+          </Tooltip>
         </div>
 
         <div className="mt-3 grid grid-cols-7 gap-1">

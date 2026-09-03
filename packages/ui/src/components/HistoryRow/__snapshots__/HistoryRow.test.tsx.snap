@@ -183,34 +183,36 @@ exports[`HistoryRow > (Snapshot) renders with artwork and all actions 1`] = `
         >
           Paranoid Android
         </button>
-        <button
-          aria-label="Add to queue"
-          class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-          data-headlessui-state=""
-          data-testid="history-row-add-to-queue"
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            class="lucide lucide-plus"
-            fill="none"
-            height="16"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
+        <div>
+          <button
+            aria-label="Add to queue"
+            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+            data-headlessui-state=""
+            data-testid="history-row-add-to-queue"
+            type="button"
           >
-            <path
-              d="M5 12h14"
-            />
-            <path
-              d="M12 5v14"
-            />
-          </svg>
-        </button>
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-plus"
+              fill="none"
+              height="16"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M5 12h14"
+              />
+              <path
+                d="M12 5v14"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
     <div

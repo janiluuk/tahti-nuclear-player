@@ -1,14 +1,14 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Dialog, StatChip } from '@tahti-player/ui';
+import { Badge, Button, Dialog, StatChip, ViewShell } from '@tahti-player/ui';
 
 import { fetchAdminDashboard, type AdminDashboard } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { AdminStreamManagerPanel } from '../../components/AdminStreamManagerPanel';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 function euros(cents: number): string {
   return `€${(cents / 100).toLocaleString('fi-FI', { minimumFractionDigits: 0 })}`;
@@ -39,12 +39,11 @@ export function AdminDashboardView() {
     <AdminGate>
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin">
-          <div className="flex max-w-5xl flex-col gap-6">
-            <StudioPageHeader
-              title="Dashboard"
-              subtitle="Operations dashboard — members, live streams, and system health."
-            />
-
+          <ViewShell
+            title="Dashboard"
+            subtitle="Members, live streams, and health."
+            classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
+          >
             {loading || !data ? (
               <StudioPanel>
                 <PageLoading label="Loading dashboard…" />
@@ -199,7 +198,7 @@ export function AdminDashboardView() {
                 <AdminStreamManagerPanel />
               </>
             )}
-          </div>
+          </ViewShell>
         </AdminPageLayout>
       </div>
     </AdminGate>

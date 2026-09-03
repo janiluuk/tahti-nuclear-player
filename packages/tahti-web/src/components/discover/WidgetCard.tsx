@@ -14,6 +14,7 @@ import {
   EmptyState,
   ImageReveal,
   Loader,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import type { DiscoverArtistOfWeek } from '../../api/discover';
@@ -75,47 +76,51 @@ export function WidgetCard({
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {isAdmin && (
+            <Tooltip content="Configure widget" side="top">
+              <Button
+                size="icon-sm"
+                variant="text"
+                onClick={() => setConfigureOpen(true)}
+                aria-label={`Configure ${title}`}
+                className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+              >
+                <SettingsIcon size={14} />
+              </Button>
+            </Tooltip>
+          )}
+          <Tooltip content="Move earlier" side="top">
             <Button
               size="icon-sm"
               variant="text"
-              onClick={() => setConfigureOpen(true)}
-              title="Configure widget"
-              aria-label={`Configure ${title}`}
-              className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+              disabled={!canMoveUp}
+              onClick={() => onMove(id, 'up')}
+              aria-label="Move earlier"
             >
-              <SettingsIcon size={14} />
+              <ChevronUpIcon size={14} />
             </Button>
-          )}
-          <Button
-            size="icon-sm"
-            variant="text"
-            disabled={!canMoveUp}
-            onClick={() => onMove(id, 'up')}
-            title="Move earlier"
-            aria-label="Move earlier"
-          >
-            <ChevronUpIcon size={14} />
-          </Button>
-          <Button
-            size="icon-sm"
-            variant="text"
-            disabled={!canMoveDown}
-            onClick={() => onMove(id, 'down')}
-            title="Move later"
-            aria-label="Move later"
-          >
-            <ChevronDownIcon size={14} />
-          </Button>
-          <Button
-            size="icon-sm"
-            variant="text"
-            onClick={() => onRemove(id)}
-            title="Remove widget"
-            aria-label="Remove widget"
-            className="text-foreground-secondary hover:text-accent-red"
-          >
-            <XIcon size={14} />
-          </Button>
+          </Tooltip>
+          <Tooltip content="Move later" side="top">
+            <Button
+              size="icon-sm"
+              variant="text"
+              disabled={!canMoveDown}
+              onClick={() => onMove(id, 'down')}
+              aria-label="Move later"
+            >
+              <ChevronDownIcon size={14} />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Remove widget" side="top">
+            <Button
+              size="icon-sm"
+              variant="text"
+              onClick={() => onRemove(id)}
+              aria-label="Remove widget"
+              className="text-foreground-secondary hover:text-accent-red"
+            >
+              <XIcon size={14} />
+            </Button>
+          </Tooltip>
         </div>
       </header>
 

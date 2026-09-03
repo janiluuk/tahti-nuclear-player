@@ -1,6 +1,6 @@
 import { XIcon } from 'lucide-react';
 
-import { Box, Button } from '@tahti-player/ui';
+import { Box, Button, Tooltip } from '@tahti-player/ui';
 
 import { listenerWidgetType } from '../content/listenerWidgets';
 import type { ListenerWidgetInstance } from '../stores/listenerWidgetsStore';
@@ -33,15 +33,17 @@ export function ListenerWidgetEmbed({
           {instance.label}
         </span>
         {onRemove ? (
-          <Button
-            size="icon-sm"
-            variant="text"
-            aria-label={`Remove ${instance.label}`}
-            onClick={onRemove}
-            className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-          >
-            <XIcon size={14} aria-hidden />
-          </Button>
+          <Tooltip content={`Remove ${instance.label}`} side="top">
+            <Button
+              size="icon-sm"
+              variant="text"
+              aria-label={`Remove ${instance.label}`}
+              onClick={onRemove}
+              className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+            >
+              <XIcon size={14} aria-hidden />
+            </Button>
+          </Tooltip>
         ) : null}
       </div>
       {embedUrl && type ? (

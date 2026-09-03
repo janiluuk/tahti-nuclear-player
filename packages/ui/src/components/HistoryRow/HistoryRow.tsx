@@ -5,6 +5,7 @@ import { cn } from '../../utils';
 import { Button } from '../Button';
 import { FavoriteButton } from '../FavoriteButton';
 import { MediaArtwork } from '../MediaArtwork';
+import { Tooltip } from '../Tooltip';
 import type { HistoryRowProps } from './types';
 
 export const HistoryRow: FC<HistoryRowProps> = ({
@@ -90,19 +91,21 @@ export const HistoryRow: FC<HistoryRowProps> = ({
           {title}
         </button>
         {onAddToQueue && (
-          <Button
-            data-testid="history-row-add-to-queue"
-            size="icon-sm"
-            variant="text"
-            className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-            aria-label={labels.addToQueue}
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToQueue();
-            }}
-          >
-            <Plus size={16} />
-          </Button>
+          <Tooltip content={labels.addToQueue} side="top">
+            <Button
+              data-testid="history-row-add-to-queue"
+              size="icon-sm"
+              variant="text"
+              className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+              aria-label={labels.addToQueue}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToQueue();
+              }}
+            >
+              <Plus size={16} />
+            </Button>
+          </Tooltip>
         )}
       </div>
     </div>

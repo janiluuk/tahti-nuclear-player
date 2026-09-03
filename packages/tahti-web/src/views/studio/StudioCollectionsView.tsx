@@ -20,6 +20,7 @@ import {
   Input,
   Select,
   Toggle,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -30,7 +31,7 @@ import type { StudioCollection } from '../../api/studio-types';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import {
   collectionStyleLabel,
   normalizeCollectionStyle,
@@ -166,10 +167,12 @@ export function StudioCollectionsView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/collections" />
-        <StudioPageHeader
+        <ViewShell
           title="Collections"
-          subtitle="Create and manage albums, EPs, DJ sets, and playlists in one place."
-          action={
+          subtitle="Albums, EPs, DJ sets, and playlists."
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          <div className="mb-4">
             <Button
               size="icon-sm"
               onClick={() => {
@@ -177,209 +180,214 @@ export function StudioCollectionsView() {
                 setCreateOpen(true);
               }}
               aria-label="New collection"
-              title="New collection"
             >
               <PlusIcon size={16} aria-hidden />
             </Button>
-          }
-        />
+          </div>
 
-        {msg && <p className="text-sm">{msg}</p>}
+          {msg && <p className="mb-4 text-sm">{msg}</p>}
 
-        <Dialog.Root isOpen={createOpen} onClose={closeCreate}>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              submitCreate();
-            }}
-          >
-            <Dialog.Title>
-              <span className="inline-flex items-center gap-2">
-                <PlusIcon size={18} aria-hidden />
-                New collection
-              </span>
-            </Dialog.Title>
-            <Dialog.Description>
-              Choose a type and give it a title.
-            </Dialog.Description>
-            <div className="mt-4 flex flex-col gap-3">
+          <Dialog.Root isOpen={createOpen} onClose={closeCreate}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitCreate();
+              }}
+            >
+              <Dialog.Title>
+                <span className="inline-flex items-center gap-2">
+                  <PlusIcon size={18} aria-hidden />
+                  New collection
+                </span>
+              </Dialog.Title>
+              <Dialog.Description>
+                Choose a type and give it a title.
+              </Dialog.Description>
+              <div className="mt-4 flex flex-col gap-3">
+                <Input
+                  label="Title"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoFocus
+                />
+                <div className="flex flex-wrap gap-2">
+                  {CREATE_STYLES.map((s) => (
+                    <StyleChip
+                      key={s.id}
+                      selected={style === s.id}
+                      icon={s.icon}
+                      label={s.label}
+                      onClick={() => setStyle(s.id)}
+                    />
+                  ))}
+                </div>
+                {style === 'ALBUM' || style === 'EP' ? (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Input
+                      type="date"
+                      label="Release date"
+                      value={releaseDate}
+                      onChange={(event) => setReleaseDate(event.target.value)}
+                    />
+                    <Input
+                      label="Genres"
+                      value={genres}
+                      placeholder="Electronic, Ambient"
+                      onChange={(event) => setGenres(event.target.value)}
+                    />
+                  </div>
+                ) : null}
+                <Select
+                  label="Visibility"
+                  value={visibility}
+                  onValueChange={(value) => {
+                    const nextVisibility = value as
+                      | 'PUBLIC'
+                      | 'UNLISTED'
+                      | 'PRIVATE';
+                    setVisibility(nextVisibility);
+                    if (nextVisibility !== 'PUBLIC') {
+                      setCollaborative(false);
+                    }
+                  }}
+                  options={[
+                    { id: 'PUBLIC', label: 'Public' },
+                    { id: 'UNLISTED', label: 'Unlisted — direct link only' },
+                    { id: 'PRIVATE', label: 'Private — only you' },
+                  ]}
+                />
+                {style === 'PLAYLIST' ? (
+                  <div className="flex items-center justify-between gap-3 text-sm">
+                    <span>Others can add tracks</span>
+                    <Toggle
+                      label="Others can add tracks"
+                      checked={collaborative}
+                      disabled={visibility !== 'PUBLIC'}
+                      onChange={setCollaborative}
+                    />
+                  </div>
+                ) : null}
+              </div>
+              <Dialog.Actions>
+                <Dialog.Close>Cancel</Dialog.Close>
+                <Button type="submit" disabled={!name.trim() || busy}>
+                  <PlusIcon size={16} aria-hidden className="mr-1.5" />
+                  {busy ? 'Creating…' : 'Create'}
+                </Button>
+              </Dialog.Actions>
+            </form>
+          </Dialog.Root>
+
+          <StudioPanel>
+            <div className="mb-4 flex flex-col gap-3">
               <Input
-                label="Title"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoFocus
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search collections…"
+                aria-label="Search collections"
+                startAddon={
+                  <SearchIcon size={14} aria-hidden className="opacity-70" />
+                }
               />
-              <div className="flex flex-wrap gap-2">
-                {CREATE_STYLES.map((s) => (
+              <div
+                className="flex flex-wrap gap-2"
+                aria-label="Collection types"
+              >
+                <StyleChip
+                  selected={filter === 'ALL'}
+                  icon={<LibraryIcon size={16} aria-hidden />}
+                  label={`All (${rows.length})`}
+                  onClick={() => setFilter('ALL')}
+                />
+                {CREATE_STYLES.map((option) => (
                   <StyleChip
-                    key={s.id}
-                    selected={style === s.id}
-                    icon={s.icon}
-                    label={s.label}
-                    onClick={() => setStyle(s.id)}
+                    key={option.id}
+                    selected={filter === option.id}
+                    icon={option.icon}
+                    label={`${option.label.endsWith('s') ? option.label : `${option.label}s`} (${counts[option.id]})`}
+                    onClick={() => setFilter(option.id)}
                   />
                 ))}
               </div>
-              {style === 'ALBUM' || style === 'EP' ? (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Input
-                    type="date"
-                    label="Release date"
-                    value={releaseDate}
-                    onChange={(event) => setReleaseDate(event.target.value)}
-                  />
-                  <Input
-                    label="Genres"
-                    value={genres}
-                    placeholder="Electronic, Ambient"
-                    onChange={(event) => setGenres(event.target.value)}
-                  />
-                </div>
-              ) : null}
-              <Select
-                label="Visibility"
-                value={visibility}
-                onValueChange={(value) => {
-                  const nextVisibility = value as
-                    | 'PUBLIC'
-                    | 'UNLISTED'
-                    | 'PRIVATE';
-                  setVisibility(nextVisibility);
-                  if (nextVisibility !== 'PUBLIC') {
-                    setCollaborative(false);
-                  }
-                }}
-                options={[
-                  { id: 'PUBLIC', label: 'Public' },
-                  { id: 'UNLISTED', label: 'Unlisted — direct link only' },
-                  { id: 'PRIVATE', label: 'Private — only you' },
-                ]}
-              />
-              {style === 'PLAYLIST' ? (
-                <div className="flex items-center justify-between gap-3 text-sm">
-                  <span>Others can add tracks</span>
-                  <Toggle
-                    label="Others can add tracks"
-                    checked={collaborative}
-                    disabled={visibility !== 'PUBLIC'}
-                    onChange={setCollaborative}
-                  />
-                </div>
-              ) : null}
             </div>
-            <Dialog.Actions>
-              <Dialog.Close>Cancel</Dialog.Close>
-              <Button type="submit" disabled={!name.trim() || busy}>
-                <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                {busy ? 'Creating…' : 'Create'}
-              </Button>
-            </Dialog.Actions>
-          </form>
-        </Dialog.Root>
-
-        <StudioPanel>
-          <div className="mb-4 flex flex-col gap-3">
-            <Input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search collections…"
-              aria-label="Search collections"
-              startAddon={
-                <SearchIcon size={14} aria-hidden className="opacity-70" />
-              }
-            />
-            <div className="flex flex-wrap gap-2" aria-label="Collection types">
-              <StyleChip
-                selected={filter === 'ALL'}
-                icon={<LibraryIcon size={16} aria-hidden />}
-                label={`All (${rows.length})`}
-                onClick={() => setFilter('ALL')}
+            {loading ? (
+              <PageLoading label="Loading…" />
+            ) : rows.length === 0 ? (
+              <EmptyState
+                size="sm"
+                title="No collections yet"
+                description="Create an album, EP, DJ set, podcast, or playlist."
+                action={
+                  <Button
+                    size="icon-sm"
+                    onClick={() => setCreateOpen(true)}
+                    aria-label="New collection"
+                    title="New collection"
+                  >
+                    <PlusIcon size={16} aria-hidden />
+                  </Button>
+                }
               />
-              {CREATE_STYLES.map((option) => (
-                <StyleChip
-                  key={option.id}
-                  selected={filter === option.id}
-                  icon={option.icon}
-                  label={`${option.label.endsWith('s') ? option.label : `${option.label}s`} (${counts[option.id]})`}
-                  onClick={() => setFilter(option.id)}
-                />
-              ))}
-            </div>
-          </div>
-          {loading ? (
-            <PageLoading label="Loading…" />
-          ) : rows.length === 0 ? (
-            <EmptyState
-              size="sm"
-              title="No collections yet"
-              description="Create an album, EP, DJ set, podcast, or playlist."
-              action={
-                <Button
-                  size="icon-sm"
-                  onClick={() => setCreateOpen(true)}
-                  aria-label="New collection"
-                  title="New collection"
-                >
-                  <PlusIcon size={16} aria-hidden />
-                </Button>
-              }
-            />
-          ) : filteredRows.length === 0 ? (
-            <EmptyState size="sm" title="No collections match these filters." />
-          ) : (
-            <ul className="divide-border divide-y">
-              {filteredRows.map((c) => (
-                <li
-                  key={c.slug}
-                  className="flex items-center gap-3 py-3 text-sm first:pt-0 last:pb-0"
-                >
-                  {c.coverUrl ? (
-                    <ImageReveal
-                      src={c.coverUrl}
-                      alt=""
-                      className="border-border h-12 w-12 rounded-lg border shadow-sm"
-                    />
-                  ) : (
-                    <div className="border-border bg-background flex h-12 w-12 items-center justify-center rounded-lg border">
-                      <Disc3Icon size={18} className="opacity-40" />
+            ) : filteredRows.length === 0 ? (
+              <EmptyState
+                size="sm"
+                title="No collections match these filters."
+              />
+            ) : (
+              <ul className="divide-border divide-y">
+                {filteredRows.map((c) => (
+                  <li
+                    key={c.slug}
+                    className="flex items-center gap-3 py-3 text-sm first:pt-0 last:pb-0"
+                  >
+                    {c.coverUrl ? (
+                      <ImageReveal
+                        src={c.coverUrl}
+                        alt=""
+                        className="border-border h-12 w-12 rounded-lg border shadow-sm"
+                      />
+                    ) : (
+                      <div className="border-border bg-background flex h-12 w-12 items-center justify-center rounded-lg border">
+                        <Disc3Icon size={18} className="opacity-40" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        to="/studio/collections/$slug"
+                        params={{ slug: c.slug }}
+                        className="font-medium hover:underline"
+                      >
+                        {c.name}
+                      </Link>
+                      <p className="text-foreground-secondary text-xs">
+                        /{c.slug}
+                        {`, ${collectionStyleLabel(collectionStyle(c))}`}
+                        {c.releaseDate ? `, releases ${c.releaseDate}` : ''}
+                        {c.genres?.length ? `, ${c.genres.join(', ')}` : ''}
+                        {typeof c.itemCount === 'number'
+                          ? `, ${c.itemCount} items`
+                          : c.items
+                            ? `, ${c.items.length} items`
+                            : ''}
+                        {`, ${(c.visibility ?? (c.isPublic === false ? 'PRIVATE' : 'PUBLIC')).toLowerCase()}`}
+                      </p>
                     </div>
-                  )}
-                  <div className="min-w-0 flex-1">
                     <Link
                       to="/studio/collections/$slug"
                       params={{ slug: c.slug }}
-                      className="font-medium hover:underline"
                     >
-                      {c.name}
+                      <Button size="sm">
+                        {['ALBUM', 'EP'].includes(collectionStyle(c))
+                          ? 'Design'
+                          : 'Edit'}
+                      </Button>
                     </Link>
-                    <p className="text-foreground-secondary text-xs">
-                      /{c.slug}
-                      {`, ${collectionStyleLabel(collectionStyle(c))}`}
-                      {c.releaseDate ? `, releases ${c.releaseDate}` : ''}
-                      {c.genres?.length ? `, ${c.genres.join(', ')}` : ''}
-                      {typeof c.itemCount === 'number'
-                        ? `, ${c.itemCount} items`
-                        : c.items
-                          ? `, ${c.items.length} items`
-                          : ''}
-                      {`, ${(c.visibility ?? (c.isPublic === false ? 'PRIVATE' : 'PUBLIC')).toLowerCase()}`}
-                    </p>
-                  </div>
-                  <Link
-                    to="/studio/collections/$slug"
-                    params={{ slug: c.slug }}
-                  >
-                    <Button size="sm">
-                      {['ALBUM', 'EP'].includes(collectionStyle(c))
-                        ? 'Design'
-                        : 'Edit'}
-                    </Button>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </StudioPanel>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </StudioPanel>
+        </ViewShell>
       </div>
     </StudioGate>
   );

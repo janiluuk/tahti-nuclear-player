@@ -2,6 +2,16 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — Icon Tooltip pass 2 (listener + UI leftovers)
+
+Wrapped Collection/Artist/Channel/Radio/Schedule/Show, TrackDetail, Library,
+Discography, MyCollections, Listen widgets/addons/NewsFeed, WidgetCard,
+ImageLightbox, RadioBookingCalendar, ScheduleDialog; plus UI QueueItem,
+TopBarNavigation, TahtiJam, HistoryRow, LogDateRangeFilter, PlayerWorkspace
+sidebar, SettingsPanel back. ViewShell also landed on Help / Radio /
+Studio Sounds+Collections / Admin Dashboard. Studio + Admin tooltips remain
+in `icon-button-tooltips.md`.
+
 ## 2026-09-04 — Icon Tooltip pass 1 (UI + chrome + hubs)
 
 Wrapped icon-only controls in Storybook `Tooltip` (kept `aria-label`):

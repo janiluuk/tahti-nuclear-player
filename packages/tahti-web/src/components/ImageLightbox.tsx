@@ -1,7 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from 'lucide-react';
 import { FC, useEffect, useRef } from 'react';
 
-import { Button, Dialog, ImageReveal } from '@tahti-player/ui';
+import { Button, Dialog, ImageReveal, Tooltip } from '@tahti-player/ui';
 
 export type LightboxImage = {
   imageUrl: string;
@@ -66,38 +66,41 @@ export const ImageLightbox: FC<ImageLightboxProps> = ({
           }
         }}
       >
-        <Button
-          size="icon-sm"
-          variant="secondary"
-          className="absolute top-0 right-0 z-10"
-          aria-label="Close image viewer"
-          title="Close"
-          onClick={onClose}
-        >
-          <XIcon size={18} aria-hidden />
-        </Button>
+        <Tooltip content="Close" side="top">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            className="absolute top-0 right-0 z-10"
+            aria-label="Close image viewer"
+            onClick={onClose}
+          >
+            <XIcon size={18} aria-hidden />
+          </Button>
+        </Tooltip>
         {canNavigate ? (
           <>
-            <Button
-              size="icon-sm"
-              variant="secondary"
-              className="absolute top-1/2 left-0 z-10 -translate-y-1/2"
-              aria-label="Previous image"
-              title="Previous image"
-              onClick={() => move(-1)}
-            >
-              <ChevronLeftIcon size={20} aria-hidden />
-            </Button>
-            <Button
-              size="icon-sm"
-              variant="secondary"
-              className="absolute top-1/2 right-0 z-10 -translate-y-1/2"
-              aria-label="Next image"
-              title="Next image"
-              onClick={() => move(1)}
-            >
-              <ChevronRightIcon size={20} aria-hidden />
-            </Button>
+            <Tooltip content="Previous image" side="top">
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                className="absolute top-1/2 left-0 z-10 -translate-y-1/2"
+                aria-label="Previous image"
+                onClick={() => move(-1)}
+              >
+                <ChevronLeftIcon size={20} aria-hidden />
+              </Button>
+            </Tooltip>
+            <Tooltip content="Next image" side="top">
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                className="absolute top-1/2 right-0 z-10 -translate-y-1/2"
+                aria-label="Next image"
+                onClick={() => move(1)}
+              >
+                <ChevronRightIcon size={20} aria-hidden />
+              </Button>
+            </Tooltip>
           </>
         ) : null}
         <figure className="flex max-h-full max-w-full flex-col items-center gap-3 px-10 pt-8">

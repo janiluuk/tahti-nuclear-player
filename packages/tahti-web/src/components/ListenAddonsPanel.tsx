@@ -8,6 +8,7 @@ import {
   PluginStoreItem,
   Tabs,
   Toggle,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
@@ -51,17 +52,21 @@ function ConfigurableCard({
             ? header(() => onOpenChange(true))
             : header}
         </div>
-        <Button
-          size="icon-sm"
-          variant="secondary"
-          onClick={() => onOpenChange(!open)}
-          aria-label={
-            open ? `Hide ${title} configuration` : `Configure ${title}`
-          }
-          title={open ? 'Hide configuration' : 'Configure'}
+        <Tooltip
+          content={open ? `Hide ${title} configuration` : `Configure ${title}`}
+          side="top"
         >
-          <SettingsIcon size={15} aria-hidden />
-        </Button>
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            onClick={() => onOpenChange(!open)}
+            aria-label={
+              open ? `Hide ${title} configuration` : `Configure ${title}`
+            }
+          >
+            <SettingsIcon size={15} aria-hidden />
+          </Button>
+        </Tooltip>
       </div>
       {open ? (
         <Box

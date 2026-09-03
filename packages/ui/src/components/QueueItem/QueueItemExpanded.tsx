@@ -7,6 +7,7 @@ import { cn } from '../../utils';
 import { formatTimeMillis } from '../../utils/time';
 import { Box } from '../Box';
 import { Button } from '../Button';
+import { Tooltip } from '../Tooltip';
 import type { QueueItemProps } from './types';
 import { queueItemVariants } from './variants';
 
@@ -121,50 +122,59 @@ export const QueueItemExpanded: FC<QueueItemProps> = ({
         )}
 
         {onToggleLike && (
-          <Button
-            data-testid="queue-item-like-button"
-            size="icon-sm"
-            variant="noShadow"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              onToggleLike();
-            }}
-            onPointerDown={(e) => e.stopPropagation()}
-            aria-label={isLiked ? 'Remove from favorites' : 'Add to favorites'}
-            aria-pressed={isLiked}
-            className={cn(
-              'absolute right-11 opacity-0 group-hover:opacity-100',
-              isLiked && 'opacity-100',
-              classes?.likeButton,
-            )}
+          <Tooltip
+            content={isLiked ? 'Remove from favorites' : 'Add to favorites'}
+            side="top"
           >
-            <Heart
-              size={16}
-              className={isLiked ? 'text-accent-red fill-current' : undefined}
-            />
-          </Button>
+            <Button
+              data-testid="queue-item-like-button"
+              size="icon-sm"
+              variant="noShadow"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onToggleLike();
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              aria-label={
+                isLiked ? 'Remove from favorites' : 'Add to favorites'
+              }
+              aria-pressed={isLiked}
+              className={cn(
+                'absolute right-11 opacity-0 group-hover:opacity-100',
+                isLiked && 'opacity-100',
+                classes?.likeButton,
+              )}
+            >
+              <Heart
+                size={16}
+                className={isLiked ? 'text-accent-red fill-current' : undefined}
+              />
+            </Button>
+          </Tooltip>
         )}
 
         {onRemove && (
-          <Button
-            data-testid="queue-item-remove-button"
-            size="icon-sm"
-            variant="noShadow"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              onRemove();
-            }}
-            onPointerDown={(e) => e.stopPropagation()}
-            aria-label={labels?.removeButton}
-            className={cn(
-              'absolute right-4 opacity-0 group-hover:opacity-100',
-              classes?.removeButton,
-            )}
-          >
-            <X size={16} />
-          </Button>
+          <Tooltip content={labels?.removeButton} side="top">
+            <Button
+              data-testid="queue-item-remove-button"
+              size="icon-sm"
+              variant="noShadow"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onRemove();
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              aria-label={labels?.removeButton}
+              className={cn(
+                'absolute right-4 opacity-0 group-hover:opacity-100',
+                classes?.removeButton,
+              )}
+            >
+              <X size={16} />
+            </Button>
+          </Tooltip>
         )}
       </div>
 

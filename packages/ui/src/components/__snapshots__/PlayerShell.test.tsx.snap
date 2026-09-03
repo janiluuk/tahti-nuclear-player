@@ -20,40 +20,41 @@ exports[`PlayerShell > matches snapshot with complete layout 1`] = `
         <span
           class="flex flex-row items-center mb-2 justify-end"
         >
-          <button
-            aria-label="Collapse panel"
-            aria-pressed="true"
-            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-secondary text-secondary-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
-            data-headlessui-state=""
-            data-testid="sidebar-toggle-left"
-            title="Collapse panel"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              class="lucide lucide-panel-left"
-              fill="none"
-              height="14"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2.25"
-              viewBox="0 0 24 24"
-              width="14"
-              xmlns="http://www.w3.org/2000/svg"
+          <div>
+            <button
+              aria-label="Collapse panel"
+              aria-pressed="true"
+              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-secondary text-secondary-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
+              data-headlessui-state=""
+              data-testid="sidebar-toggle-left"
+              type="button"
             >
-              <rect
-                height="18"
-                rx="2"
-                width="18"
-                x="3"
-                y="3"
-              />
-              <path
-                d="M9 3v18"
-              />
-            </svg>
-          </button>
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-panel-left"
+                fill="none"
+                height="14"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.25"
+                viewBox="0 0 24 24"
+                width="14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  height="18"
+                  rx="2"
+                  width="18"
+                  x="3"
+                  y="3"
+                />
+                <path
+                  d="M9 3v18"
+                />
+              </svg>
+            </button>
+          </div>
         </span>
         <div
           class="flex flex-1 flex-col overflow-hidden"
@@ -74,40 +75,41 @@ exports[`PlayerShell > matches snapshot with complete layout 1`] = `
         <span
           class="flex flex-row items-center mb-2 justify-start"
         >
-          <button
-            aria-label="Collapse panel"
-            aria-pressed="true"
-            class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-secondary text-secondary-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
-            data-headlessui-state=""
-            data-testid="sidebar-toggle-right"
-            title="Collapse panel"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              class="lucide lucide-panel-right"
-              fill="none"
-              height="14"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2.25"
-              viewBox="0 0 24 24"
-              width="14"
-              xmlns="http://www.w3.org/2000/svg"
+          <div>
+            <button
+              aria-label="Collapse panel"
+              aria-pressed="true"
+              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-secondary text-secondary-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
+              data-headlessui-state=""
+              data-testid="sidebar-toggle-right"
+              type="button"
             >
-              <rect
-                height="18"
-                rx="2"
-                width="18"
-                x="3"
-                y="3"
-              />
-              <path
-                d="M15 3v18"
-              />
-            </svg>
-          </button>
+              <svg
+                aria-hidden="true"
+                class="lucide lucide-panel-right"
+                fill="none"
+                height="14"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.25"
+                viewBox="0 0 24 24"
+                width="14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  height="18"
+                  rx="2"
+                  width="18"
+                  x="3"
+                  y="3"
+                />
+                <path
+                  d="M15 3v18"
+                />
+              </svg>
+            </button>
+          </div>
         </span>
         <div
           class="flex flex-1 flex-col overflow-hidden"

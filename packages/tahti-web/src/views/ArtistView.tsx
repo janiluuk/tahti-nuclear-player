@@ -22,6 +22,7 @@ import {
   StatChip,
   Tabs,
   Textarea,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import {
@@ -634,31 +635,36 @@ export function ArtistView({ username }: { username: string }) {
                     {!isOwner &&
                     artist.freeSubscriptionsEnabled !== false &&
                     fanTiers.length > 0 ? (
-                      <Link
-                        to="/subscribe/$username"
-                        params={{ username: artist.username }}
+                      <Tooltip
+                        content={`Subscribe to ${artist.displayName}'s fan tiers`}
+                        side="top"
                       >
-                        <Button
-                          size="icon-sm"
-                          variant="secondary"
-                          title={`Subscribe to ${artist.displayName}'s fan tiers`}
-                          aria-label={`Subscribe to ${artist.displayName}'s fan tiers`}
+                        <Link
+                          to="/subscribe/$username"
+                          params={{ username: artist.username }}
                         >
-                          <UsersRound size={16} aria-hidden />
-                        </Button>
-                      </Link>
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            aria-label={`Subscribe to ${artist.displayName}'s fan tiers`}
+                          >
+                            <UsersRound size={16} aria-hidden />
+                          </Button>
+                        </Link>
+                      </Tooltip>
                     ) : null}
                     {!isOwner && profile.links.presskit ? (
-                      <a href={publicPressKitUrl(artist.username)} download>
-                        <Button
-                          size="icon-sm"
-                          variant="secondary"
-                          title="Download press kit"
-                          aria-label="Download press kit"
-                        >
-                          <DownloadIcon size={16} aria-hidden />
-                        </Button>
-                      </a>
+                      <Tooltip content="Download press kit" side="top">
+                        <a href={publicPressKitUrl(artist.username)} download>
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            aria-label="Download press kit"
+                          >
+                            <DownloadIcon size={16} aria-hidden />
+                          </Button>
+                        </a>
+                      </Tooltip>
                     ) : null}
                     {channel?.slug && !isOwner ? (
                       <EmbedButton
@@ -707,16 +713,17 @@ export function ArtistView({ username }: { username: string }) {
             </span>
           ) : null}
           {channel && channelVisual?.hlsUrl ? (
-            <Link to="/channel/$slug" params={{ slug: channel.slug }}>
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                aria-label="Open channel"
-                title="Open channel"
-              >
-                <RadioTowerIcon size={16} aria-hidden />
-              </Button>
-            </Link>
+            <Tooltip content="Open channel" side="top">
+              <Link to="/channel/$slug" params={{ slug: channel.slug }}>
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Open channel"
+                >
+                  <RadioTowerIcon size={16} aria-hidden />
+                </Button>
+              </Link>
+            </Tooltip>
           ) : null}
         </div>
         {artist.bio ? (
@@ -1030,30 +1037,39 @@ export function ArtistView({ username }: { username: string }) {
 
               {featuredPlayable ? (
                 <div className="absolute top-1/2 left-1/2 z-[2] -translate-x-1/2 -translate-y-1/2">
-                  <Button
-                    type="button"
-                    size="icon"
-                    className="bg-primary text-primary-foreground size-16 rounded-full shadow-xl sm:size-20"
-                    onClick={playFeatured}
-                    aria-label={
+                  <Tooltip
+                    content={
                       featuredIsPlaying
                         ? 'Pause featured track'
                         : 'Play featured track'
                     }
-                    aria-pressed={featuredIsPlaying}
+                    side="top"
                   >
-                    {featuredIsPlaying ? (
-                      <span className="text-xl font-bold" aria-hidden>
-                        ||
-                      </span>
-                    ) : (
-                      <PlayIcon
-                        size={28}
-                        className="fill-current"
-                        aria-hidden
-                      />
-                    )}
-                  </Button>
+                    <Button
+                      type="button"
+                      size="icon"
+                      className="bg-primary text-primary-foreground size-16 rounded-full shadow-xl sm:size-20"
+                      onClick={playFeatured}
+                      aria-label={
+                        featuredIsPlaying
+                          ? 'Pause featured track'
+                          : 'Play featured track'
+                      }
+                      aria-pressed={featuredIsPlaying}
+                    >
+                      {featuredIsPlaying ? (
+                        <span className="text-xl font-bold" aria-hidden>
+                          ||
+                        </span>
+                      ) : (
+                        <PlayIcon
+                          size={28}
+                          className="fill-current"
+                          aria-hidden
+                        />
+                      )}
+                    </Button>
+                  </Tooltip>
                 </div>
               ) : null}
 

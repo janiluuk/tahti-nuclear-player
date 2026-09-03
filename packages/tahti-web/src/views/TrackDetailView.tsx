@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@tahti-player/ui';
+import { Button, Tooltip } from '@tahti-player/ui';
 
 import { isHeaderImageUrl } from '../api/channel-design';
 import {
@@ -613,34 +613,38 @@ export function TrackDetailView({
                 <DownloadIcon size={14} aria-hidden className="mr-1.5" />
                 Download
               </Button>
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                disabled={!favorited && favoritingUnsupported}
-                aria-label={
+              <Tooltip
+                content={
                   favorited
                     ? 'Remove from favorites'
                     : favoritingUnsupported
                       ? `Favoriting isn't supported yet for ${embedLabel} tracks`
                       : 'Favorite'
                 }
-                title={
-                  favorited
-                    ? 'Remove from favorites'
-                    : favoritingUnsupported
-                      ? `Favoriting isn't supported yet for ${embedLabel} tracks`
-                      : 'Favorite'
-                }
-                onClick={() => toggleFavoriteTrack(playable)}
+                side="top"
               >
-                <HeartIcon
-                  size={15}
-                  aria-hidden
-                  className={
-                    favorited ? 'fill-accent-red text-accent-red' : undefined
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  disabled={!favorited && favoritingUnsupported}
+                  aria-label={
+                    favorited
+                      ? 'Remove from favorites'
+                      : favoritingUnsupported
+                        ? `Favoriting isn't supported yet for ${embedLabel} tracks`
+                        : 'Favorite'
                   }
-                />
-              </Button>
+                  onClick={() => toggleFavoriteTrack(playable)}
+                >
+                  <HeartIcon
+                    size={15}
+                    aria-hidden
+                    className={
+                      favorited ? 'fill-accent-red text-accent-red' : undefined
+                    }
+                  />
+                </Button>
+              </Tooltip>
             </div>
             {detail ? (
               <Link

@@ -5,6 +5,7 @@ import { pickArtwork, QueueItem } from '@tahti-player/model';
 
 import { cn } from '../../utils';
 import { Button } from '../Button';
+import { Tooltip } from '../Tooltip';
 
 type TahtiJamQueueItemProps = {
   item: QueueItem;
@@ -57,20 +58,23 @@ export const TahtiJamQueueItem = forwardRef<
       </div>
 
       {onRemove && (
-        <Button
-          data-testid="jam-queue-item-remove-button"
-          size="icon-sm"
-          variant="noShadow"
-          onClick={(event) => {
-            event.stopPropagation();
-            event.preventDefault();
-            onRemove();
-          }}
-          onPointerDown={(event) => event.stopPropagation()}
-          className="shrink-0"
-        >
-          <X size={16} />
-        </Button>
+        <Tooltip content="Remove from queue" side="top">
+          <Button
+            data-testid="jam-queue-item-remove-button"
+            size="icon-sm"
+            variant="noShadow"
+            onClick={(event) => {
+              event.stopPropagation();
+              event.preventDefault();
+              onRemove();
+            }}
+            onPointerDown={(event) => event.stopPropagation()}
+            aria-label="Remove from queue"
+            className="shrink-0"
+          >
+            <X size={16} />
+          </Button>
+        </Tooltip>
       )}
     </div>
   );

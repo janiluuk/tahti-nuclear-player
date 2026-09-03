@@ -20,6 +20,7 @@ import {
   SaveButton,
   StatChip,
   Tabs,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import {
@@ -648,45 +649,51 @@ export function ChannelView({ slug }: { slug: string }) {
                   {(live || channel.hlsUrl) && (
                     <div className="absolute right-4 bottom-4 z-[2] flex items-center gap-3">
                       {chatOn && (
+                        <Tooltip
+                          content={
+                            rightCollapsed ? 'Expand chat' : 'Collapse chat'
+                          }
+                          side="top"
+                        >
+                          <Button
+                            size="icon"
+                            variant="text"
+                            className="size-11 bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
+                            onClick={handleToggleChat}
+                            aria-pressed={!rightCollapsed}
+                            aria-label={
+                              rightCollapsed ? 'Expand chat' : 'Collapse chat'
+                            }
+                          >
+                            <MessageCircle size={20} aria-hidden />
+                          </Button>
+                        </Tooltip>
+                      )}
+                      <Tooltip
+                        content={favorited ? 'Favorited' : 'Favorite'}
+                        side="top"
+                      >
                         <Button
                           size="icon"
                           variant="text"
                           className="size-11 bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
-                          onClick={handleToggleChat}
-                          aria-pressed={!rightCollapsed}
-                          aria-label={
-                            rightCollapsed ? 'Expand chat' : 'Collapse chat'
-                          }
-                          title={
-                            rightCollapsed ? 'Expand chat' : 'Collapse chat'
-                          }
+                          onClick={handleToggleFavoriteChannel}
+                          aria-pressed={favorited}
+                          aria-label={favorited ? 'Favorited' : 'Favorite'}
                         >
-                          <MessageCircle size={20} />
+                          <HeartIcon
+                            size={20}
+                            className={
+                              favorited
+                                ? 'text-accent-red fill-current'
+                                : undefined
+                            }
+                            aria-hidden
+                          />
                         </Button>
-                      )}
-                      <Button
-                        size="icon"
-                        variant="text"
-                        className="size-11 bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
-                        onClick={handleToggleFavoriteChannel}
-                        aria-pressed={favorited}
-                        aria-label={favorited ? 'Favorited' : 'Favorite'}
-                        title={favorited ? 'Favorited' : 'Favorite'}
-                      >
-                        <HeartIcon
-                          size={20}
-                          className={
-                            favorited
-                              ? 'text-accent-red fill-current'
-                              : undefined
-                          }
-                        />
-                      </Button>
-                      <Button
-                        size="icon"
-                        className="bg-primary text-primary-foreground h-16 w-16 rounded-full shadow-lg"
-                        onClick={handlePlayChannel}
-                        aria-label={
+                      </Tooltip>
+                      <Tooltip
+                        content={
                           channelIsLoading
                             ? 'Loading stream'
                             : channelIsPlaying
@@ -695,27 +702,40 @@ export function ChannelView({ slug }: { slug: string }) {
                                 ? 'Play live'
                                 : 'Play stream'
                         }
-                        title={
-                          channelIsPlaying ? 'Pause stream' : 'Play stream'
-                        }
-                        aria-pressed={channelIsPlaying}
+                        side="top"
                       >
-                        {channelIsLoading ? (
-                          <Loader />
-                        ) : channelIsPlaying ? (
-                          <PauseIcon
-                            size={26}
-                            className="fill-current"
-                            aria-hidden
-                          />
-                        ) : (
-                          <PlayIcon
-                            size={26}
-                            className="fill-current"
-                            aria-hidden
-                          />
-                        )}
-                      </Button>
+                        <Button
+                          size="icon"
+                          className="bg-primary text-primary-foreground h-16 w-16 rounded-full shadow-lg"
+                          onClick={handlePlayChannel}
+                          aria-label={
+                            channelIsLoading
+                              ? 'Loading stream'
+                              : channelIsPlaying
+                                ? 'Pause stream'
+                                : live
+                                  ? 'Play live'
+                                  : 'Play stream'
+                          }
+                          aria-pressed={channelIsPlaying}
+                        >
+                          {channelIsLoading ? (
+                            <Loader />
+                          ) : channelIsPlaying ? (
+                            <PauseIcon
+                              size={26}
+                              className="fill-current"
+                              aria-hidden
+                            />
+                          ) : (
+                            <PlayIcon
+                              size={26}
+                              className="fill-current"
+                              aria-hidden
+                            />
+                          )}
+                        </Button>
+                      </Tooltip>
                     </div>
                   )}
                 </div>
@@ -821,15 +841,16 @@ export function ChannelView({ slug }: { slug: string }) {
               </p>
             </div>
             {chatOn ? (
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                onClick={openChat}
-                title="Open chat in sidebar"
-                aria-label="Open chat in sidebar"
-              >
-                <MessageCircle size={16} />
-              </Button>
+              <Tooltip content="Open chat in sidebar" side="top">
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  onClick={openChat}
+                  aria-label="Open chat in sidebar"
+                >
+                  <MessageCircle size={16} aria-hidden />
+                </Button>
+              </Tooltip>
             ) : null}
           </section>
         );
@@ -1103,15 +1124,16 @@ export function ChannelView({ slug }: { slug: string }) {
               </Button>
             )}
             {!editing && live && (
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                onClick={handleDownloadPlaylist}
-                aria-label="Download playlist"
-                title="Download playlist"
-              >
-                <DownloadIcon size={16} aria-hidden />
-              </Button>
+              <Tooltip content="Download playlist" side="top">
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  onClick={handleDownloadPlaylist}
+                  aria-label="Download playlist"
+                >
+                  <DownloadIcon size={16} aria-hidden />
+                </Button>
+              </Tooltip>
             )}
             {!editing && (
               <ChannelShareButton
@@ -1270,21 +1292,22 @@ export function ChannelView({ slug }: { slug: string }) {
                       · drag to place
                     </span>
                   </div>
-                  <Button
-                    type="button"
-                    size="icon-sm"
-                    variant="text"
-                    className="text-foreground-secondary hover:text-foreground absolute top-2 right-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-                    aria-label={`Remove ${metaItem.label}`}
-                    title={`Remove ${metaItem.label}`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      removeLayoutItem(item.id);
-                    }}
-                    onPointerDown={(event) => event.stopPropagation()}
-                  >
-                    <XIcon size={15} aria-hidden />
-                  </Button>
+                  <Tooltip content={`Remove ${metaItem.label}`} side="top">
+                    <Button
+                      type="button"
+                      size="icon-sm"
+                      variant="text"
+                      className="text-foreground-secondary hover:text-foreground absolute top-2 right-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                      aria-label={`Remove ${metaItem.label}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        removeLayoutItem(item.id);
+                      }}
+                      onPointerDown={(event) => event.stopPropagation()}
+                    >
+                      <XIcon size={15} aria-hidden />
+                    </Button>
+                  </Tooltip>
                 </>
               )}
               {renderBlock(item)}

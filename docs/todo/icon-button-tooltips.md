@@ -1,8 +1,8 @@
 # Icon-button Tooltip sweep
 
-**Status:** in progress (UI primitives + chrome + listener hubs done 2026-09-04).
-**Storybook:** `Components/Tooltip` → `SidebarIcons` (icon `Button` wrapped in `Tooltip`).
-**Count:** ~288 missing at scan; first three work orders below are done. Re-scan before claiming 0.
+**Status:** in progress (listener surface + remaining UI primitives done 2026-09-04).
+**Storybook:** `Components/Tooltip` → `SidebarIcons`.
+**Next:** Studio toolbars, then Admin / PluginStorePanel. Re-scan before claiming 0.
 
 Every icon-only control must use Storybook `Tooltip` for the hover/focus label. Keep `aria-label` for assistive tech. Do not treat native `title=` as the tooltip.
 
@@ -23,20 +23,30 @@ Prefer wrapping once in shared primitives so consumers inherit it.
 - Drag handles if the label is already in surrounding copy **and** `aria-label` is set — still wrap if the control is icon-only
 - Full-screen player / Pro Editor take-over: still wrap; missing chrome is fine, missing tooltip is not
 
-## Done — `@tahti-player/ui` primitives
+## Done — `@tahti-player/ui`
 
 | File | Notes |
 | --- | --- |
 | `PlayerBar/PlayerBarControls.tsx` | Previous / play-pause / next |
 | `PlayerBar/PlayerBarVolume.tsx` | Mute |
 | `PluginItem/PluginItem.tsx` | Settings / reload / remove |
-| `Pagination/Pagination.tsx` | Prev / next (+ default labels export) |
+| `Pagination/Pagination.tsx` | Prev / next |
 | `Dialog/DialogXClose.tsx` | Close |
 | `MediaArtwork/MediaArtwork.tsx` | Play and overlay actions |
 | `TrackTable/Cells/ActionsCell.tsx` | Row actions |
 | `TrackTable/Cells/RemoveCell.tsx` | Remove |
+| `TrackTable/Toolbar.tsx` | aria-labels (already wrapped) |
 | `NewsWidget/NewsWidget.tsx` | Slider chevrons |
 | `CardsRow/CardsRow.tsx` | Scroll chevrons |
+| `QueueItem/QueueItemExpanded.tsx` | Expand actions |
+| `TopBarNavigation.tsx` | Back / forward |
+| `TahtiJam/TahtiJamControls.tsx` | Transport |
+| `TahtiJam/TahtiJamQueueItem.tsx` | Queue remove |
+| `HistoryRow/HistoryRow.tsx` | Add to queue |
+| `LogViewer/LogDateRangeFilter.tsx` | Clear range |
+| `PlayerWorkspace/PlayerWorkspaceSidebar.tsx` | Collapse |
+| `SettingsPanel/SettingsPanelContent.tsx` | Back |
+| `ThemeStoreItem/ThemeStoreItem.tsx` | Already wrapped |
 
 ## Done — listener + chrome (`packages/tahti-web`)
 
@@ -48,57 +58,37 @@ Prefer wrapping once in shared primitives so consumers inherit it.
 | `RightRailPanel.tsx` | Ack / rail actions |
 | `GlobalSearch.tsx` | Clear / close |
 | `SidebarQueuePanel.tsx` | Clear / shuffle / extras |
-| `ListenView.tsx` | Radio play / open radio (+ ViewShell header) |
+| `ListenView.tsx` | Radio play / open radio |
 | `DiscoverView.tsx` | Add a widget |
 | `FeedView.tsx` | Previous / next |
+| `CollectionView.tsx` | Edit in Studio / add to queue |
+| `ArtistView.tsx` | Subscribe / press kit / channel / play |
+| `ChannelView.tsx` | Chat, favorite, play, playlist, remove block |
+| `RadioView.tsx` | Open channel / book slot |
+| `RadioScheduleView.tsx` | Green room / week nav |
+| `RadioShowView.tsx` | Green room |
+| `TrackDetailView.tsx` | Favorite |
+| `LibraryMediaView.tsx` | Remove file |
+| `MyDiscographyView.tsx` | Pin / play / edit / editor |
+| `MyCollectionsView.tsx` | Open in Studio |
+| `ListenerWidgetsSection.tsx` | Remove station |
+| `ListenerWidgetEmbed.tsx` | Remove |
+| `ListenAddonsPanel.tsx` | Configure |
+| `ListenWidgetStoreDialog.tsx` | Open store |
+| `NewsFeedWidget.tsx` | Remove |
+| `discover/WidgetCard.tsx` | Configure / reorder / remove |
+| `ImageLightbox.tsx` | Close / prev / next |
+| `RadioBookingCalendar.tsx` | Month nav / book / calendar |
+| `ScheduleDialog.tsx` | Book / full calendar |
 
-## Still `@tahti-player/ui`
+## Studio (next)
 
-| File | Missing | Notes |
-| --- | --- | --- |
-| `TrackTable/Toolbar.tsx` | 2 | |
-| `QueueItem/QueueItemExpanded.tsx` | 2 | |
-| `TopBarNavigation.tsx` | 2 | Back / forward |
-| `TahtiJam/TahtiJamControls.tsx` | 5 | |
-| `TahtiJam/TahtiJamQueueItem.tsx` | 1 | |
-| `HistoryRow/HistoryRow.tsx` | 1 | |
-| `LogViewer/LogDateRangeFilter.tsx` | 1 | |
-| `PlayerWorkspace/PlayerWorkspaceSidebar.tsx` | 1 | Collapse |
-| `SettingsPanel/SettingsPanelContent.tsx` | 1 | Back |
-| `ThemeStoreItem/ThemeStoreItem.tsx` | 3 | (if still icon-only) |
-
-## Still listener (`packages/tahti-web`)
-
-| File | Missing | Typical labels |
-| --- | --- | --- |
-| `CollectionView.tsx` | 2 | Edit in Studio / add to queue |
-| `ArtistView.tsx` | 4 | Subscribe / press kit / channel |
-| `ChannelView.tsx` | 6 | Chat, download playlist, remove block |
-| `RadioView.tsx` | 2 | Open channel / calendar |
-| `RadioScheduleView.tsx` | 3 | Green room / week nav |
-| `RadioShowView.tsx` | 1 | Green room |
-| `TrackDetailView.tsx` | 1 | |
-| `LibraryMediaView.tsx` | 1 | Remove file |
-| `MyDiscographyView.tsx` | 4 | Pin / edit / editor |
-| `MyCollectionsView.tsx` | 1 | Open in Studio |
-| `ListenerWidgetsSection.tsx` | 2 | Remove station |
-| `ListenerWidgetEmbed.tsx` | 1 | Remove |
-| `ListenAddonsPanel.tsx` | 1 | Configure (gear) |
-| `ListenWidgetStoreDialog.tsx` | 1 | Open store |
-| `NewsFeedWidget.tsx` | 1 | Remove |
-| `discover/WidgetCard.tsx` | 4 | Play / like / queue |
-| `ImageLightbox.tsx` | 3 | Close / prev / next |
-| `RadioBookingCalendar.tsx` | 4 | Month nav / book / full calendar |
-| `ScheduleDialog.tsx` | 2 | Book / full calendar |
-
-## Studio
-
-Heaviest: `StudioProEditorView` (12), `StudioCollectionEditView` (7), `ChannelDesigner` (8), `PluginStorePanel` (13, shared with Settings add-ons).
+Heaviest: `StudioProEditorView` (12), `StudioCollectionEditView` (7), `ChannelDesigner` (8), `PluginStorePanel` (13).
 
 | File | Missing |
 | --- | --- |
-| `StudioProEditorView.tsx` | 12 — preview, cut, trim, silence, clear, plugin remove |
-| `StudioCollectionEditView.tsx` | 7 — reorder, remove, add, preview |
+| `StudioProEditorView.tsx` | 12 |
+| `StudioCollectionEditView.tsx` | 7 |
 | `StudioSoundsView.tsx` | 5 |
 | `StudioSoundView.tsx` | 5 |
 | `StudioReleasesView.tsx` | 5 |
@@ -149,8 +139,8 @@ Heaviest: `StudioProEditorView` (12), `StudioCollectionEditView` (7), `ChannelDe
 
 | File | Missing |
 | --- | --- |
-| `PluginStorePanel.tsx` | 13 — configure, queue, play, about |
-| `AdminStreamManagerPanel.tsx` | 9 — listen, details, restart, skip, pause, resume, offline, refresh |
+| `PluginStorePanel.tsx` | 13 |
+| `AdminStreamManagerPanel.tsx` | 9 |
 | `AdminStorageView.tsx` | 7 |
 | `AdminAgmView.tsx` | 4 |
 | `AdminDiscoWidgetsView.tsx` | 3 |
@@ -159,7 +149,7 @@ Heaviest: `StudioProEditorView` (12), `StudioCollectionEditView` (7), `ChannelDe
 | `SelectsTab.tsx` | 2 |
 | `AdminUserEditPanel.tsx` | 3 |
 | `DiscoWidgetManagerPanel.tsx` | 3 |
-| `SettingsPanels.tsx` | 5 — about add-ons, theme configure/rename/export |
+| `SettingsPanels.tsx` | 5 |
 | `AdminAnnouncementsView.tsx` | 1 |
 | `AdminFinancialView.tsx` | 1 |
 | `AdminGrantsView.tsx` | 1 |
@@ -170,10 +160,10 @@ Heaviest: `StudioProEditorView` (12), `StudioCollectionEditView` (7), `ChannelDe
 
 ## Order of work
 
-1. ~~UI primitives (Dialog close, Pagination, PluginItem, PlayerBar, MediaArtwork, TrackTable).~~
-2. ~~App chrome (player bar, rail, mobile, fullscreen, search).~~
-3. ~~Listener hubs (Listen / Discover / Feed / SidebarQueue).~~
-4. Remaining listener views + widgets.
+1. ~~UI primitives.~~
+2. ~~App chrome.~~
+3. ~~Listener hubs.~~
+4. ~~Remaining listener views + widgets + leftover UI primitives.~~
 5. Studio toolbars (Pro Editor, collection editor, Channel Designer).
 6. Admin stream manager + storage + PluginStorePanel.
 7. Remainder. Re-run the scan; target **0** icon `Button`s without a wrapping `Tooltip`.

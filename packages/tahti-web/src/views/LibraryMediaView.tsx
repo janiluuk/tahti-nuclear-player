@@ -2,7 +2,7 @@ import { ImageIcon, PlayIcon, Trash2Icon, VideoIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Badge, Button, ImageReveal } from '@tahti-player/ui';
+import { Badge, Button, ImageReveal, Tooltip } from '@tahti-player/ui';
 
 import {
   deleteUserMedia,
@@ -124,19 +124,20 @@ export function LibraryMediaView() {
                   >
                     <PlayIcon size={16} aria-hidden />
                   </a>
-                  <Button
-                    size="icon-sm"
-                    variant="text"
-                    aria-label={`Remove ${file.filename}`}
-                    title="Remove"
-                    onClick={() => setPendingRemove(file)}
-                  >
-                    <Trash2Icon
-                      size={16}
-                      className="text-accent-red"
-                      aria-hidden
-                    />
-                  </Button>
+                  <Tooltip content={`Remove ${file.filename}`} side="top">
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      aria-label={`Remove ${file.filename}`}
+                      onClick={() => setPendingRemove(file)}
+                    >
+                      <Trash2Icon
+                        size={16}
+                        className="text-accent-red"
+                        aria-hidden
+                      />
+                    </Button>
+                  </Tooltip>
                 </div>
               </article>
             );

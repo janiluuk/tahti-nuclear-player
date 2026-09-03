@@ -15,6 +15,7 @@ import { cn } from '../../utils';
 import { formatTimeSeconds } from '../../utils/time';
 import { Button } from '../Button';
 import { useSeekBar } from '../PlayerBar/useSeekBar';
+import { Tooltip } from '../Tooltip';
 
 export type TahtiJamControlsProps = {
   isPlaying: boolean;
@@ -65,51 +66,91 @@ export const TahtiJamControls: FC<TahtiJamControlsProps> = ({
       )}
     >
       <div className="flex items-center justify-center gap-1">
-        <Button
-          size="icon"
-          variant={shuffleActive ? 'default' : 'text'}
-          onClick={onShuffleToggle}
-          data-testid="jam-shuffle-button"
+        <Tooltip
+          content={shuffleActive ? 'Shuffle on' : 'Shuffle off'}
+          side="top"
         >
-          <Shuffle size={18} />
-        </Button>
+          <Button
+            size="icon"
+            variant={shuffleActive ? 'default' : 'text'}
+            onClick={onShuffleToggle}
+            aria-label={shuffleActive ? 'Shuffle on' : 'Shuffle off'}
+            aria-pressed={shuffleActive}
+            data-testid="jam-shuffle-button"
+          >
+            <Shuffle size={18} />
+          </Button>
+        </Tooltip>
 
-        <Button
-          size="icon"
-          variant="text"
-          onClick={onPrevious}
-          data-testid="jam-previous-button"
-        >
-          <SkipBack size={24} />
-        </Button>
+        <Tooltip content="Previous" side="top">
+          <Button
+            size="icon"
+            variant="text"
+            onClick={onPrevious}
+            aria-label="Previous"
+            data-testid="jam-previous-button"
+          >
+            <SkipBack size={24} />
+          </Button>
+        </Tooltip>
 
-        <Button
-          size="icon"
-          variant="default"
-          onClick={onPlayPause}
-          className="size-14"
-          data-testid={isPlaying ? 'jam-pause-button' : 'jam-play-button'}
-        >
-          {isPlaying ? <Pause size={28} /> : <Play size={28} />}
-        </Button>
+        <Tooltip content={isPlaying ? 'Pause' : 'Play'} side="top">
+          <Button
+            size="icon"
+            variant="default"
+            onClick={onPlayPause}
+            className="size-14"
+            aria-label={isPlaying ? 'Pause' : 'Play'}
+            aria-pressed={isPlaying}
+            data-testid={isPlaying ? 'jam-pause-button' : 'jam-play-button'}
+          >
+            {isPlaying ? <Pause size={28} /> : <Play size={28} />}
+          </Button>
+        </Tooltip>
 
-        <Button
-          size="icon"
-          variant="text"
-          onClick={onNext}
-          data-testid="jam-next-button"
-        >
-          <SkipForward size={24} />
-        </Button>
+        <Tooltip content="Next" side="top">
+          <Button
+            size="icon"
+            variant="text"
+            onClick={onNext}
+            aria-label="Next"
+            data-testid="jam-next-button"
+          >
+            <SkipForward size={24} />
+          </Button>
+        </Tooltip>
 
-        <Button
-          size="icon"
-          variant={repeatMode !== 'off' ? 'default' : 'text'}
-          onClick={onRepeatToggle}
-          data-testid="jam-repeat-button"
+        <Tooltip
+          content={
+            repeatMode === 'off'
+              ? 'Repeat off'
+              : repeatMode === 'one'
+                ? 'Repeat one'
+                : 'Repeat all'
+          }
+          side="top"
         >
-          {repeatMode === 'one' ? <Repeat1 size={18} /> : <Repeat size={18} />}
-        </Button>
+          <Button
+            size="icon"
+            variant={repeatMode !== 'off' ? 'default' : 'text'}
+            onClick={onRepeatToggle}
+            aria-label={
+              repeatMode === 'off'
+                ? 'Repeat off'
+                : repeatMode === 'one'
+                  ? 'Repeat one'
+                  : 'Repeat all'
+            }
+            aria-pressed={repeatMode !== 'off'}
+            data-testid="jam-repeat-button"
+          >
+            {repeatMode === 'one' ? (
+              <Repeat1 size={18} />
+            ) : (
+              <Repeat size={18} />
+            )}
+          </Button>
+        </Tooltip>
       </div>
 
       <div className="mt-3 w-full select-none">

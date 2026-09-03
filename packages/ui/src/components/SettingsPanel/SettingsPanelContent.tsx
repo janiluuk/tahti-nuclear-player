@@ -3,6 +3,7 @@ import { FC, ReactNode } from 'react';
 
 import { cn } from '../../utils';
 import { Button } from '../Button';
+import { Tooltip } from '../Tooltip';
 
 type SettingsPanelContentProps = {
   children: ReactNode;
@@ -39,14 +40,16 @@ export const SettingsPanelContent: FC<SettingsPanelContentProps> = ({
       // without `!`, this mobile-only back header stays visible on desktop
       // too, above the actual settings content it's supposed to replace.
       <div className="border-border flex shrink-0 items-center gap-1 border-b-(length:--border-width) p-2 sm:hidden!">
-        <Button
-          size="icon-sm"
-          variant="text"
-          onClick={onBack}
-          aria-label="Back to settings sections"
-        >
-          <ArrowLeftIcon size={16} />
-        </Button>
+        <Tooltip content="Back to settings sections" side="top">
+          <Button
+            size="icon-sm"
+            variant="text"
+            onClick={onBack}
+            aria-label="Back to settings sections"
+          >
+            <ArrowLeftIcon size={16} />
+          </Button>
+        </Tooltip>
         {title && <span className="text-sm font-semibold">{title}</span>}
       </div>
     )}

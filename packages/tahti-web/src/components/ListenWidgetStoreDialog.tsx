@@ -1,7 +1,7 @@
 import { Blocks, Plus } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Dialog } from '@tahti-player/ui';
+import { Button, Dialog, Tooltip } from '@tahti-player/ui';
 
 import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
 import { ListenAddonsPanel } from './ListenAddonsPanel';
@@ -11,16 +11,17 @@ export function ListenWidgetStoreDialog() {
 
   return (
     <>
-      <Button
-        size="icon"
-        variant="secondary"
-        onClick={() => setIsOpen(true)}
-        aria-label="Add Listen widgets"
-        title="Add Listen widgets"
-      >
-        <Plus size={17} aria-hidden />
-        <Blocks size={15} aria-hidden />
-      </Button>
+      <Tooltip content="Add Listen widgets" side="top">
+        <Button
+          size="icon"
+          variant="secondary"
+          onClick={() => setIsOpen(true)}
+          aria-label="Add Listen widgets"
+        >
+          <Plus size={17} aria-hidden />
+          <Blocks size={15} aria-hidden />
+        </Button>
+      </Tooltip>
       <Dialog.Root
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

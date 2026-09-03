@@ -6,6 +6,7 @@ import {
   EmptyState,
   Loader,
   NewsWidget,
+  Tooltip,
   type ArticleCardItem,
 } from '@tahti-player/ui';
 
@@ -57,15 +58,17 @@ export function NewsFeedWidget({
   return (
     <div className="relative" data-testid="news-feed-widget">
       {onRemove ? (
-        <Button
-          size="icon-sm"
-          variant="text"
-          aria-label={`Remove ${instance.label}`}
-          onClick={onRemove}
-          className="absolute top-0 right-0 z-10"
-        >
-          <XIcon size={14} aria-hidden />
-        </Button>
+        <Tooltip content={`Remove ${instance.label}`} side="top">
+          <Button
+            size="icon-sm"
+            variant="text"
+            aria-label={`Remove ${instance.label}`}
+            onClick={onRemove}
+            className="absolute top-0 right-0 z-10"
+          >
+            <XIcon size={14} aria-hidden />
+          </Button>
+        </Tooltip>
       ) : null}
       {loading ? (
         <div className="flex items-center gap-2 py-6">
