@@ -1,5 +1,17 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Generic Storybook UI sweep
+
+**Status:** executed (`8a8c4544b`). Data and actions kept.
+
+- Listen / Discover → `ViewShell` (short title/subtitle; actions in children; section tabs kept)
+- Icon `Tooltip` on UI primitives + chrome (Dialog close, Pagination, PlayerBar, PluginItem, TrackTable, CardsRow, NewsWidget, MediaArtwork, player/rail/search)
+- Upload Configure Enable/Disable → `Toggle`
+- Label-only segments → `FilterChips`: Admin Top lists, Radio schedule show type, Branding Append/Replace, radio playlist Shuffle/In order, Shows mode + duration
+- Empty copy → `EmptyState`: Sounds, Stash, Recordings, Venues, Shows, Stats empties
+
+Tracked: [`docs/todo/storybook-ui-sweep.md`](../../docs/todo/storybook-ui-sweep.md).
+
 ## 2026-09-04 — ViewShell headers + icon-button Tooltip (planned)
 
 **Status:** planned (workplan + `docs/todo`).

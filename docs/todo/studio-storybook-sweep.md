@@ -1,6 +1,7 @@
 # Studio Storybook primitive sweep
 
-**Status:** partial — StudioStats FilterChips executed (2026-09-04).
+**Status:** partial — Stats FilterChips + generic sweep (Upload Toggle,
+Branding / radio playlist / Shows FilterChips, Sounds/Stash/Recordings/
+Venues/Shows/Stats EmptyState).
 
-Range + top-list segments on Stats / Stats detail use FilterChips.
-Further Studio FilterChips / EmptyState / Toggle items remain.
+Further Studio EmptyState / remaining chip groups remain.
