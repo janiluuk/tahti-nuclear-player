@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Badge, Button } from '@tahti-player/ui';
 
 import {
   fetchFanConnectPortal,
@@ -12,6 +12,7 @@ import {
   type FanPayoutStats,
 } from '../../api/revenue';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
+import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -19,13 +20,9 @@ import { mergeRevenueOrders } from '../../lib/revenueOrders';
 
 function StatusPill({ ok, label }: { ok: boolean; label: string }) {
   return (
-    <span
-      className={`rounded-full border px-2 py-0.5 ${
-        ok ? 'border-primary/40' : 'border-border'
-      }`}
-    >
+    <Badge variant="pill" color={ok ? 'green' : 'secondary'}>
       {ok ? '✓' : '○'} {label}
-    </span>
+    </Badge>
   );
 }
 
@@ -63,7 +60,7 @@ export function StudioStripeView() {
         ) : null}
 
         {!ready ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <PageLoading label="Loading Stripe…" />
         ) : !enabled ? (
           <StudioPanel
             title="Stripe is not enabled"

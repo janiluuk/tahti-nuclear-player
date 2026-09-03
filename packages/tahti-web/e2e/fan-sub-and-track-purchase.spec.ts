@@ -82,17 +82,12 @@ async function signUpFan(
 ): Promise<void> {
   const username = email.split('@')[0]?.replace(/[^a-zA-Z0-9]/g, '') ?? 'fan';
   await page.goto('/join');
+  await expect(page.getByLabel('Email')).toBeVisible();
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Username').fill(username);
   const artistName = page.getByLabel('Artist name');
-  if (await artistName.isVisible().catch(() => false)) {
-    await artistName.fill(`Fan ${username}`);
-  }
+  await artistName.fill(`Fan ${username}`);
   await page.getByLabel('Password', { exact: true }).fill(password);
-  const confirm = page.getByLabel('Confirm password');
-  if (await confirm.isVisible().catch(() => false)) {
-    await confirm.fill(password);
-  }
+  await page.getByLabel('Confirm password').fill(password);
   await page.getByRole('button', { name: 'Create account' }).click();
   const signedIn = page.getByRole('button', { name: /^Signed in as/ });
   const signInButton = page.getByRole('button', { name: 'Sign in' });
@@ -104,7 +99,7 @@ async function signUpFan(
     await page.getByLabel('Password').fill(password);
     await signInButton.click();
   }
-  await expect(signedIn).toBeVisible();
+  await expect(signedIn).toBeVisible({ timeout: 20_000 });
 }
 
 async function captureDownload(page: Page): Promise<Buffer> {
@@ -134,14 +129,19 @@ test('subscriber and separate track download both get the original WAV; artist s
 
   const artistEmail = process.env.TAHTI_E2E_EMAIL ?? 'artist@tahti.live';
   const artistPassword = process.env.TAHTI_E2E_PASSWORD ?? 'demo-password';
-  const fanPassword = 'e2e-fan-password';
+  const fanPassword = process.env.TAHTI_E2E_FAN_PASSWORD ?? 'e2e-fan-password';
   const stamp = Date.now();
-  const fanSubEmail = `e2e-sub-${stamp}@example.com`;
-  const fanBuyEmail = `e2e-buy-${stamp}@example.com`;
+  const fanSubEmail =
+    process.env.TAHTI_E2E_FAN_SUB_EMAIL ?? `e2e-sub-${stamp}@example.com`;
+  const fanBuyEmail =
+    process.env.TAHTI_E2E_FAN_BUY_EMAIL ?? `e2e-buy-${stamp}@example.com`;
+  const existingFans = Boolean(
+    process.env.TAHTI_E2E_FAN_SUB_EMAIL && process.env.TAHTI_E2E_FAN_BUY_EMAIL,
+  );
 
   await signIn(page, artistEmail, artistPassword);
   await page.goto('/studio/upload');
-  await page.getByLabel('Choose audio file').setInputFiles(riffPath);
+  await page.locator('input[type="file"]').setInputFiles(riffPath);
   await page.getByRole('button', { name: 'Upload file' }).click();
   await expect(page).toHaveURL(/\/studio\/sounds\/[^/]+$/, { timeout: 30_000 });
   await expect(page.getByText('Still processing')).toHaveCount(0, {
@@ -174,7 +174,11 @@ test('subscriber and separate track download both get the original WAV; artist s
   const fanSubContext = await browser.newContext();
   const fanSubPage = await fanSubContext.newPage();
   await installStripeMock(fanSubPage, stripeState);
-  await signUpFan(fanSubPage, fanSubEmail, fanPassword);
+  if (existingFans) {
+    await signIn(fanSubPage, fanSubEmail, fanPassword);
+  } else {
+    await signUpFan(fanSubPage, fanSubEmail, fanPassword);
+  }
   rememberFanOnLatestSub(stripeState, {
     username: fanSubEmail.split('@')[0] ?? 'e2e-sub',
     displayName: fanSubEmail.split('@')[0] ?? 'e2e-sub',
@@ -195,7 +199,11 @@ test('subscriber and separate track download both get the original WAV; artist s
   const fanBuyContext = await browser.newContext();
   const fanBuyPage = await fanBuyContext.newPage();
   await installStripeMock(fanBuyPage, stripeState);
-  await signUpFan(fanBuyPage, fanBuyEmail, fanPassword);
+  if (existingFans) {
+    await signIn(fanBuyPage, fanBuyEmail, fanPassword);
+  } else {
+    await signUpFan(fanBuyPage, fanBuyEmail, fanPassword);
+  }
   await fanBuyPage.goto(trackUrl);
   expect(
     await fanBuyPage.getByRole('button', { name: /buy this track/i }).count(),

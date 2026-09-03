@@ -1,4 +1,6 @@
 import type { FetchMeta } from './client';
+import { DEMO_MP3 } from './mock';
+import { getMockUploadedSound } from './mock-uploads';
 
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
 
@@ -63,6 +65,72 @@ export type ArchiveVersion = {
 };
 
 const mockVersionsByItem = new Map<string, ArchiveVersion[]>();
+const mockVersionFiles = new Map<string, { url: string; filename: string }>();
+
+function sourceFormatFromName(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  if (ext === 'wav' || ext === 'wave') {
+    return 'wav';
+  }
+  if (ext === 'flac') {
+    return 'flac';
+  }
+  if (ext === 'aiff' || ext === 'aif') {
+    return 'aiff';
+  }
+  if (ext === 'ogg') {
+    return 'ogg';
+  }
+  if (ext === 'm4a') {
+    return 'm4a';
+  }
+  return 'mp3';
+}
+
+export function addMockArchiveVersion(
+  soundId: string,
+  input: {
+    versionLabel: string;
+    url?: string;
+    filename?: string;
+    activate?: boolean;
+  },
+): ArchiveVersion {
+  const versions = mockVersions(soundId);
+  const nextNumber =
+    versions.reduce(
+      (highest, version) => Math.max(highest, version.versionNumber),
+      0,
+    ) + 1;
+  const id = `ver-mock-${soundId}-${nextNumber}-${Date.now()}`;
+  const filename = input.filename ?? 'revision.wav';
+  const url = input.url ?? DEMO_MP3;
+  const row: ArchiveVersion = {
+    id,
+    versionNumber: nextNumber,
+    versionLabel: input.versionLabel,
+    status: 'READY',
+    isActive: false,
+    durationSec: 180,
+    sourceFormat: sourceFormatFromName(filename),
+    sourceBitrateKbps: null,
+    sourceSampleRateHz: 44100,
+    sourceBitDepth: 16,
+    sourceChannels: 2,
+    createdAt: new Date().toISOString(),
+  };
+  const next = versions.map((version) => ({
+    ...version,
+    isActive: input.activate ? false : version.isActive,
+  }));
+  if (input.activate) {
+    row.isActive = true;
+  }
+  next.push(row);
+  mockVersionsByItem.set(soundId, next);
+  mockVersionFiles.set(id, { url, filename });
+  return row;
+}
 
 function mockVersions(soundId: string): ArchiveVersion[] {
   const existing = mockVersionsByItem.get(soundId);
@@ -86,6 +154,15 @@ function mockVersions(soundId: string): ArchiveVersion[] {
     },
   ];
   mockVersionsByItem.set(soundId, initial);
+  const original = getMockUploadedSound(soundId);
+  mockVersionFiles.set(initial[0]!.id, {
+    url: original?.objectUrl ?? DEMO_MP3,
+    filename: original?.filename ?? 'original.mp3',
+  });
+  if (original) {
+    initial[0]!.sourceFormat = sourceFormatFromName(original.filename);
+    initial[0]!.versionLabel = 'Original upload';
+  }
   return initial;
 }
 
@@ -95,7 +172,7 @@ export async function fetchArchiveVersions(soundId: string): Promise<{
 }> {
   if (forceMock()) {
     return {
-      data: mockVersions(soundId),
+      data: mockVersions(soundId).map((version) => ({ ...version })),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
@@ -142,7 +219,8 @@ export async function fetchVersionDownloadUrl(
   versionId: string,
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   if (forceMock()) {
-    return { ok: true, url: '#mock-download' };
+    const stored = mockVersionFiles.get(versionId);
+    return { ok: true, url: stored?.url ?? DEMO_MP3 };
   }
   try {
     const { data } = await requestJson<{ url: string; contentType: string }>(
@@ -153,6 +231,73 @@ export async function fetchVersionDownloadUrl(
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Download unavailable',
+    };
+  }
+}
+
+export async function uploadArchiveVersion(
+  soundId: string,
+  file: File,
+  versionLabel: string,
+): Promise<
+  | { ok: true; versionId: string; versionNumber: number; status: string }
+  | { ok: false; error: string }
+> {
+  const label = versionLabel.trim() || file.name || 'New revision';
+  if (forceMock()) {
+    const row = addMockArchiveVersion(soundId, {
+      versionLabel: label,
+      url: URL.createObjectURL(file),
+      filename: file.name,
+    });
+    return {
+      ok: true,
+      versionId: row.id,
+      versionNumber: row.versionNumber,
+      status: row.status,
+    };
+  }
+  try {
+    const { data: prep } = await requestJson<{
+      uploadId: string;
+      uploadUrl: string;
+    }>(`/api/me/archive/${encodeURIComponent(soundId)}/versions/prepare`, {
+      method: 'POST',
+      body: JSON.stringify({
+        filename: file.name,
+        contentType: file.type || 'audio/mpeg',
+      }),
+    });
+    const put = await fetch(prep.uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type || 'audio/mpeg' },
+    });
+    if (!put.ok) {
+      throw new Error(`Upload PUT failed (${put.status})`);
+    }
+    const { data: done } = await requestJson<{
+      versionId: string;
+      versionNumber: number;
+      status: string;
+    }>(`/api/me/archive/${encodeURIComponent(soundId)}/versions/complete`, {
+      method: 'POST',
+      body: JSON.stringify({
+        uploadId: prep.uploadId,
+        versionLabel: label,
+        fileSizeBytes: file.size,
+      }),
+    });
+    return {
+      ok: true,
+      versionId: done.versionId,
+      versionNumber: done.versionNumber,
+      status: done.status,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not save revision',
     };
   }
 }

@@ -38,9 +38,14 @@ export const ManageRadioActive: Story = {
   args: { current: '/studio/channel?tab=radio', global: true },
 };
 
+export const StripeActive: Story = {
+  args: { current: '/studio/stripe', global: true },
+  decorators: [withTahtiRouter('/studio/stripe')],
+};
+
 export const ManageSourcesActive: Story = {
-  args: { current: '/sources', global: true },
-  decorators: [withTahtiRouter('/sources')],
+  args: { current: '/settings/plugin-store', global: true },
+  decorators: [withTahtiRouter('/settings/plugin-store')],
 };
 
 export const NoCurrentRoute: Story = {

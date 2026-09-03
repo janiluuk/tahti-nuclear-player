@@ -1,5 +1,15 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Audio file revisions + studio Stripe/e2e alignment
+
+Bumped `@tahti-player/tahti-web` to `0.0.39`.
+
+Studio track details (and the track edit dialog) list every audio revision: upload a replacement file as a new version (`POST /api/me/archive/:id/versions/prepare` + `complete`, not activated until you choose it), preview any READY version in the player, and compare two with Play A / Play B / Switch A/B (keeps the playhead). Editor quick-fixes and Pro Editor “save as new revision” land in the same list.
+
+Also aligned Studio sitemap/Storybook with Stripe (gated) and Import instead of `/sources`, converted Audience/Stripe/Upload chrome to Nuclear `Tabs`/`Badge`/`PageLoading`/`Loader`, and tightened the fan-sub e2e so subscribe stays on the mocked Checkout path.
+
+**Validation:** `AudioRevisionList` unit test, tahti-web type-check and eslint on the touched files. Browser-checked mock Studio track details: upload, preview, compare, activate.
+
 ## 2026-09-03 — Admin forms, stash, and remaining Toggles
 
 Five slices after the docs-sync + mock original-file batch. Bumped `@tahti-player/tahti-web` to `0.0.38`.

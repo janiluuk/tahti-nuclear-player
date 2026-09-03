@@ -586,7 +586,7 @@ export function ScreenAtlas() {
         <p className="text-foreground-secondary mt-1 text-xs tracking-wide uppercase">
           {MAP_CASE_GROUPS.length} flows · {total} cases · {gaps} parity gap
           {gaps === 1 ? '' : 's'} · Tahti | beta.tahti.live columns ·
-          screenshots captured 2026-08-31
+          screenshots captured 2026-09-03
         </p>
       </div>
 

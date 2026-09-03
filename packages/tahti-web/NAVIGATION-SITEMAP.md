@@ -23,7 +23,7 @@ mistaken for a missing feature.
 
 Studio section menus (`StudioNav` submenu):
 
-- Studio: Overview, Branding, Stats, Governance, Posts, Audience, Library, Sounds, Collections, Releases, Upload, Editor
+- Studio: Overview, Branding, Stats, Governance, Posts, Audience, Stripe (when configured), Library, Sounds, Collections, Releases, Upload, Editor
 - Perform: Go live, Broadcast, Events, Shows, Multicast, Channel, Radio
 
 Admin section menus (`AdminNav`): Dashboard, Logs, Moderation, Users,
@@ -45,7 +45,7 @@ bottom bar.
 | Everyone | Favorites | `/listen/favorites`, `/library/favorites`, `/favorites` | Aliases share the same surface. |
 | Everyone | Help | `/help`, `/help/$slug` | Sidebar / drawer. Articles also reach `/status`, `/news`, `/whats-new`, legal pages, and `/transparency`. |
 | Signed in | Library | `/library`, `/library/sounds`, `/library/collections` (+ `?tab=` recordings/media/stash/embeds), `/library/upload`, `/studio/releases`, `/studio/editor` | Studio horizontal tabs. `/library*` routes stay. `/library/recordings` and `/library/media` alias into collections tabs. Mobile bottom nav still has Library. |
-| Artist | Studio | `/studio`, `/studio/branding`, `/studio/stats`, `/studio/governance`, `/studio/updates`, `/studio/revenue`, `/library*` | Studio stays selected on Library routes. |
+| Artist | Studio | `/studio`, `/studio/branding`, `/studio/stats`, `/studio/governance`, `/studio/updates`, `/studio/revenue`, `/studio/stripe`, `/library*` | Stripe submenu only when `stripeConfigured`. Studio stays selected on Library routes. |
 | Artist | Perform | `/studio/go-live`, `/studio/schedule`, `/studio/events`, `/studio/events/new`, `/studio/shows`, `/studio/shows/$id`, `/studio/channel` | Nav label is Broadcast. Multicast/Radio are channel query tabs. 24/7 programme is on `/studio/schedule`. |
 | Signed in | Settings | `/settings`, `/settings/$section`, `/account`, `/onboarding` | Modal + bookmarkable sections. `/themes` redirects here. `/sources` and `/sources/$id` redirect to Add-ons → Import. |
 | Board | Admin | `/admin`, `/admin/logs`, `/admin/moderation` (+ `$tab`), `/admin/users`, `/admin/content`, `/admin/radio`, `/admin/news`, `/admin/streams`, `/admin/venues`, `/admin/top-lists`, `/admin/announcements`, `/admin/storage`, `/admin/artwork-presets`, `/admin/financial`, `/admin/governance`, `/admin/reports`, `/admin/grants`, `/admin/agm`, `/admin/disco-widgets`, `/admin/status`, `/admin/vendors`, `/admin/i18n`, `/admin/tahti-selects`, `/admin/orphan-pages` | Queue/detail routes stay contextual. |

@@ -1,3 +1,4 @@
+import { addMockArchiveVersion } from './archive-versions';
 import type { FetchMeta } from './client';
 import { DEMO_MP3 } from './mock';
 import { getMockSessionUser } from './mock-session';
@@ -1812,7 +1813,11 @@ export async function renderEditorDraft(
   { ok: true; versionId: string; status: string } | { ok: false; error: string }
 > {
   if (forceMock()) {
-    return { ok: true, versionId: `ver-mock-${Date.now()}`, status: 'READY' };
+    const row = addMockArchiveVersion(soundId, {
+      versionLabel,
+      activate,
+    });
+    return { ok: true, versionId: row.id, status: 'READY' };
   }
   try {
     const { data } = await requestJson<{

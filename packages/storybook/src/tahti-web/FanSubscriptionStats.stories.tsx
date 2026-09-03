@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { FanPayoutStats } from '@tahti-web/api/revenue';
 import { FanSubscriptionStats } from '@tahti-web/components/FanSubscriptionStats';
+import { mergeRevenueOrders } from '@tahti-web/lib/revenueOrders';
 
 const mockStats: FanPayoutStats = {
   activeSubscribers: 26,
@@ -63,6 +64,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     stats: mockStats,
+    orders: mergeRevenueOrders(mockStats.recent, []),
     exportUrl: '/export/subscribers.csv',
   },
 };
@@ -70,11 +72,13 @@ export const Default: Story = {
 export const NoExport: Story = {
   args: {
     stats: mockStats,
+    orders: mergeRevenueOrders(mockStats.recent, []),
   },
 };
 
 export const Empty: Story = {
   args: {
     stats: emptyStats,
+    orders: [],
   },
 };

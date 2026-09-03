@@ -14,6 +14,7 @@ import { StudioRevenueView } from '@tahti-web/views/studio/StudioRevenueView';
 import { StudioScheduleView } from '@tahti-web/views/studio/StudioScheduleView';
 import { StudioSoundView } from '@tahti-web/views/studio/StudioSoundView';
 import { StudioStatsView } from '@tahti-web/views/studio/StudioStatsView';
+import { StudioStripeView } from '@tahti-web/views/studio/StudioStripeView';
 import { StudioUploadView } from '@tahti-web/views/studio/StudioUploadView';
 
 import { withMockAuth, withTahtiRouter } from './_lib/decorators';
@@ -136,10 +137,23 @@ export const StudioReleases: Story = {
 
 export const StudioRevenue: Story = {
   parameters: {
-    docs: { description: { story: 'Lives on Studio → Revenue.' } },
+    docs: { description: { story: 'Lives on Studio → Audience.' } },
   },
   decorators: [withTahtiRouter('/studio/revenue')],
   render: () => <StudioRevenueView />,
+};
+
+export const StudioStripe: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Lives on Studio → Stripe when Stripe is configured. Connect status, Express dashboard, and charges.',
+      },
+    },
+  },
+  decorators: [withTahtiRouter('/studio/stripe')],
+  render: () => <StudioStripeView />,
 };
 
 export const StudioDistribution: Story = {

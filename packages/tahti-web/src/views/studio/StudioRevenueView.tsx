@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CircleHelpIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, Tabs } from '@tahti-player/ui';
 
 import { fetchAllRoyalties } from '../../api/distribution';
 import { fetchMyFanTiers } from '../../api/fan-tiers';
@@ -42,9 +42,7 @@ export function StudioRevenueView() {
   const [hasFanTiers, setHasFanTiers] = useState<boolean | null>(null);
   const [grants, setGrants] = useState<GrantRow[]>([]);
   const [estimate, setEstimate] = useState<GrantEstimate | null>(null);
-  const [audienceTab, setAudienceTab] = useState<'overview' | 'tiers'>(
-    'overview',
-  );
+  const [audienceTab, setAudienceTab] = useState(0);
   const [mergedOrders, setMergedOrders] = useState(mergeRevenueOrders([], []));
 
   useEffect(() => {
@@ -112,164 +110,163 @@ export function StudioRevenueView() {
           }
         />
 
-        <div
-          className="border-border flex gap-1 border-b pb-2"
-          role="tablist"
-          aria-label="Audience sections"
-        >
-          {(['overview', 'tiers'] as const).map((tab) => (
-            <Button
-              key={tab}
-              size="sm"
-              variant={audienceTab === tab ? undefined : 'text'}
-              role="tab"
-              aria-selected={audienceTab === tab}
-              onClick={() => setAudienceTab(tab)}
-            >
-              {tab === 'overview' ? 'Overview' : 'Tiers'}
-            </Button>
-          ))}
-        </div>
-
-        {audienceTab === 'tiers' ? (
-          <StudioPanel
-            title="Tiers"
-            description="Set the monthly support tiers fans can subscribe to."
-          >
-            <FanTiersEditor />
-          </StudioPanel>
-        ) : hasFanTiers === false ? (
-          <StudioPanel title="Fan subscriptions">
-            <div
-              className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-lg border p-6 text-center"
-              data-testid="fan-subs-empty-state"
-            >
-              <p className="font-medium">No fan subscriptions yet.</p>
-              <p className="text-foreground-secondary text-sm">
-                Set up subscription tiers so fans can support you directly —
-                head to{' '}
-                <Link
-                  to="/settings/$section"
-                  params={{ section: 'fan-tiers' }}
-                  className="text-foreground font-semibold underline-offset-2 hover:underline"
-                >
-                  Settings → Fan tiers
-                </Link>{' '}
-                or use the Tiers tab here.
-              </p>
-              <Button size="sm" onClick={() => setAudienceTab('tiers')}>
-                Open tiers editor
-              </Button>
-            </div>
-          </StudioPanel>
-        ) : (
-          <>
-            {showConnectWarning ? (
-              <p
-                className="border-accent-red/40 bg-accent-red/10 text-accent-red rounded-lg border px-3 py-2 text-sm"
-                role="status"
-                data-testid="fan-subs-connect-warning"
-              >
-                Stripe is not connected yet — fan-sub payouts cannot reach you
-                until Connect shows payments ready. Finish onboarding on the{' '}
-                <Link
-                  to="/studio/stripe"
-                  className="font-semibold underline-offset-2 hover:underline"
-                >
-                  Stripe dashboard
-                </Link>
-                .
-              </p>
-            ) : null}
-
-            {fanPayouts ? (
-              <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,1fr)]">
-                <StudioPanel
-                  title="Order management"
-                  description="Subscribers, net revenue, payout health, and recent fan-sub plus distribution payouts."
-                >
-                  <FanSubscriptionStats
-                    stats={fanPayouts}
-                    orders={mergedOrders}
-                    exportUrl={fanSubscriberExportUrl()}
-                    footnote={
-                      <>
-                        Subscriber CSV export and GDPR tools live in{' '}
+        <Tabs
+          selectedIndex={audienceTab}
+          onChange={setAudienceTab}
+          listClassName="border-border border-b pb-2"
+          items={[
+            {
+              id: 'overview',
+              label: 'Overview',
+              content:
+                hasFanTiers === false ? (
+                  <StudioPanel title="Fan subscriptions">
+                    <div
+                      className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-lg border p-6 text-center"
+                      data-testid="fan-subs-empty-state"
+                    >
+                      <p className="font-medium">No fan subscriptions yet.</p>
+                      <p className="text-foreground-secondary text-sm">
+                        Set up subscription tiers so fans can support you
+                        directly — head to{' '}
                         <Link
                           to="/settings/$section"
-                          params={{ section: 'fan-subs' }}
+                          params={{ section: 'fan-tiers' }}
                           className="text-foreground font-semibold underline-offset-2 hover:underline"
                         >
-                          Settings → Fan subs
+                          Settings → Fan tiers
+                        </Link>{' '}
+                        or use the Tiers tab here.
+                      </p>
+                      <Button size="sm" onClick={() => setAudienceTab(1)}>
+                        Open tiers editor
+                      </Button>
+                    </div>
+                  </StudioPanel>
+                ) : (
+                  <>
+                    {showConnectWarning ? (
+                      <p
+                        className="border-accent-red/40 bg-accent-red/10 text-accent-red rounded-lg border px-3 py-2 text-sm"
+                        role="status"
+                        data-testid="fan-subs-connect-warning"
+                      >
+                        Stripe is not connected yet — fan-sub payouts cannot
+                        reach you until Connect shows payments ready. Finish
+                        onboarding on the{' '}
+                        <Link
+                          to="/studio/stripe"
+                          className="font-semibold underline-offset-2 hover:underline"
+                        >
+                          Stripe dashboard
                         </Link>
                         .
-                      </>
-                    }
-                  />
-                </StudioPanel>
+                      </p>
+                    ) : null}
+
+                    {fanPayouts ? (
+                      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,1fr)]">
+                        <StudioPanel
+                          title="Order management"
+                          description="Subscribers, net revenue, payout health, and recent fan-sub plus distribution payouts."
+                        >
+                          <FanSubscriptionStats
+                            stats={fanPayouts}
+                            orders={mergedOrders}
+                            exportUrl={fanSubscriberExportUrl()}
+                            footnote={
+                              <>
+                                Subscriber CSV export and GDPR tools live in{' '}
+                                <Link
+                                  to="/settings/$section"
+                                  params={{ section: 'fan-subs' }}
+                                  className="text-foreground font-semibold underline-offset-2 hover:underline"
+                                >
+                                  Settings → Fan subs
+                                </Link>
+                                .
+                              </>
+                            }
+                          />
+                        </StudioPanel>
+                        <StudioPanel
+                          title="Order flow"
+                          description="What happens to a typical €5 monthly order."
+                        >
+                          <FanSubOrderBreakdown />
+                        </StudioPanel>
+                      </div>
+                    ) : null}
+
+                    {connect?.stripeConfigured ? (
+                      <StudioPanel
+                        title="Stripe"
+                        description="Payout account and Express dashboard — only listed in Studio when Stripe is enabled."
+                      >
+                        <div data-tour-id="revenue-connect">
+                          <Link to="/studio/stripe">
+                            <Button size="sm" variant="secondary">
+                              Open Stripe dashboard
+                            </Button>
+                          </Link>
+                        </div>
+                      </StudioPanel>
+                    ) : null}
+
+                    {estimate && (
+                      <StudioPanel title={`Grant estimate (${estimate.year})`}>
+                        <StatNumber className="block">
+                          {euros(estimate.estimateCents)}
+                        </StatNumber>
+                        <p className="text-foreground-secondary mt-1 text-sm">
+                          {estimate.units} engagement units
+                          {estimate.eligible
+                            ? ', eligible'
+                            : ', not yet eligible (need more units)'}
+                        </p>
+                      </StudioPanel>
+                    )}
+
+                    <StudioPanel title="Past grants">
+                      {grants.length === 0 ? (
+                        <p className="text-foreground-secondary text-sm">
+                          No disbursements yet.
+                        </p>
+                      ) : (
+                        <ul className="divide-border divide-y">
+                          {grants.map((g) => (
+                            <li
+                              key={`${g.forYear}-${g.state}`}
+                              className="flex items-center justify-between py-2.5 text-sm first:pt-0 last:pb-0"
+                            >
+                              <span>
+                                {g.forYear} — {g.state}
+                              </span>
+                              <span className="font-medium">
+                                {euros(g.amountCents)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </StudioPanel>
+                  </>
+                ),
+            },
+            {
+              id: 'tiers',
+              label: 'Tiers',
+              content: (
                 <StudioPanel
-                  title="Order flow"
-                  description="What happens to a typical €5 monthly order."
+                  title="Tiers"
+                  description="Set the monthly support tiers fans can subscribe to."
                 >
-                  <FanSubOrderBreakdown />
+                  <FanTiersEditor />
                 </StudioPanel>
-              </div>
-            ) : null}
-
-            {connect?.stripeConfigured ? (
-              <StudioPanel
-                title="Stripe"
-                description="Payout account and Express dashboard — only listed in Studio when Stripe is enabled."
-              >
-                <div data-tour-id="revenue-connect">
-                  <Link to="/studio/stripe">
-                    <Button size="sm" variant="secondary">
-                      Open Stripe dashboard
-                    </Button>
-                  </Link>
-                </div>
-              </StudioPanel>
-            ) : null}
-
-            {estimate && (
-              <StudioPanel title={`Grant estimate (${estimate.year})`}>
-                <StatNumber className="block">
-                  {euros(estimate.estimateCents)}
-                </StatNumber>
-                <p className="text-foreground-secondary mt-1 text-sm">
-                  {estimate.units} engagement units
-                  {estimate.eligible
-                    ? ', eligible'
-                    : ', not yet eligible (need more units)'}
-                </p>
-              </StudioPanel>
-            )}
-
-            <StudioPanel title="Past grants">
-              {grants.length === 0 ? (
-                <p className="text-foreground-secondary text-sm">
-                  No disbursements yet.
-                </p>
-              ) : (
-                <ul className="divide-border divide-y">
-                  {grants.map((g) => (
-                    <li
-                      key={`${g.forYear}-${g.state}`}
-                      className="flex items-center justify-between py-2.5 text-sm first:pt-0 last:pb-0"
-                    >
-                      <span>
-                        {g.forYear} — {g.state}
-                      </span>
-                      <span className="font-medium">
-                        {euros(g.amountCents)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </StudioPanel>
-          </>
-        )}
+              ),
+            },
+          ]}
+        />
       </div>
     </StudioGate>
   );

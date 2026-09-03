@@ -967,6 +967,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'Save changes',
           'Normalize the waveform (disabled until READY)',
           'Auto-trim silence (disabled until READY)',
+          'Save a new audio file as a revision',
+          'Preview any revision in the player',
+          'Compare two revisions (Play A / Play B / Switch A/B)',
           'Download or activate an older revision from Revision history',
           'Add the track to one or more playlists',
         ],
@@ -988,8 +991,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           absent: true,
         },
         new: {
+          image: '/map/nuclear/archive-item.png',
           route: '/studio/sounds/$id',
-          caption: 'Nuclear track detail — shot pending',
+          caption: 'Nuclear track detail',
         },
       },
       {
@@ -1217,7 +1221,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod revenue / Connect',
         },
         new: {
-          image: '/map/nuclear/revenue.png',
+          image: '/map/nuclear/stripe.png',
           route: '/studio/stripe',
           caption: 'Nuclear Stripe dashboard',
         },

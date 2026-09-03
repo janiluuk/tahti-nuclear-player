@@ -30,12 +30,6 @@ import {
 } from '@tahti-player/ui';
 
 import {
-  activateArchiveVersion,
-  fetchArchiveVersions,
-  fetchVersionDownloadUrl,
-  type ArchiveVersion,
-} from '../../api/archive-versions';
-import {
   fetchEditorDraft,
   fetchEditorSource,
   fetchStudioSound,
@@ -52,11 +46,11 @@ import {
   AudienceVisibilitySection,
   type TrackVisibility,
 } from '../../components/AudienceVisibilitySection';
+import { AudioRevisionList } from '../../components/AudioRevisionList';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader } from '../../components/StudioPanel';
-import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
 import { SELECTABLE_CONTENT_TYPES } from '../../content/contentTypes';
@@ -102,12 +96,7 @@ export function StudioSoundView({ id }: { id: string }) {
   const [peaks, setPeaks] = useState<number[]>([]);
   const [quickBusy, setQuickBusy] = useState<'normalize' | 'trim' | null>(null);
   const [quickMsg, setQuickMsg] = useState<string | null>(null);
-  const [versions, setVersions] = useState<ArchiveVersion[]>([]);
-  const [versionBusy, setVersionBusy] = useState<string | null>(null);
-
-  const reloadVersions = () => {
-    void fetchArchiveVersions(id).then((r) => setVersions(r.data));
-  };
+  const [revisionTick, setRevisionTick] = useState(0);
 
   useEffect(() => {
     void fetchStudioSound(id).then((res) => {
@@ -130,7 +119,6 @@ export function StudioSoundView({ id }: { id: string }) {
       const level = res.data.editorPeaks?.levels?.[0];
       setPeaks(level && level.length > 0 ? level : []);
     });
-    reloadVersions();
   }, [id]);
 
   useEffect(() => {
@@ -278,7 +266,7 @@ export function StudioSoundView({ id }: { id: string }) {
     setQuickMsg(
       `Queued as version — the previous version stays available below.`,
     );
-    reloadVersions();
+    setRevisionTick((tick) => tick + 1);
   };
 
   const onNormalize = () => {
@@ -302,28 +290,6 @@ export function StudioSoundView({ id }: { id: string }) {
       { ...base, cuts: [...base.cuts, ...cuts] },
       'Quick auto-trim',
     );
-  };
-
-  const onActivateVersion = (versionId: string) => {
-    setVersionBusy(versionId);
-    void activateArchiveVersion(id, versionId).then((r) => {
-      setVersionBusy(null);
-      if (!r.ok) {
-        setQuickMsg(r.error);
-        return;
-      }
-      setVersions(r.data);
-    });
-  };
-
-  const onDownloadVersion = (versionId: string) => {
-    void fetchVersionDownloadUrl(id, versionId).then((r) => {
-      if (!r.ok) {
-        setQuickMsg(r.error);
-        return;
-      }
-      window.open(r.url, '_blank', 'noopener,noreferrer');
-    });
   };
 
   const visibilityLabel = item
@@ -679,74 +645,15 @@ export function StudioSoundView({ id }: { id: string }) {
                         </p>
                       )}
 
-                      {versions.length > 0 && (
-                        <section className="flex flex-col gap-2">
-                          <h2>
-                            <Eyebrow>Revision history</Eyebrow>
-                          </h2>
-                          <p className="text-foreground-secondary text-xs">
-                            Every save or quick fix creates a new version —
-                            older ones stay here until they're cleaned up
-                            server-side.
-                          </p>
-                          <ul className="flex flex-col gap-1.5">
-                            {versions
-                              .slice()
-                              .reverse()
-                              .map((v) => (
-                                <li
-                                  key={v.id}
-                                  className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
-                                >
-                                  <div>
-                                    <div className="font-medium">
-                                      v{v.versionNumber} — {v.versionLabel}
-                                      {v.isActive && (
-                                        <span className="text-primary ml-2 text-xs uppercase">
-                                          Active
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className="text-foreground-secondary text-xs">
-                                      {v.status}
-                                      {v.durationSec
-                                        ? ` · ${Math.round(v.durationSec)}s`
-                                        : ''}
-                                      {v.sourceBitrateKbps
-                                        ? ` · ${v.sourceBitrateKbps}kbps`
-                                        : ''}
-                                      {' · '}
-                                      {new Date(v.createdAt).toLocaleString()}
-                                    </div>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    {v.status === 'READY' && (
-                                      <Button
-                                        size="sm"
-                                        variant="text"
-                                        onClick={() => onDownloadVersion(v.id)}
-                                      >
-                                        Download
-                                      </Button>
-                                    )}
-                                    {!v.isActive && v.status === 'READY' && (
-                                      <Button
-                                        size="sm"
-                                        variant="secondary"
-                                        disabled={versionBusy === v.id}
-                                        onClick={() => onActivateVersion(v.id)}
-                                      >
-                                        {versionBusy === v.id
-                                          ? 'Switching…'
-                                          : 'Use this version'}
-                                      </Button>
-                                    )}
-                                  </div>
-                                </li>
-                              ))}
-                          </ul>
-                        </section>
-                      )}
+                      <AudioRevisionList
+                        soundId={id}
+                        trackTitle={title || item.title}
+                        artistName={
+                          item.artistName || user?.displayName || 'You'
+                        }
+                        coverUrl={item.bannerUrl}
+                        reloadToken={revisionTick}
+                      />
                     </>
                   ),
                 },

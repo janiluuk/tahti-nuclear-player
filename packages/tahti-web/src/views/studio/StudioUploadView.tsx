@@ -18,6 +18,7 @@ import {
   CardGrid,
   Dialog,
   FilePicker,
+  Loader,
 } from '@tahti-player/ui';
 
 import {
@@ -422,9 +423,12 @@ export function StudioUploadView() {
               Last recorded broadcasts
             </div>
             {recordingsLoading ? (
-              <p className="text-foreground-secondary mt-4 text-sm">
-                Loading recordings…
-              </p>
+              <div className="mt-4 flex items-center gap-2">
+                <Loader size="sm" />
+                <span className="text-foreground-secondary text-sm">
+                  Loading recordings…
+                </span>
+              </div>
             ) : recordings.length === 0 ? (
               <p className="text-foreground-secondary mt-4 text-sm">
                 No recordings yet.{' '}

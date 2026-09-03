@@ -127,9 +127,9 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   StudioGate --> Studio["Signed in + channel → /studio"]
   Studio --> Perform["Go Live · Broadcast · Shows · Channel · Radio"]
   Studio --> Music["Sounds · Collections · Releases · Upload"]
-  Studio --> Grow["Stats · Governance · Audience · Updates"]
+  Studio --> Grow["Stats · Governance · Audience · Stripe · Updates"]
   Login --> Settings["/settings"]
-  Settings --> SettingsSources["Broadcast sources (multicast)"]
+  Settings --> SettingsAddons["Add-ons · Import"]
   Board["Board role"] --> Admin["/admin"]
   Admin --> AdminSections["Overview · Content · Moderation · Logs · Status · Tahti map"]
   classDef public fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;
@@ -139,7 +139,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   class Home,Public,Radio,Discover,Favorites,Channel,Artist,Collection,Subscribe,Help,About,StudioGate public;
   class Login,Library,History,Collections,Messages,Governance session;
   class GovernanceHistory,GrantReports public;
-  class Studio,Perform,Music,Grow,Settings,SettingsSources artist;
+  class Studio,Perform,Music,Grow,Settings,SettingsAddons artist;
   class Board,Admin,AdminSections board;
 `,
   },
@@ -652,7 +652,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
 
   subgraph moreHub["More hub"]
     MORE["/more · Tahti map"]
-    SRC["/sources"]
+    SRC["Add-ons · Import"]
     SET["/settings · Themes"]
   end
 
@@ -693,11 +693,11 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Profile --> Smart["Smart links · /r/:slug"]:::pub
   Listen --> Library["Library · sounds · releases · collections · history"]:::auth
   Listen --> Settings["Settings · account · artist · security"]:::auth
-  Settings --> Sources["Sources · imports and exports"]:::auth
+  Settings --> Sources["Add-ons · Import"]:::auth
   Listen --> Studio["Studio · overview · library · perform"]:::studio
   Studio --> GoLive["Perform · Go live · schedule · shows · events · channel · radio"]:::studio
   Studio --> Music["Library · sounds · releases · collections · upload · editor"]:::studio
-  Studio --> Publish["Studio · governance · posts · distribution · audience · stats"]:::studio
+  Studio --> Publish["Studio · governance · posts · audience · stripe · stats"]:::studio
   Listen --> Public["Venues · transparency · help · legal · embeds"]:::pub
   Listen --> Admin["Board admin · /admin/*"]:::board
   Admin -.-> Legacy["Next admin remains production canonical"]:::board
@@ -1010,7 +1010,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     source: 'cases-artist',
     title: 'Cases — artist studio',
     blurb:
-      'Studio routes: Go Live, upload, stash, collections, stats, sources, revenue, design.',
+      'Studio routes: Go Live, upload, stash, collections, stats, Audience, Stripe, design.',
     mermaid: `flowchart TD
   ST["/studio"] --> Gate{Login + channel?}
   Gate -->|No| LoginOrSetup[Login or setup]
@@ -1024,7 +1024,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Home --> Rev["/studio/revenue"]
   Home --> Stripe["/studio/stripe"]
   Home --> Ch["/studio/channel"]
-  Home --> Src["/sources"]
+  Home --> Addons["Settings → Add-ons → Import"]
 `,
   },
   {
