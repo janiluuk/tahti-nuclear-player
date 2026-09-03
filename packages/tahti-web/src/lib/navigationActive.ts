@@ -9,7 +9,8 @@ export type SidebarItemId =
   | 'studio'
   | 'perform'
   | 'admin'
-  | 'help';
+  | 'help'
+  | 'settings';
 
 export type MobileItemId =
   | 'listen'
@@ -54,6 +55,9 @@ export function activeSidebarItem(
   }
   if (matchesSectionRoute(path, ['/help'])) {
     return 'help';
+  }
+  if (matchesSectionRoute(path, ['/settings', '/account'])) {
+    return 'settings';
   }
   if (isListenSidebarRoute(path)) {
     return 'listen';
@@ -155,6 +159,4 @@ export const SIDEBAR_UNLIT_INTENTIONAL: readonly string[] = [
   '/venues',
   '/schedule',
   '/messages',
-  '/account',
-  '/settings',
 ];

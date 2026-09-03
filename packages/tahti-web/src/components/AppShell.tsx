@@ -156,6 +156,7 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
               icon={<SettingsIcon size={16} />}
               label="Settings"
               onClick={() => openSettings()}
+              isSelected={sidebarActive === 'settings'}
             />
           </div>
         </div>
