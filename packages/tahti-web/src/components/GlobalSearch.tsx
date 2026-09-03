@@ -1,12 +1,8 @@
 import { useNavigate } from '@tanstack/react-router';
-import {
-  DiscIcon,
-  ListMusicIcon,
-  SearchIcon,
-  UserIcon,
-  XIcon,
-} from 'lucide-react';
+import { DiscIcon, ListMusicIcon, UserIcon, XIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+
+import { Button, Input } from '@tahti-player/ui';
 
 import { fetchSearch } from '../api/client';
 import type {
@@ -207,16 +203,13 @@ export function GlobalSearch() {
 
   return (
     <div ref={rootRef} className="relative w-full max-w-xs min-w-0 sm:max-w-sm">
-      <div className="border-border bg-background-secondary focus-within:border-primary/60 flex items-center gap-2 rounded-lg border px-2.5 py-1.5">
-        <SearchIcon
-          size={15}
-          className="text-foreground-secondary shrink-0"
-          aria-hidden
-        />
-        <input
+      <div className="relative">
+        <Input
+          type="search"
+          size="sm"
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
+          onChange={(event) => {
+            setQuery(event.target.value);
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
@@ -230,18 +223,20 @@ export function GlobalSearch() {
             activeIndex >= 0 ? flatOptions[activeIndex]?.id : undefined
           }
           autoComplete="off"
-          className="text-foreground placeholder:text-foreground-secondary min-w-0 flex-1 bg-transparent text-sm outline-none"
+          className={query ? 'pr-9' : undefined}
         />
-        {query && (
-          <button
+        {query ? (
+          <Button
             type="button"
+            size="icon-sm"
+            variant="text"
             onClick={() => setQuery('')}
             aria-label="Clear search"
-            className="text-foreground-secondary hover:text-foreground shrink-0"
+            className="absolute top-1 right-1"
           >
-            <XIcon size={14} />
-          </button>
-        )}
+            <XIcon size={14} aria-hidden />
+          </Button>
+        ) : null}
       </div>
 
       {open && hasQuery && (

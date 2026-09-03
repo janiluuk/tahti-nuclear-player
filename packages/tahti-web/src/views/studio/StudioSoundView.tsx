@@ -26,6 +26,7 @@ import {
   Select,
   Tabs,
   Textarea,
+  Toggle,
 } from '@tahti-player/ui';
 
 import {
@@ -639,16 +640,7 @@ export function StudioSoundView({ id }: { id: string }) {
                           tierIds={fanTierIds}
                           onTierIdsChange={setFanTierIds}
                         />
-                        <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={downloadsEnabled}
-                            onChange={(event) =>
-                              setDownloadsEnabled(event.target.checked)
-                            }
-                            aria-label="Allow downloads"
-                            className="mt-0.5"
-                          />
+                        <div className="border-border flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
                           <span>
                             <span className="block font-medium">
                               Allow downloads
@@ -657,17 +649,13 @@ export function StudioSoundView({ id }: { id: string }) {
                               Listeners can download the released audio file.
                             </span>
                           </span>
-                        </label>
-                        <label className="border-border flex items-start gap-3 rounded-lg border p-3 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={commentsEnabled}
-                            onChange={(event) =>
-                              setCommentsEnabled(event.target.checked)
-                            }
-                            aria-label="Allow comments"
-                            className="mt-0.5"
+                          <Toggle
+                            label="Allow downloads"
+                            checked={downloadsEnabled}
+                            onChange={setDownloadsEnabled}
                           />
+                        </div>
+                        <div className="border-border flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
                           <span>
                             <span className="block font-medium">
                               Allow comments
@@ -677,7 +665,12 @@ export function StudioSoundView({ id }: { id: string }) {
                               page.
                             </span>
                           </span>
-                        </label>
+                          <Toggle
+                            label="Allow comments"
+                            checked={commentsEnabled}
+                            onChange={setCommentsEnabled}
+                          />
+                        </div>
                       </div>
 
                       {quickMsg && (

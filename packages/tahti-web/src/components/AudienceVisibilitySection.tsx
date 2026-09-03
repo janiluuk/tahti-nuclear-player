@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Select } from '@tahti-player/ui';
+import { Button, Select, Toggle } from '@tahti-player/ui';
 
 import { fetchMyFanTiers, type FanTierRow } from '../api/fan-tiers';
 
@@ -61,23 +61,23 @@ export function AudienceVisibilitySection({
           {tiers.length > 0 ? (
             <div className="mt-3 flex flex-col gap-2">
               {tiers.map((tier) => (
-                <label
+                <div
                   key={tier.id}
-                  className="flex items-center gap-2 text-sm"
+                  className="flex items-center justify-between gap-3 text-sm"
                 >
-                  <input
-                    type="checkbox"
+                  <span>{tier.name}</span>
+                  <Toggle
+                    label={tier.name}
                     checked={tierIds.includes(tier.id)}
-                    onChange={(event) =>
+                    onChange={(checked) =>
                       onTierIdsChange(
-                        event.target.checked
+                        checked
                           ? [...tierIds, tier.id]
                           : tierIds.filter((id) => id !== tier.id),
                       )
                     }
                   />
-                  {tier.name}
-                </label>
+                </div>
               ))}
             </div>
           ) : (

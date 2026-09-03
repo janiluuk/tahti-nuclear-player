@@ -2,7 +2,7 @@ import { CheckCircle2Icon, ImageIcon, SaveIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Select } from '@tahti-player/ui';
+import { Button, Input, Select } from '@tahti-player/ui';
 
 import { uploadProfileAvatar } from '../api/artist-settings';
 import {
@@ -20,8 +20,6 @@ type Props = {
   onDirty?: () => void;
 };
 
-const inputClassName =
-  'border-border bg-background h-9 rounded-md border px-2.5 text-sm outline-none transition-colors focus:border-primary';
 const segmentClassName =
   'border-border flex min-h-8 flex-1 cursor-pointer items-center justify-center rounded-md border px-2 py-1 text-xs font-medium transition-colors';
 
@@ -153,30 +151,27 @@ export function BroadcastPreflightPanel({ onSaved, onDirty }: Props) {
       </div>
 
       <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1.3fr)_7rem]">
-        <label className="flex flex-col gap-1 text-xs font-medium">
-          Show name
-          <input
-            value={title}
-            onChange={(event) => {
-              setTitle(event.target.value);
-              markDirty();
-            }}
-            placeholder="Show name"
-            className={inputClassName}
+        <Input
+          label="Show name"
+          size="sm"
+          value={title}
+          onChange={(event) => {
+            setTitle(event.target.value);
+            markDirty();
+          }}
+          placeholder="Show name"
+        />
+        {preflight.plannedLiveShow?.seriesId ? (
+          <Input
+            type="number"
+            variant="number"
+            label="Episode"
+            size="sm"
+            min={1}
+            value={episodeNumber ?? ''}
+            disabled
           />
-        </label>
-        {preflight.plannedLiveShow?.seriesId && (
-          <label className="flex flex-col gap-1 text-xs font-medium">
-            Episode
-            <input
-              type="number"
-              min={1}
-              value={episodeNumber ?? ''}
-              disabled
-              className={`${inputClassName} disabled:opacity-60`}
-            />
-          </label>
-        )}
+        ) : null}
       </div>
 
       <div className="mt-2.5 grid gap-2.5 sm:grid-cols-2">
@@ -261,21 +256,19 @@ export function BroadcastPreflightPanel({ onSaved, onDirty }: Props) {
             ]}
           />
         )}
-        {episodeNumber !== null && (
-          <label className="flex flex-col gap-1 text-xs font-medium">
-            Tagline
-            <input
-              value={tagline}
-              onChange={(event) => {
-                setTagline(event.target.value);
-                markDirty();
-              }}
-              placeholder="What is this broadcast about?"
-              maxLength={200}
-              className={inputClassName}
-            />
-          </label>
-        )}
+        {episodeNumber !== null ? (
+          <Input
+            label="Tagline"
+            size="sm"
+            value={tagline}
+            onChange={(event) => {
+              setTagline(event.target.value);
+              markDirty();
+            }}
+            placeholder="What is this broadcast about?"
+            maxLength={200}
+          />
+        ) : null}
       </div>
 
       <div className="border-border/70 mt-3 flex items-center justify-between gap-3 border-t pt-3">

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { Button, Dialog, Input, Select } from '@tahti-player/ui';
+import { Button, Dialog, Input, Select, Toggle } from '@tahti-player/ui';
 
 import {
   createStudioCollection,
@@ -247,15 +247,15 @@ export function StudioCollectionsView() {
                 ]}
               />
               {style === 'PLAYLIST' ? (
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span>Others can add tracks</span>
+                  <Toggle
+                    label="Others can add tracks"
                     checked={collaborative}
                     disabled={visibility !== 'PUBLIC'}
-                    onChange={(event) => setCollaborative(event.target.checked)}
+                    onChange={setCollaborative}
                   />
-                  Others can add tracks
-                </label>
+                </div>
               ) : null}
             </div>
             <Dialog.Actions>

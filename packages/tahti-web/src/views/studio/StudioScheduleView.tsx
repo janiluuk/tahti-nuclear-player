@@ -10,7 +10,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input, SaveButton, Select } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  Input,
+  SaveButton,
+  Select,
+  Toggle,
+} from '@tahti-player/ui';
 
 import {
   cancelScheduledShow,
@@ -913,25 +920,27 @@ export function StudioScheduleView() {
                   { id: 'FAN_ONLY', label: 'Fans only' },
                 ]}
               />
-              <label className="text-foreground-secondary flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="text-foreground-secondary">
+                  Publish recordings automatically
+                </span>
+                <Toggle
+                  label="Publish recordings automatically"
                   checked={autoArchive}
-                  onChange={(event) => setAutoArchive(event.target.checked)}
+                  onChange={setAutoArchive}
                 />
-                Publish recordings automatically
-              </label>
+              </div>
               {showMode === 'SERIES' ? (
-                <label className="text-foreground-secondary flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-foreground-secondary">
+                    Number episodes automatically
+                  </span>
+                  <Toggle
+                    label="Number episodes automatically"
                     checked={episodeNumberEnabled}
-                    onChange={(event) =>
-                      setEpisodeNumberEnabled(event.target.checked)
-                    }
+                    onChange={setEpisodeNumberEnabled}
                   />
-                  Number episodes automatically
-                </label>
+                </div>
               ) : null}
               {showMode === 'SERIES' && episodeNumberEnabled ? (
                 <Input
@@ -1000,36 +1009,18 @@ export function StudioScheduleView() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label
-                  className="text-foreground-secondary text-xs uppercase"
-                  htmlFor="schedule-venue"
-                >
-                  Venue
-                </label>
-                <input
-                  id="schedule-venue"
-                  value={venue}
-                  onChange={(event) => setVenue(event.target.value)}
-                  placeholder="Optional venue"
-                  className="border-border bg-background mt-1 h-10 w-full rounded-md border px-3 text-sm"
-                />
-              </div>
-              <div>
-                <label
-                  className="text-foreground-secondary text-xs uppercase"
-                  htmlFor="schedule-location"
-                >
-                  Location
-                </label>
-                <input
-                  id="schedule-location"
-                  value={location}
-                  onChange={(event) => setLocation(event.target.value)}
-                  placeholder="City, country, or online"
-                  className="border-border bg-background mt-1 h-10 w-full rounded-md border px-3 text-sm"
-                />
-              </div>
+              <Input
+                label="Venue"
+                value={venue}
+                onChange={(event) => setVenue(event.target.value)}
+                placeholder="Optional venue"
+              />
+              <Input
+                label="Location"
+                value={location}
+                onChange={(event) => setLocation(event.target.value)}
+                placeholder="City, country, or online"
+              />
               <div className="sm:col-span-2">
                 <ImageUploadField
                   label="Episode artwork"

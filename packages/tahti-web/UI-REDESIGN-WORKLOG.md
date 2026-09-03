@@ -1,5 +1,23 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Native-control sweep (five slices)
+
+**Slice 1 — Go Live preflight fields:** `BroadcastPreflightPanel` show name, episode, and tagline use shared `Input`.
+
+**Slice 2 — Top-nav search:** `GlobalSearch` uses shared `Input` (`type="search"`) and `Button` for clear, keeping combobox keyboard behavior.
+
+**Slice 3 — Broadcast dialog toggles:** `/studio/schedule` auto-archive and episode-numbering checkboxes are `Toggle`; venue and location use `Input`.
+
+**Slice 4 — Fan-tier access:** `AudienceVisibilitySection` stash-tier picks are `Toggle` rows instead of native checkboxes.
+
+**Slice 5 — Collection + track settings:** “Others can add tracks” on collection create, and allow-downloads / allow-comments on the archive track page, use `Toggle`.
+
+**Validation:** tahti-web type-check and vitest. Bumped `@tahti-player/tahti-web` to `0.0.35`.
+
+## 2026-09-03 — Fan-sub vs track-purchase e2e + worklist
+
+Playwright `e2e/fan-sub-and-track-purchase.spec.ts` drives: artist uploads `riff.wav`, a fan subscribes, another fan tries to buy the track separately, both downloads must match the original WAV, artist Audience must show both orders, board audit log must record them. Run against mock Vite (`PLAYWRIGHT_BASE_URL=http://127.0.0.1:5180`). The spec fails with a single worklist of product gaps (no à la carte purchase, mock upload not on `/t/:id`, download is not the original, orders/audit not session-tied, admin log board-gated). Same items added under WORKPLAN remaining.
+
 ## 2026-09-03 — Broadcast schedule + stream playlist batch (five slices)
 
 **Slice 1 — Stream manager status pill:** `StreamManagerPanel` uses `Badge` (animated green dot + pill) for Live/Playing/Paused/Stopped instead of a hand-rolled span.
