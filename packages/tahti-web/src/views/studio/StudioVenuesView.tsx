@@ -11,7 +11,9 @@ import {
   fetchMyVenues,
   patchVenue,
   type MyVenue,
+  type VenueBroadcast,
 } from '../../api/venues-manage';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
@@ -37,6 +39,9 @@ function VenueCard({
   const [pageUrl, setPageUrl] = useState(venue.externalLinks?.website ?? '');
   const [msg, setMsg] = useState<string | null>(null);
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
+  const [pendingCancel, setPendingCancel] = useState<VenueBroadcast | null>(
+    null,
+  );
 
   const [startAt, setStartAt] = useState('');
   const [bookingDesc, setBookingDesc] = useState('');
@@ -183,23 +188,7 @@ function VenueCard({
                   size="icon-sm"
                   variant="text"
                   aria-label={`Cancel booking on ${new Date(b.startAt).toLocaleString()}`}
-                  onClick={() => {
-                    if (
-                      !window.confirm(
-                        `Cancel the booking on ${new Date(b.startAt).toLocaleString()}?`,
-                      )
-                    ) {
-                      return;
-                    }
-                    void cancelVenueBroadcast(venue.slug, b.id).then((r) => {
-                      if (!r.ok) {
-                        setMsg(r.error);
-                      } else {
-                        toast.success('Booking cancelled.');
-                        onChanged();
-                      }
-                    });
-                  }}
+                  onClick={() => setPendingCancel(b)}
                 >
                   <Trash2Icon size={14} aria-hidden />
                 </Button>
@@ -257,6 +246,33 @@ function VenueCard({
           </div>
         )}
       </div>
+      <ConfirmDialog
+        isOpen={pendingCancel !== null}
+        title={
+          pendingCancel
+            ? `Cancel the booking on ${new Date(pendingCancel.startAt).toLocaleString()}?`
+            : 'Cancel booking?'
+        }
+        description="The booking is removed from this venue's schedule."
+        confirmLabel="Cancel booking"
+        cancelLabel="Keep"
+        onCancel={() => setPendingCancel(null)}
+        onConfirm={() => {
+          const booking = pendingCancel;
+          setPendingCancel(null);
+          if (!booking) {
+            return;
+          }
+          void cancelVenueBroadcast(venue.slug, booking.id).then((result) => {
+            if (!result.ok) {
+              setMsg(result.error);
+              return;
+            }
+            toast.success('Booking cancelled.');
+            onChanged();
+          });
+        }}
+      />
     </StudioPanel>
   );
 }

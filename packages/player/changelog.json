@@ -1,5 +1,19 @@
 [
   {
+    "date": "2026-09-03T06:50",
+    "description": "Deleting a track, share link, announcement, or other destructive action now uses the same in-app confirm dialog instead of the browser’s prompt.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-03T06:45",
+    "description": "Listen stays selected in the sidebar while you browse Feed and other Listen pages, so you can always see which section you are in.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
     "date": "2026-09-03T04:30",
     "description": "When Stripe is enabled, Studio adds a Stripe dashboard for your payout account and Express dashboard. If Stripe is off, that page stays out of Studio.",
     "type": "improvement",

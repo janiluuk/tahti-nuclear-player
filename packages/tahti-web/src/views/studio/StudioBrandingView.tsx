@@ -39,6 +39,7 @@ import {
 import { fetchMeProfile, type ProfileFields } from '../../api/studio-extras';
 import { ArtistGalleryPanel } from '../../components/ArtistGalleryPanel';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageLightbox } from '../../components/ImageLightbox';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -91,6 +92,10 @@ export const StudioBrandingPanel: FC<{
   >(null);
   const [busy, setBusy] = useState(false);
   const [avatarViewerOpen, setAvatarViewerOpen] = useState(false);
+  const [pendingReplaceUpload, setPendingReplaceUpload] = useState<{
+    files: File[];
+    includeInZip: boolean;
+  } | null>(null);
 
   const reload = async () => {
     const [profileResult, imageResult, pressResult] = await Promise.all([
@@ -152,22 +157,10 @@ export const StudioBrandingPanel: FC<{
     );
   };
 
-  const uploadGallery = async (
+  const applyGalleryUpload = async (
     files: readonly File[],
-    includeInZip = includeUploads,
+    includeInZip: boolean,
   ) => {
-    if (files.length === 0) {
-      return;
-    }
-    if (
-      uploadMode === 'replace' &&
-      images.length > 0 &&
-      !window.confirm(
-        `Replace all ${images.length} existing gallery images with this upload?`,
-      )
-    ) {
-      return;
-    }
     setBusy(true);
     if (uploadMode === 'replace') {
       await Promise.all(images.map((image) => deletePressKitImage(image.id)));
@@ -201,6 +194,23 @@ export const StudioBrandingPanel: FC<{
         `${uploaded.images.length} image${uploaded.images.length === 1 ? '' : 's'} added.`,
       );
     }
+  };
+
+  const uploadGallery = async (
+    files: readonly File[],
+    includeInZip = includeUploads,
+  ) => {
+    if (files.length === 0) {
+      return;
+    }
+    if (uploadMode === 'replace' && images.length > 0) {
+      setPendingReplaceUpload({
+        files: Array.from(files),
+        includeInZip,
+      });
+      return;
+    }
+    await applyGalleryUpload(files, includeInZip);
   };
 
   const reorderPressKitImages = async (fromId: string, toId: string) => {
@@ -725,6 +735,21 @@ export const StudioBrandingPanel: FC<{
           onClose={() => setAvatarViewerOpen(false)}
         />
       ) : null}
+      <ConfirmDialog
+        isOpen={pendingReplaceUpload !== null}
+        title={`Replace all ${images.length} existing gallery images?`}
+        description="This upload replaces every current gallery photo."
+        confirmLabel="Replace"
+        onCancel={() => setPendingReplaceUpload(null)}
+        onConfirm={() => {
+          const pending = pendingReplaceUpload;
+          setPendingReplaceUpload(null);
+          if (!pending) {
+            return;
+          }
+          void applyGalleryUpload(pending.files, pending.includeInZip);
+        }}
+      />
     </div>
   );
 };

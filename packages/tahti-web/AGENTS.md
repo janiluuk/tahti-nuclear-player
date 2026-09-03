@@ -105,6 +105,13 @@ section and submenu highlighted. Include this check in the same change's test
 run; a route existing in `router.tsx` alone is not sufficient evidence that it
 is reachable from the intended navigation tree.
 
+On every ordinary app surface, the navigation that belongs there must
+stay visible at every moment (sidebar, drawer, bottom bar, Studio/Admin
+tabs, in-page subtabs). Do not unmount or hide it during transitions or
+loading. Exceptions are only surfaces that are supposed to take over the
+window: full-screen player, public release/share canvases, and maximized
+workspaces such as the audio editor (Pro Editor).
+
 ## Design system compliance
 
 This app's shared UI — `@tahti-player/ui` plus tahti-web's own local shared components
@@ -265,8 +272,16 @@ Known limitations and handoff notes:
 3. Keep API calls in `src/api`, state in an existing store or local component state as appropriate,
    and keep user-facing text consistent with existing Tahti wording. Add a changelog entry and a
    concise dated worklog entry for user-visible changes.
-4. For navigation changes, verify both route selection and rendered menu state. A route must not
-   light two submenu items, move the sidebar, hide the top navigation, or change content width.
+4. For navigation changes, verify both route selection and rendered menu
+   state on views that should show chrome. A route must not light two
+   sibling items or unexpectedly change content width. Chrome that belongs
+   on the page must remain visible for the whole visit — including during
+   route transitions. If the sidebar, drawer, bottom bar, or section tabs
+   disappear on a Listen/Studio/Admin (or other chrome) view, that is a
+   bug to fix, not a test to soften. Full-screen player, public
+   release/share canvases, and maximized workspaces such as the audio
+   editor (Pro Editor) are supposed to hide that chrome — do not treat
+   missing nav there as a failed highlight or force the sidebar back.
 5. Run focused checks after edits:
 
    ```bash

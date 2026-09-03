@@ -1,5 +1,25 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Remaining confirm prompts (five slices)
+
+Bumped `@tahti-player/tahti-web` to `0.0.45`.
+
+**Slice 1 — Studio branding, releases, share links:** Replacing a gallery, removing a release track, and revoking a sound share link use `ConfirmDialog`.
+
+**Slice 2 — Go Live and editor:** Removing an RTMP destination and deleting a multitrack editor project use `ConfirmDialog`.
+
+**Slice 3 — Venues and moderation:** Cancelling a venue booking and removing a moderator use `ConfirmDialog`.
+
+**Slice 4 — Admin storage, news, streams:** Permanent file delete, news-post delete, and live-stream restart/offline use `ConfirmDialog`.
+
+**Slice 5 — Library media and pinned announcements:** Removing a media file or unpinning an announcement use `ConfirmDialog`.
+
+Also shipped in this bump: Listen sidebar stays selected on Feed and other Listen child routes (`navigationActive` + shared `SidebarNavItems`); persistent chrome visibility instructions; Governance shows published meetings, documents, quarterly reports, the member directory, and whether you voted with the advisory majority or minority.
+
+No remaining `window.confirm` call sites in tahti-web. Still open from the reuse audit: Go Live and Plugin Store `role="switch"` rows that should be Nuclear `Toggle`.
+
+**Validation:** tahti-web type-check and eslint on the touched files. Deployed to beta after push.
+
 ## 2026-09-03 — Confirm dialogs, Pro Editor controls, and Tabs (five slices)
 
 Bumped `@tahti-player/tahti-web` to `0.0.44`.
@@ -33,6 +53,14 @@ Bumped `@tahti-player/tahti-web` to `0.0.43`.
 Still open from the Sept 2 reuse audit: Pro Editor `type="range"` / role=switch rows, many `window.confirm` call sites, ImageLightbox focus trap, and assorted hand-rolled tablists.
 
 **Validation:** tahti-web type-check and eslint on the touched files. Deployed to beta after push.
+
+## 2026-09-03 — Listen nav active state + screenshot recapture
+
+Bumped `@tahti-player/tahti-web` to `0.0.42`.
+
+Desktop Listen now stays selected on Feed, History, channel, chat, and track routes. Desktop and the mobile drawer share one nav tree so a tab group cannot go fully dark. Favorites remains a sibling (not a second Listen highlight). Studio/Admin subtabs that previously had no selected item now map onto an existing destination or, for unknown admin URLs, stay unlit instead of pretending Overview is current.
+
+**Validation:** `navigationActive` + StudioNav unit tests; Playwright listen chrome check; recaptured Nuclear map shots for Listen/Radio/Discover and related tab surfaces.
 
 ## 2026-09-03 — Loader + remaining selection Toggles (five slices)
 

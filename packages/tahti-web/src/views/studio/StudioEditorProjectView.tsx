@@ -15,6 +15,7 @@ import type {
   EditorSource,
   EditorTimeline,
 } from '../../api/studio-types';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import {
   MultitrackTimeline,
   normalizeTimeline,
@@ -34,6 +35,7 @@ export function StudioEditorProjectView({ id }: { id: string }) {
     'saved',
   );
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     void fetchEditorProject(id).then(async (res) => {
@@ -79,7 +81,7 @@ export function StudioEditorProjectView({ id }: { id: string }) {
   }, [id, project, timeline]);
 
   const removeProject = () => {
-    if (deleting || !window.confirm(`Delete “${project?.title}”?`)) {
+    if (deleting) {
       return;
     }
     setDeleting(true);
@@ -119,7 +121,7 @@ export function StudioEditorProjectView({ id }: { id: string }) {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={removeProject}
+                    onClick={() => setConfirmDelete(true)}
                     disabled={deleting}
                     aria-label="Delete project"
                   >
@@ -218,6 +220,19 @@ export function StudioEditorProjectView({ id }: { id: string }) {
             </StudioPanel>
           </>
         )}
+        <ConfirmDialog
+          isOpen={confirmDelete}
+          title={
+            project ? `Delete “${project.title}”?` : 'Delete this project?'
+          }
+          description="This removes the multitrack session. Linked archive audio stays in your library."
+          confirmLabel="Delete"
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={() => {
+            setConfirmDelete(false);
+            removeProject();
+          }}
+        />
       </div>
     </StudioGate>
   );

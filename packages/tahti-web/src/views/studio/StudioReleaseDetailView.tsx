@@ -44,6 +44,7 @@ import type {
   StudioRelease,
   StudioSound,
 } from '../../api/studio-types';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { EmbedTrackRow } from '../../components/EmbedTrackRow';
 import { FingerprintTrackPanel } from '../../components/FingerprintTrackPanel';
 import { MusicBrainzSubmissionAssistant } from '../../components/MusicBrainzSubmissionAssistant';
@@ -567,6 +568,10 @@ function ReleaseSmartLinksPanel({
     {},
   );
   const [fillSlug, setFillSlug] = useState('');
+  const [pendingRemoveTrack, setPendingRemoveTrack] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     setTargets(release.smartLinkTargets ?? {});
@@ -650,10 +655,7 @@ function ReleaseSmartLinksPanel({
     });
   };
 
-  const removeTrack = async (trackId: string, trackTitle: string) => {
-    if (!window.confirm(`Remove "${trackTitle}" from this release?`)) {
-      return;
-    }
+  const removeTrack = async (trackId: string) => {
     const result = await removeStudioReleaseTrack(release.id, trackId);
     if (!result.ok) {
       toast.error(result.error);
@@ -849,7 +851,12 @@ function ReleaseSmartLinksPanel({
                   variant="text"
                   aria-label={`Remove ${track.title}`}
                   title="Remove from release"
-                  onClick={() => void removeTrack(track.id, track.title)}
+                  onClick={() =>
+                    setPendingRemoveTrack({
+                      id: track.id,
+                      title: track.title,
+                    })
+                  }
                 >
                   <Trash2Icon size={15} aria-hidden />
                 </Button>
@@ -936,6 +943,25 @@ function ReleaseSmartLinksPanel({
           <Dialog.Close>Done</Dialog.Close>
         </Dialog.Actions>
       </Dialog.Root>
+      <ConfirmDialog
+        isOpen={pendingRemoveTrack !== null}
+        title={
+          pendingRemoveTrack
+            ? `Remove "${pendingRemoveTrack.title}" from this release?`
+            : 'Remove track?'
+        }
+        description="The track leaves this release. It stays in your library."
+        confirmLabel="Remove"
+        onCancel={() => setPendingRemoveTrack(null)}
+        onConfirm={() => {
+          const track = pendingRemoveTrack;
+          setPendingRemoveTrack(null);
+          if (!track) {
+            return;
+          }
+          void removeTrack(track.id);
+        }}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   fetchUserMedia,
   type UserMediaFile,
 } from '../api/user-media';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { StudioPanel } from '../components/StudioPanel';
 
 function formatBytes(bytes: number): string {
@@ -21,6 +22,9 @@ function formatBytes(bytes: number): string {
 export function LibraryMediaView() {
   const [files, setFiles] = useState<UserMediaFile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingRemove, setPendingRemove] = useState<UserMediaFile | null>(
+    null,
+  );
 
   const reload = async () => {
     setLoading(true);
@@ -34,9 +38,6 @@ export function LibraryMediaView() {
   }, []);
 
   const remove = async (file: UserMediaFile) => {
-    if (!window.confirm(`Remove ${file.filename} from your media files?`)) {
-      return;
-    }
     const previous = files;
     setFiles((current) => current.filter((item) => item.id !== file.id));
     const result = await deleteUserMedia(file.id);
@@ -124,7 +125,7 @@ export function LibraryMediaView() {
                     variant="text"
                     aria-label={`Remove ${file.filename}`}
                     title="Remove"
-                    onClick={() => void remove(file)}
+                    onClick={() => setPendingRemove(file)}
                   >
                     <Trash2Icon
                       size={16}
@@ -138,6 +139,25 @@ export function LibraryMediaView() {
           })}
         </div>
       )}
+      <ConfirmDialog
+        isOpen={pendingRemove !== null}
+        title={
+          pendingRemove
+            ? `Remove ${pendingRemove.filename} from your media files?`
+            : 'Remove media file?'
+        }
+        description="The file is deleted from your media library."
+        confirmLabel="Remove"
+        onCancel={() => setPendingRemove(null)}
+        onConfirm={() => {
+          const file = pendingRemove;
+          setPendingRemove(null);
+          if (!file) {
+            return;
+          }
+          void remove(file);
+        }}
+      />
     </StudioPanel>
   );
 }

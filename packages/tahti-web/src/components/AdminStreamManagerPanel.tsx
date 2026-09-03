@@ -27,8 +27,21 @@ import {
   fetchChannelManageStats,
   type ChannelManageStats,
 } from '../api/broadcast';
+import { ConfirmDialog } from './ConfirmDialog';
 import { PageLoading } from './PageStates';
 import { StudioPanel } from './StudioPanel';
+
+type StreamAction = (
+  streamSlug: string,
+) => Promise<{ ok: true } | { ok: false; error: string }>;
+
+type PendingStreamConfirm = {
+  slug: string;
+  title: string;
+  description: string;
+  confirmLabel: string;
+  action: StreamAction;
+};
 
 function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
@@ -60,6 +73,8 @@ export function AdminStreamManagerPanel({
     null,
   );
   const [streamsOpen, setStreamsOpen] = useState(false);
+  const [pendingConfirm, setPendingConfirm] =
+    useState<PendingStreamConfirm | null>(null);
 
   const reload = useCallback(() => {
     setRefreshing(true);
@@ -92,16 +107,7 @@ export function AdminStreamManagerPanel({
     reload();
   }, [reload]);
 
-  const run = (
-    slug: string,
-    action: (
-      streamSlug: string,
-    ) => Promise<{ ok: true } | { ok: false; error: string }>,
-    confirmText?: string,
-  ) => {
-    if (confirmText && !window.confirm(confirmText)) {
-      return;
-    }
+  const execute = (slug: string, action: StreamAction) => {
     setBusySlug(slug);
     void action(slug).then((result) => {
       setBusySlug(null);
@@ -112,6 +118,18 @@ export function AdminStreamManagerPanel({
       setMessage(null);
       reload();
     });
+  };
+
+  const run = (
+    slug: string,
+    action: StreamAction,
+    confirm?: Omit<PendingStreamConfirm, 'slug' | 'action'>,
+  ) => {
+    if (confirm) {
+      setPendingConfirm({ slug, action, ...confirm });
+      return;
+    }
+    execute(slug, action);
   };
 
   const streamList = loading ? (
@@ -197,11 +215,12 @@ export function AdminStreamManagerPanel({
                       title="Restart stream"
                       disabled={busySlug === stream.slug}
                       onClick={() =>
-                        run(
-                          stream.slug,
-                          restartStream,
-                          `Restart audio for ${stream.slug}? The channel stays live; listeners may briefly reconnect.`,
-                        )
+                        run(stream.slug, restartStream, {
+                          title: `Restart audio for ${stream.slug}?`,
+                          description:
+                            'The channel stays live; listeners may briefly reconnect.',
+                          confirmLabel: 'Restart',
+                        })
                       }
                     >
                       <RotateCwIcon size={14} aria-hidden />
@@ -243,11 +262,11 @@ export function AdminStreamManagerPanel({
                       title="Force offline"
                       disabled={busySlug === stream.slug}
                       onClick={() =>
-                        run(
-                          stream.slug,
-                          forceStreamOffline,
-                          `Force ${stream.slug} offline? This ends the broadcast immediately.`,
-                        )
+                        run(stream.slug, forceStreamOffline, {
+                          title: `Force ${stream.slug} offline?`,
+                          description: 'This ends the broadcast immediately.',
+                          confirmLabel: 'Take offline',
+                        })
                       }
                     >
                       <PowerIcon size={14} aria-hidden />
@@ -398,6 +417,21 @@ export function AdminStreamManagerPanel({
           </>
         ) : null}
       </Dialog.Root>
+      <ConfirmDialog
+        isOpen={pendingConfirm !== null}
+        title={pendingConfirm?.title ?? 'Confirm'}
+        description={pendingConfirm?.description ?? ''}
+        confirmLabel={pendingConfirm?.confirmLabel}
+        onCancel={() => setPendingConfirm(null)}
+        onConfirm={() => {
+          const pending = pendingConfirm;
+          setPendingConfirm(null);
+          if (!pending) {
+            return;
+          }
+          execute(pending.slug, pending.action);
+        }}
+      />
     </>
   );
 }

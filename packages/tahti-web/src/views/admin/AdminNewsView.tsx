@@ -20,6 +20,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -41,6 +42,8 @@ export function AdminNewsView() {
   const [editLinkLabel, setEditLinkLabel] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [pendingDeletePost, setPendingDeletePost] =
+    useState<AdminNewsPost | null>(null);
 
   const reload = () => {
     void fetchAdminNews().then((res) => {
@@ -268,22 +271,7 @@ export function AdminNewsView() {
                           <Button
                             size="sm"
                             variant="text"
-                            onClick={() => {
-                              if (
-                                !window.confirm(
-                                  `Delete "${post.headline}"? This can't be undone.`,
-                                )
-                              ) {
-                                return;
-                              }
-                              void deleteNewsPost(post.id).then((r) => {
-                                if (!r.ok) {
-                                  setMsg(r.error);
-                                } else {
-                                  reload();
-                                }
-                              });
-                            }}
+                            onClick={() => setPendingDeletePost(post)}
                           >
                             <Trash2Icon
                               size={14}
@@ -392,6 +380,31 @@ export function AdminNewsView() {
                 </Button>
               </Dialog.Actions>
             </Dialog.Root>
+            <ConfirmDialog
+              isOpen={pendingDeletePost !== null}
+              title={
+                pendingDeletePost
+                  ? `Delete "${pendingDeletePost.headline}"?`
+                  : 'Delete news post?'
+              }
+              description="This can't be undone."
+              confirmLabel="Delete"
+              onCancel={() => setPendingDeletePost(null)}
+              onConfirm={() => {
+                const post = pendingDeletePost;
+                setPendingDeletePost(null);
+                if (!post) {
+                  return;
+                }
+                void deleteNewsPost(post.id).then((result) => {
+                  if (!result.ok) {
+                    setMsg(result.error);
+                    return;
+                  }
+                  reload();
+                });
+              }}
+            />
           </div>
         </AdminPageLayout>
       </div>

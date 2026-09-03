@@ -10,6 +10,7 @@ import {
   revokeSoundShare,
   type SoundShare,
 } from '../api/studio';
+import { ConfirmDialog } from './ConfirmDialog';
 
 const EXPIRY_OPTIONS = [1, 3, 7, 30, 0] as const;
 
@@ -44,6 +45,7 @@ export function SoundShareLinksSection({ soundId }: { soundId: string }) {
   const [granteeUsername, setGranteeUsername] = useState('');
   const [permission, setPermission] = useState<'READ' | 'DOWNLOAD'>('READ');
   const [expiryDays, setExpiryDays] = useState(7);
+  const [pendingRevokeId, setPendingRevokeId] = useState<string | null>(null);
 
   const reload = () => {
     setLoading(true);
@@ -74,13 +76,6 @@ export function SoundShareLinksSection({ soundId }: { soundId: string }) {
   };
 
   const revoke = async (shareId: string) => {
-    if (
-      !window.confirm(
-        'Revoke this share link? It will stop working immediately.',
-      )
-    ) {
-      return;
-    }
     setBusy(true);
     const result = await revokeSoundShare(soundId, shareId);
     setBusy(false);
@@ -146,7 +141,7 @@ export function SoundShareLinksSection({ soundId }: { soundId: string }) {
                   disabled={busy}
                   aria-label="Revoke link"
                   title="Revoke link"
-                  onClick={() => void revoke(share.id)}
+                  onClick={() => setPendingRevokeId(share.id)}
                 >
                   <XIcon size={13} aria-hidden />
                 </Button>
@@ -193,6 +188,21 @@ export function SoundShareLinksSection({ soundId }: { soundId: string }) {
           Create link
         </Button>
       </div>
+      <ConfirmDialog
+        isOpen={pendingRevokeId !== null}
+        title="Revoke this share link?"
+        description="It will stop working immediately."
+        confirmLabel="Revoke"
+        onCancel={() => setPendingRevokeId(null)}
+        onConfirm={() => {
+          const shareId = pendingRevokeId;
+          setPendingRevokeId(null);
+          if (!shareId) {
+            return;
+          }
+          void revoke(shareId);
+        }}
+      />
     </div>
   );
 }

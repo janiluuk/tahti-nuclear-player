@@ -28,10 +28,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
         heading: 'The main areas',
         body: [
           'Listen is the starting point for finding music, channels, radio, and public pages. It is available without an account.',
-          'Discover is next to Listen: widgets, artists, and venues.',
-          'Library contains your history and saved music. Favorites and playlists require you to sign in.',
-          'Studio is for artists: upload audio, prepare releases, schedule shows, go live, and design your channel.',
-          'Settings contains your account, themes, add-ons, playback, and channel preferences.',
+          'Radio and Discover sit next to Listen in the sidebar. Favorites is its own sidebar item for saved channels and tracks.',
+          'Library (signed in) holds sounds, collections, recordings, uploads, and related catalogue work under Studio.',
+          'Studio is for artists: overview, branding, stats, posts, audience, go live, broadcast schedule, and channel controls.',
+          'Help center and Settings live at the bottom of the sidebar. Settings covers account, themes, add-ons, and preferences.',
           'The right rail is your queue and chat context when those features are available. The player appears only after a track is loaded.',
         ],
       },
@@ -116,7 +116,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         heading: 'Create a playlist',
         body: [
-          'Open Library → Playlists and choose Create new. Give the playlist a name, add tracks, and choose whether it is public.',
+          'Open Library → Collections (or Studio → Collections) and create a playlist collection. Give it a name, add tracks, and choose whether it is public.',
           'A public playlist can be discovered, subscribed to, played, and embedded. Private playlists remain visible only to you.',
         ],
       },

@@ -6,6 +6,12 @@ truth for the Nuclear client. Persistent chrome is listed separately from
 routes that exist but are only reached contextually, so an orphan is not
 mistaken for a missing feature.
 
+On ordinary app surfaces the chrome in this table must stay on screen at
+every moment (including route transitions). It may disappear only on
+surfaces that take over the window: full-screen player, public
+release/share canvases, and maximized workspaces such as the audio
+editor. See root `AGENTS.md` → Persistent chrome visibility.
+
 ## Persistent chrome (what a user can click)
 
 | Audience | Chrome entry | Where | Lands on |

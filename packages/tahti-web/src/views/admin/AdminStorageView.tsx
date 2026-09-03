@@ -37,6 +37,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { AdminUserEditPanel } from '../../components/AdminUserEditPanel';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { contentTypeLabel } from '../../content/contentTypes';
@@ -676,6 +677,8 @@ function FilesBrowserTab() {
   const [sortBy, setSortBy] = useState<FileSortKey>('name');
   const [detailFile, setDetailFile] = useState<AdminFileRow | null>(null);
   const [userEditId, setUserEditId] = useState<string | null>(null);
+  const [pendingDeleteFile, setPendingDeleteFile] =
+    useState<AdminFileRow | null>(null);
 
   const reload = (q?: string) => {
     setLoading(true);
@@ -733,10 +736,7 @@ function FilesBrowserTab() {
   };
 
   const handleDelete = (f: AdminFileRow) => {
-    if (!window.confirm(`Delete "${f.title}" permanently?`)) {
-      return;
-    }
-    void deleteAdminFile(f.id).then(() => reload(query));
+    setPendingDeleteFile(f);
   };
 
   return (
@@ -885,6 +885,25 @@ function FilesBrowserTab() {
           </Dialog.Actions>
         </Dialog.Root>
       ) : null}
+      <ConfirmDialog
+        isOpen={pendingDeleteFile !== null}
+        title={
+          pendingDeleteFile
+            ? `Delete "${pendingDeleteFile.title}" permanently?`
+            : 'Delete file?'
+        }
+        description="This removes the file from platform storage."
+        confirmLabel="Delete"
+        onCancel={() => setPendingDeleteFile(null)}
+        onConfirm={() => {
+          const file = pendingDeleteFile;
+          setPendingDeleteFile(null);
+          if (!file) {
+            return;
+          }
+          void deleteAdminFile(file.id).then(() => reload(query));
+        }}
+      />
     </div>
   );
 }

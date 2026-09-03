@@ -10,6 +10,7 @@ import {
   postPinnedAnnouncement,
   type PinnedAnnouncement,
 } from '../api/announcements';
+import { ConfirmDialog } from './ConfirmDialog';
 import { StudioPanel } from './StudioPanel';
 
 export function PinnedAnnouncementsPanel({ slug }: { slug: string }) {
@@ -17,6 +18,9 @@ export function PinnedAnnouncementsPanel({ slug }: { slug: string }) {
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<PinnedAnnouncement | null>(
+    null,
+  );
 
   const reload = () => {
     void fetchPinnedAnnouncements(slug).then((data) => {
@@ -45,9 +49,6 @@ export function PinnedAnnouncementsPanel({ slug }: { slug: string }) {
   };
 
   const remove = async (item: PinnedAnnouncement) => {
-    if (!window.confirm(`Remove “${item.body}”?`)) {
-      return;
-    }
     const result = await deletePinnedAnnouncement(item.id);
     if (!result.ok) {
       toast.error(result.error);
@@ -101,7 +102,7 @@ export function PinnedAnnouncementsPanel({ slug }: { slug: string }) {
                   size="icon-sm"
                   variant="text"
                   aria-label={`Delete ${item.body}`}
-                  onClick={() => void remove(item)}
+                  onClick={() => setPendingRemove(item)}
                 >
                   <Trash2Icon size={16} aria-hidden />
                 </Button>
@@ -110,6 +111,25 @@ export function PinnedAnnouncementsPanel({ slug }: { slug: string }) {
           </ul>
         )}
       </div>
+      <ConfirmDialog
+        isOpen={pendingRemove !== null}
+        title={
+          pendingRemove
+            ? `Remove “${pendingRemove.body}”?`
+            : 'Remove announcement?'
+        }
+        description="The announcement is unpinned from your channel."
+        confirmLabel="Remove"
+        onCancel={() => setPendingRemove(null)}
+        onConfirm={() => {
+          const item = pendingRemove;
+          setPendingRemove(null);
+          if (!item) {
+            return;
+          }
+          void remove(item);
+        }}
+      />
     </StudioPanel>
   );
 }

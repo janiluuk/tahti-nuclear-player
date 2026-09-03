@@ -1,0 +1,18 @@
+---
+description: App chrome must stay visible on ordinary pages; hide it only on fullscreen, release/share, and maximized editor surfaces.
+alwaysApply: true
+---
+
+# Persistent chrome visibility
+
+On every ordinary app surface (Listen, Radio, Discover, Studio, Admin, Settings, Help, member governance, and their child routes), the navigation that belongs there must stay visible at every moment: desktop sidebar, mobile drawer trigger and bottom bar, Studio/Admin section tabs, and in-page subtabs. Do not unmount, hide, or swap that chrome away during route transitions, loading, or content swaps. A flash of empty chrome is a bug.
+
+This does **not** apply to surfaces that are supposed to take over the window:
+
+- Full-screen player
+- Public release/share canvases
+- Maximized workspaces such as the audio editor (Pro Editor)
+
+Missing sidebar or tab chrome there is correct. Do not force the sidebar back onto those pages.
+
+Full text: root `AGENTS.md` → Persistent chrome visibility; `packages/tahti-web/AGENTS.md`.

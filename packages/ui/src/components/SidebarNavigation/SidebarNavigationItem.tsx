@@ -17,22 +17,26 @@ const MaybeNavLink: FC<{
   to?: string;
   isSelected?: boolean;
   children: (isSelected: boolean) => ReactNode;
-}> = ({ to, isSelected = false, children }) => {
+}> = ({ to, isSelected, children }) => {
   if (to) {
-    // TanStack Router's default active class ('active') is only applied
-    // when the Link has no explicit `activeProps` of its own -- passing
-    // one here to add `aria-current` replaces that default outright
-    // rather than merging with it, so it has to be restated explicitly.
+    const selectedProps = {
+      className: 'active',
+      'aria-current': 'page' as const,
+    };
     return (
       <Link
         to={to}
-        activeProps={{ className: 'active', 'aria-current': 'page' }}
+        activeOptions={{ exact: to === '/', includeSearch: false }}
+        activeProps={isSelected === false ? {} : selectedProps}
+        inactiveProps={isSelected === true ? selectedProps : {}}
       >
-        {({ isActive }) => children(isActive)}
+        {({ isActive }) =>
+          children(isSelected !== undefined ? isSelected : isActive)
+        }
       </Link>
     );
   }
-  return <>{children(isSelected)}</>;
+  return <>{children(Boolean(isSelected))}</>;
 };
 
 export const SidebarNavigationItem: FC<SidebarNavigationItemProps> = ({
@@ -47,7 +51,7 @@ export const SidebarNavigationItem: FC<SidebarNavigationItemProps> = ({
   return (
     <MaybeNavLink to={to} isSelected={isSelected}>
       {(routeActive) => {
-        const active = isSelected ?? routeActive;
+        const active = isSelected !== undefined ? isSelected : routeActive;
 
         return (
           <Tooltip content={label} side="right" disabled={!isCompact}>

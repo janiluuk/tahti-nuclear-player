@@ -19,6 +19,7 @@ import {
   type ChatBan,
   type ModeratorRow,
 } from '../../api/artist-settings';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -39,6 +40,9 @@ export function StudioModerationView({
   const [newBanHash, setNewBanHash] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingRemoveMod, setPendingRemoveMod] = useState<ModeratorRow | null>(
+    null,
+  );
 
   const reload = () => {
     void Promise.all([fetchModerators(), fetchChatBans(slug)]).then(
@@ -111,23 +115,7 @@ export function StudioModerationView({
                               variant="text"
                               aria-label={`Remove ${m.displayName} as moderator`}
                               title="Remove moderator"
-                              onClick={() => {
-                                if (
-                                  !window.confirm(
-                                    `Remove ${m.displayName} as moderator?`,
-                                  )
-                                ) {
-                                  return;
-                                }
-                                void removeModerator(m.id).then((r) => {
-                                  if (!r.ok) {
-                                    setMsg(r.error);
-                                  } else {
-                                    toast.success('Moderator removed.');
-                                    reload();
-                                  }
-                                });
-                              }}
+                              onClick={() => setPendingRemoveMod(m)}
                             >
                               <Trash2Icon size={14} aria-hidden />
                             </Button>
@@ -262,6 +250,32 @@ export function StudioModerationView({
               ),
             },
           ]}
+        />
+        <ConfirmDialog
+          isOpen={pendingRemoveMod !== null}
+          title={
+            pendingRemoveMod
+              ? `Remove ${pendingRemoveMod.displayName} as moderator?`
+              : 'Remove moderator?'
+          }
+          description="They lose chat moderation on this channel."
+          confirmLabel="Remove"
+          onCancel={() => setPendingRemoveMod(null)}
+          onConfirm={() => {
+            const moderator = pendingRemoveMod;
+            setPendingRemoveMod(null);
+            if (!moderator) {
+              return;
+            }
+            void removeModerator(moderator.id).then((result) => {
+              if (!result.ok) {
+                setMsg(result.error);
+                return;
+              }
+              toast.success('Moderator removed.');
+              reload();
+            });
+          }}
         />
       </div>
     </StudioGate>

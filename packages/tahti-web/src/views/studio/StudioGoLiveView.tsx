@@ -40,6 +40,7 @@ import {
   ShowInfoConfirmed,
 } from '../../components/BroadcastPreflightPanel';
 import { ChannelShareButton } from '../../components/ChannelShareButton';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
 import { ObsPresetButton } from '../../components/ObsPresetButton';
 import { SignalCheckWidget } from '../../components/SignalCheckWidget';
@@ -122,6 +123,8 @@ export function StudioGoLiveView() {
   const [recordBusy, setRecordBusy] = useState(false);
   const [preflight, setPreflight] = useState<BroadcastPreflight | null>(null);
   const [showInfoConfirmed, setShowInfoConfirmed] = useState(false);
+  const [pendingDeleteTarget, setPendingDeleteTarget] =
+    useState<RtmpTarget | null>(null);
 
   const slug = user?.channel?.slug ?? '';
   const displayName = user?.displayName ?? slug;
@@ -590,25 +593,7 @@ export function StudioGoLiveView() {
                             <Button
                               size="icon-sm"
                               variant="text"
-                              onClick={() => {
-                                if (
-                                  !window.confirm(
-                                    `Remove ${target.label || target.provider}? This deletes the saved stream key.`,
-                                  )
-                                ) {
-                                  return;
-                                }
-                                void deleteRtmpTarget(target.id).then(
-                                  (result) => {
-                                    if (!result.ok) {
-                                      toast.error(result.error);
-                                      return;
-                                    }
-                                    toast.success('Destination removed.');
-                                    reload();
-                                  },
-                                );
-                              }}
+                              onClick={() => setPendingDeleteTarget(target)}
                               aria-label={`Remove ${target.label || target.provider}`}
                               title="Remove destination"
                             >
@@ -683,6 +668,32 @@ export function StudioGoLiveView() {
             </Dialog.Actions>
           </form>
         </Dialog.Root>
+        <ConfirmDialog
+          isOpen={pendingDeleteTarget !== null}
+          title={
+            pendingDeleteTarget
+              ? `Remove ${pendingDeleteTarget.label || pendingDeleteTarget.provider}?`
+              : 'Remove destination?'
+          }
+          description="This deletes the saved stream key."
+          confirmLabel="Remove"
+          onCancel={() => setPendingDeleteTarget(null)}
+          onConfirm={() => {
+            const target = pendingDeleteTarget;
+            setPendingDeleteTarget(null);
+            if (!target) {
+              return;
+            }
+            void deleteRtmpTarget(target.id).then((result) => {
+              if (!result.ok) {
+                toast.error(result.error);
+                return;
+              }
+              toast.success('Destination removed.');
+              reload();
+            });
+          }}
+        />
       </div>
     </StudioGate>
   );

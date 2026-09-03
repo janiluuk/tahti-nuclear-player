@@ -289,14 +289,41 @@ const { t } = useTranslation();
 
 Add new strings to `packages/i18n/src/locales/en_US.json` only. Other locales come from Crowdin.
 
+## Persistent chrome visibility
+
+On every ordinary app surface (Listen, Radio, Discover, Studio, Admin,
+Settings, Help, member governance, and their child routes), the
+navigation that belongs there must stay visible at every moment: desktop
+sidebar, mobile drawer trigger and bottom bar, Studio/Admin section
+tabs, and in-page subtabs. Do not unmount, hide, or swap that chrome
+away during route transitions, loading, or content swaps. A flash of
+empty chrome is a bug, not an acceptable transition.
+
+This does **not** apply to surfaces that are supposed to take over the
+window: the full-screen player, public release/share canvases, and
+maximized workspaces such as the audio editor (Pro Editor). Missing
+sidebar or tab chrome there is correct. Do not force the sidebar back
+onto those pages or treat them as failed highlights.
+
 ## Testing
+
+On views that should show app chrome, assert that the sidebar, drawer,
+bottom bar, or subtabs are present — not only after a long wait. If they
+disappear mid-navigation on a chrome view, fix the unmount; do not
+paper over it in the test. Query the nav before asserting
+`aria-current` / `aria-selected`.
+
+This does **not** apply to the full-screen player, public release/share
+canvases, or maximized editor workspaces named above.
 
 For any menu, route, or navigation active-state change, permanently include a
 Playwright check of all governance contexts: Settings → Account must reach
 member governance, Studio Governance must keep Motions/Topics highlighted for
 their query-string routes, and Admin Governance/AGM must keep the Community
 section and correct submenu item highlighted. Verify the actual navigation
-entry points, not only direct route rendering.
+entry points, not only direct route rendering. On chrome views, re-check that
+the expected nav is still mounted before asserting `aria-current` /
+`aria-selected`.
 
 Tests use Vitest + React Testing Library. Globals enabled (`describe`, `it`, `expect`, `vi`). Coverage is V8-based across packages and reported in CI. Run tests with `pnpm test` (or a package filter), not a separate IDE test-runner tool.
 
