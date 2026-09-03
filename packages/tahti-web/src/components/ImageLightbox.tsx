@@ -1,7 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from 'lucide-react';
 import { FC, useEffect, useRef } from 'react';
 
-import { Button, Dialog } from '@tahti-player/ui';
+import { Button, Dialog, ImageReveal } from '@tahti-player/ui';
 
 export type LightboxImage = {
   imageUrl: string;
@@ -101,10 +101,12 @@ export const ImageLightbox: FC<ImageLightboxProps> = ({
           </>
         ) : null}
         <figure className="flex max-h-full max-w-full flex-col items-center gap-3 px-10 pt-8">
-          <img
+          <ImageReveal
             src={image.imageUrl}
             alt={image.title ?? ''}
-            className="max-h-[75vh] max-w-full object-contain"
+            loading="eager"
+            className="max-h-[75vh] max-w-full"
+            imgClassName="max-h-[75vh] max-w-full object-contain"
           />
           <figcaption className="text-foreground flex items-center gap-3 text-sm">
             {image.title ? <span>{image.title}</span> : null}

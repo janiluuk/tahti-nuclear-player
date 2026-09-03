@@ -1,9 +1,10 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Newspaper } from 'lucide-react';
 import { FC, useRef } from 'react';
 
 import { cn } from '../../utils';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
+import { ImageReveal } from '../ImageReveal';
 import { ArticleCard, type ArticleCardItem } from './ArticleCard';
 
 const SCROLL_INCREMENT = 320;
@@ -15,6 +16,8 @@ export type NewsWidgetLabels = {
 export type NewsWidgetProps = {
   title: string;
   badge?: string;
+  /** Optional mark next to the title (feed logo / configured thumbnail). */
+  thumbnailUrl?: string;
   items: ArticleCardItem[];
   labels: NewsWidgetLabels;
   className?: string;
@@ -28,6 +31,7 @@ export type NewsWidgetProps = {
 export const NewsWidget: FC<NewsWidgetProps> = ({
   title,
   badge,
+  thumbnailUrl,
   items,
   labels,
   className,
@@ -43,6 +47,16 @@ export const NewsWidget: FC<NewsWidgetProps> = ({
     <div data-testid={testId} className={cn('flex flex-col gap-3', className)}>
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
+          {thumbnailUrl ? (
+            <ImageReveal
+              src={thumbnailUrl}
+              alt=""
+              className="size-8 shrink-0 overflow-hidden rounded-md"
+              placeholder={
+                <Newspaper size={16} className="text-foreground opacity-20" />
+              }
+            />
+          ) : null}
           <h2 className="text-foreground text-lg font-bold">{title}</h2>
           {badge && (
             <Badge

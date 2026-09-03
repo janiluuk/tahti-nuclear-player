@@ -9,6 +9,7 @@ import {
   Download,
   Gift,
   Globe,
+  InfoIcon,
   KeyRound,
   Landmark,
   Lock,
@@ -35,6 +36,7 @@ import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
 import {
+  Box,
   Button,
   Dialog,
   Input,
@@ -42,6 +44,7 @@ import {
   Select,
   Tabs,
   Textarea,
+  ThemeStoreItem,
   Tooltip,
   type SelectOption,
 } from '@tahti-player/ui';
@@ -226,6 +229,7 @@ export function SettingsSectionBody({
   section: SettingsSectionId;
 }) {
   let content: ReactNode;
+  const [showAddonInfo, setShowAddonInfo] = useState(false);
 
   switch (section) {
     case 'account':
@@ -257,16 +261,54 @@ export function SettingsSectionBody({
   }
 
   const navItem = SETTINGS_NAV.find((item) => item.id === section);
+  const isAddonStore = section === 'plugin-store';
+
+  useEffect(() => {
+    if (!isAddonStore) {
+      setShowAddonInfo(false);
+    }
+  }, [isAddonStore]);
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          {navItem?.label}
-        </h1>
-        <p className="text-foreground-secondary mt-1 text-sm">
-          {navItem?.description}
-        </p>
+      <header className="flex flex-col gap-2">
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="font-display text-3xl font-extrabold tracking-tight">
+            {navItem?.label}
+          </h1>
+          {isAddonStore ? (
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              aria-label={`About ${navItem?.label ?? 'Add-ons'}`}
+              title={`About ${navItem?.label ?? 'Add-ons'}`}
+              aria-expanded={showAddonInfo}
+              onClick={() => setShowAddonInfo((value) => !value)}
+            >
+              <InfoIcon size={16} aria-hidden />
+            </Button>
+          ) : null}
+        </div>
+        {isAddonStore ? (
+          showAddonInfo && navItem?.description ? (
+            <Box
+              variant="tertiary"
+              role="note"
+              className="border-primary/40 bg-primary/10 flex-row items-start gap-2 py-3"
+            >
+              <InfoIcon
+                className="text-primary mt-0.5 shrink-0"
+                size={16}
+                aria-hidden
+              />
+              <p className="text-foreground text-sm">{navItem.description}</p>
+            </Box>
+          ) : null
+        ) : (
+          <p className="text-foreground-secondary text-sm">
+            {navItem?.description}
+          </p>
+        )}
       </header>
       {content}
     </div>
@@ -2224,49 +2266,40 @@ function ThemesPanel() {
             label: 'Browse',
             content: (
               <div className="flex flex-col gap-6">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
                   {themes.map((theme) => {
                     const active = theme.id === themeId;
                     const configurable = isThemeVisualizationEnabled(theme.id);
                     return (
-                      <div key={theme.id} className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setTheme(theme.id)}
-                          style={{ borderColor: theme.palette[0] }}
-                          className={
-                            active
-                              ? 'bg-primary w-full rounded-lg border-2 p-4 text-left'
-                              : 'bg-background hover:bg-background-secondary w-full rounded-lg border-2 p-4 text-left'
-                          }
-                        >
-                          <div className="mb-3 flex gap-2">
-                            {theme.palette.map((color) => (
-                              <span
-                                key={color}
-                                className="border-border size-8 rounded-md border"
-                                style={{ background: color }}
-                              />
-                            ))}
-                          </div>
-                          <div className="font-bold">{theme.name}</div>
-                          <div className="text-foreground-secondary text-xs">
-                            {theme.id}
-                          </div>
-                        </button>
-                        {configurable && (
-                          <Button
-                            size="icon-sm"
-                            variant="secondary"
-                            className="absolute top-3 right-3"
-                            aria-label={`Configure ${theme.name}`}
-                            title={`Configure ${theme.name}`}
-                            onClick={() => setConfiguringThemeId(theme.id)}
-                          >
-                            <Settings2Icon size={14} aria-hidden />
-                          </Button>
-                        )}
-                      </div>
+                      <ThemeStoreItem
+                        key={theme.id}
+                        name={theme.name}
+                        description="Built-in Nuclear theme"
+                        author="Tahti"
+                        palette={theme.palette}
+                        isInstalled
+                        isActive={active}
+                        onInstall={() => setTheme(theme.id)}
+                        onApply={() => setTheme(theme.id)}
+                        labels={{
+                          installed: 'Ready',
+                          apply: 'Apply',
+                          active: 'Active',
+                        }}
+                        accessory={
+                          configurable ? (
+                            <Button
+                              size="icon-sm"
+                              variant="secondary"
+                              aria-label={`Configure ${theme.name}`}
+                              title={`Configure ${theme.name}`}
+                              onClick={() => setConfiguringThemeId(theme.id)}
+                            >
+                              <Settings2Icon size={14} aria-hidden />
+                            </Button>
+                          ) : undefined
+                        }
+                      />
                     );
                   })}
                 </div>
@@ -2276,95 +2309,77 @@ function ThemesPanel() {
                     <h3 className="text-foreground-secondary text-xs uppercase">
                       Your imported themes
                     </h3>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="flex flex-col gap-2">
                       {customEntries.map(([id, theme]) => {
                         const active = id === themeId;
                         const configurable = isThemeVisualizationEnabled(id);
+                        const palette: [string, string, string, string] = [
+                          theme.palette?.[0] ?? '#888888',
+                          theme.palette?.[1] ?? '#666666',
+                          theme.palette?.[2] ?? '#444444',
+                          theme.palette?.[3] ?? '#222222',
+                        ];
                         return (
-                          <div
+                          <ThemeStoreItem
                             key={id}
-                            style={
-                              theme.palette?.[0]
-                                ? { borderColor: theme.palette[0] }
-                                : undefined
+                            name={theme.name}
+                            description={theme.description ?? 'Imported theme'}
+                            author={theme.author ?? 'Imported'}
+                            palette={palette}
+                            tags={theme.tags}
+                            isInstalled
+                            isActive={active}
+                            onInstall={() => setTheme(id)}
+                            onApply={() => setTheme(id)}
+                            onUninstall={() => removeCustomTheme(id)}
+                            labels={{
+                              installed: 'Ready',
+                              apply: 'Apply',
+                              active: 'Active',
+                              uninstall: 'Remove',
+                            }}
+                            accessory={
+                              <div className="flex flex-col gap-2">
+                                {configurable ? (
+                                  <Button
+                                    size="icon-sm"
+                                    variant="secondary"
+                                    aria-label={`Configure ${theme.name}`}
+                                    title={`Configure ${theme.name}`}
+                                    onClick={() => setConfiguringThemeId(id)}
+                                  >
+                                    <Settings2Icon size={14} aria-hidden />
+                                  </Button>
+                                ) : null}
+                                <Button
+                                  size="icon-sm"
+                                  variant="secondary"
+                                  aria-label={`Rename ${theme.name}`}
+                                  title={`Rename ${theme.name}`}
+                                  onClick={() => {
+                                    const nextName = window.prompt(
+                                      'Rename theme',
+                                      theme.name,
+                                    );
+                                    if (nextName !== null) {
+                                      renameCustomTheme(id, nextName);
+                                    }
+                                  }}
+                                >
+                                  <Pencil size={14} aria-hidden />
+                                </Button>
+                                <Button
+                                  size="icon-sm"
+                                  variant="secondary"
+                                  aria-label={`Export ${theme.name} as JSON`}
+                                  title="Export theme JSON"
+                                  onClick={() => exportTheme(id, theme)}
+                                >
+                                  <Download size={14} aria-hidden />
+                                </Button>
+                              </div>
                             }
-                            className={
-                              active
-                                ? 'border-border bg-primary relative rounded-lg border-2 p-4'
-                                : 'border-border bg-background hover:bg-background-secondary relative rounded-lg border-2 p-4'
-                            }
-                          >
-                            <button
-                              type="button"
-                              onClick={() => setTheme(id)}
-                              className="w-full text-left"
-                            >
-                              {theme.palette && (
-                                <div className="mb-3 flex gap-2">
-                                  {theme.palette.map((color, i) => (
-                                    <span
-                                      key={`${color}-${i}`}
-                                      className="border-border size-8 rounded-md border"
-                                      style={{ background: color }}
-                                    />
-                                  ))}
-                                </div>
-                              )}
-                              <div className="font-bold">{theme.name}</div>
-                              {theme.author && (
-                                <div className="text-foreground-secondary text-xs">
-                                  by {theme.author}
-                                </div>
-                              )}
-                            </button>
-                            {configurable && (
-                              <Button
-                                size="icon-sm"
-                                variant="secondary"
-                                className="absolute top-3 right-3"
-                                aria-label={`Configure ${theme.name}`}
-                                title={`Configure ${theme.name}`}
-                                onClick={() => setConfiguringThemeId(id)}
-                              >
-                                <Settings2Icon size={14} aria-hidden />
-                              </Button>
-                            )}
-                            <div className="mt-2 flex items-center gap-2">
-                              <Button
-                                size="icon-sm"
-                                variant="secondary"
-                                aria-label={`Rename ${theme.name}`}
-                                title={`Rename ${theme.name}`}
-                                onClick={() => {
-                                  const nextName = window.prompt(
-                                    'Rename theme',
-                                    theme.name,
-                                  );
-                                  if (nextName !== null) {
-                                    renameCustomTheme(id, nextName);
-                                  }
-                                }}
-                              >
-                                <Pencil size={14} aria-hidden />
-                              </Button>
-                              <Button
-                                size="icon-sm"
-                                variant="secondary"
-                                aria-label={`Export ${theme.name} as JSON`}
-                                title="Export theme JSON"
-                                onClick={() => exportTheme(id, theme)}
-                              >
-                                <Download size={14} aria-hidden />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="text"
-                                onClick={() => removeCustomTheme(id)}
-                              >
-                                Remove
-                              </Button>
-                            </div>
-                          </div>
+                          />
                         );
                       })}
                     </div>

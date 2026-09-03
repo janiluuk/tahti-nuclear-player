@@ -631,9 +631,13 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       </span>
                     )}
                     {target === 'backdrop' && slideshowImages.length > 1 ? (
-                      <span className="bg-background/80 text-foreground absolute top-2 right-2 rounded-full px-2 py-0.5 text-xs font-medium">
+                      <Badge
+                        variant="pill"
+                        color="secondary"
+                        className="bg-background/80 absolute top-2 right-2"
+                      >
                         {slideshowImages.length} images
-                      </span>
+                      </Badge>
                     ) : null}
                     <span className="absolute inset-0 flex items-center justify-center bg-black/0 text-white opacity-0 transition group-hover:bg-black/45 group-hover:opacity-100 group-focus-visible:bg-black/45 group-focus-visible:opacity-100">
                       <UploadCloudIcon size={24} aria-hidden />

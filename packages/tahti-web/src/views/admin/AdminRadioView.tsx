@@ -25,6 +25,11 @@ import { PageLoading } from '../../components/PageStates';
 import { RadioStationCover } from '../../components/RadioStationCover';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { TahtiRotationPlaylistEditor } from '../../components/TahtiRotationPlaylistEditor';
+import { RADIO_STATIONS } from '../../content/radioStations';
+import {
+  persistRadioStationCover,
+  toPersistableMediaUrl,
+} from '../../lib/radioStationCover';
 import { usePlayerStore } from '../../stores/playerStore';
 
 const EMPTY_PRESET_DRAFT: AdminInternetRadioPresetInput = {
@@ -35,6 +40,15 @@ const EMPTY_PRESET_DRAFT: AdminInternetRadioPresetInput = {
   programmingUrl: '',
   streamUrl: '',
 };
+
+function catalogStationIdForName(name: string): string | undefined {
+  return RADIO_STATIONS.find((station) => station.name === name.trim())?.id;
+}
+
+function catalogLogoForName(name: string): string | undefined {
+  return RADIO_STATIONS.find((station) => station.name === name.trim())
+    ?.logoUrl;
+}
 
 function draftFromPreset(
   preset: AdminInternetRadioPreset,
@@ -93,7 +107,9 @@ function InternetRadioPresetsPanel() {
       name: draft.name.trim(),
       genre: draft.genre?.trim() || undefined,
       description: draft.description?.trim() || undefined,
-      iconUrl: draft.iconUrl?.trim() || undefined,
+      iconUrl: draft.iconUrl?.trim()
+        ? toPersistableMediaUrl(draft.iconUrl.trim())
+        : undefined,
       programmingUrl: draft.programmingUrl?.trim() || undefined,
       streamUrl: draft.streamUrl?.trim() || undefined,
     };
@@ -150,6 +166,7 @@ function InternetRadioPresetsPanel() {
                   src={preset.iconUrl ?? ''}
                   label={preset.name}
                   stationName={preset.name}
+                  catalogStationId={catalogStationIdForName(preset.name)}
                   presetId={preset.id}
                   onCoverChange={(iconUrl) =>
                     setPresets((current) =>
@@ -234,6 +251,7 @@ function InternetRadioPresetsPanel() {
               src={draft.iconUrl || ''}
               label={draft.name.trim() || 'Station'}
               stationName={draft.name.trim() || 'Station'}
+              catalogStationId={catalogStationIdForName(draft.name)}
               presetId={editingId ?? undefined}
               persist={Boolean(editingId)}
               className="h-28 w-28 overflow-hidden rounded-lg"
@@ -249,8 +267,48 @@ function InternetRadioPresetsPanel() {
               }}
             />
             <span className="text-foreground-secondary text-xs">
-              Station logo — JPEG, PNG, or WebP. Hover to replace.
+              Station logo — JPEG, PNG, or WebP. Hover the image to replace.
             </span>
+            {catalogLogoForName(draft.name) ? (
+              <Button
+                type="button"
+                size="xs"
+                variant="text"
+                disabled={
+                  pending || draft.iconUrl === catalogLogoForName(draft.name)
+                }
+                onClick={() => {
+                  const logoUrl = catalogLogoForName(draft.name);
+                  if (!logoUrl) {
+                    return;
+                  }
+                  setDraft((current) => ({ ...current, iconUrl: logoUrl }));
+                  if (!editingId) {
+                    return;
+                  }
+                  void persistRadioStationCover({
+                    catalogStationId: catalogStationIdForName(draft.name),
+                    presetId: editingId,
+                    stationName: draft.name.trim() || 'Station',
+                    logoUrl,
+                  }).then((result) => {
+                    if (!result.ok) {
+                      setError(result.error);
+                      return;
+                    }
+                    setPresets((current) =>
+                      current.map((item) =>
+                        item.id === editingId
+                          ? { ...item, iconUrl: logoUrl }
+                          : item,
+                      ),
+                    );
+                  });
+                }}
+              >
+                Use catalog logo
+              </Button>
+            ) : null}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Input

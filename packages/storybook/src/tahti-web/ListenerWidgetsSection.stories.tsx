@@ -52,8 +52,22 @@ export const WithStationsAndEmbeds: Story = {
   ],
 };
 
-export const StationsOnly: Story = {
-  decorators: [withListenerWidgets({ enabledStationIds: ['kasari'] })],
+export const WithNewsFeed: Story = {
+  decorators: [
+    withListenerWidgets({
+      instances: [
+        {
+          id: 'news-1',
+          typeId: 'news',
+          input: 'https://example.com/rss.xml',
+          label: 'Desk news',
+          addedAt: new Date().toISOString(),
+          thumbnailUrl: 'https://picsum.photos/64/64?random=40',
+          surfaces: ['listen', 'discover'],
+        },
+      ],
+    }),
+  ],
 };
 
 // Renders nothing when the listener hasn't enabled anything — this is the

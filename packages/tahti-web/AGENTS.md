@@ -123,17 +123,23 @@ is the authoritative reference for what compliant UI looks like here, also linke
 board-only `/more` page. **Always check new or changed UI against it before shipping:**
 
 **When building a new view (or any piece of a view), check in this order before writing markup:**
-1. Does `@tahti-player/ui` (Storybook) already have this? Use it.
+1. Does Storybook already have this (`packages/storybook/src/`, including `tahti-web/`)? Use that
+   component. Prefer the story over inventing markup.
 2. If not, does tahti-web already have a local shared component for it (`StudioPanel`,
-   `PageHeader`, `PageStates.tsx`, `InPageNav`, etc.)? Use that.
-3. Only if neither exists, build it — and add it to one of the two catalogs above (with a story,
-   if it belongs in `@tahti-player/ui`) instead of leaving it as a one-off in the page that needed
-   it, so the next view that needs the same thing finds it at step 1 or 2. A 2026-09-02 audit
-   (`packages/tahti-web/UI-REDESIGN-WORKLOG.md`) found 39 places across 33 files where this order
-   wasn't followed — native `<select>`s instead of `Select`, `window.confirm()` instead of the
-   app's own confirm-dialog pattern, hand-typed badge pills, hand-rolled tab strips missing
-   keyboard nav, and more — treat that list as the standing example of what skipping this check
-   costs, not a one-time cleanup.
+   `PageHeader`, `PageStates.tsx`, `InPageNav`, etc.)? Use that — and add a Storybook story if it
+   is missing, with the states that exist today. Flag missing states on the story.
+3. Only if neither exists, build it — and add it to one of the two catalogs above (with a story)
+   instead of leaving it as a one-off in the page that needed it. Flag missing states. If you
+   notice a Storybook story that nothing in the player or tahti-web renders, mark it `Orphan:` in
+   that story's docs rather than silently ignoring it.
+4. A swap must keep the same data and features the screen already had. Do not drop counts, overlays,
+   routes, or actions to match a simpler Storybook demo.
+
+A 2026-09-02 audit (`packages/tahti-web/UI-REDESIGN-WORKLOG.md`) found 39 places across 33 files
+where this order wasn't followed — native `<select>`s instead of `Select`, `window.confirm()`
+instead of the app's own confirm-dialog pattern, hand-typed badge pills, hand-rolled tab strips
+missing keyboard nav, and more — treat that list as the standing example of what skipping this
+check costs, not a one-time cleanup.
 
 - Reuse an existing cataloged component instead of hand-rolling the same pattern again — a status
   pill is `Badge variant="pill" color="..."`, not a hand-styled `<span>`; a page header is

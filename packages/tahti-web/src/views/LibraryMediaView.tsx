@@ -2,7 +2,7 @@ import { ImageIcon, PlayIcon, Trash2Icon, VideoIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@tahti-player/ui';
+import { Badge, Button, ImageReveal } from '@tahti-player/ui';
 
 import {
   deleteUserMedia,
@@ -78,13 +78,17 @@ export function LibraryMediaView() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <img
+                    <ImageReveal
                       src={file.url}
                       alt=""
-                      className="h-full w-full object-cover"
+                      className="h-full w-full"
                     />
                   )}
-                  <span className="bg-background/80 text-foreground-secondary absolute top-2 left-2 rounded px-2 py-1 text-[10px] font-semibold uppercase backdrop-blur-sm">
+                  <Badge
+                    variant="pill"
+                    color="secondary"
+                    className="bg-background/80 absolute top-2 left-2 text-[10px] uppercase backdrop-blur-sm"
+                  >
                     {isVideo ? (
                       <VideoIcon
                         size={12}
@@ -99,7 +103,7 @@ export function LibraryMediaView() {
                       />
                     )}
                     {isVideo ? 'Video' : 'Image'}
-                  </span>
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-2 p-3">
                   <div className="min-w-0 flex-1">

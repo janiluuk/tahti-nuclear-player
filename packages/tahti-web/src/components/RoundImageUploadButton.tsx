@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 
 import { uploadUserMediaFile } from '../api/user-media';
 import { cn } from '../lib/cn';
+import { IMAGE_UPLOAD_ACCEPT_ATTR } from '../lib/imageUploadContentType';
 
 type UploadResult =
   | { ok: true; data: { url: string } }
@@ -82,7 +83,7 @@ export function RoundImageUploadButton({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept={IMAGE_UPLOAD_ACCEPT_ATTR}
         disabled={busy}
         className="sr-only"
         onChange={(e) => {

@@ -40,7 +40,7 @@ function renderCover(user: AuthUser | null): {
   act(() => {
     root.render(
       <RadioStationCover
-        src="https://www.streamurl.link/logos/JoiOnv3Q9An.webp"
+        src="/radio-logos/radio-helsinki.png"
         label="Radio Helsinki"
         stationName="Radio Helsinki"
         catalogStationId="radio-helsinki"

@@ -17,7 +17,15 @@ const gallery = [
 const meta: Meta<typeof ImageLightbox> = {
   title: 'Tahti/Media/ImageLightbox',
   component: ImageLightbox,
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'Full-screen gallery viewer on Dialog. Missing states: empty `images` array (the component returns null — flagged, not rendered). Untitled captions are covered in MultipleImages.',
+      },
+    },
+  },
   tags: ['autodocs'],
 };
 
@@ -50,4 +58,13 @@ export const MultipleImages: Story = {
     }
     return <Controlled />;
   },
+};
+
+/** Missing state: empty `images` returns null — no empty-state UI yet. */
+export const EmptyGallery: Story = {
+  render: () => (
+    <p className="text-foreground-secondary p-6 text-sm">
+      Missing state: an empty images array returns null (no empty-state UI).
+    </p>
+  ),
 };

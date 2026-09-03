@@ -211,6 +211,16 @@ export const Component: FC<ComponentProps> = ({
 - Compound components (`Component.Sub`) for complex widgets
 - Keep business logic out of UI components. Presentation-only; lift complex or performance-critical work to Tauri (Rust).
 
+### Storybook-first UI
+
+When changing anything a user sees (layout, controls, status, empty/loading, overlays), **prefer a component that already exists in Storybook** (`pnpm storybook`, `packages/storybook/src/`). That catalogue is `@tahti-player/ui` plus tahti-web local shared pieces under `packages/storybook/src/tahti-web/`.
+
+1. Look up the Storybook story first. Use that component. Do not hand-roll a second button, badge, tab strip, dialog, empty state, or image treatment.
+2. If the Storybook component shows different **data** or **behavior** than the live screen, keep the live data and features. Swap only the visual primitive. Do not drop overlays, counts, routes, or actions to make the page look more like the demo.
+3. If no Storybook component exists at all, add it there with the states that exist today (default, empty, loading, error, disabled, selected — whichever apply). Flag states the component should have but does not yet (`Missing states:` in the story docs). Then use it.
+4. If a Storybook story is an **orphan** (nothing in the player or tahti-web renders that component), flag it on the story (`Orphan:` in the docs description, and why). Do not delete it in the same pass as a UI sweep unless the user asked to remove it.
+5. New `@tahti-player/ui` components still follow the directory/test/export checklist below.
+
 ### Adding UI Components
 
 When adding a new component to `@tahti-player/ui`:

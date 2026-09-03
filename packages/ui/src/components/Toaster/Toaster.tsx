@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Toaster as SonnerToaster } from 'sonner';
+import { Toaster as SonnerToaster, toast, type ExternalToast } from 'sonner';
 
 type ToasterProps = {
   position?:
@@ -13,6 +13,40 @@ type ToasterProps = {
   expand?: boolean;
   closeButton?: boolean;
 };
+
+export const STICKY_TOAST_DURATION = Number.POSITIVE_INFINITY;
+
+export { toast };
+export type { ExternalToast };
+
+type NotificationToastOptions = {
+  id?: string | number;
+  description?: string;
+  sticky?: boolean;
+  actionLabel?: string;
+  onAction?: () => void;
+};
+
+export function showNotificationToast(
+  title: string,
+  {
+    id,
+    description,
+    sticky = false,
+    actionLabel,
+    onAction,
+  }: NotificationToastOptions = {},
+) {
+  return toast(title, {
+    id,
+    description,
+    duration: sticky ? STICKY_TOAST_DURATION : undefined,
+    closeButton: sticky,
+    ...(actionLabel && onAction
+      ? { action: { label: actionLabel, onClick: onAction } }
+      : {}),
+  });
+}
 
 const ToasterImpl: FC<ToasterProps> = ({
   position = 'bottom-right',

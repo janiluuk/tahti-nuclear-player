@@ -54,6 +54,7 @@ import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { QueueConfirmDialog } from '../components/QueueConfirmDialog';
 import { RadioStationCoverEditButton } from '../components/RadioStationCover';
+import { RADIO_STATIONS } from '../content/radioStations';
 import { activeListenTab } from '../lib/navigationActive';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
@@ -493,6 +494,11 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
                         <RadioStationCoverEditButton
                           label={preset.name}
                           stationName={preset.name}
+                          catalogStationId={
+                            RADIO_STATIONS.find(
+                              (station) => station.name === preset.name,
+                            )?.id
+                          }
                           presetId={preset.id}
                           className="absolute top-3 left-3 z-10 rounded-full"
                           onCoverChange={(iconUrl) =>

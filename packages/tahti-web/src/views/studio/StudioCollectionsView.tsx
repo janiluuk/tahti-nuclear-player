@@ -11,7 +11,15 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { Button, Dialog, Input, Select, Toggle } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  EmptyState,
+  ImageReveal,
+  Input,
+  Select,
+  Toggle,
+} from '@tahti-player/ui';
 
 import {
   createStudioCollection,
@@ -297,24 +305,23 @@ export function StudioCollectionsView() {
           {loading ? (
             <PageLoading label="Loading…" />
           ) : rows.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-4 text-center">
-              <p className="text-foreground-secondary text-sm">
-                No collections yet — create an album, EP, DJ set, podcast, or
-                playlist.
-              </p>
-              <Button
-                size="icon-sm"
-                onClick={() => setCreateOpen(true)}
-                aria-label="New collection"
-                title="New collection"
-              >
-                <PlusIcon size={16} aria-hidden />
-              </Button>
-            </div>
+            <EmptyState
+              size="sm"
+              title="No collections yet"
+              description="Create an album, EP, DJ set, podcast, or playlist."
+              action={
+                <Button
+                  size="icon-sm"
+                  onClick={() => setCreateOpen(true)}
+                  aria-label="New collection"
+                  title="New collection"
+                >
+                  <PlusIcon size={16} aria-hidden />
+                </Button>
+              }
+            />
           ) : filteredRows.length === 0 ? (
-            <p className="text-foreground-secondary py-4 text-center text-sm">
-              No collections match these filters.
-            </p>
+            <EmptyState size="sm" title="No collections match these filters." />
           ) : (
             <ul className="divide-border divide-y">
               {filteredRows.map((c) => (
@@ -323,10 +330,10 @@ export function StudioCollectionsView() {
                   className="flex items-center gap-3 py-3 text-sm first:pt-0 last:pb-0"
                 >
                   {c.coverUrl ? (
-                    <img
+                    <ImageReveal
                       src={c.coverUrl}
                       alt=""
-                      className="border-border h-12 w-12 rounded-lg border object-cover shadow-sm"
+                      className="border-border h-12 w-12 rounded-lg border shadow-sm"
                     />
                   ) : (
                     <div className="border-border bg-background flex h-12 w-12 items-center justify-center rounded-lg border">

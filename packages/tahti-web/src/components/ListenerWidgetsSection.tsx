@@ -4,11 +4,16 @@ import { useState } from 'react';
 import { Button, Card, CardGrid } from '@tahti-player/ui';
 
 import { radioStation, radioStationPlayable } from '../content/radioStations';
-import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
+import {
+  NEWS_WIDGET_TYPE_ID,
+  newsWidgetsOn,
+  useListenerWidgetsStore,
+} from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { FavoritesView } from '../views/FavoritesView';
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
+import { NewsFeedWidget } from './NewsFeedWidget';
 import { RadioStationCoverEditButton } from './RadioStationCover';
 import { RemoveWidgetDialog } from './RemoveWidgetDialog';
 
@@ -41,13 +46,19 @@ export function ListenerWidgetsSection() {
     })
     .filter((s) => s != null);
 
+  const embedInstances = instances.filter(
+    (instance) => instance.typeId !== NEWS_WIDGET_TYPE_ID,
+  );
+  const newsFeeds = newsWidgetsOn(instances, 'listen');
   const favoritesEnabled = installedTypeIds.includes('favorites');
-  const hasListenAddons = instances.length > 0 || favoritesEnabled;
+  const hasListenAddons =
+    embedInstances.length > 0 || favoritesEnabled || newsFeeds.length > 0;
 
   if (
-    instances.length === 0 &&
+    embedInstances.length === 0 &&
     enabledStations.length === 0 &&
-    !favoritesEnabled
+    !favoritesEnabled &&
+    newsFeeds.length === 0
   ) {
     return null;
   }
@@ -133,9 +144,27 @@ export function ListenerWidgetsSection() {
         </CardGrid>
       )}
 
-      {instances.length > 0 && (
+      {newsFeeds.length > 0 && (
+        <div className="flex flex-col gap-4">
+          {newsFeeds.map((instance) => (
+            <NewsFeedWidget
+              key={instance.id}
+              instance={instance}
+              onRemove={() =>
+                setPendingRemoval({
+                  kind: 'instance',
+                  id: instance.id,
+                  label: instance.label,
+                })
+              }
+            />
+          ))}
+        </div>
+      )}
+
+      {embedInstances.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-2">
-          {instances.map((instance) => (
+          {embedInstances.map((instance) => (
             <ListenerWidgetEmbed
               key={instance.id}
               instance={instance}

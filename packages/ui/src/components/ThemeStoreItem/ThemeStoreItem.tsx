@@ -1,5 +1,5 @@
 import { Check, Download, Paintbrush, Trash } from 'lucide-react';
-import { FC } from 'react';
+import { FC, type ReactNode } from 'react';
 
 import { cn } from '../../utils';
 import { Badge } from '../Badge';
@@ -20,6 +20,8 @@ type ThemeStoreItemProps = {
   onInstall: () => void;
   onApply?: () => void;
   onUninstall?: () => void;
+  /** Extra actions beside apply/uninstall (configure, rename, export). */
+  accessory?: ReactNode;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   labels?: {
@@ -46,6 +48,7 @@ export const ThemeStoreItem: FC<ThemeStoreItemProps> = ({
   onInstall,
   onApply,
   onUninstall,
+  accessory,
   onMouseEnter,
   onMouseLeave,
   labels = {},
@@ -134,30 +137,35 @@ export const ThemeStoreItem: FC<ThemeStoreItemProps> = ({
           </div>
         </Box>
       </Box>
-      {isInstalled && (
+      {(isInstalled && (onApply || onUninstall)) || accessory ? (
         <div className="flex flex-col gap-2">
-          <Tooltip content={isActive ? active : apply}>
-            <Button
-              size="icon-sm"
-              disabled={isActive}
-              onClick={onApply}
-              data-testid="theme-store-item-apply"
-            >
-              {isActive ? <Check size={16} /> : <Paintbrush size={16} />}
-            </Button>
-          </Tooltip>
-          <Tooltip content={uninstall}>
-            <Button
-              size="icon-sm"
-              intent="danger"
-              onClick={onUninstall}
-              data-testid="theme-store-item-uninstall"
-            >
-              <Trash size={16} />
-            </Button>
-          </Tooltip>
+          {isInstalled && onApply ? (
+            <Tooltip content={isActive ? active : apply}>
+              <Button
+                size="icon-sm"
+                disabled={isActive}
+                onClick={onApply}
+                data-testid="theme-store-item-apply"
+              >
+                {isActive ? <Check size={16} /> : <Paintbrush size={16} />}
+              </Button>
+            </Tooltip>
+          ) : null}
+          {isInstalled && onUninstall ? (
+            <Tooltip content={uninstall}>
+              <Button
+                size="icon-sm"
+                intent="danger"
+                onClick={onUninstall}
+                data-testid="theme-store-item-uninstall"
+              >
+                <Trash size={16} />
+              </Button>
+            </Tooltip>
+          ) : null}
+          {accessory}
         </div>
-      )}
+      ) : null}
     </div>
   );
 };

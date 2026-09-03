@@ -13,7 +13,7 @@ const meta: Meta<typeof MediaArtwork> = {
     docs: {
       description: {
         component:
-          'Hover (or focus) the artwork to reveal the play / queue / favorite overlay controls.',
+          'Cover art with optional play / queue / favorite overlays. Size `thumb` is the standard track-row thumbnail. Queue, favorite, and extra `actions` only appear on `lg` and `fill` — smaller sizes show play only so overlays stay readable. Hover (fine pointer) or always-on (touch) reveals controls.',
       },
     },
   },

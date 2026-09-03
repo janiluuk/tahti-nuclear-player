@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLinkIcon, Link2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, EmptyState, ImageReveal } from '@tahti-player/ui';
 
 import { fetchStudioReleases } from '../api/studio';
 import type { StudioRelease } from '../api/studio-types';
@@ -62,20 +62,23 @@ export function LibrarySmartLinksView() {
           {loading ? (
             <PageLoading label="Loading smartlinks…" />
           ) : releases.length === 0 ? (
-            <div className="flex flex-col gap-3 py-5 text-center">
-              <Link2Icon
-                size={28}
-                className="text-foreground-secondary mx-auto"
-                aria-hidden
-              />
-              <p className="text-sm font-medium">No releases yet</p>
-              <p className="text-foreground-secondary text-sm">
-                Create a release to get its public smartlink page.
-              </p>
-              <Link to="/studio/releases">
-                <Button size="sm">Create release</Button>
-              </Link>
-            </div>
+            <EmptyState
+              size="sm"
+              icon={
+                <Link2Icon
+                  size={28}
+                  className="text-foreground-secondary"
+                  aria-hidden
+                />
+              }
+              title="No releases yet"
+              description="Create a release to get its public smartlink page."
+              action={
+                <Link to="/studio/releases">
+                  <Button size="sm">Create release</Button>
+                </Link>
+              }
+            />
           ) : (
             <ul className="divide-border divide-y">
               {releases.map((release) => {
@@ -87,10 +90,10 @@ export function LibrarySmartLinksView() {
                   >
                     <div className="flex min-w-0 items-start gap-3">
                       {release.artworkUrl ? (
-                        <img
+                        <ImageReveal
                           src={release.artworkUrl}
                           alt=""
-                          className="size-12 shrink-0 rounded-md object-cover"
+                          className="size-12 shrink-0 rounded-md"
                         />
                       ) : (
                         <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center rounded-md border">

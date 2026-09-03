@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router';
-import { PauseIcon, PlayIcon } from 'lucide-react';
 
-import { FavoriteButton } from '@tahti-player/ui';
+import { FavoriteButton, MediaArtwork } from '@tahti-player/ui';
 
 import type { TahtiPlayable } from '../api/types';
 import { soundIdFromPlayableId } from '../lib/archiveId';
@@ -87,25 +86,16 @@ function TrackRow({ item }: { item: TahtiPlayable }) {
       <div className="bg-background/70 pointer-events-none absolute inset-0" />
 
       <div className="relative flex items-start gap-3">
-        <button
-          type="button"
-          onClick={togglePlayback}
-          aria-label={isPlaying ? 'Pause' : 'Play'}
-          className="group border-border bg-background-secondary relative size-16 shrink-0 overflow-hidden rounded-md border shadow-md sm:size-20"
-        >
-          <img src={cover} alt="" className="size-full object-cover" />
-          <span className="bg-background/40 absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
-            {isPlaying ? (
-              <PauseIcon size={22} fill="currentColor" className="text-white" />
-            ) : (
-              <PlayIcon
-                size={22}
-                fill="currentColor"
-                className="ml-0.5 text-white"
-              />
-            )}
-          </span>
-        </button>
+        <MediaArtwork
+          size="md"
+          src={cover}
+          alt=""
+          className="border-border shrink-0 rounded-md border shadow-md"
+          isPlaying={isPlaying}
+          onPlay={togglePlayback}
+          playLabel={`Play ${item.title}`}
+          pauseLabel={`Pause ${item.title}`}
+        />
 
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-3">

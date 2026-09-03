@@ -1,14 +1,11 @@
 import { Bell, Check, ListMusicIcon, MessageCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { Badge, Tabs } from '@tahti-player/ui';
+import { Badge, Button, EmptyState, Tabs } from '@tahti-player/ui';
 
-import {
-  dismissNotification,
-  fetchNotifications,
-  type TahtiNotification,
-} from '../api/notifications';
+import type { TahtiNotification } from '../api/notifications';
 import { useLayoutStore } from '../stores/layoutStore';
+import { useNotificationInboxStore } from '../stores/notificationInboxStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { ChannelChatPanel } from './ChannelChatPanel';
 import { SidebarQueuePanel } from './SidebarQueuePanel';
@@ -20,23 +17,14 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
   const chatEnabled = useLayoutStore((s) => s.chatEnabled);
   const chatDisabledReason = useLayoutStore((s) => s.chatDisabledReason);
   const [tab, setTab] = useState<RailTab>('chat');
-  const [notifications, setNotifications] = useState<TahtiNotification[]>([]);
+  const notifications = useNotificationInboxStore((s) =>
+    s.items.filter((item) => !item.readAt),
+  );
+  const acknowledgeNotification = useNotificationInboxStore(
+    (s) => s.acknowledge,
+  );
   const toggleRight = useLayoutStore((s) => s.toggleRight);
   const queueCount = usePlayerStore((s) => s.queue.length);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void fetchNotifications().then((result) => {
-      if (!cancelled) {
-        setNotifications(result.data.filter((item) => !item.readAt));
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   if (isCollapsed) {
     return (
@@ -158,10 +146,7 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
           <NotificationList
             notifications={notifications}
             onRead={(id) => {
-              void dismissNotification(id);
-              setNotifications((current) =>
-                current.filter((item) => item.id !== id),
-              );
+              void acknowledgeNotification(id);
             }}
           />
         ) : chatEnabled && chatSlug ? (
@@ -191,10 +176,12 @@ function NotificationList({
 }) {
   if (notifications.length === 0) {
     return (
-      <div className="text-foreground-secondary flex h-full flex-col items-center justify-center gap-2 p-6 text-center text-sm">
-        <Check size={28} className="opacity-50" />
-        <p>All caught up</p>
-      </div>
+      <EmptyState
+        size="sm"
+        icon={<Check size={28} className="opacity-50" />}
+        title="All caught up"
+        className="h-full"
+      />
     );
   }
 
@@ -207,6 +194,11 @@ function NotificationList({
         >
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
+              {notification.sticky ? (
+                <Badge variant="pill" color="yellow" className="mb-1">
+                  Needs acknowledgement
+                </Badge>
+              ) : null}
               <p className="font-semibold">{notification.title}</p>
               {notification.body ? (
                 <p className="text-foreground-secondary mt-0.5">
@@ -217,15 +209,19 @@ function NotificationList({
                 {new Date(notification.createdAt).toLocaleString()}
               </p>
             </div>
-            <button
-              type="button"
-              className="text-foreground-secondary hover:text-foreground shrink-0"
-              aria-label={`Mark ${notification.title} as seen`}
-              title="Mark as seen"
+            <Button
+              size="icon-sm"
+              variant="text"
+              aria-label={
+                notification.sticky
+                  ? `Acknowledge ${notification.title}`
+                  : `Mark ${notification.title} as seen`
+              }
+              title={notification.sticky ? 'Acknowledge' : 'Mark as seen'}
               onClick={() => onRead(notification.id)}
             >
               <Check size={14} />
-            </button>
+            </Button>
           </div>
         </li>
       ))}

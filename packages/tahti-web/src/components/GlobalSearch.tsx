@@ -2,7 +2,13 @@ import { useNavigate } from '@tanstack/react-router';
 import { DiscIcon, ListMusicIcon, UserIcon, XIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import {
+  Button,
+  EmptyState,
+  ImageReveal,
+  Input,
+  Loader,
+} from '@tahti-player/ui';
 
 import { fetchSearch } from '../api/client';
 import type {
@@ -20,10 +26,10 @@ const MIN_QUERY_LENGTH = 2;
 
 function Thumbnail({ src, seed }: { src: string | null; seed: string }) {
   return (
-    <img
+    <ImageReveal
       src={src ?? placeholderArtworkUrl(seed)}
       alt=""
-      className="border-border size-10 shrink-0 rounded-md border object-cover"
+      className="border-border size-10 shrink-0 rounded-md border"
     />
   );
 }
@@ -247,13 +253,12 @@ export function GlobalSearch() {
           className="border-border bg-background shadow-shadow absolute top-full right-0 left-0 z-40 mt-1.5 max-h-[70vh] overflow-y-auto rounded-lg border p-1.5"
         >
           {loading ? (
-            <p className="text-foreground-secondary px-2 py-3 text-sm">
-              Searching…
-            </p>
+            <div className="flex flex-col items-center gap-2 py-3">
+              <Loader size="sm" />
+              <p className="text-foreground-secondary text-sm">Searching…</p>
+            </div>
           ) : !hasResults ? (
-            <p className="text-foreground-secondary px-2 py-3 text-sm">
-              No results for “{trimmed}”.
-            </p>
+            <EmptyState size="sm" title={`No results for “${trimmed}”.`} />
           ) : (
             <div className="flex flex-col gap-2">
               {results.artists.length > 0 && (

@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router';
-import { HeartIcon, MusicIcon, PauseIcon, PlayIcon } from 'lucide-react';
+import { HeartIcon, MusicIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { ImageReveal, Loader } from '@tahti-player/ui';
+import { MediaArtwork } from '@tahti-player/ui';
 
 import { fetchTrackDetail } from '../../api/client';
 import type { DiscoverTrackItem } from '../../api/types';
@@ -88,48 +88,6 @@ export function WidgetTrackRow({
     });
   };
 
-  const artwork = (
-    <span
-      className={cn(
-        'bg-background relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded',
-        isCurrent && 'ring-primary ring-2',
-      )}
-    >
-      {item.coverUrl ? (
-        <ImageReveal src={item.coverUrl} alt="" className="size-full" />
-      ) : (
-        <MusicIcon
-          size={16}
-          className="text-foreground-secondary"
-          aria-hidden
-        />
-      )}
-      <button
-        type="button"
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void handlePlay();
-        }}
-        className={cn(
-          'bg-background/70 absolute inset-0 flex items-center justify-center transition-opacity disabled:opacity-100',
-          isCurrent ? 'opacity-100' : 'opacity-0 hover:opacity-100',
-        )}
-        disabled={loading}
-        title={isPlaying ? `Pause ${item.title}` : `Play ${item.title}`}
-        aria-label={isPlaying ? `Pause ${item.title}` : `Play ${item.title}`}
-      >
-        {loading ? (
-          <Loader size="sm" />
-        ) : isPlaying ? (
-          <PauseIcon size={16} className="text-foreground" aria-hidden />
-        ) : (
-          <PlayIcon size={16} className="text-foreground" aria-hidden />
-        )}
-      </button>
-    </span>
-  );
-
   return (
     <Link
       to="/channel/$slug"
@@ -152,7 +110,27 @@ export function WidgetTrackRow({
           {rank}
         </span>
       )}
-      {artwork}
+      <MediaArtwork
+        size="thumb"
+        src={item.coverUrl}
+        alt=""
+        className={cn('shrink-0 rounded', isCurrent && 'ring-primary ring-2')}
+        imageReveal={Boolean(item.coverUrl)}
+        isPlaying={isPlaying}
+        playDisabled={loading}
+        onPlay={() => {
+          void handlePlay();
+        }}
+        playLabel={`Play ${item.title}`}
+        pauseLabel={`Pause ${item.title}`}
+        placeholder={
+          <MusicIcon
+            size={16}
+            className="text-foreground-secondary"
+            aria-hidden
+          />
+        }
+      />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">{item.title}</span>
         <span className="text-foreground-secondary block truncate text-xs">

@@ -24,8 +24,21 @@ describe('ThemeStoreItem', () => {
 
   it('(Snapshot) renders installed state', () => {
     const { asFragment } = render(
-      <ThemeStoreItem {...DEFAULT_PROPS} isInstalled />,
+      <ThemeStoreItem
+        {...DEFAULT_PROPS}
+        isInstalled
+        onApply={vi.fn()}
+        onUninstall={vi.fn()}
+      />,
     );
     expect(asFragment()).toMatchSnapshot();
+  });
+
+  it('hides apply and uninstall when those actions are omitted', () => {
+    const { queryByTestId } = render(
+      <ThemeStoreItem {...DEFAULT_PROPS} isInstalled />,
+    );
+    expect(queryByTestId('theme-store-item-apply')).toBeNull();
+    expect(queryByTestId('theme-store-item-uninstall')).toBeNull();
   });
 });

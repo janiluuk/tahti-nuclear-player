@@ -1,7 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
   Cast,
-  CheckCircle2Icon,
   CheckSquareIcon,
   ChevronDownIcon,
   ChevronUpIcon,
@@ -10,9 +9,9 @@ import {
   FolderDownIcon,
   InfoIcon,
   Link2Icon,
+  ListPlus,
   PauseIcon,
   PlayIcon,
-  PlusCircleIcon,
   Radio as RadioIcon,
   SearchIcon,
   SettingsIcon,
@@ -26,14 +25,15 @@ import {
   Box,
   Button,
   Dialog,
+  EmptyState,
   FavoriteButton,
   Input,
   MediaArtwork,
-  PluginItem,
   PluginStoreItem,
   Select,
   Slider,
   Tabs,
+  ThemeStoreItem,
   Toggle,
 } from '@tahti-player/ui';
 
@@ -246,9 +246,11 @@ function InstalledAvailableTabs({
         </Tabs.List>
       </Tabs.Root>
       {visibleIds.length === 0 ? (
-        <p className="text-foreground-secondary text-sm">
-          {tab === 'installed' ? emptyInstalled : emptyAvailable}
-        </p>
+        <EmptyState
+          size="sm"
+          title={tab === 'installed' ? 'Nothing installed' : 'All installed'}
+          description={tab === 'installed' ? emptyInstalled : emptyAvailable}
+        />
       ) : (
         <div className="flex flex-col gap-2">
           {visibleIds.map((id) => renderItem(id))}
@@ -311,10 +313,7 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-foreground-secondary text-sm">
-          {category.description}
-        </p>
+      <div className="flex items-center justify-end">
         <Button
           size="icon-sm"
           variant="secondary"
@@ -361,37 +360,72 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
   );
 }
 
+function asThemePalette(
+  palette: readonly string[] | undefined,
+): [string, string, string, string] {
+  const fallback = ['#888888', '#666666', '#444444', '#222222'] as const;
+  return [
+    palette?.[0] ?? fallback[0],
+    palette?.[1] ?? fallback[1],
+    palette?.[2] ?? fallback[2],
+    palette?.[3] ?? fallback[3],
+  ];
+}
+
 function ThemesCategory() {
   const themes = useThemeStore((s) => s.themes);
   const customThemes = useThemeStore((s) => s.customThemes);
   const themeId = useThemeStore((s) => s.themeId);
   const setTheme = useThemeStore((s) => s.setTheme);
+  const removeCustomTheme = useThemeStore((s) => s.removeCustomTheme);
 
   const all = [
-    ...themes.map((t) => ({
-      id: t.id,
-      name: t.name,
+    ...themes.map((theme) => ({
+      id: theme.id,
+      name: theme.name,
       author: 'Tahti',
-      palette: t.palette,
+      description: 'Built-in Nuclear theme',
+      palette: theme.palette,
+      tags: undefined as string[] | undefined,
+      removable: false,
     })),
-    ...Object.entries(customThemes).map(([id, t]) => ({
+    ...Object.entries(customThemes).map(([id, theme]) => ({
       id,
-      name: t.name ?? 'Custom theme',
-      author: 'Imported',
-      palette: t.palette,
+      name: theme.name ?? 'Custom theme',
+      author: theme.author ?? 'Imported',
+      description: theme.description ?? 'Imported theme',
+      palette: asThemePalette(theme.palette),
+      tags: theme.tags,
+      removable: true,
     })),
   ];
 
   const themeCard = (theme: (typeof all)[number]) => (
-    <PluginStoreItem
+    <ThemeStoreItem
       key={theme.id}
       name={theme.name}
+      description={theme.description}
       author={theme.author}
-      icon={<ThemePalettePreview palette={theme.palette} />}
-      description={theme.id === themeId ? 'Currently applied' : 'Available'}
-      isInstalled={theme.id === themeId}
+      palette={asThemePalette(theme.palette)}
+      tags={theme.tags}
+      isInstalled
+      isActive={theme.id === themeId}
       onInstall={() => setTheme(theme.id)}
-      labels={{ install: 'Apply', installed: 'Active' }}
+      onApply={() => setTheme(theme.id)}
+      onUninstall={
+        theme.removable
+          ? () => {
+              removeCustomTheme(theme.id);
+              toast.success(`Removed ${theme.name}`);
+            }
+          : undefined
+      }
+      labels={{
+        installed: 'Ready',
+        apply: 'Apply',
+        active: 'Active',
+        uninstall: 'Remove',
+      }}
     />
   );
 
@@ -410,43 +444,19 @@ function ThemesCategory() {
           themeCard(theme)
         ),
       )}
-      <p className="text-foreground-secondary text-xs">
-        Full theme editor (colors, custom JSON import) is in{' '}
-        <button
-          type="button"
-          className="underline underline-offset-2"
-          onClick={() => useSettingsModalStore.getState().open('themes')}
-        >
-          Settings → Themes
-        </button>
-        .
-      </p>
-    </div>
-  );
-}
-
-function ThemePalettePreview({ palette }: { palette?: readonly string[] }) {
-  const colors = palette?.length
-    ? palette
-    : [
-        'var(--primary)',
-        'var(--background)',
-        'var(--accent-purple)',
-        'var(--foreground)',
-      ];
-
-  return (
-    <div
-      className="grid h-full w-full grid-cols-2 grid-rows-2"
-      aria-label="Theme color preview"
-    >
-      {colors.slice(0, 4).map((color, index) => (
-        <span
-          key={`${color}-${index}`}
-          className="min-h-0 min-w-0"
-          style={{ backgroundColor: color }}
-        />
-      ))}
+      <Box variant="tertiary" shadow="none" className="gap-1 py-3">
+        <p className="text-foreground-secondary text-xs">
+          Full theme editor (colors, custom JSON import) is in{' '}
+          <button
+            type="button"
+            className="underline underline-offset-2"
+            onClick={() => useSettingsModalStore.getState().open('themes')}
+          >
+            Settings → Themes
+          </button>
+          .
+        </p>
+      </Box>
     </div>
   );
 }
@@ -502,7 +512,7 @@ function VisualizersCategory() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="border-border bg-background-secondary overflow-hidden rounded-lg border">
+      <Box variant="secondary" className="overflow-hidden p-0">
         <div className="relative h-64 min-h-52">
           {previewPreset === 'MINIMAL' ? (
             <div className="bg-background text-foreground-secondary flex h-full items-center justify-center text-sm">
@@ -552,68 +562,60 @@ function VisualizersCategory() {
             />
           </div>
         ) : null}
-      </div>
+      </Box>
 
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="flex flex-col gap-2">
         {VISUAL_PRESETS.map((id) => {
           const active = preset === id;
           const selected = previewPreset === id;
           const metadata = visualizerMetadata(id);
           const Icon = metadata.Icon;
           return (
-            <div
+            <PluginStoreItem
               key={id}
-              className={`flex items-center gap-3 rounded-lg border p-3 ${selected ? 'border-primary bg-primary/10' : 'border-border bg-background-secondary'}`}
-            >
-              <button
-                type="button"
-                className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                aria-pressed={selected}
-                onClick={() => setPreviewPreset(id)}
-              >
-                <span className="bg-background text-primary flex size-9 shrink-0 items-center justify-center rounded-md">
-                  <Icon size={18} aria-hidden />
-                </span>
-                <span className="min-w-0">
-                  <span className="flex flex-wrap items-center gap-1.5">
-                    <span className="truncate text-sm font-medium">
-                      {presetLabel(id)}
-                      {active ? ' · active' : ''}
-                    </span>
-                    {metadata.audioReactive ? (
-                      <Badge variant="pill" color="blue">
-                        Audio reactive
-                      </Badge>
-                    ) : null}
-                  </span>
-                  <span className="text-foreground-secondary block text-xs">
-                    {metadata.description}
-                  </span>
-                </span>
-              </button>
-              {id !== 'MINIMAL' ? (
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  aria-label={`Configure ${presetLabel(id)}`}
-                  title={`Configure ${presetLabel(id)}`}
-                  onClick={() => {
-                    setPreviewPreset(id);
-                    setConfigurationPreset(id);
-                  }}
-                >
-                  <SettingsIcon size={15} aria-hidden />
-                </Button>
-              ) : null}
-              <Button
-                size="sm"
-                variant={active ? 'secondary' : 'default'}
-                disabled={active || saving === id}
-                onClick={() => usePreset(id)}
-              >
-                {saving === id ? 'Applying…' : active ? 'In use' : 'Use'}
-              </Button>
-            </div>
+              icon={<Icon size={22} aria-hidden />}
+              name={presetLabel(id)}
+              author="Tahti"
+              description={metadata.description}
+              categories={[
+                ...(metadata.audioReactive ? ['Audio reactive'] : []),
+                ...(selected ? ['Preview'] : []),
+              ]}
+              isInstalled={active}
+              isInstalling={saving === id}
+              onInstall={() => {
+                setPreviewPreset(id);
+                void usePreset(id);
+              }}
+              labels={{
+                install: 'Use',
+                installing: 'Applying…',
+                installed: 'In use',
+              }}
+              className={
+                selected
+                  ? 'border-primary ring-primary/40 ring-2 ring-inset'
+                  : undefined
+              }
+              onClick={() => setPreviewPreset(id)}
+              accessory={
+                id === 'MINIMAL' ? undefined : (
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    aria-label={`Configure ${presetLabel(id)}`}
+                    title={`Configure ${presetLabel(id)}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setPreviewPreset(id);
+                      setConfigurationPreset(id);
+                    }}
+                  >
+                    <SettingsIcon size={15} aria-hidden />
+                  </Button>
+                )
+              }
+            />
           );
         })}
       </div>
@@ -2065,7 +2067,7 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
                     onChange={() => toggleSelected(collection.id)}
                   />
                   <MediaArtwork
-                    size="sm"
+                    size="thumb"
                     src={collection.coverUrl}
                     alt={collection.title}
                     imageReveal={false}
@@ -2130,14 +2132,12 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
                     onChange={() => toggleSelected(track.id)}
                   />
                   <MediaArtwork
-                    size="sm"
+                    size="thumb"
                     src={track.coverUrl}
                     alt={track.title}
                     imageReveal={false}
                     onPlay={() => play(playableFromHearthis(track))}
                     playLabel="Preview"
-                    onQueue={() => enqueue(playableFromHearthis(track))}
-                    queueLabel="Queue"
                     className="border-border shrink-0 rounded border"
                   />
                   <div className="min-w-0 flex-1">
@@ -2148,6 +2148,15 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
                       {track.username}
                     </div>
                   </div>
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    title="Queue"
+                    aria-label={`Queue ${track.title}`}
+                    onClick={() => enqueue(playableFromHearthis(track))}
+                  >
+                    <ListPlus size={15} aria-hidden />
+                  </Button>
                   <Button
                     size="sm"
                     variant="secondary"
@@ -2377,8 +2386,9 @@ function MulticastCategory() {
         <ul className="flex flex-col gap-2">
           {multicastProviders.map((destination) => {
             const target = targets.find((t) => t.provider === destination.id);
+            const configured = Boolean(target);
             return (
-              <PluginItem
+              <PluginStoreItem
                 key={destination.id}
                 icon={<Cast size={22} aria-hidden />}
                 name={destination.label}
@@ -2390,33 +2400,55 @@ function MulticastCategory() {
                       ? `Mirror your live stream via ${destination.rtmpUrlHint}.`
                       : 'Mirror your live stream to a custom RTMP server.'
                 }
-                rightAccessory={
-                  <Badge
-                    variant="pill"
-                    color={target?.enabled ? 'green' : undefined}
-                    className="flex items-center gap-1"
-                  >
-                    <span
-                      className={`size-1.5 rounded-full ${target?.enabled ? 'bg-accent-green' : 'bg-foreground-secondary'}`}
-                      aria-hidden
-                    />
-                    {target
-                      ? target.enabled
-                        ? 'Enabled'
-                        : 'Disabled'
-                      : 'Not configured'}
-                  </Badge>
-                }
-                onViewDetails={() =>
+                categories={[
+                  target
+                    ? target.enabled
+                      ? 'Enabled'
+                      : 'Disabled'
+                    : 'Not configured',
+                ]}
+                isInstalled={configured}
+                onInstall={() =>
                   setConfiguring({
                     provider: destination.id,
                     existing: target ?? null,
                   })
                 }
-                onRemove={
-                  target
-                    ? () => void deleteRtmpTarget(target.id).then(reload)
-                    : undefined
+                labels={{
+                  install: 'Configure',
+                  installed: 'Configured',
+                }}
+                accessory={
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Configure ${destination.label}`}
+                      title="Configure"
+                      onClick={() =>
+                        setConfiguring({
+                          provider: destination.id,
+                          existing: target ?? null,
+                        })
+                      }
+                    >
+                      <SettingsIcon size={15} aria-hidden />
+                    </Button>
+                    {target ? (
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        intent="danger"
+                        aria-label={`Remove ${destination.label}`}
+                        title="Remove"
+                        onClick={() =>
+                          void deleteRtmpTarget(target.id).then(reload)
+                        }
+                      >
+                        <XIcon size={15} aria-hidden />
+                      </Button>
+                    ) : null}
+                  </div>
                 }
               />
             );
@@ -2451,23 +2483,21 @@ function AudioPluginToggleRow({
   onToggle: () => void;
 }) {
   return (
-    <div className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3">
-      <div className="min-w-0 flex-1">
-        <PluginStoreItem
-          name={name}
-          author={author}
-          description={description}
-          onInstall={onToggle}
-          labels={{ install: enabled ? 'Activated' : 'Activate' }}
-          isInstalled={enabled}
+    <PluginStoreItem
+      name={name}
+      author={author}
+      description={description}
+      isInstalled={enabled}
+      onInstall={onToggle}
+      labels={{ install: 'Activate', installed: 'Active' }}
+      accessory={
+        <Toggle
+          label={`${enabled ? 'Deactivate' : 'Activate'} ${name}`}
+          checked={enabled}
+          onChange={() => onToggle()}
         />
-      </div>
-      <Toggle
-        label={`${enabled ? 'Deactivate' : 'Activate'} ${name}`}
-        checked={enabled}
-        onChange={() => onToggle()}
-      />
-    </div>
+      }
+    />
   );
 }
 
@@ -2577,27 +2607,16 @@ function PersonalRadioStreamCard() {
     <ConfigurableCard
       title="Personal radio stream"
       dialogClassName="max-w-2xl"
-      header={() => (
-        <Box
-          variant="tertiary"
-          className="flex-row items-center justify-between gap-4"
-        >
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <h3 className="text-foreground inline-flex flex-row items-baseline gap-2 text-lg leading-tight font-bold select-none">
-              Personal radio stream
-              {station !== null && (
-                <Badge variant="pill" color="green">
-                  Configured
-                </Badge>
-              )}
-            </h3>
-            <p className="text-foreground-secondary line-clamp-2 text-sm">
-              Paste an M3U/M3U8 playlist or a direct stream URL, or search the
-              public Radio Browser directory — plays via the main player,
-              separate from the curated stations below.
-            </p>
-          </div>
-        </Box>
+      header={(open) => (
+        <PluginStoreItem
+          name="Personal radio stream"
+          author="Radio Browser · stream URL"
+          description="Paste an M3U/M3U8 playlist or a direct stream URL, or search the public Radio Browser directory — plays via the main player, separate from the curated stations below."
+          categories={station !== null ? ['Configured'] : undefined}
+          isInstalled={station !== null}
+          onInstall={open}
+          labels={{ install: 'Open', installed: 'Ready' }}
+        />
       )}
     >
       <div className="flex flex-col gap-3">
@@ -2625,20 +2644,12 @@ function PersonalRadioStreamCard() {
       {station && (
         <div className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-3">
           <MediaArtwork
-            size="sm"
+            size="thumb"
             src={station.favicon}
             alt={station.name}
             imageReveal={false}
             onPlay={() => play(playableFromRadioStation(station, nowPlaying))}
             playLabel="Play"
-            onQueue={() =>
-              enqueue(playableFromRadioStation(station, nowPlaying))
-            }
-            queueLabel="Queue"
-            onFavorite={() =>
-              toggleFavoriteTrack(playableFromRadioStation(station, nowPlaying))
-            }
-            favorited={isFavoriteTrack(`radio:${station.id}`)}
             className="border-border shrink-0 rounded border"
           />
           <div className="min-w-0 flex-1">
@@ -2660,6 +2671,26 @@ function PersonalRadioStreamCard() {
               </div>
             )}
           </div>
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            title="Queue"
+            aria-label={`Queue ${station.name}`}
+            onClick={() =>
+              enqueue(playableFromRadioStation(station, nowPlaying))
+            }
+          >
+            <ListPlus size={15} aria-hidden />
+          </Button>
+          <FavoriteButton
+            size="sm"
+            isFavorite={isFavoriteTrack(`radio:${station.id}`)}
+            onToggle={() =>
+              toggleFavoriteTrack(playableFromRadioStation(station, nowPlaying))
+            }
+            ariaLabelAdd={`Favorite ${station.name}`}
+            ariaLabelRemove={`Unfavorite ${station.name}`}
+          />
         </div>
       )}
 
@@ -2888,8 +2919,12 @@ function RadioBrowserDirectoryCard() {
         onToggle={() => setEnabled(!enabled)}
       />
       {enabled && (
-        <div className="border-border flex flex-col gap-4 rounded-lg border p-4">
-          <div className="border-primary/30 bg-primary/5 flex flex-col gap-3 rounded-lg border p-4">
+        <Box variant="tertiary" shadow="none" className="gap-4 p-4">
+          <Box
+            variant="tertiary"
+            shadow="none"
+            className="border-primary/30 bg-primary/5 gap-3 p-4"
+          >
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-display text-sm font-bold tracking-wide uppercase">
                 Finnish stations
@@ -2901,9 +2936,11 @@ function RadioBrowserDirectoryCard() {
               </span>
             </div>
             {finnishStations.length === 0 ? (
-              <p className="text-foreground-secondary text-xs">
-                Loading Finnish stations…
-              </p>
+              <EmptyState
+                size="sm"
+                title="Loading Finnish stations…"
+                description="Pulling a short list from Radio Browser."
+              />
             ) : (
               <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                 {finnishStations.map((s) => (
@@ -2916,7 +2953,7 @@ function RadioBrowserDirectoryCard() {
                 ))}
               </ul>
             )}
-          </div>
+          </Box>
 
           <div className="flex flex-wrap gap-2">
             <Input
@@ -2966,9 +3003,11 @@ function RadioBrowserDirectoryCard() {
               {isFiltered ? 'Results' : 'Popular stations'}
             </h3>
             {results.length === 0 ? (
-              <p className="text-foreground-secondary text-xs">
-                No stations found.
-              </p>
+              <EmptyState
+                size="sm"
+                title="No stations found"
+                description="Try another search or clear the filters."
+              />
             ) : (
               <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                 {results.map((s) => (
@@ -2982,7 +3021,7 @@ function RadioBrowserDirectoryCard() {
               </ul>
             )}
           </div>
-        </div>
+        </Box>
       )}
     </div>
   );
@@ -3156,7 +3195,7 @@ function RadioCategory() {
             (playbackStatus === 'playing' || playbackStatus === 'loading');
           const stationExpanded = expandedStationIds.has(station.id);
           return (
-            <PluginItem
+            <PluginStoreItem
               key={station.id}
               icon={
                 <RadioStationCover
@@ -3166,44 +3205,44 @@ function RadioCategory() {
                   catalogStationId={station.id}
                 />
               }
-              name={
-                enabled ? (
-                  <>
-                    {station.name}
-                    <Badge variant="pill" color="green" className="ml-2">
-                      Enabled
-                    </Badge>
-                  </>
-                ) : (
-                  station.name
-                )
-              }
+              name={station.name}
               author={station.language}
               description={`${station.genre} · ${station.bitrateKbps}kbps ${station.codec} · ${sourceConfigured ? 'Source configured' : 'Add a stream source in Configure'}`}
-              warning={!sourceConfigured}
-              warningText={
-                sourceConfigured
-                  ? undefined
-                  : 'This station needs a stream source before it can be played.'
-              }
-              disabled={!enabled && sourceConfigured}
-              rightAccessory={
+              categories={[
+                ...(enabled ? ['Enabled'] : []),
+                ...(!sourceConfigured ? ['Needs source'] : []),
+              ]}
+              isInstalled={enabled}
+              onInstall={() => toggleStation(station.id)}
+              labels={{
+                install: 'Enable',
+                installed: 'Enabled',
+                by: 'language',
+              }}
+              accessory={
                 <div className="flex flex-col items-end gap-1">
                   <div className="flex gap-1">
+                    {enabled ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        title="Disable"
+                        aria-label={`Disable ${station.name}`}
+                        onClick={() => toggleStation(station.id)}
+                      >
+                        Disable
+                      </Button>
+                    ) : null}
                     <Button
                       type="button"
                       size="icon-sm"
-                      variant={enabled ? undefined : 'secondary'}
-                      title={enabled ? 'Disable' : 'Enable'}
-                      aria-label={`${enabled ? 'Disable' : 'Enable'} ${station.name}`}
-                      aria-pressed={enabled}
-                      onClick={() => toggleStation(station.id)}
+                      variant="secondary"
+                      title="Configure station"
+                      aria-label={`Configure ${station.name}`}
+                      onClick={() => setEditingStation(station)}
                     >
-                      {enabled ? (
-                        <CheckCircle2Icon size={14} aria-hidden />
-                      ) : (
-                        <PlusCircleIcon size={14} aria-hidden />
-                      )}
+                      <SettingsIcon size={14} aria-hidden />
                     </Button>
                     {sourceConfigured && (
                       <Button
@@ -3275,8 +3314,6 @@ function RadioCategory() {
                   )}
                 </div>
               }
-              onViewDetails={() => setEditingStation(station)}
-              labels={{ by: 'language' }}
             />
           );
         })}
@@ -3410,9 +3447,11 @@ function DiscoveryCategory() {
 
   if (!user) {
     return (
-      <p className="text-foreground-secondary text-sm">
-        Sign in to install add-ons on your Listen page.
-      </p>
+      <EmptyState
+        size="sm"
+        title="Sign in to install Discover add-ons"
+        description="Add-ons on your Listen and Discover pages need an account."
+      />
     );
   }
 
@@ -3457,18 +3496,42 @@ const DISCOVER_WIDGET_LABELS: Record<DiscoverWidgetId, string> = {
 function DiscoverWidgetPlugins() {
   const enabledWidgets = useDiscoverStore((state) => state.enabledWidgets);
   const addWidget = useDiscoverStore((state) => state.addWidget);
+  const [showInfo, setShowInfo] = useState(false);
 
   return (
     <section className="flex flex-col gap-3">
-      <div>
+      <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-semibold tracking-wide uppercase">
           Discover page widgets
         </h3>
-        <p className="text-foreground-secondary mt-1 text-xs">
-          Add these built-in discovery panels to your Discover page. Arrange
-          them and tune their filters from Discover.
-        </p>
+        <Button
+          size="icon-sm"
+          variant="secondary"
+          aria-label="About Discover page widgets"
+          title="About Discover page widgets"
+          aria-expanded={showInfo}
+          onClick={() => setShowInfo((value) => !value)}
+        >
+          <InfoIcon size={16} aria-hidden />
+        </Button>
       </div>
+      {showInfo ? (
+        <Box
+          variant="tertiary"
+          role="note"
+          className="border-primary/40 bg-primary/10 flex-row items-start gap-2 py-3"
+        >
+          <InfoIcon
+            className="text-primary mt-0.5 shrink-0"
+            size={16}
+            aria-hidden
+          />
+          <p className="text-foreground text-sm">
+            Add these built-in discovery panels to your Discover page. Arrange
+            them and tune their filters from Discover.
+          </p>
+        </Box>
+      ) : null}
       <div className="flex flex-col gap-3">
         {ALL_WIDGET_IDS.map((id) => (
           <PluginStoreItem
@@ -3492,9 +3555,11 @@ function ChannelCategory() {
 
   if (!user?.channel) {
     return (
-      <p className="text-foreground-secondary text-sm">
-        Go live or set up your channel to install add-ons there.
-      </p>
+      <EmptyState
+        size="sm"
+        title="Set up a channel first"
+        description="Go live or finish channel setup to install add-ons on your public page."
+      />
     );
   }
 

@@ -38,6 +38,7 @@ import {
   type TahtiPlayable,
 } from '../api/types';
 import { WidgetCard } from '../components/discover/WidgetCard';
+import { NewsFeedWidget } from '../components/NewsFeedWidget';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
@@ -52,6 +53,10 @@ import {
   useDiscoverStore,
   type DiscoverWidgetId,
 } from '../stores/discoverStore';
+import {
+  newsWidgetsOn,
+  useListenerWidgetsStore,
+} from '../stores/listenerWidgetsStore';
 import { usePlayerStore } from '../stores/playerStore';
 
 const ALL_FILTER_ID = '__all__';
@@ -116,6 +121,9 @@ export function DiscoverView() {
   const setRandomArtistRotationDays = useDiscoverStore(
     (s) => s.setRandomArtistRotationDays,
   );
+  const newsInstances = useListenerWidgetsStore((s) => s.instances);
+  const newsFeeds = newsWidgetsOn(newsInstances, 'discover');
+  const removeNewsFeed = useListenerWidgetsStore((s) => s.removeInstance);
   const play = usePlayerStore((state) => state.play);
   const user = useAuthStore((state) => state.user);
   const isAdmin = hasAccountRole(user, 'BOARD');
@@ -435,6 +443,18 @@ export function DiscoverView() {
               }
             />
           ) : null}
+        </div>
+      ) : null}
+
+      {activeTab === 'discover' && newsFeeds.length > 0 ? (
+        <div className="mb-4 flex flex-col gap-4">
+          {newsFeeds.map((instance) => (
+            <NewsFeedWidget
+              key={instance.id}
+              instance={instance}
+              onRemove={() => removeNewsFeed(instance.id)}
+            />
+          ))}
         </div>
       ) : null}
 

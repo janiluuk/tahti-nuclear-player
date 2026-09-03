@@ -72,7 +72,22 @@ export async function fetchStickyNotifications(): Promise<{
   meta: FetchMeta;
 }> {
   if (forceMock()) {
-    return { data: [], meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
+    return {
+      data: [
+        {
+          id: 'notification-mock-sticky',
+          type: 'THEME_UNDER_REVIEW',
+          actor: null,
+          title: 'Theme is in review',
+          body: 'An admin will approve or reject it soon. This stays until you acknowledge it.',
+          url: '/settings/themes',
+          readAt: null,
+          sticky: true,
+          createdAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+        },
+      ],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
   }
   try {
     const { data } = await requestJson<{
@@ -91,6 +106,17 @@ export async function fetchNotifications(): Promise<{
   if (forceMock()) {
     return {
       data: [
+        {
+          id: 'notification-mock-sticky',
+          type: 'THEME_UNDER_REVIEW',
+          actor: null,
+          title: 'Theme is in review',
+          body: 'An admin will approve or reject it soon. This stays until you acknowledge it.',
+          url: '/settings/themes',
+          readAt: null,
+          sticky: true,
+          createdAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+        },
         {
           id: 'notification-mock-1',
           type: 'FAN',

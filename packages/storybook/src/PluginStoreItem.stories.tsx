@@ -75,3 +75,19 @@ export const LongDescription: Story = {
     onInstall: fn(),
   },
 };
+
+export const WithAccessory: Story = {
+  args: {
+    name: 'Spectrum Bars',
+    description: 'Classic frequency bars for channel headers.',
+    author: 'Tahti',
+    categories: ['Audio reactive'],
+    isInstalled: true,
+    onInstall: fn(),
+    accessory: (
+      <button type="button" className="text-sm underline">
+        Configure
+      </button>
+    ),
+  },
+};

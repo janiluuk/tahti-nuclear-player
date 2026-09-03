@@ -47,9 +47,9 @@ import { ConnectedPlayerBar } from './ConnectedPlayerBar';
 import { ConnectedSettingsModal } from './ConnectedSettingsModal';
 import { FullScreenPlayer } from './FullScreenPlayer';
 import { MobileBottomNav, MobileDrawer } from './MobileChrome';
+import { NotificationToasts } from './NotificationToasts';
 import { PageTourSpotlight } from './PageTourSpotlight';
 import { RightRailPanel } from './RightRailPanel';
-import { StickyNotificationBanner } from './StickyNotificationBanner';
 import {
   getStudioPrimaryRoute,
   StudioMainNavItems,
@@ -417,7 +417,7 @@ export function AppShell() {
         onOpenMenu={() => setMobileNavOpen(true)}
       />
       <AmbientBackground />
-      <StickyNotificationBanner />
+      <NotificationToasts />
 
       <AudioEngine />
 
@@ -515,7 +515,7 @@ export function AppShell() {
       <ChannelSetupDialog />
       <ConnectedSettingsModal />
       <PageTourSpotlight />
-      <Toaster position="bottom-right" richColors />
+      <Toaster position="bottom-right" richColors closeButton />
 
       <MobileDrawer
         open={mobileNavOpen}

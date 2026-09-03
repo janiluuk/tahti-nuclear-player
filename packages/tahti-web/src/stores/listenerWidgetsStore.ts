@@ -3,14 +3,39 @@ import { persist } from 'zustand/middleware';
 
 import type { RadioStation } from '../content/radioStations';
 
-/** One user-added external embed — see src/content/listenerWidgets.ts. */
+export const NEWS_WIDGET_TYPE_ID = 'news';
+
+export type ListenerWidgetSurface = 'listen' | 'discover';
+
+/** One user-added external embed — see src/content/listenerWidgets.ts.
+ * `news` instances store an RSS URL in `input` plus optional thumbnail
+ * and which pages they appear on. */
 export type ListenerWidgetInstance = {
   id: string;
   typeId: string;
   input: string;
   label: string;
   addedAt: string;
+  thumbnailUrl?: string;
+  surfaces?: ListenerWidgetSurface[];
 };
+
+export function widgetSurfaces(
+  instance: ListenerWidgetInstance,
+): ListenerWidgetSurface[] {
+  return instance.surfaces ?? ['listen', 'discover'];
+}
+
+export function newsWidgetsOn(
+  instances: ListenerWidgetInstance[],
+  surface: ListenerWidgetSurface,
+): ListenerWidgetInstance[] {
+  return instances.filter(
+    (instance) =>
+      instance.typeId === NEWS_WIDGET_TYPE_ID &&
+      widgetSurfaces(instance).includes(surface),
+  );
+}
 
 type ListenerWidgetsState = {
   /** Widget types (SoundCloud, Spotify, YouTube) the user has "installed" from the
@@ -22,7 +47,12 @@ type ListenerWidgetsState = {
   stationOverrides: Record<string, Partial<RadioStation>>;
   installType: (typeId: string) => void;
   uninstallType: (typeId: string) => void;
-  addInstance: (typeId: string, input: string, label: string) => void;
+  addInstance: (
+    typeId: string,
+    input: string,
+    label: string,
+    extras?: Pick<ListenerWidgetInstance, 'thumbnailUrl' | 'surfaces'>,
+  ) => void;
   removeInstance: (id: string) => void;
   toggleStation: (stationId: string) => void;
   updateStation: (stationId: string, patch: Partial<RadioStation>) => void;
@@ -46,7 +76,7 @@ export const useListenerWidgetsStore = create<ListenerWidgetsState>()(
           installedTypeIds: s.installedTypeIds.filter((id) => id !== typeId),
           instances: s.instances.filter((i) => i.typeId !== typeId),
         })),
-      addInstance: (typeId, input, label) =>
+      addInstance: (typeId, input, label, extras) =>
         set((s) => ({
           instances: [
             ...s.instances,
@@ -56,6 +86,8 @@ export const useListenerWidgetsStore = create<ListenerWidgetsState>()(
               input,
               label,
               addedAt: new Date().toISOString(),
+              thumbnailUrl: extras?.thumbnailUrl,
+              surfaces: extras?.surfaces,
             },
           ],
         })),

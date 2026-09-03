@@ -1,3 +1,7 @@
+import {
+  imageUploadTypeError,
+  resolveImageUploadContentType,
+} from '../lib/imageUploadContentType';
 import type { FetchMeta } from './client';
 
 const apiBase = () => {
@@ -6,6 +10,26 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
+
+async function readErrorMessage(
+  response: Response,
+  fallback: string,
+): Promise<string> {
+  try {
+    const body: unknown = await response.json();
+    if (
+      body &&
+      typeof body === 'object' &&
+      'error' in body &&
+      typeof (body as { error: unknown }).error === 'string'
+    ) {
+      return (body as { error: string }).error;
+    }
+  } catch {
+    /* ignore non-JSON error bodies */
+  }
+  return fallback;
+}
 
 export type UserMediaFile = {
   id: string;
@@ -29,7 +53,9 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
     },
   });
   if (!response.ok) {
-    throw new Error(`${path} → ${response.status}`);
+    throw new Error(
+      await readErrorMessage(response, `${path} → ${response.status}`),
+    );
   }
   return (await response.json()) as T;
 }
@@ -59,10 +85,14 @@ export async function uploadUserMediaFile(
   file: File,
 ): Promise<{ ok: true; data: UserMediaFile } | { ok: false; error: string }> {
   if (import.meta.env.VITE_FORCE_MOCK === '1') {
+    const contentType = resolveImageUploadContentType(file);
+    if (!contentType) {
+      return { ok: false, error: imageUploadTypeError(file) };
+    }
     const data: UserMediaFile = {
       id: `media-${Date.now()}-${file.name}`,
       filename: file.name,
-      contentType: file.type || 'application/octet-stream',
+      contentType,
       sizeBytes: file.size,
       url: URL.createObjectURL(file),
       createdAt: new Date().toISOString(),
@@ -70,12 +100,11 @@ export async function uploadUserMediaFile(
     mockMedia = [data, ...mockMedia];
     return { ok: true, data };
   }
+  const contentType = resolveImageUploadContentType(file);
+  if (!contentType) {
+    return { ok: false, error: imageUploadTypeError(file) };
+  }
   try {
-    const contentType = ['image/jpeg', 'image/png', 'image/webp'].includes(
-      file.type,
-    )
-      ? file.type
-      : 'image/png';
     const prepared = await requestJson<{
       uploadKey: string;
       uploadUrl: string;
@@ -89,7 +118,9 @@ export async function uploadUserMediaFile(
       headers: { 'Content-Type': contentType },
     });
     if (!upload.ok) {
-      throw new Error(`Upload failed (${upload.status})`);
+      throw new Error(
+        await readErrorMessage(upload, `Upload failed (${upload.status})`),
+      );
     }
     const data = await requestJson<UserMediaFile>('/api/me/media/complete', {
       method: 'POST',

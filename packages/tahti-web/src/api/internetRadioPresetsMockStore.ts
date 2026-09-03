@@ -22,7 +22,7 @@ const INITIAL_PRESETS: MockInternetRadioPreset[] = [
     name: 'Radio Helsinki',
     genre: 'World',
     description: null,
-    iconUrl: 'https://www.streamurl.link/logos/JoiOnv3Q9An.webp',
+    iconUrl: '/radio-logos/radio-helsinki.png',
     programmingUrl: null,
     streamUrl: null,
     enabled: false,

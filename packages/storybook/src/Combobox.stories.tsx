@@ -11,7 +11,7 @@ const meta: Meta<typeof CreatableCombobox> = {
     docs: {
       description: {
         component:
-          'A searchable select that also lets the user type a brand-new value and add it on the fly (e.g. genre tags).',
+          'A searchable select that also lets the user type a brand-new value and add it on the fly (e.g. genre tags). Used in tahti-web via GenrePicker and single-genre track fields. Missing states: disabled, empty options list, validation error.',
       },
     },
   },

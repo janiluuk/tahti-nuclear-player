@@ -21,15 +21,9 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { Badge } from '@tahti-player/ui';
+import { Badge, Button, EmptyState } from '@tahti-player/ui';
 
 import { fetchConversations, type ConversationSummary } from '../api/messages';
-import {
-  dismissNotification,
-  fetchNotifications,
-  markAllNotificationsRead,
-  type TahtiNotification,
-} from '../api/notifications';
 import { fetchStudioSounds } from '../api/studio';
 import type { StudioSound } from '../api/studio-types';
 import { useCanGoForward } from '../hooks/useCanGoForward';
@@ -37,6 +31,7 @@ import { useOwnBroadcastPresence } from '../hooks/useOwnBroadcastPresence';
 import { cn } from '../lib/cn';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
+import { useNotificationInboxStore } from '../stores/notificationInboxStore';
 import { useProcessingJobsStore } from '../stores/processingJobsStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { GlobalSearch } from './GlobalSearch';
@@ -72,7 +67,13 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [processingOpen, setProcessingOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-  const [notifications, setNotifications] = useState<TahtiNotification[]>([]);
+  const notifications = useNotificationInboxStore((s) => s.items);
+  const acknowledgeNotification = useNotificationInboxStore(
+    (s) => s.acknowledge,
+  );
+  const markNonStickyRead = useNotificationInboxStore(
+    (s) => s.markNonStickyRead,
+  );
   const [archiveItems, setArchiveItems] = useState<StudioSound[]>([]);
   const localProcessingJobs = useProcessingJobsStore((state) => state.jobs);
   const settleProcessingJobs = useProcessingJobsStore((state) => state.settle);
@@ -167,26 +168,11 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
   }, [messagesOpen]);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !notificationsOpen) {
       return;
     }
-    void fetchNotifications().then((result) => {
-      setNotifications(result.data);
-      // Opening the bell marks every unread notification read — the same
-      // behavior the backend's /read-all route exists for (sticky
-      // notifications rely on it too). Optimistic so the pill clears
-      // immediately instead of waiting on a second round trip.
-      if (notificationsOpen && result.data.some((n) => !n.readAt)) {
-        void markAllNotificationsRead();
-        setNotifications((prev) =>
-          prev.map((n) => ({
-            ...n,
-            readAt: n.readAt ?? new Date().toISOString(),
-          })),
-        );
-      }
-    });
-  }, [notificationsOpen, user]);
+    void markNonStickyRead();
+  }, [markNonStickyRead, notificationsOpen, user]);
 
   useEffect(() => {
     if (!user) {
@@ -462,9 +448,11 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                   <span className="text-sm font-semibold">Notifications</span>
                 </div>
                 {notifications.length === 0 ? (
-                  <p className="text-foreground-secondary px-2 py-3 text-xs">
-                    No notifications yet.
-                  </p>
+                  <EmptyState
+                    size="sm"
+                    title="No notifications yet"
+                    className="py-3"
+                  />
                 ) : (
                   <ul className="flex max-h-80 flex-col gap-1 overflow-y-auto">
                     {notifications.map((notification) => (
@@ -477,30 +465,66 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                             : 'bg-primary/10',
                         )}
                       >
-                        {notification.url ? (
-                          <a
-                            href={notification.url}
-                            className="block hover:underline"
-                            onClick={() => {
-                              if (!notification.readAt) {
-                                void dismissNotification(notification.id);
-                              }
-                            }}
-                          >
-                            <span className="font-semibold">
-                              {notification.title}
-                            </span>
-                            {notification.body ? (
-                              <span className="mt-0.5 block">
-                                {notification.body}
-                              </span>
+                        <div className="flex items-start gap-2">
+                          <div className="min-w-0 flex-1">
+                            {notification.sticky && !notification.readAt ? (
+                              <Badge
+                                variant="pill"
+                                color="yellow"
+                                className="mb-1"
+                              >
+                                Needs acknowledgement
+                              </Badge>
                             ) : null}
-                          </a>
-                        ) : (
-                          <span className="font-semibold">
-                            {notification.title}
-                          </span>
-                        )}
+                            {notification.url ? (
+                              <a
+                                href={notification.url}
+                                className="block hover:underline"
+                                onClick={() => {
+                                  if (
+                                    !notification.readAt &&
+                                    !notification.sticky
+                                  ) {
+                                    void acknowledgeNotification(
+                                      notification.id,
+                                    );
+                                  }
+                                }}
+                              >
+                                <span className="font-semibold">
+                                  {notification.title}
+                                </span>
+                                {notification.body ? (
+                                  <span className="mt-0.5 block">
+                                    {notification.body}
+                                  </span>
+                                ) : null}
+                              </a>
+                            ) : (
+                              <>
+                                <span className="font-semibold">
+                                  {notification.title}
+                                </span>
+                                {notification.body ? (
+                                  <span className="mt-0.5 block">
+                                    {notification.body}
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
+                          </div>
+                          {notification.sticky && !notification.readAt ? (
+                            <Button
+                              size="xs"
+                              variant="secondary"
+                              onClick={() =>
+                                void acknowledgeNotification(notification.id)
+                              }
+                            >
+                              Acknowledge
+                            </Button>
+                          ) : null}
+                        </div>
                       </li>
                     ))}
                   </ul>

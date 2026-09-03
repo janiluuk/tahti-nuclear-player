@@ -1,10 +1,9 @@
-import { PencilIcon } from 'lucide-react';
+import { LoaderCircleIcon, UploadCloudIcon } from 'lucide-react';
 import { useRef, useState, type FC, type RefObject } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@tahti-player/ui';
-
 import { cn } from '../lib/cn';
+import { IMAGE_UPLOAD_ACCEPT_ATTR } from '../lib/imageUploadContentType';
 import {
   canEditRadioStationCover,
   persistRadioStationCover,
@@ -91,16 +90,17 @@ export const RadioStationCoverEditButton: FC<
 
   return (
     <>
-      <Button
+      <button
         type="button"
-        size="icon-sm"
-        variant="text"
         disabled={busy}
         title={`Edit ${label} cover`}
         aria-label={`Edit ${label} cover`}
         data-testid="radio-station-cover-edit"
         className={cn(
-          'bg-background/80 hover:bg-background opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100',
+          'flex cursor-pointer items-center justify-center border-0 p-0',
+          'bg-background/80 hover:bg-background/90 disabled:cursor-wait',
+          'opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100',
+          'size-8 rounded-full',
           className,
         )}
         onClick={(event) => {
@@ -109,12 +109,16 @@ export const RadioStationCoverEditButton: FC<
           openCoverPicker(inputRef, busy);
         }}
       >
-        <PencilIcon size={14} aria-hidden />
-      </Button>
+        {busy ? (
+          <LoaderCircleIcon size={18} aria-hidden className="animate-spin" />
+        ) : (
+          <UploadCloudIcon size={18} aria-hidden />
+        )}
+      </button>
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept={IMAGE_UPLOAD_ACCEPT_ATTR}
         disabled={busy}
         className="sr-only"
         onChange={(event) => {
@@ -176,7 +180,7 @@ export const RadioStationCover: FC<RadioStationCoverProps> = ({
           presetId={presetId}
           persist={persist}
           onCoverChange={onCoverChange}
-          className="absolute inset-0 size-full rounded-none"
+          className="absolute inset-0 size-full rounded-[inherit]"
         />
       ) : null}
     </div>

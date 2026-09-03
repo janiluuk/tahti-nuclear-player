@@ -8,11 +8,32 @@ import { uploadUserMediaFile } from '../api/user-media';
 import { RADIO_STATIONS } from '../content/radioStations';
 import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
 import { hasAccountRole } from './accountRoles';
+import {
+  imageUploadTypeError,
+  resolveImageUploadContentType,
+} from './imageUploadContentType';
 
 export function canEditRadioStationCover(
   user: AuthUser | null | undefined,
 ): boolean {
   return hasAccountRole(user, 'BOARD');
+}
+
+/** Admin preset `iconUrl` must be an absolute URL (Zod `.url()`). */
+export function toPersistableMediaUrl(url: string): string {
+  const trimmed = url.trim();
+  if (
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('data:') ||
+    trimmed.startsWith('blob:')
+  ) {
+    return trimmed;
+  }
+  if (typeof window !== 'undefined' && trimmed.startsWith('/')) {
+    return new URL(trimmed, window.location.origin).href;
+  }
+  return trimmed;
 }
 
 export function fileToDataUrl(file: File): Promise<string> {
@@ -28,6 +49,9 @@ export function fileToDataUrl(file: File): Promise<string> {
 export async function uploadRadioCoverFile(
   file: File,
 ): Promise<{ ok: true; data: { url: string } } | { ok: false; error: string }> {
+  if (!resolveImageUploadContentType(file)) {
+    return { ok: false, error: imageUploadTypeError(file) };
+  }
   if (isForceMock()) {
     try {
       const url = await fileToDataUrl(file);
@@ -48,13 +72,14 @@ export async function persistRadioStationCover(input: {
   stationName: string;
   logoUrl: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
+  const logoUrl = toPersistableMediaUrl(input.logoUrl);
   const catalogStationId =
     input.catalogStationId ??
     RADIO_STATIONS.find((station) => station.name === input.stationName)?.id;
   let wroteLocal = false;
   if (catalogStationId) {
     useListenerWidgetsStore.getState().updateStation(catalogStationId, {
-      logoUrl: input.logoUrl,
+      logoUrl,
     });
     wroteLocal = true;
   }
@@ -70,9 +95,9 @@ export async function persistRadioStationCover(input: {
   }
 
   const result = await patchAdminInternetRadioPreset(presetId, {
-    iconUrl: input.logoUrl,
+    iconUrl: logoUrl,
   });
-  if (!result.ok && !wroteLocal) {
+  if (!result.ok) {
     return result;
   }
   return { ok: true };

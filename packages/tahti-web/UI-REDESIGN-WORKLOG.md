@@ -1,5 +1,247 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Listen / Discover CardGrid vs Storybook (planned)
+
+**Goal:** Every card-shaped media grid on Listen and Discover must match
+Storybook `Layout/CardGrid` + `Card` specs (`packages/storybook/src/CardGrid.stories.tsx`):
+`CardGrid` (`grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 …`) wrapping
+Nuclear `Card` tiles (cover via `MediaArtwork`, title/subtitle, play/queue/
+favorite overlays). Do not invent parallel auto-fit grids or bespoke cover
+cards for the same job.
+
+**Storybook contract (current):**
+- Layout: `CardGrid` only — no local `grid sm:grid-cols-2 lg:grid-cols-3`
+  for media tiles that should behave like the player dashboard cards.
+- Tile: `Card` (`w-46`, bordered, square cover, text under). Overlays go
+  through `Card` → `MediaArtwork` (`fill`); secondary overlays follow the
+  MediaArtwork crowding rule (`lg`/`fill` only — Card covers use `fill`, so
+  queue/favorite on Card are correct).
+- Horizontal strip alternative is `CardsRow` — **orphan in tahti-web** for
+  Listen/Discover (per-item overlays/edit buttons don’t fit `CardsRowItem`).
+  Prefer `CardGrid`+`Card` unless a true horizontal scroller is required
+  (NewsWidget already covers news).
+
+### Audit — Listen (`ListenView` + listener widgets)
+
+| Surface | Current | Gap |
+| --- | --- | --- |
+| Continue listening | `SectionShell` → `CardGrid` → `Card` | OK (single-card grid is fine) |
+| Radio presets | `CardGrid` → `Card` + cover-edit overlay wrapper | OK pattern; keep edit/remove as wrappers around `Card`, not a second card chrome |
+| On air | `CardGrid` → `Card` | OK |
+| Discover artists (Listen tab) | `CardGrid` → `Card` | OK |
+| Listener widget radio stations | `CardGrid` → `Card` | OK |
+| Featured Tahti Radio strip | hand-rolled `Box` + `size-12` thumb + buttons | Not a card grid — leave as hero/featured strip unless we deliberately promote it to a one-card `CardGrid` |
+| Embed widgets | custom `grid gap-3 sm:grid-cols-2` | Embeds are not `Card` tiles — leave; do not force `CardGrid` |
+| News feeds | `NewsWidget` / `NewsFeedWidget` | Correct (not CardGrid) |
+| Disco widgets | own section | Separate from CardGrid; out of this plan unless they grow card tiles |
+
+### Audit — Discover (`DiscoverView`)
+
+| Surface | Current | Gap |
+| --- | --- | --- |
+| Discover tab widgets | hand-rolled `grid gap-4 lg:grid-cols-3` of `WidgetCard` | **Not CardGrid.** Widget panels are dense list/track UIs, not media `Card`s — keep panel chrome; do **not** force `Card`/`CardGrid` onto widget shells |
+| Artists tab (`ArtistCarousel`) | hand-rolled `grid gap-4 sm:grid-cols-2 lg:grid-cols-3` + full-bleed hero tiles | **Mismatch.** Same job as Listen’s artist `CardGrid`+`Card`, different look. Plan: swap to `CardGrid` + `Card` (play/queue/favorite parity with Listen directory cards where data allows); drop bespoke blur/gradient hero cards |
+| Venues tab | directory (non-Card) | Out of scope unless venues become cover cards |
+| News on Discover | `NewsFeedWidget` | OK |
+
+### Planned slices
+
+1. **Listen parity check** — walk every Listen card section against Storybook Default story; fix className overrides that break `minmax(10rem,1fr)` / gap / `Card` width; document intentional exceptions (featured radio strip, embeds).
+2. **Discover Artists → CardGrid+Card** — replace `ArtistCarousel` hero grid with Storybook `CardGrid`/`Card`; wire play (and queue/favorite if signed-in) like Listen artists; keep Live badge via subtitle or Card accessory if needed.
+3. **Discover widgets boundary** — confirm `WidgetCard` stays non-CardGrid; if any widget grows a media-tile row, use `CardGrid`+`Card` inside the panel, not a local CSS grid of thumbnails.
+4. **ListenerWidgetsSection** — keep station `CardGrid`; re-check embed grid is documented as non-Card; no duplicate station card chrome.
+5. **Storybook docs** — note on `CardGrid` story: Listen On air / Radio / artists + Discover artists are production consumers; flag Discover widget columns as intentionally not CardGrid; update CardsRow orphan note if Artists migrate away from custom grids.
+
+**Constraint:** Keep Listen data/behavior (live state, cover edit, queue confirm). Visual primitive swap only. Persistent chrome unchanged.
+
+## 2026-09-04 — News widget (RSS slider)
+
+Bumped `@tahti-player/tahti-web` to `0.0.56`.
+
+Listen Add-ons now includes **News**: configure a title, RSS/Atom URL, thumbnail, and whether it shows on Listen, Discover, or both. The Storybook `NewsWidget` slider renders the feed (header mark + article cards). Sibling `GET /api/me/rss-feed?url=` proxies the XML with SSRF guards; mock Vite uses fixture articles.
+
+## 2026-09-04 — Player bar → Storybook PlayerBar (planned)
+
+**Goal:** Rework the compact (and where it makes sense, full-screen) player
+chrome so elements use the official Storybook / `@tahti-player/ui` `PlayerBar`
+compound components wherever they already fit — do not hand-roll a second
+seek bar, volume, now-playing, or transport cluster.
+
+**Storybook reference:** `Layout/PlayerBar` (`packages/storybook/src/PlayerBar.stories.tsx`)
+— `PlayerBar` root + `PlayerBar.NowPlaying` / `.Controls` / `.Volume` /
+`.SeekBar`.
+
+**Current state (`ConnectedPlayerBar.tsx`):** already wires `PlayerBar`,
+`NowPlaying`, `Controls`, and `Volume`. Still custom:
+- Seek via `ConnectedSeekBar` / `PlayerSeekBar` instead of composing
+  `PlayerBar.SeekBar` (or a thin store-connected wrapper around it)
+- Right-cluster full-screen + queue toggle as plain `Button`s (queue badge
+  included) — keep Tahti-only behavior, but align visuals/slots with the
+  Storybook bar pattern where a matching slot exists
+- HearThis embed strip + live badge + bottom queue strip stay host-owned
+  (no Storybook equivalent)
+
+**Also scan:** `FullScreenPlayer.tsx` and any other transport chrome that
+duplicates PlayerBar pieces.
+
+**Constraint:** Keep live/archive/HearThis/queue-strip behavior and
+persistent chrome rules; swap primitives, do not drop features to match a
+simpler demo.
+
+## 2026-09-04 — MediaArtwork thumbnails vs Storybook update
+
+Bumped `@tahti-player/tahti-web` to `0.0.56`.
+
+**Storybook / `@tahti-player/ui` MediaArtwork contract (current):**
+- Size presets: `sm` | `thumb` | `md` | `lg` | `fill`.
+- **`thumb`** is the standard inline track-row thumbnail (step up from `sm`).
+- Queue / favorite / extra `actions` overlays only render on **`lg` and `fill`**
+  (crowding rule). On `sm` / `thumb` / `md`, pass play (+ optional artwork
+  click) only; put queue/favorite in the row chrome.
+- `ImageReveal` runs for every size except `sm`.
+- Track tables already use `size="thumb"` (`ThumbnailCell`).
+
+### Usages scanned — inconsistencies
+
+| Location | Issue | Change |
+| --- | --- | --- |
+| `PluginStorePanel` HearThis tracks | `size="sm"` + dead `onQueue` | → `thumb`; queue as row button |
+| `PluginStorePanel` personal radio | `size="sm"` + dead `onQueue`/`onFavorite` | → `thumb`; queue/fav as row buttons |
+| `PluginStorePanel` HearThis collections | `size="sm"` (static) | → `thumb` |
+| `HistoryRow` | `size="sm"` + dead `onQueue` (Plus already in row) | → `thumb`; drop artwork queue |
+| `FeedView` track/release cards | `size="fill"` + queue (OK) | leave |
+| `Card` / `ThumbnailCell` / TopArtists | already correct | leave |
+| `WidgetTrackRow` | hand-rolled `ImageReveal` + play overlay | → `MediaArtwork` `thumb` |
+| `CollectionTrackList` | hand-rolled cover + play | → `MediaArtwork` `md` |
+| `MyDiscographyView` / Studio lists / GlobalSearch / Smart links / Library media | `ImageReveal` or bare `<img>` thumbs, no play | worklog follow-up: prefer `MediaArtwork` `thumb`/`sm` when playable; keep `ImageReveal` for non-interactive list art only if needed |
+| `RadioView` / `ReleasesPanel` | `MediaIconActions` beside plain thumbs | follow-up: artwork → `MediaArtwork` where play exists |
+
+### Executed this pass
+
+- `PluginStorePanel` HearThis collections → `thumb`
+- `PluginStorePanel` HearThis tracks → `thumb` + row `ListPlus` queue
+- `PluginStorePanel` personal radio → `thumb` + row queue/`FavoriteButton`
+- `HistoryRow` → `thumb`; dropped dead artwork `onQueue`
+- `WidgetTrackRow` → `MediaArtwork` `thumb` (replaced hand-rolled reveal + play)
+- `CollectionTrackList` → `MediaArtwork` `md` (replaced hand-rolled cover + play)
+- Storybook docs note on secondary overlays (`lg`/`fill` only)
+
+### Follow-up (still open)
+
+Non-playable list art (`MyDiscographyView`, Studio collections, GlobalSearch,
+Smart links, Library media) and `RadioView`/`ReleasesPanel` beside
+`MediaIconActions` — migrate when those rows gain play, or to `thumb`/`sm`
+without overlays for visual consistency.
+
+## 2026-09-04 — Sticky notification toasts
+
+Bumped `@tahti-player/tahti-web` to `0.0.55`.
+
+Must-acknowledge notices use Storybook `Toaster` via `showNotificationToast({ sticky: true })` (infinite duration, Acknowledge action). Closing the toast only hides it; the inbox keeps the item until Acknowledge (`PATCH /:id/read`). Opening the bell marks non-sticky unread via `read-all`. Sibling API `POST /api/me/notifications/read-all` now skips sticky rows.
+
+Removed `StickyNotificationBanner`. `NotificationToasts` stays mounted next to `Toaster` in `AppShell`.
+
+## 2026-09-04 — PluginStoreItem / ThemeStoreItem consistency (audit + fix)
+
+Bumped `@tahti-player/tahti-web` to `0.0.54`.
+
+**Rule:** Add-ons listings and their configure headers use Storybook
+`PluginStoreItem`. Theme listings use Storybook `ThemeStoreItem`. Do not
+hand-roll store rows or use `PluginItem` (installed-runtime chrome) inside
+the Add-ons browser.
+
+### Inconsistencies found
+
+1. **Themes (Add-ons)** — already `ThemeStoreItem` (OK).
+2. **Themes (Settings → Themes browse)** — hand-rolled palette buttons /
+   cards instead of `ThemeStoreItem` (built-in + imported).
+3. **Visualizers** — hand-rolled `Box` rows with icon/Use/Configure instead
+   of `PluginStoreItem`.
+4. **Personal radio stream** — hand-rolled `Box` header inside
+   `ConfigurableCard` instead of `PluginStoreItem`.
+5. **Multicast destinations** — `PluginItem` instead of `PluginStoreItem`.
+6. **Audio plugins / Radio Browser toggle rows** — `PluginItem` + `Toggle`
+   instead of `PluginStoreItem` (+ accessory toggle).
+7. **Curated radio stations** — `PluginItem` with enable/play accessories
+   instead of `PluginStoreItem`.
+8. **Disco-widget installs** — `PluginItem` instead of `PluginStoreItem`
+   (browse store already correct).
+9. **Service / HearThis / Spotify / export cards** — already
+   `PluginStoreItem` in `ConfigurableCard` headers (OK).
+10. **Listen add-ons / Discord** — already `PluginStoreItem` (OK).
+11. **`PluginStoreItem` API gap** — no accessory slot for enable/configure/
+    play controls that sit beside the install CTA (needed for radio,
+    multicast, audio toggles, visualizer configure).
+
+### Fix executed
+
+- Added optional `accessory` to `PluginStoreItem` and `ThemeStoreItem`.
+- Converted visualizers, personal radio header, multicast, audio toggles,
+  curated radio, disco installs, and Settings → Themes browse to the
+  matching store components. Configure dialogs / `ConfigurableCard` gear
+  kept; listing chrome only.
+
+## 2026-09-04 — Add-on store header info + ThemeStoreItem
+
+Bumped `@tahti-player/tahti-web` to `0.0.53`.
+
+Verified every Add-ons category (and the top-level Add-ons header) has an info
+control that reveals the former always-visible description. Removed those
+always-visible subtexts. Themes listings use Storybook `ThemeStoreItem`
+(apply/active; remove only for custom). UX sweep: `EmptyState` / `Box` /
+`PluginItem`+`Toggle` / Nuclear `Input` on empty gates, visualizer cards,
+audio plugin rows, Installed/Available empties, and Disco-widget manager.
+
+## 2026-09-04 — Radio Helsinki logo upload + catalog asset
+
+Bumped `@tahti-player/tahti-web` to `0.0.52`.
+
+**Bug:** Station cover edit used Nuclear `Button` `icon-sm` (`size-8`) over a
+`size-full` overlay; Tailwind kept the 32px control, so most of the logo
+was not clickable. Uploads also forced `image/png` when MIME was empty or
+`image/jpg`, which broke prepare/complete for real JPEG/WebP files.
+Catalog logos hotlinked `streamurl.link` (HTTP 403). Persist treated a
+failed admin `iconUrl` PATCH as success when a local catalog override was
+written. Relative `/radio-logos/…` paths also fail Zod `.url()` on PATCH.
+
+**Fix:** Full-bleed native overlay on `RadioStationCover`; compact corner
+control still used on Listen cards. Shared `resolveImageUploadContentType`
+(+ clear SVG/GIF/HEIC errors). Absolute-ize same-origin logo paths before
+preset PATCH; surface API error bodies. Self-hosted official RH playmark at
+`public/radio-logos/radio-helsinki.png`; Admin “Use catalog logo”.
+
+**Worklog (planned):** `docs/todo/image-upload-hover-lightbox.md` — hover X
+delete-with-confirm + large preview modal (slideshow strip) on every set
+image upload widget.
+
+## 2026-09-03 — Storybook-first leftovers (ten slices)
+
+Bumped `@tahti-player/tahti-web` to `0.0.51`.
+
+Added standing instructions: prefer Storybook components; keep live data and features; add missing components to Storybook with states flagged; mark unused stories as orphans.
+
+**Slice 1 — Channel editor mock actions:** Play / Favorite preview pills use `Badge`.
+
+**Slice 2 — Collection cover:** Slideshow image count overlay uses `Badge`.
+
+**Slice 3 — Player bar:** Queue length overlay uses `Badge`.
+
+**Slice 4 — Image lightbox:** Gallery photo uses `ImageReveal`.
+
+**Slice 5 — Library media:** Thumbs use `ImageReveal`; Image/Video overlay uses `Badge`.
+
+**Slice 6 — Sounds list:** Cover thumbs use `ImageReveal`.
+
+**Slice 7 — Smart links:** Artwork uses `ImageReveal`; empty list uses `EmptyState`.
+
+**Slice 8 — Collections list:** Covers use `ImageReveal`; empty and no-match use `EmptyState`.
+
+**Slice 9 — Global search:** Result thumbs use `ImageReveal`; searching uses `Loader`; no results use `EmptyState`.
+
+**Slice 10 — Storybook flags:** CardsRow documented as unused in tahti-web (overlay slot missing). Combobox missing disabled/empty/error states. ImageLightbox empty gallery flagged.
+
+**Validation:** tahti-web type-check and eslint on the touched files. Browser-checked Library media, Sounds, search, and the player-bar queue count.
+
 ## 2026-09-03 — Persistent-chrome and leftover tabs + badges (ten slices)
 
 Bumped `@tahti-player/tahti-web` to `0.0.50`.

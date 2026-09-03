@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { FilePicker } from '@tahti-player/ui';
 
 import { uploadUserMediaFile } from '../api/user-media';
+import { IMAGE_UPLOAD_ACCEPT_ATTR } from '../lib/imageUploadContentType';
 
 type Props = {
   label: string;
@@ -51,7 +52,7 @@ export function ImageUploadField({
           description,
           browse: file ? 'Choose another image' : 'Choose image',
         }}
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept={IMAGE_UPLOAD_ACCEPT_ATTR}
         selectedFiles={file ? [file] : []}
         disabled={busy}
         onFiles={handleFiles}

@@ -1,5 +1,40 @@
 [
   {
+    "date": "2026-09-04T00:50",
+    "description": "Add a News widget from Listen add-ons: paste an RSS feed, set a thumbnail, and a slider of articles shows on Listen and Discover.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-04T00:40",
+    "description": "Notices that need a decision stay on screen and in the notifications list until you acknowledge them. Closing the toast only hides it.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-04T00:20",
+    "description": "Add-ons and themes use the same store cards everywhere, including enable and play controls beside install.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-04T00:10",
+    "description": "Radio Helsinki and other station logos upload and click to replace correctly, including JPEG and WebP files.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-03T23:50",
+    "description": "Library covers and search results fade in as they load, empty lists use the shared empty layout, and queue and live counts use the same badges as the rest of the app.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
     "date": "2026-09-03T23:20",
     "description": "Listen, Library, and Admin tabs now match the rest of the app, including arrow keys. Unread counts and Live labels use the same badges as elsewhere.",
     "type": "improvement",

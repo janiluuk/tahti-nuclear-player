@@ -52,7 +52,8 @@ export const RADIO_STATIONS: RadioStation[] = [
   {
     id: 'radio-helsinki',
     name: 'Radio Helsinki',
-    logoUrl: 'https://www.streamurl.link/logos/JoiOnv3Q9An.webp',
+    // Self-hosted official playmark (streamurl.link hotlinks return 403).
+    logoUrl: '/radio-logos/radio-helsinki.png',
     language: 'Finnish',
     bitrateKbps: 256,
     codec: 'MP3',

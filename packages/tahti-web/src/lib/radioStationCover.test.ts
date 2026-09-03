@@ -53,7 +53,7 @@ describe('radio station cover', () => {
   });
 
   it('writes the new cover to the catalog override and matching admin preset', async () => {
-    const logoUrl = 'data:image/png;base64,aaa';
+    const logoUrl = 'https://cdn.example/cover.png';
 
     const result = await persistRadioStationCover({
       catalogStationId: 'radio-helsinki',
@@ -70,7 +70,7 @@ describe('radio station cover', () => {
   });
 
   it('updates a matching catalog station when only the preset is named', async () => {
-    const logoUrl = 'data:image/webp;base64,bbb';
+    const logoUrl = 'https://cdn.example/cover.webp';
 
     const result = await persistRadioStationCover({
       presetId: 'preset-radio-helsinki',
@@ -84,6 +84,19 @@ describe('radio station cover', () => {
         ?.logoUrl,
     ).toBe(logoUrl);
     expect(listMockInternetRadioPresets()[0]?.iconUrl).toBe(logoUrl);
+  });
+
+  it('absolutizes same-origin catalog logo paths before patching the preset', async () => {
+    const result = await persistRadioStationCover({
+      catalogStationId: 'radio-helsinki',
+      stationName: 'Radio Helsinki',
+      logoUrl: '/radio-logos/radio-helsinki.png',
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(listMockInternetRadioPresets()[0]?.iconUrl).toMatch(
+      /^https?:\/\/.+\/radio-logos\/radio-helsinki\.png$/,
+    );
   });
 
   it('reads an uploaded file as a persistable data URL in mock mode', async () => {

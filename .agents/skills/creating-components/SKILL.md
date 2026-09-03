@@ -54,6 +54,14 @@ export const MyComponent: FC<MyComponentProps> = ({
 
 **Consolidate tests.** One test can cover multiple related assertions. An exception to that is snapshot tests - one snapshot per variant/state.
 
+## Storybook-first
+
+Before creating a component, open Storybook (`packages/storybook/src/`). Reuse what is already there.
+
+- Keep live **data and features**. A Storybook demo that is simpler than production is not a reason to drop overlays, counts, or actions.
+- If the component does not exist in Storybook at all, add a story with every state that exists today. Flag states it should have but does not (`Missing states:` in docs).
+- If a story is unused in the player and tahti-web, flag it (`Orphan:` in docs) instead of deleting it during a UI sweep.
+
 ## Stories
 
 Create `packages/storybook/src/MyComponent.stories.tsx`.

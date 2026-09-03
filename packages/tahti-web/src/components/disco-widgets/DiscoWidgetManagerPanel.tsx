@@ -2,7 +2,14 @@ import { Link } from '@tanstack/react-router';
 import { ArrowDown, ArrowUp, Settings2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, PluginStoreItem, Toggle } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  EmptyState,
+  Input,
+  PluginStoreItem,
+  Toggle,
+} from '@tahti-player/ui';
 
 import {
   createDiscoWidgetInstall,
@@ -153,9 +160,11 @@ export function DiscoWidgetManagerPanel({
       ) : (
         <>
           {installs.length === 0 ? (
-            <p className="text-foreground-secondary text-sm">
-              Nothing installed yet — add one from the store below.
-            </p>
+            <EmptyState
+              size="sm"
+              title="Nothing installed yet"
+              description="Add one from the store below."
+            />
           ) : (
             <div
               className={
@@ -165,75 +174,69 @@ export function DiscoWidgetManagerPanel({
               {installs.map((install, index) => {
                 const isPending = pendingId === install.id;
                 return (
-                  <div
+                  <PluginStoreItem
                     key={install.id}
-                    className="border-border flex flex-wrap items-start justify-between gap-3 rounded-lg border p-3"
-                    style={{ opacity: install.enabled ? 1 : 0.55 }}
-                  >
-                    <div className="min-w-0 flex-1">
+                    name={install.widget.name}
+                    author={install.widget.authorName}
+                    description={install.widget.description}
+                    version={install.widget.currentVersion}
+                    categories={install.enabled ? ['Enabled'] : ['Disabled']}
+                    isInstalled
+                    onInstall={() => undefined}
+                    labels={{ installed: 'Installed' }}
+                    accessory={
                       <div className="flex flex-wrap items-center gap-2">
-                        <strong className="text-sm">
-                          {install.widget.name}
-                        </strong>
-                        <span className="text-foreground-secondary font-mono text-xs">
-                          v{install.widget.currentVersion}
-                        </span>
-                      </div>
-                      <p className="text-foreground-secondary mt-1 text-xs">
-                        {install.widget.description}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button
-                        size="icon-sm"
-                        variant="secondary"
-                        disabled={isPending || index === 0}
-                        onClick={() => void handleMove(install.id, 'up')}
-                        aria-label="Move up"
-                        title="Move up"
-                      >
-                        <ArrowUp size={15} aria-hidden />
-                      </Button>
-                      <Button
-                        size="icon-sm"
-                        variant="secondary"
-                        disabled={isPending || index === installs.length - 1}
-                        onClick={() => void handleMove(install.id, 'down')}
-                        aria-label="Move down"
-                        title="Move down"
-                      >
-                        <ArrowDown size={15} aria-hidden />
-                      </Button>
-                      {compact ? null : (
                         <Button
                           size="icon-sm"
                           variant="secondary"
-                          disabled={isPending}
-                          onClick={() => setConfiguringId(install.id)}
-                          aria-label={`Configure ${install.widget.name}`}
-                          title="Configure widget"
+                          disabled={isPending || index === 0}
+                          onClick={() => void handleMove(install.id, 'up')}
+                          aria-label="Move up"
+                          title="Move up"
                         >
-                          <Settings2 size={15} aria-hidden />
+                          <ArrowUp size={15} aria-hidden />
                         </Button>
-                      )}
-                      <Toggle
-                        label="Enabled"
-                        checked={install.enabled}
-                        disabled={isPending}
-                        onChange={(checked) =>
-                          void handleToggle(install.id, checked)
-                        }
-                      />
-                      <Button
-                        size="sm"
-                        variant="text"
-                        disabled={isPending}
-                        onClick={() => void handleRemove(install.id)}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  </div>
+                        <Button
+                          size="icon-sm"
+                          variant="secondary"
+                          disabled={isPending || index === installs.length - 1}
+                          onClick={() => void handleMove(install.id, 'down')}
+                          aria-label="Move down"
+                          title="Move down"
+                        >
+                          <ArrowDown size={15} aria-hidden />
+                        </Button>
+                        {compact ? null : (
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            disabled={isPending}
+                            onClick={() => setConfiguringId(install.id)}
+                            aria-label={`Configure ${install.widget.name}`}
+                            title="Configure widget"
+                          >
+                            <Settings2 size={15} aria-hidden />
+                          </Button>
+                        )}
+                        <Toggle
+                          label="Enabled"
+                          checked={install.enabled}
+                          disabled={isPending}
+                          onChange={(checked) =>
+                            void handleToggle(install.id, checked)
+                          }
+                        />
+                        <Button
+                          size="sm"
+                          variant="text"
+                          disabled={isPending}
+                          onClick={() => void handleRemove(install.id)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    }
+                  />
                 );
               })}
             </div>
@@ -243,12 +246,11 @@ export function DiscoWidgetManagerPanel({
             <h3 className="text-sm font-semibold tracking-wide uppercase">
               Browse the store
             </h3>
-            <input
+            <Input
               type="search"
-              className="border-border bg-background rounded-md border px-3 py-2 text-sm"
               placeholder="Search widgets…"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(event) => setSearch(event.target.value)}
               aria-label="Search Disco-widgets"
             />
             <p className="text-foreground-secondary text-xs">
@@ -263,11 +265,19 @@ export function DiscoWidgetManagerPanel({
               .
             </p>
             {filtered.length === 0 ? (
-              <p className="text-foreground-secondary text-sm">
-                {widgets.length === 0
-                  ? 'No widgets available in this store yet.'
-                  : 'No widgets match your search.'}
-              </p>
+              <EmptyState
+                size="sm"
+                title={
+                  widgets.length === 0
+                    ? 'No widgets available'
+                    : 'No matching widgets'
+                }
+                description={
+                  widgets.length === 0
+                    ? 'Nothing in this store yet.'
+                    : 'Try a different search.'
+                }
+              />
             ) : (
               <div
                 className={

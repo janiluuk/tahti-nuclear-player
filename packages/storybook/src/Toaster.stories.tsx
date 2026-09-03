@@ -1,12 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { toast } from 'sonner';
 
-import { Button, Toaster } from '@tahti-player/ui';
+import {
+  Button,
+  showNotificationToast,
+  toast,
+  Toaster,
+} from '@tahti-player/ui';
 
 const meta = {
   title: 'Components/Toaster',
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Use `toast` for ordinary notices and `showNotificationToast({ sticky: true })` for must-acknowledge notices (`duration` infinity, Acknowledge action). Closing a sticky toast only hides it — the inbox keeps it until acknowledged.',
+      },
+    },
   },
 } satisfies Meta;
 
@@ -93,6 +103,20 @@ export const Playground: Story = {
           }}
         >
           Loading
+        </Button>
+        <Button
+          onClick={() =>
+            showNotificationToast('Theme is in review', {
+              id: 'story-sticky-theme',
+              description:
+                'Stays on screen and in the notifications list until you acknowledge it. Closing the toast only hides it.',
+              sticky: true,
+              actionLabel: 'Acknowledge',
+              onAction: () => toast.dismiss('story-sticky-theme'),
+            })
+          }
+        >
+          Sticky
         </Button>
       </div>
     </div>

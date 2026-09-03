@@ -1,7 +1,14 @@
-import { Heart, SettingsIcon, Youtube } from 'lucide-react';
+import { Heart, Newspaper, SettingsIcon, Youtube } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button, Input, PluginStoreItem, Tabs } from '@tahti-player/ui';
+import {
+  Box,
+  Button,
+  Input,
+  PluginStoreItem,
+  Tabs,
+  Toggle,
+} from '@tahti-player/ui';
 
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
 import {
@@ -10,8 +17,15 @@ import {
   soundcloudProfileUrl,
 } from '../content/listenerWidgets';
 import { cn } from '../lib/cn';
-import { useListenerWidgetsStore } from '../stores/listenerWidgetsStore';
+import { isHttpUrl } from '../lib/parseRss';
+import {
+  NEWS_WIDGET_TYPE_ID,
+  useListenerWidgetsStore,
+  type ListenerWidgetSurface,
+} from '../stores/listenerWidgetsStore';
+import { ImageUploadField } from './ImageUploadField';
 import { ListenerWidgetEmbed } from './ListenerWidgetEmbed';
+import { NewsFeedWidget } from './NewsFeedWidget';
 import { SourceServiceIcon } from './SourceServiceIcon';
 
 function ConfigurableCard({
@@ -50,12 +64,14 @@ function ConfigurableCard({
         </Button>
       </div>
       {open ? (
-        <div
-          className="border-border flex flex-col gap-4 rounded-md border p-3"
+        <Box
+          variant="tertiary"
+          shadow="none"
+          className="gap-4 p-3"
           data-testid={`listen-addon-config-${title}`}
         >
           {children}
-        </div>
+        </Box>
       ) : null}
     </div>
   );
@@ -64,6 +80,9 @@ function ConfigurableCard({
 function listenAddonIcon(typeId: string): ReactNode {
   if (typeId === 'favorites') {
     return <Heart className="size-6" aria-hidden />;
+  }
+  if (typeId === NEWS_WIDGET_TYPE_ID) {
+    return <Newspaper className="size-6" aria-hidden />;
   }
   if (typeId === 'youtube') {
     return <Youtube className="size-6" aria-hidden />;
@@ -102,6 +121,12 @@ export function ListenAddonsPanel({
   const [soundcloudProfileLoading, setSoundcloudProfileLoading] =
     useState(true);
   const [savingSoundcloudProfile, setSavingSoundcloudProfile] = useState(false);
+  const [newsTitle, setNewsTitle] = useState('News');
+  const [newsFeedUrl, setNewsFeedUrl] = useState('');
+  const [newsThumbnailUrl, setNewsThumbnailUrl] = useState('');
+  const [newsShowListen, setNewsShowListen] = useState(true);
+  const [newsShowDiscover, setNewsShowDiscover] = useState(true);
+  const [newsError, setNewsError] = useState<string | null>(null);
 
   useEffect(() => {
     void fetchMeProfile()
@@ -183,12 +208,39 @@ export function ListenAddonsPanel({
     });
   };
 
+  const addNewsFeed = () => {
+    const url = newsFeedUrl.trim();
+    if (!isHttpUrl(url)) {
+      setNewsError('Paste an http(s) RSS or Atom feed URL.');
+      return;
+    }
+    if (!newsShowListen && !newsShowDiscover) {
+      setNewsError('Show this feed on Listen, Discover, or both.');
+      return;
+    }
+    const surfaces: ListenerWidgetSurface[] = [
+      ...(newsShowListen ? (['listen'] as const) : []),
+      ...(newsShowDiscover ? (['discover'] as const) : []),
+    ];
+    addInstance(NEWS_WIDGET_TYPE_ID, url, newsTitle.trim() || 'News', {
+      thumbnailUrl: newsThumbnailUrl.trim() || undefined,
+      surfaces,
+    });
+    setNewsFeedUrl('');
+    setNewsError(null);
+  };
+
   const favoritesInstalled = installedTypeIds.includes('favorites');
+  const newsInstalled = installedTypeIds.includes(NEWS_WIDGET_TYPE_ID);
+  const newsInstances = instances.filter(
+    (instance) => instance.typeId === NEWS_WIDGET_TYPE_ID,
+  );
+  const extraInstalled = (favoritesInstalled ? 1 : 0) + (newsInstalled ? 1 : 0);
   const installedCount =
-    (favoritesInstalled ? 1 : 0) +
+    extraInstalled +
     LISTENER_WIDGET_TYPES.filter((type) => installedTypeIds.includes(type.id))
       .length;
-  const availableCount = LISTENER_WIDGET_TYPES.length + 1 - installedCount;
+  const availableCount = LISTENER_WIDGET_TYPES.length + 2 - installedCount;
   const listClassName = compact
     ? 'grid gap-3 sm:grid-cols-2'
     : 'flex flex-col gap-3';
@@ -241,6 +293,116 @@ export function ListenAddonsPanel({
                 Uninstall
               </Button>
             </div>
+          </ConfigurableCard>
+        )}
+        {newsInstalled === (installTab === 'installed') && (
+          <ConfigurableCard
+            title="News"
+            open={configuringId === NEWS_WIDGET_TYPE_ID}
+            onOpenChange={(open) =>
+              setConfiguringId(open ? NEWS_WIDGET_TYPE_ID : null)
+            }
+            className={
+              compact && configuringId === NEWS_WIDGET_TYPE_ID
+                ? 'sm:col-span-2'
+                : undefined
+            }
+            header={
+              <PluginStoreItem
+                icon={listenAddonIcon(NEWS_WIDGET_TYPE_ID)}
+                name="News"
+                author="Tahti"
+                description="Show an RSS or Atom article slider on Listen and Discover. Configure a thumbnail and feed URL."
+                category="Listen"
+                isInstalled={newsInstalled}
+                onInstall={() => handleInstall(NEWS_WIDGET_TYPE_ID)}
+              />
+            }
+          >
+            {newsInstalled ? (
+              <div className="flex flex-col gap-3">
+                {newsInstances.map((instance) => (
+                  <NewsFeedWidget
+                    key={instance.id}
+                    instance={instance}
+                    onRemove={() => removeInstance(instance.id)}
+                  />
+                ))}
+                <form
+                  className="flex flex-col gap-3"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    addNewsFeed();
+                  }}
+                >
+                  <Input
+                    label="Title"
+                    value={newsTitle}
+                    onChange={(event) => setNewsTitle(event.target.value)}
+                    placeholder="News"
+                  />
+                  <Input
+                    label="RSS feed URL"
+                    value={newsFeedUrl}
+                    onChange={(event) => {
+                      setNewsError(null);
+                      setNewsFeedUrl(event.target.value);
+                    }}
+                    placeholder="https://example.com/feed.xml"
+                    required
+                  />
+                  <ImageUploadField
+                    label="Thumbnail"
+                    description="Used next to the title and when an article has no image."
+                    value={newsThumbnailUrl}
+                    onChange={setNewsThumbnailUrl}
+                  />
+                  <div className="flex flex-wrap gap-6">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span>Show on Listen</span>
+                      <Toggle
+                        label="Show on Listen"
+                        checked={newsShowListen}
+                        onChange={setNewsShowListen}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span>Show on Discover</span>
+                      <Toggle
+                        label="Show on Discover"
+                        checked={newsShowDiscover}
+                        onChange={setNewsShowDiscover}
+                      />
+                    </div>
+                  </div>
+                  <Button size="sm" type="submit" className="self-start">
+                    Add feed
+                  </Button>
+                </form>
+                {newsError ? (
+                  <p className="text-destructive text-xs" role="alert">
+                    {newsError}
+                  </p>
+                ) : null}
+                <div className="flex items-center justify-between">
+                  <p className="text-foreground-secondary text-xs">
+                    Paste a public RSS 2.0 or Atom URL. Articles open in a new
+                    tab.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="text"
+                    onClick={() => handleUninstall(NEWS_WIDGET_TYPE_ID)}
+                  >
+                    Uninstall
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-foreground-secondary text-sm">
+                Install this add-on to add RSS feeds to Listen and Discover.
+              </p>
+            )}
           </ConfigurableCard>
         )}
         {LISTENER_WIDGET_TYPES.filter(

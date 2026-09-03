@@ -46,19 +46,17 @@ export const HistoryRow: FC<HistoryRowProps> = ({
     <div
       data-testid="history-row-thumbnail"
       className={cn(
-        'flex h-10 w-10 min-w-10 items-center justify-center overflow-hidden',
+        'flex size-12 min-w-12 items-center justify-center overflow-hidden',
         classes?.thumbnail,
       )}
     >
       <MediaArtwork
-        size="sm"
+        size="thumb"
         src={artworkUrl}
         alt={title}
         imageReveal={false}
         onPlay={onPlayNow}
         playLabel="Play"
-        onQueue={onAddToQueue}
-        queueLabel={labels.addToQueue}
         placeholder={
           <Music
             size={16}

@@ -11,7 +11,13 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FC } from 'react';
 
-import { Button, FilterChips, Input, Select } from '@tahti-player/ui';
+import {
+  Button,
+  FilterChips,
+  ImageReveal,
+  Input,
+  Select,
+} from '@tahti-player/ui';
 
 import {
   fetchEditorSource,
@@ -257,10 +263,10 @@ export const MyDiscographyView: FC = () => {
                   >
                     <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
                       {item.bannerUrl ? (
-                        <img
+                        <ImageReveal
                           src={item.bannerUrl}
                           alt=""
-                          className="size-full object-cover"
+                          className="size-full"
                         />
                       ) : (
                         <ImageIcon

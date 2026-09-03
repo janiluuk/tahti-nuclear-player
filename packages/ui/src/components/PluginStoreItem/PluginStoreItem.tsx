@@ -19,6 +19,8 @@ type PluginStoreItemProps = Omit<ComponentProps<'div'>, 'children'> & {
   isInstalled?: boolean;
   isInstalling?: boolean;
   onInstall: () => void;
+  /** Extra actions beside the install CTA (toggles, configure, play). */
+  accessory?: ReactNode;
   labels?: {
     install?: string;
     installing?: string;
@@ -38,6 +40,7 @@ export const PluginStoreItem: FC<PluginStoreItemProps> = ({
   isInstalled = false,
   isInstalling = false,
   onInstall,
+  accessory,
   labels = {},
   className,
   ...props
@@ -65,7 +68,7 @@ export const PluginStoreItem: FC<PluginStoreItemProps> = ({
         </Box>
       )}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <h3 className="text-foreground inline-flex flex-row items-baseline gap-2 text-lg leading-tight font-bold select-none">
             <span data-testid="plugin-store-item-name">{name}</span>
             <p className="text-foreground-secondary text-sm font-normal select-none">
@@ -96,7 +99,10 @@ export const PluginStoreItem: FC<PluginStoreItemProps> = ({
         </p>
       </div>
 
-      <div className="shrink-0">
+      <div
+        data-testid="plugin-store-item-actions"
+        className="flex shrink-0 items-center gap-2"
+      >
         {isInstalling ? (
           <Button disabled className="w-28 disabled:opacity-100">
             <Loader size="sm" />
@@ -113,6 +119,7 @@ export const PluginStoreItem: FC<PluginStoreItemProps> = ({
             <span className="ml-2">{install}</span>
           </Button>
         )}
+        {accessory}
       </div>
     </Box>
   );

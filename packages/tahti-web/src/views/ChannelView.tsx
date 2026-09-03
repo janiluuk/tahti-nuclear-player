@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Loader, SaveButton, Tabs } from '@tahti-player/ui';
+import { Badge, Button, Loader, SaveButton, Tabs } from '@tahti-player/ui';
 
 import {
   isHeaderImageUrl,
@@ -748,12 +748,20 @@ export function ChannelView({ slug }: { slug: string }) {
       case 'actions':
         return editing ? (
           <div className="flex items-center gap-2 px-1 py-2">
-            <span className="bg-primary text-primary-foreground inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold">
+            <Badge
+              variant="pill"
+              color="blue"
+              className="bg-primary text-primary-foreground inline-flex items-center gap-1.5 px-3 py-1.5"
+            >
               <PlayIcon size={12} className="fill-current" /> Play
-            </span>
-            <span className="border-border text-foreground-secondary inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold">
+            </Badge>
+            <Badge
+              variant="pill"
+              color="secondary"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5"
+            >
               <HeartIcon size={12} /> Favorite
-            </span>
+            </Badge>
             <span className="text-foreground-secondary ml-1 text-xs">
               Included in the live visualizer stage.
             </span>

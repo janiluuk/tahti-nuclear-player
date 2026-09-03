@@ -245,6 +245,9 @@ test('Listen add-widget dialog lists every Listen store add-on', async ({
   await expect(
     dialog.getByTestId('plugin-store-item-name').getByText('Bandcamp'),
   ).toBeVisible();
+  await expect(
+    dialog.getByTestId('plugin-store-item-name').getByText('News'),
+  ).toBeVisible();
 });
 
 test('Listen add-widget picker installs, configures, and uninstalls every Listen add-on without closing', async ({

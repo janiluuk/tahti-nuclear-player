@@ -2,7 +2,7 @@ import { ListMusicIcon, Maximize2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { formatArtistNames } from '@tahti-player/model';
-import { Button, cn, PlayerBar } from '@tahti-player/ui';
+import { Badge, Button, cn, PlayerBar } from '@tahti-player/ui';
 
 import { useIsMobile } from '../hooks/useIsMobile';
 import { soundIdFromPlayableId } from '../lib/archiveId';
@@ -221,9 +221,13 @@ export function ConnectedPlayerBar() {
                 <ListMusicIcon size={16} />
               </Button>
               {queue.length > 1 ? (
-                <span className="bg-primary text-primary-foreground pointer-events-none absolute -top-0.5 -right-0.5 min-w-4 rounded-full px-1 text-center text-[9px] font-bold tabular-nums">
+                <Badge
+                  variant="pill"
+                  color="blue"
+                  className="bg-primary text-primary-foreground pointer-events-none absolute -top-0.5 -right-0.5 min-w-4 px-1 text-center text-[9px] font-bold tabular-nums"
+                >
                   {queue.length}
-                </span>
+                </Badge>
               ) : null}
             </div>
           </div>

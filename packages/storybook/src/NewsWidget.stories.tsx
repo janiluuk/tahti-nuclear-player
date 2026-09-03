@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Widescreen sibling of CardsRow for articles/news — a thumbnail, header, and teaser text need more width per item than the standard thumbnail-sized Card used elsewhere. Not yet wired to a production data source (no news/articles API exists in tahti-web yet); this is the Storybook-only building block, ready once one does.',
+          'Widescreen sibling of CardsRow for articles/news — thumbnail, header, and teaser. Used by the Listen News add-on: configure an RSS/Atom URL and optional thumbnail, then the slider appears on Listen and/or Discover.',
       },
     },
   },
@@ -67,6 +67,15 @@ export const WithBadge: Story = {
   args: {
     title: 'News & articles',
     badge: 'New',
+    items,
+    labels,
+  },
+};
+
+export const WithThumbnail: Story = {
+  args: {
+    title: 'News & articles',
+    thumbnailUrl: 'https://picsum.photos/64/64?random=31',
     items,
     labels,
   },

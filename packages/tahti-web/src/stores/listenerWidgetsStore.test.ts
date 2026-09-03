@@ -53,4 +53,22 @@ describe('listener widgets store', () => {
     expect(next.installedTypeIds).toEqual(['bandcamp']);
     expect(next.instances).toHaveLength(1);
   });
+
+  it('stores a news feed with thumbnail and page surfaces', () => {
+    const store = useListenerWidgetsStore.getState();
+    store.installType('news');
+    store.addInstance('news', 'https://example.com/rss.xml', 'Desk news', {
+      thumbnailUrl: 'https://cdn.example/mark.png',
+      surfaces: ['discover'],
+    });
+
+    const instance = useListenerWidgetsStore.getState().instances[0];
+    expect(instance).toMatchObject({
+      typeId: 'news',
+      input: 'https://example.com/rss.xml',
+      label: 'Desk news',
+      thumbnailUrl: 'https://cdn.example/mark.png',
+      surfaces: ['discover'],
+    });
+  });
 });
