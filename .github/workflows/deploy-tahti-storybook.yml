@@ -1,0 +1,199 @@
+# Deploy @tahti-player/storybook (storybook.tahti.live) to vimage via jumphost.
+#
+# Same pattern as deploy-tahti-web.yml: build on the runner, SSH in through a
+# jumphost (vimage sits on a private LAN, not reachable directly from
+# GitHub-hosted runners), rsync the built storybook-static/, then rebuild +
+# restart the container on the host. See packages/storybook/deploy/ for the
+# equivalent manual `pnpm deploy:tahti-storybook` path.
+#
+# Required repository secret:
+#   DEPLOY_SSH_PRIVATE_KEY — private key authorized on the jumphost + vimage
+#
+# Optional repository variables (defaults match packages/storybook/deploy):
+#   DEPLOY_JUMP_HOST, DEPLOY_JUMP_USER, DEPLOY_JUMP_PORT
+#   DEPLOY_HOST, DEPLOY_PATH, DEPLOY_USER, DEPLOY_HOST_PORT
+#
+# Triggers:
+#   - workflow_dispatch (manual: deploy the latest master build on demand)
+#   - CI workflow completed successfully on master (auto, after every merge)
+name: Deploy storybook
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+
+env:
+  DO_NOT_TRACK: 1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-tahti-storybook
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Check deploy key
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'master')
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+        run: |
+          if [[ -n "${DEPLOY_KEY}" ]]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::DEPLOY_SSH_PRIVATE_KEY not set — skipping storybook deploy"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    name: Build and deploy storybook
+    needs: preflight
+    if: needs.preflight.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DEPLOY_JUMP_USER: ${{ vars.DEPLOY_JUMP_USER }}
+      DEPLOY_JUMP_HOST: ${{ vars.DEPLOY_JUMP_HOST }}
+      DEPLOY_JUMP_PORT: ${{ vars.DEPLOY_JUMP_PORT }}
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_PATH: ${{ vars.STORYBOOK_DEPLOY_PATH }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_HOST_PORT: ${{ vars.STORYBOOK_DEPLOY_HOST_PORT }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v5
+
+      - name: Get PNPM store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup PNPM cache
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build @tahti-player/storybook
+        run: pnpm --filter @tahti-player/storybook build
+
+      - name: Verify build output
+        run: test -f packages/storybook/storybook-static/index.html
+
+      - name: Export deploy targets
+        run: |
+          jump_user="${DEPLOY_JUMP_USER:-pi}"
+          jump_host="${DEPLOY_JUMP_HOST:-sparkki.dudeisland.eu}"
+          jump_port="${DEPLOY_JUMP_PORT:-4322}"
+          {
+            echo "DEPLOY_JUMP_USER=${jump_user}"
+            echo "DEPLOY_JUMP_HOST=${jump_host}"
+            echo "DEPLOY_JUMP_PORT=${jump_port}"
+            echo "DEPLOY_HOST=${DEPLOY_HOST:-192.168.2.100}"
+            echo "DEPLOY_PATH=${DEPLOY_PATH:-/srv/tahti-storybook}"
+            echo "DEPLOY_USER=${DEPLOY_USER:-root}"
+            echo "DEPLOY_HOST_PORT=${DEPLOY_HOST_PORT:-15181}"
+          } >> "$GITHUB_ENV"
+
+      - name: Configure SSH agent
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/deploy_key
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "$GITHUB_ENV"
+          cat >> ~/.ssh/config <<CFG
+          Host deploy-jump
+            HostName ${DEPLOY_JUMP_HOST}
+            Port ${DEPLOY_JUMP_PORT}
+            User ${DEPLOY_JUMP_USER}
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            BatchMode yes
+            StrictHostKeyChecking accept-new
+
+          Host deploy-prod
+            HostName ${DEPLOY_HOST}
+            User ${DEPLOY_USER}
+            ProxyJump deploy-jump
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            BatchMode yes
+            StrictHostKeyChecking accept-new
+          CFG
+          chmod 600 ~/.ssh/config
+
+      - name: Trust SSH host keys
+        run: |
+          set -euo pipefail
+          touch ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh-keyscan -p "${DEPLOY_JUMP_PORT}" -H "${DEPLOY_JUMP_HOST}" >> ~/.ssh/known_hosts
+          ssh deploy-jump "ssh-keyscan -H '${DEPLOY_HOST}'" >> ~/.ssh/known_hosts
+
+      - name: Verify jumphost and vimage SSH
+        run: |
+          ssh deploy-jump 'echo "jumphost ok"'
+          ssh deploy-prod 'echo "vimage ok"'
+
+      - name: Sync storybook-static + deploy config to vimage
+        run: |
+          set -euo pipefail
+          ssh deploy-prod "mkdir -p '${DEPLOY_PATH}/storybook-static' '${DEPLOY_PATH}/deploy'"
+          rsync -az --delete packages/storybook/storybook-static/ "deploy-prod:${DEPLOY_PATH}/storybook-static/"
+          rsync -az --delete \
+            --exclude 'deploy-vimage.sh' \
+            packages/storybook/deploy/ "deploy-prod:${DEPLOY_PATH}/deploy/"
+          if [ "${DEPLOY_HOST_PORT}" != "15181" ]; then
+            ssh deploy-prod "sed -i \"s/15181:80/${DEPLOY_HOST_PORT}:80/\" '${DEPLOY_PATH}/deploy/docker-compose.yml'"
+          fi
+
+      - name: Build image and restart container
+        run: |
+          ssh deploy-prod "cd '${DEPLOY_PATH}' && \
+            docker build -t tahti-storybook-web:local -f deploy/Dockerfile . && \
+            docker compose -f deploy/docker-compose.yml up -d --force-recreate && \
+            docker image prune -f >/dev/null 2>&1 || true"
+
+      - name: Smoke check
+        run: |
+          ssh deploy-prod "set -e
+            code=\$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:${DEPLOY_HOST_PORT}/)
+            echo \"storybook:\${code}\"
+            test \"\${code}\" = '200'
+          "
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::storybook deploy failed for ${{ github.sha }}"

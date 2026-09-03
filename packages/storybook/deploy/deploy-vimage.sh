@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy the static @nuclearplayer/storybook build onto vimage.
+# Deploy the static @tahti-player/storybook build onto vimage.
 #
 # Layout on the host:
 #   /srv/tahti-storybook   this build's storybook-static/ + deploy/
@@ -41,9 +41,9 @@ if [[ -s "$NVM_DIR/nvm.sh" ]]; then
   nvm use 22 >/dev/null 2>&1 || nvm use 24 >/dev/null 2>&1 || true
 fi
 
-echo "==> Building @nuclearplayer/storybook"
+echo "==> Building @tahti-player/storybook"
 cd "$NUCLEAR_ROOT"
-pnpm --filter @nuclearplayer/storybook build
+pnpm --filter @tahti-player/storybook build
 
 if [[ ! -f "$ROOT/storybook-static/index.html" ]]; then
   echo "error: build did not produce storybook-static/index.html" >&2
