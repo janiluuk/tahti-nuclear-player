@@ -152,14 +152,27 @@ export const useLayoutStore = create<LayoutState>()(
         const p = { ...((persisted ?? {}) as Record<string, unknown>) };
         // Drop legacy rightRailMode ('queue' | 'chat').
         delete p.rightRailMode;
+        const rightRailTab: RightRailTab =
+          p.rightRailTab === 'notifications' || p.rightRailTab === 'queue'
+            ? p.rightRailTab
+            : 'chat';
         return {
-          ...p,
+          leftCollapsed:
+            typeof p.leftCollapsed === 'boolean' ? p.leftCollapsed : false,
+          rightCollapsed:
+            typeof p.rightCollapsed === 'boolean' ? p.rightCollapsed : false,
           bottomQueueOpen:
             typeof p.bottomQueueOpen === 'boolean' ? p.bottomQueueOpen : false,
-          rightRailTab:
-            p.rightRailTab === 'notifications' || p.rightRailTab === 'queue'
-              ? p.rightRailTab
-              : 'chat',
+          rightRailTab,
+          rightWidth: typeof p.rightWidth === 'number' ? p.rightWidth : 340,
+          leftWidth: typeof p.leftWidth === 'number' ? p.leftWidth : 220,
+          chatSlug: typeof p.chatSlug === 'string' ? p.chatSlug : null,
+          chatEnabled:
+            typeof p.chatEnabled === 'boolean' ? p.chatEnabled : false,
+          chatAutoOpenedFor:
+            typeof p.chatAutoOpenedFor === 'string'
+              ? p.chatAutoOpenedFor
+              : null,
           rightRailTabBeforeQueue: null,
         };
       },
