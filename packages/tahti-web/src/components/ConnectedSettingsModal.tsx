@@ -1,4 +1,4 @@
-import { BookOpenIcon, GithubIcon, InfoIcon } from 'lucide-react';
+import { BookOpenIcon, GithubIcon, InfoIcon, LogInIcon } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { Button, SettingsPanel } from '@tahti-player/ui';
@@ -93,14 +93,14 @@ export function ConnectedSettingsModal() {
       navFooter={
         <div className="flex flex-col gap-2">
           {!signedIn ? (
-            <div className="flex flex-col gap-2">
-              <p className="text-foreground-secondary text-xs">
-                Sign in for account, artist, and studio settings.
-              </p>
-              <Button size="sm" onClick={() => openAuth('login')}>
-                Log in
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => openAuth('login')}
+            >
+              <LogInIcon size={14} aria-hidden />
+              <span className="ml-1.5">Log in</span>
+            </Button>
           ) : null}
           <div className="border-border flex flex-col gap-0.5 border-t pt-2">
             <div className="flex flex-col gap-0.5">

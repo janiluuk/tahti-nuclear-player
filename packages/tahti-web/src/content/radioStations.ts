@@ -8,7 +8,7 @@
  * guessed. `detailUrl` (the station's real streamurl.link page, which
  * *was* fetched directly) is the honest fallback: it always resolves to
  * a real, working way to find the live stream. An admin approving a
- * station suggestion (see AdminRadioStationSuggestionsView) can fill in
+ * station suggestion (see RadioStationSuggestionsTab) can fill in
  * a verified `streamUrl` directly.
  */
 

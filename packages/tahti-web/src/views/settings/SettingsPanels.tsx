@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import {
   Bell,
   Cast,
+  CircleHelpIcon,
   Compass,
   CreditCardIcon,
   Database,
@@ -41,6 +42,7 @@ import {
   Select,
   Tabs,
   Textarea,
+  Tooltip,
   type SelectOption,
 } from '@tahti-player/ui';
 
@@ -2205,12 +2207,14 @@ function ThemesPanel() {
               {mode.label}
             </Button>
           ))}
+          <Tooltip content="Dark from 7pm to 7am, light the rest of the day.">
+            <CircleHelpIcon
+              size={14}
+              className="text-foreground-secondary"
+              aria-label="What Dynamic does"
+            />
+          </Tooltip>
         </div>
-        {colorMode === 'dynamic' && (
-          <p className="text-foreground-secondary text-xs">
-            Dark from 7pm to 7am, light the rest of the day.
-          </p>
-        )}
       </div>
 
       <Tabs
@@ -2229,10 +2233,11 @@ function ThemesPanel() {
                         <button
                           type="button"
                           onClick={() => setTheme(theme.id)}
+                          style={{ borderColor: theme.palette[0] }}
                           className={
                             active
-                              ? 'border-border bg-primary w-full rounded-lg border p-4 text-left'
-                              : 'border-border bg-background hover:bg-background-secondary w-full rounded-lg border p-4 text-left'
+                              ? 'bg-primary w-full rounded-lg border-2 p-4 text-left'
+                              : 'bg-background hover:bg-background-secondary w-full rounded-lg border-2 p-4 text-left'
                           }
                         >
                           <div className="mb-3 flex gap-2">
@@ -2278,10 +2283,15 @@ function ThemesPanel() {
                         return (
                           <div
                             key={id}
+                            style={
+                              theme.palette?.[0]
+                                ? { borderColor: theme.palette[0] }
+                                : undefined
+                            }
                             className={
                               active
-                                ? 'border-border bg-primary relative rounded-lg border p-4'
-                                : 'border-border bg-background hover:bg-background-secondary relative rounded-lg border p-4'
+                                ? 'border-border bg-primary relative rounded-lg border-2 p-4'
+                                : 'border-border bg-background hover:bg-background-secondary relative rounded-lg border-2 p-4'
                             }
                           >
                             <button

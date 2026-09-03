@@ -79,12 +79,12 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   },
 ];
 
-/** Sections visible without signing in (prefs + announcements). Add-ons
- * (import/export/multicast/etc.) all deep-link into Studio/Sources/Settings
- * flows that require an account, so it stays sign-in-only rather than
- * showing dead-end links while signed out. */
+/** Sections visible without signing in (prefs + announcements + browsing
+ * add-ons). Individual add-on actions that deep-link into Studio/Sources/
+ * Settings flows still prompt for sign-in themselves when clicked. */
 export const PUBLIC_SETTINGS_SECTION_IDS: readonly SettingsSectionId[] = [
   'themes',
+  'plugin-store',
   'whats-new',
 ];
 
