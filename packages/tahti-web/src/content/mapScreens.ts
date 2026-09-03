@@ -1168,16 +1168,20 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
       },
       {
         id: 'artist-revenue',
-        title: 'Revenue / Connect',
-        viewName: 'Revenue',
-        caption: 'Stripe Connect status + grant estimate/history.',
+        title: 'Revenue / order management',
+        viewName: 'Audience',
+        caption:
+          'Latest fan-sub orders, payout statistics, €5 order-flow split, and a Help-center earnings guide. Stripe Connect lives on Studio → Stripe when Stripe is enabled.',
         actions: [
-          'Connect Stripe',
+          'Review latest orders',
+          'Compare order statistics',
+          'Read the order-flow breakdown',
+          'Open the earnings help article',
+          'Start the page help tour',
+          'Open the Stripe dashboard (when Stripe is enabled)',
           'View fan tiers',
-          'Edit tier pricing',
-          'View payouts',
-          'Open the Stripe portal (external — window.open)',
         ],
+        goesTo: [{ label: 'Open the Stripe dashboard', to: '/studio/stripe' }],
         old: {
           image: '/map/studio/revenue.png',
           route: '/dashboard/revenue',
@@ -1187,6 +1191,35 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           image: '/map/nuclear/revenue.png',
           route: '/studio/revenue',
           caption: 'Nuclear revenue',
+        },
+      },
+      {
+        id: 'artist-stripe',
+        title: 'Stripe dashboard',
+        viewName: 'Stripe',
+        caption:
+          'Shown in Studio only when Stripe is configured. Connect onboarding, Express dashboard, and charges on this payout account.',
+        actions: [
+          'Check Connect status',
+          'Start or resume onboarding',
+          'Open the Stripe Express dashboard (external — window.open)',
+          'Review charges processed through Stripe',
+        ],
+        goesTo: [
+          {
+            label: 'Back to Audience orders and grants',
+            to: '/studio/revenue',
+          },
+        ],
+        old: {
+          image: '/map/studio/revenue.png',
+          route: '/dashboard/revenue',
+          caption: 'Prod revenue / Connect',
+        },
+        new: {
+          image: '/map/nuclear/revenue.png',
+          route: '/studio/stripe',
+          caption: 'Nuclear Stripe dashboard',
         },
       },
       {
@@ -1734,11 +1767,12 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         title: 'Payments not ready',
         viewName: 'Revenue / subscribe',
         caption:
-          'Connect incomplete or Stripe not configured — checkout / payouts blocked.',
+          'Connect incomplete or Stripe not configured — checkout / payouts blocked. Onboarding lives on Studio → Stripe when Stripe is enabled.',
         actions: [
           'See the "Connect incomplete" state instead of live payout figures',
-          'Start/retry Stripe Connect onboarding',
+          'Start/retry Stripe Connect onboarding on /studio/stripe',
         ],
+        goesTo: [{ label: 'Open the Stripe dashboard', to: '/studio/stripe' }],
         old: {
           image: '/map/studio/revenue.png',
           route: '/dashboard/revenue',

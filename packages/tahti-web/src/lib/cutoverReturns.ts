@@ -32,7 +32,7 @@ export function resolveDashboardCallbackRedirect(
 
   const fanConnect = stringValue(search, 'fanConnect');
   if (fanConnect) {
-    return appendSearchParams('/studio/revenue', { fanConnect });
+    return appendSearchParams('/studio/stripe', { fanConnect });
   }
 
   const fanSubscriptions = stringValue(search, 'fansubs');

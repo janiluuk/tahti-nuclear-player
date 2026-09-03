@@ -27,7 +27,7 @@ test('legacy callbacks land on the matching SPA surface', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Account' })).toBeVisible();
 
   await page.goto('/dashboard?fanConnect=return');
-  await expect(page).toHaveURL(/\/studio\/revenue\?fanConnect=return$/);
+  await expect(page).toHaveURL(/\/studio\/stripe\?fanConnect=return$/);
 
   await page.goto('/dashboard/upload/import/soundcloud?sc=connected');
   await expect(page.getByText('SoundCloud connected.')).toBeVisible();

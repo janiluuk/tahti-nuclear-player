@@ -74,6 +74,7 @@ import {
   requestAccountDeletion,
   startMembershipCheckout,
 } from '../../api/client';
+import { fetchAllRoyalties } from '../../api/distribution';
 import {
   fanSubscriberExportUrl,
   fetchFanConnectPortal,
@@ -130,6 +131,7 @@ import {
   saveReleaseVisualizerPreference,
   type ReleaseVisualizerMode,
 } from '../../lib/releaseVisualizer';
+import { mergeRevenueOrders } from '../../lib/revenueOrders';
 import { useThemeStore } from '../../plugins/themes';
 import { useAmbientStore } from '../../stores/ambientStore';
 import { useAuthModalStore } from '../../stores/authModalStore';
@@ -1677,6 +1679,7 @@ export function MoneyPanel() {
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [connect, setConnect] = useState<FanConnectStatus | null>(null);
   const [fanPayouts, setFanPayouts] = useState<FanPayoutStats | null>(null);
+  const [payoutOrders, setPayoutOrders] = useState(mergeRevenueOrders([], []));
   const [grants, setGrants] = useState<GrantRow[]>([]);
   const [estimate, setEstimate] = useState<GrantEstimate | null>(null);
   const [subs, setSubs] = useState<FanSubscriptionRow[]>([]);
@@ -1686,14 +1689,16 @@ export function MoneyPanel() {
     void Promise.all([
       fetchFanConnectStatus(),
       fetchFanPayoutStats(),
+      fetchAllRoyalties(),
       fetchMyGrants(),
       fetchGrantEstimate(),
       user
         ? fetchMySubscriptions()
         : Promise.resolve({ data: [] as FanSubscriptionRow[] }),
-    ]).then(([c, payouts, g, e, s]) => {
+    ]).then(([c, payouts, royalties, g, e, s]) => {
       setConnect(c.data);
       setFanPayouts(payouts.data);
+      setPayoutOrders(mergeRevenueOrders(payouts.data.recent, royalties.data));
       setGrants(g.data);
       setEstimate(e.data);
       setSubs(s.data);
@@ -1718,6 +1723,7 @@ export function MoneyPanel() {
               {fanPayouts ? (
                 <FanSubscriptionStats
                   stats={fanPayouts}
+                  orders={payoutOrders}
                   exportUrl={fanSubscriberExportUrl()}
                 />
               ) : null}
@@ -1736,48 +1742,57 @@ export function MoneyPanel() {
                 />
               )}
               <div className="flex flex-wrap gap-2">
-                {!connect.paymentsReady && (
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      void startFanConnectOnboard().then((r) => {
-                        if (!r.ok) {
-                          setMsg(r.error);
-                          return;
-                        }
-                        if ('mockActivated' in r) {
-                          setMsg(r.message);
-                          void fetchFanConnectStatus().then((x) =>
-                            setConnect(x.data),
-                          );
-                          return;
-                        }
-                        window.open(r.url, '_blank', 'noopener,noreferrer');
-                      });
-                    }}
-                  >
-                    Start / resume onboarding
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    void fetchFanConnectPortal().then((r) => {
-                      if (!r.ok) {
-                        setMsg(r.error);
-                        return;
-                      }
-                      if ('mockActivated' in r) {
-                        setMsg(r.message);
-                        return;
-                      }
-                      window.open(r.url, '_blank', 'noopener,noreferrer');
-                    });
-                  }}
-                >
-                  Stripe portal
-                </Button>
+                {connect.stripeConfigured ? (
+                  <>
+                    {!connect.paymentsReady && (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          void startFanConnectOnboard().then((r) => {
+                            if (!r.ok) {
+                              setMsg(r.error);
+                              return;
+                            }
+                            if ('mockActivated' in r) {
+                              setMsg(r.message);
+                              void fetchFanConnectStatus().then((x) =>
+                                setConnect(x.data),
+                              );
+                              return;
+                            }
+                            window.open(r.url, '_blank', 'noopener,noreferrer');
+                          });
+                        }}
+                      >
+                        Start / resume onboarding
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => {
+                        void fetchFanConnectPortal().then((r) => {
+                          if (!r.ok) {
+                            setMsg(r.error);
+                            return;
+                          }
+                          if ('mockActivated' in r) {
+                            setMsg(r.message);
+                            return;
+                          }
+                          window.open(r.url, '_blank', 'noopener,noreferrer');
+                        });
+                      }}
+                    >
+                      Stripe portal
+                    </Button>
+                    <Link to="/studio/stripe" onClick={closeSettings}>
+                      <Button size="sm" variant="text">
+                        Stripe dashboard
+                      </Button>
+                    </Link>
+                  </>
+                ) : null}
                 <Link to="/studio/revenue" onClick={closeSettings}>
                   <Button size="sm" variant="text">
                     Studio revenue

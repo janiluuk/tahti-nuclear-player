@@ -281,6 +281,10 @@ const StudioRevenueView = lazyRouteComponent(
   () => import('./views/studio/StudioRevenueView'),
   'StudioRevenueView',
 );
+const StudioStripeView = lazyRouteComponent(
+  () => import('./views/studio/StudioStripeView'),
+  'StudioStripeView',
+);
 const StudioStashView = lazyRouteComponent(
   () => import('./views/studio/StudioStashView'),
   'StudioStashView',
@@ -1424,6 +1428,12 @@ const studioRevenueRoute = createRoute({
   component: StudioRevenueView,
 });
 
+const studioStripeRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/stripe',
+  component: StudioStripeView,
+});
+
 const studioDistributionRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/distribution',
@@ -1769,6 +1779,7 @@ const routeTree = rootRoute.addChildren([
     studioPlaylistEditRoute,
     studioUpdatesRoute,
     studioRevenueRoute,
+    studioStripeRoute,
     studioDistributionRoute,
     studioModerationRoute,
     studioVenuesRoute,

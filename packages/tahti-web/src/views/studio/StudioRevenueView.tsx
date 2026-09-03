@@ -1,26 +1,31 @@
-import { useEffect, useState } from 'react';
+import { Link } from '@tanstack/react-router';
+import { CircleHelpIcon } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@tahti-player/ui';
 
+import { fetchAllRoyalties } from '../../api/distribution';
+import { fetchMyFanTiers } from '../../api/fan-tiers';
 import {
   fanSubscriberExportUrl,
-  fetchFanConnectPortal,
   fetchFanConnectStatus,
   fetchFanPayoutStats,
   fetchGrantEstimate,
   fetchMyGrants,
-  startFanConnectOnboard,
   type FanConnectStatus,
   type FanPayoutStats,
   type GrantEstimate,
   type GrantRow,
 } from '../../api/revenue';
+import { FanSubOrderBreakdown } from '../../components/FanSubOrderBreakdown';
 import { FanSubscriptionStats } from '../../components/FanSubscriptionStats';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { StatNumber } from '../../components/tahti/StatNumber';
+import { mergeRevenueOrders } from '../../lib/revenueOrders';
+import { useTourStore } from '../../stores/tourStore';
 
 function euros(cents: number | string): string {
   const n = typeof cents === 'string' ? Number(cents) : cents;
@@ -31,28 +36,54 @@ function euros(cents: number | string): string {
 }
 
 export function StudioRevenueView() {
+  const openTour = useTourStore((state) => state.start);
   const [connect, setConnect] = useState<FanConnectStatus | null>(null);
   const [fanPayouts, setFanPayouts] = useState<FanPayoutStats | null>(null);
+  const [hasFanTiers, setHasFanTiers] = useState<boolean | null>(null);
   const [grants, setGrants] = useState<GrantRow[]>([]);
   const [estimate, setEstimate] = useState<GrantEstimate | null>(null);
-  const [msg, setMsg] = useState<string | null>(null);
   const [audienceTab, setAudienceTab] = useState<'overview' | 'tiers'>(
     'overview',
   );
+  const [mergedOrders, setMergedOrders] = useState(mergeRevenueOrders([], []));
 
   useEffect(() => {
     void Promise.all([
       fetchFanConnectStatus(),
       fetchFanPayoutStats(),
+      fetchMyFanTiers(),
+      fetchAllRoyalties(),
       fetchMyGrants(),
       fetchGrantEstimate(),
-    ]).then(([c, payouts, g, e]) => {
-      setConnect(c.data);
-      setFanPayouts(payouts.data);
-      setGrants(g.data);
-      setEstimate(e.data);
-    });
+    ]).then(
+      ([
+        connectResult,
+        payoutsResult,
+        tiersResult,
+        royaltiesResult,
+        grantsResult,
+        estimateResult,
+      ]) => {
+        setConnect(connectResult.data);
+        setFanPayouts(payoutsResult.data);
+        setHasFanTiers(tiersResult.data.length > 0);
+        setMergedOrders(
+          mergeRevenueOrders(payoutsResult.data.recent, royaltiesResult.data),
+        );
+        setGrants(grantsResult.data);
+        setEstimate(estimateResult.data);
+      },
+    );
   }, []);
+
+  const showConnectWarning = useMemo(
+    () =>
+      hasFanTiers === true &&
+      connect != null &&
+      connect.stripeConfigured &&
+      !connect.paymentsReady,
+    [connect, hasFanTiers],
+  );
 
   return (
     <StudioGate requireChannel={false}>
@@ -60,7 +91,25 @@ export function StudioRevenueView() {
         <StudioNav current="/studio/revenue" />
         <StudioPageHeader
           title="Audience"
-          subtitle="Fan subscription payouts and your cooperative grant share."
+          subtitle="Fan-sub orders, distribution royalties, payout statistics, and how each euro splits."
+          action={
+            <div className="flex items-center gap-2">
+              <Link to="/help/$slug" params={{ slug: 'earnings' }}>
+                <Button size="sm" variant="secondary">
+                  Earnings guide
+                </Button>
+              </Link>
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label="Help — take a guided tour of order management"
+                title="Help"
+                onClick={() => openTour()}
+              >
+                <CircleHelpIcon size={16} aria-hidden />
+              </Button>
+            </div>
+          }
         />
 
         <div
@@ -82,12 +131,6 @@ export function StudioRevenueView() {
           ))}
         </div>
 
-        {msg && (
-          <p className="text-foreground-secondary text-sm" role="status">
-            {msg}
-          </p>
-        )}
-
         {audienceTab === 'tiers' ? (
           <StudioPanel
             title="Tiers"
@@ -95,93 +138,98 @@ export function StudioRevenueView() {
           >
             <FanTiersEditor />
           </StudioPanel>
+        ) : hasFanTiers === false ? (
+          <StudioPanel title="Fan subscriptions">
+            <div
+              className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-lg border p-6 text-center"
+              data-testid="fan-subs-empty-state"
+            >
+              <p className="font-medium">No fan subscriptions yet.</p>
+              <p className="text-foreground-secondary text-sm">
+                Set up subscription tiers so fans can support you directly —
+                head to{' '}
+                <Link
+                  to="/settings/$section"
+                  params={{ section: 'fan-tiers' }}
+                  className="text-foreground font-semibold underline-offset-2 hover:underline"
+                >
+                  Settings → Fan tiers
+                </Link>{' '}
+                or use the Tiers tab here.
+              </p>
+              <Button size="sm" onClick={() => setAudienceTab('tiers')}>
+                Open tiers editor
+              </Button>
+            </div>
+          </StudioPanel>
         ) : (
           <>
-            {fanPayouts ? (
-              <StudioPanel
-                title="Fan subscription overview"
-                description="Subscribers, net revenue, payout health, and recent transfers."
+            {showConnectWarning ? (
+              <p
+                className="border-accent-red/40 bg-accent-red/10 text-accent-red rounded-lg border px-3 py-2 text-sm"
+                role="status"
+                data-testid="fan-subs-connect-warning"
               >
-                <FanSubscriptionStats
-                  stats={fanPayouts}
-                  exportUrl={fanSubscriberExportUrl()}
-                />
-              </StudioPanel>
+                Stripe is not connected yet — fan-sub payouts cannot reach you
+                until Connect shows payments ready. Finish onboarding on the{' '}
+                <Link
+                  to="/studio/stripe"
+                  className="font-semibold underline-offset-2 hover:underline"
+                >
+                  Stripe dashboard
+                </Link>
+                .
+              </p>
             ) : null}
 
-            {connect && (
-              <StudioPanel title="Fan subs · Stripe Connect">
-                <div className="text-foreground-secondary flex flex-wrap gap-2 text-xs">
-                  <span
-                    className={`rounded-full border px-2 py-0.5 ${connect.stripeConfigured ? 'border-primary/40' : 'border-border'}`}
-                  >
-                    {connect.stripeConfigured ? '✓' : '○'} Stripe configured
-                  </span>
-                  <span
-                    className={`rounded-full border px-2 py-0.5 ${connect.chargesEnabled ? 'border-primary/40' : 'border-border'}`}
-                  >
-                    {connect.chargesEnabled ? '✓' : '○'} Charges enabled
-                  </span>
-                  <span
-                    className={`rounded-full border px-2 py-0.5 ${connect.detailsSubmitted ? 'border-primary/40' : 'border-border'}`}
-                  >
-                    {connect.detailsSubmitted ? '✓' : '○'} Details submitted
-                  </span>
-                  <span
-                    className={`rounded-full border px-2 py-0.5 ${connect.paymentsReady ? 'border-primary/40' : 'border-border'}`}
-                  >
-                    {connect.paymentsReady ? '✓' : '○'} Payments ready
-                  </span>
-                </div>
+            {fanPayouts ? (
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,1fr)]">
+                <StudioPanel
+                  title="Order management"
+                  description="Subscribers, net revenue, payout health, and recent fan-sub plus distribution payouts."
+                >
+                  <FanSubscriptionStats
+                    stats={fanPayouts}
+                    orders={mergedOrders}
+                    exportUrl={fanSubscriberExportUrl()}
+                    footnote={
+                      <>
+                        Subscriber CSV export and GDPR tools live in{' '}
+                        <Link
+                          to="/settings/$section"
+                          params={{ section: 'fan-subs' }}
+                          className="text-foreground font-semibold underline-offset-2 hover:underline"
+                        >
+                          Settings → Fan subs
+                        </Link>
+                        .
+                      </>
+                    }
+                  />
+                </StudioPanel>
+                <StudioPanel
+                  title="Order flow"
+                  description="What happens to a typical €5 monthly order."
+                >
+                  <FanSubOrderBreakdown />
+                </StudioPanel>
+              </div>
+            ) : null}
 
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {!connect.paymentsReady && (
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        void startFanConnectOnboard().then((r) => {
-                          if (!r.ok) {
-                            setMsg(r.error);
-                            return;
-                          }
-                          if ('mockActivated' in r) {
-                            setMsg(r.message);
-                            void fetchFanConnectStatus().then((x) => {
-                              setConnect(x.data);
-                            });
-                            return;
-                          }
-                          window.open(r.url, '_blank', 'noopener,noreferrer');
-                        });
-                      }}
-                    >
-                      Start / resume onboarding
+            {connect?.stripeConfigured ? (
+              <StudioPanel
+                title="Stripe"
+                description="Payout account and Express dashboard — only listed in Studio when Stripe is enabled."
+              >
+                <div data-tour-id="revenue-connect">
+                  <Link to="/studio/stripe">
+                    <Button size="sm" variant="secondary">
+                      Open Stripe dashboard
                     </Button>
-                  )}
-                  {connect.accountId && (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => {
-                        void fetchFanConnectPortal().then((r) => {
-                          if (!r.ok) {
-                            setMsg(r.error);
-                            return;
-                          }
-                          if ('mockActivated' in r) {
-                            setMsg(r.message);
-                            return;
-                          }
-                          window.open(r.url, '_blank', 'noopener,noreferrer');
-                        });
-                      }}
-                    >
-                      Open Stripe portal
-                    </Button>
-                  )}
+                  </Link>
                 </div>
               </StudioPanel>
-            )}
+            ) : null}
 
             {estimate && (
               <StudioPanel title={`Grant estimate (${estimate.year})`}>

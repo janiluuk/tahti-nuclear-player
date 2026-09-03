@@ -46,10 +46,10 @@ This maps the public Tahti product described at [tahti.live](https://tahti.live/
 | Stats and detail reporting | `/studio/stats`, `/studio/stats/detail` | Present | Summary and range-detail views exist. |
 | Channel design / profile / branding | `/studio/channel`, `/channel/$slug?edit=1` | Partial | Presets, layers, layout, gallery, and press-kit workflows exist; parity with the production designer is not complete. |
 | Updates/newsletter | `/studio/updates` | Present | Newsletter/update flow is live-API backed. |
-| Revenue and Stripe Connect | `/studio/revenue` | Present | Connect onboarding and portal paths exist; mock mode uses local activation. |
+| Revenue and Stripe Connect | `/studio/revenue` | Present | Merged fan-sub + Revelator payout history, Connect onboarding, empty tier state, order-flow breakdown, and help tour match production `/dashboard/revenue`. |
 | Distribution | `/studio/distribution` | Present | Catalog, Revelator submission/payment, Spotify profile, and royalty surfaces exist. |
 | Stash | `/studio/stash` | Present | Upload/delete and share access are implemented. |
-| Channel moderators | `/studio/moderation` | Partial | API and assignment/removal UI exist, but the workflow is not clearly exposed from the current Studio navigation and needs owner-permission and moderator-capability verification. |
+| Channel moderators | `/studio/moderation` | Present | API-backed assignment/removal; exposed from Studio navigation |
 | Settings | `/settings` | Partial | Nuclear settings shell exists, but parity/depth across artist, discovery, notification, and account sections is thinner. |
 | Source connections / OAuth | `/sources` | Partial | Source hub exists; several providers still have simplified OAuth UX and need production callback verification. |
 | Email invites for people without accounts | — | Missing/deferred | Current moderator flow assigns an existing username; there is no invite-token flow for a new user. |

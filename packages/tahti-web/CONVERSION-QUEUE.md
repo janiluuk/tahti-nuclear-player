@@ -1,11 +1,12 @@
 # Conversion queue — artist + admin gaps (Nuclear)
 
-Source of truth for **what exists on tahti.live but not yet in `@tahti-player/tahti-web`**.  
-Also see [FEATURES.md](./FEATURES.md) for shipped rows.
+> **Archived 2026-09-03.** This file is no longer the live status tracker.
+> Use **[FEATURES.md](./FEATURES.md)** and **[WORKPLAN.md](./WORKPLAN.md)** instead.
+> The admin A1–A12 table below is stale — beta ships 22 board pages (`FEATURES.md`).
 
-Convert **one row at a time**.
+Historical queue for one-row-at-a-time ports. Kept for grep archaeology only.
 
-**Next up:** #11 Stats detail (`partial` — summary only, no drill-down).
+**Next up (historical):** #11 Stats detail (`partial` — summary only, no drill-down).
 
 ## Artist / studio — priority
 
@@ -21,33 +22,33 @@ Convert **one row at a time**.
 | 8 | Events | `/dashboard/events` | `/studio/events` | **done** (`live-api` + mock) |
 | 9 | Studio embeds manager | `/dashboard/embeds` | `/studio/embeds` | **done** (SoundCloud track embeds; `live-api` + mock) |
 | 10 | Insights | `/dashboard/insights/:kind/:id` | `/studio/insights/$kind/$id` | **done** (period, plays/downloads, daily chart, countries; `live-api` + mock) |
-| 11 | Stats detail | `/dashboard/stats/detail` | summary only | `partial` |
+| 11 | Stats detail | `/dashboard/stats/detail` | `/studio/stats/detail` | **done** (`live-api` + mock) |
 | 12 | Stash upload / delete | `/dashboard/stash` | `/studio/stash` | **done** (`live-api` + mock) |
-| 13 | Press kit | settings/presskit | — | `missing` |
-| 14 | Green room / members | settings/* | — | `missing` |
-| 15 | Mentions / announcements editor | settings/* | — | `missing` |
+| 13 | Press kit | settings/presskit | Studio → Branding | **done** (gallery upload API) |
+| 14 | Green room / members | settings/* | settings sections | `partial` |
+| 15 | Mentions / announcements editor | settings/* | settings sections | `partial` |
 | 16 | Setup channel wizard | `/dashboard/setup-channel` | link-out | `link-out` |
 | 17 | Upload from broadcast + imports | `/dashboard/upload/*` | partial | `partial` |
 | 18 | Pro multitrack timeline | `/dashboard/editor` | partial | `partial` |
 | 19 | Channel gallery / text-layer | `/dashboard/channel/*` | Edit design partial | `partial` |
-| 20 | Listener-only dashboard | `/dashboard` | — | `missing` |
+| 20 | Listener-only dashboard | `/dashboard` | `/library` | **done** |
 
-## Board admin — queued
+## Board admin — queued (historical; see FEATURES.md)
 
 | # | Feature | Prod | Status |
 |---|---------|------|--------|
-| A1 | Admin shell + dashboard | `/admin`, `/admin/dashboard` | `missing` |
-| A2 | Users | `/admin/users` | `missing` |
-| A3 | Streams + controls | `/admin/streams` | `missing` |
-| A4 | Radio + submissions | `/admin/radio*` | `missing` |
-| A5 | News / announcements / top-lists / selects | various | `missing` |
-| A6 | Support | `/admin/support` | `missing` |
-| A7 | Storage / files | `/admin/storage`, `files` | `missing` |
-| A8 | Financial | `/admin/financial/*` | `missing` |
-| A9 | Governance admin | `/admin/governance/*` | `missing` |
-| A10 | Grants / AGM / beta / vendors | various | `missing` |
-| A11 | Reports / feature requests / status | various | `missing` |
-| A12 | Channel archive/programme admin | `/admin/channels/...` | `missing` |
+| A1 | Admin shell + dashboard | `/admin`, `/admin/dashboard` | shipped in beta |
+| A2 | Users | `/admin/users` | shipped in beta |
+| A3 | Streams + controls | `/admin/streams` | shipped in beta |
+| A4 | Radio + submissions | `/admin/radio*` | shipped in beta |
+| A5 | News / announcements / top-lists / selects | various | shipped in beta |
+| A6 | Support | `/admin/support` | shipped in beta |
+| A7 | Storage / files | `/admin/storage`, `files` | shipped in beta |
+| A8 | Financial | `/admin/financial/*` | shipped in beta |
+| A9 | Governance admin | `/admin/governance/*` | shipped in beta |
+| A10 | Grants / AGM / beta / vendors | various | shipped in beta |
+| A11 | Reports / feature requests / status | various | shipped in beta |
+| A12 | Channel archive/programme admin | `/admin/channels/...` | partial / scope-trimmed |
 
 ## Shipped elsewhere (not in queue)
 

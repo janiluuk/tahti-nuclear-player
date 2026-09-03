@@ -1,5 +1,49 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Cross-repo doc audit + doc-hygiene batch (five slices)
+
+Audited `../tahti` vs this package after the Node 24 CI push. Full findings are summarized here; canonical pointers live in [docs/CROSS-REPO-SYNC.md](docs/CROSS-REPO-SYNC.md).
+
+**Conflicts to remember:** governance has three beta contexts (member `/governance`, artist `/studio/governance`, board `/admin/governance`) while `../tahti` site-map still documents only `/governance` + `/dashboard/governance`; €4.45 fan-sub net is in `engagement-and-fansubs.md` but `../tahti/docs/flows/payouts.md` warns it may not match live Stripe `balance_transaction` yet; `CONVERSION-QUEUE.md` previously said admin pages were `missing` while `FEATURES.md` lists 22 shipped; sibling ops docs still say checkout path `tahti-player` instead of `tahti-nuclear`.
+
+**Slice 1 — CROSS-REPO-SYNC.md:** One-page map of sibling paths, prod↔beta routes, money-flow sources, branch/pnpm differences, and which local files are authoritative for status.
+
+**Slice 2 — API + earnings caveat:** `docs/API-REFERENCE.md` now lists fan-sub payout and Revelator royalty routes; earnings help cites the sibling payout runbook instead of treating €4.45 as a guaranteed bank figure.
+
+**Slice 3 — CONVERSION-QUEUE archived:** Banner points readers at `FEATURES.md` / `WORKPLAN.md`; historical rows updated (stats detail, press kit, listener dashboard, admin shipped).
+
+**Slice 4 — Sidebar footer:** Help center and Settings sit in a separated footer group (`mt-auto`, top border) on desktop and mobile drawer via `SidebarNavItems`.
+
+**Slice 5 — Discover widget play state:** `WidgetTrackRow` rings/highlight current tracks, shows Pause while playing, and toggles play/pause without restarting.
+
+**Validation:** tahti-web type-check and vitest. Bumped `@tahti-player/tahti-web` to `0.0.33`.
+
+## 2026-09-03 — Studio Stripe dashboard (gated)
+
+**Completed:** Studio → Stripe (`/studio/stripe`) is the payout-account dashboard: Connect status, onboarding, Express dashboard login, and fan-sub charges for this account. The Stripe nav item and home tile appear **only** when `GET /api/me/fan-subs/connect` reports `stripeConfigured`. Direct visits while Stripe is off explain that the dashboard is not added. Audience keeps orders/grants and links through when Stripe is on. Connect return (`fanConnect`) lands on `/studio/stripe`. Bumped `@tahti-player/tahti-web` to `0.0.32`.
+
+## 2026-09-03 — Artist order management slices 2–6
+
+Fifth revenue batch (five slices after slice 1). Deployed `@tahti-player/tahti-web` **0.0.31** to beta after push.
+
+**Slice 2 — Distribution royalties in payout history:** `mergeRevenueOrders()` (`lib/revenueOrders.ts`) mixes `GET /api/me/fan-sub-payouts` recent rows with `GET /api/me/revelator/royalties`, sorts newest first, caps at twelve — same contract as production `/dashboard/revenue`. Studio → Audience and Settings → Money → Fan subs both use the merged list.
+
+**Slice 3 — Empty state when no fan tiers:** Overview tab shows a setup card (not a blank table) when `GET /api/me/fan-tiers` returns none, with links to Settings → Fan tiers and the in-page Tiers tab.
+
+**Slice 4 — Stripe Connect warning:** When tiers exist but Connect is not payments-ready, a red notice points artists to finish onboarding or open Settings → Fan subs — matching production’s “Stripe isn’t connected yet” banner.
+
+**Slice 5 — Payout history table parity:** Renamed “Latest orders” to “Payout history”; columns are Date, Description, Gross, Net, State. Fan-sub and royalty rows share one list; pending fan-sub nets show `—` like production. Footnote links subscriber CSV export to Settings → Fan subs.
+
+**Slice 6 — Settings Money panel stays in sync:** `MoneyPanel` fetches royalties too so the Fan subs settings tab shows the same merged payout history as Studio → Audience.
+
+**Validation:** tahti-web type-check and vitest pass. Bumped `@tahti-player/tahti-web` to `0.0.31`.
+
+## 2026-09-03 — Artist order management help layer
+
+**Completed (slice 1):** Studio → Audience (`/studio/revenue`) is the player order-management surface against sibling `GET /api/me/fan-sub-payouts` and the money-flow in `../tahti/docs/engagement-and-fansubs.md`. Latest orders, KPI stats, and the documented €5 split (Stripe ~€0.45, Tahti 2% ops, artist €4.45) sit on one page. Help icon / `H` walks stats → orders → flow → earnings link → Connect. Help center article `earnings` (Artist tools) and a header link open the same guide. Bumped `@tahti-player/tahti-web` to `0.0.30`.
+
+**Left for later:** None — slices 2–6 shipped in the batch below.
+
 ## 2026-09-03 — CI tests and mock inventory
 
 **Completed:** GitHub CI `pnpm test` failed on `@tahti-player/tahti-web` because `LanguageSwitcher.test.tsx` imported testing-library packages the package does not declare, `locale.test.ts` ran in node without `localStorage`/`document`, and Discover asserted that `min-h-[280px]` was gone even though widget cards still use that height. Rewrote the language-switcher test to the same jsdom/`createRoot` pattern as Discover, marked locale tests jsdom, and asserted the add-widget control lives in the header. Refreshed the Mock / stub / unwired inventory so Favorites/History point at Listen (still localStorage) and Help lists the artist gallery article.

@@ -35,3 +35,26 @@ describe('artist gallery help', () => {
     ).toBe(true);
   });
 });
+
+describe('earnings help', () => {
+  it('explains the fan-sub order split and points at Studio Audience', () => {
+    const article = getHelpArticle('earnings');
+    expect(article?.title).toBe('Earnings and fan-sub orders');
+    const flow = article?.sections.find(
+      (section) => section.heading === 'The money flow',
+    );
+    expect(flow?.body.some((line) => line.includes('€4.45'))).toBe(true);
+    expect(flow?.body.some((line) => line.includes('payout runbook'))).toBe(
+      true,
+    );
+    const where = article?.sections.find(
+      (section) => section.heading === 'Where to look',
+    );
+    expect(where?.body.some((line) => line.includes('Studio → Audience'))).toBe(
+      true,
+    );
+    expect(where?.body.some((line) => line.includes('Stripe dashboard'))).toBe(
+      true,
+    );
+  });
+});

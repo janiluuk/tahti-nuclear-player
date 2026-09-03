@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { getStudioPrimaryRoute, SUBMENUS } from './StudioNav';
+import {
+  getStudioPrimaryRoute,
+  getStudioSubmenuItems,
+  SUBMENUS,
+} from './StudioNav';
 
 describe('StudioNav section coverage', () => {
   // A submenu link whose own path doesn't resolve back to the primary
@@ -41,5 +45,26 @@ describe('StudioNav section coverage', () => {
     expect(getStudioPrimaryRoute('/library/upload')).toBe('/studio');
     expect(getStudioPrimaryRoute('/studio/releases')).toBe('/studio');
     expect(getStudioPrimaryRoute('/studio/go-live')).toBe('/studio/go-live');
+  });
+
+  it('keeps Stripe out of Studio nav unless Stripe is configured', () => {
+    const withoutStripe = getStudioSubmenuItems('/studio').map(
+      (item) => item.to,
+    );
+    const withStripe = getStudioSubmenuItems('/studio', {
+      stripeConfigured: true,
+    }).map((item) => item.to);
+
+    expect(withoutStripe).not.toContain('/studio/stripe');
+    expect(SUBMENUS['/studio'].map((item) => item.to)).not.toContain(
+      '/studio/stripe',
+    );
+    expect(withStripe).toEqual(
+      expect.arrayContaining(['/studio/revenue', '/studio/stripe']),
+    );
+    expect(withStripe.indexOf('/studio/stripe')).toBe(
+      withStripe.indexOf('/studio/revenue') + 1,
+    );
+    expect(getStudioPrimaryRoute('/studio/stripe')).toBe('/studio');
   });
 });

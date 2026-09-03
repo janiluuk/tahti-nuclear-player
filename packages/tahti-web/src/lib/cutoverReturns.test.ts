@@ -11,7 +11,7 @@ describe('resolveDashboardCallbackRedirect', () => {
       { mixcloud: 'connected' },
       '/settings/plugin-store?status=connected&category=import',
     ],
-    [{ fanConnect: 'return' }, '/studio/revenue?fanConnect=return'],
+    [{ fanConnect: 'return' }, '/studio/stripe?fanConnect=return'],
     [{ fansubs: 'portal' }, '/settings/money?fansubs=portal'],
     [{ membership: 'success' }, '/settings/account?membership=success'],
     [

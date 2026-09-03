@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import {
   BarChart3Icon,
   CalendarIcon,
+  CreditCardIcon,
   DiscAlbumIcon,
   LayoutTemplateIcon,
   LibraryBigIcon,
@@ -35,6 +36,7 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
+import { useStripeConfigured } from '../../hooks/useStripeConfigured';
 import { accountRoleLabel, getAccountRole } from '../../lib/accountRoles';
 import { timeOfDayGreeting } from '../../lib/greeting';
 import { useAuthStore } from '../../stores/authStore';
@@ -232,6 +234,7 @@ const SummaryStat: FC<SummaryStatProps> = ({
 export function StudioHomeView() {
   const user = useAuthStore((s) => s.user);
   const openChannelSetup = useChannelSetupModalStore((s) => s.open);
+  const stripeConfigured = useStripeConfigured();
   const [counts, setCounts] = useState<Counts>({
     archive: 0,
     collections: 0,
@@ -653,9 +656,18 @@ export function StudioHomeView() {
                   to="/studio/revenue"
                   icon={WalletIcon}
                   label="Revenue"
-                  subtitle="Connect & grants"
+                  subtitle="Orders & grants"
                   color="var(--accent-green)"
                 />
+                {stripeConfigured ? (
+                  <StudioActionTile
+                    to="/studio/stripe"
+                    icon={CreditCardIcon}
+                    label="Stripe"
+                    subtitle="Payout account"
+                    color="var(--accent-yellow)"
+                  />
+                ) : null}
                 <StudioActionTile
                   to="/studio/channel"
                   icon={LayoutTemplateIcon}

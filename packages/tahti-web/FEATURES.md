@@ -30,7 +30,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 3. [x] Visualizations — ChannelView WebGL/canvas visualizer + shared analyser
 4. [x] Broadcasting wizard — Connect → Live → Multistream step chrome
 5. [x] Email verify route — `/verify` (+ join deep-link)
-6. [x] Fan-sub tier editor — Settings → Money (`/api/me/fan-tiers`)
+6. [x] Fan-sub tier editor — Settings → Money → Fan tiers (`/api/me/fan-tiers`)
 
 ## Checklist — shipped vs remaining
 
@@ -89,7 +89,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Venue register | `/venues/register` | `/venues/register` | `live-api` | `POST /api/v1/venues`; board verifies |
 | Transparency | `/transparency` | `/transparency` | `live-api` | |
 | Help | `/help/*` | `/help` | `live-api` | static articles including disco-widgets; support form posts to API |
-| Disco-widgets | discovery settings + listen/profile | Settings → Widgets + Listen/channel | `live-api` | sandboxed iframe; admin catalog stays Next |
+| Disco-widgets | discovery settings + listen/profile | Settings → Add-ons + Listen/channel | `live-api` | sandboxed iframe; admin catalog stays Next |
 | Legal / about | `/about`… | same | `partial` | POC + prod links |
 | Platform status | `/status` | `/status` | `live-api` | |
 | Marketing home / apply | `/`, `/apply` | — | `missing` | listen hub is home |
@@ -152,7 +152,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Artist / discovery / domain | settings | sections | `live-api` | |
 | Notifications / social | settings | sections | `live-api` | |
 | Themes | — | `/settings/themes` | `mock-ok` | Nuclear presets |
-| Fan-sub tier editor | fan-subs settings | Settings → Money | `live-api` | create + activate/deactivate |
+| Fan-sub tier editor | fan-subs settings | Settings → Money → Fan tiers | `live-api` | create + activate/deactivate |
 | Sources hub | import | `/sources` | `partial` | |
 | OAuth connect | OAuth start | Sources | `partial` | live href; mock in-app connect |
 | SoundCloud / Spotify import | import | Sources | `live-api` | |
@@ -241,6 +241,6 @@ Still not ported (do not block cutover unless noted):
 
 - Posts and newsletter compose live together in `/studio/updates`.
 - Channel edit, gallery, text, and rotation settings live together in `/studio/channel`.
-- Fan tiers, subscriber payout statistics, Stripe state, grants, and subscriptions are grouped under Settings → Money and `/studio/revenue`.
+- Fan tiers, subscriber payout statistics, Stripe state, grants, and subscriptions live under Settings → Money (Fan tiers / Fan subs tabs) and Studio → Audience (`/studio/revenue`).
 - Radio slots, series, and episodes are handled by `/studio/shows`; production dashboard aliases resolve there.
 - Production settings sub-pages map into the smaller Account, Artist, Channel, Broadcast, Money, and Connections sections.

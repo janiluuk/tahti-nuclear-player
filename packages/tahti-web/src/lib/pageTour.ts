@@ -108,6 +108,60 @@ function dedupeById(steps: TourStep[]): TourStep[] {
   });
 }
 
+const REVENUE_PAGE_STEPS: TourStep[] = [
+  {
+    id: 'revenue-stats',
+    label: 'Order statistics',
+    description:
+      'Active subscribers, this month’s net, year-to-date payouts, and pending orders — the same numbers as production Studio → Revenue.',
+  },
+  {
+    id: 'revenue-orders',
+    label: 'Payout history',
+    description:
+      'Recent fan-sub charges and distribution royalty rows in one dated list (newest first, up to twelve).',
+  },
+  {
+    id: 'revenue-flow',
+    label: 'Order flow',
+    description:
+      'A typical €5 order: provider processing, Tahti’s 2% operational fee, then the rest to you.',
+  },
+  {
+    id: 'revenue-help',
+    label: 'Earnings guide',
+    description:
+      'Open the Help center article for the full money flow, grants, and what happens when a fan cancels.',
+  },
+  {
+    id: 'revenue-connect',
+    label: 'Stripe dashboard',
+    description:
+      'When Stripe is enabled, open the Studio Stripe dashboard for Connect status and the Express payout account.',
+  },
+];
+
+const STRIPE_PAGE_STEPS: TourStep[] = [
+  {
+    id: 'stripe-status',
+    label: 'Payout account',
+    description:
+      'Whether Stripe is on, your Connect account exists, and payments are ready.',
+  },
+  {
+    id: 'stripe-actions',
+    label: 'Express dashboard',
+    description:
+      'Finish onboarding or open Stripe’s Express dashboard for this payout account.',
+  },
+  {
+    id: 'stripe-charges',
+    label: 'Stripe charges',
+    description:
+      'Fan-sub orders processed through this Stripe account — the same money as Audience, without grants.',
+  },
+];
+
 /**
  * Steps for the current page's guided tour (H key). Sidebar nav is always
  * explained since it's present everywhere; the top bar only makes sense to
@@ -125,6 +179,12 @@ export function getPageTourSteps(pathname: string): TourStep[] {
   }
   if (pathname.startsWith('/admin')) {
     steps.push(...ADMIN_NAV_TOUR_STEPS);
+  }
+  if (pathname === '/studio/revenue') {
+    steps.push(...REVENUE_PAGE_STEPS);
+  }
+  if (pathname === '/studio/stripe') {
+    steps.push(...STRIPE_PAGE_STEPS);
   }
   return dedupeById(steps);
 }

@@ -1,9 +1,16 @@
 import { Link } from '@tanstack/react-router';
-import { HeartIcon, LoaderCircleIcon, MusicIcon, PlayIcon } from 'lucide-react';
+import {
+  HeartIcon,
+  LoaderCircleIcon,
+  MusicIcon,
+  PauseIcon,
+  PlayIcon,
+} from 'lucide-react';
 import { useState } from 'react';
 
 import { fetchTrackDetail } from '../../api/client';
 import type { DiscoverTrackItem } from '../../api/types';
+import { cn } from '../../lib/cn';
 import { usePlayerStore } from '../../stores/playerStore';
 
 function toPlayable(item: DiscoverTrackItem) {
@@ -24,6 +31,20 @@ function toPlayable(item: DiscoverTrackItem) {
   };
 }
 
+function matchesCurrentTrack(
+  currentId: string | null,
+  itemId: string,
+): boolean {
+  if (!currentId) {
+    return false;
+  }
+  if (currentId === itemId) {
+    return true;
+  }
+  const bareId = itemId.replace(/^archive:/, '');
+  return currentId === bareId || currentId === `archive:${bareId}`;
+}
+
 export function WidgetTrackRow({
   item,
   rank,
@@ -33,11 +54,20 @@ export function WidgetTrackRow({
   rank?: number;
   onSelect?: (item: DiscoverTrackItem) => void;
 }) {
-  const play = usePlayerStore((s) => s.play);
+  const play = usePlayerStore((state) => state.play);
+  const setStatus = usePlayerStore((state) => state.setStatus);
+  const currentId = usePlayerStore((state) => state.currentId);
+  const status = usePlayerStore((state) => state.status);
   const [loading, setLoading] = useState(false);
   const playable = toPlayable(item);
+  const isCurrent = matchesCurrentTrack(currentId, item.id);
+  const isPlaying = isCurrent && status === 'playing';
 
   const handlePlay = async () => {
+    if (isCurrent) {
+      setStatus(isPlaying ? 'paused' : 'playing');
+      return;
+    }
     if (playable) {
       play(playable);
       return;
@@ -63,7 +93,12 @@ export function WidgetTrackRow({
   };
 
   const artwork = (
-    <span className="bg-background relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded">
+    <span
+      className={cn(
+        'bg-background relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded',
+        isCurrent && 'ring-primary ring-2',
+      )}
+    >
       {item.coverUrl ? (
         <img src={item.coverUrl} alt="" className="size-full object-cover" />
       ) : (
@@ -73,30 +108,33 @@ export function WidgetTrackRow({
           aria-hidden
         />
       )}
-      {
-        <button
-          type="button"
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            void handlePlay();
-          }}
-          className="bg-background/70 absolute inset-0 flex items-center justify-center opacity-0 transition-opacity hover:opacity-100 disabled:opacity-100"
-          disabled={loading}
-          title={`Play ${item.title}`}
-          aria-label={`Play ${item.title}`}
-        >
-          {loading ? (
-            <LoaderCircleIcon
-              size={16}
-              className="text-foreground animate-spin"
-              aria-hidden
-            />
-          ) : (
-            <PlayIcon size={16} className="text-foreground" aria-hidden />
-          )}
-        </button>
-      }
+      <button
+        type="button"
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          void handlePlay();
+        }}
+        className={cn(
+          'bg-background/70 absolute inset-0 flex items-center justify-center transition-opacity disabled:opacity-100',
+          isCurrent ? 'opacity-100' : 'opacity-0 hover:opacity-100',
+        )}
+        disabled={loading}
+        title={isPlaying ? `Pause ${item.title}` : `Play ${item.title}`}
+        aria-label={isPlaying ? `Pause ${item.title}` : `Play ${item.title}`}
+      >
+        {loading ? (
+          <LoaderCircleIcon
+            size={16}
+            className="text-foreground animate-spin"
+            aria-hidden
+          />
+        ) : isPlaying ? (
+          <PauseIcon size={16} className="text-foreground" aria-hidden />
+        ) : (
+          <PlayIcon size={16} className="text-foreground" aria-hidden />
+        )}
+      </button>
     </span>
   );
 
@@ -112,7 +150,10 @@ export function WidgetTrackRow({
             }
           : undefined
       }
-      className="hover:bg-background flex items-center gap-3 rounded px-1.5 py-1.5 transition-colors"
+      className={cn(
+        'hover:bg-background flex items-center gap-3 rounded px-1.5 py-1.5 transition-colors',
+        isCurrent && 'bg-background-secondary/70',
+      )}
     >
       {rank !== undefined && (
         <span className="text-foreground-secondary w-4 shrink-0 text-right text-xs tabular-nums">

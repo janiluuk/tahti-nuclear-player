@@ -1022,6 +1022,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Home --> Coll["/studio/collections"]
   Home --> Stats["/studio/stats"]
   Home --> Rev["/studio/revenue"]
+  Home --> Stripe["/studio/stripe"]
   Home --> Ch["/studio/channel"]
   Home --> Src["/sources"]
 `,
@@ -1033,7 +1034,10 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     title: 'Cases — edge / gates',
     blurb: 'Payments not ready, studio logged out, radio HLS vs offline.',
     mermaid: `flowchart TD
-  Rev["/studio/revenue"] --> Conn{Connect ready?}
+  Rev["/studio/revenue"] --> StripeOn{Stripe enabled?}
+  StripeOn -->|Yes| Dash["/studio/stripe"]
+  StripeOn -->|No| Stay[Audience only]
+  Dash --> Conn{Connect ready?}
   Conn -->|No| Block[Payments not ready]
   ST["/studio"] --> Auth{Logged in?}
   Auth -->|No| Login["/login"]

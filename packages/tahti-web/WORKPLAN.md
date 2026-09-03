@@ -41,12 +41,12 @@ Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which
 - [x] **Channel moderator management** — `/studio/moderation` is exposed from Studio Manage, with owner-gated assignment/removal, chat-ban UI, and mock/API coverage for the delegated moderator contract.
 - [x] Multitrack timeline + press-kit polish — press-kit gallery and download flows are shipped; editor projects now have a typed, autosaved multitrack timeline with synchronized preview and responsive controls.
 - [ ] Production cutover for `apps/web` — complete the listener/artist/admin no-drop ledger in [GAP-MAPPING.md](GAP-MAPPING.md) before changing the official client; keep Next Admin canonical unless the Admin parity gate is explicitly closed.
-- [ ] Move Help center and Settings to the bottom of the sidebar (`SectionSidebar`/`SidebarNavigation`), separated from the main nav groups above.
-- [ ] Any widget with a play icon (Listen widgets, disco-widgets, etc.) should reflect the shared player's actual state — highlighted/active whenever its track is the one currently playing, not just a static icon.
+- [x] Move Help center and Settings to the bottom of the sidebar (`SectionSidebar`/`SidebarNavigation`), separated from the main nav groups above.
+- [x] Any widget with a play icon (Listen widgets, disco-widgets, etc.) should reflect the shared player's actual state — highlighted/active whenever its track is the one currently playing, not just a static icon. **Discover widget track rows** now toggle play/pause, ring the artwork, and highlight the row when current; radio widget tiles were already done in an earlier round.
 - [x] **Settings / Branding / Radio IA (first slice)** — Gallery and Channel Designer live only under Studio → Branding; multicast is a Radio subtab; Settings no longer embeds those duplicates.
 - [x] Artist-page Channel Designer element list (releases, tracks, latest, feed, news, player, backdrop) and the remaining look-only editor.
 - [x] Library as a Studio tab — `/library*` stays, Studio stays selected, mobile bottom nav still has Library.
-- [ ] Stream playlist manager under Schedule; rename Schedule → Broadcast.
+- [x] **Artist order management** — Studio → Audience (`/studio/revenue`) matches production `/dashboard/revenue` for stats, merged payout history (fan-subs + Revelator royalties), Connect warning, empty tier state, order-flow breakdown, and help tour. Contracts: sibling `GET /api/me/fan-sub-payouts`, `GET /api/me/revelator/royalties`, `GET /api/me/fan-tiers`, `GET /api/me/fan-subs/connect`, money-flow in `../tahti/docs/engagement-and-fansubs.md`.
 
 Done since last update (was listed here as remaining, verified shipped): channel chat hardening (hCaptcha + rail parity), Stash upload UI, Stats detail page, Venue register, Membership purchase, Password/account security (TOTP panel), board admin (22/22 pages, now `partial` not `out-of-scope`).
 
@@ -99,7 +99,7 @@ When replacing a bespoke element, check these existing Storybook components firs
 ## Verify
 
 ```bash
-export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 22
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 24
 pnpm --filter @tahti-player/tahti-web type-check
 pnpm --filter @tahti-player/tahti-web build
 # Offline:

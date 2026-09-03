@@ -14,7 +14,8 @@ when both repositories are checked out together.
 
 This page records the contract areas used by the Nuclear client and the
 permission boundaries that must be checked before adding a new view. It is
-not a replacement for the generated OpenAPI document.
+not a replacement for the generated OpenAPI document. For sibling-repo naming,
+route aliases, and governance context, see [CROSS-REPO-SYNC.md](./CROSS-REPO-SYNC.md).
 
 <!-- API_PATHS_SHA256: fd8718d23707db97b7aa85607f92ac531f824addb12bd79e78de4bea858feeeb -->
 
@@ -42,7 +43,7 @@ Login is `POST /api/auth/login`, TOTP login is
 | Archive and editing | `/api/me/archive`, `/api/me/archive/{id}`, `/api/me/archive/{id}/editor/draft`, `/api/me/archive/{id}/fingerprint` | Sounds, upload, stash, track editor, audio editor |
 | Collections and releases | `/api/me/collections`, `/api/me/releases`, `/api/me/releases/{id}`, release export and royalty routes | Collections, releases, distribution, smartlinks |
 | Shows and schedule | `/api/me/shows`, `/api/me/shows/{id}`, `/api/me/show-bookings`, `/api/me/episodes` | Shows, calendar, schedule, recordings |
-| Profile and audience | `/api/me/profile`, `/api/me/notification-preferences`, `/api/me/fan-tiers`, `/api/me/fan-subscriptions`, `/api/me/grants` | Settings, Artist, Audience, subscriptions |
+| Profile and audience | `/api/me/profile`, `/api/me/notification-preferences`, `/api/me/fan-tiers`, `/api/me/fan-sub-payouts`, `/api/me/fan-sub-payouts/summary`, `/api/me/fan-subs/connect`, `/api/me/revelator/royalties`, `/api/me/fan-subscriptions`, `/api/me/grants` | Settings, Studio → Audience, subscriptions |
 | Chat and mentions | `/api/channels/{slug}/presence`, `/api/me/chat/settings`, `/api/me/chat/announcements`, `/api/me/channel/moderators`, `/api/me/mentions` | Chat rail, moderation, tagged-in profile sections |
 | Governance | `GET/POST /api/v1/governance/motions`, `PATCH /api/v1/governance/motions/{id}`, `POST .../vote`, comments and reports | Artist and public Governance |
 | Admin operations | `/api/admin/users`, `/api/admin/streams`, `/api/admin/files`, `/api/admin/logs`, `/api/admin/audit`, `/api/admin/storage` | Admin overview, users, streams, logs, storage |

@@ -1,5 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import {
+  CreditCardIcon,
   HeartIcon,
   LandmarkIcon,
   LayersIcon,
@@ -14,12 +15,30 @@ import {
   TrendingUpIcon,
   UploadIcon,
 } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { useTranslation } from '@tahti-player/i18n';
 import { SidebarNavigationItem } from '@tahti-player/ui';
 
+import { useStripeConfigured } from '../hooks/useStripeConfigured';
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
+
+type StudioSubmenuLabelKey =
+  | (typeof SUBMENUS)[keyof typeof SUBMENUS][number]['labelKey']
+  | 'studio.stripe';
+
+type StudioSubmenuItem = {
+  to: string;
+  labelKey: StudioSubmenuLabelKey;
+  icon: ReactNode;
+};
+
+export const STRIPE_NAV_ITEM: StudioSubmenuItem = {
+  to: '/studio/stripe',
+  labelKey: 'studio.stripe',
+  icon: <CreditCardIcon size={16} />,
+};
 
 const PRIMARY = [
   {
@@ -154,6 +173,7 @@ const SECTION_PREFIXES: Record<string, readonly string[]> = {
     '/studio/governance',
     '/studio/updates',
     '/studio/revenue',
+    '/studio/stripe',
     '/library',
     '/studio/sounds',
     '/studio/releases',
@@ -198,6 +218,21 @@ const isActive = (current: string | undefined, to: string) => {
 
 export const getStudioPrimaryRoute = (current: string | undefined) =>
   PRIMARY.find((item) => isActive(current, item.to))?.to ?? null;
+
+export function getStudioSubmenuItems(
+  section: keyof typeof SUBMENUS,
+  options: { stripeConfigured?: boolean } = {},
+): StudioSubmenuItem[] {
+  const items: StudioSubmenuItem[] = [...SUBMENUS[section]];
+  if (section === '/studio' && options.stripeConfigured === true) {
+    const audienceIndex = items.findIndex(
+      (item) => item.to === '/studio/revenue',
+    );
+    const insertAt = audienceIndex === -1 ? items.length : audienceIndex + 1;
+    items.splice(insertAt, 0, STRIPE_NAV_ITEM);
+  }
+  return items;
+}
 
 const isSubmenuActive = (current: string | undefined, to: string) => {
   const pathname = current?.split('?')[0];
@@ -260,12 +295,16 @@ export function StudioMainNavItems() {
 
 function StudioNavigation({ current }: { current?: string }) {
   const { t } = useTranslation('web');
+  const stripeConfigured = useStripeConfigured();
   const selectedSection = getStudioPrimaryRoute(current) ?? '/studio';
   const sectionLabel =
     PRIMARY.find((item) => item.to === selectedSection)?.labelKey ??
     'nav.studio';
 
-  const submenu = SUBMENUS[selectedSection as keyof typeof SUBMENUS] ?? [];
+  const submenu = getStudioSubmenuItems(
+    selectedSection as keyof typeof SUBMENUS,
+    { stripeConfigured },
+  );
 
   return (
     <div className="flex min-w-0 flex-col gap-1" data-studio-navigation>

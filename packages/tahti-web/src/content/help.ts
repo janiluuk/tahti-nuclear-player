@@ -168,6 +168,13 @@ export const HELP_ARTICLES: HelpArticle[] = [
           'Photos you include can also appear in your press kit. Channel backdrops and slideshows are covered in Design your channel.',
         ],
       },
+      {
+        heading: 'Fan support and orders',
+        body: [
+          'Studio → Audience lists latest fan-sub orders, payout statistics, and the split of a typical order.',
+          'Open the earnings guide from that page for Stripe fees, the 2% operational fee, and grants.',
+        ],
+      },
     ],
   },
   {
@@ -347,6 +354,41 @@ export const HELP_ARTICLES: HelpArticle[] = [
         body: [
           'Unlimited live time and cooperative support (€40/year membership).',
           'Membership is support for the org, not a consumer “plan”.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'earnings',
+    title: 'Earnings and fan-sub orders',
+    description:
+      'How a fan-sub order splits, where payouts appear, and how grants sit on top.',
+    sections: [
+      {
+        heading: 'Where to look',
+        body: [
+          'Studio → Audience is the order management screen: latest fan-sub orders, subscriber and payout statistics, and a breakdown of a typical €5 order.',
+          'When Stripe is enabled, Studio also adds a Stripe dashboard for your payout account and the Express dashboard. Press H, or the help icon on Audience, for a guided tour.',
+        ],
+      },
+      {
+        heading: 'The money flow',
+        body: [
+          'A listener pays you monthly through Stripe. On a €5 order, Stripe keeps about €0.45 (2.9% + €0.30), Tahti keeps €0.10 as a 2% operational fee, and you receive €4.45 via Stripe Connect in the ledger model.',
+          'That split is what Audience and this guide show. The sibling payout runbook (`../tahti/docs/flows/payouts.md`) still tracks whether the live Stripe balance transaction always matches €4.45 — treat the on-screen number as the documented flow, not a guaranteed bank deposit until that check closes.',
+          'The 2% fee covers Connect platform costs, billing support, disputes, and GDPR work. It is operational, not org profit — leftover from that line rolls into the next artist grant pool.',
+        ],
+      },
+      {
+        heading: 'When a fan cancels',
+        body: [
+          'They keep perks until the billing period ends, then about seven days of grace. You do not need to do anything — the order list updates on its own.',
+        ],
+      },
+      {
+        heading: 'Grants sit on top',
+        body: [
+          'Downloads and fan-sub euros also count toward yearly engagement units. Eligible artists share the cooperative grant pool — that is extra to the money already paid out on each order.',
         ],
       },
     ],

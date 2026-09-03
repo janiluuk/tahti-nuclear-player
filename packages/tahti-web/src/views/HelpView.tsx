@@ -58,9 +58,9 @@ const GUIDE_GROUPS: Array<{
   {
     id: 'artist-tools',
     title: 'Artist tools',
-    description: 'Publish music, design your channel, and follow processing.',
+    description: 'Publish music, design your channel, and follow earnings.',
     icon: SparklesIcon,
-    slugs: ['channel-design', 'uploads-and-processing'],
+    slugs: ['channel-design', 'uploads-and-processing', 'earnings'],
   },
   {
     id: 'broadcasting',

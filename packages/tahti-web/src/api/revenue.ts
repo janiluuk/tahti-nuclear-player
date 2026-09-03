@@ -236,13 +236,17 @@ export async function startFanConnectOnboard(): Promise<
     };
   }
   try {
-    const { data } = await requestJson<{ url: string }>(
-      '/api/me/fan-subs/connect/onboard',
-      {
-        method: 'POST',
-      },
-    );
-    return { ok: true, url: data.url };
+    const { data } = await requestJson<{
+      onboardingUrl?: string;
+      url?: string;
+    }>('/api/me/fan-subs/connect/onboard', {
+      method: 'POST',
+    });
+    const url = data.onboardingUrl ?? data.url;
+    if (!url) {
+      return { ok: false, error: 'Onboard failed' };
+    }
+    return { ok: true, url };
   } catch (err) {
     return {
       ok: false,

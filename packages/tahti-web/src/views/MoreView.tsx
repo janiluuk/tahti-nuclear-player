@@ -198,7 +198,15 @@ const FEATURES: FeatureRow[] = [
     tahti: 'fan-subs connect + grants',
     nuclear: '/studio/revenue',
     status: 'live',
-    notes: 'Connect status + grant estimate/history',
+    notes:
+      'Orders, grants, and a link to the Stripe dashboard when Stripe is on',
+  },
+  {
+    feature: 'Stripe dashboard',
+    tahti: 'Connect portal / Express login',
+    nuclear: '/studio/stripe',
+    status: 'live',
+    notes: 'Studio nav item only when stripeConfigured is true',
   },
   {
     feature: 'Release create + artwork',

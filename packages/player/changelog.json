@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-03T04:30",
+    "description": "When Stripe is enabled, Studio adds a Stripe dashboard for your payout account and Express dashboard. If Stripe is off, that page stays out of Studio.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
     "date": "2026-09-03T03:20",
     "description": "Library is now a Studio tab — Studio stays selected while you browse sounds, collections, releases, and uploads, and the phone bottom bar still has Library.",
     "type": "improvement",

@@ -37,7 +37,14 @@ describe('getPageTourSteps', () => {
   });
 
   it('never produces duplicate step ids', () => {
-    for (const pathname of ['/', '/studio/shows', '/admin/users', '/library']) {
+    for (const pathname of [
+      '/',
+      '/studio/shows',
+      '/studio/revenue',
+      '/studio/stripe',
+      '/admin/users',
+      '/library',
+    ]) {
       const stepIds = ids(pathname);
       expect(new Set(stepIds).size).toBe(stepIds.length);
     }
@@ -48,5 +55,31 @@ describe('getPageTourSteps', () => {
       expect(step.label.length).toBeGreaterThan(0);
       expect(step.description.length).toBeGreaterThan(0);
     }
+  });
+
+  it('adds order-management steps on Studio Audience', () => {
+    const revenueIds = ids('/studio/revenue');
+    expect(revenueIds).toEqual(
+      expect.arrayContaining([
+        'revenue-stats',
+        'revenue-orders',
+        'revenue-flow',
+        'revenue-help',
+        'revenue-connect',
+      ]),
+    );
+    expect(ids('/studio/upload')).not.toContain('revenue-stats');
+  });
+
+  it('adds Stripe dashboard steps on Studio Stripe', () => {
+    const stripeIds = ids('/studio/stripe');
+    expect(stripeIds).toEqual(
+      expect.arrayContaining([
+        'stripe-status',
+        'stripe-actions',
+        'stripe-charges',
+      ]),
+    );
+    expect(ids('/studio/revenue')).not.toContain('stripe-status');
   });
 });
