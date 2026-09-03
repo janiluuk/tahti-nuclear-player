@@ -16,7 +16,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Dialog, Input, Select } from '@tahti-player/ui';
+import { Button, Dialog, Input, Select, Tabs } from '@tahti-player/ui';
 
 import {
   fetchHearthisTrackById,
@@ -281,31 +281,30 @@ export function StudioSoundsView() {
           }
         />
 
-        <nav className="flex flex-wrap gap-2" role="tablist">
-          {FOLDERS.map((f) => (
-            <Button
-              key={f.id}
-              type="button"
-              variant="text"
-              role="tab"
-              aria-selected={folder === f.id}
-              onClick={() =>
-                void navigate({
-                  to: '/studio/sounds',
-                  search: f.id === 'archive' ? {} : { folder: f.id },
-                })
-              }
-              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-                folder === f.id
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              <f.icon size={14} aria-hidden />
-              {f.label}
-            </Button>
-          ))}
-        </nav>
+        <Tabs.Root
+          selectedIndex={FOLDERS.findIndex((entry) => entry.id === folder)}
+          onChange={(index) => {
+            const next = FOLDERS[index];
+            if (!next) {
+              return;
+            }
+            void navigate({
+              to: '/studio/sounds',
+              search: next.id === 'archive' ? {} : { folder: next.id },
+            });
+          }}
+        >
+          <Tabs.List>
+            {FOLDERS.map((folderOption) => (
+              <Tabs.Tab key={folderOption.id}>
+                <span className="inline-flex items-center gap-1.5">
+                  <folderOption.icon size={14} aria-hidden />
+                  {folderOption.label}
+                </span>
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs.Root>
 
         {folder === 'files' ? (
           <StashFilesPanel />

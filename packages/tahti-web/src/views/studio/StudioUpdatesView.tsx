@@ -13,6 +13,7 @@ import {
   Dialog,
   FilePicker,
   Input,
+  Tabs,
   Textarea,
   Toggle,
 } from '@tahti-player/ui';
@@ -28,6 +29,7 @@ import {
   type ArtistPost,
   type NewsletterDraft,
 } from '../../api/studio-extras';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageLightbox } from '../../components/ImageLightbox';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -96,6 +98,9 @@ export function StudioUpdatesView() {
     images: string[];
     index: number;
   } | null>(null);
+  const [pendingDeletePost, setPendingDeletePost] = useState<ArtistPost | null>(
+    null,
+  );
   const [nlSubject, setNlSubject] = useState('');
   const [nlBody, setNlBody] = useState('');
   const [nlFansOnly, setNlFansOnly] = useState(false);
@@ -178,35 +183,25 @@ export function StudioUpdatesView() {
           }
         />
 
-        <nav className="flex flex-wrap gap-2" role="tablist">
-          {(
-            [
-              { id: 'posts' as const, label: 'Posts', icon: NewspaperIcon },
-              {
-                id: 'newsletter' as const,
-                label: 'Newsletter',
-                icon: SendIcon,
-              },
-            ] as const
-          ).map((t) => (
-            <Button
-              key={t.id}
-              type="button"
-              variant="text"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-                tab === t.id
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              <t.icon size={14} aria-hidden />
-              {t.label}
-            </Button>
-          ))}
-        </nav>
+        <Tabs.Root
+          selectedIndex={tab === 'posts' ? 0 : 1}
+          onChange={(index) => setTab(index === 0 ? 'posts' : 'newsletter')}
+        >
+          <Tabs.List>
+            <Tabs.Tab>
+              <span className="inline-flex items-center gap-1.5">
+                <NewspaperIcon size={14} aria-hidden />
+                Posts
+              </span>
+            </Tabs.Tab>
+            <Tabs.Tab>
+              <span className="inline-flex items-center gap-1.5">
+                <SendIcon size={14} aria-hidden />
+                Newsletter
+              </span>
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
 
         {msg && (
           <p className="text-foreground-secondary text-sm" role="status">
@@ -285,26 +280,7 @@ export function StudioUpdatesView() {
                         variant="text"
                         aria-label="Delete post"
                         title="Delete"
-                        onClick={() => {
-                          if (
-                            !window.confirm(
-                              `Delete “${p.title || 'Untitled'}”? This cannot be undone.`,
-                            )
-                          ) {
-                            return;
-                          }
-                          void deleteArtistPost(p.id).then((result) => {
-                            if (!result.ok) {
-                              setMsg(result.error);
-                              toast.error(result.error);
-                              return;
-                            }
-                            setPosts((current) =>
-                              current.filter((post) => post.id !== p.id),
-                            );
-                            toast.success('Post deleted.');
-                          });
-                        }}
+                        onClick={() => setPendingDeletePost(p)}
                       >
                         <Trash2Icon size={16} aria-hidden />
                       </Button>
@@ -613,6 +589,36 @@ export function StudioUpdatesView() {
             </Dialog.Actions>
           </form>
         </Dialog.Root>
+
+        <ConfirmDialog
+          isOpen={pendingDeletePost !== null}
+          title={
+            pendingDeletePost
+              ? `Delete “${pendingDeletePost.title || 'Untitled'}”?`
+              : 'Delete post?'
+          }
+          description="This cannot be undone."
+          confirmLabel="Delete"
+          onCancel={() => setPendingDeletePost(null)}
+          onConfirm={() => {
+            const post = pendingDeletePost;
+            setPendingDeletePost(null);
+            if (!post) {
+              return;
+            }
+            void deleteArtistPost(post.id).then((result) => {
+              if (!result.ok) {
+                setMsg(result.error);
+                toast.error(result.error);
+                return;
+              }
+              setPosts((current) =>
+                current.filter((entry) => entry.id !== post.id),
+              );
+              toast.success('Post deleted.');
+            });
+          }}
+        />
       </div>
     </StudioGate>
   );

@@ -18,6 +18,7 @@ import {
   type PressKitImageItem,
   type PublicPressKitImage,
 } from '../api/artist-settings';
+import { ConfirmDialog } from './ConfirmDialog';
 import { ImageLightbox } from './ImageLightbox';
 
 const ACCEPTED = 'image/jpeg,image/png,image/webp';
@@ -47,6 +48,7 @@ export function ArtistGalleryPanel({
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dragId, setDragId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   async function onFiles(files: FileList | null) {
     if (!files?.length || !isOwner) {
@@ -77,9 +79,6 @@ export function ArtistGalleryPanel({
     if (!isOwner) {
       return;
     }
-    if (!window.confirm('Remove this photo?')) {
-      return;
-    }
     const prev = images;
     onChange(images.filter((i) => i.id !== id));
     setSelected((current) => {
@@ -96,6 +95,13 @@ export function ArtistGalleryPanel({
       setError(res.error);
       toast.error(res.error);
     }
+  }
+
+  function requestDelete(id: string) {
+    if (!isOwner) {
+      return;
+    }
+    setPendingDeleteId(id);
   }
 
   function toggleSelected(id: string) {
@@ -286,7 +292,7 @@ export function ArtistGalleryPanel({
                       className="bg-background/80 text-foreground absolute top-1.5 right-1.5 rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100"
                       title="Remove photo"
                       aria-label="Remove photo"
-                      onClick={() => void onDelete(img.id)}
+                      onClick={() => requestDelete(img.id)}
                     >
                       <Trash2Icon size={14} />
                     </Button>
@@ -338,6 +344,21 @@ export function ArtistGalleryPanel({
           onClose={() => setLightbox(null)}
         />
       ) : null}
+
+      <ConfirmDialog
+        isOpen={pendingDeleteId !== null}
+        title="Remove this photo?"
+        description="The photo is removed from your gallery immediately."
+        confirmLabel="Remove"
+        onCancel={() => setPendingDeleteId(null)}
+        onConfirm={() => {
+          const id = pendingDeleteId;
+          setPendingDeleteId(null);
+          if (id) {
+            void onDelete(id);
+          }
+        }}
+      />
     </section>
   );
 }

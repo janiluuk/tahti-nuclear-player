@@ -1,5 +1,21 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Confirm dialogs, Pro Editor controls, and Tabs (five slices)
+
+Bumped `@tahti-player/tahti-web` to `0.0.44`.
+
+**Slice 1 — Image lightbox:** `ImageLightbox` uses Nuclear `Dialog.Root` for focus trap and Escape, keeping arrow-key gallery navigation.
+
+**Slice 2 — Confirm prompts:** Added shared `ConfirmDialog` and wired gallery, announcements, stash delete, API token revoke, disco-widget delete, and Studio posts delete (no more `window.confirm` on those paths).
+
+**Slice 3 — Pro Editor enable:** Plugin enable/disable uses `Toggle`.
+
+**Slice 4 — Pro Editor params:** Master gain, EQ, compressor, limiter, and filter frequency use `Slider`.
+
+**Slice 5 — Folder/scope tabs:** Studio Sounds and Posts use `Tabs`; Admin Disco Widgets scope filter uses `FilterChips`.
+
+**Validation:** tahti-web type-check. Deployed to beta after push.
+
 ## 2026-09-03 — Storybook reuse-audit leftovers (five slices)
 
 Bumped `@tahti-player/tahti-web` to `0.0.43`.

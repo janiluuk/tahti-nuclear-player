@@ -9,6 +9,7 @@ import {
   revokeApiToken,
   type ApiToken,
 } from '../api/api-tokens';
+import { ConfirmDialog } from './ConfirmDialog';
 import { PageLoading } from './PageStates';
 
 function formatDate(value: string | null): string {
@@ -31,6 +32,7 @@ export function ApiTokensPanel() {
   const [saving, setSaving] = useState(false);
   const [revealedToken, setRevealedToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pendingRevoke, setPendingRevoke] = useState<ApiToken | null>(null);
 
   useEffect(() => {
     void fetchApiTokens().then((result) => {
@@ -66,13 +68,6 @@ export function ApiTokensPanel() {
   };
 
   const revokeToken = (token: ApiToken) => {
-    if (
-      !window.confirm(
-        `Revoke “${token.name}”? Anything using it will stop working immediately.`,
-      )
-    ) {
-      return;
-    }
     void revokeApiToken(token.id).then((result) => {
       if (!result.ok) {
         toast.error(result.error);
@@ -156,7 +151,7 @@ export function ApiTokensPanel() {
                   <Button
                     size="sm"
                     variant="secondary"
-                    onClick={() => revokeToken(token)}
+                    onClick={() => setPendingRevoke(token)}
                   >
                     Revoke
                   </Button>
@@ -221,6 +216,22 @@ export function ApiTokensPanel() {
           )}
         </div>
       )}
+      <ConfirmDialog
+        isOpen={pendingRevoke !== null}
+        title={
+          pendingRevoke ? `Revoke “${pendingRevoke.name}”?` : 'Revoke token?'
+        }
+        description="Anything using this token will stop working immediately."
+        confirmLabel="Revoke"
+        onCancel={() => setPendingRevoke(null)}
+        onConfirm={() => {
+          const token = pendingRevoke;
+          setPendingRevoke(null);
+          if (token) {
+            revokeToken(token);
+          }
+        }}
+      />
     </SectionShell>
   );
 }

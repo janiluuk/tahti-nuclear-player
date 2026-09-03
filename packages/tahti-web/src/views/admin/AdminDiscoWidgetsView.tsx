@@ -5,6 +5,7 @@ import {
   Badge,
   Button,
   Dialog,
+  FilterChips,
   Input,
   Select,
   Textarea,
@@ -21,6 +22,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioPageHeader } from '../../components/StudioPanel';
@@ -192,6 +194,9 @@ export function AdminDiscoWidgetsView() {
   const [draft, setDraft] = useState<WidgetDraft>(EMPTY_DRAFT);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AdminDiscoWidget | null>(
+    null,
+  );
 
   const reload = () => {
     setLoading(true);
@@ -250,13 +255,6 @@ export function AdminDiscoWidgetsView() {
   };
 
   const remove = (widget: AdminDiscoWidget) => {
-    if (
-      !window.confirm(
-        `Delete “${widget.name}” permanently? This removes the widget from every add-on store.`,
-      )
-    ) {
-      return;
-    }
     void deleteAdminDiscoWidget(widget.id).then((result) => {
       if (!result.ok) {
         setError(result.error);
@@ -292,32 +290,16 @@ export function AdminDiscoWidgetsView() {
               }
             />
 
-            <div
-              className="border-border flex flex-wrap gap-2 border-b pb-3"
-              role="tablist"
+            <FilterChips
               aria-label="Widget types"
-            >
-              {(['ALL', ...SCOPES.map((item) => item.id)] as const).map(
-                (item) => {
-                  const label =
-                    item === 'ALL'
-                      ? 'All add-ons'
-                      : SCOPES.find((entry) => entry.id === item)?.label;
-                  return (
-                    <Button
-                      key={item}
-                      type="button"
-                      role="tab"
-                      aria-selected={scope === item}
-                      variant={scope === item ? 'default' : 'text'}
-                      onClick={() => setScope(item)}
-                    >
-                      {label}
-                    </Button>
-                  );
-                },
-              )}
-            </div>
+              className="border-border border-b pb-3"
+              items={[
+                { id: 'ALL', label: 'All add-ons' },
+                ...SCOPES.map((item) => ({ id: item.id, label: item.label })),
+              ]}
+              selected={scope}
+              onChange={(id) => setScope(id as AdminDiscoWidgetScope | 'ALL')}
+            />
 
             {error && !editorOpen ? (
               <p className="text-accent-red text-sm" role="alert">
@@ -395,7 +377,7 @@ export function AdminDiscoWidgetsView() {
                         variant="text"
                         title={`Delete ${widget.name}`}
                         aria-label={`Delete ${widget.name}`}
-                        onClick={() => remove(widget)}
+                        onClick={() => setPendingDelete(widget)}
                       >
                         <Trash2 size={16} aria-hidden />
                       </Button>
@@ -428,6 +410,24 @@ export function AdminDiscoWidgetsView() {
                 onSave={save}
               />
             </Dialog.Root>
+            <ConfirmDialog
+              isOpen={pendingDelete !== null}
+              title={
+                pendingDelete
+                  ? `Delete “${pendingDelete.name}”?`
+                  : 'Delete widget?'
+              }
+              description="This removes the widget from every add-on store permanently."
+              confirmLabel="Delete"
+              onCancel={() => setPendingDelete(null)}
+              onConfirm={() => {
+                const widget = pendingDelete;
+                setPendingDelete(null);
+                if (widget) {
+                  remove(widget);
+                }
+              }}
+            />
           </div>
         </AdminPageLayout>
       </div>

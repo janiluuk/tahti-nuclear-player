@@ -27,6 +27,7 @@ import {
 } from '../api/studio';
 import type { StudioCollection, StudioSound } from '../api/studio-types';
 import { usePlayerStore } from '../stores/playerStore';
+import { ConfirmDialog } from './ConfirmDialog';
 import { StudioPanel } from './StudioPanel';
 
 const EXPIRY_OPTIONS = [1, 3, 7, 30, 0] as const;
@@ -59,6 +60,7 @@ export const StashFilesPanel = () => {
   const [expiryDays, setExpiryDays] = useState(7);
   const [archiveItems, setArchiveItems] = useState<StudioSound[]>([]);
   const [collections, setCollections] = useState<StudioCollection[]>([]);
+  const [pendingDelete, setPendingDelete] = useState<StashFile | null>(null);
 
   const reload = () =>
     fetchStashFiles().then((result) => {
@@ -327,23 +329,7 @@ export const StashFilesPanel = () => {
                       variant="text"
                       title="Delete"
                       aria-label={`Delete ${file.filename}`}
-                      onClick={() => {
-                        if (!window.confirm(`Delete "${file.filename}"?`)) {
-                          return;
-                        }
-                        void deleteStashFile(file.id).then((result) => {
-                          if (!result.ok) {
-                            setMessage(result.error);
-                            return;
-                          }
-                          setFiles((current) =>
-                            current.filter(
-                              (candidate) => candidate.id !== file.id,
-                            ),
-                          );
-                          setMessage(`Deleted ${file.filename}.`);
-                        });
-                      }}
+                      onClick={() => setPendingDelete(file)}
                     >
                       <Trash2Icon size={16} />
                     </Button>
@@ -437,6 +423,32 @@ export const StashFilesPanel = () => {
           </ul>
         )}
       </StudioPanel>
+      <ConfirmDialog
+        isOpen={pendingDelete !== null}
+        title={
+          pendingDelete ? `Delete "${pendingDelete.filename}"?` : 'Delete file?'
+        }
+        description="This removes the file from your stash."
+        confirmLabel="Delete"
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          const file = pendingDelete;
+          setPendingDelete(null);
+          if (!file) {
+            return;
+          }
+          void deleteStashFile(file.id).then((result) => {
+            if (!result.ok) {
+              setMessage(result.error);
+              return;
+            }
+            setFiles((current) =>
+              current.filter((candidate) => candidate.id !== file.id),
+            );
+            setMessage(`Deleted ${file.filename}.`);
+          });
+        }}
+      />
     </div>
   );
 };

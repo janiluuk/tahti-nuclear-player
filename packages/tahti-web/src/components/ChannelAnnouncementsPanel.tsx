@@ -13,6 +13,7 @@ import {
   uploadAnnouncementClip,
   type AnnouncementClip,
 } from '../api/announcements';
+import { ConfirmDialog } from './ConfirmDialog';
 
 const formatDuration = (seconds: number | null) => {
   if (seconds == null) {
@@ -27,6 +28,9 @@ export function ChannelAnnouncementsPanel() {
   const [uploading, setUploading] = useState(false);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AnnouncementClip | null>(
+    null,
+  );
 
   const reload = () => {
     void fetchAnnouncementClips().then((result) => {
@@ -90,9 +94,6 @@ export function ChannelAnnouncementsPanel() {
   };
 
   const remove = async (clip: AnnouncementClip) => {
-    if (!window.confirm(`Delete “${clip.title}”?`)) {
-      return;
-    }
     const result = await deleteAnnouncementClip(clip.id);
     if (!result.ok) {
       toast.error(result.error);
@@ -193,7 +194,7 @@ export function ChannelAnnouncementsPanel() {
                 variant="text"
                 aria-label={`Delete ${clip.title}`}
                 title="Delete"
-                onClick={() => void remove(clip)}
+                onClick={() => setPendingDelete(clip)}
               >
                 <Trash2Icon size={16} aria-hidden />
               </Button>
@@ -209,6 +210,22 @@ export function ChannelAnnouncementsPanel() {
           ))}
         </ul>
       )}
+      <ConfirmDialog
+        isOpen={pendingDelete !== null}
+        title={
+          pendingDelete ? `Delete “${pendingDelete.title}”?` : 'Delete clip?'
+        }
+        description="This removes the announcement from your station rotation."
+        confirmLabel="Delete"
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          const clip = pendingDelete;
+          setPendingDelete(null);
+          if (clip) {
+            void remove(clip);
+          }
+        }}
+      />
     </section>
   );
 }

@@ -29,6 +29,8 @@ import {
   Dialog,
   Input,
   SaveButton,
+  Slider,
+  Toggle,
 } from '@tahti-player/ui';
 
 import { fetchArchiveVersions } from '../../api/archive-versions';
@@ -1112,23 +1114,22 @@ export function StudioProEditorView({ soundId }: { soundId: string }) {
                     </Button>
                   </div>
 
-                  <label className="text-foreground-secondary max-w-xs text-xs">
-                    Master gain ({editList.gainDb} dB)
-                    <input
-                      type="range"
-                      min={-24}
-                      max={12}
-                      step={0.5}
-                      value={editList.gainDb}
-                      className="w-full"
-                      onChange={(e) =>
-                        setEditList({
-                          ...editList,
-                          gainDb: Number(e.target.value),
-                        })
-                      }
-                    />
-                  </label>
+                  <Slider
+                    label="Master gain"
+                    value={editList.gainDb}
+                    min={-24}
+                    max={12}
+                    step={0.5}
+                    unit="dB"
+                    showFooter={false}
+                    className="max-w-xs"
+                    onValueChange={(gainDb) =>
+                      setEditList({
+                        ...editList,
+                        gainDb,
+                      })
+                    }
+                  />
 
                   <div className="flex flex-row items-start gap-3 overflow-x-auto pb-2">
                     {visiblePluginChain.length === 0 ? (
@@ -1174,18 +1175,11 @@ export function StudioProEditorView({ soundId }: { soundId: string }) {
                               <span className="text-foreground-secondary flex-1 truncate text-xs">
                                 {meta.description}
                               </span>
-                              <button
-                                type="button"
-                                role="switch"
-                                aria-checked={meta.isEnabled(editList)}
+                              <Toggle
+                                checked={meta.isEnabled(editList)}
+                                onChange={() => togglePluginEnabled(id)}
                                 aria-label={`${meta.isEnabled(editList) ? 'Disable' : 'Enable'} ${meta.label}`}
-                                onClick={() => togglePluginEnabled(id)}
-                                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border-2 transition-colors ${meta.isEnabled(editList) ? 'border-primary bg-primary' : 'border-border bg-background'}`}
-                              >
-                                <span
-                                  className={`size-3.5 rounded-full bg-white shadow transition-transform ${meta.isEnabled(editList) ? 'translate-x-5' : 'translate-x-1'}`}
-                                />
-                              </button>
+                              />
                               <Button
                                 size="icon-sm"
                                 variant="text"
@@ -1200,107 +1194,96 @@ export function StudioProEditorView({ soundId }: { soundId: string }) {
                             {id === 'eq' && (
                               <div className="grid gap-2 sm:grid-cols-3">
                                 {editList.eq.bands.map((band, i) => (
-                                  <label
+                                  <Slider
                                     key={band.freq}
-                                    className="text-foreground-secondary text-xs"
-                                  >
-                                    {band.freq} Hz gain ({band.gainDb} dB)
-                                    <input
-                                      type="range"
-                                      min={-12}
-                                      max={12}
-                                      step={0.5}
-                                      value={band.gainDb}
-                                      className="w-full"
-                                      onChange={(e) => {
-                                        const bands = editList.eq.bands.map(
-                                          (b, idx) =>
-                                            idx === i
-                                              ? {
-                                                  ...b,
-                                                  gainDb: Number(
-                                                    e.target.value,
-                                                  ),
-                                                }
-                                              : b,
-                                        );
-                                        setEditList({
-                                          ...editList,
-                                          eq: { ...editList.eq, bands },
-                                        });
-                                      }}
-                                    />
-                                  </label>
+                                    label={`${band.freq} Hz gain`}
+                                    value={band.gainDb}
+                                    min={-12}
+                                    max={12}
+                                    step={0.5}
+                                    unit="dB"
+                                    showFooter={false}
+                                    onValueChange={(gainDb) => {
+                                      const bands = editList.eq.bands.map(
+                                        (entry, idx) =>
+                                          idx === i
+                                            ? {
+                                                ...entry,
+                                                gainDb,
+                                              }
+                                            : entry,
+                                      );
+                                      setEditList({
+                                        ...editList,
+                                        eq: { ...editList.eq, bands },
+                                      });
+                                    }}
+                                  />
                                 ))}
                               </div>
                             )}
 
                             {id === 'comp' && (
                               <div className="grid gap-2 sm:grid-cols-2">
-                                <label className="text-foreground-secondary text-xs">
-                                  Threshold ({editList.comp.thresholdDb} dB)
-                                  <input
-                                    type="range"
-                                    min={-40}
-                                    max={0}
-                                    step={1}
-                                    value={editList.comp.thresholdDb}
-                                    className="w-full"
-                                    onChange={(e) =>
-                                      setEditList({
-                                        ...editList,
-                                        comp: {
-                                          ...editList.comp,
-                                          thresholdDb: Number(e.target.value),
-                                        },
-                                      })
-                                    }
-                                  />
-                                </label>
-                                <label className="text-foreground-secondary text-xs">
-                                  Ratio ({editList.comp.ratio}:1)
-                                  <input
-                                    type="range"
-                                    min={1}
-                                    max={20}
-                                    step={0.5}
-                                    value={editList.comp.ratio}
-                                    className="w-full"
-                                    onChange={(e) =>
-                                      setEditList({
-                                        ...editList,
-                                        comp: {
-                                          ...editList.comp,
-                                          ratio: Number(e.target.value),
-                                        },
-                                      })
-                                    }
-                                  />
-                                </label>
-                              </div>
-                            )}
-
-                            {id === 'limiter' && (
-                              <label className="text-foreground-secondary max-w-xs text-xs">
-                                Ceiling ({editList.limiter.ceilingDb} dB)
-                                <input
-                                  type="range"
-                                  min={-6}
+                                <Slider
+                                  label="Threshold"
+                                  value={editList.comp.thresholdDb}
+                                  min={-40}
                                   max={0}
-                                  step={0.1}
-                                  value={editList.limiter.ceilingDb}
-                                  className="w-full"
-                                  onChange={(e) =>
+                                  step={1}
+                                  unit="dB"
+                                  showFooter={false}
+                                  onValueChange={(thresholdDb) =>
                                     setEditList({
                                       ...editList,
-                                      limiter: {
-                                        ...editList.limiter,
-                                        ceilingDb: Number(e.target.value),
+                                      comp: {
+                                        ...editList.comp,
+                                        thresholdDb,
                                       },
                                     })
                                   }
                                 />
-                              </label>
+                                <Slider
+                                  label="Ratio"
+                                  value={editList.comp.ratio}
+                                  min={1}
+                                  max={20}
+                                  step={0.5}
+                                  unit=":1"
+                                  showFooter={false}
+                                  onValueChange={(ratio) =>
+                                    setEditList({
+                                      ...editList,
+                                      comp: {
+                                        ...editList.comp,
+                                        ratio,
+                                      },
+                                    })
+                                  }
+                                />
+                              </div>
+                            )}
+
+                            {id === 'limiter' && (
+                              <Slider
+                                label="Ceiling"
+                                value={editList.limiter.ceilingDb}
+                                min={-6}
+                                max={0}
+                                step={0.1}
+                                unit="dB"
+                                showFooter={false}
+                                className="max-w-xs"
+                                onValueChange={(ceilingDb) =>
+                                  setEditList({
+                                    ...editList,
+                                    limiter: {
+                                      ...editList.limiter,
+                                      ceilingDb,
+                                    },
+                                  })
+                                }
+                              />
                             )}
 
                             {id === 'filter' && (
@@ -1334,26 +1317,24 @@ export function StudioProEditorView({ soundId }: { soundId: string }) {
                                     ))}
                                   </div>
                                 </div>
-                                <label className="text-foreground-secondary text-xs">
-                                  Freq ({editList.filter.freq} Hz)
-                                  <input
-                                    type="range"
-                                    min={20}
-                                    max={20000}
-                                    step={10}
-                                    value={editList.filter.freq}
-                                    className="w-full"
-                                    onChange={(e) =>
-                                      setEditList({
-                                        ...editList,
-                                        filter: {
-                                          ...editList.filter,
-                                          freq: Number(e.target.value),
-                                        },
-                                      })
-                                    }
-                                  />
-                                </label>
+                                <Slider
+                                  label="Freq"
+                                  value={editList.filter.freq}
+                                  min={20}
+                                  max={20000}
+                                  step={10}
+                                  unit="Hz"
+                                  showFooter={false}
+                                  onValueChange={(freq) =>
+                                    setEditList({
+                                      ...editList,
+                                      filter: {
+                                        ...editList.filter,
+                                        freq,
+                                      },
+                                    })
+                                  }
+                                />
                                 <div>
                                   <p className="text-foreground-secondary mb-2 text-xs uppercase">
                                     Slope
