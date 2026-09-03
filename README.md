@@ -1,12 +1,13 @@
 # Tahti Player
 
-**Tahti Player** is the next listen + artist studio client for [Tahti](https://tahti.live) — a Finnish nonprofit, channel-first broadcasting platform for independent artists. It is built on [Nuclear](https://github.com/nukeop/nuclear)’s free, ad-free player UI (React + shared design system), and ships today as a Vite SPA on **[beta.tahti.live](https://beta.tahti.live)** against the live production API.
+**Tahti Player** is the next listen + artist studio client for [Tahti](https://tahti.live) — a Finnish nonprofit, channel-first broadcasting platform for independent artists. It is built based on [Nuclear](https://github.com/nukeop/nuclear)’s free, ad-free and player UI (React + shared design system), and ships today as a Vite SPA on **[beta.tahti.live](https://beta.tahti.live)** against the live production API at  **[api.tahti.live](https://api.tahti.live)** 
 
-> **Not upstream Nuclear.** Do not open PRs against [nukeop/nuclear](https://github.com/nukeop/nuclear) from this tree. See [TAHTI.md](./TAHTI.md).
+
+> **API repository and full docs live under [janiluuk/tahti-org](https://github.com/janiluuk/tahti-org). See [TAHTI.md](./TAHTI.md).
 
 ## What it is
 
-Tahti is channel-first radio and archive listening: artists broadcast live, publish music and albums, and earn directly from fan subscriptions. Production today still serves the Next.js app in the separate `tahti` monorepo (`apps/web` on `app.tahti.live`).
+Tahti is channel-first radio and archive listening: artists broadcast live, publish music and albums, prepare audio files and earn directly from fan subscriptions, content downloads and other material. Production today still serves the Next.js app in the separate `tahti` monorepo (`apps/web` on `app.tahti.live`).
 
 This repository holds:
 
@@ -17,7 +18,7 @@ The web client is not a separate product backend. It talks to the same public Ta
 
 ## Why it exists
 
-Production `apps/web` grew as a full Next stack (listen, studio, admin, marketing islands). Nuclear gives Tahti a **player-native** shell: queue, themes, keyboard-friendly chrome, and a studio that feels like a desk for going live — not a generic SaaS dashboard.
+Production `apps/web` grew as a full Next stack (listen, studio, admin, marketing islands). Separate player gives Tahti a **player-native** shell: queue, themes, keyboard-friendly chrome, and a studio that feels like a desk for going live — not a generic SaaS dashboard. Also the native clients are available for Windows, Mac, and linux. These support loading your own tracks for management, enriching metadata and generic music management.
 
 Goals:
 
