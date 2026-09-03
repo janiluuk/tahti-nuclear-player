@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-03T14:30",
+    "description": "The main page no longer shows extra scrollbars when the window is a bit narrower — you can still scroll, the bars just stay out of the way.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
     "date": "2026-09-03T06:50",
     "description": "Deleting a track, share link, announcement, or other destructive action now uses the same in-app confirm dialog instead of the browser’s prompt.",
     "type": "improvement",

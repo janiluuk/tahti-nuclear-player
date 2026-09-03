@@ -23,7 +23,7 @@ export function PageFrame({
 }) {
   return (
     <div
-      className={`mx-auto flex w-full ${MAX[maxWidth]} flex-col gap-6 ${className}`}
+      className={`mx-auto flex w-full min-w-0 ${MAX[maxWidth]} flex-col gap-6 ${className}`}
     >
       {children}
     </div>

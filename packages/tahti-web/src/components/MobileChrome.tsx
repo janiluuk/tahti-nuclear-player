@@ -211,7 +211,9 @@ export function MobileDrawer({
             <XIcon size={16} />
           </Button>
         </div>
-        <div className="min-h-0 flex-1 overflow-auto p-3">{children}</div>
+        <div className="tahti-hide-scrollbar min-h-0 flex-1 overflow-auto p-3">
+          {children}
+        </div>
       </div>
     </div>
   );

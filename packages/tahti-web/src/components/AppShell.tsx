@@ -87,7 +87,7 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
   return (
     <SidebarNavigation isCompact={compact}>
       <div className="flex h-full min-h-0 flex-col p-1">
-        <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
+        <div className="tahti-hide-scrollbar flex flex-1 flex-col gap-2 overflow-y-auto">
           <div data-tour-id="nav-listen">
             <SidebarNavigationItem
               to="/"
@@ -416,7 +416,10 @@ export function AppShell() {
       {isMobile ? (
         <div className="tahti-ambient-surface bg-background relative flex min-h-0 flex-1 flex-col overflow-hidden">
           <div
-            className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
+            className={cn(
+              'min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto',
+              MAIN_CONTENT_PADDING,
+            )}
             data-studio-shell
           >
             {getStudioPrimaryRoute(pathname) ? (
@@ -436,9 +439,10 @@ export function AppShell() {
       ) : isArtistPage ? (
         <div
           className={cn(
-            'tahti-ambient-surface min-h-0 flex-1 overflow-auto',
+            'tahti-ambient-surface min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto',
             MAIN_CONTENT_PADDING,
           )}
+          data-studio-shell
         >
           <RouteContent>
             <RouteTransition
@@ -464,11 +468,14 @@ export function AppShell() {
           */}
           <PlayerWorkspace.Main
             className={cn(
-              'tahti-ambient-surface min-h-0 overflow-hidden',
+              'tahti-ambient-surface min-h-0 min-w-0 overflow-hidden',
               MAIN_CONTENT_PADDING,
             )}
           >
-            <div className="h-full overflow-auto" data-studio-shell>
+            <div
+              className="h-full min-w-0 overflow-x-hidden overflow-y-auto"
+              data-studio-shell
+            >
               {getStudioPrimaryRoute(pathname) ? (
                 <StudioNav current={navigationLocation} global />
               ) : null}

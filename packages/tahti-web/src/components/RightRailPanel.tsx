@@ -141,7 +141,7 @@ function NotificationList({
   }
 
   return (
-    <ul className="flex h-full flex-col gap-2 overflow-y-auto p-2">
+    <ul className="tahti-hide-scrollbar flex h-full flex-col gap-2 overflow-y-auto p-2">
       {notifications.map((notification) => (
         <li
           key={notification.id}

@@ -1,5 +1,13 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Hide chrome scrollbars on tight widths
+
+Bumped `@tahti-player/tahti-web` to `0.0.48`.
+
+On slightly narrower desktop widths the main pane painted a classic vertical scrollbar, then a 1–5px horizontal twin once that bar stole width from `min-width: 100%` layout children. Chrome still scrolls; native bars are hidden on the main shell, tab strips, sidebar, and right rail. Studio/Admin layouts no longer force `min-width: 100%`. Wheel/trackpad scrolling still works. Listen, Library, and Studio chrome stayed mounted at ~926px.
+
+**Validation:** browser check at compact desktop width on Listen, Library sounds, and Studio. Deployed to beta after push.
+
 ## 2026-09-03 — Remaining switches, tabs, chips, and panels (eight slices)
 
 Bumped `@tahti-player/tahti-web` to `0.0.47`.

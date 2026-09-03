@@ -8,6 +8,29 @@ body,
   margin: 0;
 }
 
+/* Tight widths otherwise paint a classic bar (and a 1–5px horizontal twin
+   once the vertical bar steals width from min-width: 100% children). */
+.tahti-hide-scrollbar,
+[data-studio-shell],
+[role='tablist'] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tahti-hide-scrollbar::-webkit-scrollbar,
+[data-studio-shell]::-webkit-scrollbar,
+[role='tablist']::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+[data-studio-shell] {
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 :root[data-theme-id='nuclear:tahti-dark'] .tahti-ambient-surface {
   background-color: color-mix(
     in srgb,
@@ -76,7 +99,7 @@ body,
   .admin-moderation-layout {
     box-sizing: border-box;
     width: 100%;
-    min-width: 100% !important;
+    min-width: 0 !important;
     max-width: none !important;
     margin-inline: 0 !important;
     padding-inline: 0.5rem !important;
