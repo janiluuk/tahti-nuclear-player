@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Dialog } from '@tahti-player/ui';
+import { Badge, Button, Dialog } from '@tahti-player/ui';
 
 import {
   fetchChannelManageStats,
@@ -35,6 +35,7 @@ import {
 } from '../api/broadcast';
 import { fetchChannel } from '../api/client';
 import {
+  fetchEditorSource,
   fetchStudioCollection,
   fetchStudioCollections,
   patchStudioSound,
@@ -48,6 +49,7 @@ import {
 import type { StudioCollection } from '../api/studio-types';
 import { multicastProviderLabel } from '../plugins/multicast';
 import { useBroadcastPresenceStore } from '../stores/broadcastPresenceStore';
+import { usePlayerStore } from '../stores/playerStore';
 import { ChannelRotationEditor } from './ChannelRotationEditor';
 import { StreamOverlayEditor } from './StreamOverlayEditor';
 
@@ -410,6 +412,30 @@ export function StreamManagerPanel({
     await saveEditableRotation([...editableRotation, item]);
   };
 
+  const play = usePlayerStore((state) => state.play);
+  const previewCurrentId = usePlayerStore((state) => state.currentId);
+  const previewStatus = usePlayerStore((state) => state.status);
+  const previewItemId = previewCurrentId?.startsWith('archive:')
+    ? previewCurrentId.slice('archive:'.length)
+    : null;
+  const previewPlaying = previewStatus === 'playing';
+  const rotationCurrentId = rotationPlaying
+    ? (rotation?.item?.id ?? null)
+    : previewItemId;
+  const rotationEditorPlaying = rotationPlaying ? true : previewPlaying;
+
+  const previewRotationItem = async (item: ProgrammeItem) => {
+    const { data } = await fetchEditorSource(item.id);
+    play({
+      id: `archive:${item.id}`,
+      kind: 'archive',
+      title: item.title,
+      artist: 'You',
+      streamUrl: data.url,
+      protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
+    });
+  };
+
   const handleEnd = async () => {
     setEnding(true);
     setError(null);
@@ -436,16 +462,24 @@ export function StreamManagerPanel({
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold tracking-wide uppercase ${
-                playerState === 'Live' || playerState === 'Playing'
-                  ? 'bg-accent-green/15 text-accent-green'
-                  : 'bg-background-secondary text-foreground-secondary'
-              }`}
+              className="inline-flex items-center gap-1.5"
               role="status"
               aria-label={`Player state: ${playerState}`}
             >
-              <span className="size-1.5 rounded-full bg-current" aria-hidden />
-              {playerState}
+              {playerState === 'Live' || playerState === 'Playing' ? (
+                <Badge variant="dot" color="green" animated />
+              ) : null}
+              <Badge
+                variant="pill"
+                color={
+                  playerState === 'Live' || playerState === 'Playing'
+                    ? 'green'
+                    : 'secondary'
+                }
+                className="tracking-wide uppercase"
+              >
+                {playerState}
+              </Badge>
             </span>
             <span className="text-foreground-secondary">{outputLabel}</span>
           </div>
@@ -724,6 +758,8 @@ export function StreamManagerPanel({
                 items={editableRotation}
                 availableItems={availableRotationItems}
                 busy={rotationBusy}
+                currentItemId={rotationCurrentId}
+                isPlaying={rotationEditorPlaying}
                 onAdd={(item) => void addRotationItem(item)}
                 onReorder={(next) => void saveEditableRotation(next)}
                 onRemove={(item) =>
@@ -733,6 +769,7 @@ export function StreamManagerPanel({
                     ),
                   )
                 }
+                onPlay={(item) => void previewRotationItem(item)}
               />
             )}
 

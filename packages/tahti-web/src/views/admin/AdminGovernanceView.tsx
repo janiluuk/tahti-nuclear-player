@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, Input, Select, Textarea } from '@tahti-player/ui';
 
 import {
   createAdminResolution,
@@ -260,52 +260,46 @@ export function AdminGovernanceView() {
                 advisory member motions and can be published after approval.
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <input
+                <Input
                   value={resolutionTitle}
                   onChange={(event) => setResolutionTitle(event.target.value)}
                   placeholder="Resolution title"
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
                 />
-                <select
+                <Select
                   value={resolutionOutcome}
-                  onChange={(event) =>
-                    setResolutionOutcome(
-                      event.target.value as ResolutionOutcome,
-                    )
+                  onValueChange={(value) =>
+                    setResolutionOutcome(value as ResolutionOutcome)
                   }
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
-                >
-                  <option value="PASSED">Passed</option>
-                  <option value="FAILED">Failed</option>
-                  <option value="DEFERRED">Deferred</option>
-                </select>
-                <textarea
+                  options={[
+                    { id: 'PASSED', label: 'Passed' },
+                    { id: 'FAILED', label: 'Failed' },
+                    { id: 'DEFERRED', label: 'Deferred' },
+                  ]}
+                />
+                <Textarea
                   value={resolutionBody}
                   onChange={(event) => setResolutionBody(event.target.value)}
                   placeholder="Resolution body"
                   rows={4}
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm sm:col-span-2"
+                  className="sm:col-span-2"
                 />
-                <input
+                <Input
                   value={resolutionFor}
                   onChange={(event) => setResolutionFor(event.target.value)}
                   inputMode="numeric"
                   placeholder="Votes for"
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
                 />
-                <input
+                <Input
                   value={resolutionAgainst}
                   onChange={(event) => setResolutionAgainst(event.target.value)}
                   inputMode="numeric"
                   placeholder="Votes against"
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
                 />
-                <input
+                <Input
                   value={resolutionAbstain}
                   onChange={(event) => setResolutionAbstain(event.target.value)}
                   inputMode="numeric"
                   placeholder="Abstentions"
-                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
                 />
               </div>
               <Button

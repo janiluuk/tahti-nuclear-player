@@ -1,5 +1,19 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-03 — Broadcast schedule + stream playlist batch (five slices)
+
+**Slice 1 — Stream manager status pill:** `StreamManagerPanel` uses `Badge` (animated green dot + pill) for Live/Playing/Paused/Stopped instead of a hand-rolled span.
+
+**Slice 2 — Rotation highlight + preview in Go Live:** `ChannelRotationEditor` on the stream manager receives `currentItemId`, `isPlaying`, and `onPlay` so the active rotation track is highlighted and archive tracks can be previewed in the bottom player.
+
+**Slice 3 — Rotation highlight in channel playlist:** `ChannelRadioPlaylistPanel` passes preview playback state from `playerStore` into the same editor.
+
+**Slice 4 — Schedule → Broadcast + programme on page:** Studio nav label is now “Broadcast” (`studio.schedule` i18n). `/studio/schedule` page title matches; `ChannelRadioPlaylistPanel` is embedded below analytics so 24/7 rotation is manageable from the broadcast page.
+
+**Slice 5 — Admin governance form controls:** Board resolution create form uses `Input`, `Select`, and `Textarea` from `@tahti-player/ui`.
+
+**Validation:** tahti-web type-check and vitest. Bumped `@tahti-player/tahti-web` to `0.0.34`.
+
 ## 2026-09-03 — Cross-repo doc audit + doc-hygiene batch (five slices)
 
 Audited `../tahti` vs this package after the Node 24 CI push. Full findings are summarized here; canonical pointers live in [docs/CROSS-REPO-SYNC.md](docs/CROSS-REPO-SYNC.md).
@@ -52,7 +66,7 @@ Fifth revenue batch (five slices after slice 1). Deployed `@tahti-player/tahti-w
 
 **Completed:** Library is no longer a sibling of Studio/Perform. `SUBMENUS['/library']` folded into Studio (Library, Sounds, Collections, Releases, Upload, Editor). `/library*` routes stay; Studio stays selected. Mobile bottom nav still has Library. Favorites stay on Listen (`/listen/favorites`); the Library-only `FavoritesPanel` is gone and `/library/favorites` still redirects. Governance Playwright covers Settings → Account member governance, Studio Governance Motions/Topics, and Admin Governance/AGM Community. Bumped `@tahti-player/tahti-web` to `0.0.29`.
 
-**Left for later:** Stream playlist manager under Schedule; rename Schedule → Broadcast; one expandable player row with controls/stream state; show replay; highlight current track in rotation.
+**Left for later:** Expandable player row with full transport controls on Go Live (compact row already ships); dedicated replay affordance beyond rotation preview play.
 
 ## 2026-09-03 — Artist-page Channel Designer element menu
 

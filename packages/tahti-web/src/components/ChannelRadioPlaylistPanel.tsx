@@ -59,6 +59,12 @@ export const ChannelRadioPlaylistPanel: FC = () => {
     'programme',
   );
   const play = usePlayerStore((state) => state.play);
+  const previewCurrentId = usePlayerStore((state) => state.currentId);
+  const previewStatus = usePlayerStore((state) => state.status);
+  const previewItemId = previewCurrentId?.startsWith('archive:')
+    ? previewCurrentId.slice('archive:'.length)
+    : null;
+  const previewPlaying = previewStatus === 'playing';
 
   const applyProgramme = (next: ProgrammeView) => {
     setProgramme(next);
@@ -527,6 +533,8 @@ export const ChannelRadioPlaylistPanel: FC = () => {
           items={rotation}
           availableItems={availableItems}
           busy={busy}
+          currentItemId={previewItemId}
+          isPlaying={previewPlaying}
           onAdd={(item) => void saveRotation([...rotation, item])}
           onReorder={(next) => void saveRotation(next, 'ordered')}
           onRemove={(item) =>
