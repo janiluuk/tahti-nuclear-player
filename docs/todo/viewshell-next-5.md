@@ -1,15 +1,11 @@
 # Next 5 ViewShell migrations (2026-09-04)
 
-**Status:** in progress.
+**Status:** done (landed in `d90cefb3e`).
 
-Continue ViewShell section after Listen/Discover:
+1. Help hub — `Help` / Guides, documents, and shortcuts
+2. Radio — `Radio` / Live Tahti Radio and schedule
+3. Studio Sounds — `Sounds` / Your files
+4. Studio Collections — `Collections` / Albums, EPs, DJ sets, and playlists
+5. Admin Dashboard — `Dashboard` / Members, live streams, and health
 
-1. ~~Help hub~~ (done)
-2. ~~Radio~~ (done)
-3. Studio Sounds
-4. Studio Collections
-5. Admin Dashboard
-
-Contract: short title + one-line subtitle; actions in children;
-`classes={{ root: 'px-0 pt-0' }}` under AppShell; StudioNav / Admin tabs
-stay outside; keep all data and CTAs.
+**Next batch:** History, Radio schedule, Studio Schedule, Go Live, Releases — see `viewshell-next-5-b.md`.

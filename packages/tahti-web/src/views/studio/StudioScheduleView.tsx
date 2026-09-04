@@ -18,6 +18,8 @@ import {
   Select,
   StatChip,
   Toggle,
+  Tooltip,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -48,7 +50,7 @@ import { ChannelRadioPlaylistPanel } from '../../components/ChannelRadioPlaylist
 import { ImageUploadField } from '../../components/ImageUploadField';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 const DEFAULT_BROADCAST_HOUR = 20;
@@ -730,343 +732,346 @@ export function StudioScheduleView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/schedule" />
-        <StudioPageHeader
+        <ViewShell
           title="Broadcast"
-          subtitle="Plan live shows and manage what plays between broadcasts. Times use your local timezone."
-          action={
-            <Button
-              size="icon-sm"
-              aria-label="Add next broadcast"
-              title="Add next broadcast"
-              onClick={() => setEditorOpen(true)}
-            >
-              <PlusIcon size={16} aria-hidden />
-            </Button>
-          }
-        />
-
-        <ScheduledTimes items={scheduledTimes} onEdit={openEditor} />
-
-        {scheduledShows.length > 0 ? (
-          <StudioPanel
-            title="Scheduled show episodes"
-            description="One-off and recurring episodes generated from your shows."
-          >
-            <ul className="divide-border divide-y">
-              {scheduledShows.map((show) => {
-                const endAt = endAtFor(
-                  show.startAt,
-                  shows.find((series) => series.id === show.seriesId)
-                    ?.intervalHours,
-                );
-                return (
-                  <li
-                    key={show.id}
-                    className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      {show.artworkUrl ? (
-                        <img
-                          src={show.artworkUrl}
-                          alt=""
-                          className="size-16 shrink-0 rounded-lg object-cover"
-                        />
-                      ) : null}
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold">
-                          {show.title}
-                          {show.episodeNumber != null
-                            ? ` · Episode ${show.episodeNumber}`
-                            : ''}
-                        </p>
-                        <p className="text-foreground-secondary text-xs">
-                          {formatDate(show.startAt)} at{' '}
-                          {formatTimeRange(show.startAt, endAt)}
-                          {show.venue ? ` · ${show.venue}` : ''}
-                          {show.location ? `, ${show.location}` : ''}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="text"
-                      onClick={() => void cancelEpisode(show.id)}
-                    >
-                      Cancel
-                    </Button>
-                  </li>
-                );
-              })}
-            </ul>
-          </StudioPanel>
-        ) : null}
-
-        <ScheduleAnalytics />
-
-        <ChannelRadioPlaylistPanel />
-
-        {msg && (
-          <p className="text-foreground-secondary text-sm" role="status">
-            {msg}
-          </p>
-        )}
-
-        <Dialog.Root
-          isOpen={editorOpen}
-          onClose={() => setEditorOpen(false)}
-          className="max-w-2xl"
+          subtitle="Live shows and between-broadcast play."
+          classes={{ root: 'px-0 pt-0' }}
         >
-          <Dialog.Title>Next planned broadcast</Dialog.Title>
-          <Dialog.Description>
-            This is shown on your public channel so listeners know when to
-            return.
-          </Dialog.Description>
-          <div className="mt-4 flex flex-col gap-5">
-            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_11rem]">
-              <Input
-                type="date"
-                label="Date"
-                min={minimumDate}
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-              />
-              <Input
-                type="time"
-                label="Local time"
-                value={time}
-                onChange={(event) => setTime(event.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-foreground-secondary text-xs uppercase">
-                Quick pick
-              </span>
+          <div className="mb-4">
+            <Tooltip content="Add next broadcast" side="top">
               <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setQuickDate(tomorrow)}
+                size="icon-sm"
+                aria-label="Add next broadcast"
+                onClick={() => setEditorOpen(true)}
               >
-                Tomorrow at {pad(DEFAULT_BROADCAST_HOUR)}:00
+                <PlusIcon size={16} aria-hidden />
               </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setQuickDate(nextFriday())}
-              >
-                Next Friday
-              </Button>
-              {(date || time) && (
-                <Button
-                  size="icon-sm"
-                  variant="text"
-                  aria-label="Clear planned time"
-                  title="Clear planned time"
-                  onClick={() => {
-                    setDate('');
-                    setTime('');
-                  }}
-                >
-                  <XIcon size={15} aria-hidden />
-                </Button>
-              )}
-            </div>
+            </Tooltip>
+          </div>
 
-            <BroadcastDetailsFields
-              values={
-                {
-                  title: note,
-                  description: showDescription,
-                  coverUrl: showCoverUrl,
-                  mode: showMode,
-                  showType,
-                  durationHours,
-                } satisfies BroadcastDetailsValues
-              }
-              shows={shows}
-              selectedShowId={selectedShowId}
-              episodeNumber={
-                shows.find((show) => show.id === selectedShowId)
-                  ?.nextEpisodeNumber ?? 1
-              }
-              onShowChange={selectShow}
-              onChange={(values) => {
-                setNote(values.title);
-                setShowDescription(values.description);
-                setShowCoverUrl(values.coverUrl);
-                setShowMode(values.mode);
-                setShowType(values.showType);
-                setDurationHours(values.durationHours);
-              }}
-            />
+          <ScheduledTimes items={scheduledTimes} onEdit={openEditor} />
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Input
-                label="Show tagline"
-                value={showTagline}
-                onChange={(event) => setShowTagline(event.target.value)}
-                placeholder="Optional subtitle"
-              />
-              <Select
-                label="Visibility"
-                value={showVisibility}
-                onValueChange={(value) =>
-                  setShowVisibility(value as 'PUBLIC' | 'FAN_ONLY')
-                }
-                options={[
-                  { id: 'PUBLIC', label: 'Public' },
-                  { id: 'FAN_ONLY', label: 'Fans only' },
-                ]}
-              />
-              <div className="flex items-center justify-between gap-3 text-sm">
-                <span className="text-foreground-secondary">
-                  Publish recordings automatically
-                </span>
-                <Toggle
-                  label="Publish recordings automatically"
-                  checked={autoArchive}
-                  onChange={setAutoArchive}
-                />
-              </div>
-              {showMode === 'SERIES' ? (
-                <div className="flex items-center justify-between gap-3 text-sm">
-                  <span className="text-foreground-secondary">
-                    Number episodes automatically
-                  </span>
-                  <Toggle
-                    label="Number episodes automatically"
-                    checked={episodeNumberEnabled}
-                    onChange={setEpisodeNumberEnabled}
-                  />
-                </div>
-              ) : null}
-              {showMode === 'SERIES' && episodeNumberEnabled ? (
+          {scheduledShows.length > 0 ? (
+            <StudioPanel
+              title="Scheduled show episodes"
+              description="One-off and recurring episodes generated from your shows."
+            >
+              <ul className="divide-border divide-y">
+                {scheduledShows.map((show) => {
+                  const endAt = endAtFor(
+                    show.startAt,
+                    shows.find((series) => series.id === show.seriesId)
+                      ?.intervalHours,
+                  );
+                  return (
+                    <li
+                      key={show.id}
+                      className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        {show.artworkUrl ? (
+                          <img
+                            src={show.artworkUrl}
+                            alt=""
+                            className="size-16 shrink-0 rounded-lg object-cover"
+                          />
+                        ) : null}
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold">
+                            {show.title}
+                            {show.episodeNumber != null
+                              ? ` · Episode ${show.episodeNumber}`
+                              : ''}
+                          </p>
+                          <p className="text-foreground-secondary text-xs">
+                            {formatDate(show.startAt)} at{' '}
+                            {formatTimeRange(show.startAt, endAt)}
+                            {show.venue ? ` · ${show.venue}` : ''}
+                            {show.location ? `, ${show.location}` : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="text"
+                        onClick={() => void cancelEpisode(show.id)}
+                      >
+                        Cancel
+                      </Button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </StudioPanel>
+          ) : null}
+
+          <ScheduleAnalytics />
+
+          <ChannelRadioPlaylistPanel />
+
+          {msg && (
+            <p className="text-foreground-secondary text-sm" role="status">
+              {msg}
+            </p>
+          )}
+
+          <Dialog.Root
+            isOpen={editorOpen}
+            onClose={() => setEditorOpen(false)}
+            className="max-w-2xl"
+          >
+            <Dialog.Title>Next planned broadcast</Dialog.Title>
+            <Dialog.Description>
+              This is shown on your public channel so listeners know when to
+              return.
+            </Dialog.Description>
+            <div className="mt-4 flex flex-col gap-5">
+              <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_11rem]">
                 <Input
-                  type="number"
-                  variant="number"
-                  label="Start episode"
-                  min={1}
-                  value={nextEpisodeNumber}
-                  onChange={(event) =>
-                    setNextEpisodeNumber(
-                      Math.max(1, Number(event.target.value)),
-                    )
-                  }
-                  className="w-24"
+                  type="date"
+                  label="Date"
+                  min={minimumDate}
+                  value={date}
+                  onChange={(event) => setDate(event.target.value)}
                 />
-              ) : null}
-            </div>
-
-            <div className="border-border flex flex-col gap-2 border-t pt-3">
-              <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                Weekly recurrence
-              </span>
-              <div className="flex flex-wrap gap-1">
-                {FREQUENCY_DAY_ORDER.map((day) => (
-                  <Button
-                    key={day}
-                    type="button"
-                    size="sm"
-                    variant={frequencyDays.includes(day) ? undefined : 'text'}
-                    aria-pressed={frequencyDays.includes(day)}
-                    onClick={() => toggleFrequencyDay(day)}
-                  >
-                    Every {WEEKDAY_LABELS[day]}
-                  </Button>
-                ))}
-              </div>
-              <p className="text-foreground-secondary text-xs">
-                Select days to generate episodes automatically; leave empty for
-                a one-off show.
-              </p>
-              {shows.find((show) => show.id === selectedShowId)
-                ?.recurrenceEnabled ? (
-                <Button
-                  size="sm"
-                  variant="text"
-                  disabled={busy}
-                  onClick={() => void stopRecurringSchedule()}
-                >
-                  Stop recurring schedule
-                </Button>
-              ) : null}
-              <Button
-                size="sm"
-                variant="text"
-                disabled={
-                  busy ||
-                  !selectedShowId ||
-                  !date ||
-                  !time ||
-                  frequencyDays.length === 0
-                }
-                onClick={() => void saveRecurringSchedule()}
-              >
-                Save weekly schedule
-              </Button>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Input
-                label="Venue"
-                value={venue}
-                onChange={(event) => setVenue(event.target.value)}
-                placeholder="Optional venue"
-              />
-              <Input
-                label="Location"
-                value={location}
-                onChange={(event) => setLocation(event.target.value)}
-                placeholder="City, country, or online"
-              />
-              <div className="sm:col-span-2">
-                <ImageUploadField
-                  label="Episode artwork"
-                  description="JPEG, PNG, WebP, or GIF"
-                  value={episodeArtworkUrl}
-                  onChange={setEpisodeArtworkUrl}
+                <Input
+                  type="time"
+                  label="Local time"
+                  value={time}
+                  onChange={(event) => setTime(event.target.value)}
                 />
               </div>
-            </div>
 
-            <div className="border-border flex flex-wrap items-center justify-between gap-3 border-t pt-4">
-              <p className="text-foreground-secondary text-xs">
-                {date && time
-                  ? `${formatDate(fromLocalParts(date, time)!)} at ${formatTime(fromLocalParts(date, time)!)}`
-                  : 'No next broadcast selected'}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Select
-                  id="episode-duration"
-                  label="Minutes"
-                  value={String(durationMinutes)}
-                  options={[0, 15, 30, 45].map((minutes) => ({
-                    id: String(minutes),
-                    label: String(minutes),
-                  }))}
-                  onValueChange={(value) => setDurationMinutes(Number(value))}
-                />
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-foreground-secondary text-xs uppercase">
+                  Quick pick
+                </span>
                 <Button
                   size="sm"
                   variant="secondary"
-                  disabled={busy || !selectedShowId || !date || !time}
-                  onClick={() => void scheduleEpisode()}
+                  onClick={() => setQuickDate(tomorrow)}
                 >
-                  Schedule episode
+                  Tomorrow at {pad(DEFAULT_BROADCAST_HOUR)}:00
                 </Button>
-                <SaveButton
-                  disabled={loading || !date || !time}
-                  saving={busy}
-                  label="Save next broadcast"
-                  onClick={() => void saveSchedule()}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setQuickDate(nextFriday())}
+                >
+                  Next Friday
+                </Button>
+                {(date || time) && (
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    aria-label="Clear planned time"
+                    title="Clear planned time"
+                    onClick={() => {
+                      setDate('');
+                      setTime('');
+                    }}
+                  >
+                    <XIcon size={15} aria-hidden />
+                  </Button>
+                )}
+              </div>
+
+              <BroadcastDetailsFields
+                values={
+                  {
+                    title: note,
+                    description: showDescription,
+                    coverUrl: showCoverUrl,
+                    mode: showMode,
+                    showType,
+                    durationHours,
+                  } satisfies BroadcastDetailsValues
+                }
+                shows={shows}
+                selectedShowId={selectedShowId}
+                episodeNumber={
+                  shows.find((show) => show.id === selectedShowId)
+                    ?.nextEpisodeNumber ?? 1
+                }
+                onShowChange={selectShow}
+                onChange={(values) => {
+                  setNote(values.title);
+                  setShowDescription(values.description);
+                  setShowCoverUrl(values.coverUrl);
+                  setShowMode(values.mode);
+                  setShowType(values.showType);
+                  setDurationHours(values.durationHours);
+                }}
+              />
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Input
+                  label="Show tagline"
+                  value={showTagline}
+                  onChange={(event) => setShowTagline(event.target.value)}
+                  placeholder="Optional subtitle"
                 />
+                <Select
+                  label="Visibility"
+                  value={showVisibility}
+                  onValueChange={(value) =>
+                    setShowVisibility(value as 'PUBLIC' | 'FAN_ONLY')
+                  }
+                  options={[
+                    { id: 'PUBLIC', label: 'Public' },
+                    { id: 'FAN_ONLY', label: 'Fans only' },
+                  ]}
+                />
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-foreground-secondary">
+                    Publish recordings automatically
+                  </span>
+                  <Toggle
+                    label="Publish recordings automatically"
+                    checked={autoArchive}
+                    onChange={setAutoArchive}
+                  />
+                </div>
+                {showMode === 'SERIES' ? (
+                  <div className="flex items-center justify-between gap-3 text-sm">
+                    <span className="text-foreground-secondary">
+                      Number episodes automatically
+                    </span>
+                    <Toggle
+                      label="Number episodes automatically"
+                      checked={episodeNumberEnabled}
+                      onChange={setEpisodeNumberEnabled}
+                    />
+                  </div>
+                ) : null}
+                {showMode === 'SERIES' && episodeNumberEnabled ? (
+                  <Input
+                    type="number"
+                    variant="number"
+                    label="Start episode"
+                    min={1}
+                    value={nextEpisodeNumber}
+                    onChange={(event) =>
+                      setNextEpisodeNumber(
+                        Math.max(1, Number(event.target.value)),
+                      )
+                    }
+                    className="w-24"
+                  />
+                ) : null}
+              </div>
+
+              <div className="border-border flex flex-col gap-2 border-t pt-3">
+                <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                  Weekly recurrence
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  {FREQUENCY_DAY_ORDER.map((day) => (
+                    <Button
+                      key={day}
+                      type="button"
+                      size="sm"
+                      variant={frequencyDays.includes(day) ? undefined : 'text'}
+                      aria-pressed={frequencyDays.includes(day)}
+                      onClick={() => toggleFrequencyDay(day)}
+                    >
+                      Every {WEEKDAY_LABELS[day]}
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-foreground-secondary text-xs">
+                  Select days to generate episodes automatically; leave empty
+                  for a one-off show.
+                </p>
+                {shows.find((show) => show.id === selectedShowId)
+                  ?.recurrenceEnabled ? (
+                  <Button
+                    size="sm"
+                    variant="text"
+                    disabled={busy}
+                    onClick={() => void stopRecurringSchedule()}
+                  >
+                    Stop recurring schedule
+                  </Button>
+                ) : null}
+                <Button
+                  size="sm"
+                  variant="text"
+                  disabled={
+                    busy ||
+                    !selectedShowId ||
+                    !date ||
+                    !time ||
+                    frequencyDays.length === 0
+                  }
+                  onClick={() => void saveRecurringSchedule()}
+                >
+                  Save weekly schedule
+                </Button>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Input
+                  label="Venue"
+                  value={venue}
+                  onChange={(event) => setVenue(event.target.value)}
+                  placeholder="Optional venue"
+                />
+                <Input
+                  label="Location"
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                  placeholder="City, country, or online"
+                />
+                <div className="sm:col-span-2">
+                  <ImageUploadField
+                    label="Episode artwork"
+                    description="JPEG, PNG, WebP, or GIF"
+                    value={episodeArtworkUrl}
+                    onChange={setEpisodeArtworkUrl}
+                  />
+                </div>
+              </div>
+
+              <div className="border-border flex flex-wrap items-center justify-between gap-3 border-t pt-4">
+                <p className="text-foreground-secondary text-xs">
+                  {date && time
+                    ? `${formatDate(fromLocalParts(date, time)!)} at ${formatTime(fromLocalParts(date, time)!)}`
+                    : 'No next broadcast selected'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Select
+                    id="episode-duration"
+                    label="Minutes"
+                    value={String(durationMinutes)}
+                    options={[0, 15, 30, 45].map((minutes) => ({
+                      id: String(minutes),
+                      label: String(minutes),
+                    }))}
+                    onValueChange={(value) => setDurationMinutes(Number(value))}
+                  />
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={busy || !selectedShowId || !date || !time}
+                    onClick={() => void scheduleEpisode()}
+                  >
+                    Schedule episode
+                  </Button>
+                  <SaveButton
+                    disabled={loading || !date || !time}
+                    saving={busy}
+                    label="Save next broadcast"
+                    onClick={() => void saveSchedule()}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <Dialog.Actions>
-            <Dialog.Close>Cancel</Dialog.Close>
-          </Dialog.Actions>
-        </Dialog.Root>
+            <Dialog.Actions>
+              <Dialog.Close>Cancel</Dialog.Close>
+            </Dialog.Actions>
+          </Dialog.Root>
+        </ViewShell>
       </div>
     </StudioGate>
   );

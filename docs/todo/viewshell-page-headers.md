@@ -1,8 +1,8 @@
 # ViewShell page headers (Studio, Admin, listener)
 
-**Status:** planned.
+**Status:** in progress.
 **Storybook:** `Components/ViewShell` — `title` + `subtitle` strings, then `ScrollableArea`.
-**Today:** listener pages use `PageHeader` (title, rich subtitle, meta, actions, back). Studio and Admin use `StudioPageHeader` (title, long subtitle, action). Only `NewsView` / `WhatsNewView` already wrap `ViewShell`.
+**Today:** listener pages use `PageHeader` (title, rich subtitle, meta, actions, back). Studio and Admin use `StudioPageHeader` (title, long subtitle, action). `NewsView` / `WhatsNewView`, Listen, Discover, Help hub, Radio, Radio schedule, History, Studio Sounds, Collections, Schedule, Go Live, Releases, and Admin Dashboard use `ViewShell`.
 
 ## Contract
 
@@ -99,10 +99,10 @@ Shorten the current paragraph-subtitles (streams, artwork presets, storage, acti
 ## Order of work
 
 1. Storybook states + padding rule (`classes.root` vs AppShell).
-2. Listener hubs (Listen, Discover, Radio, Help, History).
-3. Studio list pages (Sounds, Collections, Releases, Schedule, Go Live).
+2. ~~Listener hubs (Listen, Discover, Radio, Help, History, Radio schedule)~~; Feed/Favorites and remaining listener pages still open.
+3. ~~Studio Sounds, Collections, Schedule, Go Live, Releases~~; remaining Studio list pages next.
 4. Remaining Studio.
-5. Admin.
+5. Admin (~~Dashboard~~; rest open).
 6. Delete or narrow `StudioPageHeader`; keep `PageHeader` only if an entity surface still needs back/actions.
 
 Do not hide `StudioNav` / Admin tabs / Listen tabs during the swap.

@@ -15,6 +15,7 @@ import {
   SaveButton,
   Tabs,
   Tooltip,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -26,7 +27,6 @@ import {
   type ShowType,
   type StudioShowBooking,
 } from '../api/shows';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { cn } from '../lib/cn';
 import {
   addDays,
@@ -273,12 +273,11 @@ export function RadioScheduleView() {
   }
 
   return (
-    <PageFrame maxWidth="5xl">
-      <PageHeader
-        title="Schedule"
-        subtitle="A week at a glance on Tahti Radio — book an open hour to play a live set, or switch to your own channel to see just your slots."
-      />
-
+    <ViewShell
+      title="Schedule"
+      subtitle="A week on Tahti Radio."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
+    >
       {greenRoomBookings.length > 0 ? (
         <div className="border-border bg-primary/10 flex flex-col gap-2 rounded-lg border p-3">
           {greenRoomBookings.map((b) => (
@@ -747,6 +746,6 @@ export function RadioScheduleView() {
             </>
           ))}
       </Dialog.Root>
-    </PageFrame>
+    </ViewShell>
   );
 }

@@ -1,8 +1,7 @@
-import { Button, Tabs } from '@tahti-player/ui';
+import { Button, Tabs, ViewShell } from '@tahti-player/ui';
 
 import { HistoryListSection } from '../components/history/HistoryListSection';
 import { HistoryStatsSection } from '../components/history/HistoryStatsSection';
-import { PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -21,34 +20,20 @@ export function HistoryView({ embedded = false }: { embedded?: boolean }) {
   const clearHistory = useLibraryStore((s) => s.clearHistory);
   const recentHistory = history.slice(0, RECENTLY_PLAYED_PREVIEW);
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
-      {!embedded ? (
-        <PageHeader
-          title="History"
-          actions={
-            <Button
-              variant="text"
-              size="sm"
-              disabled={history.length === 0}
-              onClick={clearHistory}
-            >
-              Clear all
-            </Button>
-          }
-        />
-      ) : (
-        <div className="flex justify-end">
-          <Button
-            variant="text"
-            size="sm"
-            disabled={history.length === 0}
-            onClick={clearHistory}
-          >
-            Clear all
-          </Button>
-        </div>
-      )}
+  const clearButton = (
+    <Button
+      variant="text"
+      size="sm"
+      disabled={history.length === 0}
+      onClick={clearHistory}
+    >
+      Clear all
+    </Button>
+  );
+
+  const body = (
+    <>
+      <div className="mb-4 flex justify-end">{clearButton}</div>
       <Tabs
         className="flex flex-1 flex-col overflow-hidden"
         panelsClassName="flex-1 overflow-hidden"
@@ -85,6 +70,20 @@ export function HistoryView({ embedded = false }: { embedded?: boolean }) {
           },
         ]}
       />
-    </div>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="flex min-h-0 flex-1 flex-col gap-4">{body}</div>;
+  }
+
+  return (
+    <ViewShell
+      title="History"
+      subtitle="Recently played and stats."
+      classes={{ root: 'px-0 pt-0 flex min-h-0 flex-1 flex-col' }}
+    >
+      {body}
+    </ViewShell>
   );
 }

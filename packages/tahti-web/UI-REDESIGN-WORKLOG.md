@@ -12,12 +12,30 @@
 
 Tracked: [`docs/todo/storybook-ui-sweep.md`](../../docs/todo/storybook-ui-sweep.md).
 
+## 2026-09-04 — ViewShell batch B (History, Radio schedule, Broadcast, Go Live, Releases)
+
+**Status:** executed.
+
+- History, Radio schedule, Studio Broadcast (Schedule), Go Live, Releases → `ViewShell`
+- Actions / status badges / Clear all moved into children; StudioNav outside; short subtitles
+
+Still open: Feed/Favorites and other listener hubs; remaining Studio; rest of Admin. [docs/todo/viewshell-next-5-b.md](../../docs/todo/viewshell-next-5-b.md).
+
+## 2026-09-04 — ViewShell batch (Help, Radio, Sounds, Collections, Dashboard)
+
+**Status:** executed.
+
+- Help hub, Radio, Studio Sounds, Studio Collections, Admin Dashboard → `ViewShell` (short title/subtitle; actions in children; `StudioNav` / Admin tabs outside; `px-0 pt-0`)
+- Icon `Tooltip` pass on remaining listener views/widgets + leftover UI primitives (TopBar nav, TahtiJam, HistoryRow, LogViewer, QueueItem expand, SettingsPanel back, lightbox, radio calendar, etc.)
+
+Still open at time of landing: see batch B below for History / Schedule / Releases follow-through. Remaining: other listener hubs; rest of Studio/Admin; Studio/Admin icon Tooltip lists. [docs/todo/viewshell-page-headers.md](../../docs/todo/viewshell-page-headers.md), [docs/todo/icon-button-tooltips.md](../../docs/todo/icon-button-tooltips.md).
+
 ## 2026-09-04 — ViewShell headers + icon-button Tooltip (planned)
 
-**Status:** planned (workplan + `docs/todo`).
+**Status:** in progress (batches above).
 
-1. **ViewShell:** listener / Studio / Admin list pages move from `PageHeader` / `StudioPageHeader` to Storybook `ViewShell` with a short title and optional one-line subtitle. Actions and back links sit in children. Nav tabs stay outside the shell. No double padding with `AppShell`. Entity covers, full-screen player, share canvases, and maximized Pro Editor stay out. [docs/todo/viewshell-page-headers.md](../../docs/todo/viewshell-page-headers.md).
-2. **Icon-button Tooltip:** every icon-only `Button` wraps Storybook `Tooltip` (keep `aria-label`; drop relying on native `title=`). Scan: 296 icon buttons, 288 without `Tooltip`. Primitives first (`DialogXClose`, `Pagination`, `PluginItem`, player transport). [docs/todo/icon-button-tooltips.md](../../docs/todo/icon-button-tooltips.md).
+1. **ViewShell:** remaining list pages from `PageHeader` / `StudioPageHeader` → Storybook `ViewShell`. Entity covers, full-screen player, share canvases, and maximized Pro Editor stay out. [docs/todo/viewshell-page-headers.md](../../docs/todo/viewshell-page-headers.md).
+2. **Icon-button Tooltip:** Studio toolbars then Admin / PluginStore. [docs/todo/icon-button-tooltips.md](../../docs/todo/icon-button-tooltips.md).
 
 ## 2026-09-04 — Player bar queue, Input startAddon, Radio Save, Studio FilterChips
 
