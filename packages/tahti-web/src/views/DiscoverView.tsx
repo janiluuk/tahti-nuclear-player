@@ -326,7 +326,7 @@ export function DiscoverView() {
       subtitle={DISCOVER_SUBTITLES[activeTab]}
       classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
     >
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <header className="mb-4 flex flex-wrap items-center gap-2">
         {activeTab === 'venues' ? (
           <Link
             to="/venues/register"
@@ -340,7 +340,7 @@ export function DiscoverView() {
             onAdd={addWidget}
           />
         ) : null}
-      </div>
+      </header>
 
       <Tabs.Root
         selectedIndex={Math.max(

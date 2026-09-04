@@ -70,8 +70,17 @@ async function renderDiscover(path: string): Promise<{
   return { container, root };
 }
 
+/** ScrollableArea (via ViewShell) observes its own size — jsdom has no
+ * ResizeObserver, so stub one out for this render-heavy suite. */
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 describe('DiscoverView', () => {
   beforeEach(() => {
+    vi.stubGlobal('ResizeObserver', ResizeObserverStub);
     vi.stubEnv('VITE_FORCE_MOCK', '1');
     localStorage.clear();
     useDiscoverStore.setState({
@@ -86,6 +95,7 @@ describe('DiscoverView', () => {
   afterEach(() => {
     document.body.replaceChildren();
     vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   it('puts add-widget in the header and does not render the hero tile', async () => {
