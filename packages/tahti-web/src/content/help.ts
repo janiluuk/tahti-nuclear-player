@@ -450,8 +450,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         heading: 'Where add-ons live',
         body: [
-          'Open Settings → Add-ons. Categories match the table below: Themes, Visualizers, Import, Multicast, Fingerprinting, Audio plugins, Radio, Embed, Discovery, Channel, and Playback.',
-          'Only integrations you can use now are listed. Planned Nuclear registry items such as Last.fm scrobbling, OmniSource, KHInsider, and NetEase stay out of this guide until they have a Tahti contract.',
+          'Open Settings → Add-ons. Categories match the table below: Themes, Visualizers, Import, Multicast, Fingerprinting, Audio plugins, Radio, Embed, Discovery, Channel, Playback, and Scrobbling.',
+          'Only integrations you can use now are listed. ListenBrainz scrobbling is ready (submit-listens only). Planned Nuclear registry items such as Last.fm scrobbling, ListenBrainz charts, OmniSource, KHInsider, and NetEase stay out of this guide until they have a Tahti contract.',
         ],
       },
       {

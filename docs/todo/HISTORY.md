@@ -2,6 +2,22 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-05 — Registry runtime: ListenBrainz scrobble
+
+Folded from `docs/todo/registry-runtime-listenbrainz.md`.
+
+First Nuclear registry runtime slice among the backend-blocked set:
+ListenBrainz **submit-listens** (not charts). Sibling integrations
+`SCROBBLE` + validate-token on install + fire-and-forget scrobble after
+recorded listen-events. Nuclear Add-ons → Scrobbling.
+
+Documented in `packages/tahti-web/docs/PLUGIN-INTEGRATIONS.md`,
+`PLUGINS.md`, `src/plugins/scrobble/README.md`, Help catalog, and
+`packages/docs/plugins/tahti-web-authoring.md`. Remaining blockers:
+bandcamp/deezer/listenbrainz dashboards, omnisource, youtube-liked-songs-sync.
+
+---
+
 ## 2026-09-05 — Favorites page + Discover artists
 
 Favorites is `/favorites` (standalone ViewShell). `/listen/favorites` and

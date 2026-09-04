@@ -1,3 +1,17 @@
+## 2026-09-05 — ListenBrainz scrobble (registry runtime)
+
+**Status:** executed (docs + Nuclear add-on).
+
+First honest Nuclear registry runtime among the previously blocked set:
+integrations `SCROBBLE` + ListenBrainz token install + server-side
+submit-listens after recorded listen-events. Add-ons → Scrobbling.
+Charts (`listenbrainz-dashboard`) stay out of scope.
+
+Nuclear: `src/plugins/scrobble/`, `api/integrations.ts`, Help catalog.
+Docs: `docs/PLUGIN-INTEGRATIONS.md`, `docs/PLUGINS.md`,
+`packages/docs/plugins/tahti-web-authoring.md`, WORKPLAN.
+Sibling: `../tahti/docs/technical/scrobble-plugin-contracts.md`.
+
 ## 2026-09-05 — Favorites page + Discover artists (0.0.75)
 
 **Status:** executed.

@@ -230,7 +230,7 @@ Compared `tahti-org` (apps/web + recent API) with this SPA. Ported in this pass:
 
 Still not ported (do not block cutover unless noted):
 
-- [ ] Integrations marketplace (per-user API keys / fingerprint plugins) — Sources OAuth exists; the plugin catalog does not.
+- [x] Integrations marketplace credentials (`/api/me/integrations`) — ListenBrainz **SCROBBLE** is live (Add-ons → Scrobbling). Sources OAuth and fingerprint plugins remain separate. Chart dashboards / Last.fm / OmniSource still planned.
 - [ ] Theme editor public-submit / GitHub PR pipeline — local Nuclear themes only.
 - [ ] Internet Radio personal library (`/api/me/internet-radio`) — this client has a local catalog + Radio Browser search, not the server-side station library.
 - [ ] Hearthis export push — import is live; export is still a manual cross-post note.

@@ -1,0 +1,1 @@
+export { ListenBrainzAddonCard } from './ListenBrainzAddonCard';

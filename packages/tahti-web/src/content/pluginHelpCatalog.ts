@@ -307,6 +307,15 @@ export const READY_PLUGIN_HELP: PluginHelpEntry[] = [
       'Exposes the shared Tahti player to your headset, lock screen, and OS media keys.',
     help: 'Always on. Headset, lock-screen, and OS media keys control the shared Tahti player. No configuration is required.',
   },
+  {
+    name: 'ListenBrainz',
+    category: 'Scrobbling',
+    state: 'ready',
+    stateLabel: 'Ready',
+    description:
+      'When a Tahti track counts as a listen, submits it to your ListenBrainz profile. Charts and dashboards are not included.',
+    help: 'Settings → Add-ons → Scrobbling → Configure. Paste your ListenBrainz user token, then Save and enable. Eligible signed-in listens are submitted automatically; Disconnect removes the stored token.',
+  },
 ];
 
 export const PLUGIN_HELP_TABLE = {

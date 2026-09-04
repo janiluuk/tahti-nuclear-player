@@ -5,6 +5,7 @@ import {
   CompassIcon,
   FingerprintIcon,
   HeadphonesIcon,
+  ListMusicIcon,
   PaletteIcon,
   RadioIcon,
   SlidersHorizontalIcon,
@@ -33,6 +34,7 @@ export type PluginCategoryId =
   | 'import'
   | 'multicast'
   | 'fingerprinting'
+  | 'scrobbling'
   | 'audio-plugins'
   | 'tools'
   | 'radio'
@@ -84,6 +86,13 @@ export const PLUGIN_CATEGORIES: PluginCategory[] = [
     label: 'Fingerprinting',
     description: 'Audio fingerprint matching for catalog metadata.',
     icon: FingerprintIcon,
+  },
+  {
+    id: 'scrobbling',
+    label: 'Scrobbling',
+    description:
+      'Send eligible Tahti listens to your ListenBrainz (and later Last.fm) profile.',
+    icon: ListMusicIcon,
   },
   {
     id: 'audio-plugins',

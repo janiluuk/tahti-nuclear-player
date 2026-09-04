@@ -131,6 +131,7 @@ import {
   multicastProviders,
   type MulticastProviderId,
 } from '../plugins/multicast';
+import { ListenBrainzAddonCard } from '../plugins/scrobble/ListenBrainzAddonCard';
 import { SoulseekAddonCard } from '../plugins/soulseek/SoulseekAddonCard';
 import { useThemeStore } from '../plugins/themes';
 import {
@@ -384,6 +385,7 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
         <ServiceCategory categoryId={categoryId} />
       )}
       {categoryId === 'import' && <SoulseekAddonCard />}
+      {categoryId === 'scrobbling' && <ListenBrainzAddonCard />}
       {categoryId === 'multicast' && <MulticastCategory />}
       {categoryId === 'audio-plugins' && <AudioPluginsCategory />}
       {categoryId === 'tools' && <ToolsCategory />}

@@ -69,7 +69,8 @@ The current counterpart inventory is intentionally explicit:
 | Admin widget catalog | `apps/api/src/routes/admin/disco-widgets.ts` (`/api/admin/disco-widgets`) | Board only |
 | Audio editor | `apps/api/src/routes/me/archive-editor.ts` (`/api/me/archive/:id/editor/draft`) | Authenticated owner of archive item |
 | Track insights | `apps/api/src/routes/me/track-insights.ts` | Authenticated owner or permitted viewer |
-| Export/delivery | `apps/api/src/routes/releases` and distribution routes | Authenticated artist; provider-specific contract still incomplete |
+| Export/delivery | `apps/api/src/routes/releases` + `GET /api/me/export-plugins` | Authenticated artist; Revelator submit/status live |
+| Scrobble (ListenBrainz) | `POST /api/me/integrations/listenbrainz/install` + listen-events submit-listens | Authenticated user; token validated on install; scrobble is fire-and-forget after recorded listens |
 
 The route file and shared Zod DTO win when the production UI, beta UI, and local assumptions disagree. Keep a short parity note beside every new adapter and update the workplan when a required route is absent.
 
@@ -86,9 +87,10 @@ tests and user-facing coverage for every new configuration flow.
 | Audio plugins | `src/plugins/audio-fx` | Pro Editor EQ, compressor, limiter, and filter chain | Registry and preview graph implemented; generic third-party host UI pending |
 | Reference mastering | `src/plugins/mastering` | Browser-only Matchering reference loudness/tonal-balance matching with a final limiter | Implemented; no API mutation — output is local WAV download/preview |
 | Multicast | `src/plugins/multicast` + `api/broadcast.ts` | YouTube, Twitch, Kick, Facebook, TikTok, Mixcloud Live, Instagram, Custom RTMP | Provider registry and API typing implemented; shared add-target form pending |
-| Export | `src/plugins/export` | DSP/export destinations and source deep links | Metadata registry only; provider submit/status API contract pending |
+| Export | `src/plugins/export` | DSP/export destinations and Revelator submit/status | Revelator runtime live via `GET /api/me/export-plugins`; other DSPs may still be metadata/deep-link only |
 | Import / Sources | `src/plugins/import-sources` + `api/sources.ts` | OAuth sources, search sources, and link/tool imports | OAuth, search, and tool/upload adapters implemented; HTTP remains in `api/sources.ts` |
 | Fingerprinting | `src/plugins/fingerprinting` | AcoustID match/check actions | Provider contract and AcoustID adapter implemented; additional providers pending |
+| Scrobble | `src/plugins/scrobble` + `api/integrations.ts` | ListenBrainz submit-listens via integrations `SCROBBLE` scope | Implemented; charts/dashboard intentionally out of scope. See [scrobble README](../src/plugins/scrobble/README.md) and sibling `docs/technical/scrobble-plugin-contracts.md` |
 | Radio | `content/radioStations.ts` | Configurable internet-radio stations | Page add-on implemented with local station configuration |
 | Embed | embed add-on registry | SoundCloud, YouTube, and hearthis.at embeds | Implemented; provider configuration and shared playback are present |
 | YouTube Liked Songs Sync | `src/plugins/youtube-liked-songs` + Nuclear add-on catalog | YouTube Music liked-song parsing and configuration | Parser and configuration are ported; secure Tahti sync/API contract is still missing |
@@ -114,7 +116,6 @@ tests and user-facing coverage for every new configuration flow.
 - Extract a generic Audio FX chain host UI from `StudioProEditorView`.
 - Share the multicast destination form between Go Live and Settings, keeping provider-specific
   credentials inside each provider configuration.
-- ExportProvider submit/status/webhook contracts land in `../tahti` (`GET /api/me/export-plugins`); Nuclear `revelatorExportProvider` calls them. Remaining:
-  contracts; current Revelator delivery is not provider-specific.
-- Add a real integrations marketplace only when per-user credentials, permissions, and API
-  lifecycle are specified.
+- ExportProvider submit/status/webhook contracts land in `../tahti` (`GET /api/me/export-plugins`); Nuclear `revelatorExportProvider` calls them.
+- Integrations marketplace credentials: sibling `/api/me/integrations` + `SCROBBLE` ListenBrainz (see `src/plugins/scrobble`). Last.fm and discovery dashboards still blocked.
+- Remaining registry runtime blockers: `bandcamp-dashboard`, `deezer-dashboard`, `listenbrainz-dashboard` (charts), `omnisource`, `youtube-liked-songs-sync`.
