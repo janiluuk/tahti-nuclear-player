@@ -91,10 +91,10 @@ Useful counterpart locations include `../tahti/apps/api/src/routes/me`, `../taht
 | Import / Sources | OAuth, search, link and tool source families | OAuth, search, and tool/upload adapters implemented; HTTP remains in `api/sources.ts` |
 | Export | Destination registry and Revelator submit/status | Revelator runtime live via `/api/me/export-plugins`; other DSPs may still be deep links |
 | Fingerprinting | AcoustID match and check adapter | One provider implemented; more providers pending |
-| Scrobble (ListenBrainz) | Submit-listens after recorded listen-events | Integrations `SCROBBLE` scope; Settings → Add-ons → Scrobbling. Sibling contract: `../tahti/docs/technical/scrobble-plugin-contracts.md`. Charts dashboards stay out of scope |
+| Scrobble (ListenBrainz / Last.fm) | Submit-listens / track.scrobble after recorded listen-events | Integrations `SCROBBLE` scope; Settings → Add-ons → Scrobbling. Sibling: `../tahti/docs/technical/scrobble-plugin-contracts.md`. Charts stay out of scope |
 | Radio and embeds | Configurable stations and SoundCloud/YouTube/hearthis.at embeds | Page add-ons implemented; provider-specific runtime varies |
 | Discovery and channel widgets | Sandboxed listener/channel catalog | `/api/admin/disco-widgets` and install routes available; UI parity continues |
-| Tahti Player registry integrations | Discogs, Deezer, Last.fm, YouTube, Bandcamp, SoundCloud and OmniSource entries | Status varies; ListenBrainz scrobble is live; chart dashboards and OmniSource remain planned. See `packages/tahti-web/docs/PLUGIN-INTEGRATIONS.md` |
+| Tahti Player registry integrations | Discogs, Deezer, YouTube, Bandcamp, SoundCloud and OmniSource entries | Status varies; ListenBrainz + Last.fm scrobble are live; chart dashboards and OmniSource remain planned. See `packages/tahti-web/docs/PLUGIN-INTEGRATIONS.md` |
 
 ## Current three-slice follow-up
 

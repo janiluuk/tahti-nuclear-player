@@ -1,3 +1,11 @@
+## 2026-09-05 — Last.fm scrobble (registry runtime)
+
+**Status:** executed (docs + Nuclear add-on; sibling needs `LASTFM_API_*`).
+
+Second SCROBBLE provider: Last.fm web auth → session key +
+`track.scrobble` after recorded listen-events. Add-ons → Scrobbling
+alongside ListenBrainz.
+
 ## 2026-09-05 — ListenBrainz scrobble (registry runtime)
 
 **Status:** executed (docs + Nuclear add-on).

@@ -316,6 +316,15 @@ export const READY_PLUGIN_HELP: PluginHelpEntry[] = [
       'When a Tahti track counts as a listen, submits it to your ListenBrainz profile. Charts and dashboards are not included.',
     help: 'Settings → Add-ons → Scrobbling → Configure. Paste your ListenBrainz user token, then Save and enable. Eligible signed-in listens are submitted automatically; Disconnect removes the stored token.',
   },
+  {
+    name: 'Last.fm',
+    category: 'Scrobbling',
+    state: 'ready',
+    stateLabel: 'Ready',
+    description:
+      'When a Tahti track counts as a listen, submits it to your Last.fm profile. Charts and recommendations are not included.',
+    help: 'Settings → Add-ons → Scrobbling → Connect. Approve Tahti on Last.fm; you return here when connected. Disconnect removes the stored session. Requires Last.fm API keys on the server.',
+  },
 ];
 
 export const PLUGIN_HELP_TABLE = {

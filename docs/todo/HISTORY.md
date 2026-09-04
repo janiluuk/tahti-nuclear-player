@@ -2,6 +2,16 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-05 — Registry runtime: Last.fm scrobble
+
+Folded from `docs/todo/registry-runtime-lastfm.md`.
+
+Second SCROBBLE provider: Last.fm OAuth start/callback → session key +
+`track.scrobble` after recorded listen-events. Nuclear Add-ons → Scrobbling
+beside ListenBrainz. Needs `LASTFM_API_KEY` / `LASTFM_API_SECRET` on API.
+
+---
+
 ## 2026-09-05 — Expired todo fold (UI sweeps)
 
 Folded and deleted short-lived todos that already shipped or live in

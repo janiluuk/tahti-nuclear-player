@@ -16,7 +16,7 @@ of these:
 | `mastering` | Client-side reference mastering (Matchering loudness, tonal balance, and limiter) | [README](../src/plugins/mastering/README.md) |
 | `export` | DSP/export-target metadata registry + Revelator runtime | [README](../src/plugins/export/README.md) |
 | `import-sources` | Import-source connection-status contract (partial — see README) | [README](../src/plugins/import-sources/README.md) |
-| `scrobble` | ListenBrainz submit-listens via integrations `SCROBBLE` | [README](../src/plugins/scrobble/README.md) |
+| `scrobble` | ListenBrainz + Last.fm scrobble via integrations `SCROBBLE` | [README](../src/plugins/scrobble/README.md) |
 | `visualizers` | Channel visualizer WebGL presets | [README](../src/plugins/visualizers/README.md) |
 
 There is **no single generic `Plugin` interface** shared across all of

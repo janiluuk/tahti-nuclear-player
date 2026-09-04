@@ -52,6 +52,11 @@ export type IntegrationView = {
 
 const mockInstalled = new Set<string>();
 
+export function lastFmOauthStartUrl(returnTo: string): string {
+  const params = new URLSearchParams({ returnTo });
+  return `${apiBase()}/api/me/integrations/lastfm/oauth/start?${params.toString()}`;
+}
+
 export async function fetchMeIntegrations(): Promise<{
   data: IntegrationView[];
   source: 'api' | 'mock';
@@ -68,6 +73,16 @@ export async function fetchMeIntegrations(): Promise<{
           authKind: 'API_KEY',
           installed: mockInstalled.has('listenbrainz'),
           connected: false,
+        },
+        {
+          slug: 'lastfm',
+          name: 'Last.fm',
+          description:
+            'Scrobble plays of Tahti tracks to your Last.fm profile.',
+          scope: 'SCROBBLE',
+          authKind: 'OAUTH',
+          installed: false,
+          connected: mockInstalled.has('lastfm'),
         },
       ],
       source: 'mock',

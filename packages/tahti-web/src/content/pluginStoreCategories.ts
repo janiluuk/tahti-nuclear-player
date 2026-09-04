@@ -91,7 +91,7 @@ export const PLUGIN_CATEGORIES: PluginCategory[] = [
     id: 'scrobbling',
     label: 'Scrobbling',
     description:
-      'Send eligible Tahti listens to your ListenBrainz (and later Last.fm) profile.',
+      'Send eligible Tahti listens to your ListenBrainz and Last.fm profiles.',
     icon: ListMusicIcon,
   },
   {
