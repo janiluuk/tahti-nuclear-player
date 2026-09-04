@@ -2,12 +2,10 @@
 
 export const CHANNEL_PAGE_ITEM_TYPES = [
   'hero',
-  'actions',
   'archive',
   'chat',
   'about',
   'links',
-  'textOverlay',
   'subscribe',
   'stats',
   'events',
@@ -15,11 +13,18 @@ export const CHANNEL_PAGE_ITEM_TYPES = [
 
 export type ChannelPageItemType = (typeof CHANNEL_PAGE_ITEM_TYPES)[number];
 
+/** Multi-instance types (like embeds) — not auto-filled as hidden defaults. */
+export type ChannelPageMultiItemType = 'embed' | 'playlist';
+
 export type ChannelPageItem = {
   id: string;
-  type: ChannelPageItemType | 'embed';
+  type: ChannelPageItemType | ChannelPageMultiItemType;
   visible: boolean;
   embedInstanceId?: string;
+  /** Studio collection slug for `playlist` blocks. */
+  playlistSlug?: string;
+  /** How playlist tracks render on the channel page. */
+  playlistDisplay?: 'tracklist' | 'cards';
   width?: 'full' | 'wide' | 'compact';
   offsetX?: number;
   offsetY?: number;
@@ -32,10 +37,6 @@ export const CHANNEL_PAGE_ITEM_META: Record<
   hero: {
     label: 'Live stage',
     hint: 'Visualizer + now playing',
-  },
-  actions: {
-    label: 'Tune-in actions',
-    hint: 'Play, queue, favorite',
   },
   archive: {
     label: 'Tracks',
@@ -53,10 +54,6 @@ export const CHANNEL_PAGE_ITEM_META: Record<
     label: 'Links',
     hint: 'Social / outbound links',
   },
-  textOverlay: {
-    label: 'Text overlay',
-    hint: 'Stylized headline on stage',
-  },
   subscribe: {
     label: 'Subscribe CTA',
     hint: 'Fan membership pitch',
@@ -72,6 +69,10 @@ export const CHANNEL_PAGE_ITEM_META: Record<
   embed: {
     label: 'External embed',
     hint: 'Configured streaming player',
+  },
+  playlist: {
+    label: 'Playlist',
+    hint: 'Tracks from your library',
   },
 };
 
@@ -98,7 +99,14 @@ export type ChannelLayoutPreset = {
   look: ChannelLookBundle;
 };
 
-function item(type: ChannelPageItemType, visible: boolean): ChannelPageItem {
+function item(
+  type: ChannelPageItemType,
+  visible: boolean,
+): {
+  id: string;
+  type: ChannelPageItemType;
+  visible: boolean;
+} {
   return { id: type, type, visible };
 }
 
@@ -107,17 +115,14 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
   {
     id: 'subtle',
     name: 'Subtle / Solid',
-    description:
-      'Clean minimal page — hero, actions, about, quiet archive. Solid noir look.',
+    description: 'Minimal solid page.',
     items: [
       item('hero', true),
-      item('actions', true),
       item('about', true),
       item('archive', true),
       item('subscribe', false),
       item('chat', false),
       item('links', false),
-      item('textOverlay', false),
       item('stats', false),
     ],
     look: {
@@ -136,16 +141,13 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
   {
     id: 'stage',
     name: 'Stage / Live',
-    description:
-      'Hero-forward live layout; chat opens in the right rail beside the stage.',
+    description: 'Live stage forward.',
     items: [
       item('hero', true),
-      item('actions', true),
       item('subscribe', true),
       item('archive', true),
       item('about', true),
       item('chat', false),
-      item('textOverlay', false),
       item('links', false),
       item('stats', false),
     ],
@@ -165,17 +167,14 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
   {
     id: 'full',
     name: 'Archive-first',
-    description:
-      'Catalog up front, then stage and the rest of the blocks visible. Chat stays in the right rail.',
+    description: 'Catalog up front.',
     items: [
       item('archive', true),
       item('hero', true),
-      item('actions', true),
       item('about', true),
       item('subscribe', true),
       item('links', true),
       item('chat', false),
-      item('textOverlay', false),
       item('stats', true),
     ],
     look: {
@@ -194,17 +193,14 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
   {
     id: 'tahti',
     name: 'Tahti / On Air',
-    description:
-      'The tahti.live look — ink background, one amber accent, waveform hero. Archive and subscribe front and center.',
+    description: 'On-air Tahti look.',
     items: [
       item('hero', true),
-      item('actions', true),
       item('subscribe', true),
       item('archive', true),
       item('about', true),
       item('links', false),
       item('chat', false),
-      item('textOverlay', false),
       item('stats', false),
     ],
     look: {
@@ -228,19 +224,19 @@ export function getLayoutPreset(
   return CHANNEL_LAYOUT_PRESETS.find((p) => p.id === id);
 }
 
-export function defaultChannelPageLayout(): ChannelPageItem[] {
+export function defaultChannelPageLayout(): Array<{
+  id: string;
+  type: ChannelPageItemType;
+  visible: boolean;
+}> {
   return [
     item('hero', true),
-    item('actions', true),
-    item('textOverlay', false),
     item('archive', true),
     item('about', true),
     item('links', false),
     item('subscribe', true),
     item('stats', false),
     item('events', false),
-    // Chat is the Nuclear right rail — keep the layout slot hidden so it
-    // never double-renders an in-page panel alongside the rail.
     item('chat', false),
   ];
 }
@@ -309,39 +305,64 @@ export function saveChannelLayoutPresetId(
   localStorage.setItem(presetStorageKey(slug), id);
 }
 
+function isMultiItemType(
+  type: ChannelPageItem['type'],
+): type is ChannelPageMultiItemType {
+  return type === 'embed' || type === 'playlist';
+}
+
 export function normalizeLayout(items: ChannelPageItem[]): ChannelPageItem[] {
   const seenIds = new Set<string>();
-  const seenTypes = new Set<ChannelPageItemType | 'embed'>();
+  const seenTypes = new Set<ChannelPageItemType>();
   const out: ChannelPageItem[] = [];
-  for (const item of items) {
-    if (
-      (!CHANNEL_PAGE_ITEM_TYPES.includes(item.type as ChannelPageItemType) &&
-        item.type !== 'embed') ||
-      (item.type === 'embed' && !item.embedInstanceId)
-    ) {
+  for (const layoutItem of items) {
+    const isKnownSingleton = CHANNEL_PAGE_ITEM_TYPES.includes(
+      layoutItem.type as ChannelPageItemType,
+    );
+    const isMulti = isMultiItemType(layoutItem.type);
+    if (!isKnownSingleton && !isMulti) {
       continue;
     }
-    const id = item.id || item.type;
+    if (layoutItem.type === 'embed' && !layoutItem.embedInstanceId) {
+      continue;
+    }
+    if (layoutItem.type === 'playlist' && !layoutItem.playlistSlug) {
+      continue;
+    }
+    const id = layoutItem.id || layoutItem.type;
     if (seenIds.has(id)) {
       continue;
     }
-    if (item.type !== 'embed' && seenTypes.has(item.type)) {
+    if (!isMulti && seenTypes.has(layoutItem.type as ChannelPageItemType)) {
       continue;
     }
     seenIds.add(id);
-    if (item.type !== 'embed') {
-      seenTypes.add(item.type);
+    if (!isMulti) {
+      seenTypes.add(layoutItem.type as ChannelPageItemType);
     }
     out.push({
       id,
-      type: item.type,
-      visible: Boolean(item.visible),
-      ...(item.type === 'embed'
-        ? { embedInstanceId: item.embedInstanceId }
+      type: layoutItem.type,
+      visible: Boolean(layoutItem.visible),
+      ...(layoutItem.type === 'embed'
+        ? { embedInstanceId: layoutItem.embedInstanceId }
         : {}),
-      ...(item.width ? { width: item.width } : {}),
-      ...(item.offsetX !== undefined ? { offsetX: item.offsetX } : {}),
-      ...(item.offsetY !== undefined ? { offsetY: item.offsetY } : {}),
+      ...(layoutItem.type === 'playlist'
+        ? {
+            playlistSlug: layoutItem.playlistSlug,
+            ...(layoutItem.playlistDisplay === 'cards' ||
+            layoutItem.playlistDisplay === 'tracklist'
+              ? { playlistDisplay: layoutItem.playlistDisplay }
+              : {}),
+          }
+        : {}),
+      ...(layoutItem.width ? { width: layoutItem.width } : {}),
+      ...(layoutItem.offsetX !== undefined
+        ? { offsetX: layoutItem.offsetX }
+        : {}),
+      ...(layoutItem.offsetY !== undefined
+        ? { offsetY: layoutItem.offsetY }
+        : {}),
     });
   }
   for (const def of defaultChannelPageLayout()) {
@@ -405,6 +426,30 @@ export function setItemOffset(
   );
 }
 
+export function setPlaylistSlug(
+  items: ChannelPageItem[],
+  id: string,
+  playlistSlug: string,
+): ChannelPageItem[] {
+  return items.map((item) =>
+    item.id === id && item.type === 'playlist'
+      ? { ...item, playlistSlug }
+      : item,
+  );
+}
+
+export function setPlaylistDisplay(
+  items: ChannelPageItem[],
+  id: string,
+  playlistDisplay: 'tracklist' | 'cards',
+): ChannelPageItem[] {
+  return items.map((item) =>
+    item.id === id && item.type === 'playlist'
+      ? { ...item, playlistDisplay }
+      : item,
+  );
+}
+
 export function addItemType(
   items: ChannelPageItem[],
   type: ChannelPageItemType,
@@ -418,6 +463,27 @@ export function addItemType(
     {
       id: `${type}-${Date.now().toString(36)}`,
       type,
+      visible: true,
+    },
+  ];
+}
+
+export function addPlaylistItem(
+  items: ChannelPageItem[],
+  playlistSlug: string,
+): ChannelPageItem[] {
+  const existing = items.find(
+    (item) => item.type === 'playlist' && item.playlistSlug === playlistSlug,
+  );
+  if (existing) {
+    return setItemVisible(items, existing.id, true);
+  }
+  return [
+    ...items,
+    {
+      id: `playlist-${playlistSlug}-${Date.now().toString(36)}`,
+      type: 'playlist',
+      playlistSlug,
       visible: true,
     },
   ];

@@ -1094,10 +1094,11 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
           />
           <span>
             <span className="block font-semibold">
-              Use a separate background palette
+              Full separate background palette
             </span>
             <span className="text-foreground-secondary block text-xs">
-              Off by default — the page reuses the header colors.
+              Optional — edit every background color independently of header
+              accents. The Background swatch above always works.
             </span>
           </span>
         </label>
@@ -1460,6 +1461,46 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
 
     const headerControls = (
       <section className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Page background</Eyebrow>
+          <p className="text-foreground-secondary text-xs">
+            Solid fill behind the channel and artist pages. Accents below stay
+            independent.
+          </p>
+          <label className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm">
+            <input
+              type="color"
+              value={
+                visual.useBackgroundGradient
+                  ? (backgroundScheme.bg ??
+                    scheme.bg ??
+                    DEFAULT_COLOR_SCHEME.bg)
+                  : (scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
+              }
+              onChange={(event) => {
+                const bg = event.target.value;
+                if (visual.useBackgroundGradient) {
+                  setBackgroundScheme({ ...backgroundScheme, bg });
+                  setDirty(true);
+                  return;
+                }
+                applyLocal({ brandAccentPreset: null }, { ...scheme, bg });
+              }}
+              className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
+              aria-label="Page background color"
+            />
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold">Background</span>
+              <code className="text-foreground-secondary text-xs">
+                {visual.useBackgroundGradient
+                  ? (backgroundScheme.bg ??
+                    scheme.bg ??
+                    DEFAULT_COLOR_SCHEME.bg)
+                  : (scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)}
+              </code>
+            </span>
+          </label>
+        </div>
         <div className="flex items-center justify-between gap-3">
           <Eyebrow>Header style</Eyebrow>
           {hasBackdrop ? (
@@ -1550,28 +1591,9 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
           </div>
         ) : null}
         {visual.headerStyle === 'SOLID' && !slideshowHeaderSelected ? (
-          <label className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm">
-            <input
-              type="color"
-              value={scheme.bg ?? DEFAULT_COLOR_SCHEME.bg}
-              onChange={(event) =>
-                applyLocal(
-                  { brandAccentPreset: null },
-                  { ...scheme, bg: event.target.value },
-                )
-              }
-              className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
-              aria-label="Solid header color"
-            />
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold">
-                Solid header fill
-              </span>
-              <code className="text-foreground-secondary text-xs">
-                {scheme.bg ?? DEFAULT_COLOR_SCHEME.bg}
-              </code>
-            </span>
-          </label>
+          <p className="text-foreground-secondary text-xs">
+            Solid header uses the page background color above.
+          </p>
         ) : null}
         {visual.headerStyle === 'VIDEO_LOOP' && !slideshowHeaderSelected ? (
           <div className="flex flex-col gap-3">

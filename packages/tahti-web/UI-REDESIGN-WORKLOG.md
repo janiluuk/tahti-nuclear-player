@@ -1,3 +1,16 @@
+## 2026-09-05 — Channel Designer background + playlists
+
+**Status:** executed (pending ship).
+
+Layers always show **Background** (banner / page color / header). Prominent
+page background color picker in Look → Background. Preset blurbs shortened.
+Removed Tune-in actions and the page Text overlay block (overlay stays under
+Player). Add → Playlist picks from Studio collections; multiple playlist
+blocks allowed. Playlist widget Look settings: pick which playlist, and
+Tracklist vs Cards (`PlayableTrackTable` / Storybook `Card` + `CardGrid`).
+
+Todo: `docs/todo/channel-designer-background-playlists.md`.
+
 ## 2026-09-05 — Channel Design crash + quoted edit URL (0.0.77)
 
 **Status:** executed.

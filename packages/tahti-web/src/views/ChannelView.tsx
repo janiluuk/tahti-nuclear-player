@@ -18,8 +18,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
-  Badge,
   Button,
+  FilterChips,
   Loader,
   SaveButton,
   StatChip,
@@ -61,9 +61,9 @@ import {
 } from '../components/ChannelDesigner';
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelLinksEditor } from '../components/ChannelLinksEditor';
+import { ChannelPlaylistBlock } from '../components/ChannelPlaylistBlock';
+import { ChannelPlaylistPicker } from '../components/ChannelPlaylistPicker';
 import { ChannelShareButton } from '../components/ChannelShareButton';
-import { type TextOverlayDraft } from '../components/ChannelTextOverlayEditor';
-import { ChannelTextOverlayView } from '../components/ChannelTextOverlayView';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import {
@@ -90,6 +90,7 @@ import { hasAccountRole } from '../lib/accountRoles';
 import type { ChannelLookElementId } from '../lib/channelLookElements';
 import {
   addItemType,
+  addPlaylistItem,
   CHANNEL_PAGE_ITEM_META,
   getLayoutPreset,
   loadChannelLayoutPresetId,
@@ -100,6 +101,8 @@ import {
   setItemOffset,
   setItemVisible,
   setItemWidth,
+  setPlaylistDisplay,
+  setPlaylistSlug,
   type ChannelLayoutPresetId,
   type ChannelPageItem,
   type ChannelPageItemType,
@@ -149,13 +152,8 @@ export function ChannelView({ slug }: { slug: string }) {
   } | null>(null);
   const [layoutDirty, setLayoutDirty] = useState(false);
   const [lookDirty, setLookDirty] = useState(false);
-  const [linksOrOverlayDirty, setLinksOrOverlayDirty] = useState(false);
+  const [linksDirty, setLinksDirty] = useState(false);
   const [channelLinksDraft, setChannelLinksDraft] = useState<ChannelLink[]>([]);
-  const [textOverlayDraft, setTextOverlayDraft] = useState<TextOverlayDraft>({
-    mode: 'NONE',
-    text: '',
-    align: 'CENTER',
-  });
   const [savingLook, setSavingLook] = useState(false);
   const channelDesignerRef = useRef<ChannelDesignerHandle>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(true);
@@ -297,12 +295,7 @@ export function ChannelView({ slug }: { slug: string }) {
       return;
     }
     setChannelLinksDraft(channel.channelLinks ?? []);
-    setTextOverlayDraft({
-      mode: channel.textOverlayMode ?? 'NONE',
-      text: channel.textOverlayText ?? '',
-      align: channel.textOverlayAlign ?? 'CENTER',
-    });
-    setLinksOrOverlayDirty(false);
+    setLinksDirty(false);
   }, [channel?.slug]);
 
   const { pinnedPlayables, catalogPlayables } = useMemo(() => {
@@ -476,18 +469,14 @@ export function ChannelView({ slug }: { slug: string }) {
       await channelDesignerRef.current?.save();
       setSavingLook(false);
     }
-    if (linksOrOverlayDirty) {
+    if (linksDirty) {
       setSavingLook(true);
-      const lookPatch = {
+      const result = await patchChannelVisual({
         channelLinks: channelLinksDraft,
-        textOverlayMode: textOverlayDraft.mode,
-        textOverlayText: textOverlayDraft.text,
-        textOverlayAlign: textOverlayDraft.align,
-      };
-      const result = await patchChannelVisual(lookPatch);
+      });
       if (result.ok) {
-        saveChannelLookExtras(slug, lookPatch);
-        setLinksOrOverlayDirty(false);
+        saveChannelLookExtras(slug, { channelLinks: channelLinksDraft });
+        setLinksDirty(false);
         setLookTick((n) => n + 1);
         setLookExtrasTick((n) => n + 1);
       } else {
@@ -797,57 +786,6 @@ export function ChannelView({ slug }: { slug: string }) {
             }
           />
         );
-      case 'textOverlay': {
-        const overlay = editing
-          ? textOverlayDraft
-          : {
-              mode: channel.textOverlayMode ?? 'NONE',
-              text: channel.textOverlayText ?? '',
-              align: channel.textOverlayAlign ?? 'CENTER',
-            };
-        return (
-          <div
-            className={`px-4 py-6 text-center ${editing ? '' : 'border-border rounded-xl border border-dashed'}`}
-          >
-            <ChannelTextOverlayView
-              mode={overlay.mode}
-              text={overlay.text}
-              align={overlay.align}
-              accent={channel.colorScheme?.accent}
-              highlight={channel.colorScheme?.highlight}
-            />
-            {!overlay.text?.trim() && (
-              <p className="text-foreground-secondary text-xs">
-                {editing
-                  ? 'Pick a text effect and enter a headline in the side panel.'
-                  : 'Channel title overlay'}
-              </p>
-            )}
-          </div>
-        );
-      }
-      case 'actions':
-        return editing ? (
-          <div className="flex items-center gap-2 px-1 py-2">
-            <Badge
-              variant="pill"
-              color="blue"
-              className="bg-primary text-primary-foreground inline-flex items-center gap-1.5 px-3 py-1.5"
-            >
-              <PlayIcon size={12} className="fill-current" /> Play
-            </Badge>
-            <Badge
-              variant="pill"
-              color="secondary"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5"
-            >
-              <HeartIcon size={12} /> Favorite
-            </Badge>
-            <span className="text-foreground-secondary ml-1 text-xs">
-              Included in the live visualizer stage.
-            </span>
-          </div>
-        ) : null;
       case 'archive':
         return (
           <section id="channel-block-archive" className="flex flex-col gap-6">
@@ -1055,6 +993,14 @@ export function ChannelView({ slug }: { slug: string }) {
         );
         return instance ? <ListenerWidgetEmbed instance={instance} /> : null;
       }
+      case 'playlist':
+        return item.playlistSlug ? (
+          <ChannelPlaylistBlock
+            playlistSlug={item.playlistSlug}
+            display={item.playlistDisplay ?? 'tracklist'}
+            editing={editing}
+          />
+        ) : null;
       default: {
         // Exhaustiveness guard: adding a type to CHANNEL_PAGE_ITEM_TYPES
         // without a matching case here used to compile fine and silently
@@ -1481,14 +1427,24 @@ export function ChannelView({ slug }: { slug: string }) {
       ? 'header'
       : layout.find((i) => i.id === selectedId)?.type;
   const lookElementId: ChannelLookElementId | null =
-    selectedType === 'hero' || selectedType === 'textOverlay'
+    selectedType === 'hero'
       ? 'player'
       : selectedType === 'header'
         ? 'backdrop'
         : selectedType === 'archive'
           ? 'tracks'
           : null;
-  const lookOpenSection = selectedType === 'links' ? 'links' : lookElementId;
+  const lookOpenSection =
+    selectedType === 'links'
+      ? 'links'
+      : selectedType === 'playlist'
+        ? 'playlist'
+        : lookElementId;
+
+  const selectedPlaylistItem =
+    selectedType === 'playlist'
+      ? layout.find((item) => item.id === selectedId)
+      : undefined;
 
   const layersMenu = (
     <ChannelLayersMenu
@@ -1530,6 +1486,9 @@ export function ChannelView({ slug }: { slug: string }) {
           ];
         });
       }}
+      onAddPlaylist={(playlistSlug) => {
+        updateLayout((prev) => addPlaylistItem(prev, playlistSlug));
+      }}
       onReorder={(fromId, toId) => {
         updateLayout((prev) => moveItem(prev, fromId, toId));
       }}
@@ -1540,9 +1499,56 @@ export function ChannelView({ slug }: { slug: string }) {
             links={channelLinksDraft}
             onChange={(links) => {
               setChannelLinksDraft(links);
-              setLinksOrOverlayDirty(true);
+              setLinksDirty(true);
             }}
           />
+        ) : lookOpenSection === 'playlist' && selectedPlaylistItem ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <p className="text-foreground-secondary text-xs">
+                Choose which playlist this block shows.
+              </p>
+              <ChannelPlaylistPicker
+                usedSlugs={layout
+                  .filter(
+                    (item) => item.type === 'playlist' && item.playlistSlug,
+                  )
+                  .map((item) => item.playlistSlug as string)}
+                initialSlug={selectedPlaylistItem.playlistSlug}
+                confirmLabel="Use this playlist"
+                onPick={(playlistSlug) => {
+                  updateLayout((prev) =>
+                    setPlaylistSlug(
+                      prev,
+                      selectedPlaylistItem.id,
+                      playlistSlug,
+                    ),
+                  );
+                }}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-foreground-secondary text-xs">
+                How tracks appear on the page.
+              </p>
+              <FilterChips
+                items={[
+                  { id: 'tracklist', label: 'Tracklist' },
+                  { id: 'cards', label: 'Cards' },
+                ]}
+                selected={selectedPlaylistItem.playlistDisplay ?? 'tracklist'}
+                onChange={(id) => {
+                  if (id !== 'tracklist' && id !== 'cards') {
+                    return;
+                  }
+                  updateLayout((prev) =>
+                    setPlaylistDisplay(prev, selectedPlaylistItem.id, id),
+                  );
+                }}
+                aria-label="Playlist display"
+              />
+            </div>
+          </div>
         ) : (
           <ChannelDesigner
             ref={channelDesignerRef}
@@ -1575,7 +1581,7 @@ export function ChannelView({ slug }: { slug: string }) {
           <p className="text-foreground-secondary text-xs">
             Pick a preset, then drag / hide / add. Layout saves in this browser
             for now.
-            {layoutDirty || lookDirty || linksOrOverlayDirty
+            {layoutDirty || lookDirty || linksDirty
               ? ' · unsaved changes'
               : ' · saved locally'}
           </p>
@@ -1595,7 +1601,7 @@ export function ChannelView({ slug }: { slug: string }) {
             {mobileMenuOpen ? 'Hide menu' : 'Layers menu'}
           </Button>
           <SaveButton
-            disabled={!layoutDirty && !lookDirty && !linksOrOverlayDirty}
+            disabled={!layoutDirty && !lookDirty && !linksDirty}
             saving={savingLook}
             label="Save changes"
             savingLabel="Saving…"
