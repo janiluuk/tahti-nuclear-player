@@ -1,6 +1,6 @@
 # Channel Designer → Storybook elements
 
-**Status:** in progress — stories land first; panels extract as we correct them.
+**Status:** in progress — Backdrop panel extracted; Player next.
 
 ## Goal
 
@@ -13,10 +13,12 @@ Review and fix Channel Designer UI **one element at a time** in Storybook
 | --- | --- | --- |
 | Full designer | `ChannelDesigner` | Preview + controls |
 | Look-only shell | `lookOnly` | Docked layers Look slot |
-| Backdrop | `lookOpenSection=backdrop` | Header + page background |
-| Player | `lookOpenSection=player` | Gradient / visualizer / overlay |
+| Backdrop | `BackdropPanel` | Extracted; exclusive header styles |
+| Player | `lookOpenSection=player` | Gradient / visualizer / overlay — next |
 | Releases…Gallery | layout-only hints | Visibility eye only |
 | Color scheme fields | `ColorSchemeFields` | Shared pickers |
+| Header style tabs | `HeaderStyleTabs` | Segmented control |
+| Page background | `PageBackgroundField` | Always-on swatch |
 | Layers menu | `ChannelLayersMenu` | Background row + Add playlist |
 | Playlist picker | `ChannelPlaylistPicker` | Add vs settings (`applyOnChange`) |
 | Playlist block | `ChannelPlaylistBlock` | Tracklist vs Cards |
@@ -24,11 +26,10 @@ Review and fix Channel Designer UI **one element at a time** in Storybook
 ## Correction order
 
 1. ~~Color scheme fields (shared primitive)~~
-2. Backdrop — `HeaderStyleTabs` + `PageBackgroundField` extracted; exclusive
-   style bodies live; full Backdrop panel extract still open
+2. ~~Backdrop — full `BackdropPanel` + primitives under `channel-designer/`~~
 3. Player (gradient / visualizer / overlays)
-4. Layers menu + Background always-on row (fixed translucent dock shipped)
-5. Playlist picker + block displays
+4. ~~Layers menu + Background always-on row (fixed translucent dock)~~
+5. ~~Playlist picker + block displays~~
 6. Layout-only look rows (releases…gallery) copy/visibility
 
 When correcting an element: extract its panel from `ChannelDesigner.tsx`
