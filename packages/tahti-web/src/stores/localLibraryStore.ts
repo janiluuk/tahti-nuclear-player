@@ -67,7 +67,7 @@ export function playableFromLocalTrack(
 }
 
 export function partializeLocalLibrary(
-  state: Pick<LocalLibraryState, 'tracks'>,
+  state: LocalLibraryState,
 ): PersistedLocalLibrary {
   return {
     tracks: state.tracks.map(({ id, title, artist, fileName, addedAt }) => ({
