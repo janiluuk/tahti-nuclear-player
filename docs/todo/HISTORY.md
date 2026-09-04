@@ -2,6 +2,37 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — Fixed: post-login infinite-loop crash (React #185)
+
+Root cause found and fixed. `RightRailPanel` selected from
+`useNotificationInboxStore` with an inline `.filter()`:
+`useNotificationInboxStore((s) => s.items.filter((item) => !item.readAt))`.
+That returns a new array reference on every call, which trips React 18's
+"the result of getSnapshot should be cached" infinite-render-loop guard
+the instant `RightRailPanel` mounts — i.e. on every real login, since the
+right rail only renders once `userId` is set. `VITE_FORCE_MOCK=1` never
+reproduced it locally because nothing about the mock path was different —
+the loop fires purely from mounting authenticated, not from any real-vs-mock
+data shape.
+
+Fix: select the raw `items` array (stable reference, only changes on the
+store's own `set()`) and derive the filtered list with `useMemo` instead of
+inside the selector.
+
+Confirmed via a live repro against beta.tahti.live: logged in with a real
+account through a Playwright session with real cookies, using route
+interception to swap the served JS bundle for a local unminified
+(`--mode development --minify false`) build of the same commit while
+leaving `/tahti-api/*` calls hitting the real API untouched — this got a
+real dev-mode React warning with a component name and stack
+(`Warning: The result of getSnapshot should be cached... at RightRailPanel`)
+without needing sourcemaps, a hosts-file domain spoof, or CORS changes.
+Confirmed the fix by rebuilding the same way and re-running the repro: no
+crash, onboarding renders normally post-login.
+
+Grepped for the same inline-`.filter()/.map()`-in-selector pattern
+elsewhere in tahti-web/ui/player — no other instances found.
+
 ## 2026-09-04 — ViewShell round 4: remaining Studio + all of Admin (27 views, 3 batches)
 
 Closed out nearly all of docs/todo/viewshell-page-headers.md's remaining

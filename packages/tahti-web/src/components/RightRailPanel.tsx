@@ -1,4 +1,5 @@
 import { Bell, Check, ListMusicIcon, MessageCircle } from 'lucide-react';
+import { useMemo } from 'react';
 
 import { Badge, Button, EmptyState, Tabs, Tooltip } from '@tahti-player/ui';
 
@@ -17,8 +18,16 @@ export function RightRailPanel({ isCollapsed }: { isCollapsed: boolean }) {
   const chatDisabledReason = useLayoutStore((s) => s.chatDisabledReason);
   const tab = useLayoutStore((s) => s.rightRailTab);
   const setRightRailTab = useLayoutStore((s) => s.setRightRailTab);
-  const notifications = useNotificationInboxStore((s) =>
-    s.items.filter((item) => !item.readAt),
+  // Select the raw array (stable reference, only changes on store `set()`)
+  // and derive the filtered list with useMemo. An inline `.filter()` inside
+  // the selector itself returns a new array every call, which trips React's
+  // "getSnapshot should be cached" infinite-render-loop guard as soon as
+  // this component mounts (crashed every post-login render — see
+  // docs/todo/login-infinite-loop-crash.md).
+  const notificationItems = useNotificationInboxStore((s) => s.items);
+  const notifications = useMemo(
+    () => notificationItems.filter((item) => !item.readAt),
+    [notificationItems],
   );
   const acknowledgeNotification = useNotificationInboxStore(
     (s) => s.acknowledge,
