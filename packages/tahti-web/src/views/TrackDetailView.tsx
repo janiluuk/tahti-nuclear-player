@@ -25,6 +25,7 @@ import {
   fetchTrackDetail,
   postTrackComment,
 } from '../api/client';
+import { listMockCommerceFanSubs } from '../api/mock-commerce-ledger';
 import { listMockSubscriptions } from '../api/mock-session';
 import { isForceMock } from '../api/mode';
 import {
@@ -204,12 +205,18 @@ export function TrackDetailView({
     if (!isForceMock()) {
       return false;
     }
-    const subscribed = listMockSubscriptions().some(
+    const subscribedInSession = listMockSubscriptions().some(
       (row) =>
         row.artist.username === detail.channel.username &&
         row.state === 'ACTIVE',
     );
-    if (subscribed) {
+    const subscribedInLedger = listMockCommerceFanSubs().some(
+      (sub) =>
+        Boolean(user?.username) &&
+        sub.fanUsername === user?.username &&
+        sub.artistUsername === detail.channel.username,
+    );
+    if (subscribedInSession || subscribedInLedger) {
       return true;
     }
     return mockOwnsPurchaseTier(detail.purchaseTierId);
