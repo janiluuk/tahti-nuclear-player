@@ -12,6 +12,8 @@ type Props = {
   /** Pre-select a slug (e.g. the block currently being edited). */
   initialSlug?: string;
   confirmLabel?: string;
+  /** When true, changing the select applies immediately (no confirm button). */
+  applyOnChange?: boolean;
   onPick: (playlistSlug: string) => void;
 };
 
@@ -24,6 +26,7 @@ export function ChannelPlaylistPicker({
   usedSlugs = [],
   initialSlug,
   confirmLabel = 'Add playlist',
+  applyOnChange = false,
   onPick,
 }: Props) {
   const [playlists, setPlaylists] = useState<StudioCollection[]>([]);
@@ -74,7 +77,12 @@ export function ChannelPlaylistPicker({
       <Select
         label="Playlist"
         value={selectedSlug}
-        onValueChange={setSelectedSlug}
+        onValueChange={(slug) => {
+          setSelectedSlug(slug);
+          if (applyOnChange && slug) {
+            onPick(slug);
+          }
+        }}
         options={playlists.map((playlist) => {
           const used = usedSlugs.includes(playlist.slug);
           return {
@@ -85,20 +93,22 @@ export function ChannelPlaylistPicker({
           };
         })}
       />
-      <Button
-        size="sm"
-        disabled={!selectedSlug}
-        onClick={() => {
-          if (selectedSlug) {
-            onPick(selectedSlug);
-          }
-        }}
-      >
-        <span className="inline-flex items-center gap-1.5">
-          <ListMusicIcon size={14} aria-hidden />
-          {confirmLabel}
-        </span>
-      </Button>
+      {applyOnChange ? null : (
+        <Button
+          size="sm"
+          disabled={!selectedSlug}
+          onClick={() => {
+            if (selectedSlug) {
+              onPick(selectedSlug);
+            }
+          }}
+        >
+          <span className="inline-flex items-center gap-1.5">
+            <ListMusicIcon size={14} aria-hidden />
+            {confirmLabel}
+          </span>
+        </Button>
+      )}
     </div>
   );
 }
