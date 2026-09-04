@@ -21,6 +21,7 @@ import {
   SaveButton,
   Select,
   Tabs,
+  Tooltip,
   ViewShell,
 } from '@tahti-player/ui';
 
@@ -203,18 +204,19 @@ function QuotaEditor({
 
   if (!editing) {
     return (
-      <Button
-        size="icon-sm"
-        variant="text"
-        aria-label={`Edit quota for ${displayName}`}
-        title="Edit quota"
-        onClick={() => {
-          setValue(String(bytesToMb(quotaBytes)));
-          setEditing(true);
-        }}
-      >
-        <PencilIcon size={14} aria-hidden />
-      </Button>
+      <Tooltip content="Edit quota" side="top">
+        <Button
+          size="icon-sm"
+          variant="text"
+          aria-label={`Edit quota for ${displayName}`}
+          onClick={() => {
+            setValue(String(bytesToMb(quotaBytes)));
+            setEditing(true);
+          }}
+        >
+          <PencilIcon size={14} aria-hidden />
+        </Button>
+      </Tooltip>
     );
   }
 
@@ -250,15 +252,16 @@ function QuotaEditor({
           );
         }}
       />
-      <Button
-        size="icon-sm"
-        variant="text"
-        aria-label="Cancel editing quota"
-        title="Cancel"
-        onClick={() => setEditing(false)}
-      >
-        <XIcon size={14} aria-hidden />
-      </Button>
+      <Tooltip content="Cancel" side="top">
+        <Button
+          size="icon-sm"
+          variant="text"
+          aria-label="Cancel editing quota"
+          onClick={() => setEditing(false)}
+        >
+          <XIcon size={14} aria-hidden />
+        </Button>
+      </Tooltip>
     </div>
   );
 }
@@ -552,14 +555,15 @@ function StorageOverviewTab() {
                       to="/admin/storage/$userId"
                       params={{ userId: row.userId }}
                     >
-                      <Button
-                        size="icon-sm"
-                        variant="secondary"
-                        aria-label={`View ${row.displayName}'s files`}
-                        title="View files"
-                      >
-                        <ExternalLinkIcon size={14} aria-hidden />
-                      </Button>
+                      <Tooltip content="View files" side="top">
+                        <Button
+                          size="icon-sm"
+                          variant="secondary"
+                          aria-label={`View ${row.displayName}'s files`}
+                        >
+                          <ExternalLinkIcon size={14} aria-hidden />
+                        </Button>
+                      </Tooltip>
                     </Link>
                   </div>
                 </li>
@@ -615,45 +619,49 @@ function FileRow({
         <Badge variant="pill" color={f.isPublic ? 'green' : 'secondary'}>
           {f.isPublic ? 'Public' : 'Private'}
         </Badge>
-        <Button
-          size="icon-sm"
-          variant="text"
-          aria-label={`Preview ${f.title}`}
-          title="Preview"
-          disabled={pendingPlayId === f.id}
-          onClick={() => onPlay(f)}
-        >
-          <PlayIcon size={16} aria-hidden />
-        </Button>
-        <Button
-          size="icon-sm"
-          variant="text"
-          aria-label={`View details for ${f.title}`}
-          title="View details"
-          onClick={() => onViewDetail(f)}
-        >
-          <SearchIcon size={15} aria-hidden />
-        </Button>
-        <Link to="/admin/storage/$userId" params={{ userId: f.userId }}>
+        <Tooltip content="Preview" side="top">
           <Button
             size="icon-sm"
             variant="text"
-            aria-label={`View ${f.displayName}'s storage`}
-            title="View uploader's storage"
+            aria-label={`Preview ${f.title}`}
+            disabled={pendingPlayId === f.id}
+            onClick={() => onPlay(f)}
           >
-            <ExternalLinkIcon size={15} aria-hidden />
+            <PlayIcon size={16} aria-hidden />
           </Button>
+        </Tooltip>
+        <Tooltip content="View details" side="top">
+          <Button
+            size="icon-sm"
+            variant="text"
+            aria-label={`View details for ${f.title}`}
+            onClick={() => onViewDetail(f)}
+          >
+            <SearchIcon size={15} aria-hidden />
+          </Button>
+        </Tooltip>
+        <Link to="/admin/storage/$userId" params={{ userId: f.userId }}>
+          <Tooltip content="View uploader's storage" side="top">
+            <Button
+              size="icon-sm"
+              variant="text"
+              aria-label={`View ${f.displayName}'s storage`}
+            >
+              <ExternalLinkIcon size={15} aria-hidden />
+            </Button>
+          </Tooltip>
         </Link>
-        <Button
-          size="icon-sm"
-          variant="text"
-          className="text-accent-red hover:text-accent-red"
-          aria-label={`Delete ${f.title}`}
-          title="Delete"
-          onClick={() => onDelete(f)}
-        >
-          <Trash2Icon size={15} aria-hidden />
-        </Button>
+        <Tooltip content="Delete" side="top">
+          <Button
+            size="icon-sm"
+            variant="text"
+            className="text-accent-red hover:text-accent-red"
+            aria-label={`Delete ${f.title}`}
+            onClick={() => onDelete(f)}
+          >
+            <Trash2Icon size={15} aria-hidden />
+          </Button>
+        </Tooltip>
       </div>
     </li>
   );

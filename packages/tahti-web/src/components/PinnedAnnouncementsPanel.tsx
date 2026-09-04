@@ -2,7 +2,7 @@ import { PinIcon, SendIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Button, Input, Tooltip } from '@tahti-player/ui';
 
 import {
   deletePinnedAnnouncement,
@@ -70,15 +70,16 @@ export function PinnedAnnouncementsPanel({ slug }: { slug: string }) {
             onChange={(event) => setBody(event.target.value)}
             placeholder="Write an announcement…"
           />
-          <Button
-            size="icon-sm"
-            aria-label="Pin announcement"
-            title="Pin announcement"
-            disabled={busy || !body.trim()}
-            onClick={() => void publish()}
-          >
-            <SendIcon size={16} aria-hidden />
-          </Button>
+          <Tooltip content="Pin announcement" side="top">
+            <Button
+              size="icon-sm"
+              aria-label="Pin announcement"
+              disabled={busy || !body.trim()}
+              onClick={() => void publish()}
+            >
+              <SendIcon size={16} aria-hidden />
+            </Button>
+          </Tooltip>
         </div>
         {loading ? (
           <p className="text-foreground-secondary text-sm">
@@ -98,14 +99,16 @@ export function PinnedAnnouncementsPanel({ slug }: { slug: string }) {
                   aria-hidden
                 />
                 <p className="min-w-0 flex-1 text-sm">{item.body}</p>
-                <Button
-                  size="icon-sm"
-                  variant="text"
-                  aria-label={`Delete ${item.body}`}
-                  onClick={() => setPendingRemove(item)}
-                >
-                  <Trash2Icon size={16} aria-hidden />
-                </Button>
+                <Tooltip content={`Delete ${item.body}`} side="top">
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    aria-label={`Delete ${item.body}`}
+                    onClick={() => setPendingRemove(item)}
+                  >
+                    <Trash2Icon size={16} aria-hidden />
+                  </Button>
+                </Tooltip>
               </li>
             ))}
           </ul>

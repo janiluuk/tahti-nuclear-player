@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowLeftIcon, PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, ViewShell } from '@tahti-player/ui';
+import { Badge, Button, Tooltip, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchAdminStorageUserFiles,
@@ -130,24 +130,25 @@ export function AdminStorageUserView({ userId }: { userId: string }) {
                             </Badge>
                           ) : null}
                           {f.isAudio && f.previewUrl ? (
-                            <Button
-                              size="icon-sm"
-                              variant="text"
-                              aria-label={`Preview ${f.title}`}
-                              title="Preview"
-                              onClick={() =>
-                                play({
-                                  id: `admin-storage-file:${f.id}`,
-                                  kind: 'archive',
-                                  title: f.title,
-                                  artist: detail.displayName,
-                                  streamUrl: f.previewUrl!,
-                                  protocol: 'https',
-                                })
-                              }
-                            >
-                              <PlayIcon size={16} aria-hidden />
-                            </Button>
+                            <Tooltip content="Preview" side="top">
+                              <Button
+                                size="icon-sm"
+                                variant="text"
+                                aria-label={`Preview ${f.title}`}
+                                onClick={() =>
+                                  play({
+                                    id: `admin-storage-file:${f.id}`,
+                                    kind: 'archive',
+                                    title: f.title,
+                                    artist: detail.displayName,
+                                    streamUrl: f.previewUrl!,
+                                    protocol: 'https',
+                                  })
+                                }
+                              >
+                                <PlayIcon size={16} aria-hidden />
+                              </Button>
+                            </Tooltip>
                           ) : null}
                         </div>
                       </li>

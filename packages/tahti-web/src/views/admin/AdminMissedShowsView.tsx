@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, Tooltip } from '@tahti-player/ui';
 
 import {
   fetchAdminMissedShows,
@@ -126,40 +126,43 @@ export function AdminMissedShowsPanel() {
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-1.5">
                   {flag.status !== 'REVIEWING' && (
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Mark ${flag.scheduledLiveShow.title} as reviewing`}
-                      title="Mark reviewing"
-                      disabled={busyId === flag.id}
-                      onClick={() => void setStatus(flag, 'REVIEWING')}
-                    >
-                      <EyeIcon size={14} aria-hidden />
-                    </Button>
+                    <Tooltip content="Mark reviewing" side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        aria-label={`Mark ${flag.scheduledLiveShow.title} as reviewing`}
+                        disabled={busyId === flag.id}
+                        onClick={() => void setStatus(flag, 'REVIEWING')}
+                      >
+                        <EyeIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
                   )}
                   {flag.status !== 'ACTIONED' && (
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Mark ${flag.scheduledLiveShow.title} as actioned`}
-                      title="Mark actioned"
-                      disabled={busyId === flag.id}
-                      onClick={() => void setStatus(flag, 'ACTIONED')}
-                    >
-                      <CheckIcon size={14} aria-hidden />
-                    </Button>
+                    <Tooltip content="Mark actioned" side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        aria-label={`Mark ${flag.scheduledLiveShow.title} as actioned`}
+                        disabled={busyId === flag.id}
+                        onClick={() => void setStatus(flag, 'ACTIONED')}
+                      >
+                        <CheckIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
                   )}
                   {flag.status !== 'DISMISSED' && (
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Dismiss ${flag.scheduledLiveShow.title}`}
-                      title="Dismiss missed show"
-                      disabled={busyId === flag.id}
-                      onClick={() => void setStatus(flag, 'DISMISSED')}
-                    >
-                      <XIcon size={14} aria-hidden />
-                    </Button>
+                    <Tooltip content="Dismiss missed show" side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        aria-label={`Dismiss ${flag.scheduledLiveShow.title}`}
+                        disabled={busyId === flag.id}
+                        onClick={() => void setStatus(flag, 'DISMISSED')}
+                      >
+                        <XIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
                   )}
                 </div>
               </li>

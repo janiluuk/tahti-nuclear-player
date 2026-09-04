@@ -7,6 +7,7 @@ import {
   Dialog,
   FilePicker,
   Input,
+  Tooltip,
   ViewShell,
 } from '@tahti-player/ui';
 
@@ -93,14 +94,15 @@ export function AdminI18nView() {
               subtitle="Add a language, then import a CSV translated from the English base."
               classes={{ root: 'px-0 pt-0' }}
             >
-              <Button
-                size="icon-sm"
-                onClick={() => setNewOpen(true)}
-                aria-label="New language"
-                title="New language"
-              >
-                <PlusIcon size={16} aria-hidden />
-              </Button>
+              <Tooltip content="New language" side="top">
+                <Button
+                  size="icon-sm"
+                  onClick={() => setNewOpen(true)}
+                  aria-label="New language"
+                >
+                  <PlusIcon size={16} aria-hidden />
+                </Button>
+              </Tooltip>
 
               {msg && (
                 <p className="text-foreground-secondary text-sm" role="status">

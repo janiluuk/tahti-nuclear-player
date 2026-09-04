@@ -195,15 +195,16 @@ function ConfigurableCard({
         <div className="min-w-0 flex-1">
           {typeof header === 'function' ? header(() => setOpen(true)) : header}
         </div>
-        <Button
-          size="icon-sm"
-          variant="secondary"
-          onClick={() => setOpen((v) => !v)}
-          aria-label={open ? 'Hide configuration' : 'Configure'}
-          title={open ? 'Hide configuration' : 'Configure'}
-        >
-          <SettingsIcon size={15} aria-hidden />
-        </Button>
+        <Tooltip content={open ? 'Hide configuration' : 'Configure'} side="top">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? 'Hide configuration' : 'Configure'}
+          >
+            <SettingsIcon size={15} aria-hidden />
+          </Button>
+        </Tooltip>
       </div>
       <Dialog.Root
         isOpen={open}
@@ -347,16 +348,17 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-end">
-        <Button
-          size="icon-sm"
-          variant="secondary"
-          aria-label={`About ${category.label}`}
-          title={`About ${category.label}`}
-          aria-expanded={showInfo}
-          onClick={() => setShowInfo((value) => !value)}
-        >
-          <InfoIcon size={16} aria-hidden />
-        </Button>
+        <Tooltip content={`About ${category.label}`} side="top">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            aria-label={`About ${category.label}`}
+            aria-expanded={showInfo}
+            onClick={() => setShowInfo((value) => !value)}
+          >
+            <InfoIcon size={16} aria-hidden />
+          </Button>
+        </Tooltip>
       </div>
       {showInfo ? (
         <Box
@@ -661,19 +663,20 @@ function VisualizersCategory() {
               onClick={() => setPreviewPreset(id)}
               accessory={
                 id === 'MINIMAL' ? undefined : (
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    aria-label={`Configure ${presetLabel(id)}`}
-                    title={`Configure ${presetLabel(id)}`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setPreviewPreset(id);
-                      setConfigurationPreset(id);
-                    }}
-                  >
-                    <SettingsIcon size={15} aria-hidden />
-                  </Button>
+                  <Tooltip content={`Configure ${presetLabel(id)}`} side="top">
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Configure ${presetLabel(id)}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setPreviewPreset(id);
+                        setConfigurationPreset(id);
+                      }}
+                    >
+                      <SettingsIcon size={15} aria-hidden />
+                    </Button>
+                  </Tooltip>
                 )
               }
             />
@@ -2151,16 +2154,17 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
                       {collection.trackCount} items
                     </p>
                   </div>
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    disabled={busy}
-                    onClick={() => void importCollection(collection)}
-                    aria-label={`Import ${collection.title} as collection`}
-                    title="Import as collection"
-                  >
-                    <FolderDownIcon size={15} />
-                  </Button>
+                  <Tooltip content="Import as collection" side="top">
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      disabled={busy}
+                      onClick={() => void importCollection(collection)}
+                      aria-label={`Import ${collection.title} as collection`}
+                    >
+                      <FolderDownIcon size={15} />
+                    </Button>
+                  </Tooltip>
                 </li>
               ))}
               {(library?.collections.length ?? 0) > 0 && (
@@ -2218,15 +2222,16 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
                       {track.username}
                     </div>
                   </div>
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    title="Queue"
-                    aria-label={`Queue ${track.title}`}
-                    onClick={() => enqueue(playableFromHearthis(track))}
-                  >
-                    <ListPlus size={15} aria-hidden />
-                  </Button>
+                  <Tooltip content="Queue" side="top">
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Queue ${track.title}`}
+                      onClick={() => enqueue(playableFromHearthis(track))}
+                    >
+                      <ListPlus size={15} aria-hidden />
+                    </Button>
+                  </Tooltip>
                   <Button
                     size="sm"
                     variant="secondary"
@@ -2488,33 +2493,35 @@ function MulticastCategory() {
                 }}
                 accessory={
                   <div className="flex items-center gap-1">
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Configure ${destination.label}`}
-                      title="Configure"
-                      onClick={() =>
-                        setConfiguring({
-                          provider: destination.id,
-                          existing: target ?? null,
-                        })
-                      }
-                    >
-                      <SettingsIcon size={15} aria-hidden />
-                    </Button>
-                    {target ? (
+                    <Tooltip content="Configure" side="top">
                       <Button
                         size="icon-sm"
-                        variant="text"
-                        intent="danger"
-                        aria-label={`Remove ${destination.label}`}
-                        title="Remove"
+                        variant="secondary"
+                        aria-label={`Configure ${destination.label}`}
                         onClick={() =>
-                          void deleteRtmpTarget(target.id).then(reload)
+                          setConfiguring({
+                            provider: destination.id,
+                            existing: target ?? null,
+                          })
                         }
                       >
-                        <XIcon size={15} aria-hidden />
+                        <SettingsIcon size={15} aria-hidden />
                       </Button>
+                    </Tooltip>
+                    {target ? (
+                      <Tooltip content="Remove" side="top">
+                        <Button
+                          size="icon-sm"
+                          variant="text"
+                          intent="danger"
+                          aria-label={`Remove ${destination.label}`}
+                          onClick={() =>
+                            void deleteRtmpTarget(target.id).then(reload)
+                          }
+                        >
+                          <XIcon size={15} aria-hidden />
+                        </Button>
+                      </Tooltip>
                     ) : null}
                   </div>
                 }
@@ -2748,17 +2755,18 @@ function PersonalRadioStreamCard() {
               </div>
             )}
           </div>
-          <Button
-            size="icon-sm"
-            variant="secondary"
-            title="Queue"
-            aria-label={`Queue ${station.name}`}
-            onClick={() =>
-              enqueue(playableFromRadioStation(station, nowPlaying))
-            }
-          >
-            <ListPlus size={15} aria-hidden />
-          </Button>
+          <Tooltip content="Queue" side="top">
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              aria-label={`Queue ${station.name}`}
+              onClick={() =>
+                enqueue(playableFromRadioStation(station, nowPlaying))
+              }
+            >
+              <ListPlus size={15} aria-hidden />
+            </Button>
+          </Tooltip>
           <FavoriteButton
             size="sm"
             isFavorite={isFavoriteTrack(`radio:${station.id}`)}
@@ -2902,14 +2910,16 @@ function RadioBrowserStationRow({
           {station.country ?? station.tags?.[0] ?? 'Unknown'}
         </span>
       </button>
-      <Button
-        size="icon-sm"
-        variant="secondary"
-        aria-label={`Play ${station.name}`}
-        onClick={onPlay}
-      >
-        <PlayIcon size={14} aria-hidden />
-      </Button>
+      <Tooltip content={`Play ${station.name}`} side="top">
+        <Button
+          size="icon-sm"
+          variant="secondary"
+          aria-label={`Play ${station.name}`}
+          onClick={onPlay}
+        >
+          <PlayIcon size={14} aria-hidden />
+        </Button>
+      </Tooltip>
       <SaveButton
         size="sm"
         label={isSaved ? 'Saved' : 'Save'}
@@ -3392,83 +3402,92 @@ function RadioCategory() {
                         Disable
                       </Button>
                     ) : null}
-                    <Button
-                      type="button"
-                      size="icon-sm"
-                      variant="secondary"
-                      title="Configure station"
-                      aria-label={`Configure ${station.name}`}
-                      onClick={() => setEditingStation(station)}
-                    >
-                      <SettingsIcon size={14} aria-hidden />
-                    </Button>
-                    {sourceConfigured && (
+                    <Tooltip content="Configure station" side="top">
                       <Button
                         type="button"
                         size="icon-sm"
                         variant="secondary"
-                        title={
+                        aria-label={`Configure ${station.name}`}
+                        onClick={() => setEditingStation(station)}
+                      >
+                        <SettingsIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
+                    {sourceConfigured && (
+                      <Tooltip
+                        content={
                           stationExpanded ? 'Hide controls' : 'Show controls'
                         }
-                        aria-label={
-                          stationExpanded
-                            ? `Hide controls for ${station.name}`
-                            : `Show controls for ${station.name}`
-                        }
-                        aria-expanded={stationExpanded}
-                        onClick={() =>
-                          setExpandedStationIds((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(station.id)) {
-                              next.delete(station.id);
-                            } else {
-                              next.add(station.id);
-                            }
-                            return next;
-                          })
-                        }
+                        side="top"
                       >
-                        {stationExpanded ? (
-                          <ChevronUpIcon size={14} aria-hidden />
-                        ) : (
-                          <ChevronDownIcon size={14} aria-hidden />
-                        )}
-                      </Button>
+                        <Button
+                          type="button"
+                          size="icon-sm"
+                          variant="secondary"
+                          aria-label={
+                            stationExpanded
+                              ? `Hide controls for ${station.name}`
+                              : `Show controls for ${station.name}`
+                          }
+                          aria-expanded={stationExpanded}
+                          onClick={() =>
+                            setExpandedStationIds((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(station.id)) {
+                                next.delete(station.id);
+                              } else {
+                                next.add(station.id);
+                              }
+                              return next;
+                            })
+                          }
+                        >
+                          {stationExpanded ? (
+                            <ChevronUpIcon size={14} aria-hidden />
+                          ) : (
+                            <ChevronDownIcon size={14} aria-hidden />
+                          )}
+                        </Button>
+                      </Tooltip>
                     )}
                   </div>
                   {sourceConfigured && stationExpanded && (
-                    <Button
-                      type="button"
-                      size="icon-sm"
-                      variant={stationIsPlaying ? undefined : 'secondary'}
-                      title={stationIsPlaying ? 'Pause' : 'Preview'}
-                      aria-label={
-                        stationIsPlaying
-                          ? `Pause ${station.name}`
-                          : `Preview ${station.name}`
-                      }
-                      aria-pressed={stationIsPlaying}
-                      onClick={() => {
-                        if (stationIsCurrent) {
-                          setPlaybackStatus(
-                            stationIsPlaying ? 'paused' : 'playing',
-                          );
-                          return;
-                        }
-                        play(
-                          radioStationPlayable({
-                            ...station,
-                            streamUrl: station.streamUrl!,
-                          }),
-                        );
-                      }}
+                    <Tooltip
+                      content={stationIsPlaying ? 'Pause' : 'Preview'}
+                      side="top"
                     >
-                      {stationIsPlaying ? (
-                        <PauseIcon size={14} aria-hidden />
-                      ) : (
-                        <PlayIcon size={14} aria-hidden />
-                      )}
-                    </Button>
+                      <Button
+                        type="button"
+                        size="icon-sm"
+                        variant={stationIsPlaying ? undefined : 'secondary'}
+                        aria-label={
+                          stationIsPlaying
+                            ? `Pause ${station.name}`
+                            : `Preview ${station.name}`
+                        }
+                        aria-pressed={stationIsPlaying}
+                        onClick={() => {
+                          if (stationIsCurrent) {
+                            setPlaybackStatus(
+                              stationIsPlaying ? 'paused' : 'playing',
+                            );
+                            return;
+                          }
+                          play(
+                            radioStationPlayable({
+                              ...station,
+                              streamUrl: station.streamUrl!,
+                            }),
+                          );
+                        }}
+                      >
+                        {stationIsPlaying ? (
+                          <PauseIcon size={14} aria-hidden />
+                        ) : (
+                          <PlayIcon size={14} aria-hidden />
+                        )}
+                      </Button>
+                    </Tooltip>
                   )}
                 </div>
               }
@@ -3662,16 +3681,17 @@ function DiscoverWidgetPlugins() {
         <h3 className="text-sm font-semibold tracking-wide uppercase">
           Discover page widgets
         </h3>
-        <Button
-          size="icon-sm"
-          variant="secondary"
-          aria-label="About Discover page widgets"
-          title="About Discover page widgets"
-          aria-expanded={showInfo}
-          onClick={() => setShowInfo((value) => !value)}
-        >
-          <InfoIcon size={16} aria-hidden />
-        </Button>
+        <Tooltip content="About Discover page widgets" side="top">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            aria-label="About Discover page widgets"
+            aria-expanded={showInfo}
+            onClick={() => setShowInfo((value) => !value)}
+          >
+            <InfoIcon size={16} aria-hidden />
+          </Button>
+        </Tooltip>
       </div>
       {showInfo ? (
         <Box

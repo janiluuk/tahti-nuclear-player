@@ -8,6 +8,7 @@ import {
   Dialog,
   Input,
   PluginStoreItem,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import {
@@ -121,15 +122,16 @@ export function DiscordBotAddonCard() {
             Not configured
           </Badge>
         )}
-        <Button
-          size="icon-sm"
-          variant="secondary"
-          onClick={() => setOpen(true)}
-          aria-label="Configure Tahti Radio Discord bot"
-          title="Configure"
-        >
-          <SettingsIcon size={15} aria-hidden />
-        </Button>
+        <Tooltip content="Configure" side="top">
+          <Button
+            size="icon-sm"
+            variant="secondary"
+            onClick={() => setOpen(true)}
+            aria-label="Configure Tahti Radio Discord bot"
+          >
+            <SettingsIcon size={15} aria-hidden />
+          </Button>
+        </Tooltip>
       </div>
       <Dialog.Root
         isOpen={open}

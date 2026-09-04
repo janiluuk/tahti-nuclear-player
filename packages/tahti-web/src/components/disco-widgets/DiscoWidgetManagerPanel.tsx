@@ -10,6 +10,7 @@ import {
   Input,
   PluginStoreItem,
   Toggle,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import {
@@ -187,37 +188,42 @@ export function DiscoWidgetManagerPanel({
                     labels={{ installed: 'Installed' }}
                     accessory={
                       <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                          size="icon-sm"
-                          variant="secondary"
-                          disabled={isPending || index === 0}
-                          onClick={() => void handleMove(install.id, 'up')}
-                          aria-label="Move up"
-                          title="Move up"
-                        >
-                          <ArrowUp size={15} aria-hidden />
-                        </Button>
-                        <Button
-                          size="icon-sm"
-                          variant="secondary"
-                          disabled={isPending || index === installs.length - 1}
-                          onClick={() => void handleMove(install.id, 'down')}
-                          aria-label="Move down"
-                          title="Move down"
-                        >
-                          <ArrowDown size={15} aria-hidden />
-                        </Button>
-                        {compact ? null : (
+                        <Tooltip content="Move up" side="top">
                           <Button
                             size="icon-sm"
                             variant="secondary"
-                            disabled={isPending}
-                            onClick={() => setConfiguringId(install.id)}
-                            aria-label={`Configure ${install.widget.name}`}
-                            title="Configure widget"
+                            disabled={isPending || index === 0}
+                            onClick={() => void handleMove(install.id, 'up')}
+                            aria-label="Move up"
                           >
-                            <Settings2 size={15} aria-hidden />
+                            <ArrowUp size={15} aria-hidden />
                           </Button>
+                        </Tooltip>
+                        <Tooltip content="Move down" side="top">
+                          <Button
+                            size="icon-sm"
+                            variant="secondary"
+                            disabled={
+                              isPending || index === installs.length - 1
+                            }
+                            onClick={() => void handleMove(install.id, 'down')}
+                            aria-label="Move down"
+                          >
+                            <ArrowDown size={15} aria-hidden />
+                          </Button>
+                        </Tooltip>
+                        {compact ? null : (
+                          <Tooltip content="Configure widget" side="top">
+                            <Button
+                              size="icon-sm"
+                              variant="secondary"
+                              disabled={isPending}
+                              onClick={() => setConfiguringId(install.id)}
+                              aria-label={`Configure ${install.widget.name}`}
+                            >
+                              <Settings2 size={15} aria-hidden />
+                            </Button>
+                          </Tooltip>
                         )}
                         <Toggle
                           label="Enabled"

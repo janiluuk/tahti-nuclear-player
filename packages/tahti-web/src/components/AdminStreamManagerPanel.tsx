@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button, Dialog, ImageReveal, Loader } from '@tahti-player/ui';
+import { Button, Dialog, ImageReveal, Loader, Tooltip } from '@tahti-player/ui';
 
 import {
   fetchAdminStreams,
@@ -190,88 +190,95 @@ export function AdminStreamManagerPanel({
                   <div className="ml-auto flex shrink-0 items-center gap-1">
                     {stream.hlsUrl ? (
                       <a href={stream.hlsUrl} target="_blank" rel="noreferrer">
-                        <Button
-                          size="icon-sm"
-                          variant="text"
-                          aria-label={`Listen to ${stream.artistName}`}
-                          title="Listen"
-                        >
-                          <ExternalLinkIcon size={14} aria-hidden />
-                        </Button>
+                        <Tooltip content="Listen" side="top">
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label={`Listen to ${stream.artistName}`}
+                          >
+                            <ExternalLinkIcon size={14} aria-hidden />
+                          </Button>
+                        </Tooltip>
                       </a>
                     ) : null}
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      aria-label={`Show details for ${stream.artistName}`}
-                      title="Details"
-                      onClick={() => setDetailsStream(stream)}
-                    >
-                      <EyeIcon size={14} aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Restart ${stream.artistName}`}
-                      title="Restart stream"
-                      disabled={busySlug === stream.slug}
-                      onClick={() =>
-                        run(stream.slug, restartStream, {
-                          title: `Restart audio for ${stream.slug}?`,
-                          description:
-                            'The channel stays live; listeners may briefly reconnect.',
-                          confirmLabel: 'Restart',
-                        })
-                      }
-                    >
-                      <RotateCwIcon size={14} aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Skip ${stream.artistName}`}
-                      title="Skip current item"
-                      disabled={busySlug === stream.slug}
-                      onClick={() => run(stream.slug, skipStreamTrack)}
-                    >
-                      <SkipForwardIcon size={14} aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Pause ${stream.artistName}`}
-                      title="Pause stream"
-                      disabled={busySlug === stream.slug}
-                      onClick={() => run(stream.slug, pauseStream)}
-                    >
-                      <PauseIcon size={14} aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      aria-label={`Resume ${stream.artistName}`}
-                      title="Resume stream"
-                      disabled={busySlug === stream.slug}
-                      onClick={() => run(stream.slug, resumeStream)}
-                    >
-                      <PlayIcon size={14} aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="text"
-                      aria-label={`Take ${stream.artistName} offline`}
-                      title="Force offline"
-                      disabled={busySlug === stream.slug}
-                      onClick={() =>
-                        run(stream.slug, forceStreamOffline, {
-                          title: `Force ${stream.slug} offline?`,
-                          description: 'This ends the broadcast immediately.',
-                          confirmLabel: 'Take offline',
-                        })
-                      }
-                    >
-                      <PowerIcon size={14} aria-hidden />
-                    </Button>
+                    <Tooltip content="Details" side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        aria-label={`Show details for ${stream.artistName}`}
+                        onClick={() => setDetailsStream(stream)}
+                      >
+                        <EyeIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Restart stream" side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        aria-label={`Restart ${stream.artistName}`}
+                        disabled={busySlug === stream.slug}
+                        onClick={() =>
+                          run(stream.slug, restartStream, {
+                            title: `Restart audio for ${stream.slug}?`,
+                            description:
+                              'The channel stays live; listeners may briefly reconnect.',
+                            confirmLabel: 'Restart',
+                          })
+                        }
+                      >
+                        <RotateCwIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Skip current item" side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        aria-label={`Skip ${stream.artistName}`}
+                        disabled={busySlug === stream.slug}
+                        onClick={() => run(stream.slug, skipStreamTrack)}
+                      >
+                        <SkipForwardIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Pause stream" side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        aria-label={`Pause ${stream.artistName}`}
+                        disabled={busySlug === stream.slug}
+                        onClick={() => run(stream.slug, pauseStream)}
+                      >
+                        <PauseIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Resume stream" side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        aria-label={`Resume ${stream.artistName}`}
+                        disabled={busySlug === stream.slug}
+                        onClick={() => run(stream.slug, resumeStream)}
+                      >
+                        <PlayIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Force offline" side="top">
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        aria-label={`Take ${stream.artistName} offline`}
+                        disabled={busySlug === stream.slug}
+                        onClick={() =>
+                          run(stream.slug, forceStreamOffline, {
+                            title: `Force ${stream.slug} offline?`,
+                            description: 'This ends the broadcast immediately.',
+                            confirmLabel: 'Take offline',
+                          })
+                        }
+                      >
+                        <PowerIcon size={14} aria-hidden />
+                      </Button>
+                    </Tooltip>
                   </div>
                 </div>
               </>
@@ -290,38 +297,45 @@ export function AdminStreamManagerPanel({
           description="Monitor active channels and control their live audio."
           action={
             <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                size="icon-sm"
-                variant="text"
-                aria-label={
-                  streamsOpen ? 'Collapse live streams' : 'Expand live streams'
-                }
-                aria-expanded={streamsOpen}
-                title={streamsOpen ? 'Collapse streams' : 'Expand streams'}
-                onClick={() => setStreamsOpen((open) => !open)}
+              <Tooltip
+                content={streamsOpen ? 'Collapse streams' : 'Expand streams'}
+                side="top"
               >
-                {streamsOpen ? (
-                  <ChevronUpIcon size={16} aria-hidden />
-                ) : (
-                  <ChevronDownIcon size={16} aria-hidden />
-                )}
-              </Button>
-              <Button
-                type="button"
-                size="icon-sm"
-                variant="text"
-                aria-label="Refresh live streams"
-                title="Refresh live streams"
-                disabled={refreshing}
-                onClick={reload}
-              >
-                {refreshing ? (
-                  <Loader size="sm" />
-                ) : (
-                  <RefreshCw size={16} aria-hidden />
-                )}
-              </Button>
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  variant="text"
+                  aria-label={
+                    streamsOpen
+                      ? 'Collapse live streams'
+                      : 'Expand live streams'
+                  }
+                  aria-expanded={streamsOpen}
+                  onClick={() => setStreamsOpen((open) => !open)}
+                >
+                  {streamsOpen ? (
+                    <ChevronUpIcon size={16} aria-hidden />
+                  ) : (
+                    <ChevronDownIcon size={16} aria-hidden />
+                  )}
+                </Button>
+              </Tooltip>
+              <Tooltip content="Refresh live streams" side="top">
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  variant="text"
+                  aria-label="Refresh live streams"
+                  disabled={refreshing}
+                  onClick={reload}
+                >
+                  {refreshing ? (
+                    <Loader size="sm" />
+                  ) : (
+                    <RefreshCw size={16} aria-hidden />
+                  )}
+                </Button>
+              </Tooltip>
             </div>
           }
         >

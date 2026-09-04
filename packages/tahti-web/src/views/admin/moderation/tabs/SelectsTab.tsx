@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Button, Dialog, Input } from '@tahti-player/ui';
+import { Button, Dialog, Input, Tooltip } from '@tahti-player/ui';
 
 import {
   addToSelectsRotation,
@@ -257,14 +257,15 @@ export function SelectsTab() {
       <StudioPanel
         title={`Current rotation (${items.length})`}
         action={
-          <Button
-            size="icon-sm"
-            aria-label="Add content to rotation"
-            title="Add content to rotation"
-            onClick={() => setPickerOpen(true)}
-          >
-            <PlusIcon size={16} aria-hidden />
-          </Button>
+          <Tooltip content="Add content to rotation" side="top">
+            <Button
+              size="icon-sm"
+              aria-label="Add content to rotation"
+              onClick={() => setPickerOpen(true)}
+            >
+              <PlusIcon size={16} aria-hidden />
+            </Button>
+          </Tooltip>
         }
       >
         {loading ? (
@@ -413,24 +414,26 @@ export function SelectsTab() {
                           </div>
                         </div>
                         {item.audioUrl ? (
-                          <Button
-                            size="icon-sm"
-                            variant="text"
-                            aria-label={`Preview ${item.title}`}
-                            onClick={() =>
-                              play({
-                                id: `archive:${item.id}`,
-                                kind: 'archive',
-                                title: item.title,
-                                artist: item.artistName,
-                                streamUrl: item.audioUrl!,
-                                protocol: 'https',
-                                channelSlug: item.channelSlug,
-                              })
-                            }
-                          >
-                            <PlayIcon size={16} aria-hidden />
-                          </Button>
+                          <Tooltip content={`Preview ${item.title}`} side="top">
+                            <Button
+                              size="icon-sm"
+                              variant="text"
+                              aria-label={`Preview ${item.title}`}
+                              onClick={() =>
+                                play({
+                                  id: `archive:${item.id}`,
+                                  kind: 'archive',
+                                  title: item.title,
+                                  artist: item.artistName,
+                                  streamUrl: item.audioUrl!,
+                                  protocol: 'https',
+                                  channelSlug: item.channelSlug,
+                                })
+                              }
+                            >
+                              <PlayIcon size={16} aria-hidden />
+                            </Button>
+                          </Tooltip>
                         ) : null}
                         <span className="text-foreground-secondary w-20 text-right text-xs">
                           {already ? 'In rotation' : selected ? 'Selected' : ''}

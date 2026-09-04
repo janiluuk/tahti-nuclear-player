@@ -8,6 +8,7 @@ import {
   Input,
   Select,
   Toggle,
+  Tooltip,
   ViewShell,
 } from '@tahti-player/ui';
 
@@ -75,60 +76,67 @@ function AgendaBuilder() {
               className="h-8 flex-1 text-sm"
             />
             <div className="flex shrink-0 gap-0.5">
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label="Move up"
-                disabled={i === 0}
-                onClick={() =>
-                  setItems((prev) => {
-                    const next = [...prev];
-                    [next[i - 1], next[i]] = [next[i]!, next[i - 1]!];
-                    return next;
-                  })
-                }
-              >
-                ↑
-              </Button>
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label="Move down"
-                disabled={i === items.length - 1}
-                onClick={() =>
-                  setItems((prev) => {
-                    const next = [...prev];
-                    [next[i], next[i + 1]] = [next[i + 1]!, next[i]!];
-                    return next;
-                  })
-                }
-              >
-                ↓
-              </Button>
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label="Remove item"
-                onClick={() =>
-                  setItems((prev) => prev.filter((_, idx) => idx !== i))
-                }
-              >
-                ×
-              </Button>
+              <Tooltip content="Move up" side="top">
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  aria-label="Move up"
+                  disabled={i === 0}
+                  onClick={() =>
+                    setItems((prev) => {
+                      const next = [...prev];
+                      [next[i - 1], next[i]] = [next[i]!, next[i - 1]!];
+                      return next;
+                    })
+                  }
+                >
+                  ↑
+                </Button>
+              </Tooltip>
+              <Tooltip content="Move down" side="top">
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  aria-label="Move down"
+                  disabled={i === items.length - 1}
+                  onClick={() =>
+                    setItems((prev) => {
+                      const next = [...prev];
+                      [next[i], next[i + 1]] = [next[i + 1]!, next[i]!];
+                      return next;
+                    })
+                  }
+                >
+                  ↓
+                </Button>
+              </Tooltip>
+              <Tooltip content="Remove item" side="top">
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  aria-label="Remove item"
+                  onClick={() =>
+                    setItems((prev) => prev.filter((_, idx) => idx !== i))
+                  }
+                >
+                  ×
+                </Button>
+              </Tooltip>
             </div>
           </li>
         ))}
       </ol>
-      <Button
-        size="icon-sm"
-        variant="secondary"
-        className="mt-3"
-        onClick={() => setItems((prev) => [...prev, ''])}
-        aria-label="Add agenda item"
-        title="Add agenda item"
-      >
-        <PlusIcon size={16} aria-hidden />
-      </Button>
+      <Tooltip content="Add agenda item" side="top">
+        <Button
+          size="icon-sm"
+          variant="secondary"
+          className="mt-3"
+          onClick={() => setItems((prev) => [...prev, ''])}
+          aria-label="Add agenda item"
+        >
+          <PlusIcon size={16} aria-hidden />
+        </Button>
+      </Tooltip>
     </StudioPanel>
   );
 }

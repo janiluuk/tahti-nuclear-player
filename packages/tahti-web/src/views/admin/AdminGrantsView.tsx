@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, ViewShell } from '@tahti-player/ui';
+import { Button, Tooltip, ViewShell } from '@tahti-player/ui';
 
 import { fetchAdminGrants, type AdminGrantYearSummary } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
@@ -66,14 +66,18 @@ export function AdminGrantsView() {
                           to="/admin/grants/$year"
                           params={{ year: String(row.year) }}
                         >
-                          <Button
-                            size="icon-sm"
-                            variant="text"
-                            aria-label={`View ${row.year} grants`}
-                            title={`View ${row.year} grants`}
+                          <Tooltip
+                            content={`View ${row.year} grants`}
+                            side="top"
                           >
-                            →
-                          </Button>
+                            <Button
+                              size="icon-sm"
+                              variant="text"
+                              aria-label={`View ${row.year} grants`}
+                            >
+                              →
+                            </Button>
+                          </Tooltip>
                         </Link>
                       </li>
                     ))}

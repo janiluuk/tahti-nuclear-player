@@ -16,6 +16,7 @@ import {
   Select,
   Textarea,
   Toggle,
+  Tooltip,
 } from '@tahti-player/ui';
 
 import {
@@ -260,25 +261,27 @@ export function AdminUserEditPanel({
             </div>
           </div>
           <div className="flex gap-2">
-            <Button
-              size="icon-sm"
-              variant="secondary"
-              aria-label={`Message ${detail.displayName}`}
-              title="Message user"
-              disabled={busy}
-              onClick={() => void openConversation()}
-            >
-              <MessageSquareIcon size={15} aria-hidden />
-            </Button>
-            <Link to="/u/$username" params={{ username: detail.username }}>
+            <Tooltip content="Message user" side="top">
               <Button
                 size="icon-sm"
                 variant="secondary"
-                aria-label={`View ${detail.displayName}'s profile`}
-                title="View profile"
+                aria-label={`Message ${detail.displayName}`}
+                disabled={busy}
+                onClick={() => void openConversation()}
               >
-                <ExternalLinkIcon size={15} aria-hidden />
+                <MessageSquareIcon size={15} aria-hidden />
               </Button>
+            </Tooltip>
+            <Link to="/u/$username" params={{ username: detail.username }}>
+              <Tooltip content="View profile" side="top">
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label={`View ${detail.displayName}'s profile`}
+                >
+                  <ExternalLinkIcon size={15} aria-hidden />
+                </Button>
+              </Tooltip>
             </Link>
           </div>
         </div>
@@ -497,14 +500,16 @@ export function AdminUserEditPanel({
                 }
               }}
             />
-            <Button
-              size="icon"
-              disabled={busy || !messageBody.trim()}
-              aria-label="Send message"
-              onClick={() => void sendMessage()}
-            >
-              <SendIcon size={16} aria-hidden />
-            </Button>
+            <Tooltip content="Send message" side="top">
+              <Button
+                size="icon"
+                disabled={busy || !messageBody.trim()}
+                aria-label="Send message"
+                onClick={() => void sendMessage()}
+              >
+                <SendIcon size={16} aria-hidden />
+              </Button>
+            </Tooltip>
           </div>
         </StudioPanel>
       ) : null}

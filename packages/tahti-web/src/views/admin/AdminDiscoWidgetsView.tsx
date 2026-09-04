@@ -11,6 +11,7 @@ import {
   SaveButton,
   Select,
   Textarea,
+  Tooltip,
   ViewShell,
 } from '@tahti-player/ui';
 
@@ -299,15 +300,16 @@ export function AdminDiscoWidgetsView() {
               subtitle="Register, review, and manage every add-on available to listeners, artists, and admins."
               classes={{ root: 'px-0 pt-0' }}
             >
-              <Button
-                type="button"
-                size="icon-sm"
-                title="Register a new widget"
-                aria-label="Register a new widget"
-                onClick={openNew}
-              >
-                <Plus size={18} aria-hidden />
-              </Button>
+              <Tooltip content="Register a new widget" side="top">
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  aria-label="Register a new widget"
+                  onClick={openNew}
+                >
+                  <Plus size={18} aria-hidden />
+                </Button>
+              </Tooltip>
 
               <FilterChips
                 aria-label="Widget types"
@@ -379,26 +381,28 @@ export function AdminDiscoWidgetsView() {
                         </div>
                       </div>
                       <div className="flex shrink-0 items-start gap-1">
-                        <Button
-                          type="button"
-                          size="icon-sm"
-                          variant="text"
-                          title={`Edit ${widget.name}`}
-                          aria-label={`Edit ${widget.name}`}
-                          onClick={() => openEdit(widget)}
-                        >
-                          <Pencil size={16} aria-hidden />
-                        </Button>
-                        <Button
-                          type="button"
-                          size="icon-sm"
-                          variant="text"
-                          title={`Delete ${widget.name}`}
-                          aria-label={`Delete ${widget.name}`}
-                          onClick={() => setPendingDelete(widget)}
-                        >
-                          <Trash2 size={16} aria-hidden />
-                        </Button>
+                        <Tooltip content={`Edit ${widget.name}`} side="top">
+                          <Button
+                            type="button"
+                            size="icon-sm"
+                            variant="text"
+                            aria-label={`Edit ${widget.name}`}
+                            onClick={() => openEdit(widget)}
+                          >
+                            <Pencil size={16} aria-hidden />
+                          </Button>
+                        </Tooltip>
+                        <Tooltip content={`Delete ${widget.name}`} side="top">
+                          <Button
+                            type="button"
+                            size="icon-sm"
+                            variant="text"
+                            aria-label={`Delete ${widget.name}`}
+                            onClick={() => setPendingDelete(widget)}
+                          >
+                            <Trash2 size={16} aria-hidden />
+                          </Button>
+                        </Tooltip>
                       </div>
                     </article>
                   ))}

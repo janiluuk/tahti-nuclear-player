@@ -1,7 +1,14 @@
 import { PlusIcon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, SaveButton, Select, ViewShell } from '@tahti-player/ui';
+import {
+  Button,
+  Input,
+  SaveButton,
+  Select,
+  Tooltip,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import {
   createLedgerEntry,
@@ -102,18 +109,22 @@ export function AdminFinancialView() {
                   <StudioPanel
                     title="Ledger entries"
                     action={
-                      <Button
-                        size="icon-sm"
-                        onClick={() => setShowForm((v) => !v)}
-                        aria-label={showForm ? 'Cancel entry' : 'Add entry'}
-                        title={showForm ? 'Cancel entry' : 'Add entry'}
+                      <Tooltip
+                        content={showForm ? 'Cancel entry' : 'Add entry'}
+                        side="top"
                       >
-                        {showForm ? (
-                          <XIcon size={16} aria-hidden />
-                        ) : (
-                          <PlusIcon size={16} aria-hidden />
-                        )}
-                      </Button>
+                        <Button
+                          size="icon-sm"
+                          onClick={() => setShowForm((v) => !v)}
+                          aria-label={showForm ? 'Cancel entry' : 'Add entry'}
+                        >
+                          {showForm ? (
+                            <XIcon size={16} aria-hidden />
+                          ) : (
+                            <PlusIcon size={16} aria-hidden />
+                          )}
+                        </Button>
+                      </Tooltip>
                     }
                   >
                     {showForm && (

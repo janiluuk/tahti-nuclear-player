@@ -2,6 +2,13 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — Icon Tooltip pass 4 (Admin + PluginStore)
+
+Wrapped PluginStorePanel, AdminStreamManager, Storage, AGM, Disco widgets,
+Missed shows, Selects, User edit, SettingsPanels add-on/theme icons,
+Financial/Grants/I18n/StorageUser, PinnedAnnouncements, DiscordBotAddonCard.
+Sweep marked done in `icon-button-tooltips.md` pending a residual scan.
+
 ## 2026-09-04 — Icon Tooltip pass 3 (Studio)
 
 Wrapped Studio ProEditor, CollectionEdit, ChannelDesigner, Studio list/detail

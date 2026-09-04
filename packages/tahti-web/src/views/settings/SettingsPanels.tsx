@@ -270,16 +270,20 @@ export function SettingsSectionBody({
             {navItem?.label}
           </h1>
           {isAddonStore ? (
-            <Button
-              size="icon-sm"
-              variant="secondary"
-              aria-label={`About ${navItem?.label ?? 'Add-ons'}`}
-              title={`About ${navItem?.label ?? 'Add-ons'}`}
-              aria-expanded={showAddonInfo}
-              onClick={() => setShowAddonInfo((value) => !value)}
+            <Tooltip
+              content={`About ${navItem?.label ?? 'Add-ons'}`}
+              side="top"
             >
-              <InfoIcon size={16} aria-hidden />
-            </Button>
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label={`About ${navItem?.label ?? 'Add-ons'}`}
+                aria-expanded={showAddonInfo}
+                onClick={() => setShowAddonInfo((value) => !value)}
+              >
+                <InfoIcon size={16} aria-hidden />
+              </Button>
+            </Tooltip>
           ) : null}
         </div>
         {isAddonStore ? (
@@ -2314,15 +2318,19 @@ function ThemesPanel() {
                         }}
                         accessory={
                           configurable ? (
-                            <Button
-                              size="icon-sm"
-                              variant="secondary"
-                              aria-label={`Configure ${theme.name}`}
-                              title={`Configure ${theme.name}`}
-                              onClick={() => setConfiguringThemeId(theme.id)}
+                            <Tooltip
+                              content={`Configure ${theme.name}`}
+                              side="top"
                             >
-                              <Settings2Icon size={14} aria-hidden />
-                            </Button>
+                              <Button
+                                size="icon-sm"
+                                variant="secondary"
+                                aria-label={`Configure ${theme.name}`}
+                                onClick={() => setConfiguringThemeId(theme.id)}
+                              >
+                                <Settings2Icon size={14} aria-hidden />
+                              </Button>
+                            </Tooltip>
                           ) : undefined
                         }
                       />
@@ -2366,42 +2374,51 @@ function ThemesPanel() {
                             accessory={
                               <>
                                 {configurable ? (
+                                  <Tooltip
+                                    content={`Configure ${theme.name}`}
+                                    side="top"
+                                  >
+                                    <Button
+                                      size="icon-sm"
+                                      variant="secondary"
+                                      aria-label={`Configure ${theme.name}`}
+                                      onClick={() => setConfiguringThemeId(id)}
+                                    >
+                                      <Settings2Icon size={14} aria-hidden />
+                                    </Button>
+                                  </Tooltip>
+                                ) : null}
+                                <Tooltip
+                                  content={`Rename ${theme.name}`}
+                                  side="top"
+                                >
                                   <Button
                                     size="icon-sm"
                                     variant="secondary"
-                                    aria-label={`Configure ${theme.name}`}
-                                    title={`Configure ${theme.name}`}
-                                    onClick={() => setConfiguringThemeId(id)}
+                                    aria-label={`Rename ${theme.name}`}
+                                    onClick={() => {
+                                      const nextName = window.prompt(
+                                        'Rename theme',
+                                        theme.name,
+                                      );
+                                      if (nextName !== null) {
+                                        renameCustomTheme(id, nextName);
+                                      }
+                                    }}
                                   >
-                                    <Settings2Icon size={14} aria-hidden />
+                                    <Pencil size={14} aria-hidden />
                                   </Button>
-                                ) : null}
-                                <Button
-                                  size="icon-sm"
-                                  variant="secondary"
-                                  aria-label={`Rename ${theme.name}`}
-                                  title={`Rename ${theme.name}`}
-                                  onClick={() => {
-                                    const nextName = window.prompt(
-                                      'Rename theme',
-                                      theme.name,
-                                    );
-                                    if (nextName !== null) {
-                                      renameCustomTheme(id, nextName);
-                                    }
-                                  }}
-                                >
-                                  <Pencil size={14} aria-hidden />
-                                </Button>
-                                <Button
-                                  size="icon-sm"
-                                  variant="secondary"
-                                  aria-label={`Export ${theme.name} as JSON`}
-                                  title="Export theme JSON"
-                                  onClick={() => exportTheme(id, theme)}
-                                >
-                                  <Download size={14} aria-hidden />
-                                </Button>
+                                </Tooltip>
+                                <Tooltip content="Export theme JSON" side="top">
+                                  <Button
+                                    size="icon-sm"
+                                    variant="secondary"
+                                    aria-label={`Export ${theme.name} as JSON`}
+                                    onClick={() => exportTheme(id, theme)}
+                                  >
+                                    <Download size={14} aria-hidden />
+                                  </Button>
+                                </Tooltip>
                               </>
                             }
                           />
