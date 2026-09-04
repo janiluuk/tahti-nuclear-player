@@ -123,24 +123,28 @@ describe('isValidHeaderVideoUrl', () => {
 });
 
 describe('toChannelVisualApiPatch', () => {
-  it('keeps only fields ChannelVisualPatchSchema accepts', () => {
+  it('forwards look-extras the visual PATCH schema accepts; strips textOverlay*', () => {
     const patch = toChannelVisualApiPatch({
       visualPreset: 'AURORA',
       headerStyle: 'GRADIENT',
       brandAccentPreset: 'aurora',
       channelLinks: [{ label: 'Site', url: 'https://example.com' }],
-      textOverlayMode: 'CUSTOM',
+      textOverlayMode: 'COSMIC_NEON',
       textOverlayText: 'Hello',
       usePlayerGradient: true,
-      playerOverlayMode: 'CUSTOM',
+      playerOverlayMode: 'COSMIC_NEON',
+      backgroundVisualPreset: 'INTERACTIVE_POINTS',
     });
     expect(patch).toEqual({
       visualPreset: 'AURORA',
       headerStyle: 'GRADIENT',
       brandAccentPreset: 'aurora',
+      channelLinks: [{ label: 'Site', url: 'https://example.com' }],
+      usePlayerGradient: true,
+      playerOverlayMode: 'COSMIC_NEON',
+      backgroundVisualPreset: 'INTERACTIVE_POINTS',
     });
-    expect(patch).not.toHaveProperty('channelLinks');
     expect(patch).not.toHaveProperty('textOverlayMode');
-    expect(patch).not.toHaveProperty('usePlayerGradient');
+    expect(patch).not.toHaveProperty('textOverlayText');
   });
 });

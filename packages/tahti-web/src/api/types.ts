@@ -93,7 +93,8 @@ export type PublicChannel = {
   playerOverlayMode?: string | null;
   playerOverlayText?: string | null;
   playerOverlayAlign?: string | null;
-  /** Client/mock look extras — live API may omit until columns land. */
+  /** Client/mock look extras — sibling look-extras columns + public GETs
+   * expose these; localStorage remains a short-term cache/fallback. */
   usePlayerGradient?: boolean;
   playerColorSchemeJson?: string | null;
   useBackgroundGradient?: boolean;

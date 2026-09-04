@@ -1,5 +1,18 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Channel look extras on live visual PATCH (0.0.71)
+
+**Status:** executed (Nuclear client). Sibling API on
+`feat/channel-look-extras` (`3d37de2d`) — not merged to main yet.
+
+`CHANNEL_VISUAL_API_PATCH_KEYS` now forwards player/background gradients,
+overlays, links, and now-playing style. `normalizeChannelVisual` /
+`normalizePublicChannel` map `channelLinksJson` → `channelLinks`. Artist
+page merges the full look-extras set from `fetchChannel` over localStorage
+cache. `textOverlay*` still saves via `/api/me/channel/text-layer`.
+
+Todo: `docs/todo/channel-designer-artist-full.md`.
+
 ## 2026-09-04 — Artist look: brandAccent + textLayer live mapping (0.0.70)
 
 **Status:** executed.

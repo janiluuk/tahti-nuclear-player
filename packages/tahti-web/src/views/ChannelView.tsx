@@ -358,6 +358,27 @@ export function ChannelView({ slug }: { slug: string }) {
       ...(channel.backgroundVisualPreset !== undefined
         ? { backgroundVisualPreset: channel.backgroundVisualPreset }
         : {}),
+      ...(channel.nowPlayingOverlayStyle !== undefined
+        ? { nowPlayingOverlayStyle: channel.nowPlayingOverlayStyle }
+        : {}),
+      ...(channel.nowPlayingOverlaySettingsJson !== undefined
+        ? {
+            nowPlayingOverlaySettingsJson:
+              channel.nowPlayingOverlaySettingsJson,
+          }
+        : {}),
+      ...(channel.playerOverlayMode !== undefined
+        ? { playerOverlayMode: channel.playerOverlayMode }
+        : {}),
+      ...(channel.playerOverlayText !== undefined
+        ? { playerOverlayText: channel.playerOverlayText }
+        : {}),
+      ...(channel.playerOverlayAlign !== undefined
+        ? { playerOverlayAlign: channel.playerOverlayAlign }
+        : {}),
+      ...(channel.channelLinks !== undefined
+        ? { channelLinks: channel.channelLinks }
+        : {}),
     };
   }, [slug, lookExtrasTick, channel]);
   const pageScheme = normalizeColorScheme(

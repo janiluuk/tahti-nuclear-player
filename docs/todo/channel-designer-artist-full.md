@@ -1,25 +1,38 @@
 # Channel Designer → artist page full control
 
-**Status:** shipped client-side 2026-09-04 (0.0.69+).
+**Status:** client wired to look-extras API (2026-09-04). Sibling
+`feat/channel-look-extras` adds Prisma columns + PATCH/GET; Nuclear sends
+look extras on `/api/me/channel/visual` and normalizes `channelLinksJson`.
 
-## Done
+## Done on artist page (`ArtistView`)
 
-- Artist header: headerStyle, video, color scheme, brandAccentPreset
-  gradient, visualizer + visualSettingsJson
-- Player stage: player gradient, visualizer, NowPlayingOverlay, player
-  text overlay
-- Page: background palette + ambient backgroundVisualPreset
-- Designer: background visualizer picker
-- ChannelView: same player/background schemes + brand gradient
-- PublicChannel: brandAccentPreset + mock look extras; fetchChannel maps
-  live `textLayer*` → `textOverlay*`; live save also PATCHes
-  `/api/me/channel/text-layer`
-- E2E: `e2e/channel-designer-artist-look.spec.ts`
+- Header: `headerStyle` (GRADIENT/SOLID/VIDEO_LOOP), `videoBackgroundUrl`,
+  color scheme, visualizer preset + `visualSettingsJson` via
+  `EntitySocialHeader`
+- Player stage: separate player gradient when enabled, visualizer preset /
+  settings, `NowPlayingOverlay`, player text overlay
+- Page: background palette + ambient `backgroundVisualPreset` visualizer
+- Look extras reload after Channel Designer save
+- Designer: background visualizer preset picker (Backdrop)
 
-## Still API-limited (live multi-device)
+## Done on channel page (`ChannelView`)
 
-Player/background gradient JSON and backgroundVisualPreset still lack
-dedicated Prisma columns — mock exposes them on PublicChannel; live
-clients keep `tahti.channelLookExtras.{slug}` until sibling API adds them.
-`visualSettingsJson` is still missing from PublicChannelViewSchema on
-live GET (designer saves it; public page may not receive tuning).
+- Player vs header color schemes when `usePlayerGradient`
+- Page background palette + ambient background visualizer
+- Hero uses `visualSettingsJson` when present (else radio default tuning)
+
+## Remaining
+
+1. **Merge sibling [tahti-org#435](https://github.com/janiluuk/tahti-org/pull/435)**
+   (`feat/channel-look-extras`); then drop localStorage as source of truth
+   (keep as cache until migration is live in all envs). Commit Nuclear
+   look-extras client wiring (`0.0.71`) once the API is on main / beta.
+2. **`textOverlay*` ↔ `textLayer*`** — still a separate text-layer PATCH;
+   naming mismatch is intentional (designer vs API).
+3. E2E parity still targets `/channel/` more than `/u/:username`.
+
+## Files
+
+- `EntitySocialHeader.tsx`, `ArtistView.tsx`, `ChannelView.tsx`,
+  `ChannelBackdropCard.tsx`, `ChannelDesigner.tsx`, `channel-design.ts`
+- Storybook: EntitySocialHeader GRADIENT story

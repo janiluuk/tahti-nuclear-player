@@ -324,17 +324,13 @@ export type ChannelVisual = {
   slideshowTransitionMs?: number;
   slideshowAutoplay?: boolean;
   /** Layout preset for the now-playing title/artist overlay — see
-   * content/nowPlayingOverlayPresets.ts. Client-only for now: there's no
-   * matching Channel column on the real API yet (PATCH silently strips
-   * unknown keys, so this round-trips fully under VITE_FORCE_MOCK but does
-   * not yet persist against the live backend). */
+   * content/nowPlayingOverlayPresets.ts. Persisted via PATCH
+   * `/api/me/channel/visual` when the sibling look-extras columns are live. */
   nowPlayingOverlayStyle?: string | null;
   nowPlayingOverlaySettingsJson?: string | null;
   /** Off by default — the player stage reuses the header's color scheme
    * above. When on, `playerColorSchemeJson` colors the player/visualizer
-   * independently. Client-only for now, same caveat as the now-playing
-   * overlay fields above: it round-trips under VITE_FORCE_MOCK but has no
-   * matching column on the real API yet. */
+   * independently. */
   usePlayerGradient?: boolean;
   playerColorSchemeJson?: string | null;
   /** Channel background designer — a third surface alongside the header and
@@ -342,31 +338,73 @@ export type ChannelVisual = {
    * widgets (see plugins/visualizers/presets/{interactivePoints,fatLines,
    * videoKinect,backdropArea}.ts). Shares the header's video/image backdrop
    * the same way Player design's Video/image tab does — only the gradient
-   * and visualizer pick are independent. Client-only for now, same caveat
-   * as the player-gradient fields above. */
+   * and visualizer pick are independent. */
   backgroundVisualPreset?: string | null;
   useBackgroundGradient?: boolean;
   backgroundColorSchemeJson?: string | null;
   /** Outbound social/link buttons shown in the channel page's Links block.
-   * Client-only for now, same caveat as the other fields above: it
-   * round-trips under VITE_FORCE_MOCK but has no matching column on the
-   * real API yet. */
+   * Live API stores JSON in `channelLinksJson`; normalizeChannelVisual maps it. */
   channelLinks?: ChannelLink[] | null;
   /** Stylized headline shown in the channel page's Text overlay block.
-   * Client-only for now, same caveat as above. */
+   * Live API uses `textLayer*`; designer patch still goes to
+   * `/api/me/channel/text-layer`. */
   textOverlayMode?: TextOverlayMode | string | null;
   textOverlayText?: string | null;
   textOverlayAlign?: TextOverlayAlign | string | null;
   /** Same headline treatment, but for the standalone overlay shown inside
    * the player stage itself (Player design → Overlay tab) rather than the
-   * channel page's separate Text overlay block. Client-only for now, same
-   * caveat as above. */
+   * channel page's separate Text overlay block. */
   playerOverlayMode?: TextOverlayMode | string | null;
   playerOverlayText?: string | null;
   playerOverlayAlign?: TextOverlayAlign | string | null;
 };
 
 export type ChannelLink = { label: string; url: string };
+
+/** Live GET may return `channelLinksJson` (string) instead of `channelLinks`. */
+export function parseChannelLinksJson(
+  raw: string | null | undefined,
+): ChannelLink[] | null {
+  if (raw == null || raw === '') {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) {
+      return null;
+    }
+    return parsed
+      .filter((entry): entry is ChannelLink =>
+        Boolean(
+          entry &&
+          typeof entry === 'object' &&
+          typeof (entry as ChannelLink).label === 'string' &&
+          typeof (entry as ChannelLink).url === 'string',
+        ),
+      )
+      .map((entry) => ({ label: entry.label, url: entry.url }));
+  } catch {
+    return null;
+  }
+}
+
+export function normalizeChannelVisual(
+  raw: ChannelVisual & {
+    channelLinksJson?: string | null;
+    textLayerMode?: string | null;
+    textLayerText?: string | null;
+    textLayerAlign?: string | null;
+  },
+): ChannelVisual {
+  const fromJson = parseChannelLinksJson(raw.channelLinksJson);
+  return {
+    ...raw,
+    channelLinks: raw.channelLinks ?? fromJson ?? [],
+    textOverlayMode: raw.textOverlayMode ?? raw.textLayerMode ?? 'NONE',
+    textOverlayText: raw.textOverlayText ?? raw.textLayerText ?? '',
+    textOverlayAlign: raw.textOverlayAlign ?? raw.textLayerAlign ?? 'CENTER',
+  };
+}
 
 export const TEXT_OVERLAY_MODES = [
   'NONE',
@@ -612,8 +650,10 @@ export async function fetchChannelVisual(): Promise<{
     };
   }
   try {
-    const { data } = await requestJson<ChannelVisual>('/api/me/channel/visual');
-    return { data, meta: { source: 'api' } };
+    const { data } = await requestJson<
+      ChannelVisual & { channelLinksJson?: string | null }
+    >('/api/me/channel/visual');
+    return { data: normalizeChannelVisual(data), meta: { source: 'api' } };
   } catch (err) {
     if (allowMockFallback()) {
       return { data: { ...mockVisual }, meta: failMeta(err) };
@@ -691,6 +731,17 @@ export const CHANNEL_VISUAL_API_PATCH_KEYS = [
   'slideshowTransitionMs',
   'slideshowAutoplay',
   'topBarText',
+  'usePlayerGradient',
+  'playerColorSchemeJson',
+  'useBackgroundGradient',
+  'backgroundColorSchemeJson',
+  'backgroundVisualPreset',
+  'nowPlayingOverlayStyle',
+  'nowPlayingOverlaySettingsJson',
+  'playerOverlayMode',
+  'playerOverlayText',
+  'playerOverlayAlign',
+  'channelLinks',
 ] as const;
 
 export type ChannelVisualApiPatch = Pick<
@@ -712,7 +763,7 @@ export function toChannelVisualApiPatch(
 }
 
 type ChannelLookExtras = Pick<
-  ChannelVisualPatch,
+  ChannelVisual,
   | 'nowPlayingOverlayStyle'
   | 'nowPlayingOverlaySettingsJson'
   | 'usePlayerGradient'
@@ -904,13 +955,12 @@ export async function patchChannelVisual(
     return { ok: true, data: { ...mockVisual } };
   }
   try {
-    const { data } = await requestJson<ChannelVisual>(
-      '/api/me/channel/visual',
-      {
-        method: 'PATCH',
-        body: JSON.stringify(toChannelVisualApiPatch(patch)),
-      },
-    );
+    const { data } = await requestJson<
+      ChannelVisual & { channelLinksJson?: string | null }
+    >('/api/me/channel/visual', {
+      method: 'PATCH',
+      body: JSON.stringify(toChannelVisualApiPatch(patch)),
+    });
     const textLayerTouched =
       patch.textOverlayMode !== undefined ||
       patch.textOverlayText !== undefined ||
@@ -938,7 +988,7 @@ export async function patchChannelVisual(
     }
     return {
       ok: true,
-      data: {
+      data: normalizeChannelVisual({
         ...data,
         ...(patch.textOverlayMode !== undefined
           ? { textOverlayMode: patch.textOverlayMode }
@@ -949,7 +999,10 @@ export async function patchChannelVisual(
         ...(patch.textOverlayAlign !== undefined
           ? { textOverlayAlign: patch.textOverlayAlign }
           : {}),
-      },
+        ...(patch.channelLinks !== undefined
+          ? { channelLinks: patch.channelLinks }
+          : {}),
+      }),
     };
   } catch (err) {
     return {

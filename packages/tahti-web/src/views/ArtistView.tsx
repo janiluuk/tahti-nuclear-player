@@ -460,6 +460,27 @@ export function ArtistView({ username }: { username: string }) {
         ...(res.data.backgroundVisualPreset !== undefined
           ? { backgroundVisualPreset: res.data.backgroundVisualPreset }
           : {}),
+        ...(res.data.nowPlayingOverlayStyle !== undefined
+          ? { nowPlayingOverlayStyle: res.data.nowPlayingOverlayStyle }
+          : {}),
+        ...(res.data.nowPlayingOverlaySettingsJson !== undefined
+          ? {
+              nowPlayingOverlaySettingsJson:
+                res.data.nowPlayingOverlaySettingsJson,
+            }
+          : {}),
+        ...(res.data.playerOverlayMode !== undefined
+          ? { playerOverlayMode: res.data.playerOverlayMode }
+          : {}),
+        ...(res.data.playerOverlayText !== undefined
+          ? { playerOverlayText: res.data.playerOverlayText }
+          : {}),
+        ...(res.data.playerOverlayAlign !== undefined
+          ? { playerOverlayAlign: res.data.playerOverlayAlign }
+          : {}),
+        ...(res.data.channelLinks !== undefined
+          ? { channelLinks: res.data.channelLinks }
+          : {}),
       });
       setDiscoWidgets(widgets.data);
       setChannelPosts(posts.data);

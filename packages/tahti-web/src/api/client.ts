@@ -245,23 +245,45 @@ export async function fetchOnAirChannels(): Promise<{
   }
 }
 
-/** Live API returns `textLayer*`; designer/UI use `textOverlay*`. Also
- * accepts either shape so mock and live paths share one PublicChannel. */
+/** Live API returns `textLayer*` / `channelLinksJson`; designer/UI use
+ * `textOverlay*` / `channelLinks`. Accept either shape so mock and live
+ * paths share one PublicChannel. */
 export function normalizePublicChannel(
   raw: PublicChannel & {
     textLayerMode?: string | null;
     textLayerText?: string | null;
     textLayerAlign?: string | null;
+    channelLinksJson?: string | null;
   },
 ): PublicChannel {
   const textOverlayMode = raw.textOverlayMode ?? raw.textLayerMode ?? null;
   const textOverlayText = raw.textOverlayText ?? raw.textLayerText ?? null;
   const textOverlayAlign = raw.textOverlayAlign ?? raw.textLayerAlign ?? null;
+  let channelLinks = raw.channelLinks ?? null;
+  if (channelLinks == null && raw.channelLinksJson) {
+    try {
+      const parsed = JSON.parse(raw.channelLinksJson) as unknown;
+      if (Array.isArray(parsed)) {
+        channelLinks = parsed.filter(
+          (entry): entry is { label: string; url: string } =>
+            Boolean(
+              entry &&
+              typeof entry === 'object' &&
+              typeof (entry as { label?: unknown }).label === 'string' &&
+              typeof (entry as { url?: unknown }).url === 'string',
+            ),
+        );
+      }
+    } catch {
+      channelLinks = null;
+    }
+  }
   return {
     ...raw,
     textOverlayMode,
     textOverlayText,
     textOverlayAlign,
+    channelLinks,
   };
 }
 
@@ -284,6 +306,7 @@ export async function fetchChannel(slug: string): Promise<{
         textLayerMode?: string | null;
         textLayerText?: string | null;
         textLayerAlign?: string | null;
+        channelLinksJson?: string | null;
       }
     >(`/api/channels/${encodeURIComponent(slug)}`);
     const normalized = normalizePublicChannel(data);
