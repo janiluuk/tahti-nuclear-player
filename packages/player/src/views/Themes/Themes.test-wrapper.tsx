@@ -48,7 +48,7 @@ class ThemeStoreItemWrapper {
 
   get isInstalled() {
     return (
-      within(this.element).queryByRole('button', { name: /Installed/ }) !== null
+      within(this.element).queryByTestId('theme-store-item-install') === null
     );
   }
 

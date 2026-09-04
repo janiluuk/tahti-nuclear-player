@@ -128,6 +128,7 @@ exports[`FavoriteTracks view > (Snapshot) renders with tracks 1`] = `
               >
                 <div>
                   <button
+                    aria-label="Play all"
                     class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
                     data-headlessui-state=""
                     data-testid="play-all-button"
@@ -154,6 +155,7 @@ exports[`FavoriteTracks view > (Snapshot) renders with tracks 1`] = `
                 </div>
                 <div>
                   <button
+                    aria-label="Add all to queue"
                     class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-secondary text-secondary-foreground border-(length:--border-width) hover:shadow-none size-10 justify-center"
                     data-headlessui-state=""
                     data-testid="add-all-to-queue-button"
@@ -424,32 +426,33 @@ exports[`FavoriteTracks view > (Snapshot) renders with tracks 1`] = `
                               <div
                                 class="pointer-events-none absolute inset-0 flex items-center justify-center opacity-100 transition-opacity [@media(hover:hover)_and_(pointer:fine)]:invisible [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:visible [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:visible [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100"
                               >
-                                <button
-                                  aria-label="Play Track track-1"
-                                  class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center pointer-events-auto rounded-full text-white"
-                                  data-headlessui-state=""
-                                  data-testid="media-artwork-play"
-                                  title="Play Track track-1"
-                                  type="button"
-                                >
-                                  <svg
-                                    aria-hidden="true"
-                                    class="lucide lucide-play translate-x-px fill-current"
-                                    fill="none"
-                                    height="16"
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    viewBox="0 0 24 24"
-                                    width="16"
-                                    xmlns="http://www.w3.org/2000/svg"
+                                <div>
+                                  <button
+                                    aria-label="Play Track track-1"
+                                    class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center pointer-events-auto rounded-full text-white"
+                                    data-headlessui-state=""
+                                    data-testid="media-artwork-play"
+                                    type="button"
                                   >
-                                    <path
-                                      d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"
-                                    />
-                                  </svg>
-                                </button>
+                                    <svg
+                                      aria-hidden="true"
+                                      class="lucide lucide-play translate-x-px fill-current"
+                                      fill="none"
+                                      height="16"
+                                      stroke="currentColor"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      viewBox="0 0 24 24"
+                                      width="16"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -506,86 +509,89 @@ exports[`FavoriteTracks view > (Snapshot) renders with tracks 1`] = `
                           <div
                             class="flex items-center justify-end gap-1"
                           >
-                            <button
-                              aria-label="Add to queue"
-                              aria-pressed="false"
-                              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 justify-center size-7 opacity-100 transition-colors [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-                              data-headlessui-state=""
-                              data-testid="add-to-queue-button"
-                              title="Add to queue"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="lucide lucide-list-plus"
-                                fill="none"
-                                height="14"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                viewBox="0 0 24 24"
-                                width="14"
-                                xmlns="http://www.w3.org/2000/svg"
+                            <div>
+                              <button
+                                aria-label="Add to queue"
+                                aria-pressed="false"
+                                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 justify-center size-7 opacity-100 transition-colors [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+                                data-headlessui-state=""
+                                data-testid="add-to-queue-button"
+                                type="button"
                               >
-                                <path
-                                  d="M11 12H3"
-                                />
-                                <path
-                                  d="M16 6H3"
-                                />
-                                <path
-                                  d="M16 18H3"
-                                />
-                                <path
-                                  d="M18 9v6"
-                                />
-                                <path
-                                  d="M21 12h-6"
-                                />
-                              </svg>
-                            </button>
-                            <button
-                              aria-expanded="false"
-                              aria-haspopup="menu"
-                              aria-label="Track options"
-                              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-                              data-headlessui-state=""
-                              data-state="closed"
-                              data-testid="track-context-menu-button"
-                              id="radix-:ra:"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="lucide lucide-ellipsis-vertical"
-                                fill="none"
-                                height="16"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                viewBox="0 0 24 24"
-                                width="16"
-                                xmlns="http://www.w3.org/2000/svg"
+                                <svg
+                                  aria-hidden="true"
+                                  class="lucide lucide-list-plus"
+                                  fill="none"
+                                  height="14"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  viewBox="0 0 24 24"
+                                  width="14"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M11 12H3"
+                                  />
+                                  <path
+                                    d="M16 6H3"
+                                  />
+                                  <path
+                                    d="M16 18H3"
+                                  />
+                                  <path
+                                    d="M18 9v6"
+                                  />
+                                  <path
+                                    d="M21 12h-6"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                            <div>
+                              <button
+                                aria-expanded="false"
+                                aria-haspopup="menu"
+                                aria-label="Track options"
+                                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+                                data-headlessui-state=""
+                                data-state="closed"
+                                data-testid="track-context-menu-button"
+                                id="radix-:ra:"
+                                type="button"
                               >
-                                <circle
-                                  cx="12"
-                                  cy="12"
-                                  r="1"
-                                />
-                                <circle
-                                  cx="12"
-                                  cy="5"
-                                  r="1"
-                                />
-                                <circle
-                                  cx="12"
-                                  cy="19"
-                                  r="1"
-                                />
-                              </svg>
-                            </button>
+                                <svg
+                                  aria-hidden="true"
+                                  class="lucide lucide-ellipsis-vertical"
+                                  fill="none"
+                                  height="16"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  viewBox="0 0 24 24"
+                                  width="16"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="1"
+                                  />
+                                  <circle
+                                    cx="12"
+                                    cy="5"
+                                    r="1"
+                                  />
+                                  <circle
+                                    cx="12"
+                                    cy="19"
+                                    r="1"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -647,32 +653,33 @@ exports[`FavoriteTracks view > (Snapshot) renders with tracks 1`] = `
                               <div
                                 class="pointer-events-none absolute inset-0 flex items-center justify-center opacity-100 transition-opacity [@media(hover:hover)_and_(pointer:fine)]:invisible [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:visible [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:visible [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100"
                               >
-                                <button
-                                  aria-label="Play Track track-2"
-                                  class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center pointer-events-auto rounded-full text-white"
-                                  data-headlessui-state=""
-                                  data-testid="media-artwork-play"
-                                  title="Play Track track-2"
-                                  type="button"
-                                >
-                                  <svg
-                                    aria-hidden="true"
-                                    class="lucide lucide-play translate-x-px fill-current"
-                                    fill="none"
-                                    height="16"
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    viewBox="0 0 24 24"
-                                    width="16"
-                                    xmlns="http://www.w3.org/2000/svg"
+                                <div>
+                                  <button
+                                    aria-label="Play Track track-2"
+                                    class="inline-flex cursor-pointer touch-manipulation items-center whitespace-nowrap transition-all duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center pointer-events-auto rounded-full text-white"
+                                    data-headlessui-state=""
+                                    data-testid="media-artwork-play"
+                                    type="button"
                                   >
-                                    <path
-                                      d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"
-                                    />
-                                  </svg>
-                                </button>
+                                    <svg
+                                      aria-hidden="true"
+                                      class="lucide lucide-play translate-x-px fill-current"
+                                      fill="none"
+                                      height="16"
+                                      stroke="currentColor"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      viewBox="0 0 24 24"
+                                      width="16"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -729,86 +736,89 @@ exports[`FavoriteTracks view > (Snapshot) renders with tracks 1`] = `
                           <div
                             class="flex items-center justify-end gap-1"
                           >
-                            <button
-                              aria-label="Add to queue"
-                              aria-pressed="false"
-                              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 justify-center size-7 opacity-100 transition-colors [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-                              data-headlessui-state=""
-                              data-testid="add-to-queue-button"
-                              title="Add to queue"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="lucide lucide-list-plus"
-                                fill="none"
-                                height="14"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                viewBox="0 0 24 24"
-                                width="14"
-                                xmlns="http://www.w3.org/2000/svg"
+                            <div>
+                              <button
+                                aria-label="Add to queue"
+                                aria-pressed="false"
+                                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 justify-center size-7 opacity-100 transition-colors [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+                                data-headlessui-state=""
+                                data-testid="add-to-queue-button"
+                                type="button"
                               >
-                                <path
-                                  d="M11 12H3"
-                                />
-                                <path
-                                  d="M16 6H3"
-                                />
-                                <path
-                                  d="M16 18H3"
-                                />
-                                <path
-                                  d="M18 9v6"
-                                />
-                                <path
-                                  d="M21 12h-6"
-                                />
-                              </svg>
-                            </button>
-                            <button
-                              aria-expanded="false"
-                              aria-haspopup="menu"
-                              aria-label="Track options"
-                              class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
-                              data-headlessui-state=""
-                              data-state="closed"
-                              data-testid="track-context-menu-button"
-                              id="radix-:rc:"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="lucide lucide-ellipsis-vertical"
-                                fill="none"
-                                height="16"
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                viewBox="0 0 24 24"
-                                width="16"
-                                xmlns="http://www.w3.org/2000/svg"
+                                <svg
+                                  aria-hidden="true"
+                                  class="lucide lucide-list-plus"
+                                  fill="none"
+                                  height="14"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  viewBox="0 0 24 24"
+                                  width="14"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M11 12H3"
+                                  />
+                                  <path
+                                    d="M16 6H3"
+                                  />
+                                  <path
+                                    d="M16 18H3"
+                                  />
+                                  <path
+                                    d="M18 9v6"
+                                  />
+                                  <path
+                                    d="M21 12h-6"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                            <div>
+                              <button
+                                aria-expanded="false"
+                                aria-haspopup="menu"
+                                aria-label="Track options"
+                                class="inline-flex cursor-pointer touch-manipulation items-center rounded-md whitespace-nowrap duration-100 ease-out outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 motion-reduce:transition-none text-foreground bg-transparent hover:bg-black/5 active:bg-black/10 size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+                                data-headlessui-state=""
+                                data-state="closed"
+                                data-testid="track-context-menu-button"
+                                id="radix-:rc:"
+                                type="button"
                               >
-                                <circle
-                                  cx="12"
-                                  cy="12"
-                                  r="1"
-                                />
-                                <circle
-                                  cx="12"
-                                  cy="5"
-                                  r="1"
-                                />
-                                <circle
-                                  cx="12"
-                                  cy="19"
-                                  r="1"
-                                />
-                              </svg>
-                            </button>
+                                <svg
+                                  aria-hidden="true"
+                                  class="lucide lucide-ellipsis-vertical"
+                                  fill="none"
+                                  height="16"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  viewBox="0 0 24 24"
+                                  width="16"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="1"
+                                  />
+                                  <circle
+                                    cx="12"
+                                    cy="5"
+                                    r="1"
+                                  />
+                                  <circle
+                                    cx="12"
+                                    cy="19"
+                                    r="1"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
                         </td>
                       </tr>
