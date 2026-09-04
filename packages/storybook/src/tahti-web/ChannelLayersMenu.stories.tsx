@@ -11,7 +11,7 @@ import {
 import { useState } from 'react';
 
 const meta: Meta<typeof ChannelLayersMenu> = {
-  title: 'Tahti/Channel/ChannelLayersMenu',
+  title: 'Tahti/Channel/Designer/LayersMenu',
   component: ChannelLayersMenu,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

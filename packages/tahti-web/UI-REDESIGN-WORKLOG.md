@@ -1,3 +1,25 @@
+## 2026-09-05 — Channel designer menu rebuild
+
+**Status:** executed (pending ship).
+
+Header style is a segmented control with exclusive bodies (Gradient /
+Solid / Video / Slideshow) so color presets no longer stick on every
+tab. Designer dock is fixed and translucent; page scrolls behind.
+Chrome stays put; only the settings pane scrolls.
+
+Todo: `docs/todo/channel-designer-menu-rebuild.md`.
+
+## 2026-09-05 — Channel Designer Storybook elements (0.0.79)
+
+**Status:** executed (first pass).
+
+Extracted `ColorSchemeFields` into `components/channel-designer/`. Storybook
+`Tahti/Channel/Designer/*` now has one story per look element (Backdrop,
+Player, Releases…), plus ColorSchemeFields, LayersMenu, ElementEditor, and
+Playlist picker/block (Tracklist vs Cards). Correct panels one-by-one from
+there; further panel extractions tracked in
+`docs/todo/channel-designer-storybook-elements.md`.
+
 ## 2026-09-05 — Channel Designer background + playlists (0.0.78)
 
 **Status:** executed.

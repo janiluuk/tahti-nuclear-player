@@ -1,10 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ChannelElementEditor } from '@tahti-web/components/ChannelElementEditor';
-import type { ChannelLookElementId } from '@tahti-web/lib/channelLookElements';
+import {
+  CHANNEL_LOOK_ELEMENTS,
+  type ChannelLookElementId,
+} from '@tahti-web/lib/channelLookElements';
 import { useState } from 'react';
 
+/**
+ * Look element list used by Channel Designer. Ids must stay in sync with
+ * `CHANNEL_LOOK_ELEMENTS` — stale header/actions ids were removed.
+ */
 const meta: Meta<typeof ChannelElementEditor> = {
-  title: 'Tahti/Channel/ChannelElementEditor',
+  title: 'Tahti/Channel/Designer/ElementEditor',
   component: ChannelElementEditor,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
@@ -14,7 +21,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 function EditorDemo({
-  initialId = 'header',
+  initialId = 'backdrop',
 }: {
   initialId?: ChannelLookElementId;
 }) {
@@ -22,6 +29,7 @@ function EditorDemo({
   const [hidden, setHidden] = useState<
     Partial<Record<ChannelLookElementId, boolean>>
   >({});
+
   return (
     <div className="max-w-sm">
       <ChannelElementEditor
@@ -30,58 +38,20 @@ function EditorDemo({
         onToggleDisabled={(id) =>
           setHidden((current) => ({ ...current, [id]: !current[id] }))
         }
-        items={[
-          {
-            id: 'header',
-            content: <p className="text-sm">Header backdrop and identity.</p>,
-          },
-          {
-            id: 'player',
-            disabled: hidden.player,
-            content: (
-              <p className="text-sm">Player gradient, visualizer, overlay.</p>
-            ),
-          },
-          {
-            id: 'background',
-            content: <p className="text-sm">Page background colors.</p>,
-          },
-          {
-            id: 'actions',
-            disabled: hidden.actions,
-            content: <p className="text-sm">Tune-in actions.</p>,
-          },
-          {
-            id: 'archive',
-            disabled: hidden.archive,
-            content: <p className="text-sm">Published tracks.</p>,
-          },
-          {
-            id: 'about',
-            disabled: hidden.about,
-            content: <p className="text-sm">About the artist.</p>,
-          },
-          {
-            id: 'links',
-            disabled: hidden.links,
-            content: <p className="text-sm">Outbound links.</p>,
-          },
-          {
-            id: 'subscribe',
-            disabled: hidden.subscribe,
-            content: <p className="text-sm">Fan subscribe CTA.</p>,
-          },
-          {
-            id: 'stats',
-            disabled: hidden.stats,
-            content: <p className="text-sm">Follower stats.</p>,
-          },
-          {
-            id: 'events',
-            disabled: hidden.events,
-            content: <p className="text-sm">Live shows.</p>,
-          },
-        ]}
+        items={CHANNEL_LOOK_ELEMENTS.map((element) => ({
+          id: element.id,
+          disabled: element.canDisable
+            ? hidden[element.id] === true
+            : undefined,
+          content: (
+            <p className="text-sm">
+              <span className="font-semibold">{element.label}</span>
+              <span className="text-foreground-secondary block text-xs">
+                {element.hint}
+              </span>
+            </p>
+          ),
+        }))}
       />
     </div>
   );
@@ -93,4 +63,8 @@ export const Default: Story = {
 
 export const PlayerSelected: Story = {
   render: () => <EditorDemo initialId="player" />,
+};
+
+export const BackdropSelected: Story = {
+  render: () => <EditorDemo initialId="backdrop" />,
 };
