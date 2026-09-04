@@ -14,5 +14,6 @@
 
 ## Follow-ups
 
-- Real hourly series on sibling API (replace mock `fetchStatsPlaysHourly`).
+- ~~Real hourly series on sibling API~~ — `GET /api/me/stats/plays/hourly`
+  (Nuclear client wired; mock only under `VITE_FORCE_MOCK`).
 - Sweep other Studio ranking rows outside Stats if any remain hand-rolled.
