@@ -14,6 +14,7 @@ import {
   Trash2Icon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import {
   Badge,
@@ -238,7 +239,6 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
   const [royaltiesLoaded, setRoyaltiesLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
   const [activeMethods, setActiveMethods] = useState<Set<string>>(
     new Set(['upc', 'musicbrainz', 'discogs', 'rights']),
   );
@@ -306,7 +306,6 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
       return;
     }
     setBusy(true);
-    setMsg(null);
     const trimmedCredits = credits
       .map((c) => {
         const handle = c.artistUsername?.trim().replace(/^@/, '').toLowerCase();
@@ -332,14 +331,14 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
     }).then((r) => {
       setBusy(false);
       if (!r.ok) {
-        setMsg(r.error);
+        toast.error(r.error);
         return;
       }
       setCatalog(r.data);
       setForm(catalogToForm(r.data));
       setCredits(parseCredits(r.data.credits));
       setChecklist(r.data.checklist);
-      setMsg('Catalog saved.');
+      toast.success('Catalog saved.');
     });
   };
 
@@ -347,11 +346,10 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
     mode: 'download' | 'musicbrainz' | 'discogs',
   ): Promise<void> => {
     setBusy(true);
-    setMsg(null);
     const res = await fetchReleaseExportJson(release.id);
     setBusy(false);
     if (!res.ok) {
-      setMsg(res.error);
+      toast.error(res.error);
       return;
     }
     if (mode === 'download') {
@@ -362,7 +360,7 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
       a.download = `release-${release.smartLinkSlug}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      setMsg('Exported JSON.');
+      toast.success('Exported JSON.');
       return;
     }
     try {
@@ -373,17 +371,17 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
       const text =
         mode === 'musicbrainz' ? pack.musicbrainzPrefill : pack.discogsPrefill;
       if (!text) {
-        setMsg(`Export missing ${mode} prefill`);
+        toast.error(`Export missing ${mode} prefill`);
         return;
       }
       await navigator.clipboard.writeText(text);
-      setMsg(
+      toast.success(
         mode === 'musicbrainz'
           ? 'MusicBrainz prefill copied.'
           : 'Discogs prefill copied.',
       );
     } catch {
-      setMsg('Could not read export pack');
+      toast.error('Could not read export pack');
     }
   };
 
@@ -671,7 +669,6 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
           <ExternalLinkIcon size={12} aria-hidden />
         </a>
       </div>
-      {msg && <p className="text-xs">{msg}</p>}
     </div>
   );
 
@@ -716,18 +713,17 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
         disabled={busy || !canSubmit}
         onClick={() => {
           setBusy(true);
-          setMsg(null);
           void payAndSubmitToRevelator(release.id).then((r) => {
             setBusy(false);
             if (!r.ok) {
-              setMsg(r.error);
+              toast.error(r.error);
               return;
             }
             if ('checkoutUrl' in r) {
               window.location.href = r.checkoutUrl;
               return;
             }
-            setMsg('Submitted to Revelator.');
+            toast.success('Submitted to Revelator.');
             setCatalog((prev) =>
               prev
                 ? { ...prev, revelatorStatus: r.data.revelatorStatus }
@@ -775,7 +771,6 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
           )}
         </div>
       )}
-      {msg && <p className="text-xs">{msg}</p>}
     </div>
   );
 
