@@ -10,7 +10,7 @@ import {
   type AdminRadioStationSuggestion,
   type AdminRadioStationSuggestionStatus,
 } from '../../../../api/admin';
-import { PageLoading } from '../../../../components/PageStates';
+import { PageEmpty, PageLoading } from '../../../../components/PageStates';
 import { StudioPanel } from '../../../../components/StudioPanel';
 
 function statusBadge(status: AdminRadioStationSuggestionStatus): {
@@ -63,9 +63,7 @@ export function RadioStationSuggestionsTab() {
         </StudioPanel>
       ) : items.length === 0 ? (
         <StudioPanel>
-          <p className="text-foreground-secondary py-4 text-center text-sm">
-            No pending station suggestions.
-          </p>
+          <PageEmpty title="No pending station suggestions" />
         </StudioPanel>
       ) : (
         <StudioPanel>
