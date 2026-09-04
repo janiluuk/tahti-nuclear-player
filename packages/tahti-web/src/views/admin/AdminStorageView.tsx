@@ -40,7 +40,7 @@ import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { AdminUserEditPanel } from '../../components/AdminUserEditPanel';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageError, PageLoading } from '../../components/PageStates';
 import { StudioPanel } from '../../components/StudioPanel';
 import { contentTypeLabel } from '../../content/contentTypes';
 import { formatDuration } from '../../lib/playableToTrack';
@@ -312,11 +312,7 @@ function TopUsersChart({ users }: { users: AdminStorageUserRow[] }) {
   const max = Math.max(...top.map((u) => u.usedBytes), 1);
 
   if (top.length === 0) {
-    return (
-      <p className="text-foreground-secondary py-2 text-center text-sm">
-        No usage recorded yet.
-      </p>
-    );
+    return <PageEmpty title="No usage recorded yet" />;
   }
 
   return (
@@ -373,9 +369,7 @@ function StorageTypeBreakdown({ files }: { files: AdminFileRow[] }) {
       description="How total stored file usage is distributed across content types."
     >
       {breakdown.length === 0 || totalBytes === 0 ? (
-        <p className="text-foreground-secondary py-4 text-center text-sm">
-          No file usage recorded yet.
-        </p>
+        <PageEmpty title="No file usage recorded yet" />
       ) : (
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
           <div
@@ -450,9 +444,7 @@ function StorageOverviewTab() {
   if (!overview) {
     return (
       <StudioPanel>
-        <p className="text-foreground-secondary py-4 text-center text-sm">
-          Could not load storage usage.
-        </p>
+        <PageError description="Could not load storage usage." />
       </StudioPanel>
     );
   }
@@ -507,9 +499,7 @@ function StorageOverviewTab() {
         </div>
 
         {overview.users.length === 0 ? (
-          <p className="text-foreground-secondary py-4 text-center text-sm">
-            No usage recorded yet.
-          </p>
+          <PageEmpty title="No usage recorded yet" />
         ) : (
           <ul className="divide-border divide-y">
             {overview.users.map((row) => {
@@ -788,9 +778,7 @@ function FilesBrowserTab() {
           {loading ? (
             <PageLoading label="Loading storage users…" />
           ) : groupedRows.length === 0 ? (
-            <p className="text-foreground-secondary py-4 text-center text-sm">
-              No files match this search.
-            </p>
+            <PageEmpty title="No files match this search" />
           ) : (
             <div className="flex flex-col gap-5">
               {groupedRows.map((g) => (
@@ -834,9 +822,7 @@ function FilesBrowserTab() {
           {loading ? (
             <PageLoading label="Loading files…" />
           ) : files.length === 0 ? (
-            <p className="text-foreground-secondary py-4 text-center text-sm">
-              No files match this search.
-            </p>
+            <PageEmpty title="No files match this search" />
           ) : (
             <ul className="divide-border [&>li:nth-child(even)]:bg-background-secondary/40 divide-y">
               {sortedFiles.map((f) => (
