@@ -1,4 +1,4 @@
-import { PlayIcon } from 'lucide-react';
+import { CheckCircle2Icon, PlayIcon, XCircleIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge, Button, Textarea } from '@tahti-player/ui';
@@ -174,6 +174,7 @@ export function RadioSubmissionsTab() {
                       });
                     }}
                   >
+                    <CheckCircle2Icon size={14} aria-hidden />
                     Approve to radio
                   </Button>
                   <Button
@@ -197,6 +198,7 @@ export function RadioSubmissionsTab() {
                       });
                     }}
                   >
+                    <XCircleIcon size={14} aria-hidden />
                     Reject
                   </Button>
                 </div>

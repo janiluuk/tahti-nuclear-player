@@ -1,4 +1,16 @@
-import { PauseIcon, PlayIcon, PlusIcon, RadioTowerIcon } from 'lucide-react';
+import {
+  ArrowLeftToLineIcon,
+  BanIcon,
+  CheckCircle2Icon,
+  ImageIcon,
+  PauseIcon,
+  PencilIcon,
+  PlayIcon,
+  PlusIcon,
+  RadioTowerIcon,
+  Trash2Icon,
+  XCircleIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -207,6 +219,11 @@ function InternetRadioPresetsPanel() {
                   variant={preset.enabled ? 'secondary' : 'default'}
                   onClick={() => toggleEnabled(preset)}
                 >
+                  {preset.enabled ? (
+                    <BanIcon size={14} aria-hidden />
+                  ) : (
+                    <CheckCircle2Icon size={14} aria-hidden />
+                  )}
                   {preset.enabled ? 'Disable' : 'Enable for everyone'}
                 </Button>
                 <Button
@@ -214,6 +231,7 @@ function InternetRadioPresetsPanel() {
                   variant="text"
                   onClick={() => openEdit(preset)}
                 >
+                  <PencilIcon size={14} aria-hidden />
                   Edit
                 </Button>
                 <Button
@@ -229,6 +247,7 @@ function InternetRadioPresetsPanel() {
                     );
                   }}
                 >
+                  <Trash2Icon size={14} aria-hidden />
                   Remove
                 </Button>
               </div>
@@ -313,6 +332,7 @@ function InternetRadioPresetsPanel() {
                   });
                 }}
               >
+                <ImageIcon size={14} aria-hidden />
                 Use catalog logo
               </Button>
             ) : null}
@@ -386,6 +406,7 @@ function InternetRadioPresetsPanel() {
               disabled={pending || !draft.name.trim()}
               onClick={save}
             >
+              <PlusIcon size={14} aria-hidden />
               Add station
             </Button>
           )}
@@ -604,6 +625,7 @@ export function AdminRadioView() {
                                 );
                               }}
                             >
+                              <ArrowLeftToLineIcon size={14} aria-hidden />
                               Move to front
                             </Button>
                             <Button
@@ -619,6 +641,7 @@ export function AdminRadioView() {
                                 });
                               }}
                             >
+                              <XCircleIcon size={14} aria-hidden />
                               Opt out
                             </Button>
                           </div>
@@ -660,6 +683,7 @@ export function AdminRadioView() {
                               });
                             }}
                           >
+                            <CheckCircle2Icon size={14} aria-hidden />
                             Re-enable
                           </Button>
                         </li>

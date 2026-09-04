@@ -83,6 +83,7 @@ function RowActions({
         disabled={pending}
         onClick={() => apply('OPEN')}
       >
+        <Clock3Icon size={14} aria-hidden />
         Reopen
       </Button>
     );
@@ -96,6 +97,7 @@ function RowActions({
         disabled={pending}
         onClick={() => apply('PLANNED')}
       >
+        <Clock3Icon size={14} aria-hidden />
         Plan
       </Button>
       <Button
@@ -104,9 +106,11 @@ function RowActions({
         disabled={pending}
         onClick={() => apply('IN_PROGRESS')}
       >
+        <LoaderCircleIcon size={14} aria-hidden />
         In progress
       </Button>
       <Button size="sm" disabled={pending} onClick={() => apply('DONE')}>
+        <CheckCircle2Icon size={14} aria-hidden />
         Done
       </Button>
       <Button
@@ -115,6 +119,7 @@ function RowActions({
         disabled={pending}
         onClick={() => apply('DECLINED')}
       >
+        <BanIcon size={14} aria-hidden />
         Decline
       </Button>
     </div>

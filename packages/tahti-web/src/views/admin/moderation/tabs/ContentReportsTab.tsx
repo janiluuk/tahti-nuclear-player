@@ -84,6 +84,7 @@ function ReportActions({
             disabled={pending}
             onClick={() => resolve('REVIEWING')}
           >
+            <Clock3Icon size={14} aria-hidden />
             Start review
           </Button>
         )}
@@ -92,6 +93,7 @@ function ReportActions({
           disabled={pending}
           onClick={() => resolve('ACTIONED')}
         >
+          <CheckCircle2Icon size={14} aria-hidden />
           Mark actioned
         </Button>
         <Button
@@ -100,6 +102,7 @@ function ReportActions({
           disabled={pending}
           onClick={() => resolve('DISMISSED')}
         >
+          <XCircleIcon size={14} aria-hidden />
           Dismiss
         </Button>
       </div>

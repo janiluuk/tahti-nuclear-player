@@ -2,6 +2,7 @@ import {
   CheckCircle2Icon,
   Clock3Icon,
   ListFilterIcon,
+  SendIcon,
   XCircleIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -167,6 +168,7 @@ export function BetaTab() {
                     {app.status === 'PENDING' && (
                       <>
                         <Button size="sm" onClick={() => openApprove(app)}>
+                          <CheckCircle2Icon size={14} aria-hidden />
                           Approve
                         </Button>
                         <Button
@@ -182,6 +184,7 @@ export function BetaTab() {
                             });
                           }}
                         >
+                          <XCircleIcon size={14} aria-hidden />
                           Reject
                         </Button>
                       </>
@@ -202,6 +205,7 @@ export function BetaTab() {
                             });
                           }}
                         >
+                          <SendIcon size={14} aria-hidden />
                           Resend setup link
                         </Button>
                       )}
@@ -271,6 +275,7 @@ export function BetaTab() {
                 type="submit"
                 disabled={busy || !username.trim() || !displayName.trim()}
               >
+                <CheckCircle2Icon size={14} aria-hidden />
                 {busy ? 'Approving…' : 'Approve'}
               </Button>
             </Dialog.Actions>

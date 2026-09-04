@@ -4,6 +4,7 @@ import {
   Clock3Icon,
   ListFilterIcon,
   SearchIcon,
+  SendIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -257,6 +258,7 @@ export function SupportTab() {
                       disabled={busy}
                       onClick={() => setStatus('IN_PROGRESS')}
                     >
+                      <CircleDotIcon size={14} aria-hidden />
                       Start progress
                     </Button>
                   )}
@@ -266,6 +268,7 @@ export function SupportTab() {
                       disabled={busy}
                       onClick={() => setStatus('RESOLVED')}
                     >
+                      <CheckIcon size={14} aria-hidden />
                       Resolve
                     </Button>
                   ) : (
@@ -275,6 +278,7 @@ export function SupportTab() {
                       disabled={busy}
                       onClick={() => setStatus('OPEN')}
                     >
+                      <Clock3Icon size={14} aria-hidden />
                       Reopen
                     </Button>
                   )}
@@ -333,6 +337,7 @@ export function SupportTab() {
                     disabled={busy || !reply.trim()}
                     onClick={sendReply}
                   >
+                    <SendIcon size={14} aria-hidden />
                     Reply
                   </Button>
                 </div>
