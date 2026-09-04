@@ -20,6 +20,17 @@ in Help `getting-around` / `for-artists`.
 
 Todo: `docs/todo/studio-subtabs-help-layer.md`.
 
+## 2026-09-05 — Studio Stats Storybook charts + TopList
+
+**Status:** executed on `feat/studio-subtabs-help-layer`.
+
+Plays & listeners: compact map beside Plays over time. Periods ≤30 days
+use `DayOfWeekChart` (N bars); longer use `CalendarHeatmap`. Day click opens
+`ListeningClock` dialog. FilterChips add Today + Custom (date inputs).
+Engagement units use `TopList`. Sibling stats range adds `1` + from/to.
+
+Todo: `docs/todo/studio-stats-storybook-charts.md`.
+
 ## 2026-09-05 — Last.fm scrobble (registry runtime)
 
 **Status:** executed (docs + Nuclear add-on; sibling needs `LASTFM_API_*`).

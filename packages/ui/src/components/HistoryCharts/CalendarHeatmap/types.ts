@@ -16,5 +16,6 @@ export type CalendarHeatmapProps = {
   colorScheme?: 'light' | 'dark';
   formatValue: (value: number) => string;
   formatDate: (date: string) => string;
+  onDayClick?: (date: string) => void;
   className?: string;
 };

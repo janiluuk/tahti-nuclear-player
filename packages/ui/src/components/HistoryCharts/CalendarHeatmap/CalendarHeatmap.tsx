@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { cloneElement, type FC, type KeyboardEvent } from 'react';
 import { ActivityCalendar } from 'react-activity-calendar';
 
 import './CalendarHeatmap.css';
@@ -29,6 +29,7 @@ export const CalendarHeatmap: FC<CalendarHeatmapProps> = ({
   colorScheme,
   formatValue,
   formatDate,
+  onDayClick,
   className,
 }) => {
   const [monday, tuesday, wednesday, thursday, friday, saturday, sunday] =
@@ -55,6 +56,23 @@ export const CalendarHeatmap: FC<CalendarHeatmapProps> = ({
             placement: 'top',
           },
         }}
+        renderBlock={
+          onDayClick
+            ? (block, activity) =>
+                cloneElement(block, {
+                  role: 'button',
+                  tabIndex: 0,
+                  style: { ...block.props.style, cursor: 'pointer' },
+                  onClick: () => onDayClick(activity.date),
+                  onKeyDown: (event: KeyboardEvent) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onDayClick(activity.date);
+                    }
+                  },
+                })
+            : undefined
+        }
         labels={{
           months: labels.months,
           weekdays: [

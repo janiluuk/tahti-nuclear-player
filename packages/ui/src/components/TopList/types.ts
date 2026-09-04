@@ -11,7 +11,7 @@ export type TopListEntry = {
 };
 
 export type TopListProps = ComponentProps<'div'> & {
-  title: string;
+  title?: string;
   entries: TopListEntry[];
   formatValue: (value: number) => string;
 };
