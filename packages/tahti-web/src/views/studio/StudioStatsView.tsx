@@ -12,8 +12,14 @@ import {
 import { useEffect, useMemo, useState, type FC } from 'react';
 
 import {
+  Button,
+  CalendarHeatmap,
+  DayOfWeekChart,
+  Dialog,
   EmptyState,
   FilterChips,
+  Input,
+  ListeningClock,
   TabLabel,
   Tabs,
   TopList,
@@ -26,6 +32,7 @@ import {
   fetchChannelLiveStats,
   fetchListenerGeo,
   fetchStatsPlays,
+  fetchStatsPlaysHourly,
   fetchStatsSummary,
   fetchStatsTopCountries,
   fetchStatsTopLists,
@@ -49,17 +56,23 @@ import { StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
 import { countryFlagAndName } from '../../lib/countries';
+import { monthLabelsShort, weekdayLabelsShort } from '../../lib/historyStats';
 import {
   formatListenCount,
   formatPlayCount,
   rankingBucketTitle,
 } from '../../lib/topListEntries';
+import { useThemeStore } from '../../plugins/themes';
 
-const RANGES: Array<{ id: StatsPlaysRange; label: string }> = [
+const RANGE_CHIPS: Array<{ id: StatsPlaysRange; label: string }> = [
+  { id: '1', label: 'Today' },
   { id: '7', label: '7 days' },
   { id: '30', label: '30 days' },
   { id: 'all', label: 'All time' },
+  { id: 'custom', label: 'Custom' },
 ];
+
+const HEATMAP_DAY_THRESHOLD = 30;
 
 type StatsTab = 'overview' | 'plays' | 'top-lists';
 
@@ -107,10 +120,33 @@ const formatDate = (value: string) =>
     day: 'numeric',
   });
 
+const formatBarLabel = (value: string, totalDays: number) => {
+  const date = new Date(`${value}T12:00:00Z`);
+  if (totalDays <= 7) {
+    return date.toLocaleDateString(undefined, { weekday: 'short' });
+  }
+  if (totalDays <= 14) {
+    return date.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+  return String(date.getUTCDate());
+};
+
+const todayUtc = () => new Date().toISOString().slice(0, 10);
+
 export const StudioStatsView: FC = () => {
   const navigate = useNavigate();
+  const isDark = useThemeStore((state) => state.dark);
   const [activeTab, setActiveTab] = useState<StatsTab>('overview');
   const [range, setRange] = useState<StatsPlaysRange>('30');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
+  const [appliedCustom, setAppliedCustom] = useState<{
+    from: string;
+    to: string;
+  } | null>(null);
   const [summary, setSummary] = useState<StatsSummary>(EMPTY_SUMMARY);
   const [plays, setPlays] = useState<StatsPlays>(EMPTY_PLAYS);
   const [tracks, setTracks] = useState<StatsTopTrack[]>([]);
@@ -124,17 +160,38 @@ export const StudioStatsView: FC = () => {
   const [live, setLive] = useState<ChannelLiveStats>(EMPTY_LIVE);
   const [grant, setGrant] = useState<GrantEstimate | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [hourly, setHourly] = useState<number[]>([]);
+  const [hourlyLoading, setHourlyLoading] = useState(false);
+
+  const playsQueryReady =
+    range !== 'custom' || Boolean(appliedCustom?.from && appliedCustom?.to);
 
   useEffect(() => {
+    if (!playsQueryReady) {
+      return;
+    }
     let cancelled = false;
     setLoading(true);
-    const geoPeriod = range === '7' ? '7d' : range === '30' ? '30d' : 'all';
+    const apiRange = range === 'custom' ? 'custom' : range;
+    const geoPeriod =
+      range === '1' || range === '7' ? '7d' : range === '30' ? '30d' : 'all';
     void Promise.all([
       fetchStatsSummary(),
-      fetchStatsPlays(range),
-      fetchStatsTopTracks(range),
-      fetchStatsTopCountries(range),
-      fetchStatsTopLists(range, topListDimension, topListSort),
+      fetchStatsPlays(
+        range === 'custom' && appliedCustom
+          ? { range: 'custom', from: appliedCustom.from, to: appliedCustom.to }
+          : apiRange,
+      ),
+      fetchStatsTopTracks(range === 'custom' || range === '1' ? '30' : range),
+      fetchStatsTopCountries(
+        range === 'custom' || range === '1' ? '30' : range,
+      ),
+      fetchStatsTopLists(
+        range === 'custom' || range === '1' ? '30' : range,
+        topListDimension,
+        topListSort,
+      ),
       fetchListenerGeo(geoPeriod),
       fetchChannelEgressStats(),
       fetchChannelLiveStats(),
@@ -169,12 +226,27 @@ export const StudioStatsView: FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [range, topListDimension, topListSort]);
+  }, [range, appliedCustom, topListDimension, topListSort, playsQueryReady]);
 
-  const maxDaily = useMemo(
-    () => Math.max(1, ...plays.daily.map((day) => day.plays)),
-    [plays.daily],
-  );
+  useEffect(() => {
+    if (!selectedDay) {
+      setHourly([]);
+      return;
+    }
+    let cancelled = false;
+    setHourlyLoading(true);
+    void fetchStatsPlaysHourly(selectedDay).then((result) => {
+      if (cancelled) {
+        return;
+      }
+      setHourly(result.data);
+      setHourlyLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDay]);
+
   const busiestDay = useMemo(
     () =>
       plays.daily.length > 0
@@ -187,24 +259,42 @@ export const StudioStatsView: FC = () => {
   const deliveredBytes = egress.liveHlsBytes || egress.estimatedLiveHlsBytes;
   const minutesListened = Math.round((deliveredBytes * 8) / 192_000 / 60);
   const minutesStreamed = Math.round(live.totalLiveSeconds / 60);
-  const engagementRows = [
+  const useHeatmap = plays.daily.length > HEATMAP_DAY_THRESHOLD;
+  const chartLabels = useMemo(
+    () =>
+      plays.daily.map((day) => formatBarLabel(day.date, plays.daily.length)),
+    [plays.daily],
+  );
+  const chartValues = useMemo(
+    () => plays.daily.map((day) => day.plays),
+    [plays.daily],
+  );
+  const heatmapDays = useMemo(
+    () => plays.daily.map((day) => ({ date: day.date, value: day.plays })),
+    [plays.daily],
+  );
+
+  const engagementEntries = [
     {
+      id: 'free-downloads',
       label: 'Free downloads',
-      detail: `${grant?.freeDownloads ?? 0} × 1`,
+      sublabel: `${grant?.freeDownloads ?? 0} × 1`,
       value: grant?.freeDownloads ?? 0,
     },
     {
+      id: 'paid-downloads',
       label: 'Paid downloads',
-      detail: `${grant?.paidDownloads ?? 0} × 5`,
+      sublabel: `${grant?.paidDownloads ?? 0} × 5`,
       value: (grant?.paidDownloads ?? 0) * 5,
     },
     {
+      id: 'fan-subs',
       label: 'Fan subscriptions',
-      detail: `€${grant?.fanSubEuros ?? 0} × 1`,
+      sublabel: `€${grant?.fanSubEuros ?? 0} × 1`,
       value: grant?.fanSubEuros ?? 0,
     },
   ];
-  const maxEngagement = Math.max(1, ...engagementRows.map((row) => row.value));
+
   const keyMetrics = [
     {
       label: 'Plays',
@@ -244,6 +334,16 @@ export const StudioStatsView: FC = () => {
     },
   ];
 
+  const openDay = (date: string) => setSelectedDay(date);
+
+  const applyCustomRange = () => {
+    if (!customFrom || !customTo || customTo < customFrom) {
+      return;
+    }
+    setAppliedCustom({ from: customFrom, to: customTo });
+    setRange('custom');
+  };
+
   return (
     <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-6xl flex-col gap-6 px-1 py-2">
@@ -269,13 +369,62 @@ export const StudioStatsView: FC = () => {
           </Tabs.List>
         </Tabs.Root>
         <ViewShell title="Stats" classes={{ root: 'px-0 pt-0' }}>
-          <div className="mb-4">
+          <div className="mb-4 flex flex-col gap-3">
             <FilterChips
-              items={RANGES}
+              items={RANGE_CHIPS}
               selected={range}
-              onChange={(id) => setRange(id as StatsPlaysRange)}
+              onChange={(id) => {
+                const next = id as StatsPlaysRange;
+                setRange(next);
+                if (next === 'custom' && !customFrom && !customTo) {
+                  const end = todayUtc();
+                  const startDate = new Date();
+                  startDate.setUTCDate(startDate.getUTCDate() - 13);
+                  const start = startDate.toISOString().slice(0, 10);
+                  setCustomFrom(start);
+                  setCustomTo(end);
+                }
+              }}
               aria-label="Stats time range"
             />
+            {range === 'custom' ? (
+              <StudioPanel className="!p-4" title="Custom period">
+                <div className="flex flex-wrap items-end gap-3">
+                  <Input
+                    type="date"
+                    label="From"
+                    value={customFrom}
+                    max={customTo || todayUtc()}
+                    onChange={(event) => setCustomFrom(event.target.value)}
+                  />
+                  <Input
+                    type="date"
+                    label="To"
+                    value={customTo}
+                    min={customFrom || undefined}
+                    max={todayUtc()}
+                    onChange={(event) => setCustomTo(event.target.value)}
+                  />
+                  <Button
+                    size="sm"
+                    disabled={!customFrom || !customTo || customTo < customFrom}
+                    onClick={applyCustomRange}
+                  >
+                    Apply period
+                  </Button>
+                </div>
+                {appliedCustom ? (
+                  <p className="text-foreground-secondary mt-2 text-xs">
+                    Showing {formatDate(appliedCustom.from)} –{' '}
+                    {formatDate(appliedCustom.to)}
+                  </p>
+                ) : (
+                  <p className="text-foreground-secondary mt-2 text-xs">
+                    Pick dates and apply to load plays for that window.
+                  </p>
+                )}
+              </StudioPanel>
+            ) : null}
           </div>
 
           <section
@@ -302,63 +451,82 @@ export const StudioStatsView: FC = () => {
           </section>
 
           <div className={activeTab === 'plays' ? 'grid gap-6' : 'hidden'}>
-            <StudioPanel title="Listener map">
-              <div className="mb-4 flex flex-wrap justify-between gap-2">
-                <p className="text-foreground-secondary text-sm">
-                  Anonymized countries from channel listening and downloads.
-                </p>
-                <span className="text-foreground-secondary text-xs tabular-nums">
-                  Peak day: {live.peakDailyListeners.toLocaleString()} listeners
-                </span>
-              </div>
-              <ListenerWorldMap data={listenerGeo} loading={loading} />
-            </StudioPanel>
-
-            <StudioPanel title="Plays over time">
-              <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-                <div>
-                  <StatNumber className="block text-3xl">
-                    {plays.totalPlays.toLocaleString()}
-                  </StatNumber>
-                  <p className="text-foreground-secondary text-xs">
-                    {busiestDay
-                      ? `Busiest day: ${formatDate(busiestDay.date)} · ${busiestDay.plays.toLocaleString()} plays`
-                      : 'Daily activity appears after your first play.'}
+            <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+              <StudioPanel title="Listener map">
+                <div className="mb-3 flex flex-wrap justify-between gap-2">
+                  <p className="text-foreground-secondary text-sm">
+                    Anonymized countries from channel listening and downloads.
                   </p>
-                </div>
-                <BarChart3Icon size={22} aria-hidden className="text-primary" />
-              </div>
-              <div
-                role="img"
-                aria-label="Daily plays chart"
-                className="flex h-44 items-end gap-1"
-              >
-                {plays.daily.length === 0 ? (
-                  <p className="text-foreground-secondary self-center text-sm">
-                    No plays in this period.
-                  </p>
-                ) : (
-                  plays.daily.map((day) => (
-                    <div
-                      key={day.date}
-                      title={`${formatDate(day.date)}: ${day.plays.toLocaleString()} plays`}
-                      className="bg-primary/70 hover:bg-primary min-w-0 flex-1 rounded-t-sm transition-colors"
-                      style={{
-                        height: `${Math.max(3, (day.plays / maxDaily) * 100)}%`,
-                      }}
-                    />
-                  ))
-                )}
-              </div>
-              {plays.daily.length > 0 ? (
-                <div className="text-foreground-secondary mt-2 flex justify-between text-[10px]">
-                  <span>{formatDate(plays.daily[0]!.date)}</span>
-                  <span>
-                    {formatDate(plays.daily[plays.daily.length - 1]!.date)}
+                  <span className="text-foreground-secondary text-xs tabular-nums">
+                    Peak day: {live.peakDailyListeners.toLocaleString()}{' '}
+                    listeners
                   </span>
                 </div>
-              ) : null}
-            </StudioPanel>
+                <ListenerWorldMap
+                  data={listenerGeo}
+                  loading={loading}
+                  compact
+                />
+              </StudioPanel>
+
+              <StudioPanel title="Plays over time">
+                <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+                  <div>
+                    <StatNumber className="block text-3xl">
+                      {plays.totalPlays.toLocaleString()}
+                    </StatNumber>
+                    <p className="text-foreground-secondary text-xs">
+                      {busiestDay
+                        ? `Busiest day: ${formatDate(busiestDay.date)} · ${busiestDay.plays.toLocaleString()} plays`
+                        : 'Daily activity appears after your first play.'}
+                    </p>
+                  </div>
+                  <BarChart3Icon
+                    size={22}
+                    aria-hidden
+                    className="text-primary"
+                  />
+                </div>
+                {plays.daily.length === 0 ? (
+                  <p className="text-foreground-secondary text-sm">
+                    No plays in this period.
+                  </p>
+                ) : useHeatmap ? (
+                  <div className="overflow-x-auto">
+                    <CalendarHeatmap
+                      days={heatmapDays}
+                      colorScheme={isDark ? 'dark' : 'light'}
+                      labels={{
+                        months: monthLabelsShort(),
+                        weekdays: weekdayLabelsShort(),
+                        legendLess: 'Less',
+                        legendMore: 'More',
+                      }}
+                      formatValue={(value) => `${value.toLocaleString()} plays`}
+                      formatDate={formatDate}
+                      onDayClick={openDay}
+                    />
+                  </div>
+                ) : (
+                  <div className="h-52 w-full">
+                    <DayOfWeekChart
+                      values={chartValues}
+                      labels={{ weekdays: chartLabels }}
+                      formatValue={(value) => `${value.toLocaleString()} plays`}
+                      onBarClick={(index) => {
+                        const day = plays.daily[index];
+                        if (day) {
+                          openDay(day.date);
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+                <p className="text-foreground-secondary mt-2 text-xs">
+                  Click a day for hourly listening.
+                </p>
+              </StudioPanel>
+            </div>
           </div>
 
           <div
@@ -457,32 +625,10 @@ export const StudioStatsView: FC = () => {
 
           <div className={activeTab === 'overview' ? '' : 'hidden'}>
             <StudioPanel title="Engagement units">
-              <div className="flex flex-col gap-3">
-                {engagementRows.map((row) => (
-                  <div
-                    key={row.label}
-                    className="grid grid-cols-[9rem_1fr_auto] items-center gap-3 text-sm"
-                  >
-                    <span>
-                      {row.label}
-                      <span className="text-foreground-secondary ml-1 text-xs">
-                        {row.detail}
-                      </span>
-                    </span>
-                    <div className="bg-background h-2 overflow-hidden rounded-full">
-                      <div
-                        className="bg-accent-cyan h-full rounded-full"
-                        style={{
-                          width: `${(row.value / maxEngagement) * 100}%`,
-                        }}
-                      />
-                    </div>
-                    <strong className="w-10 text-right tabular-nums">
-                      {row.value}
-                    </strong>
-                  </div>
-                ))}
-              </div>
+              <TopList
+                formatValue={(value) => value.toLocaleString()}
+                entries={engagementEntries}
+              />
               <div className="border-border mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-sm">
                 <span className="text-foreground-secondary">
                   {grant?.eligible
@@ -511,6 +657,40 @@ export const StudioStatsView: FC = () => {
           </div>
         </ViewShell>
       </div>
+
+      <Dialog.Root
+        isOpen={Boolean(selectedDay)}
+        onClose={() => setSelectedDay(null)}
+        className="max-w-2xl"
+      >
+        <Dialog.Title>
+          {selectedDay
+            ? `Hourly plays · ${formatDate(selectedDay)}`
+            : 'Hourly plays'}
+        </Dialog.Title>
+        <Dialog.Description>
+          Distribution of plays across the day. Click another day on the chart
+          to compare.
+        </Dialog.Description>
+        <div className="mt-4 min-h-48">
+          {hourlyLoading ? (
+            <p className="text-foreground-secondary text-sm">Loading hours…</p>
+          ) : (
+            <ListeningClock
+              values={hourly}
+              labels={{
+                busiestHour: 'Busiest hour',
+                busiestHourValue: 'Plays in busiest hour',
+              }}
+              formatValue={(value) => `${value.toLocaleString()} plays`}
+              formatHour={(hour) => `${String(hour).padStart(2, '0')}:00`}
+            />
+          )}
+        </div>
+        <Dialog.Actions>
+          <Dialog.Close>Close</Dialog.Close>
+        </Dialog.Actions>
+      </Dialog.Root>
     </StudioGate>
   );
 };

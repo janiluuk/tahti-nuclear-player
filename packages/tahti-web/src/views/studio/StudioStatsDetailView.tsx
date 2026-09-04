@@ -1,7 +1,12 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { FilterChips, ViewShell } from '@tahti-player/ui';
+import {
+  CalendarHeatmap,
+  DayOfWeekChart,
+  FilterChips,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import {
   fetchStatsPlays,
@@ -15,12 +20,17 @@ import { StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
 import { flagEmoji } from '../../lib/countries';
+import { monthLabelsShort, weekdayLabelsShort } from '../../lib/historyStats';
+import { useThemeStore } from '../../plugins/themes';
 
 const RANGES: Array<{ id: StatsPlaysRange; label: string }> = [
+  { id: '1', label: 'Today' },
   { id: '7', label: '7 days' },
   { id: '30', label: '30 days' },
   { id: 'all', label: 'All time' },
 ];
+
+const HEATMAP_DAY_THRESHOLD = 30;
 
 function formatAxisDate(iso: string): string {
   const d = new Date(`${iso}T12:00:00Z`);
@@ -28,6 +38,7 @@ function formatAxisDate(iso: string): string {
 }
 
 export function StudioStatsDetailView() {
+  const isDark = useThemeStore((state) => state.dark);
   const [range, setRange] = useState<StatsPlaysRange>('30');
   const [data, setData] = useState<StatsPlays | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,13 +58,27 @@ export function StudioStatsDetailView() {
     };
   }, [range]);
 
-  const maxPlays = useMemo(
-    () => Math.max(1, ...(data?.daily.map((d) => d.plays) ?? [1])),
+  const label =
+    range === '1'
+      ? 'today'
+      : range === '7'
+        ? '7 days'
+        : range === '30'
+          ? '30 days'
+          : 'all time';
+
+  const useHeatmap = (data?.daily.length ?? 0) > HEATMAP_DAY_THRESHOLD;
+  const chartLabels = useMemo(
+    () =>
+      (data?.daily ?? []).map((day) =>
+        (data?.daily.length ?? 0) <= 7
+          ? new Date(`${day.date}T12:00:00Z`).toLocaleDateString(undefined, {
+              weekday: 'short',
+            })
+          : formatAxisDate(day.date),
+      ),
     [data],
   );
-
-  const label =
-    range === '7' ? '7 days' : range === '30' ? '30 days' : 'all time';
 
   return (
     <StudioGate requireChannel={false}>
@@ -82,7 +107,7 @@ export function StudioStatsDetailView() {
           ) : (
             <>
               <StudioPanel>
-                <Eyebrow>Plays — last {label}</Eyebrow>
+                <Eyebrow>Plays — {label}</Eyebrow>
                 <StatNumber className="mt-1 block text-3xl">
                   {data.totalPlays.toLocaleString()}
                 </StatNumber>
@@ -93,73 +118,58 @@ export function StudioStatsDetailView() {
                     : ''}
                 </p>
 
-                <div
-                  role="img"
-                  aria-label="Plays chart"
-                  className="mt-4 flex h-40 items-end gap-0.5"
-                >
-                  {data.daily.length === 0 ? (
-                    <p className="text-foreground-secondary text-sm">
-                      No daily points in this range.
-                    </p>
-                  ) : (
-                    data.daily.map((d) => {
-                      const pct = Math.round((d.plays / maxPlays) * 100);
-                      const h = Math.max(d.plays > 0 ? 8 : 2, pct);
-                      return (
-                        <div
-                          key={d.date}
-                          title={`${d.date}: ${d.plays} plays`}
-                          className="bg-primary/80 hover:bg-primary min-w-0 flex-1 rounded-t-sm"
-                          style={{ height: `${h}%` }}
-                        />
-                      );
-                    })
-                  )}
-                </div>
-                {data.daily.length > 0 && (
-                  <div
-                    className="text-foreground-secondary mt-2 flex justify-between text-[10px]"
-                    aria-hidden
-                  >
-                    <span>{formatAxisDate(data.daily[0]!.date)}</span>
-                    {data.daily.length > 2 && (
-                      <span>
-                        {formatAxisDate(
-                          data.daily[Math.floor(data.daily.length / 2)]!.date,
-                        )}
-                      </span>
-                    )}
-                    <span>
-                      {formatAxisDate(data.daily[data.daily.length - 1]!.date)}
-                    </span>
+                {data.daily.length === 0 ? (
+                  <p className="text-foreground-secondary mt-4 text-sm">
+                    No daily points in this range.
+                  </p>
+                ) : useHeatmap ? (
+                  <div className="mt-4 overflow-x-auto">
+                    <CalendarHeatmap
+                      days={data.daily.map((day) => ({
+                        date: day.date,
+                        value: day.plays,
+                      }))}
+                      colorScheme={isDark ? 'dark' : 'light'}
+                      labels={{
+                        months: monthLabelsShort(),
+                        weekdays: weekdayLabelsShort(),
+                        legendLess: 'Less',
+                        legendMore: 'More',
+                      }}
+                      formatValue={(value) => `${value.toLocaleString()} plays`}
+                      formatDate={formatAxisDate}
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-4 h-48 w-full">
+                    <DayOfWeekChart
+                      values={data.daily.map((day) => day.plays)}
+                      labels={{ weekdays: chartLabels }}
+                      formatValue={(value) => `${value.toLocaleString()} plays`}
+                    />
                   </div>
                 )}
               </StudioPanel>
 
-              <StudioPanel title="Download countries">
-                {(data.downloadCountries ?? []).length === 0 ? (
-                  <p className="text-foreground-secondary text-sm">
-                    No geo breakdown in this response.
-                  </p>
-                ) : (
-                  <ul className="divide-border divide-y">
-                    {(data.downloadCountries ?? []).map((c) => (
+              {(data.downloadCountries?.length ?? 0) > 0 ? (
+                <StudioPanel title="Download countries">
+                  <ul className="flex flex-col gap-2 text-sm">
+                    {data.downloadCountries!.map((country) => (
                       <li
-                        key={c.countryCode}
-                        className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
+                        key={country.countryCode}
+                        className="flex items-center justify-between gap-2"
                       >
-                        <span className="font-medium">
-                          {flagEmoji(c.countryCode)} {c.displayName}
+                        <span>
+                          {flagEmoji(country.countryCode)} {country.displayName}
                         </span>
-                        <span className="text-foreground-secondary tabular-nums">
-                          {c.count.toLocaleString()}
-                        </span>
+                        <strong className="tabular-nums">
+                          {country.count.toLocaleString()}
+                        </strong>
                       </li>
                     ))}
                   </ul>
-                )}
-              </StudioPanel>
+                </StudioPanel>
+              ) : null}
             </>
           )}
         </ViewShell>
