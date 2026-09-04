@@ -65,7 +65,7 @@ function FadeSwitch({
   return (
     <div
       key={activeKey}
-      className={`transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      className={`flex h-full min-h-0 flex-col transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
       {children}
     </div>
@@ -121,8 +121,11 @@ export function ChannelLayersMenu({
   const backgroundSelected = selectedId === CHANNEL_BACKGROUND_LAYER_ID;
 
   return (
-    <aside className="border-border bg-background flex h-full min-h-0 w-full flex-col border-l sm:w-96 lg:sticky lg:top-4 lg:h-[calc(100vh-7rem)] lg:w-[24rem] lg:self-start">
-      <div className="border-border flex gap-1 border-b p-2">
+    <aside
+      data-testid="channel-layers-menu"
+      className="border-border bg-background/75 flex h-full min-h-0 w-full flex-col overflow-hidden border-l backdrop-blur-md sm:w-96 lg:w-[24rem]"
+    >
+      <div className="border-border flex shrink-0 gap-1 border-b p-2">
         {(
           [
             { id: 'presets' as const, label: 'Presets' },
@@ -148,7 +151,9 @@ export function ChannelLayersMenu({
 
       <div
         className={`min-h-0 flex-1 p-2 ${
-          panel === 'presets' ? 'overflow-visible' : 'overflow-y-auto'
+          panel === 'look'
+            ? 'flex flex-col overflow-hidden'
+            : 'overflow-y-auto overscroll-contain'
         }`}
       >
         {panel === 'presets' && (
@@ -405,15 +410,17 @@ export function ChannelLayersMenu({
         )}
 
         {panel === 'look' && (
-          <FadeSwitch activeKey={lookOpenSection ?? 'default'}>
-            <div className="flex flex-col gap-3">
-              {lookSlot ?? (
-                <p className="text-foreground-secondary text-xs">
-                  Look controls unavailable.
-                </p>
-              )}
-            </div>
-          </FadeSwitch>
+          <div className="flex min-h-0 flex-1 flex-col">
+            <FadeSwitch activeKey={lookOpenSection ?? 'default'}>
+              <div className="flex h-full min-h-0 flex-col">
+                {lookSlot ?? (
+                  <p className="text-foreground-secondary text-xs">
+                    Look controls unavailable.
+                  </p>
+                )}
+              </div>
+            </FadeSwitch>
+          </div>
         )}
       </div>
     </aside>

@@ -1,6 +1,6 @@
-## 2026-09-05 — Channel designer menu rebuild
+## 2026-09-05 — Channel designer menu rebuild (0.0.80)
 
-**Status:** executed (pending ship).
+**Status:** executed.
 
 Header style is a segmented control with exclusive bodies (Gradient /
 Solid / Video / Slideshow) so color presets no longer stick on every
