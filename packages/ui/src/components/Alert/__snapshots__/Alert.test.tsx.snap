@@ -1,0 +1,158 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Alert > (Snapshot) renders every tone 1`] = `
+<div
+  class="flex flex-col gap-2"
+>
+  <div
+    class="rounded-lg border px-4 py-3 text-sm border-border bg-background-secondary/30 text-foreground"
+    role="status"
+  >
+    <div
+      class="flex gap-2"
+    >
+      <div
+        class="flex flex-col gap-0.5"
+      >
+        <div>
+          Neutral message.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="rounded-lg border px-4 py-3 text-sm border-accent-blue/40 bg-accent-blue/10 text-accent-blue"
+    role="status"
+  >
+    <div
+      class="flex gap-2"
+    >
+      <div
+        class="flex flex-col gap-0.5"
+      >
+        <div>
+          Info message.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="rounded-lg border px-4 py-3 text-sm border-accent-yellow/40 bg-accent-yellow/10 text-accent-yellow"
+    role="status"
+  >
+    <div
+      class="flex gap-2"
+    >
+      <div
+        class="flex flex-col gap-0.5"
+      >
+        <div>
+          Warning message.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="rounded-lg border px-4 py-3 text-sm border-accent-green/40 bg-accent-green/10 text-accent-green"
+    role="status"
+  >
+    <div
+      class="flex gap-2"
+    >
+      <div
+        class="flex flex-col gap-0.5"
+      >
+        <div>
+          Success message.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="rounded-lg border px-4 py-3 text-sm border-accent-red/40 bg-accent-red/10 text-accent-red"
+    role="alert"
+  >
+    <div
+      class="flex gap-2"
+    >
+      <div
+        class="flex flex-col gap-0.5"
+      >
+        <div>
+          Error message.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Alert > (Snapshot) renders neutral by default 1`] = `
+<div
+  class="rounded-lg border px-4 py-3 text-sm border-border bg-background-secondary/30 text-foreground"
+  role="status"
+>
+  <div
+    class="flex gap-2"
+  >
+    <div
+      class="flex flex-col gap-0.5"
+    >
+      <div>
+        Still processing.
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Alert > (Snapshot) renders with a title and icon 1`] = `
+<div
+  class="rounded-lg border px-4 py-3 text-sm border-accent-yellow/40 bg-accent-yellow/10 text-accent-yellow"
+  role="status"
+>
+  <div
+    class="flex gap-2"
+  >
+    <div
+      class="mt-0.5 shrink-0"
+    >
+      <svg
+        aria-hidden="true"
+        class="lucide lucide-triangle-alert"
+        fill="none"
+        height="16"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="16"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"
+        />
+        <path
+          d="M12 9v4"
+        />
+        <path
+          d="M12 17h.01"
+        />
+      </svg>
+    </div>
+    <div
+      class="flex flex-col gap-0.5"
+    >
+      <p
+        class="font-semibold"
+      >
+        Stripe is not connected
+      </p>
+      <div>
+        Payouts cannot reach you until Connect shows payments ready.
+      </div>
+    </div>
+  </div>
+</div>
+`;
