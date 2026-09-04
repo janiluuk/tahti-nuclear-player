@@ -1,8 +1,14 @@
 import { Link } from '@tanstack/react-router';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { Button, MediaArtwork, SectionShell, Tooltip } from '@tahti-player/ui';
+import {
+  Button,
+  MediaArtwork,
+  SectionShell,
+  Tooltip,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import { fetchArtistPlayables, fetchFeed, fetchProfile } from '../api/client';
 import type {
@@ -10,7 +16,6 @@ import type {
   PublicProfileRelease,
   TahtiPlayable,
 } from '../api/types';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { releasePlayables } from '../components/ReleaseTracklistDialog';
 import { TrackInfoDialog, type TrackInfo } from '../components/TrackInfoDialog';
@@ -176,52 +181,40 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
     });
   }, [user]);
 
-  if (!hydrated || (user && loading)) {
-    const loadingContent = <PageLoading label="Loading your feed…" />;
-    return embedded ? (
-      loadingContent
+  const wrapFeed = (body: ReactNode) =>
+    embedded ? (
+      body
     ) : (
-      <PageFrame maxWidth="3xl">{loadingContent}</PageFrame>
+      <ViewShell
+        title="Feed"
+        subtitle="Posts and releases from artists you follow."
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
+      >
+        {body}
+      </ViewShell>
     );
+
+  if (!hydrated || (user && loading)) {
+    return wrapFeed(<PageLoading label="Loading your feed…" />);
   }
 
   if (!user) {
-    const signedOutContent = (
-      <>
-        {!embedded && (
-          <PageHeader
-            title="Your feed"
-            subtitle="New posts, tracks, and releases from artists you follow."
-          />
-        )}
-        <PageEmpty
-          icon="inbox"
-          title="Sign in to see your feed"
-          description="Follow artists to build a personal timeline of what they share."
-          action={
-            <Button onClick={() => useAuthModalStore.getState().open('login')}>
-              Log in
-            </Button>
-          }
-        />
-      </>
-    );
-    return embedded ? (
-      signedOutContent
-    ) : (
-      <PageFrame maxWidth="3xl">{signedOutContent}</PageFrame>
+    return wrapFeed(
+      <PageEmpty
+        icon="inbox"
+        title="Sign in to see your feed"
+        description="Follow artists to build a personal timeline of what they share."
+        action={
+          <Button onClick={() => useAuthModalStore.getState().open('login')}>
+            Log in
+          </Button>
+        }
+      />,
     );
   }
 
   const content = (
     <>
-      {!embedded && (
-        <PageHeader
-          title="Your feed"
-          subtitle={`New posts, tracks, and releases from the ${followingCount} artist${followingCount === 1 ? '' : 's'} you follow.`}
-        />
-      )}
-
       {items.length === 0 ? (
         <PageEmpty
           icon="inbox"
@@ -446,6 +439,6 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
   return embedded ? (
     <SectionShell title="Your feed">{content}</SectionShell>
   ) : (
-    <PageFrame maxWidth="3xl">{content}</PageFrame>
+    wrapFeed(content)
   );
 }

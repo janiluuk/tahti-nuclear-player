@@ -2,7 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { HardDriveIcon, HeadphonesIcon, Music2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Tabs, TopList } from '@tahti-player/ui';
+import { Tabs, TopList, ViewShell } from '@tahti-player/ui';
 
 import { fetchStudioSounds } from '../api/studio';
 import {
@@ -12,7 +12,7 @@ import {
   type StorageUsage,
 } from '../api/studio-extras';
 import { StudioNav } from '../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../components/StudioPanel';
+import { StudioPanel } from '../components/StudioPanel';
 import { formatPlayCount } from '../lib/topListEntries';
 import { LibraryEmbedsView } from './LibraryEmbedsView';
 import { LibraryMediaView } from './LibraryMediaView';
@@ -98,94 +98,92 @@ export function LibraryView({
       : null;
   const navigate = useNavigate();
 
+  const libraryTitle =
+    tab === 'library'
+      ? 'Overview'
+      : overviewTab === 'sounds'
+        ? 'Sounds'
+        : overviewTab === 'recordings'
+          ? 'Recordings'
+          : overviewTab === 'embeds'
+            ? 'Embeds'
+            : overviewTab === 'media'
+              ? 'Media'
+              : overviewTab === 'stash'
+                ? 'Stash'
+                : overviewTab === 'smartlinks'
+                  ? 'Smart links'
+                  : 'Collections';
+
   return (
     <div className="studio-page-layout flex w-full flex-col gap-6">
       <StudioNav current={libraryNavRoute(tab)} />
-      {tab === 'library' ? (
-        <>
-          <StudioPageHeader
-            title="Overview"
-            subtitle="Your catalog at a glance."
-          />
-          <div className="mt-6">
+      {overviewTab ? (
+        <Tabs.Root
+          selectedIndex={Math.max(
+            0,
+            LIBRARY_SECTION_TABS.findIndex((item) => item.id === overviewTab),
+          )}
+          onChange={(index) => {
+            const next = LIBRARY_SECTION_TABS[index];
+            if (next) {
+              void navigate({ to: next.to as never });
+            }
+          }}
+        >
+          <Tabs.List aria-label="Library sections" className="overflow-x-auto">
+            {LIBRARY_SECTION_TABS.map((item) => (
+              <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs.Root>
+      ) : null}
+      <ViewShell
+        title={libraryTitle}
+        subtitle={
+          tab === 'library'
+            ? 'Your catalog.'
+            : 'Sounds, collections, and embeds.'
+        }
+        classes={{ root: 'px-0 pt-0' }}
+      >
+        {tab === 'library' ? (
+          <div className="mt-2">
             <LibraryStats />
           </div>
-        </>
-      ) : null}
-      {overviewTab ? (
-        <>
-          <StudioPageHeader
-            title={
-              overviewTab === 'sounds'
-                ? 'Sounds'
-                : overviewTab === 'recordings'
-                  ? 'Recordings'
-                  : overviewTab === 'embeds'
-                    ? 'Embeds'
-                    : overviewTab === 'media'
-                      ? 'Media'
-                      : overviewTab === 'stash'
-                        ? 'Stash'
-                        : overviewTab === 'smartlinks'
-                          ? 'Smart links'
-                          : 'Collections'
-            }
-            subtitle="Your sounds, collections, recordings, media, and imported embeds."
-          />
-          <Tabs.Root
-            selectedIndex={Math.max(
-              0,
-              LIBRARY_SECTION_TABS.findIndex((item) => item.id === overviewTab),
-            )}
-            onChange={(index) => {
-              const next = LIBRARY_SECTION_TABS[index];
-              if (next) {
-                void navigate({ to: next.to as never });
-              }
-            }}
-          >
-            <Tabs.List
-              aria-label="Library sections"
-              className="mt-4 overflow-x-auto"
-            >
-              {LIBRARY_SECTION_TABS.map((item) => (
-                <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
-              ))}
-            </Tabs.List>
-          </Tabs.Root>
-          {tab === 'sounds' && (
-            <div className="mt-6">
-              <MyDiscographyView />
-            </div>
-          )}
-          {overviewTab === 'collections' && (
-            <div className="mt-6">
-              <MyCollectionsView embedded />
-            </div>
-          )}
-          {overviewTab === 'recordings' && (
-            <div className="mt-6">
-              <StudioRecordingsView embedded />
-            </div>
-          )}
-          {overviewTab === 'media' && (
-            <div className="mt-6">
-              <LibraryMediaView />
-            </div>
-          )}
-          {overviewTab === 'stash' && (
-            <div className="mt-6">
-              <StudioStashView embedded />
-            </div>
-          )}
-          {overviewTab === 'embeds' && (
-            <div className="mt-6">
-              <LibraryEmbedsView />
-            </div>
-          )}
-        </>
-      ) : null}
-      {tab === 'smartlinks' && <LibrarySmartLinksView />}
+        ) : null}
+        {overviewTab === 'sounds' || tab === 'sounds' ? (
+          <div className="mt-2">
+            <MyDiscographyView />
+          </div>
+        ) : null}
+        {overviewTab === 'collections' ? (
+          <div className="mt-2">
+            <MyCollectionsView embedded />
+          </div>
+        ) : null}
+        {overviewTab === 'recordings' ? (
+          <div className="mt-2">
+            <StudioRecordingsView embedded />
+          </div>
+        ) : null}
+        {overviewTab === 'media' ? (
+          <div className="mt-2">
+            <LibraryMediaView />
+          </div>
+        ) : null}
+        {overviewTab === 'stash' ? (
+          <div className="mt-2">
+            <StudioStashView embedded />
+          </div>
+        ) : null}
+        {overviewTab === 'embeds' ? (
+          <div className="mt-2">
+            <LibraryEmbedsView />
+          </div>
+        ) : null}
+        {tab === 'smartlinks' ? <LibrarySmartLinksView /> : null}
+      </ViewShell>
     </div>
   );
 }

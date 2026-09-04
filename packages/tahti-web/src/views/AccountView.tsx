@@ -1,12 +1,11 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Box, Button, Tabs } from '@tahti-player/ui';
+import { Box, Button, Tabs, ViewShell } from '@tahti-player/ui';
 
 import { fetchMembership, fetchMySubscriptions } from '../api/client';
 import type { FanSubscriptionRow, MembershipStatus } from '../api/types';
 import { MembershipStatusPanel } from '../components/MembershipStatusPanel';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
 import { useAuthStore } from '../stores/authStore';
 
@@ -46,36 +45,34 @@ export function AccountView() {
 
   if (!user) {
     return (
-      <PageFrame maxWidth="md">
-        <PageHeader
-          title="Account"
-          subtitle="Sign in to see membership status and fan subscriptions."
-        />
+      <ViewShell
+        title="Account"
+        subtitle="Membership and subscriptions."
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-md' }}
+      >
         <Link to="/login">
           <Button>Login</Button>
         </Link>
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   return (
-    <PageFrame maxWidth="3xl" className="gap-8">
-      <PageHeader
-        title="Account"
-        subtitle={`${user.displayName} (@${user.username})`}
-        actions={
-          <>
-            <Link to="/settings/$section" params={{ section: 'account' }}>
-              <Button size="sm" variant="secondary">
-                Account settings
-              </Button>
-            </Link>
-            <Button size="sm" variant="text" onClick={() => void logout()}>
-              Log out
-            </Button>
-          </>
-        }
-      />
+    <ViewShell
+      title="Account"
+      subtitle="Membership and subscriptions."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
+    >
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <Link to="/settings/$section" params={{ section: 'account' }}>
+          <Button size="sm" variant="secondary">
+            Account settings
+          </Button>
+        </Link>
+        <Button size="sm" variant="text" onClick={() => void logout()}>
+          Log out
+        </Button>
+      </div>
 
       {loading && <PageLoading label="Loading account…" />}
 
@@ -178,6 +175,6 @@ export function AccountView() {
           },
         ]}
       />
-    </PageFrame>
+    </ViewShell>
   );
 }

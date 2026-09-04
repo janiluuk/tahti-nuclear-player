@@ -1,5 +1,18 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — ViewShell next 10 (Feed through Library)
+
+**Status:** executed (`0.0.60`).
+
+- Feed, Favorites, Account, Messages, Status → `ViewShell`
+- Studio Home, Stats, Playlists (+ editor), Upload, Shows → `ViewShell`
+- Library overview + catalog tabs → `ViewShell` (section Tabs outside; dynamic title)
+- Admin Users, Streams, Content, Selects, Status → `ViewShell` (`AdminPageLayout` outside)
+- Actions / badges / New playlist / New show / Save moved into children; `StudioNav` outside; `px-0 pt-0`
+- Live Storybook deploy required on push (`pnpm deploy:tahti-storybook` / `Deploy storybook` workflow)
+
+Still open: remaining Studio (Stash, Recordings, Events, Channel, …) and rest of Admin. [docs/todo/viewshell-next-10.md](../../docs/todo/viewshell-next-10.md), [docs/todo/viewshell-page-headers.md](../../docs/todo/viewshell-page-headers.md).
+
 ## 2026-09-04 — Generic Storybook UI sweep
 
 **Status:** executed (`8a8c4544b`). Data and actions kept.
@@ -19,7 +32,7 @@ Tracked: [`docs/todo/storybook-ui-sweep.md`](../../docs/todo/storybook-ui-sweep.
 - History, Radio schedule, Studio Broadcast (Schedule), Go Live, Releases → `ViewShell`
 - Actions / status badges / Clear all moved into children; StudioNav outside; short subtitles
 
-Still open: Feed/Favorites and other listener hubs; remaining Studio; rest of Admin. [docs/todo/viewshell-next-5-b.md](../../docs/todo/viewshell-next-5-b.md).
+Follow-through: Feed through Library in [docs/todo/viewshell-next-10.md](../../docs/todo/viewshell-next-10.md). Remaining Studio/Admin still open.
 
 ## 2026-09-04 — ViewShell batch (Help, Radio, Sounds, Collections, Dashboard)
 

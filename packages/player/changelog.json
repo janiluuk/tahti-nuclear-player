@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-04T03:10",
+    "description": "Feed, Favorites, Account, Messages, Status, Studio home, Stats, Playlists, Upload, Library, Shows, and Admin Users, Streams, Content, Selects, and Status now use the same short title and subtitle as the other list pages.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Studio", "color": "purple" }]
+  },
+  {
     "date": "2026-09-04T01:25",
     "description": "Track menus now add to playlists from a submenu and open audio tools (editor, mastering) from their own submenu when those tools apply.",
     "type": "improvement",

@@ -1,14 +1,14 @@
 import { SearchIcon, UserRoundIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Input, Select } from '@tahti-player/ui';
+import { Input, Select, ViewShell } from '@tahti-player/ui';
 
 import { fetchAdminUsers, type AdminUserRow } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { AdminUserEditPanel } from '../../components/AdminUserEditPanel';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 const ROLES = ['', 'BOARD', 'ARTIST', 'LISTENER'] as const;
 
@@ -43,11 +43,14 @@ export const AdminUsersView = () => {
     <AdminGate>
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/users">
-          <div className="flex max-w-7xl flex-col gap-6">
-            <StudioPageHeader
-              title="Users"
-              subtitle={`${total} accounts · details, access, and communication`}
-            />
+          <ViewShell
+            title="Users"
+            subtitle="Accounts and access."
+            classes={{ root: 'px-0 pt-0 mx-auto max-w-7xl' }}
+          >
+            <p className="text-foreground-secondary text-sm">
+              {total} accounts
+            </p>
 
             <div className="grid min-h-[36rem] gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
               <StudioPanel className="flex min-h-0 flex-col gap-3">
@@ -165,7 +168,7 @@ export const AdminUsersView = () => {
                 )}
               </div>
             </div>
-          </div>
+          </ViewShell>
         </AdminPageLayout>
       </div>
     </AdminGate>

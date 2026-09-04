@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Badge } from '@tahti-player/ui';
+import { Badge, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchAdminDashboard,
@@ -13,7 +13,7 @@ import type { PlatformStatus } from '../../api/types';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { humanizePastDate } from '../../lib/humanizeDate';
 
 export function AdminStatusView() {
@@ -57,9 +57,10 @@ export function AdminStatusView() {
     <AdminGate>
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/status">
-          <div className="flex max-w-4xl flex-col gap-6">
-            <StudioPageHeader title="Status" />
-
+          <ViewShell
+            title="Status"
+            classes={{ root: 'px-0 pt-0 mx-auto max-w-4xl' }}
+          >
             <StudioPanel>
               {loading ? (
                 <PageLoading label="Loading service status…" />
@@ -183,7 +184,7 @@ export function AdminStatusView() {
                 </StudioPanel>
               </div>
             )}
-          </div>
+          </ViewShell>
         </AdminPageLayout>
       </div>
     </AdminGate>

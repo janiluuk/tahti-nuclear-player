@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Button, Input, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchConversation,
@@ -12,7 +12,6 @@ import {
   type ChatDm,
   type ConversationSummary,
 } from '../api/messages';
-import { PageHeader } from '../components/PageHeader';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
@@ -68,7 +67,11 @@ export function MessagesView({ threadId }: { threadId?: string } = {}) {
 
   if (!user) {
     return (
-      <div className="flex flex-col gap-3">
+      <ViewShell
+        title="Messages"
+        subtitle="Direct messages."
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-4xl' }}
+      >
         <p className="text-foreground-secondary text-sm">
           Sign in to read DMs.
         </p>
@@ -78,17 +81,16 @@ export function MessagesView({ threadId }: { threadId?: string } = {}) {
         >
           Log in
         </Button>
-      </div>
+      </ViewShell>
     );
   }
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-4">
-      <PageHeader
-        title="Messages"
-        subtitle="Direct messages with artists and listeners."
-      />
-
+    <ViewShell
+      title="Messages"
+      subtitle="Direct messages."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-4xl' }}
+    >
       <div className="border-border flex flex-wrap gap-2 rounded-lg border p-3">
         <Input
           label="Message @"
@@ -235,6 +237,6 @@ export function MessagesView({ threadId }: { threadId?: string } = {}) {
           )}
         </div>
       </div>
-    </div>
+    </ViewShell>
   );
 }

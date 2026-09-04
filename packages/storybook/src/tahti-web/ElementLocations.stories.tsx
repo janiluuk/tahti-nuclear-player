@@ -225,7 +225,7 @@ const locations: ElementLocation[] = [
     element: 'ViewShell',
     kind: 'Component',
     pages:
-      'Target page frame for Listen / Studio / Admin list hubs (title + short subtitle). News and What’s New already use it. Persistent nav stays outside. Plan: docs/todo/viewshell-page-headers.md',
+      'List-page frame (title + short subtitle) on Listen, Discover, Help, Radio, History, Feed, Favorites, Account, Messages, Status, Studio Home/Sounds/Collections/Playlists/Upload/Schedule/Go Live/Releases/Stats/Shows, Library, Admin Dashboard/Users/Streams/Content/Selects/Status, News, What’s New. Persistent nav stays outside. Remaining Studio/Admin still StudioPageHeader. Plan: docs/todo/viewshell-page-headers.md',
   },
   {
     element: 'PageHeader',

@@ -2,6 +2,13 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — ViewShell batches (next 5 + next 5-b)
+
+Listener/Studio/Admin hubs migrated to ViewShell: Help, Radio, Studio Sounds,
+Collections, Admin Dashboard (`viewshell-next-5.md`); then History, Radio
+schedule, Studio Broadcast (Schedule), Go Live, Releases (`viewshell-next-5-b.md`).
+Follow-on: Feed through Library in `viewshell-next-10.md`.
+
 ## 2026-09-04 — Icon Tooltip pass 2 (listener + UI leftovers)
 
 Wrapped Collection/Artist/Channel/Radio/Schedule/Show, TrackDetail, Library,

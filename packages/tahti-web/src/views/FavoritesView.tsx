@@ -1,13 +1,18 @@
 import { Link } from '@tanstack/react-router';
 
-import { Button, Card, CardGrid, SectionShell } from '@tahti-player/ui';
+import {
+  Button,
+  Card,
+  CardGrid,
+  SectionShell,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import { fetchChannel } from '../api/client';
 import {
   MediaIconActions,
   playQueueFavoriteActions,
 } from '../components/MediaIconActions';
-import { PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
@@ -30,15 +35,8 @@ export function FavoritesView({ embedded = false }: { embedded?: boolean }) {
     (track) => track.kind === 'archive' || Boolean(track.embed),
   );
 
-  return (
+  const body = (
     <div className="flex flex-col gap-6">
-      {!embedded ? (
-        <PageHeader
-          title="Favorites"
-          subtitle="Play, queue, or unfavorite from here."
-        />
-      ) : null}
-
       <SectionShell title="Channels">
         {favoriteChannels.length === 0 && radioFavorites.length === 0 ? (
           <PageEmpty
@@ -144,5 +142,19 @@ export function FavoritesView({ embedded = false }: { embedded?: boolean }) {
         />
       </SectionShell>
     </div>
+  );
+
+  if (embedded) {
+    return body;
+  }
+
+  return (
+    <ViewShell
+      title="Favorites"
+      subtitle="Channels, radio, and tracks."
+      classes={{ root: 'px-0 pt-0' }}
+    >
+      {body}
+    </ViewShell>
   );
 }

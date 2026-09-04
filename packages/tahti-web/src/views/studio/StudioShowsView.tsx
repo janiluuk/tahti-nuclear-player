@@ -11,6 +11,8 @@ import {
   MediaArtwork,
   Textarea,
   Toggle,
+  Tooltip,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -25,7 +27,7 @@ import { PageLoading } from '../../components/PageStates';
 import { ShowImagePicker } from '../../components/ShowImagePicker';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 export function StudioShowsView() {
   const navigate = useNavigate();
@@ -102,156 +104,162 @@ export function StudioShowsView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/shows" />
-        <StudioPageHeader
+        <ViewShell
           title="Shows"
-          subtitle="Create a show, book intervals, then upload or record each episode. Episode numbers increment automatically."
-          action={
-            <Button
-              size="icon-sm"
-              onClick={() => setCreateOpen(true)}
-              aria-label="New show"
-              title="New show"
+          subtitle="Episodes, slots, and series."
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          <div className="mb-4">
+            <Tooltip content="New show" side="top">
+              <Button
+                size="icon-sm"
+                onClick={() => setCreateOpen(true)}
+                aria-label="New show"
+              >
+                <PlusIcon size={16} aria-hidden />
+              </Button>
+            </Tooltip>
+          </div>
+
+          {msg && (
+            <p className="text-foreground-secondary mb-4 text-sm">{msg}</p>
+          )}
+
+          <Dialog.Root isOpen={createOpen} onClose={() => setCreateOpen(false)}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void create();
+              }}
             >
-              <PlusIcon size={16} aria-hidden />
-            </Button>
-          }
-        />
-
-        {msg && <p className="text-foreground-secondary text-sm">{msg}</p>}
-
-        <Dialog.Root isOpen={createOpen} onClose={() => setCreateOpen(false)}>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void create();
-            }}
-          >
-            <Dialog.Title>
-              <span className="inline-flex items-center gap-2">
-                <RadioIcon size={18} aria-hidden />
-                New show
-              </span>
-            </Dialog.Title>
-            <Dialog.Description>
-              Episodes inherit description, cover, and the next episode number.
-            </Dialog.Description>
-            <div className="mt-4 flex flex-col gap-3">
-              <Input
-                label="Show title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                autoFocus
-              />
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Description
+              <Dialog.Title>
+                <span className="inline-flex items-center gap-2">
+                  <RadioIcon size={18} aria-hidden />
+                  New show
                 </span>
-                <Textarea
-                  tone="secondary"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  placeholder="Copied to every new episode"
+              </Dialog.Title>
+              <Dialog.Description>
+                Episodes inherit description, cover, and the next episode
+                number.
+              </Dialog.Description>
+              <div className="mt-4 flex flex-col gap-3">
+                <Input
+                  label="Show title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  autoFocus
                 />
-              </label>
-              <ShowImagePicker
-                label="Show thumbnail"
-                description="JPEG, PNG, WebP, or GIF"
-                value={thumbnailUrl}
-                file={thumbnailFile}
-                onFile={(file) => {
-                  setThumbnailFile(file);
-                  setThumbnailUrl(file ? URL.createObjectURL(file) : '');
-                }}
-                onUrlChange={setThumbnailUrl}
-              />
-              <ShowImagePicker
-                label="Show backdrop"
-                description="Wide JPEG, PNG, WebP, or GIF"
-                value={backdropUrl}
-                file={backdropFile}
-                onFile={(file) => {
-                  setBackdropFile(file);
-                  setBackdropUrl(file ? URL.createObjectURL(file) : '');
-                }}
-                onUrlChange={setBackdropUrl}
-              />
-              <div className="border-border bg-background-secondary/30 flex items-center justify-between gap-3 rounded-md border p-3 text-sm">
-                <span>
-                  <span className="block font-medium">
-                    Record broadcasts by default
+                <label className="flex flex-col gap-1 text-sm">
+                  <span className="text-foreground-secondary text-xs uppercase">
+                    Description
                   </span>
-                  <span className="text-foreground-secondary block text-xs">
-                    New broadcasts for this show will start with recording
-                    enabled.
-                  </span>
-                </span>
-                <Toggle
-                  label="Record broadcasts by default"
-                  checked={autoArchive}
-                  onChange={setAutoArchive}
+                  <Textarea
+                    tone="secondary"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    placeholder="Copied to every new episode"
+                  />
+                </label>
+                <ShowImagePicker
+                  label="Show thumbnail"
+                  description="JPEG, PNG, WebP, or GIF"
+                  value={thumbnailUrl}
+                  file={thumbnailFile}
+                  onFile={(file) => {
+                    setThumbnailFile(file);
+                    setThumbnailUrl(file ? URL.createObjectURL(file) : '');
+                  }}
+                  onUrlChange={setThumbnailUrl}
                 />
-              </div>
-              <FilterChips
-                items={[
-                  { id: 'SERIES', label: 'Continuing series' },
-                  { id: 'SINGLE', label: 'Single show' },
-                ]}
-                selected={mode}
-                onChange={(id) => setMode(id as ShowMode)}
-                aria-label="Show mode"
-              />
-              {mode === 'SERIES' ? (
+                <ShowImagePicker
+                  label="Show backdrop"
+                  description="Wide JPEG, PNG, WebP, or GIF"
+                  value={backdropUrl}
+                  file={backdropFile}
+                  onFile={(file) => {
+                    setBackdropFile(file);
+                    setBackdropUrl(file ? URL.createObjectURL(file) : '');
+                  }}
+                  onUrlChange={setBackdropUrl}
+                />
+                <div className="border-border bg-background-secondary/30 flex items-center justify-between gap-3 rounded-md border p-3 text-sm">
+                  <span>
+                    <span className="block font-medium">
+                      Record broadcasts by default
+                    </span>
+                    <span className="text-foreground-secondary block text-xs">
+                      New broadcasts for this show will start with recording
+                      enabled.
+                    </span>
+                  </span>
+                  <Toggle
+                    label="Record broadcasts by default"
+                    checked={autoArchive}
+                    onChange={setAutoArchive}
+                  />
+                </div>
                 <FilterChips
                   items={[
-                    { id: '1', label: '1 hour' },
-                    { id: '2', label: '2 hours' },
+                    { id: 'SERIES', label: 'Continuing series' },
+                    { id: 'SINGLE', label: 'Single show' },
                   ]}
-                  selected={String(intervalHours)}
-                  onChange={(id) => setIntervalHours(Number(id) as 1 | 2)}
-                  aria-label="Episode length"
+                  selected={mode}
+                  onChange={(id) => setMode(id as ShowMode)}
+                  aria-label="Show mode"
                 />
-              ) : null}
-            </div>
-            <Dialog.Actions>
-              <Dialog.Close>Cancel</Dialog.Close>
-              <Button type="submit" disabled={busy || !title.trim()}>
-                {busy ? 'Creating…' : 'Create show'}
-              </Button>
-            </Dialog.Actions>
-          </form>
-        </Dialog.Root>
-
-        <StudioPanel>
-          {loading ? (
-            <PageLoading label="Loading…" />
-          ) : shows.length === 0 ? (
-            <EmptyState
-              size="sm"
-              title="No shows yet"
-              description="Create one to start numbering episodes."
-              action={
-                <Button
-                  size="icon-sm"
-                  onClick={() => setCreateOpen(true)}
-                  aria-label="New show"
-                >
-                  <PlusIcon size={16} aria-hidden />
+                {mode === 'SERIES' ? (
+                  <FilterChips
+                    items={[
+                      { id: '1', label: '1 hour' },
+                      { id: '2', label: '2 hours' },
+                    ]}
+                    selected={String(intervalHours)}
+                    onChange={(id) => setIntervalHours(Number(id) as 1 | 2)}
+                    aria-label="Episode length"
+                  />
+                ) : null}
+              </div>
+              <Dialog.Actions>
+                <Dialog.Close>Cancel</Dialog.Close>
+                <Button type="submit" disabled={busy || !title.trim()}>
+                  {busy ? 'Creating…' : 'Create show'}
                 </Button>
-              }
-            />
-          ) : (
-            <ul className="divide-border divide-y">
-              {shows.map((s) => (
-                <ShowRow
-                  key={s.id}
-                  show={s}
-                  episodeCount={episodeCounts[s.id] ?? 0}
-                />
-              ))}
-            </ul>
-          )}
-        </StudioPanel>
+              </Dialog.Actions>
+            </form>
+          </Dialog.Root>
+
+          <StudioPanel>
+            {loading ? (
+              <PageLoading label="Loading…" />
+            ) : shows.length === 0 ? (
+              <EmptyState
+                size="sm"
+                title="No shows yet"
+                description="Create one to start numbering episodes."
+                action={
+                  <Button
+                    size="icon-sm"
+                    onClick={() => setCreateOpen(true)}
+                    aria-label="New show"
+                  >
+                    <PlusIcon size={16} aria-hidden />
+                  </Button>
+                }
+              />
+            ) : (
+              <ul className="divide-border divide-y">
+                {shows.map((s) => (
+                  <ShowRow
+                    key={s.id}
+                    show={s}
+                    episodeCount={episodeCounts[s.id] ?? 0}
+                  />
+                ))}
+              </ul>
+            )}
+          </StudioPanel>
+        </ViewShell>
       </div>
     </StudioGate>
   );

@@ -17,6 +17,7 @@ import {
   StatChip,
   Tabs,
   TopList,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import { fetchGrantEstimate, type GrantEstimate } from '../../api/revenue';
@@ -44,7 +45,7 @@ import {
 import { ListenerWorldMap } from '../../components/ListenerWorldMap';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { StatNumber } from '../../components/tahti/StatNumber';
 import { countryFlagAndName } from '../../lib/countries';
 import {
@@ -263,19 +264,6 @@ export const StudioStatsView: FC = () => {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-6xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/stats" />
-        <StudioPageHeader
-          title="Stats"
-          subtitle="Audience, track performance, broadcasts, and engagement in one place."
-          action={
-            <FilterChips
-              items={RANGES}
-              selected={range}
-              onChange={(id) => setRange(id as StatsPlaysRange)}
-              aria-label="Stats time range"
-            />
-          }
-        />
-
         <Tabs.Root
           selectedIndex={Math.max(
             0,
@@ -294,234 +282,252 @@ export const StudioStatsView: FC = () => {
             ))}
           </Tabs.List>
         </Tabs.Root>
-
-        <section
-          className={`${activeTab === 'overview' ? '' : 'hidden'} grid gap-3 sm:grid-cols-2 xl:grid-cols-3`}
-          aria-label="Key metrics"
+        <ViewShell
+          title="Stats"
+          subtitle="Audience and broadcasts."
+          classes={{ root: 'px-0 pt-0' }}
         >
-          {keyMetrics.map((metric) => {
-            const Icon = metric.icon;
-            return (
-              <StudioPanel key={metric.label} className="!p-4 sm:!p-5">
-                <StatChip
-                  value={loading ? '—' : metric.value.toLocaleString()}
-                  label={metric.label}
-                  icon={<Icon size={16} aria-hidden className="text-primary" />}
-                />
-                <p className="text-foreground-secondary mt-2 text-xs">
-                  {metric.note}
-                </p>
-              </StudioPanel>
-            );
-          })}
-        </section>
+          <div className="mb-4">
+            <FilterChips
+              items={RANGES}
+              selected={range}
+              onChange={(id) => setRange(id as StatsPlaysRange)}
+              aria-label="Stats time range"
+            />
+          </div>
 
-        <div className={activeTab === 'plays' ? 'grid gap-6' : 'hidden'}>
-          <StudioPanel title="Listener map">
-            <div className="mb-4 flex flex-wrap justify-between gap-2">
-              <p className="text-foreground-secondary text-sm">
-                Anonymized countries from channel listening and downloads.
-              </p>
-              <span className="text-foreground-secondary text-xs tabular-nums">
-                Peak day: {live.peakDailyListeners.toLocaleString()} listeners
-              </span>
-            </div>
-            <ListenerWorldMap data={listenerGeo} loading={loading} />
-          </StudioPanel>
-
-          <StudioPanel title="Plays over time">
-            <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <StatNumber className="block text-3xl">
-                  {plays.totalPlays.toLocaleString()}
-                </StatNumber>
-                <p className="text-foreground-secondary text-xs">
-                  {busiestDay
-                    ? `Busiest day: ${formatDate(busiestDay.date)} · ${busiestDay.plays.toLocaleString()} plays`
-                    : 'Daily activity appears after your first play.'}
-                </p>
-              </div>
-              <BarChart3Icon size={22} aria-hidden className="text-primary" />
-            </div>
-            <div
-              role="img"
-              aria-label="Daily plays chart"
-              className="flex h-44 items-end gap-1"
-            >
-              {plays.daily.length === 0 ? (
-                <p className="text-foreground-secondary self-center text-sm">
-                  No plays in this period.
-                </p>
-              ) : (
-                plays.daily.map((day) => (
-                  <div
-                    key={day.date}
-                    title={`${formatDate(day.date)}: ${day.plays.toLocaleString()} plays`}
-                    className="bg-primary/70 hover:bg-primary min-w-0 flex-1 rounded-t-sm transition-colors"
-                    style={{
-                      height: `${Math.max(3, (day.plays / maxDaily) * 100)}%`,
-                    }}
+          <section
+            className={`${activeTab === 'overview' ? '' : 'hidden'} grid gap-3 sm:grid-cols-2 xl:grid-cols-3`}
+            aria-label="Key metrics"
+          >
+            {keyMetrics.map((metric) => {
+              const Icon = metric.icon;
+              return (
+                <StudioPanel key={metric.label} className="!p-4 sm:!p-5">
+                  <StatChip
+                    value={loading ? '—' : metric.value.toLocaleString()}
+                    label={metric.label}
+                    icon={
+                      <Icon size={16} aria-hidden className="text-primary" />
+                    }
                   />
-                ))
-              )}
-            </div>
-            {plays.daily.length > 0 ? (
-              <div className="text-foreground-secondary mt-2 flex justify-between text-[10px]">
-                <span>{formatDate(plays.daily[0]!.date)}</span>
-                <span>
-                  {formatDate(plays.daily[plays.daily.length - 1]!.date)}
+                  <p className="text-foreground-secondary mt-2 text-xs">
+                    {metric.note}
+                  </p>
+                </StudioPanel>
+              );
+            })}
+          </section>
+
+          <div className={activeTab === 'plays' ? 'grid gap-6' : 'hidden'}>
+            <StudioPanel title="Listener map">
+              <div className="mb-4 flex flex-wrap justify-between gap-2">
+                <p className="text-foreground-secondary text-sm">
+                  Anonymized countries from channel listening and downloads.
+                </p>
+                <span className="text-foreground-secondary text-xs tabular-nums">
+                  Peak day: {live.peakDailyListeners.toLocaleString()} listeners
                 </span>
               </div>
-            ) : null}
-          </StudioPanel>
-        </div>
+              <ListenerWorldMap data={listenerGeo} loading={loading} />
+            </StudioPanel>
 
-        <div
-          className={`${activeTab === 'top-lists' ? '' : 'hidden'} grid gap-6 lg:grid-cols-2`}
-        >
-          <StudioPanel title="Content rankings" className="lg:col-span-2">
-            <div className="mb-4 flex flex-wrap gap-2">
-              <FilterChips
-                items={[
-                  { id: 'type', label: 'By type' },
-                  { id: 'genre', label: 'By genre' },
-                ]}
-                selected={topListDimension}
-                onChange={(id) =>
-                  setTopListDimension(id as StatsTopListDimension)
-                }
-                aria-label="Top list grouping"
-              />
-              <FilterChips
-                items={[
-                  { id: 'desc', label: 'Most listened' },
-                  { id: 'asc', label: 'Least listened' },
-                ]}
-                selected={topListSort}
-                onChange={(id) => setTopListSort(id as StatsTopListSort)}
-                aria-label="Top list order"
-              />
-            </div>
-            {topLists.length === 0 ? (
-              <EmptyState
-                size="sm"
-                title="No listens recorded for this period yet"
-              />
-            ) : (
-              <div className="grid gap-5 md:grid-cols-2">
-                {topLists.map((bucket) => (
-                  <TopList
-                    key={bucket.bucket}
-                    title={rankingBucketTitle(bucket.bucket)}
-                    formatValue={formatListenCount}
-                    entries={bucket.entries.map((entry) => ({
-                      id: entry.soundId,
-                      label: entry.title,
-                      sublabel: entry.genre ?? entry.contentType,
-                      value: entry.listens,
-                      onClick: () => {
-                        void navigate({
-                          to: '/studio/sounds/$id',
-                          params: { id: entry.soundId },
-                        });
-                      },
-                    }))}
-                  />
+            <StudioPanel title="Plays over time">
+              <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+                <div>
+                  <StatNumber className="block text-3xl">
+                    {plays.totalPlays.toLocaleString()}
+                  </StatNumber>
+                  <p className="text-foreground-secondary text-xs">
+                    {busiestDay
+                      ? `Busiest day: ${formatDate(busiestDay.date)} · ${busiestDay.plays.toLocaleString()} plays`
+                      : 'Daily activity appears after your first play.'}
+                  </p>
+                </div>
+                <BarChart3Icon size={22} aria-hidden className="text-primary" />
+              </div>
+              <div
+                role="img"
+                aria-label="Daily plays chart"
+                className="flex h-44 items-end gap-1"
+              >
+                {plays.daily.length === 0 ? (
+                  <p className="text-foreground-secondary self-center text-sm">
+                    No plays in this period.
+                  </p>
+                ) : (
+                  plays.daily.map((day) => (
+                    <div
+                      key={day.date}
+                      title={`${formatDate(day.date)}: ${day.plays.toLocaleString()} plays`}
+                      className="bg-primary/70 hover:bg-primary min-w-0 flex-1 rounded-t-sm transition-colors"
+                      style={{
+                        height: `${Math.max(3, (day.plays / maxDaily) * 100)}%`,
+                      }}
+                    />
+                  ))
+                )}
+              </div>
+              {plays.daily.length > 0 ? (
+                <div className="text-foreground-secondary mt-2 flex justify-between text-[10px]">
+                  <span>{formatDate(plays.daily[0]!.date)}</span>
+                  <span>
+                    {formatDate(plays.daily[plays.daily.length - 1]!.date)}
+                  </span>
+                </div>
+              ) : null}
+            </StudioPanel>
+          </div>
+
+          <div
+            className={`${activeTab === 'top-lists' ? '' : 'hidden'} grid gap-6 lg:grid-cols-2`}
+          >
+            <StudioPanel title="Content rankings" className="lg:col-span-2">
+              <div className="mb-4 flex flex-wrap gap-2">
+                <FilterChips
+                  items={[
+                    { id: 'type', label: 'By type' },
+                    { id: 'genre', label: 'By genre' },
+                  ]}
+                  selected={topListDimension}
+                  onChange={(id) =>
+                    setTopListDimension(id as StatsTopListDimension)
+                  }
+                  aria-label="Top list grouping"
+                />
+                <FilterChips
+                  items={[
+                    { id: 'desc', label: 'Most listened' },
+                    { id: 'asc', label: 'Least listened' },
+                  ]}
+                  selected={topListSort}
+                  onChange={(id) => setTopListSort(id as StatsTopListSort)}
+                  aria-label="Top list order"
+                />
+              </div>
+              {topLists.length === 0 ? (
+                <EmptyState
+                  size="sm"
+                  title="No listens recorded for this period yet"
+                />
+              ) : (
+                <div className="grid gap-5 md:grid-cols-2">
+                  {topLists.map((bucket) => (
+                    <TopList
+                      key={bucket.bucket}
+                      title={rankingBucketTitle(bucket.bucket)}
+                      formatValue={formatListenCount}
+                      entries={bucket.entries.map((entry) => ({
+                        id: entry.soundId,
+                        label: entry.title,
+                        sublabel: entry.genre ?? entry.contentType,
+                        value: entry.listens,
+                        onClick: () => {
+                          void navigate({
+                            to: '/studio/sounds/$id',
+                            params: { id: entry.soundId },
+                          });
+                        },
+                      }))}
+                    />
+                  ))}
+                </div>
+              )}
+            </StudioPanel>
+            <StudioPanel>
+              {tracks.length === 0 ? (
+                <EmptyState size="sm" title="No track stats yet" />
+              ) : (
+                <TopList
+                  title="Top tracks"
+                  formatValue={formatPlayCount}
+                  entries={tracks.map((track) => ({
+                    id: track.soundId,
+                    label: track.title,
+                    value: track.plays,
+                    onClick: () => {
+                      void navigate({
+                        to: '/studio/sounds/$id',
+                        params: { id: track.soundId },
+                      });
+                    },
+                  }))}
+                />
+              )}
+            </StudioPanel>
+
+            <StudioPanel>
+              {countries.length === 0 ? (
+                <EmptyState size="sm" title="No country data yet" />
+              ) : (
+                <TopList
+                  title="Top countries"
+                  formatValue={(value) => value.toLocaleString()}
+                  entries={countries.map((country) => ({
+                    id: country.country,
+                    label: countryFlagAndName(country.country),
+                    value: country.count,
+                  }))}
+                />
+              )}
+            </StudioPanel>
+          </div>
+
+          <div className={activeTab === 'overview' ? '' : 'hidden'}>
+            <StudioPanel title="Engagement units">
+              <div className="flex flex-col gap-3">
+                {engagementRows.map((row) => (
+                  <div
+                    key={row.label}
+                    className="grid grid-cols-[9rem_1fr_auto] items-center gap-3 text-sm"
+                  >
+                    <span>
+                      {row.label}
+                      <span className="text-foreground-secondary ml-1 text-xs">
+                        {row.detail}
+                      </span>
+                    </span>
+                    <div className="bg-background h-2 overflow-hidden rounded-full">
+                      <div
+                        className="bg-accent-cyan h-full rounded-full"
+                        style={{
+                          width: `${(row.value / maxEngagement) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    <strong className="w-10 text-right tabular-nums">
+                      {row.value}
+                    </strong>
+                  </div>
                 ))}
               </div>
-            )}
-          </StudioPanel>
-          <StudioPanel>
-            {tracks.length === 0 ? (
-              <EmptyState size="sm" title="No track stats yet" />
-            ) : (
-              <TopList
-                title="Top tracks"
-                formatValue={formatPlayCount}
-                entries={tracks.map((track) => ({
-                  id: track.soundId,
-                  label: track.title,
-                  value: track.plays,
-                  onClick: () => {
-                    void navigate({
-                      to: '/studio/sounds/$id',
-                      params: { id: track.soundId },
-                    });
-                  },
-                }))}
-              />
-            )}
-          </StudioPanel>
+              <div className="border-border mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-sm">
+                <span className="text-foreground-secondary">
+                  {grant?.eligible
+                    ? `Estimated ${grant.year} grant share`
+                    : `Progress toward ${grant?.year ?? new Date().getFullYear()} grant eligibility`}
+                </span>
+                <strong>
+                  {grant?.eligible
+                    ? `€${((grant.estimateCents ?? 0) / 100).toFixed(2)}`
+                    : `${grant?.units ?? 0} units`}
+                </strong>
+              </div>
+            </StudioPanel>
 
-          <StudioPanel>
-            {countries.length === 0 ? (
-              <EmptyState size="sm" title="No country data yet" />
-            ) : (
-              <TopList
-                title="Top countries"
-                formatValue={(value) => value.toLocaleString()}
-                entries={countries.map((country) => ({
-                  id: country.country,
-                  label: countryFlagAndName(country.country),
-                  value: country.count,
-                }))}
-              />
-            )}
-          </StudioPanel>
-        </div>
-
-        <div className={activeTab === 'overview' ? '' : 'hidden'}>
-          <StudioPanel title="Engagement units">
-            <div className="flex flex-col gap-3">
-              {engagementRows.map((row) => (
-                <div
-                  key={row.label}
-                  className="grid grid-cols-[9rem_1fr_auto] items-center gap-3 text-sm"
-                >
-                  <span>
-                    {row.label}
-                    <span className="text-foreground-secondary ml-1 text-xs">
-                      {row.detail}
-                    </span>
-                  </span>
-                  <div className="bg-background h-2 overflow-hidden rounded-full">
-                    <div
-                      className="bg-accent-cyan h-full rounded-full"
-                      style={{ width: `${(row.value / maxEngagement) * 100}%` }}
-                    />
-                  </div>
-                  <strong className="w-10 text-right tabular-nums">
-                    {row.value}
-                  </strong>
-                </div>
-              ))}
-            </div>
-            <div className="border-border mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-sm">
-              <span className="text-foreground-secondary">
-                {grant?.eligible
-                  ? `Estimated ${grant.year} grant share`
-                  : `Progress toward ${grant?.year ?? new Date().getFullYear()} grant eligibility`}
-              </span>
-              <strong>
-                {grant?.eligible
-                  ? `€${((grant.estimateCents ?? 0) / 100).toFixed(2)}`
-                  : `${grant?.units ?? 0} units`}
-              </strong>
-            </div>
-          </StudioPanel>
-
-          <p className="text-foreground-secondary text-xs">
-            Fan subscription payouts and grant history remain under{' '}
-            <Link
-              to="/studio/revenue"
-              className="underline-offset-2 hover:underline"
-            >
-              Revenue
-            </Link>
-            . Listener geography is aggregated and does not identify individual
-            listeners.
-          </p>
-        </div>
+            <p className="text-foreground-secondary text-xs">
+              Fan subscription payouts and grant history remain under{' '}
+              <Link
+                to="/studio/revenue"
+                className="underline-offset-2 hover:underline"
+              >
+                Revenue
+              </Link>
+              . Listener geography is aggregated and does not identify
+              individual listeners.
+            </p>
+          </div>
+        </ViewShell>
       </div>
     </StudioGate>
   );

@@ -2,7 +2,7 @@
 
 **Status:** in progress.
 **Storybook:** `Components/ViewShell` — `title` + `subtitle` strings, then `ScrollableArea`.
-**Today:** listener pages use `PageHeader` (title, rich subtitle, meta, actions, back). Studio and Admin use `StudioPageHeader` (title, long subtitle, action). `NewsView` / `WhatsNewView`, Listen, Discover, Help hub, Radio, Radio schedule, History, Studio Sounds, Collections, Schedule, Go Live, Releases, and Admin Dashboard use `ViewShell`.
+**Today:** listener pages use `PageHeader` (title, rich subtitle, meta, actions, back). Studio and Admin use `StudioPageHeader` (title, long subtitle, action). Converted to `ViewShell`: News / What’s New, Listen, Discover, Help hub, Radio, Radio schedule, History, Feed, Favorites, Account, Messages, Status, Studio Home / Sounds / Collections / Playlists / Upload / Schedule / Go Live / Releases / Stats / Shows, Library overview + catalog tabs, and Admin Dashboard / Users / Streams / Content / Selects / Status.
 
 ## Contract
 
@@ -80,9 +80,9 @@ Studio home: title `Studio`; greeting as subtitle; role/member `Badge`s as child
 
 `AdminPageLayout` tabs stay outside `ViewShell`. Convert every `StudioPageHeader` on board pages:
 
-- Dashboard, Users, Content, Storage + user, Streams, Radio, Selects
-- News, Announcements, Disco-widgets, Artwork presets
-- Top lists, Missed shows, Activity, Logs, Status
+- ~~Dashboard, Users, Content, Streams, Selects, Status~~
+- Storage + user, Radio, News, Announcements, Disco-widgets, Artwork presets
+- Top lists, Missed shows, Activity, Logs
 - Financial, Grants + cycle, Governance, AGM, Reports
 - Venues, I18n, Moderation, Orphan pages
 - Vendors (dashboard tab content)
@@ -99,10 +99,10 @@ Shorten the current paragraph-subtitles (streams, artwork presets, storage, acti
 ## Order of work
 
 1. Storybook states + padding rule (`classes.root` vs AppShell).
-2. ~~Listener hubs (Listen, Discover, Radio, Help, History, Radio schedule)~~; Feed/Favorites and remaining listener pages still open.
-3. ~~Studio Sounds, Collections, Schedule, Go Live, Releases~~; remaining Studio list pages next.
+2. ~~Listener hubs (Listen, Discover, Radio, Help, History, Radio schedule, Feed, Favorites, Account, Messages, Status)~~; remaining listener pages still open (Chat, Governance, More/map, Transparency, Legal, Onboarding, Subscribe, Green room, Venues).
+3. ~~Studio Home, Sounds, Collections, Playlists, Upload, Schedule, Go Live, Releases, Stats, Shows, Library tabs~~; remaining Studio list pages next (Stash, Recordings, Events, Channel, Revenue, Editor, …).
 4. Remaining Studio.
-5. Admin (~~Dashboard~~; rest open).
+5. Admin (~~Dashboard, Users, Streams, Content, Selects, Status~~; rest open).
 6. Delete or narrow `StudioPageHeader`; keep `PageHeader` only if an entity surface still needs back/actions.
 
 Do not hide `StudioNav` / Admin tabs / Listen tabs during the swap.

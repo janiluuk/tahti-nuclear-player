@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, StatChip } from '@tahti-player/ui';
+import { Button, StatChip, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchAdminContentOverview,
@@ -16,7 +16,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 function formatDuration(durationSec: number | null | undefined): string {
   if (durationSec == null) {
@@ -44,18 +44,18 @@ export function AdminContentView() {
     <AdminGate>
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/content">
-          <div className="flex max-w-5xl flex-col gap-6">
-            <StudioPageHeader
-              title="Content"
-              subtitle="A quick view of the catalog, activity, and latest recorded broadcasts across Tahti."
-              action={
-                <Link to="/admin/top-lists">
-                  <Button size="sm" variant="secondary">
-                    <ListMusicIcon size={15} aria-hidden /> Top lists
-                  </Button>
-                </Link>
-              }
-            />
+          <ViewShell
+            title="Content"
+            subtitle="Catalog and broadcasts."
+            classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
+          >
+            <div>
+              <Link to="/admin/top-lists">
+                <Button size="sm" variant="secondary">
+                  <ListMusicIcon size={15} aria-hidden /> Top lists
+                </Button>
+              </Link>
+            </div>
             {!data ? (
               <StudioPanel>
                 <PageLoading label="Loading content overview…" />
@@ -169,7 +169,7 @@ export function AdminContentView() {
                 </div>
               </>
             )}
-          </div>
+          </ViewShell>
         </AdminPageLayout>
       </div>
     </AdminGate>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 
+import { ViewShell } from '@tahti-player/ui';
+
 import { fetchPlatformStatus } from '../api/client';
 import type { PlatformStatus } from '../api/types';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 
 function stateClass(state: string): string {
   if (state === 'ok' || state === 'healthy') {
@@ -34,12 +35,11 @@ export function StatusView() {
   }, []);
 
   return (
-    <PageFrame maxWidth="3xl">
-      <PageHeader
-        title="Platform status"
-        subtitle="Current health of Tahti services."
-      />
-
+    <ViewShell
+      title="Status"
+      subtitle="Health of Tahti services."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
+    >
       {loading && (
         <p className="text-foreground-secondary text-sm">Checking…</p>
       )}
@@ -129,6 +129,6 @@ export function StatusView() {
           </dd>
         </div>
       </dl>
-    </PageFrame>
+    </ViewShell>
   );
 }

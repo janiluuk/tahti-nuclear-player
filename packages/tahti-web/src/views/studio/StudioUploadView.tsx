@@ -18,6 +18,7 @@ import {
   FilePicker,
   Loader,
   Toggle,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -30,7 +31,6 @@ import { fetchEditorSource, uploadSoundFile } from '../../api/studio';
 import { SourceServiceIcon } from '../../components/SourceServiceIcon';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader } from '../../components/StudioPanel';
 import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
 import {
   importSourcePlugins,
@@ -378,99 +378,100 @@ export function StudioUploadView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6">
         <StudioNav current="/library/upload" />
-        <StudioPageHeader
+        <ViewShell
           title="Upload"
-          subtitle="Add music to your archive from a local file, a broadcast, or an external source."
-        />
-
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="border-accent-cyan flex min-h-48 flex-col justify-center rounded-xl border border-dashed p-5 sm:p-6">
-            <FilePicker
-              labels={{
-                title: 'Choose audio file',
-                description: 'FLAC · WAV · AIFF · MP3 · M4A · OGG · max 4 GB',
-                browse: file ? 'Choose another file' : 'Choose audio',
-              }}
-              accept="audio/*,.flac,.wav,.mp3,.aiff"
-              selectedFiles={file ? [file] : []}
-              onFiles={(files) => setFile(files[0] ?? null)}
-            />
-            <p className="text-foreground-secondary mt-3 text-xs">
-              Upload first and we’ll read the embedded title and artist
-              metadata. If the file has none, its filename is used and you can
-              name it in the editor afterwards.
-            </p>
-            {message && (
-              <p className="text-accent-red text-sm" role="alert">
-                {message}
-              </p>
-            )}
-            <div className="flex flex-wrap gap-2">
-              <Button
-                disabled={busy || !file}
-                aria-label="Upload file"
-                onClick={() => void submit()}
-              >
-                <UploadIcon size={16} aria-hidden className="mr-1.5" />
-                {busy ? 'Uploading…' : 'Upload'}
-              </Button>
-            </div>
-          </div>
-
-          <div className="border-accent-green rounded-xl border p-5 sm:p-6">
-            <div className="flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
-              <RadioIcon size={15} aria-hidden />
-              Last recorded broadcasts
-            </div>
-            {recordingsLoading ? (
-              <div className="mt-4 flex items-center gap-2">
-                <Loader size="sm" />
-                <span className="text-foreground-secondary text-sm">
-                  Loading recordings…
-                </span>
-              </div>
-            ) : recordings.length === 0 ? (
-              <p className="text-foreground-secondary mt-4 text-sm">
-                No recordings yet.{' '}
-                <Link
-                  to="/studio/go-live"
-                  className="text-accent-cyan underline-offset-2 hover:underline"
-                >
-                  Go live to record one.
-                </Link>
-              </p>
-            ) : (
-              <ul className="mt-4 flex flex-col gap-2">
-                {recordings.map((recording) => (
-                  <RecordedBroadcastCard
-                    key={recording.id}
-                    broadcast={recording}
-                    currentId={currentId}
-                    currentTime={currentTime}
-                    duration={duration}
-                    status={playbackStatus}
-                    loading={recordingLoadingId === recording.id}
-                    onPlay={() => void playRecording(recording)}
-                    onSeek={(fraction) =>
-                      seekTo(
-                        fraction * (duration || recording.durationSec || 0),
-                      )
-                    }
-                  />
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-
-        <UploadSourceWidgets />
-
-        <Link
-          to="/studio/collections"
-          className="text-accent-cyan text-sm underline-offset-2 hover:underline"
+          subtitle="Add music from a file or source."
+          classes={{ root: 'px-0 pt-0' }}
         >
-          Organise into collections →
-        </Link>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="border-accent-cyan flex min-h-48 flex-col justify-center rounded-xl border border-dashed p-5 sm:p-6">
+              <FilePicker
+                labels={{
+                  title: 'Choose audio file',
+                  description: 'FLAC · WAV · AIFF · MP3 · M4A · OGG · max 4 GB',
+                  browse: file ? 'Choose another file' : 'Choose audio',
+                }}
+                accept="audio/*,.flac,.wav,.mp3,.aiff"
+                selectedFiles={file ? [file] : []}
+                onFiles={(files) => setFile(files[0] ?? null)}
+              />
+              <p className="text-foreground-secondary mt-3 text-xs">
+                Upload first and we’ll read the embedded title and artist
+                metadata. If the file has none, its filename is used and you can
+                name it in the editor afterwards.
+              </p>
+              {message && (
+                <p className="text-accent-red text-sm" role="alert">
+                  {message}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  disabled={busy || !file}
+                  aria-label="Upload file"
+                  onClick={() => void submit()}
+                >
+                  <UploadIcon size={16} aria-hidden className="mr-1.5" />
+                  {busy ? 'Uploading…' : 'Upload'}
+                </Button>
+              </div>
+            </div>
+
+            <div className="border-accent-green rounded-xl border p-5 sm:p-6">
+              <div className="flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+                <RadioIcon size={15} aria-hidden />
+                Last recorded broadcasts
+              </div>
+              {recordingsLoading ? (
+                <div className="mt-4 flex items-center gap-2">
+                  <Loader size="sm" />
+                  <span className="text-foreground-secondary text-sm">
+                    Loading recordings…
+                  </span>
+                </div>
+              ) : recordings.length === 0 ? (
+                <p className="text-foreground-secondary mt-4 text-sm">
+                  No recordings yet.{' '}
+                  <Link
+                    to="/studio/go-live"
+                    className="text-accent-cyan underline-offset-2 hover:underline"
+                  >
+                    Go live to record one.
+                  </Link>
+                </p>
+              ) : (
+                <ul className="mt-4 flex flex-col gap-2">
+                  {recordings.map((recording) => (
+                    <RecordedBroadcastCard
+                      key={recording.id}
+                      broadcast={recording}
+                      currentId={currentId}
+                      currentTime={currentTime}
+                      duration={duration}
+                      status={playbackStatus}
+                      loading={recordingLoadingId === recording.id}
+                      onPlay={() => void playRecording(recording)}
+                      onSeek={(fraction) =>
+                        seekTo(
+                          fraction * (duration || recording.durationSec || 0),
+                        )
+                      }
+                    />
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <UploadSourceWidgets />
+
+          <Link
+            to="/studio/collections"
+            className="text-accent-cyan text-sm underline-offset-2 hover:underline"
+          >
+            Organise into collections →
+          </Link>
+        </ViewShell>
       </div>
     </StudioGate>
   );
