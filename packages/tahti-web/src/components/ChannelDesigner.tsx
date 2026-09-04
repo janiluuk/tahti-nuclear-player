@@ -1985,7 +1985,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         onSelect={selectLookElement}
         onToggleDisabled={toggleSelectedLook}
         items={lookEditorItems}
-        className={`max-h-[min(40rem,70vh)] ${
+        className={`lg:!bg-background/85 max-h-[min(40rem,70vh)] lg:backdrop-blur-md ${
           highlightSection ? 'ring-primary ring-2' : ''
         }`}
       />
@@ -2075,10 +2075,10 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             </div>
           )}
 
-          <div className="grid min-h-0 grid-cols-1 gap-4">
+          <div className="grid min-h-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
             <main
               aria-label="Channel page preview"
-              className="border-border bg-background min-w-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-lg"
+              className="border-border bg-background min-w-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-lg lg:max-h-[calc(100vh-7rem)]"
             >
               <div className="border-border bg-background-secondary/40 flex items-center justify-between gap-1.5 border-b px-4 py-2.5">
                 <div className="flex items-center gap-1.5">
@@ -2219,7 +2219,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
 
             <section
               aria-label="Channel appearance controls"
-              className="min-w-0"
+              className="min-w-0 lg:sticky lg:top-4"
             >
               {controls}
             </section>
