@@ -278,8 +278,10 @@ test('subscriber and track purchase both get the original WAV; artist sees both 
   await page.goto('/studio/revenue');
   await expect(page.getByRole('heading', { name: 'Audience' })).toBeVisible();
   const orders = page.getByTestId('fan-order-list');
-  await expect(orders.getByText(/Fan-sub — Supporter/i)).toBeVisible();
-  await expect(orders.getByText(/Track purchase — riff\.wav/i)).toBeVisible();
+  await expect(orders.getByText(/Fan-sub — Supporter/i).first()).toBeVisible();
+  await expect(
+    orders.getByText(/Track purchase — riff\.wav/i).first(),
+  ).toBeVisible();
 
   await grantBoardView(page);
   await page.goto('/admin/logs');
