@@ -1,7 +1,7 @@
 import { CheckIcon, MapPinIcon, XIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Button, Input, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchAdminVenues,
@@ -11,7 +11,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageEmpty, PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 export function AdminVenuesView() {
   const [venues, setVenues] = useState<AdminVenue[]>([]);
@@ -73,63 +73,65 @@ export function AdminVenuesView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/venues">
           <div className="flex max-w-4xl flex-col gap-6">
-            <StudioPageHeader
+            <ViewShell
               title="Venues"
               subtitle="Review and manage venues submitted to the Tahti directory."
-            />
-            <StudioPanel>
-              <div className="flex flex-col gap-3">
-                <Input
-                  label="Search venues"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Name, city, slug, or submitter"
-                />
-                {error ? (
-                  <p className="text-accent-red text-sm">{error}</p>
-                ) : null}
-                {loading ? (
-                  <PageLoading label="Loading venues…" />
-                ) : filteredVenues.length === 0 ? (
-                  <PageEmpty title="No venues found" />
-                ) : (
-                  <ul className="divide-border divide-y">
-                    {filteredVenues.map((venue) => (
-                      <li
-                        key={venue.id}
-                        className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
-                      >
-                        <MapPinIcon
-                          size={17}
-                          className="text-primary"
-                          aria-hidden
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium">{venue.name}</p>
-                          <p className="text-foreground-secondary text-xs">
-                            {venue.city}, {venue.countryCode} · /{venue.slug} ·
-                            submitted by {venue.createdBy}
-                          </p>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant={venue.verifiedAt ? 'text' : undefined}
-                          disabled={busySlug === venue.slug}
-                          onClick={() => void toggleVerification(venue)}
+              classes={{ root: 'px-0 pt-0' }}
+            >
+              <StudioPanel>
+                <div className="flex flex-col gap-3">
+                  <Input
+                    label="Search venues"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Name, city, slug, or submitter"
+                  />
+                  {error ? (
+                    <p className="text-accent-red text-sm">{error}</p>
+                  ) : null}
+                  {loading ? (
+                    <PageLoading label="Loading venues…" />
+                  ) : filteredVenues.length === 0 ? (
+                    <PageEmpty title="No venues found" />
+                  ) : (
+                    <ul className="divide-border divide-y">
+                      {filteredVenues.map((venue) => (
+                        <li
+                          key={venue.id}
+                          className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
                         >
-                          {venue.verifiedAt ? (
-                            <XIcon size={14} aria-hidden />
-                          ) : (
-                            <CheckIcon size={14} aria-hidden />
-                          )}
-                          {venue.verifiedAt ? 'Unverify' : 'Verify'}
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </StudioPanel>
+                          <MapPinIcon
+                            size={17}
+                            className="text-primary"
+                            aria-hidden
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium">{venue.name}</p>
+                            <p className="text-foreground-secondary text-xs">
+                              {venue.city}, {venue.countryCode} · /{venue.slug}{' '}
+                              · submitted by {venue.createdBy}
+                            </p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant={venue.verifiedAt ? 'text' : undefined}
+                            disabled={busySlug === venue.slug}
+                            onClick={() => void toggleVerification(venue)}
+                          >
+                            {venue.verifiedAt ? (
+                              <XIcon size={14} aria-hidden />
+                            ) : (
+                              <CheckIcon size={14} aria-hidden />
+                            )}
+                            {venue.verifiedAt ? 'Unverify' : 'Verify'}
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </StudioPanel>
+            </ViewShell>
           </div>
         </AdminPageLayout>
       </div>

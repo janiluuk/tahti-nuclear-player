@@ -2,14 +2,14 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLinkIcon, Link2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, EmptyState, ImageReveal } from '@tahti-player/ui';
+import { Button, EmptyState, ImageReveal, ViewShell } from '@tahti-player/ui';
 
 import { fetchStudioReleases } from '../api/studio';
 import type { StudioRelease } from '../api/studio-types';
 import { PageLoading } from '../components/PageStates';
 import { StudioGate } from '../components/StudioGate';
 import { StudioNav } from '../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../components/StudioPanel';
+import { StudioPanel } from '../components/StudioPanel';
 
 const DSP_LABELS: Record<string, string> = {
   apple: 'Apple Music',
@@ -49,114 +49,114 @@ export function LibrarySmartLinksView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/library/smartlinks" />
-        <StudioPageHeader
+        <ViewShell
           title="Smartlinks"
           subtitle="Give every release one public page with links to the services where listeners can hear it."
-          action={
-            <Link to="/studio/releases">
-              <Button size="sm">New release</Button>
-            </Link>
-          }
-        />
-        <StudioPanel>
-          {loading ? (
-            <PageLoading label="Loading smartlinks…" />
-          ) : releases.length === 0 ? (
-            <EmptyState
-              size="sm"
-              icon={
-                <Link2Icon
-                  size={28}
-                  className="text-foreground-secondary"
-                  aria-hidden
-                />
-              }
-              title="No releases yet"
-              description="Create a release to get its public smartlink page."
-              action={
-                <Link to="/studio/releases">
-                  <Button size="sm">Create release</Button>
-                </Link>
-              }
-            />
-          ) : (
-            <ul className="divide-border divide-y">
-              {releases.map((release) => {
-                const targets = releaseTargets(release);
-                return (
-                  <li
-                    key={release.id}
-                    className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
-                  >
-                    <div className="flex min-w-0 items-start gap-3">
-                      {release.artworkUrl ? (
-                        <ImageReveal
-                          src={release.artworkUrl}
-                          alt=""
-                          className="size-12 shrink-0 rounded-md"
-                        />
-                      ) : (
-                        <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center rounded-md border">
-                          <Link2Icon
-                            size={18}
-                            className="text-foreground-secondary"
-                            aria-hidden
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          <Link to="/studio/releases">
+            <Button size="sm">New release</Button>
+          </Link>
+          <StudioPanel>
+            {loading ? (
+              <PageLoading label="Loading smartlinks…" />
+            ) : releases.length === 0 ? (
+              <EmptyState
+                size="sm"
+                icon={
+                  <Link2Icon
+                    size={28}
+                    className="text-foreground-secondary"
+                    aria-hidden
+                  />
+                }
+                title="No releases yet"
+                description="Create a release to get its public smartlink page."
+                action={
+                  <Link to="/studio/releases">
+                    <Button size="sm">Create release</Button>
+                  </Link>
+                }
+              />
+            ) : (
+              <ul className="divide-border divide-y">
+                {releases.map((release) => {
+                  const targets = releaseTargets(release);
+                  return (
+                    <li
+                      key={release.id}
+                      className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                    >
+                      <div className="flex min-w-0 items-start gap-3">
+                        {release.artworkUrl ? (
+                          <ImageReveal
+                            src={release.artworkUrl}
+                            alt=""
+                            className="size-12 shrink-0 rounded-md"
                           />
+                        ) : (
+                          <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center rounded-md border">
+                            <Link2Icon
+                              size={18}
+                              className="text-foreground-secondary"
+                              aria-hidden
+                            />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <Link
+                            to="/studio/releases/$id"
+                            params={{ id: release.id }}
+                            className="font-medium hover:underline"
+                          >
+                            {release.title}
+                          </Link>
+                          <p className="text-foreground-secondary text-xs">
+                            {release.type} · {release.state}
+                            {typeof release._count?.tracks === 'number'
+                              ? ` · ${release._count.tracks} track${release._count.tracks === 1 ? '' : 's'}`
+                              : ''}
+                          </p>
+                          <p className="text-foreground-secondary mt-1 text-xs">
+                            {targets.length > 0
+                              ? `${targets.length} DSP link${targets.length === 1 ? '' : 's'}: ${targets.map(([provider]) => targetLabel(provider)).join(', ')}`
+                              : 'No DSP links added yet'}
+                            {typeof release.smartLinkViewCount === 'number'
+                              ? ` · ${release.smartLinkViewCount.toLocaleString()} views`
+                              : ''}
+                          </p>
                         </div>
-                      )}
-                      <div className="min-w-0">
+                      </div>
+                      <div className="flex flex-wrap gap-2">
                         <Link
                           to="/studio/releases/$id"
                           params={{ id: release.id }}
-                          className="font-medium hover:underline"
                         >
-                          {release.title}
+                          <Button size="sm" variant="secondary">
+                            Manage
+                          </Button>
                         </Link>
-                        <p className="text-foreground-secondary text-xs">
-                          {release.type} · {release.state}
-                          {typeof release._count?.tracks === 'number'
-                            ? ` · ${release._count.tracks} track${release._count.tracks === 1 ? '' : 's'}`
-                            : ''}
-                        </p>
-                        <p className="text-foreground-secondary mt-1 text-xs">
-                          {targets.length > 0
-                            ? `${targets.length} DSP link${targets.length === 1 ? '' : 's'}: ${targets.map(([provider]) => targetLabel(provider)).join(', ')}`
-                            : 'No DSP links added yet'}
-                          {typeof release.smartLinkViewCount === 'number'
-                            ? ` · ${release.smartLinkViewCount.toLocaleString()} views`
-                            : ''}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Link
-                        to="/studio/releases/$id"
-                        params={{ id: release.id }}
-                      >
-                        <Button size="sm" variant="secondary">
-                          Manage
-                        </Button>
-                      </Link>
-                      <Link
-                        to="/r/$slug"
-                        params={{ slug: release.smartLinkSlug }}
-                      >
-                        <Button
-                          size="sm"
-                          variant="text"
-                          aria-label={`Open smartlink for ${release.title}`}
-                          title="Open smartlink"
+                        <Link
+                          to="/r/$slug"
+                          params={{ slug: release.smartLinkSlug }}
                         >
-                          <ExternalLinkIcon size={15} aria-hidden />
-                        </Button>
-                      </Link>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </StudioPanel>
+                          <Button
+                            size="sm"
+                            variant="text"
+                            aria-label={`Open smartlink for ${release.title}`}
+                            title="Open smartlink"
+                          >
+                            <ExternalLinkIcon size={15} aria-hidden />
+                          </Button>
+                        </Link>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </StudioPanel>
+        </ViewShell>
       </div>
     </StudioGate>
   );

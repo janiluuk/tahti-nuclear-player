@@ -2,6 +2,49 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — ViewShell round 4: remaining Studio + all of Admin (27 views, 3 batches)
+
+Closed out nearly all of docs/todo/viewshell-page-headers.md's remaining
+`StudioPageHeader` → `ViewShell` backlog in three ~10-view batches, each
+verified (`type-check`, `lint`, full `test` suite — 427 tests) and pushed
+separately.
+
+**Batch 1 (Studio, plain headers only):** StudioGovernanceView,
+StudioModerationView (embedded-mode header extracted into a `content`
+const so embedded skips ViewShell without duplicating ~200 lines),
+StudioMasteringView, StudioStripeView, StudioTrackInsightsView,
+StudioEventCreateView, StudioBrandingView, StudioDistributionView,
+StudioEditorProjectView, StudioStatsDetailView.
+
+**Batch 2 (Admin, first 10):** AdminActivityView, AdminAgmView,
+AdminArtworkPresetsView, AdminDiscoWidgetsView, AdminFinancialView,
+AdminGovernanceView, AdminGrantCycleView, AdminGrantsView, AdminI18nView,
+AdminLogsView.
+
+**Batch 3 (Admin, remaining 7) + 1 extra:** AdminRadioView,
+AdminReportsView, AdminStorageUserView, AdminStorageView,
+AdminVendorsView (its `AdminVendorsContent`, used both standalone and as
+dashboard tab content), AdminVenuesView, `admin/moderation/
+AdminModerationView`, plus `LibrarySmartLinksView` (found during the
+final backlog-accuracy pass — missed by the original per-directory
+triage since it lives directly under `views/`, not `views/studio/`).
+
+Every conversion: `action` prop content moved to `ViewShell` children
+(back-links first per the doc's own rule), `classes={{ root: 'px-0
+pt-0' }}`, `StudioNav`/`AdminPageLayout` tabs stay outside. Left alone,
+per the doc's own cover-image-overlay carve-out: StudioSoundView,
+StudioReleaseDetailView, StudioShowDetailView, StudioCollectionEditView
+(all four are entity-detail pages with the header text overlaid on cover
+art, not a title/subtitle block) and StudioProEditorView (the doc flags
+its maximized-vs-non-maximized chrome as needing verification before
+swapping — deferred rather than guessed at). Cross-checked AdminNewsView/
+AdminAnnouncementsView/AdminTopListsView/AdminOrphanPagesView — already
+`ViewShell` from other concurrent work, nothing to do there.
+
+Updated docs/todo/viewshell-page-headers.md's own checklist (Studio/Admin
+sections, Order of work) to match — it had drifted behind several rounds
+of incremental progress from other sessions.
+
 ## 2026-09-04 — ViewShell round 3: Transparency sub-pages + Revenue/Editor
 
 Chat, MoreView, and TransparencyView turned out already converted by another

@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ArrowLeftIcon, PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button } from '@tahti-player/ui';
+import { Badge, Button, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchAdminStorageUserFiles,
@@ -10,7 +10,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import {
   formatBytes,
   formatFileDate,
@@ -62,103 +62,104 @@ export function AdminStorageUserView({ userId }: { userId: string }) {
           </StudioPanel>
         ) : (
           <>
-            <StudioPageHeader
+            <ViewShell
               title={detail.displayName}
               subtitle={`@${detail.username} · ${tierLabel(detail.tier)} tier`}
-            />
-
-            <StudioPanel>
-              <div className="flex flex-wrap gap-6">
-                <div>
-                  <div className="text-foreground-secondary text-xs uppercase">
-                    Used
-                  </div>
-                  <div className="text-lg font-semibold">
-                    {formatBytes(detail.usedBytes)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-foreground-secondary text-xs uppercase">
-                    Quota
-                  </div>
-                  <div className="text-lg font-semibold">
-                    {formatQuota(detail.quotaBytes, detail.unlimited)}
-                  </div>
-                </div>
-                {pct != null ? (
+              classes={{ root: 'px-0 pt-0' }}
+            >
+              <StudioPanel>
+                <div className="flex flex-wrap gap-6">
                   <div>
                     <div className="text-foreground-secondary text-xs uppercase">
-                      Used of quota
+                      Used
                     </div>
-                    <div
-                      className={`text-lg font-semibold ${pct > 100 ? 'text-accent-red' : ''}`}
-                    >
-                      {Math.round(pct)}%
+                    <div className="text-lg font-semibold">
+                      {formatBytes(detail.usedBytes)}
                     </div>
                   </div>
-                ) : null}
-              </div>
-            </StudioPanel>
+                  <div>
+                    <div className="text-foreground-secondary text-xs uppercase">
+                      Quota
+                    </div>
+                    <div className="text-lg font-semibold">
+                      {formatQuota(detail.quotaBytes, detail.unlimited)}
+                    </div>
+                  </div>
+                  {pct != null ? (
+                    <div>
+                      <div className="text-foreground-secondary text-xs uppercase">
+                        Used of quota
+                      </div>
+                      <div
+                        className={`text-lg font-semibold ${pct > 100 ? 'text-accent-red' : ''}`}
+                      >
+                        {Math.round(pct)}%
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </StudioPanel>
 
-            <StudioPanel
-              title="Files"
-              description="Oldest first, with a running total of storage used over time."
-            >
-              {detail.files.length === 0 ? (
-                <p className="text-foreground-secondary py-4 text-center text-sm">
-                  No files uploaded yet.
-                </p>
-              ) : (
-                <ul className="divide-border divide-y">
-                  {detail.files.map((f) => (
-                    <li
-                      key={f.id}
-                      className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium">{f.title}</div>
-                        <div className="text-foreground-secondary text-xs">
-                          {f.kind === 'stash' ? 'Stash' : 'Sounds'} ·{' '}
-                          {formatBytes(f.sizeBytes)} ·{' '}
-                          {formatFileDate(f.createdAt)} · running total{' '}
-                          {formatBytes(f.runningTotalBytes)}
+              <StudioPanel
+                title="Files"
+                description="Oldest first, with a running total of storage used over time."
+              >
+                {detail.files.length === 0 ? (
+                  <p className="text-foreground-secondary py-4 text-center text-sm">
+                    No files uploaded yet.
+                  </p>
+                ) : (
+                  <ul className="divide-border divide-y">
+                    {detail.files.map((f) => (
+                      <li
+                        key={f.id}
+                        className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium">{f.title}</div>
+                          <div className="text-foreground-secondary text-xs">
+                            {f.kind === 'stash' ? 'Stash' : 'Sounds'} ·{' '}
+                            {formatBytes(f.sizeBytes)} ·{' '}
+                            {formatFileDate(f.createdAt)} · running total{' '}
+                            {formatBytes(f.runningTotalBytes)}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-1.5">
-                        {f.isPublic != null ? (
-                          <Badge
-                            variant="pill"
-                            color={f.isPublic ? 'green' : 'secondary'}
-                          >
-                            {f.isPublic ? 'Public' : 'Private'}
-                          </Badge>
-                        ) : null}
-                        {f.isAudio && f.previewUrl ? (
-                          <Button
-                            size="icon-sm"
-                            variant="text"
-                            aria-label={`Preview ${f.title}`}
-                            title="Preview"
-                            onClick={() =>
-                              play({
-                                id: `admin-storage-file:${f.id}`,
-                                kind: 'archive',
-                                title: f.title,
-                                artist: detail.displayName,
-                                streamUrl: f.previewUrl!,
-                                protocol: 'https',
-                              })
-                            }
-                          >
-                            <PlayIcon size={16} aria-hidden />
-                          </Button>
-                        ) : null}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </StudioPanel>
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          {f.isPublic != null ? (
+                            <Badge
+                              variant="pill"
+                              color={f.isPublic ? 'green' : 'secondary'}
+                            >
+                              {f.isPublic ? 'Public' : 'Private'}
+                            </Badge>
+                          ) : null}
+                          {f.isAudio && f.previewUrl ? (
+                            <Button
+                              size="icon-sm"
+                              variant="text"
+                              aria-label={`Preview ${f.title}`}
+                              title="Preview"
+                              onClick={() =>
+                                play({
+                                  id: `admin-storage-file:${f.id}`,
+                                  kind: 'archive',
+                                  title: f.title,
+                                  artist: detail.displayName,
+                                  streamUrl: f.previewUrl!,
+                                  protocol: 'https',
+                                })
+                              }
+                            >
+                              <PlayIcon size={16} aria-hidden />
+                            </Button>
+                          ) : null}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </StudioPanel>
+            </ViewShell>
           </>
         )}
       </div>

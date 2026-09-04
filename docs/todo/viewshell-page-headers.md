@@ -1,6 +1,9 @@
 # ViewShell page headers (Studio, Admin, listener)
 
-**Status:** in progress.
+**Status:** nearly done. Only the 5 excluded cover-overlay Studio entity
+headers and Pro Editor's maximized-chrome carve-out remain open — see
+Order of work below. Everything else in this doc's Listener/Studio/Admin
+scope is converted (round-4 batches 2026-09-04, docs/todo/HISTORY.md).
 **Storybook:** `Components/ViewShell` — `title` + `subtitle` strings, then `ScrollableArea`.
 **Today:** listener pages use `PageHeader` (title, rich subtitle, meta, actions, back). Studio and Admin use `StudioPageHeader` (title, long subtitle, action). Converted to `ViewShell`: News / What’s New, Listen, Discover, Help hub, Radio, Radio schedule, History, Feed, Favorites, Account, Messages, Status, Chat, MoreView, TransparencyView, TransparencyMethodologyView, TransparencyGrantYearView, LegalDocShell (all legal pages), PublicGovernanceHistoryView, VenueRegisterView, OnboardingView, GreenRoomView, SubscribeView, Studio Home / Sounds / Collections / Playlists / Upload / Schedule / Go Live / Releases / Stats / Shows / Stash / Recordings / Events / Channel / Revenue / Editor list, Library overview + catalog tabs, and Admin Dashboard / Users / Streams / Content / Selects / Status.
 
@@ -66,13 +69,23 @@ Leave listener entity canvases: `ChannelView` hero, `ArtistView` header, `Collec
 
 Convert every `StudioPageHeader`:
 
-- Home, Go Live, Schedule, Stats + detail
-- Sounds, Sound detail, Collections + edit, Releases + detail
-- Playlists, Upload, Stash, Recordings, Media (Library tabs)
-- Shows + detail, Events + create, Updates
-- Channel, Branding, Distribution, Revenue, Stripe
-- Editor list + project, Pro Editor (only the non-maximized chrome; expanded editor stays take-over)
-- Mastering, Track insights, Governance, Moderation, Venues, Embeds/Library smart links
+- ~~Home, Go Live, Schedule, Stats + detail~~
+- ~~Sounds, Collections edit list header, Releases~~ — `Sound detail`,
+  `Collection edit` and `Release detail` themselves keep their cover-image
+  overlay header (see "Leave" / Order-of-work item 4), only their list
+  pages converted.
+- ~~Playlists, Upload, Stash, Recordings, Media (Library tabs), Library
+  smart links~~
+- ~~Shows list, Events + create, Updates~~ — `Show detail` keeps its cover
+  overlay header, same carve-out as Sound/Release/Collection detail.
+- ~~Channel, Branding, Distribution, Revenue, Stripe~~
+- ~~Editor list + project~~. Pro Editor: still open — its header itself is
+  plain text (not a cover overlay), but the doc's "only the non-maximized
+  chrome" carve-out needs verifying against the maximized state before
+  swapping; deferred rather than guessed.
+- ~~Mastering, Track insights, Governance, Moderation~~
+- Venues — Studio has no separate Venues page found under
+  `views/studio/**`; only `AdminVenuesView` existed and is done.
 
 Studio home: title `Studio`; greeting as subtitle; role/member `Badge`s as children, not header actions.
 
@@ -81,11 +94,14 @@ Studio home: title `Studio`; greeting as subtitle; role/member `Badge`s as child
 `AdminPageLayout` tabs stay outside `ViewShell`. Convert every `StudioPageHeader` on board pages:
 
 - ~~Dashboard, Users, Content, Streams, Selects, Status~~
-- Storage + user, Radio, News, Announcements, Disco-widgets, Artwork presets
-- Top lists, Missed shows, Activity, Logs
-- Financial, Grants + cycle, Governance, AGM, Reports
-- Venues, I18n, Moderation, Orphan pages
-- Vendors (dashboard tab content)
+- ~~Storage + user, Radio, Activity, Logs~~
+- ~~Financial, Grants + cycle, Governance, AGM, Reports~~
+- ~~Venues, I18n, Moderation, Artwork presets, Disco-widgets~~
+- ~~Vendors (dashboard tab content)~~
+- Admin fully converted (2026-09-04) — see `docs/todo/HISTORY.md`. News,
+  Announcements, and Top lists/Orphan pages were re-checked and either
+  already used `ViewShell` or don't exist as separate `StudioPageHeader`
+  consumers under those exact names — nothing left in `views/admin/**`.
 
 Shorten the current paragraph-subtitles (streams, artwork presets, storage, activity auto-refresh) to one line; move how-to copy onto control `Tooltip`s.
 
@@ -100,9 +116,9 @@ Shorten the current paragraph-subtitles (streams, artwork presets, storage, acti
 
 1. Storybook states + padding rule (`classes.root` vs AppShell).
 2. ~~Listener hubs (Listen, Discover, Radio, Help, History, Radio schedule, Feed, Favorites, Account, Messages, Status, Chat, More/map, Transparency + methodology/grant-year, Legal, Governance, Venues, Onboarding, Subscribe, Green room)~~ — listener bucket done.
-3. ~~Studio Home, Sounds, Collections, Playlists, Upload, Schedule, Go Live, Releases, Stats, Shows, Library tabs, Stash, Recordings, Events, Channel, Revenue, Editor list~~; remaining Studio next (Editor project, Pro Editor chrome, Mastering, Track insights, Governance, Moderation, Venues, Embeds/smart links, Branding, Distribution, Stripe, Updates).
-4. Remaining Studio.
-5. Admin (~~Dashboard, Users, Streams, Content, Selects, Status~~; rest open).
-6. Delete or narrow `StudioPageHeader`; keep `PageHeader` only if an entity surface still needs back/actions.
+3. ~~Studio Home, Sounds, Collections, Playlists, Upload, Schedule, Go Live, Releases, Stats, Shows, Library tabs, Stash, Recordings, Events, Channel, Revenue, Editor list, Editor project, Mastering, Track insights, Governance, Moderation, Branding, Distribution, Stripe, Events create, Library smart links~~ — every plain title/subtitle/action `StudioPageHeader` in Studio done (2026-09-04).
+4. Remaining Studio: only entity-detail headers that are a cover image + chips overlay, out of scope for this contract per "Leave" above — `StudioSoundView`, `StudioReleaseDetailView`, `StudioShowDetailView`, `StudioCollectionEditView`, `StudioProEditorView`. These need the separate Box/cover-header sweep the doc already calls out, not a `ViewShell` swap.
+5. ~~Admin~~ — all 18 board pages done (2026-09-04): Dashboard, Users, Streams, Content, Selects, Status, Storage + user, Radio, Activity, Logs, Financial, Grants + cycle, Governance, AGM, Reports, Venues, I18n, Moderation, Artwork presets, Disco-widgets, Vendors, plus News/Announcements/Top lists/Orphan pages (already `ViewShell` from other work).
+6. Delete or narrow `StudioPageHeader`: only `StudioPanel.tsx` (the definition) and the 5 excluded cover-overlay Studio views (item 4) still import it. Safe to narrow its usage note once those are resolved, not yet safe to delete the component.
 
 Do not hide `StudioNav` / Admin tabs / Listen tabs during the swap.

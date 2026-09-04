@@ -9,10 +9,11 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { ViewShell } from '@tahti-player/ui';
+
 import { fetchAdminDashboard } from '../../../api/admin';
 import { AdminGate } from '../../../components/AdminGate';
 import { AdminPageLayout } from '../../../components/AdminNav';
-import { StudioPageHeader } from '../../../components/StudioPanel';
 import { AdminMissedShowsPanel } from '../AdminMissedShowsView';
 import {
   ADMIN_MODERATION_TABS,
@@ -92,25 +93,28 @@ export function AdminModerationView({ tab }: { tab?: AdminModerationTabId }) {
           moderationPendingCount={pendingCount}
         >
           <div className="flex max-w-5xl flex-col gap-6">
-            <StudioPageHeader
+            <ViewShell
               title="Moderation"
               subtitle="Review queues the board triages day to day — support, beta access, radio, curation, reports, and roadmap."
-            />
-            <ModerationTabs
-              activeId={
-                ADMIN_MODERATION_TABS[selectedIndex < 0 ? 0 : selectedIndex].id
-              }
-              items={MODERATION_TAB_ITEMS}
-              ariaLabel="Moderation queues"
-              onChange={(nextId) => {
-                void navigate({
-                  to: '/admin/moderation/$tab',
-                  params: { tab: nextId as AdminModerationTabId },
-                  replace: true,
-                });
-              }}
-            />
-            {tabContent(active)}
+              classes={{ root: 'px-0 pt-0' }}
+            >
+              <ModerationTabs
+                activeId={
+                  ADMIN_MODERATION_TABS[selectedIndex < 0 ? 0 : selectedIndex]
+                    .id
+                }
+                items={MODERATION_TAB_ITEMS}
+                ariaLabel="Moderation queues"
+                onChange={(nextId) => {
+                  void navigate({
+                    to: '/admin/moderation/$tab',
+                    params: { tab: nextId as AdminModerationTabId },
+                    replace: true,
+                  });
+                }}
+              />
+              {tabContent(active)}
+            </ViewShell>
           </div>
         </AdminPageLayout>
       </div>

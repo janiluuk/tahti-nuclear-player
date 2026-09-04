@@ -22,6 +22,7 @@ import {
   Select,
   StatChip,
   Tabs,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -40,7 +41,7 @@ import { AdminPageLayout } from '../../components/AdminNav';
 import { AdminUserEditPanel } from '../../components/AdminUserEditPanel';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { contentTypeLabel } from '../../content/contentTypes';
 import { formatDuration } from '../../lib/playableToTrack';
 import {
@@ -908,37 +909,38 @@ export function AdminStorageView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/storage">
           <div className="flex max-w-6xl flex-col gap-6">
-            <StudioPageHeader
+            <ViewShell
               title="Storage"
               subtitle="Disk and object storage space, per-user quotas, and every uploaded file across the platform."
-            />
-
-            <Tabs
-              selectedIndex={tab === 'storage' ? 0 : 1}
-              onChange={(index) => setTab(index === 0 ? 'storage' : 'files')}
-              listClassName="border-border border-b pb-3"
-              panelClassName="pt-2"
-              items={[
-                {
-                  id: 'storage',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <HardDriveIcon size={14} aria-hidden /> Storage
-                    </span>
-                  ),
-                  content: <StorageOverviewTab />,
-                },
-                {
-                  id: 'files',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <CloudIcon size={14} aria-hidden /> Files
-                    </span>
-                  ),
-                  content: <FilesBrowserTab />,
-                },
-              ]}
-            />
+              classes={{ root: 'px-0 pt-0' }}
+            >
+              <Tabs
+                selectedIndex={tab === 'storage' ? 0 : 1}
+                onChange={(index) => setTab(index === 0 ? 'storage' : 'files')}
+                listClassName="border-border border-b pb-3"
+                panelClassName="pt-2"
+                items={[
+                  {
+                    id: 'storage',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <HardDriveIcon size={14} aria-hidden /> Storage
+                      </span>
+                    ),
+                    content: <StorageOverviewTab />,
+                  },
+                  {
+                    id: 'files',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <CloudIcon size={14} aria-hidden /> Files
+                      </span>
+                    ),
+                    content: <FilesBrowserTab />,
+                  },
+                ]}
+              />
+            </ViewShell>
           </div>
         </AdminPageLayout>
       </div>

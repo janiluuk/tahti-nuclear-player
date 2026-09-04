@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Badge } from '@tahti-player/ui';
+import { Badge, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchAdminIntegrationStatus,
@@ -8,7 +8,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 const CRITICAL_VENDORS = [
   {
@@ -278,98 +278,102 @@ export function AdminVendorsContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      <StudioPageHeader
+      <ViewShell
         title="Vendors"
         subtitle="Association-owned accounts. Credentials live in the board vault, never here."
-      />
-
-      <StudioPanel
-        title={`${blockers.length} launch blockers · ${pending.length} checks pending`}
-        description="A vendor is not considered live until its credentials, contract, callback/webhook, DPA, and operational test are confirmed."
+        classes={{ root: 'px-0 pt-0' }}
       >
-        {blockers.length > 0 ? (
-          <ul className="text-foreground-secondary flex flex-col gap-2 text-sm">
-            {blockers.map((vendor) => (
-              <li key={vendor.name}>
-                <span className="text-foreground font-medium">
-                  {vendor.name}:
-                </span>{' '}
-                {vendor.blocker}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm">No explicit launch blockers are recorded.</p>
-        )}
-      </StudioPanel>
+        <StudioPanel
+          title={`${blockers.length} launch blockers · ${pending.length} checks pending`}
+          description="A vendor is not considered live until its credentials, contract, callback/webhook, DPA, and operational test are confirmed."
+        >
+          {blockers.length > 0 ? (
+            <ul className="text-foreground-secondary flex flex-col gap-2 text-sm">
+              {blockers.map((vendor) => (
+                <li key={vendor.name}>
+                  <span className="text-foreground font-medium">
+                    {vendor.name}:
+                  </span>{' '}
+                  {vendor.blocker}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm">No explicit launch blockers are recorded.</p>
+          )}
+        </StudioPanel>
 
-      {integrations.length > 0 && (
-        <StudioPanel title="Distribution status">
-          <ul className="flex flex-col gap-2">
-            {integrations.map((row) => (
-              <li key={row.name} className="flex items-center gap-3 text-sm">
-                <Badge variant="pill" color={row.live ? 'green' : 'red'}>
-                  {row.live ? 'Live' : 'Blocking launch'}
-                </Badge>
-                <div>
-                  <div className="font-medium">{row.name}</div>
-                  <div className="text-foreground-secondary text-xs">
-                    {row.detail}
+        {integrations.length > 0 && (
+          <StudioPanel title="Distribution status">
+            <ul className="flex flex-col gap-2">
+              {integrations.map((row) => (
+                <li key={row.name} className="flex items-center gap-3 text-sm">
+                  <Badge variant="pill" color={row.live ? 'green' : 'red'}>
+                    {row.live ? 'Live' : 'Blocking launch'}
+                  </Badge>
+                  <div>
+                    <div className="font-medium">{row.name}</div>
+                    <div className="text-foreground-secondary text-xs">
+                      {row.detail}
+                    </div>
                   </div>
+                </li>
+              ))}
+            </ul>
+          </StudioPanel>
+        )}
+
+        <StudioPanel title="Critical vendors">
+          <VendorTable vendors={CRITICAL_VENDORS} />
+        </StudioPanel>
+
+        <StudioPanel title="Integrations">
+          <VendorTable vendors={integrationVendors} />
+        </StudioPanel>
+
+        <StudioPanel
+          title="DSP & catalog partners"
+          description="Distribution partners artists reach through Studio → Distribution — no vendor account for us to configure beyond Revelator."
+        >
+          <ul className="divide-border divide-y">
+            {DISTRIBUTION_ACTIONS.map((row) => (
+              <li
+                key={row.name}
+                className="py-2.5 text-sm first:pt-0 last:pb-0"
+              >
+                <div className="font-medium">{row.name}</div>
+                <div className="text-foreground-secondary mt-0.5 text-xs">
+                  {row.action}
                 </div>
               </li>
             ))}
           </ul>
         </StudioPanel>
-      )}
 
-      <StudioPanel title="Critical vendors">
-        <VendorTable vendors={CRITICAL_VENDORS} />
-      </StudioPanel>
-
-      <StudioPanel title="Integrations">
-        <VendorTable vendors={integrationVendors} />
-      </StudioPanel>
-
-      <StudioPanel
-        title="DSP & catalog partners"
-        description="Distribution partners artists reach through Studio → Distribution — no vendor account for us to configure beyond Revelator."
-      >
-        <ul className="divide-border divide-y">
-          {DISTRIBUTION_ACTIONS.map((row) => (
-            <li key={row.name} className="py-2.5 text-sm first:pt-0 last:pb-0">
-              <div className="font-medium">{row.name}</div>
-              <div className="text-foreground-secondary mt-0.5 text-xs">
-                {row.action}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </StudioPanel>
-
-      <StudioPanel
-        title="Cooperative governance & local culture-organisation actions"
-        description="Open questions for the board/legal counsel — not legal advice, and not something this tool has verified or completed."
-      >
-        <ul className="divide-border divide-y">
-          {COOPERATIVE_ACTIONS.map((row) => (
-            <li
-              key={row.title}
-              className="flex flex-wrap items-start justify-between gap-2 py-2.5 text-sm first:pt-0 last:pb-0"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="font-medium">{row.title}</div>
-                <div className="text-foreground-secondary mt-0.5 text-xs">
-                  {row.detail}
+        <StudioPanel
+          title="Cooperative governance & local culture-organisation actions"
+          description="Open questions for the board/legal counsel — not legal advice, and not something this tool has verified or completed."
+        >
+          <ul className="divide-border divide-y">
+            {COOPERATIVE_ACTIONS.map((row) => (
+              <li
+                key={row.title}
+                className="flex flex-wrap items-start justify-between gap-2 py-2.5 text-sm first:pt-0 last:pb-0"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium">{row.title}</div>
+                  <div className="text-foreground-secondary mt-0.5 text-xs">
+                    {row.detail}
+                  </div>
                 </div>
-              </div>
-              <Badge variant="pill" color="orange">
-                {COOPERATIVE_ACTION_STATUS_LABEL[row.status]}
-              </Badge>
-            </li>
-          ))}
-        </ul>
-      </StudioPanel>
+                <Badge variant="pill" color="orange">
+                  {COOPERATIVE_ACTION_STATUS_LABEL[row.status]}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </StudioPanel>
+      </ViewShell>
     </div>
   );
 }
