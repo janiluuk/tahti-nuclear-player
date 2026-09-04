@@ -1,11 +1,10 @@
 import { useNavigate } from '@tanstack/react-router';
 import { RadioIcon } from 'lucide-react';
 
-import { Tabs } from '@tahti-player/ui';
+import { Tabs, ViewShell } from '@tahti-player/ui';
 
 import { AdminGate } from '../../../components/AdminGate';
 import { AdminPageLayout } from '../../../components/AdminNav';
-import { StudioPageHeader } from '../../../components/StudioPanel';
 import {
   ADMIN_ORPHAN_PAGE_TABS,
   DEFAULT_ADMIN_ORPHAN_PAGE_TAB,
@@ -21,11 +20,6 @@ function tabContent(id: AdminOrphanPageTabId) {
   }
 }
 
-/** One admin page, one tab per shipped page that had no nav entry and no
- * in-app link — see NAVIGATION-SITEMAP.md. Same convention as
- * AdminModerationView: each tab is addressable at
- * `/admin/orphan-pages/$tab`, and the retired standalone route redirects
- * here (router.tsx). */
 export function AdminOrphanPagesView({ tab }: { tab?: AdminOrphanPageTabId }) {
   const navigate = useNavigate();
   const active = isAdminOrphanPageTabId(tab)
@@ -39,11 +33,11 @@ export function AdminOrphanPagesView({ tab }: { tab?: AdminOrphanPageTabId }) {
     <AdminGate>
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/orphan-pages">
-          <div className="flex max-w-5xl flex-col gap-6">
-            <StudioPageHeader
-              title="Orphan pages"
-              subtitle="Real pages that shipped without a menu entry or an in-app link. Gathered here so nothing built stays permanently unreachable."
-            />
+          <ViewShell
+            title="Orphan pages"
+            subtitle="Pages with no menu entry."
+            classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
+          >
             <Tabs.Root
               selectedIndex={selectedIndex < 0 ? 0 : selectedIndex}
               onChange={(index) => {
@@ -66,7 +60,7 @@ export function AdminOrphanPagesView({ tab }: { tab?: AdminOrphanPageTabId }) {
               </Tabs.List>
             </Tabs.Root>
             {tabContent(active)}
-          </div>
+          </ViewShell>
         </AdminPageLayout>
       </div>
     </AdminGate>

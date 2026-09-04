@@ -2,7 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { ListFilterIcon, SearchIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { FilterChips, Input, TopList } from '@tahti-player/ui';
+import { FilterChips, Input, TopList, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchAdminTopLists,
@@ -14,7 +14,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageEmpty, PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import {
   formatListenCount,
   rankingBucketTitle,
@@ -74,12 +74,11 @@ export function AdminTopListsView() {
     <AdminGate>
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/top-lists">
-          <div className="flex max-w-4xl flex-col gap-6">
-            <StudioPageHeader
-              title="Top lists"
-              subtitle="Listens are counted once per track per listener per day — a genuine play, not a raw click."
-            />
-
+          <ViewShell
+            title="Top lists"
+            subtitle="One listen per track per day."
+            classes={{ root: 'px-0 pt-0 mx-auto max-w-4xl' }}
+          >
             <div className="flex flex-col gap-3">
               <Input
                 value={query}
@@ -171,7 +170,7 @@ export function AdminTopListsView() {
                 </StudioPanel>
               ))
             )}
-          </div>
+          </ViewShell>
         </AdminPageLayout>
       </div>
     </AdminGate>

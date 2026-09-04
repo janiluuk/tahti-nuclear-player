@@ -1,8 +1,7 @@
-import { Badge, Button } from '@tahti-player/ui';
+import { Badge, Button, ViewShell } from '@tahti-player/ui';
 
 import { FlowGallery } from '../components/FlowGallery';
 import { MapCommentForm } from '../components/MapCommentForm';
-import { PageHeader } from '../components/PageHeader';
 import { PortInventoryPanel } from '../components/PortInventoryPanel';
 import { ParityBadges, ScreenAtlas } from '../components/ScreenAtlas';
 import { StudioPanel } from '../components/StudioPanel';
@@ -577,87 +576,70 @@ export function MoreView() {
   const gapCount = FEATURES.filter((r) => featureParity(r) !== 'both').length;
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-8">
-      <PageHeader
-        title="Tahti map"
-        subtitle={
-          <>
-            Three surfaces, one API: canonical{' '}
-            <code className="text-foreground">apps/web</code>,
-            <code className="text-foreground">beta.tahti.live</code>, and public
-            docs at{' '}
-            <a
-              href="https://api.tahti.live/api"
-              target="_blank"
-              rel="noreferrer"
-              className="underline-offset-2 hover:underline"
-            >
-              api.tahti.live/api
-            </a>
-            . Side-by-side screenshots, mermaid journeys, and the feature
-            matrix. Port checklist:{' '}
-            <code className="text-foreground">FEATURES.md</code>.
-          </>
-        }
-      />
-      <div>
-        <nav className="mt-3 flex flex-wrap gap-2 text-xs">
-          <a
-            href="#cases-anonymous"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Anonymous
-          </a>
-          <a
-            href="#cases-auth"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Auth
-          </a>
-          <a
-            href="#cases-listener"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Listener
-          </a>
-          <a
-            href="#cases-artist"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Artist
-          </a>
-          <a
-            href="#cases-edge"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Edge
-          </a>
-          <a
-            href="#flow-gallery"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Flows
-          </a>
-          <a
-            href="#design-system"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Design
-          </a>
-          <a
-            href="#feature-matrix"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Features
-          </a>
-          <a
-            href="#saved-comments"
-            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
-          >
-            Comments
-          </a>
-        </nav>
-      </div>
+    <ViewShell
+      title="Tahti map"
+      subtitle="Screens, flows, and feature parity."
+      classes={{
+        root: 'px-0 pt-0 mx-auto max-w-7xl',
+        scrollableArea: 'gap-8',
+      }}
+    >
+      <nav className="flex flex-wrap gap-2 text-xs">
+        <a
+          href="#cases-anonymous"
+          className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+        >
+          Anonymous
+        </a>
+        <a
+          href="#cases-auth"
+          className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+        >
+          Auth
+        </a>
+        <a
+          href="#cases-listener"
+          className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+        >
+          Listener
+        </a>
+        <a
+          href="#cases-artist"
+          className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+        >
+          Artist
+        </a>
+        <a
+          href="#cases-edge"
+          className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+        >
+          Edge
+        </a>
+        <a
+          href="#flow-gallery"
+          className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+        >
+          Flows
+        </a>
+        <a
+          href="#design-system"
+          className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+        >
+          Design
+        </a>
+        <a
+          href="#feature-matrix"
+          className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+        >
+          Features
+        </a>
+        <a
+          href="#saved-comments"
+          className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+        >
+          Comments
+        </a>
+      </nav>
 
       <ScreenAtlas />
 
@@ -734,6 +716,6 @@ export function MoreView() {
           tahti.live
         </a>
       </p>
-    </div>
+    </ViewShell>
   );
 }

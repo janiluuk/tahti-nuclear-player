@@ -17,6 +17,8 @@ import {
   Tabs,
   Textarea,
   Toggle,
+  Tooltip,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -34,7 +36,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageLightbox } from '../../components/ImageLightbox';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 type Tab = 'posts' | 'newsletter';
 
@@ -152,220 +154,229 @@ export function StudioUpdatesView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/updates" />
-        <StudioPageHeader
-          title="Posts"
-          subtitle="Post to your fans and send newsletter drafts."
-          action={
-            tab === 'posts' ? (
-              <Button
-                size="icon-sm"
-                onClick={() => {
-                  setMsg(null);
-                  setPostOpen(true);
-                }}
-                aria-label="New post"
-                title="New post"
-              >
-                <PlusIcon size={16} aria-hidden />
-              </Button>
-            ) : (
-              <Button
-                size="icon-sm"
-                onClick={() => {
-                  setMsg(null);
-                  setDraftOpen(true);
-                }}
-                aria-label="New draft"
-                title="New draft"
-              >
-                <PlusIcon size={16} aria-hidden />
-              </Button>
-            )
-          }
-        />
-
-        <Tabs.Root
-          selectedIndex={tab === 'posts' ? 0 : 1}
-          onChange={(index) => setTab(index === 0 ? 'posts' : 'newsletter')}
+        <ViewShell
+          title="Updates"
+          subtitle="Posts and newsletter drafts."
+          classes={{ root: 'px-0 pt-0' }}
         >
-          <Tabs.List>
-            <Tabs.Tab>
-              <span className="inline-flex items-center gap-1.5">
-                <NewspaperIcon size={14} aria-hidden />
-                Posts
-              </span>
-            </Tabs.Tab>
-            <Tabs.Tab>
-              <span className="inline-flex items-center gap-1.5">
-                <SendIcon size={14} aria-hidden />
-                Newsletter
-              </span>
-            </Tabs.Tab>
-          </Tabs.List>
-        </Tabs.Root>
-
-        {msg && (
-          <p className="text-foreground-secondary text-sm" role="status">
-            {msg}
-          </p>
-        )}
-
-        {tab === 'posts' && (
-          <StudioPanel>
-            {posts.length === 0 ? (
-              <div className="flex flex-col gap-3 py-4 text-center">
-                <p className="text-foreground-secondary text-sm">
-                  No posts yet.
-                </p>
-                {!isEmpty && (
-                  <div>
-                    <Button
-                      size="icon-sm"
-                      onClick={() => setPostOpen(true)}
-                      aria-label="New post"
-                      title="New post"
-                    >
-                      <PlusIcon size={16} aria-hidden />
-                    </Button>
-                  </div>
-                )}
-              </div>
+          <div className="mb-4">
+            {tab === 'posts' ? (
+              <Tooltip content="New post" side="top">
+                <Button
+                  size="icon-sm"
+                  onClick={() => {
+                    setMsg(null);
+                    setPostOpen(true);
+                  }}
+                  aria-label="New post"
+                >
+                  <PlusIcon size={16} aria-hidden />
+                </Button>
+              </Tooltip>
             ) : (
-              <ul className="divide-border divide-y">
-                {posts.map((p) => (
-                  <li
-                    key={p.id}
-                    className="flex flex-wrap items-start justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium">{p.title || 'Untitled'}</div>
-                      <p className="text-foreground-secondary mt-1 line-clamp-3 whitespace-pre-wrap">
-                        {p.body}
-                      </p>
-                      {p.images.length > 0 && (
-                        <div className="mt-2 flex gap-2 overflow-hidden">
-                          {p.images.map((image, index) => (
-                            <button
-                              key={`${image}-${index}`}
-                              type="button"
-                              className="bg-background-secondary size-16 shrink-0 overflow-hidden rounded-md"
-                              onClick={() =>
-                                setLightbox({ images: p.images, index })
-                              }
-                              aria-label={`View image ${index + 1} full size`}
-                            >
-                              <img
-                                src={image}
-                                alt=""
-                                className="size-full object-cover"
-                              />
-                            </button>
-                          ))}
+              <Tooltip content="New draft" side="top">
+                <Button
+                  size="icon-sm"
+                  onClick={() => {
+                    setMsg(null);
+                    setDraftOpen(true);
+                  }}
+                  aria-label="New draft"
+                >
+                  <PlusIcon size={16} aria-hidden />
+                </Button>
+              </Tooltip>
+            )}
+          </div>
+
+          <Tabs.Root
+            selectedIndex={tab === 'posts' ? 0 : 1}
+            onChange={(index) => setTab(index === 0 ? 'posts' : 'newsletter')}
+          >
+            <Tabs.List>
+              <Tabs.Tab>
+                <span className="inline-flex items-center gap-1.5">
+                  <NewspaperIcon size={14} aria-hidden />
+                  Posts
+                </span>
+              </Tabs.Tab>
+              <Tabs.Tab>
+                <span className="inline-flex items-center gap-1.5">
+                  <SendIcon size={14} aria-hidden />
+                  Newsletter
+                </span>
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+
+          {msg && (
+            <p className="text-foreground-secondary text-sm" role="status">
+              {msg}
+            </p>
+          )}
+
+          {tab === 'posts' && (
+            <StudioPanel>
+              {posts.length === 0 ? (
+                <div className="flex flex-col gap-3 py-4 text-center">
+                  <p className="text-foreground-secondary text-sm">
+                    No posts yet.
+                  </p>
+                  {!isEmpty && (
+                    <div>
+                      <Tooltip content="New post" side="top">
+                        <Button
+                          size="icon-sm"
+                          onClick={() => setPostOpen(true)}
+                          aria-label="New post"
+                        >
+                          <PlusIcon size={16} aria-hidden />
+                        </Button>
+                      </Tooltip>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <ul className="divide-border divide-y">
+                  {posts.map((p) => (
+                    <li
+                      key={p.id}
+                      className="flex flex-wrap items-start justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium">
+                          {p.title || 'Untitled'}
                         </div>
-                      )}
-                      <p className="text-foreground-secondary mt-1 text-xs">
-                        {new Date(p.publishAt).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 gap-1">
-                      <Button
-                        size="sm"
-                        variant="text"
-                        onClick={() => setPreviewPost(p)}
-                      >
-                        <EyeIcon size={15} aria-hidden className="mr-1.5" />
-                        Preview
-                      </Button>
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        aria-label="Delete post"
-                        title="Delete"
-                        onClick={() => setPendingDeletePost(p)}
-                      >
-                        <Trash2Icon size={16} aria-hidden />
-                      </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </StudioPanel>
-        )}
-
-        {tab === 'newsletter' && (
-          <StudioPanel>
-            {drafts.length === 0 ? (
-              <div className="flex flex-col gap-3 py-4 text-center">
-                <p className="text-foreground-secondary text-sm">
-                  No drafts yet.
-                </p>
-                {!isEmpty && (
-                  <div>
-                    <Button
-                      size="icon-sm"
-                      onClick={() => setDraftOpen(true)}
-                      aria-label="New draft"
-                      title="New draft"
-                    >
-                      <PlusIcon size={16} aria-hidden />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <ul className="divide-border divide-y">
-                {drafts.map((d) => (
-                  <li
-                    key={d.id}
-                    className="flex flex-wrap items-start justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium">{d.subject}</div>
-                      {d.bodyMd && (
-                        <p className="text-foreground-secondary mt-1 whitespace-pre-wrap">
-                          {d.bodyMd}
+                        <p className="text-foreground-secondary mt-1 line-clamp-3 whitespace-pre-wrap">
+                          {p.body}
                         </p>
-                      )}
-                      <p className="text-foreground-secondary mt-1 text-xs">
-                        {d.subscribersOnly ? 'Fans only' : 'All subscribers'}
-                        {d.state ? `, ${d.state}` : ''}
-                        {d.sentAt
-                          ? `, sent ${new Date(d.sentAt).toLocaleString()}`
-                          : ', draft'}
-                      </p>
+                        {p.images.length > 0 && (
+                          <div className="mt-2 flex gap-2 overflow-hidden">
+                            {p.images.map((image, index) => (
+                              <button
+                                key={`${image}-${index}`}
+                                type="button"
+                                className="bg-background-secondary size-16 shrink-0 overflow-hidden rounded-md"
+                                onClick={() =>
+                                  setLightbox({ images: p.images, index })
+                                }
+                                aria-label={`View image ${index + 1} full size`}
+                              >
+                                <img
+                                  src={image}
+                                  alt=""
+                                  className="size-full object-cover"
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-foreground-secondary mt-1 text-xs">
+                          {new Date(p.publishAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 gap-1">
+                        <Button
+                          size="sm"
+                          variant="text"
+                          onClick={() => setPreviewPost(p)}
+                        >
+                          <EyeIcon size={15} aria-hidden className="mr-1.5" />
+                          Preview
+                        </Button>
+                        <Tooltip content="Delete" side="top">
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label="Delete post"
+                            onClick={() => setPendingDeletePost(p)}
+                          >
+                            <Trash2Icon size={16} aria-hidden />
+                          </Button>
+                        </Tooltip>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </StudioPanel>
+          )}
+
+          {tab === 'newsletter' && (
+            <StudioPanel>
+              {drafts.length === 0 ? (
+                <div className="flex flex-col gap-3 py-4 text-center">
+                  <p className="text-foreground-secondary text-sm">
+                    No drafts yet.
+                  </p>
+                  {!isEmpty && (
+                    <div>
+                      <Tooltip content="New draft" side="top">
+                        <Button
+                          size="icon-sm"
+                          onClick={() => setDraftOpen(true)}
+                          aria-label="New draft"
+                        >
+                          <PlusIcon size={16} aria-hidden />
+                        </Button>
+                      </Tooltip>
                     </div>
-                    {(!d.state || d.state === 'DRAFT') && !d.sentAt && (
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          void sendNewsletterDraft(
-                            d.id,
-                            d.subscribersOnly ? 'fans' : 'all',
-                          ).then((r) => {
-                            if (!r.ok) {
-                              setMsg(r.error);
-                            } else {
-                              setMsg(
-                                r.queued != null
-                                  ? `Queued send to ${r.queued} subscribers.`
-                                  : 'Send queued.',
-                              );
-                              reload();
-                            }
-                          });
-                        }}
-                      >
-                        <SendIcon size={16} aria-hidden className="mr-1.5" />
-                        Send
-                      </Button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </StudioPanel>
-        )}
+                  )}
+                </div>
+              ) : (
+                <ul className="divide-border divide-y">
+                  {drafts.map((d) => (
+                    <li
+                      key={d.id}
+                      className="flex flex-wrap items-start justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium">{d.subject}</div>
+                        {d.bodyMd && (
+                          <p className="text-foreground-secondary mt-1 whitespace-pre-wrap">
+                            {d.bodyMd}
+                          </p>
+                        )}
+                        <p className="text-foreground-secondary mt-1 text-xs">
+                          {d.subscribersOnly ? 'Fans only' : 'All subscribers'}
+                          {d.state ? `, ${d.state}` : ''}
+                          {d.sentAt
+                            ? `, sent ${new Date(d.sentAt).toLocaleString()}`
+                            : ', draft'}
+                        </p>
+                      </div>
+                      {(!d.state || d.state === 'DRAFT') && !d.sentAt && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            void sendNewsletterDraft(
+                              d.id,
+                              d.subscribersOnly ? 'fans' : 'all',
+                            ).then((r) => {
+                              if (!r.ok) {
+                                setMsg(r.error);
+                              } else {
+                                setMsg(
+                                  r.queued != null
+                                    ? `Queued send to ${r.queued} subscribers.`
+                                    : 'Send queued.',
+                                );
+                                reload();
+                              }
+                            });
+                          }}
+                        >
+                          <SendIcon size={16} aria-hidden className="mr-1.5" />
+                          Send
+                        </Button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </StudioPanel>
+          )}
+        </ViewShell>
 
         <Dialog.Root isOpen={postOpen} onClose={closePost}>
           <form

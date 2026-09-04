@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Input, Textarea } from '@tahti-player/ui';
+import { Badge, Button, Input, Textarea, ViewShell } from '@tahti-player/ui';
 
 import {
   createFeatureRequest,
@@ -12,7 +12,6 @@ import {
   type MotionComment,
 } from '../api/client';
 import type { FeatureRequest, FeatureRequestStatus } from '../api/types';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
@@ -79,29 +78,23 @@ export function FeatureRequestsView({
     void fetchFeatureRequestComments(id).then((res) => setComments(res.data));
   };
 
-  return (
-    <PageFrame maxWidth="3xl">
+  const body = (
+    <>
       {!embedded && (
-        <PageHeader
-          title="Feature requests"
-          subtitle="Propose and vote on what Tahti builds next. Reviewed quarterly by the board."
-          back={
-            <Link
-              to="/governance"
-              onClick={closeSettings}
-              className="text-foreground-secondary text-xs hover:underline"
-            >
-              ← Governance
-            </Link>
-          }
-          actions={
-            user && !forbidden ? (
-              <Button size="sm" onClick={() => setComposerOpen((v) => !v)}>
-                {composerOpen ? 'Cancel' : 'Propose an idea'}
-              </Button>
-            ) : undefined
-          }
-        />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Link
+            to="/governance"
+            onClick={closeSettings}
+            className="text-foreground-secondary text-xs hover:underline"
+          >
+            ← Governance
+          </Link>
+          {user && !forbidden ? (
+            <Button size="sm" onClick={() => setComposerOpen((v) => !v)}>
+              {composerOpen ? 'Cancel' : 'Propose an idea'}
+            </Button>
+          ) : null}
+        </div>
       )}
 
       {!user && (
@@ -342,6 +335,23 @@ export function FeatureRequestsView({
           })}
         </ul>
       )}
-    </PageFrame>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="flex flex-col gap-6">{body}</div>;
+  }
+
+  return (
+    <ViewShell
+      title="Feature requests"
+      subtitle="Propose and vote on what Tahti builds."
+      classes={{
+        root: 'px-0 pt-0 mx-auto max-w-3xl',
+        scrollableArea: 'gap-6',
+      }}
+    >
+      {body}
+    </ViewShell>
   );
 }

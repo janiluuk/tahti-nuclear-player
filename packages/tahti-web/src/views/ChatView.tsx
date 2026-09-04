@@ -1,11 +1,10 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Button, Input, ViewShell } from '@tahti-player/ui';
 
 import { fetchDirectory } from '../api/client';
 import { ChannelChatPanel } from '../components/ChannelChatPanel';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useLayoutStore } from '../stores/layoutStore';
 
 export function ChatView({ slug }: { slug?: string }) {
@@ -33,11 +32,14 @@ export function ChatView({ slug }: { slug?: string }) {
 
   if (!slug) {
     return (
-      <PageFrame maxWidth="lg">
-        <PageHeader
-          title="Channel chat"
-          subtitle="Pick a channel to open its public chat."
-        />
+      <ViewShell
+        title="Chat"
+        subtitle="Pick a channel to open chat."
+        classes={{
+          root: 'px-0 pt-0 mx-auto max-w-lg',
+          scrollableArea: 'gap-6',
+        }}
+      >
         <Input
           label="Channel slug"
           value={draft}
@@ -65,42 +67,44 @@ export function ChatView({ slug }: { slug?: string }) {
             </Link>
           ))}
         </div>
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   return (
-    <PageFrame maxWidth="lg">
-      <PageHeader
-        title={`Chat — ${slug}`}
-        back={
+    <ViewShell
+      title="Chat"
+      subtitle={slug}
+      classes={{
+        root: 'px-0 pt-0 mx-auto max-w-lg',
+        scrollableArea: 'gap-6',
+      }}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Link
+          to="/chat"
+          className="text-foreground-secondary text-xs hover:underline"
+        >
+          ← Chat picker
+        </Link>
+        <div className="flex flex-wrap items-center gap-2">
           <Link
-            to="/chat"
-            className="text-foreground-secondary text-xs hover:underline"
+            to="/channel/$slug"
+            params={{ slug }}
+            className="text-foreground-secondary text-sm underline-offset-2 hover:underline"
           >
-            ← Chat picker
+            Open channel
           </Link>
-        }
-        actions={
-          <>
-            <Link
-              to="/channel/$slug"
-              params={{ slug }}
-              className="text-foreground-secondary text-sm underline-offset-2 hover:underline"
-            >
-              Open channel
-            </Link>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => openChatRail(slug)}
-            >
-              Open chat rail
-            </Button>
-          </>
-        }
-      />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => openChatRail(slug)}
+          >
+            Open chat rail
+          </Button>
+        </div>
+      </div>
       <ChannelChatPanel slug={slug} />
-    </PageFrame>
+    </ViewShell>
   );
 }

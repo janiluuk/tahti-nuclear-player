@@ -3,7 +3,14 @@ import { CalendarPlusIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, EmptyState, Input, SaveButton } from '@tahti-player/ui';
+import {
+  Button,
+  EmptyState,
+  Input,
+  SaveButton,
+  Tooltip,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import {
   cancelVenueBroadcast,
@@ -18,7 +25,7 @@ import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 
 function VenueCard({
@@ -152,15 +159,16 @@ function VenueCard({
         <div className="mb-2 flex items-center justify-between">
           <Eyebrow className="block">Bookings</Eyebrow>
           {!bookingFormOpen && (
-            <Button
-              size="icon-sm"
-              variant="text"
-              onClick={() => setBookingFormOpen(true)}
-              aria-label="New booking"
-              title="New booking"
-            >
-              <PlusIcon size={16} aria-hidden />
-            </Button>
+            <Tooltip content="New booking" side="top">
+              <Button
+                size="icon-sm"
+                variant="text"
+                onClick={() => setBookingFormOpen(true)}
+                aria-label="New booking"
+              >
+                <PlusIcon size={16} aria-hidden />
+              </Button>
+            </Tooltip>
           )}
         </div>
         {upcoming.length === 0 ? (
@@ -294,42 +302,44 @@ export function StudioVenuesView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/venues" />
-        <StudioPageHeader
+        <ViewShell
           title="Venues"
-          subtitle="Manage venues you registered and their live show bookings."
-          action={
+          subtitle="Your venues and bookings."
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          <div className="mb-4">
             <Link to="/venues/register">
               <Button size="sm" variant="secondary">
                 <PlusIcon size={14} aria-hidden className="mr-1.5" />
                 Register a venue
               </Button>
             </Link>
-          }
-        />
-
-        {loading ? (
-          <PageLoading label="Loading…" />
-        ) : venues.length === 0 ? (
-          <EmptyState
-            size="sm"
-            title="No venues yet"
-            description="Register one to start booking shows."
-            action={
-              <Link to="/venues/register">
-                <Button size="sm" variant="secondary">
-                  <PlusIcon size={14} aria-hidden className="mr-1.5" />
-                  Register a venue
-                </Button>
-              </Link>
-            }
-          />
-        ) : (
-          <div className="flex flex-col gap-4">
-            {venues.map((v) => (
-              <VenueCard key={v.id} venue={v} onChanged={reload} />
-            ))}
           </div>
-        )}
+
+          {loading ? (
+            <PageLoading label="Loading…" />
+          ) : venues.length === 0 ? (
+            <EmptyState
+              size="sm"
+              title="No venues yet"
+              description="Register one to start booking shows."
+              action={
+                <Link to="/venues/register">
+                  <Button size="sm" variant="secondary">
+                    <PlusIcon size={14} aria-hidden className="mr-1.5" />
+                    Register a venue
+                  </Button>
+                </Link>
+              }
+            />
+          ) : (
+            <div className="flex flex-col gap-4">
+              {venues.map((v) => (
+                <VenueCard key={v.id} venue={v} onChanged={reload} />
+              ))}
+            </div>
+          )}
+        </ViewShell>
       </div>
     </StudioGate>
   );

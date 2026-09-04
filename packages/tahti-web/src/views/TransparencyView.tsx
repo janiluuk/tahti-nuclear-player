@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Box, SectionShell } from '@tahti-player/ui';
+import { Box, SectionShell, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchTransparencyGrants,
@@ -13,7 +13,6 @@ import type {
   TransparencyLedgerEntry,
   TransparencyYtd,
 } from '../api/types';
-import { PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
 
 function centsLabel(raw: string) {
@@ -50,149 +49,151 @@ export function TransparencyView() {
     };
   }, []);
 
-  if (loading) {
-    return <PageLoading label="Loading transparency…" />;
-  }
-
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-8">
-      <PageHeader
-        title="Transparency"
-        subtitle={
-          <>
-            Public co-op ledger snapshots from{' '}
-            <code>/api/v1/transparency/*</code>.
-          </>
-        }
-        meta={
-          <>
-            <Link
-              to="/transparency/methodology"
-              className="text-foreground-secondary w-fit text-xs underline-offset-2 hover:underline"
-            >
-              How this data is recorded and published →
-            </Link>
-            <Link
-              to="/governance/history"
-              className="text-foreground-secondary block w-fit text-xs underline-offset-2 hover:underline"
-            >
-              Closed governance decisions →
-            </Link>
-          </>
-        }
-      />
+    <ViewShell
+      title="Transparency"
+      subtitle="Public co-op ledger."
+      classes={{
+        root: 'px-0 pt-0 mx-auto max-w-4xl',
+        scrollableArea: 'gap-8',
+      }}
+    >
+      <div className="flex flex-col gap-1">
+        <Link
+          to="/transparency/methodology"
+          className="text-foreground-secondary w-fit text-xs underline-offset-2 hover:underline"
+        >
+          How this data is recorded and published →
+        </Link>
+        <Link
+          to="/governance/history"
+          className="text-foreground-secondary w-fit text-xs underline-offset-2 hover:underline"
+        >
+          Closed governance decisions →
+        </Link>
+      </div>
 
-      {ytd && (
-        <SectionShell title={`YTD ${ytd.year}`}>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <Stat
-              label="Running surplus"
-              value={centsLabel(ytd.runningSurplus)}
-            />
-            <Stat
-              label="Months finalized"
-              value={String(ytd.monthsFinalized)}
-            />
-            <Stat
-              label="Categories"
-              value={String(Object.keys(ytd.byCategory).length)}
-            />
-          </div>
-          <table className="mt-3 w-full border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
-                <th className="py-2 pr-3 font-medium">Category</th>
-                <th className="py-2 font-medium">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(ytd.byCategory).map(([cat, amt]) => (
-                <tr key={cat} className="border-border border-b">
-                  <td className="py-2 pr-3 font-mono text-xs">{cat}</td>
-                  <td className="py-2">{centsLabel(amt)}</td>
+      {loading ? (
+        <PageLoading label="Loading transparency…" />
+      ) : (
+        <>
+          {ytd && (
+            <SectionShell title={`YTD ${ytd.year}`}>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <Stat
+                  label="Running surplus"
+                  value={centsLabel(ytd.runningSurplus)}
+                />
+                <Stat
+                  label="Months finalized"
+                  value={String(ytd.monthsFinalized)}
+                />
+                <Stat
+                  label="Categories"
+                  value={String(Object.keys(ytd.byCategory).length)}
+                />
+              </div>
+              <table className="mt-3 w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
+                    <th className="py-2 pr-3 font-medium">Category</th>
+                    <th className="py-2 font-medium">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(ytd.byCategory).map(([cat, amt]) => (
+                    <tr key={cat} className="border-border border-b">
+                      <td className="py-2 pr-3 font-mono text-xs">{cat}</td>
+                      <td className="py-2">{centsLabel(amt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </SectionShell>
+          )}
+
+          {grants && (
+            <SectionShell title={`Grants ${grants.year}`}>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <Stat label="Total" value={centsLabel(grants.totalCents)} />
+                <Stat label="Count" value={String(grants.grantCount)} />
+                <Stat
+                  label="Disbursed"
+                  value={
+                    grants.disbursedAt ? grants.disbursedAt.slice(0, 10) : '—'
+                  }
+                />
+              </div>
+              <table className="mt-3 w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
+                    <th className="py-2 pr-3 font-medium">Published as</th>
+                    <th className="py-2 pr-3 font-medium">Amount</th>
+                    <th className="py-2 font-medium">State</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {grants.grants.map((g) => (
+                    <tr
+                      key={`${g.publishedAs}-${g.amountCents}`}
+                      className="border-border border-b"
+                    >
+                      <td className="py-2 pr-3">{g.publishedAs}</td>
+                      <td className="py-2 pr-3">{centsLabel(g.amountCents)}</td>
+                      <td className="text-foreground-secondary py-2 text-xs">
+                        {g.state}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                {Array.from(
+                  { length: 5 },
+                  (_, index) => grants.year - index - 1,
+                ).map((year) => (
+                  <Link
+                    key={year}
+                    to="/transparency/grants/$year"
+                    params={{ year: String(year) }}
+                    className="border-border hover:bg-background-secondary rounded border px-2 py-1"
+                  >
+                    Grants {year}
+                  </Link>
+                ))}
+              </div>
+            </SectionShell>
+          )}
+
+          <SectionShell title="Latest ledger">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
+                  <th className="py-2 pr-3 font-medium">When</th>
+                  <th className="py-2 pr-3 font-medium">Category</th>
+                  <th className="py-2 pr-3 font-medium">Description</th>
+                  <th className="py-2 font-medium">Amount</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </SectionShell>
+              </thead>
+              <tbody>
+                {ledger.map((e) => (
+                  <tr key={e.id} className="border-border border-b">
+                    <td className="text-foreground-secondary py-2 pr-3 text-xs">
+                      {e.createdAt.slice(0, 10)}
+                    </td>
+                    <td className="py-2 pr-3 font-mono text-xs">
+                      {e.category}
+                    </td>
+                    <td className="py-2 pr-3">{e.description}</td>
+                    <td className="py-2">{centsLabel(e.amountCents)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </SectionShell>
+        </>
       )}
-
-      {grants && (
-        <SectionShell title={`Grants ${grants.year}`}>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <Stat label="Total" value={centsLabel(grants.totalCents)} />
-            <Stat label="Count" value={String(grants.grantCount)} />
-            <Stat
-              label="Disbursed"
-              value={grants.disbursedAt ? grants.disbursedAt.slice(0, 10) : '—'}
-            />
-          </div>
-          <table className="mt-3 w-full border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
-                <th className="py-2 pr-3 font-medium">Published as</th>
-                <th className="py-2 pr-3 font-medium">Amount</th>
-                <th className="py-2 font-medium">State</th>
-              </tr>
-            </thead>
-            <tbody>
-              {grants.grants.map((g) => (
-                <tr
-                  key={`${g.publishedAs}-${g.amountCents}`}
-                  className="border-border border-b"
-                >
-                  <td className="py-2 pr-3">{g.publishedAs}</td>
-                  <td className="py-2 pr-3">{centsLabel(g.amountCents)}</td>
-                  <td className="text-foreground-secondary py-2 text-xs">
-                    {g.state}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs">
-            {Array.from(
-              { length: 5 },
-              (_, index) => grants.year - index - 1,
-            ).map((year) => (
-              <Link
-                key={year}
-                to="/transparency/grants/$year"
-                params={{ year: String(year) }}
-                className="border-border hover:bg-background-secondary rounded border px-2 py-1"
-              >
-                Grants {year}
-              </Link>
-            ))}
-          </div>
-        </SectionShell>
-      )}
-
-      <SectionShell title="Latest ledger">
-        <table className="w-full border-collapse text-left text-sm">
-          <thead>
-            <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
-              <th className="py-2 pr-3 font-medium">When</th>
-              <th className="py-2 pr-3 font-medium">Category</th>
-              <th className="py-2 pr-3 font-medium">Description</th>
-              <th className="py-2 font-medium">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ledger.map((e) => (
-              <tr key={e.id} className="border-border border-b">
-                <td className="text-foreground-secondary py-2 pr-3 text-xs">
-                  {e.createdAt.slice(0, 10)}
-                </td>
-                <td className="py-2 pr-3 font-mono text-xs">{e.category}</td>
-                <td className="py-2 pr-3">{e.description}</td>
-                <td className="py-2">{centsLabel(e.amountCents)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </SectionShell>
-    </div>
+    </ViewShell>
   );
 }
 

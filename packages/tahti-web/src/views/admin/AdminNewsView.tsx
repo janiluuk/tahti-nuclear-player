@@ -9,7 +9,15 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input, SaveButton, Textarea } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  Input,
+  SaveButton,
+  Textarea,
+  Tooltip,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import {
   createNewsPost,
@@ -23,7 +31,7 @@ import { AdminPageLayout } from '../../components/AdminNav';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 export function AdminNewsView() {
   const [posts, setPosts] = useState<AdminNewsPost[]>([]);
@@ -77,21 +85,22 @@ export function AdminNewsView() {
     <AdminGate>
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/news">
-          <div className="flex max-w-3xl flex-col gap-6">
-            <StudioPageHeader
-              title="News"
-              subtitle="Posts published to the platform news feed."
-              action={
+          <ViewShell
+            title="News"
+            subtitle="Platform news feed."
+            classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
+          >
+            <div className="mb-4">
+              <Tooltip content="Write post" side="top">
                 <Button
                   size="icon-sm"
                   onClick={() => setComposeOpen(true)}
                   aria-label="Write post"
-                  title="Write post"
                 >
                   <PlusIcon size={16} aria-hidden />
                 </Button>
-              }
-            />
+              </Tooltip>
+            </div>
 
             {msg && (
               <p className="text-foreground-secondary text-sm" role="status">
@@ -108,14 +117,15 @@ export function AdminNewsView() {
                     No news posts yet.
                   </p>
                   <div>
-                    <Button
-                      size="icon-sm"
-                      onClick={() => setComposeOpen(true)}
-                      aria-label="Write post"
-                      title="Write post"
-                    >
-                      <PlusIcon size={16} aria-hidden />
-                    </Button>
+                    <Tooltip content="Write post" side="top">
+                      <Button
+                        size="icon-sm"
+                        onClick={() => setComposeOpen(true)}
+                        aria-label="Write post"
+                      >
+                        <PlusIcon size={16} aria-hidden />
+                      </Button>
+                    </Tooltip>
                   </div>
                 </div>
               ) : (
@@ -287,125 +297,125 @@ export function AdminNewsView() {
                 </ul>
               )}
             </StudioPanel>
+          </ViewShell>
 
-            <Dialog.Root isOpen={composeOpen} onClose={closeCompose}>
-              <Dialog.Title>Write a news post</Dialog.Title>
-              <div className="mt-4 flex flex-col gap-3">
-                <Input
-                  label="Headline"
-                  value={headline}
-                  onChange={(e) => setHeadline(e.target.value)}
-                  autoFocus
+          <Dialog.Root isOpen={composeOpen} onClose={closeCompose}>
+            <Dialog.Title>Write a news post</Dialog.Title>
+            <div className="mt-4 flex flex-col gap-3">
+              <Input
+                label="Headline"
+                value={headline}
+                onChange={(e) => setHeadline(e.target.value)}
+                autoFocus
+              />
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="text-foreground-secondary text-xs uppercase">
+                  Short summary
+                </span>
+                <Textarea
+                  tone="secondary"
+                  value={summary}
+                  onChange={(e) => setSummary(e.target.value)}
+                  rows={3}
                 />
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs uppercase">
-                    Short summary
-                  </span>
-                  <Textarea
-                    tone="secondary"
-                    value={summary}
-                    onChange={(e) => setSummary(e.target.value)}
-                    rows={3}
-                  />
-                </label>
-                <ImageUploadField
-                  label="News image"
-                  description="JPEG, PNG, WebP, or GIF"
-                  value={imageUrl}
-                  onChange={setImageUrl}
-                />
-                <Input
-                  label="Link URL"
-                  value={linkUrl}
-                  onChange={(event) => setLinkUrl(event.target.value)}
-                  placeholder="https://…"
-                />
-                <Input
-                  label="Link label"
-                  value={linkLabel}
-                  onChange={(event) => setLinkLabel(event.target.value)}
-                  placeholder="Read more"
-                />
-              </div>
-              <Dialog.Actions>
-                <Dialog.Close>Cancel</Dialog.Close>
-                <Button
-                  variant="secondary"
-                  disabled={busy || !headline.trim() || !summary.trim()}
-                  onClick={() => {
-                    setBusy(true);
-                    void createNewsPost({
-                      headline: headline.trim(),
-                      summary: summary.trim(),
-                      imageUrl: imageUrl.trim() || undefined,
-                      linkUrl: linkUrl.trim() || undefined,
-                      linkLabel: linkLabel.trim() || undefined,
-                      publish: false,
-                    }).then((r) => {
-                      setBusy(false);
-                      if (!r.ok) {
-                        setMsg(r.error);
-                        return;
-                      }
-                      closeCompose();
-                      reload();
-                    });
-                  }}
-                >
-                  Save as draft
-                </Button>
-                <Button
-                  disabled={busy || !headline.trim() || !summary.trim()}
-                  onClick={() => {
-                    setBusy(true);
-                    void createNewsPost({
-                      headline: headline.trim(),
-                      summary: summary.trim(),
-                      imageUrl: imageUrl.trim() || undefined,
-                      linkUrl: linkUrl.trim() || undefined,
-                      linkLabel: linkLabel.trim() || undefined,
-                      publish: true,
-                    }).then((r) => {
-                      setBusy(false);
-                      if (!r.ok) {
-                        setMsg(r.error);
-                        return;
-                      }
-                      closeCompose();
-                      reload();
-                    });
-                  }}
-                >
-                  {busy ? 'Publishing…' : 'Publish'}
-                </Button>
-              </Dialog.Actions>
-            </Dialog.Root>
-            <ConfirmDialog
-              isOpen={pendingDeletePost !== null}
-              title={
-                pendingDeletePost
-                  ? `Delete "${pendingDeletePost.headline}"?`
-                  : 'Delete news post?'
+              </label>
+              <ImageUploadField
+                label="News image"
+                description="JPEG, PNG, WebP, or GIF"
+                value={imageUrl}
+                onChange={setImageUrl}
+              />
+              <Input
+                label="Link URL"
+                value={linkUrl}
+                onChange={(event) => setLinkUrl(event.target.value)}
+                placeholder="https://…"
+              />
+              <Input
+                label="Link label"
+                value={linkLabel}
+                onChange={(event) => setLinkLabel(event.target.value)}
+                placeholder="Read more"
+              />
+            </div>
+            <Dialog.Actions>
+              <Dialog.Close>Cancel</Dialog.Close>
+              <Button
+                variant="secondary"
+                disabled={busy || !headline.trim() || !summary.trim()}
+                onClick={() => {
+                  setBusy(true);
+                  void createNewsPost({
+                    headline: headline.trim(),
+                    summary: summary.trim(),
+                    imageUrl: imageUrl.trim() || undefined,
+                    linkUrl: linkUrl.trim() || undefined,
+                    linkLabel: linkLabel.trim() || undefined,
+                    publish: false,
+                  }).then((r) => {
+                    setBusy(false);
+                    if (!r.ok) {
+                      setMsg(r.error);
+                      return;
+                    }
+                    closeCompose();
+                    reload();
+                  });
+                }}
+              >
+                Save as draft
+              </Button>
+              <Button
+                disabled={busy || !headline.trim() || !summary.trim()}
+                onClick={() => {
+                  setBusy(true);
+                  void createNewsPost({
+                    headline: headline.trim(),
+                    summary: summary.trim(),
+                    imageUrl: imageUrl.trim() || undefined,
+                    linkUrl: linkUrl.trim() || undefined,
+                    linkLabel: linkLabel.trim() || undefined,
+                    publish: true,
+                  }).then((r) => {
+                    setBusy(false);
+                    if (!r.ok) {
+                      setMsg(r.error);
+                      return;
+                    }
+                    closeCompose();
+                    reload();
+                  });
+                }}
+              >
+                {busy ? 'Publishing…' : 'Publish'}
+              </Button>
+            </Dialog.Actions>
+          </Dialog.Root>
+          <ConfirmDialog
+            isOpen={pendingDeletePost !== null}
+            title={
+              pendingDeletePost
+                ? `Delete "${pendingDeletePost.headline}"?`
+                : 'Delete news post?'
+            }
+            description="This can't be undone."
+            confirmLabel="Delete"
+            onCancel={() => setPendingDeletePost(null)}
+            onConfirm={() => {
+              const post = pendingDeletePost;
+              setPendingDeletePost(null);
+              if (!post) {
+                return;
               }
-              description="This can't be undone."
-              confirmLabel="Delete"
-              onCancel={() => setPendingDeletePost(null)}
-              onConfirm={() => {
-                const post = pendingDeletePost;
-                setPendingDeletePost(null);
-                if (!post) {
+              void deleteNewsPost(post.id).then((result) => {
+                if (!result.ok) {
+                  setMsg(result.error);
                   return;
                 }
-                void deleteNewsPost(post.id).then((result) => {
-                  if (!result.ok) {
-                    setMsg(result.error);
-                    return;
-                  }
-                  reload();
-                });
-              }}
-            />
-          </div>
+                reload();
+              });
+            }}
+          />
         </AdminPageLayout>
       </div>
     </AdminGate>

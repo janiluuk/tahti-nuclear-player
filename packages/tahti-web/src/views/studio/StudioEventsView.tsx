@@ -7,13 +7,13 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Tabs } from '@tahti-player/ui';
+import { Button, Tabs, Tooltip, ViewShell } from '@tahti-player/ui';
 
 import { deleteEvent, fetchMyEvents, type ArtistEvent } from '../../api/events';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 export function StudioEventsView() {
   const [events, setEvents] = useState<ArtistEvent[]>([]);
@@ -101,65 +101,71 @@ export function StudioEventsView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/events" />
-        <StudioPageHeader
+        <ViewShell
           title="Events"
-          subtitle="List upcoming appearances tied to your artist profile."
-          action={
-            <Link to="/studio/events/new">
-              <Button size="icon-sm" aria-label="Add event" title="Add event">
-                <PlusIcon size={16} aria-hidden />
-              </Button>
-            </Link>
-          }
-        />
+          subtitle="Appearances on your profile."
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          <div className="mb-4">
+            <Tooltip content="Add event" side="top">
+              <Link to="/studio/events/new">
+                <Button size="icon-sm" aria-label="Add event">
+                  <PlusIcon size={16} aria-hidden />
+                </Button>
+              </Link>
+            </Tooltip>
+          </div>
 
-        <Tabs
-          listClassName="border-border border-b pb-3"
-          panelClassName="pt-2"
-          items={[
-            {
-              id: 'upcoming',
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  <CalendarClockIcon size={14} aria-hidden /> Upcoming
-                </span>
-              ),
-              content: (
-                <StudioPanel
-                  title="Upcoming events"
-                  description="Festivals, live shows, and public appearances."
-                >
-                  {loading ? (
-                    <PageLoading label="Loading…" />
-                  ) : (
-                    renderEvents(upcomingEvents)
-                  )}
-                </StudioPanel>
-              ),
-            },
-            {
-              id: 'past',
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  <HistoryIcon size={14} aria-hidden /> Past
-                </span>
-              ),
-              content: (
-                <StudioPanel
-                  title="Past events"
-                  description="Your previous appearances and performances."
-                >
-                  {loading ? (
-                    <PageLoading label="Loading…" />
-                  ) : (
-                    renderEvents(pastEvents)
-                  )}
-                  {msg && <p className="text-accent-red mt-3 text-sm">{msg}</p>}
-                </StudioPanel>
-              ),
-            },
-          ]}
-        />
+          <Tabs
+            listClassName="border-border border-b pb-3"
+            panelClassName="pt-2"
+            items={[
+              {
+                id: 'upcoming',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <CalendarClockIcon size={14} aria-hidden /> Upcoming
+                  </span>
+                ),
+                content: (
+                  <StudioPanel
+                    title="Upcoming events"
+                    description="Festivals, live shows, and public appearances."
+                  >
+                    {loading ? (
+                      <PageLoading label="Loading…" />
+                    ) : (
+                      renderEvents(upcomingEvents)
+                    )}
+                  </StudioPanel>
+                ),
+              },
+              {
+                id: 'past',
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    <HistoryIcon size={14} aria-hidden /> Past
+                  </span>
+                ),
+                content: (
+                  <StudioPanel
+                    title="Past events"
+                    description="Your previous appearances and performances."
+                  >
+                    {loading ? (
+                      <PageLoading label="Loading…" />
+                    ) : (
+                      renderEvents(pastEvents)
+                    )}
+                    {msg && (
+                      <p className="text-accent-red mt-3 text-sm">{msg}</p>
+                    )}
+                  </StudioPanel>
+                ),
+              },
+            ]}
+          />
+        </ViewShell>
       </div>
     </StudioGate>
   );

@@ -1,7 +1,15 @@
 import { PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, FilePicker, Input, Select, Toggle } from '@tahti-player/ui';
+import {
+  Button,
+  FilePicker,
+  Input,
+  Select,
+  Toggle,
+  Tooltip,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import {
   deleteAnnouncementClip,
@@ -15,7 +23,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { usePlayerStore } from '../../stores/playerStore';
 
 function fmtDuration(sec: number | null): string {
@@ -64,12 +72,11 @@ export function AdminAnnouncementsView() {
     <AdminGate>
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/announcements">
-          <div className="flex max-w-4xl flex-col gap-6">
-            <StudioPageHeader
-              title="Announcements"
-              subtitle="Short audio clips interleaved into every channel's rotation."
-            />
-
+          <ViewShell
+            title="Announcements"
+            subtitle="Clips in channel rotation."
+            classes={{ root: 'px-0 pt-0 mx-auto max-w-4xl' }}
+          >
             {msg && (
               <p className="text-foreground-secondary text-sm" role="status">
                 {msg}
@@ -198,24 +205,25 @@ export function AdminAnnouncementsView() {
                           />
                         )}
                         {clip.audioUrl && (
-                          <Button
-                            size="icon-sm"
-                            variant="text"
-                            aria-label="Preview"
-                            title="Preview"
-                            onClick={() => {
-                              play({
-                                id: `announcement:${clip.id}`,
-                                kind: 'archive',
-                                title: clip.title,
-                                artist: 'System announcement',
-                                streamUrl: clip.audioUrl!,
-                                protocol: 'https',
-                              });
-                            }}
-                          >
-                            <PlayIcon size={16} aria-hidden />
-                          </Button>
+                          <Tooltip content="Preview" side="top">
+                            <Button
+                              size="icon-sm"
+                              variant="text"
+                              aria-label="Preview"
+                              onClick={() => {
+                                play({
+                                  id: `announcement:${clip.id}`,
+                                  kind: 'archive',
+                                  title: clip.title,
+                                  artist: 'System announcement',
+                                  streamUrl: clip.audioUrl!,
+                                  protocol: 'https',
+                                });
+                              }}
+                            >
+                              <PlayIcon size={16} aria-hidden />
+                            </Button>
+                          </Tooltip>
                         )}
                         <Button
                           size="sm"
@@ -238,7 +246,7 @@ export function AdminAnnouncementsView() {
                 </ul>
               )}
             </StudioPanel>
-          </div>
+          </ViewShell>
         </AdminPageLayout>
       </div>
     </AdminGate>

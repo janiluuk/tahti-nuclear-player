@@ -1,7 +1,7 @@
 import { Navigate, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, StatChip, Tabs } from '@tahti-player/ui';
+import { Button, StatChip, Tabs, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchStatsPlays,
@@ -15,7 +15,7 @@ import { PinnedAnnouncementsPanel } from '../../components/PinnedAnnouncementsPa
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { StudioRadioSubmissionPanel } from '../../components/StudioRadioSubmissionPanel';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
@@ -157,119 +157,120 @@ export function StudioChannelView() {
             search.tab ? `/studio/channel?tab=${search.tab}` : '/studio/channel'
           }
         />
-        <StudioPageHeader
+        <ViewShell
           title={tab === 'radio' ? 'Radio' : 'Channel'}
           subtitle={
             tab === 'radio'
-              ? 'Manage your stream, 24/7 rotation, and multicast destinations.'
-              : 'Set up the channel, green room, and selects.'
+              ? 'Stream, rotation, and multicast.'
+              : 'Setup, green room, and selects.'
           }
-        />
-
-        {tab !== 'radio' ? (
-          <Tabs.Root
-            selectedIndex={Math.max(
-              0,
-              channelSectionTabs.findIndex((item) => item.id === tab),
-            )}
-            onChange={(index) => {
-              const next = channelSectionTabs[index];
-              if (!next) {
-                return;
-              }
-              setTab(next.id);
-              void navigate({
-                to: '/studio/channel',
-                search: { tab: next.id },
-              });
-            }}
-          >
-            <Tabs.List className="w-fit flex-wrap">
-              {channelSectionTabs.map((item) => (
-                <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
-              ))}
-            </Tabs.List>
-          </Tabs.Root>
-        ) : null}
-
-        {tab === 'setup' && !channel && (
-          <StudioPanel title="Channel setup">
-            <div className="flex flex-col items-start gap-3">
-              <p className="text-foreground-secondary text-sm">
-                Create {user?.username ?? 'your-name'}.tahti.live to unlock
-                broadcasting, uploads, and your public channel.
-              </p>
-              <Button disabled={!user} onClick={openChannelSetup}>
-                Create {user?.username ?? 'your-name'}.tahti.live
-              </Button>
-            </div>
-          </StudioPanel>
-        )}
-
-        {tab === 'radio' && (
-          <div className="flex flex-col gap-4">
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          {tab !== 'radio' ? (
             <Tabs.Root
               selectedIndex={Math.max(
                 0,
-                RADIO_SETTING_TABS.findIndex((item) => item.id === radioTab),
+                channelSectionTabs.findIndex((item) => item.id === tab),
               )}
               onChange={(index) => {
-                const next = RADIO_SETTING_TABS[index];
+                const next = channelSectionTabs[index];
                 if (!next) {
                   return;
                 }
-                setRadioTab(next.id);
-                if (next.id === 'multicast' || search.tab === 'multicast') {
-                  void navigate({
-                    to: '/studio/channel',
-                    search: {
-                      tab: next.id === 'multicast' ? 'multicast' : 'radio',
-                    },
-                  });
-                }
+                setTab(next.id);
+                void navigate({
+                  to: '/studio/channel',
+                  search: { tab: next.id },
+                });
               }}
             >
               <Tabs.List className="w-fit flex-wrap">
-                {RADIO_SETTING_TABS.map((item) => (
+                {channelSectionTabs.map((item) => (
                   <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
                 ))}
               </Tabs.List>
             </Tabs.Root>
-            {radioTab === 'stream' ? (
-              channel?.slug ? (
-                <>
-                  <StreamManagerPanel
-                    slug={channel.slug}
-                    channelState={channel.state}
-                  />
-                  <ChannelOverallStats />
-                </>
-              ) : (
-                <StudioPanel title="Stream manager">
-                  <p className="text-foreground-secondary text-sm">
-                    Create your channel first to manage its stream.
-                  </p>
-                </StudioPanel>
-              )
-            ) : radioTab === 'rotation' ? (
-              <ChannelRadioPlaylistPanel />
-            ) : radioTab === 'announcements' ? (
-              <ChannelAnnouncementsPanel />
-            ) : radioTab === 'pinned' ? (
-              channel?.slug ? (
-                <PinnedAnnouncementsPanel slug={channel.slug} />
-              ) : null
-            ) : radioTab === 'tahti-radio' ? (
-              <StudioRadioSubmissionPanel />
-            ) : radioTab === 'multicast' ? (
-              <BroadcastPanel section="multistream" />
-            ) : null}
-          </div>
-        )}
+          ) : null}
 
-        {tab === 'green-room' && <BroadcastPanel section="green-room" />}
+          {tab === 'setup' && !channel && (
+            <StudioPanel title="Channel setup">
+              <div className="flex flex-col items-start gap-3">
+                <p className="text-foreground-secondary text-sm">
+                  Create {user?.username ?? 'your-name'}.tahti.live to unlock
+                  broadcasting, uploads, and your public channel.
+                </p>
+                <Button disabled={!user} onClick={openChannelSetup}>
+                  Create {user?.username ?? 'your-name'}.tahti.live
+                </Button>
+              </div>
+            </StudioPanel>
+          )}
 
-        {tab === 'selects' && <SelectsTab />}
+          {tab === 'radio' && (
+            <div className="flex flex-col gap-4">
+              <Tabs.Root
+                selectedIndex={Math.max(
+                  0,
+                  RADIO_SETTING_TABS.findIndex((item) => item.id === radioTab),
+                )}
+                onChange={(index) => {
+                  const next = RADIO_SETTING_TABS[index];
+                  if (!next) {
+                    return;
+                  }
+                  setRadioTab(next.id);
+                  if (next.id === 'multicast' || search.tab === 'multicast') {
+                    void navigate({
+                      to: '/studio/channel',
+                      search: {
+                        tab: next.id === 'multicast' ? 'multicast' : 'radio',
+                      },
+                    });
+                  }
+                }}
+              >
+                <Tabs.List className="w-fit flex-wrap">
+                  {RADIO_SETTING_TABS.map((item) => (
+                    <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+                  ))}
+                </Tabs.List>
+              </Tabs.Root>
+              {radioTab === 'stream' ? (
+                channel?.slug ? (
+                  <>
+                    <StreamManagerPanel
+                      slug={channel.slug}
+                      channelState={channel.state}
+                    />
+                    <ChannelOverallStats />
+                  </>
+                ) : (
+                  <StudioPanel title="Stream manager">
+                    <p className="text-foreground-secondary text-sm">
+                      Create your channel first to manage its stream.
+                    </p>
+                  </StudioPanel>
+                )
+              ) : radioTab === 'rotation' ? (
+                <ChannelRadioPlaylistPanel />
+              ) : radioTab === 'announcements' ? (
+                <ChannelAnnouncementsPanel />
+              ) : radioTab === 'pinned' ? (
+                channel?.slug ? (
+                  <PinnedAnnouncementsPanel slug={channel.slug} />
+                ) : null
+              ) : radioTab === 'tahti-radio' ? (
+                <StudioRadioSubmissionPanel />
+              ) : radioTab === 'multicast' ? (
+                <BroadcastPanel section="multistream" />
+              ) : null}
+            </div>
+          )}
+
+          {tab === 'green-room' && <BroadcastPanel section="green-room" />}
+
+          {tab === 'selects' && <SelectsTab />}
+        </ViewShell>
       </div>
     </StudioGate>
   );

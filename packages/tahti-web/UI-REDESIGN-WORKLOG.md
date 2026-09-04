@@ -1,5 +1,32 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — ViewShell 3×5 rounds (listener + Studio + Admin)
+
+**Status:** executed (`0.0.61`).
+
+Round complements after `0.0.60`:
+- Stash, Recordings, Events, Updates, Venues, Channel → `ViewShell`
+- Chat, Governance, Feature requests, More/map, Transparency → `ViewShell`
+- Admin News, Announcements, Top lists, Orphan pages → `ViewShell`
+
+Then push + deploy beta. Remaining entity detail / Pro Editor chrome / remaining Admin still open. [docs/todo/viewshell-next-15-rounds.md](../../docs/todo/viewshell-next-15-rounds.md).
+
+## 2026-09-04 — Tahti Map screenshot + diagram refresh
+
+**Status:** executed (docs / atlas only — no app version bump).
+
+Recaptured Nuclear atlas PNGs under `public/map/nuclear/` via
+`scripts/capture-map-screens.mjs` against local Vite + `VITE_FORCE_MOCK=1`
+(sibling seeded API was not running; live beta would empty privileged
+screens without a real session). Coverage includes Listen tabs, Help hub +
+keyboard-shortcuts, Settings modal sections (About removed from footer),
+member `/governance`, Studio `/studio/governance`, Admin `/admin/governance`
++ `/admin/agm`, and the rest of the mapped Studio/Admin set.
+
+`mapScreens.ts` / `flowDiagrams.ts` / `NAVIGATION-SITEMAP.md` / ScreenAtlas
+Storybook docs now match current chrome. Flag list:
+[`docs/todo/map-screenshot-refresh.md`](../../docs/todo/map-screenshot-refresh.md).
+
 ## 2026-09-04 — ViewShell next 10 (Feed through Library)
 
 **Status:** executed (`0.0.60`).

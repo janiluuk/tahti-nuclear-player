@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, SectionShell } from '@tahti-player/ui';
+import { Badge, Button, SectionShell, ViewShell } from '@tahti-player/ui';
 
 import {
   createGovernanceMotion,
@@ -25,7 +25,6 @@ import type {
   GovernanceMotion,
   GovernanceQuarterlyReport,
 } from '../api/types';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
@@ -144,46 +143,40 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
     void fetchMotionComments(id).then((res) => setComments(res.data));
   };
 
-  return (
-    <PageFrame maxWidth="3xl">
+  const body = (
+    <>
       {!embedded && (
-        <PageHeader
-          title="Governance"
-          subtitle="Cooperative motions — vote YES / NO / ABSTAIN and join the discussion."
-          meta={
-            <div className="flex flex-col gap-1">
-              <Link
-                to="/governance/feature-requests"
-                onClick={closeSettings}
-                className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
-              >
-                Feature requests →
-              </Link>
-              <Link
-                to="/governance/history"
-                onClick={closeSettings}
-                className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
-              >
-                Closed decision history →
-              </Link>
-              <Link
-                to="/transparency"
-                onClick={closeSettings}
-                className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
-              >
-                Transparency ledger →
-              </Link>
-              <Link
-                to="/help/$slug"
-                params={{ slug: 'governance' }}
-                onClick={closeSettings}
-                className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
-              >
-                Governance help →
-              </Link>
-            </div>
-          }
-        />
+        <div className="flex flex-col gap-1">
+          <Link
+            to="/governance/feature-requests"
+            onClick={closeSettings}
+            className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
+          >
+            Feature requests →
+          </Link>
+          <Link
+            to="/governance/history"
+            onClick={closeSettings}
+            className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
+          >
+            Closed decision history →
+          </Link>
+          <Link
+            to="/transparency"
+            onClick={closeSettings}
+            className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
+          >
+            Transparency ledger →
+          </Link>
+          <Link
+            to="/help/$slug"
+            params={{ slug: 'governance' }}
+            onClick={closeSettings}
+            className="text-foreground-secondary inline-block w-fit text-xs underline-offset-2 hover:underline"
+          >
+            Governance help →
+          </Link>
+        </div>
       )}
 
       {user && !loading && !forbidden && (
@@ -660,6 +653,23 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
           })}
         </ul>
       )}
-    </PageFrame>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="flex flex-col gap-6">{body}</div>;
+  }
+
+  return (
+    <ViewShell
+      title="Governance"
+      subtitle="Vote on cooperative motions."
+      classes={{
+        root: 'px-0 pt-0 mx-auto max-w-3xl',
+        scrollableArea: 'gap-6',
+      }}
+    >
+      {body}
+    </ViewShell>
   );
 }
