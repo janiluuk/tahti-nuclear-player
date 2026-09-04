@@ -2,8 +2,6 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import {
   Cast,
   CheckSquareIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
   CircleHelpIcon,
   DownloadIcon,
   Eye,
@@ -2695,7 +2693,7 @@ function PersonalRadioStreamCard() {
         <PluginStoreItem
           name="Personal radio stream"
           author="Radio Browser · stream URL"
-          description="Paste an M3U/M3U8 playlist or a direct stream URL, or search the public Radio Browser directory — plays via the main player, separate from the curated stations below."
+          description="Paste an M3U/M3U8 playlist or a direct stream URL, or search the public Radio Browser directory — plays via the main player, separate from curated Finnish stations in Radio Browser → Stations."
           categories={station !== null ? ['Configured'] : undefined}
           isInstalled={station !== null}
           onInstall={open}
@@ -2934,25 +2932,101 @@ function RadioBrowserStationRow({
   );
 }
 
-/** Community Radio Browser directory — Configure opens Browser | Stations.
- * Activate only enables the third-party API; browsing stays in the dialog
- * (not an inline dump under the card). */
+function CuratedFinnishStationRow({
+  station,
+  enabled,
+  onToggleEnable,
+  onConfigure,
+  onPlay,
+  isPlaying,
+}: {
+  station: RadioStation;
+  enabled: boolean;
+  onToggleEnable: () => void;
+  onConfigure: () => void;
+  onPlay: (() => void) | null;
+  isPlaying: boolean;
+}) {
+  const sourceConfigured = Boolean(station.streamUrl);
+  return (
+    <li className="border-border hover:bg-background-secondary flex items-center gap-2 rounded-md border p-1.5 pr-1">
+      <RadioStationCover
+        src={station.logoUrl}
+        label={station.name}
+        stationName={station.name}
+        catalogStationId={station.id}
+        className="h-9 w-9 shrink-0 overflow-hidden rounded border"
+      />
+      <div className="flex min-w-0 flex-1 flex-col items-start text-left">
+        <span className="w-full truncate text-sm">{station.name}</span>
+        <span className="text-foreground-secondary w-full truncate text-xs">
+          {station.genre} · {station.bitrateKbps}kbps {station.codec}
+          {sourceConfigured ? '' : ' · Needs source'}
+        </span>
+      </div>
+      {onPlay ? (
+        <Tooltip content={isPlaying ? 'Pause' : 'Preview'} side="top">
+          <Button
+            type="button"
+            size="icon-sm"
+            variant={isPlaying ? undefined : 'secondary'}
+            aria-label={
+              isPlaying ? `Pause ${station.name}` : `Preview ${station.name}`
+            }
+            aria-pressed={isPlaying}
+            onClick={onPlay}
+          >
+            {isPlaying ? (
+              <PauseIcon size={14} aria-hidden />
+            ) : (
+              <PlayIcon size={14} aria-hidden />
+            )}
+          </Button>
+        </Tooltip>
+      ) : null}
+      <Tooltip content="Configure station" side="top">
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="secondary"
+          aria-label={`Configure ${station.name}`}
+          onClick={onConfigure}
+        >
+          <SettingsIcon size={14} aria-hidden />
+        </Button>
+      </Tooltip>
+      <SaveButton
+        size="sm"
+        label={enabled ? 'Enabled' : 'Enable'}
+        onClick={onToggleEnable}
+        aria-label={
+          enabled ? `Disable ${station.name}` : `Enable ${station.name}`
+        }
+      />
+    </li>
+  );
+}
+
 function RadioBrowserDirectoryCard() {
   const enabled = useRadioBrowserStore((s) => s.enabled);
   const setEnabled = useRadioBrowserStore((s) => s.setEnabled);
   const play = usePlayerStore((s) => s.play);
+  const currentId = usePlayerStore((s) => s.currentId);
+  const playbackStatus = usePlayerStore((s) => s.status);
+  const setPlaybackStatus = usePlayerStore((s) => s.setStatus);
   const savedBrowserStations = useListenerWidgetsStore(
     (s) => s.savedBrowserStations,
   );
   const toggleSavedBrowserStation = useListenerWidgetsStore(
     (s) => s.toggleSavedBrowserStation,
   );
+  const enabledStationIds = useListenerWidgetsStore((s) => s.enabledStationIds);
+  const toggleStation = useListenerWidgetsStore((s) => s.toggleStation);
+  const stationOverrides = useListenerWidgetsStore((s) => s.stationOverrides);
+  const updateStation = useListenerWidgetsStore((s) => s.updateStation);
 
   const [loaded, setLoaded] = useState(false);
   const [stationCount, setStationCount] = useState<number | null>(null);
-  const [finnishStations, setFinnishStations] = useState<PublicRadioStation[]>(
-    [],
-  );
   const [countries, setCountries] = useState<RadioBrowserCountry[]>([]);
   const [tags, setTags] = useState<RadioBrowserTag[]>([]);
   const [query, setQuery] = useState('');
@@ -2961,6 +3035,14 @@ function RadioBrowserDirectoryCard() {
   const [results, setResults] = useState<PublicRadioStation[]>([]);
   const [searching, setSearching] = useState(false);
   const [isFiltered, setIsFiltered] = useState(false);
+  const [editingStation, setEditingStation] = useState<RadioStation | null>(
+    null,
+  );
+  const [logoUrlDraft, setLogoUrlDraft] = useState('');
+  const [streamUrlDraft, setStreamUrlDraft] = useState('');
+  const [streamTestBusy, setStreamTestBusy] = useState(false);
+  const [streamTestResult, setStreamTestResult] =
+    useState<RadioStreamTestResult | null>(null);
 
   useEffect(() => {
     if (!enabled || loaded) {
@@ -2968,13 +3050,17 @@ function RadioBrowserDirectoryCard() {
     }
     setLoaded(true);
     void fetchStationCount().then(setStationCount);
-    void searchStations({ countryCode: 'FI', limit: 8 }).then(
-      setFinnishStations,
-    );
     void fetchCountryList().then(setCountries);
     void fetchTagList().then(setTags);
     void searchStations({ limit: 20 }).then(setResults);
   }, [enabled, loaded]);
+
+  useEffect(() => {
+    setLogoUrlDraft(editingStation?.logoUrl ?? '');
+    setStreamUrlDraft(editingStation?.streamUrl ?? '');
+    setStreamTestBusy(false);
+    setStreamTestResult(null);
+  }, [editingStation]);
 
   const runSearch = () => {
     setSearching(true);
@@ -3008,493 +3094,219 @@ function RadioBrowserDirectoryCard() {
     Boolean(station.streamUrl),
   );
 
+  const curatedStations = RADIO_STATIONS.map((baseStation) => ({
+    ...baseStation,
+    ...stationOverrides[baseStation.id],
+  }));
+
   const genreOptions = tags.slice(0, 24).map((tag) => ({
     id: tag.name,
     label: tag.name,
   }));
 
   return (
-    <ConfigurableCard
-      title="Radio Browser directory"
-      dialogClassName="max-w-2xl"
-      header={
-        <AudioPluginToggleRow
-          name="Radio Browser directory"
-          author="radio-browser.info · community directory"
-          description="Browse and search 50,000+ public internet radio stations, with genre and country filters — separate from the personal stream tool above."
-          enabled={enabled}
-          onToggle={() => setEnabled(!enabled)}
-        />
-      }
-    >
-      {!enabled ? (
-        <p className="text-foreground-secondary text-sm">
-          Activate the add-on to load Radio Browser, then use these tabs to
-          search and save stations.
-        </p>
-      ) : (
-        <Tabs
-          items={[
-            {
-              id: 'browser',
-              label: 'Browser',
-              content: (
-                <div className="flex flex-col gap-3">
-                  <div className="flex flex-col gap-2">
-                    <Input
-                      size="sm"
-                      type="search"
-                      value={query}
-                      onChange={(event) => setQuery(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
-                          runSearch();
-                        }
-                      }}
-                      placeholder="Search stations"
-                      aria-label="Search stations"
-                      startAddon={
-                        <SearchIcon
-                          size={14}
-                          aria-hidden
-                          className="opacity-70"
-                        />
-                      }
-                    />
-                    {genreOptions.length > 0 ? (
-                      <FilterChips
-                        multiple
-                        items={genreOptions}
-                        selected={genres}
-                        onChange={setGenres}
-                        aria-label="Genres"
-                      />
-                    ) : null}
-                    <Select
-                      className="w-full"
-                      options={[
-                        { id: '', label: 'All countries' },
-                        ...countries.map((entry) => ({
-                          id: entry.code,
-                          label: `${flagEmoji(entry.code)} ${entry.name} (${entry.stationCount})`,
-                        })),
-                      ]}
-                      value={country}
-                      onValueChange={setCountry}
-                    />
-                    <Button
-                      size="sm"
-                      disabled={searching}
-                      onClick={runSearch}
-                      className="self-start"
-                    >
-                      {searching ? 'Searching…' : 'Search'}
-                    </Button>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <h3 className="font-display text-sm font-bold tracking-wide uppercase">
-                      {isFiltered ? 'Results' : 'Popular stations'}
-                      {stationCount
-                        ? ` · ${stationCount.toLocaleString()} total`
-                        : ''}
-                    </h3>
-                    {results.length === 0 ? (
-                      <EmptyState
+    <>
+      <ConfigurableCard
+        title="Radio Browser directory"
+        dialogClassName="max-w-2xl"
+        header={
+          <AudioPluginToggleRow
+            name="Radio Browser directory"
+            author="radio-browser.info · community directory"
+            description="Browse and search 50,000+ public internet radio stations, with genre and country filters — Finnish curated stations live under Stations."
+            enabled={enabled}
+            onToggle={() => setEnabled(!enabled)}
+          />
+        }
+      >
+        {!enabled ? (
+          <p className="text-foreground-secondary text-sm">
+            Activate the add-on to load Radio Browser, then use these tabs to
+            search, save, and enable stations.
+          </p>
+        ) : (
+          <Tabs
+            items={[
+              {
+                id: 'browser',
+                label: 'Browser',
+                content: (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2">
+                      <Input
                         size="sm"
-                        title="No stations found"
-                        description="Try another search or clear the filters."
-                      />
-                    ) : (
-                      <ul className="grid max-h-72 grid-cols-1 gap-1.5 overflow-y-auto sm:grid-cols-2">
-                        {results.map((station) => (
-                          <RadioBrowserStationRow
-                            key={station.id}
-                            station={station}
-                            onPlay={() => playStation(station)}
-                            {...saveProps(station)}
+                        type="search"
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            runSearch();
+                          }
+                        }}
+                        placeholder="Search stations"
+                        aria-label="Search stations"
+                        startAddon={
+                          <SearchIcon
+                            size={14}
+                            aria-hidden
+                            className="opacity-70"
                           />
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-              ),
-            },
-            {
-              id: 'stations',
-              label: 'Stations',
-              content: (
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2">
-                    <h3 className="font-display text-sm font-bold tracking-wide uppercase">
-                      Your stations
-                    </h3>
-                    {savedStations.length === 0 ? (
-                      <EmptyState
-                        size="sm"
-                        title="No saved stations yet"
-                        description="Save stations from Browser or Finnish suggestions to show them on Listen."
+                        }
                       />
-                    ) : (
-                      <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                        {savedStations.map((station) => {
-                          const row: PublicRadioStation = {
-                            id: station.id,
-                            name: station.name,
-                            streamUrl: station.streamUrl,
-                            favicon: station.favicon,
-                            country: station.country,
-                            source: 'unknown',
-                          };
-                          return (
+                      {genreOptions.length > 0 ? (
+                        <FilterChips
+                          multiple
+                          items={genreOptions}
+                          selected={genres}
+                          onChange={setGenres}
+                          aria-label="Genres"
+                        />
+                      ) : null}
+                      <Select
+                        className="w-full"
+                        options={[
+                          { id: '', label: 'All countries' },
+                          ...countries.map((entry) => ({
+                            id: entry.code,
+                            label: `${flagEmoji(entry.code)} ${entry.name} (${entry.stationCount})`,
+                          })),
+                        ]}
+                        value={country}
+                        onValueChange={setCountry}
+                      />
+                      <Button
+                        size="sm"
+                        disabled={searching}
+                        onClick={runSearch}
+                        className="self-start"
+                      >
+                        {searching ? 'Searching…' : 'Search'}
+                      </Button>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+                        {isFiltered ? 'Results' : 'Popular stations'}
+                        {stationCount
+                          ? ` · ${stationCount.toLocaleString()} total`
+                          : ''}
+                      </h3>
+                      {results.length === 0 ? (
+                        <EmptyState
+                          size="sm"
+                          title="No stations found"
+                          description="Try another search or clear the filters."
+                        />
+                      ) : (
+                        <ul className="grid max-h-72 grid-cols-1 gap-1.5 overflow-y-auto sm:grid-cols-2">
+                          {results.map((station) => (
                             <RadioBrowserStationRow
                               key={station.id}
-                              station={row}
-                              onPlay={() => playStation(row)}
-                              {...saveProps(row)}
+                              station={station}
+                              onPlay={() => playStation(station)}
+                              {...saveProps(station)}
+                            />
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                id: 'stations',
+                label: 'Stations',
+                content: (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
+                      <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+                        Your stations
+                      </h3>
+                      {savedStations.length === 0 ? (
+                        <EmptyState
+                          size="sm"
+                          title="No saved stations yet"
+                          description="Save stations from Browser to show them on Listen."
+                        />
+                      ) : (
+                        <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                          {savedStations.map((station) => {
+                            const row: PublicRadioStation = {
+                              id: station.id,
+                              name: station.name,
+                              streamUrl: station.streamUrl,
+                              favicon: station.favicon,
+                              country: station.country,
+                              source: 'unknown',
+                            };
+                            return (
+                              <RadioBrowserStationRow
+                                key={station.id}
+                                station={row}
+                                onPlay={() => playStation(row)}
+                                {...saveProps(row)}
+                              />
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+                        Finnish stations
+                      </h3>
+                      <ul className="grid max-h-80 grid-cols-1 gap-1.5 overflow-y-auto sm:grid-cols-2">
+                        {curatedStations.map((station) => {
+                          const stationEnabled = enabledStationIds.includes(
+                            station.id,
+                          );
+                          const stationPlayableId = `radio-widget:${station.id}`;
+                          const stationIsCurrent =
+                            currentId === stationPlayableId;
+                          const stationIsPlaying =
+                            stationIsCurrent &&
+                            (playbackStatus === 'playing' ||
+                              playbackStatus === 'loading');
+                          const streamUrl = station.streamUrl;
+                          return (
+                            <CuratedFinnishStationRow
+                              key={station.id}
+                              station={station}
+                              enabled={stationEnabled}
+                              onToggleEnable={() => toggleStation(station.id)}
+                              onConfigure={() => setEditingStation(station)}
+                              isPlaying={stationIsPlaying}
+                              onPlay={
+                                streamUrl
+                                  ? () => {
+                                      if (stationIsCurrent) {
+                                        setPlaybackStatus(
+                                          stationIsPlaying
+                                            ? 'paused'
+                                            : 'playing',
+                                        );
+                                        return;
+                                      }
+                                      play(
+                                        radioStationPlayable({
+                                          ...station,
+                                          streamUrl,
+                                        }),
+                                      );
+                                    }
+                                  : null
+                              }
                             />
                           );
                         })}
                       </ul>
-                    )}
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <h3 className="font-display text-sm font-bold tracking-wide uppercase">
-                      Finnish suggestions
-                    </h3>
-                    {finnishStations.length === 0 ? (
-                      <EmptyState
-                        size="sm"
-                        title="Loading Finnish stations…"
-                        description="Pulling a short list from Radio Browser."
-                      />
-                    ) : (
-                      <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                        {finnishStations.map((station) => (
-                          <RadioBrowserStationRow
-                            key={station.id}
-                            station={station}
-                            onPlay={() => playStation(station)}
-                            {...saveProps(station)}
-                          />
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-              ),
-            },
-          ]}
-        />
-      )}
-    </ConfigurableCard>
-  );
-}
-
-function RadioCategory() {
-  const play = usePlayerStore((s) => s.play);
-  const currentId = usePlayerStore((s) => s.currentId);
-  const playbackStatus = usePlayerStore((s) => s.status);
-  const setPlaybackStatus = usePlayerStore((s) => s.setStatus);
-  const enabledStationIds = useListenerWidgetsStore((s) => s.enabledStationIds);
-  const toggleStation = useListenerWidgetsStore((s) => s.toggleStation);
-  const stationOverrides = useListenerWidgetsStore((s) => s.stationOverrides);
-  const updateStation = useListenerWidgetsStore((s) => s.updateStation);
-  const [editingStation, setEditingStation] = useState<RadioStation | null>(
-    null,
-  );
-  const [logoUrlDraft, setLogoUrlDraft] = useState('');
-  const [streamUrlDraft, setStreamUrlDraft] = useState('');
-  const [streamTestBusy, setStreamTestBusy] = useState(false);
-  const [streamTestResult, setStreamTestResult] =
-    useState<RadioStreamTestResult | null>(null);
-  useEffect(() => {
-    setLogoUrlDraft(editingStation?.logoUrl ?? '');
-    setStreamUrlDraft(editingStation?.streamUrl ?? '');
-    setStreamTestBusy(false);
-    setStreamTestResult(null);
-  }, [editingStation]);
-  const [expandedStationIds, setExpandedStationIds] = useState<Set<string>>(
-    new Set(),
-  );
-  const [suggestOpen, setSuggestOpen] = useState(false);
-  const [suggestName, setSuggestName] = useState('');
-  const [suggestLogoUrl, setSuggestLogoUrl] = useState('');
-  const [suggestLanguage, setSuggestLanguage] = useState('');
-  const [suggestBitrate, setSuggestBitrate] = useState('');
-  const [suggestStreamUrl, setSuggestStreamUrl] = useState('');
-  const [suggestBusy, setSuggestBusy] = useState(false);
-  const [suggestMsg, setSuggestMsg] = useState<string | null>(null);
-  const [installTab, setInstallTab] = useState<'installed' | 'available'>(
-    'installed',
-  );
-  const stationInstalledCount = RADIO_STATIONS.filter((s) =>
-    enabledStationIds.includes(s.id),
-  ).length;
-  const stationAvailableCount = RADIO_STATIONS.length - stationInstalledCount;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <PersonalRadioStreamCard />
-      <RadioBrowserDirectoryCard />
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => setSuggestOpen((v) => !v)}
-        >
-          {suggestOpen ? 'Cancel' : 'Suggest a station'}
-        </Button>
-      </div>
-
-      {suggestOpen && (
-        <form
-          className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-lg border p-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSuggestBusy(true);
-            setSuggestMsg(null);
-            void import('../api/admin')
-              .then(({ submitRadioStationSuggestion }) =>
-                submitRadioStationSuggestion({
-                  name: suggestName.trim(),
-                  logoUrl: suggestLogoUrl.trim(),
-                  language: suggestLanguage.trim(),
-                  bitrateKbps: suggestBitrate.trim(),
-                  streamUrl: suggestStreamUrl.trim(),
-                }),
-              )
-              .then((r) => {
-                setSuggestBusy(false);
-                if (!r.ok) {
-                  setSuggestMsg(r.error);
-                  return;
-                }
-                setSuggestMsg('Thanks — sent to the Tahti team for review.');
-                setSuggestName('');
-                setSuggestLogoUrl('');
-                setSuggestLanguage('');
-                setSuggestBitrate('');
-                setSuggestStreamUrl('');
-              });
-          }}
-        >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Input
-              label="Station name"
-              value={suggestName}
-              onChange={(e) => setSuggestName(e.target.value)}
-              required
-            />
-            <Input
-              label="Language"
-              value={suggestLanguage}
-              onChange={(e) => setSuggestLanguage(e.target.value)}
-              placeholder="Finnish"
-            />
-            <Input
-              label="Bitrate (kbps)"
-              value={suggestBitrate}
-              onChange={(e) => setSuggestBitrate(e.target.value)}
-              placeholder="128"
-            />
-            <Input
-              label="Logo URL"
-              value={suggestLogoUrl}
-              onChange={(e) => setSuggestLogoUrl(e.target.value)}
-              placeholder="https://…"
-            />
-            <Input
-              label="Stream URL"
-              value={suggestStreamUrl}
-              onChange={(e) => setSuggestStreamUrl(e.target.value)}
-              placeholder="https://stream.example.fi/station.mp3"
-              className="sm:col-span-2"
-              required
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              type="submit"
-              disabled={
-                suggestBusy || !suggestName.trim() || !suggestStreamUrl.trim()
-              }
-            >
-              {suggestBusy ? 'Sending…' : 'Send for review'}
-            </Button>
-            {suggestMsg && (
-              <p className="text-foreground-secondary text-xs">{suggestMsg}</p>
-            )}
-          </div>
-        </form>
-      )}
-
-      <Tabs.Root
-        selectedIndex={installTab === 'installed' ? 0 : 1}
-        onChange={(index) =>
-          setInstallTab(index === 0 ? 'installed' : 'available')
-        }
-      >
-        <Tabs.List>
-          <Tabs.Tab>
-            <TabLabel count={stationInstalledCount}>Installed</TabLabel>
-          </Tabs.Tab>
-          <Tabs.Tab>
-            <TabLabel count={stationAvailableCount}>Available</TabLabel>
-          </Tabs.Tab>
-        </Tabs.List>
-      </Tabs.Root>
-      <div className="flex flex-col gap-2">
-        {RADIO_STATIONS.filter(
-          (s) =>
-            enabledStationIds.includes(s.id) === (installTab === 'installed'),
-        ).map((baseStation) => {
-          const station = {
-            ...baseStation,
-            ...stationOverrides[baseStation.id],
-          };
-          const enabled = enabledStationIds.includes(station.id);
-          const sourceConfigured = Boolean(station.streamUrl);
-          const stationPlayableId = `radio-widget:${station.id}`;
-          const stationIsCurrent = currentId === stationPlayableId;
-          const stationIsPlaying =
-            stationIsCurrent &&
-            (playbackStatus === 'playing' || playbackStatus === 'loading');
-          const stationExpanded = expandedStationIds.has(station.id);
-          return (
-            <PluginStoreItem
-              key={station.id}
-              icon={
-                <RadioStationCover
-                  src={station.logoUrl}
-                  label={station.name}
-                  stationName={station.name}
-                  catalogStationId={station.id}
-                />
-              }
-              name={station.name}
-              author={station.language}
-              description={`${station.genre} · ${station.bitrateKbps}kbps ${station.codec} · ${sourceConfigured ? 'Source configured' : 'Add a stream source in Configure'}`}
-              categories={[
-                ...(enabled ? ['Enabled'] : []),
-                ...(!sourceConfigured ? ['Needs source'] : []),
-              ]}
-              isInstalled={enabled}
-              onInstall={() => toggleStation(station.id)}
-              labels={{
-                install: 'Enable',
-                installed: 'Enabled',
-                by: 'language',
-              }}
-              accessory={
-                <div className="flex flex-col items-end gap-1">
-                  <div className="flex gap-1">
-                    {enabled ? (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        title="Disable"
-                        aria-label={`Disable ${station.name}`}
-                        onClick={() => toggleStation(station.id)}
-                      >
-                        Disable
-                      </Button>
-                    ) : null}
-                    <Tooltip content="Configure station" side="top">
-                      <Button
-                        type="button"
-                        size="icon-sm"
-                        variant="secondary"
-                        aria-label={`Configure ${station.name}`}
-                        onClick={() => setEditingStation(station)}
-                      >
-                        <SettingsIcon size={14} aria-hidden />
-                      </Button>
-                    </Tooltip>
-                    {sourceConfigured && (
-                      <Tooltip
-                        content={
-                          stationExpanded ? 'Hide controls' : 'Show controls'
-                        }
-                        side="top"
-                      >
-                        <Button
-                          type="button"
-                          size="icon-sm"
-                          variant="secondary"
-                          aria-label={
-                            stationExpanded
-                              ? `Hide controls for ${station.name}`
-                              : `Show controls for ${station.name}`
-                          }
-                          aria-expanded={stationExpanded}
-                          onClick={() =>
-                            setExpandedStationIds((prev) => {
-                              const next = new Set(prev);
-                              if (next.has(station.id)) {
-                                next.delete(station.id);
-                              } else {
-                                next.add(station.id);
-                              }
-                              return next;
-                            })
-                          }
-                        >
-                          {stationExpanded ? (
-                            <ChevronUpIcon size={14} aria-hidden />
-                          ) : (
-                            <ChevronDownIcon size={14} aria-hidden />
-                          )}
-                        </Button>
-                      </Tooltip>
-                    )}
-                  </div>
-                  {sourceConfigured && stationExpanded && (
-                    <Tooltip
-                      content={stationIsPlaying ? 'Pause' : 'Preview'}
-                      side="top"
-                    >
-                      <Button
-                        type="button"
-                        size="icon-sm"
-                        variant={stationIsPlaying ? undefined : 'secondary'}
-                        aria-label={
-                          stationIsPlaying
-                            ? `Pause ${station.name}`
-                            : `Preview ${station.name}`
-                        }
-                        aria-pressed={stationIsPlaying}
-                        onClick={() => {
-                          if (stationIsCurrent) {
-                            setPlaybackStatus(
-                              stationIsPlaying ? 'paused' : 'playing',
-                            );
-                            return;
-                          }
-                          play(
-                            radioStationPlayable({
-                              ...station,
-                              streamUrl: station.streamUrl!,
-                            }),
-                          );
-                        }}
-                      >
-                        {stationIsPlaying ? (
-                          <PauseIcon size={14} aria-hidden />
-                        ) : (
-                          <PlayIcon size={14} aria-hidden />
-                        )}
-                      </Button>
-                    </Tooltip>
-                  )}
-                </div>
-              }
-            />
-          );
-        })}
-      </div>
+                ),
+              },
+            ]}
+          />
+        )}
+      </ConfigurableCard>
 
       <Dialog.Root
         isOpen={editingStation !== null}
@@ -3615,6 +3427,116 @@ function RadioCategory() {
           </form>
         )}
       </Dialog.Root>
+    </>
+  );
+}
+
+function RadioCategory() {
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestName, setSuggestName] = useState('');
+  const [suggestLogoUrl, setSuggestLogoUrl] = useState('');
+  const [suggestLanguage, setSuggestLanguage] = useState('');
+  const [suggestBitrate, setSuggestBitrate] = useState('');
+  const [suggestStreamUrl, setSuggestStreamUrl] = useState('');
+  const [suggestBusy, setSuggestBusy] = useState(false);
+  const [suggestMsg, setSuggestMsg] = useState<string | null>(null);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <PersonalRadioStreamCard />
+      <RadioBrowserDirectoryCard />
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => setSuggestOpen((v) => !v)}
+        >
+          {suggestOpen ? 'Cancel' : 'Suggest a station'}
+        </Button>
+      </div>
+
+      {suggestOpen && (
+        <form
+          className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-lg border p-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSuggestBusy(true);
+            setSuggestMsg(null);
+            void import('../api/admin')
+              .then(({ submitRadioStationSuggestion }) =>
+                submitRadioStationSuggestion({
+                  name: suggestName.trim(),
+                  logoUrl: suggestLogoUrl.trim(),
+                  language: suggestLanguage.trim(),
+                  bitrateKbps: suggestBitrate.trim(),
+                  streamUrl: suggestStreamUrl.trim(),
+                }),
+              )
+              .then((r) => {
+                setSuggestBusy(false);
+                if (!r.ok) {
+                  setSuggestMsg(r.error);
+                  return;
+                }
+                setSuggestMsg('Thanks — sent to the Tahti team for review.');
+                setSuggestName('');
+                setSuggestLogoUrl('');
+                setSuggestLanguage('');
+                setSuggestBitrate('');
+                setSuggestStreamUrl('');
+              });
+          }}
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input
+              label="Station name"
+              value={suggestName}
+              onChange={(e) => setSuggestName(e.target.value)}
+              required
+            />
+            <Input
+              label="Language"
+              value={suggestLanguage}
+              onChange={(e) => setSuggestLanguage(e.target.value)}
+              placeholder="Finnish"
+            />
+            <Input
+              label="Bitrate (kbps)"
+              value={suggestBitrate}
+              onChange={(e) => setSuggestBitrate(e.target.value)}
+              placeholder="128"
+            />
+            <Input
+              label="Logo URL"
+              value={suggestLogoUrl}
+              onChange={(e) => setSuggestLogoUrl(e.target.value)}
+              placeholder="https://…"
+            />
+            <Input
+              label="Stream URL"
+              value={suggestStreamUrl}
+              onChange={(e) => setSuggestStreamUrl(e.target.value)}
+              placeholder="https://stream.example.fi/station.mp3"
+              className="sm:col-span-2"
+              required
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              type="submit"
+              disabled={
+                suggestBusy || !suggestName.trim() || !suggestStreamUrl.trim()
+              }
+            >
+              {suggestBusy ? 'Sending…' : 'Send for review'}
+            </Button>
+            {suggestMsg && (
+              <p className="text-foreground-secondary text-xs">{suggestMsg}</p>
+            )}
+          </div>
+        </form>
+      )}
     </div>
   );
 }

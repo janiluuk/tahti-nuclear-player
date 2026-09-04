@@ -36,9 +36,13 @@ describe('archiveItemToPlayable', () => {
       'my-channel',
     );
     expect(playable).not.toBeNull();
-    expect(playable?.embed).toEqual({
-      provider: 'hearthis',
-      embedUri: '123456',
+    expect(playable).toMatchObject({
+      sourceProvider: 'hearthis',
+      streamUrl: '',
+      embed: {
+        provider: 'hearthis',
+        embedUri: '123456',
+      },
     });
   });
 

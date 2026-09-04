@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-09-04T16:45",
+    "description": "hearthis.at tracks from Studio and Library play in the shared player again instead of silent demo audio, and Finnish internet radio stations live under Radio Browser → Stations with the same cover and stream edit controls.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
     "date": "2026-09-04T16:15",
     "description": "Section tabs show icons and count pills where they belong — Discover, Library, Studio Channel, the right rail, and more — so you can tell sections apart at a glance.",
     "type": "improvement",

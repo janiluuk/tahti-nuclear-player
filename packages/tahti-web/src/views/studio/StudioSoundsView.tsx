@@ -26,10 +26,6 @@ import {
 } from '@tahti-player/ui';
 
 import {
-  fetchHearthisTrackById,
-  playableFromHearthis,
-} from '../../api/sources';
-import {
   deleteStudioSound,
   fetchEditorSource,
   fetchStudioSoundDownload,
@@ -47,6 +43,7 @@ import { StudioPanel } from '../../components/StudioPanel';
 import { StudioSoundRowMenu } from '../../components/StudioSoundRowMenu';
 import { TrackEditDialog } from '../../components/TrackEditDialog';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
+import { playableFromStudioHearthis } from '../../lib/embedPlayback';
 import {
   EMBED_PROVIDER_HEIGHT,
   EMBED_PROVIDER_LABEL,
@@ -218,27 +215,14 @@ export function StudioSoundsView() {
     setBusyId(null);
   };
 
-  const playEmbedItem = async (item: StudioSound) => {
-    if (item.embedProvider !== 'HEARTHIS' || !item.embedUri) {
-      setEmbedOpenId((id) => (id === item.id ? null : item.id));
+  const playEmbedItem = (item: StudioSound) => {
+    const hearthis = playableFromStudioHearthis(item);
+    if (hearthis) {
+      play(hearthis);
+      setEmbedOpenId(null);
       return;
     }
-
-    setBusyId(item.id);
-    try {
-      const track = await fetchHearthisTrackById(item.embedUri);
-      if (track?.streamUrl) {
-        play({ ...playableFromHearthis({ ...track, title: item.title }) });
-        setEmbedOpenId(null);
-        return;
-      }
-      setEmbedOpenId((id) => (id === item.id ? null : item.id));
-    } catch {
-      setEmbedOpenId((id) => (id === item.id ? null : item.id));
-      toast.error('Could not load the hearthis.at track.');
-    } finally {
-      setBusyId(null);
-    }
+    setEmbedOpenId((id) => (id === item.id ? null : item.id));
   };
 
   const downloadItem = async (item: StudioSound) => {

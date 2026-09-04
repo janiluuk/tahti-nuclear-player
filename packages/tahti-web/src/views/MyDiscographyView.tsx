@@ -30,6 +30,7 @@ import type { StudioSound } from '../api/studio-types';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { TrackEditDialog } from '../components/TrackEditDialog';
+import { playableFromStudioHearthis } from '../lib/embedPlayback';
 import { EMBED_PROVIDER_LABEL } from '../lib/embedSrc';
 import { isPinned, sortPinnedFirst } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
@@ -145,6 +146,11 @@ export const MyDiscographyView: FC = () => {
   const playItem = async (item: StudioSound) => {
     if (isCurrentItem(item)) {
       setStatus(status === 'playing' ? 'paused' : 'playing');
+      return;
+    }
+    const hearthis = playableFromStudioHearthis(item);
+    if (hearthis) {
+      play(hearthis);
       return;
     }
     setLoadingId(item.id);

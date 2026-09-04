@@ -101,7 +101,8 @@ export const PLUGIN_CATEGORIES: PluginCategory[] = [
   {
     id: 'radio',
     label: 'Radio',
-    description: 'Curated internet radio stations for the main player bar.',
+    description:
+      'Personal stream, Radio Browser directory, and Finnish stations under Radio Browser → Stations.',
     icon: RadioIcon,
   },
   {

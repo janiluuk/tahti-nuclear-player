@@ -57,6 +57,7 @@ import { WaveformSeekbar } from '../../components/tahti/WaveformSeekbar';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
 import { SELECTABLE_CONTENT_TYPES } from '../../content/contentTypes';
 import { autoTrimCuts } from '../../lib/autoTrimCuts';
+import { playableFromStudioHearthis } from '../../lib/embedPlayback';
 import { capitalizeGenre, PRESET_GENRES } from '../../lib/genres';
 import { isPinned } from '../../lib/pinnedTracks';
 import { useMasteringFeatureStore } from '../../plugins/mastering/store';
@@ -232,6 +233,14 @@ export function StudioSoundView({ id }: { id: string }) {
         seekTo(startAt);
       }
       setPlayerStatus('playing');
+      return;
+    }
+    const hearthis = playableFromStudioHearthis(item);
+    if (hearthis) {
+      play(hearthis);
+      if (startAt !== undefined) {
+        seekTo(startAt);
+      }
       return;
     }
     setPlayBusy(true);

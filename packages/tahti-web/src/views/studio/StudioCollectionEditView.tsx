@@ -50,6 +50,7 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
 import { COLLECTION_STYLES } from '../../content/collectionStyles';
+import { playableFromStudioHearthis } from '../../lib/embedPlayback';
 import {
   EMBED_PROVIDER_HEIGHT,
   EMBED_PROVIDER_LABEL,
@@ -450,12 +451,25 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
     (i) => i.sound && currentId === `archive:${i.sound.id}`,
   );
 
-  const playSound = async (id: string, title: string) => {
-    const { data } = await fetchEditorSource(id);
+  const playSound = async (sound: {
+    id: string;
+    title: string;
+    artistName?: string | null;
+    bannerUrl?: string | null;
+    embedProvider?: string | null;
+    embedUri?: string | null;
+    durationSec?: number | null;
+  }) => {
+    const hearthis = playableFromStudioHearthis(sound);
+    if (hearthis) {
+      play(hearthis);
+      return;
+    }
+    const { data } = await fetchEditorSource(sound.id);
     play({
-      id: `archive:${id}`,
+      id: `archive:${sound.id}`,
       kind: 'archive',
-      title: data.title || title,
+      title: data.title || sound.title,
       artist: 'You',
       streamUrl: data.url,
       protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
@@ -463,9 +477,12 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   };
 
   const togglePlayItem = (item: StudioCollectionItem) => {
-    // EMBED_ONLY items have no Tahti-hosted audio — playing them through
-    // the normal path would just fail or fall back to something else.
-    if (!item.sound || item.sound.embedProvider) {
+    // Non-hearthis EMBED_ONLY items have no Tahti-hosted audio and no
+    // shared-player widget — only HEARTHIS plays via the bottom bar.
+    if (
+      !item.sound ||
+      (item.sound.embedProvider && item.sound.embedProvider !== 'HEARTHIS')
+    ) {
       return;
     }
     const isThisCurrent = currentId === `archive:${item.sound.id}`;
@@ -473,7 +490,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
       setStatus(isPlaying ? 'paused' : 'playing');
       return;
     }
-    void playSound(item.sound.id, item.sound.title);
+    void playSound(item.sound);
   };
 
   const addSound = async (sound: StudioSound) => {
@@ -887,7 +904,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                         if (isCurrent) {
                           seekTo(sec);
                         } else if (item.sound) {
-                          void playSound(item.sound.id, item.sound.title);
+                          void playSound(item.sound);
                         }
                       }}
                       isDragging={draggedId === item.id}
@@ -1005,7 +1022,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                                 if (itemIsPlaying) {
                                   setStatus('paused');
                                 } else {
-                                  void playSound(sound.id, sound.title);
+                                  void playSound(sound);
                                 }
                               }}
                             >

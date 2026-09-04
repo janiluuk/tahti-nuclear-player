@@ -1,5 +1,21 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — hearthis embed play + Finnish radio in Radio Browser (0.0.68)
+
+**Status:** executed.
+
+Studio/Library hearthis rows play through the shared player widget
+(`embedPlayback`: empty `streamUrl`, `sourceProvider: 'hearthis'`) instead
+of DEMO_MP3 / hotlinked streams that were silent for ~3 minutes.
+
+Curated Finnish stations (`RADIO_STATIONS`) live under Add-ons → Radio →
+Radio Browser → Stations (Enable / Configure / Preview). Separate
+Installed/Available per-station add-on rows removed. Listen tiles still
+use `enabledStationIds` + overrides.
+
+Todos: `docs/todo/studio-hearthis-playable.md`,
+`docs/todo/radio-finnish-into-browser.md`.
+
 ## 2026-09-04 — Tabs Storybook migration (icons + count pills)
 
 **Status:** executed.

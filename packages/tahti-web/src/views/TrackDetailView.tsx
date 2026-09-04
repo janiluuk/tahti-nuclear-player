@@ -77,6 +77,8 @@ function playableFromDetail(
       detail.embedProvider === 'HEARTHIS' && detail.embedUri
         ? { provider: 'hearthis', embedUri: detail.embedUri }
         : undefined,
+    sourceProvider:
+      detail.embedProvider === 'HEARTHIS' ? 'hearthis' : undefined,
     channelSlug: detail.channelSlug,
     durationSec: detail.durationSec ?? undefined,
   };

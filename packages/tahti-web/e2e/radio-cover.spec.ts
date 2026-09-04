@@ -50,36 +50,61 @@ async function signIn(
   ).toBeVisible();
 }
 
-async function openRadioAddons(page: Page): Promise<void> {
-  await page.goto('/settings/plugin-store');
-  const settings = page.getByRole('dialog');
+async function openRadioBrowserStations(page: Page): Promise<{
+  settings: ReturnType<Page['getByRole']>;
+  configure: ReturnType<Page['getByRole']>;
+}> {
+  await page.goto('/settings/plugin-store?category=radio');
+  const settings = page.getByRole('dialog').filter({
+    has: page.getByRole('heading', { name: 'Add-ons' }),
+  });
   await expect(
     settings.getByRole('heading', { name: 'Add-ons' }),
   ).toBeVisible();
-  await settings.getByRole('tab', { name: 'Radio' }).click();
+  await expect(settings.getByText('Radio Browser directory')).toBeVisible();
+
+  const toggleName = /^(Activate|Deactivate) Radio Browser directory$/;
+  const radioBrowserRow = settings
+    .locator('div.flex.items-center.gap-2')
+    .filter({ has: settings.getByRole('switch', { name: toggleName }) })
+    .last();
+  const toggle = radioBrowserRow.getByRole('switch', { name: toggleName });
+  if (
+    (await toggle.getAttribute('aria-label'))?.startsWith('Activate') === true
+  ) {
+    await toggle.click();
+  }
+  await radioBrowserRow.getByRole('button', { name: 'Configure' }).click();
+
+  const configure = page.getByRole('dialog', {
+    name: 'Configure Radio Browser directory',
+  });
+  await expect(configure).toBeVisible();
+  await configure.getByRole('tab', { name: 'Stations' }).click();
   await expect(
-    settings.getByText('Curated internet radio stations'),
+    configure.getByRole('heading', { name: 'Finnish stations' }),
   ).toBeVisible();
-  await settings.getByRole('tab', { name: /^Available/ }).click();
+
+  return { settings, configure };
 }
 
 test('admin can replace a radio cover and see it persist', async ({ page }) => {
   await signIn(page, { board: true });
-  await openRadioAddons(page);
+  const { settings, configure } = await openRadioBrowserStations(page);
 
-  const settings = page.getByRole('dialog');
-  const availableHelsinki = settings.getByTestId('plugin-item').filter({
-    hasText: 'Radio Helsinki',
-  });
-  await expect(availableHelsinki).toBeVisible();
-  await availableHelsinki
-    .getByRole('button', { name: 'Enable Radio Helsinki' })
-    .click();
-  await settings.getByRole('tab', { name: /^Installed/ }).click();
-  const helsinki = settings.getByTestId('plugin-item').filter({
+  const helsinki = configure.getByRole('listitem').filter({
     hasText: 'Radio Helsinki',
   });
   await expect(helsinki).toBeVisible();
+  const enableHelsinki = helsinki.getByRole('button', {
+    name: 'Enable Radio Helsinki',
+  });
+  if (await enableHelsinki.isVisible()) {
+    await enableHelsinki.click();
+  }
+  await expect(
+    helsinki.getByRole('button', { name: 'Disable Radio Helsinki' }),
+  ).toBeVisible();
 
   const edit = helsinki.getByRole('button', {
     name: 'Edit Radio Helsinki cover',
@@ -104,6 +129,7 @@ test('admin can replace a radio cover and see it persist', async ({ page }) => {
     )
     .toMatch(/^data:image\/png/);
 
+  await configure.getByRole('button', { name: 'Done' }).click();
   await settings.getByTestId('dialog-x-close').click();
   await page.goto('/');
   await expect(
@@ -138,9 +164,8 @@ test('admin can replace a radio cover and see it persist', async ({ page }) => {
 
 test('non-admins do not see the radio cover edit control', async ({ page }) => {
   await signIn(page);
-  await openRadioAddons(page);
-  const settings = page.getByRole('dialog');
-  const helsinki = settings.getByTestId('plugin-item').filter({
+  const { configure } = await openRadioBrowserStations(page);
+  const helsinki = configure.getByRole('listitem').filter({
     hasText: 'Radio Helsinki',
   });
   await expect(helsinki).toBeVisible();

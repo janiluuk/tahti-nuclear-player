@@ -45,6 +45,7 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPanel } from '../../components/StudioPanel';
 import { normalizeCollectionStyle } from '../../content/collectionStyles';
+import { playableFromStudioHearthis } from '../../lib/embedPlayback';
 import { trackTableLabels } from '../../lib/trackTableLabels';
 import { usePlayerStore } from '../../stores/playerStore';
 
@@ -344,24 +345,50 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
     reload();
   };
 
-  const playSound = async (id: string, title: string) => {
-    const { data } = await fetchEditorSource(id);
+  const playSound = async (sound: {
+    id: string;
+    title: string;
+    artistName?: string | null;
+    bannerUrl?: string | null;
+    embedProvider?: string | null;
+    embedUri?: string | null;
+    durationSec?: number | null;
+  }) => {
+    const hearthis = playableFromStudioHearthis(sound);
+    if (hearthis) {
+      play(hearthis);
+      return;
+    }
+    const { data } = await fetchEditorSource(sound.id);
     play({
-      id: `archive:${id}`,
+      id: `archive:${sound.id}`,
       kind: 'archive',
-      title: data.title || title,
+      title: data.title || sound.title,
       artist: 'You',
       streamUrl: data.url,
       protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
     });
   };
 
-  const enqueueSound = async (id: string, title: string) => {
-    const { data } = await fetchEditorSource(id);
+  const enqueueSound = async (sound: {
+    id: string;
+    title: string;
+    artistName?: string | null;
+    bannerUrl?: string | null;
+    embedProvider?: string | null;
+    embedUri?: string | null;
+    durationSec?: number | null;
+  }) => {
+    const hearthis = playableFromStudioHearthis(sound);
+    if (hearthis) {
+      enqueue(hearthis);
+      return;
+    }
+    const { data } = await fetchEditorSource(sound.id);
     enqueue({
-      id: `archive:${id}`,
+      id: `archive:${sound.id}`,
       kind: 'archive',
-      title: data.title || title,
+      title: data.title || sound.title,
       artist: 'You',
       streamUrl: data.url,
       protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
@@ -499,14 +526,14 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                                   : 'playing',
                               );
                             } else {
-                              void playSound(item.sound.id, t.title);
+                              void playSound(item.sound);
                             }
                           }
                         },
                         onAddToQueue: (t) => {
                           const item = items.find((i) => i.id === t.source.id);
                           if (item?.sound) {
-                            void enqueueSound(item.sound.id, t.title);
+                            void enqueueSound(item.sound);
                           }
                         },
                       }}
