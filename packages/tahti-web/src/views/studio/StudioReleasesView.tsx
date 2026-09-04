@@ -5,6 +5,7 @@ import {
   ExternalLinkIcon,
   LibraryIcon,
   MoreHorizontalIcon,
+  PencilIcon,
   PlusIcon,
   Share2Icon,
 } from 'lucide-react';
@@ -235,6 +236,7 @@ export function StudioReleasesView({
                     </div>
                     <Link to="/studio/releases/$id" params={{ id: r.id }}>
                       <Button size="sm" variant="secondary">
+                        <PencilIcon size={14} aria-hidden className="mr-1.5" />
                         Edit
                       </Button>
                     </Link>

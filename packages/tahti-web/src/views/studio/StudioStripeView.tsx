@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { PlugIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge, Button, ViewShell } from '@tahti-player/ui';
@@ -138,6 +139,7 @@ export function StudioStripeView() {
                           });
                         }}
                       >
+                        <PlugIcon size={15} aria-hidden className="mr-1.5" />
                         Start / resume onboarding
                       </Button>
                     ) : null}

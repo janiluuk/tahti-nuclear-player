@@ -1,4 +1,5 @@
 import { Navigate, useNavigate, useSearch } from '@tanstack/react-router';
+import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, StatChip, Tabs, ViewShell } from '@tahti-player/ui';
@@ -200,6 +201,7 @@ export function StudioChannelView() {
                   broadcasting, uploads, and your public channel.
                 </p>
                 <Button disabled={!user} onClick={openChannelSetup}>
+                  <PlusIcon size={16} aria-hidden className="mr-1.5" />
                   Create {user?.username ?? 'your-name'}.tahti.live
                 </Button>
               </div>

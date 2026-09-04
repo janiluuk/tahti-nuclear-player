@@ -1,5 +1,11 @@
 import { Link } from '@tanstack/react-router';
-import { CheckIcon, PencilIcon, RadioIcon, SearchIcon } from 'lucide-react';
+import {
+  CheckIcon,
+  PencilIcon,
+  RadioIcon,
+  SearchIcon,
+  UploadCloudIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, EmptyState, Input, Select, ViewShell } from '@tahti-player/ui';
@@ -171,6 +177,7 @@ function RecordingRow({
       ) : (
         <Link to="/studio/sounds">
           <Button size="sm" variant="secondary">
+            <UploadCloudIcon size={14} aria-hidden className="mr-1.5" />
             Publish
           </Button>
         </Link>

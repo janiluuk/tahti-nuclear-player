@@ -4,8 +4,10 @@ import {
   CalendarDaysIcon,
   HistoryIcon,
   PlusIcon,
+  Trash2Icon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Tabs, Tooltip, ViewShell } from '@tahti-player/ui';
 
@@ -18,7 +20,6 @@ import { StudioPanel } from '../../components/StudioPanel';
 export function StudioEventsView() {
   const [events, setEvents] = useState<ArtistEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [msg, setMsg] = useState<string | null>(null);
 
   const reload = () => {
     void fetchMyEvents().then((r) => {
@@ -83,13 +84,14 @@ export function StudioEventsView() {
               onClick={() => {
                 void deleteEvent(event.id).then((result) => {
                   if (!result.ok) {
-                    setMsg(result.error);
+                    toast.error(result.error);
                   } else {
                     reload();
                   }
                 });
               }}
             >
+              <Trash2Icon size={14} aria-hidden className="mr-1.5" />
               Remove
             </Button>
           </li>
@@ -156,9 +158,6 @@ export function StudioEventsView() {
                       <PageLoading label="Loading…" />
                     ) : (
                       renderEvents(pastEvents)
-                    )}
-                    {msg && (
-                      <p className="text-accent-red mt-3 text-sm">{msg}</p>
                     )}
                   </StudioPanel>
                 ),
