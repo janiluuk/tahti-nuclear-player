@@ -30,7 +30,7 @@ import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageUploadField } from '../../components/ImageUploadField';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageLoading } from '../../components/PageStates';
 import { StudioPanel } from '../../components/StudioPanel';
 
 export function AdminNewsView() {
@@ -112,11 +112,9 @@ export function AdminNewsView() {
               {loading ? (
                 <PageLoading label="Loading news…" />
               ) : posts.length === 0 ? (
-                <div className="flex flex-col gap-3 py-4 text-center">
-                  <p className="text-foreground-secondary text-sm">
-                    No news posts yet.
-                  </p>
-                  <div>
+                <PageEmpty
+                  title="No news posts yet"
+                  action={
                     <Tooltip content="Write post" side="top">
                       <Button
                         size="icon-sm"
@@ -126,8 +124,8 @@ export function AdminNewsView() {
                         <PlusIcon size={16} aria-hidden />
                       </Button>
                     </Tooltip>
-                  </div>
-                </div>
+                  }
+                />
               ) : (
                 <ul className="divide-border divide-y">
                   {posts.map((post) =>

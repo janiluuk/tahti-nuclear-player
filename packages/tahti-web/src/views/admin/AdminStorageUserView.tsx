@@ -9,7 +9,7 @@ import {
   type AdminStorageUserDetail,
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageError, PageLoading } from '../../components/PageStates';
 import { StudioPanel } from '../../components/StudioPanel';
 import {
   formatBytes,
@@ -56,9 +56,7 @@ export function AdminStorageUserView({ userId }: { userId: string }) {
           </StudioPanel>
         ) : !detail ? (
           <StudioPanel>
-            <p className="text-foreground-secondary py-4 text-center text-sm">
-              Could not load this user's storage.
-            </p>
+            <PageError description="Could not load this user's storage." />
           </StudioPanel>
         ) : (
           <>
@@ -105,9 +103,7 @@ export function AdminStorageUserView({ userId }: { userId: string }) {
                 description="Oldest first, with a running total of storage used over time."
               >
                 {detail.files.length === 0 ? (
-                  <p className="text-foreground-secondary py-4 text-center text-sm">
-                    No files uploaded yet.
-                  </p>
+                  <PageEmpty title="No files uploaded yet" />
                 ) : (
                   <ul className="divide-border divide-y">
                     {detail.files.map((f) => (

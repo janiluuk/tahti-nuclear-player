@@ -41,7 +41,7 @@ import {
 import { fetchRadioStation } from '../../api/client';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageLoading } from '../../components/PageStates';
 import { RadioStationCover } from '../../components/RadioStationCover';
 import { StudioPanel } from '../../components/StudioPanel';
 import { TahtiRotationPlaylistEditor } from '../../components/TahtiRotationPlaylistEditor';
@@ -171,9 +171,10 @@ function InternetRadioPresetsPanel() {
       {loading ? (
         <PageLoading label="Loading stations…" />
       ) : presets.length === 0 ? (
-        <p className="text-foreground-secondary py-4 text-center text-sm">
-          No internet radio stations yet — add one to offer it as a default.
-        </p>
+        <PageEmpty
+          title="No internet radio stations yet"
+          description="Add one to offer it as a default."
+        />
       ) : (
         <ul className="divide-border divide-y">
           {presets.map((preset) => (
@@ -581,9 +582,7 @@ export function AdminRadioView() {
                     description="Drag tracks into the exact order listeners will hear between live shows."
                   >
                     {rotation.length === 0 ? (
-                      <p className="text-foreground-secondary text-sm">
-                        Nothing is in rotation yet.
-                      </p>
+                      <PageEmpty title="Nothing is in rotation yet" />
                     ) : (
                       <TahtiRotationPlaylistEditor
                         items={rotation}
@@ -599,9 +598,7 @@ export function AdminRadioView() {
                     title={`Eligible channels (${data.eligible.length})`}
                   >
                     {data.eligible.length === 0 ? (
-                      <p className="text-foreground-secondary text-sm">
-                        No member channels are live right now.
-                      </p>
+                      <PageEmpty title="No member channels are live right now" />
                     ) : (
                       <ul className="divide-border divide-y">
                         {data.eligible.map((ch) => (
@@ -705,9 +702,7 @@ export function AdminRadioView() {
 
                   <StudioPanel title="Feature history">
                     {data.history.length === 0 ? (
-                      <p className="text-foreground-secondary text-sm">
-                        No history yet.
-                      </p>
+                      <PageEmpty title="No history yet" />
                     ) : (
                       <ul className="divide-border divide-y">
                         {data.history.map((item, i) => (

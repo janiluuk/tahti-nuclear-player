@@ -7,7 +7,7 @@ import { fetchAdminUsers, type AdminUserRow } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { AdminUserEditPanel } from '../../components/AdminUserEditPanel';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageLoading } from '../../components/PageStates';
 import { StudioPanel } from '../../components/StudioPanel';
 
 const ROLES = ['', 'BOARD', 'ARTIST', 'LISTENER'] as const;
@@ -91,9 +91,7 @@ export const AdminUsersView = () => {
                   {loading ? (
                     <PageLoading label="Loading users…" />
                   ) : users.length === 0 ? (
-                    <p className="text-foreground-secondary p-3 text-sm">
-                      No users match these filters.
-                    </p>
+                    <PageEmpty title="No users match these filters" />
                   ) : (
                     <ul className="flex flex-col gap-1">
                       {users.map((user) => (
