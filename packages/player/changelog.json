@@ -1,5 +1,17 @@
 [
   {
+    "date": "2026-09-05T01:30",
+    "description": "Channel Design sits in a fixed translucent panel so you can scroll the page while editing, and each header style tab now shows only its own controls.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "Channel",
+        "color": "cyan"
+      }
+    ]
+  },
+  {
     "date": "2026-09-05T00:45",
     "description": "Opening Design channel no longer crashes the page, and the edit link uses a clean ?edit=true URL instead of quoted junk.",
     "type": "fix",

@@ -1613,14 +1613,14 @@ export function ChannelView({ slug }: { slug: string }) {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
-        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto pr-1">
+      <div className="relative min-h-0 flex-1">
+        <div className="h-full min-h-0 overflow-y-auto lg:pr-[25rem]">
           {pageBody}
         </div>
         <div
           className={`${
             mobileMenuOpen ? 'flex' : 'hidden'
-          } max-h-[40vh] shrink-0 overflow-visible lg:flex lg:max-h-none lg:self-stretch`}
+          } border-border bg-background/80 fixed inset-x-0 bottom-0 z-40 max-h-[45vh] flex-col overflow-hidden border-t backdrop-blur-md lg:top-[4.5rem] lg:right-3 lg:bottom-3 lg:left-auto lg:flex lg:max-h-none lg:w-[24rem] lg:rounded-xl lg:border`}
         >
           {layersMenu}
         </div>
