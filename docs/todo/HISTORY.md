@@ -2,6 +2,13 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — ViewShell rounds 1-2 (legal/governance/venues, onboarding/green room/subscribe)
+
+Round 1: `LegalDocShell` (covers every legal page), `PublicGovernanceHistoryView`,
+`VenueRegisterView`. Round 2: `OnboardingView`, `GreenRoomView` (all 8 return
+branches), `SubscribeView`. Remaining listener items: Chat, More/map,
+Transparency (+ methodology/grant-year).
+
 ## 2026-09-04 — ViewShell batches (next 5 + next 5-b)
 
 Listener/Studio/Admin hubs migrated to ViewShell: Help, Radio, Studio Sounds,
