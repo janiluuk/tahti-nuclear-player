@@ -1,4 +1,4 @@
-import { PlusIcon, UploadIcon } from 'lucide-react';
+import { PlusIcon, RotateCcwIcon, SaveIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Input, ViewShell } from '@tahti-player/ui';
@@ -140,6 +140,7 @@ export function AdminArtworkPresetsView() {
             classes={{ root: 'px-0 pt-0' }}
           >
             <Button variant="secondary" onClick={resetToDefaults}>
+              <RotateCcwIcon size={15} aria-hidden className="mr-1.5" />
               Reset to defaults
             </Button>
             <div className="grid gap-3 sm:grid-cols-4 lg:grid-cols-8">
@@ -209,7 +210,14 @@ export function AdminArtworkPresetsView() {
                   </div>
                 ) : null}
                 <Button onClick={save}>
-                  {saved ? 'Saved' : 'Save presets'}
+                  {saved ? (
+                    'Saved'
+                  ) : (
+                    <>
+                      <SaveIcon size={15} aria-hidden className="mr-1.5" />
+                      Save presets
+                    </>
+                  )}
                 </Button>
               </div>
               <div className="group relative aspect-square w-full max-w-64">

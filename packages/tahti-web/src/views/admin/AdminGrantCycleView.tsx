@@ -1,4 +1,5 @@
 import { Link, useParams } from '@tanstack/react-router';
+import { CheckIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, SectionShell, ViewShell } from '@tahti-player/ui';
@@ -192,7 +193,18 @@ export function AdminGrantCycleView() {
                         disabled={running || !sumCheckOk}
                         onClick={() => void run()}
                       >
-                        {running ? 'Approving…' : 'Approve distribution'}
+                        {running ? (
+                          'Approving…'
+                        ) : (
+                          <>
+                            <CheckIcon
+                              size={15}
+                              aria-hidden
+                              className="mr-1.5"
+                            />
+                            Approve distribution
+                          </>
+                        )}
                       </Button>
                     </StudioPanel>
                   )}

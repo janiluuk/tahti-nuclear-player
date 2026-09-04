@@ -1,4 +1,4 @@
-import { PlayIcon } from 'lucide-react';
+import { PlayIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -238,6 +238,11 @@ export function AdminAnnouncementsView() {
                             });
                           }}
                         >
+                          <Trash2Icon
+                            size={14}
+                            aria-hidden
+                            className="mr-1.5"
+                          />
                           Delete
                         </Button>
                       </div>

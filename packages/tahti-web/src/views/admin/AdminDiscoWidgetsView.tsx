@@ -193,6 +193,7 @@ function WidgetEditor({
             }
             onClick={onSave}
           >
+            <Plus size={15} aria-hidden className="mr-1.5" />
             Register widget
           </Button>
         )}
