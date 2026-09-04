@@ -6,6 +6,7 @@ import {
   Button,
   Input,
   SectionShell,
+  Tooltip,
   ViewShell,
 } from '@tahti-player/ui';
 
@@ -442,10 +443,28 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
 
       {user && !loading && !forbidden && (
         <SectionShell title="Submit a motion draft">
-          <p className="text-foreground-secondary text-sm">
-            Members can submit advisory proposals for board review. Drafts are
-            not voting ballots until the board opens them.
-          </p>
+          <div className="flex items-center gap-1.5">
+            <span className="text-foreground-secondary text-xs">
+              Advisory proposals for board review
+            </span>
+            <Tooltip
+              side="bottom"
+              content={
+                <p className="max-w-64 text-xs leading-relaxed">
+                  Members can submit advisory proposals for board review. Drafts
+                  are not voting ballots until the board opens them.
+                </p>
+              }
+            >
+              <span
+                tabIndex={0}
+                aria-label="About motion drafts"
+                className="text-foreground-secondary hover:text-foreground inline-flex size-4 cursor-help items-center justify-center rounded-full border border-current"
+              >
+                <span className="text-[10px] leading-none font-bold">?</span>
+              </span>
+            </Tooltip>
+          </div>
           <div className="mt-3 flex flex-col gap-2">
             <Input
               value={draftTitle}
