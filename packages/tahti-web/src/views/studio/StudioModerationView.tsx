@@ -38,7 +38,6 @@ export function StudioModerationView({
   const [bans, setBans] = useState<ChatBan[]>([]);
   const [newModUsername, setNewModUsername] = useState('');
   const [newBanHash, setNewBanHash] = useState('');
-  const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [pendingRemoveMod, setPendingRemoveMod] = useState<ModeratorRow | null>(
     null,
@@ -74,8 +73,6 @@ export function StudioModerationView({
             subtitle="Delegate chat moderation and manage channel bans."
           />
         )}
-
-        {msg && <p className="text-sm">{msg}</p>}
 
         <Tabs
           listClassName="border-border border-b pb-3"
@@ -139,10 +136,10 @@ export function StudioModerationView({
                         onClick={() => {
                           void addModerator(newModUsername.trim()).then((r) => {
                             if (!r.ok) {
-                              setMsg(r.error);
+                              toast.error(r.error);
                             } else {
                               setNewModUsername('');
-                              setMsg(
+                              toast.success(
                                 `Added ${r.data.displayName} as moderator.`,
                               );
                               reload();
@@ -202,7 +199,7 @@ export function StudioModerationView({
                                   b.fingerprintHash,
                                 ).then((r) => {
                                   if (!r.ok) {
-                                    setMsg(r.error);
+                                    toast.error(r.error);
                                   } else {
                                     toast.success('Unbanned.');
                                     reload();
@@ -233,9 +230,10 @@ export function StudioModerationView({
                           void banChatFingerprint(slug, newBanHash.trim()).then(
                             (r) => {
                               if (!r.ok) {
-                                setMsg(r.error);
+                                toast.error(r.error);
                               } else {
                                 setNewBanHash('');
+                                toast.success('Fingerprint banned.');
                                 reload();
                               }
                             },
@@ -269,7 +267,7 @@ export function StudioModerationView({
             }
             void removeModerator(moderator.id).then((result) => {
               if (!result.ok) {
-                setMsg(result.error);
+                toast.error(result.error);
                 return;
               }
               toast.success('Moderator removed.');
