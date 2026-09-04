@@ -10,6 +10,8 @@ import {
   setItemOffset,
   setItemVisible,
   setItemWidth,
+  setPlaylistDisplay,
+  setPlaylistSlug,
   type ChannelPageItem,
 } from './channelPageLayout';
 
@@ -76,6 +78,82 @@ describe('normalizeLayout', () => {
     expect(out.filter((item) => item.type === 'embed')).toHaveLength(2);
   });
 
+  it('drops playlist items missing a playlistSlug', () => {
+    const out = normalizeLayout([
+      { id: 'p1', type: 'playlist', visible: true },
+    ]);
+    expect(out.some((item) => item.id === 'p1')).toBe(false);
+  });
+
+  it('allows multiple playlist items', () => {
+    const out = normalizeLayout([
+      {
+        id: 'p1',
+        type: 'playlist',
+        visible: true,
+        playlistSlug: 'favorites-mix',
+      },
+      {
+        id: 'p2',
+        type: 'playlist',
+        visible: true,
+        playlistSlug: 'midnight-archive',
+      },
+    ]);
+    expect(out.filter((item) => item.type === 'playlist')).toHaveLength(2);
+  });
+
+  it('keeps playlistDisplay when cards or tracklist', () => {
+    const cards = normalizeLayout([
+      {
+        id: 'p1',
+        type: 'playlist',
+        visible: true,
+        playlistSlug: 'favorites-mix',
+        playlistDisplay: 'cards',
+      },
+    ]);
+    expect(cards.find((item) => item.id === 'p1')?.playlistDisplay).toBe(
+      'cards',
+    );
+
+    const tracklist = normalizeLayout([
+      {
+        id: 'p1',
+        type: 'playlist',
+        visible: true,
+        playlistSlug: 'favorites-mix',
+        playlistDisplay: 'tracklist',
+      },
+    ]);
+    expect(tracklist.find((item) => item.id === 'p1')?.playlistDisplay).toBe(
+      'tracklist',
+    );
+
+    const junk = normalizeLayout([
+      {
+        id: 'p1',
+        type: 'playlist',
+        visible: true,
+        playlistSlug: 'favorites-mix',
+        playlistDisplay: 'grid' as never,
+      },
+    ]);
+    expect(
+      junk.find((item) => item.id === 'p1')?.playlistDisplay,
+    ).toBeUndefined();
+  });
+
+  it('drops legacy actions and textOverlay types', () => {
+    const out = normalizeLayout([
+      { id: 'actions', type: 'actions' as never, visible: true },
+      { id: 'textOverlay', type: 'textOverlay' as never, visible: true },
+      { id: 'hero', type: 'hero', visible: true },
+    ]);
+    expect(out.some((item) => item.id === 'actions')).toBe(false);
+    expect(out.some((item) => item.id === 'textOverlay')).toBe(false);
+  });
+
   it('fills in every missing type as a hidden default entry', () => {
     const out = normalizeLayout([{ id: 'hero', type: 'hero', visible: true }]);
     const remaining = CHANNEL_PAGE_ITEM_TYPES.filter((t) => t !== 'hero');
@@ -90,7 +168,7 @@ describe('normalizeLayout', () => {
 describe('moveItem', () => {
   const items: ChannelPageItem[] = [
     { id: 'a', type: 'hero', visible: true },
-    { id: 'b', type: 'actions', visible: true },
+    { id: 'b', type: 'archive', visible: true },
     { id: 'c', type: 'about', visible: true },
   ];
 
@@ -112,7 +190,7 @@ describe('moveItem', () => {
 describe('setItemVisible / setItemWidth / setItemOffset', () => {
   const items: ChannelPageItem[] = [
     { id: 'a', type: 'hero', visible: true },
-    { id: 'b', type: 'actions', visible: false },
+    { id: 'b', type: 'archive', visible: false },
   ];
 
   it('setItemVisible only touches the matching id', () => {
@@ -135,6 +213,32 @@ describe('setItemVisible / setItemWidth / setItemOffset', () => {
       offsetY: -16,
     });
     expect(out.find((i) => i.id === 'b')?.offsetX).toBeUndefined();
+  });
+});
+
+describe('setPlaylistSlug / setPlaylistDisplay', () => {
+  const items: ChannelPageItem[] = [
+    {
+      id: 'p1',
+      type: 'playlist',
+      visible: true,
+      playlistSlug: 'favorites-mix',
+    },
+    { id: 'hero', type: 'hero', visible: true },
+  ];
+
+  it('setPlaylistSlug only updates the matching playlist item', () => {
+    const out = setPlaylistSlug(items, 'p1', 'midnight-archive');
+    expect(out.find((item) => item.id === 'p1')?.playlistSlug).toBe(
+      'midnight-archive',
+    );
+    expect(out.find((item) => item.id === 'hero')).toEqual(items[1]);
+  });
+
+  it('setPlaylistDisplay only updates the matching playlist item', () => {
+    const out = setPlaylistDisplay(items, 'p1', 'cards');
+    expect(out.find((item) => item.id === 'p1')?.playlistDisplay).toBe('cards');
+    expect(out.find((item) => item.id === 'hero')).toEqual(items[1]);
   });
 });
 
