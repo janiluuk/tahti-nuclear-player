@@ -285,7 +285,8 @@ test('subscriber and track purchase both get the original WAV; artist sees both 
 
   await grantBoardView(page);
   await page.goto('/admin/logs');
-  await expect(page.getByRole('heading', { name: 'Activity' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Logs' })).toBeVisible();
+  await page.getByRole('tab', { name: /Audit events/i }).click();
   await expect(page.getByText(/subscribed/i).first()).toBeVisible();
   await expect(page.getByText(/ledger entry|riff\.wav/i).first()).toBeVisible();
 });

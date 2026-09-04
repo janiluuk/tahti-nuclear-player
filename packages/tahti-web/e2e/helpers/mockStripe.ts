@@ -200,6 +200,35 @@ export async function installStripeMock(
 }
 
 export async function grantBoardView(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    const raw = localStorage.getItem('tahti-web-auth');
+    if (raw) {
+      const parsed = JSON.parse(raw) as {
+        state?: {
+          user?: { isBoard?: boolean; roles?: string[]; role?: string };
+        };
+      };
+      if (parsed.state?.user) {
+        const roles = Array.from(
+          new Set([...(parsed.state.user.roles ?? []), 'BOARD', 'ARTIST']),
+        );
+        parsed.state.user.isBoard = true;
+        parsed.state.user.roles = roles;
+        parsed.state.user.role = 'BOARD';
+        localStorage.setItem('tahti-web-auth', JSON.stringify(parsed));
+      }
+    }
+    const session = await import('/src/api/mock-session.ts');
+    const user = session.getMockSessionUser();
+    if (user) {
+      session.setMockSessionUser({
+        ...user,
+        isBoard: true,
+        role: 'BOARD',
+        roles: Array.from(new Set([...(user.roles ?? []), 'BOARD', 'ARTIST'])),
+      });
+    }
+  });
   await page.route('**/api/auth/me', async (route: Route) => {
     if (route.request().method() !== 'GET') {
       await route.continue();
@@ -220,6 +249,7 @@ export async function grantBoardView(page: Page): Promise<void> {
       }),
     });
   });
+  await page.reload();
 }
 
 export function rememberFanOnLatestSub(
