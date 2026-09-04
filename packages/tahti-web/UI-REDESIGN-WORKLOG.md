@@ -1,3 +1,15 @@
+## 2026-09-05 — Channel Design crash + quoted edit URL (0.0.77)
+
+**Status:** executed.
+
+`ChannelView` called `useMemo` for look extras after loading early
+returns → React hook-count crash ("Something went wrong") once the
+channel loaded. Design links used `edit: '1'`, which TanStack serializes
+as `?edit=%221%22`. Moved the memo above early returns; edit search is
+now boolean `?edit=true` (still accepts legacy `1` / `"1"`).
+
+Todo: `docs/todo/channel-edit-hooks-url.md`.
+
 ## 2026-09-05 — Studio subtabs under nav + header help (0.0.76)
 
 **Status:** executed. Branch `feat/studio-subtabs-help-layer`.
