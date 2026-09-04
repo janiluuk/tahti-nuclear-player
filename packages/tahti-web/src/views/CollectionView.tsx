@@ -296,23 +296,28 @@ export function CollectionView({
               </Link>
             </Tooltip>
           ) : (
-            <Button
-              variant={isFavorite ? 'default' : 'secondary'}
-              size="icon-sm"
-              className="bg-background border-border rounded-md border-(length:--border-width)"
-              aria-pressed={isFavorite}
-              aria-label={isFavorite ? 'Favorited' : 'Favorite'}
-              onClick={() =>
-                toggleFavoritePlaylist({
-                  slug,
-                  name: collection.name,
-                  ownerUsername: collection.user.username,
-                  coverUrl: collection.coverUrl,
-                })
-              }
+            <Tooltip
+              content={isFavorite ? 'Remove from favorites' : 'Favorite'}
+              side="top"
             >
-              <BookmarkIcon size={15} aria-hidden />
-            </Button>
+              <Button
+                variant={isFavorite ? 'default' : 'secondary'}
+                size="icon-sm"
+                className="bg-background border-border rounded-md border-(length:--border-width)"
+                aria-pressed={isFavorite}
+                aria-label={isFavorite ? 'Favorited' : 'Favorite'}
+                onClick={() =>
+                  toggleFavoritePlaylist({
+                    slug,
+                    name: collection.name,
+                    ownerUsername: collection.user.username,
+                    coverUrl: collection.coverUrl,
+                  })
+                }
+              >
+                <BookmarkIcon size={15} aria-hidden />
+              </Button>
+            </Tooltip>
           )
         }
         data-testid="collection-social-header"
