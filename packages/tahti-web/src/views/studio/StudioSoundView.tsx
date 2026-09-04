@@ -19,6 +19,7 @@ import {
 import { useEffect, useState } from 'react';
 
 import {
+  Alert,
   Button,
   CreatableCombobox,
   Input,
@@ -498,25 +499,18 @@ export function StudioSoundView({ id }: { id: string }) {
             </header>
 
             {notReady && (
-              <p
-                className="border-border bg-background-secondary/30 rounded-lg border px-4 py-3 text-sm"
-                role="status"
-                aria-live="polite"
-              >
+              <Alert tone="neutral" aria-live="polite">
                 Still processing — this can take a minute for longer files.
                 Playback, the waveform, and quick fixes will unlock once it's
                 ready; metadata below is safe to edit and save now.
-              </p>
+              </Alert>
             )}
 
             {hasError && (
-              <p
-                className="border-accent-red/40 bg-accent-red/10 text-foreground rounded-lg border px-4 py-3 text-sm"
-                role="alert"
-              >
+              <Alert tone="error">
                 Processing failed for this file. Try uploading it again, or
                 contact support if it keeps happening.
-              </p>
+              </Alert>
             )}
 
             {message && (

@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CircleHelpIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Tabs, ViewShell } from '@tahti-player/ui';
+import { Alert, Button, Tabs, ViewShell } from '@tahti-player/ui';
 
 import { fetchAllRoyalties } from '../../api/distribution';
 import { fetchMyFanTiers } from '../../api/fan-tiers';
@@ -145,8 +145,8 @@ export function StudioRevenueView() {
                   ) : (
                     <>
                       {showConnectWarning ? (
-                        <p
-                          className="border-accent-red/40 bg-accent-red/10 text-accent-red rounded-lg border px-3 py-2 text-sm"
+                        <Alert
+                          tone="error"
                           role="status"
                           data-testid="fan-subs-connect-warning"
                         >
@@ -160,7 +160,7 @@ export function StudioRevenueView() {
                             Stripe dashboard
                           </Link>
                           .
-                        </p>
+                        </Alert>
                       ) : null}
 
                       {fanPayouts ? (

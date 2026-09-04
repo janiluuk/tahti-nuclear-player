@@ -2,6 +2,7 @@ import { ActivityIcon, ContainerIcon, HistoryIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import {
+  Alert,
   LogViewer,
   Tabs,
   ViewShell,
@@ -124,13 +125,10 @@ export function AdminLogsView() {
   const containerLogs = (
     <StudioPanel>
       {!lokiReachable && (
-        <p
-          className="border-accent-red/40 bg-accent-red/10 text-accent-red mb-3 rounded-lg border px-4 py-3 text-sm"
-          role="alert"
-        >
+        <Alert tone="error" className="mb-3">
           Could not reach the logging backend. It may be down, or this
           environment can&apos;t reach it on the LAN.
-        </p>
+        </Alert>
       )}
       {loading ? (
         <PageLoading label="Loading logs…" />
