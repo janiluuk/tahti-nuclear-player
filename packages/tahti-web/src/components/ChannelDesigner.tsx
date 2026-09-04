@@ -46,7 +46,6 @@ import {
   fetchChannelVisual,
   fetchChannelVisualPresets,
   fillColorScheme,
-  HEADER_STYLES,
   isHeaderImageUrl,
   isValidHeaderBackdropUrl,
   isVisualPreset,
@@ -67,7 +66,6 @@ import {
   type ChannelVisualPatch,
   type ChannelVisualPreset,
   type ColorScheme,
-  type HeaderStyle,
   type VisualPreset,
   type VisualSettingsMap,
 } from '../api/channel-design';
@@ -105,6 +103,12 @@ import {
   visualizerSupportsAudioReactive,
 } from '../plugins/visualizers';
 import { ColorSchemeFields } from './channel-designer/ColorSchemeFields';
+import {
+  HeaderStyleTabs,
+  resolveHeaderDesignMode,
+  type HeaderDesignMode,
+} from './channel-designer/HeaderStyleTabs';
+import { PageBackgroundField } from './channel-designer/PageBackgroundField';
 import { ChannelBackdropCard } from './ChannelBackdropCard';
 import { ChannelElementEditor } from './ChannelElementEditor';
 import { ChannelTextOverlayEditor } from './ChannelTextOverlayEditor';
@@ -131,7 +135,6 @@ const HEADER_MEDIA_TYPES = [
   'image/webp',
   'image/gif',
 ];
-const HEADER_DESIGN_OPTIONS = [...HEADER_STYLES, 'SLIDESHOW'] as const;
 
 const GALLERY_MODES: Array<{ id: ChannelGalleryMode; label: string }> = [
   { id: 'NONE', label: 'None' },
@@ -994,12 +997,10 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       </section>
     );
 
-    type HeaderDesignMode = (typeof HEADER_DESIGN_OPTIONS)[number];
-    const headerDesignMode: HeaderDesignMode = slideshowHeaderSelected
-      ? 'SLIDESHOW'
-      : (HEADER_STYLES as readonly string[]).includes(visual.headerStyle)
-        ? (visual.headerStyle as HeaderStyle)
-        : 'GRADIENT';
+    const headerDesignMode: HeaderDesignMode = resolveHeaderDesignMode(
+      visual.headerStyle,
+      slideshowHeaderSelected,
+    );
 
     const setHeaderDesignMode = (mode: HeaderDesignMode) => {
       if (mode === 'SLIDESHOW') {
@@ -1014,35 +1015,19 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     };
 
     const pageBackgroundField = (
-      <label className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-2.5 text-sm">
-        <input
-          type="color"
-          value={
-            visual.useBackgroundGradient
-              ? (backgroundScheme.bg ?? scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
-              : (scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
+      <PageBackgroundField
+        scheme={scheme}
+        backgroundScheme={backgroundScheme}
+        useBackgroundGradient={visual.useBackgroundGradient ?? false}
+        onChange={(bg) => {
+          if (visual.useBackgroundGradient) {
+            setBackgroundScheme({ ...backgroundScheme, bg });
+            setDirty(true);
+            return;
           }
-          onChange={(event) => {
-            const bg = event.target.value;
-            if (visual.useBackgroundGradient) {
-              setBackgroundScheme({ ...backgroundScheme, bg });
-              setDirty(true);
-              return;
-            }
-            applyLocal({ brandAccentPreset: null }, { ...scheme, bg });
-          }}
-          className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
-          aria-label="Page background color"
-        />
-        <span className="min-w-0">
-          <span className="block text-sm font-semibold">Page background</span>
-          <code className="text-foreground-secondary text-xs">
-            {visual.useBackgroundGradient
-              ? (backgroundScheme.bg ?? scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
-              : (scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)}
-          </code>
-        </span>
-      </label>
+          applyLocal({ brandAccentPreset: null }, { ...scheme, bg });
+        }}
+      />
     );
 
     const playerGradientControls = (
@@ -1390,37 +1375,10 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             </Tooltip>
           ) : null}
         </div>
-        <div
-          role="tablist"
-          aria-label="Header style"
-          className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
-        >
-          {HEADER_DESIGN_OPTIONS.map((mode) => {
-            const selected = headerDesignMode === mode;
-            const label =
-              mode === 'SLIDESHOW'
-                ? 'Slideshow'
-                : mode === 'VIDEO_LOOP'
-                  ? 'Video / image'
-                  : mode.replace(/_/g, ' ');
-            return (
-              <button
-                key={mode}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => setHeaderDesignMode(mode)}
-                className={`rounded-md px-2.5 py-1.5 text-[10px] font-semibold tracking-wide uppercase ${
-                  selected
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground-secondary hover:text-foreground'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
+        <HeaderStyleTabs
+          value={headerDesignMode}
+          onChange={setHeaderDesignMode}
+        />
 
         {headerDesignMode === 'GRADIENT' ? (
           <div className="flex flex-col gap-2">

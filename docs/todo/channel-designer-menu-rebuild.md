@@ -1,6 +1,6 @@
 # Channel designer menu rebuild
 
-**Status:** shipped in tahti-web 0.0.80.
+**Status:** shipping with Storybook Backdrop primitives (0.0.80).
 
 ## Problem
 
@@ -15,10 +15,10 @@ page and needed internal scrolling just to navigate chrome.
 3. Designer shell is **fixed**, translucent; page scrolls behind it.
 4. Tab / section chrome stays put — only the settings pane scrolls.
 
-## Approach
+## Done
 
-- `ChannelLayersMenu`: translucent dock (`bg-background/75` + blur).
-- `ChannelView` edit mode: fixed right panel; page scrolls in the left pane.
-- Header style: segmented buttons + exclusive body branches.
-- Colors: full palette for Gradient; accents for Solid/Video/Slideshow;
-  page background always at top of Background section.
+- Exclusive header-style bodies in `ChannelDesigner` (Gradient / Solid /
+  Video / Slideshow).
+- Fixed translucent layers dock (`ChannelLayersMenu` + `ChannelView` edit).
+- Extracted `HeaderStyleTabs` + `PageBackgroundField` under
+  `components/channel-designer/` with Storybook stories.
