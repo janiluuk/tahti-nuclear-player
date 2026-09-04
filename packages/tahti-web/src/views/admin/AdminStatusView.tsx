@@ -12,7 +12,7 @@ import { fetchPlatformStatus } from '../../api/client';
 import type { PlatformStatus } from '../../api/types';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
-import { PageLoading } from '../../components/PageStates';
+import { PageError, PageLoading } from '../../components/PageStates';
 import { StudioPanel } from '../../components/StudioPanel';
 import { humanizePastDate } from '../../lib/humanizeDate';
 
@@ -65,9 +65,7 @@ export function AdminStatusView() {
               {loading ? (
                 <PageLoading label="Loading service status…" />
               ) : !data ? (
-                <p className="text-foreground-secondary py-4 text-center text-sm">
-                  Could not load status.
-                </p>
+                <PageError description="Could not load status." />
               ) : (
                 <>
                   <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">

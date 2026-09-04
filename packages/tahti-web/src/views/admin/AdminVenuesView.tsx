@@ -10,7 +10,7 @@ import {
 } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageLoading } from '../../components/PageStates';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function AdminVenuesView() {
@@ -91,9 +91,7 @@ export function AdminVenuesView() {
                 {loading ? (
                   <PageLoading label="Loading venues…" />
                 ) : filteredVenues.length === 0 ? (
-                  <p className="text-foreground-secondary text-sm">
-                    No venues found.
-                  </p>
+                  <PageEmpty title="No venues found" />
                 ) : (
                   <ul className="divide-border divide-y">
                     {filteredVenues.map((venue) => (

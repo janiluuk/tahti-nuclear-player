@@ -15,7 +15,7 @@ import {
   type AdminMissedShow,
   type AdminMissedShowStatus,
 } from '../../api/admin';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageError, PageLoading } from '../../components/PageStates';
 import { StudioPanel } from '../../components/StudioPanel';
 import { ModerationTabs } from './moderation/ModerationTabs';
 
@@ -97,11 +97,9 @@ export function AdminMissedShowsPanel() {
         {loading ? (
           <PageLoading label="Loading missed shows…" />
         ) : error ? (
-          <p className="text-accent-red text-sm">{error}</p>
+          <PageError description={error} />
         ) : flags.length === 0 ? (
-          <p className="text-foreground-secondary py-4 text-center text-sm">
-            No missed shows in this view.
-          </p>
+          <PageEmpty title="No missed shows in this view" />
         ) : (
           <ul className="divide-border divide-y">
             {flags.map((flag) => (
