@@ -6,6 +6,7 @@ export type SidebarItemId =
   | 'radio'
   | 'discover'
   | 'favorites'
+  | 'library'
   | 'studio'
   | 'perform'
   | 'admin'
@@ -42,6 +43,9 @@ export function activeSidebarItem(
   }
   if (matchesSectionRoute(path, ['/discover'])) {
     return 'discover';
+  }
+  if (matchesSectionRoute(path, ['/library'])) {
+    return 'library';
   }
   const studioSection = getStudioPrimaryRoute(path);
   if (studioSection === '/studio/go-live') {

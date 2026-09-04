@@ -3,9 +3,7 @@ import {
   CreditCardIcon,
   HeartIcon,
   LandmarkIcon,
-  LayersIcon,
   LayoutGridIcon,
-  LibraryIcon,
   ListMusicIcon,
   PaletteIcon,
   RadioIcon,
@@ -13,7 +11,6 @@ import {
   Settings2Icon,
   SlidersHorizontalIcon,
   TrendingUpIcon,
-  UploadIcon,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
@@ -93,29 +90,9 @@ export const SUBMENUS = {
       icon: <HeartIcon size={16} />,
     },
     {
-      to: '/library',
-      labelKey: 'nav.library',
-      icon: <LibraryIcon size={16} />,
-    },
-    {
-      to: '/library/sounds',
-      labelKey: 'studio.sounds',
-      icon: <ListMusicIcon size={16} />,
-    },
-    {
-      to: '/library/collections',
-      labelKey: 'studio.collections',
-      icon: <LayersIcon size={16} />,
-    },
-    {
       to: '/studio/releases',
       labelKey: 'studio.releases',
       icon: <ListMusicIcon size={16} />,
-    },
-    {
-      to: '/library/upload',
-      labelKey: 'studio.upload',
-      icon: <UploadIcon size={16} />,
     },
     {
       to: '/studio/editor',

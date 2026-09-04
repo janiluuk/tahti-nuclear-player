@@ -5,6 +5,7 @@ import {
   HeartIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
+  LibraryIcon,
   RadioIcon,
   SettingsIcon,
   ShieldIcon,
@@ -121,6 +122,14 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
               icon={<HeartIcon size={16} />}
               label="Favorites"
               isSelected={sidebarActive === 'favorites'}
+            />
+          </div>
+          <div data-tour-id="nav-library">
+            <SidebarNavigationItem
+              to="/library"
+              icon={<LibraryIcon size={16} />}
+              label="Library"
+              isSelected={sidebarActive === 'library'}
             />
           </div>
           <div data-tour-id="nav-studio" className="flex flex-col gap-2">

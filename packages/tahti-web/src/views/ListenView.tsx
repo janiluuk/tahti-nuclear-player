@@ -1,7 +1,6 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import {
   ChevronDownIcon,
-  HeartIcon,
   HistoryIcon,
   ListMusicIcon,
   NewspaperIcon,
@@ -68,6 +67,10 @@ import { HistoryView } from './HistoryView';
 
 export type ListenTab = 'listen' | 'feed' | 'favorites' | 'history';
 
+// 'favorites' stays a valid ListenTab (reachable at /listen/favorites,
+// rendered below) but isn't in this list — Favorites already has its own
+// sidebar entry (AppShell.tsx), so showing it as a Listen tab too was
+// redundant.
 const LISTEN_SECTION_TABS = [
   { id: 'listen' as const, label: 'Listen', Icon: ListMusicIcon, to: '/' },
   {
@@ -75,12 +78,6 @@ const LISTEN_SECTION_TABS = [
     label: 'Feed',
     Icon: NewspaperIcon,
     to: '/listen/feed',
-  },
-  {
-    id: 'favorites' as const,
-    label: 'Favorites',
-    Icon: HeartIcon,
-    to: '/listen/favorites',
   },
   {
     id: 'history' as const,

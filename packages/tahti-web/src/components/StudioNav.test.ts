@@ -27,23 +27,20 @@ describe('StudioNav section coverage', () => {
     expect(destinations).toContain('/studio/channel?tab=radio');
   });
 
-  it('folds Library into Studio and keeps /library routes on Studio', () => {
+  it('keeps Library out of the crowded Studio submenu (it has its own main-menu entry)', () => {
     expect(SUBMENUS).not.toHaveProperty('/library');
     const destinations = SUBMENUS['/studio'].map((item) => item.to);
-    expect(destinations).toEqual(
+    expect(destinations).not.toEqual(
       expect.arrayContaining([
         '/library',
         '/library/sounds',
         '/library/collections',
-        '/studio/releases',
         '/library/upload',
-        '/studio/editor',
       ]),
     );
-    expect(getStudioPrimaryRoute('/library')).toBe('/studio');
-    expect(getStudioPrimaryRoute('/library/sounds')).toBe('/studio');
-    expect(getStudioPrimaryRoute('/library/collections')).toBe('/studio');
-    expect(getStudioPrimaryRoute('/library/upload')).toBe('/studio');
+    expect(destinations).toEqual(
+      expect.arrayContaining(['/studio/releases', '/studio/editor']),
+    );
     expect(getStudioPrimaryRoute('/studio/releases')).toBe('/studio');
     expect(getStudioPrimaryRoute('/studio/go-live')).toBe('/studio/go-live');
   });
@@ -55,14 +52,6 @@ describe('StudioNav section coverage', () => {
       ['/studio/setup-channel', '/studio/branding'],
       ['/studio/stats', '/studio/stats'],
       ['/studio/insights', '/studio/stats'],
-      ['/library', '/library'],
-      ['/library/sounds', '/library/sounds'],
-      ['/studio/archive/arch-1', '/library/sounds'],
-      ['/library/collections', '/library/collections'],
-      ['/studio/playlists', '/library/collections'],
-      ['/studio/stash', '/library/collections'],
-      ['/library/smartlinks', '/library/collections'],
-      ['/library/media', '/library/collections'],
       ['/studio/editor', '/studio/editor'],
       ['/studio/mastering/arch-1', '/studio/editor'],
       ['/studio/releases', '/studio/releases'],
@@ -76,6 +65,21 @@ describe('StudioNav section coverage', () => {
       expect(litStudioSubmenuDestinations(location), location).toEqual([
         expected,
       ]);
+    }
+  });
+
+  it('lights nothing in Studio for Library-domain routes (they moved to the main-menu Library item)', () => {
+    for (const location of [
+      '/library',
+      '/library/sounds',
+      '/studio/archive/arch-1',
+      '/library/collections',
+      '/studio/playlists',
+      '/studio/stash',
+      '/library/smartlinks',
+      '/library/media',
+    ]) {
+      expect(litStudioSubmenuDestinations(location), location).toEqual([]);
     }
   });
 
