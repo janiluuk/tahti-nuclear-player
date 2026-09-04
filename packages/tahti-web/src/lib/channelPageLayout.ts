@@ -82,8 +82,9 @@ export type ChannelLookBundle = {
   colorScheme: {
     accent: string;
     highlight: string;
-    background: string;
-    foreground: string;
+    bg: string;
+    text: string;
+    muted?: string;
   };
 };
 
@@ -126,8 +127,9 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
       colorScheme: {
         accent: '#94A3B8',
         highlight: '#CBD5E1',
-        background: '#0B0F14',
-        foreground: '#E8EEF5',
+        bg: '#0B0F14',
+        text: '#E8EEF5',
+        muted: '#64748B',
       },
     },
   },
@@ -154,8 +156,9 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
       colorScheme: {
         accent: '#22D3EE',
         highlight: '#A78BFA',
-        background: '#0B1220',
-        foreground: '#F8FAFC',
+        bg: '#0B1220',
+        text: '#F8FAFC',
+        muted: '#64748B',
       },
     },
   },
@@ -182,8 +185,9 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
       colorScheme: {
         accent: '#F97316',
         highlight: '#FBBF24',
-        background: '#120B08',
-        foreground: '#FFF7ED',
+        bg: '#120B08',
+        text: '#FFF7ED',
+        muted: '#9A3412',
       },
     },
   },
@@ -210,8 +214,9 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
       colorScheme: {
         accent: '#FFB020',
         highlight: '#35D6C4',
-        background: '#0A0E1A',
-        foreground: '#F5F7FC',
+        bg: '#0A0E1A',
+        text: '#F5F7FC',
+        muted: '#64748B',
       },
     },
   },

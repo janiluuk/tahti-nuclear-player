@@ -470,15 +470,15 @@ export function mockChannel(slug: string): PublicChannel {
         ? {
             accent: ownColorScheme.accent,
             highlight: ownColorScheme.highlight,
-            background: ownColorScheme.bg,
-            foreground: ownColorScheme.text,
+            bg: ownColorScheme.bg,
+            text: ownColorScheme.text,
             muted: ownColorScheme.muted,
           }
         : {
             accent: content.colorAccent,
             highlight: content.colorHighlight,
-            background: '#0B1220',
-            foreground: '#F8FAFC',
+            bg: '#0B1220',
+            text: '#F8FAFC',
             muted: '#64748B',
           },
     ),
@@ -486,15 +486,15 @@ export function mockChannel(slug: string): PublicChannel {
       ? {
           accent: ownColorScheme.accent,
           highlight: ownColorScheme.highlight,
-          background: ownColorScheme.bg,
-          foreground: ownColorScheme.text,
+          bg: ownColorScheme.bg,
+          text: ownColorScheme.text,
           muted: ownColorScheme.muted,
         }
       : {
           accent: content.colorAccent,
           highlight: content.colorHighlight,
-          background: '#0B1220',
-          foreground: '#F8FAFC',
+          bg: '#0B1220',
+          text: '#F8FAFC',
           muted: '#64748B',
         },
     // The rest of this mock is a per-slug fabrication, disconnected from

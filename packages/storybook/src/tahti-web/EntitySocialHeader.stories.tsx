@@ -72,6 +72,22 @@ export const ArtistWithBackdrop: Story = {
   },
 };
 
+export const ArtistWithGradientLook: Story = {
+  name: 'Artist + GRADIENT look',
+  args: {
+    ...Artist.args,
+    headerStyle: 'GRADIENT',
+    colorScheme: {
+      accent: '#22D3EE',
+      highlight: '#A78BFA',
+      bg: '#0B1220',
+      text: '#F8FAFC',
+      muted: '#64748B',
+    },
+    visualizerPreset: undefined,
+  },
+};
+
 export const Collection: Story = {
   name: 'Collection / playlist',
   args: {

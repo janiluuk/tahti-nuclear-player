@@ -54,18 +54,33 @@ function parseJson<T>(json: string | null | undefined): Partial<T> {
   }
 }
 
+type LooseScheme = VisualColorScheme & {
+  background?: string;
+  foreground?: string;
+};
+
 function parseScheme(
-  scheme: VisualColorScheme | null | undefined,
+  scheme: LooseScheme | null | undefined,
   json: string | null | undefined,
 ): Required<VisualColorScheme> {
-  const parsed = parseJson<VisualColorScheme>(json);
+  const parsed = parseJson<LooseScheme>(json);
 
   return {
     accent: scheme?.accent ?? parsed.accent ?? DEFAULT_SCHEME.accent,
     highlight:
       scheme?.highlight ?? parsed.highlight ?? DEFAULT_SCHEME.highlight,
-    bg: scheme?.bg ?? parsed.bg ?? DEFAULT_SCHEME.bg,
-    text: scheme?.text ?? parsed.text ?? DEFAULT_SCHEME.text,
+    bg:
+      scheme?.bg ??
+      scheme?.background ??
+      parsed.bg ??
+      parsed.background ??
+      DEFAULT_SCHEME.bg,
+    text:
+      scheme?.text ??
+      scheme?.foreground ??
+      parsed.text ??
+      parsed.foreground ??
+      DEFAULT_SCHEME.text,
     muted: scheme?.muted ?? parsed.muted ?? DEFAULT_SCHEME.muted,
   };
 }

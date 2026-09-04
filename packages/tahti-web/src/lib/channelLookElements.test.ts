@@ -21,6 +21,9 @@ describe('CHANNEL_LOOK_ELEMENTS', () => {
       'feed',
       'news',
       'player',
+      'bio',
+      'shows',
+      'gallery',
       'backdrop',
     ]);
     expect(ids).not.toContain('header');
@@ -94,6 +97,9 @@ describe('artist look visibility', () => {
 
   it('defaults every hideable block to visible', () => {
     expect(loadArtistLookVisibility('demo').player).toBe(true);
+    expect(loadArtistLookVisibility('demo').bio).toBe(true);
+    expect(loadArtistLookVisibility('demo').shows).toBe(true);
+    expect(loadArtistLookVisibility('demo').gallery).toBe(true);
     expect(isArtistLookBlockId('backdrop')).toBe(false);
   });
 

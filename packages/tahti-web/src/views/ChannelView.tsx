@@ -28,8 +28,11 @@ import {
 } from '@tahti-player/ui';
 
 import {
+  fillColorScheme,
   isHeaderImageUrl,
   isValidHeaderBackdropUrl,
+  loadChannelLookExtras,
+  parseColorScheme,
   patchChannelVisual,
   resolvePublicVisualizerPreset,
   saveChannelLookExtras,
@@ -98,6 +101,7 @@ import {
   type ChannelPageItem,
   type ChannelPageItemType,
 } from '../lib/channelPageLayout';
+import { colorSchemeCssVars, normalizeColorScheme } from '../lib/colorScheme';
 import { downloadM3uPlaylist } from '../lib/m3uPlaylist';
 import { isPinned } from '../lib/pinnedTracks';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
@@ -153,6 +157,7 @@ export function ChannelView({ slug }: { slug: string }) {
   const channelDesignerRef = useRef<ChannelDesignerHandle>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(true);
   const [lookTick, setLookTick] = useState(0);
+  const [lookExtrasTick, setLookExtrasTick] = useState(0);
   const [presetNote, setPresetNote] = useState<string | null>(null);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
   const [liveShows, setLiveShows] = useState<PublicRadioShow | null>(null);
@@ -333,9 +338,27 @@ export function ChannelView({ slug }: { slug: string }) {
     channel.headerStyle === 'VIDEO_LOOP' &&
     isValidHeaderBackdropUrl(channel.videoBackgroundUrl);
   const showSolidHeader = channel.headerStyle === 'SOLID';
-  const headerBackground = channel.colorScheme?.background ?? '#0B1220';
-  const headerAccent = channel.colorScheme?.accent ?? '#22D3EE';
-  const headerHighlight = channel.colorScheme?.highlight ?? '#A78BFA';
+  const lookExtras = useMemo(
+    () => loadChannelLookExtras(slug),
+    [slug, lookExtrasTick],
+  );
+  const pageScheme = normalizeColorScheme(
+    lookExtras.useBackgroundGradient
+      ? parseColorScheme(lookExtras.backgroundColorSchemeJson)
+      : channel.colorScheme,
+  );
+  const headerScheme = normalizeColorScheme(channel.colorScheme);
+  const playerScheme = lookExtras.usePlayerGradient
+    ? normalizeColorScheme(parseColorScheme(lookExtras.playerColorSchemeJson))
+    : headerScheme;
+  const headerBackground = headerScheme.bg;
+  const headerAccent = headerScheme.accent;
+  const headerHighlight = headerScheme.highlight;
+  const headerForeground = headerScheme.text;
+  const heroVisualizerSettings = channel.visualSettingsJson
+    ? undefined
+    : CHANNEL_RADIO_VIZ_SETTINGS;
+  const backgroundVisualPreset = lookExtras.backgroundVisualPreset ?? null;
   const headerBackdropIsImage = isHeaderImageUrl(channel.videoBackgroundUrl);
   const chatOn = channel.chatEnabled !== false;
   const channelIsCurrent =
@@ -454,6 +477,7 @@ export function ChannelView({ slug }: { slug: string }) {
       });
       setLinksOrOverlayDirty(false);
       setLookTick((n) => n + 1);
+      setLookExtrasTick((n) => n + 1);
       setSavingLook(false);
     }
   };
@@ -496,7 +520,7 @@ export function ChannelView({ slug }: { slug: string }) {
       visualPreset: preset.look.visualPreset,
       headerStyle: preset.look.headerStyle,
       brandAccentPreset: preset.look.brandAccentPreset,
-      colorScheme: preset.look.colorScheme,
+      colorScheme: fillColorScheme(preset.look.colorScheme),
     }).then((result) => {
       if (result.ok) {
         setLookTick((n) => n + 1);
@@ -527,16 +551,21 @@ export function ChannelView({ slug }: { slug: string }) {
             accent={headerAccent}
             highlight={headerHighlight}
             bg={headerBackground}
-            fg="#F8FAFC"
+            fg={headerForeground}
             visualPreset={channel.visualPreset ?? 'AURORA'}
-            colorScheme={channel.colorScheme}
-            colorSchemeJson={channel.colorSchemeJson}
+            colorScheme={playerScheme}
+            colorSchemeJson={
+              lookExtras.usePlayerGradient
+                ? (lookExtras.playerColorSchemeJson ?? null)
+                : channel.colorSchemeJson
+            }
             artworkUrl={
               channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl
             }
             galleryMode={channel.galleryMode}
             slideshowImages={channel.slideshowImages}
-            visualizerSettings={CHANNEL_RADIO_VIZ_SETTINGS}
+            visualizerSettings={heroVisualizerSettings}
+            visualSettingsJson={channel.visualSettingsJson}
             badge={
               live ? (
                 <OnAirBadge />
@@ -1047,9 +1076,26 @@ export function ChannelView({ slug }: { slug: string }) {
       : [];
 
   const pageBody = (
-    <div className="relative isolate min-h-full overflow-hidden">
+    <div
+      className="relative isolate min-h-full overflow-hidden"
+      style={{
+        ...colorSchemeCssVars(pageScheme),
+        backgroundColor: pageScheme.bg,
+        color: pageScheme.text,
+      }}
+      data-channel-scheme
+    >
+      {!editing && backgroundVisualPreset ? (
+        <ChannelVisualizer
+          className="pointer-events-none absolute inset-0 z-0 size-full opacity-25"
+          preset={resolvePublicVisualizerPreset(backgroundVisualPreset)}
+          colorScheme={pageScheme}
+          artworkUrl={channel.user.avatarUrl}
+        />
+      ) : null}
       {!editing &&
         !heroVisible &&
+        !backgroundVisualPreset &&
         (showHeaderVideo ? (
           youtubeEmbedUrl(channel.videoBackgroundUrl, channelVideoMuted) ? (
             <iframe
@@ -1107,8 +1153,10 @@ export function ChannelView({ slug }: { slug: string }) {
               live ? 'opacity-[0.32]' : 'opacity-[0.55]'
             }`}
             preset={resolvePublicVisualizerPreset(channel.visualPreset)}
-            colorScheme={channel.colorScheme}
+            colorScheme={pageScheme}
             colorSchemeJson={channel.colorSchemeJson}
+            visualSettingsJson={channel.visualSettingsJson}
+            settings={heroVisualizerSettings}
             artworkUrl={
               channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl
             }
@@ -1181,6 +1229,7 @@ export function ChannelView({ slug }: { slug: string }) {
                 placeholderArtworkUrl(channel.user.username)
               }
               roundImage
+              colorScheme={channel.colorScheme}
               subtitle={
                 <Link
                   to="/u/$username"
@@ -1490,7 +1539,10 @@ export function ChannelView({ slug }: { slug: string }) {
             bio={channel.user.bio}
             lookOpenSection={lookElementId}
             onDirtyChange={setLookDirty}
-            onSaved={() => setLookTick((n) => n + 1)}
+            onSaved={() => {
+              setLookTick((n) => n + 1);
+              setLookExtrasTick((n) => n + 1);
+            }}
           />
         )
       }

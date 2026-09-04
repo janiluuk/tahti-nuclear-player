@@ -66,9 +66,13 @@ export type PublicChannel = {
   colorScheme?: {
     accent?: string;
     highlight?: string;
+    /** Canonical API key (ColorSchemeSchema). */
+    bg?: string;
+    text?: string;
+    muted?: string;
+    /** Legacy aliases — prefer `bg` / `text`. */
     background?: string;
     foreground?: string;
-    muted?: string;
   } | null;
   /** Now-playing title/artist overlay layout — see
    * content/nowPlayingOverlayPresets.ts. Defaults to 'classic' when unset. */

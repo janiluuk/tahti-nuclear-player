@@ -1,5 +1,20 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Channel Designer controls the artist page look (0.0.69)
+
+**Status:** executed (client). API extras still localStorage-only.
+
+Artist page header follows Channel Designer header style (gradient / solid /
+video), color scheme, and visualizer tuning. Music-tab player stage uses the
+player gradient/visualizer/now-playing overlay. Page background palette and
+background visualizer apply on artist + channel. Designer Backdrop tab gained
+a background visualizer picker.
+
+Remaining: promote look extras to live API; brandAccentPreset on public
+channel DTO; textLayer↔textOverlay rename; e2e for `/u/:username`.
+
+Todo: `docs/todo/channel-designer-artist-full.md`.
+
 ## 2026-09-04 — hearthis embed play + Finnish radio in Radio Browser (0.0.68)
 
 **Status:** executed.
@@ -74,13 +89,13 @@ player header; Jam header says Tahti. Tests use “Tahti Player”, not
 
 ### Epics A–E — Library rail, metadata, import, Soulseek, pro tools
 
-| Epic | v1 | This slice |
-| --- | --- | --- |
-| **A** | Library tab on the desktop right rail | Tab + `DesktopLibraryPanel` |
-| **B** | Metadata DB | not started |
-| **C** | Import + play in the shared player | Session blob import / play / queue |
-| **D** | Soulseek native add-on | Help + Add-ons Configure stub (no protocol) |
-| **E** | Bulk / BPM / M3U / virtualize | not started |
+| Epic  | v1                                    | This slice                                  |
+| ----- | ------------------------------------- | ------------------------------------------- |
+| **A** | Library tab on the desktop right rail | Tab + `DesktopLibraryPanel`                 |
+| **B** | Metadata DB                           | not started                                 |
+| **C** | Import + play in the shared player    | Session blob import / play / queue          |
+| **D** | Soulseek native add-on                | Help + Add-ons Configure stub (no protocol) |
+| **E** | Bulk / BPM / M3U / virtualize         | not started                                 |
 
 Web cannot speak Soulseek or watch folders. Do not relay P2P through
 Tahti servers. Legal copy ships before any search UI.
@@ -182,6 +197,7 @@ contexts, Settings without About). Flag list:
 **Status:** executed (`0.0.61`).
 
 Round complements after `0.0.60`:
+
 - Stash, Recordings, Events, Updates, Venues, Channel → `ViewShell`
 - Chat, Governance, Feature requests, More/map, Transparency → `ViewShell`
 - Admin News, Announcements, Top lists, Orphan pages → `ViewShell`
@@ -198,7 +214,8 @@ Recaptured Nuclear atlas PNGs under `public/map/nuclear/` via
 screens without a real session). Coverage includes Listen tabs, Help hub +
 keyboard-shortcuts, Settings modal sections (About removed from footer),
 member `/governance`, Studio `/studio/governance`, Admin `/admin/governance`
-+ `/admin/agm`, and the rest of the mapped Studio/Admin set.
+
+- `/admin/agm`, and the rest of the mapped Studio/Admin set.
 
 `mapScreens.ts` / `flowDiagrams.ts` / `NAVIGATION-SITEMAP.md` / ScreenAtlas
 Storybook docs now match current chrome. Flag list:
@@ -316,10 +333,10 @@ clones). Search addons overlap the Input sweep — do Studio surfaces here.
   type/visibility; Shows SERIES/SINGLE + duration; editor library type;
   schedule frequency days (`multiple`).
 - **Input:** Sounds / Collections / Editor library / Library discography
-  + collections + ReleasesPanel search without `startAddon` SearchIcon;
-  Release detail library dialog (orphan Search/Filter icons beside the
-  field); Sounds “Uploaded to” native date (sibling already `Input
-  type="date"`).
+  - collections + ReleasesPanel search without `startAddon` SearchIcon;
+    Release detail library dialog (orphan Search/Filter icons beside the
+    field); Sounds “Uploaded to” native date (sibling already `Input
+type="date"`).
 - **Toggle:** Upload Configure Enable/Disable `Button` + ToggleLeft/Right
   icons.
 - **EmptyState:** ~15 “No … yet” blocks (Sounds, Releases, Shows, Stash,
@@ -556,7 +573,6 @@ Persist-edit controls now use Storybook `SaveButton` (Idle/Saving/Disabled/custo
 
 Artist/channel follower rows, Studio home summary, stats overview, channel/schedule day cards, track insights, fan-sub summary, admin dashboard/content KPIs, stream manager cells, admin user followers, and storage used/free/total use Storybook `StatChip`. Chart-header totals and grant money stay `StatNumber`. Channel Designer reuses ChannelView’s stats block.
 
-
 ## 2026-09-04 — Listen / Discover CardGrid vs Storybook
 
 Bumped `@tahti-player/tahti-web` to `0.0.58`.
@@ -598,6 +614,7 @@ seek bar, volume, now-playing, or transport cluster.
 
 **Current state (`ConnectedPlayerBar.tsx`):** already wires `PlayerBar`,
 `NowPlaying`, `Controls`, and `Volume`. Still custom:
+
 - Seek via `ConnectedSeekBar` / `PlayerSeekBar` instead of composing
   `PlayerBar.SeekBar` (or a thin store-connected wrapper around it)
 - Right-cluster full-screen + queue toggle as plain `Button`s (queue badge
@@ -618,6 +635,7 @@ simpler demo.
 Bumped `@tahti-player/tahti-web` to `0.0.56`.
 
 **Storybook / `@tahti-player/ui` MediaArtwork contract (current):**
+
 - Size presets: `sm` | `thumb` | `md` | `lg` | `fill`.
 - **`thumb`** is the standard inline track-row thumbnail (step up from `sm`).
 - Queue / favorite / extra `actions` overlays only render on **`lg` and `fill`**
@@ -628,18 +646,18 @@ Bumped `@tahti-player/tahti-web` to `0.0.56`.
 
 ### Usages scanned — inconsistencies
 
-| Location | Issue | Change |
-| --- | --- | --- |
-| `PluginStorePanel` HearThis tracks | `size="sm"` + dead `onQueue` | → `thumb`; queue as row button |
-| `PluginStorePanel` personal radio | `size="sm"` + dead `onQueue`/`onFavorite` | → `thumb`; queue/fav as row buttons |
-| `PluginStorePanel` HearThis collections | `size="sm"` (static) | → `thumb` |
-| `HistoryRow` | `size="sm"` + dead `onQueue` (Plus already in row) | → `thumb`; drop artwork queue |
-| `FeedView` track/release cards | `size="fill"` + queue (OK) | leave |
-| `Card` / `ThumbnailCell` / TopArtists | already correct | leave |
-| `WidgetTrackRow` | hand-rolled `ImageReveal` + play overlay | → `MediaArtwork` `thumb` |
-| `CollectionTrackList` | hand-rolled cover + play | → `MediaArtwork` `md` |
-| `MyDiscographyView` / Studio lists / GlobalSearch / Smart links / Library media | `ImageReveal` or bare `<img>` thumbs, no play | worklog follow-up: prefer `MediaArtwork` `thumb`/`sm` when playable; keep `ImageReveal` for non-interactive list art only if needed |
-| `RadioView` / `ReleasesPanel` | `MediaIconActions` beside plain thumbs | follow-up: artwork → `MediaArtwork` where play exists |
+| Location                                                                        | Issue                                              | Change                                                                                                                              |
+| ------------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `PluginStorePanel` HearThis tracks                                              | `size="sm"` + dead `onQueue`                       | → `thumb`; queue as row button                                                                                                      |
+| `PluginStorePanel` personal radio                                               | `size="sm"` + dead `onQueue`/`onFavorite`          | → `thumb`; queue/fav as row buttons                                                                                                 |
+| `PluginStorePanel` HearThis collections                                         | `size="sm"` (static)                               | → `thumb`                                                                                                                           |
+| `HistoryRow`                                                                    | `size="sm"` + dead `onQueue` (Plus already in row) | → `thumb`; drop artwork queue                                                                                                       |
+| `FeedView` track/release cards                                                  | `size="fill"` + queue (OK)                         | leave                                                                                                                               |
+| `Card` / `ThumbnailCell` / TopArtists                                           | already correct                                    | leave                                                                                                                               |
+| `WidgetTrackRow`                                                                | hand-rolled `ImageReveal` + play overlay           | → `MediaArtwork` `thumb`                                                                                                            |
+| `CollectionTrackList`                                                           | hand-rolled cover + play                           | → `MediaArtwork` `md`                                                                                                               |
+| `MyDiscographyView` / Studio lists / GlobalSearch / Smart links / Library media | `ImageReveal` or bare `<img>` thumbs, no play      | worklog follow-up: prefer `MediaArtwork` `thumb`/`sm` when playable; keep `ImageReveal` for non-interactive list art only if needed |
+| `RadioView` / `ReleasesPanel`                                                   | `MediaIconActions` beside plain thumbs             | follow-up: artwork → `MediaArtwork` where play exists                                                                               |
 
 ### Executed this pass
 
@@ -1218,8 +1236,8 @@ the display name.
   Subscribe preview card), and `links`/`textOverlay` now render their real
   content instead of placeholder text once configured.
 - **Backdrop quick-add**: clicking the backdrop's nav row shows "+ Links /
-  + Bio / + Stats" chips for whichever of those blocks aren't yet visible
-  on the page, calling the existing `addItemType`/layout-visibility path.
+  - Bio / + Stats" chips for whichever of those blocks aren't yet visible
+    on the page, calling the existing `addItemType`/layout-visibility path.
 - **Bonus fix, found while verifying the above**: `ChannelControlsWidget`'s
   controlled-accordion mode was silently broken — clicking a closed
   section closed whichever section was previously open but never actually
@@ -1736,11 +1754,12 @@ shared/api/web type-check and lint clean.
 
 **Audit — same class of bug found in several more places (frontend calls a route with
 zero backend implementation), not fixed this round, logged for the next session:**
+
 - `POST /api/me/channel/video-background/prepare` + `/complete` (`api/channel-design.ts`) — same missing-pair pattern as the media bug just fixed, same likely fix shape.
 - `POST /api/v1/imports/bandcamp/add` (`api/sources.ts`) — genuinely missing; a **prior worklog entry (2026-08-30, "Backlog round 2") claimed this was verified as a real wired route, but that check only looked at this frontend repo's own client code, not the actual backend** — there is no `routes/imports/bandcamp.ts` at all, unlike the sibling `imports/hearthis.ts`/`imports/spotify.ts`/`imports/mixcloud-embed.ts`, each of which has a complete `search`/`me-tracks`/`by-username`/`add` route family. `GET /api/me/bandcamp/albums` does exist, but is explicitly commented as "stub until Bandcamp API v1" in `routes/me/bandcamp.ts:119`.
 - `GET/POST /api/admin/radio-station-suggestions*` (`api/admin.ts:1370-1393`) — the entire `AdminRadioStationSuggestionsView` review pipeline (round "Listener widgets" entry, 2026-08-30-ish) has no backend at all; zero matches for `StationSuggestion` anywhere in `../tahti`.
 - `GET/PATCH /api/me/connections` (`api/artist-settings.ts:488,529`), `GET/PATCH /api/me/discovery` (`api/artist-settings.ts:289,317`), `GET /api/admin/governance/overview` (`api/admin.ts:3212`), `GET/POST/import /api/admin/i18n/languages*` (`api/admin.ts:3885-3966`), `GET /api/admin/stats/content` (`api/admin.ts:276`), `PATCH /api/admin/announcements/system-enabled` (`api/admin.ts:2442`) — all missing.
-- Method: extracted every static `'/api/...'` literal from `tahti-web/src/api/*.ts` (148 found) and diffed against every route string registered under `../tahti/apps/api/src/routes/**` (787 candidate literals, superset including comments). 15 flagged; 6 were false positives (real routes registered with a `:param`/prefix the crude string match missed — `/api/channels/:slug`, `/api/me/press-kit/*`, `/api/me/green-room/*`, etc.) or benign truncated matches. This only catches *fully static* frontend paths — anything built from a template literal with interpolation wasn't checked, so this is a floor on the real count, not a ceiling.
+- Method: extracted every static `'/api/...'` literal from `tahti-web/src/api/*.ts` (148 found) and diffed against every route string registered under `../tahti/apps/api/src/routes/**` (787 candidate literals, superset including comments). 15 flagged; 6 were false positives (real routes registered with a `:param`/prefix the crude string match missed — `/api/channels/:slug`, `/api/me/press-kit/*`, `/api/me/green-room/*`, etc.) or benign truncated matches. This only catches _fully static_ frontend paths — anything built from a template literal with interpolation wasn't checked, so this is a floor on the real count, not a ceiling.
 
 ## 2026-08-31 — Live bug-bash: admin stream manager, green room placement, follower toggles, player live indicator, hero player fixes
 
@@ -2246,8 +2265,7 @@ indented children of Studio. Each keeps its own route highlight, while the
 current section's page links remain in the horizontal menu above the content.
 
 **Validation:** tahti-web type-check, focused navigation lint, and
-`git diff --check` pass. The updated local Vite server is running on port
-5195.
+`git diff --check` pass. The updated local Vite server is running on port 5195.
 
 ## 2026-08-31 — Studio navigation moved into the main shell
 
@@ -2304,7 +2322,7 @@ browser verification remains useful for checking the exact theme rendering.
 
 Working through the queued backlog below in batches of 5, per explicit request. This round, in order:
 
-**Slice 1-3 — Admin → Storage → Files (detail modal, sortable list, linked user editor):** Extracted the Admin → Users detail/edit column (identity, role/membership form, suspend/restore, DM) into a new standalone `AdminUserEditPanel.tsx` — `AdminUsersView.tsx` now renders it inline exactly as before (682 → 178 lines), and `AdminStorageView.tsx`'s file rows open the *same* component in a `Dialog` when you click the artist name, rather than a second, drifting implementation. The files list is now sortable by name/type/size/length, shows size and content type inline in the row, and a new "View details" action opens a modal with filename, size, length, uploader, upload date, genre, visibility, and revision count (`ArchiveItemVersion` count — real, wired end to end, see below) — storage location (local vs. R2) stays honestly labeled "Not tracked yet" since `ArchiveItem` has no per-item R2-mirror field in the schema, unlike `ReleaseTrack`/`ReleaseTrackVersion` which do.
+**Slice 1-3 — Admin → Storage → Files (detail modal, sortable list, linked user editor):** Extracted the Admin → Users detail/edit column (identity, role/membership form, suspend/restore, DM) into a new standalone `AdminUserEditPanel.tsx` — `AdminUsersView.tsx` now renders it inline exactly as before (682 → 178 lines), and `AdminStorageView.tsx`'s file rows open the _same_ component in a `Dialog` when you click the artist name, rather than a second, drifting implementation. The files list is now sortable by name/type/size/length, shows size and content type inline in the row, and a new "View details" action opens a modal with filename, size, length, uploader, upload date, genre, visibility, and revision count (`ArchiveItemVersion` count — real, wired end to end, see below) — storage location (local vs. R2) stays honestly labeled "Not tracked yet" since `ArchiveItem` has no per-item R2-mirror field in the schema, unlike `ReleaseTrack`/`ReleaseTrackVersion` which do.
 
 **Backend (`../tahti`, explicitly authorized this round):** `/api/admin/files` now returns a real `revisionCount` per file (`_count.versions` on the Prisma query) — added to `AdminFileRowSchema` in `@tahti/shared`, with a new test asserting a track with one `ArchiveItemVersion` reports `revisionCount: 1`.
 
@@ -2315,7 +2333,6 @@ Working through the queued backlog below in batches of 5, per explicit request. 
 **Slice 5 — Player bar: swapped queue/full-screen buttons, moved the count badge:** `ConnectedPlayerBar.tsx`'s right-hand cluster now reads full-screen → volume → queue-toggle (previously queue-toggle → volume → full-screen), so the outer-right corner opens the queue strip. The queue-count badge moved from the full-screen button to the queue-toggle button, and only shows above 1 item (was `> 0`). This intentionally partially reverses "2026-08-27 — Player bar expand control" below, per explicit newer request.
 
 **Validation:** tahti-web type-check, lint, and the full vitest suite (292/292) pass. `../tahti/apps/api` type-check, lint, and the affected test files pass against a real (disposable) Postgres. Not click-verified in a live browser this session.
-
 
 ## 2026-08-30 — Backlog round 2: five slices closed
 
@@ -2330,12 +2347,11 @@ deploy, repeat" instruction as round 1. In order:
 
 **Slice 4 — Settings → Channel & Design: fixed the always-blank visualizer preview:** `SettingsPanels.tsx`'s `ChannelPanel` passed `livePreview={false}` unconditionally to `ChannelDesigner`, so the preview never rendered a visualizer for anyone — the comment explained this was to avoid a second concurrent WebGL `ChannelVisualizer` context, since `AmbientBackground` (mounted globally in `AppShell`) can already be running one behind the modal. That risk is real but conditional, not universal: `AmbientBackground` only renders its visualizer when `useAmbientStore().enabled` is true and `isThemeVisualizationEnabled(themeId)` passes. `ChannelPanel` now checks the same two conditions and only disables the live preview when there's an actual conflict, so the preview works normally for anyone with ambient background off (or on a non-visual theme).
 
-**Slice 5 — Study: mikseri.net import**, written up at `docs/studies/mikseri-import-study.md`. Summary: no public API, no OAuth, no developer docs exist. mikseri.net's `robots.txt` explicitly reserves rights against automated access under the EU DSM directive's TDM opt-out (blocks every major AI/scraping bot by name, sets `ai-train=no`), which rules out a scraped files-import source as a good-faith option — there's also no OAuth handshake to verify "this is actually your own upload" the way the four real oauth sources here have. There *is* an artist-initiated embeddable per-track player (`about.php`: "make a player from your tracks that you can embed elsewhere") that matches this repo's existing `EmbedProvider` shape (`lib/embedSrc.ts`) exactly — recommended as the one legitimate integration path, once a real embed snippet is captured from a live track page (not done in this pass). Recommendation: build the embed provider later; don't build a scraped import source.
+**Slice 5 — Study: mikseri.net import**, written up at `docs/studies/mikseri-import-study.md`. Summary: no public API, no OAuth, no developer docs exist. mikseri.net's `robots.txt` explicitly reserves rights against automated access under the EU DSM directive's TDM opt-out (blocks every major AI/scraping bot by name, sets `ai-train=no`), which rules out a scraped files-import source as a good-faith option — there's also no OAuth handshake to verify "this is actually your own upload" the way the four real oauth sources here have. There _is_ an artist-initiated embeddable per-track player (`about.php`: "make a player from your tracks that you can embed elsewhere") that matches this repo's existing `EmbedProvider` shape (`lib/embedSrc.ts`) exactly — recommended as the one legitimate integration path, once a real embed snippet is captured from a live track page (not done in this pass). Recommendation: build the embed provider later; don't build a scraped import source.
 
 **Investigated, not fixed — Settings/modal flicker:** Traced through `DialogRoot`/`SettingsPanel`/`ConnectedSettingsModal`/`AccountPanel` and ruled out several theories with code evidence: no double-mounting of the modal, no unstable component identities causing remounts, `SettingsPanelContent` has a fixed, scrolling-internally height so async data arriving late can't resize the dialog mid-animation, and the settings-store/auth-store wiring doesn't show an obvious double state-flip. React `StrictMode` is enabled (`main.tsx`) and would double-invoke mount effects in `pnpm dev`, which is a classic source of this exact symptom — but that's dev-only and wouldn't reproduce against the deployed beta build the user is presumably testing, so it's a weak lead, not a confirmed cause. Didn't find a conclusive root cause through static reading alone; this needs live browser reproduction (devtools Performance/Rendering paint-flashing, or screen recording) to pin down, which wasn't available this session. Left open below with these ruled-out leads recorded so the next pass doesn't repeat them.
 
 **Validation:** tahti-web type-check, lint, and the full vitest suite (292/292) pass. Not click-verified in a live browser this session (no browser automation available in this environment) — the Channel Designer and Settings preview changes in particular are worth a manual look before relying on them.
-
 
 ## 2026-08-30 — Backlog round 3: five slices closed (plus real backend logging)
 
@@ -2343,7 +2359,7 @@ Third batch of 5, same "5 slices, push, deploy, repeat" instruction. In order:
 
 **Slice 1 — Settings → Artist: compact circular profile image upload:** `ArtistImagePurposePicker.tsx` no longer shows a permanently-visible dashed-border drop zone. It now renders a compact circular avatar (matching how avatars render elsewhere in the app) with an upload button that only appears on hover; clicking it opens the existing drag-and-drop uploader — the purpose-selection flow (profile/gallery/press-kit) underneath is unchanged, just moved behind a smaller trigger. `SettingsPanels.tsx`'s `ArtistPanel` now passes `avatarUrl`/`displayName` through.
 
-**Slice 2 — Channel Designer: a real backdrop image option:** The backend's `Channel.videoBackgroundUrl` column was already documented as "YouTube/Vimeo *or image URL* for channel backdrop" — the gap was purely client-side: the VIDEO_LOOP header style only accepted `.mp4`/`.webm` uploads and always rendered a `<video>` tag. Added `isHeaderImageUrl`/`isValidHeaderBackdropUrl` (`api/channel-design.ts`) and extended the upload/URL validation and preview rendering in `ChannelDesigner.tsx` (both the tab-content preview and the hero preview card) and the two real public-page render sites in `ChannelView.tsx` to accept JPEG/PNG/WebP/GIF and render an `<img>` when the stored URL is an image. No backend change needed — this reuses the existing field and the existing (already-working) `uploadUserMediaFile` upload path, not the separate `uploadChannelHeaderVideo`/`/api/me/channel/video-background/*` functions, which turned out to be dead code with no matching backend route at all (confirmed: zero matches for `video-background` anywhere in `../tahti/apps/api`) — noted here, not fixed, since nothing in this app actually calls them.
+**Slice 2 — Channel Designer: a real backdrop image option:** The backend's `Channel.videoBackgroundUrl` column was already documented as "YouTube/Vimeo _or image URL_ for channel backdrop" — the gap was purely client-side: the VIDEO_LOOP header style only accepted `.mp4`/`.webm` uploads and always rendered a `<video>` tag. Added `isHeaderImageUrl`/`isValidHeaderBackdropUrl` (`api/channel-design.ts`) and extended the upload/URL validation and preview rendering in `ChannelDesigner.tsx` (both the tab-content preview and the hero preview card) and the two real public-page render sites in `ChannelView.tsx` to accept JPEG/PNG/WebP/GIF and render an `<img>` when the stored URL is an image. No backend change needed — this reuses the existing field and the existing (already-working) `uploadUserMediaFile` upload path, not the separate `uploadChannelHeaderVideo`/`/api/me/channel/video-background/*` functions, which turned out to be dead code with no matching backend route at all (confirmed: zero matches for `video-background` anywhere in `../tahti/apps/api`) — noted here, not fixed, since nothing in this app actually calls them.
 
 **Slice 3 — Studio/Admin navigation active-state sweep (code fixes only, no screenshots):** Compared every `<StudioNav current=…>`/`<AdminNav current=…>` value actually passed by each view against `StudioNav.tsx`'s `SECTION_PREFIXES` and `AdminNav.tsx`'s `PRIMARY`, rather than guessing from route paths. Found and fixed real gaps: `/studio/branding` and `/studio/venues` were in neither `SECTION_PREFIXES['/studio/channel']` list (now added); `/studio/playlists` was missing from `SECTION_PREFIXES['/library']` (now added); `AdminRadioStationSuggestionsView.tsx` passed a `current` value (`/admin/radio-station-suggestions`) that doesn't exist in `AdminNav`'s `PRIMARY` at all, so nothing highlighted — changed it to alias `/admin/moderation` (the tabbed queue its own description already claims to cover "radio submissions" under), matching the existing alias pattern `AdminGrantCycleView.tsx` already uses for `/admin/grants`. Separately found `/admin/venues` (`AdminVenuesView.tsx`, a real, live route) was referenced in `AdminNav.tsx`'s own `ADMIN_SECTIONS.operations` filter list but had no matching `PRIMARY` entry at all — silently dropped by the filter, so the page had no nav entry and no highlighting. Added the missing `PRIMARY` entry. Also dropped a similarly-dead `/admin/files` reference from that same filter list (that route is redirect-only, into `/admin/storage`, so it doesn't need its own nav entry). **Not done this round:** regenerating the Tahti Map's screenshots and Mermaid diagrams — that needs browser automation, unavailable in this session; left open below.
 
@@ -2352,7 +2368,6 @@ Third batch of 5, same "5 slices, push, deploy, repeat" instruction. In order:
 **Slice 5 — Go Live: Info moved in as a tab (Preview-controls restructure not done):** `/studio/info` (`StudioBroadcastInfoView.tsx`, previously its own page and its own `StudioNav` submenu tile) is gone — `StudioGoLiveView.tsx` now has a two-tab switcher ("Go live" / "Info") right under its header, with the old page's `BroadcastPreflightPanel` content rendered under the Info tab. `/studio/info` now redirects to `/studio/go-live?tab=info` (same pattern as the `/admin/vendors` redirect from round 2), so old links/bookmarks still land somewhere sensible. `StudioNav.tsx`'s `SUBMENUS['/studio/go-live']` no longer lists Info as a sibling tile. **Not done this round:** the second half of the backlog item — moving play controls inside the "current track" display, adding a separated "play stream" button, and titling that area "Preview" — all live inside `StreamManagerPanel.tsx` (990 lines, shared with `AdminStreamManagerPanel`), and are real layout-judgment calls that need to be checked against the actual rendered page, not just source. Left open below, now scoped down to just that remaining half.
 
 **Validation:** tahti-web type-check, lint, and the full vitest suite (292/292) pass. `../tahti/apps/worker` type-check, lint, and the full test suite (91/91) pass against a real disposable Postgres. Not click-verified in a live browser this session (no browser automation available) — the Channel Designer backdrop-image rendering and the Go Live tab switch are both worth a manual look before relying on them.
-
 
 ## 2026-08-31 — Backlog round 4: five slices closed
 
@@ -2376,7 +2391,6 @@ rather than build on top of them; nothing from round 3 was lost. In order:
 
 **Validation:** tahti-web and `packages/ui` type-check, lint, and vitest all pass (tahti-web 292/292; `packages/ui`'s pre-existing `CardsRow` snapshot failure was confirmed unrelated — it fails identically on a clean `git stash` of this round's changes, so left alone rather than "fixed" as a side effect). Not click-verified in a live browser this session (no browser automation available) — the On-air/radio-widget "now playing" toggle behavior and the Feed thumbnail overlay are both worth a manual look before relying on them.
 
-
 ## 2026-08-31 — Backlog round 5: six slices closed
 
 Fifth batch. This session shares its working tree with other concurrent
@@ -2393,12 +2407,11 @@ counted and shipped, same bar as anything written directly in this turn.
 
 **Slice 4 — Studio → Releases: artwork upload moved behind hover:** `StudioReleaseDetailView.tsx`'s Artwork panel no longer shows a permanently-visible `FilePicker` next to the cover — the cover now gets a hover-reveal upload button (matching the artist profile-image circle pattern) that opens the same upload flow in a modal.
 
-**Slice 5 — hearthis.at embed-only tracks: fixed silent non-playback in generic listings:** `api/mock.ts`'s `archiveItemToPlayable` (the general `ArchiveItem → TahtiPlayable` conversion used by broad listing surfaces like `PlayableTrackTable.tsx`) returned `null` for *every* item lacking `audioUrl` — including hearthis.at `EMBED_ONLY` imports, which legitimately have no `audioUrl` but *are* playable through the shared player bar's hearthis widget. `ArchiveItem` (`api/types.ts`) also hadn't declared the `embedProvider`/`embedUri` fields the API already returns. Now builds a proper `.embed`-carrying playable for `embedProvider === 'HEARTHIS'` items so they play through the existing (already-correct) `ConnectedPlayerBar`/`HearthisEmbedSurface` widget path instead of the play action silently doing nothing. Mixcloud/Spotify/Bandcamp embed-only items still return `null` from this generic conversion (deliberate — those only ever play through a page's own inline widget, which a generic channel-listing table doesn't have) — new `mock.test.ts` covers both the fixed case and this intentional boundary (4/4 passing).
+**Slice 5 — hearthis.at embed-only tracks: fixed silent non-playback in generic listings:** `api/mock.ts`'s `archiveItemToPlayable` (the general `ArchiveItem → TahtiPlayable` conversion used by broad listing surfaces like `PlayableTrackTable.tsx`) returned `null` for _every_ item lacking `audioUrl` — including hearthis.at `EMBED_ONLY` imports, which legitimately have no `audioUrl` but _are_ playable through the shared player bar's hearthis widget. `ArchiveItem` (`api/types.ts`) also hadn't declared the `embedProvider`/`embedUri` fields the API already returns. Now builds a proper `.embed`-carrying playable for `embedProvider === 'HEARTHIS'` items so they play through the existing (already-correct) `ConnectedPlayerBar`/`HearthisEmbedSurface` widget path instead of the play action silently doing nothing. Mixcloud/Spotify/Bandcamp embed-only items still return `null` from this generic conversion (deliberate — those only ever play through a page's own inline widget, which a generic channel-listing table doesn't have) — new `mock.test.ts` covers both the fixed case and this intentional boundary (4/4 passing).
 
 **Slice 6 — Radio widgets: cover-art upload:** The station "Configure" form's cover-image field is now the standard upload pattern (`FilePicker`/`uploadUserMediaFile`) with a small link icon that toggles a plain URL text field as the alternate input — matching `ChannelDesigner.tsx`'s existing `videoUrlOpen` toggle pattern — instead of only ever accepting a raw URL.
 
 **Validation:** tahti-web type-check, lint, and the full vitest suite (296/296) pass. `../tahti/apps/api` type-check, lint, and its full suite (217 files / 1008 tests) pass against a real disposable Postgres. Not click-verified in a live browser this session (no browser automation available) — the Radio schedule edit dialog and Themes configure modal are both worth a manual look before relying on them.
-
 
 ## 2026-08-30 — Planned: queued requests, not yet implemented
 
@@ -2407,19 +2420,22 @@ list were completed this round — see "Round 5: six slices closed" above;
 this entry now reflects what's actually still open.
 
 **Stream playlist manager: current-track duration, listener count format, stuck bitrate.** All in `StreamManagerPanel.tsx`'s "Stream stats" tab, found while diagnosing the read-only-for-admins bug above:
+
 - The "Current track" box (`528-556`) shows title, artist, and remaining time (`remainingSec`, from `durationSec - elapsedSinceObserved`) but never the track's total duration (`durationSec`, already computed at `267`) — add it alongside remaining time, e.g. "3:12 / 5:41" or similar, rather than remaining-only.
-- "Peak listeners" (`655-659`, `stats?.listenerPeak`) has no current-listener count next to it — "Listeners" is a separate `StatCell` (`638-654`) that only shows when *not* `rotationPlaying` (its slot switches to "Time left" while a rotation track is playing, `646`). Requested format is combined, e.g. "0 / 4" (current / peak), visible regardless of rotation state — needs reconciling with the existing Time-left/Listeners slot-swap rather than just appending a second number.
+- "Peak listeners" (`655-659`, `stats?.listenerPeak`) has no current-listener count next to it — "Listeners" is a separate `StatCell` (`638-654`) that only shows when _not_ `rotationPlaying` (its slot switches to "Time left" while a rotation track is playing, `646`). Requested format is combined, e.g. "0 / 4" (current / peak), visible regardless of rotation state — needs reconciling with the existing Time-left/Listeners slot-swap rather than just appending a second number.
 - "Bitrate" (`627-637`) shows "Detecting…" whenever `bitrate` is null and `liveActive` is true, and never resolves for a rotation-only stream (Tahti Selects) because there's no connected encoder `signal`/`stats.audioBitrateKbps` to ever populate it — it's stuck permanently, not actually detecting anything. Needs either a real bitrate source for rotation playback (the fixed output bitrate the rotation encodes at, if known) or a distinct non-"Detecting…" state for the rotation case, the same way "Signal" already has a dedicated `'Rotation'` value (`622-624`) instead of pretending to wait on encoder signal.
 
 **Stream playlist manager: "Live for" resets instead of showing the real broadcast uptime.** `StreamManagerPanel.tsx`'s `liveDurationSec` (`239-243`) prefers `stats?.liveDurationSec` from the server but falls back to a purely local `liveStartedAt` (`132`, `231-237`) that's set to `Date.now()` the moment the component mounts and sees `liveActive`. For Tahti Selects (an always-on rotation channel, not a single per-session broadcast), every time this panel is mounted/reopened the "Live for" stat restarts from zero instead of reflecting how long the station has actually been online — it needs a real server-tracked start timestamp (e.g. `goneLiveAt` already used elsewhere, `AdminStreamManagerPanel.tsx:375-380`) for rotation-mode channels rather than relying on this client-side fallback at all.
 
 **Tahti theme: hover/dropdown contrast bugs, plus a general usability audit.** `packages/themes/src/basic/tahti-dark.css` sets `--accent-orange` to the exact same value as `--primary` (both `oklch(0.8131 0.165 75.04)`, the theme's single bold amber accent, `18-19` / `37`) — any shared component that uses an "accent orange" token for a normally-subtle highlight (e.g. a hover or dropdown-option state) ends up fully saturated in the theme's loudest brand color instead, which is the likely root cause of both reports below. Needs the actual component(s) identified against a live render before fixing, not just this token-collision theory:
+
 - Hovering an already-active tab turns its text black and the active-state indicator disappears — sounds like a `:hover` rule is overriding the active-tab's own text/background color rather than composing with it.
 - Dropdowns render fully orange with unreadable text — likely the same `--accent-orange` collision above; find which shared dropdown/select component this is (native `<select>` browser chrome can't be restyled this way, so it's probably a custom listbox/menu component) before changing anything, since a fix here could affect every other theme too.
 - Beyond these two: do a general pass over `tahti-dark.css` and how its tokens get consumed for other places a similar loud-orange or lost-contrast issue could show up (any other component leaning on `--accent-orange` as a "mild highlight" the way this theme's identity doesn't allow).
 - **Fixed this round:** the global route-transition indicator was the concrete, confirmed source of the flashing-orange-stripe report. `AppShell.tsx`'s `RouteContent` (`108-125`) renders a `bg-primary` strip across the top of the page whenever `router.status === 'pending'` (`109-111`), i.e. on every navigation — it had `animate-pulse` (an opacity oscillation), which combined with this theme's loud amber `--primary` read as a flashing orange stripe on every Studio menu click. Dropped `animate-pulse` in favor of a steady `opacity-70` bar — still a visible loading indicator in any theme, no more flashing. The dropdown/hover contrast bugs above are the same root pattern (a component leaning on this theme's loudest token for something meant to be quiet) but need a live render to locate before fixing, unlike this one which was a single, easily-verified class.
 
 **Radio schedule page: narrower layout, "my channel" default, next-2-weeks sidebar, retire the top-bar modal:**
+
 - Make `RadioScheduleView.tsx` (`PageFrame maxWidth="full"`, `184`) noticeably narrower than full-width.
 - Default the station filter to `'mine'` instead of `'radio'` (`station` state, `56`, `StationFilter = 'radio' | 'mine'` in `lib/radioSchedule.ts:18`) — i.e. show the artist's own channel's slots by default — while still allowing a direct link to the full Tahti Radio calendar (`?station=radio` or similar; the filter is plain component state today, not URL-driven, so this needs wiring through the route's search params to be linkable).
 - Once the calendar itself is narrower, add a left-hand summary panel listing the next 2 weeks of the user's own upcoming shows (channel included) — clicking one opens a modal with that show's info. No such summary exists today; the closest precedent is the green-room bookings list already at the top of this view (`190-`) and `RadioBookingCalendar.tsx`'s existing `Dialog.Root` show-detail modal (`451-528`) as a template for the click-to-modal part.
@@ -2427,6 +2443,7 @@ this entry now reflects what's actually still open.
 - A later message asked for the opposite direction on this same dialog — add "Your channel" / "Tahti Radio" tabs to `ScheduleDialog.tsx` (currently a single 14-day upcoming-bookings list, `DAYS_VISIBLE`/`fetchShowBookings`, `15-40`, under a `"Book a slot"` dialog title at `154`) and change its text to reflect which one is selected — before implementing either, reconcile with the user whether the modal is being removed (per the bullet above) or kept-and-improved with tabs, since the two requests point different ways.
 
 **Go Live: missing-info nudge, show duration, and start-time countdown:**
+
 - On the "Ready to take over the rotation" panel (`StudioGoLiveView.tsx:387-402`), if the broadcast's show info hasn't been filled in yet (no `title`/other required `BroadcastPreflight` fields — check `fetchBroadcastPreflight`'s actual required-vs-optional shape in `api/shows.ts` before deciding what counts as "not entered"), show a note there and a link to the Info tab (`?tab=info`, per round 3's tab switcher) to fill it in.
 - Add a duration field (hours + minutes, with 1-hour/2-hour presets but also free-entry in minutes) to `BroadcastPreflightPanel.tsx` — no duration field exists on `BroadcastPreflight`/`PlannedLiveShow`/`PlannedRadioShow` today (`api/shows.ts`), so this is a new field, likely needing a real backend column in `../tahti` (check the actual DB model there before adding a client-only field that can't persist). Apply the same duration control to the show editor (`StudioShowDetailView.tsx`) too, not just the Go Live Info tab.
 - Add a start-time field, defaulting to the current time, alongside duration — same two places (Info tab, show editor).
@@ -2436,11 +2453,12 @@ this entry now reflects what's actually still open.
 
 **mikseri.net embed provider.** Per the completed study (`docs/studies/mikseri-import-study.md`, round 2 above), add a `MIKSERI` `EmbedProvider` (`lib/embedSrc.ts`) once a real embed snippet is captured from a live mikseri.net track page — the URL shape/query params weren't captured in the study pass. Do not build a files-import `SourceDef`; the study found no API and an explicit `robots.txt` objection to automated access.
 
-**Settings → Artist: port the press kit editor from `../tahti`, consolidate branding tabs.** Port the press-kit download/editing forms from the sibling `../tahti` repo into this app, placing them under Settings → Artist → Branding (this app already has *press-kit preview* per "2026-08-28 — Press kit preview parity" — this is the editing/download side, which is apparently still missing or divergent). The source to port from: `../tahti/apps/web/src/app/dashboard/channel/edit/page.tsx` — its "promotional media" section already calls `/api/me/press-kit/images` and `/api/me/press-kit/gallery-settings` (`PressKitImageItem` from `@tahti/shared`) for exactly this editor. Move "Channel & Design" to live under the Artist settings tab (as its own "Channel & Design" icon tab there) rather than wherever it currently sits. Once moved, remove the now-duplicate channel/branding editor that currently exists separately from it — check `ChannelDesigner.tsx` and Settings → Artist → Branding for which one becomes the single source of truth before deleting the other. Also add a toggle controlling whether a "Download press kit" button shows among the profile's icon buttons (e.g. alongside share/favorite on `ArtistView.tsx` — check for the nearest existing precedent for a per-artist visibility toggle, like `useChannelShareStore`'s share-button toggle, before inventing a new settings-storage pattern).
+**Settings → Artist: port the press kit editor from `../tahti`, consolidate branding tabs.** Port the press-kit download/editing forms from the sibling `../tahti` repo into this app, placing them under Settings → Artist → Branding (this app already has _press-kit preview_ per "2026-08-28 — Press kit preview parity" — this is the editing/download side, which is apparently still missing or divergent). The source to port from: `../tahti/apps/web/src/app/dashboard/channel/edit/page.tsx` — its "promotional media" section already calls `/api/me/press-kit/images` and `/api/me/press-kit/gallery-settings` (`PressKitImageItem` from `@tahti/shared`) for exactly this editor. Move "Channel & Design" to live under the Artist settings tab (as its own "Channel & Design" icon tab there) rather than wherever it currently sits. Once moved, remove the now-duplicate channel/branding editor that currently exists separately from it — check `ChannelDesigner.tsx` and Settings → Artist → Branding for which one becomes the single source of truth before deleting the other. Also add a toggle controlling whether a "Download press kit" button shows among the profile's icon buttons (e.g. alongside share/favorite on `ArtistView.tsx` — check for the nearest existing precedent for a per-artist visibility toggle, like `useChannelShareStore`'s share-button toggle, before inventing a new settings-storage pattern).
 
-**Settings/modal flicker on open.** Opening Settings (and reportedly other modals too) visibly flickers a couple of times. Round 2 above traced through the obvious static candidates (double-mount, unstable component identities, dialog resizing mid-animation, store double-flips) and ruled all of them out from code alone — see that round's "Investigated, not fixed" note for exactly what was checked and why each was ruled out, so a future pass doesn't repeat the same dead ends. What's left: live browser reproduction (devtools Rendering → paint flashing, or a screen recording of the actual open) to see what's *actually* repainting, since static reading alone couldn't pin it down. This file's "2026-08-28 — Settings theme flicker" entry fixed a related but narrower preview-lifecycle flicker; still unconfirmed whether this is the same root cause resurfacing.
+**Settings/modal flicker on open.** Opening Settings (and reportedly other modals too) visibly flickers a couple of times. Round 2 above traced through the obvious static candidates (double-mount, unstable component identities, dialog resizing mid-animation, store double-flips) and ruled all of them out from code alone — see that round's "Investigated, not fixed" note for exactly what was checked and why each was ruled out, so a future pass doesn't repeat the same dead ends. What's left: live browser reproduction (devtools Rendering → paint flashing, or a screen recording of the actual open) to see what's _actually_ repainting, since static reading alone couldn't pin it down. This file's "2026-08-28 — Settings theme flicker" entry fixed a related but narrower preview-lifecycle flicker; still unconfirmed whether this is the same root cause resurfacing.
 
 **Venues — gallery, links, admin-only booking contact, and events:**
+
 - Drag-and-drop gallery upload on the venue form (`VenueRegisterView.tsx` and whatever the edit-venue equivalent turns out to be — `venue.photos?: string[]` already exists on `VenueDirectoryItem`/`VenueProfile` in `api/types.ts`, but there's no upload UI for it yet, only a couple of hardcoded photo slots rendered in `VenueDetailView.tsx:109-121`). Should reuse the shared drag-and-drop upload widget / `uploadUserMediaFile` flow this app already uses everywhere else (see `ImageUploadField.tsx`), not a bespoke uploader.
 - A website + social media links section. `externalLinks?: Record<string, string>` already exists and already carries a single `website` link (`VenueDetailView.tsx:133-141`, `VenueRegisterView.tsx:172`); extend the form to a proper multi-platform social links section, not just the one website field.
 - An optional contact-person email for booking inquiries, visible **only to admin** — a new field, not on `VenueDirectoryItem`/`VenueProfile` today. Needs a way to keep it out of the public venue API response entirely (not just hidden client-side) so it's genuinely admin-only, and a mention of it in the venue registration flow (`VenueRegisterView.tsx`) so venues understand who sees it and why.
@@ -2449,6 +2467,7 @@ this entry now reflects what's actually still open.
 - **e2e tests to write once this is built** (to run later, not now): registering a venue with gallery photos and social links persists them; the admin-only contact email is present in an admin-scoped fetch but absent from the public venue API/page; the venue page shows both past and upcoming events with artwork, no broadcasts section; the contact CTA opens/submits an inquiry.
 
 **Stash gets the Sounds player, plus a common tracklisting component sweep:**
+
 - Studio → Stash should use the same player as Studio → Sounds (`StudioArchiveView.tsx`) instead of whatever Stash currently has.
 - Before sweeping anything else: verify (or, if needed, refactor) the Sounds tracklisting/player UI so it is a genuinely reusable, standalone component first — not a page-specific implementation being copy-pasted into Stash. Confirming it's truly common is a precondition for the rest of this, not optional groundwork to skip.
 - Once that's confirmed, add a standing instruction (likely to `AGENTS.md`, matching this repo's convention for standing UI rules — see the existing "Per-page widgets configure from Add-ons" section) that any track-listing surface should use this shared component rather than a one-off.
@@ -2459,12 +2478,14 @@ this entry now reflects what's actually still open.
 **Feed: wire play/queue to release items too.** Round 4 above gave Feed's track items the standard `MediaArtwork` overlay treatment; release items were deliberately left as plain thumbnails since `FeedItem`'s release payload (`api/types.ts`, `kind: 'release'`) carries no track/playable data — there's no `audioUrl`/track list the way the track-kind item has (`feedPlayables` map, `FeedView.tsx:~72-95`). Giving releases the same play/queue overlay needs a new fetch path (e.g. resolving the release's own track list on demand, similar to how `ArtistView.tsx`'s `releasePlayables` works for a release the page already has loaded) before the visual treatment can carry real actions.
 
 **Collection view: hover cover/backdrop upload, matching gradient, tabbed visibility:**
+
 - `CollectionView.tsx` (the public, read-only collection page) has no inline cover-upload affordance — uploading a cover only works from the separate `/studio/collections/$slug` edit page (`StudioCollectionEditView.tsx:530-553`, `uploadCollectionCover`). Add a hover-reveal upload button directly on the cover art in `CollectionView.tsx` (`161-188`) for the owner, opening the same upload flow in a modal — same pattern as the circular profile-image hover-upload already shipped in `ArtistImagePurposePicker.tsx`.
 - `CollectionView.tsx` renders no backdrop at all today, even though `backdropUrl` already exists as a real, working field (`StudioCollectionEditView.tsx:327,360,469,554-560`, its own `ImageUploadField` upload widget). Render it as the page backdrop when set; when not set, show a default gradient derived from the cover image's own colors (check whether a color-extraction helper already exists in this app — `ChannelDesigner.tsx`'s `colorScheme`/`fillColorScheme` handles a related "derive a scheme" concept, worth checking before writing a new one) rather than a flat placeholder.
 - Same hover-upload treatment for the backdrop as the cover, except backdrop should accept multiple images (a gallery/slideshow), not just one — check whether `ChannelDesigner.tsx`'s existing gallery upload (`selectGalleryFiles`, `galleryImages`, `galleryMode`) is close enough in shape to reuse rather than building a second one-to-many image uploader from scratch.
 - `StudioCollectionEditView.tsx`'s Visibility section (`646-674`, a `StudioPanel` with the Public/Unlisted/Private select) currently always renders inline alongside every other section — move it under its own tab in the edit page's menu, and only show that tab while actively editing (the page already has a viewing vs. editing state distinction for the description field, `~624-643` — check how that toggle works before adding a second one).
 
 **Go Live restructure: move Radio into Perform, pull the stream manager out into a modal, add top-bar broadcast controls, collapse the encoder block:**
+
 - Move the "Radio" submenu tile from Manage to Perform: `StudioNav.tsx`'s `SUBMENUS['/studio/channel']` (`130-134`, `to: '/studio/channel?tab=radio'`) should move into `SUBMENUS['/studio/go-live']` (`105-118`) instead.
 - `StudioGoLiveView.tsx` renders the full `StreamManagerPanel` (the playlist/rotation manager) inline on the page (`374-382`) — remove it from the page body. Instead, add a button on the "take over the rotation" panel (`387-402`, `title="Ready to take over the rotation"` state) that opens the same `StreamManagerPanel` in a modal, so the manager is reachable on demand rather than always taking up page space.
 - Add live stream controls (playback controls, current track, and a button that opens the same modal stream manager for full control) to the top-bar broadcast menu — the existing "Broadcast status" flyout in `AppTopNav.tsx` (`broadcastOpen` state, `~174-211`, already shows `broadcast.label`/live-vs-rotation state) is the natural place for this, rather than building a second broadcast-status surface.
@@ -2472,12 +2493,14 @@ this entry now reflects what's actually still open.
 - Overall goal stated by the request: make the Go Live page as simple a view as possible for someone who just wants to start streaming — treat the above as means to that end, not independent tweaks; re-check the resulting page as a whole once these land, not just piece by piece.
 
 **Go Live → Info panel: episode number visibility, show avatar, compact show-name/tagline row:** All in `BroadcastPreflightPanel.tsx` (the Info tab content per round 3 above):
+
 - The "Episode number" input (`108-130`) always shows, regardless of whether the broadcast is actually part of a series — only show it when a series is selected (`preflight.plannedLiveShow?.seriesId` / the `series` select at `188-211`), not for one-off broadcasts.
 - Make the toggle-style controls much smaller — likely the "Show type" and "Visibility" segmented radiogroups (`131-186`), each rendered as full-width `flex-1` padded buttons; confirm against the actual rendered page which control the report means before shrinking.
 - Add a round avatar image for the show, clickable to open an upload modal (same hover-to-upload pattern as the artist profile-image circle, `ArtistImagePurposePicker.tsx`) — when the broadcast is part of an existing series, default to that series' own image instead of prompting a fresh upload. No show-image field exists in this panel today; check whether `fetchShowSeries`/the series API already carries an image URL before adding a new one.
 - Move "Tagline" (`213-224`, currently its own full-width row below everything else) to sit next to "Show name" (`98-107`, currently paired with Episode number in a `grid-cols-[minmax(0,1fr)_8rem]` row) — and make both fields shorter/more compact than their current full-height text inputs.
 
 **Full navigation/layout consistency audit — header stability, single title, persistent active state, less scrolling, correct click targets:** A broader, later pass than the round 3 nav active-state sweep above (which only fixed specific `SECTION_PREFIXES`/`AdminNav` gaps) — this is asking for a full walk of every main-menu page and submenu:
+
 - The page header shouldn't shift position/size between routes within the same section — audit for layout jumps as you move between submenus.
 - Only one title should be visible on screen at a time. Confirmed concrete duplicate: `LibraryView.tsx:75` renders `title="Sounds"` while `MyDiscographyView.tsx:202` separately renders `title="All sounds"` — check whether these two ever compose on the same screen (or are just confusingly similar on adjacent screens) and reconcile the naming either way. `StudioArchiveView.tsx:275` also uses `title="Sounds"` as its own `StudioPageHeader` — three separate "sounds" section titles across the app is itself worth consolidating.
 - The active top-level section should never disappear. Concrete case: `LibraryView.tsx` renders `<StudioNav current={...} />` (`58`), and `StudioNav.tsx`'s section logic (`~227`) treats `/library` and `/studio` as two distinct top-level sections rather than Library being a Studio subsection — so if the mental model is "Library lives under Studio," landing on `/library` correctly makes "Studio" stop being the highlighted top-level tab today, which may be the actual bug (wrong IA) rather than a highlighting glitch. Confirm which information architecture is intended before "fixing" the highlighting either way.
@@ -2489,6 +2512,7 @@ this entry now reflects what's actually still open.
 **Channel Designer visualizer: fill the whole banner area.** Visualizer presets don't use the full available space in a widescreen banner — check whether the presets (`plugins/visualizers` or wherever the actual canvas-drawing code lives, rendered via `ChannelVisualizer.tsx`) can be configured/scaled to fill the whole backdrop banner container rather than rendering into a smaller fixed area within it.
 
 **Track detail page: compact the layout, restructure stats/controls, fix the missing pieces.** `TrackDetailView.tsx` (804 lines) needs several related passes — check the actual rendered page against these before implementing, several are layout judgment calls that are hard to fully verify from source alone:
+
 - The page scrolls both vertically and horizontally today — audit for what's causing the horizontal overflow specifically (likely something not respecting `min-w-0` in the flex layout around the hero section, `340-458`) and tighten the vertical rhythm generally so less scrolling is needed to see the whole page.
 - The stats row (comment/download/favorite counts, `503-520`) is currently three plain non-interactive `<span>`s sitting above the action-button row and the waveform is above that (`435-445`) — move the stats row to directly below the waveform, and make each stat a real action button: the favorite count should toggle the same `toggleFavoriteTrack(playable)` already wired to the separate heart button at `587`, and the download count should trigger `downloadTrack()` (`320`), each updating its own displayed number and active/filled icon state on click, rather than being decorative next to functioning icon-only buttons elsewhere in the row.
 - Remove the "Expand player" button (`528-542`, `Maximize2Icon`) — full-screen expand already lives in the persistent player bar (`ConnectedPlayerBar.tsx`, per this file's 2026-08-30 round-1 queue/full-screen button entry), so this is a redundant second control.
@@ -2498,7 +2522,7 @@ this entry now reflects what's actually still open.
 - Comments (`672-710`) render as a flat `<li>` list with no background/bubble container around each comment's text — add one. Comment dates render via `new Date(comment.createdAt).toLocaleDateString()` (`703`) — a fixed calendar-date string, not a relative/humanized one ("2 hours ago", "3 days ago"); no relative-time helper exists anywhere in this repo yet (`FeedView.tsx`'s `formatFeedDate` is a fixed short-date formatter too, not relative) — one needs to be written.
 - `WaveformSeekbar.tsx`'s comment markers (`133-141`) render as plain small yellow dots, not icons — swap for an actual comment-icon glyph (e.g. `MessageCircleIcon`, already imported and used elsewhere in `TrackDetailView.tsx`) positioned at each marker's timestamp fraction.
 
-**Listen page: "Add widget" button linking into the addon store.** No such button/link exists on `ListenView.tsx` today. `PluginStorePanel.tsx` (`160-183`) has no prop to open pre-scoped to a category or sub-tab — `useSettingsModalStore().open(tab)` only selects the Settings *section* (`plugin-store`), not a tab within it. Two things need building: a way to deep-link the plugin store to a specific category tab (the "listening" ones being `radio`/`embed`/`discovery`/`channel` per `pluginStoreCategories.ts`), and the actual "Add widget" button/link on `ListenView.tsx` that uses it.
+**Listen page: "Add widget" button linking into the addon store.** No such button/link exists on `ListenView.tsx` today. `PluginStorePanel.tsx` (`160-183`) has no prop to open pre-scoped to a category or sub-tab — `useSettingsModalStore().open(tab)` only selects the Settings _section_ (`plugin-store`), not a tab within it. Two things need building: a way to deep-link the plugin store to a specific category tab (the "listening" ones being `radio`/`embed`/`discovery`/`channel` per `pluginStoreCategories.ts`), and the actual "Add widget" button/link on `ListenView.tsx` that uses it.
 
 ## 2026-08-30 — Matchering port: reference mastering plugin
 
@@ -3166,63 +3190,63 @@ First implementation slice: add the missing admin Missed shows queue as an addre
 
 ## Artist studio (POC routes)
 
-| # | Page | Route | Status | Shot |
-|---|------|-------|--------|------|
-| 1 | Studio home | `/studio` | **approved** | `docs/redesign-shots/studio-home-v1.png` |
-| 2 | Go Live wizard | `/studio/go-live` | **approved** | `docs/redesign-shots/studio-go-live-v1.png` |
-| 3 | Music / Archive (Library) | `/studio/archive` | **approved** | `docs/redesign-shots/studio-archive-v1.png` |
-| 4 | Archive item | `/studio/archive/$id` | **approved** | `docs/redesign-shots/studio-archive-item-v1.png` |
-| 5 | Upload | `/studio/upload` | **approved** | `docs/redesign-shots/studio-upload-v1.png` |
-| 6 | Releases | `/studio/releases` | **approved** | `docs/redesign-shots/studio-releases-v1.png` |
-| 7 | Release detail | `/studio/releases/$id` | **approved** | (panels + Save CTA) |
-| 8 | Collections / album designer | `/studio/collections` | **approved** | `docs/redesign-shots/studio-collections-v1.png` |
-| 9 | Collection editor | `/studio/collections/$slug` | **approved** | |
-| 10 | Audio editor list | `/studio/editor` | **approved** | (panels + icon row actions) |
-| 11 | Editor project | `/studio/editor/$id` | **approved** | |
-| 12 | Schedule | `/studio/schedule` | **approved** | `docs/redesign-shots/studio-schedule-v1.png` |
-| 13 | Stats | `/studio/stats` | **approved** | `docs/redesign-shots/studio-stats-v1.png` |
-| 14 | Stats detail | `/studio/stats/detail` | **approved** | (panels + range chips) |
-| 15 | Channel designer | `/studio/channel` | **approved** | `docs/redesign-shots/studio-channel-v1.png` |
-| 16 | Shows | `/studio/shows` | **approved** | `docs/redesign-shots/studio-shows-v1.png` |
-| 17 | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **approved** | |
-| 18 | Playlists | `/studio/playlists`, `…/$slug` | **approved** | `docs/redesign-shots/studio-playlists-v1.png` |
-| 19 | Updates / newsletter | `/studio/updates` | **approved** | `docs/redesign-shots/studio-updates-v1.png` |
-| 20 | Revenue / Connect | `/studio/revenue` | **approved** | `docs/redesign-shots/studio-revenue-v1.png` |
-| 21 | Stash | `/studio/stash` | **approved** | `docs/redesign-shots/studio-stash-v1.png` |
-| 22 | Sources hub | `/sources` | **approved** | `docs/redesign-shots/sources-v1.png`, `docs/redesign-shots/sources-detail-v1.png` |
-| 23 | Settings — account | `/settings/account` | **approved** | already Nuclear shell (no redesign needed) |
-| 24 | Settings — artist | `/settings/artist` (etc.) | **approved** | `docs/redesign-shots/settings-artist-v1.png` |
-| 25 | Settings — money / fan tiers | `/settings/money` | **approved** | already Nuclear shell (no redesign needed) |
-| 26 | Settings — connections | `/settings/connections` | **approved** | already Nuclear shell (no redesign needed) |
+| #   | Page                         | Route                                        | Status       | Shot                                                                              |
+| --- | ---------------------------- | -------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
+| 1   | Studio home                  | `/studio`                                    | **approved** | `docs/redesign-shots/studio-home-v1.png`                                          |
+| 2   | Go Live wizard               | `/studio/go-live`                            | **approved** | `docs/redesign-shots/studio-go-live-v1.png`                                       |
+| 3   | Music / Archive (Library)    | `/studio/archive`                            | **approved** | `docs/redesign-shots/studio-archive-v1.png`                                       |
+| 4   | Archive item                 | `/studio/archive/$id`                        | **approved** | `docs/redesign-shots/studio-archive-item-v1.png`                                  |
+| 5   | Upload                       | `/studio/upload`                             | **approved** | `docs/redesign-shots/studio-upload-v1.png`                                        |
+| 6   | Releases                     | `/studio/releases`                           | **approved** | `docs/redesign-shots/studio-releases-v1.png`                                      |
+| 7   | Release detail               | `/studio/releases/$id`                       | **approved** | (panels + Save CTA)                                                               |
+| 8   | Collections / album designer | `/studio/collections`                        | **approved** | `docs/redesign-shots/studio-collections-v1.png`                                   |
+| 9   | Collection editor            | `/studio/collections/$slug`                  | **approved** |                                                                                   |
+| 10  | Audio editor list            | `/studio/editor`                             | **approved** | (panels + icon row actions)                                                       |
+| 11  | Editor project               | `/studio/editor/$id`                         | **approved** |                                                                                   |
+| 12  | Schedule                     | `/studio/schedule`                           | **approved** | `docs/redesign-shots/studio-schedule-v1.png`                                      |
+| 13  | Stats                        | `/studio/stats`                              | **approved** | `docs/redesign-shots/studio-stats-v1.png`                                         |
+| 14  | Stats detail                 | `/studio/stats/detail`                       | **approved** | (panels + range chips)                                                            |
+| 15  | Channel designer             | `/studio/channel`                            | **approved** | `docs/redesign-shots/studio-channel-v1.png`                                       |
+| 16  | Shows                        | `/studio/shows`                              | **approved** | `docs/redesign-shots/studio-shows-v1.png`                                         |
+| 17  | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **approved** |                                                                                   |
+| 18  | Playlists                    | `/studio/playlists`, `…/$slug`               | **approved** | `docs/redesign-shots/studio-playlists-v1.png`                                     |
+| 19  | Updates / newsletter         | `/studio/updates`                            | **approved** | `docs/redesign-shots/studio-updates-v1.png`                                       |
+| 20  | Revenue / Connect            | `/studio/revenue`                            | **approved** | `docs/redesign-shots/studio-revenue-v1.png`                                       |
+| 21  | Stash                        | `/studio/stash`                              | **approved** | `docs/redesign-shots/studio-stash-v1.png`                                         |
+| 22  | Sources hub                  | `/sources`                                   | **approved** | `docs/redesign-shots/sources-v1.png`, `docs/redesign-shots/sources-detail-v1.png` |
+| 23  | Settings — account           | `/settings/account`                          | **approved** | already Nuclear shell (no redesign needed)                                        |
+| 24  | Settings — artist            | `/settings/artist` (etc.)                    | **approved** | `docs/redesign-shots/settings-artist-v1.png`                                      |
+| 25  | Settings — money / fan tiers | `/settings/money`                            | **approved** | already Nuclear shell (no redesign needed)                                        |
+| 26  | Settings — connections       | `/settings/connections`                      | **approved** | already Nuclear shell (no redesign needed)                                        |
 
 ## Admin (prod `/admin/*`)
 
 Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, same as artist studio above. Inventory from prod `admin-nav`:
 
-| # | Page | Prod route | Status | Shot |
-|---|------|------------|--------|------|
-| A1 | Dashboard | `/admin/dashboard` → `/admin` | **approved** | `docs/redesign-shots/admin-dashboard-v1.png`, `…-expanded-v1.png` |
-| A2 | Beta applications | `/admin/beta` | **approved** | `docs/redesign-shots/admin-beta-v1.png` |
-| A3 | Users | `/admin/users` | **approved** | `docs/redesign-shots/admin-users-v1.png` |
-| A4 | Radio | `/admin/radio` | **approved** | `docs/redesign-shots/admin-radio-v1.png` |
-| A5 | Radio submissions | `/admin/radio-submissions` | **approved** | `docs/redesign-shots/admin-radio-submissions-v1.png` |
-| A6 | News | `/admin/news` | **approved** | `docs/redesign-shots/admin-news-v1.png` |
-| A7 | Tahti Selects | `/admin/tahti-selects` | **approved** | `docs/redesign-shots/admin-selects-v1.png` |
-| A8 | Streams | `/admin/streams` | **approved** | `docs/redesign-shots/admin-streams-v1.png` |
-| A9 | Support | `/admin/support` | **approved** | `docs/redesign-shots/admin-support-v1.png` |
-| A10 | Top lists | `/admin/top-lists` | **approved** | `docs/redesign-shots/admin-top-lists-v1.png` |
-| A11 | Announcements | `/admin/announcements` | **approved** | `docs/redesign-shots/admin-announcements-v1.png` |
-| A12 | Storage | `/admin/storage` | **approved** | `docs/redesign-shots/admin-storage-v1.png` |
-| A13 | Files | `/admin/files` | **approved** | `docs/redesign-shots/admin-files-v1.png` |
-| A14 | Content reports | `/admin/content-reports` | **approved** | `docs/redesign-shots/admin-content-reports-v1.png` |
-| A15 | Financial | `/admin/financial` | **approved** | `docs/redesign-shots/admin-financial-v1.png` |
-| A16 | Governance hub | `/admin/governance` | **approved** | `docs/redesign-shots/admin-governance-v1.png` |
-| A17 | Feature requests | `/admin/feature-requests` | **approved** | `docs/redesign-shots/admin-feature-requests-v1.png` |
-| A18 | Grants | `/admin/grants` | **approved** | `docs/redesign-shots/admin-grants-v1.png` |
-| A19 | AGM | `/admin/agm` | **approved** | `docs/redesign-shots/admin-agm-v1.png` |
-| A20 | Vendors | `/admin/settings/vendors` → `/admin/vendors` | **approved** | `docs/redesign-shots/admin-vendors-v1.png` |
-| A21 | Status | `/admin/status` | **approved** | `docs/redesign-shots/admin-status-v1.png` |
-| A22 | i18n languages + CSV import | (new — see Phase 0) | **approved** | `docs/redesign-shots/admin-i18n-v1.png` |
+| #   | Page                        | Prod route                                   | Status       | Shot                                                              |
+| --- | --------------------------- | -------------------------------------------- | ------------ | ----------------------------------------------------------------- |
+| A1  | Dashboard                   | `/admin/dashboard` → `/admin`                | **approved** | `docs/redesign-shots/admin-dashboard-v1.png`, `…-expanded-v1.png` |
+| A2  | Beta applications           | `/admin/beta`                                | **approved** | `docs/redesign-shots/admin-beta-v1.png`                           |
+| A3  | Users                       | `/admin/users`                               | **approved** | `docs/redesign-shots/admin-users-v1.png`                          |
+| A4  | Radio                       | `/admin/radio`                               | **approved** | `docs/redesign-shots/admin-radio-v1.png`                          |
+| A5  | Radio submissions           | `/admin/radio-submissions`                   | **approved** | `docs/redesign-shots/admin-radio-submissions-v1.png`              |
+| A6  | News                        | `/admin/news`                                | **approved** | `docs/redesign-shots/admin-news-v1.png`                           |
+| A7  | Tahti Selects               | `/admin/tahti-selects`                       | **approved** | `docs/redesign-shots/admin-selects-v1.png`                        |
+| A8  | Streams                     | `/admin/streams`                             | **approved** | `docs/redesign-shots/admin-streams-v1.png`                        |
+| A9  | Support                     | `/admin/support`                             | **approved** | `docs/redesign-shots/admin-support-v1.png`                        |
+| A10 | Top lists                   | `/admin/top-lists`                           | **approved** | `docs/redesign-shots/admin-top-lists-v1.png`                      |
+| A11 | Announcements               | `/admin/announcements`                       | **approved** | `docs/redesign-shots/admin-announcements-v1.png`                  |
+| A12 | Storage                     | `/admin/storage`                             | **approved** | `docs/redesign-shots/admin-storage-v1.png`                        |
+| A13 | Files                       | `/admin/files`                               | **approved** | `docs/redesign-shots/admin-files-v1.png`                          |
+| A14 | Content reports             | `/admin/content-reports`                     | **approved** | `docs/redesign-shots/admin-content-reports-v1.png`                |
+| A15 | Financial                   | `/admin/financial`                           | **approved** | `docs/redesign-shots/admin-financial-v1.png`                      |
+| A16 | Governance hub              | `/admin/governance`                          | **approved** | `docs/redesign-shots/admin-governance-v1.png`                     |
+| A17 | Feature requests            | `/admin/feature-requests`                    | **approved** | `docs/redesign-shots/admin-feature-requests-v1.png`               |
+| A18 | Grants                      | `/admin/grants`                              | **approved** | `docs/redesign-shots/admin-grants-v1.png`                         |
+| A19 | AGM                         | `/admin/agm`                                 | **approved** | `docs/redesign-shots/admin-agm-v1.png`                            |
+| A20 | Vendors                     | `/admin/settings/vendors` → `/admin/vendors` | **approved** | `docs/redesign-shots/admin-vendors-v1.png`                        |
+| A21 | Status                      | `/admin/status`                              | **approved** | `docs/redesign-shots/admin-status-v1.png`                         |
+| A22 | i18n languages + CSV import | (new — see Phase 0)                          | **approved** | `docs/redesign-shots/admin-i18n-v1.png`                           |
 
 **i18n (Approved):** Admin creates languages + imports English-base CSV — [CUTOVER-PHASE0.md](./CUTOVER-PHASE0.md).
 
@@ -3748,6 +3772,7 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 **H key:** added to `AppShell`'s existing global keydown handler (same `isEditing` guard as the pre-existing Alt+1–5 and V shortcuts) — confirmed Alt+1–5 and V are unmodified and still work, and shortcuts stay suppressed while typing, via a throwaway Playwright/Chromium script (browser extension wasn't connected this session either) signing in against the mock API and walking the tour with real keypresses.
 
 **Two real bugs the script caught, both fixed:**
+
 - Studio's "Studio tools" panel starts collapsed on Overview, so its 17 tool links weren't mounted yet when the tour's one-shot `getPageTourSteps().filter(exists in DOM)` ran — `StudioNav` now force-expands the panel while the tour is open (`useTourStore` subscription), but that's a second render-commit cycle after `open` flips, so `PageTourSpotlight` also had to move its step-availability scan from a single rAF to a 60ms deferred check to give that cycle time to land.
 - The highlight ring reused `border-primary`/`ring-primary`, prod's own accent color — on an already-active nav pill (`bg-primary` styling) the ring and the pill's own highlight blended and the label became unreadable. Switched to `border-accent-cyan`/`ring-accent-cyan`, matching prod's original choice of cyan specifically to contrast against whatever it's highlighting. Also found (via fast synthetic ArrowRight presses, faster than a human would ever go) that the rect measurement lagged the step-label update by one render when both changed in the same tick; moved the per-step measurement from `useEffect` to `useLayoutEffect` so the ring is never visibly one step behind the card.
 
@@ -3779,11 +3804,11 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 
 ### 2026-08-24 — hearthis.at Studio Archive playback, dynamic appearance mode, chat reconnect debounce
 
-**hearthis.at embeds "not working in the player":** Root cause wasn't the embed widget itself — `lib/embedSrc.ts`'s `hearthisEmbedSrc` was verified byte-for-byte against the canonical `packages/shared/src/hearthis-embed.ts` in the main tahti repo and confirmed live via `curl` (200, real embed HTML, no blocking CSP/X-Frame-Options). The actual bug: `StudioArchiveItem` (the "My Library" list type) never carried `embedProvider`/`embedUri` at all, so an artist's own hearthis.at-imported tracks were indistinguishable from real uploads in Studio → Music. Clicking Play called `fetchEditorSource` — an endpoint that expects a real Tahti-hosted file — against a track Tahti never hosts, so it silently failed. Every *other* embed surface (`CollectionView`, `StudioCollectionEditView`) already filtered/branched on these fields correctly; only Studio Archive was missing them. Added the fields to the type, a mock hearthis.at row for testability, and swapped the Play button to open the same `EmbedTrackRow`-style inline iframe used elsewhere when a row is embed-only (also hides the now-meaningless "Audio editor" action for those rows). Live-verified: the real hearthis.at widget mounts and plays.
+**hearthis.at embeds "not working in the player":** Root cause wasn't the embed widget itself — `lib/embedSrc.ts`'s `hearthisEmbedSrc` was verified byte-for-byte against the canonical `packages/shared/src/hearthis-embed.ts` in the main tahti repo and confirmed live via `curl` (200, real embed HTML, no blocking CSP/X-Frame-Options). The actual bug: `StudioArchiveItem` (the "My Library" list type) never carried `embedProvider`/`embedUri` at all, so an artist's own hearthis.at-imported tracks were indistinguishable from real uploads in Studio → Music. Clicking Play called `fetchEditorSource` — an endpoint that expects a real Tahti-hosted file — against a track Tahti never hosts, so it silently failed. Every _other_ embed surface (`CollectionView`, `StudioCollectionEditView`) already filtered/branched on these fields correctly; only Studio Archive was missing them. Added the fields to the type, a mock hearthis.at row for testability, and swapped the Play button to open the same `EmbedTrackRow`-style inline iframe used elsewhere when a row is embed-only (also hides the now-meaningless "Audio editor" action for those rows). Live-verified: the real hearthis.at widget mounts and plays.
 
 **Dynamic appearance mode:** `themeStore.ts` gained a `colorMode: 'light' | 'dark' | 'dynamic'` alongside the existing `dark` boolean — `dynamic` re-resolves against the local clock (dark 19:00–06:59) on a 5-minute interval so it keeps tracking day/night while the tab stays open, without needing a page reload. A brand-new user with no persisted preference now defaults to `matchMedia('(prefers-color-scheme: dark)')` instead of the old hardcoded dark default — same fallback duplicated in `index.html`'s pre-React boot script so there's no flash of the wrong theme. Onboarding gained an "Appearance" tab (Light / Dark / Dynamic) that applies live as it's picked and pre-selects whichever option matches the OS, exactly as asked; `ThemesView.tsx` and Settings → Themes both got the same 3-way control so `dynamic` remains a live, undoable choice rather than a onboarding-only dead end. New `isDynamicDark` unit tests (7 cases, hour boundaries).
 
-**Chat reconnect flicker:** `ChannelChatPanel`'s viewer-connect `useEffect` depended on `[slug, mode]` — but its own WebSocket's `onclose` handler demoted `mode` from `'live'` back to `'rest'` on any drop, which re-triggered that same effect and opened a *second* connection as an accidental, undocumented reconnect path with no backoff and no visible-state debounce, so a flaky connection flickered the "Live" badge on every drop/reconnect cycle. Replaced it with an explicit, owned reconnect: `connectWs`'s `onclose` now schedules a retry (linear backoff, capped at 5 attempts, skipped on intentional close from unmount/slug-change) instead of relying on the mode-change side effect, and the effect itself now depends only on `[slug]`. Separately, the "Live" badge is now driven by a debounced `liveDisplay` state that only flips to false after 8 continuous seconds of disconnection (`DISCONNECT_GRACE_MS`) — a quick drop-and-recover never touches the UI. The real send-message gate still checks the live `wsStatus`, not the debounced display, so nothing sends over a socket that only *looks* connected.
+**Chat reconnect flicker:** `ChannelChatPanel`'s viewer-connect `useEffect` depended on `[slug, mode]` — but its own WebSocket's `onclose` handler demoted `mode` from `'live'` back to `'rest'` on any drop, which re-triggered that same effect and opened a _second_ connection as an accidental, undocumented reconnect path with no backoff and no visible-state debounce, so a flaky connection flickered the "Live" badge on every drop/reconnect cycle. Replaced it with an explicit, owned reconnect: `connectWs`'s `onclose` now schedules a retry (linear backoff, capped at 5 attempts, skipped on intentional close from unmount/slug-change) instead of relying on the mode-change side effect, and the effect itself now depends only on `[slug]`. Separately, the "Live" badge is now driven by a debounced `liveDisplay` state that only flips to false after 8 continuous seconds of disconnection (`DISCONNECT_GRACE_MS`) — a quick drop-and-recover never touches the UI. The real send-message gate still checks the live `wsStatus`, not the debounced display, so nothing sends over a socket that only _looks_ connected.
 
 **Status:** implemented; `tsc --noEmit`, `eslint`, the full `vitest` suite (65/65 — 7 new for `isDynamicDark`), and a production build are clean. hearthis.at fix and onboarding appearance defaults live-verified with a throwaway Playwright script (including both `light`/`dark` `colorScheme` contexts confirming the pre-selected option tracks the OS exactly). The chat reconnect/backoff logic could not be timing-verified live — mock mode never opens a real WebSocket, so this needs a manual check against a live Centrifugo connection (kill the network, confirm the badge survives an 8s blip and only drops on a sustained outage).
 
@@ -3835,13 +3860,13 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **A real navigation gap, found and fixed:** while grep-verifying every real `<Link>`/`navigate()` call in every Nuclear view against the map page's route claims (see next section), found that `StudioNav`'s persistent "Music" tool group listed Upload, Collections, Recordings, and Audio editor — but not the Music/Archive catalog itself, despite it being one of the most central artist surfaces. Added it (`ListMusicIcon`, first in the group). Logged this and every other finding — including things checked and found to actually be fine, like Governance's apparent lack of a top-level nav entry turning out to be intentionally gated behind Settings → Account instead — in a new `NAVIGATION-GAPS.md`.
 
-**Per-screenshot navigation atlas:** the Screen atlas's single ~90-node "every user option on one canvas" mermaid diagram was unreadable and, per the user, "mixed up." Replaced it with one small diagram *and* an accessible text list per screenshot (`actions`/`goesTo` fields added to `MapCase` in `content/mapScreens.ts`, a `caseFlowchart()` generator that turns that same data into a mermaid chart so the two representations can't drift apart — the text list is the actual accessible source of truth, the diagram is a supplementary visual). Every `goesTo` edge for all 46 cases is grep-verified against real source, not guessed; the persistent chrome (`AppShell`'s sidebar, `StudioNav`) is deliberately excluded from each screen's edge list since it reaches nearly everywhere and would make all 46 diagrams identical noise — that's also why the Music-in-sidebar gap above mattered, it's a hole in the one nav surface that *isn't* per-screen. The old monolithic diagram (pack `current`, i.e. apps/web) was replaced with a short redirect note pointing at the new atlas rather than mechanically split, since re-verifying a different repo's routes wasn't in scope this session.
+**Per-screenshot navigation atlas:** the Screen atlas's single ~90-node "every user option on one canvas" mermaid diagram was unreadable and, per the user, "mixed up." Replaced it with one small diagram _and_ an accessible text list per screenshot (`actions`/`goesTo` fields added to `MapCase` in `content/mapScreens.ts`, a `caseFlowchart()` generator that turns that same data into a mermaid chart so the two representations can't drift apart — the text list is the actual accessible source of truth, the diagram is a supplementary visual). Every `goesTo` edge for all 46 cases is grep-verified against real source, not guessed; the persistent chrome (`AppShell`'s sidebar, `StudioNav`) is deliberately excluded from each screen's edge list since it reaches nearly everywhere and would make all 46 diagrams identical noise — that's also why the Music-in-sidebar gap above mattered, it's a hole in the one nav surface that _isn't_ per-screen. The old monolithic diagram (pack `current`, i.e. apps/web) was replaced with a short redirect note pointing at the new atlas rather than mechanically split, since re-verifying a different repo's routes wasn't in scope this session.
 
 **Bundle budget:** mermaid and Three.js were already correctly code-split (confirmed via a real production build, not assumed) — the actual problem was that all 22 admin pages were statically imported at the top of `router.tsx`, bundling board-only pages into the JS every anonymous listener downloads. Converted them to `lazyRouteComponent`, each into its own small chunk (~1-15 KB apiece) — a real if modest win (~95 KB off the main chunk); the true bulk of the ~2.6 MB main chunk is elsewhere and wasn't chased further this session.
 
 **Admin → Activity:** a new page reusing the Nuclear desktop player's `LogViewer` UI (`@tahti-player/ui`, already shared — no porting needed, just composed via its `Root`/`SearchInput`/`LevelFilter`/`ScopeFilter`/`EntryCount`/`VirtualizedList` subcomponents rather than its default `Toolbar`, since "Clear"/"Open log folder" don't make sense for a real audit trail), fed by real system events — logins, uploads, releases, likes, follows, new fan subscriptions — not mocked. The backend half (separate repo, `tahti`) extended the existing board-gated `AuditLog` (already paginated/filterable/CSV-exportable) with three new action types rather than building a parallel system, instrumented at each real create path, verified against a live DB that repeat likes/follows/subscription-renewals each write exactly one row, not one per call. "Listened track" is deliberately absent — `ListenEvent` rows are anonymous by design (no `userId` column, for listener privacy), so there's no real per-user event to show; the page notes this and points at Stats for aggregate counts instead of fabricating attribution the data doesn't have.
 
-**Admin → Logs, and a real architecture correction caught before it shipped wrong:** built to reuse the same `LogViewer` pattern for real container logs. First attempt added a whole new Loki + Grafana-datasource setup to `tahti/infra/docker-stack.yml` — which turned out to be a dormant, never-deployed aspirational Swarm migration file; the actual production stack on `vimage` runs via plain `docker compose` against `docker-compose.stack.yml`, and Loki + Grafana + a Loki datasource *already exist*, running on `vimage6` (confirmed by SSH, not assumed from repo docs). Corrected before merging: removed the redundant Loki service and datasource-provisioning from the unused file, pointed both files' logging config at the real `192.168.2.105:3100`, and added the actual `GET /api/admin/logs` route (queries Loki's `query_range` API server-to-server, board-gated, degrades to `lokiReachable:false` instead of throwing if Loki's down) — verified against the live vimage6 Loki, not mocked. Installed the missing Loki Docker logging-driver plugin on `vimage` and ran the real production deploy (`scripts/deploy_prod.sh`, coordinated with the concurrent `tahti-06` session to avoid racing a second deploy on the shared checkout): confirmed post-deploy that all 14 services now have real log streams flowing into Loki with exactly the labels the frontend's scope-parser expects, and that the new endpoint is live and correctly board-gated (401 with no session).
+**Admin → Logs, and a real architecture correction caught before it shipped wrong:** built to reuse the same `LogViewer` pattern for real container logs. First attempt added a whole new Loki + Grafana-datasource setup to `tahti/infra/docker-stack.yml` — which turned out to be a dormant, never-deployed aspirational Swarm migration file; the actual production stack on `vimage` runs via plain `docker compose` against `docker-compose.stack.yml`, and Loki + Grafana + a Loki datasource _already exist_, running on `vimage6` (confirmed by SSH, not assumed from repo docs). Corrected before merging: removed the redundant Loki service and datasource-provisioning from the unused file, pointed both files' logging config at the real `192.168.2.105:3100`, and added the actual `GET /api/admin/logs` route (queries Loki's `query_range` API server-to-server, board-gated, degrades to `lokiReachable:false` instead of throwing if Loki's down) — verified against the live vimage6 Loki, not mocked. Installed the missing Loki Docker logging-driver plugin on `vimage` and ran the real production deploy (`scripts/deploy_prod.sh`, coordinated with the concurrent `tahti-06` session to avoid racing a second deploy on the shared checkout): confirmed post-deploy that all 14 services now have real log streams flowing into Loki with exactly the labels the frontend's scope-parser expects, and that the new endpoint is live and correctly board-gated (401 with no session).
 
 **In progress at session end — vimage7 GPU stem-separator:** asked to make the `worker` on `vimage7.local` use its NVIDIA GPU for "encoding." Checked before touching anything: every ffmpeg job in `apps/worker` is audio-only (`libopus`/`libmp3lame`/`flac`/`aac`) — NVENC only accelerates video codecs, so GPU passthrough for the transcode worker's actual workload would do nothing. The real GPU-shaped workload already in the fleet is `services/stem-separator` (ML source-separation inference, explicitly `[cpu]`-only today per its own Dockerfile comment, written when the only known hosts were colo/Hetzner with no GPU) — confirmed the GPU is real and working on vimage7 (`nvidia-smi`, GTX 950, driver 580.173.02) but the NVIDIA Container Toolkit wasn't installed. Since `separate-stems` is already in the `transcode` lane already running on vimage7, moved stem-separator into the same `docker-compose.worker-remote.yml` project (GPU device reservation, `audio-separator[gpu]` swap, no code change needed — `main.py` never hardcoded a device, the library auto-detects CUDA) rather than adding a new host. Deliberately no `depends_on` between the two services — stem-separator failing to start (e.g. toolkit not yet installed) must not block `worker-transcode`, matching the pre-existing "not required to boot" resilience design. Removed it from the main stack on vimage, repointed `STEM_SEPARATOR_URL` there at vimage7 instead. Blocked on: `sudo` on vimage7 needs an interactive password this session doesn't have, so the toolkit install itself needs a human; deploy of the new colocated services was kicked off and left running in the background (large image — torch + two baked-in model checkpoints + CUDA wheels) at the point this entry was written, not yet confirmed complete.
 
@@ -3861,13 +3886,13 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 
 **Rotation controls collapse:** `StreamManagerPanel`'s "rotation is playing" state showed the full live-stream stats grid, playlist-add form, and multistream target list even when nothing was actually live — collapsed by default to just the transport buttons and artist/title/time-left line, with a chevron (matching the existing collapse-icon convention from the Pro Editor's mastering panel) to expand the rest. Scoped only to the rotation-fallback state; the real "you're live" view is unchanged.
 
-**History page, ported from Nuclear desktop exactly:** the referenced screenshot turned out to be a real Nuclear production screenshot, confirming the existing `@tahti-player/ui` History components (`HistoryDayGroup`, `HistoryRow`, `CalendarHeatmap`, `ListeningClock`, `DayOfWeekChart`, `TopList`) were already ported into this fork's design system with zero consumers — built the actual page around them (`HistoryView` → `HistoryStatsSection`/`HistoryListSection`, same two-tab Stats/Listening-history layout). Nuclear tracks real per-play listening duration from a local SQLite log; this app only logs a play-event timestamp deduped to one row per track, so listening time is *approximated* from each track's own duration (documented inline, not left implicit) and "Top albums" — plays aren't grouped by album here — became "Top channels" instead of a fabricated list. Matched the reference screenshot's exact copy ("Time of day", "Listening calendar", the date-range header text). Added a sidebar "History" entry (was only reachable as a nested Library tab). This dragged `react-activity-calendar` into the main bundle (+367 KB) via `LibraryView`'s eager import — caught by a before/after build comparison, fixed by lazy-loading `LibraryView` the same way the admin pages already were.
+**History page, ported from Nuclear desktop exactly:** the referenced screenshot turned out to be a real Nuclear production screenshot, confirming the existing `@tahti-player/ui` History components (`HistoryDayGroup`, `HistoryRow`, `CalendarHeatmap`, `ListeningClock`, `DayOfWeekChart`, `TopList`) were already ported into this fork's design system with zero consumers — built the actual page around them (`HistoryView` → `HistoryStatsSection`/`HistoryListSection`, same two-tab Stats/Listening-history layout). Nuclear tracks real per-play listening duration from a local SQLite log; this app only logs a play-event timestamp deduped to one row per track, so listening time is _approximated_ from each track's own duration (documented inline, not left implicit) and "Top albums" — plays aren't grouped by album here — became "Top channels" instead of a fabricated list. Matched the reference screenshot's exact copy ("Time of day", "Listening calendar", the date-range header text). Added a sidebar "History" entry (was only reachable as a nested Library tab). This dragged `react-activity-calendar` into the main bundle (+367 KB) via `LibraryView`'s eager import — caught by a before/after build comparison, fixed by lazy-loading `LibraryView` the same way the admin pages already were.
 
 **`CUTOVER.md` slices, several rounds:** closed §1.4's "document localStorage keys" (new `LOCALSTORAGE-KEYS.md` — confirmed `libraryStore`'s favorites/history are already scoped per-user/anon via a key suffix, so no migration step is needed at cutover) and its "no IndexedDB/service-worker, no Next server-actions" pair (both genuinely clean by construction — grepped, not assumed). Audited the "chat captcha + access gating (already hardened)" claim in the `tahti` repo rather than taking it on faith: server-side hCaptcha verification fails closed, `ChatBan` is checked at both token-issue and message-send, message length is schema-capped, and the Centrifugo publish-proxy webhook is locked to internal-network-only callers (a previously-fixed real vulnerability, SEC-007) — it genuinely is hardened, now with evidence recorded instead of an unverified checkbox. Removed two dead "open on tahti.live" escape-hatch links in `GovernanceView`/`FeatureRequestsView` (same membership check, same result, just extra friction) in favor of an in-app settings shortcut. Traced a real functional gap while auditing Next-only route handlers for hidden capability: the old Next app streamed live SSE render-progress via a route handler with no SPA equivalent at all, so `StudioProEditorView`'s render fired-and-forgot with a one-time toast and no way to know when it actually finished — added the same PENDING/PROCESSING-polling pattern the stems flow already used.
 
 **Plugin Store, built from scratch then substantially reworked:** first pass was a read-mostly directory across the app's 7 plugin-shaped subsystems (themes/visualizers/export/import/multicast/fingerprinting/audio-plugins), each reading its real existing data source, with a companion `PLUGIN-STORE-PLAN.md` mapping what actually extracting each into a standalone package would take (ranked by cost — themes and audio-plugins are already closest to a real registry shape; Export/Fingerprinting have no per-implementation behavior to extract yet, since "Export" today is one Revelator call regardless of which DSP box is checked). Second pass added real inline configuration: a shared gear-toggle fold-out (`ConfigurableCard`) instead of every card being launcher-only, per-preset visualizer speed/intensity sliders backed by the real `patchChannelVisual` API, and a `MusicBrainz` fingerprinting plugin wiring a complete OAuth connect/disconnect flow that existed server-side (`apps/api/src/routes/me/musicbrainz.ts`) with no SPA UI at all before this. Third pass unified Import/Export/Fingerprinting into one tagged registry (`SERVICE_PLUGINS`, each entry carrying a `tags: PluginCategoryId[]`) instead of one array per category, so hearthis.at — genuinely both an import source and an export target — is a single entry with two tags rather than a duplicated card; its username config moved from a generic "Social links" profile field onto its own plugin card (same underlying storage, no longer only reachable by first navigating elsewhere).
 
-**Nuclear plugin registry gap list:** `/home/jani/workspace/nuclear` (the reference checkout used earlier for the History port) had disappeared from disk mid-session; re-cloned fresh from the `upstream` git remote already configured in this repo (`nukeop/nuclear`) rather than working from memory, then found the *actual* live registry Nuclear's marketplace reads from (`NuclearPlayer/plugin-registry` on GitHub, served via jsDelivr) instead of guessing at what's "official." Of its 17 real plugins, one — MediaSession — was ported outright this session (see below); several others (Bandcamp/SoundCloud/Spotify/MusicBrainz) are partially covered from a different angle (import/embed/connect rather than Nuclear's browse-and-play or search-metadata framing); the rest (Discogs, Deezer/ListenBrainz/Bandcamp/SoundCloud dashboards, Last.fm scrobbling, YouTube streaming/playlists, KHInsider, OmniSource, NetEase) aren't ported, several of which may not even be the right fit for a co-op radio platform rather than a general-purpose player — flagged as a product decision, not assumed.
+**Nuclear plugin registry gap list:** `/home/jani/workspace/nuclear` (the reference checkout used earlier for the History port) had disappeared from disk mid-session; re-cloned fresh from the `upstream` git remote already configured in this repo (`nukeop/nuclear`) rather than working from memory, then found the _actual_ live registry Nuclear's marketplace reads from (`NuclearPlayer/plugin-registry` on GitHub, served via jsDelivr) instead of guessing at what's "official." Of its 17 real plugins, one — MediaSession — was ported outright this session (see below); several others (Bandcamp/SoundCloud/Spotify/MusicBrainz) are partially covered from a different angle (import/embed/connect rather than Nuclear's browse-and-play or search-metadata framing); the rest (Discogs, Deezer/ListenBrainz/Bandcamp/SoundCloud dashboards, Last.fm scrobbling, YouTube streaming/playlists, KHInsider, OmniSource, NetEase) aren't ported, several of which may not even be the right fit for a co-op radio platform rather than a general-purpose player — flagged as a product decision, not assumed.
 
 **MediaSession:** the one clean 1:1 port from that gap list — `navigator.mediaSession` had zero usage anywhere, so lock-screen/notification/headset media-key controls (play/pause/prev/next) didn't work at all. Wired into `AudioEngine` (the component that already owns the `<audio>` element and playback lifecycle): action handlers route through the exact same `setStatus`/`next`/`previous` store actions the player bar's own buttons use, metadata and `playbackState` stay in sync with the current track.
 
@@ -4086,6 +4111,7 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Slice 5:** Track insights are available as a track-local tab, while the standalone Studio Insights navigation entry is removed. Production admin audit found missed shows, support, announcements, governance, grants, AGM, and aggregate stream monitoring represented in beta; remaining parity work is channel-scoped stream/programme management and richer per-channel admin drill-down from `../tahti`.
 
 **Status:** implementation in progress; validation, commit, push, and beta deployment follow.
+
 ### 2026-08-28 — Stable Studio/Admin shell width audit
 
 **Workplan:**
@@ -4100,6 +4126,7 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Implementation:** Standardized the Studio, Admin, and Admin Moderation shells to the full available content width with an 11rem fixed navigation column, a flexible content column, consistent gap, and stable scrollbar space. Library and Sources now use the same unconstrained outer frame so they cannot reintroduce a narrower shell.
 
 **Status:** implementation complete; Playwright route-width verification and final quality checks pending.
+
 ### 2026-08-28 — Responsive and broadcast administration follow-up
 
 **Workplan:**
@@ -4240,6 +4267,7 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 ### 2026-08-28 — On air replay status
 
 **Completed:** Listen → On air now derives its badge from the API tier: only channels in the live collection are labeled Live now, while archive rotations are labeled Replay even if their channel state reports a generic active value.
+
 ### 2026-08-28 — Random artist of the week widget
 
 **Completed:** Added the Discover widget “Random artist of the week”. It rotates deterministically each week across public artists, shows a large profile image and bio, and links to the artist’s channel for listening.
@@ -4259,6 +4287,7 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 ### 2026-08-28 — Listen SoundCloud and hearthis.at widgets
 
 **Completed:** The Listen → Your widgets add-on now exposes both SoundCloud and hearthis.at official embed players. SoundCloud configuration reads the signed-in account’s `socialLinks.soundcloud` profile URL and pre-fills it; when the account link is missing or invalid, the configuration form requires a valid profile URL, saves it back to the account links, and uses that profile as the widget instance. Added focused SoundCloud profile URL normalization/rejection coverage; hearthis.at numeric IDs and official embed URLs remain supported.
+
 ## 2026-08-28 — Discover filter controls
 
 **Completed:** Genre filters on Discover are now tucked into an expandable Genres control, while the content-type filters remain visible. Added a persisted “Tracks I haven’t heard” filter backed by the personalized new-to-you API; it narrows the other Discover widgets to tracks the listener has not heard.
@@ -4366,6 +4395,7 @@ Follow-up in the same session: the beta proxy fix and deploy workflow above both
 **Production cutover:** Rechecked the cutover boundary in `FEATURES.md`. The official client remains protected by the no-drop ledger requirement, and Admin remains canonical in the production web client. No cutover flag or route ownership was changed.
 
 **Responsive audit:** Reviewed the next workplan surfaces at phone and small-tablet constraints. Schedule controls and the seven-day grid now have deliberate stacked/scrolling behavior; moderation forms stack on phones. The editor and Admin operational tables retain horizontal scrolling where dense data requires it rather than clipping controls.
+
 ## 2026-08-28 — Responsive UX follow-up and workplan audit
 
 **Audit result:** The existing Playwright layout-stability audit was run against the mock app at 1440px and 390px. It currently stops before measuring layout: the mock sign-in flow lands on the Listen view when the test navigates to `/studio`, so `.studio-page-layout` is absent. This is an auth/route harness failure, not evidence of horizontal overflow. The stale process occupying the audit port was replaced before the run.
@@ -4416,7 +4446,7 @@ Added missing Storybook coverage: `DiscoWidgetsSection`, `DiscoWidgetManagerPane
 
 ## 2026-08-31 — Nuclear plugin add-ons: re-port, background-navigation fix, import-list cleanup
 
-**Investigated:** Bandcamp and SoundCloud import were reported as inconsistent — Bandcamp's "configure" was expected to ask for a username then let you pick items to import, while SoundCloud instead "takes you to some different page." Traced this through every add-ons surface (`/sources/bandcamp` and `/sources/soundcloud` directly, the Import tab's `IMPORT_SERVICE_PLUGINS` deep-links, and the Nuclear plugins tab's `NuclearPluginAddonsCategory` config dialogs) on both the local mock app and the live beta.tahti.live build. Bandcamp and SoundCloud turned out to behave identically everywhere — no asymmetry between the two. What's real: the Settings/Add-ons overlay is a persistent layer, not a route, so any `<Link>` inside it (the Import tab's deep-links to `/sources/$id`, plus the hearthis.at card) changed the underlying page *behind* the still-open overlay instead of visibly navigating there — the "different page" the user was seeing.
+**Investigated:** Bandcamp and SoundCloud import were reported as inconsistent — Bandcamp's "configure" was expected to ask for a username then let you pick items to import, while SoundCloud instead "takes you to some different page." Traced this through every add-ons surface (`/sources/bandcamp` and `/sources/soundcloud` directly, the Import tab's `IMPORT_SERVICE_PLUGINS` deep-links, and the Nuclear plugins tab's `NuclearPluginAddonsCategory` config dialogs) on both the local mock app and the live beta.tahti.live build. Bandcamp and SoundCloud turned out to behave identically everywhere — no asymmetry between the two. What's real: the Settings/Add-ons overlay is a persistent layer, not a route, so any `<Link>` inside it (the Import tab's deep-links to `/sources/$id`, plus the hearthis.at card) changed the underlying page _behind_ the still-open overlay instead of visibly navigating there — the "different page" the user was seeing.
 
 **Fixed:** Every `<Link>` in `PluginStorePanel.tsx` now calls `useSettingsModalStore.getState().close()` on click, matching the pattern already used elsewhere in `SettingsPanels.tsx` (e.g. the Governance and Go Live links) — navigating from inside Add-ons now visibly closes the overlay and lands on the destination page instead of swapping it silently in the background.
 

@@ -25,7 +25,6 @@ import {
   Card,
   CardGrid,
   Dialog,
-  ImageReveal,
   SaveButton,
   TabLabel,
   Tabs,
@@ -42,7 +41,12 @@ import {
   fetchPublicPressKitImages,
   type PublicPressKitImage,
 } from '../api/artist-settings';
-import { resolvePublicVisualizerPreset } from '../api/channel-design';
+import {
+  isActiveTextOverlay,
+  loadChannelLookExtras,
+  parseColorScheme,
+  resolvePublicVisualizerPreset,
+} from '../api/channel-design';
 import { fetchChannel, fetchProfile } from '../api/client';
 import {
   fetchChannelDiscoWidgets,
@@ -66,6 +70,7 @@ import {
   ArtistGalleryPanel,
 } from '../components/ArtistGalleryPanel';
 import { ChannelDesigner } from '../components/ChannelDesigner';
+import { ChannelTextOverlayView } from '../components/ChannelTextOverlayView';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { EmbedButton } from '../components/EmbedButton';
@@ -76,6 +81,7 @@ import {
 import { GlowMediaTile } from '../components/GlowMediaTile';
 import { ImageLightbox } from '../components/ImageLightbox';
 import { NewsletterSubscribeToggle } from '../components/NewsletterSubscribeToggle';
+import { NowPlayingOverlay } from '../components/NowPlayingOverlay';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { QueueConfirmDialog } from '../components/QueueConfirmDialog';
@@ -87,6 +93,10 @@ import { ShowEpisodeList } from '../components/ShowEpisodeList';
 import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { TrackEditDialog } from '../components/TrackEditDialog';
+import {
+  parseNowPlayingOverlaySettings,
+  resolveNowPlayingOverlayPreset,
+} from '../content/nowPlayingOverlayPresets';
 import { hasAccountRole } from '../lib/accountRoles';
 import { soundIdFromPlayableId } from '../lib/archiveId';
 import { resolveArtworkVisualizerPreset } from '../lib/artworkVisualizer';
@@ -94,6 +104,7 @@ import {
   loadArtistLookVisibility,
   type ArtistLookBlockId,
 } from '../lib/channelLookElements';
+import { colorSchemeCssVars, normalizeColorScheme } from '../lib/colorScheme';
 import { isPinned } from '../lib/pinnedTracks';
 import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { formatDuration } from '../lib/playableToTrack';
@@ -283,10 +294,19 @@ export function ArtistView({ username }: { username: string }) {
     | 'visualSettingsJson'
     | 'colorScheme'
     | 'colorSchemeJson'
+    | 'headerStyle'
     | 'hlsUrl'
     | 'videoBackgroundUrl'
     | 'slideshowImages'
+    | 'nowPlayingOverlayStyle'
+    | 'nowPlayingOverlaySettingsJson'
+    | 'playerOverlayMode'
+    | 'playerOverlayText'
+    | 'playerOverlayAlign'
   > | null>(null);
+  const [lookExtras, setLookExtras] = useState<
+    ReturnType<typeof loadChannelLookExtras>
+  >({});
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
@@ -337,7 +357,8 @@ export function ArtistView({ username }: { username: string }) {
 
   const isOwner = Boolean(me && me.username === username);
   const isAdministrator = hasAccountRole(me, 'BOARD');
-  const hasGallery = galleryImages.length > 0;
+  const hasGallery =
+    galleryImages.length > 0 && lookVisibility.gallery !== false;
 
   useEffect(() => {
     let cancelled = false;
@@ -375,6 +396,7 @@ export function ArtistView({ username }: { username: string }) {
     const slug = profile?.channel?.slug;
     if (!slug) {
       setChannelVisual(null);
+      setLookExtras({});
       setDiscoWidgets([]);
       setChannelPosts([]);
       setChannelNews([]);
@@ -382,6 +404,7 @@ export function ArtistView({ username }: { username: string }) {
       return;
     }
     setLookVisibility(loadArtistLookVisibility(slug));
+    setLookExtras(loadChannelLookExtras(slug));
     let cancelled = false;
     void Promise.all([
       fetchChannel(slug),
@@ -397,10 +420,17 @@ export function ArtistView({ username }: { username: string }) {
         visualSettingsJson: res.data.visualSettingsJson,
         colorScheme: res.data.colorScheme,
         colorSchemeJson: res.data.colorSchemeJson,
+        headerStyle: res.data.headerStyle,
         hlsUrl: res.data.hlsUrl,
         videoBackgroundUrl: res.data.videoBackgroundUrl,
         slideshowImages: res.data.slideshowImages,
+        nowPlayingOverlayStyle: res.data.nowPlayingOverlayStyle,
+        nowPlayingOverlaySettingsJson: res.data.nowPlayingOverlaySettingsJson,
+        playerOverlayMode: res.data.playerOverlayMode,
+        playerOverlayText: res.data.playerOverlayText,
+        playerOverlayAlign: res.data.playerOverlayAlign,
       });
+      setLookExtras(loadChannelLookExtras(slug));
       setDiscoWidgets(widgets.data);
       setChannelPosts(posts.data);
       setChannelNews(news);
@@ -655,17 +685,77 @@ export function ArtistView({ username }: { username: string }) {
       : []),
   ];
 
-  const artistBackdropCandidate =
-    channelVisual?.slideshowImages?.[0] ??
-    channelVisual?.videoBackgroundUrl ??
+  const artistBackdropUrl = channelVisual?.videoBackgroundUrl
+    ? null
+    : (channelVisual?.slideshowImages?.[0] ?? null);
+  const headerScheme = normalizeColorScheme(
+    channelVisual?.colorScheme ??
+      parseColorScheme(channelVisual?.colorSchemeJson),
+  );
+  const playerScheme = lookExtras.usePlayerGradient
+    ? normalizeColorScheme(parseColorScheme(lookExtras.playerColorSchemeJson))
+    : headerScheme;
+  const pageScheme = lookExtras.useBackgroundGradient
+    ? normalizeColorScheme(
+        parseColorScheme(lookExtras.backgroundColorSchemeJson),
+      )
+    : headerScheme;
+  const sectionSurfaceStyle = {
+    backgroundColor: `${pageScheme.bg}e6`,
+    borderColor: `${pageScheme.muted}66`,
+    color: pageScheme.text,
+  } as const;
+  const playerStageGradient = `linear-gradient(to top, ${playerScheme.bg}cc, ${playerScheme.bg}59, ${playerScheme.bg}1a)`;
+  const playerBottomGradient = `linear-gradient(to top, ${playerScheme.bg}cc, ${playerScheme.bg}73, transparent)`;
+  const resolvedVisualizerPreset = channelVisual?.visualPreset
+    ? resolvePublicVisualizerPreset(channelVisual.visualPreset)
+    : undefined;
+  const nowPlayingOverlayStyle =
+    lookExtras.nowPlayingOverlayStyle ??
+    channelVisual?.nowPlayingOverlayStyle ??
     null;
-  const artistBackdropUrl = artistBackdropCandidate;
+  const nowPlayingOverlaySettingsJson =
+    lookExtras.nowPlayingOverlaySettingsJson ??
+    channelVisual?.nowPlayingOverlaySettingsJson ??
+    null;
+  const playerOverlayMode =
+    lookExtras.playerOverlayMode ?? channelVisual?.playerOverlayMode ?? null;
+  const playerOverlayText =
+    lookExtras.playerOverlayText ?? channelVisual?.playerOverlayText ?? null;
+  const playerOverlayAlign =
+    lookExtras.playerOverlayAlign ?? channelVisual?.playerOverlayAlign ?? null;
+  const backgroundVisualPreset = lookExtras.backgroundVisualPreset ?? null;
+  const showPlayerOverlay = isActiveTextOverlay({
+    mode: playerOverlayMode,
+    text: playerOverlayText,
+  });
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6">
+    <div
+      className="relative isolate mx-auto flex max-w-5xl flex-col gap-6 overflow-hidden rounded-2xl p-4 sm:p-6"
+      style={{
+        ...colorSchemeCssVars(pageScheme),
+        color: pageScheme.text,
+      }}
+      data-channel-scheme
+    >
+      <div
+        className="absolute inset-0 -z-[2]"
+        style={{ backgroundColor: pageScheme.bg }}
+        aria-hidden
+      />
+      {backgroundVisualPreset ? (
+        <ChannelVisualizer
+          className="pointer-events-none absolute inset-0 -z-[1] size-full opacity-20"
+          artworkUrl={artist.avatarUrl}
+          colorScheme={pageScheme}
+          preset={resolvePublicVisualizerPreset(backgroundVisualPreset)}
+        />
+      ) : null}
       <Link
         to="/"
-        className="text-foreground-secondary text-xs hover:underline"
+        className="text-xs hover:underline"
+        style={{ color: pageScheme.muted }}
       >
         ← Listen
       </Link>
@@ -675,6 +765,9 @@ export function ArtistView({ username }: { username: string }) {
         imageUrl={artist.avatarUrl ?? placeholderArtworkUrl(artist.username)}
         imageAlt=""
         roundImage
+        colorScheme={headerScheme}
+        headerStyle={channelVisual?.headerStyle}
+        videoBackgroundUrl={channelVisual?.videoBackgroundUrl}
         subtitle={`@${artist.username}${artist.pronouns ? ` · ${artist.pronouns}` : ''}`}
         description={
           artist.bio ? (
@@ -683,10 +776,10 @@ export function ArtistView({ username }: { username: string }) {
         }
         backdropUrl={artistBackdropUrl}
         visualizerPreset={
-          channelVisual?.visualPreset
-            ? resolvePublicVisualizerPreset(channelVisual.visualPreset)
-            : resolveArtworkVisualizerPreset(artist.username)
+          resolvedVisualizerPreset ??
+          resolveArtworkVisualizerPreset(artist.username)
         }
+        visualSettingsJson={channelVisual?.visualSettingsJson}
         artworkUrlForVisualizer={artist.avatarUrl}
         onImageClick={artist.avatarUrl ? () => setAvatarOpen(true) : undefined}
         stats={headerStats}
@@ -784,106 +877,114 @@ export function ArtistView({ username }: { username: string }) {
         data-testid="artist-social-header"
       />
 
-      {(editingFullBio ||
-        artist.fullBio ||
-        isOwner ||
-        discoWidgets.length > 0) && (
-        <section className="border-border bg-background-secondary/70 flex flex-col gap-5 rounded-2xl border p-4 shadow-sm sm:p-6">
-          {editingFullBio ? (
-            <div className="flex max-w-2xl flex-col gap-2">
-              <Textarea
-                autoFocus
-                rows={6}
-                placeholder="Share your full history — how you got started, your influences, milestones…"
-                value={fullBioDraft}
-                onChange={(e) => setFullBioDraft(e.target.value)}
-              />
-              <div className="flex justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={savingFullBio}
-                  onClick={() => setEditingFullBio(false)}
-                >
-                  Cancel
-                </Button>
-                <SaveButton
-                  saving={savingFullBio}
-                  onClick={async () => {
-                    setSavingFullBio(true);
-                    const result = await patchMeProfile({
-                      fullBio: fullBioDraft.trim() || null,
-                    });
-                    setSavingFullBio(false);
-                    if (!result.ok) {
-                      return;
-                    }
-                    setProfile((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            artist: {
-                              ...prev.artist,
-                              fullBio: result.data.fullBio ?? null,
-                            },
-                          }
-                        : prev,
-                    );
-                    setEditingFullBio(false);
-                  }}
+      {lookVisibility.bio !== false &&
+        (editingFullBio ||
+          artist.fullBio ||
+          isOwner ||
+          discoWidgets.length > 0) && (
+          <section
+            className="flex flex-col gap-5 rounded-2xl border p-4 shadow-sm sm:p-6"
+            style={sectionSurfaceStyle}
+          >
+            {editingFullBio ? (
+              <div className="flex max-w-2xl flex-col gap-2">
+                <Textarea
+                  autoFocus
+                  rows={6}
+                  placeholder="Share your full history — how you got started, your influences, milestones…"
+                  value={fullBioDraft}
+                  onChange={(e) => setFullBioDraft(e.target.value)}
                 />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={savingFullBio}
+                    onClick={() => setEditingFullBio(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <SaveButton
+                    saving={savingFullBio}
+                    onClick={async () => {
+                      setSavingFullBio(true);
+                      const result = await patchMeProfile({
+                        fullBio: fullBioDraft.trim() || null,
+                      });
+                      setSavingFullBio(false);
+                      if (!result.ok) {
+                        return;
+                      }
+                      setProfile((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              artist: {
+                                ...prev.artist,
+                                fullBio: result.data.fullBio ?? null,
+                              },
+                            }
+                          : prev,
+                      );
+                      setEditingFullBio(false);
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          ) : artist.fullBio ? (
-            <div className="max-w-2xl">
-              <p className="text-foreground text-sm whitespace-pre-wrap">
-                {artist.fullBio}
-              </p>
+            ) : artist.fullBio ? (
+              <div className="max-w-2xl">
+                <p className="text-foreground text-sm whitespace-pre-wrap">
+                  {artist.fullBio}
+                </p>
+                {isOwner && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="mt-2"
+                    onClick={() => {
+                      setFullBioDraft(artist.fullBio ?? '');
+                      setEditingFullBio(true);
+                    }}
+                  >
+                    Edit full bio
+                  </Button>
+                )}
+              </div>
+            ) : isOwner ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="self-start"
+                onClick={() => {
+                  setFullBioDraft('');
+                  setEditingFullBio(true);
+                }}
+              >
+                + Add full bio
+              </Button>
+            ) : null}
+            <DiscoWidgetsSection widgets={discoWidgets} />
+            <div className="flex flex-wrap gap-3 text-sm">
               {isOwner && (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="mt-2"
-                  onClick={() => {
-                    setFullBioDraft(artist.fullBio ?? '');
-                    setEditingFullBio(true);
-                  }}
+                <Link
+                  to="/studio/channel"
+                  className="text-foreground-secondary underline-offset-2 hover:underline"
                 >
-                  Edit full bio
-                </Button>
+                  Full studio settings
+                </Link>
               )}
             </div>
-          ) : isOwner ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              className="self-start"
-              onClick={() => {
-                setFullBioDraft('');
-                setEditingFullBio(true);
-              }}
-            >
-              + Add full bio
-            </Button>
-          ) : null}
-          <DiscoWidgetsSection widgets={discoWidgets} />
-          <div className="flex flex-wrap gap-3 text-sm">
-            {isOwner && (
-              <Link
-                to="/studio/channel"
-                className="text-foreground-secondary underline-offset-2 hover:underline"
-              >
-                Full studio settings
-              </Link>
-            )}
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      {liveShows &&
+      {lookVisibility.shows !== false &&
+      liveShows &&
       (liveShows.upcomingEpisodes.length > 0 ||
         liveShows.pastEpisodes.length > 0) ? (
-        <section className="border-border bg-background-secondary/50 flex flex-col gap-4 rounded-2xl border p-4 sm:p-6">
+        <section
+          className="flex flex-col gap-4 rounded-2xl border p-4 sm:p-6"
+          style={sectionSurfaceStyle}
+        >
           <div>
             <div className="flex items-center gap-2">
               <CalendarDays size={18} aria-hidden />
@@ -928,7 +1029,10 @@ export function ArtistView({ username }: { username: string }) {
       )}
 
       {lookVisibility.feed && taggedIn.length > 0 ? (
-        <section className="border-border bg-background-secondary/50 rounded-2xl border p-4 sm:p-6">
+        <section
+          className="rounded-2xl border p-4 sm:p-6"
+          style={sectionSurfaceStyle}
+        >
           <div className="mb-3">
             <h2 className="font-display text-lg font-bold tracking-tight">
               Tagged in
@@ -1026,7 +1130,10 @@ export function ArtistView({ username }: { username: string }) {
             </Tabs.List>
           </Tabs.Root>
         ) : null}
-        {isOwner && galleryLoaded && !hasGallery ? (
+        {isOwner &&
+        lookVisibility.gallery !== false &&
+        galleryLoaded &&
+        galleryImages.length === 0 ? (
           <ArtistGalleryAddIcon
             onCreated={(images) => {
               setGalleryImages(images);
@@ -1039,11 +1146,23 @@ export function ArtistView({ username }: { username: string }) {
       {tab === 'music' && (
         <section className="flex flex-col gap-8">
           {lookVisibility.player ? (
-            <div className="border-border bg-background-input relative min-h-[20rem] w-full overflow-hidden rounded-lg border sm:min-h-[28rem]">
-              {featuredIsPlaying ? (
+            <div
+              className="relative min-h-[20rem] w-full overflow-hidden rounded-lg border sm:min-h-[28rem]"
+              style={{
+                borderColor: `${pageScheme.muted}66`,
+                backgroundColor: playerScheme.bg,
+                ...colorSchemeCssVars(playerScheme),
+              }}
+            >
+              {resolvedVisualizerPreset ? (
                 <ChannelVisualizer
                   className="absolute inset-0 size-full opacity-60"
-                  artworkUrl={nowPlayingHere?.coverUrl}
+                  artworkUrl={
+                    nowPlayingHere?.coverUrl ?? artist.avatarUrl ?? undefined
+                  }
+                  colorScheme={playerScheme}
+                  visualSettingsJson={channelVisual?.visualSettingsJson}
+                  preset={resolvedVisualizerPreset}
                 />
               ) : nowPlayingHere?.coverUrl ? (
                 <img
@@ -1053,17 +1172,21 @@ export function ArtistView({ username }: { username: string }) {
                 />
               ) : null}
               <div
-                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10"
+                className="absolute inset-0"
+                style={{ background: playerStageGradient }}
                 aria-hidden
               />
-              {nowPlayingHere ? (
-                <span className="absolute top-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.16em] text-white uppercase backdrop-blur-sm">
-                  <span
-                    className="bg-accent-green size-1.5 rounded-full motion-safe:animate-pulse"
-                    aria-hidden
+              {showPlayerOverlay ? (
+                <div className="absolute inset-x-0 top-10 z-[2] px-4 sm:top-12">
+                  <ChannelTextOverlayView
+                    mode={playerOverlayMode}
+                    text={playerOverlayText}
+                    align={playerOverlayAlign}
+                    accent={playerScheme.accent}
+                    highlight={playerScheme.highlight}
+                    size="sm"
                   />
-                  Now playing
-                </span>
+                </div>
               ) : null}
 
               {channel && (isOwner || isAdministrator) ? (
@@ -1119,32 +1242,27 @@ export function ArtistView({ username }: { username: string }) {
                 </div>
               ) : null}
 
-              <div className="absolute inset-x-0 bottom-0 z-[1] flex items-end gap-3 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-3 sm:gap-4 sm:p-4">
+              <div
+                className="absolute inset-x-0 bottom-0 z-[1] flex items-end gap-3 p-3 sm:gap-4 sm:p-4"
+                style={{ background: playerBottomGradient }}
+              >
                 {nowPlayingHere ? (
-                  <>
-                    <div className="size-12 shrink-0 overflow-hidden rounded-md bg-white/10 shadow-lg ring-1 ring-white/15 sm:size-14">
-                      <ImageReveal
-                        src={nowPlayingHere.coverUrl ?? undefined}
-                        alt=""
-                        className="size-full"
-                        placeholder={
-                          <span className="text-xs font-bold text-white/70">
-                            {nowPlayingHere.title.slice(0, 2).toUpperCase()}
-                          </span>
-                        }
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-base leading-tight font-bold text-white sm:text-lg">
-                        {nowPlayingHere.title}
-                      </div>
-                      <div className="mt-0.5 truncate text-sm text-white/75">
-                        {artist.displayName}
-                      </div>
-                    </div>
-                  </>
+                  <NowPlayingOverlay
+                    presetId={resolveNowPlayingOverlayPreset(
+                      nowPlayingOverlayStyle,
+                    )}
+                    title={nowPlayingHere.title}
+                    artist={artist.displayName}
+                    artworkUrl={nowPlayingHere.coverUrl}
+                    settings={parseNowPlayingOverlaySettings(
+                      nowPlayingOverlaySettingsJson,
+                    )}
+                  />
                 ) : (
-                  <div className="truncate text-base leading-tight font-bold text-white sm:text-lg">
+                  <div
+                    className="truncate text-base leading-tight font-bold sm:text-lg"
+                    style={{ color: playerScheme.text }}
+                  >
                     {artist.displayName}
                   </div>
                 )}
@@ -1448,6 +1566,34 @@ export function ArtistView({ username }: { username: string }) {
             bio={artist.bio}
             compact
             onLookVisibilityChange={setLookVisibility}
+            onSaved={() => {
+              const slug = channel?.slug;
+              if (!slug) {
+                return;
+              }
+              setLookExtras(loadChannelLookExtras(slug));
+              void fetchChannel(slug).then((res) => {
+                if (!res.data) {
+                  return;
+                }
+                setChannelVisual({
+                  visualPreset: res.data.visualPreset,
+                  visualSettingsJson: res.data.visualSettingsJson,
+                  colorScheme: res.data.colorScheme,
+                  colorSchemeJson: res.data.colorSchemeJson,
+                  headerStyle: res.data.headerStyle,
+                  hlsUrl: res.data.hlsUrl,
+                  videoBackgroundUrl: res.data.videoBackgroundUrl,
+                  slideshowImages: res.data.slideshowImages,
+                  nowPlayingOverlayStyle: res.data.nowPlayingOverlayStyle,
+                  nowPlayingOverlaySettingsJson:
+                    res.data.nowPlayingOverlaySettingsJson,
+                  playerOverlayMode: res.data.playerOverlayMode,
+                  playerOverlayText: res.data.playerOverlayText,
+                  playerOverlayAlign: res.data.playerOverlayAlign,
+                });
+              });
+            }}
           />
         </div>
       )}

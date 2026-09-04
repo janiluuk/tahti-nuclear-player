@@ -10,6 +10,9 @@ export type ChannelLookElementId =
   | 'feed'
   | 'news'
   | 'player'
+  | 'bio'
+  | 'shows'
+  | 'gallery'
   | 'backdrop';
 
 export type ArtistLookBlockId = Exclude<ChannelLookElementId, 'backdrop'>;
@@ -66,6 +69,27 @@ export const CHANNEL_LOOK_ELEMENTS: readonly ChannelLookElement[] = [
     canDisable: true,
   },
   {
+    id: 'bio',
+    label: 'Bio & widgets',
+    hint: 'Full bio, disco widgets, and studio links on the artist page.',
+    layoutType: null,
+    canDisable: true,
+  },
+  {
+    id: 'shows',
+    label: 'Live shows',
+    hint: 'Upcoming and past Tahti Radio broadcasts.',
+    layoutType: 'events',
+    canDisable: true,
+  },
+  {
+    id: 'gallery',
+    label: 'Gallery',
+    hint: 'Press-kit image gallery tab on the artist page.',
+    layoutType: null,
+    canDisable: true,
+  },
+  {
     id: 'backdrop',
     label: 'Backdrop',
     hint: 'Header style, slideshow, and page colors behind the channel.',
@@ -84,6 +108,9 @@ export const DEFAULT_ARTIST_LOOK_VISIBILITY: Record<
   feed: true,
   news: true,
   player: true,
+  bio: true,
+  shows: true,
+  gallery: true,
 };
 
 export function isChannelLookElementId(

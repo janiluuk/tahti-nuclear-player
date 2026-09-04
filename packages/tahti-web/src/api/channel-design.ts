@@ -76,6 +76,22 @@ export function resolvePublicVisualizerPreset(
     : preset;
 }
 
+/** Channel-background visualizer widgets (Backdrop tab) — distinct from the
+ * full header/player preset list. */
+export const BACKGROUND_VISUAL_PRESETS = [
+  'INTERACTIVE_POINTS',
+  'FAT_LINES',
+  'VIDEO_KINECT',
+  'BACKDROP_AREA',
+] as const;
+
+export type BackgroundVisualPreset = (typeof BACKGROUND_VISUAL_PRESETS)[number];
+
+export const isBackgroundVisualPreset = (
+  value: string,
+): value is BackgroundVisualPreset =>
+  (BACKGROUND_VISUAL_PRESETS as readonly string[]).includes(value);
+
 export const HEADER_STYLES = ['GRADIENT', 'SOLID', 'VIDEO_LOOP'] as const;
 export type HeaderStyle = (typeof HEADER_STYLES)[number];
 
@@ -265,6 +281,12 @@ export type ColorScheme = {
   muted?: string;
 };
 
+/** Accepts legacy `background`/`foreground` from older presets/mocks. */
+export type LooseColorSchemeInput = ColorScheme & {
+  background?: string;
+  foreground?: string;
+};
+
 export const DEFAULT_COLOR_SCHEME: Required<ColorScheme> = {
   accent: '#22D3EE',
   highlight: '#A78BFA',
@@ -274,9 +296,18 @@ export const DEFAULT_COLOR_SCHEME: Required<ColorScheme> = {
 };
 
 /** Fills every key with a default so the object always satisfies the
- * backend's all-required ColorSchemeSchema before it's sent in a PATCH. */
-export function fillColorScheme(scheme: ColorScheme): Required<ColorScheme> {
-  return { ...DEFAULT_COLOR_SCHEME, ...scheme };
+ * backend's all-required ColorSchemeSchema before it's sent in a PATCH.
+ * Accepts legacy `background`/`foreground` aliases from older presets. */
+export function fillColorScheme(
+  scheme: LooseColorSchemeInput,
+): Required<ColorScheme> {
+  return {
+    accent: scheme.accent ?? DEFAULT_COLOR_SCHEME.accent,
+    highlight: scheme.highlight ?? DEFAULT_COLOR_SCHEME.highlight,
+    bg: scheme.bg ?? scheme.background ?? DEFAULT_COLOR_SCHEME.bg,
+    text: scheme.text ?? scheme.foreground ?? DEFAULT_COLOR_SCHEME.text,
+    muted: scheme.muted ?? DEFAULT_COLOR_SCHEME.muted,
+  };
 }
 
 export type ChannelVisual = {

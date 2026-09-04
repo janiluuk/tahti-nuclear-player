@@ -54,6 +54,7 @@ export type ChannelBackdropCardProps = {
    * have one running. Default true. */
   mountVisualizer?: boolean;
   visualizerSettings?: { speed: number; intensity: number; scale: number };
+  visualSettingsJson?: string | null;
 
   badge?: ReactNode;
   navItems?: ChannelBackdropNavItem[];
@@ -108,6 +109,7 @@ export function ChannelBackdropCard({
   slideshowImages,
   mountVisualizer = true,
   visualizerSettings,
+  visualSettingsJson,
   badge,
   navItems = DEFAULT_NAV_ITEMS,
   quickAdd,
@@ -196,6 +198,7 @@ export function ChannelBackdropCard({
               preset={resolvePublicVisualizerPreset(visualPreset)}
               colorScheme={colorScheme}
               colorSchemeJson={colorSchemeJson}
+              visualSettingsJson={visualSettingsJson}
               settings={visualizerSettings}
               artworkUrl={artworkUrl}
             />

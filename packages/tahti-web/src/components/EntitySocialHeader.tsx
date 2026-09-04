@@ -1,10 +1,19 @@
 import { MapPinIcon, type LucideIcon } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import { StatChip } from '@tahti-player/ui';
 
-import { isHeaderImageUrl } from '../api/channel-design';
+import {
+  isHeaderImageUrl,
+  isValidHeaderBackdropUrl,
+  youtubeEmbedUrl,
+} from '../api/channel-design';
 import { cn } from '../lib/cn';
+import {
+  colorSchemeCssVars,
+  normalizeColorScheme,
+  type LooseColorScheme,
+} from '../lib/colorScheme';
 import { ChannelVisualizer } from './ChannelVisualizer';
 
 const VIDEO_BACKDROP_PATTERN = /\.(mp4|webm)(\?|$)/i;
@@ -50,9 +59,25 @@ export type EntitySocialHeaderProps = {
   stats?: EntitySocialStat[];
   /** Backdrop image / video poster under the primary scrim. */
   backdropUrl?: string | null;
-  /** Mount a visualizer when there is no image backdrop. */
+  /**
+   * Channel Designer header treatment — GRADIENT / SOLID / VIDEO_LOOP.
+   * When unset, falls back to image blur or visualizer.
+   */
+  headerStyle?: string | null;
+  /** VIDEO_LOOP clip or static image URL from Channel Designer. */
+  videoBackgroundUrl?: string | null;
+  /** Optional brand accent gradient CSS when headerStyle is GRADIENT. */
+  gradientOverride?: string | null;
+  /** Mount a visualizer when there is no image/video/gradient/solid backdrop. */
   visualizerPreset?: string;
+  visualSettingsJson?: string | null;
   artworkUrlForVisualizer?: string | null;
+  /**
+   * Channel / artist color scheme from Channel Designer. When set, paints the
+   * card with `bg` / `text` / accent instead of theme `bg-primary` (which is
+   * purple on Aurora and made designer colors look stuck).
+   */
+  colorScheme?: LooseColorScheme;
   onImageClick?: () => void;
   className?: string;
   children?: ReactNode;
@@ -60,8 +85,10 @@ export type EntitySocialHeaderProps = {
 };
 
 /**
- * Nuclear-style entity header: `bg-primary` card with optional backdrop /
- * visualizer under a scrim, identity row, icon StatChips, and top-right actions.
+ * Entity header for artist / channel / collection pages. Uses the channel
+ * color scheme when provided; otherwise falls back to theme `bg-primary`.
+ * Channel Designer header styles (gradient / solid / video) paint the card
+ * backdrop the same way the channel hero does.
  */
 export function EntitySocialHeader({
   title,
@@ -74,27 +101,118 @@ export function EntitySocialHeader({
   actions,
   stats = [],
   backdropUrl,
+  headerStyle,
+  videoBackgroundUrl,
+  gradientOverride,
   visualizerPreset,
+  visualSettingsJson,
   artworkUrlForVisualizer,
+  colorScheme,
   onImageClick,
   className,
   children,
   'data-testid': dataTestId = 'entity-social-header',
 }: EntitySocialHeaderProps) {
+  const scheme = colorScheme ? normalizeColorScheme(colorScheme) : null;
+  const mediaUrl = videoBackgroundUrl ?? backdropUrl;
+  const showVideo =
+    headerStyle === 'VIDEO_LOOP' && isValidHeaderBackdropUrl(mediaUrl);
+  const mediaIsImage =
+    isHeaderImageUrl(mediaUrl) || isImageBackdropUrl(mediaUrl);
+  const youtubeSrc = showVideo ? youtubeEmbedUrl(mediaUrl, true) : null;
+  const showSolid = headerStyle === 'SOLID' && Boolean(scheme);
+  const showGradient = headerStyle === 'GRADIENT';
   const imageBackdrop =
-    backdropUrl && isImageBackdropUrl(backdropUrl) ? backdropUrl : null;
-  const hasImageBackdrop = Boolean(imageBackdrop);
-  const showVisualizer = !hasImageBackdrop && Boolean(visualizerPreset);
+    !showVideo &&
+    !showSolid &&
+    !showGradient &&
+    mediaUrl &&
+    isImageBackdropUrl(mediaUrl)
+      ? mediaUrl
+      : null;
+  const hasDesignedBackdrop = showVideo || showSolid || showGradient;
+  const showVisualizer =
+    !hasDesignedBackdrop && !imageBackdrop && Boolean(visualizerPreset);
   const activeStats = stats.filter((stat) => stat.value > 0);
+  const schemeStyle: CSSProperties | undefined = scheme
+    ? ({
+        ...colorSchemeCssVars(scheme),
+        backgroundColor: showGradient || showVideo ? undefined : scheme.bg,
+        color: scheme.text,
+        borderColor: `${scheme.muted}66`,
+      } as CSSProperties)
+    : undefined;
+  const scrimStyle: CSSProperties | undefined = scheme
+    ? { backgroundColor: `${scheme.bg}bf` }
+    : undefined;
+  const visualizerScheme = scheme
+    ? {
+        accent: scheme.accent,
+        highlight: scheme.highlight,
+        bg: scheme.bg,
+        text: scheme.text,
+        muted: scheme.muted,
+      }
+    : undefined;
+  const gradientBackground =
+    gradientOverride ??
+    (scheme
+      ? `linear-gradient(135deg, ${scheme.bg}, ${scheme.accent} 55%, ${scheme.highlight})`
+      : undefined);
 
   return (
     <div
       className={cn(
-        'border-border bg-primary shadow-shadow relative isolate flex flex-col gap-5 overflow-hidden rounded-md border-(length:--border-width) p-6',
+        'border-border shadow-shadow relative isolate flex flex-col gap-5 overflow-hidden rounded-md border-(length:--border-width) p-6',
+        !scheme && !hasDesignedBackdrop && 'bg-primary',
         className,
       )}
+      style={schemeStyle}
       data-testid={dataTestId}
+      data-header-style={headerStyle ?? undefined}
     >
+      {showVideo && youtubeSrc ? (
+        <iframe
+          title=""
+          src={youtubeSrc}
+          className="pointer-events-none absolute inset-0 -z-20 size-full scale-110 object-cover opacity-50"
+          allow="autoplay; encrypted-media"
+          aria-hidden
+        />
+      ) : null}
+      {showVideo && !youtubeSrc && mediaIsImage ? (
+        <img
+          src={mediaUrl ?? undefined}
+          alt=""
+          className="pointer-events-none absolute inset-0 -z-20 size-full scale-110 object-cover opacity-50"
+          aria-hidden
+        />
+      ) : null}
+      {showVideo && !youtubeSrc && !mediaIsImage ? (
+        <video
+          className="pointer-events-none absolute inset-0 -z-20 size-full scale-110 object-cover opacity-50"
+          src={mediaUrl ?? undefined}
+          autoPlay
+          loop
+          muted
+          playsInline
+          aria-hidden
+        />
+      ) : null}
+      {showSolid && scheme ? (
+        <div
+          className="pointer-events-none absolute inset-0 -z-20"
+          style={{ backgroundColor: scheme.bg }}
+          aria-hidden
+        />
+      ) : null}
+      {showGradient && gradientBackground ? (
+        <div
+          className="pointer-events-none absolute inset-0 -z-20"
+          style={{ backgroundImage: gradientBackground }}
+          aria-hidden
+        />
+      ) : null}
       {imageBackdrop ? (
         <img
           src={imageBackdrop}
@@ -108,11 +226,19 @@ export function EntitySocialHeader({
           <ChannelVisualizer
             preset={visualizerPreset}
             artworkUrl={artworkUrlForVisualizer ?? imageUrl ?? undefined}
+            colorScheme={visualizerScheme}
+            visualSettingsJson={visualSettingsJson}
             className="size-full"
           />
         </div>
       ) : null}
-      <div className="bg-primary/75 pointer-events-none absolute inset-0 -z-10 backdrop-blur-xl" />
+      <div
+        className={cn(
+          'pointer-events-none absolute inset-0 -z-10 backdrop-blur-xl',
+          !scheme && 'bg-primary/75',
+        )}
+        style={scrimStyle}
+      />
 
       {actions ? (
         <div className="absolute top-4 right-4 z-10 flex flex-wrap items-center justify-end gap-2">
@@ -162,16 +288,40 @@ export function EntitySocialHeader({
             {title}
           </h1>
           {location ? (
-            <span className="bg-accent-orange border-border inline-flex w-fit items-center gap-1 rounded-md border px-2 py-0.5 text-sm font-bold">
+            <span
+              className={cn(
+                'inline-flex w-fit items-center gap-1 rounded-md border px-2 py-0.5 text-sm font-bold',
+                !scheme && 'bg-accent-orange border-border',
+              )}
+              style={
+                scheme
+                  ? {
+                      backgroundColor: `${scheme.accent}33`,
+                      borderColor: `${scheme.accent}66`,
+                      color: scheme.text,
+                    }
+                  : undefined
+              }
+            >
               <MapPinIcon size={14} aria-hidden />
               {location}
             </span>
           ) : null}
           {subtitle ? (
-            <div className="text-foreground-secondary text-sm">{subtitle}</div>
+            <div
+              className={cn('text-sm', !scheme && 'text-foreground-secondary')}
+              style={scheme ? { color: scheme.muted } : undefined}
+            >
+              {subtitle}
+            </div>
           ) : null}
           {description ? (
-            <div className="text-foreground mt-1 text-sm">{description}</div>
+            <div
+              className="mt-1 text-sm"
+              style={scheme ? { color: scheme.text } : undefined}
+            >
+              {description}
+            </div>
           ) : null}
         </div>
       </div>
@@ -181,9 +331,9 @@ export function EntitySocialHeader({
           {activeStats.map((stat) => (
             <StatChip
               key={stat.key}
-              value={formatCompactStat(stat.value)}
+              icon={<stat.icon size={14} aria-hidden />}
               label={stat.label}
-              icon={<stat.icon size={16} aria-hidden />}
+              value={formatCompactStat(stat.value)}
             />
           ))}
         </div>

@@ -37,6 +37,7 @@ import {
 } from '@tahti-player/ui';
 
 import {
+  BACKGROUND_VISUAL_PRESETS,
   BRAND_ACCENTS,
   channelLookExtrasFromPatch,
   DEFAULT_COLOR_SCHEME,
@@ -437,16 +438,15 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       const highlight = scheme.highlight ?? '#A78BFA';
       const bg = scheme.bg ?? '#0B1220';
       const fg = scheme.text ?? '#F8FAFC';
-      const brand = BRAND_ACCENTS.find(
-        (b) => b.id === visual?.brandAccentPreset,
-      );
+      // Always derive the preview from the live scheme pickers. Brand swatches
+      // only *seed* accent/highlight; they must not keep overriding custom
+      // colors after the user edits a picker (that looked "stuck on purple").
       const gradient =
         visual?.headerStyle === 'SOLID'
           ? bg
-          : (brand?.gradient ??
-            `linear-gradient(135deg, ${highlight}, ${accent}, ${bg})`);
+          : `linear-gradient(135deg, ${highlight}, ${accent}, ${bg})`;
       return { accent, highlight, bg, fg, gradient };
-    }, [scheme, visual?.brandAccentPreset, visual?.headerStyle]);
+    }, [scheme, visual?.headerStyle]);
 
     const applyLocal = (
       next: Partial<ChannelVisual>,
@@ -992,7 +992,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         </div>
         <ColorSchemeFields
           scheme={scheme}
-          onChange={(next) => applyLocal({}, next)}
+          onChange={(next) => applyLocal({ brandAccentPreset: null }, next)}
         />
       </section>
     );
@@ -1109,6 +1109,42 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             palette to style the background on its own.
           </p>
         )}
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Background visualizer</Eyebrow>
+          <p className="text-foreground-secondary text-xs">
+            Ambient WebGL behind the artist and channel pages — separate from
+            the header/player visualizer.
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {BACKGROUND_VISUAL_PRESETS.map((preset) => {
+              const meta = visualizerMetadata(preset);
+              const Icon = meta.Icon;
+              const selected =
+                (visual.backgroundVisualPreset ?? 'INTERACTIVE_POINTS') ===
+                preset;
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  title={meta.description}
+                  aria-label={`${preset.replace(/_/g, ' ')} background visualizer`}
+                  aria-pressed={selected}
+                  onClick={() => applyLocal({ backgroundVisualPreset: preset })}
+                  className={`border-border flex flex-col items-start gap-1 rounded-md border p-2 text-left text-xs transition-transform hover:scale-[1.02] ${
+                    selected
+                      ? 'border-primary bg-primary/10 ring-primary ring-1'
+                      : 'bg-background-secondary/40'
+                  }`}
+                >
+                  <Icon size={16} aria-hidden className="opacity-80" />
+                  <span className="font-semibold tracking-wide uppercase">
+                    {preset.replace(/_/g, ' ')}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </section>
     );
 
@@ -1489,6 +1525,18 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             <div className="mt-3">{colorSchemeControls}</div>
           </div>
         ) : null}
+        {slideshowHeaderSelected ||
+        visual.headerStyle === 'VIDEO_LOOP' ||
+        visual.headerStyle === 'SOLID' ? (
+          <div className="border-border border-t pt-4">
+            <Eyebrow>Page &amp; artist box colors</Eyebrow>
+            <p className="text-foreground-secondary mt-1 mb-3 text-xs">
+              These paint the artist header card, page sections, and accents —
+              independent of header style (solid / video / slideshow).
+            </p>
+            {colorSchemeControls}
+          </div>
+        ) : null}
         {slideshowHeaderSelected ? (
           <div className="border-border border-t pt-4">
             <Eyebrow>Slideshow</Eyebrow>
@@ -1501,14 +1549,17 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
               type="color"
               value={scheme.bg ?? DEFAULT_COLOR_SCHEME.bg}
               onChange={(event) =>
-                applyLocal({}, { ...scheme, bg: event.target.value })
+                applyLocal(
+                  { brandAccentPreset: null },
+                  { ...scheme, bg: event.target.value },
+                )
               }
               className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
               aria-label="Solid header color"
             />
             <span className="min-w-0">
               <span className="block text-sm font-semibold">
-                Solid header color
+                Solid header fill
               </span>
               <code className="text-foreground-secondary text-xs">
                 {scheme.bg ?? DEFAULT_COLOR_SCHEME.bg}
@@ -1888,6 +1939,21 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         id: 'news' as const,
         disabled: !lookBlockVisible('news'),
         content: layoutOnlyHint('news'),
+      },
+      {
+        id: 'bio' as const,
+        disabled: !lookBlockVisible('bio'),
+        content: layoutOnlyHint('bio'),
+      },
+      {
+        id: 'shows' as const,
+        disabled: !lookBlockVisible('shows'),
+        content: layoutOnlyHint('shows'),
+      },
+      {
+        id: 'gallery' as const,
+        disabled: !lookBlockVisible('gallery'),
+        content: layoutOnlyHint('gallery'),
       },
       {
         id: 'player' as const,
