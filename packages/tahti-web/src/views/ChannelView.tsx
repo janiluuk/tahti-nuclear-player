@@ -1515,7 +1515,7 @@ export function ChannelView({ slug }: { slug: string }) {
                   )
                   .map((item) => item.playlistSlug as string)}
                 initialSlug={selectedPlaylistItem.playlistSlug}
-                confirmLabel="Use this playlist"
+                applyOnChange
                 onPick={(playlistSlug) => {
                   updateLayout((prev) =>
                     setPlaylistSlug(
