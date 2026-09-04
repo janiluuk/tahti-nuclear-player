@@ -65,11 +65,8 @@ export function StudioModerationView({
         items={[
           {
             id: 'moderators',
-            label: (
-              <span className="inline-flex items-center gap-1.5">
-                <ShieldCheckIcon size={14} aria-hidden /> Moderators
-              </span>
-            ),
+            label: 'Moderators',
+            icon: <ShieldCheckIcon size={14} />,
             content: (
               <StudioPanel
                 title="Delegated moderators"
@@ -141,11 +138,8 @@ export function StudioModerationView({
           },
           {
             id: 'bans',
-            label: (
-              <span className="inline-flex items-center gap-1.5">
-                <BanIcon size={14} aria-hidden /> Chat bans
-              </span>
-            ),
+            label: 'Chat bans',
+            icon: <BanIcon size={14} />,
             content: (
               <StudioPanel
                 title="Chat bans"

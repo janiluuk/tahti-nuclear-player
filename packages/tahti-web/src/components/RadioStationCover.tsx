@@ -2,6 +2,8 @@ import { LoaderCircleIcon, UploadCloudIcon } from 'lucide-react';
 import { useRef, useState, type FC, type RefObject } from 'react';
 import { toast } from 'sonner';
 
+import { ImageReveal } from '@tahti-player/ui';
+
 import { cn } from '../lib/cn';
 import { IMAGE_UPLOAD_ACCEPT_ATTR } from '../lib/imageUploadContentType';
 import {
@@ -158,20 +160,14 @@ export const RadioStationCover: FC<RadioStationCoverProps> = ({
       data-testid="radio-station-cover"
       className={cn('group relative size-full', className)}
     >
-      {src ? (
-        <img
-          key={src}
-          src={src}
+      <div data-testid="radio-station-cover-image" className="size-full">
+        <ImageReveal
+          src={src || undefined}
           alt=""
-          className="size-full object-cover"
-          data-testid="radio-station-cover-image"
+          className="size-full"
+          placeholder={<div className="bg-background-secondary size-full" />}
         />
-      ) : (
-        <div
-          className="bg-background-secondary size-full"
-          data-testid="radio-station-cover-image"
-        />
-      )}
+      </div>
       {canEdit ? (
         <RadioStationCoverEditButton
           label={label}

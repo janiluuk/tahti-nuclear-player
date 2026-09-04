@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import { Tabs } from '@tahti-player/ui';
+import { TabLabel, Tabs } from '@tahti-player/ui';
 
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
@@ -305,10 +305,7 @@ function useAdminNavParts(
         <Tabs.List aria-label="Admin sections" className="w-fit">
           {ADMIN_SECTIONS.map((item) => (
             <Tabs.Tab key={item.id}>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="shrink-0">{item.items[0]?.icon}</span>
-                {item.label}
-              </span>
+              <TabLabel icon={item.items[0]?.icon}>{item.label}</TabLabel>
             </Tabs.Tab>
           ))}
         </Tabs.List>
@@ -322,11 +319,12 @@ function useAdminNavParts(
           aria-label={`Admin ${section.label}`}
           items={section.items.map((link) => ({
             id: link.to,
-            label:
-              link.to === '/admin/moderation' && moderationPendingCount != null
-                ? `${link.label} (${moderationPendingCount})`
-                : link.label,
+            label: link.label,
             icon: link.icon,
+            count:
+              link.to === '/admin/moderation'
+                ? moderationPendingCount
+                : undefined,
             to: link.to,
             active: isActive(current, link.to),
           }))}

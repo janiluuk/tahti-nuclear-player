@@ -1,5 +1,10 @@
 # Screen atlas — app.tahti.live → Nuclear UI
 
+**2026-09-04:** Live map shots live under `public/map/nuclear/` (not only
+`docs/redesign-shots/`). Recapture with `scripts/capture-map-screens.mjs`.
+This inventory table below is historical (2026-08); the `/more` atlas and
+`src/content/mapScreens.ts` are the current source of truth.
+
 Inventory of production (`apps/web` / app.tahti.live) surfaces vs Nuclear (`@tahti-player/tahti-web` / beta.tahti.live), with screenshot status.
 
 **Legend**

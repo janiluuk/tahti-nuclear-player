@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { BadgeCheckIcon, HeartHandshakeIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Box, Button, Tabs, ViewShell } from '@tahti-player/ui';
@@ -113,6 +114,7 @@ export function AccountView() {
           {
             id: 'membership',
             label: 'Membership',
+            icon: <BadgeCheckIcon size={14} />,
             content: !membership ? (
               <p className="text-foreground-secondary text-sm">
                 Membership details are unavailable right now.
@@ -130,6 +132,8 @@ export function AccountView() {
           {
             id: 'subscriptions',
             label: 'Fan subscriptions',
+            icon: <HeartHandshakeIcon size={14} />,
+            count: subs.length,
             content:
               subs.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">

@@ -1,7 +1,21 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type RightRailTab = 'chat' | 'notifications' | 'queue';
+export type RightRailTab = 'chat' | 'notifications' | 'queue' | 'library';
+
+const RIGHT_RAIL_TABS: RightRailTab[] = [
+  'chat',
+  'notifications',
+  'queue',
+  'library',
+];
+
+export function isRightRailTab(value: unknown): value is RightRailTab {
+  return (
+    typeof value === 'string' &&
+    (RIGHT_RAIL_TABS as readonly string[]).includes(value)
+  );
+}
 
 type LayoutState = {
   leftCollapsed: boolean;
@@ -37,6 +51,8 @@ type LayoutState = {
   setRightRailTab: (tab: RightRailTab) => void;
   /** Queue button: open rail on Queue, or restore previous tab / collapse. */
   toggleQueueRail: () => void;
+  /** Library button: open rail on Library, or restore previous tab / collapse. */
+  toggleLibraryRail: () => void;
   setFullScreenPlayerOpen: (open: boolean) => void;
   /** Bind channel chat context; optionally open right rail once per visit. */
   setChatContext: (opts: {
@@ -105,6 +121,36 @@ export const useLayoutStore = create<LayoutState>()(
           rightRailTabBeforeQueue: null,
         });
       },
+      toggleLibraryRail: () => {
+        const state = get();
+        if (state.rightCollapsed) {
+          set({
+            rightCollapsed: false,
+            rightRailTabBeforeQueue: state.rightRailTab,
+            rightRailTab: 'library',
+          });
+          return;
+        }
+        if (state.rightRailTab !== 'library') {
+          set({
+            rightRailTabBeforeQueue: state.rightRailTab,
+            rightRailTab: 'library',
+          });
+          return;
+        }
+        const previous = state.rightRailTabBeforeQueue;
+        if (previous && previous !== 'library') {
+          set({
+            rightRailTab: previous,
+            rightRailTabBeforeQueue: null,
+          });
+          return;
+        }
+        set({
+          rightCollapsed: true,
+          rightRailTabBeforeQueue: null,
+        });
+      },
       setFullScreenPlayerOpen: (fullScreenPlayerOpen) =>
         set({ fullScreenPlayerOpen }),
 
@@ -147,15 +193,13 @@ export const useLayoutStore = create<LayoutState>()(
     }),
     {
       name: 'tahti-web-layout',
-      version: 4,
+      version: 5,
       migrate: (persisted) => {
         const p = { ...((persisted ?? {}) as Record<string, unknown>) };
-        // Drop legacy rightRailMode ('queue' | 'chat').
         delete p.rightRailMode;
-        const rightRailTab: RightRailTab =
-          p.rightRailTab === 'notifications' || p.rightRailTab === 'queue'
-            ? p.rightRailTab
-            : 'chat';
+        const rightRailTab: RightRailTab = isRightRailTab(p.rightRailTab)
+          ? p.rightRailTab
+          : 'chat';
         return {
           leftCollapsed:
             typeof p.leftCollapsed === 'boolean' ? p.leftCollapsed : false,

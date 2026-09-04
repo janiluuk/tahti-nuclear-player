@@ -1,7 +1,7 @@
 # Tahti Player navigation sitemap
 
-Updated 2026-09-03 from `src/router.tsx`, `AppShell.tsx`, `StudioNav.tsx`,
-`AdminNav.tsx`, and `MobileChrome.tsx`. This is the navigation audit source of
+Updated 2026-09-04 from `src/router.tsx`, `AppShell.tsx`, `StudioNav.tsx`,
+`AdminNav.tsx`, and `MobileChrome.tsx`. Atlas PNGs recaptured the same day. This is the navigation audit source of
 truth for the Nuclear client. Persistent chrome is listed separately from
 routes that exist but are only reached contextually, so an orphan is not
 mistaken for a missing feature.
@@ -40,6 +40,9 @@ widgets, Status, Vendors, i18n, Tahti Selects, Orphan pages.
 Mobile bottom nav is Listen / Radio / Discover / Library / Studio only.
 Help and Settings are drawer-only on phones. Favorites is not on the
 bottom bar.
+
+Signed-in desktop right rail tabs: Chat, Notifications, Queue, Library
+(local session files). Library is hidden on the mobile rail drawer.
 
 ## Routes those chrome entries cover
 

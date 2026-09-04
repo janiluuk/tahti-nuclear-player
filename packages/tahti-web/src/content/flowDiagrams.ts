@@ -109,38 +109,40 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Home["/ Listen"] --> Public["Public listening"]
   Public --> Radio["/radio"]
   Public --> Discover["/discover"]
+  Public --> Feed["/listen/feed"]
   Public --> Favorites["/listen/favorites"]
   Public --> History["/listen/history"]
   Public --> Channel["/channel/$slug"]
   Public --> Artist["/u/$username"]
   Artist --> Collection["/u/$username/c/$slug"]
   Artist --> Subscribe["/subscribe/$username"]
-  Public --> Help["/help"]
-  Public --> About["/about · /terms · /privacy"]
+  Public --> Help["/help · /help/keyboard-shortcuts"]
+  Public --> Legal["/about · /terms · /privacy · Help hub"]
   Public --> StudioGate["/studio · sign-in prompt (StudioGate)"]
   Login["/login · /join"] --> Library["/library"]
   Library --> Collections["/library/collections"]
   Login --> Messages["/messages"]
-  Login --> Governance["/governance"]
+  Settings["Settings modal"] --> Account["Account"]
+  Account --> Governance["/governance · member"]
   Governance --> GovernanceHistory["/governance/history · public closed motions"]
-  Governance --> GrantReports["/transparency/grants/$year · yearly reports"]
   StudioGate --> Studio["Signed in + channel → /studio"]
-  Studio --> Perform["Go Live · Broadcast · Shows · Channel · Radio"]
-  Studio --> Music["Sounds · Collections · Releases · Upload"]
-  Studio --> Grow["Stats · Governance · Audience · Stripe · Updates"]
-  Login --> Settings["/settings"]
-  Settings --> SettingsAddons["Add-ons · Import"]
+  Studio --> StudioMenu["Overview · Branding · Stats · Governance · Posts · Audience · Library · Sounds · Collections · Releases · Upload · Editor"]
+  Studio --> Perform["Go Live · Broadcast · Events · Shows · Channel · Radio"]
+  Settings --> SettingsAddons["Themes · Add-ons · Audience · no About footer"]
   Board["Board role"] --> Admin["/admin"]
-  Admin --> AdminSections["Overview · Content · Moderation · Logs · Status · Tahti map"]
+  Admin --> AdminOverview["Overview · Financial · Storage · Artwork · Logs · Status · Vendors"]
+  Admin --> AdminCommunity["Moderation · Users · Governance · Reports · Grants · AGM"]
+  Admin --> AdminContent["Content · Radio · Selects · News · Top lists · Announcements"]
+  Admin --> AdminManage["Streams · Venues · Disco widgets · Languages · Orphan pages · Map"]
   classDef public fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;
   classDef session fill:#ecfdf5,stroke:#10b981,color:#065f46;
   classDef artist fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;
   classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
-  class Home,Public,Radio,Discover,Favorites,Channel,Artist,Collection,Subscribe,Help,About,StudioGate public;
-  class Login,Library,History,Collections,Messages,Governance session;
-  class GovernanceHistory,GrantReports public;
-  class Studio,Perform,Music,Grow,Settings,SettingsAddons artist;
-  class Board,Admin,AdminSections board;
+  class Home,Public,Radio,Discover,Feed,Favorites,Channel,Artist,Collection,Subscribe,Help,Legal,StudioGate public;
+  class Login,Library,History,Collections,Messages,Governance,Settings,Account session;
+  class GovernanceHistory public;
+  class Studio,StudioMenu,Perform,SettingsAddons artist;
+  class Board,Admin,AdminOverview,AdminCommunity,AdminContent,AdminManage board;
 `,
   },
   {
@@ -173,20 +175,21 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     blurb:
       'The persistent app shell stays fixed while each section changes only its submenu and page content.',
     mermaid: `flowchart TB
-  Shell["Persistent app shell"] --> Listener["Listen · Radio · Discover"]
+  Shell["Persistent app shell"] --> Listener["Listen · Radio · Discover · Favorites"]
+  Shell --> HelpSettings["Help · Settings"]
   Shell --> Studio["Studio"]
   Shell --> Admin["Admin · board role"]
 
   subgraph studio["Studio sections"]
     Studio --> StudioOverview["Studio: Overview · Branding · Stats · Governance · Posts · Audience · Library · Sounds · Collections · Releases · Upload · Editor"]
-    Studio --> Perform["Perform: Go Live · Broadcast · Events · Shows · Channel · Radio · Multicast"]
+    Studio --> Perform["Perform: Go Live · Broadcast · Events · Shows · Channel · Radio"]
   end
 
   subgraph admin["Admin sections"]
-    Admin --> AdminOverview["Overview: Dashboard · Financial · Storage · Vendors · Logs · Status · Tahti map"]
-    Admin --> AdminCommunity["Community: Moderation · Users · Governance · Grants · AGM"]
+    Admin --> AdminOverview["Overview: Dashboard · Financial · Storage · Artwork presets · Logs · Status · Vendors"]
+    Admin --> AdminCommunity["Community: Moderation · Users · Governance · Annual reports · Grants · AGM"]
     Admin --> AdminContent["Content: Content · Radio · Tahti Selects · News · Top lists · Announcements"]
-    Admin --> AdminManage["Manage: Streams · Venues · Add-ons (disco widgets) · Languages"]
+    Admin --> AdminManage["Manage: Streams · Venues · Disco widgets · Languages · Orphan pages · Map"]
   end
 
   Studio -.-> Content["Only the page content changes"]
@@ -633,43 +636,49 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
 
   subgraph listen["Listen"]
     L["/ Listen directory"]
+    Feed["/listen/feed"]
     R["/radio"]
+    D["/discover"]
     C["/channel/:slug"]
     U["/u/:username"]
     LF["/listen/favorites"]
     LH["/listen/history"]
   end
 
-  subgraph library["My Library"]
-    LIB["/library · Messages"]
+  subgraph library["Library · Studio tab"]
+    LIB["/library · sounds · collections"]
   end
 
   subgraph studio["Studio routes"]
     ST["/studio"]
     GL["/studio/go-live"]
     CAT["Sounds · Releases · Collections · Upload · …"]
+    Gov["/studio/governance"]
   end
 
-  subgraph moreHub["More hub"]
-    MORE["/more · Tahti map"]
-    SRC["Add-ons · Import"]
-    SET["/settings · Themes"]
+  subgraph settings["Settings modal"]
+    SET["Account · Artist · Channel · Broadcast · Audience · Themes · Add-ons · What's new"]
+    Foot["Footer: GitHub · Discord · API docs · no About"]
   end
 
   SB --> L
   SB --> R
-  SB --> LIB
+  SB --> D
+  SB --> LF
   SB --> ST
-  SB --> MORE
-  L --> C
+  SB --> Help["/help"]
+  SB --> SET
+  L --> Feed
   L --> LF
   L --> LH
+  L --> C
   C --> RR
   C --> PB
   ST --> GL
   ST --> CAT
-  MORE --> SRC
-  MORE --> SET
+  ST --> LIB
+  ST --> Gov
+  SET --> Foot
   U -->|owner| Design[Profile Design tab]
 `,
   },
@@ -681,26 +690,29 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     blurb:
       'Current beta routes, playback surfaces, and artist/admin workspaces. Use the diagram zoom controls for dense route groups.',
     mermaid: `flowchart TB
-  Entry["app.tahti.live"]:::pub --> Listen["Listen · / · /listen"]:::pub
+  Entry["beta.tahti.live"]:::pub --> Listen["Listen · / · /listen"]:::pub
   Listen --> Radio["Radio · /radio"]:::pub
+  Listen --> Discover["Discover · /discover"]:::pub
+  Listen --> Fav["Favorites · /listen/favorites"]:::pub
   Listen --> Channel["Channel · /c/:slug → /channel/:slug"]:::pub
   Listen --> Profile["Artist · /u/:username"]:::pub
-  Listen --> Feed["Feed · /feed"]:::auth
+  Listen --> Feed["Feed · /listen/feed"]:::auth
+  Listen --> Hist["History · /listen/history"]:::auth
   Channel --> Playback["Player · visualizer · queue"]:::pub
   Channel --> Chat["Chat · rail or /chat/:slug"]:::pub
   Profile --> Sub["Fan subscription · /u/:user/subscribe"]:::auth
   Profile --> Coll["Collections · /u/:user/c/:slug"]:::pub
   Profile --> Smart["Smart links · /r/:slug"]:::pub
-  Listen --> Library["Library · sounds · releases · collections · history"]:::auth
-  Listen --> Settings["Settings · account · artist · security"]:::auth
+  Listen --> Library["Library · sounds · collections · releases"]:::auth
+  Listen --> Settings["Settings modal · no About footer"]:::auth
+  Settings --> AccountGov["Account → /governance"]:::auth
   Settings --> Sources["Add-ons · Import"]:::auth
   Listen --> Studio["Studio · overview · library · perform"]:::studio
   Studio --> GoLive["Perform · Go live · schedule · shows · events · channel · radio"]:::studio
   Studio --> Music["Library · sounds · releases · collections · upload · editor"]:::studio
   Studio --> Publish["Studio · governance · posts · audience · stripe · stats"]:::studio
   Listen --> Public["Venues · transparency · help · legal · embeds"]:::pub
-  Listen --> Admin["Board admin · /admin/*"]:::board
-  Admin -.-> Legacy["Next admin remains production canonical"]:::board
+  Listen --> Admin["Board admin · in-app /admin/*"]:::board
   Admin --> Map["Tahti map · /admin/map (also /more)"]:::review
   Map --> Shots["Annotated Tahti ↔ Nuclear screenshots"]:::review
   Map --> Flows["Mermaid journeys and route map"]:::review
@@ -724,9 +736,13 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   L --> R["/radio"]
   L --> D["/discover"]
   L --> Fav["/listen/favorites"]
+  L --> Feed["/listen/feed"]
+  L --> Hist["/listen/history"]
   L --> St["/studio · StudioGate sign-in prompt"]
   L --> C["/channel/:slug"]
   L --> U["/u/:username"]
+  L --> Help["/help"]
+  Help --> Keys["/help/keyboard-shortcuts"]
   R --> C
   U --> C
   U --> S["/subscribe/:username"]
@@ -736,10 +752,10 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   C --> Rail[Right rail Chat]
   C --> PB[Player bar · seek on VOD]
 
-  L --> More["/more · help · legal · map"]
   L --> Auth["/join · /login"]
-  L --> Venues["/venues"]
+  L --> Venues["/venues · no chrome item"]
   L --> Trans["/transparency"]
+  L --> Legal["/about · /terms · /privacy via Help"]
 `,
   },
   {
@@ -751,14 +767,16 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
       'Library tabs replace dashboard listener chrome; Favorites/History are Listen tabs, not Library; themes under Settings.',
     mermaid: `flowchart TD
   Auth["/join · /login · TOTP"] --> L["/ Listen"]
-  L --> Lib["/library · Messages"]
+  L --> Lib["/library"]
+  L --> Feed["/listen/feed"]
   L --> Fav["/listen/favorites"]
   L --> Hist["/listen/history"]
   L --> Sub["/subscribe/:artist"]
-  L --> Gov["/governance · if member"]
-  L --> Acc["/settings · Account"]
-  Lib --> DM[Messages]
+  L --> Acc["Settings → Account"]
+  Acc --> Gov["/governance · member"]
+  L --> DM["/messages"]
   Acc --> Themes[Settings → Themes]
+  Acc --> Addons[Settings → Add-ons]
   Sub --> Stripe[Stripe checkout URL]
 `,
   },
@@ -768,30 +786,32 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     source: '/studio/*',
     title: 'Artist — navigation',
     blurb:
-      'Studio is route-based (not only in-page tabs). Sources is a sibling hub.',
+      'StudioNav: Studio (catalog + manage) and Perform (go live / broadcast). Import lives in Settings → Add-ons.',
     mermaid: `flowchart TD
   Login["/login"] --> Studio["/studio"]
   Studio --> Setup["/studio/channel?tab=setup if needed"]
 
-  Studio --> GL["/studio/go-live"]
-  Studio --> Arch["/studio/sounds"]
-  Studio --> Rel["/studio/releases"]
-  Studio --> Coll["/studio/collections"]
-  Studio --> Up["/studio/upload"]
-  Studio --> Ed["/studio/editor"]
-  Studio --> Stash["/studio/stash"]
-  Studio --> Sch["/studio/schedule"]
+  Studio --> Brand["/studio/branding"]
   Studio --> St["/studio/stats"]
-  Studio --> Ch["/studio/channel"]
-  Studio --> Shows["/studio/shows"]
-  Studio --> Pl["/studio/playlists"]
+  Studio --> Gov["/studio/governance"]
   Studio --> Upd["/studio/updates"]
   Studio --> Rev["/studio/revenue"]
-  Studio --> Dist["/studio/distribution"]
-  Studio --> Src["/sources"]
+  Studio --> Lib["/library"]
+  Studio --> Arch["/library/sounds"]
+  Studio --> Rel["/studio/releases"]
+  Studio --> Coll["/library/collections"]
+  Studio --> Up["/library/upload"]
+  Studio --> Ed["/studio/editor"]
 
-  Profile["/u/:me"] -->|owner| Design[Design tab]
-  Studio --> Settings["/settings"]
+  Studio --> GL["/studio/go-live"]
+  Studio --> Sch["/studio/schedule"]
+  Studio --> Ev["/studio/events"]
+  Studio --> Shows["/studio/shows"]
+  Studio --> Ch["/studio/channel"]
+  Studio --> Radio["/studio/channel?tab=radio"]
+
+  Studio --> Settings["Settings modal"]
+  Settings --> Addons["Add-ons · Import"]
 
   GL --> Live["LIVE → player bar + /channel/:slug"]
   Arch --> Ed
@@ -815,14 +835,15 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     id: 'nuclear-board-member',
     pack: 'nuclear',
     source: 'FEATURES.md',
-    title: 'Board member — link-out',
+    title: 'Board member — in-app Admin',
     blurb:
-      'Admin console is Tahti-only; Nuclear links out to production /admin.',
+      'Board users stay in Nuclear AdminNav. Governance and AGM are Community items, distinct from member /governance and Studio Governance.',
     mermaid: `flowchart TD
-  POC[Nuclear tahti-web] -->|link-out| Admin["apps/web /admin/*"]
-  Admin --> Users[Users · Streams · Support]
-  Admin --> Money[Financial · Grants]
-  Admin --> Org[Governance · AGM]
+  Shell[Nuclear sidebar] --> Admin["/admin"]
+  Admin --> Overview[Dashboard · Financial · Storage · Artwork · Logs · Status · Vendors]
+  Admin --> Community[Moderation · Users · Governance · Reports · Grants · AGM]
+  Admin --> Content[Content · Radio · Selects · News · Top lists · Announcements]
+  Admin --> Manage[Streams · Venues · Disco widgets · Languages · Orphan pages · Map]
 `,
   },
   {
@@ -996,10 +1017,12 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     blurb: 'Library tabs, subscribe checkout, DMs, governance member vs gated.',
     mermaid: `flowchart TD
   Auth --> Lib["/library"]
+  Auth --> Feed["/listen/feed"]
   Auth --> LF["/listen/favorites · /listen/history"]
   Auth --> Sub["/subscribe/:artist → Stripe"]
   Auth --> DM["/messages"]
-  Auth --> Mem{Member?}
+  Auth --> Acc["Settings → Account"]
+  Acc --> Mem{Member?}
   Mem -->|Yes| Gov["/governance vote"]
   Mem -->|No| Gate[Governance gated]
 `,

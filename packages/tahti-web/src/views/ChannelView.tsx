@@ -3,11 +3,14 @@ import {
   DownloadIcon,
   GripVerticalIcon,
   HeartIcon,
+  LayoutDashboardIcon,
   MessageCircle,
   Mic,
   PauseIcon,
   PencilIcon,
   PlayIcon,
+  Settings2Icon,
+  UsersIcon,
   WifiOffIcon,
   XIcon,
 } from 'lucide-react';
@@ -19,6 +22,7 @@ import {
   Loader,
   SaveButton,
   StatChip,
+  TabLabel,
   Tabs,
   Tooltip,
 } from '@tahti-player/ui';
@@ -56,6 +60,10 @@ import { type TextOverlayDraft } from '../components/ChannelTextOverlayEditor';
 import { ChannelTextOverlayView } from '../components/ChannelTextOverlayView';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
+import {
+  EntitySocialHeader,
+  type EntitySocialStat,
+} from '../components/EntitySocialHeader';
 import { ListenerWidgetEmbed } from '../components/ListenerWidgetEmbed';
 import { NowPlayingOverlay } from '../components/NowPlayingOverlay';
 import { PageHeader } from '../components/PageHeader';
@@ -92,6 +100,7 @@ import {
 } from '../lib/channelPageLayout';
 import { downloadM3uPlaylist } from '../lib/m3uPlaylist';
 import { isPinned } from '../lib/pinnedTracks';
+import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { syncDocumentMetadata } from '../lib/seo';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
@@ -1025,6 +1034,17 @@ export function ChannelView({ slug }: { slug: string }) {
   // instance below; this page-wide ambient one is only the fallback for
   // layouts that don't include a hero block at all.
   const heroVisible = visibleItems.some((item) => item.type === 'hero');
+  const channelHeaderStats: EntitySocialStat[] =
+    channel.followerCount != null && channel.followerCount > 0
+      ? [
+          {
+            key: 'followers',
+            label: 'Followers',
+            value: channel.followerCount,
+            icon: UsersIcon,
+          },
+        ]
+      : [];
 
   const pageBody = (
     <div className="relative isolate min-h-full overflow-hidden">
@@ -1154,8 +1174,13 @@ export function ChannelView({ slug }: { slug: string }) {
             }}
             className={editing ? 'cursor-pointer rounded-lg' : undefined}
           >
-            <PageHeader
+            <EntitySocialHeader
               title={channel.user.displayName}
+              imageUrl={
+                channel.user.avatarUrl ??
+                placeholderArtworkUrl(channel.user.username)
+              }
+              roundImage
               subtitle={
                 <Link
                   to="/u/$username"
@@ -1165,12 +1190,30 @@ export function ChannelView({ slug }: { slug: string }) {
                   @{channel.user.username}
                 </Link>
               }
+              description={
+                channel.user.bio ? (
+                  <p className="line-clamp-2 whitespace-pre-wrap">
+                    {channel.user.bio}
+                  </p>
+                ) : null
+              }
+              backdropUrl={
+                channel.videoBackgroundUrl &&
+                isHeaderImageUrl(channel.videoBackgroundUrl)
+                  ? channel.videoBackgroundUrl
+                  : null
+              }
+              stats={channelHeaderStats}
+              data-testid="channel-social-header"
             />
           </div>
         )}
 
         {visibleItems.map((item) => {
           if (!editing && !item.visible) {
+            return null;
+          }
+          if (!editing && !heroVisible && item.type === 'stats') {
             return null;
           }
           const metaItem = CHANNEL_PAGE_ITEM_META[item.type];
@@ -1334,8 +1377,14 @@ export function ChannelView({ slug }: { slug: string }) {
           }
         >
           <Tabs.List>
-            <Tabs.Tab>Overview</Tabs.Tab>
-            <Tabs.Tab>Manage</Tabs.Tab>
+            <Tabs.Tab>
+              <TabLabel icon={<LayoutDashboardIcon size={14} />}>
+                Overview
+              </TabLabel>
+            </Tabs.Tab>
+            <Tabs.Tab>
+              <TabLabel icon={<Settings2Icon size={14} />}>Manage</TabLabel>
+            </Tabs.Tab>
           </Tabs.List>
         </Tabs.Root>
         {channelTab === 'overview' ? (

@@ -16,9 +16,9 @@ export const Default: Story = {
     <TahtiJam>
       <TahtiJam.Error
         labels={{
-          title: 'Could not connect to Nuclear',
+          title: 'Could not connect to Tahti Player',
           subtitle:
-            'Make sure Nuclear is running and Nuclear Jam is enabled in Settings',
+            'Make sure Tahti Player is running and Tahti Jam is enabled in Settings',
         }}
       />
     </TahtiJam>

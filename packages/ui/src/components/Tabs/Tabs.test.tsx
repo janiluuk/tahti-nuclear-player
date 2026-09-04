@@ -54,6 +54,32 @@ describe('Tabs', () => {
     expect(asFragment()).toMatchSnapshot();
   });
 
+  it('(Snapshot) renders icons and count pills', () => {
+    const { asFragment } = render(
+      <Tabs
+        items={[
+          {
+            id: 'artists',
+            label: 'Artists',
+            icon: <span data-testid="artists-icon">★</span>,
+            count: 5,
+            content: <div>Artists panel</div>,
+          },
+          {
+            id: 'tracks',
+            label: 'Tracks',
+            count: 12,
+            content: <div>Tracks panel</div>,
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByTestId('artists-icon')).toBeInTheDocument();
+    expect(screen.getByText('5')).toBeInTheDocument();
+    expect(screen.getByText('12')).toBeInTheDocument();
+    expect(asFragment()).toMatchSnapshot();
+  });
+
   it('(Snapshot) switches tabs', async () => {
     const { asFragment } = render(<Tabs items={ITEMS} />);
     await userEvent.click(await screen.findByText('About'));

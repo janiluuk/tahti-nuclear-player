@@ -2,7 +2,14 @@ import { Link } from '@tanstack/react-router';
 import { AudioLinesIcon, FolderOpenIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input, Select, ViewShell } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  Input,
+  Select,
+  Tabs,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import {
   createEditorProject,
@@ -266,26 +273,28 @@ export function StudioEditorListView() {
               editor.
             </Dialog.Description>
             <div className="mt-4 grid min-h-[22rem] gap-4 md:grid-cols-[12rem_1fr]">
-              <nav
-                className="border-border flex gap-1 overflow-x-auto border-b pb-2 md:flex-col md:overflow-visible md:border-r md:border-b-0 md:pr-3 md:pb-0"
-                aria-label="Library content types"
+              <Tabs.Root
+                vertical
+                selectedIndex={Math.max(0, libraryTypes.indexOf(libraryType))}
+                onChange={(index) => {
+                  const next = libraryTypes[index];
+                  if (next) {
+                    setLibraryType(next);
+                  }
+                }}
+                className="min-w-0"
+                listClassName="border-border flex-row gap-1 overflow-x-auto border-b pb-2 md:flex-col md:overflow-visible md:border-r md:border-b-0 md:pr-3 md:pb-0"
+                tabClassName="shrink-0 justify-start px-3 py-2 text-left data-[selected]:bg-primary data-[selected]:text-primary-foreground"
               >
-                {libraryTypes.map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    className={`shrink-0 rounded-md px-3 py-2 text-left text-sm ${
-                      libraryType === type
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
-                    }`}
-                    aria-pressed={libraryType === type}
-                    onClick={() => setLibraryType(type)}
-                  >
-                    {formatLibraryType(type)}
-                  </button>
-                ))}
-              </nav>
+                <Tabs.List
+                  aria-label="Library content types"
+                  className="w-auto"
+                >
+                  {libraryTypes.map((type) => (
+                    <Tabs.Tab key={type}>{formatLibraryType(type)}</Tabs.Tab>
+                  ))}
+                </Tabs.List>
+              </Tabs.Root>
               <div className="flex min-w-0 flex-col gap-3">
                 <Input
                   value={libraryQuery}

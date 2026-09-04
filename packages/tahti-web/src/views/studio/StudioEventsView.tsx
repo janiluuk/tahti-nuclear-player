@@ -124,11 +124,8 @@ export function StudioEventsView() {
             items={[
               {
                 id: 'upcoming',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <CalendarClockIcon size={14} aria-hidden /> Upcoming
-                  </span>
-                ),
+                label: 'Upcoming',
+                icon: <CalendarClockIcon size={14} />,
                 content: (
                   <StudioPanel
                     title="Upcoming events"
@@ -144,11 +141,8 @@ export function StudioEventsView() {
               },
               {
                 id: 'past',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <HistoryIcon size={14} aria-hidden /> Past
-                  </span>
-                ),
+                label: 'Past',
+                icon: <HistoryIcon size={14} />,
                 content: (
                   <StudioPanel
                     title="Past events"

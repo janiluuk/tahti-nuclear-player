@@ -17,6 +17,14 @@ type Story = StoryObj<typeof meta>;
  * button only appears in dev mode (`import.meta.env.DEV`) since it posts to
  * a Vite dev-server-only endpoint — it won't show in a static Storybook
  * build.
+ *
+ * Atlas PNGs live under `packages/tahti-web/public/map/nuclear/` and are
+ * refreshed with `scripts/capture-map-screens.mjs`. Last full recapture:
+ * 2026-09-04. Coverage includes Listen tabs (Feed / Favorites / History),
+ * Help hub + keyboard-shortcuts, Settings modal (Themes, Add-ons, Account,
+ * Audience — About was removed from the footer), and the three governance
+ * contexts (`/governance`, `/studio/governance`, `/admin/governance` +
+ * `/admin/agm`).
  */
 export const Default: Story = {
   render: () => (

@@ -1,9 +1,13 @@
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+
+import { TabLabel, Tabs } from '@tahti-player/ui';
 
 export type InPageNavItem = {
   id: string;
   label: ReactNode;
+  icon?: ReactNode;
+  count?: number;
   /** Route path for Link mode */
   to?: string;
   params?: Record<string, string>;
@@ -13,8 +17,11 @@ export type InPageNavItem = {
 };
 
 /**
- * Sparse in-page tabs / chip nav — same chrome for Library, Studio, Channel, Sources detail.
- * Matches Nuclear filter/tab density (uppercase compact chips).
+ * Sparse in-page tabs — wraps Storybook `Tabs` so Library/Studio/Channel
+ * style section chips share the same chrome.
+ *
+ * Orphan in live app routes today (Storybook-only); prefer `Tabs` /
+ * `SectionTabs` directly for new surfaces. See docs/todo/tabs-migration.md.
  */
 export function InPageNav({
   items,
@@ -23,46 +30,37 @@ export function InPageNav({
   items: InPageNavItem[];
   'aria-label'?: string;
 }) {
+  const navigate = useNavigate();
+  const selectedIndex = Math.max(
+    0,
+    items.findIndex((item) => item.active),
+  );
+
   return (
-    <nav
-      aria-label={ariaLabel}
-      className="border-border flex flex-wrap gap-2 border-b pb-3"
-    >
-      {items.map((item) => {
-        const className = `rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-wide ${
-          item.active
-            ? 'bg-primary text-primary-foreground'
-            : 'border-border text-foreground-secondary hover:text-foreground border'
-        }`;
-
-        if (item.to) {
-          return (
-            <Link
-              key={item.id}
-              to={item.to}
-              params={item.params}
-              className={className}
-              aria-current={item.active ? 'page' : undefined}
-              data-tour-id={`nav-item-${item.id}`}
-            >
-              {item.label}
-            </Link>
-          );
+    <Tabs.Root
+      selectedIndex={selectedIndex}
+      onChange={(index) => {
+        const next = items[index];
+        if (!next) {
+          return;
         }
-
-        return (
-          <button
-            key={item.id}
-            type="button"
-            onClick={item.onSelect}
-            className={className}
-            aria-pressed={item.active}
-            data-tour-id={`nav-item-${item.id}`}
-          >
-            {item.label}
-          </button>
-        );
-      })}
-    </nav>
+        if (next.to) {
+          void navigate({ to: next.to as never, params: next.params as never });
+          return;
+        }
+        next.onSelect?.();
+      }}
+      listClassName="border-border border-b pb-3"
+    >
+      <Tabs.List aria-label={ariaLabel} className="w-fit flex-wrap">
+        {items.map((item) => (
+          <Tabs.Tab key={item.id}>
+            <TabLabel icon={item.icon} count={item.count}>
+              {item.label}
+            </TabLabel>
+          </Tabs.Tab>
+        ))}
+      </Tabs.List>
+    </Tabs.Root>
   );
 }

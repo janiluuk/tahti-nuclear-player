@@ -9,12 +9,12 @@ import {
   RadioTowerIcon,
   UsersIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState, type FC, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type FC } from 'react';
 
 import {
   EmptyState,
   FilterChips,
-  StatChip,
+  TabLabel,
   Tabs,
   TopList,
   ViewShell,
@@ -46,6 +46,7 @@ import { ListenerWorldMap } from '../../components/ListenerWorldMap';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPanel } from '../../components/StudioPanel';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
 import { countryFlagAndName } from '../../lib/countries';
 import {
@@ -62,31 +63,14 @@ const RANGES: Array<{ id: StatsPlaysRange; label: string }> = [
 
 type StatsTab = 'overview' | 'plays' | 'top-lists';
 
-const STATS_TABS: Array<{ id: StatsTab; label: ReactNode }> = [
-  {
-    id: 'overview',
-    label: (
-      <span className="inline-flex items-center gap-1.5">
-        <LayoutDashboardIcon size={14} aria-hidden /> Overview
-      </span>
-    ),
-  },
-  {
-    id: 'plays',
-    label: (
-      <span className="inline-flex items-center gap-1.5">
-        <BarChart3Icon size={14} aria-hidden /> Plays & listeners
-      </span>
-    ),
-  },
-  {
-    id: 'top-lists',
-    label: (
-      <span className="inline-flex items-center gap-1.5">
-        <ListOrderedIcon size={14} aria-hidden /> Top lists
-      </span>
-    ),
-  },
+const STATS_TABS: Array<{
+  id: StatsTab;
+  label: string;
+  icon: typeof LayoutDashboardIcon;
+}> = [
+  { id: 'overview', label: 'Overview', icon: LayoutDashboardIcon },
+  { id: 'plays', label: 'Plays & listeners', icon: BarChart3Icon },
+  { id: 'top-lists', label: 'Top lists', icon: ListOrderedIcon },
 ];
 
 const EMPTY_SUMMARY: StatsSummary = {
@@ -278,7 +262,9 @@ export const StudioStatsView: FC = () => {
         >
           <Tabs.List className="overflow-x-auto">
             {STATS_TABS.map((item) => (
-              <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+              <Tabs.Tab key={item.id}>
+                <TabLabel icon={<item.icon size={14} />}>{item.label}</TabLabel>
+              </Tabs.Tab>
             ))}
           </Tabs.List>
         </Tabs.Root>
@@ -304,14 +290,14 @@ export const StudioStatsView: FC = () => {
               const Icon = metric.icon;
               return (
                 <StudioPanel key={metric.label} className="!p-4 sm:!p-5">
-                  <StatChip
-                    value={loading ? '—' : metric.value.toLocaleString()}
-                    label={metric.label}
-                    icon={
-                      <Icon size={16} aria-hidden className="text-primary" />
-                    }
-                  />
-                  <p className="text-foreground-secondary mt-2 text-xs">
+                  <div className="flex items-center justify-between gap-3">
+                    <Eyebrow>{metric.label}</Eyebrow>
+                    <Icon size={17} aria-hidden className="text-primary" />
+                  </div>
+                  <StatNumber className="mt-1 block text-3xl">
+                    {loading ? '—' : metric.value.toLocaleString()}
+                  </StatNumber>
+                  <p className="text-foreground-secondary mt-1 text-xs">
                     {metric.note}
                   </p>
                 </StudioPanel>

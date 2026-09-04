@@ -2,7 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { LandmarkIcon, LightbulbIcon } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 
-import { Tabs, ViewShell } from '@tahti-player/ui';
+import { TabLabel, Tabs, ViewShell } from '@tahti-player/ui';
 
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
@@ -47,16 +47,10 @@ export function StudioGovernanceView({
           >
             <Tabs.List>
               <Tabs.Tab>
-                <span className="inline-flex items-center gap-1.5">
-                  <LandmarkIcon size={15} aria-hidden />
-                  Motions
-                </span>
+                <TabLabel icon={<LandmarkIcon size={15} />}>Motions</TabLabel>
               </Tabs.Tab>
               <Tabs.Tab>
-                <span className="inline-flex items-center gap-1.5">
-                  <LightbulbIcon size={15} aria-hidden />
-                  Topics
-                </span>
+                <TabLabel icon={<LightbulbIcon size={15} />}>Topics</TabLabel>
               </Tabs.Tab>
             </Tabs.List>
           </Tabs.Root>

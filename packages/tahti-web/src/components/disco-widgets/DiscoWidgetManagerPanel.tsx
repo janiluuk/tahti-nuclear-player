@@ -6,6 +6,7 @@ import {
   Button,
   Dialog,
   EmptyState,
+  ImageReveal,
   Input,
   PluginStoreItem,
   Toggle,
@@ -289,10 +290,10 @@ export function DiscoWidgetManagerPanel({
                     key={widget.id}
                     icon={
                       widget.iconUrl ? (
-                        <img
+                        <ImageReveal
                           src={widget.iconUrl}
                           alt=""
-                          className="size-full object-cover"
+                          className="size-full"
                         />
                       ) : undefined
                     }

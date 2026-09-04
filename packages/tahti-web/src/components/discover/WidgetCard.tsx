@@ -130,18 +130,17 @@ export function WidgetCard({
         </div>
       ) : artist ? (
         <div className="flex flex-1 flex-col items-center text-center">
-          {artist.avatarUrl ? (
-            <ImageReveal
-              src={artist.avatarUrl}
-              alt={`${artist.displayName} profile`}
-              className="bg-background-secondary size-40 rounded-full"
-              imgClassName="object-cover"
-            />
-          ) : (
-            <div className="bg-background-secondary text-foreground-secondary flex size-40 items-center justify-center rounded-full text-4xl font-bold">
-              {artist.displayName.charAt(0).toUpperCase()}
-            </div>
-          )}
+          <ImageReveal
+            src={artist.avatarUrl ?? undefined}
+            alt={`${artist.displayName} profile`}
+            className="bg-background-secondary size-40 rounded-full"
+            imgClassName="object-cover"
+            placeholder={
+              <span className="text-foreground-secondary text-4xl font-bold">
+                {artist.displayName.charAt(0).toUpperCase()}
+              </span>
+            }
+          />
           <h4 className="mt-4 text-lg font-semibold">{artist.displayName}</h4>
           <p className="text-foreground-secondary mt-2 line-clamp-4 max-w-xl text-sm">
             {artist.bio ?? 'Discover this artist’s music on Tahti.'}
@@ -166,17 +165,16 @@ export function WidgetCard({
               }}
               className="border-border bg-background hover:bg-background-tertiary flex items-center gap-3 rounded-md border p-2 transition-colors"
             >
-              {collection.coverUrl ? (
-                <ImageReveal
-                  src={collection.coverUrl}
-                  alt=""
-                  className="size-12 shrink-0 rounded"
-                />
-              ) : (
-                <div className="bg-primary text-primary-foreground flex size-12 shrink-0 items-center justify-center rounded text-xs font-bold">
-                  {collection.name.charAt(0).toUpperCase()}
-                </div>
-              )}
+              <ImageReveal
+                src={collection.coverUrl ?? undefined}
+                alt=""
+                className="bg-primary size-12 shrink-0 rounded"
+                placeholder={
+                  <span className="text-primary-foreground text-xs font-bold">
+                    {collection.name.charAt(0).toUpperCase()}
+                  </span>
+                }
+              />
               <div className="min-w-0">
                 <h4 className="truncate text-sm font-semibold">
                   {collection.name}

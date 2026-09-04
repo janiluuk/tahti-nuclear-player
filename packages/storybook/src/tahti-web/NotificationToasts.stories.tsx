@@ -8,7 +8,7 @@ import {
 } from '@tahti-player/ui';
 
 /**
- * Inbox toasts live on the Nuclear `Toaster`. Sticky notices use
+ * Inbox toasts live on the shared `Toaster`. Sticky notices use
  * `showNotificationToast({ sticky: true })` so they stay until Acknowledge.
  * Closing the toast only hides it; the notifications list keeps the item.
  */

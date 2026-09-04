@@ -1,3 +1,4 @@
+import { PaletteIcon, StoreIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { useTranslation } from '@tahti-player/i18n';
@@ -22,11 +23,13 @@ export const Themes = () => {
           {
             id: 'my-themes',
             label: t('tabs.myThemes'),
+            icon: <PaletteIcon size={14} />,
             content: <MyThemes />,
           },
           {
             id: 'store',
             label: t('tabs.store'),
+            icon: <StoreIcon size={14} />,
             content: <ThemeStore />,
           },
         ]}

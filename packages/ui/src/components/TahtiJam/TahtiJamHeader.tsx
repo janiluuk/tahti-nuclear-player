@@ -2,7 +2,7 @@ import { FC, ReactNode } from 'react';
 
 import { cn } from '../../utils';
 import { PulsingText } from '../PulsingText';
-import { TopBarLogo } from '../TopBarLogo';
+import { TahtiMark } from '../TahtiLogo';
 
 export type ConnectionStatus =
   | 'connecting'
@@ -39,9 +39,9 @@ export const TahtiJamHeader: FC<TahtiJamHeaderProps> = ({
     )}
   >
     <span className="my-3 ml-4 flex shrink-0 flex-row gap-2">
-      <TopBarLogo />
+      <TahtiMark className="size-6" />
       <h1 className="text-foreground inline text-base font-black tracking-tight uppercase">
-        Nuclear{' '}
+        Tahti{' '}
         <PulsingText
           text="Jam"
           className="text-primary text-stroke-4 stroke-text-black dark:stroke-text-foreground"

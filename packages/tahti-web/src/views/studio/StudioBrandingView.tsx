@@ -18,6 +18,7 @@ import {
   FilterChips,
   Input,
   SaveButton,
+  TabLabel,
   Tabs,
   Textarea,
   Toggle,
@@ -323,10 +324,7 @@ export const StudioBrandingPanel: FC<{
               ] as const
             ).map(([id, label, Icon]) => (
               <Tabs.Tab key={id}>
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon size={15} aria-hidden />
-                  {label}
-                </span>
+                <TabLabel icon={<Icon size={15} />}>{label}</TabLabel>
               </Tabs.Tab>
             ))}
           </Tabs.List>

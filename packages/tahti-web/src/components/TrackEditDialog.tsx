@@ -447,12 +447,8 @@ export function TrackEditDialog({ soundId, onClose, onSaved }: Props) {
             items={[
               {
                 id: 'basics',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <TagsIcon size={15} aria-hidden />
-                    Basics
-                  </span>
-                ),
+                label: 'Basics',
+                icon: <TagsIcon size={15} />,
                 content: (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="sm:col-span-2">
@@ -593,12 +589,8 @@ export function TrackEditDialog({ soundId, onClose, onSaved }: Props) {
                 ? [
                     {
                       id: 'tracklist' as const,
-                      label: (
-                        <span className="inline-flex items-center gap-1.5">
-                          <ListMusicIcon size={15} aria-hidden />
-                          Tracklist
-                        </span>
-                      ),
+                      label: 'Tracklist',
+                      icon: <ListMusicIcon size={15} />,
                       content: (
                         <TracklistEditor
                           durationSec={item.durationSec ?? 0}
@@ -628,12 +620,8 @@ export function TrackEditDialog({ soundId, onClose, onSaved }: Props) {
                 : []),
               {
                 id: 'audio',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <AudioLinesIcon size={15} aria-hidden />
-                    Audio
-                  </span>
-                ),
+                label: 'Audio',
+                icon: <AudioLinesIcon size={15} />,
                 content: (
                   <div className="flex flex-col gap-4">
                     <div className="border-border bg-background-secondary/40 rounded-xl border p-4">
@@ -847,12 +835,8 @@ export function TrackEditDialog({ soundId, onClose, onSaved }: Props) {
               },
               {
                 id: 'sharing',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Share2Icon size={15} aria-hidden />
-                    Sharing
-                  </span>
-                ),
+                label: 'Sharing',
+                icon: <Share2Icon size={15} />,
                 content: (
                   <div className="flex flex-col gap-4">
                     <p className="text-foreground-secondary text-sm">
@@ -1012,12 +996,8 @@ export function TrackEditDialog({ soundId, onClose, onSaved }: Props) {
               },
               {
                 id: 'export',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <ArrowUpFromLineIcon size={15} aria-hidden />
-                    Export
-                  </span>
-                ),
+                label: 'Export',
+                icon: <ArrowUpFromLineIcon size={15} />,
                 content: (
                   <div className="flex flex-col gap-4">
                     <TrackExportPanel soundId={item.id} />
@@ -1027,12 +1007,8 @@ export function TrackEditDialog({ soundId, onClose, onSaved }: Props) {
               },
               {
                 id: 'advanced',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Settings2Icon size={15} aria-hidden />
-                    Advanced
-                  </span>
-                ),
+                label: 'Advanced',
+                icon: <Settings2Icon size={15} />,
                 content: (
                   <div className="flex flex-col gap-4">
                     <Select

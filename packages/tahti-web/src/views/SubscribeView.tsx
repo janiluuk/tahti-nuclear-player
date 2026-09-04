@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, ViewShell } from '@tahti-player/ui';
+import { Button } from '@tahti-player/ui';
 
 import {
   fetchFanTiers,
@@ -9,7 +9,10 @@ import {
   type FetchMeta,
 } from '../api/client';
 import type { FanTiersResponse } from '../api/types';
+import { EntitySocialHeader } from '../components/EntitySocialHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { resolveArtworkVisualizerPreset } from '../lib/artworkVisualizer';
+import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
@@ -55,26 +58,38 @@ export function SubscribeView({ username }: { username: string }) {
   }
 
   return (
-    <ViewShell
-      title={`Subscribe to ${data.artist.displayName}`}
-      subtitle={`@${data.artist.username}`}
-      classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
-    >
+    <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <Link
         to="/u/$username"
         params={{ username }}
-        className="text-foreground-secondary mb-2 text-xs hover:underline"
+        className="text-foreground-secondary text-xs hover:underline"
       >
         ← @{username}
       </Link>
 
-      {data.artist.bio && (
-        <p className="text-foreground mb-2 max-w-2xl text-sm whitespace-pre-wrap">
-          {data.artist.bio}
-        </p>
-      )}
+      <EntitySocialHeader
+        title={data.artist.displayName}
+        imageUrl={
+          data.artist.avatarUrl ?? placeholderArtworkUrl(data.artist.username)
+        }
+        roundImage
+        subtitle={`@${data.artist.username}`}
+        description={
+          data.artist.bio ? (
+            <p className="line-clamp-2 whitespace-pre-wrap">
+              {data.artist.bio}
+            </p>
+          ) : (
+            <p>Subscribe to support this artist on Tahti.</p>
+          )
+        }
+        visualizerPreset={resolveArtworkVisualizerPreset(data.artist.username)}
+        artworkUrlForVisualizer={data.artist.avatarUrl}
+        data-testid="subscribe-social-header"
+      />
+
       {!data.paymentsReady && (
-        <p className="text-foreground-secondary mb-4 text-xs">
+        <p className="text-foreground-secondary text-xs">
           Payments not ready on this artist yet.
         </p>
       )}
@@ -129,8 +144,8 @@ export function SubscribeView({ username }: { username: string }) {
               )}
               {tier.perks && tier.perks.length > 0 && (
                 <ul className="text-foreground-secondary list-inside list-disc text-xs">
-                  {tier.perks.map((p) => (
-                    <li key={p}>{p}</li>
+                  {tier.perks.map((perk) => (
+                    <li key={perk}>{perk}</li>
                   ))}
                 </ul>
               )}
@@ -172,6 +187,6 @@ export function SubscribeView({ username }: { username: string }) {
           ))}
         </div>
       )}
-    </ViewShell>
+    </div>
   );
 }

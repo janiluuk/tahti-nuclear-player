@@ -2,6 +2,8 @@ import { Link } from '@tanstack/react-router';
 import {
   CalendarIcon,
   HeartIcon,
+  HistoryIcon,
+  ListOrderedIcon,
   MessageCircleIcon,
   MicIcon,
   PlayIcon,
@@ -12,6 +14,7 @@ import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
+  ImageReveal,
   MediaArtwork,
   Tabs,
   Tooltip,
@@ -199,15 +202,12 @@ export function RadioView() {
           <header className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex min-w-0 items-start gap-4">
               <div className="bg-surface-secondary flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl font-bold tracking-tight sm:size-24">
-                {stationLogo ? (
-                  <img
-                    src={stationLogo}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  'TR'
-                )}
+                <ImageReveal
+                  src={stationLogo ?? undefined}
+                  alt=""
+                  className="size-full"
+                  placeholder={<span>TR</span>}
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-foreground text-2xl font-bold tracking-tight">
@@ -397,6 +397,8 @@ export function RadioView() {
                 {
                   id: 'up-next',
                   label: 'Up next',
+                  icon: <ListOrderedIcon size={14} />,
+                  count: upcoming.length > 0 ? upcoming.length : undefined,
                   content:
                     upcoming.length === 0 ? (
                       <div className="flex flex-col items-start gap-2">
@@ -463,6 +465,8 @@ export function RadioView() {
                 {
                   id: 'just-played',
                   label: 'Just played',
+                  icon: <HistoryIcon size={14} />,
+                  count: recent.length > 0 ? recent.length : undefined,
                   content:
                     recent.length === 0 ? (
                       <p className="text-foreground-secondary text-sm">

@@ -1284,11 +1284,8 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
 
     const visualizerItem = {
       id: 'visualizer',
-      label: (
-        <span className="inline-flex items-center gap-1.5">
-          <PlaySquareIcon size={14} aria-hidden /> Visualizer
-        </span>
-      ),
+      label: 'Visualizer',
+      icon: <PlaySquareIcon size={14} />,
       content: (
         <section className="flex flex-col gap-4">
           {(() => {

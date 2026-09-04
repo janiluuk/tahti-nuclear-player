@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import {
   Button,
+  ImageReveal,
   MediaArtwork,
   SectionShell,
   Tooltip,
@@ -43,11 +44,12 @@ function feedBadge(item: FeedItem): string {
 function ArtistAvatar({ name, src }: { name: string; src: string | null }) {
   return (
     <div className="bg-surface-secondary flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-bold">
-      {src ? (
-        <img src={src} alt="" className="size-full object-cover" />
-      ) : (
-        name.slice(0, 2).toUpperCase()
-      )}
+      <ImageReveal
+        src={src ?? undefined}
+        alt=""
+        className="size-full"
+        placeholder={<span>{name.slice(0, 2).toUpperCase()}</span>}
+      />
     </div>
   );
 }

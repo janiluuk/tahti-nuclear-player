@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { TahtiLogo, TahtiLogoLink } from '@tahti-web/components/TahtiLogo';
+import { TahtiLogoLink } from '@tahti-web/components/TahtiLogo';
+
+import { TahtiLogo } from '@tahti-player/ui';
 
 import { withTahtiRouter } from './_lib/decorators';
 

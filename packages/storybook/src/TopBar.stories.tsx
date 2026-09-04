@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { TopBar } from '@tahti-player/ui';
+import { TahtiLogo, TopBar, TopBarNavigation } from '@tahti-player/ui';
 
 const meta = {
   title: 'Layout/TopBar',
@@ -9,6 +9,14 @@ const meta = {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'App header under the window TitleBar. Player chrome uses TahtiLogo, not TopBarLogo (Nuclear atom — unused leftover).',
+      },
+    },
+  },
 } satisfies Meta<typeof TopBar>;
 
 export default meta;
@@ -21,9 +29,7 @@ export const WithContent: Story = {
   args: {
     children: (
       <div className="ml-4 flex items-center gap-4">
-        <span className="text-muted-foreground text-sm">
-          Nuclear Music Player
-        </span>
+        <TahtiLogo className="text-sm" />
         <div className="flex gap-2">
           <button className="bg-secondary rounded-md px-2 py-1 text-xs">
             File
@@ -36,6 +42,22 @@ export const WithContent: Story = {
           </button>
         </div>
       </div>
+    ),
+  },
+};
+
+export const PlayerHeader: Story = {
+  name: 'Player header (Tahti)',
+  args: {
+    children: (
+      <>
+        <div className="flex flex-row items-center gap-4">
+          <TahtiLogo className="text-sm" />
+          <TopBarNavigation canGoBack canGoForward />
+        </div>
+        <span className="text-foreground-secondary text-sm">Search</span>
+        <div />
+      </>
     ),
   },
 };

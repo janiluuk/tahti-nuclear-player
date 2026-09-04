@@ -17,7 +17,7 @@ export const NotInClient: Story = {
   args: {
     kind: 'not-in-client',
     title: 'Desktop-only feature',
-    children: 'This capability only exists in the Nuclear desktop app.',
+    children: 'This capability only exists in the Tahti Player desktop app.',
   },
 };
 

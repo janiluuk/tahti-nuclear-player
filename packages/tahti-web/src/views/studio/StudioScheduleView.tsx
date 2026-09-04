@@ -13,10 +13,10 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Dialog,
+  ImageReveal,
   Input,
   SaveButton,
   Select,
-  StatChip,
   Toggle,
   Tooltip,
   ViewShell,
@@ -279,12 +279,12 @@ function ScheduledTimes({
           <>
             <div className="border-border bg-background-secondary relative -mx-6 -mt-6 mb-5 h-40 overflow-hidden border-b">
               {selectedShow.backdropUrl || selectedShow.artworkUrl ? (
-                <img
+                <ImageReveal
                   src={
                     selectedShow.backdropUrl ?? selectedShow.artworkUrl ?? ''
                   }
                   alt=""
-                  className="h-full w-full object-cover"
+                  className="h-full w-full"
                 />
               ) : null}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -298,10 +298,10 @@ function ScheduledTimes({
             </Dialog.Description>
             <div className="mt-4 flex flex-col gap-4">
               {selectedShow.artworkUrl ? (
-                <img
+                <ImageReveal
                   src={selectedShow.artworkUrl}
                   alt=""
-                  className="size-24 rounded-lg object-cover"
+                  className="size-24 rounded-lg"
                 />
               ) : null}
               <div className="grid gap-2 text-sm sm:grid-cols-2">
@@ -376,14 +376,17 @@ function ScheduleAnalytics() {
     >
       <div className="grid gap-3 sm:grid-cols-3">
         {(['1', '7', '30'] as const).map((range) => (
-          <div key={range} className="flex min-w-0 flex-col gap-2">
+          <div
+            key={range}
+            className="border-border bg-background-secondary/40 rounded-lg border p-3"
+          >
             <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
               Last {range} day{range === '1' ? '' : 's'}
             </p>
-            <StatChip
-              value={stats[range]?.totalPlays.toLocaleString() ?? '—'}
-              label="Plays"
-            />
+            <p className="mt-2 text-2xl font-bold tabular-nums">
+              {stats[range]?.totalPlays.toLocaleString() ?? '—'}
+            </p>
+            <p className="text-foreground-secondary text-xs">plays</p>
           </div>
         ))}
       </div>
@@ -770,10 +773,10 @@ export function StudioScheduleView() {
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         {show.artworkUrl ? (
-                          <img
+                          <ImageReveal
                             src={show.artworkUrl}
                             alt=""
-                            className="size-16 shrink-0 rounded-lg object-cover"
+                            className="size-16 shrink-0 rounded-lg"
                           />
                         ) : null}
                         <div className="min-w-0">

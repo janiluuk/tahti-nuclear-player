@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { HeartIcon, ListMusicIcon, ListPlusIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button, Dialog } from '@tahti-player/ui';
+import { Button, Dialog, ImageReveal } from '@tahti-player/ui';
 
 import type { TahtiPlayable } from '../api/types';
 import { soundIdFromPlayableId } from '../lib/archiveId';
@@ -61,15 +61,14 @@ export function TrackInfoDialog({
             <Dialog.Title>Track info</Dialog.Title>
             <div className="mt-4 flex items-start gap-4">
               <div className="bg-surface-secondary flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg text-lg font-bold tracking-tight">
-                {track.artworkUrl ? (
-                  <img
-                    src={track.artworkUrl}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  track.title.slice(0, 2).toUpperCase()
-                )}
+                <ImageReveal
+                  src={track.artworkUrl ?? undefined}
+                  alt=""
+                  className="size-full"
+                  placeholder={
+                    <span>{track.title.slice(0, 2).toUpperCase()}</span>
+                  }
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-lg font-bold tracking-tight">

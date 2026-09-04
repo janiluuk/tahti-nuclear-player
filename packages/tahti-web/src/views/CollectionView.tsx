@@ -3,9 +3,11 @@ import {
   BookmarkIcon,
   ListMusicIcon,
   ListPlusIcon,
+  MusicIcon,
   PencilIcon,
   PlayIcon,
   RadioIcon,
+  UsersIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -23,10 +25,13 @@ import type {
   PublicCollection,
   TahtiPlayable,
 } from '../api/types';
-import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { EmbedButton } from '../components/EmbedButton';
 import { EmbedTrackRow } from '../components/EmbedTrackRow';
-import { PageFrame, PageHeader } from '../components/PageHeader';
+import {
+  EntitySocialHeader,
+  type EntitySocialStat,
+} from '../components/EntitySocialHeader';
+import { PageFrame } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -166,12 +171,34 @@ export function CollectionView({
   const isOwner = Boolean(me && me.username === collection.user.username);
   const coverUrl =
     collection.coverUrl ?? placeholderArtworkUrl(collection.slug);
-  const backdropUrl = collection.backdropUrl ?? collection.videoBackgroundUrl;
-  const hasImageBackdrop = Boolean(
-    backdropUrl ||
-    (collection.galleryMode === 'STATIC_SLIDESHOW' &&
-      collection.slideshowImages?.[0]),
-  );
+  const backdropUrl =
+    collection.backdropUrl ??
+    collection.slideshowImages?.[0] ??
+    collection.videoBackgroundUrl ??
+    null;
+
+  const headerStats: EntitySocialStat[] = [
+    ...(playables.length > 0
+      ? [
+          {
+            key: 'tracks',
+            label: 'Tracks',
+            value: playables.length,
+            icon: MusicIcon,
+          },
+        ]
+      : []),
+    ...(subscription && subscription.subscriberCount > 0
+      ? [
+          {
+            key: 'subscribers',
+            label: 'Followers',
+            value: subscription.subscriberCount,
+            icon: UsersIcon,
+          },
+        ]
+      : []),
+  ];
 
   const playAll = () => {
     const [head, ...rest] = playables;
@@ -232,102 +259,90 @@ export function CollectionView({
         </Link>
       </div>
 
-      <div className="border-border bg-primary shadow-shadow relative isolate flex flex-col gap-6 overflow-hidden rounded-md border-(length:--border-width) p-6 md:flex-row">
-        <img
-          src={backdropUrl ?? collection.slideshowImages?.[0] ?? coverUrl}
-          alt=""
-          className="pointer-events-none absolute inset-0 -z-10 size-full scale-110 object-cover opacity-35 blur-3xl"
-          aria-hidden
-        />
-        {!hasImageBackdrop && (
-          <div className="pointer-events-none absolute inset-0 -z-10 opacity-55">
-            <ChannelVisualizer
-              preset={resolveArtworkVisualizerPreset(collection.slug)}
-              artworkUrl={coverUrl}
-              className="size-full"
-            />
-          </div>
-        )}
-        <div className="bg-primary/75 pointer-events-none absolute inset-0 -z-10 backdrop-blur-xl" />
-        {isOwner && (
-          <Link
-            to="/studio/collections/$slug"
-            params={{ slug }}
-            className="absolute top-4 right-4 z-10"
-          >
+      <EntitySocialHeader
+        title={collection.name}
+        imageUrl={coverUrl}
+        imageAlt=""
+        subtitle={
+          <>
+            by{' '}
+            <Link
+              to="/u/$username"
+              params={{ username: collection.user.username }}
+              className="hover:text-foreground underline-offset-2 hover:underline"
+            >
+              {collection.user.displayName}
+            </Link>
+            {collection.collaborative ? ' (collaborative)' : ''}
+          </>
+        }
+        description={collection.description}
+        backdropUrl={backdropUrl}
+        visualizerPreset={resolveArtworkVisualizerPreset(collection.slug)}
+        artworkUrlForVisualizer={coverUrl}
+        stats={headerStats}
+        actions={
+          isOwner ? (
             <Tooltip content="Edit in Studio" side="top">
-              <Button
-                variant="secondary"
-                size="icon-sm"
-                aria-label="Edit in Studio"
-              >
-                <PencilIcon size={14} aria-hidden />
-              </Button>
-            </Tooltip>
-          </Link>
-        )}
-        <div className="border-border bg-background-secondary/60 shadow-shadow h-60 w-60 shrink-0 overflow-hidden rounded-md border-(length:--border-width) backdrop-blur-sm">
-          {coverUrl ? (
-            <img src={coverUrl} alt="" className="size-full object-cover" />
-          ) : (
-            <div className="flex size-full items-center justify-center">
-              <ListMusicIcon
-                size={64}
-                aria-hidden
-                className="text-foreground-secondary"
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-1 flex-col gap-4">
-          <PageHeader
-            title={collection.name}
-            subtitle={
-              <>
-                by{' '}
-                <Link
-                  to="/u/$username"
-                  params={{ username: collection.user.username }}
-                  className="hover:text-foreground underline-offset-2 hover:underline"
+              <Link to="/studio/collections/$slug" params={{ slug }}>
+                <Button
+                  variant="secondary"
+                  size="icon-sm"
+                  className="bg-background border-border rounded-md border-(length:--border-width)"
+                  aria-label="Edit in Studio"
                 >
-                  {collection.user.displayName}
-                </Link>
-                {collection.collaborative ? ' (collaborative)' : ''}
-                {collection.description ? (
-                  <span className="text-foreground mt-2 block">
-                    {collection.description}
-                  </span>
-                ) : null}
-              </>
-            }
-          />
-
-          <div className="flex flex-wrap items-center gap-2">
+                  <PencilIcon size={14} aria-hidden />
+                </Button>
+              </Link>
+            </Tooltip>
+          ) : (
+            <Button
+              variant={isFavorite ? 'default' : 'secondary'}
+              size="icon-sm"
+              className="bg-background border-border rounded-md border-(length:--border-width)"
+              aria-pressed={isFavorite}
+              aria-label={isFavorite ? 'Favorited' : 'Favorite'}
+              onClick={() =>
+                toggleFavoritePlaylist({
+                  slug,
+                  name: collection.name,
+                  ownerUsername: collection.user.username,
+                  coverUrl: collection.coverUrl,
+                })
+              }
+            >
+              <BookmarkIcon size={15} aria-hidden />
+            </Button>
+          )
+        }
+        data-testid="collection-social-header"
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={playAll}
+            disabled={playables.length === 0}
+          >
+            <PlayIcon size={16} aria-hidden className="mr-1.5" />
+            Play
+          </Button>
+          <Tooltip content="Add all to queue" side="top">
             <Button
               variant="secondary"
-              onClick={playAll}
+              size="icon"
+              onClick={queueAll}
               disabled={playables.length === 0}
+              aria-label="Add all to queue"
             >
-              <PlayIcon size={16} aria-hidden className="mr-1.5" />
-              Play
+              <ListPlusIcon size={16} aria-hidden />
             </Button>
-            <Tooltip content="Add all to queue" side="top">
-              <Button
-                variant="secondary"
-                size="icon"
-                onClick={queueAll}
-                disabled={playables.length === 0}
-                aria-label="Add all to queue"
-              >
-                <ListPlusIcon size={16} aria-hidden />
-              </Button>
-            </Tooltip>
-            <EmbedButton target={{ kind: 'collection', slug }} />
-            <Button variant="secondary" onClick={() => void startJam()}>
-              <RadioIcon size={15} aria-hidden className="mr-1.5" />
-              Start a Jam
-            </Button>
+          </Tooltip>
+          <EmbedButton target={{ kind: 'collection', slug }} />
+          <Button variant="secondary" onClick={() => void startJam()}>
+            <RadioIcon size={15} aria-hidden className="mr-1.5" />
+            Start a Jam
+          </Button>
+          {!isOwner ? (
             <Button
               variant={isFavorite ? 'default' : 'secondary'}
               aria-pressed={isFavorite}
@@ -343,24 +358,24 @@ export function CollectionView({
               <BookmarkIcon size={15} aria-hidden className="mr-1.5" />
               {isFavorite ? 'Favorited' : 'Favorite'}
             </Button>
-            {!isOwner && collection.isPublic && subscription ? (
-              <Button
-                variant={subscription.subscribed ? 'default' : 'secondary'}
-                onClick={() => void toggleSubscription()}
-                disabled={subscriptionBusy}
-                aria-pressed={subscription.subscribed}
-                title={me ? undefined : 'Sign in to subscribe to this playlist'}
-              >
-                <BookmarkIcon size={15} aria-hidden className="mr-1.5" />
-                {subscription.subscribed ? 'Subscribed' : 'Subscribe'}
-                {subscription.subscriberCount > 0
-                  ? ` (${subscription.subscriberCount})`
-                  : ''}
-              </Button>
-            ) : null}
-          </div>
+          ) : null}
+          {!isOwner && collection.isPublic && subscription ? (
+            <Button
+              variant={subscription.subscribed ? 'default' : 'secondary'}
+              onClick={() => void toggleSubscription()}
+              disabled={subscriptionBusy}
+              aria-pressed={subscription.subscribed}
+              title={me ? undefined : 'Sign in to subscribe to this playlist'}
+            >
+              <BookmarkIcon size={15} aria-hidden className="mr-1.5" />
+              {subscription.subscribed ? 'Subscribed' : 'Subscribe'}
+              {subscription.subscriberCount > 0
+                ? ` (${subscription.subscriberCount})`
+                : ''}
+            </Button>
+          ) : null}
         </div>
-      </div>
+      </EntitySocialHeader>
 
       {playables.length > 0 && (
         <PlayableTrackTable

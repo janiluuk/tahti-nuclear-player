@@ -37,6 +37,7 @@ Desktop Listen was unlit on every child route (`/listen/feed`, `/listen/history`
 
 ## Product priority
 
+- [ ] **Independent desktop player** — Storybook `TitleBar` + `TopBar` with Tahti branding only (no Nuclear logo or name); right-rail Library with local import/play; Soulseek as a desktop-native add-on (no Tahti P2P relay). Details: [docs/todo/desktop-pro-library.md](../../docs/todo/desktop-pro-library.md). First slice 2026-09-04 (`0.0.66`): F1 chrome debrand + Library rail + session import + Soulseek Configure stub.
 - [x] **Album-based designer** — `/studio/collections`
 - [x] **Add-to-playlist** — player bar, Music, tables
 - [x] **Visualizations** — ChannelView + analyser

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Dialog, Input, Tooltip } from '@tahti-player/ui';
+import { Button, Dialog, ImageReveal, Input, Tooltip } from '@tahti-player/ui';
 
 import {
   createEpisode,
@@ -469,10 +469,10 @@ export function RadioBookingCalendar({
           <>
             {selectedBooking.coverUrl ? (
               <div className="border-border bg-background-secondary relative -mx-6 -mt-6 mb-5 h-40 overflow-hidden border-b">
-                <img
+                <ImageReveal
                   src={selectedBooking.coverUrl}
                   alt=""
-                  className="h-full w-full object-cover"
+                  className="h-full w-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               </div>

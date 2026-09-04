@@ -26,6 +26,7 @@ export * from './LogViewer';
 export * from './Loader';
 export * from './Mosaic';
 export * from './TahtiJam';
+export * from './TahtiLogo';
 export * from './Pagination';
 export * from './PlayerBar';
 export * from './PlayerShell';

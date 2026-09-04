@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, ImageReveal } from '@tahti-player/ui';
 
 import {
   fetchEmbedChannel,
@@ -64,13 +64,13 @@ export function EmbedChannelView({ slug }: { slug: string }) {
       {!loading && data && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            {data.artist.avatarUrl && (
-              <img
+            {data.artist.avatarUrl ? (
+              <ImageReveal
                 src={data.artist.avatarUrl}
                 alt=""
-                className="border-border h-10 w-10 rounded-full border object-cover"
+                className="border-border h-10 w-10 rounded-full border"
               />
-            )}
+            ) : null}
             <div className="min-w-0 flex-1">
               <p className="font-display truncate text-base font-bold">
                 {data.artist.displayName}
@@ -135,13 +135,13 @@ export function EmbedReleaseView({ id }: { id: string }) {
       {!loading && data && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            {data.artworkUrl && (
-              <img
+            {data.artworkUrl ? (
+              <ImageReveal
                 src={data.artworkUrl}
                 alt=""
-                className="border-border h-14 w-14 rounded border object-cover"
+                className="border-border h-14 w-14 rounded border"
               />
-            )}
+            ) : null}
             <div className="min-w-0 flex-1">
               <p className="font-display truncate text-base font-bold">
                 {data.title}
@@ -243,13 +243,13 @@ export function EmbedCollectionView({
       {!loading && data && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            {data.coverUrl && (
-              <img
+            {data.coverUrl ? (
+              <ImageReveal
                 src={data.coverUrl}
                 alt=""
-                className="border-border h-14 w-14 rounded border object-cover"
+                className="border-border h-14 w-14 rounded border"
               />
-            )}
+            ) : null}
             <div className="min-w-0 flex-1">
               <p className="font-display truncate text-base font-bold">
                 {data.name}

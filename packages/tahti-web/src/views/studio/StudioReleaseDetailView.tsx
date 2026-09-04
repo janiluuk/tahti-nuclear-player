@@ -179,11 +179,8 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
               items={[
                 {
                   id: 'overview',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <LayoutDashboardIcon size={14} aria-hidden /> Overview
-                    </span>
-                  ),
+                  label: 'Overview',
+                  icon: <LayoutDashboardIcon size={14} />,
                   content: (
                     <>
                       <div className="group border-border bg-background-secondary relative isolate min-h-64 overflow-hidden rounded-xl border shadow-sm sm:min-h-72">
@@ -338,11 +335,8 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                 },
                 {
                   id: 'smart-links',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Link2Icon size={14} aria-hidden /> Smart links
-                    </span>
-                  ),
+                  label: 'Smart links',
+                  icon: <Link2Icon size={14} />,
                   content: (
                     <ReleaseSmartLinksPanel
                       release={release}
@@ -364,11 +358,8 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                 },
                 {
                   id: 'fingerprinting',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <FingerprintIcon size={14} aria-hidden /> Fingerprinting
-                    </span>
-                  ),
+                  label: 'Fingerprinting',
+                  icon: <FingerprintIcon size={14} />,
                   content: (
                     <StudioPanel
                       title="Fingerprinting"
@@ -407,12 +398,8 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                 },
                 {
                   id: 'export',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Share2Icon size={15} aria-hidden />
-                      Export
-                    </span>
-                  ),
+                  label: 'Export',
+                  icon: <Share2Icon size={15} />,
                   content: (
                     <StudioPanel
                       title="Export release"

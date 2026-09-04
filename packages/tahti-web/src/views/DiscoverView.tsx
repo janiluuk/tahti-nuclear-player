@@ -2,10 +2,13 @@ import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import {
   Blocks,
   ChevronDownIcon,
+  CompassIcon,
+  MapPinIcon,
   PauseIcon,
   PlayIcon,
   Plus,
   SlidersHorizontalIcon,
+  UsersIcon,
   XIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -15,6 +18,7 @@ import {
   FilterChips,
   Popover,
   Select,
+  TabLabel,
   Tabs,
   Tooltip,
   ViewShell,
@@ -92,10 +96,14 @@ type DiscoverSelection = {
   playable: TahtiPlayable;
 };
 
-const DISCOVER_TABS: Array<{ id: DiscoverTab; label: string }> = [
-  { id: 'discover', label: 'Discover' },
-  { id: 'artists', label: 'Artists' },
-  { id: 'venues', label: 'Venues' },
+const DISCOVER_TABS: Array<{
+  id: DiscoverTab;
+  label: string;
+  icon: typeof CompassIcon;
+}> = [
+  { id: 'discover', label: 'Discover', icon: CompassIcon },
+  { id: 'artists', label: 'Artists', icon: UsersIcon },
+  { id: 'venues', label: 'Venues', icon: MapPinIcon },
 ];
 
 const DISCOVER_SUBTITLES: Record<DiscoverTab, string> = {
@@ -361,7 +369,9 @@ export function DiscoverView() {
         <Tabs.List>
           {DISCOVER_TABS.map((item) => (
             <Tabs.Tab key={item.id}>
-              <span data-testid={`discover-tab-${item.id}`}>{item.label}</span>
+              <span data-testid={`discover-tab-${item.id}`}>
+                <TabLabel icon={<item.icon size={14} />}>{item.label}</TabLabel>
+              </span>
             </Tabs.Tab>
           ))}
         </Tabs.List>

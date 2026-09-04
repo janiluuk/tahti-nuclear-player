@@ -1,8 +1,17 @@
 import { useNavigate } from '@tanstack/react-router';
-import { HardDriveIcon, HeadphonesIcon, Music2Icon } from 'lucide-react';
+import {
+  Code2Icon,
+  HardDriveIcon,
+  HeadphonesIcon,
+  LibraryIcon,
+  Link2Icon,
+  MicIcon,
+  Music2Icon,
+  PackageIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Tabs, TopList, ViewShell } from '@tahti-player/ui';
+import { TabLabel, Tabs, TopList, ViewShell } from '@tahti-player/ui';
 
 import { fetchStudioSounds } from '../api/studio';
 import {
@@ -43,35 +52,46 @@ const libraryNavRoute = (tab: Tab): string =>
   tab === 'media' ? '/library/collections' : LIBRARY_ROUTE_BY_TAB[tab];
 
 const LIBRARY_SECTION_TABS = [
-  { id: 'sounds' as const, label: 'Sounds', to: '/library/sounds' },
+  {
+    id: 'sounds' as const,
+    label: 'Sounds',
+    icon: Music2Icon,
+    to: '/library/sounds',
+  },
   {
     id: 'collections' as const,
     label: 'Collections',
+    icon: LibraryIcon,
     to: '/library/collections',
   },
   {
     id: 'recordings' as const,
     label: 'Recordings',
+    icon: MicIcon,
     to: '/library/collections?tab=recordings',
   },
   {
     id: 'media' as const,
     label: 'Media',
+    icon: HardDriveIcon,
     to: '/library/collections?tab=media',
   },
   {
     id: 'stash' as const,
     label: 'Stash',
+    icon: PackageIcon,
     to: '/library/collections?tab=stash',
   },
   {
     id: 'embeds' as const,
     label: 'Embeds',
+    icon: Code2Icon,
     to: '/library/collections?tab=embeds',
   },
   {
     id: 'smartlinks' as const,
     label: 'Smart links',
+    icon: Link2Icon,
     to: '/library/smartlinks',
   },
 ];
@@ -133,7 +153,9 @@ export function LibraryView({
         >
           <Tabs.List aria-label="Library sections" className="overflow-x-auto">
             {LIBRARY_SECTION_TABS.map((item) => (
-              <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+              <Tabs.Tab key={item.id}>
+                <TabLabel icon={<item.icon size={14} />}>{item.label}</TabLabel>
+              </Tabs.Tab>
             ))}
           </Tabs.List>
         </Tabs.Root>

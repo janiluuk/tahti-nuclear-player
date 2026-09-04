@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { AudioLinesIcon, ExternalLinkIcon, PlayIcon } from 'lucide-react';
+import { ExternalLinkIcon, MusicIcon, PlayIcon } from 'lucide-react';
 import { useEffect, useState, type FC } from 'react';
 
 import { Button } from '@tahti-player/ui';
@@ -13,9 +13,11 @@ import type {
   SmartLinkView as SmartLinkData,
   TahtiPlayable,
 } from '../api/types';
-import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { EmbedButton } from '../components/EmbedButton';
-import { PageHeader } from '../components/PageHeader';
+import {
+  EntitySocialHeader,
+  type EntitySocialStat,
+} from '../components/EntitySocialHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
@@ -134,26 +136,28 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
   const metadata = [releaseYear, genre, data.release.type]
     .filter(Boolean)
     .join(' · ');
-  const hasImageBackdrop = Boolean(
-    data.release.galleryMode === 'STATIC_SLIDESHOW' &&
-    data.release.slideshowImages?.[0],
-  );
+  const backdropUrl =
+    data.release.galleryMode === 'STATIC_SLIDESHOW'
+      ? (data.release.slideshowImages?.[0] ?? null)
+      : null;
   const artworkVisualizer =
     data.release.visualPreset && data.release.visualPreset !== 'MINIMAL'
       ? data.release.visualPreset
       : resolveArtworkVisualizerPreset(data.release.id);
+  const headerStats: EntitySocialStat[] =
+    playables.length > 0
+      ? [
+          {
+            key: 'tracks',
+            label: 'Tracks',
+            value: playables.length,
+            icon: MusicIcon,
+          },
+        ]
+      : [];
 
   return (
     <div className="relative isolate mx-auto flex w-full max-w-xl flex-col gap-6 pb-10">
-      {!hasImageBackdrop && (
-        <ChannelVisualizer
-          preset={artworkVisualizer}
-          artworkUrl={
-            data.release.artworkUrl ?? data.artist.avatarUrl ?? undefined
-          }
-          className="pointer-events-none fixed inset-0 -z-10 opacity-45"
-        />
-      )}
       <Link
         to="/u/$username"
         params={{ username: data.artist.username }}
@@ -162,68 +166,60 @@ export const SmartLinkView: FC<SmartLinkViewProps> = ({ slug }) => {
         ← {data.artist.username}
       </Link>
 
-      <div className="border-border bg-background-secondary aspect-square w-full overflow-hidden rounded-2xl border">
-        {data.release.artworkUrl ? (
-          <img
-            src={data.release.artworkUrl}
-            alt={`${data.release.title} cover`}
-            className="size-full object-cover"
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center">
-            <AudioLinesIcon
-              size={64}
-              aria-hidden
-              className="text-foreground-secondary"
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-end">
-        <EmbedButton target={{ kind: 'release', id: data.release.id }} />
-      </div>
-
-      <PageHeader
+      <EntitySocialHeader
         title={data.release.title}
+        imageUrl={data.release.artworkUrl}
         subtitle={
           <Link
             to="/u/$username"
             params={{ username: data.artist.username }}
-            className="text-base font-semibold underline-offset-2 hover:underline"
+            className="hover:text-foreground font-semibold underline-offset-2 hover:underline"
           >
             {data.artist.displayName}
           </Link>
         }
-        meta={
+        description={
           <>
             {metadata ? <p className="capitalize">{metadata}</p> : null}
             {data.release.description ? (
-              <p className="mt-2 max-w-md whitespace-pre-wrap">
+              <p className="mt-1 line-clamp-3 whitespace-pre-wrap">
                 {data.release.description}
               </p>
             ) : null}
           </>
         }
-      />
+        backdropUrl={backdropUrl}
+        visualizerPreset={artworkVisualizer}
+        artworkUrlForVisualizer={
+          data.release.artworkUrl ?? data.artist.avatarUrl
+        }
+        stats={headerStats}
+        actions={
+          <EmbedButton target={{ kind: 'release', id: data.release.id }} />
+        }
+        data-testid="release-social-header"
+      >
+        {playables.length > 0 ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="bg-background border-border rounded-md border-(length:--border-width)"
+            onClick={() => {
+              const [head, ...rest] = playables;
+              if (head) {
+                play(head, { enqueueRest: rest });
+              }
+            }}
+          >
+            <PlayIcon size={15} aria-hidden className="mr-1.5" />
+            Play all
+          </Button>
+        ) : null}
+      </EntitySocialHeader>
 
       {playables.length > 0 ? (
         <section className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-2">
-            <Eyebrow>Tracks</Eyebrow>
-            <Button
-              size="sm"
-              onClick={() => {
-                const [head, ...rest] = playables;
-                if (head) {
-                  play(head, { enqueueRest: rest });
-                }
-              }}
-            >
-              <PlayIcon size={15} aria-hidden className="mr-1.5" />
-              Play all
-            </Button>
-          </div>
+          <Eyebrow>Tracks</Eyebrow>
           <PlayableTrackTable items={playables} />
         </section>
       ) : null}

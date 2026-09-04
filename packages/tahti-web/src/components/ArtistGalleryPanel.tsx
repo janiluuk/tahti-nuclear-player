@@ -9,7 +9,7 @@ import {
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@tahti-player/ui';
+import { Button, ImageReveal } from '@tahti-player/ui';
 
 import {
   deletePressKitImage,
@@ -258,10 +258,10 @@ export function ArtistGalleryPanel({
                   onClick={() => setLightbox(index)}
                   aria-label={img.title ?? 'View photo'}
                 >
-                  <img
+                  <ImageReveal
                     src={img.imageUrl}
                     alt={img.title ?? ''}
-                    className="aspect-square w-full object-cover"
+                    className="aspect-square w-full"
                     loading="lazy"
                   />
                 </Button>

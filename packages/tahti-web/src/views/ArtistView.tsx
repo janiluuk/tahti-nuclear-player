@@ -1,14 +1,21 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
   CalendarDays,
+  Disc3Icon,
   DownloadIcon,
   HeartIcon,
+  ImagesIcon,
+  LibraryIcon,
   ListMusicIcon,
   MessageCircle,
   Mic,
+  MusicIcon,
+  PaintbrushIcon,
   PlayIcon,
   RadioTowerIcon,
   Repeat2Icon,
+  UserPlusIcon,
+  UsersIcon,
   UsersRound,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -18,8 +25,9 @@ import {
   Card,
   CardGrid,
   Dialog,
+  ImageReveal,
   SaveButton,
-  StatChip,
+  TabLabel,
   Tabs,
   Textarea,
   Tooltip,
@@ -34,6 +42,7 @@ import {
   fetchPublicPressKitImages,
   type PublicPressKitImage,
 } from '../api/artist-settings';
+import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import { fetchChannel, fetchProfile } from '../api/client';
 import {
   fetchChannelDiscoWidgets,
@@ -60,10 +69,13 @@ import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { EmbedButton } from '../components/EmbedButton';
+import {
+  EntitySocialHeader,
+  type EntitySocialStat,
+} from '../components/EntitySocialHeader';
 import { GlowMediaTile } from '../components/GlowMediaTile';
 import { ImageLightbox } from '../components/ImageLightbox';
 import { NewsletterSubscribeToggle } from '../components/NewsletterSubscribeToggle';
-import { PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { QueueConfirmDialog } from '../components/QueueConfirmDialog';
@@ -77,6 +89,7 @@ import { Eyebrow } from '../components/tahti/Eyebrow';
 import { TrackEditDialog } from '../components/TrackEditDialog';
 import { hasAccountRole } from '../lib/accountRoles';
 import { soundIdFromPlayableId } from '../lib/archiveId';
+import { resolveArtworkVisualizerPreset } from '../lib/artworkVisualizer';
 import {
   loadArtistLookVisibility,
   type ArtistLookBlockId,
@@ -271,6 +284,8 @@ export function ArtistView({ username }: { username: string }) {
     | 'colorScheme'
     | 'colorSchemeJson'
     | 'hlsUrl'
+    | 'videoBackgroundUrl'
+    | 'slideshowImages'
   > | null>(null);
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -383,6 +398,8 @@ export function ArtistView({ username }: { username: string }) {
         colorScheme: res.data.colorScheme,
         colorSchemeJson: res.data.colorSchemeJson,
         hlsUrl: res.data.hlsUrl,
+        videoBackgroundUrl: res.data.videoBackgroundUrl,
+        slideshowImages: res.data.slideshowImages,
       });
       setDiscoWidgets(widgets.data);
       setChannelPosts(posts.data);
@@ -565,21 +582,84 @@ export function ArtistView({ username }: { username: string }) {
     play(featuredPlayable);
   };
 
-  const tabs: Array<{ id: Tab; label: string }> = [
+  const tabs: Array<{
+    id: Tab;
+    label: string;
+    icon: typeof MusicIcon;
+  }> = [
     ...(lookVisibility.player || lookVisibility.latest || lookVisibility.tracks
       ? profile.tracks.length > 0 || releases.length > 0
-        ? [{ id: 'music' as const, label: 'Music' }]
+        ? [{ id: 'music' as const, label: 'Music', icon: MusicIcon }]
         : []
       : []),
     ...(lookVisibility.releases && releases.length > 0
-      ? [{ id: 'releases' as const, label: 'Releases' }]
+      ? [{ id: 'releases' as const, label: 'Releases', icon: Disc3Icon }]
       : []),
     ...(collections.some((collection) => collection.itemCount > 0)
-      ? [{ id: 'collections' as const, label: 'Collections' }]
+      ? [
+          {
+            id: 'collections' as const,
+            label: 'Collections',
+            icon: LibraryIcon,
+          },
+        ]
       : []),
-    ...(hasGallery ? [{ id: 'gallery' as const, label: 'Gallery' }] : []),
-    ...(isOwner ? [{ id: 'design' as const, label: 'Design' }] : []),
+    ...(hasGallery
+      ? [{ id: 'gallery' as const, label: 'Gallery', icon: ImagesIcon }]
+      : []),
+    ...(isOwner
+      ? [{ id: 'design' as const, label: 'Design', icon: PaintbrushIcon }]
+      : []),
   ];
+
+  const headerStats: EntitySocialStat[] = [
+    ...(artist.followerCount != null && artist.followerCount > 0
+      ? [
+          {
+            key: 'followers',
+            label: 'Followers',
+            value: artist.followerCount,
+            icon: UsersIcon,
+          },
+        ]
+      : []),
+    ...(artist.followingCount != null && artist.followingCount > 0
+      ? [
+          {
+            key: 'following',
+            label: 'Following',
+            value: artist.followingCount,
+            icon: UserPlusIcon,
+          },
+        ]
+      : []),
+    ...(profile.tracks.length > 0
+      ? [
+          {
+            key: 'tracks',
+            label: 'Tracks',
+            value: profile.tracks.length,
+            icon: MusicIcon,
+          },
+        ]
+      : []),
+    ...(collections.length > 0
+      ? [
+          {
+            key: 'collections',
+            label: 'Playlists',
+            value: collections.length,
+            icon: ListMusicIcon,
+          },
+        ]
+      : []),
+  ];
+
+  const artistBackdropCandidate =
+    channelVisual?.slideshowImages?.[0] ??
+    channelVisual?.videoBackgroundUrl ??
+    null;
+  const artistBackdropUrl = artistBackdropCandidate;
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
@@ -590,253 +670,215 @@ export function ArtistView({ username }: { username: string }) {
         ← Listen
       </Link>
 
-      <section className="border-border bg-background-secondary/70 flex flex-col gap-5 rounded-2xl border p-4 shadow-sm sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex flex-wrap items-start gap-4">
-            <div className="relative size-20 shrink-0 sm:size-24">
-              {artist.avatarUrl ? (
-                <Button
-                  type="button"
-                  variant="text"
-                  size="flexible"
-                  className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border p-0 shadow-md sm:size-24"
-                  aria-label={`View ${artist.displayName} profile picture`}
-                  onClick={() => setAvatarOpen(true)}
-                >
-                  <img
-                    src={artist.avatarUrl}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                </Button>
-              ) : (
-                <div className="border-border bg-background relative size-20 shrink-0 overflow-hidden rounded-xl border shadow-md sm:size-24">
-                  <img
-                    src={placeholderArtworkUrl(artist.username)}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <PageHeader
-                title={artist.displayName}
-                subtitle={`@${artist.username}`}
-                actions={
-                  <>
-                    {!isOwner && artist.freeSubscriptionsEnabled !== false ? (
-                      <NewsletterSubscribeToggle
-                        artistUsername={artist.username}
-                        artistDisplayName={artist.displayName}
-                        iconOnly
-                      />
-                    ) : null}
-                    {!isOwner &&
-                    artist.freeSubscriptionsEnabled !== false &&
-                    fanTiers.length > 0 ? (
-                      <Tooltip
-                        content={`Subscribe to ${artist.displayName}'s fan tiers`}
-                        side="top"
-                      >
-                        <Link
-                          to="/subscribe/$username"
-                          params={{ username: artist.username }}
-                        >
-                          <Button
-                            size="icon-sm"
-                            variant="secondary"
-                            aria-label={`Subscribe to ${artist.displayName}'s fan tiers`}
-                          >
-                            <UsersRound size={16} aria-hidden />
-                          </Button>
-                        </Link>
-                      </Tooltip>
-                    ) : null}
-                    {!isOwner && profile.links.presskit ? (
-                      <Tooltip content="Download press kit" side="top">
-                        <a href={publicPressKitUrl(artist.username)} download>
-                          <Button
-                            size="icon-sm"
-                            variant="secondary"
-                            aria-label="Download press kit"
-                          >
-                            <DownloadIcon size={16} aria-hidden />
-                          </Button>
-                        </a>
-                      </Tooltip>
-                    ) : null}
-                    {channel?.slug && !isOwner ? (
-                      <EmbedButton
-                        target={{ kind: 'channel', slug: channel.slug }}
-                        iconOnly
-                      />
-                    ) : null}
-                    {isOwner && channel?.slug ? (
-                      <Link
-                        to="/channel/$slug"
-                        params={{ slug: channel.slug }}
-                        search={{ edit: '1' }}
-                      >
-                        <Button size="sm" variant="secondary">
-                          Edit design
-                        </Button>
-                      </Link>
-                    ) : isOwner ? (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setTab('design')}
-                      >
-                        Edit look
-                      </Button>
-                    ) : null}
-                  </>
-                }
+      <EntitySocialHeader
+        title={artist.displayName}
+        imageUrl={artist.avatarUrl ?? placeholderArtworkUrl(artist.username)}
+        imageAlt=""
+        roundImage
+        subtitle={`@${artist.username}${artist.pronouns ? ` · ${artist.pronouns}` : ''}`}
+        description={
+          artist.bio ? (
+            <p className="line-clamp-2 whitespace-pre-wrap">{artist.bio}</p>
+          ) : null
+        }
+        backdropUrl={artistBackdropUrl}
+        visualizerPreset={
+          channelVisual?.visualPreset
+            ? resolvePublicVisualizerPreset(channelVisual.visualPreset)
+            : resolveArtworkVisualizerPreset(artist.username)
+        }
+        artworkUrlForVisualizer={artist.avatarUrl}
+        onImageClick={artist.avatarUrl ? () => setAvatarOpen(true) : undefined}
+        stats={headerStats}
+        actions={
+          <>
+            {!isOwner && artist.freeSubscriptionsEnabled !== false ? (
+              <NewsletterSubscribeToggle
+                artistUsername={artist.username}
+                artistDisplayName={artist.displayName}
+                iconOnly
               />
-            </div>
-          </div>
-          {channel?.slug ? (
-            <Link
-              to="/channel/$slug"
-              params={{ slug: channel.slug }}
-              className="text-primary shrink-0 text-sm font-medium underline-offset-2 hover:underline"
-            >
-              View channel →
-            </Link>
-          ) : null}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {artist.pronouns ? (
-            <span className="text-foreground-secondary text-sm">
-              {artist.pronouns}
-            </span>
-          ) : null}
-          {channel && channelVisual?.hlsUrl ? (
-            <Tooltip content="Open channel" side="top">
-              <Link to="/channel/$slug" params={{ slug: channel.slug }}>
-                <Button
-                  size="icon-sm"
-                  variant="secondary"
-                  aria-label="Open channel"
+            ) : null}
+            {!isOwner &&
+            artist.freeSubscriptionsEnabled !== false &&
+            fanTiers.length > 0 ? (
+              <Tooltip
+                content={`Subscribe to ${artist.displayName}'s fan tiers`}
+                side="top"
+              >
+                <Link
+                  to="/subscribe/$username"
+                  params={{ username: artist.username }}
                 >
-                  <RadioTowerIcon size={16} aria-hidden />
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    className="bg-background border-border rounded-md border-(length:--border-width)"
+                    aria-label={`Subscribe to ${artist.displayName}'s fan tiers`}
+                  >
+                    <UsersRound size={16} aria-hidden />
+                  </Button>
+                </Link>
+              </Tooltip>
+            ) : null}
+            {!isOwner && profile.links.presskit ? (
+              <Tooltip content="Download press kit" side="top">
+                <a href={publicPressKitUrl(artist.username)} download>
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    className="bg-background border-border rounded-md border-(length:--border-width)"
+                    aria-label="Download press kit"
+                  >
+                    <DownloadIcon size={16} aria-hidden />
+                  </Button>
+                </a>
+              </Tooltip>
+            ) : null}
+            {channel?.slug && !isOwner ? (
+              <EmbedButton
+                target={{ kind: 'channel', slug: channel.slug }}
+                iconOnly
+              />
+            ) : null}
+            {channel?.slug ? (
+              <Tooltip content="Open channel" side="top">
+                <Link to="/channel/$slug" params={{ slug: channel.slug }}>
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    className="bg-background border-border rounded-md border-(length:--border-width)"
+                    aria-label="Open channel"
+                  >
+                    <RadioTowerIcon size={16} aria-hidden />
+                  </Button>
+                </Link>
+              </Tooltip>
+            ) : null}
+            {isOwner && channel?.slug ? (
+              <Link
+                to="/channel/$slug"
+                params={{ slug: channel.slug }}
+                search={{ edit: '1' }}
+              >
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="bg-background border-border rounded-md border-(length:--border-width)"
+                >
+                  Edit design
                 </Button>
               </Link>
-            </Tooltip>
-          ) : null}
-        </div>
-        {artist.bio ? (
-          <p className="text-foreground max-w-3xl text-sm whitespace-pre-wrap">
-            {artist.bio}
-          </p>
-        ) : null}
-        {editingFullBio ? (
-          <div className="mt-2 flex max-w-2xl flex-col gap-2">
-            <Textarea
-              autoFocus
-              rows={6}
-              placeholder="Share your full history — how you got started, your influences, milestones…"
-              value={fullBioDraft}
-              onChange={(e) => setFullBioDraft(e.target.value)}
-            />
-            <div className="flex justify-end gap-2">
+            ) : isOwner ? (
               <Button
                 size="sm"
                 variant="secondary"
-                disabled={savingFullBio}
-                onClick={() => setEditingFullBio(false)}
+                className="bg-background border-border rounded-md border-(length:--border-width)"
+                onClick={() => setTab('design')}
               >
-                Cancel
+                Edit look
               </Button>
-              <SaveButton
-                saving={savingFullBio}
-                onClick={async () => {
-                  setSavingFullBio(true);
-                  const result = await patchMeProfile({
-                    fullBio: fullBioDraft.trim() || null,
-                  });
-                  setSavingFullBio(false);
-                  if (!result.ok) {
-                    return;
-                  }
-                  setProfile((prev) =>
-                    prev
-                      ? {
-                          ...prev,
-                          artist: {
-                            ...prev.artist,
-                            fullBio: result.data.fullBio ?? null,
-                          },
-                        }
-                      : prev,
-                  );
-                  setEditingFullBio(false);
-                }}
+            ) : null}
+          </>
+        }
+        data-testid="artist-social-header"
+      />
+
+      {(editingFullBio ||
+        artist.fullBio ||
+        isOwner ||
+        discoWidgets.length > 0) && (
+        <section className="border-border bg-background-secondary/70 flex flex-col gap-5 rounded-2xl border p-4 shadow-sm sm:p-6">
+          {editingFullBio ? (
+            <div className="flex max-w-2xl flex-col gap-2">
+              <Textarea
+                autoFocus
+                rows={6}
+                placeholder="Share your full history — how you got started, your influences, milestones…"
+                value={fullBioDraft}
+                onChange={(e) => setFullBioDraft(e.target.value)}
               />
+              <div className="flex justify-end gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={savingFullBio}
+                  onClick={() => setEditingFullBio(false)}
+                >
+                  Cancel
+                </Button>
+                <SaveButton
+                  saving={savingFullBio}
+                  onClick={async () => {
+                    setSavingFullBio(true);
+                    const result = await patchMeProfile({
+                      fullBio: fullBioDraft.trim() || null,
+                    });
+                    setSavingFullBio(false);
+                    if (!result.ok) {
+                      return;
+                    }
+                    setProfile((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            artist: {
+                              ...prev.artist,
+                              fullBio: result.data.fullBio ?? null,
+                            },
+                          }
+                        : prev,
+                    );
+                    setEditingFullBio(false);
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        ) : artist.fullBio ? (
-          <div className="mt-2 max-w-2xl">
-            <p className="text-foreground text-sm whitespace-pre-wrap">
-              {artist.fullBio}
-            </p>
+          ) : artist.fullBio ? (
+            <div className="max-w-2xl">
+              <p className="text-foreground text-sm whitespace-pre-wrap">
+                {artist.fullBio}
+              </p>
+              {isOwner && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="mt-2"
+                  onClick={() => {
+                    setFullBioDraft(artist.fullBio ?? '');
+                    setEditingFullBio(true);
+                  }}
+                >
+                  Edit full bio
+                </Button>
+              )}
+            </div>
+          ) : isOwner ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="self-start"
+              onClick={() => {
+                setFullBioDraft('');
+                setEditingFullBio(true);
+              }}
+            >
+              + Add full bio
+            </Button>
+          ) : null}
+          <DiscoWidgetsSection widgets={discoWidgets} />
+          <div className="flex flex-wrap gap-3 text-sm">
             {isOwner && (
-              <Button
-                size="sm"
-                variant="secondary"
-                className="mt-2"
-                onClick={() => {
-                  setFullBioDraft(artist.fullBio ?? '');
-                  setEditingFullBio(true);
-                }}
+              <Link
+                to="/studio/channel"
+                className="text-foreground-secondary underline-offset-2 hover:underline"
               >
-                Edit full bio
-              </Button>
+                Full studio settings
+              </Link>
             )}
           </div>
-        ) : isOwner ? (
-          <Button
-            size="sm"
-            variant="secondary"
-            className="mt-2 self-start"
-            onClick={() => {
-              setFullBioDraft('');
-              setEditingFullBio(true);
-            }}
-          >
-            + Add full bio
-          </Button>
-        ) : null}
-        <div className="border-border/70 flex flex-wrap gap-2 border-t pt-4">
-          {(
-            [
-              ...(artist.followerCount != null
-                ? [{ label: 'Followers', value: artist.followerCount }]
-                : []),
-              ...(artist.followingCount != null
-                ? [{ label: 'Following', value: artist.followingCount }]
-                : []),
-              { label: 'Tracks', value: profile.tracks.length },
-              { label: 'Releases', value: releases.length },
-              { label: 'Collections', value: collections.length },
-            ] as Array<{ label: string; value: number }>
-          ).map((stat) => (
-            <StatChip key={stat.label} value={stat.value} label={stat.label} />
-          ))}
-        </div>
-        <DiscoWidgetsSection widgets={discoWidgets} />
-        <div className="flex flex-wrap gap-3 text-sm">
-          {isOwner && (
-            <Link
-              to="/studio/channel"
-              className="text-foreground-secondary underline-offset-2 hover:underline"
-            >
-              Full studio settings
-            </Link>
-          )}
-        </div>
-      </section>
+        </section>
+      )}
 
       {liveShows &&
       (liveShows.upcomingEpisodes.length > 0 ||
@@ -975,7 +1017,11 @@ export function ArtistView({ username }: { username: string }) {
           >
             <Tabs.List className="w-fit flex-wrap">
               {tabs.map((item) => (
-                <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+                <Tabs.Tab key={item.id}>
+                  <TabLabel icon={<item.icon size={14} />}>
+                    {item.label}
+                  </TabLabel>
+                </Tabs.Tab>
               ))}
             </Tabs.List>
           </Tabs.Root>
@@ -1077,17 +1123,16 @@ export function ArtistView({ username }: { username: string }) {
                 {nowPlayingHere ? (
                   <>
                     <div className="size-12 shrink-0 overflow-hidden rounded-md bg-white/10 shadow-lg ring-1 ring-white/15 sm:size-14">
-                      {nowPlayingHere.coverUrl ? (
-                        <img
-                          src={nowPlayingHere.coverUrl}
-                          alt=""
-                          className="size-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex size-full items-center justify-center text-xs font-bold text-white/70">
-                          {nowPlayingHere.title.slice(0, 2).toUpperCase()}
-                        </div>
-                      )}
+                      <ImageReveal
+                        src={nowPlayingHere.coverUrl ?? undefined}
+                        alt=""
+                        className="size-full"
+                        placeholder={
+                          <span className="text-xs font-bold text-white/70">
+                            {nowPlayingHere.title.slice(0, 2).toUpperCase()}
+                          </span>
+                        }
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-base leading-tight font-bold text-white sm:text-lg">

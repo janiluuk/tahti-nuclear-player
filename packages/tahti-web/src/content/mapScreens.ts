@@ -515,10 +515,15 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         title: 'Help center',
         viewName: 'Help',
         caption: 'Help index and articles.',
-        actions: ['Browse help categories', 'Open a help article'],
+        actions: [
+          'Search help articles',
+          'Browse help categories',
+          'Open a help article',
+        ],
         goesTo: [
           { label: 'Open a specific article', to: '/help/$slug' },
-          { label: 'Back to the map hub', to: '/more' },
+          { label: 'Open About Tahti', to: '/about' },
+          { label: 'Open support', to: '/help/support' },
         ],
         old: {
           image: '/map/listen/help.png',
@@ -529,6 +534,48 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           image: '/map/nuclear/help.png',
           route: '/help',
           caption: 'Nuclear help hub',
+        },
+      },
+      {
+        id: 'anon-help-keyboard',
+        title: 'Help — keyboard shortcuts',
+        viewName: 'Help article',
+        caption:
+          'Keyboard shortcuts article with the in-app shortcut reference.',
+        actions: ['Read shortcut groups', 'Return to the help hub'],
+        goesTo: [{ label: 'Back to Help hub', to: '/help' }],
+        old: {
+          image: '/map/listen/help.png',
+          route: '/help/keyboard-shortcuts',
+          caption: 'Prod help article',
+        },
+        new: {
+          image: '/map/nuclear/help-keyboard-shortcuts.png',
+          route: '/help/keyboard-shortcuts',
+          caption: 'Nuclear keyboard shortcuts article',
+        },
+      },
+      {
+        id: 'anon-discover',
+        title: 'Discover',
+        viewName: 'Discover',
+        caption:
+          'Catalog browse with widgets, filters, and venue register CTA.',
+        actions: [
+          'Browse discovery widgets',
+          'Filter catalog results',
+          'Play a discovered track',
+        ],
+        goesTo: [{ label: 'Register a venue', to: '/venues/register' }],
+        old: {
+          image: '/map/listen/discover.png',
+          route: '/discover',
+          caption: 'Prod discover',
+        },
+        new: {
+          image: '/map/nuclear/discover.png',
+          route: '/discover',
+          caption: 'Nuclear Discover',
         },
       },
     ],
@@ -700,9 +747,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod messages (via dashboard)',
         },
         new: {
-          image: '/map/nuclear/listener-dashboard.png',
+          image: '/map/nuclear/messages.png',
           route: '/messages',
-          caption: 'Nuclear DMs (in My Library, not a separate dashboard)',
+          caption: 'Nuclear DMs inbox',
         },
       },
       {
@@ -725,10 +772,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
             label: 'Open public motion history',
             to: '/governance/history',
           },
-          {
-            label: 'Open historical grant reports',
-            to: '/transparency/grants/$year',
-          },
+          { label: 'Open transparency ledger', to: '/transparency' },
+          { label: 'Open governance help', to: '/help/governance' },
         ],
         old: {
           image: '/map/auth/governance-member.png',
@@ -790,6 +835,82 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           image: '/map/nuclear/listen.png',
           route: '/',
           caption: 'Nuclear defaults to Listen shell',
+        },
+      },
+      {
+        id: 'listener-feed',
+        title: 'Listen · Feed',
+        viewName: 'Feed',
+        caption:
+          'Activity from followed artists — Listen in-page tab, not a sidebar item.',
+        actions: [
+          'Read followed-artist activity',
+          'Open an artist from a feed item',
+          'Switch Listen / Feed / Favorites / History tabs',
+        ],
+        goesTo: [
+          { label: 'Open an artist profile', to: '/u/$username' },
+          { label: 'Back to Listen directory', to: '/' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'No dedicated prod feed surface in the atlas',
+        },
+        new: {
+          image: '/map/nuclear/feed.png',
+          route: '/listen/feed',
+          caption: 'Nuclear Listen Feed tab',
+        },
+      },
+      {
+        id: 'listener-favorites',
+        title: 'Favorites',
+        viewName: 'Favorites',
+        caption:
+          'Saved channels and tracks. Sidebar and Listen tab both land here.',
+        actions: [
+          'Play a favorited track or channel',
+          'Remove a favorite',
+          'Switch Listen section tabs',
+        ],
+        goesTo: [
+          { label: 'Open Listen directory', to: '/' },
+          { label: 'Open a channel', to: '/channel/$slug' },
+          { label: 'Open Radio', to: '/radio' },
+        ],
+        old: {
+          image: '/map/listen/favorites.png',
+          route: '/favorites',
+          caption: 'Prod favorites',
+        },
+        new: {
+          image: '/map/nuclear/favorites.png',
+          route: '/listen/favorites',
+          caption: 'Nuclear Favorites (Listen tab + sidebar)',
+        },
+      },
+      {
+        id: 'listener-history',
+        title: 'Listening history',
+        viewName: 'History',
+        caption:
+          'Recently played plus listening stats. Listen tab, not Library.',
+        actions: [
+          'Replay a recently played track',
+          'Review listening stats',
+          'Clear history',
+        ],
+        goesTo: [{ label: 'Open Listen directory', to: '/' }],
+        old: {
+          image: '/map/listen/history.png',
+          route: '/history',
+          caption: 'Prod history',
+        },
+        new: {
+          image: '/map/nuclear/history.png',
+          route: '/listen/history',
+          caption: 'Nuclear History (Listen tab)',
         },
       },
     ],
@@ -1344,13 +1465,16 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         actions: [
           'Edit account details',
           'Edit artist profile (bio/socials/avatar)',
-          'Manage fan tiers',
-          'Manage source connections',
+          'Manage fan tiers in Audience',
+          'Browse Add-ons',
           'Switch settings sections',
         ],
         goesTo: [
-          { label: 'Open Money settings', to: '/settings/money' },
-          { label: 'Open Green room settings', to: '/settings/broadcast' },
+          { label: 'Open Audience (fan tiers)', to: '/settings/audience' },
+          { label: 'Open Broadcast / green room', to: '/settings/broadcast' },
+          { label: 'Open Themes', to: '/settings/themes' },
+          { label: 'Open Add-ons', to: '/settings/plugin-store' },
+          { label: 'Open member Governance', to: '/governance' },
         ],
         old: {
           image: '/map/settings/account.png',
@@ -1360,7 +1484,57 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         new: {
           image: '/map/nuclear/settings.png',
           route: '/settings/$section',
-          caption: 'Nuclear settings sections',
+          caption: 'Nuclear settings modal (About removed from footer)',
+        },
+      },
+      {
+        id: 'settings-themes',
+        title: 'Settings · Themes',
+        viewName: 'Settings · Themes',
+        caption:
+          'App appearance. Public without sign-in. Footer is GitHub / Discord / API docs — no About.',
+        actions: ['Pick a built-in theme', 'Load or edit a custom theme JSON'],
+        goesTo: [
+          { label: 'Open Add-ons', to: '/settings/plugin-store' },
+          { label: "Open What's new", to: '/settings/whats-new' },
+        ],
+        old: {
+          image: '/map/settings/themes.png',
+          route: '/themes',
+          caption: 'Prod themes',
+        },
+        new: {
+          image: '/map/nuclear/settings-themes.png',
+          route: '/settings/themes',
+          caption: 'Nuclear Themes modal',
+        },
+      },
+      {
+        id: 'settings-addons',
+        title: 'Settings · Add-ons',
+        viewName: 'Settings · Add-ons',
+        caption:
+          'One browser for page widgets, import, radio, visualizers, and tools.',
+        actions: [
+          'Browse add-on categories',
+          'Configure a provider',
+          'Enable or disable an add-on',
+        ],
+        goesTo: [
+          {
+            label: 'Import category (bookmark)',
+            to: '/settings/plugin-store?category=import',
+          },
+        ],
+        old: {
+          image: '/map/settings/sources.png',
+          route: '/sources',
+          caption: 'Prod sources',
+        },
+        new: {
+          image: '/map/nuclear/settings-addons.png',
+          route: '/settings/plugin-store',
+          caption: 'Nuclear Add-ons modal',
         },
       },
       {
@@ -1377,7 +1551,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           {
             label:
               'Open fan subscription performance (same route, different tab)',
-            to: '/settings/money',
+            to: '/settings/audience',
           },
         ],
         old: {
@@ -1387,8 +1561,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/money-tiers.png',
-          route: '/settings/money',
-          caption: 'Nuclear fan tiers',
+          route: '/settings/audience',
+          caption: 'Nuclear Audience · fan tiers',
         },
       },
       {
@@ -1406,7 +1580,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         goesTo: [
           {
             label: 'Open fan tier configuration (same route, different tab)',
-            to: '/settings/money',
+            to: '/settings/audience',
           },
         ],
         old: {
@@ -1416,8 +1590,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/money-fan-subs.png',
-          route: '/settings/money',
-          caption: 'Nuclear fan subscription performance',
+          route: '/settings/audience',
+          caption: 'Nuclear Audience · fan subscription performance',
         },
       },
     ],
@@ -1528,8 +1702,10 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           'Submit a feature request',
         ],
         goesTo: [
-          { label: 'Open Studio home', to: '/studio' },
-          { label: 'Open account settings', to: '/settings/account' },
+          {
+            label: 'Switch Motions / Topics tabs (same route)',
+            to: '/studio/governance',
+          },
         ],
         old: {
           absent: true,
@@ -1557,7 +1733,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         goesTo: [
           { label: 'Open the new event page', to: '/studio/events/new' },
           { label: 'Open the Studio Broadcast page', to: '/studio/schedule' },
-          { label: 'Open venues', to: '/studio/venues' },
+          { label: 'Open venues', to: '/venues' },
         ],
         old: {
           absent: true,
@@ -1754,9 +1930,209 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'No direct Nuclear-era capture',
         },
         new: {
+          image: '/map/nuclear/admin-artwork-presets.png',
           route: '/admin/artwork-presets',
           caption:
-            'Defaults are immutable — a slot shows a custom artwork instead of overwriting the built-in one, saved per signed-in admin — shot pending.',
+            'Defaults are immutable — a slot shows custom artwork instead of overwriting the built-in one.',
+        },
+      },
+      {
+        id: 'admin-dashboard',
+        title: 'Admin dashboard',
+        viewName: 'Admin · Dashboard',
+        caption: 'Platform overview with activity, health, and shortcuts.',
+        actions: [
+          'Review platform KPIs',
+          'Open a shortcut to another admin page',
+        ],
+        goesTo: [{ label: 'Open Admin logs', to: '/admin/logs' }],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin.png',
+          route: '/admin',
+          caption: 'Nuclear Admin dashboard',
+        },
+      },
+      {
+        id: 'admin-users',
+        title: 'Admin users',
+        viewName: 'Admin · Users',
+        caption: 'Search accounts and edit role, membership, and suspension.',
+        actions: ['Search users', 'Edit role or membership'],
+        goesTo: [{ label: 'Return to Admin overview', to: '/admin' }],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin-users.png',
+          route: '/admin/users',
+          caption: 'Nuclear user admin',
+        },
+      },
+      {
+        id: 'admin-content',
+        title: 'Admin content',
+        viewName: 'Admin · Content',
+        caption: 'Catalog totals, latest uploads, and recordings.',
+        actions: ['Review catalog totals', 'Inspect latest uploads'],
+        goesTo: [{ label: 'Return to Admin overview', to: '/admin' }],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin-content.png',
+          route: '/admin/content',
+          caption: 'Nuclear content overview',
+        },
+      },
+      {
+        id: 'admin-radio',
+        title: 'Admin radio',
+        viewName: 'Admin · Radio',
+        caption: 'Tahti Radio and Selects rotation.',
+        actions: ['Review rotation', 'Inspect live station state'],
+        goesTo: [{ label: 'Open Tahti Selects', to: '/admin/tahti-selects' }],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin-radio.png',
+          route: '/admin/radio',
+          caption: 'Nuclear radio admin',
+        },
+      },
+      {
+        id: 'admin-streams',
+        title: 'Admin streams',
+        viewName: 'Admin · Streams',
+        caption: 'Live ingest and stream health across channels.',
+        actions: ['Monitor ingest', 'Inspect stream health'],
+        goesTo: [{ label: 'Return to Admin overview', to: '/admin' }],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin-streams.png',
+          route: '/admin/streams',
+          caption: 'Nuclear stream monitor',
+        },
+      },
+      {
+        id: 'admin-moderation-queue',
+        title: 'Admin moderation',
+        viewName: 'Admin · Moderation',
+        caption:
+          'Support, beta, radio submissions, Selects, reports, and feature requests in one tabbed queue.',
+        actions: ['Switch moderation tabs', 'Review a queue item'],
+        goesTo: [
+          { label: 'Open a moderation tab', to: '/admin/moderation/$tab' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin-moderation.png',
+          route: '/admin/moderation',
+          caption: 'Nuclear moderation queue',
+        },
+      },
+      {
+        id: 'admin-governance-board',
+        title: 'Admin governance',
+        viewName: 'Admin · Governance',
+        caption:
+          'Board overview of member votes, activity, and resolutions. Distinct from member /governance and Studio Governance.',
+        actions: [
+          'Review vote and discussion totals',
+          'Record a board resolution',
+        ],
+        goesTo: [
+          { label: 'Open AGM', to: '/admin/agm' },
+          { label: 'Open annual reports', to: '/admin/reports' },
+          { label: 'Open grants', to: '/admin/grants' },
+          { label: 'Open Admin logs', to: '/admin/logs' },
+          { label: 'Open users', to: '/admin/users' },
+          { label: 'Open venues', to: '/admin/venues' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin-governance.png',
+          route: '/admin/governance',
+          caption: 'Nuclear board governance',
+        },
+      },
+      {
+        id: 'admin-agm',
+        title: 'Admin AGM',
+        viewName: 'Admin · AGM',
+        caption: 'Annual general meeting scheduling and records.',
+        actions: ['Review AGM records', 'Schedule or update a meeting'],
+        goesTo: [{ label: 'Open Admin governance', to: '/admin/governance' }],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin-agm.png',
+          route: '/admin/agm',
+          caption: 'Nuclear AGM',
+        },
+      },
+      {
+        id: 'admin-storage',
+        title: 'Admin storage',
+        viewName: 'Admin · Storage',
+        caption: 'Quotas and uploaded files across the platform.',
+        actions: ['Review used / free / total', 'Open a user storage detail'],
+        goesTo: [
+          { label: 'Open a user storage page', to: '/admin/storage/$userId' },
+        ],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin-storage.png',
+          route: '/admin/storage',
+          caption: 'Nuclear storage admin',
+        },
+      },
+      {
+        id: 'admin-news',
+        title: 'Admin news',
+        viewName: 'Admin · News',
+        caption: 'Publish platform-wide news posts.',
+        actions: ['Compose a news post', 'Publish or update news'],
+        goesTo: [{ label: 'Return to Admin overview', to: '/admin' }],
+        old: {
+          absent: true,
+          route: '—',
+          caption: 'Next admin remains prod canonical',
+        },
+        new: {
+          image: '/map/nuclear/admin-news.png',
+          route: '/admin/news',
+          caption: 'Nuclear news admin',
         },
       },
     ],

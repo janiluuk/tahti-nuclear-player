@@ -88,21 +88,18 @@ export function LibrarySmartLinksView() {
                       className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
                     >
                       <div className="flex min-w-0 items-start gap-3">
-                        {release.artworkUrl ? (
-                          <ImageReveal
-                            src={release.artworkUrl}
-                            alt=""
-                            className="size-12 shrink-0 rounded-md"
-                          />
-                        ) : (
-                          <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center rounded-md border">
+                        <ImageReveal
+                          src={release.artworkUrl ?? undefined}
+                          alt=""
+                          className="border-border bg-background-secondary size-12 shrink-0 rounded-md border"
+                          placeholder={
                             <Link2Icon
                               size={18}
                               className="text-foreground-secondary"
                               aria-hidden
                             />
-                          </div>
-                        )}
+                          }
+                        />
                         <div className="min-w-0">
                           <Link
                             to="/studio/releases/$id"

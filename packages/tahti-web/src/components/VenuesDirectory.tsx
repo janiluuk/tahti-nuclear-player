@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
+import { ImageReveal } from '@tahti-player/ui';
+
 import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';
 import { countryFlagAndName } from '../lib/countries';
@@ -52,13 +54,13 @@ export function VenuesDirectory() {
     >
       {venues.map((venue) => (
         <li key={venue.id} className="flex gap-4 px-4 py-3">
-          {venue.photos?.[1] && (
-            <img
+          {venue.photos?.[1] ? (
+            <ImageReveal
               src={venue.photos[1]}
               alt=""
-              className="h-16 w-24 shrink-0 rounded-md object-cover"
+              className="h-16 w-24 shrink-0 rounded-md"
             />
-          )}
+          ) : null}
           <div className="flex min-w-0 flex-col gap-1">
             <Link
               to="/v/$slug"

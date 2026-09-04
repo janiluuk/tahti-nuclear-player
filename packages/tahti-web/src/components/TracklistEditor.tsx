@@ -265,12 +265,8 @@ export const TracklistEditor: FC<Props> = ({
       items={[
         {
           id: 'pins',
-          label: (
-            <span className="inline-flex items-center gap-1.5">
-              <MapPinPlusIcon size={15} aria-hidden />
-              Pins
-            </span>
-          ),
+          label: 'Pins',
+          icon: <MapPinPlusIcon size={15} />,
           content: (
             <div className="flex flex-col gap-4">
               <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
@@ -469,12 +465,8 @@ export const TracklistEditor: FC<Props> = ({
         },
         {
           id: 'import',
-          label: (
-            <span className="inline-flex items-center gap-1.5">
-              <FileUpIcon size={15} aria-hidden />
-              Import
-            </span>
-          ),
+          label: 'Import',
+          icon: <FileUpIcon size={15} />,
           content: (
             <div className="flex flex-col gap-4">
               <p className="text-foreground-secondary text-sm">
@@ -559,12 +551,8 @@ export const TracklistEditor: FC<Props> = ({
         },
         {
           id: 'overlay',
-          label: (
-            <span className="inline-flex items-center gap-1.5">
-              <ListMusicIcon size={15} aria-hidden />
-              Overlay
-            </span>
-          ),
+          label: 'Overlay',
+          icon: <ListMusicIcon size={15} />,
           content: (
             <div className="flex flex-col gap-5">
               <div className="border-border bg-background-secondary/30 flex items-center justify-between gap-4 rounded-xl border p-4">

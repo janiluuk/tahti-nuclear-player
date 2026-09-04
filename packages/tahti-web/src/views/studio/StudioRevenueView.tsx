@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { CircleHelpIcon } from 'lucide-react';
+import { CircleHelpIcon, LayersIcon, LayoutDashboardIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Alert, Button, Tabs, ViewShell } from '@tahti-player/ui';
@@ -117,6 +117,7 @@ export function StudioRevenueView() {
               {
                 id: 'overview',
                 label: 'Overview',
+                icon: <LayoutDashboardIcon size={14} />,
                 content:
                   hasFanTiers === false ? (
                     <StudioPanel title="Fan subscriptions">
@@ -257,6 +258,7 @@ export function StudioRevenueView() {
               {
                 id: 'tiers',
                 label: 'Tiers',
+                icon: <LayersIcon size={14} />,
                 content: (
                   <StudioPanel
                     title="Tiers"

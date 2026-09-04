@@ -175,29 +175,20 @@ export function AdminLogsView() {
                 items={[
                   {
                     id: 'activity',
-                    label: (
-                      <span className="inline-flex items-center gap-1.5">
-                        <ActivityIcon size={14} aria-hidden /> Audit events
-                      </span>
-                    ),
+                    label: 'Audit events',
+                    icon: <ActivityIcon size={14} />,
                     content: <AdminActivityView embedded />,
                   },
                   {
                     id: 'containers',
-                    label: (
-                      <span className="inline-flex items-center gap-1.5">
-                        <ContainerIcon size={14} aria-hidden /> Container logs
-                      </span>
-                    ),
+                    label: 'Container logs',
+                    icon: <ContainerIcon size={14} />,
                     content: containerLogs,
                   },
                   {
                     id: 'recent-audit',
-                    label: (
-                      <span className="inline-flex items-center gap-1.5">
-                        <HistoryIcon size={14} aria-hidden /> Recent audit
-                      </span>
-                    ),
+                    label: 'Recent audit',
+                    icon: <HistoryIcon size={14} />,
                     content: <RecentAuditEntries />,
                   },
                 ]}

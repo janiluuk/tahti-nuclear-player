@@ -1,5 +1,40 @@
 [
   {
+    "date": "2026-09-04T16:15",
+    "description": "Section tabs show icons and count pills where they belong — Discover, Library, Studio Channel, the right rail, and more — so you can tell sections apart at a glance.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-04T16:05",
+    "description": "Album, widget, news, and directory covers fade in the same way as the rest of the app instead of popping in as a raw image.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-04T15:50",
+    "description": "The desktop player title bar and top bar show Tahti, not Nuclear. The window title is Tahti Player with no Nuclear logo.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Player", "color": "purple" }]
+  },
+  {
+    "date": "2026-09-04T15:50",
+    "description": "On desktop, the right rail has a Library tab: import audio files from this device and play them in the Tahti player for this session. Soulseek is listed under Add-ons with a note that it needs the desktop app.",
+    "type": "feature",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
+    "date": "2026-09-04T03:40",
+    "description": "Signing in no longer freezes the app. The notifications rail no longer loops when unread items are counted.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [{ "label": "Listen", "color": "cyan" }]
+  },
+  {
     "date": "2026-09-04T03:10",
     "description": "Feed, Favorites, Account, Messages, Status, Studio home, Stats, Playlists, Upload, Library, Shows, and Admin Users, Streams, Content, Selects, and Status now use the same short title and subtitle as the other list pages.",
     "type": "improvement",

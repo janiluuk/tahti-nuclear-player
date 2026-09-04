@@ -13,7 +13,7 @@ describe('TitleBar', () => {
   it('(Snapshot) renders Mac variant', () => {
     const { container } = render(
       <TitleBar
-        title="Nuclear"
+        title="Tahti Player"
         styleOverride="macos"
         onMinimize={vi.fn()}
         onMaximize={vi.fn()}
@@ -27,7 +27,7 @@ describe('TitleBar', () => {
   it('(Snapshot) renders Windows variant', () => {
     const { container } = render(
       <TitleBar
-        title="Nuclear"
+        title="Tahti Player"
         styleOverride="windows"
         onMinimize={vi.fn()}
         onMaximize={vi.fn()}
@@ -41,7 +41,7 @@ describe('TitleBar', () => {
   it('displays the title', () => {
     render(
       <TitleBar
-        title="Nuclear Music Player"
+        title="Tahti Player"
         styleOverride="windows"
         onMinimize={vi.fn()}
         onMaximize={vi.fn()}
@@ -49,14 +49,14 @@ describe('TitleBar', () => {
         labels={mockLabels}
       />,
     );
-    expect(screen.getByText('Nuclear Music Player')).toBeInTheDocument();
+    expect(screen.getByText('Tahti Player')).toBeInTheDocument();
   });
 
   it('calls onMinimize when minimize button is clicked', async () => {
     const onMinimize = vi.fn();
     render(
       <TitleBar
-        title="Nuclear"
+        title="Tahti Player"
         styleOverride="windows"
         onMinimize={onMinimize}
         onMaximize={vi.fn()}
@@ -72,7 +72,7 @@ describe('TitleBar', () => {
     const onMaximize = vi.fn();
     render(
       <TitleBar
-        title="Nuclear"
+        title="Tahti Player"
         styleOverride="windows"
         onMinimize={vi.fn()}
         onMaximize={onMaximize}
@@ -88,7 +88,7 @@ describe('TitleBar', () => {
     const onClose = vi.fn();
     render(
       <TitleBar
-        title="Nuclear"
+        title="Tahti Player"
         styleOverride="windows"
         onMinimize={vi.fn()}
         onMaximize={vi.fn()}
@@ -104,7 +104,7 @@ describe('TitleBar', () => {
     const onStartDrag = vi.fn();
     render(
       <TitleBar
-        title="Nuclear"
+        title="Tahti Player"
         styleOverride="windows"
         onMinimize={vi.fn()}
         onMaximize={vi.fn()}

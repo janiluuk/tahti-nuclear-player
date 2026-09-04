@@ -12,8 +12,10 @@ import {
   Button,
   Dialog,
   FilePicker,
+  ImageReveal,
   Input,
   SaveButton,
+  TabLabel,
   Tabs,
   Textarea,
   Toggle,
@@ -74,7 +76,7 @@ function PostPreview({
               onClick={() => onImageClick?.(index)}
               aria-label={`View image ${index + 1} full size`}
             >
-              <img src={image} alt="" className="size-full object-cover" />
+              <ImageReveal src={image} alt="" className="size-full" />
             </button>
           ))}
         </div>
@@ -195,16 +197,10 @@ export function StudioUpdatesView() {
           >
             <Tabs.List>
               <Tabs.Tab>
-                <span className="inline-flex items-center gap-1.5">
-                  <NewspaperIcon size={14} aria-hidden />
-                  Posts
-                </span>
+                <TabLabel icon={<NewspaperIcon size={14} />}>Posts</TabLabel>
               </Tabs.Tab>
               <Tabs.Tab>
-                <span className="inline-flex items-center gap-1.5">
-                  <SendIcon size={14} aria-hidden />
-                  Newsletter
-                </span>
+                <TabLabel icon={<SendIcon size={14} />}>Newsletter</TabLabel>
               </Tabs.Tab>
             </Tabs.List>
           </Tabs.Root>
@@ -262,10 +258,10 @@ export function StudioUpdatesView() {
                                 }
                                 aria-label={`View image ${index + 1} full size`}
                               >
-                                <img
+                                <ImageReveal
                                   src={image}
                                   alt=""
-                                  className="size-full object-cover"
+                                  className="size-full"
                                 />
                               </button>
                             ))}

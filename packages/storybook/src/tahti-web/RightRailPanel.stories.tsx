@@ -71,3 +71,20 @@ export const ChatOpen: Story = {
     </div>
   ),
 };
+
+export const LibraryEmpty: Story = {
+  name: 'Library empty',
+  decorators: [
+    withChatContext(),
+    (Story) => {
+      useLayoutStore.setState({ rightRailTab: 'library' });
+      return <Story />;
+    },
+  ],
+  args: { isCollapsed: false },
+  render: (args) => (
+    <div className="h-[32rem]">
+      <RightRailPanel {...args} />
+    </div>
+  ),
+};

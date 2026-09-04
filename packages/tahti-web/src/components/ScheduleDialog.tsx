@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { CalendarDaysIcon, CalendarPlusIcon, Clock3Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Tooltip } from '@tahti-player/ui';
+import { Button, Dialog, ImageReveal, Tooltip } from '@tahti-player/ui';
 
 import {
   fetchPublicRadioShow,
@@ -93,19 +93,18 @@ export function ScheduleDialog({
                     show?.artist.avatarUrl;
                   return (
                     <>
-                      {image ? (
-                        <img
-                          src={image}
-                          alt=""
-                          className="size-10 shrink-0 rounded object-cover"
-                        />
-                      ) : (
-                        <CalendarDaysIcon
-                          size={14}
-                          className="text-primary shrink-0"
-                          aria-hidden
-                        />
-                      )}
+                      <ImageReveal
+                        src={image ?? undefined}
+                        alt=""
+                        className="size-10 shrink-0 rounded"
+                        placeholder={
+                          <CalendarDaysIcon
+                            size={14}
+                            className="text-primary"
+                            aria-hidden
+                          />
+                        }
+                      />
                       <Link
                         to="/radio/show/$channelSlug"
                         params={{ channelSlug: booking.channelSlug }}

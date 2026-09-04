@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 
-import { Tabs } from '@tahti-player/ui';
+import { TabLabel, Tabs } from '@tahti-player/ui';
 
 export type ModerationTabItem = {
   id: string;
@@ -41,8 +41,7 @@ export const ModerationTabs = ({
           const Icon = item.icon;
           return (
             <Tabs.Tab key={item.id}>
-              <Icon size={14} aria-hidden />
-              {item.label}
+              <TabLabel icon={<Icon size={14} />}>{item.label}</TabLabel>
             </Tabs.Tab>
           );
         })}

@@ -30,6 +30,7 @@ import {
   PlayerWorkspace,
   SidebarNavigation,
   SidebarNavigationItem,
+  TahtiLogo,
   TopBar,
 } from '@tahti-player/ui';
 
@@ -184,7 +185,7 @@ export const BasicLayout = () => {
     <div className="flex h-screen flex-col">
       <TopBar>
         <div className="ml-4 flex items-center gap-4">
-          <span className="text-foreground text-sm">Nuclear Music Player</span>
+          <TahtiLogo className="text-sm" />
         </div>
       </TopBar>
 
@@ -281,9 +282,7 @@ export const FullNavigationLayout = () => {
     <div className="flex h-screen flex-col">
       <TopBar>
         <div className="ml-4 flex items-center gap-4">
-          <span className="text-foreground text-sm font-medium">
-            Nuclear Music Player
-          </span>
+          <TahtiLogo className="text-sm" />
           <div className="ml-8 flex gap-2">
             <Button size="sm" variant="text">
               File

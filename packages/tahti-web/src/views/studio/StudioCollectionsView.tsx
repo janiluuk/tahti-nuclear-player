@@ -19,6 +19,8 @@ import {
   ImageReveal,
   Input,
   Select,
+  TabLabel,
+  Tabs,
   Toggle,
   ViewShell,
 } from '@tahti-player/ui';
@@ -289,26 +291,45 @@ export function StudioCollectionsView() {
                   <SearchIcon size={14} aria-hidden className="opacity-70" />
                 }
               />
-              <div
-                className="flex flex-wrap gap-2"
-                aria-label="Collection types"
+              <Tabs.Root
+                selectedIndex={
+                  filter === 'ALL'
+                    ? 0
+                    : CREATE_STYLES.findIndex(
+                        (option) => option.id === filter,
+                      ) + 1
+                }
+                onChange={(index) => {
+                  if (index === 0) {
+                    setFilter('ALL');
+                    return;
+                  }
+                  const option = CREATE_STYLES[index - 1];
+                  if (option) {
+                    setFilter(option.id);
+                  }
+                }}
               >
-                <StyleChip
-                  selected={filter === 'ALL'}
-                  icon={<LibraryIcon size={16} aria-hidden />}
-                  label={`All (${rows.length})`}
-                  onClick={() => setFilter('ALL')}
-                />
-                {CREATE_STYLES.map((option) => (
-                  <StyleChip
-                    key={option.id}
-                    selected={filter === option.id}
-                    icon={option.icon}
-                    label={`${option.label.endsWith('s') ? option.label : `${option.label}s`} (${counts[option.id]})`}
-                    onClick={() => setFilter(option.id)}
-                  />
-                ))}
-              </div>
+                <Tabs.List aria-label="Collection types" className="flex-wrap">
+                  <Tabs.Tab>
+                    <TabLabel
+                      icon={<LibraryIcon size={16} />}
+                      count={rows.length}
+                    >
+                      All
+                    </TabLabel>
+                  </Tabs.Tab>
+                  {CREATE_STYLES.map((option) => (
+                    <Tabs.Tab key={option.id}>
+                      <TabLabel icon={option.icon} count={counts[option.id]}>
+                        {option.label.endsWith('s')
+                          ? option.label
+                          : `${option.label}s`}
+                      </TabLabel>
+                    </Tabs.Tab>
+                  ))}
+                </Tabs.List>
+              </Tabs.Root>
             </div>
             {loading ? (
               <PageLoading label="Loading…" />
@@ -340,17 +361,14 @@ export function StudioCollectionsView() {
                     key={c.slug}
                     className="flex items-center gap-3 py-3 text-sm first:pt-0 last:pb-0"
                   >
-                    {c.coverUrl ? (
-                      <ImageReveal
-                        src={c.coverUrl}
-                        alt=""
-                        className="border-border h-12 w-12 rounded-lg border shadow-sm"
-                      />
-                    ) : (
-                      <div className="border-border bg-background flex h-12 w-12 items-center justify-center rounded-lg border">
+                    <ImageReveal
+                      src={c.coverUrl ?? undefined}
+                      alt=""
+                      className="border-border bg-background h-12 w-12 rounded-lg border shadow-sm"
+                      placeholder={
                         <Disc3Icon size={18} className="opacity-40" />
-                      </div>
-                    )}
+                      }
+                    />
                     <div className="min-w-0 flex-1">
                       <Link
                         to="/studio/collections/$slug"

@@ -1,5 +1,10 @@
 import { Link } from '@tanstack/react-router';
-import { MessageCircleIcon, MicIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  MessageCircleIcon,
+  MicIcon,
+  RadioIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, SectionShell, Tabs, Tooltip } from '@tahti-player/ui';
@@ -9,8 +14,13 @@ import {
   type PublicRadioShow,
   type PublicRadioShowEpisode,
 } from '../api/shows';
-import { PageFrame, PageHeader } from '../components/PageHeader';
+import {
+  EntitySocialHeader,
+  type EntitySocialStat,
+} from '../components/EntitySocialHeader';
+import { PageFrame } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { isGreenRoomWindow } from '../lib/radioSchedule';
 
 function formatDate(startAt: string, endAt: string) {
@@ -105,42 +115,87 @@ export const RadioShowView = ({ channelSlug }: { channelSlug: string }) => {
     (episode) => episode && isGreenRoomWindow(episode),
   );
 
+  const headerStats: EntitySocialStat[] = [
+    ...(show.upcomingEpisodes.length > 0
+      ? [
+          {
+            key: 'upcoming',
+            label: 'Upcoming',
+            value: show.upcomingEpisodes.length,
+            icon: CalendarIcon,
+          },
+        ]
+      : []),
+    ...(show.pastEpisodes.length > 0
+      ? [
+          {
+            key: 'past',
+            label: 'Past episodes',
+            value: show.pastEpisodes.length,
+            icon: RadioIcon,
+          },
+        ]
+      : []),
+  ];
+
   return (
     <PageFrame maxWidth="3xl">
-      <PageHeader
+      <Link
+        to="/radio"
+        className="text-foreground-secondary text-xs hover:underline"
+      >
+        ← Tahti Radio
+      </Link>
+
+      <EntitySocialHeader
         title={show.artist.displayName}
-        subtitle="Show on Tahti Radio"
-        back={
+        imageUrl={
+          show.artist.avatarUrl ??
+          show.artist.coverUrl ??
+          placeholderArtworkUrl(show.artist.username)
+        }
+        roundImage
+        subtitle={
           <Link
-            to="/radio"
-            className="text-foreground-secondary text-xs hover:underline"
+            to="/u/$username"
+            params={{ username: show.artist.username }}
+            className="hover:text-foreground underline-offset-2 hover:underline"
           >
-            ← Tahti Radio
+            @{show.artist.username} · Show on Tahti Radio
           </Link>
         }
-        actions={
-          <div className="flex items-center gap-3">
-            {greenRoomLive ? (
-              <Tooltip content="Green room" side="top">
-                <Link
-                  to="/u/$username/green-room"
-                  params={{ username: show.artist.username }}
-                >
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    aria-label="Open green room"
-                  >
-                    <MicIcon size={16} aria-hidden />
-                  </Button>
-                </Link>
-              </Tooltip>
-            ) : null}
-          </div>
+        description={
+          show.artist.bio ? (
+            <p className="line-clamp-2 whitespace-pre-wrap">
+              {show.artist.bio}
+            </p>
+          ) : null
         }
+        backdropUrl={show.artist.coverUrl}
+        visualizerPreset="AURORA"
+        artworkUrlForVisualizer={show.artist.avatarUrl}
+        stats={headerStats}
+        actions={
+          greenRoomLive ? (
+            <Tooltip content="Green room" side="top">
+              <Link
+                to="/u/$username/green-room"
+                params={{ username: show.artist.username }}
+              >
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  className="bg-background border-border rounded-md border-(length:--border-width)"
+                  aria-label="Open green room"
+                >
+                  <MicIcon size={16} aria-hidden />
+                </Button>
+              </Link>
+            </Tooltip>
+          ) : null
+        }
+        data-testid="radio-show-social-header"
       />
-
-      {show.artist.bio ? <p className="text-sm">{show.artist.bio}</p> : null}
 
       <SectionShell title="Episodes">
         <Tabs

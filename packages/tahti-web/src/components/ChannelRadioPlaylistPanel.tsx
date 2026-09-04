@@ -10,6 +10,7 @@ import {
   Input,
   SaveButton,
   Select,
+  TabLabel,
   Tabs,
   Toggle,
 } from '@tahti-player/ui';
@@ -355,8 +356,17 @@ export const ChannelRadioPlaylistPanel: FC = () => {
           aria-label="24/7 programme sections"
           className="border-border flex-wrap border-b px-4 pt-3 sm:px-5"
         >
-          <Tabs.Tab>Programme</Tabs.Tab>
-          <Tabs.Tab>Active rotation ({rotation.length})</Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel icon={<RadioIcon size={14} />}>Programme</TabLabel>
+          </Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel
+              icon={<ListMusicIcon size={14} />}
+              count={rotation.length}
+            >
+              Active rotation
+            </TabLabel>
+          </Tabs.Tab>
         </Tabs.List>
       </Tabs.Root>
 

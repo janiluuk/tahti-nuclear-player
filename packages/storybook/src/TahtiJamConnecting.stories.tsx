@@ -16,8 +16,9 @@ export const Default: Story = {
     <TahtiJam>
       <TahtiJam.Connecting
         labels={{
-          title: 'Connecting to Nuclear...',
-          subtitle: 'Make sure Nuclear is running and Nuclear Jam is enabled',
+          title: 'Connecting to Tahti Player...',
+          subtitle:
+            'Make sure Tahti Player is running and Tahti Jam is enabled',
         }}
       />
     </TahtiJam>

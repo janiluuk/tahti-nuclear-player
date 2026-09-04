@@ -12,6 +12,7 @@ import {
   InfoIcon,
   KeyRound,
   Landmark,
+  LayoutGrid,
   Lock,
   LogInIcon,
   LogOutIcon,
@@ -25,11 +26,11 @@ import {
   Sparkles,
   Tag,
   Trash2,
+  Upload,
   User,
   UserCircle2,
   Users,
   Wallet,
-  type LucideIcon,
 } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
@@ -215,15 +216,6 @@ function euros(cents: number | string): string {
   return `€${(n / 100).toFixed(n % 100 === 0 ? 0 : 2)}`;
 }
 
-function tabLabel(Icon: LucideIcon, label: string) {
-  return (
-    <span className="flex items-center gap-1.5">
-      <Icon size={14} />
-      {label}
-    </span>
-  );
-}
-
 export function SettingsSectionBody({
   section,
 }: {
@@ -403,7 +395,8 @@ function AccountPanel() {
       items={[
         {
           id: 'session',
-          label: tabLabel(User, 'Session'),
+          label: 'Session',
+          icon: <User size={14} />,
           content: (
             <div className="flex flex-col gap-6">
               <SettingsInfo label="Signed in as" value={`@${user.username}`} />
@@ -420,7 +413,8 @@ function AccountPanel() {
         },
         {
           id: 'security',
-          label: tabLabel(Lock, 'Security'),
+          label: 'Security',
+          icon: <Lock size={14} />,
           content: (
             <Tabs
               className="min-w-0"
@@ -429,12 +423,14 @@ function AccountPanel() {
               items={[
                 {
                   id: 'two-factor',
-                  label: tabLabel(Lock, 'Two-factor authentication'),
+                  label: 'Two-factor authentication',
+                  icon: <Lock size={14} />,
                   content: <SecurityTotpPanel />,
                 },
                 {
                   id: 'api-tokens',
-                  label: tabLabel(KeyRound, 'API tokens'),
+                  label: 'API tokens',
+                  icon: <KeyRound size={14} />,
                   content: <ApiTokensPanel />,
                 },
               ]}
@@ -443,7 +439,8 @@ function AccountPanel() {
         },
         {
           id: 'membership',
-          label: tabLabel(Wallet, 'Membership'),
+          label: 'Membership',
+          icon: <Wallet size={14} />,
           content: (
             <div className="flex flex-col gap-3">
               {!membership ? (
@@ -509,7 +506,8 @@ function AccountPanel() {
         },
         {
           id: 'governance',
-          label: tabLabel(Landmark, 'Governance'),
+          label: 'Governance',
+          icon: <Landmark size={14} />,
           content: (
             <Suspense fallback={<PageLoading label="Loading governance…" />}>
               <GovernanceView />
@@ -518,17 +516,20 @@ function AccountPanel() {
         },
         {
           id: 'storage',
-          label: tabLabel(Database, 'Storage'),
+          label: 'Storage',
+          icon: <Database size={14} />,
           content: <AccountStoragePanel />,
         },
         {
           id: 'notifications',
-          label: tabLabel(Bell, 'Notifications & visibility'),
+          label: 'Notifications & visibility',
+          icon: <Bell size={14} />,
           content: <NotificationsVisibilityPanel />,
         },
         {
           id: 'subscriptions',
-          label: tabLabel(Wallet, 'Your subs'),
+          label: 'Your subs',
+          icon: <Wallet size={14} />,
           content: (
             <div className="flex flex-col gap-4">
               {subscriptions.length === 0 ? (
@@ -566,7 +567,8 @@ function AccountPanel() {
         },
         {
           id: 'privacy',
-          label: tabLabel(Shield, 'Privacy & data'),
+          label: 'Privacy & data',
+          icon: <Shield size={14} />,
           content: <PrivacyDataPanel username={user.username} />,
         },
       ]}
@@ -876,7 +878,8 @@ function ArtistPanel() {
       items={[
         {
           id: 'identity',
-          label: tabLabel(UserCircle2, 'Identity'),
+          label: 'Identity',
+          icon: <UserCircle2 size={14} />,
           content: !profile ? (
             <SettingsHint>Loading…</SettingsHint>
           ) : (
@@ -1002,7 +1005,8 @@ function ArtistPanel() {
         },
         {
           id: 'story',
-          label: tabLabel(UserCircle2, 'Story'),
+          label: 'Story',
+          icon: <UserCircle2 size={14} />,
           content: !profile ? (
             <SettingsHint>Loading…</SettingsHint>
           ) : (
@@ -1034,7 +1038,8 @@ function ArtistPanel() {
         },
         {
           id: 'people',
-          label: tabLabel(Users, 'People'),
+          label: 'People',
+          icon: <Users size={14} />,
           content: (
             <div className="flex flex-col gap-5">
               <label className="flex flex-col gap-1.5 text-sm">
@@ -1113,7 +1118,8 @@ function ArtistPanel() {
         },
         {
           id: 'connections',
-          label: tabLabel(Share2, 'Connections'),
+          label: 'Connections',
+          icon: <Share2 size={14} />,
           content: !social ? (
             <SettingsHint>Loading…</SettingsHint>
           ) : (
@@ -1198,12 +1204,14 @@ function ArtistPanel() {
         },
         {
           id: 'branding',
-          label: tabLabel(Paintbrush, 'Branding'),
+          label: 'Branding',
+          icon: <Paintbrush size={14} />,
           content: <StudioBrandingPanel section="branding" />,
         },
         {
           id: 'release-visuals',
-          label: tabLabel(Sparkles, 'Releases'),
+          label: 'Releases',
+          icon: <Sparkles size={14} />,
           content: <ReleaseVisualDefaultsPanel />,
         },
       ].filter(
@@ -1304,7 +1312,8 @@ function ChannelPanel() {
       items={[
         {
           id: 'appearance',
-          label: tabLabel(Paintbrush, 'Appearance'),
+          label: 'Appearance',
+          icon: <Paintbrush size={14} />,
           content: (
             <div className="flex flex-col gap-4">
               <SettingsHint>
@@ -1323,7 +1332,8 @@ function ChannelPanel() {
         },
         {
           id: 'discovery',
-          label: tabLabel(Compass, 'Discovery'),
+          label: 'Discovery',
+          icon: <Compass size={14} />,
           content: !discovery ? (
             <SettingsHint>Loading…</SettingsHint>
           ) : (
@@ -1417,7 +1427,8 @@ function ChannelPanel() {
         },
         {
           id: 'domain',
-          label: tabLabel(Globe, 'Username & domain'),
+          label: 'Username & domain',
+          icon: <Globe size={14} />,
           content: (
             <div className="flex flex-col gap-6">
               <Input
@@ -1504,7 +1515,8 @@ function ChannelPanel() {
         },
         {
           id: 'moderation',
-          label: tabLabel(Shield, 'Moderation'),
+          label: 'Moderation',
+          icon: <Shield size={14} />,
           content: <StudioModerationView embedded />,
         },
       ]}
@@ -1539,7 +1551,8 @@ export function BroadcastPanel({
   const items = [
     {
       id: 'radio',
-      label: tabLabel(RadioIcon, 'Radio'),
+      label: 'Radio',
+      icon: <RadioIcon size={14} />,
       content: !programme ? (
         <SettingsHint>Loading…</SettingsHint>
       ) : (
@@ -1582,7 +1595,8 @@ export function BroadcastPanel({
     },
     {
       id: 'green-room',
-      label: tabLabel(Mic, 'Green room'),
+      label: 'Green room',
+      icon: <Mic size={14} />,
       content: !green ? (
         <SettingsHint>Loading…</SettingsHint>
       ) : (
@@ -1669,7 +1683,8 @@ export function BroadcastPanel({
     },
     {
       id: 'moderators',
-      label: tabLabel(Shield, 'Moderators'),
+      label: 'Moderators',
+      icon: <Shield size={14} />,
       content: (
         <div className="flex flex-col gap-4">
           <SettingsHint>Chat moderators for your live channel.</SettingsHint>
@@ -1703,7 +1718,8 @@ export function BroadcastPanel({
     },
     {
       id: 'multistream',
-      label: tabLabel(Cast, 'Multistream'),
+      label: 'Multistream',
+      icon: <Cast size={14} />,
       content: <MulticastSection />,
     },
   ];
@@ -1755,12 +1771,14 @@ export function MoneyPanel() {
       items={[
         {
           id: 'fan-tiers',
-          label: tabLabel(Tag, 'Fan tiers'),
+          label: 'Fan tiers',
+          icon: <Tag size={14} />,
           content: <FanTiersEditor />,
         },
         {
           id: 'fan-subs',
-          label: tabLabel(Landmark, 'Fan subs'),
+          label: 'Fan subs',
+          icon: <Landmark size={14} />,
           content: !connect ? (
             <SettingsHint>Loading…</SettingsHint>
           ) : (
@@ -1850,7 +1868,8 @@ export function MoneyPanel() {
         },
         {
           id: 'grants',
-          label: tabLabel(Gift, 'Grants'),
+          label: 'Grants',
+          icon: <Gift size={14} />,
           content: (
             <div className="flex flex-col gap-4">
               {estimate && (
@@ -1881,7 +1900,8 @@ export function MoneyPanel() {
         },
         {
           id: 'subscriptions',
-          label: tabLabel(Wallet, 'Your subs'),
+          label: 'Your subs',
+          icon: <Wallet size={14} />,
           content: (
             <div className="flex flex-col gap-4">
               {!user ? (
@@ -2270,6 +2290,7 @@ function ThemesPanel() {
           {
             id: 'browse',
             label: 'Browse',
+            icon: <LayoutGrid size={14} />,
             content: (
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1.5">
@@ -2395,11 +2416,13 @@ function ThemesPanel() {
           {
             id: 'editor',
             label: 'Editor',
+            icon: <Pencil size={14} />,
             content: <ThemeEditor />,
           },
           {
             id: 'import',
             label: 'Import JSON',
+            icon: <Upload size={14} />,
             content: (
               <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
                 <h3 className="font-bold">Import a theme</h3>

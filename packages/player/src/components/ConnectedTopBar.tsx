@@ -1,12 +1,7 @@
 import { useCanGoBack, useRouter } from '@tanstack/react-router';
 import { FC } from 'react';
 
-import {
-  Tooltip,
-  TopBar,
-  TopBarLogo,
-  TopBarNavigation,
-} from '@tahti-player/ui';
+import { TahtiLogo, Tooltip, TopBar, TopBarNavigation } from '@tahti-player/ui';
 
 import { useAppVersion } from '../hooks/useAppVersion';
 import { useCanGoForward } from '../hooks/useCanGoForward';
@@ -36,7 +31,7 @@ export const ConnectedTopBar: FC = () => {
             side="bottom"
             wrapperClassName="flex items-center"
           >
-            <TopBarLogo />
+            <TahtiLogo className="text-sm" />
           </Tooltip>
         )}
         <UpdateBadge />

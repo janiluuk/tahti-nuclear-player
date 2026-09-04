@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLinkIcon, SparklesIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { cn, ViewShell } from '@tahti-player/ui';
+import { cn, ImageReveal, ViewShell } from '@tahti-player/ui';
 
 import { fetchAnnouncements } from '../api/client';
 import type { Announcement } from '../api/types';
@@ -82,10 +82,10 @@ function TimelineEntry({
         </div>
         <div className="border-border bg-background-secondary shadow-shadow flex-1 overflow-hidden rounded-md border-(length:--border-width)">
           {imageUrl ? (
-            <img
+            <ImageReveal
               src={imageUrl}
               alt={`${entry.headline} thumbnail`}
-              className="aspect-[16/7] w-full object-cover"
+              className="aspect-[16/7] w-full"
             />
           ) : null}
           <div className="p-4">

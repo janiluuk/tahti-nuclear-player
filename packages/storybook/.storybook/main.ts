@@ -28,6 +28,11 @@ const config: StorybookConfig = {
   core: {
     disableTelemetry: true,
   },
+  managerHead: (head) => `
+    ${head}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Tahti Storybook</title>
+  `,
   typescript: {
     check: false,
     reactDocgen: 'react-docgen-typescript',

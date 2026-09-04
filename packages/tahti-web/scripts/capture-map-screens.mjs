@@ -48,7 +48,7 @@ const shots = [
   { id: 'onboarding', path: '/onboarding', auth: false },
   { id: 'venues', path: '/venues', auth: false },
   { id: 'venues-register', path: '/venues/register', auth: false },
-  { id: 'governance', path: '/governance', auth: false },
+  { id: 'governance', path: '/governance' },
   { id: 'governance-feature-requests', path: '/governance/feature-requests' },
   { id: 'about', path: '/about', auth: false },
   { id: 'for-artists', path: '/for-artists', auth: false },
@@ -59,7 +59,12 @@ const shots = [
   { id: 'terms', path: '/terms', auth: false },
   { id: 'agpl', path: '/agpl', auth: false },
   { id: 'help', path: '/help', auth: false },
-  { id: 'help-topic', path: '/help/getting-started', auth: false },
+  { id: 'help-topic', path: '/help/getting-around', auth: false },
+  {
+    id: 'help-keyboard-shortcuts',
+    path: '/help/keyboard-shortcuts',
+    auth: false,
+  },
   { id: 'status', path: '/status', auth: false },
   { id: 'transparency', path: '/transparency', auth: false },
   { id: 'transparency-methodology', path: '/transparency/methodology' },
@@ -78,8 +83,11 @@ const shots = [
   { id: 'library-upload', path: '/library/upload' },
   { id: 'library-media', path: '/library/media' },
   { id: 'feed', path: '/feed' },
+  { id: 'listen-feed', path: '/listen/feed' },
   { id: 'history', path: '/history' },
+  { id: 'listen-history', path: '/listen/history' },
   { id: 'favorites', path: '/favorites' },
+  { id: 'listen-favorites', path: '/listen/favorites' },
   { id: 'listener-dashboard', path: '/dashboard' },
   { id: 'account', path: '/account' },
   { id: 'messages', path: '/messages' },
@@ -87,8 +95,11 @@ const shots = [
   { id: 'schedule-page', path: '/schedule' },
   { id: 'settings', path: '/settings' },
   { id: 'settings-section', path: '/settings/artist' },
-  { id: 'money-tiers', path: '/settings/money' },
-  { id: 'money-fan-subs', path: '/settings/money' },
+  { id: 'settings-themes', path: '/settings/themes' },
+  { id: 'settings-addons', path: '/settings/plugin-store' },
+  { id: 'settings-audience', path: '/settings/audience' },
+  { id: 'money-tiers', path: '/settings/audience' },
+  { id: 'money-fan-subs', path: '/settings/audience' },
   { id: 'settings-account', path: '/settings/account' },
   {
     id: 'settings-notifications',
@@ -158,6 +169,8 @@ const shots = [
   { id: 'admin-top-lists', path: '/admin/top-lists' },
   { id: 'admin-announcements', path: '/admin/announcements' },
   { id: 'admin-governance', path: '/admin/governance' },
+  { id: 'admin-reports', path: '/admin/reports' },
+  { id: 'admin-artwork-presets', path: '/admin/artwork-presets' },
   { id: 'admin-grants', path: '/admin/grants' },
   { id: 'admin-grants-year', path: '/admin/grants/2026' },
   { id: 'admin-agm', path: '/admin/agm' },
@@ -281,7 +294,12 @@ async function ensurePage() {
       viewport: { width: 1280, height: 800 },
       deviceScaleFactor: 1,
     });
-    await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    try {
+      await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    } catch {
+      await page.waitForTimeout(1500);
+      await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    }
   }
 }
 
@@ -295,11 +313,14 @@ async function ensureChatClosed() {
 }
 
 async function waitForContent() {
-  await page.locator('main').waitFor({ state: 'visible', timeout: 5000 });
+  await page
+    .locator('main')
+    .waitFor({ state: 'visible', timeout: 2500 })
+    .catch(() => {});
   await page.waitForFunction(
     () => {
       const text = document.body.innerText.trim();
-      return text.length > 120 && !/^Loading(?:…|\.\.\.)?$/m.test(text);
+      return text.length > 80 && !/^Loading(?:…|\.\.\.)?$/m.test(text);
     },
     undefined,
     { timeout: 8000 },
@@ -314,12 +335,39 @@ function tabFilePart(label) {
     .slice(0, 48);
 }
 
-async function captureAllTabs(out) {
-  const tabSelectors = [
-    '[role="tab"]:visible',
-    '[data-testid^="settings-tab-"]:visible',
-  ];
-  const tabs = page.locator(tabSelectors.join(', '));
+const IN_PAGE_TAB_SHOT_IDS = new Set([
+  'settings',
+  'settings-section',
+  'settings-themes',
+  'settings-addons',
+  'settings-audience',
+  'settings-account',
+  'settings-notifications',
+  'money-tiers',
+  'money-fan-subs',
+  'sources',
+  'help',
+  'library',
+  'library-collections',
+  'library-sounds',
+  'studio-channel',
+  'studio-channel-radio',
+  'studio-channel-multicast',
+  'studio-events',
+  'studio-governance',
+  'admin-moderation',
+  'admin-moderation-tab',
+  'archive-item',
+]);
+
+async function captureInPageTabs(out, shotId) {
+  if (!IN_PAGE_TAB_SHOT_IDS.has(shotId)) {
+    return;
+  }
+  const tabRoot = shotId.startsWith('settings')
+    ? page.locator('[role="dialog"]')
+    : page.locator('main');
+  const tabs = tabRoot.locator('[role="tab"]:visible');
   const count = await tabs.count();
   const seen = new Set();
   for (let index = 0; index < count; index += 1) {
@@ -375,11 +423,18 @@ for (const s of shotsToCapture) {
         .click();
       await page.getByRole('heading', { name: /notifications/i }).waitFor();
     }
+    if (s.path.startsWith('/settings')) {
+      await page
+        .getByText('Themes', { exact: true })
+        .first()
+        .waitFor({ timeout: 5000 })
+        .catch(() => {});
+    }
     await page.waitForTimeout(s.wait ?? 300);
     await waitForContent();
     // Hide cookie/noise if any; capture main viewport
     await page.screenshot({ path: out, fullPage: false });
-    await captureAllTabs(out);
+    await captureInPageTabs(out, s.id);
     console.log('ok', s.id, s.path);
   } catch (err) {
     console.error('fail', s.id, err.message);
@@ -407,7 +462,7 @@ writeFileSync(
   `${JSON.stringify(
     {
       surface: 'nuclear',
-      capturedAt: '2026-09-03',
+      capturedAt: '2026-09-04',
       baseUrl: BASE,
       images: imageFiles.map((fileName) => ({
         file: fileName,

@@ -4,6 +4,8 @@ import {
   ChevronRightIcon,
   MessageCircleIcon,
   MicIcon,
+  RadioIcon,
+  RadioTowerIcon,
 } from 'lucide-react';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 
@@ -13,6 +15,7 @@ import {
   FilterChips,
   Input,
   SaveButton,
+  TabLabel,
   Tabs,
   Tooltip,
   ViewShell,
@@ -372,7 +375,17 @@ export function RadioScheduleView() {
               <Tabs.List className="w-fit">
                 {stationTabs.map((item) => (
                   <Tabs.Tab key={item}>
-                    {item === 'radio' ? 'Tahti Radio' : 'My channel'}
+                    <TabLabel
+                      icon={
+                        item === 'radio' ? (
+                          <RadioIcon size={14} />
+                        ) : (
+                          <RadioTowerIcon size={14} />
+                        )
+                      }
+                    >
+                      {item === 'radio' ? 'Tahti Radio' : 'My channel'}
+                    </TabLabel>
                   </Tabs.Tab>
                 ))}
               </Tabs.List>

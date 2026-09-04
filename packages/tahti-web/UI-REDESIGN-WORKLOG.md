@@ -1,5 +1,166 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Tabs Storybook migration (icons + count pills)
+
+**Status:** executed.
+
+Canonical `@tahti-player/ui` `Tabs` + `TabLabel` (`icon`, `count` Badge pill).
+Storybook `Layout/Tabs`: With icons, With count pills, Icons + count pills,
+Vertical icon-only. App tab strips migrated; Settings **nav** stays
+`SettingsPanel`. Collapsed right rail uses vertical icon-only `Tabs`
+(keeps the post-login notification `useMemo` fix).
+
+Todo: [`docs/todo/tabs-migration.md`](../../docs/todo/tabs-migration.md).
+
+## 2026-09-04 — Listing thumbnail ImageReveal sweep (0.0.67)
+
+**Status:** executed.
+
+Listing covers (directory rows, widget cards, add-on store rows, news
+tiles, schedule/show lists) use Storybook `ImageReveal`. Playable track
+rows stay on `MediaArtwork` (`thumb`/`md`/`fill`), which already runs
+`ImageReveal`. Initials/icon fallbacks move into the `placeholder` slot
+so empty art still goes through the same primitive.
+
+Widgets included: Discover `WidgetCard` collections + artist-of-the-week,
+Disco-widget store icons, Admin Disco-widget catalog, Listen radio logo,
+News timeline, Radio Browser favicons, Bandcamp import rows.
+
+Todo: [`docs/todo/listing-thumbnail-reveal.md`](../../docs/todo/listing-thumbnail-reveal.md).
+
+Left as-is: upload/edit previews, Channel Designer, `EntitySocialHeader`,
+fullscreen player, map screenshots, comment avatars, video backdrops.
+
+## 2026-09-04 — Independent desktop player (pro library, Soulseek, Tahti chrome)
+
+**Status:** planning + first slice in progress (`0.0.66`).
+
+Roadmap: independent music player with pro management and Soulseek.
+Todo: [`docs/todo/desktop-pro-library.md`](../../docs/todo/desktop-pro-library.md).
+
+The desktop player is a Tahti product. Window chrome is Storybook
+`TitleBar` + `TopBar`. No Nuclear atom logo and no “Nuclear” wordmark in
+that chrome (epic **F**). Local files and Soulseek live in a **Library**
+right-rail tab, not a Listen widget (epics **A–E**).
+
+### Epic F — TitleBar + header, no Nuclear
+
+Storybook already demos `Components/TitleBar` as “Tahti Player” and
+`Layout/TopBar` with `TahtiLogo`. Live player still injected
+`TopBarLogo` (Nuclear atom) into `TitleText`, and `ConnectedTopBar` used
+the same mark when the custom title bar was off. Tahti Jam’s header
+still said “Nuclear Jam”.
+
+**F1 (this slice):** title text only on `TitleBar`; `TahtiLogo` /
+`TahtiMark` move into `@tahti-player/ui` and replace `TopBarLogo` on the
+player header; Jam header says Tahti. Tests use “Tahti Player”, not
+“Nuclear”. Custom title bar stays **opt-in** (F2: consider default-on).
+
+### Epics A–E — Library rail, metadata, import, Soulseek, pro tools
+
+| Epic | v1 | This slice |
+| --- | --- | --- |
+| **A** | Library tab on the desktop right rail | Tab + `DesktopLibraryPanel` |
+| **B** | Metadata DB | not started |
+| **C** | Import + play in the shared player | Session blob import / play / queue |
+| **D** | Soulseek native add-on | Help + Add-ons Configure stub (no protocol) |
+| **E** | Bulk / BPM / M3U / virtualize | not started |
+
+Web cannot speak Soulseek or watch folders. Do not relay P2P through
+Tahti servers. Legal copy ships before any search UI.
+
+**v1 non-goals:** mobile Library-rail parity; replacing Studio Sounds;
+server-side Soulseek; `CardsRow` for the panel list.
+
+### First execution slice
+
+- `RightRailTab` includes `'library'`; persist migrate v5; hide Library
+  on `useIsMobile`.
+- `DesktopLibraryPanel`: Storybook `FilePicker` + `EmptyState`; play and
+  queue via blob URLs (`sourceProvider: 'local'`).
+- Settings → Add-ons → Import: `SoulseekAddonCard` (`PluginStoreItem`
+  Configure, Test connection disabled).
+- Help: getting-around mentions the Library rail; desktop-library
+  article; Soulseek row in the add-ons table (`partial`).
+
+## 2026-09-04 — KPI StatChip revert + subscribe header (0.0.65)
+
+**Status:** executed.
+
+Reverted dashboard-style statistics that had been swapped to compact
+`StatChip` (social-header style) back to large number panels:
+Admin Storage disk cards, Studio Home/Stats/Channel/Schedule overview
+metrics, Fan subscription summary, Track insights, Admin user followers.
+Admin Dashboard/Content already use `StatNumber`. Stream manager keeps
+operational status chips. Subscribe page now uses `EntitySocialHeader`.
+
+## 2026-09-04 — Entity social header sweep + admin KPI restore (0.0.64)
+
+**Status:** executed.
+
+`EntitySocialHeader` now also wraps Channel (no designer hero), Radio
+show, Venue, and Smart-link/release pages. Playlists remain the same
+public `CollectionView` as collections. Admin Dashboard and Content
+restore large `StatNumber` KPI panels — no compact StatChip strip and
+no stream-manager embed on `/admin`. Finance / live / queues / cron /
+audit stay under “more”.
+
+## 2026-09-04 — Entity social header (0.0.63)
+
+**Status:** executed.
+
+Nuclear-style `EntitySocialHeader` on Artist + Collection: `bg-primary`
+card, round/square artwork, actions top-right, icon `StatChip`s inside
+the header, optional image backdrop or `ChannelVisualizer` under a
+scrim. Replaces the separate stats strip below the old hero. Storybook:
+`Tahti/Page/EntitySocialHeader`. Todo:
+[`docs/todo/entity-social-header.md`](../../docs/todo/entity-social-header.md).
+
+## 2026-09-04 — RightRail unread selector (0.0.62)
+
+**Status:** executed.
+
+`RightRailPanel` selected unread notifications with
+`s.items.filter(!readAt)` inside the Zustand selector. That allocated a
+new array every snapshot, so `useSyncExternalStore` looped
+(`getSnapshot should be cached` → Maximum update depth) on every
+signed-in chrome surface. Select `s.items` and filter in the component,
+same as `AppTopNav`. Map recapture of Library / Studio / Admin /
+governance can retry after this.
+
+## 2026-09-04 — Signed-in map recapture blocked (RightRail)
+
+**Status:** blocked (docs only — no PNG overwrite, no version bump).
+
+Re-probed signed-in atlas routes after ViewShell `0.0.60` / `0.0.61`.
+Sibling API on `:15011` is healthy, but session cookies are
+`Domain=.tahti.live; Secure`, so capture stayed on local Vite +
+`VITE_FORCE_MOCK=1`. Every signed-in chrome surface (`/library`, Listen
+tabs, Messages, `/governance`, all probed Studio/Admin including
+`/studio/governance`, `/admin/governance`, `/admin/agm`) still hits
+React “Maximum update depth exceeded”. Stack points at
+`RightRailPanel` (`getSnapshot` / Zustand selector
+`s.items.filter(!readAt)`). Existing signed-in PNGs left untouched.
+Notes: [`docs/todo/map-screenshot-refresh.md`](../../docs/todo/map-screenshot-refresh.md).
+
+## 2026-09-04 — Tahti Map screenshot + diagram refresh
+
+**Status:** executed (docs / atlas only — no app version bump).
+
+Recaptured public Nuclear atlas PNGs under `public/map/nuclear/` via
+`scripts/capture-map-screens.mjs` (local Vite + `VITE_FORCE_MOCK=1`; sibling
+seeded API was down). New rich shots: Listen, Radio, Discover, Channel,
+Help hub + getting-around + keyboard-shortcuts, Settings modal Themes and
+Add-ons (About gone from footer). Signed-in Studio / Admin / member
+Governance / Library / Messages / Feed recapture hit a React update-depth
+loop during concurrent ViewShell WIP — crash overlays were discarded and
+those PNGs restored from HEAD.
+
+`mapScreens.ts` / `flowDiagrams.ts` / `NAVIGATION-SITEMAP.md` / ScreenAtlas
+Storybook docs now match current chrome (Listen tabs, three governance
+contexts, Settings without About). Flag list:
+[`docs/todo/map-screenshot-refresh.md`](../../docs/todo/map-screenshot-refresh.md).
+
 ## 2026-09-04 — ViewShell 3×5 rounds (listener + Studio + Admin)
 
 **Status:** executed (`0.0.61`).

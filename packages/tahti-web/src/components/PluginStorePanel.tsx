@@ -29,12 +29,14 @@ import {
   EmptyState,
   FavoriteButton,
   FilterChips,
+  ImageReveal,
   Input,
   MediaArtwork,
   PluginStoreItem,
   SaveButton,
   Select,
   Slider,
+  TabLabel,
   Tabs,
   ThemeController,
   ThemeStoreItem,
@@ -131,6 +133,7 @@ import {
   multicastProviders,
   type MulticastProviderId,
 } from '../plugins/multicast';
+import { SoulseekAddonCard } from '../plugins/soulseek/SoulseekAddonCard';
 import { useThemeStore } from '../plugins/themes';
 import {
   visualizerMetadata,
@@ -250,8 +253,12 @@ function InstalledAvailableTabs({
         onChange={(index) => setTab(index === 0 ? 'installed' : 'available')}
       >
         <Tabs.List>
-          <Tabs.Tab>Installed ({installedIds.length})</Tabs.Tab>
-          <Tabs.Tab>Available ({availableIds.length})</Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel count={installedIds.length}>Installed</TabLabel>
+          </Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel count={availableIds.length}>Available</TabLabel>
+          </Tabs.Tab>
         </Tabs.List>
       </Tabs.Root>
       {visibleIds.length === 0 ? (
@@ -376,6 +383,7 @@ function CategoryBody({ categoryId }: { categoryId: PluginCategoryId }) {
         categoryId === 'fingerprinting') && (
         <ServiceCategory categoryId={categoryId} />
       )}
+      {categoryId === 'import' && <SoulseekAddonCard />}
       {categoryId === 'multicast' && <MulticastCategory />}
       {categoryId === 'audio-plugins' && <AudioPluginsCategory />}
       {categoryId === 'tools' && <ToolsCategory />}
@@ -1443,15 +1451,11 @@ function OAuthServiceCard({
                       key={album.id}
                       className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
                     >
-                      <div className="bg-background-secondary size-10 shrink-0 overflow-hidden rounded-md">
-                        {album.coverUrl ? (
-                          <img
-                            src={album.coverUrl}
-                            alt=""
-                            className="size-full object-cover"
-                          />
-                        ) : null}
-                      </div>
+                      <ImageReveal
+                        src={album.coverUrl ?? undefined}
+                        alt=""
+                        className="bg-background-secondary size-10 shrink-0 rounded-md"
+                      />
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-medium">
                           {album.title}
@@ -1984,42 +1988,56 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
 
       {handle && (
         <>
-          <nav
-            className="flex flex-wrap gap-2"
-            aria-label="hearthis.at library"
+          <Tabs.Root
+            selectedIndex={Math.max(
+              0,
+              (['tracks', 'sets', 'collections', 'search'] as const).indexOf(
+                tab,
+              ),
+            )}
+            onChange={(index) => {
+              const next = (
+                ['tracks', 'sets', 'collections', 'search'] as const
+              )[index];
+              if (!next) {
+                return;
+              }
+              setTab(next);
+              setSelected(new Set());
+            }}
           >
-            {(
-              [
-                ['tracks', 'Tracks', library?.tracks.length ?? 0],
-                ['sets', 'DJ sets', library?.sets.length ?? 0],
-                [
-                  'collections',
-                  'Collections',
-                  library?.collections.length ?? 0,
-                ],
-                ['search', 'Search', hits.length],
-              ] as const
-            ).map(([id, label, count]) => (
-              <Button
-                key={id}
-                size="sm"
-                variant={tab === id ? 'default' : 'secondary'}
-                onClick={() => {
-                  setTab(id);
-                  setSelected(new Set());
-                }}
-              >
-                {id === 'collections' ? (
-                  <FolderDownIcon size={14} className="mr-1.5" aria-hidden />
-                ) : id === 'search' ? (
-                  <SearchIcon size={14} className="mr-1.5" aria-hidden />
-                ) : (
-                  <CheckSquareIcon size={14} className="mr-1.5" aria-hidden />
-                )}
-                {label} ({count})
-              </Button>
-            ))}
-          </nav>
+            <Tabs.List aria-label="hearthis.at library" className="flex-wrap">
+              <Tabs.Tab>
+                <TabLabel
+                  icon={<CheckSquareIcon size={14} />}
+                  count={library?.tracks.length ?? 0}
+                >
+                  Tracks
+                </TabLabel>
+              </Tabs.Tab>
+              <Tabs.Tab>
+                <TabLabel
+                  icon={<CheckSquareIcon size={14} />}
+                  count={library?.sets.length ?? 0}
+                >
+                  DJ sets
+                </TabLabel>
+              </Tabs.Tab>
+              <Tabs.Tab>
+                <TabLabel
+                  icon={<FolderDownIcon size={14} />}
+                  count={library?.collections.length ?? 0}
+                >
+                  Collections
+                </TabLabel>
+              </Tabs.Tab>
+              <Tabs.Tab>
+                <TabLabel icon={<SearchIcon size={14} />} count={hits.length}>
+                  Search
+                </TabLabel>
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
 
           {tab === 'search' && (
             <div className="flex flex-wrap gap-2">
@@ -2860,22 +2878,19 @@ function RadioBrowserStationRow({
   return (
     <li className="border-border hover:bg-background-secondary flex items-center gap-2 rounded-md border p-1.5 pr-1">
       <div className="border-border bg-background flex size-9 shrink-0 items-center justify-center overflow-hidden rounded border">
-        {station.favicon ? (
-          <img
-            src={station.favicon}
-            alt=""
-            className="size-full object-contain"
-            onError={(e) => {
-              e.currentTarget.remove();
-            }}
-          />
-        ) : (
-          <RadioIcon
-            size={16}
-            className="text-foreground-secondary"
-            aria-hidden
-          />
-        )}
+        <ImageReveal
+          src={station.favicon ?? undefined}
+          alt=""
+          className="size-full"
+          imgClassName="object-contain"
+          placeholder={
+            <RadioIcon
+              size={16}
+              className="text-foreground-secondary"
+              aria-hidden
+            />
+          }
+        />
       </div>
       <button
         type="button"
@@ -3312,8 +3327,12 @@ function RadioCategory() {
         }
       >
         <Tabs.List>
-          <Tabs.Tab>Installed ({stationInstalledCount})</Tabs.Tab>
-          <Tabs.Tab>Available ({stationAvailableCount})</Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel count={stationInstalledCount}>Installed</TabLabel>
+          </Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel count={stationAvailableCount}>Available</TabLabel>
+          </Tabs.Tab>
         </Tabs.List>
       </Tabs.Root>
       <div className="flex flex-col gap-2">

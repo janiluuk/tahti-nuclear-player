@@ -1,5 +1,6 @@
 import { FC, ReactNode } from 'react';
 
+import { Badge } from '../Badge';
 import { TabsList } from './TabsList';
 import { TabsPanel } from './TabsPanel';
 import { TabsPanels } from './TabsPanels';
@@ -11,6 +12,10 @@ export type TabsItem = {
   label: ReactNode;
   content: ReactNode;
   disabled?: boolean;
+  /** Optional leading icon (Lucide or similar). */
+  icon?: ReactNode;
+  /** Optional count shown as a pill Badge after the label. */
+  count?: number;
 };
 
 export type TabsProps = {
@@ -34,6 +39,31 @@ type TabsComponent = FC<TabsProps> & {
   Panels: typeof TabsPanels;
   Panel: typeof TabsPanel;
 };
+
+/** Shared label chrome for composition-mode tabs (icon + text + optional count pill). */
+export const TabLabel: FC<{
+  icon?: ReactNode;
+  count?: number;
+  children: ReactNode;
+}> = ({ icon, count, children }) => (
+  <span className="inline-flex items-center gap-1.5">
+    {icon ? (
+      <span className="shrink-0 [&>svg]:size-3.5" aria-hidden>
+        {icon}
+      </span>
+    ) : null}
+    {children}
+    {count != null ? (
+      <Badge
+        variant="pill"
+        color="secondary"
+        className="min-w-4 px-1.5 text-[10px] leading-3"
+      >
+        {count}
+      </Badge>
+    ) : null}
+  </span>
+);
 
 const TabsImpl: FC<TabsProps> = ({
   items,
@@ -80,15 +110,17 @@ const TabsImpl: FC<TabsProps> = ({
       panelClassName={panelClassName}
     >
       <TabsList>
-        {items.map((it) => (
-          <TabsTab key={it.id} disabled={it.disabled}>
-            {it.label}
+        {items.map((item) => (
+          <TabsTab key={item.id} disabled={item.disabled}>
+            <TabLabel icon={item.icon} count={item.count}>
+              {item.label}
+            </TabLabel>
           </TabsTab>
         ))}
       </TabsList>
       <TabsPanels>
-        {items.map((it) => (
-          <TabsPanel key={it.id}>{it.content}</TabsPanel>
+        {items.map((item) => (
+          <TabsPanel key={item.id}>{item.content}</TabsPanel>
         ))}
       </TabsPanels>
     </TabsRoot>

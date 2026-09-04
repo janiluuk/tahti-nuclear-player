@@ -6,6 +6,7 @@ import {
   Button,
   Input,
   PluginStoreItem,
+  TabLabel,
   Tabs,
   Toggle,
   Tooltip,
@@ -259,8 +260,12 @@ export function ListenAddonsPanel({
         }
       >
         <Tabs.List>
-          <Tabs.Tab>Installed ({installedCount})</Tabs.Tab>
-          <Tabs.Tab>Available ({availableCount})</Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel count={installedCount}>Installed</TabLabel>
+          </Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel count={availableCount}>Available</TabLabel>
+          </Tabs.Tab>
         </Tabs.List>
       </Tabs.Root>
       <div className={listClassName}>

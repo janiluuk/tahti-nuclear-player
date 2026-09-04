@@ -18,6 +18,7 @@ import {
   FilePicker,
   Input,
   SaveButton,
+  TabLabel,
   Tabs,
   Textarea,
   Toggle,
@@ -419,22 +420,23 @@ export function StudioShowDetailView({ id }: { id: string }) {
             >
               <Tabs.List aria-label="Show sections">
                 <Tabs.Tab>
-                  <span className="inline-flex items-center gap-1.5">
-                    <InfoIcon size={14} aria-hidden />
-                    Overview
-                  </span>
+                  <TabLabel icon={<InfoIcon size={14} />}>Overview</TabLabel>
                 </Tabs.Tab>
                 <Tabs.Tab>
-                  <span className="inline-flex items-center gap-1.5">
-                    <ListMusicIcon size={14} aria-hidden />
-                    Episodes ({episodes.length})
-                  </span>
+                  <TabLabel
+                    icon={<ListMusicIcon size={14} />}
+                    count={episodes.length}
+                  >
+                    Episodes
+                  </TabLabel>
                 </Tabs.Tab>
                 <Tabs.Tab>
-                  <span className="inline-flex items-center gap-1.5">
-                    <CircleDotIcon size={14} aria-hidden />
-                    Recordings ({recordingCount})
-                  </span>
+                  <TabLabel
+                    icon={<CircleDotIcon size={14} />}
+                    count={recordingCount}
+                  >
+                    Recordings
+                  </TabLabel>
                 </Tabs.Tab>
               </Tabs.List>
             </Tabs.Root>

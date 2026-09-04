@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Button, StatChip } from '@tahti-player/ui';
+import { Button } from '@tahti-player/ui';
 
 import {
   fetchTrackInsights,
@@ -11,6 +11,8 @@ import {
 import { ListenerWorldMap } from './ListenerWorldMap';
 import { PageLoading } from './PageStates';
 import { StudioPanel } from './StudioPanel';
+import { Eyebrow } from './tahti/Eyebrow';
+import { StatNumber } from './tahti/StatNumber';
 
 const PERIODS: InsightsPeriod[] = ['7d', '30d', 'all'];
 
@@ -60,15 +62,19 @@ export function TrackInsightsPanel({
         </p>
       ) : (
         <>
-          <div className="flex flex-wrap gap-2">
-            <StatChip
-              value={insights.totalPlays.toLocaleString()}
-              label="Plays"
-            />
-            <StatChip
-              value={insights.totalDownloads.toLocaleString()}
-              label="Downloads"
-            />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="border-border rounded-lg border p-4">
+              <Eyebrow>Plays</Eyebrow>
+              <StatNumber className="mt-1 block text-2xl">
+                {insights.totalPlays.toLocaleString()}
+              </StatNumber>
+            </div>
+            <div className="border-border rounded-lg border p-4">
+              <Eyebrow>Downloads</Eyebrow>
+              <StatNumber className="mt-1 block text-2xl">
+                {insights.totalDownloads.toLocaleString()}
+              </StatNumber>
+            </div>
           </div>
 
           <StudioPanel title="Listener map">

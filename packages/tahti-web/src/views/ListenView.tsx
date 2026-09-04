@@ -4,6 +4,7 @@ import {
   HeartIcon,
   HistoryIcon,
   ListMusicIcon,
+  NewspaperIcon,
   PauseIcon,
   PlayIcon,
   RadioIcon,
@@ -18,8 +19,10 @@ import {
   Card,
   CardGrid,
   FilterChips,
+  ImageReveal,
   Input,
   SectionShell,
+  TabLabel,
   Tabs,
   Tooltip,
   ViewShell,
@@ -70,7 +73,7 @@ const LISTEN_SECTION_TABS = [
   {
     id: 'feed' as const,
     label: 'Feed',
-    Icon: ListMusicIcon,
+    Icon: NewspaperIcon,
     to: '/listen/feed',
   },
   {
@@ -333,10 +336,7 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
         <Tabs.List aria-label="Listen sections" className="overflow-x-auto">
           {LISTEN_SECTION_TABS.map((item) => (
             <Tabs.Tab key={item.id}>
-              <span className="inline-flex items-center gap-1.5">
-                <item.Icon size={14} aria-hidden />
-                {item.label}
-              </span>
+              <TabLabel icon={<item.Icon size={14} />}>{item.label}</TabLabel>
             </Tabs.Tab>
           ))}
         </Tabs.List>
@@ -392,18 +392,17 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
               ) : null}
               <div className="relative z-10 flex min-w-0 items-start gap-3">
                 <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-bold tracking-tight">
-                  {radioLogo ? (
-                    <img
-                      src={radioLogo}
-                      alt=""
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <RadioIcon
-                      size={20}
-                      className="text-foreground-secondary"
-                    />
-                  )}
+                  <ImageReveal
+                    src={radioLogo ?? undefined}
+                    alt=""
+                    className="size-full"
+                    placeholder={
+                      <RadioIcon
+                        size={20}
+                        className="text-foreground-secondary"
+                      />
+                    }
+                  />
                 </div>
                 <div className="min-w-0">
                   <div className="text-sm font-bold tracking-tight">

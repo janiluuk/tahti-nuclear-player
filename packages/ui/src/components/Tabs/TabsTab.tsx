@@ -8,12 +8,16 @@ import { useTabsContext } from './context';
 type TabsTabProps = PropsWithChildren<{
   disabled?: boolean;
   className?: string;
+  title?: string;
+  'aria-label'?: string;
 }>;
 
 export const TabsTab: FC<TabsTabProps> = ({
   children,
   disabled,
   className,
+  title,
+  'aria-label': ariaLabel,
 }) => {
   const { tabClassName } = useTabsContext();
   return (
@@ -26,6 +30,8 @@ export const TabsTab: FC<TabsTabProps> = ({
           variant={selected ? 'default' : 'text'}
           className={cn(tabClassName, className)}
           data-selected={selected ? '' : undefined}
+          title={title}
+          aria-label={ariaLabel}
         >
           {children}
         </Button>

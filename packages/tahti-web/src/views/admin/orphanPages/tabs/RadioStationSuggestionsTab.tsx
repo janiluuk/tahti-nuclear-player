@@ -1,7 +1,7 @@
 import { RadioIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Textarea } from '@tahti-player/ui';
+import { Badge, Button, ImageReveal, Textarea } from '@tahti-player/ui';
 
 import {
   approveRadioStationSuggestion,
@@ -75,19 +75,18 @@ export function RadioStationSuggestionsTab() {
               >
                 <div className="flex items-start gap-3">
                   <div className="bg-surface-secondary flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg">
-                    {row.logoUrl ? (
-                      <img
-                        src={row.logoUrl}
-                        alt=""
-                        className="size-full object-cover"
-                      />
-                    ) : (
-                      <RadioIcon
-                        size={22}
-                        className="text-foreground-secondary"
-                        aria-hidden
-                      />
-                    )}
+                    <ImageReveal
+                      src={row.logoUrl ?? undefined}
+                      alt=""
+                      className="size-full"
+                      placeholder={
+                        <RadioIcon
+                          size={22}
+                          className="text-foreground-secondary"
+                          aria-hidden
+                        />
+                      }
+                    />
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="text-base font-bold">{row.name}</h3>

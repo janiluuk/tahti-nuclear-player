@@ -107,7 +107,7 @@ const GUIDE_GROUPS: Array<{
     description:
       'Themes, imports, live mirrors, audio tools, and page widgets.',
     icon: PlugIcon,
-    slugs: ['add-ons', 'desktop-mcp'],
+    slugs: ['add-ons', 'desktop-mcp', 'desktop-library'],
   },
   {
     id: 'build-with-tahti',

@@ -1,3 +1,4 @@
+import { BarChart3Icon, HistoryIcon } from 'lucide-react';
 import { FC, useState } from 'react';
 
 import { useTranslation } from '@tahti-player/i18n';
@@ -22,11 +23,13 @@ export const History: FC = () => {
           {
             id: 'stats',
             label: t('tabs.stats'),
+            icon: <BarChart3Icon size={14} />,
             content: <HistoryStats />,
           },
           {
             id: 'listening-history',
             label: t('tabs.listeningHistory'),
+            icon: <HistoryIcon size={14} />,
             content: <HistoryList />,
           },
         ]}

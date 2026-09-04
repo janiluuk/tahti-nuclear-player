@@ -1,3 +1,5 @@
+import { BarChart3Icon, Clock3Icon, HistoryIcon } from 'lucide-react';
+
 import { Button, Tabs, ViewShell } from '@tahti-player/ui';
 
 import { HistoryListSection } from '../components/history/HistoryListSection';
@@ -42,6 +44,7 @@ export function HistoryView({ embedded = false }: { embedded?: boolean }) {
           {
             id: 'recently-played',
             label: 'Recently played',
+            icon: <Clock3Icon size={14} />,
             content: (
               <section className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto">
                 {recentHistory.length === 0 ? (
@@ -61,11 +64,13 @@ export function HistoryView({ embedded = false }: { embedded?: boolean }) {
           {
             id: 'stats',
             label: 'Stats',
+            icon: <BarChart3Icon size={14} />,
             content: <HistoryStatsSection history={history} />,
           },
           {
             id: 'listening-history',
             label: 'Listening history',
+            icon: <HistoryIcon size={14} />,
             content: <HistoryListSection history={history} />,
           },
         ]}

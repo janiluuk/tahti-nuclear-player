@@ -1,7 +1,14 @@
-import { PencilIcon } from 'lucide-react';
+import { ArchiveIcon, FolderInputIcon, PencilIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, EmptyState, Tabs, Tooltip, ViewShell } from '@tahti-player/ui';
+import {
+  Button,
+  EmptyState,
+  TabLabel,
+  Tabs,
+  Tooltip,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import { fetchStudioSounds } from '../../api/studio';
 import type { StudioSound } from '../../api/studio-types';
@@ -37,8 +44,14 @@ export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
         onChange={(index) => setTab(index === 1 ? 'files' : 'all')}
       >
         <Tabs.List aria-label="Stash sections">
-          <Tabs.Tab>All stash</Tabs.Tab>
-          <Tabs.Tab>Move to stash</Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel icon={<ArchiveIcon size={14} />}>All stash</TabLabel>
+          </Tabs.Tab>
+          <Tabs.Tab>
+            <TabLabel icon={<FolderInputIcon size={14} />}>
+              Move to stash
+            </TabLabel>
+          </Tabs.Tab>
         </Tabs.List>
       </Tabs.Root>
       {tab === 'files' ? (

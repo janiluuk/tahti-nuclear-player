@@ -19,6 +19,7 @@ import {
   EmptyState,
   Input,
   Select,
+  TabLabel,
   Tabs,
   ViewShell,
 } from '@tahti-player/ui';
@@ -301,10 +302,9 @@ export function StudioSoundsView() {
             <Tabs.List>
               {FOLDERS.map((folderOption) => (
                 <Tabs.Tab key={folderOption.id}>
-                  <span className="inline-flex items-center gap-1.5">
-                    <folderOption.icon size={14} aria-hidden />
+                  <TabLabel icon={<folderOption.icon size={14} />}>
                     {folderOption.label}
-                  </span>
+                  </TabLabel>
                 </Tabs.Tab>
               ))}
             </Tabs.List>

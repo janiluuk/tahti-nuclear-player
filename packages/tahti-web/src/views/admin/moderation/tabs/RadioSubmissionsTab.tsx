@@ -1,7 +1,7 @@
 import { CheckCircle2Icon, PlayIcon, XCircleIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Textarea } from '@tahti-player/ui';
+import { Badge, Button, ImageReveal, Textarea } from '@tahti-player/ui';
 
 import {
   approveRadioSubmission,
@@ -108,15 +108,16 @@ export function RadioSubmissionsTab() {
             <StudioPanel title="Auditing">
               <div className="flex items-start gap-4">
                 <div className="bg-surface-secondary flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg text-xs font-bold">
-                  {active.sound.bannerUrl ? (
-                    <img
-                      src={active.sound.bannerUrl}
-                      alt=""
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    active.sound.title.slice(0, 2).toUpperCase()
-                  )}
+                  <ImageReveal
+                    src={active.sound.bannerUrl ?? undefined}
+                    alt=""
+                    className="size-full"
+                    placeholder={
+                      <span>
+                        {active.sound.title.slice(0, 2).toUpperCase()}
+                      </span>
+                    }
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="text-base font-bold">{active.sound.title}</h3>

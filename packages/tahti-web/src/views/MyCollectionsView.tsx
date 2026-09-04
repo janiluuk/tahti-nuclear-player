@@ -13,7 +13,14 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { Button, Input, Tooltip } from '@tahti-player/ui';
+import {
+  Button,
+  ImageReveal,
+  Input,
+  TabLabel,
+  Tabs,
+  Tooltip,
+} from '@tahti-player/ui';
 
 import { fetchStudioCollections } from '../api/studio';
 import type { StudioCollection } from '../api/studio-types';
@@ -98,15 +105,14 @@ function CollectionRow({ collection }: { collection: StudioCollection }) {
         aria-label={`Open ${collection.name}`}
       >
         <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-          {collection.coverUrl ? (
-            <img
-              src={collection.coverUrl}
-              alt=""
-              className="size-full object-cover"
-            />
-          ) : (
-            collection.name.slice(0, 2).toUpperCase()
-          )}
+          <ImageReveal
+            src={collection.coverUrl ?? undefined}
+            alt=""
+            className="size-full"
+            placeholder={
+              <span>{collection.name.slice(0, 2).toUpperCase()}</span>
+            }
+          />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
@@ -242,36 +248,36 @@ export function MyCollectionsView({
             className="max-w-xs"
             aria-label="Search collections"
           />
-          <div className="flex flex-wrap gap-2" aria-label="Collection types">
-            <button
-              type="button"
-              aria-pressed={filter === 'all'}
-              onClick={() => setFilter('all')}
-              className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${
-                filter === 'all'
-                  ? 'border-primary bg-primary/15 text-primary'
-                  : 'border-border text-foreground-secondary'
-              }`}
-            >
-              All ({collections.length})
-            </button>
-            {GROUPS.map((group) => (
-              <button
-                key={group.id}
-                type="button"
-                aria-pressed={filter === group.id}
-                onClick={() => setFilter(group.id)}
-                className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold ${
-                  filter === group.id
-                    ? 'border-primary bg-primary/15 text-primary'
-                    : 'border-border text-foreground-secondary'
-                }`}
-              >
-                {group.icon}
-                {group.label} ({counts[group.id]})
-              </button>
-            ))}
-          </div>
+          <Tabs.Root
+            selectedIndex={
+              filter === 'all'
+                ? 0
+                : GROUPS.findIndex((group) => group.id === filter) + 1
+            }
+            onChange={(index) => {
+              if (index === 0) {
+                setFilter('all');
+                return;
+              }
+              const group = GROUPS[index - 1];
+              if (group) {
+                setFilter(group.id);
+              }
+            }}
+          >
+            <Tabs.List aria-label="Collection types" className="flex-wrap">
+              <Tabs.Tab>
+                <TabLabel count={collections.length}>All</TabLabel>
+              </Tabs.Tab>
+              {GROUPS.map((group) => (
+                <Tabs.Tab key={group.id}>
+                  <TabLabel icon={group.icon} count={counts[group.id]}>
+                    {group.label}
+                  </TabLabel>
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs.Root>
         </div>
       ) : null}
 

@@ -7,6 +7,14 @@ const meta = {
   title: 'Components/TitleBar',
   component: TitleBar,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Desktop window title bar. Title is Tahti Player — no Nuclear logo or name. Pair with Layout/TopBar for the header under it.',
+      },
+    },
+  },
   args: {
     onMinimize: fn(),
     onMaximize: fn(),
@@ -28,19 +36,11 @@ export const AllVariants: Story = {
     <div className="flex flex-col gap-8">
       <div>
         <p className="text-foreground/50 mb-2 text-sm">macOS</p>
-        <TitleBar
-          {...args}
-          title="Nuclear Music Player"
-          styleOverride="macos"
-        />
+        <TitleBar {...args} title="Tahti Player" styleOverride="macos" />
       </div>
       <div>
         <p className="text-foreground/50 mb-2 text-sm">Windows / Linux</p>
-        <TitleBar
-          {...args}
-          title="Nuclear Music Player"
-          styleOverride="windows"
-        />
+        <TitleBar {...args} title="Tahti Player" styleOverride="windows" />
       </div>
     </div>
   ),

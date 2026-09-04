@@ -15,6 +15,10 @@ import { create } from 'storybook/theming';
 addons.setConfig({
   theme: create({
     base: 'dark',
+    brandTitle: 'Tahti',
+    brandUrl: 'https://beta.tahti.live',
+    brandImage: '/tahti-logo.svg',
+    brandTarget: '_self',
     appBg: '#0b0d12',
     appContentBg: '#12151c',
     appPreviewBg: '#12151c',

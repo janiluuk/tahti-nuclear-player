@@ -1,3 +1,4 @@
+import { PackageIcon, StoreIcon } from 'lucide-react';
 import { FC } from 'react';
 
 import { useTranslation } from '@tahti-player/i18n';
@@ -23,11 +24,13 @@ export const Plugins: FC = () => {
           {
             id: 'installed',
             label: t('tabs.installed'),
+            icon: <PackageIcon size={14} />,
             content: <InstalledPlugins onGoToStore={goToStore} />,
           },
           {
             id: 'store',
             label: t('tabs.store'),
+            icon: <StoreIcon size={14} />,
             content: <PluginStore />,
           },
         ]}

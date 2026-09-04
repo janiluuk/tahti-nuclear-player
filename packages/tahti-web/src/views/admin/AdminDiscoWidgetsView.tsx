@@ -6,6 +6,7 @@ import {
   Button,
   Dialog,
   FilterChips,
+  ImageReveal,
   Input,
   SaveButton,
   Select,
@@ -338,17 +339,16 @@ export function AdminDiscoWidgetsView() {
                       className="border-border bg-background-secondary/40 flex gap-4 rounded-xl border p-4"
                     >
                       <div className="border-border bg-background flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
-                        {widget.iconUrl ? (
-                          <img
-                            src={widget.iconUrl}
-                            alt=""
-                            className="size-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-foreground-secondary text-lg font-bold">
-                            {widget.name.slice(0, 2).toUpperCase()}
-                          </span>
-                        )}
+                        <ImageReveal
+                          src={widget.iconUrl ?? undefined}
+                          alt=""
+                          className="size-full"
+                          placeholder={
+                            <span className="text-foreground-secondary text-lg font-bold">
+                              {widget.name.slice(0, 2).toUpperCase()}
+                            </span>
+                          }
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">

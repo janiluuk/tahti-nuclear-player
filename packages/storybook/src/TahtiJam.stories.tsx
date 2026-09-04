@@ -122,7 +122,7 @@ const queueProps = {
   labels: {
     upNext: 'Up next',
     title: 'Queue is empty',
-    subtitle: 'Add tracks in Nuclear to see them here',
+    subtitle: 'Add tracks in Tahti Player to see them here',
   },
 };
 

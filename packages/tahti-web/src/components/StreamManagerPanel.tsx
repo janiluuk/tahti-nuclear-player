@@ -1,9 +1,11 @@
 import {
   ActivityIcon,
+  BarChart3Icon,
   ChevronDownIcon,
   ChevronRightIcon,
   Clock3Icon,
   ListMusicIcon,
+  MonitorPlayIcon,
   PauseIcon,
   PlayIcon,
   PlusIcon,
@@ -18,7 +20,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Badge, Button, Dialog, StatChip, Tabs } from '@tahti-player/ui';
+import {
+  Badge,
+  Button,
+  Dialog,
+  StatChip,
+  TabLabel,
+  Tabs,
+} from '@tahti-player/ui';
 
 import {
   fetchChannelManageStats,
@@ -607,9 +616,19 @@ export function StreamManagerPanel({
           }
         >
           <Tabs.List>
-            <Tabs.Tab>Active rotation</Tabs.Tab>
-            <Tabs.Tab>Stream stats</Tabs.Tab>
-            <Tabs.Tab>Overlay</Tabs.Tab>
+            <Tabs.Tab>
+              <TabLabel icon={<ListMusicIcon size={14} />}>
+                Active rotation
+              </TabLabel>
+            </Tabs.Tab>
+            <Tabs.Tab>
+              <TabLabel icon={<BarChart3Icon size={14} />}>
+                Stream stats
+              </TabLabel>
+            </Tabs.Tab>
+            <Tabs.Tab>
+              <TabLabel icon={<MonitorPlayIcon size={14} />}>Overlay</TabLabel>
+            </Tabs.Tab>
           </Tabs.List>
         </Tabs.Root>
       )}

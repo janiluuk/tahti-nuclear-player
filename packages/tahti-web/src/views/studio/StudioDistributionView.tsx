@@ -916,29 +916,20 @@ function ReleaseOpsPanel({ release }: { release: StudioRelease }) {
             items={[
               {
                 id: 'catalog',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <BookOpenIcon size={14} aria-hidden /> Catalog & credits
-                  </span>
-                ),
+                label: 'Catalog & credits',
+                icon: <BookOpenIcon size={14} />,
                 content: catalogTab,
               },
               {
                 id: 'delivery',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <LinkIcon size={14} aria-hidden /> Delivery & royalties
-                  </span>
-                ),
+                label: 'Delivery & royalties',
+                icon: <LinkIcon size={14} />,
                 content: deliveryTab,
               },
               {
                 id: 'guides',
-                label: (
-                  <span className="inline-flex items-center gap-1.5">
-                    <BookOpenIcon size={14} aria-hidden /> Guides
-                  </span>
-                ),
+                label: 'Guides',
+                icon: <BookOpenIcon size={14} />,
                 content: guidesTab,
               },
             ]}

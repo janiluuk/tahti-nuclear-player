@@ -533,12 +533,8 @@ export function StudioSoundView({ id }: { id: string }) {
               items={[
                 {
                   id: 'details',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <TagsIcon size={15} aria-hidden />
-                      Details
-                    </span>
-                  ),
+                  label: 'Details',
+                  icon: <TagsIcon size={15} />,
                   content: (
                     <>
                       <div className="grid gap-4 sm:grid-cols-2">
@@ -650,12 +646,8 @@ export function StudioSoundView({ id }: { id: string }) {
                   ? [
                       {
                         id: 'playlists' as const,
-                        label: (
-                          <span className="inline-flex items-center gap-1.5">
-                            <ListMusicIcon size={15} aria-hidden />
-                            Playlists
-                          </span>
-                        ),
+                        label: 'Playlists',
+                        icon: <ListMusicIcon size={15} />,
                         content: (
                           <section className="border-border bg-background-secondary/30 flex flex-col gap-5 rounded-xl border p-5">
                             <div className="flex items-start gap-3">
@@ -727,12 +719,8 @@ export function StudioSoundView({ id }: { id: string }) {
                   : []),
                 {
                   id: 'insights',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <BarChart3Icon size={15} aria-hidden />
-                      Insights
-                    </span>
-                  ),
+                  label: 'Insights',
+                  icon: <BarChart3Icon size={15} />,
                   content: <TrackInsightsPanel kind="sound" id={id} />,
                 },
               ]}

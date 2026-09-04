@@ -32,7 +32,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
           'Library (signed in) holds sounds, collections, recordings, uploads, and related catalogue work under Studio.',
           'Studio is for artists: overview, branding, stats, posts, audience, go live, broadcast schedule, and channel controls.',
           'Help center and Settings live at the bottom of the sidebar. Settings covers account, themes, add-ons, and preferences.',
-          'The right rail is your queue and chat context when those features are available. The player appears only after a track is loaded.',
+          'The right rail is your queue, chat, and — on desktop — a Library tab for local files you import this session. The player appears only after a track is loaded.',
         ],
       },
       {
@@ -196,6 +196,30 @@ export const HELP_ARTICLES: HelpArticle[] = [
         body: [
           'Use a video, still image, or slideshow as a backdrop. Once a backdrop exists, the designer shows the remove action instead of another add action.',
           'Save layout after changes. A backdrop is optional; if none is set, the selected gradient or visualizer fills the space.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'desktop-library',
+    title: 'Desktop library and Soulseek',
+    description:
+      'Import local files into the player from the right-rail Library tab, and how Soulseek will connect later.',
+    sections: [
+      {
+        heading: 'Local library (desktop)',
+        body: [
+          'On a wide desktop window, the right rail has a Library tab next to Chat, Notifications, and Queue. Choose audio files there to play them in the shared Tahti player.',
+          'Those files stay on this device for this browser session. Reloading the page clears the list. Uploading into your Tahti archive is still Studio → Upload.',
+          'Phones keep Chat, Notifications, and Queue only — the Library rail is desktop-only for now.',
+        ],
+      },
+      {
+        heading: 'Soulseek',
+        body: [
+          'Soulseek is peer-to-peer. Tahti does not search or transfer files through its servers. A later desktop add-on will connect with your own Soulseek account from the Tahti Player app.',
+          'Until that native bridge ships, Settings → Add-ons → Import shows a Configure dialog that explains the limit. Use the Library tab to import files you already have.',
+          'You are responsible for what you share and download. Only use material you have the rights to.',
         ],
       },
     ],

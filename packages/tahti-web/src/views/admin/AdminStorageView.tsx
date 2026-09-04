@@ -20,7 +20,6 @@ import {
   Input,
   SaveButton,
   Select,
-  StatChip,
   Tabs,
   ViewShell,
 } from '@tahti-player/ui';
@@ -284,11 +283,20 @@ function DiskSpaceCard({
         <Icon size={18} aria-hidden className="text-primary" />
         <h3 className="font-display text-base font-bold">{title}</h3>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <StatChip value={formatBytes(space.usedBytes)} label="Used" />
-        <StatChip value={formatBytes(space.freeBytes)} label="Free" />
-        <StatChip value={formatBytes(space.totalBytes)} label="Total" />
-      </div>
+      <dl className="grid grid-cols-3 gap-3 text-sm">
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">Used</dt>
+          <dd className="font-semibold">{formatBytes(space.usedBytes)}</dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">Free</dt>
+          <dd className="font-semibold">{formatBytes(space.freeBytes)}</dd>
+        </div>
+        <div>
+          <dt className="text-foreground-secondary text-xs uppercase">Total</dt>
+          <dd className="font-semibold">{formatBytes(space.totalBytes)}</dd>
+        </div>
+      </dl>
       {pctUsed != null ? (
         <div className="bg-background-secondary mt-3 h-1.5 overflow-hidden rounded-full">
           <div
@@ -908,25 +916,19 @@ export function AdminStorageView() {
                 items={[
                   {
                     id: 'storage',
-                    label: (
-                      <span className="inline-flex items-center gap-1.5">
-                        <HardDriveIcon size={14} aria-hidden /> Storage
-                      </span>
-                    ),
+                    label: 'Storage',
+                    icon: <HardDriveIcon size={14} />,
                     content: <StorageOverviewTab />,
                   },
                   {
                     id: 'files',
-                    label: (
-                      <span className="inline-flex items-center gap-1.5">
-                        <CloudIcon size={14} aria-hidden /> Files
-                      </span>
-                    ),
+                    label: 'Files',
+                    icon: <CloudIcon size={14} />,
                     content: <FilesBrowserTab />,
                   },
                 ]}
               />
-            </ViewShell>
+            </ViewShell>{' '}
           </div>
         </AdminPageLayout>
       </div>

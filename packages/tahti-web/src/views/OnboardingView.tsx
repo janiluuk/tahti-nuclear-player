@@ -1,5 +1,12 @@
 import { useNavigate } from '@tanstack/react-router';
-import { ImagePlusIcon } from 'lucide-react';
+import {
+  ImagePlusIcon,
+  MapPinIcon,
+  MusicIcon,
+  PaletteIcon,
+  Settings2Icon,
+  UserIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -253,6 +260,7 @@ export function OnboardingView() {
               {
                 id: 'profile',
                 label: 'Profile',
+                icon: <UserIcon size={14} />,
                 content: (
                   <div className="flex flex-col gap-6">
                     <div className="flex items-center gap-4">
@@ -358,6 +366,7 @@ export function OnboardingView() {
               {
                 id: 'location',
                 label: 'Location & domain',
+                icon: <MapPinIcon size={14} />,
                 content: (
                   <div className="flex flex-col gap-4">
                     <Select
@@ -427,6 +436,7 @@ export function OnboardingView() {
               {
                 id: 'genres',
                 label: 'Genres',
+                icon: <MusicIcon size={14} />,
                 content: (
                   <div className="flex flex-col gap-2">
                     <p className="text-foreground-secondary text-sm">
@@ -440,6 +450,7 @@ export function OnboardingView() {
               {
                 id: 'appearance',
                 label: 'Appearance',
+                icon: <PaletteIcon size={14} />,
                 content: (
                   <div className="flex flex-col gap-3">
                     <p className="text-foreground-secondary text-sm">
@@ -472,6 +483,7 @@ export function OnboardingView() {
               {
                 id: 'defaults',
                 label: 'Defaults',
+                icon: <Settings2Icon size={14} />,
                 content: (
                   <div className="flex flex-col gap-4">
                     {(

@@ -97,7 +97,10 @@ test('admin can replace a radio cover and see it persist', async ({ page }) => {
 
   await expect
     .poll(async () =>
-      helsinki.getByTestId('radio-station-cover-image').getAttribute('src'),
+      helsinki
+        .getByTestId('radio-station-cover-image')
+        .locator('img')
+        .getAttribute('src'),
     )
     .toMatch(/^data:image\/png/);
 
@@ -117,7 +120,7 @@ test('admin can replace a radio cover and see it persist', async ({ page }) => {
   await expect(page.getByText('Internet radio')).toBeVisible();
   const adminRow = page.locator('li').filter({ hasText: 'Radio Helsinki' });
   await expect(
-    adminRow.getByTestId('radio-station-cover-image'),
+    adminRow.getByTestId('radio-station-cover-image').locator('img'),
   ).toHaveAttribute('src', /^data:image\/png/);
   await adminRow.getByRole('button', { name: 'Enable for everyone' }).click();
 

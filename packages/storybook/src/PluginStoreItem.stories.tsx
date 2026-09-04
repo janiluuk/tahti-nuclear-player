@@ -21,7 +21,7 @@ export const Default: Story = {
     name: 'YouTube Music',
     description:
       'Stream music directly from YouTube Music with full search and playlist support.',
-    author: 'Nuclear Team',
+    author: 'Tahti Team',
     categories: ['Streaming', 'Metadata'],
     version: '1.2.0',
     onInstall: fn(),

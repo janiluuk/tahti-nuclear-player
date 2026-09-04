@@ -10,6 +10,7 @@ import {
   PlayIcon,
   PlusIcon,
   ScissorsIcon,
+  SplitIcon,
   Trash2Icon,
   UploadIcon,
   Volume2Icon,
@@ -31,6 +32,7 @@ import {
   Input,
   SaveButton,
   Slider,
+  TabLabel,
   Tabs,
   Toggle,
 } from '@tahti-player/ui';
@@ -937,7 +939,12 @@ export function StudioProEditorView({ soundId }: { soundId: string }) {
                     <Tabs.List className="w-fit">
                       {(['TWO_STEM', 'FOUR_STEM'] as const).map((stemSet) => (
                         <Tabs.Tab key={stemSet}>
-                          {STEM_SET_LABELS[stemSet]}
+                          <TabLabel
+                            icon={<SplitIcon size={14} />}
+                            count={stemSet === 'TWO_STEM' ? 2 : 4}
+                          >
+                            {STEM_SET_LABELS[stemSet]}
+                          </TabLabel>
                         </Tabs.Tab>
                       ))}
                     </Tabs.List>

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button, Dialog, Loader } from '@tahti-player/ui';
+import { Button, Dialog, ImageReveal, Loader } from '@tahti-player/ui';
 
 import {
   fetchAdminStreams,
@@ -151,15 +151,16 @@ export function AdminStreamManagerPanel({
               <>
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="bg-background border-border flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border text-sm font-bold">
-                    {(stream.thumbnailUrl ?? stream.avatarUrl) ? (
-                      <img
-                        src={stream.thumbnailUrl ?? stream.avatarUrl ?? ''}
-                        alt=""
-                        className="size-full object-cover"
-                      />
-                    ) : (
-                      stream.artistName.slice(0, 2).toUpperCase()
-                    )}
+                    <ImageReveal
+                      src={stream.thumbnailUrl ?? stream.avatarUrl ?? undefined}
+                      alt=""
+                      className="size-full"
+                      placeholder={
+                        <span>
+                          {stream.artistName.slice(0, 2).toUpperCase()}
+                        </span>
+                      }
+                    />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium">

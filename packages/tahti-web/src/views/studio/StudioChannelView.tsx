@@ -1,8 +1,19 @@
 import { Navigate, useNavigate, useSearch } from '@tanstack/react-router';
-import { PlusIcon } from 'lucide-react';
+import {
+  DoorOpenIcon,
+  ListMusicIcon,
+  MegaphoneIcon,
+  PinIcon,
+  PlusIcon,
+  RadioIcon,
+  RadioTowerIcon,
+  Settings2Icon,
+  SparklesIcon,
+  WifiIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, StatChip, Tabs, ViewShell } from '@tahti-player/ui';
+import { Button, TabLabel, Tabs, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchStatsPlays,
@@ -35,18 +46,18 @@ type RadioTab =
 const RADIO_STATS_RANGES: StatsPlaysRange[] = ['1', '7', '30'];
 
 const CHANNEL_SECTION_TABS = [
-  { id: 'setup' as const, label: 'Setup' },
-  { id: 'green-room' as const, label: 'Green room' },
-  { id: 'selects' as const, label: 'Selects' },
+  { id: 'setup' as const, label: 'Setup', icon: Settings2Icon },
+  { id: 'green-room' as const, label: 'Green room', icon: DoorOpenIcon },
+  { id: 'selects' as const, label: 'Selects', icon: SparklesIcon },
 ];
 
 const RADIO_SETTING_TABS = [
-  { id: 'stream' as const, label: 'Stream' },
-  { id: 'rotation' as const, label: '24/7' },
-  { id: 'announcements' as const, label: 'Announcements' },
-  { id: 'pinned' as const, label: 'Pinned' },
-  { id: 'tahti-radio' as const, label: 'Tahti Radio' },
-  { id: 'multicast' as const, label: 'Multicast' },
+  { id: 'stream' as const, label: 'Stream', icon: RadioTowerIcon },
+  { id: 'rotation' as const, label: '24/7', icon: ListMusicIcon },
+  { id: 'announcements' as const, label: 'Announcements', icon: MegaphoneIcon },
+  { id: 'pinned' as const, label: 'Pinned', icon: PinIcon },
+  { id: 'tahti-radio' as const, label: 'Tahti Radio', icon: RadioIcon },
+  { id: 'multicast' as const, label: 'Multicast', icon: WifiIcon },
 ] as const;
 
 const isTab = (value: string | undefined): value is Tab =>
@@ -90,20 +101,20 @@ function ChannelOverallStats() {
           {RADIO_STATS_RANGES.map((range) => {
             const periodStats = stats[range];
             return (
-              <div key={range} className="flex min-w-0 flex-col gap-2">
+              <div
+                key={range}
+                className="border-border bg-background-secondary/40 rounded-lg border p-3"
+              >
                 <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
                   Last {range} day{range === '1' ? '' : 's'}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  <StatChip
-                    value={periodStats?.totalPlays.toLocaleString() ?? '—'}
-                    label="Plays"
-                  />
-                  <StatChip
-                    value={periodStats?.totalDownloads.toLocaleString() ?? '—'}
-                    label="Downloads"
-                  />
-                </div>
+                <p className="mt-2 text-2xl font-bold tabular-nums">
+                  {periodStats?.totalPlays.toLocaleString() ?? '—'}
+                </p>
+                <p className="text-foreground-secondary text-xs">
+                  plays · {periodStats?.totalDownloads.toLocaleString() ?? '—'}{' '}
+                  downloads
+                </p>
               </div>
             );
           })}
@@ -187,7 +198,11 @@ export function StudioChannelView() {
             >
               <Tabs.List className="w-fit flex-wrap">
                 {channelSectionTabs.map((item) => (
-                  <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+                  <Tabs.Tab key={item.id}>
+                    <TabLabel icon={<item.icon size={14} />}>
+                      {item.label}
+                    </TabLabel>
+                  </Tabs.Tab>
                 ))}
               </Tabs.List>
             </Tabs.Root>
@@ -233,7 +248,11 @@ export function StudioChannelView() {
               >
                 <Tabs.List className="w-fit flex-wrap">
                   {RADIO_SETTING_TABS.map((item) => (
-                    <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+                    <Tabs.Tab key={item.id}>
+                      <TabLabel icon={<item.icon size={14} />}>
+                        {item.label}
+                      </TabLabel>
+                    </Tabs.Tab>
                   ))}
                 </Tabs.List>
               </Tabs.Root>

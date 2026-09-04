@@ -1,7 +1,7 @@
 {
   "name": "@tahti-player/storybook",
   "version": "0.0.10",
-  "description": "Storybook for Nuclear UI components",
+  "description": "Storybook for Tahti Player and tahti-web UI components",
   "type": "module",
   "private": true,
   "scripts": {

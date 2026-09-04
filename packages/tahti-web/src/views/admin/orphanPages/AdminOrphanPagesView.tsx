@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { RadioIcon } from 'lucide-react';
 
-import { Tabs, ViewShell } from '@tahti-player/ui';
+import { TabLabel, Tabs, ViewShell } from '@tahti-player/ui';
 
 import { AdminGate } from '../../../components/AdminGate';
 import { AdminPageLayout } from '../../../components/AdminNav';
@@ -53,8 +53,9 @@ export function AdminOrphanPagesView({ tab }: { tab?: AdminOrphanPageTabId }) {
               <Tabs.List aria-label="Orphan pages">
                 {ADMIN_ORPHAN_PAGE_TABS.map((item) => (
                   <Tabs.Tab key={item.id}>
-                    <RadioIcon size={14} aria-hidden />
-                    {item.label}
+                    <TabLabel icon={<RadioIcon size={14} />}>
+                      {item.label}
+                    </TabLabel>
                   </Tabs.Tab>
                 ))}
               </Tabs.List>

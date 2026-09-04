@@ -14,7 +14,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          'Help hub and article surfaces. Cards and panels use Nuclear `Box`, `Badge`, `Button`, `Input`, `Tabs`, `SectionShell`, and `EmptyState` so Storybook and the live `/help` route share the same primitives.',
+          'Help hub and article surfaces. Cards and panels use shared `Box`, `Badge`, `Button`, `Input`, `Tabs`, `SectionShell`, and `EmptyState` so Storybook and the live `/help` route share the same primitives.',
       },
     },
   },

@@ -1,13 +1,14 @@
 import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 
-import { Tabs } from '@tahti-player/ui';
+import { TabLabel, Tabs } from '@tahti-player/ui';
 
 export type SectionTabsItem = {
   id: string;
   to: string;
   label: string;
   icon: ReactNode;
+  count?: number;
   active?: boolean;
 };
 
@@ -45,10 +46,9 @@ export function SectionTabs({
       <Tabs.List aria-label={ariaLabel} className="w-fit flex-wrap">
         {items.map((item) => (
           <Tabs.Tab key={item.id}>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="shrink-0 [&>svg]:size-3.5">{item.icon}</span>
+            <TabLabel icon={item.icon} count={item.count}>
               {item.label}
-            </span>
+            </TabLabel>
           </Tabs.Tab>
         ))}
       </Tabs.List>

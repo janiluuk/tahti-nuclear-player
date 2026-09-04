@@ -267,19 +267,18 @@ export const MyDiscographyView: FC = () => {
                     }`}
                   >
                     <div className="border-border bg-background-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
-                      {item.bannerUrl ? (
-                        <ImageReveal
-                          src={item.bannerUrl}
-                          alt=""
-                          className="size-full"
-                        />
-                      ) : (
-                        <ImageIcon
-                          size={18}
-                          aria-hidden
-                          className="text-foreground-secondary"
-                        />
-                      )}
+                      <ImageReveal
+                        src={item.bannerUrl ?? undefined}
+                        alt=""
+                        className="size-full"
+                        placeholder={
+                          <ImageIcon
+                            size={18}
+                            aria-hidden
+                            className="text-foreground-secondary"
+                          />
+                        }
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <Link
