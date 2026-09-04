@@ -2,6 +2,24 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-05 — Expired todo fold (UI sweeps)
+
+Folded and deleted short-lived todos that already shipped or live in
+worklogs:
+
+- `beta-channel-detection-and-nav-cleanup.md` — StudioGate channel scope /
+  nav cleanup (see earlier HISTORY + StudioGate work)
+- `cardgrid-listen-discover.md` — DirectoryArtistCardGrid parity
+- `media-artwork-thumbnails.md` — MediaArtwork thumb migration
+- `news-widget-rss.md` — News widget RSS plan (not blocking; details in
+  worklog if revisited)
+- `settings-themes-compact.md` — Themes compact + footer
+- `status-bar-idle.md` — BottomBar status when player hidden
+- `toplist-storybook-sweep.md` — TopList on admin/studio rankings
+- `viewshell-next-15.md` — ViewShell batches C–E notes
+
+---
+
 ## 2026-09-05 — Registry runtime: ListenBrainz scrobble
 
 Folded from `docs/todo/registry-runtime-listenbrainz.md`.
