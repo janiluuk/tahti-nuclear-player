@@ -7,7 +7,7 @@ exports[`PlayerWorkspace > (Snapshot) both sidebars collapsed 1`] = `
   >
     <div
       animate="[object Object]"
-      class="bg-background-secondary border-border relative flex flex-col overflow-hidden border-r-(length:--border-width) p-2"
+      class="bg-background-secondary border-border relative flex flex-col overflow-hidden border-r-(length:--border-width)"
       transition="[object Object]"
     >
       <span

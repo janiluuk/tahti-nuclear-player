@@ -279,7 +279,7 @@ export function RadioScheduleView() {
     <ViewShell
       title="Schedule"
       subtitle="A week on Tahti Radio."
-      classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
+      classes={{ root: 'px-0 pt-0 max-w-5xl' }}
     >
       {greenRoomBookings.length > 0 ? (
         <div className="border-border bg-primary/10 flex flex-col gap-2 rounded-lg border p-3">

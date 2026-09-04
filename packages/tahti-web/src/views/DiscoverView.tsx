@@ -332,7 +332,7 @@ export function DiscoverView() {
     <ViewShell
       title="Discover"
       subtitle={DISCOVER_SUBTITLES[activeTab]}
-      classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
+      classes={{ root: 'px-0 pt-0 max-w-5xl' }}
     >
       <header className="mb-4 flex flex-wrap items-center gap-2">
         {activeTab === 'venues' ? (

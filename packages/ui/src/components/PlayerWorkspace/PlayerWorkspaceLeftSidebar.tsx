@@ -1,6 +1,5 @@
 import { FC } from 'react';
 
-import { cn } from '../../utils';
 import {
   PlayerWorkspaceSidebar,
   PlayerWorkspaceSidebarPropsBase,
@@ -10,11 +9,7 @@ export const PlayerWorkspaceLeftSidebar: FC<
   PlayerWorkspaceSidebarPropsBase
 > = ({ children, ...props }) => {
   return (
-    <PlayerWorkspaceSidebar
-      side="left"
-      className={cn(props.className, 'p-2')}
-      {...props}
-    >
+    <PlayerWorkspaceSidebar side="left" {...props}>
       {children}
     </PlayerWorkspaceSidebar>
   );

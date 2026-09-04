@@ -1,4 +1,4 @@
-import { Link, useRouterState } from '@tanstack/react-router';
+import { useRouterState } from '@tanstack/react-router';
 import {
   CreditCardIcon,
   HeartIcon,
@@ -20,6 +20,7 @@ import { SidebarNavigationItem } from '@tahti-player/ui';
 import { useStripeConfigured } from '../hooks/useStripeConfigured';
 import type { TourStep } from '../lib/pageTour';
 import { matchesSectionRoute } from '../lib/sectionNavigation';
+import { SectionTabs } from './SectionTabs';
 
 type StudioSubmenuLabelKey =
   | (typeof SUBMENUS)[keyof typeof SUBMENUS][number]['labelKey']
@@ -334,33 +335,22 @@ function StudioNavigation({ current }: { current?: string }) {
     { stripeConfigured },
   );
 
+  if (submenu.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="flex min-w-0 flex-col gap-1" data-studio-navigation>
-      <nav
+    <div className="border-border min-w-0 border-b pb-2" data-studio-navigation>
+      <SectionTabs
         aria-label={`${t(sectionLabel)} pages`}
-        className="border-border flex min-w-0 flex-wrap gap-1 border-b pb-2"
-        data-studio-section-menu
-      >
-        {submenu.length > 0 &&
-          submenu.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to as never}
-              activeOptions={{ exact: true }}
-              aria-current={
-                isSubmenuActive(current, item.to) ? 'page' : undefined
-              }
-              className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap ${
-                isSubmenuActive(current, item.to)
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
-              }`}
-            >
-              <span className="shrink-0">{item.icon}</span>
-              {t(item.labelKey)}
-            </Link>
-          ))}
-      </nav>
+        items={submenu.map((item) => ({
+          id: item.to,
+          to: item.to,
+          label: t(item.labelKey),
+          icon: item.icon,
+          active: isSubmenuActive(current, item.to),
+        }))}
+      />
     </div>
   );
 }

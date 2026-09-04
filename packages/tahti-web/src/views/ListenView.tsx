@@ -305,7 +305,7 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
           ? 'Community artists and radio.'
           : 'Discover Tahti artists. Sign in for your library.'
       }
-      classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
+      classes={{ root: 'px-0 pt-0 max-w-5xl' }}
     >
       <div className="mb-4 flex flex-wrap items-center gap-2">
         {signedIn ? <ListenWidgetStoreDialog /> : null}
