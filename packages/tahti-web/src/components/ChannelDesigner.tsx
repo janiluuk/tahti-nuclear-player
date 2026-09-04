@@ -67,6 +67,7 @@ import {
   type ChannelVisualPatch,
   type ChannelVisualPreset,
   type ColorScheme,
+  type HeaderStyle,
   type VisualPreset,
   type VisualSettingsMap,
 } from '../api/channel-design';
@@ -103,6 +104,7 @@ import {
   visualizerMetadata,
   visualizerSupportsAudioReactive,
 } from '../plugins/visualizers';
+import { ColorSchemeFields } from './channel-designer/ColorSchemeFields';
 import { ChannelBackdropCard } from './ChannelBackdropCard';
 import { ChannelElementEditor } from './ChannelElementEditor';
 import { ChannelTextOverlayEditor } from './ChannelTextOverlayEditor';
@@ -151,51 +153,6 @@ const SLIDESHOW_PRESETS = [
   ['CUBE_FLIP', 'Cube flip'],
   ['LIQUID_DISTORTION', 'Liquid distortion'],
 ] as const;
-
-const COLOR_SCHEME_FIELDS = [
-  ['accent', 'Accent / waveform played'],
-  ['highlight', 'Highlight'],
-  ['bg', 'Background'],
-  ['text', 'Foreground'],
-  ['muted', 'Muted / waveform unplayed'],
-] as const;
-
-/** The 5 raw color pickers shared by the header's color-scheme editor and
- * the player's independent gradient (when enabled) — kept separate from the
- * header's brand-accent swatches, which are a header-only concept. */
-function ColorSchemeFields({
-  scheme,
-  onChange,
-}: {
-  scheme: ColorScheme;
-  onChange: (next: ColorScheme) => void;
-}) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {COLOR_SCHEME_FIELDS.map(([key, label]) => (
-        <label
-          key={key}
-          className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm"
-        >
-          <input
-            type="color"
-            value={scheme[key] ?? DEFAULT_COLOR_SCHEME[key]}
-            onChange={(event) =>
-              onChange({ ...scheme, [key]: event.target.value })
-            }
-            className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
-          />
-          <span className="min-w-0">
-            <span className="block text-sm font-semibold">{label}</span>
-            <code className="text-foreground-secondary text-xs">
-              {scheme[key]}
-            </code>
-          </span>
-        </label>
-      ))}
-    </div>
-  );
-}
 
 type Props = {
   displayName: string;
@@ -965,42 +922,127 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       showVisualizerSettings &&
       !visualizerPickerOpen;
 
+    const brandAccentRow = (
+      <div className="flex flex-wrap gap-2">
+        {BRAND_ACCENTS.map((brand) => (
+          <button
+            key={brand.id}
+            type="button"
+            title={brand.label}
+            aria-label={brand.label}
+            aria-pressed={visual.brandAccentPreset === brand.id}
+            onClick={() =>
+              applyLocal(
+                { brandAccentPreset: brand.id },
+                {
+                  ...scheme,
+                  accent: brand.accent,
+                  highlight: brand.highlight,
+                },
+              )
+            }
+            className={`h-9 w-14 rounded-md border-2 transition-transform hover:scale-105 ${
+              visual.brandAccentPreset === brand.id
+                ? 'border-primary shadow-md'
+                : 'border-transparent'
+            }`}
+            style={{ background: brand.gradient }}
+          />
+        ))}
+      </div>
+    );
+
+    const accentPairFields = (
+      <div className="grid grid-cols-2 gap-2">
+        {(
+          [
+            ['accent', 'Accent'],
+            ['highlight', 'Highlight'],
+          ] as const
+        ).map(([key, label]) => (
+          <label
+            key={key}
+            className="border-border bg-background-secondary/40 flex items-center gap-2 rounded-lg border p-2 text-sm"
+          >
+            <input
+              type="color"
+              value={scheme[key] ?? DEFAULT_COLOR_SCHEME[key]}
+              onChange={(event) =>
+                applyLocal(
+                  { brandAccentPreset: null },
+                  { ...scheme, [key]: event.target.value },
+                )
+              }
+              className="h-8 w-9 cursor-pointer rounded border-0 bg-transparent"
+              aria-label={label}
+            />
+            <span className="min-w-0 truncate text-xs font-semibold">
+              {label}
+            </span>
+          </label>
+        ))}
+      </div>
+    );
+
     const colorSchemeControls = (
-      <section className="flex flex-col gap-5">
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            {BRAND_ACCENTS.map((brand) => (
-              <button
-                key={brand.id}
-                type="button"
-                title={brand.label}
-                aria-label={brand.label}
-                aria-pressed={visual.brandAccentPreset === brand.id}
-                onClick={() =>
-                  applyLocal(
-                    { brandAccentPreset: brand.id },
-                    {
-                      ...scheme,
-                      accent: brand.accent,
-                      highlight: brand.highlight,
-                    },
-                  )
-                }
-                className={`h-10 w-16 rounded-md border-2 transition-transform hover:scale-105 ${
-                  visual.brandAccentPreset === brand.id
-                    ? 'border-primary shadow-md'
-                    : 'border-transparent'
-                }`}
-                style={{ background: brand.gradient }}
-              />
-            ))}
-          </div>
-        </div>
+      <section className="flex flex-col gap-3">
+        {brandAccentRow}
         <ColorSchemeFields
           scheme={scheme}
           onChange={(next) => applyLocal({ brandAccentPreset: null }, next)}
         />
       </section>
+    );
+
+    type HeaderDesignMode = (typeof HEADER_DESIGN_OPTIONS)[number];
+    const headerDesignMode: HeaderDesignMode = slideshowHeaderSelected
+      ? 'SLIDESHOW'
+      : (HEADER_STYLES as readonly string[]).includes(visual.headerStyle)
+        ? (visual.headerStyle as HeaderStyle)
+        : 'GRADIENT';
+
+    const setHeaderDesignMode = (mode: HeaderDesignMode) => {
+      if (mode === 'SLIDESHOW') {
+        setGalleryMode((modeValue) =>
+          modeValue === 'NONE' ? 'STATIC_SLIDESHOW' : modeValue,
+        );
+        applyLocal({ headerStyle: 'GRADIENT' });
+        return;
+      }
+      setGalleryMode('NONE');
+      applyLocal({ headerStyle: mode });
+    };
+
+    const pageBackgroundField = (
+      <label className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-2.5 text-sm">
+        <input
+          type="color"
+          value={
+            visual.useBackgroundGradient
+              ? (backgroundScheme.bg ?? scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
+              : (scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
+          }
+          onChange={(event) => {
+            const bg = event.target.value;
+            if (visual.useBackgroundGradient) {
+              setBackgroundScheme({ ...backgroundScheme, bg });
+              setDirty(true);
+              return;
+            }
+            applyLocal({ brandAccentPreset: null }, { ...scheme, bg });
+          }}
+          className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
+          aria-label="Page background color"
+        />
+        <span className="min-w-0">
+          <span className="block text-sm font-semibold">Page background</span>
+          <code className="text-foreground-secondary text-xs">
+            {visual.useBackgroundGradient
+              ? (backgroundScheme.bg ?? scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
+              : (scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)}
+          </code>
+        </span>
+      </label>
     );
 
     const playerGradientControls = (
@@ -1330,6 +1372,162 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       </Tooltip>
     );
 
+    const headerControls = (
+      <section className="flex flex-col gap-3">
+        {pageBackgroundField}
+        <div className="flex items-center justify-between gap-3">
+          <Eyebrow>Header style</Eyebrow>
+          {hasBackdrop ? (
+            <Tooltip content="Remove backdrop" side="top">
+              <Button
+                size="icon-sm"
+                variant="text"
+                aria-label="Remove backdrop"
+                onClick={removeBackdrop}
+              >
+                <Trash2Icon size={15} aria-hidden />
+              </Button>
+            </Tooltip>
+          ) : null}
+        </div>
+        <div
+          role="tablist"
+          aria-label="Header style"
+          className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
+        >
+          {HEADER_DESIGN_OPTIONS.map((mode) => {
+            const selected = headerDesignMode === mode;
+            const label =
+              mode === 'SLIDESHOW'
+                ? 'Slideshow'
+                : mode === 'VIDEO_LOOP'
+                  ? 'Video / image'
+                  : mode.replace(/_/g, ' ');
+            return (
+              <button
+                key={mode}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setHeaderDesignMode(mode)}
+                className={`rounded-md px-2.5 py-1.5 text-[10px] font-semibold tracking-wide uppercase ${
+                  selected
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground-secondary hover:text-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {headerDesignMode === 'GRADIENT' ? (
+          <div className="flex flex-col gap-2">
+            <Eyebrow>Gradient colors</Eyebrow>
+            <p className="text-foreground-secondary text-xs">
+              Presets and colors for the gradient header.
+            </p>
+            {colorSchemeControls}
+          </div>
+        ) : null}
+
+        {headerDesignMode === 'SOLID' ? (
+          <div className="flex flex-col gap-2">
+            <Eyebrow>Solid colors</Eyebrow>
+            <p className="text-foreground-secondary text-xs">
+              Solid header uses the page background above. Tune accents here.
+            </p>
+            {brandAccentRow}
+            {accentPairFields}
+          </div>
+        ) : null}
+
+        {headerDesignMode === 'VIDEO_LOOP' ? (
+          <div className="flex flex-col gap-3">
+            <div>
+              <Eyebrow>Video or image backdrop</Eyebrow>
+              <p className="text-foreground-secondary mt-1 text-xs">
+                Upload an MP4/WebM video or image, up to 10 MB.
+              </p>
+            </div>
+            <div className="relative">
+              <FilePicker
+                accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
+                disabled={busy}
+                selectedFiles={pendingVideoFile ? [pendingVideoFile] : []}
+                labels={{
+                  title: 'Choose a video or image',
+                  description:
+                    'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
+                  browse: 'Browse files',
+                }}
+                onFiles={selectVideoFile}
+              />
+              <div className="absolute top-2 right-2">{videoUrlToggle}</div>
+            </div>
+            {videoUrlInput}
+            {(pendingVideoPreviewUrl || videoBackgroundUrl) && (
+              <div className="border-border bg-background relative overflow-hidden rounded-lg border">
+                {youtubeEmbedUrl(videoBackgroundUrl) &&
+                !pendingVideoPreviewUrl ? (
+                  <iframe
+                    title="YouTube backdrop preview"
+                    src={youtubeEmbedUrl(videoBackgroundUrl) ?? undefined}
+                    className="pointer-events-none aspect-video w-full"
+                    allow="autoplay; encrypted-media"
+                  />
+                ) : headerBackdropIsImage ? (
+                  <img
+                    src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
+                    alt=""
+                    className="aspect-video w-full object-cover"
+                  />
+                ) : (
+                  <video
+                    src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
+                    muted
+                    loop
+                    autoPlay
+                    playsInline
+                    controls
+                    className="aspect-video w-full object-cover"
+                  />
+                )}
+              </div>
+            )}
+            {(pendingVideoFile || videoBackgroundUrl) && (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="self-start"
+                onClick={clearVideo}
+              >
+                Remove backdrop
+              </Button>
+            )}
+            <div className="flex flex-col gap-2">
+              <Eyebrow>Accents</Eyebrow>
+              {brandAccentRow}
+              {accentPairFields}
+            </div>
+          </div>
+        ) : null}
+
+        {headerDesignMode === 'SLIDESHOW' ? (
+          <div className="flex flex-col gap-3">
+            <Eyebrow>Slideshow</Eyebrow>
+            {slideshowControls}
+            <div className="flex flex-col gap-2">
+              <Eyebrow>Accents</Eyebrow>
+              {brandAccentRow}
+              {accentPairFields}
+            </div>
+          </div>
+        ) : null}
+      </section>
+    );
+
     const visualizerItem = {
       id: 'visualizer',
       label: 'Visualizer',
@@ -1458,212 +1656,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         </section>
       ),
     };
-
-    const headerControls = (
-      <section className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <Eyebrow>Page background</Eyebrow>
-          <p className="text-foreground-secondary text-xs">
-            Solid fill behind the channel and artist pages. Accents below stay
-            independent.
-          </p>
-          <label className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm">
-            <input
-              type="color"
-              value={
-                visual.useBackgroundGradient
-                  ? (backgroundScheme.bg ??
-                    scheme.bg ??
-                    DEFAULT_COLOR_SCHEME.bg)
-                  : (scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)
-              }
-              onChange={(event) => {
-                const bg = event.target.value;
-                if (visual.useBackgroundGradient) {
-                  setBackgroundScheme({ ...backgroundScheme, bg });
-                  setDirty(true);
-                  return;
-                }
-                applyLocal({ brandAccentPreset: null }, { ...scheme, bg });
-              }}
-              className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
-              aria-label="Page background color"
-            />
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold">Background</span>
-              <code className="text-foreground-secondary text-xs">
-                {visual.useBackgroundGradient
-                  ? (backgroundScheme.bg ??
-                    scheme.bg ??
-                    DEFAULT_COLOR_SCHEME.bg)
-                  : (scheme.bg ?? DEFAULT_COLOR_SCHEME.bg)}
-              </code>
-            </span>
-          </label>
-        </div>
-        <div className="flex items-center justify-between gap-3">
-          <Eyebrow>Header style</Eyebrow>
-          {hasBackdrop ? (
-            <Tooltip content="Remove backdrop" side="top">
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label="Remove backdrop"
-                onClick={removeBackdrop}
-              >
-                <Trash2Icon size={15} aria-hidden />
-              </Button>
-            </Tooltip>
-          ) : (
-            <Tooltip content="Add backdrop" side="top">
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label="Add backdrop"
-                onClick={() => {
-                  setGalleryMode('NONE');
-                  applyLocal({ headerStyle: 'VIDEO_LOOP' });
-                }}
-              >
-                <ImageIcon size={15} aria-hidden />
-              </Button>
-            </Tooltip>
-          )}
-        </div>
-        <Tabs
-          selectedIndex={
-            slideshowHeaderSelected
-              ? HEADER_DESIGN_OPTIONS.length - 1
-              : Math.max(
-                  HEADER_DESIGN_OPTIONS.indexOf(
-                    visual.headerStyle as (typeof HEADER_DESIGN_OPTIONS)[number],
-                  ),
-                  0,
-                )
-          }
-          onChange={(index) => {
-            const headerStyle = HEADER_DESIGN_OPTIONS[index];
-            if (headerStyle === 'SLIDESHOW') {
-              setGalleryMode((mode) =>
-                mode === 'NONE' ? 'STATIC_SLIDESHOW' : mode,
-              );
-              applyLocal({ headerStyle: 'GRADIENT' });
-            } else if (headerStyle) {
-              setGalleryMode('NONE');
-              applyLocal({ headerStyle });
-            }
-          }}
-          listClassName="flex-wrap border-border border-b"
-          panelClassName="hidden"
-          items={HEADER_DESIGN_OPTIONS.map((headerStyle) => ({
-            id: headerStyle,
-            label:
-              headerStyle === 'SLIDESHOW'
-                ? 'Slideshow'
-                : headerStyle === 'VIDEO_LOOP'
-                  ? 'Video / image'
-                  : headerStyle.replace(/_/g, ' '),
-            content: null,
-          }))}
-        />
-        {visual.headerStyle === 'GRADIENT' && !slideshowHeaderSelected ? (
-          <div className="border-border border-t pt-4">
-            <Eyebrow>Gradient colors</Eyebrow>
-            <div className="mt-3">{colorSchemeControls}</div>
-          </div>
-        ) : null}
-        {slideshowHeaderSelected ||
-        visual.headerStyle === 'VIDEO_LOOP' ||
-        visual.headerStyle === 'SOLID' ? (
-          <div className="border-border border-t pt-4">
-            <Eyebrow>Page &amp; artist box colors</Eyebrow>
-            <p className="text-foreground-secondary mt-1 mb-3 text-xs">
-              These paint the artist header card, page sections, and accents —
-              independent of header style (solid / video / slideshow).
-            </p>
-            {colorSchemeControls}
-          </div>
-        ) : null}
-        {slideshowHeaderSelected ? (
-          <div className="border-border border-t pt-4">
-            <Eyebrow>Slideshow</Eyebrow>
-            <div className="mt-3">{slideshowControls}</div>
-          </div>
-        ) : null}
-        {visual.headerStyle === 'SOLID' && !slideshowHeaderSelected ? (
-          <p className="text-foreground-secondary text-xs">
-            Solid header uses the page background color above.
-          </p>
-        ) : null}
-        {visual.headerStyle === 'VIDEO_LOOP' && !slideshowHeaderSelected ? (
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <Eyebrow>Video or image backdrop</Eyebrow>
-                <p className="text-foreground-secondary mt-1 text-xs">
-                  Upload an MP4/WebM video or image, up to 10 MB.
-                </p>
-              </div>
-            </div>
-            <div className="relative">
-              <FilePicker
-                accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-                disabled={busy}
-                selectedFiles={pendingVideoFile ? [pendingVideoFile] : []}
-                labels={{
-                  title: 'Choose a video or image',
-                  description:
-                    'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
-                  browse: 'Browse files',
-                }}
-                onFiles={selectVideoFile}
-              />
-              <div className="absolute top-2 right-2">{videoUrlToggle}</div>
-            </div>
-            {videoUrlInput}
-            {(pendingVideoPreviewUrl || videoBackgroundUrl) && (
-              <div className="border-border bg-background relative overflow-hidden rounded-lg border">
-                {youtubeEmbedUrl(videoBackgroundUrl) &&
-                !pendingVideoPreviewUrl ? (
-                  <iframe
-                    title="YouTube backdrop preview"
-                    src={youtubeEmbedUrl(videoBackgroundUrl) ?? undefined}
-                    className="pointer-events-none aspect-video w-full"
-                    allow="autoplay; encrypted-media"
-                  />
-                ) : headerBackdropIsImage ? (
-                  <img
-                    src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
-                    alt=""
-                    className="aspect-video w-full object-cover"
-                  />
-                ) : (
-                  <video
-                    src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
-                    muted
-                    loop
-                    autoPlay
-                    playsInline
-                    controls
-                    className="aspect-video w-full object-cover"
-                  />
-                )}
-              </div>
-            )}
-            {(pendingVideoFile || videoBackgroundUrl) && (
-              <Button
-                size="sm"
-                variant="secondary"
-                className="self-start"
-                onClick={clearVideo}
-              >
-                Remove backdrop
-              </Button>
-            )}
-          </div>
-        ) : null}
-      </section>
-    );
 
     const channelTextOverlaySection = (
       <ChannelTextOverlayEditor
@@ -2013,13 +2005,11 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         onSelect={selectLookElement}
         onToggleDisabled={toggleSelectedLook}
         items={lookEditorItems}
-        className={`lg:!bg-background/85 max-h-[min(40rem,70vh)] lg:backdrop-blur-md ${
-          highlightSection ? 'ring-primary ring-2' : ''
-        }`}
+        className={`h-full ${highlightSection ? 'ring-primary ring-2' : ''}`}
       />
     );
     if (lookOnly) {
-      return controls;
+      return <div className="flex h-full min-h-0 flex-col">{controls}</div>;
     }
 
     return (
