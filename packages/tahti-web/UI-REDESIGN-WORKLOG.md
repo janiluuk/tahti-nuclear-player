@@ -1,5 +1,26 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Look extras: API wins over localStorage (0.0.74)
+
+**Status:** executed. Sibling #435 is on prod.
+
+Designer/load and artist/channel pages prefer live look-extras fields;
+`tahti.channelLookExtras.{slug}` only fills omitted keys and is updated
+after a successful PATCH. Channel Links/Text overlay save goes through
+`patchChannelVisual` (plus text-layer) instead of cache-only.
+
+Folded into `docs/todo/HISTORY.md`.
+
+## 2026-09-04 — StudioGate only requires a channel where it matters (0.0.73)
+
+**Status:** executed.
+
+Sounds, collections, editor, insights, moderation, venues, and similar
+Studio tools open without an artist channel. Branding, schedule, events,
+go-live, shows, upload, and updates still require one.
+
+Folded into `docs/todo/HISTORY.md`.
+
 ## 2026-09-04 — Local library metadata survives reload (0.0.72)
 
 **Status:** executed.

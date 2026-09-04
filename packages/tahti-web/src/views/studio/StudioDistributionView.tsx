@@ -960,7 +960,7 @@ export function StudioDistributionView() {
   }, []);
 
   return (
-    <StudioGate>
+    <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/distribution" />
         <ViewShell title="Distribution" classes={{ root: 'px-0 pt-0' }}>

@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  channelLookExtrasFromVisual,
   isValidHeaderVideoUrl,
   isVisualPreset,
+  mergeLookExtrasPreferApi,
   resolvePublicVisualizerPreset,
   shouldDockVisualizerTuning,
   toChannelVisualApiPatch,
@@ -122,6 +124,49 @@ describe('isValidHeaderVideoUrl', () => {
   });
 });
 
+describe('mergeLookExtrasPreferApi', () => {
+  it('keeps API false/null over cache truthy values', () => {
+    expect(
+      mergeLookExtrasPreferApi(
+        { usePlayerGradient: false, playerOverlayText: null },
+        { usePlayerGradient: true, playerOverlayText: 'cached' },
+      ),
+    ).toEqual({
+      usePlayerGradient: false,
+      playerOverlayText: null,
+    });
+  });
+
+  it('fills only keys the API still omits', () => {
+    expect(
+      mergeLookExtrasPreferApi(
+        { usePlayerGradient: true },
+        {
+          usePlayerGradient: false,
+          backgroundVisualPreset: 'AURORA',
+          channelLinks: [{ label: 'Site', url: 'https://example.com' }],
+        },
+      ),
+    ).toEqual({
+      usePlayerGradient: true,
+      backgroundVisualPreset: 'AURORA',
+      channelLinks: [{ label: 'Site', url: 'https://example.com' }],
+    });
+  });
+});
+
+describe('channelLookExtrasFromVisual', () => {
+  it('copies only defined look-extra fields', () => {
+    expect(
+      channelLookExtrasFromVisual({
+        usePlayerGradient: false,
+        visualPreset: 'AURORA',
+      }),
+    ).toEqual({ usePlayerGradient: false });
+    expect(channelLookExtrasFromVisual(null)).toEqual({});
+  });
+});
+
 describe('toChannelVisualApiPatch', () => {
   it('forwards look-extras the visual PATCH schema accepts; strips textOverlay*', () => {
     const patch = toChannelVisualApiPatch({
@@ -146,5 +191,36 @@ describe('toChannelVisualApiPatch', () => {
     });
     expect(patch).not.toHaveProperty('textOverlayMode');
     expect(patch).not.toHaveProperty('textOverlayText');
+  });
+});
+
+describe('mergeLookExtrasPreferApi', () => {
+  it('lets API false/null win over cache true/string', () => {
+    expect(
+      mergeLookExtrasPreferApi(
+        { usePlayerGradient: false, playerColorSchemeJson: null },
+        {
+          usePlayerGradient: true,
+          playerColorSchemeJson: '{"accent":"#fff"}',
+          backgroundVisualPreset: 'FAT_LINES',
+        },
+      ),
+    ).toEqual({
+      usePlayerGradient: false,
+      playerColorSchemeJson: null,
+      backgroundVisualPreset: 'FAT_LINES',
+    });
+  });
+
+  it('keeps cache only for keys the API omits', () => {
+    expect(
+      mergeLookExtrasPreferApi(
+        { useBackgroundGradient: true },
+        { channelLinks: [{ label: 'Site', url: 'https://example.com' }] },
+      ),
+    ).toEqual({
+      useBackgroundGradient: true,
+      channelLinks: [{ label: 'Site', url: 'https://example.com' }],
+    });
   });
 });

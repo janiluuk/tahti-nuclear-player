@@ -97,7 +97,7 @@ export function StudioPlaylistsView() {
   };
 
   return (
-    <StudioGate>
+    <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/playlists" />
         <ViewShell title="Playlists" classes={{ root: 'px-0 pt-0' }}>
@@ -411,7 +411,7 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
   };
 
   return (
-    <StudioGate>
+    <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/collections" />
         <Link

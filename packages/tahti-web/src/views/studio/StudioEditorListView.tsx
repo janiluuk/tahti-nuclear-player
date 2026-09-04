@@ -109,7 +109,7 @@ export function StudioEditorListView() {
   };
 
   return (
-    <StudioGate>
+    <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/editor" />
         <ViewShell title="Editor" classes={{ root: 'px-0 pt-0' }}>

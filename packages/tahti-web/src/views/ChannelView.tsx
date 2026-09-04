@@ -15,6 +15,7 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import {
   Badge,
@@ -29,12 +30,13 @@ import {
 
 import {
   BRAND_ACCENTS,
+  channelLookExtrasFromVisual,
   fillColorScheme,
   isHeaderImageUrl,
   isValidHeaderBackdropUrl,
-  loadChannelLookExtras,
   parseColorScheme,
   patchChannelVisual,
+  resolveChannelLookExtras,
   resolvePublicVisualizerPreset,
   saveChannelLookExtras,
   youtubeEmbedUrl,
@@ -340,46 +342,7 @@ export function ChannelView({ slug }: { slug: string }) {
     isValidHeaderBackdropUrl(channel.videoBackgroundUrl);
   const showSolidHeader = channel.headerStyle === 'SOLID';
   const lookExtras = useMemo(() => {
-    const stored = loadChannelLookExtras(slug);
-    return {
-      ...stored,
-      ...(channel.usePlayerGradient !== undefined
-        ? { usePlayerGradient: channel.usePlayerGradient }
-        : {}),
-      ...(channel.playerColorSchemeJson !== undefined
-        ? { playerColorSchemeJson: channel.playerColorSchemeJson }
-        : {}),
-      ...(channel.useBackgroundGradient !== undefined
-        ? { useBackgroundGradient: channel.useBackgroundGradient }
-        : {}),
-      ...(channel.backgroundColorSchemeJson !== undefined
-        ? { backgroundColorSchemeJson: channel.backgroundColorSchemeJson }
-        : {}),
-      ...(channel.backgroundVisualPreset !== undefined
-        ? { backgroundVisualPreset: channel.backgroundVisualPreset }
-        : {}),
-      ...(channel.nowPlayingOverlayStyle !== undefined
-        ? { nowPlayingOverlayStyle: channel.nowPlayingOverlayStyle }
-        : {}),
-      ...(channel.nowPlayingOverlaySettingsJson !== undefined
-        ? {
-            nowPlayingOverlaySettingsJson:
-              channel.nowPlayingOverlaySettingsJson,
-          }
-        : {}),
-      ...(channel.playerOverlayMode !== undefined
-        ? { playerOverlayMode: channel.playerOverlayMode }
-        : {}),
-      ...(channel.playerOverlayText !== undefined
-        ? { playerOverlayText: channel.playerOverlayText }
-        : {}),
-      ...(channel.playerOverlayAlign !== undefined
-        ? { playerOverlayAlign: channel.playerOverlayAlign }
-        : {}),
-      ...(channel.channelLinks !== undefined
-        ? { channelLinks: channel.channelLinks }
-        : {}),
-    };
+    return resolveChannelLookExtras(slug, channelLookExtrasFromVisual(channel));
   }, [slug, lookExtrasTick, channel]);
   const pageScheme = normalizeColorScheme(
     lookExtras.useBackgroundGradient
@@ -511,15 +474,21 @@ export function ChannelView({ slug }: { slug: string }) {
     }
     if (linksOrOverlayDirty) {
       setSavingLook(true);
-      saveChannelLookExtras(slug, {
+      const lookPatch = {
         channelLinks: channelLinksDraft,
         textOverlayMode: textOverlayDraft.mode,
         textOverlayText: textOverlayDraft.text,
         textOverlayAlign: textOverlayDraft.align,
-      });
-      setLinksOrOverlayDirty(false);
-      setLookTick((n) => n + 1);
-      setLookExtrasTick((n) => n + 1);
+      };
+      const result = await patchChannelVisual(lookPatch);
+      if (result.ok) {
+        saveChannelLookExtras(slug, lookPatch);
+        setLinksOrOverlayDirty(false);
+        setLookTick((n) => n + 1);
+        setLookExtrasTick((n) => n + 1);
+      } else {
+        toast.error(result.error);
+      }
       setSavingLook(false);
     }
   };

@@ -312,7 +312,7 @@ export function StudioSoundView({ id }: { id: string }) {
     isCurrent && (playerStatus === 'playing' || playerStatus === 'loading');
 
   return (
-    <StudioGate>
+    <StudioGate requireChannel={false}>
       <div className="studio-page-layout studio-page-layout--fixed-width mx-auto flex max-w-4xl flex-col gap-6">
         <StudioNav current={`/studio/sounds/${id}`} />
         <Link

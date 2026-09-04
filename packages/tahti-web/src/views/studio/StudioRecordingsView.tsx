@@ -493,5 +493,9 @@ export function StudioRecordingsView({
     </div>
   );
 
-  return embedded ? content : <StudioGate>{content}</StudioGate>;
+  return embedded ? (
+    content
+  ) : (
+    <StudioGate requireChannel={false}>{content}</StudioGate>
+  );
 }

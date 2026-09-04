@@ -43,10 +43,12 @@ import {
 } from '../api/artist-settings';
 import {
   BRAND_ACCENTS,
+  channelLookExtrasFromVisual,
   isActiveTextOverlay,
-  loadChannelLookExtras,
   parseColorScheme,
+  resolveChannelLookExtras,
   resolvePublicVisualizerPreset,
+  type ChannelLookExtras,
 } from '../api/channel-design';
 import { fetchChannel, fetchProfile } from '../api/client';
 import {
@@ -311,9 +313,7 @@ export function ArtistView({ username }: { username: string }) {
     | 'backgroundColorSchemeJson'
     | 'backgroundVisualPreset'
   > | null>(null);
-  const [lookExtras, setLookExtras] = useState<
-    ReturnType<typeof loadChannelLookExtras>
-  >({});
+  const [lookExtras, setLookExtras] = useState<ChannelLookExtras>({});
   const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
@@ -411,7 +411,7 @@ export function ArtistView({ username }: { username: string }) {
       return;
     }
     setLookVisibility(loadArtistLookVisibility(slug));
-    setLookExtras(loadChannelLookExtras(slug));
+    setLookExtras(resolveChannelLookExtras(slug, {}));
     let cancelled = false;
     void Promise.all([
       fetchChannel(slug),
@@ -443,45 +443,9 @@ export function ArtistView({ username }: { username: string }) {
         backgroundColorSchemeJson: res.data.backgroundColorSchemeJson,
         backgroundVisualPreset: res.data.backgroundVisualPreset,
       });
-      setLookExtras({
-        ...loadChannelLookExtras(slug),
-        ...(res.data.usePlayerGradient !== undefined
-          ? { usePlayerGradient: res.data.usePlayerGradient }
-          : {}),
-        ...(res.data.playerColorSchemeJson !== undefined
-          ? { playerColorSchemeJson: res.data.playerColorSchemeJson }
-          : {}),
-        ...(res.data.useBackgroundGradient !== undefined
-          ? { useBackgroundGradient: res.data.useBackgroundGradient }
-          : {}),
-        ...(res.data.backgroundColorSchemeJson !== undefined
-          ? { backgroundColorSchemeJson: res.data.backgroundColorSchemeJson }
-          : {}),
-        ...(res.data.backgroundVisualPreset !== undefined
-          ? { backgroundVisualPreset: res.data.backgroundVisualPreset }
-          : {}),
-        ...(res.data.nowPlayingOverlayStyle !== undefined
-          ? { nowPlayingOverlayStyle: res.data.nowPlayingOverlayStyle }
-          : {}),
-        ...(res.data.nowPlayingOverlaySettingsJson !== undefined
-          ? {
-              nowPlayingOverlaySettingsJson:
-                res.data.nowPlayingOverlaySettingsJson,
-            }
-          : {}),
-        ...(res.data.playerOverlayMode !== undefined
-          ? { playerOverlayMode: res.data.playerOverlayMode }
-          : {}),
-        ...(res.data.playerOverlayText !== undefined
-          ? { playerOverlayText: res.data.playerOverlayText }
-          : {}),
-        ...(res.data.playerOverlayAlign !== undefined
-          ? { playerOverlayAlign: res.data.playerOverlayAlign }
-          : {}),
-        ...(res.data.channelLinks !== undefined
-          ? { channelLinks: res.data.channelLinks }
-          : {}),
-      });
+      setLookExtras(
+        resolveChannelLookExtras(slug, channelLookExtrasFromVisual(res.data)),
+      );
       setDiscoWidgets(widgets.data);
       setChannelPosts(posts.data);
       setChannelNews(news);
@@ -1655,29 +1619,12 @@ export function ArtistView({ username }: { username: string }) {
                   backgroundColorSchemeJson: res.data.backgroundColorSchemeJson,
                   backgroundVisualPreset: res.data.backgroundVisualPreset,
                 });
-                setLookExtras({
-                  ...loadChannelLookExtras(slug),
-                  ...(res.data.usePlayerGradient !== undefined
-                    ? { usePlayerGradient: res.data.usePlayerGradient }
-                    : {}),
-                  ...(res.data.playerColorSchemeJson !== undefined
-                    ? { playerColorSchemeJson: res.data.playerColorSchemeJson }
-                    : {}),
-                  ...(res.data.useBackgroundGradient !== undefined
-                    ? { useBackgroundGradient: res.data.useBackgroundGradient }
-                    : {}),
-                  ...(res.data.backgroundColorSchemeJson !== undefined
-                    ? {
-                        backgroundColorSchemeJson:
-                          res.data.backgroundColorSchemeJson,
-                      }
-                    : {}),
-                  ...(res.data.backgroundVisualPreset !== undefined
-                    ? {
-                        backgroundVisualPreset: res.data.backgroundVisualPreset,
-                      }
-                    : {}),
-                });
+                setLookExtras(
+                  resolveChannelLookExtras(
+                    slug,
+                    channelLookExtrasFromVisual(res.data),
+                  ),
+                );
               });
             }}
           />

@@ -299,7 +299,7 @@ export function StudioVenuesView() {
   useEffect(reload, []);
 
   return (
-    <StudioGate>
+    <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/venues" />
         <ViewShell title="Venues" classes={{ root: 'px-0 pt-0' }}>

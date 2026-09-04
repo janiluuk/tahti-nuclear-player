@@ -262,7 +262,7 @@ export function StudioModerationView({
   );
 
   return (
-    <StudioGate>
+    <StudioGate requireChannel={false}>
       <div
         className={
           embedded

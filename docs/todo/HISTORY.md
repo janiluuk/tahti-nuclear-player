@@ -2,6 +2,69 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — Look extras API source of truth
+
+Sibling tahti-org#435 merged + prod migrated. Nuclear designer/artist/channel
+prefer live look-extras; localStorage is cache-only (`mergeLookExtrasPreferApi`).
+Channel Links/Text overlay save PATCHes visual (+ text-layer).
+
+## 2026-09-04 — StudioGate channel scope + look-extras cache
+
+### StudioGate: only require channel where needed
+
+Catalog and tool Studio pages use `requireChannel={false}` so a missing
+`user.channel` does not block Sounds, Library tools, editor, insights,
+moderation, venues, etc. Channel-bound surfaces keep the default:
+Branding, Schedule, Events, Go live, Shows, Upload, Updates.
+
+### Look extras: API source of truth, localStorage cache
+
+`mergeLookExtrasPreferApi` / `resolveChannelLookExtras` — live visual /
+public channel fields win (including `false`/`null`); localStorage only
+fills omitted keys. Designer caches only after successful PATCH. Channel
+page Links/Text overlay save PATCHes the API.
+
+
+## 2026-09-04 — Channel Designer artist-page full control
+
+# Channel Designer → artist page full control
+
+**Status:** client wired to look-extras API (2026-09-04). Sibling
+`feat/channel-look-extras` adds Prisma columns + PATCH/GET; Nuclear sends
+look extras on `/api/me/channel/visual` and normalizes `channelLinksJson`.
+
+## Done on artist page (`ArtistView`)
+
+- Header: `headerStyle` (GRADIENT/SOLID/VIDEO_LOOP), `videoBackgroundUrl`,
+  color scheme, visualizer preset + `visualSettingsJson` via
+  `EntitySocialHeader`
+- Player stage: separate player gradient when enabled, visualizer preset /
+  settings, `NowPlayingOverlay`, player text overlay
+- Page: background palette + ambient `backgroundVisualPreset` visualizer
+- Look extras reload after Channel Designer save
+- Designer: background visualizer preset picker (Backdrop)
+
+## Done on channel page (`ChannelView`)
+
+- Player vs header color schemes when `usePlayerGradient`
+- Page background palette + ambient background visualizer
+- Hero uses `visualSettingsJson` when present (else radio default tuning)
+
+## Remaining
+
+1. ~~**Merge sibling [tahti-org#435](https://github.com/janiluuk/tahti-org/pull/435)**~~ — merged + prod deployed (migration live). Nuclear client `0.0.71+` already PATCHes look extras; localStorage remains a cache.
+2. **`textOverlay*` ↔ `textLayer*`** — still a separate text-layer PATCH;
+   naming mismatch is intentional (designer vs API).
+3. E2E parity still targets `/channel/` more than `/u/:username` (spec exists:
+   `e2e/channel-designer-artist-look.spec.ts`).
+
+## Files
+
+- `EntitySocialHeader.tsx`, `ArtistView.tsx`, `ChannelView.tsx`,
+  `ChannelBackdropCard.tsx`, `ChannelDesigner.tsx`, `channel-design.ts`
+- Storybook: EntitySocialHeader GRADIENT story
+
+
 ## 2026-09-04 — Fan-sub + track purchase e2e (mock Vite)
 
 Playwright `e2e/fan-sub-and-track-purchase.spec.ts` green under

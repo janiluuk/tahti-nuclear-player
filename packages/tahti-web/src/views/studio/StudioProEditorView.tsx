@@ -659,7 +659,7 @@ export function StudioProEditorView({ soundId }: { soundId: string }) {
   };
 
   return (
-    <StudioGate>
+    <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/editor" />
         <div className="flex flex-wrap gap-3 text-xs">

@@ -1,8 +1,8 @@
 # Channel Designer → artist page full control
 
-**Status:** client wired to look-extras API (2026-09-04). Sibling
-`feat/channel-look-extras` adds Prisma columns + PATCH/GET; Nuclear sends
-look extras on `/api/me/channel/visual` and normalizes `channelLinksJson`.
+**Status:** done for look-extras persistence (2026-09-04). Sibling
+[tahti-org#435](https://github.com/janiluuk/tahti-org/pull/435) merged +
+prod migrated. Nuclear prefers live API fields; localStorage is cache-only.
 
 ## Done on artist page (`ArtistView`)
 
@@ -20,13 +20,13 @@ look extras on `/api/me/channel/visual` and normalizes `channelLinksJson`.
 - Player vs header color schemes when `usePlayerGradient`
 - Page background palette + ambient background visualizer
 - Hero uses `visualSettingsJson` when present (else radio default tuning)
+- Links/Text overlay save PATCHes `/api/me/channel/visual` (+ text-layer)
 
-## Remaining
+## Remaining (optional)
 
-1. ~~**Merge sibling [tahti-org#435](https://github.com/janiluuk/tahti-org/pull/435)**~~ — merged + prod deployed (migration live). Nuclear client `0.0.71+` already PATCHes look extras; localStorage remains a cache.
-2. **`textOverlay*` ↔ `textLayer*`** — still a separate text-layer PATCH;
+1. **`textOverlay*` ↔ `textLayer*`** — still a separate text-layer PATCH;
    naming mismatch is intentional (designer vs API).
-3. E2E parity still targets `/channel/` more than `/u/:username` (spec exists:
+2. E2E parity still targets `/channel/` more than `/u/:username` (spec exists:
    `e2e/channel-designer-artist-look.spec.ts`).
 
 ## Files

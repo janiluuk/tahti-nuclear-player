@@ -72,8 +72,9 @@ sweep. Flagging here so it isn't lost.
 
 - [x] Root-caused and fixed the production channel-detection 500 (see
       `tahti` repo).
-- [ ] Client-side StudioGate scope narrowing — deferred, needs per-page
-      judgment, tracked above so it isn't forgotten.
+- [x] Client-side StudioGate scope narrowing — catalog/tools use
+      `requireChannel={false}`; broadcast/schedule/branding/go-live keep
+      the default. See `docs/todo/HISTORY.md` (StudioGate channel scope).
 - [x] Favorites tab removed from Listen's own tab strip (`ListenView.tsx`).
       Still reachable at `/listen/favorites` via the sidebar link.
 - [x] Library moved to the main sidebar (`AppShell.tsx`, new

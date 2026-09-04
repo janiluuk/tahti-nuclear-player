@@ -40,6 +40,7 @@ import {
   BACKGROUND_VISUAL_PRESETS,
   BRAND_ACCENTS,
   channelLookExtrasFromPatch,
+  channelLookExtrasFromVisual,
   DEFAULT_COLOR_SCHEME,
   deleteChannelVisualPreset,
   fetchChannelVisual,
@@ -51,6 +52,7 @@ import {
   isVisualPreset,
   loadChannelLookExtras,
   MAX_HEADER_VIDEO_BYTES,
+  mergeLookExtrasPreferApi,
   parseColorScheme,
   parseVisualSettingsMap,
   patchChannelVisual,
@@ -362,7 +364,11 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     const loadFromServer = () => {
       void Promise.all([fetchChannelVisual(), fetchChannelGallery()]).then(
         ([visualResult, galleryResult]) => {
-          const extras = loadChannelLookExtras(layoutSlug);
+          const fromApi = channelLookExtrasFromVisual(visualResult.data);
+          const extras = mergeLookExtrasPreferApi(
+            fromApi,
+            loadChannelLookExtras(layoutSlug),
+          );
           const mergedVisual = { ...visualResult.data, ...extras };
           setVisual(mergedVisual);
           setOverlaySettings(
@@ -671,13 +677,13 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         setBusy(false);
         return;
       }
-      saveChannelLookExtras(layoutSlug, channelLookExtrasFromPatch(patch));
       const result = await patchChannelVisual(patch);
       if (!result.ok) {
         setBusy(false);
         toast.error(result.error);
         return;
       }
+      saveChannelLookExtras(layoutSlug, channelLookExtrasFromPatch(patch));
 
       // The visual endpoint is the source of truth for the header and player
       // design. Apply it immediately so a gallery endpoint failure cannot make
