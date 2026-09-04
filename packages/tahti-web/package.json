@@ -3,7 +3,7 @@
   "version": "0.0.72",
   "private": true,
   "type": "module",
-  "description": "POC: Tahti listen experience on Nuclear UI \u2014 eventual production web listen client",
+  "description": "POC: Tahti listen experience on Nuclear UI — eventual production web listen client",
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
