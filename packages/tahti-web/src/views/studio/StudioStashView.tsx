@@ -104,11 +104,7 @@ export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
       <div className="studio-page-layout mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
         {!embedded && <StudioNav current="/studio/stash" />}
         {!embedded ? (
-          <ViewShell
-            title="Stash"
-            subtitle="Private work in progress."
-            classes={{ root: 'px-0 pt-0' }}
-          >
+          <ViewShell title="Stash" classes={{ root: 'px-0 pt-0' }}>
             {body}
           </ViewShell>
         ) : (

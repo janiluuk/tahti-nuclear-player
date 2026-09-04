@@ -29,11 +29,7 @@ export function AdminGrantsView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/grants">
           <div className="flex max-w-4xl flex-col gap-6">
-            <ViewShell
-              title="Grants"
-              subtitle="Annual 90%-surplus disbursement to artists, based on engagement units."
-              classes={{ root: 'px-0 pt-0' }}
-            >
+            <ViewShell title="Grants" classes={{ root: 'px-0 pt-0' }}>
               <Link
                 to="/admin/governance"
                 className="text-foreground-secondary hover:text-foreground text-xs underline underline-offset-2"

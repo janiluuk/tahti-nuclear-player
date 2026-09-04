@@ -266,11 +266,7 @@ export function StudioRecordingsView({
     >
       {!embedded ? <StudioNav current="/studio/recordings" /> : null}
       {!embedded ? (
-        <ViewShell
-          title="Recordings"
-          subtitle="Completed show recordings."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Recordings" classes={{ root: 'px-0 pt-0' }}>
           <div className="mb-4">{browseShowsAction}</div>
           <StudioPanel
             title={`Recordings (${recordings.length})`}

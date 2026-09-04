@@ -76,7 +76,6 @@ export function AdminTopListsView() {
         <AdminPageLayout current="/admin/top-lists">
           <ViewShell
             title="Top lists"
-            subtitle="One listen per track per day."
             classes={{ root: 'px-0 pt-0 mx-auto max-w-4xl' }}
           >
             <div className="flex flex-col gap-3">

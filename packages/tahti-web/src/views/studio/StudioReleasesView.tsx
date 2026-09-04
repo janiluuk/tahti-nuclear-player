@@ -114,11 +114,7 @@ export function StudioReleasesView({
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         {!embedded ? <StudioNav current="/studio/releases" /> : null}
-        <ViewShell
-          title="Releases"
-          subtitle="Singles, EPs, and albums."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Releases" classes={{ root: 'px-0 pt-0' }}>
           <div className="mb-4">
             <Tooltip content="New release" side="top">
               <Button

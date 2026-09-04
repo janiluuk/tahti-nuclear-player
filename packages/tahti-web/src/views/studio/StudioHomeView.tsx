@@ -37,7 +37,6 @@ import { StudioNav } from '../../components/StudioNav';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { useStripeConfigured } from '../../hooks/useStripeConfigured';
 import { accountRoleLabel, getAccountRole } from '../../lib/accountRoles';
-import { timeOfDayGreeting } from '../../lib/greeting';
 import { useAuthStore } from '../../stores/authStore';
 import { useChannelSetupModalStore } from '../../stores/channelSetupModalStore';
 
@@ -323,15 +322,7 @@ export function StudioHomeView() {
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-8">
         <StudioNav current="/studio" />
 
-        <ViewShell
-          title="Studio"
-          subtitle={
-            user
-              ? `${timeOfDayGreeting(new Date().getHours())}, ${user.displayName || user.username}`
-              : undefined
-          }
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Studio" classes={{ root: 'px-0 pt-0' }}>
           {user ? (
             <div
               aria-label="Account status"

@@ -170,11 +170,7 @@ export function AdminGovernanceView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/governance">
           <div className="flex max-w-4xl flex-col gap-6">
-            <ViewShell
-              title="Governance"
-              subtitle="Association governance tools — motions, venues, resolutions, AGM, and audit trail."
-              classes={{ root: 'px-0 pt-0' }}
-            >
+            <ViewShell title="Governance" classes={{ root: 'px-0 pt-0' }}>
               <StudioPanel
                 title="Member activity"
                 description="Voting and discussion activity across motions and feature topics."

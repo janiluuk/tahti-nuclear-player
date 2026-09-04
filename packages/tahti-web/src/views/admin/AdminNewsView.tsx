@@ -87,7 +87,6 @@ export function AdminNewsView() {
         <AdminPageLayout current="/admin/news">
           <ViewShell
             title="News"
-            subtitle="Platform news feed."
             classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
           >
             <div className="mb-4">

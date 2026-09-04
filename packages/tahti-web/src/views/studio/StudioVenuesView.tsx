@@ -302,11 +302,7 @@ export function StudioVenuesView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/venues" />
-        <ViewShell
-          title="Venues"
-          subtitle="Your venues and bookings."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Venues" classes={{ root: 'px-0 pt-0' }}>
           <div className="mb-4">
             <Link to="/venues/register">
               <Button size="sm" variant="secondary">

@@ -803,11 +803,7 @@ export const StudioBrandingView: FC = () => {
         }`}
       >
         <StudioNav current="/studio/branding" />
-        <ViewShell
-          title="Branding"
-          subtitle="Shape your visual identity, keep a public image gallery, assemble a press kit, and design the public channel."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Branding" classes={{ root: 'px-0 pt-0' }}>
           {profile ? (
             <Link to="/u/$username" params={{ username: profile.username }}>
               <Button size="sm" variant="secondary">

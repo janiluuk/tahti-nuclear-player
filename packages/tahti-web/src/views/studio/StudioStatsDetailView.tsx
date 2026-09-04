@@ -67,11 +67,7 @@ export function StudioStatsDetailView() {
             ← Insights
           </Link>
         </p>
-        <ViewShell
-          title="Insights"
-          subtitle="Daily plays, downloads, and listener activity."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Insights" classes={{ root: 'px-0 pt-0' }}>
           <FilterChips
             items={RANGES}
             selected={range}

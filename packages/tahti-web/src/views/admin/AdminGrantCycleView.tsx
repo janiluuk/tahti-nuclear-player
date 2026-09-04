@@ -82,7 +82,6 @@ export function AdminGrantCycleView() {
           <div className="flex max-w-5xl flex-col gap-6">
             <ViewShell
               title={`${year} grant cycle`}
-              subtitle="Preview the engagement-unit allocation before approving disbursement."
               classes={{ root: 'px-0 pt-0' }}
             >
               <div className="flex flex-wrap gap-2">

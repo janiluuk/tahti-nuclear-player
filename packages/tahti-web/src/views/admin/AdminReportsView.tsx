@@ -30,11 +30,7 @@ export function AdminReportsView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/reports">
           <div className="flex max-w-4xl flex-col gap-6">
-            <ViewShell
-              title="Annual reports"
-              subtitle="Generate and publish yearly nonprofit activity reports from the governance records."
-              classes={{ root: 'px-0 pt-0' }}
-            >
+            <ViewShell title="Annual reports" classes={{ root: 'px-0 pt-0' }}>
               <StudioPanel title="Generate report">
                 <div className="flex flex-wrap items-end gap-2">
                   <label className="text-foreground-secondary flex flex-col gap-1 text-xs">

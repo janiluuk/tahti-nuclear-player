@@ -384,11 +384,7 @@ export function StudioUploadView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6">
         <StudioNav current="/library/upload" />
-        <ViewShell
-          title="Upload"
-          subtitle="Add music from a file or source."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Upload" classes={{ root: 'px-0 pt-0' }}>
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="border-accent-cyan flex min-h-48 flex-col justify-center rounded-xl border border-dashed p-5 sm:p-6">
               <FilePicker

@@ -490,11 +490,7 @@ export function AdminRadioView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/radio">
           <div className="flex max-w-4xl flex-col gap-6">
-            <ViewShell
-              title="Radio"
-              subtitle="Fair-rotation meta-stream — member channels, no editorial picks."
-              classes={{ root: 'px-0 pt-0' }}
-            >
+            <ViewShell title="Radio" classes={{ root: 'px-0 pt-0' }}>
               {msg && (
                 <p className="text-foreground-secondary text-sm" role="status">
                   {msg}

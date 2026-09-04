@@ -35,11 +35,7 @@ export function StudioEventCreateView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/events" />
-        <ViewShell
-          title="Add event"
-          subtitle="Publish a new appearance to your artist profile."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Add event" classes={{ root: 'px-0 pt-0' }}>
           <StudioPanel title="Event details">
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

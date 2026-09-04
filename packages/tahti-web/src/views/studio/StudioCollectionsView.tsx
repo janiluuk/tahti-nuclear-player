@@ -170,11 +170,7 @@ export function StudioCollectionsView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/collections" />
-        <ViewShell
-          title="Collections"
-          subtitle="Albums, EPs, DJ sets, and playlists."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Collections" classes={{ root: 'px-0 pt-0' }}>
           <div className="mb-4">
             <Tooltip content="New collection" side="top">
               <Button

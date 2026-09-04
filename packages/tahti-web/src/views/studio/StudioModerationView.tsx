@@ -274,11 +274,7 @@ export function StudioModerationView({
         {embedded ? (
           content
         ) : (
-          <ViewShell
-            title="Moderation"
-            subtitle="Delegate chat moderation and manage channel bans."
-            classes={{ root: 'px-0 pt-0' }}
-          >
+          <ViewShell title="Moderation" classes={{ root: 'px-0 pt-0' }}>
             {content}
           </ViewShell>
         )}

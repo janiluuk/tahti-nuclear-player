@@ -104,11 +104,7 @@ export function StudioShowsView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/shows" />
-        <ViewShell
-          title="Shows"
-          subtitle="Episodes, slots, and series."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Shows" classes={{ root: 'px-0 pt-0' }}>
           <div className="mb-4">
             <Tooltip content="New show" side="top">
               <Button

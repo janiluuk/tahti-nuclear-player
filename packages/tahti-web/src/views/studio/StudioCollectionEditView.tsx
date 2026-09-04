@@ -688,7 +688,6 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
               <div className="min-w-0 flex-1">
                 <StudioPageHeader
                   title={name || col.name}
-                  subtitle={`/${col.slug}${style ? `, ${style}` : ''}`}
                   action={
                     <div className="flex items-center gap-2">
                       <Badge

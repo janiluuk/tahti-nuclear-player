@@ -87,11 +87,7 @@ export function StudioRevenueView() {
     <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-4 px-1 py-2">
         <StudioNav current="/studio/revenue" />
-        <ViewShell
-          title="Audience"
-          subtitle="Fan-sub orders, distribution royalties, payout statistics, and how each euro splits."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Audience" classes={{ root: 'px-0 pt-0' }}>
           <div className="flex items-center gap-2">
             <Link to="/help/$slug" params={{ slug: 'earnings' }}>
               <Button size="sm" variant="secondary">

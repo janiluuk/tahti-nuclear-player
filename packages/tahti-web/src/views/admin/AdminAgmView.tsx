@@ -182,11 +182,7 @@ export function AdminAgmView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/agm">
           <div className="flex max-w-4xl flex-col gap-6">
-            <ViewShell
-              title="AGM"
-              subtitle="AGM planning tools — agenda, motions, member notice, and minutes."
-              classes={{ root: 'px-0 pt-0' }}
-            >
+            <ViewShell title="AGM" classes={{ root: 'px-0 pt-0' }}>
               <Link
                 to="/admin/governance"
                 className="text-foreground-secondary hover:text-foreground text-xs underline underline-offset-2"

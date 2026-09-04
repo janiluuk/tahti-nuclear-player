@@ -963,11 +963,7 @@ export function StudioDistributionView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/distribution" />
-        <ViewShell
-          title="Distribution"
-          subtitle="DSP delivery & catalog metadata — submit releases to Revelator, track UPC/ISRC/MusicBrainz identifiers, and review royalty reports."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Distribution" classes={{ root: 'px-0 pt-0' }}>
           <Link
             to="/studio/releases"
             className="text-foreground-secondary hover:text-foreground inline-flex items-center gap-1 text-xs underline underline-offset-2"

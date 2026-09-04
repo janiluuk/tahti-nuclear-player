@@ -103,11 +103,7 @@ export function StudioEventsView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/events" />
-        <ViewShell
-          title="Events"
-          subtitle="Appearances on your profile."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Events" classes={{ root: 'px-0 pt-0' }}>
           <div className="mb-4">
             <Tooltip content="Add event" side="top">
               <Link to="/studio/events/new">

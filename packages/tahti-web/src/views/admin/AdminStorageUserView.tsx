@@ -19,10 +19,6 @@ import {
 } from '../../lib/storageFormat';
 import { usePlayerStore } from '../../stores/playerStore';
 
-function tierLabel(tier: AdminStorageUserDetail['tier']): string {
-  return tier.charAt(0) + tier.slice(1).toLowerCase();
-}
-
 export function AdminStorageUserView({ userId }: { userId: string }) {
   const play = usePlayerStore((s) => s.play);
   const [detail, setDetail] = useState<AdminStorageUserDetail | null>(null);
@@ -62,7 +58,6 @@ export function AdminStorageUserView({ userId }: { userId: string }) {
           <>
             <ViewShell
               title={detail.displayName}
-              subtitle={`@${detail.username} · ${tierLabel(detail.tier)} tier`}
               classes={{ root: 'px-0 pt-0' }}
             >
               <StudioPanel>

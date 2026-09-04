@@ -134,11 +134,7 @@ export function AdminArtworkPresetsView() {
     <AdminGate>
       <AdminPageLayout current="/admin/artwork-presets">
         <div className="flex flex-col gap-6">
-          <ViewShell
-            title="Artwork presets"
-            subtitle="Manage the abstract thumbnails used when a new upload has no artwork. The 16 defaults below can't be overwritten — assign one of your own uploaded artworks to a slot instead."
-            classes={{ root: 'px-0 pt-0' }}
-          >
+          <ViewShell title="Artwork presets" classes={{ root: 'px-0 pt-0' }}>
             <Button variant="secondary" onClick={resetToDefaults}>
               <RotateCcwIcon size={15} aria-hidden className="mr-1.5" />
               Reset to defaults

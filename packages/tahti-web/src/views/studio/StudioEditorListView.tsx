@@ -112,11 +112,7 @@ export function StudioEditorListView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/editor" />
-        <ViewShell
-          title="Editor"
-          subtitle="Trim and process archive tracks. Sessions keep a linked archive when you seed one."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Editor" classes={{ root: 'px-0 pt-0' }}>
           {projects.length > 0 && (
             <div className="flex items-center gap-2">
               <Tooltip content="New session" side="top">

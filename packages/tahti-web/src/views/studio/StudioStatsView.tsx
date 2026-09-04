@@ -268,11 +268,7 @@ export const StudioStatsView: FC = () => {
             ))}
           </Tabs.List>
         </Tabs.Root>
-        <ViewShell
-          title="Stats"
-          subtitle="Audience and broadcasts."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Stats" classes={{ root: 'px-0 pt-0' }}>
           <div className="mb-4">
             <FilterChips
               items={RANGES}

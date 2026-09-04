@@ -25,11 +25,7 @@ export function StudioTrackInsightsView({
           ← {kind === 'sound' ? 'Music' : 'Releases'}
         </Link>
 
-        <ViewShell
-          title="Track insights"
-          subtitle="Plays, downloads, and listener geography for this track."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Track insights" classes={{ root: 'px-0 pt-0' }}>
           <TrackInsightsPanel kind={kind} id={id} />
         </ViewShell>
       </div>

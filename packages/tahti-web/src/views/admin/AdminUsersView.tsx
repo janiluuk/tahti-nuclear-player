@@ -45,7 +45,6 @@ export const AdminUsersView = () => {
         <AdminPageLayout current="/admin/users">
           <ViewShell
             title="Users"
-            subtitle="Accounts and access."
             classes={{ root: 'px-0 pt-0 mx-auto max-w-7xl' }}
           >
             <p className="text-foreground-secondary text-sm">

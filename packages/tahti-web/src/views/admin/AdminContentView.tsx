@@ -47,7 +47,6 @@ export function AdminContentView() {
         <AdminPageLayout current="/admin/content">
           <ViewShell
             title="Content"
-            subtitle="Catalog and broadcasts."
             classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
           >
             <div>

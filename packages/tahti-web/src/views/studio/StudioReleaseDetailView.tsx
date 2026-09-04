@@ -166,7 +166,6 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
           <>
             <StudioPageHeader
               title={release.title}
-              subtitle={`${release.state} — /r/${release.smartLinkSlug}`}
               action={
                 <div className="flex flex-wrap justify-end gap-2">
                   <SaveButton saving={saving} onClick={() => void save()} />

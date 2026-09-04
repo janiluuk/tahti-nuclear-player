@@ -49,11 +49,7 @@ export function StudioStripeView() {
     <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-4 px-1 py-2">
         <StudioNav current="/studio/stripe" />
-        <ViewShell
-          title="Stripe"
-          subtitle="Payout account, Express dashboard, and charges processed through the current payment provider."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Stripe" classes={{ root: 'px-0 pt-0' }}>
           {message ? (
             <p className="text-foreground-secondary text-sm" role="status">
               {message}

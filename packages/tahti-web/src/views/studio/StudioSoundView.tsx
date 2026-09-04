@@ -303,15 +303,6 @@ export function StudioSoundView({ id }: { id: string }) {
     );
   };
 
-  const visibilityLabel = item
-    ? (item.visibility ?? (item.isPublic === false ? 'PRIVATE' : 'PUBLIC'))
-        .charAt(0)
-        .concat(
-          (item.visibility ?? (item.isPublic === false ? 'PRIVATE' : 'PUBLIC'))
-            .slice(1)
-            .toLowerCase(),
-        )
-    : '';
   const isAudioClip = contentType === 'CLIP';
   const pinned = item ? isPinned(item) : false;
   const hasError = status === 'ERROR';
@@ -377,10 +368,7 @@ export function StudioSoundView({ id }: { id: string }) {
                   </Button>
                 </Tooltip>
                 <div className="absolute right-5 bottom-5 left-5 text-white">
-                  <StudioPageHeader
-                    title={item.title}
-                    subtitle={`Edit title, description, and visibility. ${item.status}, ${visibilityLabel}${pinned ? ', Pinned' : ''}`}
-                  />
+                  <StudioPageHeader title={item.title} />
                   <div className="mt-5">
                     <WaveformSeekbar
                       trackId={id}

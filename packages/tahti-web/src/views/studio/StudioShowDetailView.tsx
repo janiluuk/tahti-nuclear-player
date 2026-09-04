@@ -386,11 +386,6 @@ export function StudioShowDetailView({ id }: { id: string }) {
           <>
             <StudioPageHeader
               title={show.title}
-              subtitle={
-                show.mode === 'SINGLE'
-                  ? 'Single show'
-                  : `Continuing series · next episode #${show.nextEpisodeNumber}, ${show.intervalHours}h intervals`
-              }
               action={
                 show.mode === 'SINGLE' ? undefined : (
                   <Tooltip content="New episode" side="top">
@@ -872,7 +867,6 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
 
         <StudioPageHeader
           title={episode.title}
-          subtitle={`${episodeStatusLabel(episode)}${episode.source === 'broadcast' ? ' · recorded' : ' · upload'}`}
           action={<Eyebrow>Episode #{episode.episodeNumber}</Eyebrow>}
         />
 

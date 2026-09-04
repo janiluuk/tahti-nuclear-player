@@ -111,11 +111,7 @@ export function StudioMasteringView({ soundId }: { soundId: string }) {
           </Link>
         </div>
 
-        <ViewShell
-          title="Reference mastering"
-          subtitle="Upload a reference track and match this track's loudness and tone toward it. Runs entirely in your browser — nothing is uploaded anywhere."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Reference mastering" classes={{ root: 'px-0 pt-0' }}>
           {loading || !source ? (
             <PageLoading label="Loading track…" />
           ) : (

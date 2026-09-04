@@ -295,11 +295,7 @@ export function AdminDiscoWidgetsView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/disco-widgets">
           <div className="flex max-w-5xl flex-col gap-6">
-            <ViewShell
-              title="Disco widgets"
-              subtitle="Register, review, and manage every add-on available to listeners, artists, and admins."
-              classes={{ root: 'px-0 pt-0' }}
-            >
+            <ViewShell title="Disco widgets" classes={{ root: 'px-0 pt-0' }}>
               <Tooltip content="Register a new widget" side="top">
                 <Button
                   type="button"

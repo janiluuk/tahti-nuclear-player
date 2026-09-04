@@ -693,10 +693,7 @@ export function StudioProEditorView({ soundId }: { soundId: string }) {
           )}
         </div>
 
-        <StudioPageHeader
-          title={title || 'Pro editor'}
-          subtitle="Waveform, cuts, EQ, and mastering — save a draft or render a new version."
-        />
+        <StudioPageHeader title={title || 'Pro editor'} />
 
         <ClientCapabilityNotice kind="partial" title="Single-track editor">
           Cut, trim, adjust effects, or request stems here. Use a multitrack

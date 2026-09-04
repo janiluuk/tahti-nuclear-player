@@ -911,11 +911,7 @@ export function AdminStorageView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/storage">
           <div className="flex max-w-6xl flex-col gap-6">
-            <ViewShell
-              title="Storage"
-              subtitle="Disk and object storage space, per-user quotas, and every uploaded file across the platform."
-              classes={{ root: 'px-0 pt-0' }}
-            >
+            <ViewShell title="Storage" classes={{ root: 'px-0 pt-0' }}>
               <Tabs
                 selectedIndex={tab === 'storage' ? 0 : 1}
                 onChange={(index) => setTab(index === 0 ? 'storage' : 'files')}

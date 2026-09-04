@@ -74,7 +74,6 @@ export function AdminAnnouncementsView() {
         <AdminPageLayout current="/admin/announcements">
           <ViewShell
             title="Announcements"
-            subtitle="Clips in channel rotation."
             classes={{ root: 'px-0 pt-0 mx-auto max-w-4xl' }}
           >
             {msg && (

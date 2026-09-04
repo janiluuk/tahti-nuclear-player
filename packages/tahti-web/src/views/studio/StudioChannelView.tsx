@@ -171,11 +171,6 @@ export function StudioChannelView() {
         />
         <ViewShell
           title={tab === 'radio' ? 'Radio' : 'Channel'}
-          subtitle={
-            tab === 'radio'
-              ? 'Stream, rotation, and multicast.'
-              : 'Setup, green room, and selects.'
-          }
           classes={{ root: 'px-0 pt-0' }}
         >
           {tab !== 'radio' ? (

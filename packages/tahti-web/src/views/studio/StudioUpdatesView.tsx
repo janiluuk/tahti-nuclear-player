@@ -156,11 +156,7 @@ export function StudioUpdatesView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/updates" />
-        <ViewShell
-          title="Updates"
-          subtitle="Posts and newsletter drafts."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Updates" classes={{ root: 'px-0 pt-0' }}>
           <div className="mb-4">
             {tab === 'posts' ? (
               <Tooltip content="New post" side="top">

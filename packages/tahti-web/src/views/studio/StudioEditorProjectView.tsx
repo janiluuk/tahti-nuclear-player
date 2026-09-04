@@ -113,11 +113,7 @@ export function StudioEditorProjectView({ id }: { id: string }) {
           </StudioPanel>
         ) : (
           <>
-            <ViewShell
-              title={project.title}
-              subtitle="Multitrack session. Open the linked archive in the pro trim editor when available."
-              classes={{ root: 'px-0 pt-0' }}
-            >
+            <ViewShell title={project.title} classes={{ root: 'px-0 pt-0' }}>
               <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
