@@ -1,5 +1,17 @@
 [
   {
+    "date": "2026-09-05T00:45",
+    "description": "Opening Design channel no longer crashes the page, and the edit link uses a clean ?edit=true URL instead of quoted junk.",
+    "type": "fix",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "Channel",
+        "color": "cyan"
+      }
+    ]
+  },
+  {
     "date": "2026-09-05T00:40",
     "description": "Studio page subtabs sit under the Studio nav like Stats, and page header blurbs moved into Help so titles stay short.",
     "type": "improvement",

@@ -874,7 +874,7 @@ export function ArtistView({ username }: { username: string }) {
               <Link
                 to="/channel/$slug"
                 params={{ slug: channel.slug }}
-                search={{ edit: '1' }}
+                search={{ edit: true }}
               >
                 <Button
                   size="sm"
@@ -1572,7 +1572,7 @@ export function ArtistView({ username }: { username: string }) {
               <Link
                 to="/channel/$slug"
                 params={{ slug: channel.slug }}
-                search={{ edit: '1' }}
+                search={{ edit: true }}
                 className="underline-offset-2 hover:underline"
               >
                 channel page

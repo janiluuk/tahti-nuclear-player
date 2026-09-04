@@ -125,7 +125,7 @@ const snapToGrid = (value: number) =>
 
 export function ChannelView({ slug }: { slug: string }) {
   const navigate = useNavigate();
-  const search = useSearch({ strict: false }) as { edit?: string };
+  const search = useSearch({ strict: false }) as { edit?: boolean };
   const me = useAuthStore((s) => s.user);
   const [channel, setChannel] = useState<PublicChannel | null>(null);
   const [archive, setArchive] = useState<ArchiveItem[]>([]);
@@ -216,7 +216,7 @@ export function ChannelView({ slug }: { slug: string }) {
   }, [slug]);
 
   useEffect(() => {
-    if (search.edit === '1' && isOwner) {
+    if (search.edit && isOwner) {
       setEditing(true);
     }
   }, [search.edit, isOwner]);
@@ -322,6 +322,13 @@ export function ChannelView({ slug }: { slug: string }) {
     };
   }, [archive, slug]);
 
+  const lookExtras = useMemo(() => {
+    if (!channel) {
+      return resolveChannelLookExtras(slug, {});
+    }
+    return resolveChannelLookExtras(slug, channelLookExtrasFromVisual(channel));
+  }, [slug, lookExtrasTick, channel]);
+
   if (loading) {
     return <PageLoading label="Loading channel…" />;
   }
@@ -341,9 +348,6 @@ export function ChannelView({ slug }: { slug: string }) {
     channel.headerStyle === 'VIDEO_LOOP' &&
     isValidHeaderBackdropUrl(channel.videoBackgroundUrl);
   const showSolidHeader = channel.headerStyle === 'SOLID';
-  const lookExtras = useMemo(() => {
-    return resolveChannelLookExtras(slug, channelLookExtrasFromVisual(channel));
-  }, [slug, lookExtrasTick, channel]);
   const pageScheme = normalizeColorScheme(
     lookExtras.useBackgroundGradient
       ? parseColorScheme(lookExtras.backgroundColorSchemeJson)
@@ -513,7 +517,7 @@ export function ChannelView({ slug }: { slug: string }) {
     void navigate({
       to: '/channel/$slug',
       params: { slug },
-      search: { edit: '1' },
+      search: { edit: true },
     });
   };
 
