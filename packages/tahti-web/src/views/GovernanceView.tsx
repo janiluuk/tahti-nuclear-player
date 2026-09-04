@@ -1,7 +1,13 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, SectionShell, ViewShell } from '@tahti-player/ui';
+import {
+  Badge,
+  Button,
+  Input,
+  SectionShell,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import {
   createGovernanceMotion,
@@ -441,12 +447,11 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
             not voting ballots until the board opens them.
           </p>
           <div className="mt-3 flex flex-col gap-2">
-            <input
+            <Input
               value={draftTitle}
               onChange={(event) => setDraftTitle(event.target.value)}
               placeholder="Motion title"
               maxLength={200}
-              className="border-border bg-background rounded-md border px-3 py-2 text-sm"
             />
             <textarea
               value={draftDescription}
@@ -617,11 +622,11 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
                     )}
                     {m.state !== 'CLOSED' && !expired && (
                       <div className="flex flex-wrap gap-2">
-                        <input
+                        <Input
+                          className="min-w-[200px] flex-1"
                           value={commentBody}
                           onChange={(e) => setCommentBody(e.target.value)}
                           placeholder="Add a comment…"
-                          className="border-border bg-background focus:border-primary min-w-[200px] flex-1 rounded-md border px-3 py-2 text-sm outline-none"
                         />
                         <Button
                           size="sm"

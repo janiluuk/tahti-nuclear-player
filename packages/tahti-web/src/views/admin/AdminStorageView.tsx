@@ -220,12 +220,13 @@ function QuotaEditor({
 
   return (
     <div className="flex items-center gap-1.5">
-      <input
+      <Input
         type="number"
+        size="sm"
         min={1}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="border-border bg-background h-8 w-20 rounded-md border px-2 text-xs"
+        className="w-20"
         disabled={saving}
         aria-label={`Quota in MB for ${displayName}`}
       />

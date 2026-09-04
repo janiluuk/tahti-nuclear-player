@@ -292,11 +292,11 @@ export function FeatureRequestsView({
                       </ul>
                     )}
                     <div className="flex flex-wrap gap-2">
-                      <input
+                      <Input
+                        className="min-w-[200px] flex-1"
                         value={commentBody}
                         onChange={(e) => setCommentBody(e.target.value)}
                         placeholder="Add a comment…"
-                        className="border-border bg-background focus:border-primary min-w-[200px] flex-1 rounded-md border px-3 py-2 text-sm outline-none"
                       />
                       <Button
                         size="sm"

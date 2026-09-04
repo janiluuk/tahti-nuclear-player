@@ -388,15 +388,13 @@ export function StudioSoundsView() {
                     onChange={(event) => setUploadedFrom(event.target.value)}
                     className="min-w-36"
                   />
-                  <label className="flex min-w-36 flex-col gap-1 text-xs">
-                    Uploaded to
-                    <input
-                      type="date"
-                      value={uploadedTo}
-                      onChange={(event) => setUploadedTo(event.target.value)}
-                      className="border-border bg-background h-9 rounded-md border px-2 text-sm"
-                    />
-                  </label>
+                  <Input
+                    type="date"
+                    label="Uploaded to"
+                    value={uploadedTo}
+                    onChange={(event) => setUploadedTo(event.target.value)}
+                    className="min-w-36"
+                  />
                 </div>
               )}
 

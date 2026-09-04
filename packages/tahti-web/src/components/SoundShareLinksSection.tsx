@@ -2,7 +2,7 @@ import { CheckIcon, LinkIcon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, CopyButton, Select } from '@tahti-player/ui';
+import { Button, CopyButton, Input, Select } from '@tahti-player/ui';
 
 import {
   createSoundShare,
@@ -155,17 +155,13 @@ export function SoundShareLinksSection({ soundId }: { soundId: string }) {
       )}
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-        <label className="flex flex-1 flex-col gap-1 text-sm">
-          <span className="text-foreground-secondary text-xs uppercase">
-            Limit to a username (optional)
-          </span>
-          <input
-            value={granteeUsername}
-            onChange={(e) => setGranteeUsername(e.target.value)}
-            placeholder="@username, or leave empty for link access"
-            className="border-border bg-background rounded-md border px-3 py-2"
-          />
-        </label>
+        <Input
+          className="flex-1"
+          label="Limit to a username (optional)"
+          value={granteeUsername}
+          onChange={(e) => setGranteeUsername(e.target.value)}
+          placeholder="@username, or leave empty for link access"
+        />
         <Select
           label="Access"
           value={permission}
