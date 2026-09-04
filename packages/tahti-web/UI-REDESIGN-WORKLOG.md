@@ -1,13 +1,15 @@
-## 2026-09-05 — Channel designer menu rebuild (0.0.80)
+## 2026-09-05 — Channel designer menu rebuild + Backdrop Storybook (0.0.80)
 
 **Status:** executed.
 
 Header style is a segmented control with exclusive bodies (Gradient /
-Solid / Video / Slideshow) so color presets no longer stick on every
-tab. Designer dock is fixed and translucent; page scrolls behind.
-Chrome stays put; only the settings pane scrolls.
+Solid / Video / Slideshow). Designer dock is fixed and translucent; page
+scrolls behind; only the settings pane scrolls. Extracted
+`HeaderStyleTabs` and `PageBackgroundField` under
+`components/channel-designer/` with Storybook stories.
 
-Todo: `docs/todo/channel-designer-menu-rebuild.md`.
+Todo: `docs/todo/channel-designer-menu-rebuild.md`,
+`docs/todo/channel-designer-storybook-elements.md`.
 
 ## 2026-09-05 — Channel Designer Storybook elements (0.0.79)
 

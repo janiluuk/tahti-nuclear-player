@@ -23,10 +23,11 @@ Review and fix Channel Designer UI **one element at a time** in Storybook
 
 ## Correction order
 
-1. Color scheme fields (shared primitive)
-2. Backdrop (header style + page bg)
+1. ~~Color scheme fields (shared primitive)~~
+2. Backdrop — `HeaderStyleTabs` + `PageBackgroundField` extracted; exclusive
+   style bodies live; full Backdrop panel extract still open
 3. Player (gradient / visualizer / overlays)
-4. Layers menu + Background always-on row
+4. Layers menu + Background always-on row (fixed translucent dock shipped)
 5. Playlist picker + block displays
 6. Layout-only look rows (releases…gallery) copy/visibility
 
