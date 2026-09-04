@@ -1,6 +1,7 @@
 # Radio Browser directory → Add-ons store parity
 
-**Status:** shell + Browser tab executed; Stations Save → Listen executed.
+**Status:** executed. Shell + Browser tab, Stations Save → Listen, and the
+Playwright smoke test (`e2e/plugin-store.spec.ts`, 2026-09-04) are all done.
 
 Executed:
 1. ConfigurableCard + Configure dialog (no inline dump on Activate)
