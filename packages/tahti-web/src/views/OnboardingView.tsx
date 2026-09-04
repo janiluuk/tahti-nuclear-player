@@ -10,6 +10,7 @@ import {
   Tabs,
   Textarea,
   Toggle,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -21,7 +22,6 @@ import { checkSlugAvailable, updateChannelSlug } from '../api/channel-design';
 import { provisionChannel } from '../api/channel-provision';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
 import { GenrePicker } from '../components/GenrePicker';
-import { PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
 import { COUNTRIES, flagEmoji } from '../lib/countries';
 import {
@@ -237,12 +237,11 @@ export function OnboardingView() {
   }
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-1 py-6">
-      <PageHeader
-        title="Welcome to Tahti"
-        subtitle="A few quick things to set up your profile — you can change any of this later in Settings."
-      />
-
+    <ViewShell
+      title="Welcome to Tahti"
+      subtitle="A few quick things to set up your profile — you can change any of this later in Settings."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
+    >
       {loading ? (
         <PageLoading label="Loading your profile…" />
       ) : (
@@ -541,6 +540,6 @@ export function OnboardingView() {
           </div>
         </>
       )}
-    </div>
+    </ViewShell>
   );
 }

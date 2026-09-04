@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchGreenRoomAccess,
@@ -9,7 +9,6 @@ import {
   type GreenRoomAccess,
 } from '../api/artist-settings';
 import { fetchProfile } from '../api/client';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -78,39 +77,40 @@ export function GreenRoomView({ username }: { username: string }) {
     };
   }, [username]);
 
-  const header = (
-    <PageHeader
-      title="Green room"
-      back={
-        <Link
-          to="/u/$username"
-          params={{ username }}
-          className="text-foreground-secondary text-xs hover:underline"
-        >
-          ← @{username}
-        </Link>
-      }
-      subtitle={
-        access
-          ? `${access.artistDisplayName}'s pre-show preview`
-          : 'Invite-only pre-show preview'
-      }
-    />
+  const backLink = (
+    <Link
+      to="/u/$username"
+      params={{ username }}
+      className="text-foreground-secondary mb-2 block text-xs hover:underline"
+    >
+      ← @{username}
+    </Link>
   );
+  const subtitle = access
+    ? `${access.artistDisplayName}'s pre-show preview`
+    : 'Invite-only pre-show preview';
 
   if (loading) {
     return (
-      <PageFrame maxWidth="2xl">
-        {header}
+      <ViewShell
+        title="Green room"
+        subtitle={subtitle}
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
+      >
+        {backLink}
         <PageLoading label="Checking green room access…" />
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   if (needsLogin) {
     return (
-      <PageFrame maxWidth="2xl">
-        {header}
+      <ViewShell
+        title="Green room"
+        subtitle={subtitle}
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
+      >
+        {backLink}
         <PageEmpty
           title="Sign in required"
           description="Log in to join this green room."
@@ -120,51 +120,67 @@ export function GreenRoomView({ username }: { username: string }) {
             </Button>
           }
         />
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   if (error || !access) {
     return (
-      <PageFrame maxWidth="2xl">
-        {header}
+      <ViewShell
+        title="Green room"
+        subtitle={subtitle}
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
+      >
+        {backLink}
         <PageEmpty
           icon="alert"
           title="Green room unavailable"
           description={error ?? 'Could not load green room access.'}
         />
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   if (!access.greenRoomEnabled) {
     return (
-      <PageFrame maxWidth="2xl">
-        {header}
+      <ViewShell
+        title="Green room"
+        subtitle={subtitle}
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
+      >
+        {backLink}
         <PageEmpty
           title="Not open yet"
           description={`${access.artistDisplayName} has not opened the green room for this broadcast yet.`}
         />
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   if (!access.hasAccess) {
     return (
-      <PageFrame maxWidth="2xl">
-        {header}
+      <ViewShell
+        title="Green room"
+        subtitle={subtitle}
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
+      >
+        {backLink}
         <PageEmpty
           title="Invite required"
           description={`You are not on the guest list for ${access.artistDisplayName}'s green room.`}
         />
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   if (access.channelState === 'LIVE') {
     return (
-      <PageFrame maxWidth="2xl">
-        {header}
+      <ViewShell
+        title="Green room"
+        subtitle={subtitle}
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
+      >
+        {backLink}
         <PageEmpty
           icon="radio"
           title="On air"
@@ -177,26 +193,34 @@ export function GreenRoomView({ username }: { username: string }) {
             ) : undefined
           }
         />
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   if (access.channelState !== 'PREVIEW' || !access.hlsUrl) {
     return (
-      <PageFrame maxWidth="2xl">
-        {header}
+      <ViewShell
+        title="Green room"
+        subtitle={subtitle}
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
+      >
+        {backLink}
         <PageEmpty
           icon="radio"
           title="Waiting for preview"
           description={`The green room opens when ${access.artistDisplayName} starts their preview stream.`}
         />
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   return (
-    <PageFrame maxWidth="2xl">
-      {header}
+    <ViewShell
+      title="Green room"
+      subtitle={subtitle}
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
+    >
+      {backLink}
       <div className="border-border bg-background-secondary/40 flex flex-col gap-4 rounded-xl border p-5">
         <p className="text-foreground-secondary text-sm">
           You&apos;re in the green room — listen to the preview stream before
@@ -218,6 +242,6 @@ export function GreenRoomView({ username }: { username: string }) {
           Play preview stream
         </Button>
       </div>
-    </PageFrame>
+    </ViewShell>
   );
 }

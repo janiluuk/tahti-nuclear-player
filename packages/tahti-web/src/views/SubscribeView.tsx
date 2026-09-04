@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchFanTiers,
@@ -9,7 +9,6 @@ import {
   type FetchMeta,
 } from '../api/client';
 import type { FanTiersResponse } from '../api/types';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
@@ -56,34 +55,29 @@ export function SubscribeView({ username }: { username: string }) {
   }
 
   return (
-    <PageFrame maxWidth="3xl">
-      <PageHeader
-        title={`Subscribe to ${data.artist.displayName}`}
-        subtitle={`@${data.artist.username}`}
-        back={
-          <Link
-            to="/u/$username"
-            params={{ username }}
-            className="text-foreground-secondary text-xs hover:underline"
-          >
-            ← @{username}
-          </Link>
-        }
-        meta={
-          <>
-            {data.artist.bio && (
-              <p className="text-foreground max-w-2xl text-sm whitespace-pre-wrap">
-                {data.artist.bio}
-              </p>
-            )}
-            {!data.paymentsReady && (
-              <p className="text-foreground-secondary text-xs">
-                Payments not ready on this artist yet.
-              </p>
-            )}
-          </>
-        }
-      />
+    <ViewShell
+      title={`Subscribe to ${data.artist.displayName}`}
+      subtitle={`@${data.artist.username}`}
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
+    >
+      <Link
+        to="/u/$username"
+        params={{ username }}
+        className="text-foreground-secondary mb-2 text-xs hover:underline"
+      >
+        ← @{username}
+      </Link>
+
+      {data.artist.bio && (
+        <p className="text-foreground mb-2 max-w-2xl text-sm whitespace-pre-wrap">
+          {data.artist.bio}
+        </p>
+      )}
+      {!data.paymentsReady && (
+        <p className="text-foreground-secondary mb-4 text-xs">
+          Payments not ready on this artist yet.
+        </p>
+      )}
 
       {!user && (
         <p className="border-border bg-background-secondary rounded-lg border px-3 py-2 text-sm">
@@ -178,6 +172,6 @@ export function SubscribeView({ username }: { username: string }) {
           ))}
         </div>
       )}
-    </PageFrame>
+    </ViewShell>
   );
 }
