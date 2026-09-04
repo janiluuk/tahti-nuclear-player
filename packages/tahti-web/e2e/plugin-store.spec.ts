@@ -409,3 +409,76 @@ test('Studio release fingerprinting: check and re-fingerprint a track through th
     blueHourPanel.getByText(/Matches .Similar Sounding Track./),
   ).toBeVisible();
 });
+
+async function mockRadioBrowserApi(
+  page: import('@playwright/test').Page,
+): Promise<void> {
+  const station = {
+    stationuuid: 'e2e-test-station',
+    name: 'E2E Test Radio',
+    url_resolved: 'https://example.test/stream.mp3',
+    homepage: '',
+    favicon: '',
+    tags: 'test',
+    country: 'Finland',
+    countrycode: 'FI',
+    codec: 'MP3',
+    bitrate: 128,
+  };
+  await page.route('**/de1.api.radio-browser.info/json/stats', (route) =>
+    route.fulfill({ json: { stations: 50000 } }),
+  );
+  await page.route(
+    '**/de1.api.radio-browser.info/json/stations/search**',
+    (route) => route.fulfill({ json: [station] }),
+  );
+  await page.route('**/de1.api.radio-browser.info/json/countries', (route) =>
+    route.fulfill({
+      json: [{ name: 'Finland', iso_3166_1: 'FI', stationcount: 12 }],
+    }),
+  );
+  await page.route('**/de1.api.radio-browser.info/json/tags**', (route) =>
+    route.fulfill({ json: [{ name: 'test', stationcount: 1 }] }),
+  );
+}
+
+test('Radio Browser directory: save a station from Browser and it shows on Listen', async ({
+  page,
+}) => {
+  await signIn(page);
+  await clearListenAddons(page);
+  await mockRadioBrowserApi(page);
+
+  await page.goto('/settings/plugin-store?category=radio');
+  const settings = page.getByRole('dialog');
+  const toggleName = /^(Activate|Deactivate) Radio Browser directory$/;
+  const radioBrowserRow = settings
+    .locator('div.flex.items-center.gap-2')
+    .filter({ has: settings.getByRole('switch', { name: toggleName }) })
+    .last();
+  await radioBrowserRow.getByRole('switch', { name: toggleName }).click();
+  await radioBrowserRow.getByRole('button', { name: 'Configure' }).click();
+
+  const configure = page.getByRole('dialog', {
+    name: 'Configure Radio Browser directory',
+  });
+  await configure.getByRole('tab', { name: 'Browser' }).click();
+  const row = configure
+    .getByRole('listitem')
+    .filter({ hasText: 'E2E Test Radio' });
+  await expect(row).toBeVisible();
+  await row
+    .getByRole('button', { name: /Save E2E Test Radio to Listen/ })
+    .click();
+  await expect(
+    row.getByRole('button', { name: /Remove E2E Test Radio from Listen/ }),
+  ).toBeVisible();
+
+  await configure.getByRole('button', { name: 'Done' }).click();
+  await settings.getByTestId('dialog-x-close').click();
+
+  await page.goto('/');
+  await expect(
+    page.getByTestId('listener-widgets-section').getByText('E2E Test Radio'),
+  ).toBeVisible();
+});
