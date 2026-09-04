@@ -1,7 +1,7 @@
 import { Link, useParams } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, SectionShell } from '@tahti-player/ui';
+import { Button, SectionShell, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchAdminGrantHistory,
@@ -13,7 +13,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 const MIN_UNITS = 5;
 
@@ -79,147 +79,147 @@ export function AdminGrantCycleView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/grants">
           <div className="flex max-w-5xl flex-col gap-6">
-            <StudioPageHeader
+            <ViewShell
               title={`${year} grant cycle`}
               subtitle="Preview the engagement-unit allocation before approving disbursement."
-              action={
-                <div className="flex flex-wrap gap-2">
-                  <a
-                    href={`/tahti-api/api/admin/grants/export.csv?year=${year}`}
-                  >
-                    <Button size="sm" variant="secondary">
-                      Board CSV
-                    </Button>
-                  </a>
-                  <Link to="/admin/grants">
-                    <Button size="sm" variant="secondary">
-                      All cycles
-                    </Button>
-                  </Link>
-                </div>
-              }
-            />
+              classes={{ root: 'px-0 pt-0' }}
+            >
+              <div className="flex flex-wrap gap-2">
+                <a href={`/tahti-api/api/admin/grants/export.csv?year=${year}`}>
+                  <Button size="sm" variant="secondary">
+                    Board CSV
+                  </Button>
+                </a>
+                <Link to="/admin/grants">
+                  <Button size="sm" variant="secondary">
+                    All cycles
+                  </Button>
+                </Link>
+              </div>
 
-            {loading ? (
-              <PageLoading label="Loading grant preview…" />
-            ) : !preview ? (
-              <p className="text-accent-red text-sm">
-                Could not load the grant preview.
-              </p>
-            ) : (
-              <>
-                <div className="grid gap-3 sm:grid-cols-4">
-                  <StudioPanel title="Pool">
-                    <div className="text-xl font-bold">
-                      {formatEur(preview.poolCents)}
-                    </div>
-                  </StudioPanel>
-                  <StudioPanel title="Engagement units">
-                    <div className="text-xl font-bold">
-                      {preview.totalUnits.toLocaleString()}
-                    </div>
-                  </StudioPanel>
-                  <StudioPanel title={`Eligible ≥${MIN_UNITS}`}>
-                    <div className="text-xl font-bold">{eligible.length}</div>
-                  </StudioPanel>
-                  <StudioPanel title="Below threshold">
-                    <div className="text-xl font-bold">{belowThreshold}</div>
-                  </StudioPanel>
-                </div>
-
-                <SectionShell title="Per-artist allocation preview">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead className="text-foreground-secondary border-border border-b text-xs">
-                        <tr>
-                          <th className="px-2 py-2">Artist</th>
-                          <th className="px-2 py-2">Downloads</th>
-                          <th className="px-2 py-2">Fan subs</th>
-                          <th className="px-2 py-2">Units</th>
-                          <th className="px-2 py-2 text-right">Grant</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-border divide-y">
-                        {[...preview.artists]
-                          .sort((left, right) => right.units - left.units)
-                          .map((artist) => (
-                            <tr key={artist.userId}>
-                              <td className="px-2 py-2">
-                                <Link
-                                  to="/u/$username"
-                                  params={{ username: artist.username }}
-                                  className="hover:underline"
-                                >
-                                  {artist.displayName}
-                                </Link>
-                                <div className="text-foreground-secondary text-xs">
-                                  @{artist.username}
-                                </div>
-                              </td>
-                              <td className="px-2 py-2">
-                                {artist.freeDownloads} + {artist.paidDownloads}
-                                ×5
-                              </td>
-                              <td className="px-2 py-2">
-                                €{artist.fanSubEuros}
-                              </td>
-                              <td className="px-2 py-2">
-                                {artist.units.toLocaleString()}
-                              </td>
-                              <td className="px-2 py-2 text-right font-medium">
-                                {formatEur(artist.amountCents)}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
+              {loading ? (
+                <PageLoading label="Loading grant preview…" />
+              ) : !preview ? (
+                <p className="text-accent-red text-sm">
+                  Could not load the grant preview.
+                </p>
+              ) : (
+                <>
+                  <div className="grid gap-3 sm:grid-cols-4">
+                    <StudioPanel title="Pool">
+                      <div className="text-xl font-bold">
+                        {formatEur(preview.poolCents)}
+                      </div>
+                    </StudioPanel>
+                    <StudioPanel title="Engagement units">
+                      <div className="text-xl font-bold">
+                        {preview.totalUnits.toLocaleString()}
+                      </div>
+                    </StudioPanel>
+                    <StudioPanel title={`Eligible ≥${MIN_UNITS}`}>
+                      <div className="text-xl font-bold">{eligible.length}</div>
+                    </StudioPanel>
+                    <StudioPanel title="Below threshold">
+                      <div className="text-xl font-bold">{belowThreshold}</div>
+                    </StudioPanel>
                   </div>
-                  <p className="text-foreground-secondary mt-3 text-xs">
-                    Sum check: allocations {sumCheckOk ? '=' : '≠'} pool to the
-                    cent using largest remainder.
-                  </p>
-                </SectionShell>
 
-                {!alreadyRun && (
-                  <StudioPanel title="Approve disbursement">
-                    <p className="text-foreground-secondary text-sm">
-                      This creates grant ledger entries for {eligible.length}{' '}
-                      eligible artists.
+                  <SectionShell title="Per-artist allocation preview">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm">
+                        <thead className="text-foreground-secondary border-border border-b text-xs">
+                          <tr>
+                            <th className="px-2 py-2">Artist</th>
+                            <th className="px-2 py-2">Downloads</th>
+                            <th className="px-2 py-2">Fan subs</th>
+                            <th className="px-2 py-2">Units</th>
+                            <th className="px-2 py-2 text-right">Grant</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-border divide-y">
+                          {[...preview.artists]
+                            .sort((left, right) => right.units - left.units)
+                            .map((artist) => (
+                              <tr key={artist.userId}>
+                                <td className="px-2 py-2">
+                                  <Link
+                                    to="/u/$username"
+                                    params={{ username: artist.username }}
+                                    className="hover:underline"
+                                  >
+                                    {artist.displayName}
+                                  </Link>
+                                  <div className="text-foreground-secondary text-xs">
+                                    @{artist.username}
+                                  </div>
+                                </td>
+                                <td className="px-2 py-2">
+                                  {artist.freeDownloads} +{' '}
+                                  {artist.paidDownloads}
+                                  ×5
+                                </td>
+                                <td className="px-2 py-2">
+                                  €{artist.fanSubEuros}
+                                </td>
+                                <td className="px-2 py-2">
+                                  {artist.units.toLocaleString()}
+                                </td>
+                                <td className="px-2 py-2 text-right font-medium">
+                                  {formatEur(artist.amountCents)}
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="text-foreground-secondary mt-3 text-xs">
+                      Sum check: allocations {sumCheckOk ? '=' : '≠'} pool to
+                      the cent using largest remainder.
                     </p>
-                    {error ? (
-                      <p className="text-accent-red mt-2 text-sm">{error}</p>
-                    ) : null}
-                    <Button
-                      className="mt-3"
-                      disabled={running || !sumCheckOk}
-                      onClick={() => void run()}
-                    >
-                      {running ? 'Approving…' : 'Approve distribution'}
-                    </Button>
-                  </StudioPanel>
-                )}
+                  </SectionShell>
 
-                {alreadyRun && history?.grants.length ? (
-                  <StudioPanel
-                    title={`Disbursed · ${history.grantCount} recipients`}
-                  >
-                    <ul className="divide-border divide-y">
-                      {history.grants.map((grant, index) => (
-                        <li
-                          key={`${grant.publishedAs ?? 'anonymous'}-${index}`}
-                          className="flex justify-between gap-3 py-2 text-sm"
-                        >
-                          <span>{grant.publishedAs ?? 'Anonymous'}</span>
-                          <span>
-                            {formatEurString(grant.amountCents)} · {grant.state}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </StudioPanel>
-                ) : null}
-              </>
-            )}
+                  {!alreadyRun && (
+                    <StudioPanel title="Approve disbursement">
+                      <p className="text-foreground-secondary text-sm">
+                        This creates grant ledger entries for {eligible.length}{' '}
+                        eligible artists.
+                      </p>
+                      {error ? (
+                        <p className="text-accent-red mt-2 text-sm">{error}</p>
+                      ) : null}
+                      <Button
+                        className="mt-3"
+                        disabled={running || !sumCheckOk}
+                        onClick={() => void run()}
+                      >
+                        {running ? 'Approving…' : 'Approve distribution'}
+                      </Button>
+                    </StudioPanel>
+                  )}
+
+                  {alreadyRun && history?.grants.length ? (
+                    <StudioPanel
+                      title={`Disbursed · ${history.grantCount} recipients`}
+                    >
+                      <ul className="divide-border divide-y">
+                        {history.grants.map((grant, index) => (
+                          <li
+                            key={`${grant.publishedAs ?? 'anonymous'}-${index}`}
+                            className="flex justify-between gap-3 py-2 text-sm"
+                          >
+                            <span>{grant.publishedAs ?? 'Anonymous'}</span>
+                            <span>
+                              {formatEurString(grant.amountCents)} ·{' '}
+                              {grant.state}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </StudioPanel>
+                  ) : null}
+                </>
+              )}
+            </ViewShell>
           </div>
         </AdminPageLayout>
       </div>

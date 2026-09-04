@@ -1,13 +1,13 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, ViewShell } from '@tahti-player/ui';
 
 import { fetchAdminGrants, type AdminGrantYearSummary } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 function formatEur(cents: number): string {
   return `€${(cents / 100).toLocaleString('fi-FI', { minimumFractionDigits: 2 })}`;
@@ -29,81 +29,81 @@ export function AdminGrantsView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/grants">
           <div className="flex max-w-4xl flex-col gap-6">
-            <StudioPageHeader
+            <ViewShell
               title="Grants"
               subtitle="Annual 90%-surplus disbursement to artists, based on engagement units."
-              action={
-                <Link
-                  to="/admin/governance"
-                  className="text-foreground-secondary hover:text-foreground text-xs underline underline-offset-2"
-                >
-                  Governance overview
-                </Link>
-              }
-            />
+              classes={{ root: 'px-0 pt-0' }}
+            >
+              <Link
+                to="/admin/governance"
+                className="text-foreground-secondary hover:text-foreground text-xs underline underline-offset-2"
+              >
+                Governance overview
+              </Link>
 
-            <StudioPanel title="Disbursement history">
-              {loading ? (
-                <PageLoading label="Loading grant cycles…" />
-              ) : history.length === 0 ? (
-                <p className="text-foreground-secondary py-4 text-center text-sm">
-                  No grant cycles have been run yet.
-                </p>
-              ) : (
-                <ul className="divide-border divide-y">
-                  {history.map((row) => (
-                    <li
-                      key={row.year}
-                      className="flex items-center justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
-                    >
-                      <div className="font-medium">{row.year}</div>
-                      <div className="text-foreground-secondary text-xs">
-                        {row.grantCount} recipients
-                      </div>
-                      <div className="text-sm font-medium">
-                        {formatEur(row.totalCents)}
-                      </div>
-                      <Link
-                        to="/admin/grants/$year"
-                        params={{ year: String(row.year) }}
+              <StudioPanel title="Disbursement history">
+                {loading ? (
+                  <PageLoading label="Loading grant cycles…" />
+                ) : history.length === 0 ? (
+                  <p className="text-foreground-secondary py-4 text-center text-sm">
+                    No grant cycles have been run yet.
+                  </p>
+                ) : (
+                  <ul className="divide-border divide-y">
+                    {history.map((row) => (
+                      <li
+                        key={row.year}
+                        className="flex items-center justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
                       >
-                        <Button
-                          size="icon-sm"
-                          variant="text"
-                          aria-label={`View ${row.year} grants`}
-                          title={`View ${row.year} grants`}
+                        <div className="font-medium">{row.year}</div>
+                        <div className="text-foreground-secondary text-xs">
+                          {row.grantCount} recipients
+                        </div>
+                        <div className="text-sm font-medium">
+                          {formatEur(row.totalCents)}
+                        </div>
+                        <Link
+                          to="/admin/grants/$year"
+                          params={{ year: String(row.year) }}
                         >
-                          →
-                        </Button>
-                      </Link>
-                    </li>
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label={`View ${row.year} grants`}
+                            title={`View ${row.year} grants`}
+                          >
+                            →
+                          </Button>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </StudioPanel>
+              <StudioPanel title="Preview a grant cycle">
+                <p className="text-foreground-secondary text-sm">
+                  Review a dry-run allocation by year. Approval is only enabled
+                  when the allocation balances to the cent.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {[
+                    new Date().getUTCFullYear() - 1,
+                    new Date().getUTCFullYear() - 2,
+                    new Date().getUTCFullYear() - 3,
+                  ].map((year) => (
+                    <Link
+                      key={year}
+                      to="/admin/grants/$year"
+                      params={{ year: String(year) }}
+                    >
+                      <Button size="sm" variant="secondary">
+                        {year}
+                      </Button>
+                    </Link>
                   ))}
-                </ul>
-              )}
-            </StudioPanel>
-            <StudioPanel title="Preview a grant cycle">
-              <p className="text-foreground-secondary text-sm">
-                Review a dry-run allocation by year. Approval is only enabled
-                when the allocation balances to the cent.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {[
-                  new Date().getUTCFullYear() - 1,
-                  new Date().getUTCFullYear() - 2,
-                  new Date().getUTCFullYear() - 3,
-                ].map((year) => (
-                  <Link
-                    key={year}
-                    to="/admin/grants/$year"
-                    params={{ year: String(year) }}
-                  >
-                    <Button size="sm" variant="secondary">
-                      {year}
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-            </StudioPanel>
+                </div>
+              </StudioPanel>
+            </ViewShell>
           </div>
         </AdminPageLayout>
       </div>

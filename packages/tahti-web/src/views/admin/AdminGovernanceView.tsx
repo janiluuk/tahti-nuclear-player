@@ -10,7 +10,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, SaveButton, Select, Textarea } from '@tahti-player/ui';
+import {
+  Button,
+  Input,
+  SaveButton,
+  Select,
+  Textarea,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import {
   createAdminResolution,
@@ -24,7 +31,7 @@ import {
 import type { BoardResolution } from '../../api/types';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 type ResolutionOutcome = 'PASSED' | 'FAILED' | 'DEFERRED';
 
@@ -163,255 +170,260 @@ export function AdminGovernanceView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/governance">
           <div className="flex max-w-4xl flex-col gap-6">
-            <StudioPageHeader
+            <ViewShell
               title="Governance"
               subtitle="Association governance tools — motions, venues, resolutions, AGM, and audit trail."
-            />
-
-            <StudioPanel
-              title="Member activity"
-              description="Voting and discussion activity across motions and feature topics."
+              classes={{ root: 'px-0 pt-0' }}
             >
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="border-border bg-background-secondary/35 rounded-lg border p-3">
-                  <p className="text-foreground-secondary text-xs uppercase">
-                    Votes recorded
-                  </p>
-                  <p className="mt-1 text-2xl font-bold">{totalVotes}</p>
+              <StudioPanel
+                title="Member activity"
+                description="Voting and discussion activity across motions and feature topics."
+              >
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="border-border bg-background-secondary/35 rounded-lg border p-3">
+                    <p className="text-foreground-secondary text-xs uppercase">
+                      Votes recorded
+                    </p>
+                    <p className="mt-1 text-2xl font-bold">{totalVotes}</p>
+                  </div>
+                  <div className="border-border bg-background-secondary/35 rounded-lg border p-3">
+                    <p className="text-foreground-secondary text-xs uppercase">
+                      Discussions
+                    </p>
+                    <p className="mt-1 text-2xl font-bold">{discussionCount}</p>
+                    <p className="text-foreground-secondary text-xs">
+                      Subjects with comments
+                    </p>
+                  </div>
+                  <div className="border-border bg-background-secondary/35 rounded-lg border p-3">
+                    <p className="text-foreground-secondary text-xs uppercase">
+                      Comments
+                    </p>
+                    <p className="mt-1 text-2xl font-bold">{totalComments}</p>
+                    <p className="text-foreground-secondary text-xs">
+                      Recorded governance comments
+                    </p>
+                  </div>
                 </div>
-                <div className="border-border bg-background-secondary/35 rounded-lg border p-3">
-                  <p className="text-foreground-secondary text-xs uppercase">
-                    Discussions
-                  </p>
-                  <p className="mt-1 text-2xl font-bold">{discussionCount}</p>
-                  <p className="text-foreground-secondary text-xs">
-                    Subjects with comments
-                  </p>
-                </div>
-                <div className="border-border bg-background-secondary/35 rounded-lg border p-3">
-                  <p className="text-foreground-secondary text-xs uppercase">
-                    Comments
-                  </p>
-                  <p className="mt-1 text-2xl font-bold">{totalComments}</p>
-                  <p className="text-foreground-secondary text-xs">
-                    Recorded governance comments
-                  </p>
-                </div>
-              </div>
 
-              <div className="border-border mt-4 overflow-x-auto rounded-lg border">
-                <div className="border-border border-b px-3 py-2">
-                  <h3 className="text-xs font-semibold tracking-wide uppercase">
-                    Recent voting activity
-                  </h3>
-                </div>
-                {votingActivity.length === 0 ? (
-                  <p className="text-foreground-secondary px-3 py-4 text-sm">
-                    No voting activity recorded.
-                  </p>
-                ) : (
-                  <ul className="divide-border divide-y">
-                    {votingActivity.slice(0, 12).map((entry) => (
-                      <li
-                        key={entry.id}
-                        className="flex min-w-[38rem] items-start gap-3 px-3 py-2.5 text-sm"
-                      >
-                        <time
-                          dateTime={entry.createdAt}
-                          className="text-foreground-secondary w-32 shrink-0 text-xs"
+                <div className="border-border mt-4 overflow-x-auto rounded-lg border">
+                  <div className="border-border border-b px-3 py-2">
+                    <h3 className="text-xs font-semibold tracking-wide uppercase">
+                      Recent voting activity
+                    </h3>
+                  </div>
+                  {votingActivity.length === 0 ? (
+                    <p className="text-foreground-secondary px-3 py-4 text-sm">
+                      No voting activity recorded.
+                    </p>
+                  ) : (
+                    <ul className="divide-border divide-y">
+                      {votingActivity.slice(0, 12).map((entry) => (
+                        <li
+                          key={entry.id}
+                          className="flex min-w-[38rem] items-start gap-3 px-3 py-2.5 text-sm"
                         >
-                          {new Date(entry.createdAt).toLocaleString([], {
-                            dateStyle: 'short',
-                            timeStyle: 'short',
-                          })}
-                        </time>
-                        <span className="w-36 shrink-0 font-medium">
-                          {entry.actorDisplayName ??
-                            entry.actorUsername ??
-                            entry.actorId}
-                        </span>
-                        <span className="text-foreground-secondary w-32 shrink-0 text-xs">
-                          {activityAction(entry)}
-                        </span>
-                        <span className="min-w-0 truncate">
-                          {activitySubject(entry)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <p className="text-foreground-secondary mt-3 text-xs">
-                Every governance vote and comment is attributed to the account
-                that performed it and retains the subject context in the audit
-                log.{' '}
-                <Link
-                  to="/admin/logs"
-                  className="underline-offset-2 hover:underline"
-                >
-                  Open full audit log →
-                </Link>
-              </p>
-            </StudioPanel>
-
-            <StudioPanel title="Board resolutions">
-              <p className="text-foreground-secondary text-sm">
-                Record formal board decisions here. These are separate from
-                advisory member motions and can be published after approval.
-              </p>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <Input
-                  value={resolutionTitle}
-                  onChange={(event) => setResolutionTitle(event.target.value)}
-                  placeholder="Resolution title"
-                />
-                <Select
-                  value={resolutionOutcome}
-                  onValueChange={(value) =>
-                    setResolutionOutcome(value as ResolutionOutcome)
-                  }
-                  options={[
-                    { id: 'PASSED', label: 'Passed' },
-                    { id: 'FAILED', label: 'Failed' },
-                    { id: 'DEFERRED', label: 'Deferred' },
-                  ]}
-                />
-                <Textarea
-                  value={resolutionBody}
-                  onChange={(event) => setResolutionBody(event.target.value)}
-                  placeholder="Resolution body"
-                  rows={4}
-                  className="sm:col-span-2"
-                />
-                <Input
-                  value={resolutionFor}
-                  onChange={(event) => setResolutionFor(event.target.value)}
-                  inputMode="numeric"
-                  placeholder="Votes for"
-                />
-                <Input
-                  value={resolutionAgainst}
-                  onChange={(event) => setResolutionAgainst(event.target.value)}
-                  inputMode="numeric"
-                  placeholder="Votes against"
-                />
-                <Input
-                  value={resolutionAbstain}
-                  onChange={(event) => setResolutionAbstain(event.target.value)}
-                  inputMode="numeric"
-                  placeholder="Abstentions"
-                />
-              </div>
-              <SaveButton
-                size="sm"
-                className="mt-3"
-                disabled={
-                  resolutionBusy ||
-                  !resolutionTitle.trim() ||
-                  !resolutionBody.trim()
-                }
-                saving={resolutionBusy}
-                label="Record resolution"
-                onClick={() => {
-                  setResolutionBusy(true);
-                  void createAdminResolution({
-                    title: resolutionTitle.trim(),
-                    body: resolutionBody.trim(),
-                    votedAt: new Date().toISOString(),
-                    outcome: resolutionOutcome,
-                    voteFor: Number(resolutionFor) || 0,
-                    voteAgainst: Number(resolutionAgainst) || 0,
-                    voteAbstain: Number(resolutionAbstain) || 0,
-                  }).then((result) => {
-                    setResolutionBusy(false);
-                    if (result.data) {
-                      setResolutions((current) => [result.data!, ...current]);
-                      setResolutionTitle('');
-                      setResolutionBody('');
-                    }
-                  });
-                }}
-              />
-              <ul className="divide-border mt-4 divide-y">
-                {resolutions.map((resolution) => (
-                  <li
-                    key={resolution.id}
-                    className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"
-                  >
-                    <span>
-                      <span className="font-medium">{resolution.title}</span>
-                      <span className="text-foreground-secondary ml-2 text-xs">
-                        {resolution.outcome}
-                      </span>
-                    </span>
-                    {!resolution.publishedAt && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {
-                          void patchAdminResolution(resolution.id, {
-                            publishedAt: new Date().toISOString(),
-                          }).then((result) => {
-                            if (result.data) {
-                              setResolutions((current) =>
-                                current.map((item) =>
-                                  item.id === result.data!.id
-                                    ? result.data!
-                                    : item,
-                                ),
-                              );
-                            }
-                          });
-                        }}
-                      >
-                        Publish
-                      </Button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </StudioPanel>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {cards.map((c) => {
-                const Icon = c.icon;
-                const content = (
-                  <StudioPanel key={c.title} className="h-full">
-                    <div className="flex items-start gap-3">
-                      <Icon
-                        size={18}
-                        aria-hidden
-                        className="text-foreground-secondary mt-0.5 shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-sm font-medium">{c.title}</div>
-                          {c.badge && (
-                            <span className="text-foreground-secondary shrink-0 text-xs">
-                              {c.badge}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-foreground-secondary mt-1 text-xs">
-                          {c.desc}
-                        </p>
-                      </div>
-                    </div>
-                  </StudioPanel>
-                );
-                return c.to ? (
+                          <time
+                            dateTime={entry.createdAt}
+                            className="text-foreground-secondary w-32 shrink-0 text-xs"
+                          >
+                            {new Date(entry.createdAt).toLocaleString([], {
+                              dateStyle: 'short',
+                              timeStyle: 'short',
+                            })}
+                          </time>
+                          <span className="w-36 shrink-0 font-medium">
+                            {entry.actorDisplayName ??
+                              entry.actorUsername ??
+                              entry.actorId}
+                          </span>
+                          <span className="text-foreground-secondary w-32 shrink-0 text-xs">
+                            {activityAction(entry)}
+                          </span>
+                          <span className="min-w-0 truncate">
+                            {activitySubject(entry)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <p className="text-foreground-secondary mt-3 text-xs">
+                  Every governance vote and comment is attributed to the account
+                  that performed it and retains the subject context in the audit
+                  log.{' '}
                   <Link
-                    key={c.title}
-                    to={c.to}
-                    className="rounded-xl transition-opacity hover:opacity-80"
+                    to="/admin/logs"
+                    className="underline-offset-2 hover:underline"
                   >
-                    {content}
+                    Open full audit log →
                   </Link>
-                ) : (
-                  content
-                );
-              })}
-            </div>
+                </p>
+              </StudioPanel>
+
+              <StudioPanel title="Board resolutions">
+                <p className="text-foreground-secondary text-sm">
+                  Record formal board decisions here. These are separate from
+                  advisory member motions and can be published after approval.
+                </p>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <Input
+                    value={resolutionTitle}
+                    onChange={(event) => setResolutionTitle(event.target.value)}
+                    placeholder="Resolution title"
+                  />
+                  <Select
+                    value={resolutionOutcome}
+                    onValueChange={(value) =>
+                      setResolutionOutcome(value as ResolutionOutcome)
+                    }
+                    options={[
+                      { id: 'PASSED', label: 'Passed' },
+                      { id: 'FAILED', label: 'Failed' },
+                      { id: 'DEFERRED', label: 'Deferred' },
+                    ]}
+                  />
+                  <Textarea
+                    value={resolutionBody}
+                    onChange={(event) => setResolutionBody(event.target.value)}
+                    placeholder="Resolution body"
+                    rows={4}
+                    className="sm:col-span-2"
+                  />
+                  <Input
+                    value={resolutionFor}
+                    onChange={(event) => setResolutionFor(event.target.value)}
+                    inputMode="numeric"
+                    placeholder="Votes for"
+                  />
+                  <Input
+                    value={resolutionAgainst}
+                    onChange={(event) =>
+                      setResolutionAgainst(event.target.value)
+                    }
+                    inputMode="numeric"
+                    placeholder="Votes against"
+                  />
+                  <Input
+                    value={resolutionAbstain}
+                    onChange={(event) =>
+                      setResolutionAbstain(event.target.value)
+                    }
+                    inputMode="numeric"
+                    placeholder="Abstentions"
+                  />
+                </div>
+                <SaveButton
+                  size="sm"
+                  className="mt-3"
+                  disabled={
+                    resolutionBusy ||
+                    !resolutionTitle.trim() ||
+                    !resolutionBody.trim()
+                  }
+                  saving={resolutionBusy}
+                  label="Record resolution"
+                  onClick={() => {
+                    setResolutionBusy(true);
+                    void createAdminResolution({
+                      title: resolutionTitle.trim(),
+                      body: resolutionBody.trim(),
+                      votedAt: new Date().toISOString(),
+                      outcome: resolutionOutcome,
+                      voteFor: Number(resolutionFor) || 0,
+                      voteAgainst: Number(resolutionAgainst) || 0,
+                      voteAbstain: Number(resolutionAbstain) || 0,
+                    }).then((result) => {
+                      setResolutionBusy(false);
+                      if (result.data) {
+                        setResolutions((current) => [result.data!, ...current]);
+                        setResolutionTitle('');
+                        setResolutionBody('');
+                      }
+                    });
+                  }}
+                />
+                <ul className="divide-border mt-4 divide-y">
+                  {resolutions.map((resolution) => (
+                    <li
+                      key={resolution.id}
+                      className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"
+                    >
+                      <span>
+                        <span className="font-medium">{resolution.title}</span>
+                        <span className="text-foreground-secondary ml-2 text-xs">
+                          {resolution.outcome}
+                        </span>
+                      </span>
+                      {!resolution.publishedAt && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => {
+                            void patchAdminResolution(resolution.id, {
+                              publishedAt: new Date().toISOString(),
+                            }).then((result) => {
+                              if (result.data) {
+                                setResolutions((current) =>
+                                  current.map((item) =>
+                                    item.id === result.data!.id
+                                      ? result.data!
+                                      : item,
+                                  ),
+                                );
+                              }
+                            });
+                          }}
+                        >
+                          Publish
+                        </Button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </StudioPanel>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {cards.map((c) => {
+                  const Icon = c.icon;
+                  const content = (
+                    <StudioPanel key={c.title} className="h-full">
+                      <div className="flex items-start gap-3">
+                        <Icon
+                          size={18}
+                          aria-hidden
+                          className="text-foreground-secondary mt-0.5 shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="text-sm font-medium">{c.title}</div>
+                            {c.badge && (
+                              <span className="text-foreground-secondary shrink-0 text-xs">
+                                {c.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-foreground-secondary mt-1 text-xs">
+                            {c.desc}
+                          </p>
+                        </div>
+                      </div>
+                    </StudioPanel>
+                  );
+                  return c.to ? (
+                    <Link
+                      key={c.title}
+                      to={c.to}
+                      className="rounded-xl transition-opacity hover:opacity-80"
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    content
+                  );
+                })}
+              </div>
+            </ViewShell>
           </div>
         </AdminPageLayout>
       </div>

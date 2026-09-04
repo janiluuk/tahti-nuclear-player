@@ -10,6 +10,7 @@ import {
   SaveButton,
   Select,
   Textarea,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -26,7 +27,6 @@ import { AdminPageLayout } from '../../components/AdminNav';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageUploadField } from '../../components/ImageUploadField';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader } from '../../components/StudioPanel';
 
 const SCOPES: Array<{ id: AdminDiscoWidgetScope; label: string }> = [
   { id: 'LISTENER', label: 'Listener' },
@@ -292,160 +292,160 @@ export function AdminDiscoWidgetsView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/disco-widgets">
           <div className="flex max-w-5xl flex-col gap-6">
-            <StudioPageHeader
+            <ViewShell
               title="Disco widgets"
               subtitle="Register, review, and manage every add-on available to listeners, artists, and admins."
-              action={
-                <Button
-                  type="button"
-                  size="icon-sm"
-                  title="Register a new widget"
-                  aria-label="Register a new widget"
-                  onClick={openNew}
-                >
-                  <Plus size={18} aria-hidden />
-                </Button>
-              }
-            />
-
-            <FilterChips
-              aria-label="Widget types"
-              className="border-border border-b pb-3"
-              items={[
-                { id: 'ALL', label: 'All add-ons' },
-                ...SCOPES.map((item) => ({ id: item.id, label: item.label })),
-              ]}
-              selected={scope}
-              onChange={(id) => setScope(id as AdminDiscoWidgetScope | 'ALL')}
-            />
-
-            {error && !editorOpen ? (
-              <p className="text-accent-red text-sm" role="alert">
-                {error}
-              </p>
-            ) : null}
-            {loading ? (
-              <PageLoading label="Loading widget catalog…" />
-            ) : visibleWidgets.length === 0 ? (
-              <p className="text-foreground-secondary text-sm">
-                No widgets registered for this type yet.
-              </p>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {visibleWidgets.map((widget) => (
-                  <article
-                    key={widget.id}
-                    className="border-border bg-background-secondary/40 flex gap-4 rounded-xl border p-4"
-                  >
-                    <div className="border-border bg-background flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
-                      {widget.iconUrl ? (
-                        <img
-                          src={widget.iconUrl}
-                          alt=""
-                          className="size-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-foreground-secondary text-lg font-bold">
-                          {widget.name.slice(0, 2).toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-semibold">{widget.name}</h2>
-                        <Badge
-                          variant="pill"
-                          color={statusColor(widget.status)}
-                        >
-                          {widget.status}
-                        </Badge>
-                      </div>
-                      <p className="text-foreground-secondary mt-1 text-xs">
-                        {widget.scope} · v{widget.currentVersion} ·{' '}
-                        {widget.slug}
-                      </p>
-                      <p className="text-foreground-secondary mt-2 text-sm">
-                        {widget.description}
-                      </p>
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        {widget.categories.map((category) => (
-                          <Badge key={category} variant="pill" color="blue">
-                            {category}
-                          </Badge>
-                        ))}
-                        <span className="text-foreground-secondary text-xs">
-                          by {widget.authorName}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 items-start gap-1">
-                      <Button
-                        type="button"
-                        size="icon-sm"
-                        variant="text"
-                        title={`Edit ${widget.name}`}
-                        aria-label={`Edit ${widget.name}`}
-                        onClick={() => openEdit(widget)}
-                      >
-                        <Pencil size={16} aria-hidden />
-                      </Button>
-                      <Button
-                        type="button"
-                        size="icon-sm"
-                        variant="text"
-                        title={`Delete ${widget.name}`}
-                        aria-label={`Delete ${widget.name}`}
-                        onClick={() => setPendingDelete(widget)}
-                      >
-                        <Trash2 size={16} aria-hidden />
-                      </Button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-
-            <Dialog.Root
-              isOpen={editorOpen}
-              onClose={() => setEditorOpen(false)}
-              className="max-w-2xl"
+              classes={{ root: 'px-0 pt-0' }}
             >
-              <Dialog.Title>
-                {editingWidget
-                  ? `Edit ${editingWidget.name}`
-                  : 'Register a new widget'}
-              </Dialog.Title>
-              <Dialog.Description>
-                Set the widget identity, store type, cover image, and filter
-                parameters.
-              </Dialog.Description>
-              <WidgetEditor
-                draft={draft}
-                editing={editingWidget !== null}
-                pending={pending}
-                error={error}
-                onChange={setDraft}
-                onSave={save}
+              <Button
+                type="button"
+                size="icon-sm"
+                title="Register a new widget"
+                aria-label="Register a new widget"
+                onClick={openNew}
+              >
+                <Plus size={18} aria-hidden />
+              </Button>
+
+              <FilterChips
+                aria-label="Widget types"
+                className="border-border border-b pb-3"
+                items={[
+                  { id: 'ALL', label: 'All add-ons' },
+                  ...SCOPES.map((item) => ({ id: item.id, label: item.label })),
+                ]}
+                selected={scope}
+                onChange={(id) => setScope(id as AdminDiscoWidgetScope | 'ALL')}
               />
-            </Dialog.Root>
-            <ConfirmDialog
-              isOpen={pendingDelete !== null}
-              title={
-                pendingDelete
-                  ? `Delete “${pendingDelete.name}”?`
-                  : 'Delete widget?'
-              }
-              description="This removes the widget from every add-on store permanently."
-              confirmLabel="Delete"
-              onCancel={() => setPendingDelete(null)}
-              onConfirm={() => {
-                const widget = pendingDelete;
-                setPendingDelete(null);
-                if (widget) {
-                  remove(widget);
+
+              {error && !editorOpen ? (
+                <p className="text-accent-red text-sm" role="alert">
+                  {error}
+                </p>
+              ) : null}
+              {loading ? (
+                <PageLoading label="Loading widget catalog…" />
+              ) : visibleWidgets.length === 0 ? (
+                <p className="text-foreground-secondary text-sm">
+                  No widgets registered for this type yet.
+                </p>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {visibleWidgets.map((widget) => (
+                    <article
+                      key={widget.id}
+                      className="border-border bg-background-secondary/40 flex gap-4 rounded-xl border p-4"
+                    >
+                      <div className="border-border bg-background flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
+                        {widget.iconUrl ? (
+                          <img
+                            src={widget.iconUrl}
+                            alt=""
+                            className="size-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-foreground-secondary text-lg font-bold">
+                            {widget.name.slice(0, 2).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h2 className="font-semibold">{widget.name}</h2>
+                          <Badge
+                            variant="pill"
+                            color={statusColor(widget.status)}
+                          >
+                            {widget.status}
+                          </Badge>
+                        </div>
+                        <p className="text-foreground-secondary mt-1 text-xs">
+                          {widget.scope} · v{widget.currentVersion} ·{' '}
+                          {widget.slug}
+                        </p>
+                        <p className="text-foreground-secondary mt-2 text-sm">
+                          {widget.description}
+                        </p>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {widget.categories.map((category) => (
+                            <Badge key={category} variant="pill" color="blue">
+                              {category}
+                            </Badge>
+                          ))}
+                          <span className="text-foreground-secondary text-xs">
+                            by {widget.authorName}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-start gap-1">
+                        <Button
+                          type="button"
+                          size="icon-sm"
+                          variant="text"
+                          title={`Edit ${widget.name}`}
+                          aria-label={`Edit ${widget.name}`}
+                          onClick={() => openEdit(widget)}
+                        >
+                          <Pencil size={16} aria-hidden />
+                        </Button>
+                        <Button
+                          type="button"
+                          size="icon-sm"
+                          variant="text"
+                          title={`Delete ${widget.name}`}
+                          aria-label={`Delete ${widget.name}`}
+                          onClick={() => setPendingDelete(widget)}
+                        >
+                          <Trash2 size={16} aria-hidden />
+                        </Button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+
+              <Dialog.Root
+                isOpen={editorOpen}
+                onClose={() => setEditorOpen(false)}
+                className="max-w-2xl"
+              >
+                <Dialog.Title>
+                  {editingWidget
+                    ? `Edit ${editingWidget.name}`
+                    : 'Register a new widget'}
+                </Dialog.Title>
+                <Dialog.Description>
+                  Set the widget identity, store type, cover image, and filter
+                  parameters.
+                </Dialog.Description>
+                <WidgetEditor
+                  draft={draft}
+                  editing={editingWidget !== null}
+                  pending={pending}
+                  error={error}
+                  onChange={setDraft}
+                  onSave={save}
+                />
+              </Dialog.Root>
+              <ConfirmDialog
+                isOpen={pendingDelete !== null}
+                title={
+                  pendingDelete
+                    ? `Delete “${pendingDelete.name}”?`
+                    : 'Delete widget?'
                 }
-              }}
-            />
+                description="This removes the widget from every add-on store permanently."
+                confirmLabel="Delete"
+                onCancel={() => setPendingDelete(null)}
+                onConfirm={() => {
+                  const widget = pendingDelete;
+                  setPendingDelete(null);
+                  if (widget) {
+                    remove(widget);
+                  }
+                }}
+              />
+            </ViewShell>
           </div>
         </AdminPageLayout>
       </div>

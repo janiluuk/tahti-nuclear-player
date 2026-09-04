@@ -1,12 +1,11 @@
 import { PlusIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Input } from '@tahti-player/ui';
+import { Button, Input, ViewShell } from '@tahti-player/ui';
 
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { ArtworkPresetUploadDialog } from '../../components/ArtworkPresetUploadDialog';
-import { StudioPageHeader } from '../../components/StudioPanel';
 import {
   GENERATED_ARTWORK_COUNT,
   generatedArtworkUrl,
@@ -135,99 +134,101 @@ export function AdminArtworkPresetsView() {
     <AdminGate>
       <AdminPageLayout current="/admin/artwork-presets">
         <div className="flex flex-col gap-6">
-          <StudioPageHeader
+          <ViewShell
             title="Artwork presets"
             subtitle="Manage the abstract thumbnails used when a new upload has no artwork. The 16 defaults below can't be overwritten — assign one of your own uploaded artworks to a slot instead."
-            action={
-              <Button variant="secondary" onClick={resetToDefaults}>
-                Reset to defaults
-              </Button>
-            }
-          />
-          <div className="grid gap-3 sm:grid-cols-4 lg:grid-cols-8">
-            {DEFAULT_ARTWORKS.map((_, index) => (
-              <button
-                key={DEFAULT_NAMES[index]}
-                type="button"
-                onClick={() => setSelected(index)}
-                className={`border-border overflow-hidden rounded-lg border text-left ${selected === index ? 'ring-primary ring-2' : ''}`}
-                aria-label={`Edit ${DEFAULT_NAMES[index]}`}
-              >
-                <img
-                  src={activeUrls[index]}
-                  alt=""
-                  className="aspect-square w-full"
-                />
-                <span className="block px-2 py-1 text-xs">
-                  {DEFAULT_NAMES[index]}
-                  {assignments[index] != null ? ' · custom' : ''}
-                </span>
-              </button>
-            ))}
-          </div>
-          <div className="border-border bg-background-secondary grid gap-5 rounded-xl border p-4 sm:grid-cols-[1fr_auto]">
-            <div className="flex flex-col gap-4">
-              <Input
-                label="Editing slot"
-                value={DEFAULT_NAMES[selected] ?? ''}
-                readOnly
-                description={
-                  selectedIsCustom
-                    ? 'Showing a custom artwork assigned to this slot instead of its default.'
-                    : "Showing this slot's default artwork — assign a custom one below, or upload a new one."
-                }
-              />
-              {customPool.length > 0 ? (
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-foreground text-sm font-semibold">
-                    Assign from your artwork
+            classes={{ root: 'px-0 pt-0' }}
+          >
+            <Button variant="secondary" onClick={resetToDefaults}>
+              Reset to defaults
+            </Button>
+            <div className="grid gap-3 sm:grid-cols-4 lg:grid-cols-8">
+              {DEFAULT_ARTWORKS.map((_, index) => (
+                <button
+                  key={DEFAULT_NAMES[index]}
+                  type="button"
+                  onClick={() => setSelected(index)}
+                  className={`border-border overflow-hidden rounded-lg border text-left ${selected === index ? 'ring-primary ring-2' : ''}`}
+                  aria-label={`Edit ${DEFAULT_NAMES[index]}`}
+                >
+                  <img
+                    src={activeUrls[index]}
+                    alt=""
+                    className="aspect-square w-full"
+                  />
+                  <span className="block px-2 py-1 text-xs">
+                    {DEFAULT_NAMES[index]}
+                    {assignments[index] != null ? ' · custom' : ''}
                   </span>
-                  <div className="flex flex-wrap gap-2">
-                    {customPool.map((url) => (
+                </button>
+              ))}
+            </div>
+            <div className="border-border bg-background-secondary grid gap-5 rounded-xl border p-4 sm:grid-cols-[1fr_auto]">
+              <div className="flex flex-col gap-4">
+                <Input
+                  label="Editing slot"
+                  value={DEFAULT_NAMES[selected] ?? ''}
+                  readOnly
+                  description={
+                    selectedIsCustom
+                      ? 'Showing a custom artwork assigned to this slot instead of its default.'
+                      : "Showing this slot's default artwork — assign a custom one below, or upload a new one."
+                  }
+                />
+                {customPool.length > 0 ? (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-foreground text-sm font-semibold">
+                      Assign from your artwork
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {customPool.map((url) => (
+                        <button
+                          key={url}
+                          type="button"
+                          onClick={() => assignToSelected(url)}
+                          aria-label="Assign this artwork to the selected slot"
+                          className={`size-12 overflow-hidden rounded-md border ${assignments[selected] === url ? 'border-primary ring-primary ring-2' : 'border-border'}`}
+                        >
+                          <img
+                            src={url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        </button>
+                      ))}
                       <button
-                        key={url}
                         type="button"
-                        onClick={() => assignToSelected(url)}
-                        aria-label="Assign this artwork to the selected slot"
-                        className={`size-12 overflow-hidden rounded-md border ${assignments[selected] === url ? 'border-primary ring-primary ring-2' : 'border-border'}`}
+                        onClick={() => setUploadOpen(true)}
+                        aria-label="Upload a new artwork"
+                        title="Upload a new artwork"
+                        className="border-border text-foreground-secondary flex size-12 items-center justify-center rounded-md border border-dashed"
                       >
-                        <img
-                          src={url}
-                          alt=""
-                          className="h-full w-full object-cover"
-                        />
+                        <PlusIcon size={16} aria-hidden />
                       </button>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => setUploadOpen(true)}
-                      aria-label="Upload a new artwork"
-                      title="Upload a new artwork"
-                      className="border-border text-foreground-secondary flex size-12 items-center justify-center rounded-md border border-dashed"
-                    >
-                      <PlusIcon size={16} aria-hidden />
-                    </button>
+                    </div>
                   </div>
-                </div>
-              ) : null}
-              <Button onClick={save}>{saved ? 'Saved' : 'Save presets'}</Button>
+                ) : null}
+                <Button onClick={save}>
+                  {saved ? 'Saved' : 'Save presets'}
+                </Button>
+              </div>
+              <div className="group relative aspect-square w-full max-w-64">
+                <img
+                  src={selectedUrl}
+                  alt="Selected artwork preset"
+                  className="h-full w-full rounded-xl object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setUploadOpen(true)}
+                  aria-label={`Upload artwork for ${DEFAULT_NAMES[selected] ?? 'this slot'}`}
+                  className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/0 opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100"
+                >
+                  <UploadIcon size={28} aria-hidden className="text-white" />
+                </button>
+              </div>
             </div>
-            <div className="group relative aspect-square w-full max-w-64">
-              <img
-                src={selectedUrl}
-                alt="Selected artwork preset"
-                className="h-full w-full rounded-xl object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => setUploadOpen(true)}
-                aria-label={`Upload artwork for ${DEFAULT_NAMES[selected] ?? 'this slot'}`}
-                className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/0 opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100"
-              >
-                <UploadIcon size={28} aria-hidden className="text-white" />
-              </button>
-            </div>
-          </div>
+          </ViewShell>
         </div>
       </AdminPageLayout>
       <ArtworkPresetUploadDialog

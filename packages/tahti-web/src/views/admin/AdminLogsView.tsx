@@ -1,7 +1,12 @@
 import { ActivityIcon, ContainerIcon, HistoryIcon } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { LogViewer, Tabs, type LogEntryData } from '@tahti-player/ui';
+import {
+  LogViewer,
+  Tabs,
+  ViewShell,
+  type LogEntryData,
+} from '@tahti-player/ui';
 
 import {
   fetchAdminContainerLogs,
@@ -12,7 +17,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { AdminActivityView } from './AdminActivityView';
 
 const REFRESH_INTERVAL_MS = 15_000;
@@ -163,41 +168,43 @@ export function AdminLogsView() {
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/logs">
           <div className="flex max-w-6xl flex-col gap-6">
-            <StudioPageHeader
+            <ViewShell
               title="Logs"
               subtitle="Review platform activity and live container output in separate tabs."
-            />
-            <Tabs
-              items={[
-                {
-                  id: 'activity',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <ActivityIcon size={14} aria-hidden /> Audit events
-                    </span>
-                  ),
-                  content: <AdminActivityView embedded />,
-                },
-                {
-                  id: 'containers',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <ContainerIcon size={14} aria-hidden /> Container logs
-                    </span>
-                  ),
-                  content: containerLogs,
-                },
-                {
-                  id: 'recent-audit',
-                  label: (
-                    <span className="inline-flex items-center gap-1.5">
-                      <HistoryIcon size={14} aria-hidden /> Recent audit
-                    </span>
-                  ),
-                  content: <RecentAuditEntries />,
-                },
-              ]}
-            />
+              classes={{ root: 'px-0 pt-0' }}
+            >
+              <Tabs
+                items={[
+                  {
+                    id: 'activity',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <ActivityIcon size={14} aria-hidden /> Audit events
+                      </span>
+                    ),
+                    content: <AdminActivityView embedded />,
+                  },
+                  {
+                    id: 'containers',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <ContainerIcon size={14} aria-hidden /> Container logs
+                      </span>
+                    ),
+                    content: containerLogs,
+                  },
+                  {
+                    id: 'recent-audit',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <HistoryIcon size={14} aria-hidden /> Recent audit
+                      </span>
+                    ),
+                    content: <RecentAuditEntries />,
+                  },
+                ]}
+              />
+            </ViewShell>
           </div>
         </AdminPageLayout>
       </div>

@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { LogViewer, type LogEntryData, type LogLevel } from '@tahti-player/ui';
+import {
+  LogViewer,
+  ViewShell,
+  type LogEntryData,
+  type LogLevel,
+} from '@tahti-player/ui';
 
 import {
   adminActivityExportCsvUrl,
@@ -10,7 +15,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminPageLayout } from '../../components/AdminNav';
 import { PageLoading } from '../../components/PageStates';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 const REFRESH_INTERVAL_MS = 15_000;
 
@@ -225,11 +230,13 @@ export function AdminActivityView({
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/logs">
           <div className="flex max-w-6xl flex-col gap-6">
-            <StudioPageHeader
+            <ViewShell
               title="Activity"
               subtitle="Real system events — logins, uploads, releases, likes, follows, and new fan subscriptions. Auto-refreshes every 15s."
-            />
-            {content}
+              classes={{ root: 'px-0 pt-0' }}
+            >
+              {content}
+            </ViewShell>
           </div>
         </AdminPageLayout>
       </div>
