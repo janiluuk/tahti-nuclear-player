@@ -908,14 +908,11 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
         </StudioPanel>
 
         {needsApproval && (
-          <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
-            <h2 className="font-display text-lg font-bold">
-              Review before approve
-            </h2>
-            <p className="text-foreground-secondary text-sm">
-              Recorded episodes must be approved before they can go live. Trim
-              and normalize, then approve.
-            </p>
+          <StudioPanel
+            title="Review before approve"
+            description="Recorded episodes must be approved before they can go live. Trim and normalize, then approve."
+            className="flex flex-col gap-3"
+          >
             <div className="grid gap-3 sm:grid-cols-2">
               <Input
                 type="number"
@@ -1040,7 +1037,7 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
               <CheckIcon size={16} aria-hidden className="mr-1.5" />
               {episode.status === 'APPROVED' ? 'Approved' : 'Approve episode'}
             </Button>
-          </section>
+          </StudioPanel>
         )}
 
         {!needsApproval && (

@@ -8,6 +8,7 @@ import type { StudioSound } from '../../api/studio-types';
 import { StashFilesPanel } from '../../components/StashFilesPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPanel } from '../../components/StudioPanel';
 import { TrackEditDialog } from '../../components/TrackEditDialog';
 
 export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
@@ -43,17 +44,10 @@ export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
       {tab === 'files' ? (
         <StashFilesPanel />
       ) : (
-        <section
-          className="border-border rounded-xl border p-4"
-          aria-labelledby="stash-items-title"
+        <StudioPanel
+          title="Stash tracks"
+          description="Edit these items like any other track. They stay out of public listings."
         >
-          <h2 id="stash-items-title" className="text-sm font-semibold">
-            Stash tracks
-          </h2>
-          <p className="text-foreground-secondary mt-1 text-xs">
-            Edit these items like any other track. They stay out of public
-            listings.
-          </p>
           {items.length === 0 ? (
             <EmptyState
               size="sm"
@@ -87,7 +81,7 @@ export function StudioStashView({ embedded = false }: { embedded?: boolean }) {
               ))}
             </ul>
           )}
-        </section>
+        </StudioPanel>
       )}
     </>
   );
