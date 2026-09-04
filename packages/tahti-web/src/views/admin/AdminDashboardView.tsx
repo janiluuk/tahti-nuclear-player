@@ -1,7 +1,14 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge, Button, Dialog, StatChip, ViewShell } from '@tahti-player/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Dialog,
+  StatChip,
+  ViewShell,
+} from '@tahti-player/ui';
 
 import { fetchAdminDashboard, type AdminDashboard } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
@@ -123,11 +130,11 @@ export function AdminDashboardView() {
                       <Dialog.Description>
                         {selectedAction.meta}
                       </Dialog.Description>
-                      <div className="border-border bg-background-secondary/40 mt-4 rounded-lg border p-3 text-sm">
+                      <Alert tone="neutral" className="mt-4">
                         This item is waiting for an admin action. Open its queue
                         to inspect the full record before completing “
                         {selectedAction.actionLabel}”.
-                      </div>
+                      </Alert>
                       <Dialog.Actions>
                         <Dialog.Close>Close</Dialog.Close>
                         <Link to={selectedAction.href}>
