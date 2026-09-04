@@ -1,11 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
-import { Button, Input, Textarea } from '@tahti-player/ui';
+import { Button, Input, Textarea, ViewShell } from '@tahti-player/ui';
 
 import { registerVenue } from '../api/client';
 import { ImageUploadField } from '../components/ImageUploadField';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useAuthStore } from '../stores/authStore';
 
 export function VenueRegisterView() {
@@ -26,25 +25,27 @@ export function VenueRegisterView() {
 
   if (!user) {
     return (
-      <PageFrame maxWidth="lg">
-        <PageHeader
-          title="Register a venue"
-          subtitle="Sign in to submit a venue for board review."
-        />
+      <ViewShell
+        title="Register a venue"
+        subtitle="Sign in to submit a venue for board review."
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-lg' }}
+      >
         <Link
           to="/login"
           className="text-sm underline-offset-2 hover:underline"
         >
           Log in →
         </Link>
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   if (doneSlug) {
     return (
-      <PageFrame maxWidth="lg">
-        <PageHeader title="Submitted" />
+      <ViewShell
+        title="Submitted"
+        classes={{ root: 'px-0 pt-0 mx-auto max-w-lg' }}
+      >
         <p className="text-foreground-secondary text-sm">
           <code>{doneSlug}</code> is pending board verification before it
           appears in the public directory.
@@ -56,25 +57,23 @@ export function VenueRegisterView() {
         >
           ← Back to venues
         </Link>
-      </PageFrame>
+      </ViewShell>
     );
   }
 
   return (
-    <PageFrame maxWidth="lg">
-      <PageHeader
-        title="Register a venue"
-        subtitle="New venues are reviewed by the board before appearing publicly."
-        back={
-          <Link
-            to="/discover"
-            search={{ tab: 'venues' }}
-            className="text-foreground-secondary text-xs hover:underline"
-          >
-            ← Venues
-          </Link>
-        }
-      />
+    <ViewShell
+      title="Register a venue"
+      subtitle="New venues are reviewed by the board before appearing publicly."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-lg' }}
+    >
+      <Link
+        to="/discover"
+        search={{ tab: 'venues' }}
+        className="text-foreground-secondary mb-2 block w-fit text-xs hover:underline"
+      >
+        ← Venues
+      </Link>
 
       <form
         className="flex flex-col gap-3"
@@ -191,6 +190,6 @@ export function VenueRegisterView() {
         </Button>
         {error && <p className="text-accent-red text-sm">{error}</p>}
       </form>
-    </PageFrame>
+    </ViewShell>
   );
 }

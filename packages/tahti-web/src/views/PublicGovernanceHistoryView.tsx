@@ -1,11 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Badge } from '@tahti-player/ui';
+import { Badge, ViewShell } from '@tahti-player/ui';
 
 import { fetchPublicGovernanceMotions } from '../api/client';
 import type { PublicGovernanceMotion } from '../api/types';
-import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageLoading } from '../components/PageStates';
 
 export function PublicGovernanceHistoryView() {
@@ -20,19 +19,17 @@ export function PublicGovernanceHistoryView() {
   }, []);
 
   return (
-    <PageFrame maxWidth="3xl">
-      <PageHeader
-        title="Governance history"
-        subtitle="Public results of closed advisory motions. These records are not binding AGM ballots."
-        meta={
-          <Link
-            to="/transparency"
-            className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
-          >
-            Transparency overview →
-          </Link>
-        }
-      />
+    <ViewShell
+      title="Governance history"
+      subtitle="Public results of closed advisory motions. These records are not binding AGM ballots."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
+    >
+      <Link
+        to="/transparency"
+        className="text-foreground-secondary mb-2 block w-fit text-xs underline-offset-2 hover:underline"
+      >
+        Transparency overview →
+      </Link>
       {loading ? (
         <PageLoading label="Loading governance history…" />
       ) : motions.length === 0 ? (
@@ -66,6 +63,6 @@ export function PublicGovernanceHistoryView() {
           ))}
         </ul>
       )}
-    </PageFrame>
+    </ViewShell>
   );
 }

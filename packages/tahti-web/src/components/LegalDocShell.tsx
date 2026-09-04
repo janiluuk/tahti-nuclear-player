@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 
+import { ViewShell } from '@tahti-player/ui';
+
 import { LegalHubLinks } from './LegalHubLinks';
-import { PageHeader } from './PageHeader';
 
 export function LegalDocSection({
   title,
@@ -28,10 +29,15 @@ export function LegalDocShell({
   children: ReactNode;
 }) {
   return (
-    <article className="mx-auto flex max-w-3xl flex-col gap-6">
-      <PageHeader title={title} subtitle={meta} />
-      {children}
-      <LegalHubLinks />
-    </article>
+    <ViewShell
+      title={title}
+      subtitle={meta}
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
+    >
+      <div className="flex flex-col gap-6">
+        {children}
+        <LegalHubLinks />
+      </div>
+    </ViewShell>
   );
 }
