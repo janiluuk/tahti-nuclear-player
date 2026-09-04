@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 
-import { PageHeader } from '../components/PageHeader';
+import { ViewShell } from '@tahti-player/ui';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -31,19 +31,17 @@ function CategoryList({
 
 export function TransparencyMethodologyView() {
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-8">
-      <PageHeader
-        title="Transparency methodology"
-        subtitle="How Tahti ry records and publishes its financial data."
-        back={
-          <Link
-            to="/transparency"
-            className="text-foreground-secondary text-xs hover:underline"
-          >
-            ← Transparency dashboard
-          </Link>
-        }
-      />
+    <ViewShell
+      title="Transparency methodology"
+      subtitle="How Tahti ry records and publishes its financial data."
+      classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl', scrollableArea: 'gap-8' }}
+    >
+      <Link
+        to="/transparency"
+        className="text-foreground-secondary text-xs hover:underline"
+      >
+        ← Transparency dashboard
+      </Link>
 
       <Section title="Principles">
         <p className="text-foreground-secondary text-sm">
@@ -216,6 +214,6 @@ export function TransparencyMethodologyView() {
           Platform status
         </Link>
       </footer>
-    </div>
+    </ViewShell>
   );
 }

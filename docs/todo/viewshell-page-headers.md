@@ -2,7 +2,7 @@
 
 **Status:** in progress.
 **Storybook:** `Components/ViewShell` — `title` + `subtitle` strings, then `ScrollableArea`.
-**Today:** listener pages use `PageHeader` (title, rich subtitle, meta, actions, back). Studio and Admin use `StudioPageHeader` (title, long subtitle, action). Converted to `ViewShell`: News / What’s New, Listen, Discover, Help hub, Radio, Radio schedule, History, Feed, Favorites, Account, Messages, Status, LegalDocShell (all legal pages), PublicGovernanceHistoryView, VenueRegisterView, OnboardingView, GreenRoomView, SubscribeView, Studio Home / Sounds / Collections / Playlists / Upload / Schedule / Go Live / Releases / Stats / Shows, Library overview + catalog tabs, and Admin Dashboard / Users / Streams / Content / Selects / Status.
+**Today:** listener pages use `PageHeader` (title, rich subtitle, meta, actions, back). Studio and Admin use `StudioPageHeader` (title, long subtitle, action). Converted to `ViewShell`: News / What’s New, Listen, Discover, Help hub, Radio, Radio schedule, History, Feed, Favorites, Account, Messages, Status, Chat, MoreView, TransparencyView, TransparencyMethodologyView, TransparencyGrantYearView, LegalDocShell (all legal pages), PublicGovernanceHistoryView, VenueRegisterView, OnboardingView, GreenRoomView, SubscribeView, Studio Home / Sounds / Collections / Playlists / Upload / Schedule / Go Live / Releases / Stats / Shows / Stash / Recordings / Events / Channel / Revenue / Editor list, Library overview + catalog tabs, and Admin Dashboard / Users / Streams / Content / Selects / Status.
 
 ## Contract
 
@@ -99,8 +99,8 @@ Shorten the current paragraph-subtitles (streams, artwork presets, storage, acti
 ## Order of work
 
 1. Storybook states + padding rule (`classes.root` vs AppShell).
-2. ~~Listener hubs (Listen, Discover, Radio, Help, History, Radio schedule, Feed, Favorites, Account, Messages, Status, Legal, Governance, Venues, Onboarding, Subscribe, Green room)~~; remaining listener pages still open (Chat, More/map, Transparency + methodology/grant-year).
-3. ~~Studio Home, Sounds, Collections, Playlists, Upload, Schedule, Go Live, Releases, Stats, Shows, Library tabs~~; remaining Studio list pages next (Stash, Recordings, Events, Channel, Revenue, Editor, …).
+2. ~~Listener hubs (Listen, Discover, Radio, Help, History, Radio schedule, Feed, Favorites, Account, Messages, Status, Chat, More/map, Transparency + methodology/grant-year, Legal, Governance, Venues, Onboarding, Subscribe, Green room)~~ — listener bucket done.
+3. ~~Studio Home, Sounds, Collections, Playlists, Upload, Schedule, Go Live, Releases, Stats, Shows, Library tabs, Stash, Recordings, Events, Channel, Revenue, Editor list~~; remaining Studio next (Editor project, Pro Editor chrome, Mastering, Track insights, Governance, Moderation, Venues, Embeds/smart links, Branding, Distribution, Stripe, Updates).
 4. Remaining Studio.
 5. Admin (~~Dashboard, Users, Streams, Content, Selects, Status~~; rest open).
 6. Delete or narrow `StudioPageHeader`; keep `PageHeader` only if an entity surface still needs back/actions.

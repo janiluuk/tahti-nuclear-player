@@ -2,6 +2,15 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-04 — ViewShell round 3: Transparency sub-pages + Revenue/Editor
+
+Chat, MoreView, and TransparencyView turned out already converted by another
+session. Converted the two still-open Transparency sub-pages
+(`TransparencyMethodologyView`, `TransparencyGrantYearView`) — closes the
+listener bucket. Extended into Studio (checked Stash/Recordings/Events/
+Channel first — all four already done): converted `StudioRevenueView` and
+`StudioEditorListView`. Screenshot-verified all 4 in the browser.
+
 ## 2026-09-04 — ViewShell rounds 1-2 (legal/governance/venues, onboarding/green room/subscribe)
 
 Round 1: `LegalDocShell` (covers every legal page), `PublicGovernanceHistoryView`,
