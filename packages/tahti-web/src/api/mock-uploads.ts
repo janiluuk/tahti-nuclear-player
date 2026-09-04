@@ -8,8 +8,6 @@ export type MockUploadedSound = {
   visibility: 'PUBLIC' | 'UNLISTED' | 'PRIVATE' | 'STASH';
   accessMode?: 'FREE' | 'SUBSCRIBERS_ONLY' | 'PURCHASE';
   purchaseTierId?: string | null;
-  /** Base64 of original bytes so blob URLs can be recreated after reload. */
-  fileDataBase64?: string;
   mimeType?: string;
 };
 
@@ -20,30 +18,23 @@ const IDB_NAME = 'tahti-mock-uploaded-sounds-db';
 const IDB_STORE = 'files';
 const IDB_VERSION = 1;
 
-type PersistedMeta = Omit<MockUploadedSound, 'fileDataBase64' | 'objectUrl'> & {
-  objectUrl?: string;
+type PersistedMeta = {
+  id: string;
+  title: string;
+  filename: string;
+  channelSlug: string;
+  downloadsEnabled: boolean;
+  visibility: MockUploadedSound['visibility'];
+  accessMode?: MockUploadedSound['accessMode'];
+  purchaseTierId?: string | null;
+  mimeType?: string;
   hasFileBytes?: boolean;
 };
 
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  const chunkSize = 0x8000;
-  let binary = '';
-  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-    const chunk = bytes.subarray(offset, offset + chunkSize);
-    binary += String.fromCharCode(...chunk);
-  }
-  return btoa(binary);
-}
-
-function base64ToUint8Array(base64: string): Uint8Array {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-  return bytes;
-}
+type StoredFile = {
+  blob: Blob;
+  mimeType: string;
+};
 
 function openFileDb(): Promise<IDBDatabase | null> {
   if (typeof indexedDB === 'undefined') {
@@ -66,111 +57,101 @@ function openFileDb(): Promise<IDBDatabase | null> {
   });
 }
 
-async function idbPutFile(
-  id: string,
-  payload: { base64: string; mimeType: string },
-): Promise<void> {
+async function idbPutFile(id: string, payload: StoredFile): Promise<void> {
   const db = await openFileDb();
   if (!db) {
     return;
   }
   await new Promise<void>((resolve) => {
-    const tx = db.transaction(IDB_STORE, 'readwrite');
-    tx.objectStore(IDB_STORE).put(payload, id);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => resolve();
-    tx.onabort = () => resolve();
+    try {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(payload, id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+      tx.onabort = () => resolve();
+    } catch {
+      resolve();
+    }
   });
-  db.close();
+  try {
+    db.close();
+  } catch {
+    // ignore
+  }
 }
 
-async function idbGetFile(
-  id: string,
-): Promise<{ base64: string; mimeType: string } | null> {
+async function idbGetFile(id: string): Promise<StoredFile | null> {
   const db = await openFileDb();
   if (!db) {
     return null;
   }
-  const result = await new Promise<{ base64: string; mimeType: string } | null>(
-    (resolve) => {
+  const result = await new Promise<StoredFile | null>((resolve) => {
+    try {
       const tx = db.transaction(IDB_STORE, 'readonly');
       const request = tx.objectStore(IDB_STORE).get(id);
       request.onsuccess = () => {
-        const value = request.result as
-          | { base64: string; mimeType: string }
-          | undefined;
-        resolve(value ?? null);
+        const value = request.result as StoredFile | undefined;
+        resolve(value?.blob ? value : null);
       };
       request.onerror = () => resolve(null);
-    },
-  );
-  db.close();
+    } catch {
+      resolve(null);
+    }
+  });
+  try {
+    db.close();
+  } catch {
+    // ignore
+  }
   return result;
 }
 
-function hydrateFromBase64(
-  row: MockUploadedSound,
-  base64: string,
-  mimeType?: string,
+function hydrateFromBlob(
+  row: PersistedMeta | MockUploadedSound,
+  file: StoredFile,
 ): MockUploadedSound {
-  const bytes = base64ToUint8Array(base64);
-  const blob = new Blob([bytes], {
-    type: mimeType || row.mimeType || 'application/octet-stream',
-  });
   return {
-    ...row,
-    fileDataBase64: base64,
-    mimeType: mimeType || row.mimeType,
-    objectUrl: URL.createObjectURL(blob),
+    id: row.id,
+    title: row.title,
+    filename: row.filename,
+    channelSlug: row.channelSlug,
+    downloadsEnabled: row.downloadsEnabled,
+    visibility: row.visibility,
+    accessMode: row.accessMode,
+    purchaseTierId: row.purchaseTierId,
+    mimeType: file.mimeType || row.mimeType,
+    objectUrl: URL.createObjectURL(file.blob),
   };
 }
 
 export async function registerMockUploadedSound(
   sound: MockUploadedSound,
 ): Promise<MockUploadedSound> {
-  let fileDataBase64 = sound.fileDataBase64;
   let mimeType = sound.mimeType || 'application/octet-stream';
-  if (!fileDataBase64 && sound.objectUrl) {
+  let blob: Blob | null = null;
+  if (sound.objectUrl) {
     try {
       const response = await fetch(sound.objectUrl);
-      const buffer = await response.arrayBuffer();
-      fileDataBase64 = arrayBufferToBase64(buffer);
-      mimeType =
-        sound.mimeType ||
-        response.headers.get('content-type') ||
-        'application/octet-stream';
+      blob = await response.blob();
+      mimeType = sound.mimeType || blob.type || mimeType;
     } catch {
       // Keep the live objectUrl for this session even if bytes cannot be snapshotted.
     }
   }
   const row: MockUploadedSound = {
     ...sound,
-    fileDataBase64,
     mimeType,
   };
   uploads.set(row.id, row);
-  persistIndex();
-  if (fileDataBase64) {
-    await idbPutFile(row.id, { base64: fileDataBase64, mimeType });
+  persistIndex(Boolean(blob));
+  if (blob) {
+    await idbPutFile(row.id, { blob, mimeType });
   }
   return row;
 }
 
 export function getMockUploadedSound(id: string): MockUploadedSound | null {
-  const memory = uploads.get(id);
-  if (memory) {
-    return memory;
-  }
-  const persisted = readPersisted().find((row) => row.id === id);
-  if (!persisted) {
-    return null;
-  }
-  if (persisted.fileDataBase64) {
-    const hydrated = hydrateFromBase64(persisted, persisted.fileDataBase64);
-    uploads.set(hydrated.id, hydrated);
-    return hydrated;
-  }
-  return persisted;
+  return uploads.get(id) ?? null;
 }
 
 export async function ensureMockUploadedSound(
@@ -184,49 +165,41 @@ export async function ensureMockUploadedSound(
   if (!meta) {
     return null;
   }
-  if (meta.fileDataBase64) {
-    const hydrated = hydrateFromBase64(meta, meta.fileDataBase64);
-    uploads.set(hydrated.id, hydrated);
-    return hydrated;
-  }
   const file = await idbGetFile(id);
   if (!file) {
-    return meta;
+    return {
+      ...meta,
+      objectUrl: '',
+    };
   }
-  const hydrated = hydrateFromBase64(meta, file.base64, file.mimeType);
+  const hydrated = hydrateFromBlob(meta, file);
   uploads.set(hydrated.id, hydrated);
   return hydrated;
 }
 
 export function listMockUploadedSounds(): MockUploadedSound[] {
-  const fromMemory = Array.from(uploads.values());
-  if (fromMemory.length > 0) {
-    return fromMemory;
-  }
-  return readPersisted().map((row) => {
-    if (row.fileDataBase64) {
-      const hydrated = hydrateFromBase64(row, row.fileDataBase64);
-      uploads.set(hydrated.id, hydrated);
-      return hydrated;
-    }
-    void ensureMockUploadedSound(row.id);
-    return row;
-  });
+  return Array.from(uploads.values());
 }
 
 export function patchMockUploadedSound(
   id: string,
   patch: Partial<MockUploadedSound>,
 ): void {
-  const current = getMockUploadedSound(id);
+  const current =
+    uploads.get(id) ?? readPersisted().find((row) => row.id === id);
   if (!current) {
     return;
   }
-  uploads.set(id, { ...current, ...patch });
-  persistIndex();
+  const next: MockUploadedSound = {
+    objectUrl: 'objectUrl' in current ? current.objectUrl : '',
+    ...current,
+    ...patch,
+  };
+  uploads.set(id, next);
+  persistIndex(true);
 }
 
-function persistIndex(): void {
+function persistIndex(hasFileBytes: boolean): void {
   if (typeof localStorage === 'undefined') {
     return;
   }
@@ -240,16 +213,16 @@ function persistIndex(): void {
     accessMode: row.accessMode ?? 'FREE',
     purchaseTierId: row.purchaseTierId ?? null,
     mimeType: row.mimeType,
-    hasFileBytes: Boolean(row.fileDataBase64),
+    hasFileBytes,
   }));
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
   } catch {
-    // Quota (large WAVs live in IndexedDB); keep in-memory map.
+    // Metadata only; file bytes live in IndexedDB.
   }
 }
 
-function readPersisted(): MockUploadedSound[] {
+function readPersisted(): PersistedMeta[] {
   if (typeof localStorage === 'undefined') {
     return [];
   }
@@ -258,25 +231,8 @@ function readPersisted(): MockUploadedSound[] {
     if (!raw) {
       return [];
     }
-    const parsed = JSON.parse(raw) as Array<
-      MockUploadedSound & { hasFileBytes?: boolean }
-    >;
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    return parsed.map((row) => ({
-      id: row.id,
-      title: row.title,
-      filename: row.filename,
-      objectUrl: row.objectUrl || '',
-      channelSlug: row.channelSlug,
-      downloadsEnabled: row.downloadsEnabled,
-      visibility: row.visibility,
-      accessMode: row.accessMode,
-      purchaseTierId: row.purchaseTierId,
-      mimeType: row.mimeType,
-      fileDataBase64: row.fileDataBase64,
-    }));
+    const parsed = JSON.parse(raw) as PersistedMeta[];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
