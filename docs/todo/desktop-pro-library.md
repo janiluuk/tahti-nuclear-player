@@ -77,7 +77,7 @@ SQLite on desktop; IndexedDB is a web fallback for session metadata only.
   `kind: 'archive'`, `protocol: 'https'`). Persist metadata only; blobs die
   on reload (honest “re-import” by file name). **Done** — zustand persist
   drops `objectUrl`; panel disables play until the same file is chosen again.
-- **C2:** Play / queue through the shared player.
+- **C2 (done):** Play / queue through the shared player.
 - **C3:** Folder watch + durable file URLs: native-only.
 
 ## D — Soulseek
