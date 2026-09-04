@@ -1,5 +1,15 @@
 # UI redesign worklog — Nuclear (artist + admin)
 
+## 2026-09-04 — Local library metadata survives reload (0.0.72)
+
+**Status:** executed.
+
+Desktop Library rail persists track metadata (`title` / `fileName`) across
+reloads and clears blob URLs. Play/Queue stay disabled until the same file
+is chosen again (honest re-import). Soulseek still later.
+
+Todo: `docs/todo/desktop-pro-library.md` (C1).
+
 ## 2026-09-04 — Channel look extras on live visual PATCH (0.0.71)
 
 **Status:** executed (Nuclear client). Sibling API on

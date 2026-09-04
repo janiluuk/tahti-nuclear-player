@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { Button, EmptyState, FilePicker, Tooltip } from '@tahti-player/ui';
 
 import {
+  isLocalTrackPlayable,
   playableFromLocalTrack,
   useLocalLibraryStore,
 } from '../stores/localLibraryStore';
@@ -12,7 +13,7 @@ import { usePlayerStore } from '../stores/playerStore';
 const FILE_LABELS = {
   title: 'Add audio files',
   description:
-    'Files stay on this device for this session. Reloading the page clears the list. Uploading to your Tahti archive is Studio → Upload.',
+    'File names are remembered on this device. Audio blobs clear on reload — choose the same files again to play. Uploading to your Tahti archive is Studio → Upload.',
   browse: 'Choose files',
 };
 
@@ -22,6 +23,7 @@ export function DesktopLibraryPanel() {
   const remove = useLocalLibraryStore((s) => s.remove);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const needsReimport = tracks.some((track) => !isLocalTrackPlayable(track));
 
   const onFiles = (files: readonly File[]) => {
     const added = addFiles(files);
@@ -31,8 +33,8 @@ export function DesktopLibraryPanel() {
     }
     toast.success(
       added.length === 1
-        ? `Added “${added[0]?.title}”.`
-        : `Added ${added.length} files.`,
+        ? `Ready “${added[0]?.title}”.`
+        : `Ready ${added.length} files.`,
     );
   };
 
@@ -56,58 +58,83 @@ export function DesktopLibraryPanel() {
           className="flex-1"
         />
       ) : (
-        <ul className="tahti-hide-scrollbar flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
-          {tracks.map((track) => (
-            <li
-              key={track.id}
-              className="border-border flex items-center gap-2 rounded-md border px-2 py-1.5"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{track.title}</p>
-                <p className="text-foreground-secondary truncate text-xs">
-                  {track.artist}
-                </p>
-              </div>
-              <Tooltip content="Play" side="top">
-                <Button
-                  size="icon-sm"
-                  variant="text"
-                  aria-label={`Play ${track.title}`}
-                  onClick={() => play(playableFromLocalTrack(track))}
+        <>
+          {needsReimport ? (
+            <p className="text-foreground-secondary text-xs">
+              Some tracks need the original file again before they can play.
+            </p>
+          ) : null}
+          <ul className="tahti-hide-scrollbar flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+            {tracks.map((track) => {
+              const playable = isLocalTrackPlayable(track);
+              return (
+                <li
+                  key={track.id}
+                  className="border-border flex items-center gap-2 rounded-md border px-2 py-1.5"
                 >
-                  <PlayIcon size={14} aria-hidden />
-                </Button>
-              </Tooltip>
-              <Tooltip content="Add to queue" side="top">
-                <Button
-                  size="sm"
-                  variant="text"
-                  aria-label={`Queue ${track.title}`}
-                  onClick={() => {
-                    enqueue(playableFromLocalTrack(track));
-                    toast.success(`Queued “${track.title}”.`);
-                  }}
-                >
-                  Queue
-                </Button>
-              </Tooltip>
-              <Tooltip content="Remove" side="top">
-                <Button
-                  size="icon-sm"
-                  variant="text"
-                  intent="danger"
-                  aria-label={`Remove ${track.title}`}
-                  onClick={() => {
-                    remove(track.id);
-                    toast.success(`Removed “${track.title}”.`);
-                  }}
-                >
-                  <TrashIcon size={14} aria-hidden />
-                </Button>
-              </Tooltip>
-            </li>
-          ))}
-        </ul>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">
+                      {track.title}
+                    </p>
+                    <p className="text-foreground-secondary truncate text-xs">
+                      {playable
+                        ? track.artist
+                        : `Re-import ${track.fileName} to play`}
+                    </p>
+                  </div>
+                  <Tooltip content="Play" side="top">
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      disabled={!playable}
+                      aria-label={`Play ${track.title}`}
+                      onClick={() => {
+                        const next = playableFromLocalTrack(track);
+                        if (next) {
+                          play(next);
+                        }
+                      }}
+                    >
+                      <PlayIcon size={14} aria-hidden />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Add to queue" side="top">
+                    <Button
+                      size="sm"
+                      variant="text"
+                      disabled={!playable}
+                      aria-label={`Queue ${track.title}`}
+                      onClick={() => {
+                        const next = playableFromLocalTrack(track);
+                        if (!next) {
+                          return;
+                        }
+                        enqueue(next);
+                        toast.success(`Queued “${track.title}”.`);
+                      }}
+                    >
+                      Queue
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Remove" side="top">
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      intent="danger"
+                      aria-label={`Remove ${track.title}`}
+                      onClick={() => {
+                        remove(track.id);
+                        toast.success(`Removed “${track.title}”.`);
+                      }}
+                    >
+                      <TrashIcon size={14} aria-hidden />
+                    </Button>
+                  </Tooltip>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </div>
   );
