@@ -6,6 +6,9 @@ import { Dialog, FilePicker } from '@tahti-player/ui';
 
 import { uploadUserMediaFile } from '../api/user-media';
 import { cn } from '../lib/cn';
+import { ImageSlotDeleteBadge } from './imageSlot/ImageSlotDeleteBadge';
+import { ImageSlotPreviewDialog } from './imageSlot/ImageSlotPreviewDialog';
+import { useImageSlotChrome } from './imageSlot/useImageSlotChrome';
 
 type UploadResult =
   | { ok: true; data: { url: string } }
@@ -33,6 +36,7 @@ export function BackdropUploadButton({
 }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const chrome = useImageSlotChrome({ onClear: () => onChange('') });
 
   const handleFiles = async (files: readonly File[]) => {
     const file = files[0];
@@ -53,29 +57,57 @@ export function BackdropUploadButton({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label={`Change ${label.toLowerCase()}`}
-        title={`Change ${label.toLowerCase()}`}
-        className={cn(
-          'group border-border bg-background-secondary relative flex aspect-[3/1] w-full items-center justify-center overflow-hidden rounded-xl border',
-          className,
-        )}
-      >
+      <div className={cn('group relative', className)}>
+        <button
+          type="button"
+          onClick={() => (value ? chrome.openPreview() : setOpen(true))}
+          aria-label={
+            value
+              ? `Preview ${label.toLowerCase()}`
+              : `Change ${label.toLowerCase()}`
+          }
+          title={
+            value
+              ? `Preview ${label.toLowerCase()}`
+              : `Change ${label.toLowerCase()}`
+          }
+          className="border-border bg-background-secondary flex aspect-[3/1] w-full items-center justify-center overflow-hidden rounded-xl border"
+        >
+          {value ? (
+            <img src={value} alt="" className="size-full object-cover" />
+          ) : (
+            <ImageIcon
+              size={28}
+              aria-hidden
+              className="text-foreground-secondary"
+            />
+          )}
+          {value ? null : (
+            <div className="bg-background/80 text-foreground pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+              <UploadCloudIcon size={22} aria-hidden />
+            </div>
+          )}
+        </button>
         {value ? (
-          <img src={value} alt="" className="size-full object-cover" />
-        ) : (
-          <ImageIcon
-            size={28}
-            aria-hidden
-            className="text-foreground-secondary"
-          />
-        )}
-        <div className="bg-background/80 text-foreground pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
-          <UploadCloudIcon size={22} aria-hidden />
-        </div>
-      </button>
+          <ImageSlotDeleteBadge label={label} onClick={chrome.requestDelete} />
+        ) : null}
+      </div>
+
+      <ImageSlotPreviewDialog
+        isOpen={chrome.previewOpen}
+        onClose={chrome.closePreview}
+        label={label}
+        src={value}
+        onChangeClick={() => {
+          chrome.closePreview();
+          setOpen(true);
+        }}
+        confirmOpen={chrome.confirmOpen}
+        clearing={chrome.clearing}
+        onRequestDelete={chrome.requestDelete}
+        onCancelDelete={chrome.cancelDelete}
+        onConfirmDelete={chrome.confirmDelete}
+      />
 
       <Dialog.Root
         isOpen={open}

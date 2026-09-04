@@ -1,8 +1,50 @@
 # Image upload widgets — hover delete + preview modal
 
-Status: planned (worklog only). Depends on shared upload primitives
-(`RoundImageUploadButton`, `BackdropUploadButton`, `ImageUploadField`,
-`RadioStationCover`, branding/avatar slots, collection slideshow, gallery).
+Status: shared primitives done (2026-09-04). New chrome lives under
+`src/components/imageSlot/` (`useImageSlotChrome`, `ImageSlotDeleteBadge`,
+`ImageSlotPreviewDialog`) and is wired into `RoundImageUploadButton`,
+`BackdropUploadButton`, `ImageUploadField`. `ImageSlotPreviewDialog` reuses
+the shared `ConfirmDialog` for the delete confirm step and already accepts
+an optional `frames` list (per-frame delete) for a future slideshow
+consumer. Storybook stories added for all three: Empty / Set / preview
+modal open / confirm-delete (`play` functions), documented as hover for
+the corner X badge.
+
+Consumers of the three primitives get the new behavior automatically —
+verified via `grep`: `TrackEditDialog` (release artwork), `ShowImagePicker`,
+`VenueRegisterView`, `StudioScheduleView`, `StudioVenuesView`,
+`AdminDiscoWidgetsView`, `AdminNewsView`, `BroadcastPreflightPanel`,
+`ListenAddonsPanel` all render one of the three shared components directly.
+
+`RadioStationCover` was left untouched: it has no "empty" state (`src` is
+required, not optional) and its edit affordance
+(`RadioStationCoverEditButton`) is a full-area absolutely-positioned
+overlay button — there's no room for a separate click-to-preview target
+without first redesigning that overlay to a small corner control. Tracked
+as a follow-up, not done in this pass.
+
+`ArtistGalleryPanel` was checked and needs no change — it already has its
+own hover-reveal delete button, a select toggle, and a click-to-lightbox
+preview, independently matching this ticket's intent.
+
+## Not done in this pass (bespoke, not on the shared primitives)
+
+- `StudioBrandingView` avatar/press-kit multi-image upload
+- `ChannelDesigner` backdrop + gallery slideshow
+- Collection cover + slideshow
+- Admin: radio station logo (blocked on the `RadioStationCover` redesign
+  above), announcements
+- Onboarding avatar
+
+These are all larger, bespoke multi-image or reorderable-gallery flows
+(not simple single-image slots) — right-sized as their own follow-up
+tickets rather than folded into this bounded pass. `ImageSlotPreviewDialog`
+already supports a `frames` strip so a future pass can adopt it without
+another primitive redesign.
+
+Depends on shared upload primitives (`RoundImageUploadButton`,
+`BackdropUploadButton`, `ImageUploadField`, `RadioStationCover`,
+branding/avatar slots, collection slideshow, gallery).
 
 ## Goal
 

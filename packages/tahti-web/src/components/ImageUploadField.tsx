@@ -5,6 +5,9 @@ import { FilePicker } from '@tahti-player/ui';
 
 import { uploadUserMediaFile } from '../api/user-media';
 import { IMAGE_UPLOAD_ACCEPT_ATTR } from '../lib/imageUploadContentType';
+import { ImageSlotDeleteBadge } from './imageSlot/ImageSlotDeleteBadge';
+import { ImageSlotPreviewDialog } from './imageSlot/ImageSlotPreviewDialog';
+import { useImageSlotChrome } from './imageSlot/useImageSlotChrome';
 
 type Props = {
   label: string;
@@ -24,6 +27,7 @@ export function ImageUploadField({
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const chrome = useImageSlotChrome({ onClear: () => onChange('') });
 
   const handleFiles = async (files: readonly File[]) => {
     const selected = files[0];
@@ -58,13 +62,36 @@ export function ImageUploadField({
         onFiles={handleFiles}
       />
       {value ? (
-        <img
-          src={value}
-          alt={`${label} preview`}
-          className="mt-2 h-20 w-20 rounded-md object-cover"
-        />
+        <div className="group relative mt-2 inline-block">
+          <button
+            type="button"
+            onClick={chrome.openPreview}
+            aria-label={`Preview ${label.toLowerCase()}`}
+            title={`Preview ${label.toLowerCase()}`}
+            className="block"
+          >
+            <img
+              src={value}
+              alt={`${label} preview`}
+              className="h-20 w-20 rounded-md object-cover"
+            />
+          </button>
+          <ImageSlotDeleteBadge label={label} onClick={chrome.requestDelete} />
+        </div>
       ) : null}
       {error ? <p className="text-accent-red mt-1 text-xs">{error}</p> : null}
+      <ImageSlotPreviewDialog
+        isOpen={chrome.previewOpen}
+        onClose={chrome.closePreview}
+        label={label}
+        src={value}
+        onChangeClick={chrome.closePreview}
+        confirmOpen={chrome.confirmOpen}
+        clearing={chrome.clearing}
+        onRequestDelete={chrome.requestDelete}
+        onCancelDelete={chrome.cancelDelete}
+        onConfirmDelete={chrome.confirmDelete}
+      />
     </div>
   );
 }
