@@ -24,4 +24,4 @@ Playwright `e2e/fan-sub-and-track-purchase.spec.ts` against mock Vite
 - [ ] Purchase tier mock API + Buy on track
 - [ ] Audience + admin activity read ledger
 - [ ] Spec + unit coverage
-- [ ] E2e green vs mock Vite
+- [x] E2e green vs mock Vite
