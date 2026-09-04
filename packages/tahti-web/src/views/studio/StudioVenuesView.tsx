@@ -22,7 +22,7 @@ import {
 } from '../../api/venues-manage';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageUploadField } from '../../components/ImageUploadField';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPanel } from '../../components/StudioPanel';
@@ -172,9 +172,7 @@ function VenueCard({
           )}
         </div>
         {upcoming.length === 0 ? (
-          <p className="text-foreground-secondary text-sm">
-            No upcoming bookings.
-          </p>
+          <PageEmpty title="No upcoming bookings" />
         ) : (
           <ul className="flex flex-col gap-2">
             {upcoming.map((b) => (

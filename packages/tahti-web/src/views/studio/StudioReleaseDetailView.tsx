@@ -48,6 +48,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { EmbedTrackRow } from '../../components/EmbedTrackRow';
 import { FingerprintTrackPanel } from '../../components/FingerprintTrackPanel';
 import { MusicBrainzSubmissionAssistant } from '../../components/MusicBrainzSubmissionAssistant';
+import { PageEmpty } from '../../components/PageStates';
 import { SourceServiceIcon } from '../../components/SourceServiceIcon';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -158,9 +159,7 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
         </Link>
         {!release ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">
-              Release not found in list.
-            </p>
+            <PageEmpty title="Release not found in list" />
           </StudioPanel>
         ) : (
           <>

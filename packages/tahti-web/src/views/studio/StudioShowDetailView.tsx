@@ -36,7 +36,7 @@ import {
   type StudioShowSeries,
 } from '../../api/shows';
 import { uploadSoundFile } from '../../api/studio';
-import { PageLoading } from '../../components/PageStates';
+import { PageEmpty, PageLoading } from '../../components/PageStates';
 import { ShowImagePicker } from '../../components/ShowImagePicker';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
@@ -378,7 +378,7 @@ export function StudioShowDetailView({ id }: { id: string }) {
 
         {!show ? (
           <StudioPanel>
-            <p className="text-foreground-secondary text-sm">Show not found.</p>
+            <PageEmpty title="Show not found" />
           </StudioPanel>
         ) : (
           <>
