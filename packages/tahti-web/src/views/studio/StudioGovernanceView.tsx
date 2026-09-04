@@ -31,25 +31,25 @@ export function StudioGovernanceView({
     <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/governance" />
+        <Tabs.Root
+          selectedIndex={tab === 'topics' ? 1 : 0}
+          onChange={(index) => {
+            void navigate({
+              to: '/studio/governance',
+              search: index === 1 ? { tab: 'topics' } : {},
+            });
+          }}
+        >
+          <Tabs.List>
+            <Tabs.Tab>
+              <TabLabel icon={<LandmarkIcon size={15} />}>Motions</TabLabel>
+            </Tabs.Tab>
+            <Tabs.Tab>
+              <TabLabel icon={<LightbulbIcon size={15} />}>Topics</TabLabel>
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
         <ViewShell title="Governance" classes={{ root: 'px-0 pt-0' }}>
-          <Tabs.Root
-            selectedIndex={tab === 'topics' ? 1 : 0}
-            onChange={(index) => {
-              void navigate({
-                to: '/studio/governance',
-                search: index === 1 ? { tab: 'topics' } : {},
-              });
-            }}
-          >
-            <Tabs.List>
-              <Tabs.Tab>
-                <TabLabel icon={<LandmarkIcon size={15} />}>Motions</TabLabel>
-              </Tabs.Tab>
-              <Tabs.Tab>
-                <TabLabel icon={<LightbulbIcon size={15} />}>Topics</TabLabel>
-              </Tabs.Tab>
-            </Tabs.List>
-          </Tabs.Root>
           <Suspense fallback={<PageLoading label="Loading governance…" />}>
             {tab === 'topics' ? (
               <LazyFeatureRequestsView embedded />

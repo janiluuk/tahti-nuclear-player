@@ -246,7 +246,6 @@ export function OnboardingView() {
   return (
     <ViewShell
       title="Welcome to Tahti"
-      subtitle="A few quick things to set up your profile — you can change any of this later in Settings."
       classes={{ root: 'px-0 pt-0 mx-auto max-w-2xl' }}
     >
       {loading ? (

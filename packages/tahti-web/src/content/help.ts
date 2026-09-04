@@ -36,6 +36,15 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       {
+        heading: 'What each area is for',
+        body: [
+          'Listen is home for continue-listening, community radio, and who’s on air. Feed shows posts from artists you follow; History is what you played recently.',
+          'Discover has widgets, an artists directory (search and filters), and venues. Favorites holds saved channels, radio, and tracks.',
+          'Studio section tabs (Overview, Branding, Stats, …) stay under the Studio nav. On pages with their own subtabs — Stats, Sounds, Branding, Updates, Channel, and similar — those subtabs sit directly under Studio’s nav row, above the page title.',
+          'Press H for a guided tour of the controls on the current page. Longer how-tos live in this Help center.',
+        ],
+      },
+      {
         heading: 'Signing in',
         body: [
           'You can browse and listen anonymously. Sign in before saving favorites, creating playlists, subscribing to artists, chatting, uploading, or using Studio.',
@@ -166,6 +175,14 @@ export const HELP_ARTICLES: HelpArticle[] = [
           'Turn Public on so the gallery appears on your profile, or leave it off while you arrange photos.',
           'Drag a photo to reorder it, or use the arrows on hover. Check photos to select them, then remove the ones you do not want.',
           'Photos you include can also appear in your press kit. Channel backdrops and slideshows are covered in Design your channel.',
+        ],
+      },
+      {
+        heading: 'Studio pages',
+        body: [
+          'Subtabs for a Studio page sit under the Studio navigation row and above the page title — the same layout as Stats (Overview / Plays / Top lists).',
+          'Sounds holds your archive and files. Branding covers profile picture, gallery, press kit, and Channel Designer. Updates is posts and newsletter. Channel covers stream keys, radio settings, and multicast.',
+          'Admin Moderation queues (support, beta, radio, reports) use the same pattern under Admin nav.',
         ],
       },
       {

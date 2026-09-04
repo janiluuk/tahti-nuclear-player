@@ -85,7 +85,6 @@ export function HistoryView({ embedded = false }: { embedded?: boolean }) {
   return (
     <ViewShell
       title="History"
-      subtitle="Recently played and stats."
       classes={{ root: 'px-0 pt-0 flex min-h-0 flex-1 flex-col' }}
     >
       {body}

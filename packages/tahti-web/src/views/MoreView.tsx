@@ -578,7 +578,6 @@ export function MoreView() {
   return (
     <ViewShell
       title="Tahti map"
-      subtitle="Screens, flows, and feature parity."
       classes={{
         root: 'px-0 pt-0 mx-auto max-w-7xl',
         scrollableArea: 'gap-8',

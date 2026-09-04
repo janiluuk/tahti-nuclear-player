@@ -345,7 +345,6 @@ export function FeatureRequestsView({
   return (
     <ViewShell
       title="Feature requests"
-      subtitle="Propose and vote on what Tahti builds."
       classes={{
         root: 'px-0 pt-0 mx-auto max-w-3xl',
         scrollableArea: 'gap-6',

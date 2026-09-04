@@ -357,7 +357,6 @@ export function HelpHubView() {
   return (
     <ViewShell
       title="Help"
-      subtitle="Guides, documents, and shortcuts."
       classes={{ root: 'px-0 pt-0 mx-auto max-w-full min-w-0 pb-8' }}
     >
       <div className="mb-4 flex flex-wrap items-center gap-2">

@@ -160,15 +160,7 @@ export function LibraryView({
           </Tabs.List>
         </Tabs.Root>
       ) : null}
-      <ViewShell
-        title={libraryTitle}
-        subtitle={
-          tab === 'library'
-            ? 'Your catalog.'
-            : 'Sounds, collections, and embeds.'
-        }
-        classes={{ root: 'px-0 pt-0' }}
-      >
+      <ViewShell title={libraryTitle} classes={{ root: 'px-0 pt-0' }}>
         {tab === 'library' ? (
           <div className="mt-2">
             <LibraryStats />

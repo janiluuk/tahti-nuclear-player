@@ -1,3 +1,13 @@
+## 2026-09-05 — Studio subtabs under nav + header help (0.0.76)
+
+**Status:** executed. Branch `feat/studio-subtabs-help-layer`.
+
+In-page Studio/Admin/Listen/Discover section tabs sit between section nav
+and ViewShell (Stats pattern). Static ViewShell subtitles removed; copy
+in Help `getting-around` / `for-artists`.
+
+Todo: `docs/todo/studio-subtabs-help-layer.md`.
+
 ## 2026-09-05 — Last.fm scrobble (registry runtime)
 
 **Status:** executed (docs + Nuclear add-on; sibling needs `LASTFM_API_*`).

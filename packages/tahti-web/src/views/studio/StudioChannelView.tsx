@@ -169,40 +169,71 @@ export function StudioChannelView() {
             search.tab ? `/studio/channel?tab=${search.tab}` : '/studio/channel'
           }
         />
+        {tab !== 'radio' ? (
+          <Tabs.Root
+            selectedIndex={Math.max(
+              0,
+              channelSectionTabs.findIndex((item) => item.id === tab),
+            )}
+            onChange={(index) => {
+              const next = channelSectionTabs[index];
+              if (!next) {
+                return;
+              }
+              setTab(next.id);
+              void navigate({
+                to: '/studio/channel',
+                search: { tab: next.id },
+              });
+            }}
+          >
+            <Tabs.List className="w-fit flex-wrap">
+              {channelSectionTabs.map((item) => (
+                <Tabs.Tab key={item.id}>
+                  <TabLabel icon={<item.icon size={14} />}>
+                    {item.label}
+                  </TabLabel>
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs.Root>
+        ) : (
+          <Tabs.Root
+            selectedIndex={Math.max(
+              0,
+              RADIO_SETTING_TABS.findIndex((item) => item.id === radioTab),
+            )}
+            onChange={(index) => {
+              const next = RADIO_SETTING_TABS[index];
+              if (!next) {
+                return;
+              }
+              setRadioTab(next.id);
+              if (next.id === 'multicast' || search.tab === 'multicast') {
+                void navigate({
+                  to: '/studio/channel',
+                  search: {
+                    tab: next.id === 'multicast' ? 'multicast' : 'radio',
+                  },
+                });
+              }
+            }}
+          >
+            <Tabs.List className="w-fit flex-wrap">
+              {RADIO_SETTING_TABS.map((item) => (
+                <Tabs.Tab key={item.id}>
+                  <TabLabel icon={<item.icon size={14} />}>
+                    {item.label}
+                  </TabLabel>
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs.Root>
+        )}
         <ViewShell
           title={tab === 'radio' ? 'Radio' : 'Channel'}
           classes={{ root: 'px-0 pt-0' }}
         >
-          {tab !== 'radio' ? (
-            <Tabs.Root
-              selectedIndex={Math.max(
-                0,
-                channelSectionTabs.findIndex((item) => item.id === tab),
-              )}
-              onChange={(index) => {
-                const next = channelSectionTabs[index];
-                if (!next) {
-                  return;
-                }
-                setTab(next.id);
-                void navigate({
-                  to: '/studio/channel',
-                  search: { tab: next.id },
-                });
-              }}
-            >
-              <Tabs.List className="w-fit flex-wrap">
-                {channelSectionTabs.map((item) => (
-                  <Tabs.Tab key={item.id}>
-                    <TabLabel icon={<item.icon size={14} />}>
-                      {item.label}
-                    </TabLabel>
-                  </Tabs.Tab>
-                ))}
-              </Tabs.List>
-            </Tabs.Root>
-          ) : null}
-
           {tab === 'setup' && !channel && (
             <StudioPanel title="Channel setup">
               <div className="flex flex-col items-start gap-3">
@@ -220,37 +251,6 @@ export function StudioChannelView() {
 
           {tab === 'radio' && (
             <div className="flex flex-col gap-4">
-              <Tabs.Root
-                selectedIndex={Math.max(
-                  0,
-                  RADIO_SETTING_TABS.findIndex((item) => item.id === radioTab),
-                )}
-                onChange={(index) => {
-                  const next = RADIO_SETTING_TABS[index];
-                  if (!next) {
-                    return;
-                  }
-                  setRadioTab(next.id);
-                  if (next.id === 'multicast' || search.tab === 'multicast') {
-                    void navigate({
-                      to: '/studio/channel',
-                      search: {
-                        tab: next.id === 'multicast' ? 'multicast' : 'radio',
-                      },
-                    });
-                  }
-                }}
-              >
-                <Tabs.List className="w-fit flex-wrap">
-                  {RADIO_SETTING_TABS.map((item) => (
-                    <Tabs.Tab key={item.id}>
-                      <TabLabel icon={<item.icon size={14} />}>
-                        {item.label}
-                      </TabLabel>
-                    </Tabs.Tab>
-                  ))}
-                </Tabs.List>
-              </Tabs.Root>
               {radioTab === 'stream' ? (
                 channel?.slug ? (
                   <>

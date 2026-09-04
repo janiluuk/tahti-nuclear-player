@@ -35,11 +35,7 @@ export function StatusView() {
   }, []);
 
   return (
-    <ViewShell
-      title="Status"
-      subtitle="Health of Tahti services."
-      classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
-    >
+    <ViewShell title="Status" classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}>
       {loading && (
         <p className="text-foreground-secondary text-sm">Checking…</p>
       )}

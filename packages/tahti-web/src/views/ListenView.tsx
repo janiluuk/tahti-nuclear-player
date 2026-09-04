@@ -175,26 +175,7 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
   };
 
   return (
-    <ViewShell
-      title="Listen"
-      subtitle={
-        signedIn
-          ? 'Continue listening, radio, and on-air channels.'
-          : 'Community radio and on-air channels. Sign in for your library.'
-      }
-      classes={{ root: 'px-0 pt-0 max-w-5xl' }}
-    >
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        {signedIn ? <ListenWidgetStoreDialog /> : null}
-        {!signedIn ? (
-          <Link to="/what-is-it">
-            <Button size="sm" variant="secondary">
-              What is tahti.live?
-            </Button>
-          </Link>
-        ) : null}
-      </div>
-
+    <div className="flex max-w-5xl flex-col gap-6">
       <Tabs.Root
         selectedIndex={Math.max(
           0,
@@ -215,241 +196,263 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
           ))}
         </Tabs.List>
       </Tabs.Root>
-
-      {tab === 'feed' ? <FeedView embedded /> : null}
-      {tab === 'history' ? <HistoryView embedded /> : null}
-
-      {tab === 'listen' ? (
-        <>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-            {lastPlayed ? (
-              <div className="sm:min-w-0 sm:flex-1">
-                <SectionShell title="Continue listening">
-                  <CardGrid>
-                    <Card
-                      title={lastPlayed.playable.title}
-                      subtitle={lastPlayed.playable.artist}
-                      src={
-                        lastPlayed.playable.coverUrl ??
-                        placeholderArtworkUrl(lastPlayed.playable.id)
-                      }
-                      onPlay={() => play(lastPlayed.playable)}
-                    />
-                  </CardGrid>
-                </SectionShell>
-              </div>
+      <ViewShell
+        title={
+          tab === 'feed' ? 'Feed' : tab === 'history' ? 'History' : 'Listen'
+        }
+        classes={{ root: 'px-0 pt-0' }}
+      >
+        {tab === 'listen' ? (
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            {signedIn ? <ListenWidgetStoreDialog /> : null}
+            {!signedIn ? (
+              <Link to="/what-is-it">
+                <Button size="sm" variant="secondary">
+                  What is tahti.live?
+                </Button>
+              </Link>
             ) : null}
-            <div className="sm:min-w-0 sm:flex-1">
-              <ListenerWidgetsSection />
-            </div>
           </div>
+        ) : null}
 
-          <DiscoWidgetsSection widgets={discoWidgets} />
+        {tab === 'feed' ? <FeedView embedded /> : null}
+        {tab === 'history' ? <HistoryView embedded /> : null}
 
-          {radio ? (
-            <Box
-              variant="secondary"
-              className="relative flex flex-wrap items-center justify-between gap-3 overflow-hidden"
-            >
-              {radioIsPlaying ? (
-                <div className="pointer-events-none absolute inset-0 opacity-45">
-                  <ChannelVisualizer
-                    preset={resolvePublicVisualizerPreset(radio.visualPreset)}
-                    colorScheme={radio.colorScheme}
-                    colorSchemeJson={radio.colorSchemeJson}
-                    visualSettingsJson={radio.visualSettingsJson}
-                    artworkUrl={radio.nowPlaying?.artworkUrl ?? undefined}
-                    className="h-full min-h-28 w-full"
-                  />
+        {tab === 'listen' ? (
+          <>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+              {lastPlayed ? (
+                <div className="sm:min-w-0 sm:flex-1">
+                  <SectionShell title="Continue listening">
+                    <CardGrid>
+                      <Card
+                        title={lastPlayed.playable.title}
+                        subtitle={lastPlayed.playable.artist}
+                        src={
+                          lastPlayed.playable.coverUrl ??
+                          placeholderArtworkUrl(lastPlayed.playable.id)
+                        }
+                        onPlay={() => play(lastPlayed.playable)}
+                      />
+                    </CardGrid>
+                  </SectionShell>
                 </div>
               ) : null}
-              <div className="relative z-10 flex min-w-0 items-start gap-3">
-                <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-bold tracking-tight">
-                  <ImageReveal
-                    src={radioLogo ?? undefined}
-                    alt=""
-                    className="size-full"
-                    placeholder={
-                      <RadioIcon
-                        size={20}
-                        className="text-foreground-secondary"
-                      />
-                    }
-                  />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-bold tracking-tight">
-                    {radioName}
-                  </div>
-                  <p className="text-foreground-secondary text-xs">
-                    {radio.hlsUrl
-                      ? (radio.nowPlaying?.title ?? '24/7 community stream')
-                      : 'Temporarily offline'}
-                    {radio.nowPlaying?.artistName
-                      ? ` · ${radio.nowPlaying.artistName}`
-                      : ''}
-                  </p>
-                </div>
+              <div className="sm:min-w-0 sm:flex-1">
+                <ListenerWidgetsSection />
               </div>
-              <div className="relative z-10 flex flex-wrap items-center gap-2">
-                <Tooltip
-                  content={radioIsPlaying ? 'Pause Radio' : 'Play Radio'}
-                  side="top"
-                >
-                  <Button
-                    size="icon-sm"
-                    disabled={!radio.hlsUrl}
-                    aria-label={radioIsPlaying ? 'Pause Radio' : 'Play Radio'}
-                    aria-pressed={radioIsPlaying}
-                    onClick={toggleRadioPlayback}
+            </div>
+
+            <DiscoWidgetsSection widgets={discoWidgets} />
+
+            {radio ? (
+              <Box
+                variant="secondary"
+                className="relative flex flex-wrap items-center justify-between gap-3 overflow-hidden"
+              >
+                {radioIsPlaying ? (
+                  <div className="pointer-events-none absolute inset-0 opacity-45">
+                    <ChannelVisualizer
+                      preset={resolvePublicVisualizerPreset(radio.visualPreset)}
+                      colorScheme={radio.colorScheme}
+                      colorSchemeJson={radio.colorSchemeJson}
+                      visualSettingsJson={radio.visualSettingsJson}
+                      artworkUrl={radio.nowPlaying?.artworkUrl ?? undefined}
+                      className="h-full min-h-28 w-full"
+                    />
+                  </div>
+                ) : null}
+                <div className="relative z-10 flex min-w-0 items-start gap-3">
+                  <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-bold tracking-tight">
+                    <ImageReveal
+                      src={radioLogo ?? undefined}
+                      alt=""
+                      className="size-full"
+                      placeholder={
+                        <RadioIcon
+                          size={20}
+                          className="text-foreground-secondary"
+                        />
+                      }
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold tracking-tight">
+                      {radioName}
+                    </div>
+                    <p className="text-foreground-secondary text-xs">
+                      {radio.hlsUrl
+                        ? (radio.nowPlaying?.title ?? '24/7 community stream')
+                        : 'Temporarily offline'}
+                      {radio.nowPlaying?.artistName
+                        ? ` · ${radio.nowPlaying.artistName}`
+                        : ''}
+                    </p>
+                  </div>
+                </div>
+                <div className="relative z-10 flex flex-wrap items-center gap-2">
+                  <Tooltip
+                    content={radioIsPlaying ? 'Pause Radio' : 'Play Radio'}
+                    side="top"
                   >
-                    {radioIsPlaying ? (
-                      <PauseIcon size={16} className="fill-current" />
-                    ) : (
-                      <PlayIcon size={16} className="fill-current" />
-                    )}
-                  </Button>
-                </Tooltip>
-                <Tooltip content="Open radio" side="top">
-                  <Link to="/radio">
                     <Button
                       size="icon-sm"
-                      variant="secondary"
-                      aria-label="Open radio"
+                      disabled={!radio.hlsUrl}
+                      aria-label={radioIsPlaying ? 'Pause Radio' : 'Play Radio'}
+                      aria-pressed={radioIsPlaying}
+                      onClick={toggleRadioPlayback}
                     >
-                      <RadioTowerIcon size={16} aria-hidden />
+                      {radioIsPlaying ? (
+                        <PauseIcon size={16} className="fill-current" />
+                      ) : (
+                        <PlayIcon size={16} className="fill-current" />
+                      )}
                     </Button>
-                  </Link>
-                </Tooltip>
-              </div>
-            </Box>
-          ) : null}
+                  </Tooltip>
+                  <Tooltip content="Open radio" side="top">
+                    <Link to="/radio">
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        aria-label="Open radio"
+                      >
+                        <RadioTowerIcon size={16} aria-hidden />
+                      </Button>
+                    </Link>
+                  </Tooltip>
+                </div>
+              </Box>
+            ) : null}
 
-          {radioPresets.length > 0 ? (
-            <SectionShell title="Radio">
-              <CardGrid>
-                {radioPresets.map((preset) => {
-                  const playableId = `radio-preset:${preset.id}`;
-                  const isCurrent = currentId === playableId;
-                  const isPlaying =
-                    isCurrent &&
-                    (playbackStatus === 'playing' ||
-                      playbackStatus === 'loading');
-                  return (
-                    <div key={preset.id} className="group relative w-fit">
-                      <RadioStationCoverEditButton
-                        label={preset.name}
-                        stationName={preset.name}
-                        catalogStationId={
-                          RADIO_STATIONS.find(
-                            (station) => station.name === preset.name,
-                          )?.id
-                        }
-                        presetId={preset.id}
-                        className="absolute top-3 left-3 z-10 rounded-full"
-                        onCoverChange={(iconUrl) =>
-                          setRadioPresets((current) =>
-                            current.map((item) =>
-                              item.id === preset.id
-                                ? { ...item, iconUrl }
-                                : item,
-                            ),
-                          )
-                        }
-                      />
+            {radioPresets.length > 0 ? (
+              <SectionShell title="Radio">
+                <CardGrid>
+                  {radioPresets.map((preset) => {
+                    const playableId = `radio-preset:${preset.id}`;
+                    const isCurrent = currentId === playableId;
+                    const isPlaying =
+                      isCurrent &&
+                      (playbackStatus === 'playing' ||
+                        playbackStatus === 'loading');
+                    return (
+                      <div key={preset.id} className="group relative w-fit">
+                        <RadioStationCoverEditButton
+                          label={preset.name}
+                          stationName={preset.name}
+                          catalogStationId={
+                            RADIO_STATIONS.find(
+                              (station) => station.name === preset.name,
+                            )?.id
+                          }
+                          presetId={preset.id}
+                          className="absolute top-3 left-3 z-10 rounded-full"
+                          onCoverChange={(iconUrl) =>
+                            setRadioPresets((current) =>
+                              current.map((item) =>
+                                item.id === preset.id
+                                  ? { ...item, iconUrl }
+                                  : item,
+                              ),
+                            )
+                          }
+                        />
+                        <Card
+                          title={preset.name}
+                          subtitle={preset.genre ?? 'Internet radio'}
+                          src={
+                            preset.iconUrl ?? placeholderArtworkUrl(playableId)
+                          }
+                          isPlaying={isPlaying}
+                          playDisabled={!preset.streamUrl}
+                          onPlay={() => {
+                            if (!preset.streamUrl) {
+                              return;
+                            }
+                            if (isCurrent) {
+                              setPlaybackStatus(
+                                isPlaying ? 'paused' : 'playing',
+                              );
+                              return;
+                            }
+                            play({
+                              id: playableId,
+                              kind: 'radio',
+                              title: preset.name,
+                              artist: preset.genre ?? 'Internet radio',
+                              coverUrl: preset.iconUrl ?? undefined,
+                              streamUrl: preset.streamUrl,
+                              protocol: 'https',
+                              sourceProvider: 'internet-radio',
+                            });
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </CardGrid>
+              </SectionShell>
+            ) : null}
+
+            {onAir.length > 0 ? (
+              <SectionShell title="On air">
+                <CardGrid>
+                  {onAir.map((channel) => {
+                    const channelIsCurrent =
+                      currentId === `live:${channel.slug}`;
+                    const channelIsPlaying =
+                      channelIsCurrent &&
+                      (playbackStatus === 'playing' ||
+                        playbackStatus === 'loading');
+                    return (
                       <Card
-                        title={preset.name}
-                        subtitle={preset.genre ?? 'Internet radio'}
-                        src={
-                          preset.iconUrl ?? placeholderArtworkUrl(playableId)
+                        key={channel.slug}
+                        title={
+                          <Link
+                            to="/channel/$slug"
+                            params={{ slug: channel.slug }}
+                            className="hover:underline"
+                          >
+                            {channel.user.displayName}
+                          </Link>
                         }
-                        isPlaying={isPlaying}
-                        playDisabled={!preset.streamUrl}
+                        subtitle={
+                          <span className="font-semibold">
+                            {channelIsPlaying
+                              ? 'Playing now'
+                              : channel.state === 'LIVE'
+                                ? 'Live now'
+                                : 'Replay'}
+                          </span>
+                        }
+                        src={
+                          channel.user.avatarUrl ??
+                          placeholderArtworkUrl(channel.slug)
+                        }
+                        isPlaying={channelIsPlaying}
                         onPlay={() => {
-                          if (!preset.streamUrl) {
+                          if (channelIsCurrent) {
+                            setPlaybackStatus(
+                              channelIsPlaying ? 'paused' : 'playing',
+                            );
                             return;
                           }
-                          if (isCurrent) {
-                            setPlaybackStatus(isPlaying ? 'paused' : 'playing');
-                            return;
-                          }
-                          play({
-                            id: playableId,
-                            kind: 'radio',
-                            title: preset.name,
-                            artist: preset.genre ?? 'Internet radio',
-                            coverUrl: preset.iconUrl ?? undefined,
-                            streamUrl: preset.streamUrl,
-                            protocol: 'https',
-                            sourceProvider: 'internet-radio',
+                          void playNow(channel.slug);
+                        }}
+                        onClick={() => {
+                          void navigate({
+                            to: '/channel/$slug',
+                            params: { slug: channel.slug },
                           });
                         }}
                       />
-                    </div>
-                  );
-                })}
-              </CardGrid>
-            </SectionShell>
-          ) : null}
-
-          {onAir.length > 0 ? (
-            <SectionShell title="On air">
-              <CardGrid>
-                {onAir.map((channel) => {
-                  const channelIsCurrent = currentId === `live:${channel.slug}`;
-                  const channelIsPlaying =
-                    channelIsCurrent &&
-                    (playbackStatus === 'playing' ||
-                      playbackStatus === 'loading');
-                  return (
-                    <Card
-                      key={channel.slug}
-                      title={
-                        <Link
-                          to="/channel/$slug"
-                          params={{ slug: channel.slug }}
-                          className="hover:underline"
-                        >
-                          {channel.user.displayName}
-                        </Link>
-                      }
-                      subtitle={
-                        <span className="font-semibold">
-                          {channelIsPlaying
-                            ? 'Playing now'
-                            : channel.state === 'LIVE'
-                              ? 'Live now'
-                              : 'Replay'}
-                        </span>
-                      }
-                      src={
-                        channel.user.avatarUrl ??
-                        placeholderArtworkUrl(channel.slug)
-                      }
-                      isPlaying={channelIsPlaying}
-                      onPlay={() => {
-                        if (channelIsCurrent) {
-                          setPlaybackStatus(
-                            channelIsPlaying ? 'paused' : 'playing',
-                          );
-                          return;
-                        }
-                        void playNow(channel.slug);
-                      }}
-                      onClick={() => {
-                        void navigate({
-                          to: '/channel/$slug',
-                          params: { slug: channel.slug },
-                        });
-                      }}
-                    />
-                  );
-                })}
-              </CardGrid>
-            </SectionShell>
-          ) : null}
-        </>
-      ) : null}
-    </ViewShell>
+                    );
+                  })}
+                </CardGrid>
+              </SectionShell>
+            ) : null}
+          </>
+        ) : null}
+      </ViewShell>
+    </div>
   );
 }
