@@ -2,6 +2,17 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-05 — Channel Designer background + playlists
+
+Folded from `channel-designer-background-playlists.md`.
+
+Layers Background row + page color; shorter presets; removed Tune-in
+actions and page Text overlay block. Add playlist from Studio library
+(multi); Look settings choose playlist + Tracklist vs Cards display.
+Shipped in tahti-web 0.0.78.
+
+---
+
 ## 2026-09-05 — Studio Stats charts + subtabs help layer
 
 Folded from `studio-stats-storybook-charts.md` and `studio-subtabs-help-layer.md`.
