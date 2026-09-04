@@ -153,6 +153,23 @@ describe('mergeLookExtrasPreferApi', () => {
       channelLinks: [{ label: 'Site', url: 'https://example.com' }],
     });
   });
+
+  it('lets API null win for scheme while keeping omitted cache keys', () => {
+    expect(
+      mergeLookExtrasPreferApi(
+        { usePlayerGradient: false, playerColorSchemeJson: null },
+        {
+          usePlayerGradient: true,
+          playerColorSchemeJson: '{"accent":"#fff"}',
+          backgroundVisualPreset: 'FAT_LINES',
+        },
+      ),
+    ).toEqual({
+      usePlayerGradient: false,
+      playerColorSchemeJson: null,
+      backgroundVisualPreset: 'FAT_LINES',
+    });
+  });
 });
 
 describe('channelLookExtrasFromVisual', () => {
@@ -191,36 +208,5 @@ describe('toChannelVisualApiPatch', () => {
     });
     expect(patch).not.toHaveProperty('textOverlayMode');
     expect(patch).not.toHaveProperty('textOverlayText');
-  });
-});
-
-describe('mergeLookExtrasPreferApi', () => {
-  it('lets API false/null win over cache true/string', () => {
-    expect(
-      mergeLookExtrasPreferApi(
-        { usePlayerGradient: false, playerColorSchemeJson: null },
-        {
-          usePlayerGradient: true,
-          playerColorSchemeJson: '{"accent":"#fff"}',
-          backgroundVisualPreset: 'FAT_LINES',
-        },
-      ),
-    ).toEqual({
-      usePlayerGradient: false,
-      playerColorSchemeJson: null,
-      backgroundVisualPreset: 'FAT_LINES',
-    });
-  });
-
-  it('keeps cache only for keys the API omits', () => {
-    expect(
-      mergeLookExtrasPreferApi(
-        { useBackgroundGradient: true },
-        { channelLinks: [{ label: 'Site', url: 'https://example.com' }] },
-      ),
-    ).toEqual({
-      useBackgroundGradient: true,
-      channelLinks: [{ label: 'Site', url: 'https://example.com' }],
-    });
   });
 });
