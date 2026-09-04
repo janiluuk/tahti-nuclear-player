@@ -2,6 +2,17 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-05 — Studio Stats charts + subtabs help layer
+
+Folded from `studio-stats-storybook-charts.md` and `studio-subtabs-help-layer.md`.
+
+- Stats: compact map + DayOfWeekChart/CalendarHeatmap, ListeningClock day
+  modal, Today/Custom ranges, TopList engagement units.
+- Subtabs sit under Studio/Admin/Listen nav; header blurbs moved to Help.
+- Sibling API: today/custom/hourly plays ([tahti-org#438](https://github.com/janiluuk/tahti-org/pull/438)).
+
+---
+
 ## 2026-09-05 — Registry runtime: Last.fm scrobble
 
 Folded from `docs/todo/registry-runtime-lastfm.md`.
