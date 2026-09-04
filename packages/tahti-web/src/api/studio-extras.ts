@@ -669,22 +669,44 @@ export async function fetchStatsPlays(
   }
 }
 
-/** Hourly play counts for a UTC day — mock until sibling exposes the series. */
+/** Hourly play counts for a UTC day (downloads + smart-link clicks). */
 export async function fetchStatsPlaysHourly(date: string): Promise<{
   data: number[];
   meta: FetchMeta;
 }> {
-  const seed = date.split('-').reduce((sum, part) => sum + Number(part), 0);
-  const hours = Array.from({ length: 24 }, (_, hour) => {
-    if (hour < 6) {
-      return Math.max(0, (seed + hour) % 4);
-    }
-    return 4 + ((seed * (hour + 3)) % 28);
-  });
-  return {
-    data: hours,
-    meta: { source: 'mock', reason: 'hourly series not on API yet' },
-  };
+  if (forceMock()) {
+    const seed = date.split('-').reduce((sum, part) => sum + Number(part), 0);
+    const hours = Array.from({ length: 24 }, (_, hour) => {
+      if (hour < 6) {
+        return Math.max(0, (seed + hour) % 4);
+      }
+      return 4 + ((seed * (hour + 3)) % 28);
+    });
+    return {
+      data: hours,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{
+      date: string;
+      hours: number[];
+      totalPlays: number;
+    }>(`/api/me/stats/plays/hourly?date=${encodeURIComponent(date)}`);
+    const hours = Array.isArray(data.hours) ? data.hours : [];
+    return {
+      data:
+        hours.length === 24
+          ? hours
+          : Array.from({ length: 24 }, (_, hour) => hours[hour] ?? 0),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return {
+      data: Array.from({ length: 24 }, () => 0),
+      meta: failMeta(err),
+    };
+  }
 }
 
 export async function fetchListenerGeo(
