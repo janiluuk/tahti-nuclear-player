@@ -16,6 +16,14 @@ export type MockUploadedSound = {
 const uploads = new Map<string, MockUploadedSound>();
 
 const STORAGE_KEY = 'tahti-mock-uploaded-sounds';
+const IDB_NAME = 'tahti-mock-uploaded-sounds-db';
+const IDB_STORE = 'files';
+const IDB_VERSION = 1;
+
+type PersistedMeta = Omit<MockUploadedSound, 'fileDataBase64' | 'objectUrl'> & {
+  objectUrl?: string;
+  hasFileBytes?: boolean;
+};
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
@@ -37,29 +45,98 @@ function base64ToUint8Array(base64: string): Uint8Array {
   return bytes;
 }
 
-function hydrateObjectUrl(row: MockUploadedSound): MockUploadedSound {
-  if (!row.fileDataBase64) {
-    return row;
+function openFileDb(): Promise<IDBDatabase | null> {
+  if (typeof indexedDB === 'undefined') {
+    return Promise.resolve(null);
   }
-  const bytes = base64ToUint8Array(row.fileDataBase64);
-  const blob = new Blob([bytes], {
-    type: row.mimeType || 'application/octet-stream',
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open(IDB_NAME, IDB_VERSION);
+      request.onerror = () => resolve(null);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE);
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+    } catch {
+      resolve(null);
+    }
   });
-  return { ...row, objectUrl: URL.createObjectURL(blob) };
+}
+
+async function idbPutFile(
+  id: string,
+  payload: { base64: string; mimeType: string },
+): Promise<void> {
+  const db = await openFileDb();
+  if (!db) {
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(payload, id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+    tx.onabort = () => resolve();
+  });
+  db.close();
+}
+
+async function idbGetFile(
+  id: string,
+): Promise<{ base64: string; mimeType: string } | null> {
+  const db = await openFileDb();
+  if (!db) {
+    return null;
+  }
+  const result = await new Promise<{ base64: string; mimeType: string } | null>(
+    (resolve) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const request = tx.objectStore(IDB_STORE).get(id);
+      request.onsuccess = () => {
+        const value = request.result as
+          | { base64: string; mimeType: string }
+          | undefined;
+        resolve(value ?? null);
+      };
+      request.onerror = () => resolve(null);
+    },
+  );
+  db.close();
+  return result;
+}
+
+function hydrateFromBase64(
+  row: MockUploadedSound,
+  base64: string,
+  mimeType?: string,
+): MockUploadedSound {
+  const bytes = base64ToUint8Array(base64);
+  const blob = new Blob([bytes], {
+    type: mimeType || row.mimeType || 'application/octet-stream',
+  });
+  return {
+    ...row,
+    fileDataBase64: base64,
+    mimeType: mimeType || row.mimeType,
+    objectUrl: URL.createObjectURL(blob),
+  };
 }
 
 export async function registerMockUploadedSound(
   sound: MockUploadedSound,
 ): Promise<MockUploadedSound> {
   let fileDataBase64 = sound.fileDataBase64;
-  let mimeType = sound.mimeType;
+  let mimeType = sound.mimeType || 'application/octet-stream';
   if (!fileDataBase64 && sound.objectUrl) {
     try {
       const response = await fetch(sound.objectUrl);
       const buffer = await response.arrayBuffer();
       fileDataBase64 = arrayBufferToBase64(buffer);
       mimeType =
-        mimeType ||
+        sound.mimeType ||
         response.headers.get('content-type') ||
         'application/octet-stream';
     } catch {
@@ -73,6 +150,9 @@ export async function registerMockUploadedSound(
   };
   uploads.set(row.id, row);
   persistIndex();
+  if (fileDataBase64) {
+    await idbPutFile(row.id, { base64: fileDataBase64, mimeType });
+  }
   return row;
 }
 
@@ -85,7 +165,35 @@ export function getMockUploadedSound(id: string): MockUploadedSound | null {
   if (!persisted) {
     return null;
   }
-  const hydrated = hydrateObjectUrl(persisted);
+  if (persisted.fileDataBase64) {
+    const hydrated = hydrateFromBase64(persisted, persisted.fileDataBase64);
+    uploads.set(hydrated.id, hydrated);
+    return hydrated;
+  }
+  return persisted;
+}
+
+export async function ensureMockUploadedSound(
+  id: string,
+): Promise<MockUploadedSound | null> {
+  const memory = uploads.get(id);
+  if (memory?.objectUrl) {
+    return memory;
+  }
+  const meta = readPersisted().find((row) => row.id === id) ?? null;
+  if (!meta) {
+    return null;
+  }
+  if (meta.fileDataBase64) {
+    const hydrated = hydrateFromBase64(meta, meta.fileDataBase64);
+    uploads.set(hydrated.id, hydrated);
+    return hydrated;
+  }
+  const file = await idbGetFile(id);
+  if (!file) {
+    return meta;
+  }
+  const hydrated = hydrateFromBase64(meta, file.base64, file.mimeType);
   uploads.set(hydrated.id, hydrated);
   return hydrated;
 }
@@ -96,9 +204,13 @@ export function listMockUploadedSounds(): MockUploadedSound[] {
     return fromMemory;
   }
   return readPersisted().map((row) => {
-    const hydrated = hydrateObjectUrl(row);
-    uploads.set(hydrated.id, hydrated);
-    return hydrated;
+    if (row.fileDataBase64) {
+      const hydrated = hydrateFromBase64(row, row.fileDataBase64);
+      uploads.set(hydrated.id, hydrated);
+      return hydrated;
+    }
+    void ensureMockUploadedSound(row.id);
+    return row;
   });
 }
 
@@ -118,20 +230,23 @@ function persistIndex(): void {
   if (typeof localStorage === 'undefined') {
     return;
   }
-  const rows = Array.from(uploads.values()).map((row) => ({
+  const rows: PersistedMeta[] = Array.from(uploads.values()).map((row) => ({
     id: row.id,
     title: row.title,
     filename: row.filename,
-    objectUrl: row.objectUrl,
     channelSlug: row.channelSlug,
     downloadsEnabled: row.downloadsEnabled,
     visibility: row.visibility,
     accessMode: row.accessMode ?? 'FREE',
     purchaseTierId: row.purchaseTierId ?? null,
-    fileDataBase64: row.fileDataBase64,
     mimeType: row.mimeType,
+    hasFileBytes: Boolean(row.fileDataBase64),
   }));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+  } catch {
+    // Quota (large WAVs live in IndexedDB); keep in-memory map.
+  }
 }
 
 function readPersisted(): MockUploadedSound[] {
@@ -143,8 +258,25 @@ function readPersisted(): MockUploadedSound[] {
     if (!raw) {
       return [];
     }
-    const parsed = JSON.parse(raw) as MockUploadedSound[];
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(raw) as Array<
+      MockUploadedSound & { hasFileBytes?: boolean }
+    >;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed.map((row) => ({
+      id: row.id,
+      title: row.title,
+      filename: row.filename,
+      objectUrl: row.objectUrl || '',
+      channelSlug: row.channelSlug,
+      downloadsEnabled: row.downloadsEnabled,
+      visibility: row.visibility,
+      accessMode: row.accessMode,
+      purchaseTierId: row.purchaseTierId,
+      mimeType: row.mimeType,
+      fileDataBase64: row.fileDataBase64,
+    }));
   } catch {
     return [];
   }

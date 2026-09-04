@@ -45,7 +45,7 @@ import {
   mockUnfollow,
   setMockSessionUser,
 } from './mock-session';
-import { getMockUploadedSound } from './mock-uploads';
+import { ensureMockUploadedSound, getMockUploadedSound } from './mock-uploads';
 import {
   allowMockFallback,
   apiErrorMeta,
@@ -373,6 +373,7 @@ export async function fetchTrackDetail(
   meta: FetchMeta;
 }> {
   if (forceMock()) {
+    await ensureMockUploadedSound(id);
     return {
       data: mockTrackDetail(id) ?? mockTrackDetailFromUpload(id),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
@@ -464,8 +465,8 @@ export async function fetchPublicArchiveDownload(
   { ok: true; url: string; filename?: string } | { ok: false; error: string }
 > {
   if (forceMock()) {
-    const uploaded = getMockUploadedSound(itemId);
-    if (uploaded) {
+    const uploaded = await ensureMockUploadedSound(itemId);
+    if (uploaded?.objectUrl) {
       return {
         ok: true,
         url: uploaded.objectUrl,
