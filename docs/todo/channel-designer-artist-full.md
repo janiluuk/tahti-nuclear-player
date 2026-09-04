@@ -25,8 +25,8 @@ look extras on `/api/me/channel/visual` and normalizes `channelLinksJson`.
 
 1. **Merge sibling [tahti-org#435](https://github.com/janiluuk/tahti-org/pull/435)**
    (`feat/channel-look-extras`); then drop localStorage as source of truth
-   (keep as cache until migration is live in all envs). Commit Nuclear
-   look-extras client wiring (`0.0.71`) once the API is on main / beta.
+   (keep as cache until migration is live in all envs). Nuclear client
+   wiring shipped as `0.0.71` (`56a2fcdeb`).
 2. **`textOverlay*` ↔ `textLayer*`** — still a separate text-layer PATCH;
    naming mismatch is intentional (designer vs API).
 3. E2E parity still targets `/channel/` more than `/u/:username`.

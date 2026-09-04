@@ -26,9 +26,9 @@ Storybook primitives: `TitleBar`, `TopBar`, `TahtiLogo`, `TrackTable`,
 | Epic | Scope | Status |
 | --- | --- | --- |
 | **F** | Player `TitleBar` + `TopBar` from Storybook; no Nuclear logo or wordmark | **F1 done** |
-| **A** | Right-rail Library tab, desktop-only, persist width, deep links later | A1 in progress |
+| **A** | Right-rail Library tab, desktop-only, persist width, deep links later | **A1–A3 done** (A4–A5 later) |
 | **B** | Metadata DB (schema, SQLite/IndexedDB, extract, search, thumbs) | not started |
-| **C** | Import + play (FilePicker/drag-drop, blob playback, folder watch native) | C1 in progress |
+| **C** | Import + play (FilePicker/drag-drop, blob playback, folder watch native) | **C1–C2 done** (C3 native later) |
 | **D** | Soulseek: legal, Configure (test→save→enable), native bridge, registry | D stub in progress |
 | **E** | Bulk ops, BPM/key filters, M3U/reveal-in-folder, virtualization, help | not started |
 
