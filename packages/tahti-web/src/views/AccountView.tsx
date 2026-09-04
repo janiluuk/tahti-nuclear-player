@@ -48,7 +48,6 @@ export function AccountView() {
     return (
       <ViewShell
         title="Account"
-        subtitle="Membership and subscriptions."
         classes={{ root: 'px-0 pt-0 mx-auto max-w-md' }}
       >
         <Link to="/login">
@@ -61,7 +60,6 @@ export function AccountView() {
   return (
     <ViewShell
       title="Account"
-      subtitle="Membership and subscriptions."
       classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
     >
       <div className="mb-4 flex flex-wrap items-center gap-2">

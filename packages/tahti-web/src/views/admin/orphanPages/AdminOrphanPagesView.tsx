@@ -33,11 +33,7 @@ export function AdminOrphanPagesView({ tab }: { tab?: AdminOrphanPageTabId }) {
     <AdminGate>
       <div className="admin-page-layout px-1 py-2">
         <AdminPageLayout current="/admin/orphan-pages">
-          <ViewShell
-            title="Orphan pages"
-            subtitle="Pages with no menu entry."
-            classes={{ root: 'px-0 pt-0 mx-auto max-w-5xl' }}
-          >
+          <div className="flex max-w-5xl flex-col gap-6">
             <Tabs.Root
               selectedIndex={selectedIndex < 0 ? 0 : selectedIndex}
               onChange={(index) => {
@@ -60,8 +56,13 @@ export function AdminOrphanPagesView({ tab }: { tab?: AdminOrphanPageTabId }) {
                 ))}
               </Tabs.List>
             </Tabs.Root>
-            {tabContent(active)}
-          </ViewShell>
+            <ViewShell
+              title="Orphan pages"
+              classes={{ root: 'px-0 pt-0 max-w-5xl' }}
+            >
+              {tabContent(active)}
+            </ViewShell>
+          </div>
         </AdminPageLayout>
       </div>
     </AdminGate>

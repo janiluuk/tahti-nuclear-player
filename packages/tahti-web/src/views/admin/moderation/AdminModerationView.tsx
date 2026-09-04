@@ -93,26 +93,21 @@ export function AdminModerationView({ tab }: { tab?: AdminModerationTabId }) {
           moderationPendingCount={pendingCount}
         >
           <div className="flex max-w-5xl flex-col gap-6">
-            <ViewShell
-              title="Moderation"
-              subtitle="Review queues the board triages day to day — support, beta access, radio, curation, reports, and roadmap."
-              classes={{ root: 'px-0 pt-0' }}
-            >
-              <ModerationTabs
-                activeId={
-                  ADMIN_MODERATION_TABS[selectedIndex < 0 ? 0 : selectedIndex]
-                    .id
-                }
-                items={MODERATION_TAB_ITEMS}
-                ariaLabel="Moderation queues"
-                onChange={(nextId) => {
-                  void navigate({
-                    to: '/admin/moderation/$tab',
-                    params: { tab: nextId as AdminModerationTabId },
-                    replace: true,
-                  });
-                }}
-              />
+            <ModerationTabs
+              activeId={
+                ADMIN_MODERATION_TABS[selectedIndex < 0 ? 0 : selectedIndex].id
+              }
+              items={MODERATION_TAB_ITEMS}
+              ariaLabel="Moderation queues"
+              onChange={(nextId) => {
+                void navigate({
+                  to: '/admin/moderation/$tab',
+                  params: { tab: nextId as AdminModerationTabId },
+                  replace: true,
+                });
+              }}
+            />
+            <ViewShell title="Moderation" classes={{ root: 'px-0 pt-0' }}>
               {tabContent(active)}
             </ViewShell>
           </div>

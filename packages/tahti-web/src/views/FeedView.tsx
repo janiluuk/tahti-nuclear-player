@@ -187,11 +187,7 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
     embedded ? (
       body
     ) : (
-      <ViewShell
-        title="Feed"
-        subtitle="Posts and releases from artists you follow."
-        classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
-      >
+      <ViewShell title="Feed" classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}>
         {body}
       </ViewShell>
     );

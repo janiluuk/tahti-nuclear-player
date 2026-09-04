@@ -27,7 +27,6 @@ export function VenueRegisterView() {
     return (
       <ViewShell
         title="Register a venue"
-        subtitle="Sign in to submit a venue for board review."
         classes={{ root: 'px-0 pt-0 mx-auto max-w-lg' }}
       >
         <Link
@@ -64,7 +63,6 @@ export function VenueRegisterView() {
   return (
     <ViewShell
       title="Register a venue"
-      subtitle="New venues are reviewed by the board before appearing publicly."
       classes={{ root: 'px-0 pt-0 mx-auto max-w-lg' }}
     >
       <Link

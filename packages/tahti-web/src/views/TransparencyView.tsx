@@ -52,7 +52,6 @@ export function TransparencyView() {
   return (
     <ViewShell
       title="Transparency"
-      subtitle="Public co-op ledger."
       classes={{
         root: 'px-0 pt-0 mx-auto max-w-4xl',
         scrollableArea: 'gap-8',

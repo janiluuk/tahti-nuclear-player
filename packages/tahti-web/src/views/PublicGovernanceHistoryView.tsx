@@ -21,7 +21,6 @@ export function PublicGovernanceHistoryView() {
   return (
     <ViewShell
       title="Governance history"
-      subtitle="Public results of closed advisory motions. These records are not binding AGM ballots."
       classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
     >
       <Link

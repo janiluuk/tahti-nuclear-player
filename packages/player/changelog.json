@@ -1,5 +1,17 @@
 [
   {
+    "date": "2026-09-05T00:40",
+    "description": "Studio page subtabs sit under the Studio nav like Stats, and page header blurbs moved into Help so titles stay short.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "Studio",
+        "color": "purple"
+      }
+    ]
+  },
+  {
     "date": "2026-09-05T00:15",
     "description": "Favorites is its own page in the sidebar, and artists live under Discover \u2014 Artists instead of on Listen.",
     "type": "improvement",

@@ -49,11 +49,7 @@ export function LibrarySmartLinksView() {
     <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/library/smartlinks" />
-        <ViewShell
-          title="Smartlinks"
-          subtitle="Give every release one public page with links to the services where listeners can hear it."
-          classes={{ root: 'px-0 pt-0' }}
-        >
+        <ViewShell title="Smartlinks" classes={{ root: 'px-0 pt-0' }}>
           <Link to="/studio/releases">
             <Button size="sm">New release</Button>
           </Link>

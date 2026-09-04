@@ -105,12 +105,6 @@ const DISCOVER_TABS: Array<{
   { id: 'venues', label: 'Venues', icon: MapPinIcon },
 ];
 
-const DISCOVER_SUBTITLES: Record<DiscoverTab, string> = {
-  discover: 'Widgets filtered by genre or type.',
-  artists: 'Browse community artists by name, genre, or type.',
-  venues: 'Verified venues in the community.',
-};
-
 export function DiscoverView() {
   const enabledWidgets = useDiscoverStore((s) => s.enabledWidgets);
   const genreFilter = useDiscoverStore((s) => s.genreFilter);
@@ -316,27 +310,7 @@ export function DiscoverView() {
   };
 
   return (
-    <ViewShell
-      title="Discover"
-      subtitle={DISCOVER_SUBTITLES[activeTab]}
-      classes={{ root: 'px-0 pt-0 max-w-5xl' }}
-    >
-      <header className="mb-4 flex flex-wrap items-center gap-2">
-        {activeTab === 'venues' ? (
-          <Link
-            to="/venues/register"
-            className="text-sm font-medium underline-offset-2 hover:underline"
-          >
-            Register a venue
-          </Link>
-        ) : activeTab === 'discover' ? (
-          <DiscoverAddWidgetButton
-            availableToAdd={availableToAdd}
-            onAdd={addWidget}
-          />
-        ) : null}
-      </header>
-
+    <div className="flex max-w-5xl flex-col gap-6">
       <Tabs.Root
         selectedIndex={Math.max(
           0,
@@ -363,169 +337,196 @@ export function DiscoverView() {
           ))}
         </Tabs.List>
       </Tabs.Root>
-
-      {activeTab === 'discover' ? (
-        <div className="flex flex-col gap-3">
-          <div
-            data-testid="discover-filters"
-            className="flex flex-wrap items-center gap-2"
-          >
-            <Button
-              size="sm"
-              variant="secondary"
-              aria-expanded={genresOpen}
-              onClick={() => setGenresOpen((open) => !open)}
+      <ViewShell title="Discover" classes={{ root: 'px-0 pt-0' }}>
+        <header className="mb-4 flex flex-wrap items-center gap-2">
+          {activeTab === 'venues' ? (
+            <Link
+              to="/venues/register"
+              className="text-sm font-medium underline-offset-2 hover:underline"
             >
-              <SlidersHorizontalIcon size={15} className="mr-1.5" aria-hidden />
-              Genres{genreFilter.length > 0 ? ` (${genreFilter.length})` : ''}
-              <ChevronDownIcon
-                size={15}
-                className={`ml-1.5 transition-transform ${genresOpen ? 'rotate-180' : ''}`}
-                aria-hidden
-              />
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              aria-expanded={contentTypesOpen}
-              onClick={() => setContentTypesOpen((open) => !open)}
-            >
-              <SlidersHorizontalIcon size={15} className="mr-1.5" aria-hidden />
-              Types
-              {contentTypeFilter.length > 0
-                ? ` (${contentTypeFilter.length})`
-                : ''}
-              <ChevronDownIcon
-                size={15}
-                className={`ml-1.5 transition-transform ${contentTypesOpen ? 'rotate-180' : ''}`}
-                aria-hidden
-              />
-            </Button>
-            <FilterChips
-              multiple
-              items={[{ id: 'unheard', label: 'Tracks I haven’t heard' }]}
-              selected={unheardOnly ? ['unheard'] : []}
-              onChange={(selected) =>
-                setUnheardOnly(selected.includes('unheard'))
-              }
+              Register a venue
+            </Link>
+          ) : activeTab === 'discover' ? (
+            <DiscoverAddWidgetButton
+              availableToAdd={availableToAdd}
+              onAdd={addWidget}
             />
+          ) : null}
+        </header>
+
+        {activeTab === 'discover' ? (
+          <div className="flex flex-col gap-3">
+            <div
+              data-testid="discover-filters"
+              className="flex flex-wrap items-center gap-2"
+            >
+              <Button
+                size="sm"
+                variant="secondary"
+                aria-expanded={genresOpen}
+                onClick={() => setGenresOpen((open) => !open)}
+              >
+                <SlidersHorizontalIcon
+                  size={15}
+                  className="mr-1.5"
+                  aria-hidden
+                />
+                Genres{genreFilter.length > 0 ? ` (${genreFilter.length})` : ''}
+                <ChevronDownIcon
+                  size={15}
+                  className={`ml-1.5 transition-transform ${genresOpen ? 'rotate-180' : ''}`}
+                  aria-hidden
+                />
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                aria-expanded={contentTypesOpen}
+                onClick={() => setContentTypesOpen((open) => !open)}
+              >
+                <SlidersHorizontalIcon
+                  size={15}
+                  className="mr-1.5"
+                  aria-hidden
+                />
+                Types
+                {contentTypeFilter.length > 0
+                  ? ` (${contentTypeFilter.length})`
+                  : ''}
+                <ChevronDownIcon
+                  size={15}
+                  className={`ml-1.5 transition-transform ${contentTypesOpen ? 'rotate-180' : ''}`}
+                  aria-hidden
+                />
+              </Button>
+              <FilterChips
+                multiple
+                items={[{ id: 'unheard', label: 'Tracks I haven’t heard' }]}
+                selected={unheardOnly ? ['unheard'] : []}
+                onChange={(selected) =>
+                  setUnheardOnly(selected.includes('unheard'))
+                }
+              />
+            </div>
+            {genresOpen ? (
+              <FilterChips
+                multiple
+                items={[
+                  { id: ALL_FILTER_ID, label: 'All' },
+                  ...PRESET_GENRES.map((g) => ({ id: g, label: g })),
+                ]}
+                selected={
+                  genreFilter.length > 0 ? genreFilter : [ALL_FILTER_ID]
+                }
+                onChange={(selected) =>
+                  setGenreFilter(selected.filter((id) => id !== ALL_FILTER_ID))
+                }
+              />
+            ) : null}
+            {contentTypesOpen ? (
+              <FilterChips
+                multiple
+                items={[{ id: ALL_FILTER_ID, label: 'All' }, ...CONTENT_TYPES]}
+                selected={
+                  contentTypeFilter.length > 0
+                    ? contentTypeFilter
+                    : [ALL_FILTER_ID]
+                }
+                onChange={(selected) =>
+                  setContentTypeFilter(
+                    selected.filter((id) => id !== ALL_FILTER_ID),
+                  )
+                }
+              />
+            ) : null}
           </div>
-          {genresOpen ? (
-            <FilterChips
-              multiple
-              items={[
-                { id: ALL_FILTER_ID, label: 'All' },
-                ...PRESET_GENRES.map((g) => ({ id: g, label: g })),
-              ]}
-              selected={genreFilter.length > 0 ? genreFilter : [ALL_FILTER_ID]}
-              onChange={(selected) =>
-                setGenreFilter(selected.filter((id) => id !== ALL_FILTER_ID))
-              }
-            />
-          ) : null}
-          {contentTypesOpen ? (
-            <FilterChips
-              multiple
-              items={[{ id: ALL_FILTER_ID, label: 'All' }, ...CONTENT_TYPES]}
-              selected={
-                contentTypeFilter.length > 0
-                  ? contentTypeFilter
-                  : [ALL_FILTER_ID]
-              }
-              onChange={(selected) =>
-                setContentTypeFilter(
-                  selected.filter((id) => id !== ALL_FILTER_ID),
-                )
-              }
-            />
-          ) : null}
-        </div>
-      ) : null}
+        ) : null}
 
-      {activeTab === 'discover' && newsFeeds.length > 0 ? (
-        <div className="mb-4 flex flex-col gap-4">
-          {newsFeeds.map((instance) => (
-            <NewsFeedWidget
-              key={instance.id}
-              instance={instance}
-              onRemove={() => removeNewsFeed(instance.id)}
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {activeTab === 'discover' && enabledWidgets.length > 0 && (
-        <div
-          className="grid gap-4 lg:grid-cols-3"
-          data-testid="discover-widget-columns"
-        >
-          {enabledWidgets.map((id, index) => {
-            const widgetData = data[id];
-            return (
-              <WidgetCard
-                key={id}
-                id={id}
-                title={WIDGET_LABELS[id]}
-                subtitle={widgetData?.subtitle}
-                loading={widgetData?.loading ?? true}
-                items={widgetData?.items ?? []}
-                collections={widgetData?.collections}
-                artist={widgetData?.artist}
-                showRank={TOP_LIST_WIDGET_IDS.has(id)}
-                emptyMessage={
-                  id === 'loved'
-                    ? 'No community-loved tracks yet.'
-                    : id === 'public-playlists'
-                      ? 'No public playlists match these filters yet.'
-                      : 'Nothing here yet.'
-                }
-                canMoveUp={index > 0}
-                canMoveDown={index < enabledWidgets.length - 1}
-                onMove={moveWidget}
-                onRemove={removeWidget}
-                isAdmin={isAdmin}
-                onSelectTrack={(track) => void selectTrack(track)}
-                settings={
-                  id === 'random-artist' ? (
-                    <Select
-                      label="Keep the same pick for"
-                      value={String(randomArtistRotationDays)}
-                      onValueChange={(value) =>
-                        setRandomArtistRotationDays(Number(value))
-                      }
-                      options={[
-                        { id: '1', label: '1 day' },
-                        { id: '3', label: '3 days' },
-                        { id: '7', label: '7 days' },
-                        { id: '14', label: '14 days' },
-                        { id: '30', label: '30 days' },
-                      ]}
-                    />
-                  ) : undefined
-                }
+        {activeTab === 'discover' && newsFeeds.length > 0 ? (
+          <div className="mb-4 flex flex-col gap-4">
+            {newsFeeds.map((instance) => (
+              <NewsFeedWidget
+                key={instance.id}
+                instance={instance}
+                onRemove={() => removeNewsFeed(instance.id)}
               />
-            );
-          })}
-        </div>
-      )}
+            ))}
+          </div>
+        ) : null}
 
-      {activeTab === 'artists' ? (
-        <DirectoryArtistsBrowser
-          artists={artists}
-          loading={artistsLoading}
-          liveIndicator="badge"
-        />
-      ) : null}
+        {activeTab === 'discover' && enabledWidgets.length > 0 && (
+          <div
+            className="grid gap-4 lg:grid-cols-3"
+            data-testid="discover-widget-columns"
+          >
+            {enabledWidgets.map((id, index) => {
+              const widgetData = data[id];
+              return (
+                <WidgetCard
+                  key={id}
+                  id={id}
+                  title={WIDGET_LABELS[id]}
+                  subtitle={widgetData?.subtitle}
+                  loading={widgetData?.loading ?? true}
+                  items={widgetData?.items ?? []}
+                  collections={widgetData?.collections}
+                  artist={widgetData?.artist}
+                  showRank={TOP_LIST_WIDGET_IDS.has(id)}
+                  emptyMessage={
+                    id === 'loved'
+                      ? 'No community-loved tracks yet.'
+                      : id === 'public-playlists'
+                        ? 'No public playlists match these filters yet.'
+                        : 'Nothing here yet.'
+                  }
+                  canMoveUp={index > 0}
+                  canMoveDown={index < enabledWidgets.length - 1}
+                  onMove={moveWidget}
+                  onRemove={removeWidget}
+                  isAdmin={isAdmin}
+                  onSelectTrack={(track) => void selectTrack(track)}
+                  settings={
+                    id === 'random-artist' ? (
+                      <Select
+                        label="Keep the same pick for"
+                        value={String(randomArtistRotationDays)}
+                        onValueChange={(value) =>
+                          setRandomArtistRotationDays(Number(value))
+                        }
+                        options={[
+                          { id: '1', label: '1 day' },
+                          { id: '3', label: '3 days' },
+                          { id: '7', label: '7 days' },
+                          { id: '14', label: '14 days' },
+                          { id: '30', label: '30 days' },
+                        ]}
+                      />
+                    ) : undefined
+                  }
+                />
+              );
+            })}
+          </div>
+        )}
 
-      {activeTab === 'venues' && <VenuesDirectory />}
+        {activeTab === 'artists' ? (
+          <DirectoryArtistsBrowser
+            artists={artists}
+            loading={artistsLoading}
+            liveIndicator="badge"
+          />
+        ) : null}
 
-      {selectedTrack && (
-        <DiscoverWaveformPlayer
-          selection={selectedTrack}
-          onClose={() => setSelectedTrack(null)}
-        />
-      )}
-    </ViewShell>
+        {activeTab === 'venues' && <VenuesDirectory />}
+
+        {selectedTrack && (
+          <DiscoverWaveformPlayer
+            selection={selectedTrack}
+            onClose={() => setSelectedTrack(null)}
+          />
+        )}
+      </ViewShell>
+    </div>
   );
 }
 
