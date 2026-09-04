@@ -45,6 +45,7 @@ import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { TimelineReactionBar } from '../components/TimelineReactionBar';
 import { resolveArtworkVisualizerPreset } from '../lib/artworkVisualizer';
 import { cn } from '../lib/cn';
+import { normalizeColorScheme } from '../lib/colorScheme';
 import {
   EMBED_PROVIDER_HEIGHT,
   EMBED_PROVIDER_LABEL,
@@ -193,6 +194,27 @@ export function TrackDetailView({
     [detail?.tracklist],
   );
 
+  const purchaseEntitled = useMemo(() => {
+    if (!detail || detail.accessMode !== 'PURCHASE' || !detail.purchaseTierId) {
+      return true;
+    }
+    if (user?.username === detail.channel.username) {
+      return true;
+    }
+    if (!isForceMock()) {
+      return false;
+    }
+    const subscribed = listMockSubscriptions().some(
+      (row) =>
+        row.artist.username === detail.channel.username &&
+        row.state === 'ACTIVE',
+    );
+    if (subscribed) {
+      return true;
+    }
+    return mockOwnsPurchaseTier(detail.purchaseTierId);
+  }, [detail, user?.id, user?.username, purchaseBump]);
+
   if (!playable) {
     if (loading) {
       return (
@@ -243,13 +265,7 @@ export function TrackDetailView({
   const clock = formatDuration(elapsed) || '0:00';
   const cover = playable.coverUrl ?? placeholderArtworkUrl(playable.id);
   const visualScheme = channel?.colorScheme
-    ? {
-        accent: channel.colorScheme.accent,
-        highlight: channel.colorScheme.highlight,
-        bg: channel.colorScheme.background,
-        text: channel.colorScheme.foreground,
-        muted: channel.colorScheme.muted,
-      }
+    ? normalizeColorScheme(channel.colorScheme)
     : undefined;
   // Per-track backdrop, set in Studio's track editor: a single image, a
   // gallery slideshow (same STATIC_SLIDESHOW mode + first-frame fidelity
@@ -370,27 +386,6 @@ export function TrackDetailView({
     link.click();
     link.remove();
   };
-
-  const purchaseEntitled = useMemo(() => {
-    if (!detail || detail.accessMode !== 'PURCHASE' || !detail.purchaseTierId) {
-      return true;
-    }
-    if (user?.username === detail.channel.username) {
-      return true;
-    }
-    if (!isForceMock()) {
-      return false;
-    }
-    const subscribed = listMockSubscriptions().some(
-      (row) =>
-        row.artist.username === detail.channel.username &&
-        row.state === 'ACTIVE',
-    );
-    if (subscribed) {
-      return true;
-    }
-    return mockOwnsPurchaseTier(detail.purchaseTierId);
-  }, [detail, user?.id, user?.username, purchaseBump]);
 
   const showBuyTrack =
     Boolean(detail?.accessMode === 'PURCHASE' && detail.purchaseTierId) &&
