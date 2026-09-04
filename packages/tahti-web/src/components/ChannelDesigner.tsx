@@ -37,11 +37,9 @@ import {
 } from '@tahti-player/ui';
 
 import {
-  BACKGROUND_VISUAL_PRESETS,
   BRAND_ACCENTS,
   channelLookExtrasFromPatch,
   channelLookExtrasFromVisual,
-  DEFAULT_COLOR_SCHEME,
   deleteChannelVisualPreset,
   fetchChannelVisual,
   fetchChannelVisualPresets,
@@ -102,13 +100,12 @@ import {
   visualizerMetadata,
   visualizerSupportsAudioReactive,
 } from '../plugins/visualizers';
-import { ColorSchemeFields } from './channel-designer/ColorSchemeFields';
 import {
-  HeaderStyleTabs,
+  BackdropPanel,
   resolveHeaderDesignMode,
   type HeaderDesignMode,
-} from './channel-designer/HeaderStyleTabs';
-import { PageBackgroundField } from './channel-designer/PageBackgroundField';
+} from './channel-designer';
+import { ColorSchemeFields } from './channel-designer/ColorSchemeFields';
 import { ChannelBackdropCard } from './ChannelBackdropCard';
 import { ChannelElementEditor } from './ChannelElementEditor';
 import { ChannelTextOverlayEditor } from './ChannelTextOverlayEditor';
@@ -925,78 +922,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       showVisualizerSettings &&
       !visualizerPickerOpen;
 
-    const brandAccentRow = (
-      <div className="flex flex-wrap gap-2">
-        {BRAND_ACCENTS.map((brand) => (
-          <button
-            key={brand.id}
-            type="button"
-            title={brand.label}
-            aria-label={brand.label}
-            aria-pressed={visual.brandAccentPreset === brand.id}
-            onClick={() =>
-              applyLocal(
-                { brandAccentPreset: brand.id },
-                {
-                  ...scheme,
-                  accent: brand.accent,
-                  highlight: brand.highlight,
-                },
-              )
-            }
-            className={`h-9 w-14 rounded-md border-2 transition-transform hover:scale-105 ${
-              visual.brandAccentPreset === brand.id
-                ? 'border-primary shadow-md'
-                : 'border-transparent'
-            }`}
-            style={{ background: brand.gradient }}
-          />
-        ))}
-      </div>
-    );
-
-    const accentPairFields = (
-      <div className="grid grid-cols-2 gap-2">
-        {(
-          [
-            ['accent', 'Accent'],
-            ['highlight', 'Highlight'],
-          ] as const
-        ).map(([key, label]) => (
-          <label
-            key={key}
-            className="border-border bg-background-secondary/40 flex items-center gap-2 rounded-lg border p-2 text-sm"
-          >
-            <input
-              type="color"
-              value={scheme[key] ?? DEFAULT_COLOR_SCHEME[key]}
-              onChange={(event) =>
-                applyLocal(
-                  { brandAccentPreset: null },
-                  { ...scheme, [key]: event.target.value },
-                )
-              }
-              className="h-8 w-9 cursor-pointer rounded border-0 bg-transparent"
-              aria-label={label}
-            />
-            <span className="min-w-0 truncate text-xs font-semibold">
-              {label}
-            </span>
-          </label>
-        ))}
-      </div>
-    );
-
-    const colorSchemeControls = (
-      <section className="flex flex-col gap-3">
-        {brandAccentRow}
-        <ColorSchemeFields
-          scheme={scheme}
-          onChange={(next) => applyLocal({ brandAccentPreset: null }, next)}
-        />
-      </section>
-    );
-
     const headerDesignMode: HeaderDesignMode = resolveHeaderDesignMode(
       visual.headerStyle,
       slideshowHeaderSelected,
@@ -1013,22 +938,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       setGalleryMode('NONE');
       applyLocal({ headerStyle: mode });
     };
-
-    const pageBackgroundField = (
-      <PageBackgroundField
-        scheme={scheme}
-        backgroundScheme={backgroundScheme}
-        useBackgroundGradient={visual.useBackgroundGradient ?? false}
-        onChange={(bg) => {
-          if (visual.useBackgroundGradient) {
-            setBackgroundScheme({ ...backgroundScheme, bg });
-            setDirty(true);
-            return;
-          }
-          applyLocal({ brandAccentPreset: null }, { ...scheme, bg });
-        }}
-      />
-    );
 
     const playerGradientControls = (
       <section className="flex flex-col gap-4">
@@ -1102,83 +1011,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             Header.
           </p>
         )}
-      </section>
-    );
-
-    const backgroundControls = (
-      <section className="flex flex-col gap-4">
-        <label className="border-border bg-background-secondary/40 flex items-start gap-3 rounded-lg border p-3 text-sm">
-          <Toggle
-            checked={visual.useBackgroundGradient ?? false}
-            onChange={(useBackgroundGradient) => {
-              if (useBackgroundGradient && !visual.backgroundColorSchemeJson) {
-                setBackgroundScheme(scheme);
-              }
-              applyLocal({ useBackgroundGradient });
-            }}
-            label="Use a separate background palette"
-            className="mt-0.5"
-          />
-          <span>
-            <span className="block font-semibold">
-              Full separate background palette
-            </span>
-            <span className="text-foreground-secondary block text-xs">
-              Optional — edit every background color independently of header
-              accents. The Background swatch above always works.
-            </span>
-          </span>
-        </label>
-        {visual.useBackgroundGradient ? (
-          <ColorSchemeFields
-            scheme={backgroundScheme}
-            onChange={(next) => {
-              setBackgroundScheme(next);
-              setDirty(true);
-            }}
-          />
-        ) : (
-          <p className="text-foreground-secondary text-xs">
-            The page currently matches the header colors. Turn on a separate
-            palette to style the background on its own.
-          </p>
-        )}
-        <div className="flex flex-col gap-2">
-          <Eyebrow>Background visualizer</Eyebrow>
-          <p className="text-foreground-secondary text-xs">
-            Ambient WebGL behind the artist and channel pages — separate from
-            the header/player visualizer.
-          </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {BACKGROUND_VISUAL_PRESETS.map((preset) => {
-              const meta = visualizerMetadata(preset);
-              const Icon = meta.Icon;
-              const selected =
-                (visual.backgroundVisualPreset ?? 'INTERACTIVE_POINTS') ===
-                preset;
-              return (
-                <button
-                  key={preset}
-                  type="button"
-                  title={meta.description}
-                  aria-label={`${preset.replace(/_/g, ' ')} background visualizer`}
-                  aria-pressed={selected}
-                  onClick={() => applyLocal({ backgroundVisualPreset: preset })}
-                  className={`border-border flex flex-col items-start gap-1 rounded-md border p-2 text-left text-xs transition-transform hover:scale-[1.02] ${
-                    selected
-                      ? 'border-primary bg-primary/10 ring-primary ring-1'
-                      : 'bg-background-secondary/40'
-                  }`}
-                >
-                  <Icon size={16} aria-hidden className="opacity-80" />
-                  <span className="font-semibold tracking-wide uppercase">
-                    {preset.replace(/_/g, ' ')}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </section>
     );
 
@@ -1357,133 +1189,116 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       </Tooltip>
     );
 
-    const headerControls = (
-      <section className="flex flex-col gap-3">
-        {pageBackgroundField}
-        <div className="flex items-center justify-between gap-3">
-          <Eyebrow>Header style</Eyebrow>
-          {hasBackdrop ? (
-            <Tooltip content="Remove backdrop" side="top">
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label="Remove backdrop"
-                onClick={removeBackdrop}
-              >
-                <Trash2Icon size={15} aria-hidden />
-              </Button>
-            </Tooltip>
-          ) : null}
+    const videoBackdropSlot = (
+      <div className="flex flex-col gap-3">
+        <div>
+          <Eyebrow>Video or image backdrop</Eyebrow>
+          <p className="text-foreground-secondary mt-1 text-xs">
+            Upload an MP4/WebM video or image, up to 10 MB.
+          </p>
         </div>
-        <HeaderStyleTabs
-          value={headerDesignMode}
-          onChange={setHeaderDesignMode}
-        />
-
-        {headerDesignMode === 'GRADIENT' ? (
-          <div className="flex flex-col gap-2">
-            <Eyebrow>Gradient colors</Eyebrow>
-            <p className="text-foreground-secondary text-xs">
-              Presets and colors for the gradient header.
-            </p>
-            {colorSchemeControls}
-          </div>
-        ) : null}
-
-        {headerDesignMode === 'SOLID' ? (
-          <div className="flex flex-col gap-2">
-            <Eyebrow>Solid colors</Eyebrow>
-            <p className="text-foreground-secondary text-xs">
-              Solid header uses the page background above. Tune accents here.
-            </p>
-            {brandAccentRow}
-            {accentPairFields}
-          </div>
-        ) : null}
-
-        {headerDesignMode === 'VIDEO_LOOP' ? (
-          <div className="flex flex-col gap-3">
-            <div>
-              <Eyebrow>Video or image backdrop</Eyebrow>
-              <p className="text-foreground-secondary mt-1 text-xs">
-                Upload an MP4/WebM video or image, up to 10 MB.
-              </p>
-            </div>
-            <div className="relative">
-              <FilePicker
-                accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-                disabled={busy}
-                selectedFiles={pendingVideoFile ? [pendingVideoFile] : []}
-                labels={{
-                  title: 'Choose a video or image',
-                  description:
-                    'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
-                  browse: 'Browse files',
-                }}
-                onFiles={selectVideoFile}
+        <div className="relative">
+          <FilePicker
+            accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
+            disabled={busy}
+            selectedFiles={pendingVideoFile ? [pendingVideoFile] : []}
+            labels={{
+              title: 'Choose a video or image',
+              description: 'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
+              browse: 'Browse files',
+            }}
+            onFiles={selectVideoFile}
+          />
+          <div className="absolute top-2 right-2">{videoUrlToggle}</div>
+        </div>
+        {videoUrlInput}
+        {(pendingVideoPreviewUrl || videoBackgroundUrl) && (
+          <div className="border-border bg-background relative overflow-hidden rounded-lg border">
+            {youtubeEmbedUrl(videoBackgroundUrl) && !pendingVideoPreviewUrl ? (
+              <iframe
+                title="YouTube backdrop preview"
+                src={youtubeEmbedUrl(videoBackgroundUrl) ?? undefined}
+                className="pointer-events-none aspect-video w-full"
+                allow="autoplay; encrypted-media"
               />
-              <div className="absolute top-2 right-2">{videoUrlToggle}</div>
-            </div>
-            {videoUrlInput}
-            {(pendingVideoPreviewUrl || videoBackgroundUrl) && (
-              <div className="border-border bg-background relative overflow-hidden rounded-lg border">
-                {youtubeEmbedUrl(videoBackgroundUrl) &&
-                !pendingVideoPreviewUrl ? (
-                  <iframe
-                    title="YouTube backdrop preview"
-                    src={youtubeEmbedUrl(videoBackgroundUrl) ?? undefined}
-                    className="pointer-events-none aspect-video w-full"
-                    allow="autoplay; encrypted-media"
-                  />
-                ) : headerBackdropIsImage ? (
-                  <img
-                    src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
-                    alt=""
-                    className="aspect-video w-full object-cover"
-                  />
-                ) : (
-                  <video
-                    src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
-                    muted
-                    loop
-                    autoPlay
-                    playsInline
-                    controls
-                    className="aspect-video w-full object-cover"
-                  />
-                )}
-              </div>
+            ) : headerBackdropIsImage ? (
+              <img
+                src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
+                alt=""
+                className="aspect-video w-full object-cover"
+              />
+            ) : (
+              <video
+                src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
+                muted
+                loop
+                autoPlay
+                playsInline
+                controls
+                className="aspect-video w-full object-cover"
+              />
             )}
-            {(pendingVideoFile || videoBackgroundUrl) && (
-              <Button
-                size="sm"
-                variant="secondary"
-                className="self-start"
-                onClick={clearVideo}
-              >
-                Remove backdrop
-              </Button>
-            )}
-            <div className="flex flex-col gap-2">
-              <Eyebrow>Accents</Eyebrow>
-              {brandAccentRow}
-              {accentPairFields}
-            </div>
           </div>
-        ) : null}
+        )}
+        {(pendingVideoFile || videoBackgroundUrl) && (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="self-start"
+            onClick={clearVideo}
+          >
+            Remove backdrop
+          </Button>
+        )}
+      </div>
+    );
 
-        {headerDesignMode === 'SLIDESHOW' ? (
-          <div className="flex flex-col gap-3">
-            <Eyebrow>Slideshow</Eyebrow>
-            {slideshowControls}
-            <div className="flex flex-col gap-2">
-              <Eyebrow>Accents</Eyebrow>
-              {brandAccentRow}
-              {accentPairFields}
-            </div>
-          </div>
-        ) : null}
-      </section>
+    const backdropPanel = (
+      <BackdropPanel
+        scheme={scheme}
+        backgroundScheme={backgroundScheme}
+        useBackgroundGradient={visual.useBackgroundGradient ?? false}
+        brandAccentPreset={visual.brandAccentPreset}
+        headerMode={headerDesignMode}
+        hasBackdrop={hasBackdrop}
+        backgroundVisualPreset={visual.backgroundVisualPreset}
+        onPageBackgroundChange={(bg) => {
+          if (visual.useBackgroundGradient) {
+            setBackgroundScheme({ ...backgroundScheme, bg });
+            setDirty(true);
+            return;
+          }
+          applyLocal({ brandAccentPreset: null }, { ...scheme, bg });
+        }}
+        onHeaderModeChange={setHeaderDesignMode}
+        onRemoveBackdrop={removeBackdrop}
+        onSchemeChange={(next) => applyLocal({ brandAccentPreset: null }, next)}
+        onBrandAccent={(brand) =>
+          applyLocal(
+            { brandAccentPreset: brand.id },
+            {
+              ...scheme,
+              accent: brand.accent,
+              highlight: brand.highlight,
+            },
+          )
+        }
+        onUseBackgroundGradient={(useBackgroundGradient) => {
+          if (useBackgroundGradient && !visual.backgroundColorSchemeJson) {
+            setBackgroundScheme(scheme);
+          }
+          applyLocal({ useBackgroundGradient });
+        }}
+        onBackgroundSchemeChange={(next) => {
+          setBackgroundScheme(next);
+          setDirty(true);
+        }}
+        onBackgroundVisualPreset={(preset) =>
+          applyLocal({ backgroundVisualPreset: preset })
+        }
+        videoSlot={videoBackdropSlot}
+        slideshowSlot={slideshowControls}
+      />
     );
 
     const visualizerItem = {
@@ -1945,15 +1760,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       },
       {
         id: 'backdrop' as const,
-        content: (
-          <div
-            id="channel-designer-section-header"
-            className="flex flex-col gap-6"
-          >
-            {headerControls}
-            {backgroundControls}
-          </div>
-        ),
+        content: backdropPanel,
       },
     ];
 

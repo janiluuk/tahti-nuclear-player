@@ -1,3 +1,13 @@
+## 2026-09-05 — Channel Designer BackdropPanel extract (0.0.81)
+
+**Status:** executed.
+
+Look → Background is `BackdropPanel` under `components/channel-designer/`
+(with BrandAccentSwatches, AccentPairFields, BackdropBackgroundExtras).
+Live ChannelDesigner wires it; Storybook
+`Tahti/Channel/Designer/BackdropPanel` covers each header style. Player
+panel extract is next on the storybook-elements todo.
+
 ## 2026-09-05 — Channel designer menu rebuild + Backdrop Storybook (0.0.80)
 
 **Status:** executed.
