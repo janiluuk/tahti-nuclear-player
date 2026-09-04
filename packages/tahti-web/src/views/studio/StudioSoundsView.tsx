@@ -127,7 +127,6 @@ export function StudioSoundsView() {
   const [uploadedTo, setUploadedTo] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [pinMessage, setPinMessage] = useState<string | null>(null);
   const [embedOpenId, setEmbedOpenId] = useState<string | null>(null);
   const [statsItem, setStatsItem] = useState<StudioSound | null>(null);
   const play = usePlayerStore((s) => s.play);
@@ -245,7 +244,7 @@ export function StudioSoundsView() {
     const result = await fetchStudioSoundDownload(item.id);
     setBusyId(null);
     if (!result.ok) {
-      setPinMessage(result.error);
+      toast.error(result.error);
       return;
     }
     const link = document.createElement('a');
@@ -259,12 +258,11 @@ export function StudioSoundsView() {
 
   const togglePin = async (item: StudioSound) => {
     const next = !isPinned(item);
-    setPinMessage(null);
     setBusyId(item.id);
     const result = await patchStudioSound(item.id, { pinned: next });
     setBusyId(null);
     if (!result.ok) {
-      setPinMessage(result.error);
+      toast.error(result.error);
       return;
     }
     setItems((prev) =>
@@ -396,15 +394,6 @@ export function StudioSoundsView() {
                     className="min-w-36"
                   />
                 </div>
-              )}
-
-              {pinMessage && (
-                <p
-                  className="text-foreground-secondary mb-3 text-sm"
-                  role="status"
-                >
-                  {pinMessage}
-                </p>
               )}
 
               {loading ? (

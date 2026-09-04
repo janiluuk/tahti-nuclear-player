@@ -1,6 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeftIcon, CalendarPlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Input, Select, Textarea, ViewShell } from '@tahti-player/ui';
 
@@ -19,7 +20,6 @@ export function StudioEventCreateView() {
   const [location, setLocation] = useState('');
   const [eventUrl, setEventUrl] = useState('');
   const [startAt, setStartAt] = useState('');
-  const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [venues, setVenues] = useState<VenueDirectoryItem[]>([]);
 
@@ -114,11 +114,6 @@ export function StudioEventCreateView() {
                 value={startAt}
                 onChange={(event) => setStartAt(event.target.value)}
               />
-              {message && (
-                <p className="text-accent-red text-sm" role="alert">
-                  {message}
-                </p>
-              )}
               <div className="flex flex-wrap gap-2">
                 <Link to="/studio/events">
                   <Button size="sm" variant="secondary">
@@ -131,7 +126,6 @@ export function StudioEventCreateView() {
                   disabled={!canSubmit || busy}
                   onClick={() => {
                     setBusy(true);
-                    setMessage(null);
                     void createEvent({
                       title: title.trim(),
                       description: description.trim(),
@@ -142,7 +136,7 @@ export function StudioEventCreateView() {
                     }).then((result) => {
                       setBusy(false);
                       if (!result.ok) {
-                        setMessage(result.error);
+                        toast.error(result.error);
                         return;
                       }
                       void navigate({ to: '/studio/events' });
