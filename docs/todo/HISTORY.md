@@ -2,6 +2,14 @@
 
 Completed task notes folded here so `docs/todo/` stays current.
 
+## 2026-09-05 — Favorites page + Discover artists
+
+Favorites is `/favorites` (standalone ViewShell). `/listen/favorites` and
+`/library/favorites` redirect. Artist browse (search / active / type /
+genres) is Discover → Artists (`DirectoryArtistsBrowser`); removed from
+Listen home.
+
+
 ## 2026-09-04 — Look extras API source of truth
 
 Sibling tahti-org#435 merged + prod migrated. Nuclear designer/artist/channel

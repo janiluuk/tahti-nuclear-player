@@ -202,7 +202,7 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
   {
     id: 'favorites-local',
     surface: 'Favorites / history',
-    route: '/listen/favorites',
+    route: '/favorites',
     status: 'partial',
     detail:
       'Listen Favorites and History persist in localStorage per account. Followed artists merge from GET /api/me/following; there is no server favorites library yet.',

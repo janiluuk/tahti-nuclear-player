@@ -87,7 +87,7 @@ const shots = [
   { id: 'history', path: '/history' },
   { id: 'listen-history', path: '/listen/history' },
   { id: 'favorites', path: '/favorites' },
-  { id: 'listen-favorites', path: '/listen/favorites' },
+  { id: 'listen-favorites', path: '/favorites' },
   { id: 'listener-dashboard', path: '/dashboard' },
   { id: 'account', path: '/account' },
   { id: 'messages', path: '/messages' },

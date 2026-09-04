@@ -30,6 +30,7 @@ import {
   EmbedCollectionView,
   EmbedReleaseView,
 } from './views/EmbedViews';
+import { FavoritesView } from './views/FavoritesView';
 import { FeedView } from './views/FeedView';
 import { ForgotPasswordView } from './views/ForgotPasswordView';
 import { GreenRoomView } from './views/GreenRoomView';
@@ -323,7 +324,9 @@ const listenFeedRoute = createRoute({
 const listenFavoritesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/listen/favorites',
-  component: () => <ListenView tab="favorites" />,
+  beforeLoad: () => {
+    throw redirect({ to: '/favorites' });
+  },
 });
 
 const listenHistoryRoute = createRoute({
@@ -758,7 +761,7 @@ const libraryFavoritesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/favorites',
   beforeLoad: () => {
-    throw redirect({ to: '/listen/favorites' });
+    throw redirect({ to: '/favorites' });
   },
 });
 
@@ -808,9 +811,7 @@ const messagesThreadRoute = createRoute({
 const favoritesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/favorites',
-  beforeLoad: () => {
-    throw redirect({ to: '/listen/favorites' });
-  },
+  component: FavoritesView,
 });
 
 const historyRoute = createRoute({

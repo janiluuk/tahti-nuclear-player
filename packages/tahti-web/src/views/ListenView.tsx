@@ -1,6 +1,5 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import {
-  ChevronDownIcon,
   HistoryIcon,
   ListMusicIcon,
   NewspaperIcon,
@@ -8,18 +7,15 @@ import {
   PlayIcon,
   RadioIcon,
   RadioTowerIcon,
-  SlidersHorizontalIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   Box,
   Button,
   Card,
   CardGrid,
-  FilterChips,
   ImageReveal,
-  Input,
   SectionShell,
   TabLabel,
   Tabs,
@@ -30,7 +26,6 @@ import {
 import { resolvePublicVisualizerPreset } from '../api/channel-design';
 import {
   fetchChannel,
-  fetchDirectory,
   fetchEnabledInternetRadioPresets,
   fetchOnAirChannels,
   fetchRadioStation,
@@ -42,18 +37,11 @@ import {
   fetchHomepageDiscoWidgets,
   type DiscoWidgetRenderItem,
 } from '../api/disco-widgets';
-import {
-  isDirectoryArtistActive,
-  type ChannelDirectoryItem,
-  type OnAirChannel,
-  type PublicChannel,
-} from '../api/types';
+import type { OnAirChannel, PublicChannel } from '../api/types';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
-import { DirectoryArtistCardGrid } from '../components/DirectoryArtistCardGrid';
 import { DiscoWidgetsSection } from '../components/disco-widgets/DiscoWidgetsSection';
 import { ListenerWidgetsSection } from '../components/ListenerWidgetsSection';
 import { ListenWidgetStoreDialog } from '../components/ListenWidgetStoreDialog';
-import { PageEmpty, PageLoading } from '../components/PageStates';
 import { RadioStationCoverEditButton } from '../components/RadioStationCover';
 import { RADIO_STATIONS } from '../content/radioStations';
 import { activeListenTab } from '../lib/navigationActive';
@@ -61,16 +49,11 @@ import { placeholderArtworkUrl } from '../lib/placeholderArt';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
-import { FavoritesView } from './FavoritesView';
 import { FeedView } from './FeedView';
 import { HistoryView } from './HistoryView';
 
-export type ListenTab = 'listen' | 'feed' | 'favorites' | 'history';
+export type ListenTab = 'listen' | 'feed' | 'history';
 
-// 'favorites' stays a valid ListenTab (reachable at /listen/favorites,
-// rendered below) but isn't in this list — Favorites already has its own
-// sidebar entry (AppShell.tsx), so showing it as a Listen tab too was
-// redundant.
 const LISTEN_SECTION_TABS = [
   { id: 'listen' as const, label: 'Listen', Icon: ListMusicIcon, to: '/' },
   {
@@ -87,31 +70,14 @@ const LISTEN_SECTION_TABS = [
   },
 ];
 
-// 'dj'/'producer'/'band' match the artist's self-selected roles
-// (ARTIST_ROLE_OPTIONS in views/settings/SettingsPanels.tsx); 'radio-host'
-// is computed instead — see ChannelDirectoryItem.hasActiveShows.
-const ARTIST_TYPE_OPTIONS = [
-  { id: 'dj', label: 'DJ' },
-  { id: 'producer', label: 'Producer' },
-  { id: 'band', label: 'Band' },
-  { id: 'radio-host', label: 'Radio host' },
-] as const;
-
 export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
   const navigate = useNavigate();
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
   const tab = activeListenTab(pathname) ?? tabProp;
-  const [items, setItems] = useState<ChannelDirectoryItem[]>([]);
   const [onAir, setOnAir] = useState<OnAirChannel[]>([]);
   const [radio, setRadio] = useState<PublicChannel | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState('');
-  const [genre, setGenre] = useState('all');
-  const [artistType, setArtistType] = useState('all');
-  const [activeOnly, setActiveOnly] = useState(false);
-  const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [discoWidgets, setDiscoWidgets] = useState<DiscoWidgetRenderItem[]>([]);
   const [radioPresets, setRadioPresets] = useState<
     EnabledInternetRadioPreset[]
@@ -126,17 +92,14 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     void Promise.all([
-      fetchDirectory(),
       fetchOnAirChannels(),
       fetchRadioStation().catch(() => null),
       fetchEnabledInternetRadioPresets(),
-    ]).then(([dir, channels, station, presets]) => {
+    ]).then(([channels, station, presets]) => {
       if (cancelled) {
         return;
       }
-      setItems(dir.data.items);
       const liveSlugs = new Set(
         channels.data.live.map((channel) => channel.slug),
       );
@@ -150,7 +113,6 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
       );
       setRadio(station?.data ?? null);
       setRadioPresets(presets.data);
-      setLoading(false);
     });
     return () => {
       cancelled = true;
@@ -183,97 +145,12 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
     };
   }, [signedIn]);
 
-  const genres = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const ch of items) {
-      for (const g of ch.genres) {
-        const key = g.trim();
-        if (!key) {
-          continue;
-        }
-        counts.set(key, (counts.get(key) ?? 0) + 1);
-      }
-    }
-    return [...counts.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .map(([name, count]) => ({ name, count }));
-  }, [items]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return items
-      .filter((ch) => {
-        if (activeOnly && !isDirectoryArtistActive(ch)) {
-          return false;
-        }
-        if (
-          genre !== 'all' &&
-          !ch.genres.some((g) => g.toLowerCase() === genre.toLowerCase())
-        ) {
-          return false;
-        }
-        if (artistType === 'radio-host' && !ch.hasActiveShows) {
-          return false;
-        }
-        if (
-          artistType !== 'all' &&
-          artistType !== 'radio-host' &&
-          !(ch.artistRoles ?? []).includes(artistType)
-        ) {
-          return false;
-        }
-        if (!q) {
-          return true;
-        }
-        return (
-          ch.displayName.toLowerCase().includes(q) ||
-          ch.username.toLowerCase().includes(q) ||
-          ch.genres.some((g) => g.toLowerCase().includes(q))
-        );
-      })
-      .sort((a, b) => {
-        const aActive = isDirectoryArtistActive(a);
-        const bActive = isDirectoryArtistActive(b);
-        if (aActive !== bActive) {
-          return aActive ? -1 : 1;
-        }
-        return a.displayName.localeCompare(b.displayName);
-      });
-  }, [items, query, genre, artistType, activeOnly]);
-
   const playNow = async (slug: string) => {
     const { playable } = await fetchChannel(slug);
     if (playable) {
       play(playable);
     }
   };
-
-  const chipItems = useMemo(
-    () => [
-      { id: 'all', label: `All (${items.length})` },
-      ...genres.map((g) => ({ id: g.name, label: `${g.name} (${g.count})` })),
-    ],
-    [genres, items.length],
-  );
-
-  const artistTypeChipItems = useMemo(
-    () => [
-      { id: 'all', label: `All types` },
-      ...ARTIST_TYPE_OPTIONS.map((option) => ({
-        id: option.id,
-        label: `${option.label} (${
-          option.id === 'radio-host'
-            ? items.filter((ch) => ch.hasActiveShows).length
-            : items.filter((ch) => (ch.artistRoles ?? []).includes(option.id))
-                .length
-        })`,
-      })),
-    ],
-    [items],
-  );
-
-  const activeFilterCount =
-    (genre !== 'all' ? 1 : 0) + (artistType !== 'all' ? 1 : 0);
 
   const radioLogo =
     radio?.user.avatarUrl ?? radio?.nowPlaying?.artworkUrl ?? null;
@@ -302,8 +179,8 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
       title="Listen"
       subtitle={
         signedIn
-          ? 'Community artists and radio.'
-          : 'Discover Tahti artists. Sign in for your library.'
+          ? 'Continue listening, radio, and on-air channels.'
+          : 'Community radio and on-air channels. Sign in for your library.'
       }
       classes={{ root: 'px-0 pt-0 max-w-5xl' }}
     >
@@ -340,7 +217,6 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
       </Tabs.Root>
 
       {tab === 'feed' ? <FeedView embedded /> : null}
-      {tab === 'favorites' ? <FavoritesView embedded /> : null}
       {tab === 'history' ? <HistoryView embedded /> : null}
 
       {tab === 'listen' ? (
@@ -572,86 +448,6 @@ export function ListenView({ tab: tabProp = 'listen' }: { tab?: ListenTab }) {
               </CardGrid>
             </SectionShell>
           ) : null}
-
-          <SectionShell title={signedIn ? 'Discover artists' : 'Artists'}>
-            <div className="flex flex-col gap-4">
-              <div className="border-border bg-background-secondary/40 flex flex-col gap-3 rounded-xl border p-3 sm:p-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Input
-                    label="Search"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Artist name, username, genre…"
-                    className="min-w-48 flex-1"
-                  />
-                  <button
-                    type="button"
-                    aria-pressed={activeOnly}
-                    onClick={() => setActiveOnly((prev) => !prev)}
-                    className={`inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
-                      activeOnly
-                        ? 'bg-foreground text-background border-foreground'
-                        : 'border-border text-foreground hover:bg-foreground/10 bg-transparent'
-                    }`}
-                  >
-                    Active now ({items.filter(isDirectoryArtistActive).length})
-                  </button>
-                  <button
-                    type="button"
-                    aria-expanded={filtersExpanded}
-                    onClick={() => setFiltersExpanded((prev) => !prev)}
-                    className="border-border text-foreground-secondary hover:text-foreground inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium transition-colors"
-                  >
-                    <SlidersHorizontalIcon size={14} aria-hidden />
-                    Filters
-                    {activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-                    <ChevronDownIcon
-                      size={14}
-                      aria-hidden
-                      className={`transition-transform ${filtersExpanded ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                  {genres.length > 0 && (
-                    <FilterChips
-                      items={chipItems}
-                      selected={genre}
-                      onChange={setGenre}
-                    />
-                  )}
-                </div>
-
-                {filtersExpanded && (
-                  <div className="border-border flex flex-col gap-3 border-t pt-3">
-                    <div>
-                      <p className="text-foreground-secondary mb-1.5 text-xs font-semibold tracking-wide uppercase">
-                        Artist type
-                      </p>
-                      <FilterChips
-                        items={artistTypeChipItems}
-                        selected={artistType}
-                        onChange={setArtistType}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <p className="text-foreground-secondary text-xs">
-                  Showing {filtered.length} of {items.length} artists
-                </p>
-              </div>
-
-              {loading ? (
-                <PageLoading label="Loading artists…" />
-              ) : filtered.length === 0 ? (
-                <PageEmpty
-                  title="No artists match"
-                  description={`${query ? `“${query}”` : 'Try another filter'}${genre !== 'all' ? ` in ${genre}` : ''}.`}
-                />
-              ) : (
-                <DirectoryArtistCardGrid artists={filtered} />
-              )}
-            </div>
-          </SectionShell>
         </>
       ) : null}
     </ViewShell>

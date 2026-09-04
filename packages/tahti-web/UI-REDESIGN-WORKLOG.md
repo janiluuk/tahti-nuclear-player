@@ -1,3 +1,14 @@
+## 2026-09-05 — Favorites page + Discover artists (0.0.75)
+
+**Status:** executed.
+
+`/favorites` renders standalone FavoritesView (sidebar). Old
+`/listen/favorites` and `/library/favorites` redirect there. Artist
+directory browse (search, active now, type, genres) moved to Discover →
+Artists via `DirectoryArtistsBrowser`; removed from Listen home.
+
+Todo: `docs/todo/favorites-page-discover-artists.md`.
+
 # UI redesign worklog — Nuclear (artist + admin)
 
 ## 2026-09-04 — Look extras: API wins over localStorage (0.0.74)

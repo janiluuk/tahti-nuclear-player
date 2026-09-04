@@ -701,7 +701,7 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
             label: 'Open the audio editor for a track',
             to: '/studio/sounds/$id/editor',
           },
-          { label: 'Open Favorites', to: '/listen/favorites' },
+          { label: 'Open Favorites', to: '/favorites' },
           { label: 'Open History', to: '/listen/history' },
         ],
         old: {
@@ -867,15 +867,14 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         id: 'listener-favorites',
         title: 'Favorites',
         viewName: 'Favorites',
-        caption:
-          'Saved channels and tracks. Sidebar and Listen tab both land here.',
+        caption: 'Saved channels and tracks. Own sidebar entry at /favorites.',
         actions: [
           'Play a favorited track or channel',
           'Remove a favorite',
-          'Switch Listen section tabs',
+          'Browse artists from Discover',
         ],
         goesTo: [
-          { label: 'Open Listen directory', to: '/' },
+          { label: 'Browse artists', to: '/discover?tab=artists' },
           { label: 'Open a channel', to: '/channel/$slug' },
           { label: 'Open Radio', to: '/radio' },
         ],
@@ -886,8 +885,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         },
         new: {
           image: '/map/nuclear/favorites.png',
-          route: '/listen/favorites',
-          caption: 'Nuclear Favorites (Listen tab + sidebar)',
+          route: '/favorites',
+          caption: 'Nuclear Favorites (sidebar page)',
         },
       },
       {

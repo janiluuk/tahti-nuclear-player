@@ -41,11 +41,11 @@ export function FavoritesView({ embedded = false }: { embedded?: boolean }) {
         {favoriteChannels.length === 0 && radioFavorites.length === 0 ? (
           <PageEmpty
             title="No favorite channels"
-            description="Heart one from Listen or a channel page."
+            description="Heart one from Discover → Artists or a channel page."
             action={
-              <Link to="/">
+              <Link to="/discover" search={{ tab: 'artists' }}>
                 <Button size="sm" variant="secondary">
-                  Browse Listen
+                  Browse artists
                 </Button>
               </Link>
             }

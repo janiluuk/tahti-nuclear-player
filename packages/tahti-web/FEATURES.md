@@ -112,8 +112,8 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 
 | Feature | Prod | POC | Status | Notes |
 |---------|------|-----|--------|-------|
-| Follow / following | profile | `/listen/favorites` | `live-api` | |
-| Local favorites / history | — | `/listen/favorites`, `/listen/history` | `partial` | localStorage + follows |
+| Follow / following | profile | `/favorites` | `live-api` | |
+| Local favorites / history | — | `/favorites`, `/listen/history` | `partial` | localStorage + follows |
 | Add to playlist | mini-player / archive | player bar + Music + tables | `live-api` | create playlist + add archive item |
 | Fan subscribe | `/u/:user/subscribe` | `/subscribe/$username` | `live-api` | demock wave 4; mock activates only under FORCE_MOCK |
 | My subscriptions | account | `/settings/money` | `live-api` | |

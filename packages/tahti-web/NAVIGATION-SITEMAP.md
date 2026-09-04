@@ -19,7 +19,7 @@ editor. See root `AGENTS.md` → Persistent chrome visibility.
 | Everyone | Listen | Desktop sidebar, mobile drawer, mobile bottom | `/` |
 | Everyone | Radio | Desktop sidebar, mobile drawer, mobile bottom | `/radio` |
 | Everyone | Discover | Desktop sidebar, mobile drawer, mobile bottom | `/discover` |
-| Everyone | Favorites | Desktop sidebar, mobile drawer | `/listen/favorites` |
+| Everyone | Favorites | Desktop sidebar, mobile drawer | `/favorites` |
 | Everyone | Help center | Desktop sidebar (with Settings), mobile drawer | `/help` |
 | Everyone | Settings | Desktop sidebar / mobile drawer (opens modal) | `ConnectedSettingsModal`; bookmarkable `/settings/$section` |
 | Signed in | Library | Studio horizontal tab + mobile bottom | `/library` |
@@ -50,8 +50,8 @@ Signed-in desktop right rail tabs: Chat, Notifications, Queue, Library
 | --- | --- | --- | --- |
 | Everyone | Listen | `/`, `/listen`, `/channel/$slug`, `/u/$username`, `/u/$username/c/$slug`, `/r/$slug`, `/t/$id` | Public playback destinations. `/feed` and `/listen/feed` / `/listen/history` are contextual from Listen, not chrome items. |
 | Everyone | Radio | `/radio`, `/radio/show/$channelSlug` | `/schedule` is **not** a Radio chrome item (see orphans). |
-| Everyone | Discover | `/discover` | |
-| Everyone | Favorites | `/listen/favorites`, `/library/favorites`, `/favorites` | Aliases share the same surface. |
+| Everyone | Discover | `/discover`, `/discover?tab=artists`, `/discover?tab=venues` | Artists and venues are Discover subtabs. |
+| Everyone | Favorites | `/favorites` | `/listen/favorites` and `/library/favorites` redirect here. |
 | Everyone | Help | `/help`, `/help/$slug` | Sidebar / drawer. Articles also reach `/status`, `/news`, `/whats-new`, legal pages, and `/transparency`. |
 | Signed in | Library | `/library`, `/library/sounds`, `/library/collections` (+ `?tab=` recordings/media/stash/embeds), `/library/upload`, `/studio/releases`, `/studio/editor` | Studio horizontal tabs. `/library*` routes stay. `/library/recordings` and `/library/media` alias into collections tabs. Mobile bottom nav still has Library. |
 | Artist | Studio | `/studio`, `/studio/branding`, `/studio/stats`, `/studio/governance`, `/studio/updates`, `/studio/revenue`, `/studio/stripe`, `/library*` | Stripe submenu only when `stripeConfigured`. Studio stays selected on Library routes. |
@@ -115,8 +115,9 @@ mapping (2026-09-03) and the earlier atlas-diagram findings.
   `/admin/map`).
 - Studio detail pages and Admin queue/detail pages are intentionally
   contextual.
-- Favorites live at `/listen/favorites` (sidebar). `/library/favorites`
-  still redirects there. Library no longer has a left-side favorites panel.
+- Favorites live at `/favorites` (sidebar). `/listen/favorites` and
+  `/library/favorites` redirect there. Library no longer has a left-side
+  favorites panel. Artists browse under Discover → Artists.
 - Public utility pages (`/status`, `/transparency*`, legal, `/whats-new`,
   `/news`) are reached from Help or parent pages, not from Listen chrome.
 - Member governance is Settings → Account → Governance (`/governance`), not

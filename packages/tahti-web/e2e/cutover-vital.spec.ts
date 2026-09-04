@@ -663,17 +663,16 @@ test('listen chrome lights Listen on child tabs and Favorites alone on favorites
     'true',
   );
 
-  await page.goto('/listen/favorites');
+  await page.goto('/favorites');
+  await expect(page).toHaveURL(/\/favorites$/);
   await expect(
     sidebar.getByRole('link', { name: 'Favorites' }),
   ).toHaveAttribute('aria-current', 'page');
   await expect(
     sidebar.getByRole('link', { name: 'Listen' }),
   ).not.toHaveAttribute('aria-current', 'page');
-  await expect(page.getByRole('tab', { name: 'Favorites' })).toHaveAttribute(
-    'aria-selected',
-    'true',
-  );
+  await expect(page.getByRole('heading', { name: 'Favorites' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Listen' })).toHaveCount(0);
 });
 
 test('artist creates a four-image promotion kit and another user can download the same kit from the artist page', async ({

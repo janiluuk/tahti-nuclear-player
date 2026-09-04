@@ -1,5 +1,17 @@
 [
   {
+    "date": "2026-09-05T00:15",
+    "description": "Favorites is its own page in the sidebar, and artists live under Discover \u2014 Artists instead of on Listen.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "Listen",
+        "color": "blue"
+      }
+    ]
+  },
+  {
     "date": "2026-09-04T23:50",
     "description": "Channel Designer look settings from the server now win over an older browser cache on your artist and channel pages.",
     "type": "fix",

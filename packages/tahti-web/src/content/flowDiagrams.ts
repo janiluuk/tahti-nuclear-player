@@ -110,7 +110,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Public --> Radio["/radio"]
   Public --> Discover["/discover"]
   Public --> Feed["/listen/feed"]
-  Public --> Favorites["/listen/favorites"]
+  Public --> Favorites["/favorites"]
   Public --> History["/listen/history"]
   Public --> Channel["/channel/$slug"]
   Public --> Artist["/u/$username"]
@@ -641,7 +641,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     D["/discover"]
     C["/channel/:slug"]
     U["/u/:username"]
-    LF["/listen/favorites"]
+    LF["/favorites"]
     LH["/listen/history"]
   end
 
@@ -693,7 +693,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Entry["beta.tahti.live"]:::pub --> Listen["Listen · / · /listen"]:::pub
   Listen --> Radio["Radio · /radio"]:::pub
   Listen --> Discover["Discover · /discover"]:::pub
-  Listen --> Fav["Favorites · /listen/favorites"]:::pub
+  Listen --> Fav["Favorites · /favorites"]:::pub
   Listen --> Channel["Channel · /c/:slug → /channel/:slug"]:::pub
   Listen --> Profile["Artist · /u/:username"]:::pub
   Listen --> Feed["Feed · /listen/feed"]:::auth
@@ -735,7 +735,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   A([Open beta.tahti.live]) --> L["/ Listen"]
   L --> R["/radio"]
   L --> D["/discover"]
-  L --> Fav["/listen/favorites"]
+  L --> Fav["/favorites"]
   L --> Feed["/listen/feed"]
   L --> Hist["/listen/history"]
   L --> St["/studio · StudioGate sign-in prompt"]
@@ -769,7 +769,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   Auth["/join · /login · TOTP"] --> L["/ Listen"]
   L --> Lib["/library"]
   L --> Feed["/listen/feed"]
-  L --> Fav["/listen/favorites"]
+  L --> Fav["/favorites"]
   L --> Hist["/listen/history"]
   L --> Sub["/subscribe/:artist"]
   L --> Acc["Settings → Account"]
@@ -1018,7 +1018,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     mermaid: `flowchart TD
   Auth --> Lib["/library"]
   Auth --> Feed["/listen/feed"]
-  Auth --> LF["/listen/favorites · /listen/history"]
+  Auth --> LF["/favorites · /listen/history"]
   Auth --> Sub["/subscribe/:artist → Stripe"]
   Auth --> DM["/messages"]
   Auth --> Acc["Settings → Account"]

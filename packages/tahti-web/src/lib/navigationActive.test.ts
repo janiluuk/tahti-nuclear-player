@@ -74,7 +74,8 @@ describe('navigation active states', () => {
   it('selects the matching Listen section tab', () => {
     expect(activeListenTab('/')).toBe('listen');
     expect(activeListenTab('/listen/feed')).toBe('feed');
-    expect(activeListenTab('/listen/favorites')).toBe('favorites');
+    expect(activeListenTab('/favorites')).toBeNull();
+    expect(activeListenTab('/listen/favorites')).toBeNull();
     expect(activeListenTab('/listen/history')).toBe('history');
     expect(activeListenTab('/radio')).toBeNull();
   });

@@ -227,11 +227,11 @@ export function FeedView({ embedded = false }: { embedded?: boolean }) {
           }
           description={
             followingCount === 0
-              ? 'Discover artists on Listen, then follow them to fill this feed.'
+              ? 'Discover artists under Discover → Artists, then follow them to fill this feed.'
               : 'New posts, tracks, and releases from artists you follow will show up here.'
           }
           action={
-            <Link to="/">
+            <Link to="/discover" search={{ tab: 'artists' }}>
               <Button size="sm" variant="secondary">
                 Discover artists
               </Button>

@@ -118,7 +118,7 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
           </div>
           <div data-tour-id="nav-favorites">
             <SidebarNavigationItem
-              to="/listen/favorites"
+              to="/favorites"
               icon={<HeartIcon size={16} />}
               label="Favorites"
               isSelected={sidebarActive === 'favorites'}
@@ -241,11 +241,12 @@ export function AppShell() {
   });
   // High-frequency in-section navigation: skips the remount-driven
   // transition so clicking around doesn't flicker or feel delayed. Covers
-  // Studio/Admin/Library plus the Listen tabs (Listen/Feed/Favorites/
-  // History), which all re-declare the same persistent chrome per click.
+  // Studio/Admin/Library plus the Listen tabs (Listen/Feed/History),
+  // which all re-declare the same persistent chrome per click.
   const fastNavigationRoute =
     /^\/(studio|admin|library)(\/|$)/.test(pathname) ||
-    /^\/$|^\/listen(?:\/|$)/.test(pathname);
+    /^\/$|^\/listen(?:\/|$)/.test(pathname) ||
+    pathname === '/favorites';
   const currentTrackId = usePlayerStore((state) => state.currentId);
   const playerQueue = usePlayerStore((state) => state.queue);
   const playerStatus = usePlayerStore((state) => state.status);

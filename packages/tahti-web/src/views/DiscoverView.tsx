@@ -41,10 +41,9 @@ import type {
   DiscoverTrackItem,
   TahtiPlayable,
 } from '../api/types';
-import { DirectoryArtistCardGrid } from '../components/DirectoryArtistCardGrid';
+import { DirectoryArtistsBrowser } from '../components/DirectoryArtistsBrowser';
 import { WidgetCard } from '../components/discover/WidgetCard';
 import { NewsFeedWidget } from '../components/NewsFeedWidget';
-import { PageEmpty, PageLoading } from '../components/PageStates';
 import { WaveformSeekbar } from '../components/tahti/WaveformSeekbar';
 import { VenuesDirectory } from '../components/VenuesDirectory';
 import { CONTENT_TYPES } from '../content/contentTypes';
@@ -108,7 +107,7 @@ const DISCOVER_TABS: Array<{
 
 const DISCOVER_SUBTITLES: Record<DiscoverTab, string> = {
   discover: 'Widgets filtered by genre or type.',
-  artists: 'Artists from the Listen directory.',
+  artists: 'Browse community artists by name, genre, or type.',
   venues: 'Verified venues in the community.',
 };
 
@@ -168,18 +167,6 @@ export function DiscoverView() {
       cancelled = true;
     };
   }, [contentTypeFilter, genreFilter, randomArtistRotationDays, unheardOnly]);
-
-  const filteredArtists = useMemo(() => {
-    if (genreFilter.length === 0) {
-      return artists;
-    }
-    const selectedGenres = new Set(
-      genreFilter.map((genre) => genre.toLowerCase()),
-    );
-    return artists.filter((artist) =>
-      artist.genres.some((genre) => selectedGenres.has(genre.toLowerCase())),
-    );
-  }, [artists, genreFilter]);
 
   useEffect(() => {
     if (!unheardOnly) {
@@ -377,7 +364,7 @@ export function DiscoverView() {
         </Tabs.List>
       </Tabs.Root>
 
-      {activeTab !== 'venues' ? (
+      {activeTab === 'discover' ? (
         <div className="flex flex-col gap-3">
           <div
             data-testid="discover-filters"
@@ -522,12 +509,13 @@ export function DiscoverView() {
         </div>
       )}
 
-      {activeTab === 'artists' && (
-        <DiscoverArtistsGrid
-          artists={filteredArtists}
+      {activeTab === 'artists' ? (
+        <DirectoryArtistsBrowser
+          artists={artists}
           loading={artistsLoading}
+          liveIndicator="badge"
         />
-      )}
+      ) : null}
 
       {activeTab === 'venues' && <VenuesDirectory />}
 
@@ -579,36 +567,6 @@ function DiscoverAddWidgetButton({
         ))}
       </Popover.Menu>
     </Popover>
-  );
-}
-
-function DiscoverArtistsGrid({
-  artists,
-  loading,
-}: {
-  artists: ChannelDirectoryItem[];
-  loading: boolean;
-}) {
-  if (loading) {
-    return <PageLoading label="Loading artists…" />;
-  }
-
-  if (artists.length === 0) {
-    return (
-      <PageEmpty
-        title="No artists match"
-        description="Try another Discover filter, or browse Listen for the full directory."
-      />
-    );
-  }
-
-  return (
-    <section className="flex flex-col gap-3" aria-label="Discover artists">
-      <p className="text-foreground-secondary text-xs tabular-nums">
-        {artists.length} artists
-      </p>
-      <DirectoryArtistCardGrid artists={artists} liveIndicator="badge" />
-    </section>
   );
 }
 

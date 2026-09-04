@@ -124,7 +124,7 @@ describe('DiscoverView', () => {
     expect(container.textContent).toContain('Register a venue');
   });
 
-  it('keeps filters on artists and hides add-widget', async () => {
+  it('keeps filters on artists browse and hides widget add control', async () => {
     const { container } = await renderDiscover('/discover?tab=artists');
 
     expect(
@@ -132,6 +132,9 @@ describe('DiscoverView', () => {
     ).toBeNull();
     expect(
       container.querySelector('[data-testid="discover-filters"]'),
+    ).toBeNull();
+    expect(
+      container.querySelector('[aria-label="Browse artists"]'),
     ).not.toBeNull();
   });
 });

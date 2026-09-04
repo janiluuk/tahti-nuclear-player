@@ -112,7 +112,7 @@ Things that look like product UI but are incomplete, offline-only, or still link
 | ----------------------------------- | ---------- | --------- |
 | Follow / fan sub / DMs / governance | matching   | `done`    |
 | Listener dashboard                  | `/library` | `done`    |
-| Server-side favorites library       | `/listen/favorites` local | `partial` |
+| Server-side favorites library       | `/favorites` local | `partial` |
 
 ### Artist studio
 

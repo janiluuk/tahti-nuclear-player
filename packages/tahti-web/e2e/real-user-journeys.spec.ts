@@ -215,7 +215,7 @@ test('library is a Studio tab and keeps /library routes selected on Studio', asy
 
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/library/favorites');
-  await expect(page).toHaveURL(/\/listen\/favorites/);
+  await expect(page).toHaveURL(/\/favorites$/);
 });
 
 test('governance: closed motions show their final decision as a permanent history/decision log', async ({

@@ -20,7 +20,7 @@ export type MobileItemId =
   | 'library'
   | 'studio';
 
-export type ListenTabId = 'listen' | 'feed' | 'favorites' | 'history';
+export type ListenTabId = 'listen' | 'feed' | 'history';
 
 export function locationPathname(location: string | undefined): string {
   return location?.split('?')[0] ?? '';
@@ -31,11 +31,7 @@ export function activeSidebarItem(
   location: string | undefined,
 ): SidebarItemId | null {
   const path = locationPathname(location);
-  if (
-    path === '/listen/favorites' ||
-    path.startsWith('/library/favorites') ||
-    path === '/favorites'
-  ) {
+  if (isFavoritesRoute(path)) {
     return 'favorites';
   }
   if (matchesSectionRoute(path, ['/radio'])) {
@@ -101,9 +97,6 @@ export function activeListenTab(
   const path = locationPathname(location);
   if (path === '/listen/feed' || path === '/feed') {
     return 'feed';
-  }
-  if (isFavoritesRoute(path)) {
-    return 'favorites';
   }
   if (path === '/listen/history' || path === '/history') {
     return 'history';
