@@ -114,7 +114,7 @@ tests and user-facing coverage for every new configuration flow.
 - Extract a generic Audio FX chain host UI from `StudioProEditorView`.
 - Share the multicast destination form between Go Live and Settings, keeping provider-specific
   credentials inside each provider configuration.
-- Design and implement an `ExportProvider` only after `../tahti` exposes submit/status/webhook
+- ExportProvider submit/status/webhook contracts land in `../tahti` (`GET /api/me/export-plugins`); Nuclear `revelatorExportProvider` calls them. Remaining:
   contracts; current Revelator delivery is not provider-specific.
 - Add a real integrations marketplace only when per-user credentials, permissions, and API
   lifecycle are specified.
