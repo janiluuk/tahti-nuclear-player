@@ -2078,6 +2078,16 @@ export type MotionComment = {
 
 let mockMotions: GovernanceMotion[] = [
   {
+    id: 'motion-5',
+    title: 'Adopt a code of conduct for chat moderation',
+    state: 'DRAFT',
+    proposer: 'Demo Member',
+    openAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    totalVotes: 0,
+    youVoted: false,
+    commentCount: 1,
+  },
+  {
     id: 'motion-1',
     title: 'Approve 2026 grant formula',
     state: 'OPEN',
@@ -2122,6 +2132,14 @@ let mockMotions: GovernanceMotion[] = [
 ];
 
 const mockMotionComments: Record<string, MotionComment[]> = {
+  'motion-5': [
+    {
+      id: 'c5',
+      body: 'Would like to see explicit escalation steps before a ban.',
+      authorDisplayName: 'Demo Member',
+      createdAt: new Date().toISOString(),
+    },
+  ],
   'motion-1': [
     {
       id: 'c1',
@@ -2396,6 +2414,30 @@ export async function voteOnMotion(
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Vote failed',
+    };
+  }
+}
+
+/** Board-only motion lifecycle transition — open a DRAFT motion for voting,
+ * or close an OPEN one and publish its tally. */
+export async function patchGovernanceMotion(
+  id: string,
+  state: 'OPEN' | 'CLOSED',
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    mockMotions = mockMotions.map((m) => (m.id === id ? { ...m, state } : m));
+    return { ok: true };
+  }
+  try {
+    await requestJson(`/api/v1/governance/motions/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ state }),
+    });
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Failed to update motion',
     };
   }
 }

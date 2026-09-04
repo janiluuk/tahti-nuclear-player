@@ -65,6 +65,32 @@ export function mockGovernanceMeetings(): GovernanceMeeting[] {
       createdAt: '2026-08-01T00:00:00.000Z',
       updatedAt: '2026-08-20T00:00:00.000Z',
     },
+    {
+      id: 'meeting-board-2026-06',
+      title: 'June 2026 board meeting',
+      type: 'BOARD',
+      state: 'APPROVED',
+      scheduledAt: '2026-06-10T17:00:00.000Z',
+      location: 'Remote',
+      remoteUrl: 'https://meet.tahti.live/board-2026-06',
+      noticeAt: '2026-06-01T08:00:00.000Z',
+      agenda: [
+        {
+          title: 'Approve Q2 budget',
+          description:
+            'Review and approve the second-quarter operating budget.',
+        },
+      ],
+      minutesKey: 'minutes/2026-06-board.pdf',
+      minutesApprovedAt: '2026-06-17T00:00:00.000Z',
+      eligibleMemberCount: 5,
+      quorumRequired: 3,
+      attendanceCount: 5,
+      presentCount: 4,
+      quorumMet: true,
+      createdAt: '2026-06-10T17:00:00.000Z',
+      updatedAt: '2026-06-17T00:00:00.000Z',
+    },
   ];
 }
 

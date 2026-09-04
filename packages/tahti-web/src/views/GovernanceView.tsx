@@ -19,6 +19,7 @@ import {
   fetchGovernanceMotions,
   fetchGovernanceQuarterlyReports,
   fetchMotionComments,
+  patchGovernanceMotion,
   postMotionComment,
   voteOnMotion,
   type MotionComment,
@@ -33,6 +34,7 @@ import type {
   GovernanceQuarterlyReport,
 } from '../api/types';
 import { PageLoading } from '../components/PageStates';
+import { hasAccountRole } from '../lib/accountRoles';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
@@ -46,6 +48,9 @@ function stateBadge(state: string): {
   }
   if (state === 'CLOSED') {
     return { color: 'secondary', label: 'Closed' };
+  }
+  if (state === 'DRAFT') {
+    return { color: 'orange', label: 'Discussion · 7-day circulation' };
   }
   return { color: 'orange', label: state };
 }
@@ -79,6 +84,7 @@ function isExpiredMotion(motion: GovernanceMotion): boolean {
 
 export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
   const user = useAuthStore((s) => s.user);
+  const isBoard = hasAccountRole(user, 'BOARD');
   const closeSettings = useSettingsModalStore((s) => s.close);
   const [motions, setMotions] = useState<GovernanceMotion[]>([]);
   const [requests, setRequests] = useState<FeatureRequest[]>([]);
@@ -93,6 +99,7 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
   const [commentBody, setCommentBody] = useState('');
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const [votingId, setVotingId] = useState<string | null>(null);
+  const [transitioningId, setTransitioningId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState('');
   const [draftDescription, setDraftDescription] = useState('');
   const [submittingDraft, setSubmittingDraft] = useState(false);
@@ -208,6 +215,10 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
                           ? new Date(meeting.scheduledAt).toLocaleDateString()
                           : 'Date not listed'}{' '}
                         · {meeting.state}
+                        {meeting.quorumMet !== null &&
+                          ` · quorum ${meeting.quorumMet ? 'met' : 'not met'}`}
+                        {meeting.eligibleMemberCount !== null &&
+                          ` · ${meeting.presentCount} of ${meeting.eligibleMemberCount} present`}
                       </div>
                       {agenda.length > 0 ? (
                         <ul className="mt-2 flex flex-col gap-1">
@@ -550,12 +561,22 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
                     ? `, ${m.commentCount} comments`
                     : ''}
                 </p>
+                {m.state === 'DRAFT' && (
+                  <p className="text-foreground-secondary mt-1 text-xs">
+                    {m.openAt
+                      ? `Voting opens ${new Date(m.openAt).toLocaleDateString()} after circulation period (bylaws §9).`
+                      : 'Voting opens after circulation period (bylaws §9).'}
+                  </p>
+                )}
                 {m.youVoted && (
                   <p className="mt-2 text-sm">
                     Your vote:{' '}
                     <Badge variant="pill" color="cyan">
                       {m.yourChoice ?? 'recorded'}
-                    </Badge>
+                    </Badge>{' '}
+                    <span className="text-foreground-secondary text-xs">
+                      · votes can&apos;t be changed
+                    </span>
                   </p>
                 )}
                 {m.tally && (
@@ -571,6 +592,18 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
                     </span>
                   </div>
                 )}
+                {members.length > 0 &&
+                  typeof m.totalVotes === 'number' &&
+                  (m.state === 'OPEN' || m.state === 'CLOSED') && (
+                    <p className="text-foreground-secondary mt-2 text-xs">
+                      {m.totalVotes} of {members.length} members voted
+                      {m.state === 'OPEN'
+                        ? ' · tally revealed at close'
+                        : m.tally
+                          ? ` · ${Math.round(((m.tally.YES ?? 0) / Math.max(1, m.tally.YES + m.tally.NO + m.tally.ABSTAIN)) * 100)}% for`
+                          : ''}
+                    </p>
+                  )}
                 {resultLabel ? (
                   <p className="text-foreground-secondary mt-2 text-xs">
                     {resultLabel}
@@ -599,6 +632,40 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
                         {choice}
                       </Button>
                     ))}
+                  </div>
+                )}
+
+                {isBoard && (m.state === 'DRAFT' || m.state === 'OPEN') && (
+                  <div className="mt-3">
+                    <Button
+                      size="sm"
+                      variant={m.state === 'DRAFT' ? 'default' : 'secondary'}
+                      disabled={transitioningId === m.id}
+                      onClick={() => {
+                        setTransitioningId(m.id);
+                        const nextState =
+                          m.state === 'DRAFT' ? 'OPEN' : 'CLOSED';
+                        void patchGovernanceMotion(m.id, nextState).then(
+                          (r) => {
+                            setTransitioningId(null);
+                            setActionMsg(
+                              r.ok
+                                ? nextState === 'OPEN'
+                                  ? 'Voting opened.'
+                                  : 'Motion closed and result published.'
+                                : r.error,
+                            );
+                            if (r.ok) {
+                              reload();
+                            }
+                          },
+                        );
+                      }}
+                    >
+                      {m.state === 'DRAFT'
+                        ? 'Open voting'
+                        : 'Close & publish result'}
+                    </Button>
                   </div>
                 )}
 
