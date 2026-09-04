@@ -2,14 +2,14 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeftIcon, CalendarPlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, Select, Textarea } from '@tahti-player/ui';
+import { Button, Input, Select, Textarea, ViewShell } from '@tahti-player/ui';
 
 import { fetchVenues } from '../../api/client';
 import { createEvent } from '../../api/events';
 import type { VenueDirectoryItem } from '../../api/types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 export function StudioEventCreateView() {
   const navigate = useNavigate();
@@ -35,125 +35,127 @@ export function StudioEventCreateView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/events" />
-        <StudioPageHeader
+        <ViewShell
           title="Add event"
           subtitle="Publish a new appearance to your artist profile."
-        />
-        <StudioPanel title="Event details">
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Input
-                label="Title"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-              />
-              <Input
-                label="Place"
-                value={place}
-                onChange={(event) => setPlace(event.target.value)}
-                placeholder="Northern Lights Hall"
-              />
-              <div className="flex flex-col gap-1">
-                <Select
-                  id="event-venue"
-                  label="Venue from directory"
-                  placeholder="Choose a venue or enter one below"
-                  options={venues.map((venue) => ({
-                    id: venue.slug,
-                    label: `${venue.name}${venue.city ? ` · ${venue.city}` : ''}`,
-                  }))}
-                  onValueChange={(venueSlug) => {
-                    const venue = venues.find(
-                      (candidate) => candidate.slug === venueSlug,
-                    );
-                    if (venue) {
-                      setPlace(venue.name);
-                      setLocation(
-                        [venue.city, venue.countryCode]
-                          .filter(Boolean)
-                          .join(', '),
-                      );
-                    }
-                  }}
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          <StudioPanel title="Event details">
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Input
+                  label="Title"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
                 />
-                <Link
-                  to="/venues/register"
-                  className="text-primary text-xs hover:underline"
-                >
-                  Register a new venue
-                </Link>
+                <Input
+                  label="Place"
+                  value={place}
+                  onChange={(event) => setPlace(event.target.value)}
+                  placeholder="Northern Lights Hall"
+                />
+                <div className="flex flex-col gap-1">
+                  <Select
+                    id="event-venue"
+                    label="Venue from directory"
+                    placeholder="Choose a venue or enter one below"
+                    options={venues.map((venue) => ({
+                      id: venue.slug,
+                      label: `${venue.name}${venue.city ? ` · ${venue.city}` : ''}`,
+                    }))}
+                    onValueChange={(venueSlug) => {
+                      const venue = venues.find(
+                        (candidate) => candidate.slug === venueSlug,
+                      );
+                      if (venue) {
+                        setPlace(venue.name);
+                        setLocation(
+                          [venue.city, venue.countryCode]
+                            .filter(Boolean)
+                            .join(', '),
+                        );
+                      }
+                    }}
+                  />
+                  <Link
+                    to="/venues/register"
+                    className="text-primary text-xs hover:underline"
+                  >
+                    Register a new venue
+                  </Link>
+                </div>
+                <Input
+                  label="Location"
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                  placeholder="Helsinki, Finland"
+                />
+                <Input
+                  label="Tickets / event link (optional)"
+                  value={eventUrl}
+                  onChange={(event) => setEventUrl(event.target.value)}
+                  placeholder="https://tickets.example/event"
+                />
               </div>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="text-foreground-secondary text-xs uppercase">
+                  Description
+                </span>
+                <Textarea
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  rows={3}
+                  placeholder="What should people expect — set details, door time, ticketing…"
+                />
+              </label>
               <Input
-                label="Location"
-                value={location}
-                onChange={(event) => setLocation(event.target.value)}
-                placeholder="Helsinki, Finland"
+                type="datetime-local"
+                label="Start"
+                value={startAt}
+                onChange={(event) => setStartAt(event.target.value)}
               />
-              <Input
-                label="Tickets / event link (optional)"
-                value={eventUrl}
-                onChange={(event) => setEventUrl(event.target.value)}
-                placeholder="https://tickets.example/event"
-              />
-            </div>
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="text-foreground-secondary text-xs uppercase">
-                Description
-              </span>
-              <Textarea
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                rows={3}
-                placeholder="What should people expect — set details, door time, ticketing…"
-              />
-            </label>
-            <Input
-              type="datetime-local"
-              label="Start"
-              value={startAt}
-              onChange={(event) => setStartAt(event.target.value)}
-            />
-            {message && (
-              <p className="text-accent-red text-sm" role="alert">
-                {message}
-              </p>
-            )}
-            <div className="flex flex-wrap gap-2">
-              <Link to="/studio/events">
-                <Button size="sm" variant="secondary">
-                  <ArrowLeftIcon size={14} aria-hidden className="mr-1.5" />
-                  Cancel
+              {message && (
+                <p className="text-accent-red text-sm" role="alert">
+                  {message}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                <Link to="/studio/events">
+                  <Button size="sm" variant="secondary">
+                    <ArrowLeftIcon size={14} aria-hidden className="mr-1.5" />
+                    Cancel
+                  </Button>
+                </Link>
+                <Button
+                  size="sm"
+                  disabled={!canSubmit || busy}
+                  onClick={() => {
+                    setBusy(true);
+                    setMessage(null);
+                    void createEvent({
+                      title: title.trim(),
+                      description: description.trim(),
+                      place: place.trim(),
+                      location: location.trim(),
+                      eventUrl: eventUrl.trim() || undefined,
+                      startAt: new Date(startAt).toISOString(),
+                    }).then((result) => {
+                      setBusy(false);
+                      if (!result.ok) {
+                        setMessage(result.error);
+                        return;
+                      }
+                      void navigate({ to: '/studio/events' });
+                    });
+                  }}
+                >
+                  <CalendarPlusIcon size={16} aria-hidden className="mr-1.5" />
+                  {busy ? 'Adding…' : 'Add event'}
                 </Button>
-              </Link>
-              <Button
-                size="sm"
-                disabled={!canSubmit || busy}
-                onClick={() => {
-                  setBusy(true);
-                  setMessage(null);
-                  void createEvent({
-                    title: title.trim(),
-                    description: description.trim(),
-                    place: place.trim(),
-                    location: location.trim(),
-                    eventUrl: eventUrl.trim() || undefined,
-                    startAt: new Date(startAt).toISOString(),
-                  }).then((result) => {
-                    setBusy(false);
-                    if (!result.ok) {
-                      setMessage(result.error);
-                      return;
-                    }
-                    void navigate({ to: '/studio/events' });
-                  });
-                }}
-              >
-                <CalendarPlusIcon size={16} aria-hidden className="mr-1.5" />
-                {busy ? 'Adding…' : 'Add event'}
-              </Button>
+              </div>
             </div>
-          </div>
-        </StudioPanel>
+          </StudioPanel>
+        </ViewShell>
       </div>
     </StudioGate>
   );

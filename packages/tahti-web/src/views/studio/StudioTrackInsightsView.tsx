@@ -1,9 +1,10 @@
 import { Link } from '@tanstack/react-router';
 
+import { ViewShell } from '@tahti-player/ui';
+
 import type { InsightsKind } from '../../api/track-insights';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader } from '../../components/StudioPanel';
 import { TrackInsightsPanel } from '../../components/TrackInsightsPanel';
 
 export function StudioTrackInsightsView({
@@ -24,11 +25,13 @@ export function StudioTrackInsightsView({
           ← {kind === 'sound' ? 'Music' : 'Releases'}
         </Link>
 
-        <StudioPageHeader
+        <ViewShell
           title="Track insights"
           subtitle="Plays, downloads, and listener geography for this track."
-        />
-        <TrackInsightsPanel kind={kind} id={id} />
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          <TrackInsightsPanel kind={kind} id={id} />
+        </ViewShell>
       </div>
     </StudioGate>
   );

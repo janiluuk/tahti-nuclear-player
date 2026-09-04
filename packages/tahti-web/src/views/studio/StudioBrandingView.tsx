@@ -21,6 +21,7 @@ import {
   Tabs,
   Textarea,
   Toggle,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -45,7 +46,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { ImageLightbox } from '../../components/ImageLightbox';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { useAuthStore } from '../../stores/authStore';
 
 const ACCEPTED_IMAGES = 'image/jpeg,image/png,image/webp';
@@ -801,30 +802,30 @@ export const StudioBrandingView: FC = () => {
         }`}
       >
         <StudioNav current="/studio/branding" />
-        <StudioPageHeader
+        <ViewShell
           title="Branding"
           subtitle="Shape your visual identity, keep a public image gallery, assemble a press kit, and design the public channel."
-          action={
-            profile ? (
-              <Link to="/u/$username" params={{ username: profile.username }}>
-                <Button size="sm" variant="secondary">
-                  <EyeIcon size={15} aria-hidden className="mr-1.5" />
-                  View public profile
-                </Button>
-              </Link>
-            ) : undefined
-          }
-        />
-        <StudioBrandingPanel
-          section={section}
-          hideSectionNav={false}
-          onSectionChange={(next) => {
-            void navigate({
-              to: '/studio/branding',
-              search: { tab: next === 'branding' ? undefined : next },
-            });
-          }}
-        />
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          {profile ? (
+            <Link to="/u/$username" params={{ username: profile.username }}>
+              <Button size="sm" variant="secondary">
+                <EyeIcon size={15} aria-hidden className="mr-1.5" />
+                View public profile
+              </Button>
+            </Link>
+          ) : null}
+          <StudioBrandingPanel
+            section={section}
+            hideSectionNav={false}
+            onSectionChange={(next) => {
+              void navigate({
+                to: '/studio/branding',
+                search: { tab: next === 'branding' ? undefined : next },
+              });
+            }}
+          />
+        </ViewShell>
       </div>
     </StudioGate>
   );

@@ -23,6 +23,7 @@ import {
   SaveButton,
   Select,
   Tabs,
+  ViewShell,
 } from '@tahti-player/ui';
 
 import {
@@ -49,7 +50,7 @@ import { RELEASE_CREDIT_ROLES } from '../../api/studio-types';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 
 const MUSICBRAINZ_SUBMIT_URL = 'https://musicbrainz.org/release/add';
@@ -968,66 +969,66 @@ export function StudioDistributionView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/distribution" />
-        <StudioPageHeader
+        <ViewShell
           title="Distribution"
           subtitle="DSP delivery & catalog metadata — submit releases to Revelator, track UPC/ISRC/MusicBrainz identifiers, and review royalty reports."
-          action={
-            <Link
-              to="/studio/releases"
-              className="text-foreground-secondary hover:text-foreground inline-flex items-center gap-1 text-xs underline underline-offset-2"
-            >
-              <ArrowLeftIcon size={12} aria-hidden />
-              Back to Releases
-            </Link>
-          }
-        />
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          <Link
+            to="/studio/releases"
+            className="text-foreground-secondary hover:text-foreground inline-flex items-center gap-1 text-xs underline underline-offset-2"
+          >
+            <ArrowLeftIcon size={12} aria-hidden />
+            Back to Releases
+          </Link>
 
-        <section className="flex flex-col gap-3">
-          <h2>
-            <Eyebrow>Releases</Eyebrow>
-          </h2>
-          {loading ? (
-            <PageLoading label="Loading…" />
-          ) : releases.length === 0 ? (
-            <p className="text-foreground-secondary text-sm">
-              No releases yet — create one under{' '}
-              <Link to="/studio/releases" className="underline">
-                Releases
-              </Link>{' '}
-              first.
-            </p>
-          ) : (
-            releases.map((release) => (
-              <ReleaseOpsPanel key={release.id} release={release} />
-            ))
-          )}
-        </section>
+          <section className="flex flex-col gap-3">
+            <h2>
+              <Eyebrow>Releases</Eyebrow>
+            </h2>
+            {loading ? (
+              <PageLoading label="Loading…" />
+            ) : releases.length === 0 ? (
+              <p className="text-foreground-secondary text-sm">
+                No releases yet — create one under{' '}
+                <Link to="/studio/releases" className="underline">
+                  Releases
+                </Link>{' '}
+                first.
+              </p>
+            ) : (
+              releases.map((release) => (
+                <ReleaseOpsPanel key={release.id} release={release} />
+              ))
+            )}
+          </section>
 
-        {allRoyalties.length > 0 && (
-          <StudioPanel title="All royalty reports">
-            <ul className="divide-border divide-y text-sm">
-              {allRoyalties.map((row) => (
-                <li
-                  key={row.id}
-                  className="flex flex-wrap items-center justify-between gap-2 py-2 first:pt-0 last:pb-0"
-                >
-                  <div>
-                    <div className="font-medium">{row.releaseTitle}</div>
-                    <div className="text-foreground-secondary text-xs">
-                      {row.periodStart} – {row.periodEnd}
+          {allRoyalties.length > 0 && (
+            <StudioPanel title="All royalty reports">
+              <ul className="divide-border divide-y text-sm">
+                {allRoyalties.map((row) => (
+                  <li
+                    key={row.id}
+                    className="flex flex-wrap items-center justify-between gap-2 py-2 first:pt-0 last:pb-0"
+                  >
+                    <div>
+                      <div className="font-medium">{row.releaseTitle}</div>
+                      <div className="text-foreground-secondary text-xs">
+                        {row.periodStart} – {row.periodEnd}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-foreground-secondary text-xs">
-                    {row.streams != null
-                      ? `${row.streams.toLocaleString()} streams · `
-                      : ''}
-                    {euros(row.amountCents)} {row.currency}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </StudioPanel>
-        )}
+                    <div className="text-foreground-secondary text-xs">
+                      {row.streams != null
+                        ? `${row.streams.toLocaleString()} streams · `
+                        : ''}
+                      {euros(row.amountCents)} {row.currency}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </StudioPanel>
+          )}
+        </ViewShell>
       </div>
     </StudioGate>
   );

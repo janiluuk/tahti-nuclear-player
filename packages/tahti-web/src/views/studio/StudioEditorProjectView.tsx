@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { AudioLinesIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@tahti-player/ui';
+import { Button, ViewShell } from '@tahti-player/ui';
 
 import {
   deleteEditorProject,
@@ -23,7 +23,7 @@ import {
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 
 export function StudioEditorProjectView({ id }: { id: string }) {
   const navigate = useNavigate();
@@ -113,111 +113,111 @@ export function StudioEditorProjectView({ id }: { id: string }) {
           </StudioPanel>
         ) : (
           <>
-            <StudioPageHeader
+            <ViewShell
               title={project.title}
               subtitle="Multitrack session. Open the linked archive in the pro trim editor when available."
-              action={
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setConfirmDelete(true)}
-                    disabled={deleting}
-                    aria-label="Delete project"
+              classes={{ root: 'px-0 pt-0' }}
+            >
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setConfirmDelete(true)}
+                  disabled={deleting}
+                  aria-label="Delete project"
+                >
+                  <Trash2Icon size={16} aria-hidden className="mr-1.5" />
+                  Delete
+                </Button>
+                {project.soundId ? (
+                  <Link
+                    to="/studio/sounds/$id/editor"
+                    params={{ id: project.soundId }}
                   >
-                    <Trash2Icon size={16} aria-hidden className="mr-1.5" />
-                    Delete
-                  </Button>
-                  {project.soundId ? (
-                    <Link
-                      to="/studio/sounds/$id/editor"
-                      params={{ id: project.soundId }}
+                    <Button
+                      size="sm"
+                      aria-label="Open pro editor"
+                      title="Open pro editor"
                     >
-                      <Button
-                        size="sm"
-                        aria-label="Open pro editor"
-                        title="Open pro editor"
-                      >
-                        <AudioLinesIcon
-                          size={16}
-                          aria-hidden
-                          className="mr-1.5"
-                        />
-                        Pro editor
-                      </Button>
-                    </Link>
-                  ) : null}
-                </div>
-              }
-            />
-            {error && (
-              <p className="text-accent-red text-sm" role="alert">
-                {error}
-              </p>
-            )}
-            {timeline && (
-              <StudioPanel
-                title="Timeline"
-                description="Arrange native archive clips into a non-destructive multitrack session."
-                action={
-                  <span
-                    className="text-foreground-secondary text-xs"
-                    role="status"
-                  >
-                    {saveState === 'saving'
-                      ? 'Saving…'
-                      : saveState === 'error'
-                        ? 'Save failed'
-                        : 'Saved'}
-                  </span>
-                }
-              >
-                <MultitrackTimeline
-                  value={timeline}
-                  sources={sources}
-                  onChange={setTimeline}
-                  unavailableSourceIds={sources
-                    .filter((source) => !source.url)
-                    .map((source) => source.sourceKey ?? '')}
-                />
-              </StudioPanel>
-            )}
-            <StudioPanel title="Session">
-              <dl className="grid gap-3 text-sm sm:grid-cols-2">
-                <div>
-                  <dt className="text-foreground-secondary text-xs uppercase">
-                    Updated
-                  </dt>
-                  <dd className="mt-0.5">
-                    {new Date(project.updatedAt).toLocaleString()}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-foreground-secondary text-xs uppercase">
-                    Sound link
-                  </dt>
-                  <dd className="mt-0.5">
-                    {project.soundId ? (
-                      <Link
-                        to="/studio/sounds/$id"
-                        params={{ id: project.soundId }}
-                        className="underline-offset-2 hover:underline"
-                      >
-                        Open in Library
-                      </Link>
-                    ) : (
-                      'None'
-                    )}
-                  </dd>
-                </div>
-              </dl>
-              {!project.soundId && (
-                <p className="text-foreground-secondary mt-4 text-sm">
-                  No archive seed — create a project from an archive item, or
-                  open Library → Audio editor.
+                      <AudioLinesIcon
+                        size={16}
+                        aria-hidden
+                        className="mr-1.5"
+                      />
+                      Pro editor
+                    </Button>
+                  </Link>
+                ) : null}
+              </div>
+              {error && (
+                <p className="text-accent-red text-sm" role="alert">
+                  {error}
                 </p>
               )}
-            </StudioPanel>
+              {timeline && (
+                <StudioPanel
+                  title="Timeline"
+                  description="Arrange native archive clips into a non-destructive multitrack session."
+                  action={
+                    <span
+                      className="text-foreground-secondary text-xs"
+                      role="status"
+                    >
+                      {saveState === 'saving'
+                        ? 'Saving…'
+                        : saveState === 'error'
+                          ? 'Save failed'
+                          : 'Saved'}
+                    </span>
+                  }
+                >
+                  <MultitrackTimeline
+                    value={timeline}
+                    sources={sources}
+                    onChange={setTimeline}
+                    unavailableSourceIds={sources
+                      .filter((source) => !source.url)
+                      .map((source) => source.sourceKey ?? '')}
+                  />
+                </StudioPanel>
+              )}
+              <StudioPanel title="Session">
+                <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                  <div>
+                    <dt className="text-foreground-secondary text-xs uppercase">
+                      Updated
+                    </dt>
+                    <dd className="mt-0.5">
+                      {new Date(project.updatedAt).toLocaleString()}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-foreground-secondary text-xs uppercase">
+                      Sound link
+                    </dt>
+                    <dd className="mt-0.5">
+                      {project.soundId ? (
+                        <Link
+                          to="/studio/sounds/$id"
+                          params={{ id: project.soundId }}
+                          className="underline-offset-2 hover:underline"
+                        >
+                          Open in Library
+                        </Link>
+                      ) : (
+                        'None'
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+                {!project.soundId && (
+                  <p className="text-foreground-secondary mt-4 text-sm">
+                    No archive seed — create a project from an archive item, or
+                    open Library → Audio editor.
+                  </p>
+                )}
+              </StudioPanel>
+            </ViewShell>
           </>
         )}
         <ConfirmDialog

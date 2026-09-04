@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { FilterChips } from '@tahti-player/ui';
+import { FilterChips, ViewShell } from '@tahti-player/ui';
 
 import {
   fetchStatsPlays,
@@ -11,7 +11,7 @@ import {
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { StatNumber } from '../../components/tahti/StatNumber';
 import { flagEmoji } from '../../lib/countries';
@@ -67,106 +67,106 @@ export function StudioStatsDetailView() {
             ← Insights
           </Link>
         </p>
-        <StudioPageHeader
+        <ViewShell
           title="Insights"
           subtitle="Daily plays, downloads, and listener activity."
-          action={
-            <FilterChips
-              items={RANGES}
-              selected={range}
-              onChange={(id) => setRange(id as StatsPlaysRange)}
-              aria-label="Plays time range"
-            />
-          }
-        />
+          classes={{ root: 'px-0 pt-0' }}
+        >
+          <FilterChips
+            items={RANGES}
+            selected={range}
+            onChange={(id) => setRange(id as StatsPlaysRange)}
+            aria-label="Plays time range"
+          />
 
-        {loading || !data ? (
-          <StudioPanel>
-            <PageLoading label="Loading plays…" />
-          </StudioPanel>
-        ) : (
-          <>
+          {loading || !data ? (
             <StudioPanel>
-              <Eyebrow>Plays — last {label}</Eyebrow>
-              <StatNumber className="mt-1 block text-3xl">
-                {data.totalPlays.toLocaleString()}
-              </StatNumber>
-              <p className="text-foreground-secondary mt-1 text-xs">
-                {data.totalDownloads.toLocaleString()} downloads
-                {data.totalSmartLinkClicks != null
-                  ? `, ${data.totalSmartLinkClicks.toLocaleString()} smart-link clicks`
-                  : ''}
-              </p>
+              <PageLoading label="Loading plays…" />
+            </StudioPanel>
+          ) : (
+            <>
+              <StudioPanel>
+                <Eyebrow>Plays — last {label}</Eyebrow>
+                <StatNumber className="mt-1 block text-3xl">
+                  {data.totalPlays.toLocaleString()}
+                </StatNumber>
+                <p className="text-foreground-secondary mt-1 text-xs">
+                  {data.totalDownloads.toLocaleString()} downloads
+                  {data.totalSmartLinkClicks != null
+                    ? `, ${data.totalSmartLinkClicks.toLocaleString()} smart-link clicks`
+                    : ''}
+                </p>
 
-              <div
-                role="img"
-                aria-label="Plays chart"
-                className="mt-4 flex h-40 items-end gap-0.5"
-              >
-                {data.daily.length === 0 ? (
+                <div
+                  role="img"
+                  aria-label="Plays chart"
+                  className="mt-4 flex h-40 items-end gap-0.5"
+                >
+                  {data.daily.length === 0 ? (
+                    <p className="text-foreground-secondary text-sm">
+                      No daily points in this range.
+                    </p>
+                  ) : (
+                    data.daily.map((d) => {
+                      const pct = Math.round((d.plays / maxPlays) * 100);
+                      const h = Math.max(d.plays > 0 ? 8 : 2, pct);
+                      return (
+                        <div
+                          key={d.date}
+                          title={`${d.date}: ${d.plays} plays`}
+                          className="bg-primary/80 hover:bg-primary min-w-0 flex-1 rounded-t-sm"
+                          style={{ height: `${h}%` }}
+                        />
+                      );
+                    })
+                  )}
+                </div>
+                {data.daily.length > 0 && (
+                  <div
+                    className="text-foreground-secondary mt-2 flex justify-between text-[10px]"
+                    aria-hidden
+                  >
+                    <span>{formatAxisDate(data.daily[0]!.date)}</span>
+                    {data.daily.length > 2 && (
+                      <span>
+                        {formatAxisDate(
+                          data.daily[Math.floor(data.daily.length / 2)]!.date,
+                        )}
+                      </span>
+                    )}
+                    <span>
+                      {formatAxisDate(data.daily[data.daily.length - 1]!.date)}
+                    </span>
+                  </div>
+                )}
+              </StudioPanel>
+
+              <StudioPanel title="Download countries">
+                {(data.downloadCountries ?? []).length === 0 ? (
                   <p className="text-foreground-secondary text-sm">
-                    No daily points in this range.
+                    No geo breakdown in this response.
                   </p>
                 ) : (
-                  data.daily.map((d) => {
-                    const pct = Math.round((d.plays / maxPlays) * 100);
-                    const h = Math.max(d.plays > 0 ? 8 : 2, pct);
-                    return (
-                      <div
-                        key={d.date}
-                        title={`${d.date}: ${d.plays} plays`}
-                        className="bg-primary/80 hover:bg-primary min-w-0 flex-1 rounded-t-sm"
-                        style={{ height: `${h}%` }}
-                      />
-                    );
-                  })
+                  <ul className="divide-border divide-y">
+                    {(data.downloadCountries ?? []).map((c) => (
+                      <li
+                        key={c.countryCode}
+                        className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
+                      >
+                        <span className="font-medium">
+                          {flagEmoji(c.countryCode)} {c.displayName}
+                        </span>
+                        <span className="text-foreground-secondary tabular-nums">
+                          {c.count.toLocaleString()}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 )}
-              </div>
-              {data.daily.length > 0 && (
-                <div
-                  className="text-foreground-secondary mt-2 flex justify-between text-[10px]"
-                  aria-hidden
-                >
-                  <span>{formatAxisDate(data.daily[0]!.date)}</span>
-                  {data.daily.length > 2 && (
-                    <span>
-                      {formatAxisDate(
-                        data.daily[Math.floor(data.daily.length / 2)]!.date,
-                      )}
-                    </span>
-                  )}
-                  <span>
-                    {formatAxisDate(data.daily[data.daily.length - 1]!.date)}
-                  </span>
-                </div>
-              )}
-            </StudioPanel>
-
-            <StudioPanel title="Download countries">
-              {(data.downloadCountries ?? []).length === 0 ? (
-                <p className="text-foreground-secondary text-sm">
-                  No geo breakdown in this response.
-                </p>
-              ) : (
-                <ul className="divide-border divide-y">
-                  {(data.downloadCountries ?? []).map((c) => (
-                    <li
-                      key={c.countryCode}
-                      className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
-                    >
-                      <span className="font-medium">
-                        {flagEmoji(c.countryCode)} {c.displayName}
-                      </span>
-                      <span className="text-foreground-secondary tabular-nums">
-                        {c.count.toLocaleString()}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </StudioPanel>
-          </>
-        )}
+              </StudioPanel>
+            </>
+          )}
+        </ViewShell>
       </div>
     </StudioGate>
   );

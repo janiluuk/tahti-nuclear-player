@@ -7,7 +7,7 @@ import {
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, Tabs } from '@tahti-player/ui';
+import { Button, Input, Tabs, ViewShell } from '@tahti-player/ui';
 
 import {
   addModerator,
@@ -23,7 +23,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { PageLoading } from '../../components/PageStates';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StudioPanel } from '../../components/StudioPanel';
 import { useAuthStore } from '../../stores/authStore';
 
 export function StudioModerationView({
@@ -57,6 +57,212 @@ export function StudioModerationView({
     reload();
   }, [slug]);
 
+  const content = (
+    <>
+      <Tabs
+        listClassName="border-border border-b pb-3"
+        panelClassName="pt-2"
+        items={[
+          {
+            id: 'moderators',
+            label: (
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheckIcon size={14} aria-hidden /> Moderators
+              </span>
+            ),
+            content: (
+              <StudioPanel
+                title="Delegated moderators"
+                description="Trusted listeners who can moderate chat on your behalf."
+              >
+                <div className="flex flex-col gap-4">
+                  {loading ? (
+                    <PageLoading label="Loading…" />
+                  ) : mods.length === 0 ? (
+                    <p className="text-foreground-secondary text-sm">
+                      No moderators yet.
+                    </p>
+                  ) : (
+                    <ul className="flex flex-col gap-2">
+                      {mods.map((m) => (
+                        <li
+                          key={m.id}
+                          className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
+                        >
+                          <span>
+                            {m.displayName} (@{m.username})
+                          </span>
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label={`Remove ${m.displayName} as moderator`}
+                            title="Remove moderator"
+                            onClick={() => setPendingRemoveMod(m)}
+                          >
+                            <Trash2Icon size={14} aria-hidden />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-end">
+                    <Input
+                      label="Username"
+                      value={newModUsername}
+                      onChange={(e) => setNewModUsername(e.target.value)}
+                      placeholder="listener-handle"
+                      className="min-w-0 sm:min-w-48"
+                    />
+                    <Button
+                      size="icon-sm"
+                      disabled={!newModUsername.trim()}
+                      aria-label="Add moderator"
+                      title="Add moderator"
+                      onClick={() => {
+                        void addModerator(newModUsername.trim()).then((r) => {
+                          if (!r.ok) {
+                            toast.error(r.error);
+                          } else {
+                            setNewModUsername('');
+                            toast.success(
+                              `Added ${r.data.displayName} as moderator.`,
+                            );
+                            reload();
+                          }
+                        });
+                      }}
+                    >
+                      <UserRoundPlusIcon size={15} aria-hidden />
+                    </Button>
+                  </div>
+                </div>
+              </StudioPanel>
+            ),
+          },
+          {
+            id: 'bans',
+            label: (
+              <span className="inline-flex items-center gap-1.5">
+                <BanIcon size={14} aria-hidden /> Chat bans
+              </span>
+            ),
+            content: (
+              <StudioPanel
+                title="Chat bans"
+                description="Stop a device or session from posting by its chat fingerprint."
+              >
+                <div className="flex flex-col gap-4">
+                  {loading ? (
+                    <PageLoading label="Loading…" />
+                  ) : bans.length === 0 ? (
+                    <p className="text-foreground-secondary text-sm">
+                      No active bans.
+                    </p>
+                  ) : (
+                    <ul className="flex flex-col gap-2">
+                      {bans.map((b) => (
+                        <li
+                          key={b.fingerprintHash}
+                          className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
+                        >
+                          <div>
+                            <div className="font-mono text-xs">
+                              {b.fingerprintHash}
+                            </div>
+                            <div className="text-foreground-secondary text-xs">
+                              Banned {new Date(b.bannedAt).toLocaleString()}
+                            </div>
+                          </div>
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label={`Unban ${b.fingerprintHash}`}
+                            title="Unban fingerprint"
+                            onClick={() => {
+                              void unbanChatFingerprint(
+                                slug,
+                                b.fingerprintHash,
+                              ).then((r) => {
+                                if (!r.ok) {
+                                  toast.error(r.error);
+                                } else {
+                                  toast.success('Unbanned.');
+                                  reload();
+                                }
+                              });
+                            }}
+                          >
+                            <Trash2Icon size={14} aria-hidden />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-end">
+                    <Input
+                      label="Fingerprint hash"
+                      value={newBanHash}
+                      onChange={(e) => setNewBanHash(e.target.value)}
+                      placeholder="from a chat message's report action"
+                      className="min-w-0 sm:min-w-48"
+                    />
+                    <Button
+                      size="icon-sm"
+                      disabled={!newBanHash.trim()}
+                      aria-label="Ban fingerprint"
+                      title="Ban fingerprint"
+                      onClick={() => {
+                        void banChatFingerprint(slug, newBanHash.trim()).then(
+                          (r) => {
+                            if (!r.ok) {
+                              toast.error(r.error);
+                            } else {
+                              setNewBanHash('');
+                              toast.success('Fingerprint banned.');
+                              reload();
+                            }
+                          },
+                        );
+                      }}
+                    >
+                      <BanIcon size={15} aria-hidden />
+                    </Button>
+                  </div>
+                </div>
+              </StudioPanel>
+            ),
+          },
+        ]}
+      />
+      <ConfirmDialog
+        isOpen={pendingRemoveMod !== null}
+        title={
+          pendingRemoveMod
+            ? `Remove ${pendingRemoveMod.displayName} as moderator?`
+            : 'Remove moderator?'
+        }
+        description="They lose chat moderation on this channel."
+        confirmLabel="Remove"
+        onCancel={() => setPendingRemoveMod(null)}
+        onConfirm={() => {
+          const moderator = pendingRemoveMod;
+          setPendingRemoveMod(null);
+          if (!moderator) {
+            return;
+          }
+          void removeModerator(moderator.id).then((result) => {
+            if (!result.ok) {
+              toast.error(result.error);
+              return;
+            }
+            toast.success('Moderator removed.');
+            reload();
+          });
+        }}
+      />
+    </>
+  );
+
   return (
     <StudioGate>
       <div
@@ -67,214 +273,17 @@ export function StudioModerationView({
         }
       >
         {!embedded && <StudioNav current="/studio/moderation" />}
-        {!embedded && (
-          <StudioPageHeader
+        {embedded ? (
+          content
+        ) : (
+          <ViewShell
             title="Moderation"
             subtitle="Delegate chat moderation and manage channel bans."
-          />
+            classes={{ root: 'px-0 pt-0' }}
+          >
+            {content}
+          </ViewShell>
         )}
-
-        <Tabs
-          listClassName="border-border border-b pb-3"
-          panelClassName="pt-2"
-          items={[
-            {
-              id: 'moderators',
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  <ShieldCheckIcon size={14} aria-hidden /> Moderators
-                </span>
-              ),
-              content: (
-                <StudioPanel
-                  title="Delegated moderators"
-                  description="Trusted listeners who can moderate chat on your behalf."
-                >
-                  <div className="flex flex-col gap-4">
-                    {loading ? (
-                      <PageLoading label="Loading…" />
-                    ) : mods.length === 0 ? (
-                      <p className="text-foreground-secondary text-sm">
-                        No moderators yet.
-                      </p>
-                    ) : (
-                      <ul className="flex flex-col gap-2">
-                        {mods.map((m) => (
-                          <li
-                            key={m.id}
-                            className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
-                          >
-                            <span>
-                              {m.displayName} (@{m.username})
-                            </span>
-                            <Button
-                              size="icon-sm"
-                              variant="text"
-                              aria-label={`Remove ${m.displayName} as moderator`}
-                              title="Remove moderator"
-                              onClick={() => setPendingRemoveMod(m)}
-                            >
-                              <Trash2Icon size={14} aria-hidden />
-                            </Button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-end">
-                      <Input
-                        label="Username"
-                        value={newModUsername}
-                        onChange={(e) => setNewModUsername(e.target.value)}
-                        placeholder="listener-handle"
-                        className="min-w-0 sm:min-w-48"
-                      />
-                      <Button
-                        size="icon-sm"
-                        disabled={!newModUsername.trim()}
-                        aria-label="Add moderator"
-                        title="Add moderator"
-                        onClick={() => {
-                          void addModerator(newModUsername.trim()).then((r) => {
-                            if (!r.ok) {
-                              toast.error(r.error);
-                            } else {
-                              setNewModUsername('');
-                              toast.success(
-                                `Added ${r.data.displayName} as moderator.`,
-                              );
-                              reload();
-                            }
-                          });
-                        }}
-                      >
-                        <UserRoundPlusIcon size={15} aria-hidden />
-                      </Button>
-                    </div>
-                  </div>
-                </StudioPanel>
-              ),
-            },
-            {
-              id: 'bans',
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  <BanIcon size={14} aria-hidden /> Chat bans
-                </span>
-              ),
-              content: (
-                <StudioPanel
-                  title="Chat bans"
-                  description="Stop a device or session from posting by its chat fingerprint."
-                >
-                  <div className="flex flex-col gap-4">
-                    {loading ? (
-                      <PageLoading label="Loading…" />
-                    ) : bans.length === 0 ? (
-                      <p className="text-foreground-secondary text-sm">
-                        No active bans.
-                      </p>
-                    ) : (
-                      <ul className="flex flex-col gap-2">
-                        {bans.map((b) => (
-                          <li
-                            key={b.fingerprintHash}
-                            className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
-                          >
-                            <div>
-                              <div className="font-mono text-xs">
-                                {b.fingerprintHash}
-                              </div>
-                              <div className="text-foreground-secondary text-xs">
-                                Banned {new Date(b.bannedAt).toLocaleString()}
-                              </div>
-                            </div>
-                            <Button
-                              size="icon-sm"
-                              variant="text"
-                              aria-label={`Unban ${b.fingerprintHash}`}
-                              title="Unban fingerprint"
-                              onClick={() => {
-                                void unbanChatFingerprint(
-                                  slug,
-                                  b.fingerprintHash,
-                                ).then((r) => {
-                                  if (!r.ok) {
-                                    toast.error(r.error);
-                                  } else {
-                                    toast.success('Unbanned.');
-                                    reload();
-                                  }
-                                });
-                              }}
-                            >
-                              <Trash2Icon size={14} aria-hidden />
-                            </Button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-end">
-                      <Input
-                        label="Fingerprint hash"
-                        value={newBanHash}
-                        onChange={(e) => setNewBanHash(e.target.value)}
-                        placeholder="from a chat message's report action"
-                        className="min-w-0 sm:min-w-48"
-                      />
-                      <Button
-                        size="icon-sm"
-                        disabled={!newBanHash.trim()}
-                        aria-label="Ban fingerprint"
-                        title="Ban fingerprint"
-                        onClick={() => {
-                          void banChatFingerprint(slug, newBanHash.trim()).then(
-                            (r) => {
-                              if (!r.ok) {
-                                toast.error(r.error);
-                              } else {
-                                setNewBanHash('');
-                                toast.success('Fingerprint banned.');
-                                reload();
-                              }
-                            },
-                          );
-                        }}
-                      >
-                        <BanIcon size={15} aria-hidden />
-                      </Button>
-                    </div>
-                  </div>
-                </StudioPanel>
-              ),
-            },
-          ]}
-        />
-        <ConfirmDialog
-          isOpen={pendingRemoveMod !== null}
-          title={
-            pendingRemoveMod
-              ? `Remove ${pendingRemoveMod.displayName} as moderator?`
-              : 'Remove moderator?'
-          }
-          description="They lose chat moderation on this channel."
-          confirmLabel="Remove"
-          onCancel={() => setPendingRemoveMod(null)}
-          onConfirm={() => {
-            const moderator = pendingRemoveMod;
-            setPendingRemoveMod(null);
-            if (!moderator) {
-              return;
-            }
-            void removeModerator(moderator.id).then((result) => {
-              if (!result.ok) {
-                toast.error(result.error);
-                return;
-              }
-              toast.success('Moderator removed.');
-              reload();
-            });
-          }}
-        />
       </div>
     </StudioGate>
   );
