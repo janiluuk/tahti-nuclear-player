@@ -1,12 +1,15 @@
 import { Link } from '@tanstack/react-router';
 import {
+  ChevronDownIcon,
+  ChevronUpIcon,
   CircleDotIcon,
+  EyeIcon,
+  EyeOffIcon,
   FolderOpenIcon,
   HeadphonesIcon,
   ListMusicIcon,
   PlusIcon,
   RadioIcon,
-  Settings2Icon,
   Trash2Icon,
   VideoIcon,
 } from 'lucide-react';
@@ -24,7 +27,6 @@ import {
 } from '@tahti-player/ui';
 
 import {
-  createRtmpTarget,
   deleteRtmpTarget,
   fetchBroadcastPreflight,
   fetchBroadcastUsage,
@@ -49,7 +51,11 @@ import {
 } from '../../components/BroadcastPreflightPanel';
 import { ChannelShareButton } from '../../components/ChannelShareButton';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { MulticastDestinationForm } from '../../components/MulticastDestinationForm';
+import { HelpLayer } from '../../components/HelpLayer';
+import {
+  MulticastConfigureDialog,
+  type MulticastConfiguring,
+} from '../../components/MulticastConfigureDialog';
 import { ObsPresetButton } from '../../components/ObsPresetButton';
 import { SignalCheckWidget } from '../../components/SignalCheckWidget';
 import { StreamManagerPanel } from '../../components/StreamManagerPanel';
@@ -59,7 +65,7 @@ import { StudioPanel } from '../../components/StudioPanel';
 import { OnAirBadge } from '../../components/tahti/OnAirBadge';
 import {
   multicastProviderLabel,
-  type MulticastProviderId,
+  multicastProviders,
 } from '../../plugins/multicast';
 import { useAuthStore } from '../../stores/authStore';
 import { useBroadcastPresenceStore } from '../../stores/broadcastPresenceStore';
@@ -72,7 +78,19 @@ type Ingest = 'obs' | 'icecast' | 'traktor';
 // CopyButton (@tahti-player/ui) — this used to hand-roll the same
 // check-icon-swap CopyButton already provides. See WORKPLAN.md's
 // URL-field copy convention entry.
-function CopyField({ label, value }: { label: string; value: string }) {
+function CopyField({
+  label,
+  value,
+  maskable = false,
+}: {
+  label: string;
+  value: string;
+  /** Starts hidden behind dots with a reveal toggle — for secrets
+   * (stream keys, passwords) rather than public-facing values (server
+   * host, mount point). */
+  maskable?: boolean;
+}) {
+  const [revealed, setRevealed] = useState(!maskable);
   return (
     <div className="border-border bg-background-secondary flex flex-col gap-1 rounded-lg border p-3">
       <div className="text-foreground-secondary font-mono text-xs tracking-wide uppercase">
@@ -80,8 +98,24 @@ function CopyField({ label, value }: { label: string; value: string }) {
       </div>
       <div className="flex items-center gap-2">
         <code className="text-foreground flex-1 overflow-x-auto font-mono text-sm whitespace-nowrap">
-          {value}
+          {revealed ? value : '•'.repeat(Math.min(value.length, 24))}
         </code>
+        {maskable && (
+          <Tooltip content={revealed ? `Hide ${label}` : `Show ${label}`}>
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              onClick={() => setRevealed((current) => !current)}
+              aria-label={revealed ? `Hide ${label}` : `Show ${label}`}
+            >
+              {revealed ? (
+                <EyeOffIcon size={14} aria-hidden />
+              ) : (
+                <EyeIcon size={14} aria-hidden />
+              )}
+            </Button>
+          </Tooltip>
+        )}
         <CopyButton
           text={value}
           variant="secondary"
@@ -121,17 +155,17 @@ export function StudioGoLiveView() {
   );
   const [rotationPlaying, setRotationPlaying] = useState(false);
   const [ingest, setIngest] = useState<Ingest>('obs');
+  const [credentialsExpanded, setCredentialsExpanded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [newProvider, setNewProvider] = useState<MulticastProviderId>('TWITCH');
-  const [newKey, setNewKey] = useState('');
-  const [newLabel, setNewLabel] = useState('');
-  const [newRtmpUrl, setNewRtmpUrl] = useState('');
   const [showAddDestination, setShowAddDestination] = useState(false);
+  const [configuringDestination, setConfiguringDestination] =
+    useState<MulticastConfiguring | null>(null);
   const [recordEnabled, setRecordEnabled] = useState(true);
   const [recordBusy, setRecordBusy] = useState(false);
   const [preflight, setPreflight] = useState<BroadcastPreflight | null>(null);
   const [showInfoConfirmed, setShowInfoConfirmed] = useState(false);
+  const [showInfoModalOpen, setShowInfoModalOpen] = useState(false);
   const [pendingDeleteTarget, setPendingDeleteTarget] =
     useState<RtmpTarget | null>(null);
 
@@ -147,6 +181,7 @@ export function StudioGoLiveView() {
     (playbackStatus === 'playing' || playbackStatus === 'loading');
   const isPreviewListening =
     currentId === streamPlayableId && playbackStatus === 'playing';
+  const showInfoReady = showInfoConfirmed || Boolean(preflight?.title?.trim());
 
   const patchLocalChannel = useCallback((state: string) => {
     setChannelState(state);
@@ -268,13 +303,14 @@ export function StudioGoLiveView() {
     const next = !recordEnabled;
     setRecordEnabled(next);
     setRecordBusy(true);
-    setMessage(null);
     const result = await patchBroadcastPreflight({ autoArchive: next });
     setRecordBusy(false);
     if ('error' in result) {
       setRecordEnabled(!next);
-      setMessage(result.error);
+      toast.error(result.error);
+      return;
     }
+    toast.success(next ? 'Recording enabled.' : 'Recording disabled.');
   };
 
   const renderCredentials = () => {
@@ -326,6 +362,30 @@ export function StudioGoLiveView() {
             )}
           </div>
 
+          <HelpLayer title="How broadcasting works here" className="mb-4">
+            <p>
+              Connect OBS, Streamlabs, Traktor, Mixxx, or another
+              Icecast-compatible app using the Server and Stream key (or
+              Mount/Password) shown below — pick your app under "Connect
+              broadcasting software" to see the matching fields.
+            </p>
+            <p>
+              Using OBS? The "Ready-made OBS setup" download bundles a scene
+              preset with this channel&apos;s current credentials already filled
+              in, so you don&apos;t have to type them in by hand.
+            </p>
+            <p>
+              Multistream mirrors your broadcast to other platforms like YouTube
+              or Twitch at the same time — add a destination from the
+              Multistream panel once you&apos;re set up.
+            </p>
+            <p>
+              Recording saves this and future broadcasts to your recordings
+              archive automatically; turn it off if you&apos;d rather not keep a
+              copy.
+            </p>
+          </HelpLayer>
+
           {message && (
             <p
               className={`rounded-lg border px-3 py-2 text-sm ${
@@ -367,6 +427,24 @@ export function StudioGoLiveView() {
               onDirty={() => setShowInfoConfirmed(false)}
             />
 
+            <Dialog.Root
+              isOpen={showInfoModalOpen}
+              onClose={() => setShowInfoModalOpen(false)}
+              className="max-w-lg"
+            >
+              <Dialog.Title>Show info</Dialog.Title>
+              <div className="mt-4">
+                <BroadcastPreflightPanel
+                  onSaved={() => {
+                    setShowInfoConfirmed(true);
+                    setShowInfoModalOpen(false);
+                    void reload();
+                  }}
+                  onDirty={() => setShowInfoConfirmed(false)}
+                />
+              </div>
+            </Dialog.Root>
+
             <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(17rem,2fr)]">
               <div className="flex min-w-0 flex-col gap-5">
                 <StudioPanel
@@ -385,19 +463,32 @@ export function StudioGoLiveView() {
                       : 'Start streaming in OBS, Traktor, Mixxx, or another Icecast-compatible app.'
                   }
                   action={
-                    !isBroadcastLive ? (
-                      <Button
-                        disabled={busy || !signalOk || usage?.blocked}
-                        onClick={() => void onGoLive()}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowInfoModalOpen(true)}
+                        className="border-border hover:bg-background-secondary inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
                       >
-                        <RadioIcon size={16} aria-hidden className="mr-1.5" />
-                        {busy
-                          ? 'Going live…'
-                          : rotationPlaying
-                            ? 'Take over rotation'
-                            : 'Go Live'}
-                      </Button>
-                    ) : undefined
+                        <Badge
+                          variant="dot"
+                          color={showInfoReady ? 'green' : 'yellow'}
+                        />
+                        Show info
+                      </button>
+                      {!isBroadcastLive ? (
+                        <Button
+                          disabled={busy || !signalOk || usage?.blocked}
+                          onClick={() => void onGoLive()}
+                        >
+                          <RadioIcon size={16} aria-hidden className="mr-1.5" />
+                          {busy
+                            ? 'Going live…'
+                            : rotationPlaying
+                              ? 'Take over rotation'
+                              : 'Go Live'}
+                        </Button>
+                      ) : null}
+                    </div>
                   }
                 >
                   {rotationPlaying && !isBroadcastLive && !preflight?.title ? (
@@ -428,76 +519,103 @@ export function StudioGoLiveView() {
 
                 <StudioPanel
                   title="Connect broadcasting software"
-                  description="Choose your app, then copy the matching credentials."
+                  action={
+                    <Tooltip
+                      content={
+                        credentialsExpanded
+                          ? 'Hide broadcasting options'
+                          : 'Show broadcasting options'
+                      }
+                    >
+                      <Button
+                        size="icon-sm"
+                        variant="secondary"
+                        onClick={() =>
+                          setCredentialsExpanded((current) => !current)
+                        }
+                        aria-label={
+                          credentialsExpanded
+                            ? 'Hide broadcasting options'
+                            : 'Show broadcasting options'
+                        }
+                        aria-expanded={credentialsExpanded}
+                      >
+                        {credentialsExpanded ? (
+                          <ChevronUpIcon size={16} aria-hidden />
+                        ) : (
+                          <ChevronDownIcon size={16} aria-hidden />
+                        )}
+                      </Button>
+                    </Tooltip>
+                  }
                 >
-                  <div className="mb-4 flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      variant={ingest === 'obs' ? 'default' : 'secondary'}
-                      onClick={() => setIngest('obs')}
-                    >
-                      <VideoIcon size={14} aria-hidden className="mr-1.5" />
-                      OBS
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={ingest === 'traktor' ? 'default' : 'secondary'}
-                      onClick={() => setIngest('traktor')}
-                    >
-                      <HeadphonesIcon
-                        size={14}
-                        aria-hidden
-                        className="mr-1.5"
-                      />
-                      Traktor
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={ingest === 'icecast' ? 'default' : 'secondary'}
-                      onClick={() => setIngest('icecast')}
-                    >
-                      <RadioIcon size={14} aria-hidden className="mr-1.5" />
-                      Icecast
-                    </Button>
-                  </div>
-                  {renderCredentials()}
-                  {ingest === 'obs' && settings && slug ? (
-                    <div className="border-border bg-background-secondary/40 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold">
-                          Ready-made OBS setup
-                        </p>
-                        <p className="text-foreground-secondary mt-1 text-xs">
-                          Download a preset containing this channel&apos;s scene
-                          and current stream credentials.
-                        </p>
-                      </div>
-                      <ObsPresetButton
-                        channelName={displayName}
-                        channelSlug={slug}
-                        server={settings.rtmp.server}
-                        streamKey={settings.rtmp.streamKey}
+                  {settings && (
+                    <div className="flex flex-col gap-2">
+                      <CopyField label="Server" value={settings.rtmp.server} />
+                      <CopyField
+                        label="Stream key"
+                        value={settings.rtmp.streamKey}
+                        maskable
                       />
                     </div>
-                  ) : null}
-                  <div className="text-foreground-secondary mt-4 flex items-start gap-2 text-xs">
-                    <Settings2Icon
-                      size={14}
-                      className="mt-0.5 shrink-0"
-                      aria-hidden
-                    />
-                    {ingest === 'obs'
-                      ? 'In OBS, open Settings → Stream → Custom, paste both values, then choose Start Streaming.'
-                      : 'Paste these values into the broadcasting section of your audio app, then enable its On Air control.'}
-                  </div>
+                  )}
+                  {credentialsExpanded && (
+                    <>
+                      <div className="mt-4 mb-4 flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          variant={ingest === 'obs' ? 'default' : 'secondary'}
+                          onClick={() => setIngest('obs')}
+                        >
+                          <VideoIcon size={14} aria-hidden className="mr-1.5" />
+                          OBS
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={
+                            ingest === 'traktor' ? 'default' : 'secondary'
+                          }
+                          onClick={() => setIngest('traktor')}
+                        >
+                          <HeadphonesIcon
+                            size={14}
+                            aria-hidden
+                            className="mr-1.5"
+                          />
+                          Traktor
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={
+                            ingest === 'icecast' ? 'default' : 'secondary'
+                          }
+                          onClick={() => setIngest('icecast')}
+                        >
+                          <RadioIcon size={14} aria-hidden className="mr-1.5" />
+                          Icecast
+                        </Button>
+                      </div>
+                      {renderCredentials()}
+                      {ingest === 'obs' && settings && slug ? (
+                        <div className="border-border bg-background-secondary/40 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
+                          <p className="text-sm font-semibold">
+                            Ready-made OBS setup
+                          </p>
+                          <ObsPresetButton
+                            channelName={displayName}
+                            channelSlug={slug}
+                            server={settings.rtmp.server}
+                            streamKey={settings.rtmp.streamKey}
+                          />
+                        </div>
+                      ) : null}
+                    </>
+                  )}
                 </StudioPanel>
               </div>
 
               <div className="flex min-w-0 flex-col gap-5">
-                <StudioPanel
-                  title="Recording"
-                  description="Save this and future broadcasts to your recordings archive."
-                >
+                <StudioPanel title="Recording">
                   <div className="border-border bg-background flex w-full items-center gap-3 rounded-lg border p-3">
                     <CircleDotIcon
                       size={20}
@@ -537,7 +655,6 @@ export function StudioGoLiveView() {
 
                 <StudioPanel
                   title="Multistream"
-                  description="Mirror your broadcast to other platforms."
                   action={
                     <Tooltip content="Add destination" side="top">
                       <Button
@@ -578,9 +695,19 @@ export function StudioGoLiveView() {
                                 size="sm"
                                 variant="secondary"
                                 onClick={() => {
+                                  const nextEnabled = !target.enabled;
                                   void patchRtmpTarget(target.id, {
-                                    enabled: !target.enabled,
-                                  }).then(() => reload());
+                                    enabled: nextEnabled,
+                                  }).then((result) => {
+                                    if (!result.ok) {
+                                      toast.error(result.error);
+                                      return;
+                                    }
+                                    toast.success(
+                                      `${target.label || multicastProviderLabel(target.provider)} ${nextEnabled ? 'enabled' : 'disabled'}.`,
+                                    );
+                                    void reload();
+                                  });
                                 }}
                               >
                                 {target.enabled ? 'Disable' : 'Enable'}
@@ -608,62 +735,55 @@ export function StudioGoLiveView() {
 
           <Dialog.Root
             isOpen={showAddDestination}
-            onClose={() => {
-              setShowAddDestination(false);
-              setNewKey('');
-              setNewLabel('');
-              setNewRtmpUrl('');
-            }}
+            onClose={() => setShowAddDestination(false)}
           >
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                event.preventDefault();
-              }}
-            >
-              <Dialog.Title>
-                <span className="inline-flex items-center gap-2">
-                  <ListMusicIcon size={18} aria-hidden />
-                  Add multistream destination
-                </span>
-              </Dialog.Title>
-              <div className="mt-4">
-                <MulticastDestinationForm
-                  provider={newProvider}
-                  label={newLabel}
-                  streamKey={newKey}
-                  rtmpUrl={newRtmpUrl}
-                  onProviderChange={setNewProvider}
-                  onLabelChange={setNewLabel}
-                  onStreamKeyChange={setNewKey}
-                  onRtmpUrlChange={setNewRtmpUrl}
-                  submitLabel="Save destination"
-                  onSubmit={() => {
-                    void createRtmpTarget({
-                      provider: newProvider,
-                      streamKey: newKey.trim(),
-                      label: newLabel.trim() || undefined,
-                      rtmpUrl: newRtmpUrl.trim() || undefined,
-                      enabled: true,
-                    }).then((result) => {
-                      if (!result.ok) {
-                        setMessage(result.error);
-                        return;
-                      }
-                      setNewKey('');
-                      setNewLabel('');
-                      setNewRtmpUrl('');
-                      setShowAddDestination(false);
-                      void reload();
-                    });
-                  }}
-                />
-              </div>
-              <Dialog.Actions>
-                <Dialog.Close>Cancel</Dialog.Close>
-              </Dialog.Actions>
-            </form>
+            <Dialog.Title>
+              <span className="inline-flex items-center gap-2">
+                <ListMusicIcon size={18} aria-hidden />
+                Add multistream destination
+              </span>
+            </Dialog.Title>
+            <Dialog.Description>
+              Choose a platform to configure.
+            </Dialog.Description>
+            <ul className="mt-4 flex flex-col gap-1.5">
+              {multicastProviders
+                .filter(
+                  (provider) =>
+                    !targets.some((t) => t.provider === provider.id),
+                )
+                .map((provider) => (
+                  <li key={provider.id}>
+                    <Button
+                      variant="secondary"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setShowAddDestination(false);
+                        setConfiguringDestination({
+                          provider: provider.id,
+                          existing: null,
+                        });
+                      }}
+                    >
+                      {provider.label}
+                    </Button>
+                  </li>
+                ))}
+            </ul>
+            <Dialog.Actions>
+              <Dialog.Close>Cancel</Dialog.Close>
+            </Dialog.Actions>
           </Dialog.Root>
+          {configuringDestination ? (
+            <MulticastConfigureDialog
+              configuring={configuringDestination}
+              onClose={() => setConfiguringDestination(null)}
+              onSaved={() => {
+                setConfiguringDestination(null);
+                void reload();
+              }}
+            />
+          ) : null}
           <ConfirmDialog
             isOpen={pendingDeleteTarget !== null}
             title={

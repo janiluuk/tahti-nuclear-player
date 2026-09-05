@@ -45,7 +45,7 @@ function FadeSwitch({
   return (
     <div
       key={activeKey}
-      className={`transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      className={`flex h-full min-h-0 flex-col transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
       {children}
     </div>
@@ -71,9 +71,9 @@ export function ChannelElementEditor({
     <section
       data-testid="channel-element-editor"
       aria-label="Channel look editor"
-      className={`border-border bg-background flex min-h-0 flex-col overflow-hidden rounded-xl border ${className}`}
+      className={`flex min-h-0 flex-col overflow-hidden bg-transparent ${className}`}
     >
-      <header className="border-border flex flex-col gap-2 border-b p-3">
+      <header className="border-border flex shrink-0 flex-col gap-2 border-b pb-3">
         <div className="flex items-end gap-2">
           <div className="min-w-0 flex-1">
             <Select
@@ -143,7 +143,7 @@ export function ChannelElementEditor({
         </div>
         <p className="text-foreground-secondary text-xs">{selectedMeta.hint}</p>
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pt-3">
         <FadeSwitch activeKey={selectedId}>
           <div
             className={

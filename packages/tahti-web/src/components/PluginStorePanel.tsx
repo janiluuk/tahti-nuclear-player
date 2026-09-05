@@ -11,6 +11,7 @@ import {
   ListPlus,
   PauseIcon,
   PlayIcon,
+  PowerIcon,
   Radio as RadioIcon,
   SearchIcon,
   SettingsIcon,
@@ -43,10 +44,8 @@ import {
 } from '@tahti-player/ui';
 
 import {
-  createRtmpTarget,
   deleteRtmpTarget,
   fetchRtmpTargets,
-  patchRtmpTarget,
   type RtmpTarget,
 } from '../api/broadcast';
 import {
@@ -109,7 +108,7 @@ import {
   radioStationPlayable,
   type RadioStation,
 } from '../content/radioStations';
-import { hasAccountRole } from '../lib/accountRoles';
+import { getAccountRole, hasAccountRole } from '../lib/accountRoles';
 import { flagEmoji } from '../lib/countries';
 import {
   ALL_PLUGIN_IDS,
@@ -126,11 +125,7 @@ import {
   toolSourceAdapter,
 } from '../plugins/import-sources';
 import { useMasteringFeatureStore } from '../plugins/mastering/store';
-import {
-  multicastProviderLabel,
-  multicastProviders,
-  type MulticastProviderId,
-} from '../plugins/multicast';
+import { multicastProviders } from '../plugins/multicast';
 import { LastFmAddonCard } from '../plugins/scrobble/LastFmAddonCard';
 import { ListenBrainzAddonCard } from '../plugins/scrobble/ListenBrainzAddonCard';
 import { SoulseekAddonCard } from '../plugins/soulseek/SoulseekAddonCard';
@@ -154,6 +149,10 @@ import { useSettingsModalStore } from '../stores/settingsModalStore';
 import { ChannelVisualizer } from './ChannelVisualizer';
 import { DiscoWidgetManagerPanel } from './disco-widgets/DiscoWidgetManagerPanel';
 import { ListenAddonsPanel } from './ListenAddonsPanel';
+import {
+  MulticastConfigureDialog,
+  type MulticastConfiguring,
+} from './MulticastConfigureDialog';
 import { PageLoading } from './PageStates';
 import { RadioStationCover } from './RadioStationCover';
 import { SourceServiceIcon } from './SourceServiceIcon';
@@ -212,9 +211,6 @@ function ConfigurableCard({
         className={dialogClassName}
       >
         <Dialog.Title>Configure {title}</Dialog.Title>
-        <Dialog.Description>
-          Changes are saved for this add-on.
-        </Dialog.Description>
         <div className="mt-4 flex flex-col gap-4">{children}</div>
         <Dialog.Actions>
           <Dialog.Close>Done</Dialog.Close>
@@ -292,9 +288,17 @@ export function PluginStorePanel() {
   const pluginCategory = useSettingsModalStore((s) => s.pluginCategory);
   const user = useAuthStore((s) => s.user);
   const isBoard = hasAccountRole(user, 'BOARD');
+  const isArtistOrAbove = Boolean(user && getAccountRole(user) !== 'LISTENER');
   const categories = useMemo(
-    () => PLUGIN_CATEGORIES.filter((c) => (c.id === 'tools' ? isBoard : true)),
-    [isBoard],
+    () =>
+      PLUGIN_CATEGORIES.filter((c) =>
+        c.id === 'tools'
+          ? isBoard
+          : c.id === 'audio-plugins'
+            ? isArtistOrAbove
+            : true,
+      ),
+    [isBoard, isArtistOrAbove],
   );
   const [category, setCategory] = useState<PluginCategoryId>('themes');
 
@@ -2287,159 +2291,6 @@ function HearthisCard({ plugin }: { plugin: ServicePlugin }) {
 
 // ── Multicast / Audio plugins ───────────────────────────────────────────────
 
-type MulticastConfiguring = {
-  provider: MulticastProviderId;
-  existing: RtmpTarget | null;
-};
-
-function MulticastConfigureDialog({
-  configuring,
-  onClose,
-  onSaved,
-}: {
-  configuring: MulticastConfiguring;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
-  const { provider, existing } = configuring;
-  const isCustom = provider === 'CUSTOM';
-  const [label, setLabel] = useState(existing?.label ?? '');
-  const [address, setAddress] = useState('');
-  const [port, setPort] = useState('1935');
-  const [streamKey, setStreamKey] = useState('');
-  const [enabled, setEnabled] = useState(existing?.enabled ?? true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const save = () => {
-    setError(null);
-    if (existing) {
-      // The API only lets an existing target's label/enabled state change
-      // -- its stream key and RTMP address are fixed at creation, so there
-      // is nothing else here to resend.
-      setSaving(true);
-      void patchRtmpTarget(existing.id, {
-        label: label.trim() || undefined,
-        enabled,
-      }).then((result) => {
-        setSaving(false);
-        if (!result.ok) {
-          setError(result.error);
-          return;
-        }
-        onSaved();
-      });
-      return;
-    }
-    if (!streamKey.trim() || (isCustom && !address.trim())) {
-      setError(
-        isCustom
-          ? 'RTMP address and stream key are required.'
-          : 'Stream key is required.',
-      );
-      return;
-    }
-    const rtmpUrl = isCustom
-      ? `${address.trim().replace(/\/$/, '')}:${port.trim() || '1935'}`
-      : undefined;
-    setSaving(true);
-    void createRtmpTarget({
-      provider,
-      streamKey: streamKey.trim(),
-      label: label.trim() || undefined,
-      rtmpUrl,
-      enabled,
-    }).then((result) => {
-      setSaving(false);
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      onSaved();
-    });
-  };
-
-  return (
-    <Dialog.Root
-      isOpen
-      onClose={() => !saving && onClose()}
-      className="max-w-lg"
-    >
-      <Dialog.Title>Configure {multicastProviderLabel(provider)}</Dialog.Title>
-      <Dialog.Description>
-        {existing
-          ? 'Update the destination label and whether it mirrors your live stream.'
-          : 'Enter the credential this platform uses for live streaming. Custom RTMP also needs its server address and port.'}
-      </Dialog.Description>
-      <div className="mt-4 flex flex-col gap-3">
-        <Input
-          label="Label (optional)"
-          value={label}
-          onChange={(event) => setLabel(event.target.value)}
-          placeholder={multicastProviderLabel(provider)}
-        />
-        {existing ? (
-          <p className="text-foreground-secondary text-xs">
-            {existing.rtmpUrl}
-            {existing.keyLast4 ? ` · key ···${existing.keyLast4}` : ''}
-          </p>
-        ) : (
-          <>
-            {isCustom ? (
-              <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
-                <Input
-                  label="RTMP address"
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
-                  placeholder="rtmp://stream.example.com/live"
-                />
-                <Input
-                  label="Port"
-                  value={port}
-                  onChange={(event) => setPort(event.target.value)}
-                  placeholder="1935"
-                  inputMode="numeric"
-                />
-              </div>
-            ) : (
-              <p className="text-foreground-secondary text-xs">
-                Ingest server:{' '}
-                {multicastProviders.find((item) => item.id === provider)
-                  ?.rtmpUrlHint ?? 'the platform chooses the ingest server'}
-              </p>
-            )}
-            <Input
-              label={isCustom ? 'Stream key' : 'Stream key / API key'}
-              value={streamKey}
-              onChange={(event) => setStreamKey(event.target.value)}
-              placeholder={
-                isCustom ? 'Paste stream key' : 'Paste platform credential'
-              }
-            />
-          </>
-        )}
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <span>Enabled — mirror the live stream here</span>
-          <Toggle
-            label="Enabled — mirror the live stream here"
-            checked={enabled}
-            onChange={setEnabled}
-          />
-        </div>
-        {error ? (
-          <p className="text-accent-red text-sm" role="alert">
-            {error}
-          </p>
-        ) : null}
-      </div>
-      <Dialog.Actions>
-        <Dialog.Close>Cancel</Dialog.Close>
-        <SaveButton saving={saving} label="Save destination" onClick={save} />
-      </Dialog.Actions>
-    </Dialog.Root>
-  );
-}
-
 function MulticastCategory() {
   const [targets, setTargets] = useState<RtmpTarget[] | null>(null);
   const [configuring, setConfiguring] = useState<MulticastConfiguring | null>(
@@ -2572,11 +2423,17 @@ function AudioPluginToggleRow({
       onInstall={onToggle}
       labels={{ install: 'Activate', installed: 'Active' }}
       accessory={
-        <Toggle
-          label={`${enabled ? 'Deactivate' : 'Activate'} ${name}`}
-          checked={enabled}
-          onChange={() => onToggle()}
-        />
+        <Tooltip content={enabled ? `Deactivate ${name}` : `Activate ${name}`}>
+          <Button
+            size="icon-sm"
+            variant={enabled ? 'default' : 'secondary'}
+            onClick={() => onToggle()}
+            aria-label={enabled ? `Deactivate ${name}` : `Activate ${name}`}
+            aria-pressed={enabled}
+          >
+            <PowerIcon size={16} aria-hidden />
+          </Button>
+        </Tooltip>
       }
     />
   );
@@ -2597,8 +2454,8 @@ function AudioPluginsCategory() {
        * there) — this is the client-side reference-track matching tool,
        * see plugins/mastering/README.md. */}
       <AudioPluginToggleRow
-        name="Mastering (reference matching)"
-        author="Client-side · always available"
+        name="Reference Match"
+        author="Pro Editor"
         description="Match a track's loudness and tonal balance toward a reference track — the 'Master' / 'Match to a reference track' entry points on Sounds and the track editor."
         enabled={masteringEnabled}
         onToggle={() => setMasteringEnabled(!masteringEnabled)}
@@ -3003,14 +2860,23 @@ function CuratedFinnishStationRow({
           <SettingsIcon size={14} aria-hidden />
         </Button>
       </Tooltip>
-      <SaveButton
-        size="sm"
-        label={enabled ? 'Enabled' : 'Enable'}
-        onClick={onToggleEnable}
-        aria-label={
-          enabled ? `Disable ${station.name}` : `Enable ${station.name}`
-        }
-      />
+      <Tooltip
+        content={enabled ? `Disable ${station.name}` : `Enable ${station.name}`}
+        side="top"
+      >
+        <Button
+          type="button"
+          size="icon-sm"
+          variant={enabled ? 'default' : 'secondary'}
+          aria-label={
+            enabled ? `Disable ${station.name}` : `Enable ${station.name}`
+          }
+          aria-pressed={enabled}
+          onClick={onToggleEnable}
+        >
+          <PowerIcon size={14} aria-hidden />
+        </Button>
+      </Tooltip>
     </li>
   );
 }
@@ -3039,6 +2905,7 @@ function RadioBrowserDirectoryCard() {
   const [tags, setTags] = useState<RadioBrowserTag[]>([]);
   const [query, setQuery] = useState('');
   const [genres, setGenres] = useState<string[]>([]);
+  const [genresExpanded, setGenresExpanded] = useState(false);
   const [country, setCountry] = useState('');
   const [results, setResults] = useState<PublicRadioStation[]>([]);
   const [searching, setSearching] = useState(false);
@@ -3105,7 +2972,11 @@ function RadioBrowserDirectoryCard() {
   const curatedStations = RADIO_STATIONS.map((baseStation) => ({
     ...baseStation,
     ...stationOverrides[baseStation.id],
-  }));
+  })).sort((a, b) => {
+    const aEnabled = enabledStationIds.includes(a.id);
+    const bEnabled = enabledStationIds.includes(b.id);
+    return aEnabled === bEnabled ? 0 : aEnabled ? -1 : 1;
+  });
 
   const genreOptions = tags.slice(0, 24).map((tag) => ({
     id: tag.name,
@@ -3135,91 +3006,6 @@ function RadioBrowserDirectoryCard() {
         ) : (
           <Tabs
             items={[
-              {
-                id: 'browser',
-                label: 'Browser',
-                content: (
-                  <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-2">
-                      <Input
-                        size="sm"
-                        type="search"
-                        value={query}
-                        onChange={(event) => setQuery(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter') {
-                            runSearch();
-                          }
-                        }}
-                        placeholder="Search stations"
-                        aria-label="Search stations"
-                        startAddon={
-                          <SearchIcon
-                            size={14}
-                            aria-hidden
-                            className="opacity-70"
-                          />
-                        }
-                      />
-                      {genreOptions.length > 0 ? (
-                        <FilterChips
-                          multiple
-                          items={genreOptions}
-                          selected={genres}
-                          onChange={setGenres}
-                          aria-label="Genres"
-                        />
-                      ) : null}
-                      <Select
-                        className="w-full"
-                        options={[
-                          { id: '', label: 'All countries' },
-                          ...countries.map((entry) => ({
-                            id: entry.code,
-                            label: `${flagEmoji(entry.code)} ${entry.name} (${entry.stationCount})`,
-                          })),
-                        ]}
-                        value={country}
-                        onValueChange={setCountry}
-                      />
-                      <Button
-                        size="sm"
-                        disabled={searching}
-                        onClick={runSearch}
-                        className="self-start"
-                      >
-                        {searching ? 'Searching…' : 'Search'}
-                      </Button>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <h3 className="font-display text-sm font-bold tracking-wide uppercase">
-                        {isFiltered ? 'Results' : 'Popular stations'}
-                        {stationCount
-                          ? ` · ${stationCount.toLocaleString()} total`
-                          : ''}
-                      </h3>
-                      {results.length === 0 ? (
-                        <EmptyState
-                          size="sm"
-                          title="No stations found"
-                          description="Try another search or clear the filters."
-                        />
-                      ) : (
-                        <ul className="grid max-h-72 grid-cols-1 gap-1.5 overflow-y-auto sm:grid-cols-2">
-                          {results.map((station) => (
-                            <RadioBrowserStationRow
-                              key={station.id}
-                              station={station}
-                              onPlay={() => playStation(station)}
-                              {...saveProps(station)}
-                            />
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                ),
-              },
               {
                 id: 'stations',
                 label: 'Stations',
@@ -3307,6 +3093,109 @@ function RadioBrowserDirectoryCard() {
                           );
                         })}
                       </ul>
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                id: 'browser',
+                label: 'Browser',
+                content: (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2">
+                      <Input
+                        size="sm"
+                        type="search"
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            runSearch();
+                          }
+                        }}
+                        placeholder="Search stations"
+                        aria-label="Search stations"
+                        startAddon={
+                          <SearchIcon
+                            size={14}
+                            aria-hidden
+                            className="opacity-70"
+                          />
+                        }
+                        endAddon={
+                          <Tooltip content="Search" side="top">
+                            <button
+                              type="button"
+                              disabled={searching}
+                              onClick={runSearch}
+                              aria-label="Search"
+                              className="disabled:opacity-60"
+                            >
+                              <SearchIcon size={14} aria-hidden />
+                            </button>
+                          </Tooltip>
+                        }
+                      />
+                      {genreOptions.length > 0 ? (
+                        <div className="flex flex-col gap-1.5">
+                          <button
+                            type="button"
+                            className="text-foreground-secondary hover:text-foreground self-start text-xs font-medium underline-offset-2 hover:underline"
+                            onClick={() =>
+                              setGenresExpanded((current) => !current)
+                            }
+                          >
+                            {genresExpanded ? 'Hide genres' : 'All genres'}
+                          </button>
+                          {genresExpanded || genres.length > 0 ? (
+                            <FilterChips
+                              multiple
+                              items={genreOptions}
+                              selected={genres}
+                              onChange={setGenres}
+                              aria-label="Genres"
+                            />
+                          ) : null}
+                        </div>
+                      ) : null}
+                      <Select
+                        className="w-full"
+                        options={[
+                          { id: '', label: 'All countries' },
+                          ...countries.map((entry) => ({
+                            id: entry.code,
+                            label: `${flagEmoji(entry.code)} ${entry.name} (${entry.stationCount})`,
+                          })),
+                        ]}
+                        value={country}
+                        onValueChange={setCountry}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+                        {isFiltered ? 'Results' : 'Popular stations'}
+                        {stationCount
+                          ? ` · ${stationCount.toLocaleString()} total`
+                          : ''}
+                      </h3>
+                      {results.length === 0 ? (
+                        <EmptyState
+                          size="sm"
+                          title="No stations found"
+                          description="Try another search or clear the filters."
+                        />
+                      ) : (
+                        <ul className="grid max-h-72 grid-cols-1 gap-1.5 overflow-y-auto sm:grid-cols-2">
+                          {results.map((station) => (
+                            <RadioBrowserStationRow
+                              key={station.id}
+                              station={station}
+                              onPlay={() => playStation(station)}
+                              {...saveProps(station)}
+                            />
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   </div>
                 ),

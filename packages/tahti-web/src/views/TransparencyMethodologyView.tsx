@@ -33,7 +33,6 @@ export function TransparencyMethodologyView() {
   return (
     <ViewShell
       title="Transparency methodology"
-      subtitle="How Tahti ry records and publishes its financial data."
       classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl', scrollableArea: 'gap-8' }}
     >
       <Link

@@ -91,8 +91,8 @@ export const CHANNEL_LOOK_ELEMENTS: readonly ChannelLookElement[] = [
   },
   {
     id: 'backdrop',
-    label: 'Backdrop',
-    hint: 'Header style, slideshow, and page colors behind the channel.',
+    label: 'Background',
+    hint: 'Page banner, header style, and colors behind the channel.',
     layoutType: null,
     canDisable: false,
   },

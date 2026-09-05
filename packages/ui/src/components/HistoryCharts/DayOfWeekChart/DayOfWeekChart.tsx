@@ -10,13 +10,18 @@ export const DayOfWeekChart: FC<DayOfWeekChartProps> = ({
   values,
   labels,
   formatValue,
+  onBarClick,
   className,
   ...props
 }) => {
   const data = labels.weekdays.map((weekday, index) => ({
     weekday,
     value: values[index] ?? 0,
+    index,
   }));
+
+  const tickInterval =
+    data.length > 14 ? Math.max(0, Math.ceil(data.length / 10) - 1) : 0;
 
   return (
     <ResponsiveContainer
@@ -31,6 +36,7 @@ export const DayOfWeekChart: FC<DayOfWeekChartProps> = ({
           dataKey="weekday"
           tickLine={false}
           axisLine={false}
+          interval={tickInterval}
           tick={{ className: 'fill-foreground-secondary text-xs' }}
         />
         <Tooltip
@@ -43,6 +49,12 @@ export const DayOfWeekChart: FC<DayOfWeekChartProps> = ({
           fill="var(--color-primary)"
           stroke="var(--color-border)"
           className="stroke-(length:--border-width)"
+          cursor={onBarClick ? 'pointer' : undefined}
+          onClick={(_, index) => {
+            if (typeof index === 'number') {
+              onBarClick?.(index);
+            }
+          }}
         />
       </BarChart>
     </ResponsiveContainer>

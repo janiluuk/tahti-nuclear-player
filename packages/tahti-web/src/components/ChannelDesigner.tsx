@@ -1,15 +1,12 @@
 import { Link } from '@tanstack/react-router';
 import {
   BookmarkPlusIcon,
-  CheckIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
+  GripVerticalIcon,
   ImageIcon,
-  LinkIcon,
-  PlaySquareIcon,
+  PlusIcon,
   RotateCcwIcon,
-  SettingsIcon,
   Trash2Icon,
+  Undo2Icon,
 } from 'lucide-react';
 import {
   forwardRef,
@@ -27,26 +24,20 @@ import {
   DropdownButton,
   FilePicker,
   Input,
-  PluginItem,
   SaveButton,
   Select,
   Slider,
-  Tabs,
   Toggle,
   Tooltip,
 } from '@tahti-player/ui';
 
 import {
-  BACKGROUND_VISUAL_PRESETS,
-  BRAND_ACCENTS,
   channelLookExtrasFromPatch,
   channelLookExtrasFromVisual,
-  DEFAULT_COLOR_SCHEME,
   deleteChannelVisualPreset,
   fetchChannelVisual,
   fetchChannelVisualPresets,
   fillColorScheme,
-  HEADER_STYLES,
   isHeaderImageUrl,
   isValidHeaderBackdropUrl,
   isVisualPreset,
@@ -62,7 +53,6 @@ import {
   shouldDockVisualizerTuning,
   uploadChannelHeaderVideo,
   VISUAL_PRESETS,
-  youtubeEmbedUrl,
   type ChannelVisual,
   type ChannelVisualPatch,
   type ChannelVisualPreset,
@@ -78,9 +68,7 @@ import {
 import { uploadUserMediaFile } from '../api/user-media';
 import {
   DEFAULT_NOW_PLAYING_OVERLAY_SETTINGS,
-  NOW_PLAYING_OVERLAY_PRESETS,
   parseNowPlayingOverlaySettings,
-  resolveNowPlayingOverlayPreset,
   type NowPlayingOverlaySettings,
 } from '../content/nowPlayingOverlayPresets';
 import {
@@ -103,17 +91,26 @@ import {
   visualizerMetadata,
   visualizerSupportsAudioReactive,
 } from '../plugins/visualizers';
+import {
+  BackdropPanel,
+  LAYOUT_ONLY_LOOK_IDS,
+  LayoutOnlyLookHint,
+  PlayerOverlayControls,
+  PlayerPanel,
+  PlayerVisualizerControls,
+  resolveHeaderDesignMode,
+  VideoOrImageField,
+  type HeaderDesignMode,
+  type PlayerDesignTab,
+} from './channel-designer';
 import { ChannelBackdropCard } from './ChannelBackdropCard';
 import { ChannelElementEditor } from './ChannelElementEditor';
 import { ChannelTextOverlayEditor } from './ChannelTextOverlayEditor';
-import { ChannelTextOverlayView } from './ChannelTextOverlayView';
 import { ChannelVisualizer } from './ChannelVisualizer';
-import { NowPlayingOverlay } from './NowPlayingOverlay';
 import { PageLoading } from './PageStates';
 import { Eyebrow } from './tahti/Eyebrow';
 
 type TabId = 'visualizer' | 'color-scheme' | 'header';
-type PlayerDesignTab = 'gradient' | 'video-image' | 'visualizer' | 'overlay';
 type LookSection =
   | ChannelLookElementId
   | 'player-design'
@@ -129,7 +126,6 @@ const HEADER_MEDIA_TYPES = [
   'image/webp',
   'image/gif',
 ];
-const HEADER_DESIGN_OPTIONS = [...HEADER_STYLES, 'SLIDESHOW'] as const;
 
 const GALLERY_MODES: Array<{ id: ChannelGalleryMode; label: string }> = [
   { id: 'NONE', label: 'None' },
@@ -152,50 +148,25 @@ const SLIDESHOW_PRESETS = [
   ['LIQUID_DISTORTION', 'Liquid distortion'],
 ] as const;
 
-const COLOR_SCHEME_FIELDS = [
-  ['accent', 'Accent / waveform played'],
-  ['highlight', 'Highlight'],
-  ['bg', 'Background'],
-  ['text', 'Foreground'],
-  ['muted', 'Muted / waveform unplayed'],
-] as const;
-
-/** The 5 raw color pickers shared by the header's color-scheme editor and
- * the player's independent gradient (when enabled) — kept separate from the
- * header's brand-accent swatches, which are a header-only concept. */
-function ColorSchemeFields({
-  scheme,
-  onChange,
-}: {
+/** Everything "Save layout" persists — captured before each save so a
+ * "Restore" action can undo it. In-memory only (per the branch's own
+ * design intent): lost on reload, not a durable version history. */
+type LookSnapshot = {
+  visual: ChannelVisual;
   scheme: ColorScheme;
-  onChange: (next: ColorScheme) => void;
-}) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {COLOR_SCHEME_FIELDS.map(([key, label]) => (
-        <label
-          key={key}
-          className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm"
-        >
-          <input
-            type="color"
-            value={scheme[key] ?? DEFAULT_COLOR_SCHEME[key]}
-            onChange={(event) =>
-              onChange({ ...scheme, [key]: event.target.value })
-            }
-            className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
-          />
-          <span className="min-w-0">
-            <span className="block text-sm font-semibold">{label}</span>
-            <code className="text-foreground-secondary text-xs">
-              {scheme[key]}
-            </code>
-          </span>
-        </label>
-      ))}
-    </div>
-  );
-}
+  playerScheme: ColorScheme;
+  backgroundScheme: ColorScheme;
+  visualSettings: VisualSettingsMap;
+  galleryMode: ChannelGalleryMode;
+  galleryImages: string;
+  videoBackgroundUrl: string;
+  slideshowPreset: string;
+  slideshowInterval: number;
+  slideshowTransition: number;
+  slideshowAutoplay: boolean;
+  overlaySettings: NowPlayingOverlaySettings;
+  previewPreset: VisualPreset;
+};
 
 type Props = {
   displayName: string;
@@ -259,6 +230,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       number | null
     >(null);
     const [galleryPreviewIndex, setGalleryPreviewIndex] = useState(0);
+    const [galleryPickerOpen, setGalleryPickerOpen] = useState(false);
     const [videoBackgroundUrl, setVideoBackgroundUrl] = useState('');
     const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
     const [pendingVideoPreviewUrl, setPendingVideoPreviewUrl] = useState<
@@ -302,6 +274,13 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     const [appliedPresetName, setAppliedPresetName] = useState<string | null>(
       null,
     );
+    // What's currently live/saved — refreshed on load and after each
+    // successful save. `previousSave` is a one-level-back copy of this,
+    // captured right before it gets overwritten, so "Restore" can undo the
+    // most recent save.
+    const [baselineSnapshot, setBaselineSnapshot] =
+      useState<LookSnapshot | null>(null);
+    const [previousSave, setPreviousSave] = useState<LookSnapshot | null>(null);
 
     useEffect(() => {
       if (!lookOpenSection) {
@@ -370,40 +349,76 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
             loadChannelLookExtras(layoutSlug),
           );
           const mergedVisual = { ...visualResult.data, ...extras };
-          setVisual(mergedVisual);
-          setOverlaySettings(
-            parseNowPlayingOverlaySettings(
-              mergedVisual.nowPlayingOverlaySettingsJson,
-            ),
+          const loadedScheme = parseColorScheme(mergedVisual.colorSchemeJson);
+          const loadedPlayerScheme = parseColorScheme(
+            mergedVisual.playerColorSchemeJson,
           );
-          setScheme(parseColorScheme(mergedVisual.colorSchemeJson));
-          setPlayerScheme(parseColorScheme(mergedVisual.playerColorSchemeJson));
-          setBackgroundScheme(
-            parseColorScheme(mergedVisual.backgroundColorSchemeJson),
+          const loadedBackgroundScheme = parseColorScheme(
+            mergedVisual.backgroundColorSchemeJson,
           );
-          setVisualSettings(
-            parseVisualSettingsMap(visualResult.data.visualSettingsJson),
+          const loadedVisualSettings = parseVisualSettingsMap(
+            visualResult.data.visualSettingsJson,
           );
-          if (
+          const loadedOverlaySettings = parseNowPlayingOverlaySettings(
+            mergedVisual.nowPlayingOverlaySettingsJson,
+          );
+          const loadedPreviewPreset =
             isVisualPreset(mergedVisual.visualPreset) &&
             mergedVisual.visualPreset !== 'MINIMAL'
-          ) {
-            setPreviewPreset(mergedVisual.visualPreset);
-          } else {
-            setPreviewPreset('AURORA');
+              ? mergedVisual.visualPreset
+              : 'AURORA';
+          const loadedSlideshowPreset =
+            visualResult.data.slideshowPreset ?? 'FADE';
+          const loadedSlideshowInterval =
+            visualResult.data.slideshowIntervalSeconds ?? 8;
+          const loadedSlideshowTransition =
+            visualResult.data.slideshowTransitionMs ?? 600;
+          const loadedSlideshowAutoplay =
+            visualResult.data.slideshowAutoplay ?? true;
+          const loadedGalleryImages =
+            galleryResult.data.slideshowImages.join('\n');
+          const loadedVideoBackgroundUrl =
+            galleryResult.data.videoBackgroundUrl ?? '';
+
+          setVisual(mergedVisual);
+          setOverlaySettings(loadedOverlaySettings);
+          setScheme(loadedScheme);
+          setPlayerScheme(loadedPlayerScheme);
+          setBackgroundScheme(loadedBackgroundScheme);
+          setVisualSettings(loadedVisualSettings);
+          setPreviewPreset(loadedPreviewPreset);
+          const presetNeedsCorrection =
+            !isVisualPreset(mergedVisual.visualPreset) ||
+            mergedVisual.visualPreset === 'MINIMAL';
+          if (presetNeedsCorrection) {
             setVisual({ ...mergedVisual, visualPreset: 'AURORA' });
             setDirty(true);
           }
           setGalleryMode(galleryResult.data.galleryMode);
-          setGalleryImages(galleryResult.data.slideshowImages.join('\n'));
-          setVideoBackgroundUrl(galleryResult.data.videoBackgroundUrl ?? '');
-          setSlideshowPreset(visualResult.data.slideshowPreset ?? 'FADE');
-          setSlideshowInterval(visualResult.data.slideshowIntervalSeconds ?? 8);
-          setSlideshowTransition(
-            visualResult.data.slideshowTransitionMs ?? 600,
-          );
-          setSlideshowAutoplay(visualResult.data.slideshowAutoplay ?? true);
+          setGalleryImages(loadedGalleryImages);
+          setVideoBackgroundUrl(loadedVideoBackgroundUrl);
+          setSlideshowPreset(loadedSlideshowPreset);
+          setSlideshowInterval(loadedSlideshowInterval);
+          setSlideshowTransition(loadedSlideshowTransition);
+          setSlideshowAutoplay(loadedSlideshowAutoplay);
           setDirty(false);
+          setPreviousSave(null);
+          setBaselineSnapshot({
+            visual: mergedVisual,
+            scheme: loadedScheme,
+            playerScheme: loadedPlayerScheme,
+            backgroundScheme: loadedBackgroundScheme,
+            visualSettings: loadedVisualSettings,
+            galleryMode: galleryResult.data.galleryMode,
+            galleryImages: loadedGalleryImages,
+            videoBackgroundUrl: loadedVideoBackgroundUrl,
+            slideshowPreset: loadedSlideshowPreset,
+            slideshowInterval: loadedSlideshowInterval,
+            slideshowTransition: loadedSlideshowTransition,
+            slideshowAutoplay: loadedSlideshowAutoplay,
+            overlaySettings: loadedOverlaySettings,
+            previewPreset: loadedPreviewPreset,
+          });
         },
       );
     };
@@ -639,6 +654,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       if (!visual) {
         return;
       }
+      const previousBaseline = baselineSnapshot;
       const images = galleryImages
         .split(/\r?\n/)
         .map((image) => image.trim())
@@ -688,21 +704,32 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       // The visual endpoint is the source of truth for the header and player
       // design. Apply it immediately so a gallery endpoint failure cannot make
       // an otherwise successful backdrop save look like it failed.
+      const newScheme = parseColorScheme(result.data.colorSchemeJson);
+      const newPlayerScheme = parseColorScheme(
+        result.data.playerColorSchemeJson,
+      );
+      const newBackgroundScheme = parseColorScheme(
+        result.data.backgroundColorSchemeJson,
+      );
+      const newVisualSettings = parseVisualSettingsMap(
+        result.data.visualSettingsJson,
+      );
+      const newSlideshowPreset = result.data.slideshowPreset ?? slideshowPreset;
+      const newSlideshowInterval =
+        result.data.slideshowIntervalSeconds ?? slideshowInterval;
+      const newSlideshowTransition =
+        result.data.slideshowTransitionMs ?? slideshowTransition;
+      const newSlideshowAutoplay =
+        result.data.slideshowAutoplay ?? slideshowAutoplay;
       setVisual(result.data);
-      setScheme(parseColorScheme(result.data.colorSchemeJson));
-      setPlayerScheme(parseColorScheme(result.data.playerColorSchemeJson));
-      setBackgroundScheme(
-        parseColorScheme(result.data.backgroundColorSchemeJson),
-      );
-      setVisualSettings(parseVisualSettingsMap(result.data.visualSettingsJson));
-      setSlideshowPreset(result.data.slideshowPreset ?? slideshowPreset);
-      setSlideshowInterval(
-        result.data.slideshowIntervalSeconds ?? slideshowInterval,
-      );
-      setSlideshowTransition(
-        result.data.slideshowTransitionMs ?? slideshowTransition,
-      );
-      setSlideshowAutoplay(result.data.slideshowAutoplay ?? slideshowAutoplay);
+      setScheme(newScheme);
+      setPlayerScheme(newPlayerScheme);
+      setBackgroundScheme(newBackgroundScheme);
+      setVisualSettings(newVisualSettings);
+      setSlideshowPreset(newSlideshowPreset);
+      setSlideshowInterval(newSlideshowInterval);
+      setSlideshowTransition(newSlideshowTransition);
+      setSlideshowAutoplay(newSlideshowAutoplay);
       setDirty(false);
       setAppliedPresetName(null);
       onSaved?.();
@@ -720,6 +747,25 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       } else {
         toast.success('Look saved — public channel will pick this up.');
       }
+      if (previousBaseline) {
+        setPreviousSave(previousBaseline);
+      }
+      setBaselineSnapshot({
+        visual: result.data,
+        scheme: newScheme,
+        playerScheme: newPlayerScheme,
+        backgroundScheme: newBackgroundScheme,
+        visualSettings: newVisualSettings,
+        galleryMode,
+        galleryImages: images.join('\n'),
+        videoBackgroundUrl: savedVideoUrl ?? '',
+        slideshowPreset: newSlideshowPreset,
+        slideshowInterval: newSlideshowInterval,
+        slideshowTransition: newSlideshowTransition,
+        slideshowAutoplay: newSlideshowAutoplay,
+        overlaySettings,
+        previewPreset,
+      });
     };
 
     useImperativeHandle(ref, () => ({ save }), [save]);
@@ -839,6 +885,32 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     const revertAppliedPreset = () => {
       loadFromServer();
       setAppliedPresetName(null);
+    };
+
+    /** Undoes the most recent "Save layout" — reapplies the snapshot taken
+     * right before that save as a new local draft (same "dirty until Saved"
+     * flow as everything else here), so pressing Save again actually
+     * persists the revert. In-memory only; gone on reload. */
+    const restorePreviousSave = () => {
+      if (!previousSave) {
+        return;
+      }
+      setVisual(previousSave.visual);
+      setScheme(previousSave.scheme);
+      setPlayerScheme(previousSave.playerScheme);
+      setBackgroundScheme(previousSave.backgroundScheme);
+      setVisualSettings(previousSave.visualSettings);
+      setGalleryMode(previousSave.galleryMode);
+      setGalleryImages(previousSave.galleryImages);
+      setVideoBackgroundUrl(previousSave.videoBackgroundUrl);
+      setSlideshowPreset(previousSave.slideshowPreset);
+      setSlideshowInterval(previousSave.slideshowInterval);
+      setSlideshowTransition(previousSave.slideshowTransition);
+      setSlideshowAutoplay(previousSave.slideshowAutoplay);
+      setOverlaySettings(previousSave.overlaySettings);
+      setPreviewPreset(previousSave.previewPreset);
+      setDirty(true);
+      toast.success('Previous save restored — press Save to keep it.');
     };
 
     /** Discards unsaved edits, restoring the live saved look — same replay
@@ -965,281 +1037,138 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       showVisualizerSettings &&
       !visualizerPickerOpen;
 
-    const colorSchemeControls = (
-      <section className="flex flex-col gap-5">
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            {BRAND_ACCENTS.map((brand) => (
-              <button
-                key={brand.id}
-                type="button"
-                title={brand.label}
-                aria-label={brand.label}
-                aria-pressed={visual.brandAccentPreset === brand.id}
-                onClick={() =>
-                  applyLocal(
-                    { brandAccentPreset: brand.id },
-                    {
-                      ...scheme,
-                      accent: brand.accent,
-                      highlight: brand.highlight,
-                    },
-                  )
-                }
-                className={`h-10 w-16 rounded-md border-2 transition-transform hover:scale-105 ${
-                  visual.brandAccentPreset === brand.id
-                    ? 'border-primary shadow-md'
-                    : 'border-transparent'
-                }`}
-                style={{ background: brand.gradient }}
-              />
-            ))}
-          </div>
-        </div>
-        <ColorSchemeFields
-          scheme={scheme}
-          onChange={(next) => applyLocal({ brandAccentPreset: null }, next)}
-        />
-      </section>
+    const headerDesignMode: HeaderDesignMode = resolveHeaderDesignMode(
+      visual.headerStyle,
+      slideshowHeaderSelected,
     );
 
-    const playerGradientControls = (
-      <section className="flex flex-col gap-4">
-        <div className="border-border bg-background-secondary/40 flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
-          <span>
-            <span className="block font-semibold">
-              Use a separate gradient for the player
-            </span>
-            <span className="text-foreground-secondary block text-xs">
-              Off by default — the player reuses the gradient set above for the
-              channel header.
-            </span>
-          </span>
-          <Toggle
-            label="Use a separate gradient for the player"
-            checked={visual.usePlayerGradient ?? false}
-            onChange={(usePlayerGradient) => {
-              if (usePlayerGradient && !visual.playerColorSchemeJson) {
-                setPlayerScheme(scheme);
-              }
-              applyLocal({ usePlayerGradient });
-            }}
-          />
-        </div>
-        {visual.usePlayerGradient ? (
-          <>
-            <div className="flex flex-col gap-2">
-              <Eyebrow>Gradient presets</Eyebrow>
-              <div className="flex flex-wrap gap-2">
-                {BRAND_ACCENTS.map((brand) => {
-                  const isSelected =
-                    playerScheme.accent === brand.accent &&
-                    playerScheme.highlight === brand.highlight;
-                  return (
-                    <button
-                      key={brand.id}
-                      type="button"
-                      title={brand.label}
-                      aria-label={`${brand.label} player gradient`}
-                      aria-pressed={isSelected}
-                      onClick={() => {
-                        setPlayerScheme({
-                          ...playerScheme,
-                          accent: brand.accent,
-                          highlight: brand.highlight,
-                        });
-                        setDirty(true);
-                      }}
-                      className={`h-10 w-16 rounded-md border-2 transition-transform hover:scale-105 ${
-                        isSelected
-                          ? 'border-primary shadow-md'
-                          : 'border-transparent'
-                      }`}
-                      style={{ background: brand.gradient }}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-            <ColorSchemeFields
-              scheme={playerScheme}
-              onChange={(next) => {
-                setPlayerScheme(next);
-                setDirty(true);
-              }}
-            />
-          </>
-        ) : (
-          <p className="text-foreground-secondary text-xs">
-            The player currently matches the channel header's gradient, set in
-            Header.
-          </p>
-        )}
-      </section>
-    );
-
-    const backgroundControls = (
-      <section className="flex flex-col gap-4">
-        <label className="border-border bg-background-secondary/40 flex items-start gap-3 rounded-lg border p-3 text-sm">
-          <Toggle
-            checked={visual.useBackgroundGradient ?? false}
-            onChange={(useBackgroundGradient) => {
-              if (useBackgroundGradient && !visual.backgroundColorSchemeJson) {
-                setBackgroundScheme(scheme);
-              }
-              applyLocal({ useBackgroundGradient });
-            }}
-            label="Use a separate background palette"
-            className="mt-0.5"
-          />
-          <span>
-            <span className="block font-semibold">
-              Use a separate background palette
-            </span>
-            <span className="text-foreground-secondary block text-xs">
-              Off by default — the page reuses the header colors.
-            </span>
-          </span>
-        </label>
-        {visual.useBackgroundGradient ? (
-          <ColorSchemeFields
-            scheme={backgroundScheme}
-            onChange={(next) => {
-              setBackgroundScheme(next);
-              setDirty(true);
-            }}
-          />
-        ) : (
-          <p className="text-foreground-secondary text-xs">
-            The page currently matches the header colors. Turn on a separate
-            palette to style the background on its own.
-          </p>
-        )}
-        <div className="flex flex-col gap-2">
-          <Eyebrow>Background visualizer</Eyebrow>
-          <p className="text-foreground-secondary text-xs">
-            Ambient WebGL behind the artist and channel pages — separate from
-            the header/player visualizer.
-          </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {BACKGROUND_VISUAL_PRESETS.map((preset) => {
-              const meta = visualizerMetadata(preset);
-              const Icon = meta.Icon;
-              const selected =
-                (visual.backgroundVisualPreset ?? 'INTERACTIVE_POINTS') ===
-                preset;
-              return (
-                <button
-                  key={preset}
-                  type="button"
-                  title={meta.description}
-                  aria-label={`${preset.replace(/_/g, ' ')} background visualizer`}
-                  aria-pressed={selected}
-                  onClick={() => applyLocal({ backgroundVisualPreset: preset })}
-                  className={`border-border flex flex-col items-start gap-1 rounded-md border p-2 text-left text-xs transition-transform hover:scale-[1.02] ${
-                    selected
-                      ? 'border-primary bg-primary/10 ring-primary ring-1'
-                      : 'bg-background-secondary/40'
-                  }`}
-                >
-                  <Icon size={16} aria-hidden className="opacity-80" />
-                  <span className="font-semibold tracking-wide uppercase">
-                    {preset.replace(/_/g, ' ')}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-    );
+    const setHeaderDesignMode = (mode: HeaderDesignMode) => {
+      if (mode === 'SLIDESHOW') {
+        setGalleryMode((modeValue) =>
+          modeValue === 'NONE' ? 'STATIC_SLIDESHOW' : modeValue,
+        );
+        applyLocal({ headerStyle: 'GRADIENT' });
+        return;
+      }
+      setGalleryMode('NONE');
+      applyLocal({ headerStyle: mode });
+    };
 
     const slideshowControls = (
       <section className="flex flex-col gap-4">
-        <FilePicker
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-          disabled={busy}
-          selectedFiles={galleryFiles}
-          icon={<ImageIcon size={20} aria-hidden />}
-          labels={{
-            title: 'Drop slideshow images here',
-            description: 'JPEG, PNG, or WebP · up to 10 images',
-            browse: 'Browse images',
-          }}
-          onFiles={selectGalleryFiles}
-        />
-        {galleryImageList.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <Eyebrow>
-                {galleryImageList.length === 1
-                  ? 'Single image preview'
-                  : `Slideshow · ${galleryImageList.length} images`}
-              </Eyebrow>
-              <span className="text-foreground-secondary text-xs">
-                {galleryPreviewIndex + 1} / {galleryImageList.length}
-              </span>
-            </div>
-            <div className="border-border bg-background relative h-36 overflow-hidden rounded-lg border">
-              <img
-                src={galleryImageList[galleryPreviewIndex]}
-                alt=""
-                className="size-full object-cover"
-              />
-            </div>
-            <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
-              {galleryImageList.map((image, index) => (
-                <div
-                  key={`${image}-${index}`}
-                  className="group relative"
-                  draggable
-                  onDragStart={() => setDraggedGalleryIndex(index)}
-                  onDragOver={(event) => event.preventDefault()}
-                  onDrop={() => {
-                    if (draggedGalleryIndex !== null) {
-                      reorderGalleryImage(draggedGalleryIndex, index);
-                    }
-                    setDraggedGalleryIndex(null);
-                  }}
-                  onDragEnd={() => setDraggedGalleryIndex(null)}
+        <div className="flex flex-col gap-2">
+          {galleryImageList.length > 0 && (
+            <>
+              <div className="flex items-center justify-between gap-2">
+                <Eyebrow>
+                  {galleryImageList.length === 1
+                    ? 'Single image preview'
+                    : `Slideshow · ${galleryImageList.length} images`}
+                </Eyebrow>
+                <span className="text-foreground-secondary text-xs">
+                  {galleryPreviewIndex + 1} / {galleryImageList.length}
+                </span>
+              </div>
+              <div className="border-border bg-background relative h-36 overflow-hidden rounded-lg border">
+                <img
+                  src={galleryImageList[galleryPreviewIndex]}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              </div>
+            </>
+          )}
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+            {galleryImageList.map((image, index) => (
+              <div
+                key={`${image}-${index}`}
+                className="group relative"
+                draggable
+                onDragStart={() => setDraggedGalleryIndex(index)}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={() => {
+                  if (draggedGalleryIndex !== null) {
+                    reorderGalleryImage(draggedGalleryIndex, index);
+                  }
+                  setDraggedGalleryIndex(null);
+                }}
+                onDragEnd={() => setDraggedGalleryIndex(null)}
+              >
+                <button
+                  type="button"
+                  className={`border-border h-16 w-full overflow-hidden rounded-md border ${index === galleryPreviewIndex ? 'border-primary ring-primary ring-2' : ''}`}
+                  aria-label={`Preview slideshow image ${index + 1}`}
+                  aria-pressed={index === galleryPreviewIndex}
+                  onClick={() => setGalleryPreviewIndex(index)}
                 >
-                  <button
-                    type="button"
-                    className={`border-border h-16 w-full overflow-hidden rounded-md border ${index === galleryPreviewIndex ? 'border-primary ring-primary ring-2' : ''}`}
-                    aria-label={`Preview slideshow image ${index + 1}`}
-                    aria-pressed={index === galleryPreviewIndex}
-                    onClick={() => setGalleryPreviewIndex(index)}
-                  >
-                    <img
-                      src={image}
-                      alt=""
-                      className="size-full object-cover"
-                    />
-                  </button>
-                  <Tooltip
-                    content={`Remove slideshow image ${index + 1}`}
-                    side="top"
-                  >
-                    <Button
-                      size="icon-sm"
-                      variant="secondary"
-                      className="absolute top-1 right-1 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-                      aria-label={`Remove slideshow image ${index + 1}`}
-                      onClick={() => removeGalleryImage(index)}
-                    >
-                      <Trash2Icon size={14} aria-hidden />
-                    </Button>
-                  </Tooltip>
+                  <img src={image} alt="" className="size-full object-cover" />
+                </button>
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute top-1 left-1 flex size-5 items-center justify-center rounded bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  <GripVerticalIcon size={12} />
                 </div>
-              ))}
-            </div>
+                <Tooltip
+                  content={`Remove slideshow image ${index + 1}`}
+                  side="top"
+                >
+                  <Button
+                    size="icon-sm"
+                    variant="secondary"
+                    className="absolute top-1 right-1 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                    aria-label={`Remove slideshow image ${index + 1}`}
+                    onClick={() => removeGalleryImage(index)}
+                  >
+                    <Trash2Icon size={14} aria-hidden />
+                  </Button>
+                </Tooltip>
+              </div>
+            ))}
+            <Tooltip content="Add gallery images" side="top">
+              <button
+                type="button"
+                className="border-border text-foreground-secondary hover:border-primary hover:text-primary flex h-16 w-full items-center justify-center rounded-md border border-dashed transition-colors"
+                aria-label="Add gallery images"
+                disabled={busy}
+                onClick={() => setGalleryPickerOpen(true)}
+              >
+                <PlusIcon size={18} aria-hidden />
+              </button>
+            </Tooltip>
           </div>
-        ) : (
-          <p className="text-foreground-secondary text-xs">
-            Upload images to build the slideshow behind your channel.
-          </p>
-        )}
+          {galleryImageList.length === 0 && (
+            <p className="text-foreground-secondary text-xs">
+              Upload images to build the slideshow behind your channel.
+            </p>
+          )}
+        </div>
+        <Dialog.Root
+          isOpen={galleryPickerOpen}
+          onClose={() => setGalleryPickerOpen(false)}
+          className="max-w-md"
+        >
+          <Dialog.Title>Add gallery images</Dialog.Title>
+          <div className="mt-4">
+            <FilePicker
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              disabled={busy}
+              selectedFiles={galleryFiles}
+              icon={<ImageIcon size={20} aria-hidden />}
+              labels={{
+                title: 'Drop slideshow images here',
+                description: 'JPEG, PNG, or WebP · up to 10 images',
+                browse: 'Browse images',
+              }}
+              onFiles={(files) => {
+                void selectGalleryFiles(files).then(() =>
+                  setGalleryPickerOpen(false),
+                );
+              }}
+            />
+          </div>
+        </Dialog.Root>
         <Select
           label="Gallery style"
           value={galleryMode}
@@ -1301,346 +1230,102 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
       </section>
     );
 
-    const videoUrlInput = videoUrlOpen ? (
-      <Input
-        label="YouTube, video, or image URL"
-        value={videoBackgroundUrl}
-        placeholder="https://youtube.com/watch?v=… or https://…/backdrop.jpg"
-        onChange={(event) => {
-          setVideoBackgroundUrl(event.target.value);
-          setPendingVideoFile(null);
-          setPendingVideoPreviewUrl(null);
-          setDirty(true);
-        }}
-      />
-    ) : null;
-
-    const videoUrlToggle = (
-      <Tooltip content="Show URL field" side="top">
-        <Button
-          size="icon-sm"
-          variant="text"
-          aria-label="Show URL field"
-          aria-pressed={videoUrlOpen}
-          onClick={() => setVideoUrlOpen((open) => !open)}
-        >
-          <LinkIcon size={15} aria-hidden />
-        </Button>
-      </Tooltip>
-    );
-
-    const visualizerItem = {
-      id: 'visualizer',
-      label: 'Visualizer',
-      icon: <PlaySquareIcon size={14} />,
-      content: (
-        <section className="flex flex-col gap-4">
-          {(() => {
-            const meta = visualizerMetadata(activeVisualizer);
-            return (
-              <PluginItem
-                icon={
-                  <button
-                    type="button"
-                    className="hover:bg-background-secondary flex size-full items-center justify-center rounded-lg transition-colors"
-                    aria-label="Choose visualizer"
-                    title="Choose visualizer"
-                    onClick={() => {
-                      setVisualizerPickerPreset(activeVisualizer);
-                      setVisualizerPickerOpen(true);
-                    }}
-                  >
-                    <meta.Icon size={22} aria-hidden />
-                  </button>
-                }
-                name={
-                  <span className="inline-flex flex-wrap items-center gap-2 text-base">
-                    {activeVisualizer.replace(/_/g, ' ')}
-                    {meta.audioReactive ? (
-                      <Badge variant="pill" color="blue">
-                        Audio reactive
-                      </Badge>
-                    ) : null}
-                  </span>
-                }
-                description={meta.description}
-                descriptionBelow
-                className={`ring-primary bg-primary/10 ring-2 ring-inset ${
-                  !visualizerEnabled ? 'opacity-50 grayscale' : ''
-                }`}
-                rightAccessory={
-                  <div className="flex items-center gap-1">
-                    <Tooltip content="Previous visualizer" side="top">
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        disabled={!visualizerEnabled}
-                        onClick={() => changeVisualizer(-1)}
-                        aria-label="Previous visualizer"
-                      >
-                        <ChevronLeftIcon size={16} aria-hidden />
-                      </Button>
-                    </Tooltip>
-                    <Tooltip content="Next visualizer" side="top">
-                      <Button
-                        size="icon-sm"
-                        variant="text"
-                        disabled={!visualizerEnabled}
-                        onClick={() => changeVisualizer(1)}
-                        aria-label="Next visualizer"
-                      >
-                        <ChevronRightIcon size={16} aria-hidden />
-                      </Button>
-                    </Tooltip>
-                    <Tooltip
-                      content={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
-                      side="top"
-                    >
-                      <Button
-                        size="icon-sm"
-                        variant={showVisualizerSettings ? 'default' : 'text'}
-                        disabled={!visualizerEnabled}
-                        aria-pressed={showVisualizerSettings}
-                        aria-label={`Configure ${activeVisualizer.replace(/_/g, ' ')}`}
-                        onClick={() =>
-                          setShowVisualizerSettings((isVisible) => !isVisible)
-                        }
-                      >
-                        <SettingsIcon size={15} aria-hidden />
-                      </Button>
-                    </Tooltip>
-                    <Tooltip
-                      content={
-                        visualizerEnabled
-                          ? 'Disable visualizer'
-                          : 'Enable visualizer'
-                      }
-                      side="top"
-                    >
-                      <Button
-                        size="icon-sm"
-                        variant={visualizerEnabled ? 'default' : 'secondary'}
-                        aria-pressed={visualizerEnabled}
-                        aria-label={
-                          visualizerEnabled
-                            ? 'Disable visualizer'
-                            : 'Enable visualizer'
-                        }
-                        onClick={() => {
-                          if (visualizerEnabled) {
-                            setPreviewPreset('MINIMAL');
-                            applyLocal({ visualPreset: 'MINIMAL' });
-                          } else {
-                            setPreviewPreset(activeVisualizer);
-                            applyLocal({ visualPreset: activeVisualizer });
-                          }
-                        }}
-                      >
-                        {visualizerEnabled ? (
-                          <CheckIcon size={15} aria-hidden />
-                        ) : (
-                          <PlaySquareIcon size={15} aria-hidden />
-                        )}
-                      </Button>
-                    </Tooltip>
-                  </div>
-                }
-              />
-            );
-          })()}
-          {dockTuning && (
-            <div className="border-border flex flex-col gap-4 rounded-lg border p-3">
-              <Eyebrow>Tune {visual.visualPreset.replace(/_/g, ' ')}</Eyebrow>
-              {tuningSliders(visual.visualPreset)}
-            </div>
-          )}
-        </section>
-      ),
+    const handleVideoUrlChange = (url: string) => {
+      setVideoBackgroundUrl(url);
+      setPendingVideoFile(null);
+      setPendingVideoPreviewUrl(null);
+      setDirty(true);
     };
 
-    const headerControls = (
-      <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <Eyebrow>Header style</Eyebrow>
-          {hasBackdrop ? (
-            <Tooltip content="Remove backdrop" side="top">
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label="Remove backdrop"
-                onClick={removeBackdrop}
-              >
-                <Trash2Icon size={15} aria-hidden />
-              </Button>
-            </Tooltip>
-          ) : (
-            <Tooltip content="Add backdrop" side="top">
-              <Button
-                size="icon-sm"
-                variant="text"
-                aria-label="Add backdrop"
-                onClick={() => {
-                  setGalleryMode('NONE');
-                  applyLocal({ headerStyle: 'VIDEO_LOOP' });
-                }}
-              >
-                <ImageIcon size={15} aria-hidden />
-              </Button>
-            </Tooltip>
-          )}
-        </div>
-        <Tabs
-          selectedIndex={
-            slideshowHeaderSelected
-              ? HEADER_DESIGN_OPTIONS.length - 1
-              : Math.max(
-                  HEADER_DESIGN_OPTIONS.indexOf(
-                    visual.headerStyle as (typeof HEADER_DESIGN_OPTIONS)[number],
-                  ),
-                  0,
-                )
+    const videoBackdropSlot = (
+      <VideoOrImageField
+        variant="backdrop"
+        disabled={busy}
+        pendingFile={pendingVideoFile}
+        url={videoBackgroundUrl}
+        urlOpen={videoUrlOpen}
+        onUrlOpenChange={setVideoUrlOpen}
+        onUrlChange={handleVideoUrlChange}
+        onFiles={selectVideoFile}
+        previewUrl={pendingVideoPreviewUrl}
+        isImage={headerBackdropIsImage}
+        onRemove={clearVideo}
+      />
+    );
+
+    const backdropPanel = (
+      <BackdropPanel
+        scheme={scheme}
+        backgroundScheme={backgroundScheme}
+        useBackgroundGradient={visual.useBackgroundGradient ?? false}
+        brandAccentPreset={visual.brandAccentPreset}
+        headerMode={headerDesignMode}
+        hasBackdrop={hasBackdrop}
+        backgroundVisualPreset={visual.backgroundVisualPreset}
+        onPageBackgroundChange={(bg) => {
+          if (visual.useBackgroundGradient) {
+            setBackgroundScheme({ ...backgroundScheme, bg });
+            setDirty(true);
+            return;
           }
-          onChange={(index) => {
-            const headerStyle = HEADER_DESIGN_OPTIONS[index];
-            if (headerStyle === 'SLIDESHOW') {
-              setGalleryMode((mode) =>
-                mode === 'NONE' ? 'STATIC_SLIDESHOW' : mode,
-              );
-              applyLocal({ headerStyle: 'GRADIENT' });
-            } else if (headerStyle) {
-              setGalleryMode('NONE');
-              applyLocal({ headerStyle });
-            }
-          }}
-          listClassName="flex-wrap border-border border-b"
-          panelClassName="hidden"
-          items={HEADER_DESIGN_OPTIONS.map((headerStyle) => ({
-            id: headerStyle,
-            label:
-              headerStyle === 'SLIDESHOW'
-                ? 'Slideshow'
-                : headerStyle === 'VIDEO_LOOP'
-                  ? 'Video / image'
-                  : headerStyle.replace(/_/g, ' '),
-            content: null,
-          }))}
-        />
-        {visual.headerStyle === 'GRADIENT' && !slideshowHeaderSelected ? (
-          <div className="border-border border-t pt-4">
-            <Eyebrow>Gradient colors</Eyebrow>
-            <div className="mt-3">{colorSchemeControls}</div>
-          </div>
-        ) : null}
-        {slideshowHeaderSelected ||
-        visual.headerStyle === 'VIDEO_LOOP' ||
-        visual.headerStyle === 'SOLID' ? (
-          <div className="border-border border-t pt-4">
-            <Eyebrow>Page &amp; artist box colors</Eyebrow>
-            <p className="text-foreground-secondary mt-1 mb-3 text-xs">
-              These paint the artist header card, page sections, and accents —
-              independent of header style (solid / video / slideshow).
-            </p>
-            {colorSchemeControls}
-          </div>
-        ) : null}
-        {slideshowHeaderSelected ? (
-          <div className="border-border border-t pt-4">
-            <Eyebrow>Slideshow</Eyebrow>
-            <div className="mt-3">{slideshowControls}</div>
-          </div>
-        ) : null}
-        {visual.headerStyle === 'SOLID' && !slideshowHeaderSelected ? (
-          <label className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm">
-            <input
-              type="color"
-              value={scheme.bg ?? DEFAULT_COLOR_SCHEME.bg}
-              onChange={(event) =>
-                applyLocal(
-                  { brandAccentPreset: null },
-                  { ...scheme, bg: event.target.value },
-                )
-              }
-              className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
-              aria-label="Solid header color"
-            />
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold">
-                Solid header fill
-              </span>
-              <code className="text-foreground-secondary text-xs">
-                {scheme.bg ?? DEFAULT_COLOR_SCHEME.bg}
-              </code>
-            </span>
-          </label>
-        ) : null}
-        {visual.headerStyle === 'VIDEO_LOOP' && !slideshowHeaderSelected ? (
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <Eyebrow>Video or image backdrop</Eyebrow>
-                <p className="text-foreground-secondary mt-1 text-xs">
-                  Upload an MP4/WebM video or image, up to 10 MB.
-                </p>
-              </div>
-            </div>
-            <div className="relative">
-              <FilePicker
-                accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-                disabled={busy}
-                selectedFiles={pendingVideoFile ? [pendingVideoFile] : []}
-                labels={{
-                  title: 'Choose a video or image',
-                  description:
-                    'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
-                  browse: 'Browse files',
-                }}
-                onFiles={selectVideoFile}
-              />
-              <div className="absolute top-2 right-2">{videoUrlToggle}</div>
-            </div>
-            {videoUrlInput}
-            {(pendingVideoPreviewUrl || videoBackgroundUrl) && (
-              <div className="border-border bg-background relative overflow-hidden rounded-lg border">
-                {youtubeEmbedUrl(videoBackgroundUrl) &&
-                !pendingVideoPreviewUrl ? (
-                  <iframe
-                    title="YouTube backdrop preview"
-                    src={youtubeEmbedUrl(videoBackgroundUrl) ?? undefined}
-                    className="pointer-events-none aspect-video w-full"
-                    allow="autoplay; encrypted-media"
-                  />
-                ) : headerBackdropIsImage ? (
-                  <img
-                    src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
-                    alt=""
-                    className="aspect-video w-full object-cover"
-                  />
-                ) : (
-                  <video
-                    src={pendingVideoPreviewUrl ?? videoBackgroundUrl}
-                    muted
-                    loop
-                    autoPlay
-                    playsInline
-                    controls
-                    className="aspect-video w-full object-cover"
-                  />
-                )}
-              </div>
-            )}
-            {(pendingVideoFile || videoBackgroundUrl) && (
-              <Button
-                size="sm"
-                variant="secondary"
-                className="self-start"
-                onClick={clearVideo}
-              >
-                Remove backdrop
-              </Button>
-            )}
-          </div>
-        ) : null}
-      </section>
+          applyLocal({ brandAccentPreset: null }, { ...scheme, bg });
+        }}
+        onHeaderModeChange={setHeaderDesignMode}
+        onRemoveBackdrop={removeBackdrop}
+        onSchemeChange={(next) => applyLocal({ brandAccentPreset: null }, next)}
+        onBrandAccent={(brand) =>
+          applyLocal(
+            { brandAccentPreset: brand.id },
+            {
+              ...scheme,
+              accent: brand.accent,
+              highlight: brand.highlight,
+            },
+          )
+        }
+        onUseBackgroundGradient={(useBackgroundGradient) => {
+          if (useBackgroundGradient && !visual.backgroundColorSchemeJson) {
+            setBackgroundScheme(scheme);
+          }
+          applyLocal({ useBackgroundGradient });
+        }}
+        onBackgroundSchemeChange={(next) => {
+          setBackgroundScheme(next);
+          setDirty(true);
+        }}
+        onBackgroundVisualPreset={(preset) =>
+          applyLocal({ backgroundVisualPreset: preset })
+        }
+        videoSlot={videoBackdropSlot}
+        slideshowSlot={slideshowControls}
+      />
+    );
+
+    const visualizerSlot = (
+      <PlayerVisualizerControls
+        activeVisualizer={activeVisualizer}
+        visualizerEnabled={visualizerEnabled}
+        showSettings={showVisualizerSettings}
+        tuningSlot={dockTuning ? tuningSliders(visual.visualPreset) : undefined}
+        onOpenPicker={() => {
+          setVisualizerPickerPreset(activeVisualizer);
+          setVisualizerPickerOpen(true);
+        }}
+        onPrevious={() => changeVisualizer(-1)}
+        onNext={() => changeVisualizer(1)}
+        onToggleSettings={() =>
+          setShowVisualizerSettings((isVisible) => !isVisible)
+        }
+        onToggleEnabled={() => {
+          if (visualizerEnabled) {
+            setPreviewPreset('MINIMAL');
+            applyLocal({ visualPreset: 'MINIMAL' });
+          } else {
+            setPreviewPreset(activeVisualizer);
+            applyLocal({ visualPreset: activeVisualizer });
+          }
+        }}
+      />
     );
 
     const channelTextOverlaySection = (
@@ -1661,186 +1346,72 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     );
 
     const playerOverlaySection = (
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-3">
-          <Eyebrow>Stage overlay</Eyebrow>
-          <ChannelTextOverlayEditor
-            value={{
-              mode: visual.playerOverlayMode ?? 'NONE',
-              text: visual.playerOverlayText ?? '',
-              align: visual.playerOverlayAlign ?? 'CENTER',
-            }}
-            onChange={(next) =>
-              applyLocal({
-                playerOverlayMode: next.mode,
-                playerOverlayText: next.text,
-                playerOverlayAlign: next.align,
-              })
-            }
-          />
-          <div
-            className="relative flex min-h-24 items-center overflow-hidden rounded-lg border border-white/10 p-4"
-            style={{ background: previewStyle.bg }}
-          >
-            <ChannelTextOverlayView
-              mode={visual.playerOverlayMode}
-              text={visual.playerOverlayText}
-              align={visual.playerOverlayAlign}
-              accent={previewStyle.accent}
-              highlight={previewStyle.highlight}
-              size="sm"
-              className="w-full"
-            />
-            {!visual.playerOverlayText?.trim() && (
-              <p className="text-foreground-secondary text-xs">
-                Preview — enter text above to see it on the player stage.
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
-            <Eyebrow>Now playing</Eyebrow>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setOverlayConfigOpen(true)}
-            >
-              <SettingsIcon size={14} aria-hidden />
-              Configure text
-            </Button>
-          </div>
-          <p className="text-foreground-secondary text-xs">
-            How the title and artist sit over live audio or an archive track.
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {NOW_PLAYING_OVERLAY_PRESETS.map((preset) => {
-              const active =
-                resolveNowPlayingOverlayPreset(
-                  visual.nowPlayingOverlayStyle,
-                ) === preset.id;
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() =>
-                    applyLocal({ nowPlayingOverlayStyle: preset.id })
-                  }
-                  className={`flex flex-col gap-2 rounded-lg border p-2 text-left transition-colors ${
-                    active
-                      ? 'border-primary bg-primary/10 ring-primary ring-1'
-                      : 'border-border bg-background hover:bg-background-secondary'
-                  }`}
-                >
-                  <div
-                    className="relative flex aspect-video items-end overflow-hidden rounded-md bg-cover bg-center p-2"
-                    style={{
-                      backgroundColor: '#0B1220',
-                      backgroundImage: avatarUrl
-                        ? `url(${avatarUrl})`
-                        : undefined,
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
-                    <div className="relative w-full">
-                      <NowPlayingOverlay
-                        presetId={preset.id}
-                        title="Sample Track"
-                        artist={displayName}
-                        artworkUrl={avatarUrl}
-                        compact
-                        settings={overlaySettings}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5 text-sm font-semibold">
-                      {preset.name}
-                      {active && (
-                        <CheckIcon
-                          size={14}
-                          className="text-primary"
-                          aria-hidden
-                        />
-                      )}
-                    </div>
-                    <p className="text-foreground-secondary text-xs">
-                      {preset.description}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      <PlayerOverlayControls
+        playerOverlay={{
+          mode: visual.playerOverlayMode ?? 'NONE',
+          text: visual.playerOverlayText ?? '',
+          align: visual.playerOverlayAlign ?? 'CENTER',
+        }}
+        onPlayerOverlayChange={(next) =>
+          applyLocal({
+            playerOverlayMode: next.mode,
+            playerOverlayText: next.text,
+            playerOverlayAlign: next.align,
+          })
+        }
+        previewStyle={previewStyle}
+        nowPlayingStyle={visual.nowPlayingOverlayStyle}
+        onNowPlayingStyleChange={(id) =>
+          applyLocal({ nowPlayingOverlayStyle: id })
+        }
+        overlaySettings={overlaySettings}
+        displayName={displayName}
+        avatarUrl={avatarUrl}
+        onConfigureText={() => setOverlayConfigOpen(true)}
+      />
     );
 
-    const playerDesignTabsContent = (
-      <Tabs
-        listClassName="flex-wrap border-border border-b pb-3"
-        panelClassName="pt-2"
-        selectedIndex={
-          playerDesignTab === 'gradient'
-            ? 0
-            : playerDesignTab === 'video-image'
-              ? 1
-              : playerDesignTab === 'visualizer'
-                ? 2
-                : 3
-        }
-        onChange={(index) => {
-          const nextTab: PlayerDesignTab =
-            index === 0
-              ? 'gradient'
-              : index === 1
-                ? 'video-image'
-                : index === 2
-                  ? 'visualizer'
-                  : 'overlay';
-          setPlayerDesignTab(nextTab);
+    const playerVideoSlot = (
+      <VideoOrImageField
+        variant="compact"
+        disabled={busy}
+        pendingFile={pendingVideoFile}
+        url={videoBackgroundUrl}
+        urlOpen={videoUrlOpen}
+        onUrlOpenChange={setVideoUrlOpen}
+        onUrlChange={handleVideoUrlChange}
+        onFiles={selectVideoFile}
+      />
+    );
+
+    const playerPanel = (
+      <PlayerPanel
+        tab={playerDesignTab}
+        onTabChange={setPlayerDesignTab}
+        usePlayerGradient={visual.usePlayerGradient ?? false}
+        playerScheme={playerScheme}
+        onUsePlayerGradient={(usePlayerGradient) => {
+          if (usePlayerGradient && !visual.playerColorSchemeJson) {
+            setPlayerScheme(scheme);
+          }
+          applyLocal({ usePlayerGradient });
         }}
-        items={[
-          {
-            id: 'gradient',
-            label: 'Gradient',
-            content: playerGradientControls,
-          },
-          {
-            id: 'video-image',
-            label: 'Video / image',
-            content: (
-              <div className="flex flex-col gap-3">
-                <p className="text-foreground-secondary text-xs">
-                  Use a looping video or still image behind the channel header.
-                </p>
-                <div className="relative">
-                  <FilePicker
-                    accept="video/mp4,video/webm,image/jpeg,image/png,image/webp,image/gif"
-                    disabled={busy}
-                    selectedFiles={pendingVideoFile ? [pendingVideoFile] : []}
-                    labels={{
-                      title: 'Choose a video or image',
-                      description:
-                        'MP4, WebM, JPEG, PNG, WebP, or GIF · maximum 10 MB',
-                      browse: 'Browse files',
-                    }}
-                    onFiles={selectVideoFile}
-                  />
-                  <div className="absolute top-2 right-2">{videoUrlToggle}</div>
-                </div>
-                {videoUrlInput}
-              </div>
-            ),
-          },
-          visualizerItem,
-          {
-            id: 'overlay',
-            label: 'Overlay',
-            content: playerOverlaySection,
-          },
-        ]}
+        onPlayerSchemeChange={(next) => {
+          setPlayerScheme(next);
+          setDirty(true);
+        }}
+        onPlayerBrandAccent={(brand) => {
+          setPlayerScheme({
+            ...playerScheme,
+            accent: brand.accent,
+            highlight: brand.highlight,
+          });
+          setDirty(true);
+        }}
+        videoSlot={playerVideoSlot}
+        visualizerSlot={visualizerSlot}
+        overlaySlot={playerOverlaySection}
+        footerSlot={channelTextOverlaySection}
       />
     );
 
@@ -1871,16 +1442,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         Open my channel →
       </Link>
     );
-
-    const layoutOnlyHint = (id: ChannelLookElementId) => {
-      const meta = CHANNEL_LOOK_ELEMENTS.find((element) => element.id === id);
-      return (
-        <p className="text-foreground-secondary text-sm">
-          {meta?.hint}. Hide this block with the eye button — visitors will not
-          see it on your channel.
-        </p>
-      );
-    };
 
     const selectLookElement = (id: ChannelLookElementId) => {
       setSelectedLookId(id);
@@ -1921,67 +1482,19 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
     };
 
     const lookEditorItems = [
-      {
-        id: 'releases' as const,
-        disabled: !lookBlockVisible('releases'),
-        content: layoutOnlyHint('releases'),
-      },
-      {
-        id: 'tracks' as const,
-        disabled: !lookBlockVisible('tracks'),
-        content: layoutOnlyHint('tracks'),
-      },
-      {
-        id: 'latest' as const,
-        disabled: !lookBlockVisible('latest'),
-        content: layoutOnlyHint('latest'),
-      },
-      {
-        id: 'feed' as const,
-        disabled: !lookBlockVisible('feed'),
-        content: layoutOnlyHint('feed'),
-      },
-      {
-        id: 'news' as const,
-        disabled: !lookBlockVisible('news'),
-        content: layoutOnlyHint('news'),
-      },
-      {
-        id: 'bio' as const,
-        disabled: !lookBlockVisible('bio'),
-        content: layoutOnlyHint('bio'),
-      },
-      {
-        id: 'shows' as const,
-        disabled: !lookBlockVisible('shows'),
-        content: layoutOnlyHint('shows'),
-      },
-      {
-        id: 'gallery' as const,
-        disabled: !lookBlockVisible('gallery'),
-        content: layoutOnlyHint('gallery'),
-      },
+      ...LAYOUT_ONLY_LOOK_IDS.map((id) => ({
+        id,
+        disabled: !lookBlockVisible(id),
+        content: <LayoutOnlyLookHint elementId={id} />,
+      })),
       {
         id: 'player' as const,
         disabled: !lookBlockVisible('player'),
-        content: (
-          <div id="channel-designer-section-player">
-            {playerDesignTabsContent}
-            <div className="mt-5">{channelTextOverlaySection}</div>
-          </div>
-        ),
+        content: playerPanel,
       },
       {
         id: 'backdrop' as const,
-        content: (
-          <div
-            id="channel-designer-section-header"
-            className="flex flex-col gap-6"
-          >
-            {headerControls}
-            {backgroundControls}
-          </div>
-        ),
+        content: backdropPanel,
       },
     ];
 
@@ -1991,13 +1504,11 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
         onSelect={selectLookElement}
         onToggleDisabled={toggleSelectedLook}
         items={lookEditorItems}
-        className={`lg:!bg-background/85 max-h-[min(40rem,70vh)] lg:backdrop-blur-md ${
-          highlightSection ? 'ring-primary ring-2' : ''
-        }`}
+        className={`${lookOnly ? 'h-full' : ''} ${highlightSection ? 'ring-primary ring-2' : ''}`}
       />
     );
     if (lookOnly) {
-      return controls;
+      return <div className="flex h-full min-h-0 flex-col">{controls}</div>;
     }
 
     return (
@@ -2022,6 +1533,18 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
                 },
               ]}
             />
+            {previousSave ? (
+              <Tooltip content="Restore previous save" side="top">
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Restore previous save"
+                  onClick={restorePreviousSave}
+                >
+                  <Undo2Icon size={15} aria-hidden />
+                </Button>
+              </Tooltip>
+            ) : null}
             {saveButton}
             {openChannelLink}
           </div>
@@ -2086,7 +1609,7 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
               aria-label="Channel page preview"
               className="border-border bg-background min-w-0 overflow-x-hidden overflow-y-auto rounded-xl border shadow-lg lg:max-h-[calc(100vh-7rem)]"
             >
-              <div className="border-border bg-background-secondary/40 flex items-center justify-between gap-1.5 border-b px-4 py-2.5">
+              <div className="border-border bg-background-secondary/40 flex items-center gap-1.5 border-b px-4 py-2.5">
                 <div className="flex items-center gap-1.5">
                   <span className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
                     Live page preview
@@ -2113,7 +1636,6 @@ export const ChannelDesigner = forwardRef<ChannelDesignerHandle, Props>(
                     </span>
                   </Tooltip>
                 </div>
-                {openChannelLink}
               </div>
               <ChannelBackdropCard
                 minHeightClassName="min-h-[24rem]"

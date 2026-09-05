@@ -260,36 +260,35 @@ export function StudioSoundsView() {
     <StudioGate requireChannel={false}>
       <div className="studio-page-layout mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/sounds" />
+        <Tabs.Root
+          selectedIndex={FOLDERS.findIndex((entry) => entry.id === folder)}
+          onChange={(index) => {
+            const next = FOLDERS[index];
+            if (!next) {
+              return;
+            }
+            void navigate({
+              to: '/studio/sounds',
+              search: next.id === 'archive' ? {} : { folder: next.id },
+            });
+          }}
+        >
+          <Tabs.List>
+            {FOLDERS.map((folderOption) => (
+              <Tabs.Tab key={folderOption.id}>
+                <TabLabel icon={<folderOption.icon size={14} />}>
+                  {folderOption.label}
+                </TabLabel>
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs.Root>
         <ViewShell title="Sounds" classes={{ root: 'px-0 pt-0' }}>
           {folder === 'archive' ? (
             <div className="mb-4">
               <AddToMusicActions onUploaded={reload} />
             </div>
           ) : null}
-
-          <Tabs.Root
-            selectedIndex={FOLDERS.findIndex((entry) => entry.id === folder)}
-            onChange={(index) => {
-              const next = FOLDERS[index];
-              if (!next) {
-                return;
-              }
-              void navigate({
-                to: '/studio/sounds',
-                search: next.id === 'archive' ? {} : { folder: next.id },
-              });
-            }}
-          >
-            <Tabs.List>
-              {FOLDERS.map((folderOption) => (
-                <Tabs.Tab key={folderOption.id}>
-                  <TabLabel icon={<folderOption.icon size={14} />}>
-                    {folderOption.label}
-                  </TabLabel>
-                </Tabs.Tab>
-              ))}
-            </Tabs.List>
-          </Tabs.Root>
 
           {folder === 'files' ? (
             <StashFilesPanel />

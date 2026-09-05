@@ -156,6 +156,19 @@ export function StudioUpdatesView() {
     <StudioGate>
       <div className="studio-page-layout mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/updates" />
+        <Tabs.Root
+          selectedIndex={tab === 'posts' ? 0 : 1}
+          onChange={(index) => setTab(index === 0 ? 'posts' : 'newsletter')}
+        >
+          <Tabs.List>
+            <Tabs.Tab>
+              <TabLabel icon={<NewspaperIcon size={14} />}>Posts</TabLabel>
+            </Tabs.Tab>
+            <Tabs.Tab>
+              <TabLabel icon={<SendIcon size={14} />}>Newsletter</TabLabel>
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
         <ViewShell title="Updates" classes={{ root: 'px-0 pt-0' }}>
           <div className="mb-4">
             {tab === 'posts' ? (
@@ -186,20 +199,6 @@ export function StudioUpdatesView() {
               </Tooltip>
             )}
           </div>
-
-          <Tabs.Root
-            selectedIndex={tab === 'posts' ? 0 : 1}
-            onChange={(index) => setTab(index === 0 ? 'posts' : 'newsletter')}
-          >
-            <Tabs.List>
-              <Tabs.Tab>
-                <TabLabel icon={<NewspaperIcon size={14} />}>Posts</TabLabel>
-              </Tabs.Tab>
-              <Tabs.Tab>
-                <TabLabel icon={<SendIcon size={14} />}>Newsletter</TabLabel>
-              </Tabs.Tab>
-            </Tabs.List>
-          </Tabs.Root>
 
           {msg && (
             <p className="text-foreground-secondary text-sm" role="status">

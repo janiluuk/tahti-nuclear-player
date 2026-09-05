@@ -754,7 +754,6 @@ export function GovernanceView({ embedded = false }: { embedded?: boolean }) {
   return (
     <ViewShell
       title="Governance"
-      subtitle="Vote on cooperative motions."
       classes={{
         root: 'px-0 pt-0 mx-auto max-w-3xl',
         scrollableArea: 'gap-6',

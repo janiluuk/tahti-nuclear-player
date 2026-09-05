@@ -1,6 +1,7 @@
 import type { ComponentProps } from 'react';
 
-export type DayOfWeekValues = readonly [
+/** Prefer `number[]`; kept as a 7-tuple alias for history day-of-week callers. */
+export type DayOfWeekValues = [
   monday: number,
   tuesday: number,
   wednesday: number,
@@ -15,7 +16,8 @@ export type DayOfWeekChartLabels = {
 };
 
 export type DayOfWeekChartProps = Omit<ComponentProps<'div'>, 'children'> & {
-  values: DayOfWeekValues;
+  values: number[];
   labels: DayOfWeekChartLabels;
   formatValue: (value: number) => string;
+  onBarClick?: (index: number) => void;
 };

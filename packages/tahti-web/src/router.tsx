@@ -785,6 +785,12 @@ const libraryMediaRoute = createRoute({
   component: () => <LibraryView tab="media" />,
 });
 
+const libraryLocalRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/library/local',
+  component: () => <LibraryView tab="local" />,
+});
+
 const libraryMessagesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/messages',
@@ -898,9 +904,13 @@ const newsRoute = createRoute({
 const channelRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/channel/$slug',
-  validateSearch: (search: Record<string, unknown>): { edit?: string } => ({
-    edit: typeof search.edit === 'string' ? search.edit : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { edit?: boolean } => {
+    const raw = search.edit;
+    if (raw === true || raw === 1 || raw === '1' || raw === 'true') {
+      return { edit: true };
+    }
+    return {};
+  },
   component: function ChannelRoute() {
     const { slug } = channelRoute.useParams();
     return <ChannelView slug={slug} />;
@@ -1695,6 +1705,7 @@ const routeTree = rootRoute.addChildren([
     libraryHistoryRoute,
     librarySmartLinksRoute,
     libraryMediaRoute,
+    libraryLocalRoute,
     libraryMessagesRoute,
     messagesAliasRoute,
     messagesThreadRoute,

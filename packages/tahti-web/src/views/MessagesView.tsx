@@ -69,7 +69,6 @@ export function MessagesView({ threadId }: { threadId?: string } = {}) {
     return (
       <ViewShell
         title="Messages"
-        subtitle="Direct messages."
         classes={{ root: 'px-0 pt-0 mx-auto max-w-4xl' }}
       >
         <p className="text-foreground-secondary text-sm">
@@ -88,7 +87,6 @@ export function MessagesView({ threadId }: { threadId?: string } = {}) {
   return (
     <ViewShell
       title="Messages"
-      subtitle="Direct messages."
       classes={{ root: 'px-0 pt-0 mx-auto max-w-4xl' }}
     >
       <div className="border-border flex flex-wrap gap-2 rounded-lg border p-3">

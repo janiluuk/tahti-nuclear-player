@@ -2,6 +2,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   GripVerticalIcon,
+  ImageIcon,
   LayoutTemplateIcon,
   PlusIcon,
   Trash2Icon,
@@ -18,6 +19,9 @@ import {
   type ChannelPageItem,
   type ChannelPageItemType,
 } from '../lib/channelPageLayout';
+import { ChannelPlaylistPicker } from './ChannelPlaylistPicker';
+
+export const CHANNEL_BACKGROUND_LAYER_ID = 'header';
 
 type Props = {
   items: ChannelPageItem[];
@@ -39,14 +43,12 @@ type Props = {
     embedInstanceId: string;
   }>;
   onAddEmbed?: (embedInstanceId: string) => void;
+  onAddPlaylist?: (playlistSlug: string) => void;
   onReorder: (fromId: string, toId: string) => void;
   onApplyPreset: (id: ChannelLayoutPresetId) => void;
   lookSlot?: React.ReactNode;
 };
 
-/** Crossfades in the look panel's content whenever the selected element
- * changes — clicking a different canvas element fades in only that
- * element's own settings instead of jump-cutting to it. */
 function FadeSwitch({
   activeKey,
   children,
@@ -63,11 +65,18 @@ function FadeSwitch({
   return (
     <div
       key={activeKey}
-      className={`transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      className={`flex h-full min-h-0 flex-col transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
       {children}
     </div>
   );
+}
+
+function layerLabel(item: ChannelPageItem): string {
+  if (item.type === 'playlist' && item.playlistSlug) {
+    return item.playlistSlug;
+  }
+  return CHANNEL_PAGE_ITEM_META[item.type].label;
 }
 
 export function ChannelLayersMenu({
@@ -82,6 +91,7 @@ export function ChannelLayersMenu({
   onAdd,
   embedItems = [],
   onAddEmbed,
+  onAddPlaylist,
   onReorder,
   onApplyPreset,
   lookSlot,
@@ -104,9 +114,18 @@ export function ChannelLayersMenu({
     return !row || !row.visible;
   });
 
+  const usedPlaylistSlugs = items
+    .filter((item) => item.type === 'playlist' && item.playlistSlug)
+    .map((item) => item.playlistSlug as string);
+
+  const backgroundSelected = selectedId === CHANNEL_BACKGROUND_LAYER_ID;
+
   return (
-    <aside className="border-border bg-background flex h-full min-h-0 w-full flex-col border-l sm:w-96 lg:sticky lg:top-4 lg:h-[calc(100vh-7rem)] lg:w-[24rem] lg:self-start">
-      <div className="border-border flex gap-1 border-b p-2">
+    <aside
+      data-testid="channel-layers-menu"
+      className="border-border bg-background/75 flex h-full min-h-0 w-full flex-col overflow-hidden border-l backdrop-blur-md sm:w-96 lg:w-[24rem]"
+    >
+      <div className="border-border flex shrink-0 gap-1 border-b p-2">
         {(
           [
             { id: 'presets' as const, label: 'Presets' },
@@ -132,14 +151,15 @@ export function ChannelLayersMenu({
 
       <div
         className={`min-h-0 flex-1 p-2 ${
-          panel === 'presets' ? 'overflow-visible' : 'overflow-y-auto'
+          panel === 'look'
+            ? 'flex flex-col overflow-hidden'
+            : 'overflow-y-auto overscroll-contain'
         }`}
       >
         {panel === 'presets' && (
           <div className="flex flex-col gap-2">
             <p className="text-foreground-secondary text-xs">
-              One-click layouts. You can still drag, hide, and add after
-              applying.
+              One-click layouts. Drag, hide, and add after applying.
             </p>
             {CHANNEL_LAYOUT_PRESETS.map((preset) => {
               const active = activePresetId === preset.id;
@@ -184,6 +204,25 @@ export function ChannelLayersMenu({
 
         {panel === 'layers' && (
           <ul className="flex flex-col gap-1">
+            <li
+              className={`border-border flex items-center gap-1 rounded-md border px-1 py-1 ${
+                backgroundSelected ? 'border-primary/60 bg-primary/10' : ''
+              }`}
+            >
+              <span className="text-foreground-secondary w-5 shrink-0 px-0.5">
+                <ImageIcon size={14} aria-hidden />
+              </span>
+              <button
+                type="button"
+                className="min-w-0 flex-1 text-left"
+                onClick={() => onSelect(CHANNEL_BACKGROUND_LAYER_ID)}
+              >
+                <div className="truncate text-xs font-medium">Background</div>
+                <div className="text-foreground-secondary truncate text-[10px]">
+                  Banner, page color, header style
+                </div>
+              </button>
+            </li>
             {items.map((item) => {
               const meta = CHANNEL_PAGE_ITEM_META[item.type];
               const selected = selectedId === item.id;
@@ -229,7 +268,7 @@ export function ChannelLayersMenu({
                       {meta.label}
                     </div>
                     <div className="text-foreground-secondary truncate text-[10px]">
-                      {meta.hint}
+                      {item.type === 'playlist' ? layerLabel(item) : meta.hint}
                     </div>
                   </button>
                   <div className="border-border flex shrink-0 items-center gap-0.5 rounded border p-0.5">
@@ -290,75 +329,98 @@ export function ChannelLayersMenu({
         )}
 
         {panel === 'add' && (
-          <div className="flex flex-col gap-2">
-            <p className="text-foreground-secondary text-xs">
-              Add a hidden block back onto the channel page.
-            </p>
-            {hiddenCatalog.length === 0 && embedItems.length === 0 ? (
-              <p className="text-foreground-secondary text-xs">
-                Every block type is already on the page.
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <p className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                Playlist
               </p>
-            ) : (
-              <ul className="flex flex-col gap-1">
-                {hiddenCatalog.map((type) => {
-                  const meta = CHANNEL_PAGE_ITEM_META[type];
-                  return (
-                    <li key={type}>
+              <p className="text-foreground-secondary text-xs">
+                Add a playlist from your library. You can add more than one.
+              </p>
+              {onAddPlaylist ? (
+                <ChannelPlaylistPicker
+                  usedSlugs={usedPlaylistSlugs}
+                  onPick={(playlistSlug) => {
+                    onAddPlaylist(playlistSlug);
+                    setPanel('layers');
+                  }}
+                />
+              ) : null}
+            </div>
+            <div className="border-border border-t pt-3">
+              <p className="text-foreground-secondary mb-2 text-xs">
+                Add a hidden block back onto the channel page.
+              </p>
+              {hiddenCatalog.length === 0 && embedItems.length === 0 ? (
+                <p className="text-foreground-secondary text-xs">
+                  Every block type is already on the page.
+                </p>
+              ) : (
+                <ul className="flex flex-col gap-1">
+                  {hiddenCatalog.map((type) => {
+                    const meta = CHANNEL_PAGE_ITEM_META[type];
+                    return (
+                      <li key={type}>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            onAdd(type);
+                            setPanel('layers');
+                          }}
+                        >
+                          <span className="inline-flex items-center gap-2">
+                            <PlusIcon size={14} />
+                            {meta.label}
+                          </span>
+                        </Button>
+                      </li>
+                    );
+                  })}
+                  {embedItems.map((embed) => (
+                    <li key={embed.id}>
                       <Button
                         size="sm"
                         variant="secondary"
                         className="w-full justify-start"
                         onClick={() => {
-                          onAdd(type);
+                          onAddEmbed?.(embed.embedInstanceId);
                           setPanel('layers');
                         }}
                       >
-                        <span className="inline-flex items-center gap-2">
+                        <span className="flex min-w-0 items-center gap-2 text-left">
                           <PlusIcon size={14} />
-                          {meta.label}
+                          <span className="min-w-0">
+                            <span className="block truncate">
+                              {embed.label}
+                            </span>
+                            <span className="text-foreground-secondary block truncate text-[10px]">
+                              {embed.hint}
+                            </span>
+                          </span>
                         </span>
                       </Button>
                     </li>
-                  );
-                })}
-                {embedItems.map((embed) => (
-                  <li key={embed.id}>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        onAddEmbed?.(embed.embedInstanceId);
-                        setPanel('layers');
-                      }}
-                    >
-                      <span className="flex min-w-0 items-center gap-2 text-left">
-                        <PlusIcon size={14} />
-                        <span className="min-w-0">
-                          <span className="block truncate">{embed.label}</span>
-                          <span className="text-foreground-secondary block truncate text-[10px]">
-                            {embed.hint}
-                          </span>
-                        </span>
-                      </span>
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
 
         {panel === 'look' && (
-          <FadeSwitch activeKey={lookOpenSection ?? 'default'}>
-            <div className="flex flex-col gap-3">
-              {lookSlot ?? (
-                <p className="text-foreground-secondary text-xs">
-                  Look controls unavailable.
-                </p>
-              )}
-            </div>
-          </FadeSwitch>
+          <div className="flex min-h-0 flex-1 flex-col">
+            <FadeSwitch activeKey={lookOpenSection ?? 'default'}>
+              <div className="flex h-full min-h-0 flex-col">
+                {lookSlot ?? (
+                  <p className="text-foreground-secondary text-xs">
+                    Look controls unavailable.
+                  </p>
+                )}
+              </div>
+            </FadeSwitch>
+          </div>
         )}
       </div>
     </aside>

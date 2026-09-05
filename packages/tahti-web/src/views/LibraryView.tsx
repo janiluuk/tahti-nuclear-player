@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import {
   Code2Icon,
+  FolderIcon,
   HardDriveIcon,
   HeadphonesIcon,
   LibraryIcon,
@@ -20,7 +21,7 @@ import {
   type StatsTopTrack,
   type StorageUsage,
 } from '../api/studio-extras';
-import { StudioNav } from '../components/StudioNav';
+import { DesktopLibraryPanel } from '../components/DesktopLibraryPanel';
 import { StudioPanel } from '../components/StudioPanel';
 import { formatPlayCount } from '../lib/topListEntries';
 import { LibraryEmbedsView } from './LibraryEmbedsView';
@@ -31,7 +32,13 @@ import { MyDiscographyView } from './MyDiscographyView';
 import { StudioRecordingsView } from './studio/StudioRecordingsView';
 import { StudioStashView } from './studio/StudioStashView';
 
-type Tab = 'library' | 'sounds' | 'collections' | 'smartlinks' | 'media';
+type Tab =
+  | 'library'
+  | 'sounds'
+  | 'collections'
+  | 'smartlinks'
+  | 'media'
+  | 'local';
 
 type CollectionTab =
   | 'collections'
@@ -39,17 +46,6 @@ type CollectionTab =
   | 'media'
   | 'stash'
   | 'embeds';
-
-const LIBRARY_ROUTE_BY_TAB: Record<Tab, string> = {
-  library: '/library',
-  sounds: '/library/sounds',
-  collections: '/library/collections',
-  smartlinks: '/library/smartlinks',
-  media: '/library/media',
-};
-
-const libraryNavRoute = (tab: Tab): string =>
-  tab === 'media' ? '/library/collections' : LIBRARY_ROUTE_BY_TAB[tab];
 
 const LIBRARY_SECTION_TABS = [
   {
@@ -94,6 +90,12 @@ const LIBRARY_SECTION_TABS = [
     icon: Link2Icon,
     to: '/library/smartlinks',
   },
+  {
+    id: 'local' as const,
+    label: 'Local files',
+    icon: FolderIcon,
+    to: '/library/local',
+  },
 ];
 
 export function LibraryView({
@@ -107,6 +109,7 @@ export function LibraryView({
   const overviewTab =
     tab === 'sounds' ||
     tab === 'smartlinks' ||
+    tab === 'local' ||
     activeCollectionTab === 'collections' ||
     activeCollectionTab === 'recordings' ||
     activeCollectionTab === 'media' ||
@@ -114,7 +117,9 @@ export function LibraryView({
     activeCollectionTab === 'embeds'
       ? activeCollectionTab === 'smartlinks'
         ? 'smartlinks'
-        : activeCollectionTab
+        : activeCollectionTab === 'local'
+          ? 'local'
+          : activeCollectionTab
       : null;
   const navigate = useNavigate();
 
@@ -133,11 +138,12 @@ export function LibraryView({
                 ? 'Stash'
                 : overviewTab === 'smartlinks'
                   ? 'Smart links'
-                  : 'Collections';
+                  : overviewTab === 'local'
+                    ? 'Local files'
+                    : 'Collections';
 
   return (
     <div className="studio-page-layout flex w-full flex-col gap-6">
-      <StudioNav current={libraryNavRoute(tab)} />
       {overviewTab ? (
         <Tabs.Root
           selectedIndex={Math.max(
@@ -160,15 +166,7 @@ export function LibraryView({
           </Tabs.List>
         </Tabs.Root>
       ) : null}
-      <ViewShell
-        title={libraryTitle}
-        subtitle={
-          tab === 'library'
-            ? 'Your catalog.'
-            : 'Sounds, collections, and embeds.'
-        }
-        classes={{ root: 'px-0 pt-0' }}
-      >
+      <ViewShell title={libraryTitle} classes={{ root: 'px-0 pt-0' }}>
         {tab === 'library' ? (
           <div className="mt-2">
             <LibraryStats />
@@ -205,6 +203,11 @@ export function LibraryView({
           </div>
         ) : null}
         {tab === 'smartlinks' ? <LibrarySmartLinksView /> : null}
+        {overviewTab === 'local' ? (
+          <div className="mt-2 h-[28rem]">
+            <DesktopLibraryPanel />
+          </div>
+        ) : null}
       </ViewShell>
     </div>
   );

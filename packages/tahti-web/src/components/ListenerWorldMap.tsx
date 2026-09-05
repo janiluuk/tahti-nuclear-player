@@ -68,16 +68,19 @@ const mapCoordinates = ({ latitude, longitude }: Coordinates) => ({
   y: ((90 - latitude) / 180) * MAP_HEIGHT,
 });
 
-type ListenerWorldMapProps = {
+export type ListenerWorldMapProps = {
   data: ListenerGeoPoint[];
   loading?: boolean;
   countLabel?: string;
+  /** Smaller map for side-by-side Studio stats layouts. */
+  compact?: boolean;
 };
 
 export const ListenerWorldMap: FC<ListenerWorldMapProps> = ({
   data,
   loading = false,
   countLabel = 'listeners',
+  compact = false,
 }) => {
   const maxCount = Math.max(1, ...data.map((point) => point.count));
   const topCountries = useMemo(
@@ -86,13 +89,17 @@ export const ListenerWorldMap: FC<ListenerWorldMapProps> = ({
   );
 
   return (
-    <div className="flex flex-col gap-4" aria-busy={loading}>
+    <div className="flex flex-col gap-3" aria-busy={loading}>
       <div
-        className="border-border bg-background relative overflow-hidden rounded-xl border"
+        className={`border-border bg-background relative overflow-hidden rounded-xl border ${compact ? 'max-h-44' : ''}`}
         role="img"
         aria-label="Listener world map"
       >
-        <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} className="w-full">
+        <svg
+          viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+          className={compact ? 'h-40 w-full' : 'w-full'}
+          preserveAspectRatio="xMidYMid meet"
+        >
           <rect
             width={MAP_WIDTH}
             height={MAP_HEIGHT}
@@ -160,24 +167,34 @@ export const ListenerWorldMap: FC<ListenerWorldMapProps> = ({
           No listener location data yet.
         </p>
       ) : (
-        <ol className="grid gap-2 sm:grid-cols-2">
-          {topCountries.slice(0, MAX_COUNTRIES).map((point, index) => (
-            <li
-              key={point.countryCode}
-              className="border-border flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
-            >
-              <span className="text-foreground-secondary w-5 text-xs tabular-nums">
-                {index + 1}
-              </span>
-              <MapPinIcon size={14} aria-hidden className="text-accent-cyan" />
-              <span className="min-w-0 flex-1 truncate">
-                {point.displayName}
-              </span>
-              <strong className="tabular-nums">
-                {point.count.toLocaleString()}
-              </strong>
-            </li>
-          ))}
+        <ol
+          className={
+            compact ? 'flex flex-col gap-1' : 'grid gap-2 sm:grid-cols-2'
+          }
+        >
+          {topCountries
+            .slice(0, compact ? 5 : MAX_COUNTRIES)
+            .map((point, index) => (
+              <li
+                key={point.countryCode}
+                className={`border-border flex items-center gap-2 rounded-lg border text-sm ${compact ? 'px-2 py-1' : 'px-3 py-2'}`}
+              >
+                <span className="text-foreground-secondary w-5 text-xs tabular-nums">
+                  {index + 1}
+                </span>
+                <MapPinIcon
+                  size={14}
+                  aria-hidden
+                  className="text-accent-cyan"
+                />
+                <span className="min-w-0 flex-1 truncate">
+                  {point.displayName}
+                </span>
+                <strong className="tabular-nums">
+                  {point.count.toLocaleString()}
+                </strong>
+              </li>
+            ))}
         </ol>
       )}
     </div>

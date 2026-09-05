@@ -1,10 +1,63 @@
+import { ImageIcon, RotateCcwIcon, UploadCloudIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { FilePicker, Input, SaveButton } from '@tahti-player/ui';
+import {
+  Button,
+  Dialog,
+  FilePicker,
+  Input,
+  SaveButton,
+  Toggle,
+  Tooltip,
+} from '@tahti-player/ui';
 
-import { fetchStreamOverlay, patchStreamOverlay } from '../api/broadcast';
+import {
+  fetchBroadcastPreflight,
+  fetchStreamOverlay,
+  patchStreamOverlay,
+} from '../api/broadcast';
+import { fetchMeProfile } from '../api/studio-extras';
 import { uploadUserMediaFile } from '../api/user-media';
+import { HelpLayer } from './HelpLayer';
+import { ImageSlotDeleteBadge } from './imageSlot/ImageSlotDeleteBadge';
+import { ImageSlotPreviewDialog } from './imageSlot/ImageSlotPreviewDialog';
+import { useImageSlotChrome } from './imageSlot/useImageSlotChrome';
+
+/** The composited 1280×720 video frame's text placement (see
+ * buildRtmpMirrorOutput in the sibling orchestrator) — title near the
+ * bottom in white, subtitle just below it, smaller and lighter. Mirrored
+ * here as a CSS overlay so the preview matches the real render. */
+function OverlayTextPreview({
+  title,
+  subtitle,
+  color,
+}: {
+  title: string;
+  subtitle: string;
+  color: string | null;
+}) {
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-0.5 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-3 pt-8 pb-2">
+      {title ? (
+        <p
+          className="truncate text-sm leading-tight font-bold text-white"
+          style={color ? { color } : undefined}
+        >
+          {title}
+        </p>
+      ) : null}
+      {subtitle ? (
+        <p
+          className="truncate text-xs leading-tight text-slate-300"
+          style={color ? { color } : undefined}
+        >
+          {subtitle}
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 /** RTMP mirrors carry no title metadata, so every multistream push bakes in
  * a static video frame built from this title/subtitle/cover — shared across
@@ -15,21 +68,37 @@ export function StreamOverlayEditor({ onSaved }: { onSaved?: () => void }) {
   const [overlay, setOverlay] = useState({
     streamOverlayTitle: '',
     streamOverlaySubtitle: '',
+    streamOverlayShowTitle: false,
+    streamOverlayTextColor: '',
     streamOverlayCoverUrl: '',
   });
   const [saving, setSaving] = useState(false);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverUploadOpen, setCoverUploadOpen] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const coverChrome = useImageSlotChrome({
+    onClear: () =>
+      setOverlay((current) => ({ ...current, streamOverlayCoverUrl: '' })),
+  });
 
   useEffect(() => {
-    void fetchStreamOverlay().then((result) => {
+    void Promise.all([
+      fetchStreamOverlay(),
+      fetchBroadcastPreflight(),
+      fetchMeProfile(),
+    ]).then(([overlayResult, preflightResult, profileResult]) => {
+      const preflight = preflightResult.data;
       setOverlay({
-        streamOverlayTitle: result.data.streamOverlayTitle ?? '',
-        streamOverlaySubtitle: result.data.streamOverlaySubtitle ?? '',
-        streamOverlayCoverUrl: result.data.streamOverlayCoverUrl ?? '',
+        streamOverlayTitle:
+          overlayResult.data.streamOverlayTitle || preflight?.title || '',
+        streamOverlaySubtitle:
+          overlayResult.data.streamOverlaySubtitle || preflight?.tagline || '',
+        streamOverlayShowTitle: overlayResult.data.streamOverlayShowTitle,
+        streamOverlayTextColor: overlayResult.data.streamOverlayTextColor ?? '',
+        streamOverlayCoverUrl: overlayResult.data.streamOverlayCoverUrl ?? '',
       });
-      setCoverFile(null);
+      setAvatarUrl(profileResult.data.avatarUrl ?? null);
     });
   }, []);
 
@@ -39,93 +108,255 @@ export function StreamOverlayEditor({ onSaved }: { onSaved?: () => void }) {
     void patchStreamOverlay({
       streamOverlayTitle: overlay.streamOverlayTitle.trim(),
       streamOverlaySubtitle: overlay.streamOverlaySubtitle.trim(),
+      streamOverlayShowTitle: overlay.streamOverlayShowTitle,
+      streamOverlayTextColor: overlay.streamOverlayTextColor.trim(),
       streamOverlayCoverUrl: overlay.streamOverlayCoverUrl.trim(),
     }).then((result) => {
       setSaving(false);
       if (!result.ok) {
         setError(result.error);
+        toast.error(result.error);
         return;
       }
+      toast.success('Overlay saved.');
       onSaved?.();
     });
   };
 
+  const uploadCover = async (files: readonly File[]) => {
+    const file = files[0];
+    if (!file) {
+      return;
+    }
+    setCoverUploading(true);
+    setError(null);
+    const result = await uploadUserMediaFile(file);
+    setCoverUploading(false);
+    if (!result.ok) {
+      setError(result.error);
+      toast.error(result.error);
+      return;
+    }
+    setOverlay((current) => ({
+      ...current,
+      streamOverlayCoverUrl: result.data.url,
+    }));
+    toast.success('Overlay cover updated.');
+    setCoverUploadOpen(false);
+  };
+
+  const showText = overlay.streamOverlayShowTitle;
+  const hasOverlayText =
+    overlay.streamOverlayTitle.trim() || overlay.streamOverlaySubtitle.trim();
+
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-foreground-secondary text-sm">
-        RTMP has no built-in title metadata, so YouTube/Twitch/etc. mirrors
-        carry a static video frame with this text and cover baked in. Leave
-        blank to use your display name and avatar.
-      </p>
+      <HelpLayer title="How the stream overlay works">
+        <p>
+          RTMP has no built-in title metadata, so YouTube/Twitch/etc. mirrors
+          carry a static video frame with this cover baked in. Leave the cover
+          blank to use your avatar.
+        </p>
+      </HelpLayer>
       {error && (
         <p className="text-accent-red text-sm" role="alert">
           {error}
         </p>
       )}
-      <Input
-        label="Overlay title"
-        placeholder="Your display name"
-        maxLength={80}
-        value={overlay.streamOverlayTitle}
-        onChange={(event) =>
-          setOverlay({ ...overlay, streamOverlayTitle: event.target.value })
-        }
-      />
-      <Input
-        label="Overlay subtitle"
-        placeholder="e.g. Every Friday, 8pm CET"
-        maxLength={120}
-        value={overlay.streamOverlaySubtitle}
-        onChange={(event) =>
-          setOverlay({
-            ...overlay,
-            streamOverlaySubtitle: event.target.value,
-          })
-        }
-      />
-      {overlay.streamOverlayCoverUrl ? (
-        <img
-          src={overlay.streamOverlayCoverUrl}
-          alt="Overlay cover preview"
-          className="border-border h-20 w-20 rounded-md border object-cover"
-        />
-      ) : null}
-      <FilePicker
-        labels={{
-          title: 'Overlay cover image',
-          description: 'JPEG, PNG, or WebP',
-          browse: coverUploading
-            ? 'Uploading…'
-            : coverFile
-              ? 'Choose another image'
-              : 'Choose image',
-        }}
-        accept="image/jpeg,image/png,image/webp"
-        selectedFiles={coverFile ? [coverFile] : []}
-        disabled={coverUploading}
-        onFiles={(files) => {
-          const file = files[0];
-          if (!file) {
-            return;
+
+      <div className="group relative aspect-video w-full max-w-xs">
+        <button
+          type="button"
+          onClick={() =>
+            !coverUploading &&
+            (overlay.streamOverlayCoverUrl
+              ? coverChrome.openPreview()
+              : setCoverUploadOpen(true))
           }
-          setCoverFile(file);
-          setCoverUploading(true);
-          setError(null);
-          void uploadUserMediaFile(file).then((result) => {
-            setCoverUploading(false);
-            if (!result.ok) {
-              setError(result.error);
-              toast.error(result.error);
-              return;
-            }
+          disabled={coverUploading}
+          aria-label={
+            overlay.streamOverlayCoverUrl
+              ? 'Preview overlay cover'
+              : 'Change overlay cover'
+          }
+          title={
+            overlay.streamOverlayCoverUrl
+              ? 'Preview overlay cover'
+              : 'Change overlay cover'
+          }
+          className="border-border bg-background-secondary relative flex size-full items-center justify-center overflow-hidden rounded-xl border"
+        >
+          {overlay.streamOverlayCoverUrl ? (
+            <img
+              src={overlay.streamOverlayCoverUrl}
+              alt=""
+              className="size-full object-cover"
+            />
+          ) : avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt=""
+              className="size-full object-cover opacity-60"
+            />
+          ) : (
+            <ImageIcon
+              size={28}
+              aria-hidden
+              className="text-foreground-secondary"
+            />
+          )}
+          {overlay.streamOverlayCoverUrl ? null : (
+            <div className="bg-background/80 text-foreground pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+              <UploadCloudIcon size={22} aria-hidden />
+            </div>
+          )}
+          {showText && hasOverlayText ? (
+            <OverlayTextPreview
+              title={overlay.streamOverlayTitle}
+              subtitle={overlay.streamOverlaySubtitle}
+              color={overlay.streamOverlayTextColor || null}
+            />
+          ) : null}
+        </button>
+        {overlay.streamOverlayCoverUrl ? (
+          <ImageSlotDeleteBadge
+            label="overlay cover"
+            onClick={coverChrome.requestDelete}
+          />
+        ) : null}
+      </div>
+
+      <ImageSlotPreviewDialog
+        isOpen={coverChrome.previewOpen}
+        onClose={coverChrome.closePreview}
+        label="Overlay cover"
+        src={overlay.streamOverlayCoverUrl}
+        onChangeClick={() => {
+          coverChrome.closePreview();
+          setCoverUploadOpen(true);
+        }}
+        confirmOpen={coverChrome.confirmOpen}
+        clearing={coverChrome.clearing}
+        onRequestDelete={coverChrome.requestDelete}
+        onCancelDelete={coverChrome.cancelDelete}
+        onConfirmDelete={coverChrome.confirmDelete}
+      />
+
+      <Dialog.Root
+        isOpen={coverUploadOpen}
+        onClose={() => {
+          if (!coverUploading) {
+            setCoverUploadOpen(false);
+          }
+        }}
+        className="max-w-md"
+      >
+        <Dialog.Title>Overlay cover</Dialog.Title>
+        <Dialog.Description>
+          Wide JPEG, PNG, or WebP. Uploads immediately once selected.
+        </Dialog.Description>
+        <div className="mt-4">
+          <FilePicker
+            labels={{
+              title: 'Overlay cover image',
+              description: 'JPEG, PNG, or WebP',
+              browse: coverUploading ? 'Uploading…' : 'Choose image',
+            }}
+            accept="image/jpeg,image/png,image/webp"
+            selectedFiles={[]}
+            disabled={coverUploading}
+            onFiles={(files) => void uploadCover(files)}
+          />
+        </div>
+      </Dialog.Root>
+
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium">Show overlay title</p>
+          <p className="text-foreground-secondary text-xs">
+            Bake a title and subtitle onto the video frame.
+          </p>
+        </div>
+        <Toggle
+          label="Show overlay title"
+          checked={overlay.streamOverlayShowTitle}
+          onChange={(checked) =>
             setOverlay((current) => ({
               ...current,
-              streamOverlayCoverUrl: result.data.url,
-            }));
-            toast.success('Overlay cover updated.');
-          });
-        }}
-      />
+              streamOverlayShowTitle: checked,
+            }))
+          }
+        />
+      </div>
+
+      {overlay.streamOverlayShowTitle ? (
+        <>
+          <Input
+            label="Overlay title"
+            placeholder="Your display name"
+            maxLength={80}
+            value={overlay.streamOverlayTitle}
+            onChange={(event) =>
+              setOverlay((current) => ({
+                ...current,
+                streamOverlayTitle: event.target.value,
+              }))
+            }
+          />
+          <Input
+            label="Overlay subtitle"
+            placeholder="e.g. Every Friday, 8pm CET"
+            maxLength={120}
+            value={overlay.streamOverlaySubtitle}
+            onChange={(event) =>
+              setOverlay((current) => ({
+                ...current,
+                streamOverlaySubtitle: event.target.value,
+              }))
+            }
+          />
+          <label className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-2.5 text-sm">
+            <input
+              type="color"
+              value={overlay.streamOverlayTextColor || '#ffffff'}
+              onChange={(event) =>
+                setOverlay((current) => ({
+                  ...current,
+                  streamOverlayTextColor: event.target.value,
+                }))
+              }
+              className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
+              aria-label="Overlay text color"
+            />
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold">Text color</span>
+              <span className="text-foreground-secondary block text-xs">
+                {overlay.streamOverlayTextColor ||
+                  'Default (white / light gray)'}
+              </span>
+            </span>
+            {overlay.streamOverlayTextColor ? (
+              <Tooltip content="Reset to default colors" side="top">
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Reset to default colors"
+                  onClick={() =>
+                    setOverlay((current) => ({
+                      ...current,
+                      streamOverlayTextColor: '',
+                    }))
+                  }
+                >
+                  <RotateCcwIcon size={14} aria-hidden />
+                </Button>
+              </Tooltip>
+            ) : null}
+          </label>
+        </>
+      ) : null}
+
       <SaveButton
         disabled={coverUploading}
         saving={saving}

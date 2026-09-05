@@ -27,7 +27,6 @@ export function TransparencyGrantYearView({ year }: { year: number }) {
   return (
     <ViewShell
       title={`Grant report ${year}`}
-      subtitle="Annual grant distribution reported from the public transparency API."
       classes={{ root: 'px-0 pt-0 mx-auto max-w-3xl' }}
     >
       <Link

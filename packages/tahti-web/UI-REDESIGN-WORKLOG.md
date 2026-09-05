@@ -1,3 +1,102 @@
+## 2026-09-05 — Channel Designer layout hints + visualizer extract (0.0.83)
+
+**Status:** executed.
+
+`LayoutOnlyLookHint` for Releases…Gallery Look rows; `PlayerVisualizerControls`
+for the Player → Visualizer chrome. Storybook under
+`Tahti/Channel/Designer/LayoutOnlyLookHint` and `PlayerVisualizerControls`.
+
+Todo: `docs/todo/channel-designer-storybook-elements.md`.
+
+## 2026-09-05 — Channel Designer PlayerPanel extract (0.0.82)
+
+**Status:** executed.
+
+Look → Player is `PlayerPanel` + `PlayerGradientControls` under
+`components/channel-designer/`. Storybook:
+`Tahti/Channel/Designer/PlayerPanel` and `PlayerGradientControls`.
+Visualizer / video / overlay remain slots for later extracts.
+
+Todo: `docs/todo/channel-designer-storybook-elements.md`.
+
+## 2026-09-05 — Channel Designer BackdropPanel extract (0.0.81)
+
+**Status:** executed.
+
+Look → Background is `BackdropPanel` under `components/channel-designer/`
+(with BrandAccentSwatches, AccentPairFields, BackdropBackgroundExtras).
+Live ChannelDesigner wires it; Storybook
+`Tahti/Channel/Designer/BackdropPanel` covers each header style. Player
+panel extract is next on the storybook-elements todo.
+
+## 2026-09-05 — Channel designer menu rebuild + Backdrop Storybook (0.0.80)
+
+**Status:** executed.
+
+Header style is a segmented control with exclusive bodies (Gradient /
+Solid / Video / Slideshow). Designer dock is fixed and translucent; page
+scrolls behind; only the settings pane scrolls. Extracted
+`HeaderStyleTabs` and `PageBackgroundField` under
+`components/channel-designer/` with Storybook stories.
+
+Todo: `docs/todo/channel-designer-menu-rebuild.md`,
+`docs/todo/channel-designer-storybook-elements.md`.
+
+## 2026-09-05 — Channel Designer Storybook elements (0.0.79)
+
+**Status:** executed (first pass).
+
+Extracted `ColorSchemeFields` into `components/channel-designer/`. Storybook
+`Tahti/Channel/Designer/*` now has one story per look element (Backdrop,
+Player, Releases…), plus ColorSchemeFields, LayersMenu, ElementEditor, and
+Playlist picker/block (Tracklist vs Cards). Correct panels one-by-one from
+there; further panel extractions tracked in
+`docs/todo/channel-designer-storybook-elements.md`.
+
+## 2026-09-05 — Channel Designer background + playlists (0.0.78)
+
+**Status:** executed.
+
+Layers always show **Background** (banner / page color / header). Prominent
+page background color picker in Look → Background. Preset blurbs shortened.
+Removed Tune-in actions and the page Text overlay block (overlay stays under
+Player). Add → Playlist picks from Studio collections; multiple playlist
+blocks allowed. Playlist widget Look settings: pick which playlist, and
+Tracklist vs Cards (`PlayableTrackTable` / Storybook `Card` + `CardGrid`).
+
+## 2026-09-05 — Channel Design crash + quoted edit URL (0.0.77)
+
+**Status:** executed.
+
+`ChannelView` called `useMemo` for look extras after loading early
+returns → React hook-count crash ("Something went wrong") once the
+channel loaded. Design links used `edit: '1'`, which TanStack serializes
+as `?edit=%221%22`. Moved the memo above early returns; edit search is
+now boolean `?edit=true` (still accepts legacy `1` / `"1"`).
+
+Todo: `docs/todo/channel-edit-hooks-url.md`.
+
+## 2026-09-05 — Studio subtabs under nav + header help (0.0.76)
+
+**Status:** executed. Branch `feat/studio-subtabs-help-layer`.
+
+In-page Studio/Admin/Listen/Discover section tabs sit between section nav
+and ViewShell (Stats pattern). Static ViewShell subtitles removed; copy
+in Help `getting-around` / `for-artists`.
+
+Todo: `docs/todo/studio-subtabs-help-layer.md`.
+
+## 2026-09-05 — Studio Stats Storybook charts + TopList
+
+**Status:** executed on `feat/studio-subtabs-help-layer`.
+
+Plays & listeners: compact map beside Plays over time. Periods ≤30 days
+use `DayOfWeekChart` (N bars); longer use `CalendarHeatmap`. Day click opens
+`ListeningClock` dialog. FilterChips add Today + Custom (date inputs).
+Engagement units use `TopList`. Sibling stats range adds `1` + from/to.
+
+Todo: `docs/todo/studio-stats-storybook-charts.md`.
+
 ## 2026-09-05 — Last.fm scrobble (registry runtime)
 
 **Status:** executed (docs + Nuclear add-on; sibling needs `LASTFM_API_*`).

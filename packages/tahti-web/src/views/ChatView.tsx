@@ -34,7 +34,6 @@ export function ChatView({ slug }: { slug?: string }) {
     return (
       <ViewShell
         title="Chat"
-        subtitle="Pick a channel to open chat."
         classes={{
           root: 'px-0 pt-0 mx-auto max-w-lg',
           scrollableArea: 'gap-6',

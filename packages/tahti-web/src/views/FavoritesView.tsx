@@ -103,7 +103,6 @@ export function FavoritesView({ embedded = false }: { embedded?: boolean }) {
                 <Link to="/radio">
                   <Card
                     title={radio.artist || radio.title}
-                    subtitle="Internet radio"
                     src={radio.coverUrl ?? placeholderArtworkUrl(radio.id)}
                   />
                 </Link>
@@ -149,11 +148,7 @@ export function FavoritesView({ embedded = false }: { embedded?: boolean }) {
   }
 
   return (
-    <ViewShell
-      title="Favorites"
-      subtitle="Channels, radio, and tracks."
-      classes={{ root: 'px-0 pt-0' }}
-    >
+    <ViewShell title="Favorites" classes={{ root: 'px-0 pt-0' }}>
       {body}
     </ViewShell>
   );

@@ -404,9 +404,25 @@ export const StudioBrandingPanel: FC<{
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <p className="text-foreground-secondary text-xs">
-                  JPEG, PNG, or WebP. The original is kept for full-size use.
-                </p>
+                <Tooltip
+                  side="bottom"
+                  content={
+                    <p className="max-w-64 text-xs leading-relaxed">
+                      JPEG, PNG, or WebP. The original is kept for full-size
+                      use.
+                    </p>
+                  }
+                >
+                  <span
+                    tabIndex={0}
+                    aria-label="Accepted image formats"
+                    className="text-foreground-secondary hover:text-foreground inline-flex size-4 cursor-help items-center justify-center rounded-full border border-current"
+                  >
+                    <span className="text-[10px] leading-none font-bold">
+                      ?
+                    </span>
+                  </span>
+                </Tooltip>
                 <input
                   ref={avatarInputRef}
                   type="file"
@@ -803,6 +819,33 @@ export const StudioBrandingView: FC = () => {
         }`}
       >
         <StudioNav current="/studio/branding" />
+        <Tabs.Root
+          selectedIndex={Math.max(0, STUDIO_BRANDING_SECTIONS.indexOf(section))}
+          onChange={(index) => {
+            const next = STUDIO_BRANDING_SECTIONS[index];
+            if (next) {
+              void navigate({
+                to: '/studio/branding',
+                search: { tab: next === 'branding' ? undefined : next },
+              });
+            }
+          }}
+        >
+          <Tabs.List className="w-fit flex-wrap">
+            {(
+              [
+                ['branding', 'Branding', PaletteIcon],
+                ['gallery', 'Gallery', ImagesIcon],
+                ['press-kit', 'Press kit', DownloadIcon],
+                ['channel-designer', 'Channel Designer', PaintbrushIcon],
+              ] as const
+            ).map(([id, label, Icon]) => (
+              <Tabs.Tab key={id}>
+                <TabLabel icon={<Icon size={15} />}>{label}</TabLabel>
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs.Root>
         <ViewShell title="Branding" classes={{ root: 'px-0 pt-0' }}>
           {profile ? (
             <Link to="/u/$username" params={{ username: profile.username }}>
@@ -812,16 +855,7 @@ export const StudioBrandingView: FC = () => {
               </Button>
             </Link>
           ) : null}
-          <StudioBrandingPanel
-            section={section}
-            hideSectionNav={false}
-            onSectionChange={(next) => {
-              void navigate({
-                to: '/studio/branding',
-                search: { tab: next === 'branding' ? undefined : next },
-              });
-            }}
-          />
+          <StudioBrandingPanel section={section} hideSectionNav />
         </ViewShell>
       </div>
     </StudioGate>

@@ -3,12 +3,11 @@ import {
   BarChart3Icon,
   ChevronDownIcon,
   ChevronRightIcon,
-  Clock3Icon,
   ListMusicIcon,
   MonitorPlayIcon,
   PauseIcon,
+  PencilIcon,
   PlayIcon,
-  PlusIcon,
   RadioIcon,
   SkipBackIcon,
   SkipForwardIcon,
@@ -34,6 +33,7 @@ import {
   fetchChannelManageStats,
   fetchRtmpTargets,
   fetchSignalStatus,
+  fetchStreamOverlay,
   pauseChannelRotation,
   postEndBroadcast,
   previousChannelRotation,
@@ -61,6 +61,7 @@ import { multicastProviderLabel } from '../plugins/multicast';
 import { useBroadcastPresenceStore } from '../stores/broadcastPresenceStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { ChannelRotationEditor } from './ChannelRotationEditor';
+import { ConfirmDialog } from './ConfirmDialog';
 import { StreamOverlayEditor } from './StreamOverlayEditor';
 
 const STATS_POLL_MS = 5000;
@@ -124,18 +125,29 @@ export function StreamManagerPanel({
   const [selectedCollection, setSelectedCollection] =
     useState<StudioCollection | null>(null);
   const [playlistDialogOpen, setPlaylistDialogOpen] = useState(false);
+  const [pendingApply, setPendingApply] = useState<{
+    replace: boolean;
+  } | null>(null);
   const [playlistLoading, setPlaylistLoading] = useState(false);
   const [rotationBusy, setRotationBusy] = useState(false);
   const [rotationMsg, setRotationMsg] = useState<string | null>(null);
   const [liveStartedAt, setLiveStartedAt] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<'rotation' | 'stats' | 'overlay'>(
-    'rotation',
-  );
+  const [activeTab, setActiveTab] = useState<'rotation' | 'stats'>('rotation');
   // Collapsed by default while the fallback rotation is carrying the
   // station — most visits just want to see what's playing and skip/pause
   // it, not the full stats grid and playlist-add form.
   const [rotationExpanded, setRotationExpanded] = useState(defaultExpanded);
+  const [overlayShowTitle, setOverlayShowTitle] = useState<boolean | null>(
+    null,
+  );
+  const [overlayModalOpen, setOverlayModalOpen] = useState(false);
   const canControl = !readOnly;
+
+  useEffect(() => {
+    void fetchStreamOverlay().then((result) =>
+      setOverlayShowTitle(result.data.streamOverlayShowTitle),
+    );
+  }, []);
 
   useEffect(() => {
     void fetchStudioCollections().then((r) => setCollections(r.data));
@@ -266,10 +278,6 @@ export function StreamManagerPanel({
   const elapsedSinceObserved = rotation
     ? Math.floor((now - rotation.observedAt) / SECOND_MS)
     : 0;
-  const remainingSec =
-    durationSec == null
-      ? null
-      : Math.max(0, durationSec - elapsedSinceObserved);
 
   const editableRotation = useMemo(
     () =>
@@ -448,7 +456,7 @@ export function StreamManagerPanel({
             ) : (
               <RadioIcon size={18} className="text-primary" aria-hidden />
             )}
-            Stream playlist manager
+            Stream Manager
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
             <span
@@ -456,20 +464,11 @@ export function StreamManagerPanel({
               role="status"
               aria-label={`Player state: ${playerState}`}
             >
-              {playerState === 'Live' || playerState === 'Playing' ? (
+              {playerState === 'Live' ? (
                 <Badge variant="dot" color="green" animated />
+              ) : playerState === 'Playing' ? (
+                <Badge variant="dot" color="yellow" />
               ) : null}
-              <Badge
-                variant="pill"
-                color={
-                  playerState === 'Live' || playerState === 'Playing'
-                    ? 'green'
-                    : 'secondary'
-                }
-                className="tracking-wide uppercase"
-              >
-                {playerState}
-              </Badge>
             </span>
             <span className="text-foreground-secondary">{outputLabel}</span>
           </div>
@@ -534,10 +533,10 @@ export function StreamManagerPanel({
           {rotation ? (
             <>
               <p className="mt-0.5 truncate text-sm font-semibold">
-                {rotation.title}
+                {rotation.artistName}
               </p>
               <p className="text-foreground-secondary truncate text-xs">
-                {rotation.artistName}
+                {rotation.title}
                 {durationSec != null
                   ? ` · ${formatRemaining(Math.min(elapsedSinceObserved, durationSec))} / ${formatRemaining(durationSec)}`
                   : ''}
@@ -551,16 +550,16 @@ export function StreamManagerPanel({
         </div>
         <div className="order-4 flex shrink-0 items-center gap-2">
           {canControl && collections.length > 0 && (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={openPlaylistDialog}
-              aria-label="Choose playlist"
-              title="Choose playlist"
-            >
-              <PlusIcon size={14} aria-hidden />
-              Playlist
-            </Button>
+            <Tooltip content="Edit playlist" side="top">
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                onClick={openPlaylistDialog}
+                aria-label="Edit playlist"
+              >
+                <PencilIcon size={14} aria-hidden />
+              </Button>
+            </Tooltip>
           )}
           {rotationPlaying && (
             <Tooltip
@@ -623,14 +622,8 @@ export function StreamManagerPanel({
 
       {(!rotationPlaying || rotationExpanded) && (
         <Tabs.Root
-          selectedIndex={
-            activeTab === 'rotation' ? 0 : activeTab === 'stats' ? 1 : 2
-          }
-          onChange={(index) =>
-            setActiveTab(
-              index === 0 ? 'rotation' : index === 1 ? 'stats' : 'overlay',
-            )
-          }
+          selectedIndex={activeTab === 'rotation' ? 0 : 1}
+          onChange={(index) => setActiveTab(index === 0 ? 'rotation' : 'stats')}
         >
           <Tabs.List>
             <Tabs.Tab>
@@ -642,9 +635,6 @@ export function StreamManagerPanel({
               <TabLabel icon={<BarChart3Icon size={14} />}>
                 Stream stats
               </TabLabel>
-            </Tabs.Tab>
-            <Tabs.Tab>
-              <TabLabel icon={<MonitorPlayIcon size={14} />}>Overlay</TabLabel>
             </Tabs.Tab>
           </Tabs.List>
         </Tabs.Root>
@@ -664,7 +654,7 @@ export function StreamManagerPanel({
                 <RadioIcon size={14} aria-hidden />
               )
             }
-            label="Output"
+            label="Mode"
             value={outputLabel}
           />
           <StatChip
@@ -684,7 +674,7 @@ export function StreamManagerPanel({
                   : signalError
                     ? 'Unavailable'
                     : rotationPlaying
-                      ? 'Rotation'
+                      ? 'Offline'
                       : 'No encoder'
             }
           />
@@ -702,15 +692,22 @@ export function StreamManagerPanel({
             }
           />
           <StatChip
-            icon={<Clock3Icon size={14} aria-hidden />}
-            label="Time left"
+            icon={<MonitorPlayIcon size={14} aria-hidden />}
+            label="Overlay"
             value={
-              rotationPlaying
-                ? remainingSec != null
-                  ? `≤ ${formatRemaining(remainingSec)}`
-                  : 'Unknown'
-                : '—'
+              overlayShowTitle == null ? '—' : overlayShowTitle ? 'On' : 'Off'
             }
+            role="button"
+            tabIndex={0}
+            aria-label="Open stream overlay settings"
+            className="hover:border-primary cursor-pointer"
+            onClick={() => setOverlayModalOpen(true)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                setOverlayModalOpen(true);
+              }
+            }}
           />
           <StatChip
             icon={<UsersIcon size={14} aria-hidden />}
@@ -797,14 +794,25 @@ export function StreamManagerPanel({
         </>
       )}
 
-      {activeTab === 'overlay' && canControl && (
-        <div className="flex flex-col gap-4">
-          <div>
-            <h3 className="font-display text-base font-bold">Stream overlay</h3>
+      {canControl ? (
+        <Dialog.Root
+          isOpen={overlayModalOpen}
+          onClose={() => setOverlayModalOpen(false)}
+          className="max-w-lg"
+        >
+          <Dialog.Title>Stream overlay</Dialog.Title>
+          <div className="mt-4">
+            <StreamOverlayEditor
+              onSaved={() => {
+                setOverlayModalOpen(false);
+                void fetchStreamOverlay().then((result) =>
+                  setOverlayShowTitle(result.data.streamOverlayShowTitle),
+                );
+              }}
+            />
           </div>
-          <StreamOverlayEditor onSaved={() => setActiveTab('rotation')} />
-        </div>
-      )}
+        </Dialog.Root>
+      ) : null}
 
       {error && <p className="text-accent-red text-xs">{error}</p>}
 
@@ -880,20 +888,51 @@ export function StreamManagerPanel({
                 disabled={
                   !selectedCollectionSlug || playlistLoading || rotationBusy
                 }
-                onClick={() => void handleApplyCollectionToRotation(false)}
+                onClick={() => setPendingApply({ replace: false })}
               >
-                {rotationBusy ? 'Adding…' : 'Add to rotation'}
+                Add to rotation
               </Button>
               <Button
                 disabled={
                   !selectedCollectionSlug || playlistLoading || rotationBusy
                 }
-                onClick={() => void handleApplyCollectionToRotation(true)}
+                onClick={() => setPendingApply({ replace: true })}
               >
                 Replace rotation
               </Button>
             </Dialog.Actions>
           </Dialog.Root>
+          <ConfirmDialog
+            isOpen={pendingApply !== null}
+            title={
+              pendingApply?.replace
+                ? 'Replace the current rotation?'
+                : 'Add this playlist to the rotation?'
+            }
+            description={
+              pendingApply?.replace
+                ? `This removes every track currently in rotation and replaces it with "${selectedCollection?.name ?? 'this playlist'}".`
+                : `This adds "${selectedCollection?.name ?? 'this playlist'}"'s tracks to the current rotation.`
+            }
+            confirmLabel={
+              rotationBusy
+                ? pendingApply?.replace
+                  ? 'Replacing…'
+                  : 'Adding…'
+                : pendingApply?.replace
+                  ? 'Replace rotation'
+                  : 'Add to rotation'
+            }
+            onCancel={() => setPendingApply(null)}
+            onConfirm={() => {
+              if (!pendingApply) {
+                return;
+              }
+              const { replace } = pendingApply;
+              setPendingApply(null);
+              void handleApplyCollectionToRotation(replace);
+            }}
+          />
           <Dialog.Root
             isOpen={confirmEndOpen}
             onClose={() => setConfirmEndOpen(false)}
