@@ -1,6 +1,10 @@
 # Stream overlay: artist-configurable text color
 
-**Status:** partial — opacity/scrim remaining
+**Status:** partial
+
+## Remaining
+
+opacity/scrim remaining
 attempted — flagged below. Backend half shipped to the sibling `tahti`
 repo's already-open PR #441, still awaiting review/merge.
 

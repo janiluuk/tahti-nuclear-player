@@ -1,6 +1,10 @@
 # Plugin registry extraction — pointer
 
-**Status:** open — pointer to sibling checklist
+**Status:** open
+
+## Remaining
+
+pointer to sibling checklist
 
 Canonical inventory and remaining-work checklist live in the Tahti org repo
 (remaining-work is tracked there):

@@ -1,6 +1,10 @@
 # Local files: moved from right sidebar to a Library tab
 
-**Status:** partial — desktop-mode gating open
+**Status:** partial
+
+## Remaining
+
+desktop-mode gating open
 flagged below as not actually implementable in this codebase today.
 
 ## What shipped

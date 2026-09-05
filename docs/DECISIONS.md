@@ -13,4 +13,5 @@ Settled forks so agents do not re-litigate them. Append new rows; do not rewrite
 | — | Ordinary pages keep persistent chrome; full-screen player, public share canvases, maximized Pro Editor may hide it. | root `AGENTS.md` |
 | — | Advisory consultation ≠ binding AGM ballot until sibling API has bylaws-backed contracts. | root `AGENTS.md` |
 | — | Page widgets configure from Settings → Add-ons, not a second Widgets settings section. | `packages/tahti-web/AGENTS.md` |
-| — | Ordinary chrome pages use Storybook `ViewShell` (title + optional subtitle); entity cover headers and takeover surfaces are exceptions. | `packages/tahti-web/AGENTS.md`, WORKPLAN |
+| 2026-09-05 | Root `AGENTS.md` is short; deep topics live under `docs/agent/*`. | `AGENTS.md` |
+| 2026-09-05 | WORKPLAN is epics only; leaf tasks are `docs/todo/INDEX.md`. | `WORKPLAN.md` |
