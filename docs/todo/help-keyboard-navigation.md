@@ -1,5 +1,7 @@
 # Help — keyboard navigation page
 
+**Status:** partial — Settings remapping deep link still open
+
 Executed (0.0.58): Help hub quick start → `/help/keyboard-shortcuts` with
 Storybook `KeyCombo` via `HelpKeyboardShortcuts`. Storybook
 `KeyboardNavigation` story. AppShell bindings covered by unit test.

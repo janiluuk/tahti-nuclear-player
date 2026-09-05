@@ -1,6 +1,6 @@
 # CI snapshot digest
 
-**Status:** shipped on `perf/audit`
+**Status:** open
 
 ## Goal
 

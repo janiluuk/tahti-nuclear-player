@@ -14,7 +14,7 @@ Guidelines for AI coding agents working on Tahti Player.
 
 Tahti Player is a free, open-source music player without ads or tracking, built on [Nuclear](https://github.com/nukeop/nuclear)'s player UI. Search for any song or artist, build playlists, and start listening. It's a desktop app built with Tauri (Rust + React), organized as a pnpm monorepo managed with Turborepo.
 
-This repository is the Tahti fork of Nuclear (`janiluuk/tahti-player`), not a from-scratch rewrite. Upstream is `nukeop/nuclear`. How the fork, sibling API (`../tahti`), marketplace catalog (`../tahti-registry`), and `tahti-web` cutover fit together is in [`TAHTI.md`](./TAHTI.md).
+This repository is the Tahti fork of Nuclear (`janiluuk/tahti-player`), not a from-scratch rewrite. Upstream is `nukeop/nuclear`. How the fork, sibling API (`../tahti-org`), marketplace catalog (`../tahti-registry`), and `tahti-web` cutover fit together is in [`TAHTI.md`](./TAHTI.md).
 
 **Themes** customize CSS variables that drive Tailwind classes. Users load JSON themes or use built-in ones. **Plugins** can control any part of the player; they are not sandboxed. The Store catalog is `tahti-registry`, not the on-disk runtime `plugins.json`.
 
@@ -103,7 +103,7 @@ Tahti’s `AGENTS.md`.
 ## Tahti governance handoff
 
 The governance API and official-record foundation live in the sibling
-`../tahti` repository. Before adding governance UI here, inspect the sibling
+`../tahti-org` repository. Before adding governance UI here, inspect the sibling
 API routes, shared DTOs, OpenAPI output, and `docs/governance-worklog.md`.
 
 Governance navigation is intentionally split by context: member listeners use
@@ -146,7 +146,7 @@ the installed copy — a code-only bump that never lands in the catalog will not
 reach users.
 
 Prefer a sibling checkout at `../tahti-registry` (same parent as this repo and
-`../tahti`). Otherwise clone or open a PR against that GitHub repo.
+`../tahti-org`). Otherwise clone or open a PR against that GitHub repo.
 
 ### After every plugin or theme change (required)
 

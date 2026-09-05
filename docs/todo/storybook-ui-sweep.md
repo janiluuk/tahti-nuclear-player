@@ -1,6 +1,6 @@
 # Generic Storybook UI sweep (2026-09-04)
 
-**Status:** executed (this pass); follow-ups continue.
+**Status:** partial — follow-ups continue
 
 Swapped hand-rolled controls onto Storybook primitives without dropping
 live data, overlays, routes, or actions.

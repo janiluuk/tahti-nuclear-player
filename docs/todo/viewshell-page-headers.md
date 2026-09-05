@@ -1,6 +1,6 @@
 # ViewShell page headers (Studio, Admin, listener)
 
-**Status:** nearly done. Only the 5 excluded cover-overlay Studio entity
+**Status:** partial — cover-overlay entity headers excluded
 headers remain open — see Order of work below. Everything else in this
 doc's Listener/Studio/Admin scope is converted (round-4 batches
 2026-09-04, docs/todo/HISTORY.md).
