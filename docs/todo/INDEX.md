@@ -7,7 +7,6 @@ Status values: `open` | `blocked` | `partial`.
 
 | Status | File | One-line |
 | --- | --- | --- |
-| open | [agent-docs-audit.md](agent-docs-audit.md) | Agent docs/rules streamlining (P0–P2) |
 | open | [ci-snapshot-digest.md](ci-snapshot-digest.md) | CI Vitest snapshot digest / PR comment |
 | partial | [channel-designer-background-section-fixes.md](channel-designer-background-section-fixes.md) | Designer background section; design decision remains |
 | partial | [channel-designer-links-prefill-and-home-rename.md](channel-designer-links-prefill-and-home-rename.md) | Links prefill / home rename; flagged sub-asks |

@@ -18,7 +18,7 @@ Do not invent sibling API shapes. Inspect `../tahti-org` routes/DTOs first. Do n
 | --- | --- | --- |
 | Any new technical work | [`docs/todo/INDEX.md`](docs/todo/INDEX.md) | Know if an open todo already covers it |
 | tahti-web UI / Studio / Listen / Admin | [`packages/tahti-web/AGENTS.md`](packages/tahti-web/AGENTS.md) | Workflow + ViewShell / Storybook rules |
-| What product already does | [`packages/tahti-web/FEATURES.md`](packages/tahti-web/FEATURES.md) **Remaining** (or FEATURES-REMAINING.md) | Do not re-read whole shipped matrix |
+| What product already does | [`packages/tahti-web/FEATURES-REMAINING.md`](packages/tahti-web/FEATURES-REMAINING.md) | Do not open full FEATURES matrix |
 | Next engineering slices | [`packages/tahti-web/WORKPLAN.md`](packages/tahti-web/WORKPLAN.md) | Open sections only |
 | Cutover / beta vs prod | [`packages/tahti-web/CUTOVER.md`](packages/tahti-web/CUTOVER.md) | Only if cutover/deploy scope |
 | Listener/artist/admin gap ledger | [`packages/tahti-web/GAP-MAPPING.md`](packages/tahti-web/GAP-MAPPING.md) | Only if parity vs `apps/web` |
@@ -50,7 +50,8 @@ Status values: `open` | `blocked` | `partial` | (file deleted when done — neve
 | --- | --- |
 | `docs/todo/INDEX.md` | Open agent tasks only |
 | `docs/todo/HISTORY.md` | Completed tasks (fold destination) |
-| `FEATURES.md` | Product capability matrix vs prod |
+| `FEATURES-REMAINING.md` | Open product gaps only |
+| `FEATURES.md` | Full capability matrix (shipped + remaining) |
 | `WORKPLAN.md` | Open engineering slices only |
 | `CUTOVER.md` | Beta → prod cutover checklist |
 | `GAP-MAPPING.md` | No-drop ledger vs legacy `apps/web` |

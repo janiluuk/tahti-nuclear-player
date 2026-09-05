@@ -52,7 +52,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 - [x] Embeds
 - [x] Artist Branding workspace: profile picture, channel outlook, gallery visibility, fullscreen slideshow, and 10-image press kit selection
 
-**Remaining / partial** (open only — shipped rows folded to `docs/todo/HISTORY.md`)
+**Remaining / partial** — short copy: [`FEATURES-REMAINING.md`](FEATURES-REMAINING.md) (open only; shipped rows in HISTORY)
 
 - [ ] Multitrack timeline editing — confirmed greenfield (no track array/timeline model anywhere), a multi-day build needing a rendering-architecture decision first, not a slice. Press-kit gallery is done (see above); member invites checked and mostly already covered — adding a moderator by existing username is live-API at `/studio/moderation`. A true email-invite-for-non-account-holders flow is a separate, larger feature with no backing API; deferred, not clearly needed.
 - [ ] Production cutover for `apps/web`

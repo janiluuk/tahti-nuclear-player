@@ -1048,3 +1048,14 @@ Folded 30 completed items from `queued-ux-fixes-2026-09-05.md`.
 - **Channel Designer: Links prefill + "Home"→"Stage" — 2 of 4
 
 ---
+
+## 2026-09-05 — Agent docs audit (round 1–2) folded
+
+Folded from `agent-docs-audit.md` after P0–P2 remediations on `perf/audit`.
+
+- START-HERE, INDEX, todo→HISTORY, open WORKPLAN/FEATURES Remaining
+- Sibling path `../tahti-org`; slim AGENTS + `docs/agent/*`
+- alwaysApply start rule; Gitbook pointer; Status enum; Storybook surfaces table; FEATURES-REMAINING
+- Canvas: agent-docs-audit.canvas.tsx
+
+---
