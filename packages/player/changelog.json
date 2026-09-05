@@ -15,9 +15,7 @@
     "date": "2026-09-04T23:50",
     "description": "Channel Designer look settings from the server now win over an older browser cache on your artist and channel pages.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -29,9 +27,7 @@
     "date": "2026-09-04T23:40",
     "description": "Studio tools like Sounds, the editor, and insights open even if your channel is still being set up — only broadcast and design pages ask for a channel first.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -43,9 +39,7 @@
     "date": "2026-09-04T21:20",
     "description": "Your artist page picks up Channel Designer brand gradients and text overlays from the live channel API, not only the local preview.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -57,9 +51,7 @@
     "date": "2026-09-04T17:15",
     "description": "Channel Designer look settings now shape your public artist page — header style and colors, player visualizer and gradients, and page background effects — not only the channel preview.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -71,9 +63,7 @@
     "date": "2026-09-04T16:45",
     "description": "hearthis.at tracks from Studio and Library play in the shared player again instead of silent demo audio, and Finnish internet radio stations live under Radio Browser → Stations with the same cover and stream edit controls.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -85,9 +75,7 @@
     "date": "2026-09-04T16:15",
     "description": "Section tabs show icons and count pills where they belong — Discover, Library, Studio Channel, the right rail, and more — so you can tell sections apart at a glance.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -99,9 +87,7 @@
     "date": "2026-09-04T16:05",
     "description": "Album, widget, news, and directory covers fade in the same way as the rest of the app instead of popping in as a raw image.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -113,9 +99,7 @@
     "date": "2026-09-04T15:50",
     "description": "The desktop player title bar and top bar show Tahti, not Nuclear. The window title is Tahti Player with no Nuclear logo.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Player",
@@ -127,9 +111,7 @@
     "date": "2026-09-04T15:50",
     "description": "On desktop, the right rail has a Library tab: import audio files from this device and play them in the Tahti player for this session. Soulseek is listed under Add-ons with a note that it needs the desktop app.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -141,9 +123,7 @@
     "date": "2026-09-04T03:40",
     "description": "Signing in no longer freezes the app. The notifications rail no longer loops when unread items are counted.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -155,9 +135,7 @@
     "date": "2026-09-04T03:10",
     "description": "Feed, Favorites, Account, Messages, Status, Studio home, Stats, Playlists, Upload, Library, Shows, and Admin Users, Streams, Content, Selects, and Status now use the same short title and subtitle as the other list pages.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -169,9 +147,7 @@
     "date": "2026-09-04T01:25",
     "description": "Track menus now add to playlists from a submenu and open audio tools (editor, mastering) from their own submenu when those tools apply.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -183,9 +159,7 @@
     "date": "2026-09-04T01:15",
     "description": "Help center quick starts now open Keyboard navigation, with shortcut keys shown the same way as in Storybook.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -197,9 +171,7 @@
     "date": "2026-09-04T01:00",
     "description": "Save actions look the same across Studio and Admin, with a clear Saving state. Counts on artist pages, Studio stats, and Admin dashboards use the same chips as the rest of the app.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -211,9 +183,7 @@
     "date": "2026-09-04T00:50",
     "description": "Add a News widget from Listen add-ons: paste an RSS feed, set a thumbnail, and a slider of articles shows on Listen and Discover.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -225,9 +195,7 @@
     "date": "2026-09-04T00:40",
     "description": "Notices that need a decision stay on screen and in the notifications list until you acknowledge them. Closing the toast only hides it.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -239,9 +207,7 @@
     "date": "2026-09-04T00:20",
     "description": "Add-ons and themes use the same store cards everywhere, including enable and play controls beside install.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -253,9 +219,7 @@
     "date": "2026-09-04T00:10",
     "description": "Radio Helsinki and other station logos upload and click to replace correctly, including JPEG and WebP files.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -267,9 +231,7 @@
     "date": "2026-09-03T23:50",
     "description": "Library covers and search results fade in as they load, empty lists use the shared empty layout, and queue and live counts use the same badges as the rest of the app.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -281,9 +243,7 @@
     "date": "2026-09-03T23:20",
     "description": "Listen, Library, and Admin tabs now match the rest of the app, including arrow keys. Unread counts and Live labels use the same badges as elsewhere.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -295,9 +255,7 @@
     "date": "2026-09-03T22:30",
     "description": "In-page tabs on Branding, Channel, Discover, Stats, and Governance now match the rest of the app, including arrow keys between tabs.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -309,9 +267,7 @@
     "date": "2026-09-03T14:30",
     "description": "The main page no longer shows extra scrollbars when the window is a bit narrower — you can still scroll, the bars just stay out of the way.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -323,9 +279,7 @@
     "date": "2026-09-03T06:50",
     "description": "Deleting a track, share link, announcement, or other destructive action now uses the same in-app confirm dialog instead of the browser’s prompt.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -337,9 +291,7 @@
     "date": "2026-09-03T06:45",
     "description": "Listen stays selected in the sidebar while you browse Feed and other Listen pages, so you can always see which section you are in.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -351,9 +303,7 @@
     "date": "2026-09-03T04:30",
     "description": "When Stripe is enabled, Studio adds a Stripe dashboard for your payout account and Express dashboard. If Stripe is off, that page stays out of Studio.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -365,9 +315,7 @@
     "date": "2026-09-03T03:20",
     "description": "Library is now a Studio tab — Studio stays selected while you browse sounds, collections, releases, and uploads, and the phone bottom bar still has Library.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -379,9 +327,7 @@
     "date": "2026-09-03T03:00",
     "description": "The artist-page Channel Designer now uses the same element menu as Studio, with only the blocks you can actually use — releases, tracks, latest, feed, news, player, and backdrop.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -393,9 +339,7 @@
     "date": "2026-09-03T02:30",
     "description": "Artist look now lives in one Branding place: Gallery and Channel Designer are under Studio → Branding, multicast sits with Radio, and Settings no longer duplicates those surfaces.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -407,9 +351,7 @@
     "date": "2026-09-03T02:00",
     "description": "The Branding gallery no longer shows a photo count or an Add images button — upload with the plus icon, toggle whether the gallery is public, and find how to rearrange photos in the Help center.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -421,9 +363,7 @@
     "date": "2026-09-03T01:00",
     "description": "Admins can now replace an internet radio station’s cover by hovering the artwork and uploading a new image, and the new cover shows up everywhere that station appears.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Radio",
@@ -435,9 +375,7 @@
     "date": "2026-09-03T00:00",
     "description": "You can now install a Listen add-on from the add-widget button, paste a link, and see the player on Listen right away — configuring no longer closes the picker, SoundCloud accepts track or profile URLs, and uninstalling takes the widget off the page.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -449,9 +387,7 @@
     "date": "2026-09-03T00:00",
     "description": "The Listen add-widget button now lists every Listen add-on from the store — Favorites plus SoundCloud, Spotify, YouTube, hearthis.at, and Bandcamp — so you can install them without leaving the page.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -463,9 +399,7 @@
     "date": "2026-09-02T00:00",
     "description": "Visualizer presets that follow the playing track now show an Audio reactive label, so you can tell at a glance which backdrops respond to the music.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Visualizers",
@@ -477,9 +411,7 @@
     "date": "2026-09-01T00:00",
     "description": "Visitors can now browse Radio, Discover, and Favorites and open the Help center directly from the navigation before signing in.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -491,9 +423,7 @@
     "date": "2026-09-01T00:00",
     "description": "The full Favorites page no longer repeats the quick-jump Favorites panel, making saved tracks and channels easier to browse without duplicate sections.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -505,9 +435,7 @@
     "date": "2026-09-01T00:00",
     "description": "Listen now has a quick add-widget button: browse available add-ons in a tidy icon grid and configure each one’s visibility and order from the same place.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -519,9 +447,7 @@
     "date": "2026-09-01T00:00",
     "description": "Library favourites are now easier to scan with Tracks, Playlists, Channels, and Artists tabs, humanized save dates, and New markers for artists and playlists you have not opened yet.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -533,9 +459,7 @@
     "date": "2026-09-01T00:00",
     "description": "Mobile playback now stays out of the way while listening, with a compact ready bar when nothing is playing.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Mobile",
@@ -547,9 +471,7 @@
     "date": "2026-09-01T00:00",
     "description": "Artists now get a notification when someone loves one of their tracks.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Notifications",
@@ -561,9 +483,7 @@
     "date": "2026-09-01T00:00",
     "description": "React to a full track with emoticons or leave a comment at the exact moment you are hearing.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Comments",
@@ -575,9 +495,7 @@
     "date": "2026-09-01T00:00",
     "description": "Public playlists can now be collaborative, followed, embedded, and discovered with genre filters.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Playlists",
@@ -589,9 +507,7 @@
     "date": "2026-09-01T00:00",
     "description": "Go Live now gives you a clear signal check with waiting, connected, and listening states, plus live level meters before you go on air.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Go Live",
@@ -603,9 +519,7 @@
     "date": "2026-09-01T00:00",
     "description": "Playlist pages now use a cleaner artwork-led header and a compact, filterable track table, making it faster to scan and play a collection.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Playlists",
@@ -617,9 +531,7 @@
     "date": "2026-09-01T00:00",
     "description": "The live notification now flashes green for a healthy stream, yellow for a warning, or red when the connection drops, with quick access to the live panel and Green Room chat.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Go Live",
@@ -631,9 +543,7 @@
     "date": "2026-09-01T00:00",
     "description": "The broadcast control now flashes while you are live, making it immediately clear that your channel is on air.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Go Live",
@@ -645,9 +555,7 @@
     "date": "2026-09-01T00:00",
     "description": "Artist profiles now keep Subscribe and Embed together as compact top-right actions, leaving more room for the artist’s story and music.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artists",
@@ -659,9 +567,7 @@
     "date": "2026-09-01T00:00",
     "description": "Channel backdrop videos now start automatically and stay quiet when nothing is playing, so they add atmosphere without competing with silence or music.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Channels",
@@ -673,9 +579,7 @@
     "date": "2026-09-01T00:00",
     "description": "Artist entries in Discover now have a vibrant cyan-violet ambient glow and stronger text contrast, making every name easier to read over artwork.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discovery",
@@ -687,9 +591,7 @@
     "date": "2026-09-01T00:00",
     "description": "Discover now gives top lists their own shared view and moves the full artist directory into an Artists tab, keeping the widget carousel out of the way at the bottom.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discovery",
@@ -701,9 +603,7 @@
     "date": "2026-09-01T00:00",
     "description": "Board admins can now configure Discover widgets from a quick gear button that appears when you hover a widget.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discovery",
@@ -715,9 +615,7 @@
     "date": "2026-09-01T00:00",
     "description": "Discover artist banners now carry Tahti Live’s vibrant cyan-and-violet glow, making the artist row feel more alive at a glance.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discovery",
@@ -729,9 +627,7 @@
     "date": "2026-09-01T00:00",
     "description": "Discover now puts all recommended artists in a prominent banner row, with quick filtering and a one-click way to clear the filter.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discovery",
@@ -743,9 +639,7 @@
     "date": "2026-09-01T00:00",
     "description": "Discover widgets now move smoothly with side arrows, and selecting a track opens an inline waveform player for quick listening and seeking.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discovery",
@@ -757,9 +651,7 @@
     "date": "2026-09-01T00:00",
     "description": "All Discover page widgets, including Random artist, are now available from Add-ons → Discovery and can be added with one click.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discovery",
@@ -771,9 +663,7 @@
     "date": "2026-09-01T00:00",
     "description": "The export list now focuses on the supported destinations, making it easier to choose where to send your releases.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Distribution",
@@ -785,9 +675,7 @@
     "date": "2026-08-31T00:00",
     "description": "New releases now start with a polished particle background by default, with settings to choose a visualizer, randomize it, or turn it off.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Releases",
@@ -799,9 +687,7 @@
     "date": "2026-08-31T00:00",
     "description": "Release pages now keep the title and artist visible over the artwork, offer one clear embed action, and make playing tracks easy to spot.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Releases",
@@ -813,9 +699,7 @@
     "date": "2026-08-31T00:00",
     "description": "Go Live now puts a compact show-info confirmation directly above the encoder controls, with a clear save confirmation and quick avatar upload.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Go Live",
@@ -827,9 +711,7 @@
     "date": "2026-08-31T00:00",
     "description": "The Import add-on list now shows only working import sources, with duplicate inactive Nuclear Store entries removed.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Add-ons",
@@ -841,9 +723,7 @@
     "date": "2026-08-31T00:00",
     "description": "EP collections now keep their correct content type when you open them in the editor instead of being mislabeled as albums.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -855,9 +735,7 @@
     "date": "2026-08-31T00:00",
     "description": "Collection pages now open with their backdrop and a subtle cover-art ambience, while collections without artwork receive a polished default cover. Visibility is shown clearly as a header badge.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Collections",
@@ -869,9 +747,7 @@
     "date": "2026-08-31T00:00",
     "description": "Library Recordings now keeps Collections selected in navigation, uses the correct page heading, and offers the same search-and-sort browsing experience as Sounds.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -883,9 +759,7 @@
     "date": "2026-08-31T00:00",
     "description": "Broadcast multistream settings now show only multicast providers, with every setup and connection change contained in a focused dialog.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -897,9 +771,7 @@
     "date": "2026-08-31T00:00",
     "description": "Source connections and imports now live under Settings → Broadcast → Multistream, keeping Library focused on your actual content.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -911,9 +783,7 @@
     "date": "2026-08-31T00:00",
     "description": "HearThis embed tracks can now be downloaded from the track editor when downloads are enabled, and collection content uses the same clear listing style as Sounds.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -925,9 +795,7 @@
     "date": "2026-08-31T00:00",
     "description": "Library Sounds is cleaner without a repeated heading or upload button, and Recordings now uses the same easy-to-scan listing style.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -939,9 +807,7 @@
     "date": "2026-08-31T00:00",
     "description": "Track quick edits are now grouped in one menu, while rotation and private-stash actions live with playlist tools where they are easier to find.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -953,9 +819,7 @@
     "date": "2026-08-31T00:00",
     "description": "Track rows now reserve filled button backgrounds for active playback and pinned states, keeping inactive actions lighter and easier to scan.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -967,9 +831,7 @@
     "date": "2026-08-31T00:00",
     "description": "Admin moderation filters now have more breathing room, and Support search stays in a clear responsive toolbar for faster queue triage.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -981,9 +843,7 @@
     "date": "2026-08-31T00:00",
     "description": "Admin Overview is less crowded: Vendors and the Tahti map now have their own menu entries, with the map showing the correct Admin navigation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -995,9 +855,7 @@
     "date": "2026-08-31T00:00",
     "description": "Saving channel look changes no longer gets blocked by a separate slideshow error, and the live channel now reflects the selected backdrop style and visualizer.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1009,9 +867,7 @@
     "date": "2026-08-31T00:00",
     "description": "The full-screen editor’s Look panel now opens directly into Backdrop design and Player design, without an extra Channel appearance layer.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1023,9 +879,7 @@
     "date": "2026-08-31T00:00",
     "description": "Player design now has clear Gradient, Video / Image, and Visualizer tabs, while backdrop panels use shorter labels and less repeated text.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1037,9 +891,7 @@
     "date": "2026-08-31T00:00",
     "description": "Full-screen Channel Editor now gives the right-side menu more room and opens the relevant Look controls automatically when you select the channel header or live stage.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1051,9 +903,7 @@
     "date": "2026-08-31T00:00",
     "description": "Clicking a visualizer icon now opens a full preset picker with animated previews, descriptions, and a clear way to apply your choice.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1065,9 +915,7 @@
     "date": "2026-08-31T00:00",
     "description": "Channel Designer now keeps Save layout and Open my channel alongside its heading, leaving more room for the actual design controls and preview.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1079,9 +927,7 @@
     "date": "2026-08-31T00:00",
     "description": "Settings and other dialogs now open without the brief flicker before their dark-themed content appears.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -1093,9 +939,7 @@
     "date": "2026-08-31T00:00",
     "description": "Channel Designer now keeps the Save layout action at the top, directly above the link to open your channel.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1107,9 +951,7 @@
     "date": "2026-08-31T00:00",
     "description": "Channel Designer now starts with Artist backdrop banner controls, followed by Player design, matching the order you use to shape the channel.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1121,9 +963,7 @@
     "date": "2026-08-31T00:00",
     "description": "Artist backdrop settings are now shown in one straightforward section, without separate Color scheme or Header tabs to navigate between.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1135,9 +975,7 @@
     "date": "2026-08-31T00:00",
     "description": "Channel Designer now treats Slideshow as a fourth Header mode, with its settings shown directly below the Header choices.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1149,9 +987,7 @@
     "date": "2026-08-31T00:00",
     "description": "Channel Designer now presents Gradient as one focused Header workspace, without an empty Color scheme tab competing with the main controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1163,9 +999,7 @@
     "date": "2026-08-31T00:00",
     "description": "Visualizer cards now show only the useful preset details, removing the redundant Visualizer label that crowded the controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1177,9 +1011,7 @@
     "date": "2026-08-31T00:00",
     "description": "Disabled visualizers are now clearly grayed out in Channel Designer, while the Enable control stays available to turn them back on.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1191,9 +1023,7 @@
     "date": "2026-08-31T00:00",
     "description": "Header design now keeps Gradient colors and Slideshow settings together, making backdrop configuration easier to understand and manage.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1205,9 +1035,7 @@
     "date": "2026-08-31T00:00",
     "description": "Gradient header colors are now edited directly inside Header, keeping the complete gradient design in one place.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1219,9 +1047,7 @@
     "date": "2026-08-31T00:00",
     "description": "Opening Settings and other dialogs no longer briefly flashes the light theme when you are using Tahti dark mode.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -1233,9 +1059,7 @@
     "date": "2026-08-31T00:00",
     "description": "Channel Designer now lets you turn visualizations off and back on, with the wider visualization controls placed on the right beside the live page preview.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1247,9 +1071,7 @@
     "date": "2026-08-31T00:00",
     "description": "Channel Designer now keeps editing controls in collapsible side panels, shows a realistic artist page preview, and provides a direct link to your channel.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1261,9 +1083,7 @@
     "date": "2026-08-31T00:00",
     "description": "Studio Governance now keeps motions and community topics together as clear tabs, so every governance page is easy to find in one place. Upload source widgets also provide one dialog for connection and enablement, while Local upload no longer appears as a duplicate source.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1275,9 +1095,7 @@
     "date": "2026-08-31T00:00",
     "description": "Multicast now uses a focused Add source flow: choose a provider thumbnail, configure it, and test the connection in one dialog.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Perform",
@@ -1289,9 +1107,7 @@
     "date": "2026-08-31T00:00",
     "description": "Multicast now makes active destinations stand out clearly, while disabled and unconfigured services use a muted outline treatment.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Perform",
@@ -1303,9 +1119,7 @@
     "date": "2026-08-31T00:00",
     "description": "Sources are now clearly grouped into enabled and configured integrations versus disabled or unfinished ones, with muted rows and explicit Enable buttons.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -1317,9 +1131,7 @@
     "date": "2026-08-31T00:00",
     "description": "Tahti Radio and Tahti Selects now show separate rotations in Admin, while the obsolete Manage menu has been removed.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -1331,9 +1143,7 @@
     "date": "2026-08-31T00:00",
     "description": "Missed shows is no longer duplicated in Admin Community because it is already available under Moderation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -1345,9 +1155,7 @@
     "date": "2026-08-31T00:00",
     "description": "Tahti Selects now has one clear home in Admin → Content, alongside Radio, without a duplicate Studio navigation entry.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -1359,9 +1167,7 @@
     "date": "2026-08-31T00:00",
     "description": "Channel and Radio are now grouped under Perform, making live setup and broadcasting controls easier to find together.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1373,9 +1179,7 @@
     "date": "2026-08-31T00:00",
     "description": "Studio Governance now keeps motions and feature requests together as clear page tabs, with no unrelated map link in the section.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1387,9 +1191,7 @@
     "date": "2026-08-31T00:00",
     "description": "Channel moderation is now organized under Settings → Channel & design, keeping channel setup and moderation controls together.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -1401,9 +1203,7 @@
     "date": "2026-08-31T00:00",
     "description": "Library navigation is now simpler: Collections contains Recordings, Media, and Stash as tabs, while Sources has inline configuration, connection, and opt-in enable controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -1415,9 +1215,7 @@
     "date": "2026-08-31T00:00",
     "description": "Sound editing now puts the artwork, title, playback state, and waveform seekbar together in one clear banner, with compact editing actions underneath.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -1429,9 +1227,7 @@
     "date": "2026-08-31T00:00",
     "description": "Admin → Content now gives Tahti Selects its own tab under Radio, with a searchable multi-select picker for building the editorial rotation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -1443,9 +1239,7 @@
     "date": "2026-08-31T00:00",
     "description": "Green Room is no longer duplicated in Manage because it is already available in Settings.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1457,9 +1251,7 @@
     "date": "2026-08-31T00:00",
     "description": "The Tahti map is now organized under Admin → Overview instead of taking up a separate place in the main navigation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -1471,9 +1263,7 @@
     "date": "2026-08-31T00:00",
     "description": "Fixed a navigation error that could stop the app from rendering when opening a Studio tab with URL parameters.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -1485,9 +1275,7 @@
     "date": "2026-08-31T00:00",
     "description": "Multicast now lives under Perform with Go Live and Schedule, and its page is clearly titled Multicast with the correct active navigation state.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1499,9 +1287,7 @@
     "date": "2026-08-31T00:00",
     "description": "Studio pages no longer reserve a blank side column for navigation; the content now starts directly beside the main sidebar and uses the available width.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -1513,9 +1299,7 @@
     "date": "2026-08-31T00:00",
     "description": "Perform's Go Live, Schedule, Events, and Shows links now sit across the top of the content, giving the pages their full width instead of leaving a side column.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1527,9 +1311,7 @@
     "date": "2026-08-31T00:00",
     "description": "Studio navigation now highlights exactly one destination at a time, so Studio no longer stays lit when you are in Library, Perform, or Manage.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -1541,9 +1323,7 @@
     "date": "2026-08-31T00:00",
     "description": "Studio, Library, Perform, and Manage are now separate main-menu destinations, so moving between them no longer feels like drilling into Studio.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1555,9 +1335,7 @@
     "date": "2026-08-31T00:00",
     "description": "Studio navigation is now easier to scan: Studio, Library, Perform, and Manage live together in the main menu, while each area's pages sit in a compact bar above the content.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1569,9 +1347,7 @@
     "date": "2026-08-31T00:00",
     "description": "Go Live now reminds you to add a show name before taking over the rotation, with a direct link to the right Info tab.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1583,9 +1359,7 @@
     "date": "2026-08-31T00:00",
     "description": "The radio schedule now opens on your own upcoming shows, with a compact two-week overview and shareable station filters.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1597,9 +1371,7 @@
     "date": "2026-08-31T00:00",
     "description": "Tahti's dark theme now keeps active navigation readable when hovered, and dropdown menus use a calm dark surface instead of a wall of amber.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -1611,9 +1383,7 @@
     "date": "2026-08-31T00:00",
     "description": "Clicking your own radio schedule slot now opens an edit dialog instead of instantly deleting it — cancelling now needs a confirmation step too.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1625,9 +1395,7 @@
     "date": "2026-08-31T00:00",
     "description": "Fixed hearthis.at tracks imported into your library sometimes not playing at all from Library or artist pages.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Playback",
@@ -1639,9 +1407,7 @@
     "date": "2026-08-31T00:00",
     "description": "Themes with their own visual settings now show a configure icon that opens a modal with a live preview, instead of an always-visible form on the main Themes page.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -1653,9 +1419,7 @@
     "date": "2026-08-31T00:00",
     "description": "Radio station cover images in Settings → Add-ons can now be uploaded directly instead of only pasted as a URL.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Add-ons",
@@ -1667,9 +1431,7 @@
     "date": "2026-08-31T00:00",
     "description": "Fixed a flashing orange loading stripe appearing at the top of the screen while navigating Studio.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -1681,9 +1443,7 @@
     "date": "2026-08-31T00:00",
     "description": "Release artwork in Studio now uploads via a hover button on the cover, instead of a permanently-visible upload form.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1695,9 +1455,7 @@
     "date": "2026-08-31T00:00",
     "description": "The front page now shows a \"Continue listening\" card for the last thing you played, and marks which on-air channel you're currently listening to.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -1709,9 +1467,7 @@
     "date": "2026-08-31T00:00",
     "description": "Radio station previews in Settings → Add-ons now show a play button instead of a settings icon, and it sits with the station's other controls.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Add-ons",
@@ -1723,9 +1479,7 @@
     "date": "2026-08-31T00:00",
     "description": "Your feed's track thumbnails now show play and queue buttons directly on the artwork, matching the rest of the app.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -1737,9 +1491,7 @@
     "date": "2026-08-31T00:00",
     "description": "Queueing a whole album or artist's tracks now asks for confirmation first, so one click can't silently dump a full discography into your queue.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Playback",
@@ -1751,9 +1503,7 @@
     "date": "2026-08-30T00:00",
     "description": "Perform → Go Live now has an Info tab built in, so setting your show name and details no longer means leaving the Go Live page.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1765,9 +1515,7 @@
     "date": "2026-08-30T00:00",
     "description": "Admin → Logs now shows real entries for storage uploads/deletes and track encoding jobs, including how long each one took.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -1779,9 +1527,7 @@
     "date": "2026-08-30T00:00",
     "description": "Fixed several Studio and Admin pages (Branding, Playlists, Venues, and a couple of others) not highlighting any navigation tab as active.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -1793,9 +1539,7 @@
     "date": "2026-08-30T00:00",
     "description": "Channel Designer's backdrop can now be set to an uploaded image, not just a video loop or gradient.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1807,9 +1551,7 @@
     "date": "2026-08-30T00:00",
     "description": "Settings → Artist's profile image picker is now a compact circle with an upload button that appears on hover, instead of a large always-visible drop zone.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -1821,9 +1563,7 @@
     "date": "2026-08-30T00:00",
     "description": "Settings → Channel & Design's visualizer preview now actually shows the visualizer when nothing else is using it, instead of always staying blank.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -1835,9 +1575,7 @@
     "date": "2026-08-30T00:00",
     "description": "Removed duplicate Bandcamp and SoundCloud entries from Settings → Add-ons → Nuclear plugins.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Add-ons",
@@ -1849,9 +1587,7 @@
     "date": "2026-08-30T00:00",
     "description": "Channel Designer's visualizer tuning controls now always sit right below the preset picker, instead of sometimes appearing in a separate panel.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1863,9 +1599,7 @@
     "date": "2026-08-30T00:00",
     "description": "Admin's Vendors page is now reachable only as a tab on the Admin dashboard, removing the redundant standalone entry from the left-hand menu.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -1877,9 +1611,7 @@
     "date": "2026-08-30T00:00",
     "description": "Fixed Admin storage always showing 0B total used, even for accounts with real uploads.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -1891,9 +1623,7 @@
     "date": "2026-08-30T00:00",
     "description": "Admin file listings now show file size and type at a glance, can be sorted, and open a full detail view — including a direct link to edit the uploader's account.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -1905,9 +1635,7 @@
     "date": "2026-08-30T00:00",
     "description": "Saving a track now shows a confirmation toast instead of a message tucked away in the form.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1919,9 +1647,7 @@
     "date": "2026-08-30T00:00",
     "description": "The player bar's queue button moved to the outer corner, and its badge now only shows once you actually have more than one track queued.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Playback",
@@ -1933,9 +1659,7 @@
     "date": "2026-08-30T00:00",
     "description": "Studio tracks can now be mastered to match a reference track's loudness and tone, right in the browser — upload a reference from the track or audio editor and get a downloadable, matched WAV back.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1947,9 +1671,7 @@
     "date": "2026-08-30T00:00",
     "description": "Favoriting a hearthis.at track from its own page now actually plays back later from Favorites, instead of silently doing nothing.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -1961,9 +1683,7 @@
     "date": "2026-08-30T00:00",
     "description": "Tracks that only play through a provider widget (Spotify, Bandcamp, hearthis.at, Mixcloud) can no longer be added to the 24/7 rotation or opened in the audio editor, where they'd never actually play.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -1975,9 +1695,7 @@
     "date": "2026-08-30T00:00",
     "description": "What's New now shows one entry per week, so a busy week of updates reads as a single summary instead of a wall of near-identical rows.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -1989,9 +1707,7 @@
     "date": "2026-08-30T00:00",
     "description": "Comments on tracks that only play through a provider widget (Spotify, Bandcamp, hearthis.at, Mixcloud) no longer get a misleading [0:00] timestamp.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -2003,9 +1719,7 @@
     "date": "2026-08-30T00:00",
     "description": "Bandcamp tracks now play in-app through the Bandcamp widget, and a track's own page plays Spotify/Bandcamp/hearthis.at/Mixcloud tracks the same way.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Playback",
@@ -2017,9 +1731,7 @@
     "date": "2026-08-30T00:00",
     "description": "Help Center add-on entries now explain what each one does, not just how to turn it on.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Add-ons",
@@ -2031,9 +1743,7 @@
     "date": "2026-08-30T00:00",
     "description": "Help Center now lists every ready add-on with its category, state, and how to turn it on.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Help",
@@ -2045,9 +1755,7 @@
     "date": "2026-08-29T00:00",
     "description": "Listener track pages now use a full-width waveform hero with timed comments, tracklist cues, and related collections.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -2059,9 +1767,7 @@
     "date": "2026-08-29T00:00",
     "description": "Tahti theme now uses ink text on light cyan, green, yellow, and coral fills so labels stay readable.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Theme",
@@ -2073,9 +1779,7 @@
     "date": "2026-08-29T00:00",
     "description": "Removed the Channel and 24/7 radio tabs from the channel design page; Radio stays in the Manage sidebar.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -2087,9 +1791,7 @@
     "date": "2026-08-29T00:00",
     "description": "Moved broadcast show details to a Perform Info tab, with visibility on the main form, so Go Live opens on the live panel.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -2101,9 +1803,7 @@
     "date": "2026-08-29T00:00",
     "description": "Artist channel editor now keeps look controls under the visualizer preset in one taller preview card, instead of overlaying them on the animation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -2115,9 +1815,7 @@
     "date": "2026-08-29T00:00",
     "description": "Moved the player full-screen control to the right edge of the bar, shows the queue count on that icon, and removed the hide-player button.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Player",
@@ -2129,9 +1827,7 @@
     "date": "2026-08-29T00:00",
     "description": "Library’s left navigation now starts with Overview and includes a dedicated Collections item.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -2143,9 +1839,7 @@
     "date": "2026-08-29T00:00",
     "description": "Library now keeps its overview statistics separate while Sounds owns the Sounds, Collections, Recordings, and Media tabs; duplicate Media rendering was removed.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -2157,9 +1851,7 @@
     "date": "2026-08-29T00:00",
     "description": "Library track detail pages now use a consistent readable width and have a dedicated fixed-width Storybook reference story.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -2171,9 +1863,7 @@
     "date": "2026-08-29T00:00",
     "description": "Renamed the Stash Files tab to Move to stash for clearer action-oriented navigation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2185,9 +1875,7 @@
     "date": "2026-08-29T00:00",
     "description": "Library now has a dedicated Sounds tab for the sound catalog and overview, with a direct /library/sounds route.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -2199,9 +1887,7 @@
     "date": "2026-08-29T00:00",
     "description": "Archive track detail pages now keep Library selected and expose Tracks as the active Library submenu destination.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2213,9 +1899,7 @@
     "date": "2026-08-29T00:00",
     "description": "Added Transparency as a tab alongside Governance and feature requests in the More navigation section.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2227,9 +1911,7 @@
     "date": "2026-08-29T00:00",
     "description": "Added Governance to the More navigation tree with direct links to motions and feature requests.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2241,9 +1923,7 @@
     "date": "2026-08-29T00:00",
     "description": "Fixed the Audience overview statistics cards overflowing the Studio content area on wide screens.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Layout",
@@ -2255,9 +1935,7 @@
     "date": "2026-08-29T00:00",
     "description": "Broadcast multistream settings now place the form for adding a new destination above the configured destinations.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Broadcast",
@@ -2269,9 +1947,7 @@
     "date": "2026-08-29T00:00",
     "description": "Two-factor authentication setup now shows a scannable authenticator QR code with a manual setup-key fallback.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Account",
@@ -2283,9 +1959,7 @@
     "date": "2026-08-29T00:00",
     "description": "Ported the full press-kit workflow into Artist Branding: direct photo uploads, drag reordering, per-photo titles and ZIP inclusion, plus an empty-kit state and promoter preview.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2297,9 +1971,7 @@
     "date": "2026-08-29T00:00",
     "description": "Governance links opened from Account now close the settings panel so the destination page is visible, and artist gallery uploads use a compact drag-and-drop dialog.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Account",
@@ -2311,9 +1983,7 @@
     "date": "2026-08-29T00:00",
     "description": "Artist-owned 24/7 channels can now contain unlimited rotation tracks; the five-track cap remains reserved for Tahti Radio and Tahti Selects.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Broadcast",
@@ -2325,9 +1995,7 @@
     "date": "2026-08-28T00:00",
     "description": "Top-level navigation now keeps the app shell mounted and shows a lightweight content-only loading state while changing views.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2339,9 +2007,7 @@
     "date": "2026-08-28T00:00",
     "description": "HearThis tracks now become first-class queued embeds in the player bar and full-screen player instead of falling back to an unrelated demo stream.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Playback",
@@ -2353,9 +2019,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added Tahti theme background visualization controls with an audio-reactive Aurora preset and adjustable opacity, speed, and intensity.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Themes",
@@ -2367,9 +2031,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added a configurable Multicast destinations plugin entry for YouTube, Twitch, and other RTMP providers, using the existing secure RTMP target workflow.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Broadcast",
@@ -2381,9 +2043,7 @@
     "date": "2026-08-28T00:00",
     "description": "Nuclear add-on configuration now uses the shared Select control and has a dedicated Storybook catalog state for provider filtering and setup.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Quality",
@@ -2395,9 +2055,7 @@
     "date": "2026-08-28T00:00",
     "description": "Ported the YouTube Music Liked Songs parser and added secure configuration guidance for cookie, authorization, destination playlist, and sync frequency in Add-ons.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Plugins",
@@ -2409,9 +2067,7 @@
     "date": "2026-08-28T00:00",
     "description": "Source integrations now expose typed OAuth, search, and tool adapter groups with registry coverage for complete provider routing.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Integrations",
@@ -2423,9 +2079,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added explicit source capabilities for connect, search, import, and playback, plus stable Studio/Admin Storybook navigation states and Nuclear-styled source forms.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Quality",
@@ -2437,9 +2091,7 @@
     "date": "2026-08-28T00:00",
     "description": "Refreshed the Tahti Map screenshot atlas with current listener, Studio, and privileged Admin views, and added a current stable-navigation Mermaid graph.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Documentation",
@@ -2451,9 +2103,7 @@
     "date": "2026-08-28T00:00",
     "description": "Studio and Admin create actions now use one consistent compact icon-button size across page headers, empty states, and nested creation tools.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2465,9 +2115,7 @@
     "date": "2026-08-28T00:00",
     "description": "Studio and Admin navigation now reserve a stable desktop submenu space, preventing content from jumping when changing sections.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2479,9 +2127,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Vendors is now a single Overview tab immediately before Logs; the duplicate Manage entry has been removed.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -2493,9 +2139,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Storage is now grouped under Overview before Logs, keeping platform operations and storage visibility together.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -2507,9 +2151,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Financial is now grouped under Overview directly after Dashboard for faster access to platform financial reporting.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -2521,9 +2163,7 @@
     "date": "2026-08-28T00:00",
     "description": "Updated the web app branding to match Tahti: the shared amber-bar wordmark and the sibling site's favicon set are now used across the app shell and browser install surfaces.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Branding",
@@ -2535,9 +2175,7 @@
     "date": "2026-08-28T00:00",
     "description": "The Listen page radio control now reflects playback state, showing Pause while Tahti Radio is playing and allowing paused playback to resume.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -2549,9 +2187,7 @@
     "date": "2026-08-28T00:00",
     "description": "Listen now contains Feed and History tabs; the separate History item has been removed from the main navigation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -2563,9 +2199,7 @@
     "date": "2026-08-28T00:00",
     "description": "Renamed the listener dashboard heading to Discover.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discover",
@@ -2577,9 +2211,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin stream management is now more compact: streams show thumbnails and total duration, rows are striped, actions use icon buttons, and the list starts collapsed.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -2591,9 +2223,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Vendors now shows launch-readiness status and concrete blockers for every critical service and integration.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -2605,9 +2235,7 @@
     "date": "2026-08-28T00:00",
     "description": "Tahti Map is now a dedicated navigation tab with an updated beta sitemap and listener, artist, and governing-person Mermaid journeys.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2619,9 +2247,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin and Studio moderation actions now use compact icon controls with accessible labels, and the navigation Storybook coverage includes mobile and nested routes.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2633,9 +2259,7 @@
     "date": "2026-08-28T00:00",
     "description": "Settings now shows the deployment version in its footer alongside GitHub, API docs, and About links; each deployment receives a unique build version.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -2647,9 +2271,7 @@
     "date": "2026-08-28T00:00",
     "description": "Top-bar schedule, broadcast, and messages actions now provide compact previews with direct links to the full schedule, broadcast studio, and message threads.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Navigation",
@@ -2661,9 +2283,7 @@
     "date": "2026-08-28T00:00",
     "description": "The Tahti Radio booking modal now links directly to the full schedule view.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Schedule",
@@ -2675,9 +2295,7 @@
     "date": "2026-08-28T00:00",
     "description": "Studio editor sessions now open as responsive multitrack timelines with clip arrangement, synchronized preview, track controls, and autosaved projects.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -2689,9 +2307,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Overview now keeps live stream controls visible, with resilient stream metrics loading and an accessible refresh action.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -2703,9 +2319,7 @@
     "date": "2026-08-28T00:00",
     "description": "Stash now opens with editable private tracks in an All stash tab, while files have their own tab; track editors also support audience visibility and fan-tier access.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2717,9 +2331,7 @@
     "date": "2026-08-28T00:00",
     "description": "Audio uploads now read embedded metadata first and use the filename as a fallback, with naming available after upload in the editor.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -2731,9 +2343,7 @@
     "date": "2026-08-28T00:00",
     "description": "Upload now shows the five latest recorded broadcasts with waveform progress, playback controls, seeking, and direct editor links for archived recordings.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -2745,9 +2355,7 @@
     "date": "2026-08-28T00:00",
     "description": "24/7 rotation controls are now centered and compact, with icon-only previous/skip actions and a clearly red stop/start toggle.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Broadcast",
@@ -2759,9 +2367,7 @@
     "date": "2026-08-28T00:00",
     "description": "Go Live show details are now compacted into an Info tab, duplicate simulcast controls were removed, and recording uses one show-aware Record toggle with a default set in the show editor.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Broadcast",
@@ -2773,9 +2379,7 @@
     "date": "2026-08-28T00:00",
     "description": "Removed Smartlinks from Library navigation and added a one-click copy button for each release's public smartlink in the release list.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2787,9 +2391,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Content now opens with overall catalog statistics, latest system content, and recent recorded broadcasts; Top lists has its own tab.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -2801,9 +2403,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin and artist page tabs are now smaller and use contextual icons for quicker scanning and more consistent navigation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -2815,9 +2415,7 @@
     "date": "2026-08-28T00:00",
     "description": "The Help Center now includes a plain-language Releasing guide covering UPC/EAN, MusicBrainz, Discogs, smart links, and automated delivery.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Help",
@@ -2829,9 +2427,7 @@
     "date": "2026-08-28T00:00",
     "description": "Distribution release operations now use catalog method toggles and focused icon-based guides for UPC/EAN, MusicBrainz, Discogs, rights metadata, and delivery automation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2843,9 +2439,7 @@
     "date": "2026-08-28T00:00",
     "description": "Spotify artist-profile setup now lives in the Spotify add-on configuration, with a searchable multi-select dialog for adding Spotify content as library embeds.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2857,9 +2451,7 @@
     "date": "2026-08-28T00:00",
     "description": "Release drafts now have a Smart links tab with six DSP destinations and a searchable, filterable playlist editor for adding, playing, reordering, and removing library tracks.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2871,9 +2463,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artists can now safely delete their posts later with confirmation and clear result feedback.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2885,9 +2475,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist channel pages now include the shared Stream manager for owners and read-only stream status for administrators.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Broadcast",
@@ -2899,9 +2487,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist Branding now includes a promoter-facing press kit preview using the selected bio and included images.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2913,9 +2499,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added a Library Media tab for managing Cloudflare R2 background images and videos used by artist channels.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -2927,9 +2511,7 @@
     "date": "2026-08-28T00:00",
     "description": "Video loop backdrops now support drag-and-drop uploads and YouTube links with in-editor and public-channel previews.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2941,9 +2523,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist branding background media now supports drag-and-drop image uploads, live previews, slideshow effects, and single-image visual effects.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2955,9 +2535,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added a sixth live color scheme preset, Rose night, to artist branding previews.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2969,9 +2547,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist branding now separates Visualizer and Color scheme tabs, with continuously modulated live previews even when playback is stopped.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2983,9 +2559,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist Branding now provides a live channel backdrop preview with browsable visualizer presets and configuration modals that keep the preview visible.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -2997,9 +2571,7 @@
     "date": "2026-08-28T00:00",
     "description": "Discover now keeps genre filters in a collapsible control and can filter widgets to tracks the listener has not heard.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discover",
@@ -3011,9 +2583,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist identity settings now support tag-style creative roles such as producer, DJ, instrumentalist, vocalist, songwriter, and visual artist.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -3025,9 +2595,7 @@
     "date": "2026-08-28T00:00",
     "description": "Ported the artist Identity, Story, and collective People editor, adding per-image Profile, Gallery, or Press kit purpose selection before upload.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -3039,9 +2607,7 @@
     "date": "2026-08-28T00:00",
     "description": "Standardized active love and favorite icons so toggled hearts use the red accent color and filled treatment across track actions and artwork overlays.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Player",
@@ -3053,9 +2619,7 @@
     "date": "2026-08-28T00:00",
     "description": "Broadcast schedule cards and show details now display both the timeslot start and end time.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3067,9 +2631,7 @@
     "date": "2026-08-28T00:00",
     "description": "Fixed audio editor waveform rendering by normalizing API amplitude buckets in both the waveform canvas and zoom minimap.",
     "type": "bugfix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3081,9 +2643,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added @mention autocomplete to artist descriptions and DJ-set tracklists, a conditional Tagged in profile section, and Storybook entries documenting the new community metadata controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Community",
@@ -3095,9 +2655,7 @@
     "date": "2026-08-28T00:00",
     "description": "Audio Editor now exposes only activated audio plugins, with clearer activation switches and visual filter-type and slope selectors including brickwall response.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3109,9 +2667,7 @@
     "date": "2026-08-28T00:00",
     "description": "Schedule show names now open a promo details modal with banner, artwork, timing, description, episode information, and a link to manage the show. Upload is now routed under the Library section.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3123,9 +2679,7 @@
     "date": "2026-08-28T00:00",
     "description": "Expanded the theme editor with live color pickers, per-section hue controls, validated JSON import, custom-theme rename, and JSON export.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Themes",
@@ -3137,9 +2691,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added a visualizer gallery with a persistent live preview, one-click preset selection, per-visualizer configuration, parameter explanations, and an audio-reactivity toggle.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Add-ons",
@@ -3151,9 +2703,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added an agent-facing plugin authoring guide, a runnable settings-plugin example, explicit Tahti API counterpart metadata, and typed add-on configuration controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Plugins",
@@ -3165,9 +2715,7 @@
     "date": "2026-08-28T00:00",
     "description": "Moved DJ-set tracklists into the track editor with Traktor/text import, waveform timestamp pins, equal distribution, and configurable current-track overlays.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3179,9 +2727,7 @@
     "date": "2026-08-28T00:00",
     "description": "Improved the mobile app shell by removing low-priority top-bar actions and Help from mobile navigation, keeping primary navigation large and stable without horizontal overflow.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Mobile",
@@ -3193,9 +2739,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added the remaining practical Nuclear registry integrations to Settings → Add-ons with dedicated configuration screens and clear runtime/API availability status.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Add-ons",
@@ -3207,9 +2751,7 @@
     "date": "2026-08-28T00:00",
     "description": "Closed a direct-route access gap for Studio branding and enforced artist or Board role checks across the full artist area.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Security",
@@ -3221,9 +2763,7 @@
     "date": "2026-08-28T00:00",
     "description": "Hardened Studio access so only Artist and Board roles can enter artist pages; lower-level accounts are denied even when opening routes directly.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Security",
@@ -3235,9 +2775,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Governance now shows attributed voting activity, discussion and comment totals, and subject context for governance audit actions.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -3249,9 +2787,7 @@
     "date": "2026-08-28T00:00",
     "description": "The artist dashboard now surfaces governance votes and unresolved discussion activity with direct review links.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3263,9 +2799,7 @@
     "date": "2026-08-28T00:00",
     "description": "Clips are now listed as their own content type when opening or adding content from the library.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -3277,9 +2811,7 @@
     "date": "2026-08-28T00:00",
     "description": "Consolidated the Tahti artist/admin feature ports: Radio announcements and submissions, Clips, Sounds archive parity, HEARTHIS shared playback, bounded drag-and-drop rotations, notification settings, and track statistics in a modal.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3291,9 +2823,7 @@
     "date": "2026-08-28T00:00",
     "description": "Music → Sounds now opens track statistics in a large modal, and the channel video URL field is revealed from a compact icon when needed.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Music",
@@ -3305,9 +2835,7 @@
     "date": "2026-08-28T00:00",
     "description": "Updated Music → Sounds to match the Tahti archive listing, removed hearthis.at embeds from the archive view, and added downloadable original-file actions.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Music",
@@ -3319,9 +2847,7 @@
     "date": "2026-08-28T00:00",
     "description": "Ported the Tahti notification preferences into Settings, including money movement, listener activity, and weekly recap controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -3333,9 +2859,7 @@
     "date": "2026-08-28T00:00",
     "description": "Channel rotation editors now consistently enforce the five-track capacity and support stable drag-and-drop ordering with clear full-rotation feedback.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3347,9 +2871,7 @@
     "date": "2026-08-28T00:00",
     "description": "Hearthis.at tracks now use the shared Tahti player controls when a provider stream is available, including global pause and stop behavior.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Playback",
@@ -3361,9 +2883,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added Studio Radio announcements, pinned channel announcements, and Tahti Radio submissions with a five-track picker, review status, and channel opt-in control.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3375,9 +2895,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added a dedicated Studio Governance section with member-gated motions, voting, discussion, and feature-request access using the shared governance experience.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3389,9 +2907,7 @@
     "date": "2026-08-28T00:00",
     "description": "Completed Settings parity with the Tahti artist panel: Connections services are verified, and Broadcast and Audience are now available as top-level settings tabs with their existing nested controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -3403,9 +2919,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added separate Account tabs for storage usage and privacy & data, including quota progress, data and press-kit exports, and GDPR account deletion requests.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Settings",
@@ -3417,9 +2931,7 @@
     "date": "2026-08-28T00:00",
     "description": "Refreshed the Help center with clearer essential guidance, grouped listener and artist guides, broadcasting help, support resources, and a direct About Tahti link.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Help",
@@ -3431,9 +2943,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added the Add to playlist action to the fullscreen player and improved fullscreen live artwork so artist and station logos fit without cropping.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Player",
@@ -3445,9 +2955,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added an Admin Disco Widgets catalog with listener, artist, and admin filters, modal registration and editing, cover images, categories, and confirmed deletion.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -3459,9 +2967,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Overview now includes a Vendors tab with distribution status, critical vendors, integration vendors, and DPA tracking from the Tahti admin panel.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -3473,9 +2979,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist profiles now show upcoming Tahti Radio broadcasts and past recordings in a dedicated Live shows section, with links to show details and published recordings.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -3487,9 +2991,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist profiles now use content-aware public library tabs with persisted Three.js visual settings while preserving track modals, detail views, fullscreen playback, and owner channel editing.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -3501,9 +3003,7 @@
     "date": "2026-08-28T00:00",
     "description": "Fan subscriptions now appear only as an icon action on eligible artist profiles; Tahti Radio no longer links station programming to artist profiles.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Profiles",
@@ -3515,9 +3015,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist Connections now supports streaming destinations and profile links with service marks, public profile buttons, and a visibility toggle under Notifications & visibility.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -3529,9 +3027,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist Studio now lists upcoming scheduled shows when available, with direct View & edit actions for each show.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3543,9 +3039,7 @@
     "date": "2026-08-28T00:00",
     "description": "Platform status is now consolidated under Admin → Status with version, uptime, timestamp, and merged health checks alongside existing operational data.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -3557,9 +3051,7 @@
     "date": "2026-08-28T00:00",
     "description": "Audio track and project editors now temporarily collapse the left app sidebar and restore the user’s previous state on exit.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3571,9 +3063,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added Audio clip as a library content type. Clip editing keeps shared metadata and media controls while hiding music-specific fields, and radio announcement uploads are tagged as audio clips.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -3585,9 +3075,7 @@
     "date": "2026-08-28T00:00",
     "description": "Audio editor now opens library content through an All-by-default browser modal with content types, search, and direct pro-editor actions.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3599,9 +3087,7 @@
     "date": "2026-08-28T00:00",
     "description": "The audio editor empty state now shows one New session action instead of duplicating the create action.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3613,9 +3099,7 @@
     "date": "2026-08-28T00:00",
     "description": "Removed the standalone Playlists navigation from Studio Collections; playlists remain available inside Collections and open their contents directly.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -3627,9 +3111,7 @@
     "date": "2026-08-28T00:00",
     "description": "Collection and playlist names now open their unified contents editor from the library and Studio collection views.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -3641,9 +3123,7 @@
     "date": "2026-08-28T00:00",
     "description": "Collection editing now defaults to an icon-led Tracks tab, moves visibility into its own tab, adds searchable library browsing with genre metadata, and keeps removal scoped to the collection.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -3655,9 +3135,7 @@
     "date": "2026-08-28T00:00",
     "description": "Organized 24/7 rotation additions by library content type and added an Append or Overwrite confirmation before changing the active rotation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Radio",
@@ -3669,9 +3147,7 @@
     "date": "2026-08-28T00:00",
     "description": "The 24/7 channel panel now has a dedicated Active rotation tab with library track additions, drag-and-drop ordering, and per-track playback controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Radio",
@@ -3683,9 +3159,7 @@
     "date": "2026-08-28T00:00",
     "description": "Header video loops now use a short MP4/WebM upload with a 10 MB limit, local preview before approval, and user-scoped R2 storage instead of a pasted video URL.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Channel",
@@ -3697,9 +3171,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added an artist announcement library under Studio Radio for uploading, enabling, previewing, deleting, and assigning station-ID clips as page music; Admin Announcements remains the site-wide system manager.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Radio",
@@ -3711,9 +3183,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist settings now follow Tahti's Identity, Story, and People structure, including long-form story editing, project type, and public member credits.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Artist",
@@ -3725,9 +3195,7 @@
     "date": "2026-08-28T00:00",
     "description": "Ported the Tahti channel design workflow into the channel designer with visual styling, background galleries, channel backdrops, slideshow transitions, autoplay, and validated image sources.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Channel",
@@ -3739,9 +3207,7 @@
     "date": "2026-08-28T00:00",
     "description": "Standardized artist channel controls in a reusable collapsible widget with consistent section styling across Studio, Settings, setup, and channel editing, with a Storybook example.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Channel",
@@ -3753,9 +3219,7 @@
     "date": "2026-08-28T00:00",
     "description": "Made Studio and Admin section tabs more compact with icons, and added a little more breathing room around main content.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Design",
@@ -3767,9 +3231,7 @@
     "date": "2026-08-28T00:00",
     "description": "Opening a track from Sounds now uses a full canvas player with cover art, waveform seeking, visual motion, playback controls, and comments. The canvas follows the cover palette unless the channel has an explicit background override.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Listen",
@@ -3781,9 +3243,7 @@
     "date": "2026-08-28T00:00",
     "description": "Improved Tahti theme contrast for amber active states by using the dedicated primary foreground color across navigation, filters, selects, pagination, and other highlighted controls.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Design",
@@ -3795,9 +3255,7 @@
     "date": "2026-08-28T00:00",
     "description": "Spotify artist profile import now explains its required platform credentials and provides a direct Configure action to Admin → Vendors when setup is incomplete.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3809,9 +3267,7 @@
     "date": "2026-08-28T00:00",
     "description": "Added the Tahti-style channel share action to public channel headers and Go Live, with native sharing, copy-link fallback, and a setting to hide it.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Channel",
@@ -3823,9 +3279,7 @@
     "date": "2026-08-28T00:00",
     "description": "Go Live now includes Tahti's pre-flight workflow for naming broadcasts, selecting show types and series, setting visibility, and managing simulcast destinations before going on air.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Broadcast",
@@ -3837,9 +3291,7 @@
     "date": "2026-08-28T00:00",
     "description": "Tracklist is now shown in the track editor only for DJ mixes, matching the Tahti editor workflow.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -3851,9 +3303,7 @@
     "date": "2026-08-28T00:00",
     "description": "Aligned the track editor with Tahti's five-step workflow: Basics, Audio, Cover & visuals, Sharing, and Advanced.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -3865,9 +3315,7 @@
     "date": "2026-08-28T00:00",
     "description": "Removed the broken Playlists entry from the Library sidebar and made Playlists a working view within Collections.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -3879,9 +3327,7 @@
     "date": "2026-08-28T00:00",
     "description": "Renamed the Sounds Files tab to Move to stash to clarify where private files belong.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Library",
@@ -3893,9 +3339,7 @@
     "date": "2026-08-28T00:00",
     "description": "Track insights now render directly inside the track Insights tab, and MusicBrainz preparation is available from the Export tab instead of the release header.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3907,9 +3351,7 @@
     "date": "2026-08-28T00:00",
     "description": "Live show artwork fields now use the standard drag-and-drop image picker for thumbnails and backdrops, with previews and URL fallback support.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3921,9 +3363,7 @@
     "date": "2026-08-28T00:00",
     "description": "Studio Schedule now lets artists edit their next broadcast directly from the Next card, including its linked show details and timing.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3935,9 +3375,7 @@
     "date": "2026-08-28T00:00",
     "description": "Go Live and channel Radio management now share the same editable 24/7 rotation component for adding, ordering, and removing tracks.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Studio",
@@ -3949,9 +3387,7 @@
     "date": "2026-08-28T00:00",
     "description": "Tahti Radio booking now keeps the calendar focused and opens the wider slot form as a separate overlay from the booking icon.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Radio",
@@ -3963,9 +3399,7 @@
     "date": "2026-08-28T00:00",
     "description": "Discover now offers a Random artist of the week widget with a large profile, bio, and direct listen action.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Discover",
@@ -3977,9 +3411,7 @@
     "date": "2026-08-28T00:00",
     "description": "On air cards now show Replay for archive rotations and Live now only for channels present in the API's live tier.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -3991,9 +3423,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin stream management now shows server-backed current listeners, listener peak, and tracked live duration for each live channel.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "Admin",
@@ -4005,9 +3435,7 @@
     "date": "2026-08-28T00:00",
     "description": "Fixed a Settings theme-preview lifecycle issue that could briefly flash the base palette when opening or switching Settings sections.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4019,9 +3447,7 @@
     "date": "2026-08-28T00:00",
     "description": "History is now a primary navigation destination placed immediately before More, including on mobile navigation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4033,9 +3459,7 @@
     "date": "2026-08-28T00:00",
     "description": "Studio Upload now presents local audio, broadcast publishing, external import sources, and collection organization together in one compact view.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4047,9 +3471,7 @@
     "date": "2026-08-28T00:00",
     "description": "Studio Stats now follows the tahti dashboard with Overview, Plays & listeners, and Top lists tabs covering audience, playback, broadcast, engagement, geography, and ranked performance metrics.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4061,9 +3483,7 @@
     "date": "2026-08-28T00:00",
     "description": "Library now includes a Smartlinks view with release public pages, DSP target summaries, click counts, artwork, and release management links.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4075,9 +3495,7 @@
     "date": "2026-08-28T00:00",
     "description": "Studio Manage → Radio now has a focused Radio surface without channel designer or setup tabs; new channels open the designer as a separate creation step.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4089,9 +3507,7 @@
     "date": "2026-08-28T00:00",
     "description": "Studio Manage → Radio now has a focused Radio heading and hides channel setup/designer navigation while managing the stream and 24/7 rotation.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4103,9 +3519,7 @@
     "date": "2026-08-28T00:00",
     "description": "Schedule now supports stopping recurring show schedules, minute-precise recurrence duration, and show visibility, tagline, archive, and episode-numbering defaults.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4117,9 +3531,7 @@
     "date": "2026-08-28T00:00",
     "description": "Stream Manager now provides an icon-only overlay configuration button with modal controls for mirror title, subtitle, and cover image.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4131,9 +3543,7 @@
     "date": "2026-08-28T00:00",
     "description": "Account Security now includes personal API token management with read-only or read/write scopes, one-time token reveal, copy, and revoke controls.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4145,9 +3555,7 @@
     "date": "2026-08-28T00:00",
     "description": "Account settings now include a dedicated Notifications & visibility tab with profile visibility, listener-count, live-chat, and notification controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4159,9 +3567,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Overview now shares the live stream manager with the dedicated Streams page, including channel details, listen links, and live controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4173,9 +3579,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin Overview needs-action rows now offer direct review actions and detail dialogs, while Admin Logs includes a Recent audit tab for the latest audit entries.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4187,9 +3591,7 @@
     "date": "2026-08-28T00:00",
     "description": "Studio Manage now includes Tahti Selects, with the editorial stream controls, current rotation editor, and searchable track selector available from the channel management menu.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4201,9 +3603,7 @@
     "date": "2026-08-28T00:00",
     "description": "Admin moderation now includes missed shows, Schedule shows recent broadcast analytics, and Admin Overview links directly to the live stream manager.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4215,9 +3615,7 @@
     "date": "2026-08-28T00:00",
     "description": "Broadcast settings now live under Studio Manage: Radio, Green room, and Multicast are separate destinations, with provider setup and activation controls in one place.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4229,9 +3627,7 @@
     "date": "2026-08-28T00:00",
     "description": "Artist settings now separate Branding, Gallery, and Press kit into clear top-level tabs while keeping each press-kit field in one place.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4243,9 +3639,7 @@
     "date": "2026-08-28T00:00",
     "description": "Removed the redundant Connections section from Settings; source imports, exports, and add-on configuration remain available from their dedicated areas.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4257,9 +3651,7 @@
     "date": "2026-08-28T00:00",
     "description": "The Embed add-ons now include hearthis.at, with persisted installation, URL or track-ID configuration, and the official hearthis.at player rendered inline on Listen.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4271,9 +3663,7 @@
     "date": "2026-08-28T00:00",
     "description": "Radio add-ons now keep station configuration changes, including stream sources, metadata, and artwork, and unconfigured stations offer a direct setup action instead of a dead disabled state.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4285,9 +3675,7 @@
     "date": "2026-08-23T00:00",
     "description": "Albums, EPs, DJ sets, and playlists now share one searchable Collections hub with release dates, genres, and public, unlisted, or private visibility; My Library now includes Recordings, Messages has its own destination, and Embeds lives with release tools.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4299,9 +3687,7 @@
     "date": "2026-08-23T00:00",
     "description": "Queue actions now flash and disable while adding, remain marked when a track is already queued, and the bottom player uses clear expand/collapse cues with a quieter icon-only clear action.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4313,9 +3699,7 @@
     "date": "2026-08-23T00:00",
     "description": "Artist Branding now combines profile pictures, channel outlook, a public image gallery, keyboard-controlled fullscreen slideshows, and a promoter-ready press kit with an automatic 10-image limit.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4327,9 +3711,7 @@
     "date": "2026-08-23T00:00",
     "description": "Tahti Radio admin now recognises always-on rotation playback, shows the current track and transport controls, and edits the rotation with the shared drag-and-drop playlist table and total duration.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4341,9 +3723,7 @@
     "date": "2026-08-23T00:00",
     "description": "hearthis.at imports now announce start and completion, link to the imported track or collection, preserve cover art, and prevent the same source item from being imported repeatedly.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4355,9 +3735,7 @@
     "date": "2026-08-23T00:00",
     "description": "My Library is now the single first home for every sound, with discography-style search, visibility and pinned filters, stronger striped rows, highlighted profile pins, and inline pin controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4369,9 +3747,7 @@
     "date": "2026-08-23T00:00",
     "description": "Fan subscription settings and Revenue now show active subscribers, monthly net revenue, year-to-date payouts, pending and failed transfers, recent payout detail, and subscriber CSV export.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4383,9 +3759,7 @@
     "date": "2026-08-23T00:00",
     "description": "Studio now opens with clickable summary stats for plays, downloads, and followers, while Go Live and Schedule use smaller dashboard actions that leave more room for the overview.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4397,9 +3771,7 @@
     "date": "2026-08-23T00:00",
     "description": "Registration now asks for an artist name and requires the password to be entered twice, while verification tokens remain in the separate email verification flow.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4411,9 +3783,7 @@
     "date": "2026-08-23T00:00",
     "description": "DSP landing pages now use a simpler artwork-first release layout with year and genre, clearer listening destinations, and no license metadata in catalog listings; license remains in full track details.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4425,9 +3795,7 @@
     "date": "2026-08-23T00:00",
     "description": "Tahti Selects admin now reads the real public stream state, automatically recovers an offline rotation, shows the current track, and provides state-aware stream playback controls.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4439,9 +3807,7 @@
     "date": "2026-08-23T00:00",
     "description": "Go Live now includes a persistent, icon-led Record broadcast switch; completed recordings land in Recordings where they can be edited and released.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4453,9 +3819,7 @@
     "date": "2026-08-23T00:00",
     "description": "Artist Stats now brings plays, downloads, followers, smart-link clicks, broadcast reach, engagement units, top tracks, and an anonymized listener world map into one dashboard, with the same map available per track.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4467,9 +3831,7 @@
     "date": "2026-08-23T00:00",
     "description": "The library now opens with every owned sound in a searchable archive, track pages include waveform playback, editing, and rotation controls, HearThis.at imports preserve cover art, and news posts support optional images and links.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4481,9 +3843,7 @@
     "date": "2026-08-23T00:00",
     "description": "Studio tools are now grouped by task, upload forms share one consistent Nuclear file picker, and user-facing screens no longer expose mock, API, backlog, or environment language.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4495,9 +3855,7 @@
     "date": "2026-08-23T00:00",
     "description": "The Tahti map now includes refreshed screenshots for every Nuclear comparison, a current Mermaid route map, and a plain-language annotation explaining what users can do on each screen.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4509,9 +3867,7 @@
     "date": "2026-08-23T00:00",
     "description": "Production web cutover checks now reject mock-enabled builds, gate review-only diagnostics, publish static and API-fed sitemap routes, update route metadata, and exercise vital journeys with Playwright.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4523,9 +3879,7 @@
     "date": "2026-08-22T00:00",
     "description": "Production callback compatibility now sends Stripe, membership, distribution, social, and source connection returns to the correct in-app destination, while the web image adds a hardened same-origin API proxy and health endpoint.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4537,9 +3891,7 @@
     "date": "2026-08-22T00:00",
     "description": "Radio submissions admin now reads the production list response correctly and requests secure playback URLs only when an auditor presses Play.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4551,9 +3903,7 @@
     "date": "2026-08-22T00:00",
     "description": "Account, membership, and two-factor authentication actions now use consistent Lucide icons alongside their accessible labels.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4565,9 +3915,7 @@
     "date": "2026-08-22T00:00",
     "description": "The expanded queue now keeps every item on one horizontal row, exposes hover and keyboard removal controls, includes Clear queue, and uses a dedicated minimize icon.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4579,9 +3927,7 @@
     "date": "2026-08-22T00:00",
     "description": "Channel scheduling now opens with upcoming local broadcast times and separate date/time controls, while all offline programme settings live together under 24/7 Channel settings.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4593,9 +3939,7 @@
     "date": "2026-08-22T00:00",
     "description": "Live channel pages now give the visualizer more space, emphasize the current title and artist, remove technical preset text and duplicate controls, and show loading, play, or pause state accurately.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4607,9 +3951,7 @@
     "date": "2026-08-22T00:00",
     "description": "Owned tracks now open a complete editor for metadata, optional licensing, explicit private visibility, uploaded or imported cover art, playlists, and duplicate-safe exports, while track-list add controls provide clear queue feedback.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4621,9 +3963,7 @@
     "date": "2026-08-22T00:00",
     "description": "Studio Go Live is now one operational dashboard with rotation now-playing details, remaining-time guidance, listening controls, encoder setup, accurate live bitrate, allowance, and multistream management.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4635,9 +3975,7 @@
     "date": "2026-08-22T00:00",
     "description": "HearThis.at Sources now loads your tracks, DJ sets, and collections for individual or batch import into playlists, including preserving sets as Nuclear collections.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4649,9 +3987,7 @@
     "date": "2026-08-22T00:00",
     "description": "Import and export destinations now live as separate sections under Connections, and Track info can queue duplicate-safe exports to supported connected services.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4663,9 +3999,7 @@
     "date": "2026-08-22T00:00",
     "description": "The player visualization now has a clear minimize control and keyboard toggle, while Alt+1 through Alt+5 provide reliable main navigation shortcuts.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4677,9 +4011,7 @@
     "date": "2026-08-22T00:00",
     "description": "The 24/7 channel playlist editor is now fully organized around playlist source, playback settings, and the active rotation, with direct track management and icon-only ordering controls.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4691,9 +4023,7 @@
     "date": "2026-08-22T00:00",
     "description": "Studio's More tools section now opens the in-client distribution, moderation, events, and embed managers instead of showing a stale not-available warning.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4705,9 +4035,7 @@
     "date": "2026-08-22T00:00",
     "description": "Artists without a channel now stay in the client for channel provisioning, and production OAuth callback URLs return to the matching Sources panel with clear result messaging.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4719,9 +4047,7 @@
     "date": "2026-08-22T00:00",
     "description": "Channel pages now use their reactive Three.js visualizer as a full-page ambient layer behind the content, matching the Tahti channel experience.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4733,9 +4059,7 @@
     "date": "2026-08-22T00:00",
     "description": "Studio Stash now supports granting expiring read or download access to a user or link and revoking active shares without leaving the client.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4747,9 +4071,7 @@
     "date": "2026-08-22T00:00",
     "description": "Account now links directly to in-client membership checkout, password recovery, and security settings instead of sending users to stale production link-outs.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4761,9 +4083,7 @@
     "date": "2026-08-22T00:00",
     "description": "Admin user management now has an organized master-detail workspace for viewing account activity, editing access and membership, handling suspensions, opening profiles, and messaging users directly.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4775,9 +4095,7 @@
     "date": "2026-08-22T00:00",
     "description": "Radio slot booking can now attach a prepared show, opens the episode's listener-facing details immediately after booking, and schedule entries drill into a dedicated public show page.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4789,9 +4107,7 @@
     "date": "2026-08-22T00:00",
     "description": "Buttons now respond immediately to presses, the active Play control changes color, and page navigation uses a smoother reduced-motion-aware transition.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4803,9 +4119,7 @@
     "date": "2026-08-22T00:00",
     "description": "Studio Stream Manager now distinguishes a live encoder from the fallback track rotation and reports a disconnected encoder accurately.",
     "type": "fix",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4817,9 +4131,7 @@
     "date": "2026-08-22T00:00",
     "description": "My Library now focuses on populated tracks, albums, and playlists; album and playlist rows open directly, with quieter icon-only actions.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4831,9 +4143,7 @@
     "date": "2026-08-22T00:00",
     "description": "Artist channels now support the full visualizer catalog, with ten distinct audio-reactive scenes that load only when needed.",
     "type": "feature",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4845,9 +4155,7 @@
     "date": "2026-08-17T00:00",
     "description": "Channel appearance, account, events, embeds, and moderation are now organized into focused tabs, with clearer selected states and consistent page headings.",
     "type": "improvement",
-    "contributors": [
-      "jani"
-    ],
+    "contributors": ["jani"],
     "tags": [
       {
         "label": "UI",
@@ -4859,9 +4167,7 @@
     "date": "2026-08-10T00:00",
     "description": "Nuclear starts maximized by default",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "UI",
@@ -4873,9 +4179,7 @@
     "date": "2026-08-08T00:00",
     "description": "Nuclear Jam remote control now supports searching for music, adding tracks to the queue, and removing tracks from the queue.",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Integrations",
@@ -4887,9 +4191,7 @@
     "date": "2026-08-05T00:00",
     "description": "Playlists can now be sorted.",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playlists",
@@ -4901,9 +4203,7 @@
     "date": "2026-08-03T00:00",
     "description": "Playlists can now be filtered.",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playlists",
@@ -4915,9 +4215,7 @@
     "date": "2026-07-30T00:00",
     "description": "History stats tab shows a selection of charts showcasing your listening habits.",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "History",
@@ -4929,9 +4227,7 @@
     "date": "2026-07-20T00:00",
     "description": "Fix bluetooth issues on Linux.",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -4943,9 +4239,7 @@
     "date": "2026-07-20T00:00",
     "description": "Tracks that failed to resolve their streams now retry with a fresh search when you come back to them. When no streaming provider is installed, the error message now prompts you to install one.",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -4957,9 +4251,7 @@
     "date": "2026-07-18T00:00",
     "description": "Fix streaming getting permanently stuck at 10s intervals.",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -4971,9 +4263,7 @@
     "date": "2026-07-16T00:00",
     "description": "Listening history: Nuclear now keeps a history of the tracks you play. Can be disabled in the preferences.",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "History",
@@ -4985,9 +4275,7 @@
     "date": "2026-07-08T00:00",
     "description": "Fix playback stalling at 10-second fMP4 segment boundaries (0:09, 0:19, 0:29...) when streaming via yt-dlp, caused by sub-frame gaps between appended segments",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -4999,9 +4287,7 @@
     "date": "2026-07-07T00:00",
     "description": "Theme loading performance improvements",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Themes",
@@ -5013,9 +4299,7 @@
     "date": "2026-07-07T00:00",
     "description": "Recent searches appear under the search box, with keyboard navigation and one-click history clearing",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "UI",
@@ -5027,9 +4311,7 @@
     "date": "2026-07-06T00:00",
     "description": "Search box with clear button, search icon, Escape to clear, and URL sync",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "UI",
@@ -5041,9 +4323,7 @@
     "date": "2026-07-01T00:00",
     "description": "Fix audio going silent after about a second over Bluetooth on Linux",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -5055,9 +4335,7 @@
     "date": "2026-07-01T00:00",
     "description": "Fix yt-dlp playback stalling at segment boundaries (e.g. 0:09, 0:29) when buffered audio drifted past the next segment's start time",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -5069,9 +4347,7 @@
     "date": "2026-07-01T00:00",
     "description": "Fix marketplace themes resetting to default on restart",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Themes",
@@ -5083,9 +4359,7 @@
     "date": "2026-06-21T00:00",
     "description": "Custom title bar for frameless window mode. Enable in Settings -> Appearance",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "UI",
@@ -5097,9 +4371,7 @@
     "date": "2026-06-19T00:00",
     "description": "Fix HLS playback failing on Windows with Chromium 147+",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -5111,9 +4383,7 @@
     "date": "2026-06-19T00:00",
     "description": "We're temporarily switching to nightly yt-dlp due to a regression. This will fix playlist imports.",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playlists",
@@ -5125,9 +4395,7 @@
     "date": "2026-06-17T00:00",
     "description": "Navigate to playlists directly from artist pages that have them",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Artists",
@@ -5139,9 +4407,7 @@
     "date": "2026-06-14T00:00",
     "description": "Fix the queue getting stuck at the end of some tracks, where playback parked a fraction of a second before the end and never advanced to the next track",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -5153,9 +4419,7 @@
     "date": "2026-06-10T00:00",
     "description": "Right-click a queue item to see its stream candidates and switch to a different source; picking a failed source retries it",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Queue",
@@ -5167,9 +4431,7 @@
     "date": "2026-06-09T00:00",
     "description": "Fix TSX plugins failing with 'React is not defined' unless they imported React manually, and fix stale plugin code being served when an imported file changed but the entry file didn't",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5181,9 +4443,7 @@
     "date": "2026-06-01T00:00",
     "description": "The window now remembers its size, position, and maximized state between restarts",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "UI",
@@ -5195,9 +4455,7 @@
     "date": "2026-05-27T00:00",
     "description": "Nuclear Jam lets you control playback from any device on your local network. Enable it in Settings -> Integrations, then scan the QR code with your phone.",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Integrations",
@@ -5209,9 +4467,7 @@
     "date": "2026-05-22T00:00",
     "description": "Fix HLS tracks getting stuck at 0:00 when the queue advances",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Streaming",
@@ -5223,9 +4479,7 @@
     "date": "2026-05-21T00:00",
     "description": "Fix tracks failing to play in saved playlists and in queues restored after restart by re-resolving stream URLs when they expire",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Streaming",
@@ -5237,9 +4491,7 @@
     "date": "2026-05-11T00:00",
     "description": "MPD server lets you control Nuclear from MPD clients like mpc and ncmpcpp",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Integrations",
@@ -5251,9 +4503,7 @@
     "date": "2026-05-04T00:00",
     "description": "Installed plugins are automatically updated to the latest version on startup",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5265,9 +4515,7 @@
     "date": "2026-04-22T00:00",
     "description": "Fix legacy playlist import failing when track durations use mm:ss or hh:mm:ss format",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playlists",
@@ -5279,9 +4527,7 @@
     "date": "2026-04-17T00:00",
     "description": "Fix source selection being reset to the first available provider on startup",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5293,9 +4539,7 @@
     "date": "2026-04-17T00:00",
     "description": "Show an empty state in Sources when no providers of a given kind are installed",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "UI",
@@ -5307,9 +4551,7 @@
     "date": "2026-04-08T00:00",
     "description": "Streaming providers can now access full track metadata when resolving streams",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5321,9 +4563,7 @@
     "date": "2026-04-08T00:00",
     "description": "Fix paired streaming provider not activating when registered after the metadata provider",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5335,9 +4575,7 @@
     "date": "2026-04-02T00:00",
     "description": "Frameless window toggle in settings",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "UI",
@@ -5349,9 +4587,7 @@
     "date": "2026-04-01T00:00",
     "description": "Back and forward navigation buttons in the top bar",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "UI",
@@ -5363,9 +4599,7 @@
     "date": "2026-04-01T00:00",
     "description": "Theme store for browsing and installing community themes",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Themes",
@@ -5377,9 +4611,7 @@
     "date": "2026-03-27T00:00",
     "description": "Discord rich presence integration",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Integrations",
@@ -5391,9 +4623,7 @@
     "date": "2026-03-26T00:00",
     "description": "Plugins can provide music discovery recommendations based on the current queue",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5409,9 +4639,7 @@
     "date": "2026-03-24T00:00",
     "description": "Introduce dark mode as persistent preference",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Settings",
@@ -5423,9 +4651,7 @@
     "date": "2026-03-24T00:00",
     "description": "Fix issues with tables being way too wide with longer track titles",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "UI",
@@ -5437,9 +4663,7 @@
     "date": "2026-03-21T00:00",
     "description": "Nuclear is now built from source for Flatpak, with new app icons",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Linux",
@@ -5451,9 +4675,7 @@
     "date": "2026-03-20T00:00",
     "description": "Fixed album tracks being added to the queue without thumbnails",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Queue",
@@ -5465,9 +4687,7 @@
     "date": "2026-03-20T00:00",
     "description": "Dashboard, search, and plugins views now prompt to install plugins when none are active",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5479,9 +4699,7 @@
     "date": "2026-03-18T00:00",
     "description": "AUR packages are now automatically updated when a new release is published",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Linux",
@@ -5493,9 +4711,7 @@
     "date": "2026-03-16T00:00",
     "description": "Fixed a console window briefly appearing on Windows each time yt-dlp was invoked",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Windows",
@@ -5507,9 +4723,7 @@
     "date": "2026-03-16T00:00",
     "description": "Queue items are now correctly restored when restarting Nuclear.",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -5521,9 +4735,7 @@
     "date": "2026-03-16T00:00",
     "description": "New Sources view lets you switch the active metadata and streaming providers from the sidebar",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Sources",
@@ -5535,9 +4747,7 @@
     "date": "2026-03-14T00:00",
     "description": "yt-dlp is now downloaded and updated automatically at runtime, fixing Flatpak and AppImage compatibility",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -5549,9 +4759,7 @@
     "date": "2026-03-13T00:00",
     "description": "Border width is now themable - advanced themes can set border-width to control all borders in the app",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Themes",
@@ -5563,9 +4771,7 @@
     "date": "2026-03-13T00:00",
     "description": "Improved dark mode for all basic themes with better backgrounds, toned-down primaries, and themed borders",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Themes",
@@ -5577,9 +4783,7 @@
     "date": "2026-03-12T00:00",
     "description": "Update badge shows download progress and lets you click to update or restart",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Updates",
@@ -5591,9 +4795,7 @@
     "date": "2026-03-09T00:00",
     "description": "Social links in settings sidebar (Discord, GitHub, Mastodon, Website)",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Settings",
@@ -5605,9 +4807,7 @@
     "date": "2026-03-08T00:00",
     "description": "Fixed repeat, shuffle, and volume for MSE streams",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -5619,9 +4819,7 @@
     "date": "2026-03-07T00:00",
     "description": "Plugins can import YouTube playlists by URL via yt-dlp",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playlists",
@@ -5641,9 +4839,7 @@
     "date": "2026-03-06T00:00",
     "description": "YouTube tracks now play using MSE-based streaming, fixing incorrect duration display and enabling proper seeking",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -5659,9 +4855,7 @@
     "date": "2026-03-05T00:00",
     "description": "Customizable keyboard shortcuts with settings UI for rebinding",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Settings",
@@ -5677,9 +4871,7 @@
     "date": "2026-03-04T00:00",
     "description": "Plugin event bus with trackFinished and trackStarted events",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5691,9 +4883,7 @@
     "date": "2026-03-04T00:00",
     "description": "Custom settings widgets for plugins (render React components in settings UI)",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5705,9 +4895,7 @@
     "date": "2026-03-04T00:00",
     "description": "Shell API for plugins to open URLs in the system browser",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5719,9 +4907,7 @@
     "date": "2026-03-04T00:00",
     "description": "Plugins can use Nuclear UI components (Button, Toggle, etc.)",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5733,9 +4919,7 @@
     "date": "2026-03-04T00:00",
     "description": "Fixed plugin settings using wrong storage key (core prefix instead of plugin prefix)",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Settings",
@@ -5747,9 +4931,7 @@
     "date": "2026-03-03T00:00",
     "description": "Fixed old audio stream continuing to play when switching tracks or clearing the queue",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playback",
@@ -5761,9 +4943,7 @@
     "date": "2026-03-01T00:00",
     "description": "In-app changelog in settings (What's New tab)",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Settings",
@@ -5775,17 +4955,13 @@
     "date": "2026-03-01T00:00",
     "description": "Release pipeline auto-generates GitHub release notes from changelog data",
     "type": "improvement",
-    "contributors": [
-      "nukeop"
-    ]
+    "contributors": ["nukeop"]
   },
   {
     "date": "2026-03-01T00:00",
     "description": "Support importing legacy format playlists (from old Nuclear)",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playlists",
@@ -5797,17 +4973,13 @@
     "date": "2026-02-28T00:00",
     "description": "Migrated repository to nukeop/nuclear",
     "type": "chore",
-    "contributors": [
-      "nukeop"
-    ]
+    "contributors": ["nukeop"]
   },
   {
     "date": "2026-02-25T00:00",
     "description": "Playlist import from URL",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playlists",
@@ -5819,9 +4991,7 @@
     "date": "2026-02-25T00:00",
     "description": "Playlist provider adapter view with cover art",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Playlists",
@@ -5837,17 +5007,13 @@
     "date": "2026-02-25T00:00",
     "description": "Fixed loading status getting stuck on stream resolution",
     "type": "fix",
-    "contributors": [
-      "nukeop"
-    ]
+    "contributors": ["nukeop"]
   },
   {
     "date": "2026-02-20T00:00",
     "description": "MCP server for controlling Nuclear from AI agents and other tools",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "MCP",
@@ -5859,9 +5025,7 @@
     "date": "2026-02-20T00:00",
     "description": "Plugin store with browsing, search, and installation",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Plugins",
@@ -5873,9 +5037,7 @@
     "date": "2026-02-20T00:00",
     "description": "Flatpak packaging",
     "type": "feature",
-    "contributors": [
-      "nukeop"
-    ],
+    "contributors": ["nukeop"],
     "tags": [
       {
         "label": "Linux",
